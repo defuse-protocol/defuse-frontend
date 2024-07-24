@@ -33,6 +33,10 @@ const nextConfig = {
     NEAR_ENV: process.env.NEAR_ENV,
     SOLVER_RELAY_0_URL: process.env.SOLVER_RELAY_0_URL,
     REFERRAL_ACCOUNT: process.env.REFERRAL_ACCOUNT,
+    nearChainIdEthWallets: process.env.NEAR_CHAIN_ID_ETH_WALLETS,
+    explorerUrlEthWallets: process.env.EXPLORER_URL_ETH_WALLETS,
+    walletExplorerUrlEthWallets: process.env.WALLET_EXPLORER_URL_ETH_WALLETS,
+    rpcEthWallets: process.env.RPC_ETH_WALLETS,
   },
   images: {
     remotePatterns: [
