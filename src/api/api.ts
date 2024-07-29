@@ -38,7 +38,7 @@ export const useInterceptors = () => {
               (payload?.params?.length && payload.params[0].intent_id) || v4(),
             message:
               notificationType === NotificationType.SUCCESS
-                ? "Intent has published!"
+                ? "Intent has been published!"
                 : "Intent hasn't been published!",
             type: notificationType,
           })

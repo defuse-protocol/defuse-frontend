@@ -3,7 +3,6 @@
 import { WalletSelector } from "@near-wallet-selector/core"
 import { parseUnits } from "viem"
 import { BigNumber } from "ethers"
-import { useState } from "react"
 
 import {
   CONTRACTS_REGISTER,
@@ -59,11 +58,7 @@ type WithSwapDepositRequest = {
   useNative?: boolean
 }
 
-const REFERRAL_ACCOUNT = process.env.REFERRAL_ACCOUNT ?? ""
-
 export const useSwap = ({ accountId, selector }: Props) => {
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [isError, setIsError] = useState("")
   const { getStorageBalance, setStorageDeposit } = useStorageDeposit({
     accountId,
     selector,
@@ -75,15 +70,6 @@ export const useSwap = ({ accountId, selector }: Props) => {
     })
   const { getNearBlock } = useNearBlock()
   const { getTransactionScan } = useTransactionScan()
-
-  const handleError = (e: unknown) => {
-    console.error(e)
-    if (e instanceof Error) {
-      setIsError(e.message)
-    } else {
-      setIsError("An unexpected error occurred!")
-    }
-  }
 
   const isValidInputs = (inputs: CallRequestIntentProps): boolean => {
     if (!accountId) {
@@ -135,13 +121,7 @@ export const useSwap = ({ accountId, selector }: Props) => {
         }
       }
 
-      const {
-        tokenIn,
-        tokenOut,
-        selectedTokenIn,
-        selectedTokenOut,
-        useNative,
-      } = inputs
+      const { selectedTokenIn, selectedTokenOut, useNative } = inputs
 
       if (useNative) {
         const pair = [selectedTokenIn!.address, selectedTokenOut!.address]
@@ -208,7 +188,7 @@ export const useSwap = ({ accountId, selector }: Props) => {
         queueTransactionsTrack: queueTransaction,
       }
     } catch (e) {
-      handleError(e)
+      console.error(e)
       return {
         queueInTrack: 0,
         queueTransactionsTrack: [],
@@ -244,7 +224,7 @@ export const useSwap = ({ accountId, selector }: Props) => {
         done: updateEstimateQueue!.length ? false : true,
       } as NextEstimateQueueTransactionsResult
     } catch (e) {
-      handleError(e)
+      console.error(e)
       return {
         value: estimateQueue,
         done: false,
@@ -256,183 +236,149 @@ export const useSwap = ({ accountId, selector }: Props) => {
     inputs: CallRequestIntentProps,
     mutate?: (input: CallRequestIntentProps) => void
   ): Promise<NearTX[] | void> => {
-    try {
-      if (
-        !isValidInputs(inputs) &&
-        !isValidEstimateQueue(inputs?.estimateQueue)
-      )
-        return
-      const {
-        tokenIn,
-        tokenOut,
-        selectedTokenIn,
-        selectedTokenOut,
-        clientId,
-        estimateQueue,
-      } = inputs
+    if (!isValidInputs(inputs) && !isValidEstimateQueue(inputs?.estimateQueue))
+      return
+    const {
+      tokenIn,
+      tokenOut,
+      selectedTokenIn,
+      selectedTokenOut,
+      clientId,
+      estimateQueue,
+    } = inputs
 
-      setIsProcessing(true)
+    const getBlock = await getNearBlock()
 
-      const getBlock = await getNearBlock()
+    // TODO Update type to NearTX[] | void
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let transactionResult: any | void = undefined
 
-      // TODO Update type to NearTX[] | void
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let transactionResult: any | void = undefined
+    if (estimateQueue?.queueTransactionsTrack?.length === 1) {
+      const currentQueue: QueueTransactions =
+        estimateQueue!.queueTransactionsTrack[0]
 
-      if (estimateQueue?.queueTransactionsTrack?.length === 1) {
-        const currentQueue: QueueTransactions =
-          estimateQueue!.queueTransactionsTrack[0]
+      switch (currentQueue) {
+        case QueueTransactions.DEPOSIT:
+          if (selectedTokenIn?.address) {
+            const unitsSendAmount = parseUnits(
+              tokenIn.toString(),
+              selectedTokenIn?.decimals as number
+            ).toString()
+            transactionResult = await callRequestNearDeposit(
+              selectedTokenOut!.address as string,
+              unitsSendAmount
+            )
+          }
+          break
 
-        switch (currentQueue) {
-          case QueueTransactions.DEPOSIT:
-            if (selectedTokenIn?.address) {
-              const unitsSendAmount = parseUnits(
-                tokenIn.toString(),
-                selectedTokenIn?.decimals as number
-              ).toString()
-              transactionResult = await callRequestNearDeposit(
-                selectedTokenOut!.address as string,
-                unitsSendAmount
-              )
-            }
-            break
+        case QueueTransactions.WITHDRAW:
+          if (selectedTokenIn?.address) {
+            const unitsSendAmount = parseUnits(
+              tokenIn.toString(),
+              selectedTokenIn?.decimals as number
+            ).toString()
+            transactionResult = await callRequestNearWithdraw(
+              selectedTokenIn!.address as string,
+              unitsSendAmount
+            )
+          }
+          break
 
-          case QueueTransactions.WITHDRAW:
-            if (selectedTokenIn?.address) {
-              const unitsSendAmount = parseUnits(
-                tokenIn.toString(),
-                selectedTokenIn?.decimals as number
-              ).toString()
-              transactionResult = await callRequestNearWithdraw(
-                selectedTokenIn!.address as string,
-                unitsSendAmount
-              )
-            }
-            break
-
-          case QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN:
-            const storageBalanceTokenIn = await getStorageBalance(
+        case QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN:
+          const storageBalanceTokenIn = await getStorageBalance(
+            selectedTokenIn!.address as string,
+            accountId as string
+          )
+          if (
+            selectedTokenIn?.address &&
+            !Number(storageBalanceTokenIn?.toString() || "0")
+          ) {
+            transactionResult = await setStorageDeposit(
               selectedTokenIn!.address as string,
               accountId as string
             )
-            if (
-              selectedTokenIn?.address &&
-              !Number(storageBalanceTokenIn?.toString() || "0")
-            ) {
-              transactionResult = await setStorageDeposit(
-                selectedTokenIn!.address as string,
-                accountId as string
-              )
-            }
-            break
+          }
+          break
 
-          case QueueTransactions.STORAGE_DEPOSIT_TOKEN_OUT:
-            const storageBalanceTokenOut = await getStorageBalance(
+        case QueueTransactions.STORAGE_DEPOSIT_TOKEN_OUT:
+          const storageBalanceTokenOut = await getStorageBalance(
+            selectedTokenOut!.address as string,
+            accountId as string
+          )
+          if (
+            selectedTokenOut?.address &&
+            !Number(storageBalanceTokenOut?.toString() || "0")
+          ) {
+            transactionResult = await setStorageDeposit(
               selectedTokenOut!.address as string,
               accountId as string
             )
-            if (
-              selectedTokenOut?.address &&
-              !Number(storageBalanceTokenOut?.toString() || "0")
-            ) {
-              transactionResult = await setStorageDeposit(
-                selectedTokenOut!.address as string,
-                accountId as string
-              )
-            }
-            break
+          }
+          break
 
-          case QueueTransactions.CREATE_INTENT:
-            const wallet = await selector!.wallet()
-            const getIntentsTransactionCall = mapCreateIntentTransactionCall({
-              tokenIn,
-              tokenOut,
-              selectedTokenIn,
-              selectedTokenOut,
-              clientId,
-              blockHeight: getBlock.height,
-              accountId,
-            })
-            // TODO Concurrent mode for intents where selection is picked by criteria
-            const findFirst = getIntentsTransactionCall.find(
-              ([intentId, transaction]) => intentId === 0
-            )
-            if (!findFirst) {
-              throw new Error("getIntentsTransactionCall - intent is not found")
-            }
-            transactionResult = await wallet.signAndSendTransactions({
-              transactions: [findFirst[1]],
-            })
-            break
-        }
-
-        setIsProcessing(false)
-        return transactionResult
+        case QueueTransactions.CREATE_INTENT:
+          const wallet = await selector!.wallet()
+          const getIntentsTransactionCall = mapCreateIntentTransactionCall({
+            tokenIn,
+            tokenOut,
+            selectedTokenIn,
+            selectedTokenOut,
+            clientId,
+            blockHeight: getBlock.height,
+            accountId,
+          })
+          // TODO Concurrent mode for intents where selection is picked by criteria
+          const findFirst = getIntentsTransactionCall.find(
+            ([intentId, transaction]) => intentId === 0
+          )
+          if (!findFirst) {
+            throw new Error("getIntentsTransactionCall - intent is not found")
+          }
+          transactionResult = await wallet.signAndSendTransactions({
+            transactions: [findFirst[1]],
+          })
+          break
       }
 
-      const isNativeTokenIn = selectedTokenIn!.address === "native"
-      const tokenNearNative = LIST_NATIVE_TOKENS.find(
-        (token) => token.defuse_asset_id === "near:mainnet:native"
-      )
+      return transactionResult
+    }
 
-      // Batches transactions and actions
-      // TODO Move single and batch to separate functions
-      const receiverIdIn = isNativeTokenIn
-        ? tokenNearNative!.routes
-          ? tokenNearNative!.routes[0]
-          : ""
-        : (selectedTokenIn!.address as string)
-      const receiverIdOut = selectedTokenOut!.address as string
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const transactions: { receiverId: string; actions: any }[] = []
-      const mutateEstimateQueue = inputs.estimateQueue
-      let tempQueueTransactionsTrack = []
+    const isNativeTokenIn = selectedTokenIn!.address === "native"
+    const tokenNearNative = LIST_NATIVE_TOKENS.find(
+      (token) => token.defuse_asset_id === "near:mainnet:native"
+    )
 
-      estimateQueue.queueTransactionsTrack.forEach((queueTransaction) => {
-        switch (queueTransaction) {
-          case QueueTransactions.DEPOSIT:
-            if (selectedTokenIn?.address) {
-              const unitsSendAmount = parseUnits(
-                tokenIn.toString(),
-                selectedTokenIn?.decimals as number
-              ).toString()
-              transactions.push({
-                receiverId: receiverIdIn,
-                actions: [
-                  {
-                    type: "FunctionCall",
-                    params: {
-                      methodName: "near_deposit",
-                      args: {},
-                      gas: FT_STORAGE_DEPOSIT_GAS,
-                      deposit: unitsSendAmount,
-                    },
-                  },
-                ],
-              })
-              mutateEstimateQueue.queueInTrack--
-              tempQueueTransactionsTrack =
-                mutateEstimateQueue.queueTransactionsTrack.filter(
-                  (queue) => queue !== QueueTransactions.DEPOSIT
-                )
-              mutateEstimateQueue.queueTransactionsTrack =
-                tempQueueTransactionsTrack
-            }
-            break
-          case QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN:
+    // Batches transactions and actions
+    // TODO Move single and batch to separate functions
+    const receiverIdIn = isNativeTokenIn
+      ? tokenNearNative!.routes
+        ? tokenNearNative!.routes[0]
+        : ""
+      : (selectedTokenIn!.address as string)
+    const receiverIdOut = selectedTokenOut!.address as string
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const transactions: { receiverId: string; actions: any }[] = []
+    const mutateEstimateQueue = inputs.estimateQueue
+    let tempQueueTransactionsTrack = []
+
+    estimateQueue.queueTransactionsTrack.forEach((queueTransaction) => {
+      switch (queueTransaction) {
+        case QueueTransactions.DEPOSIT:
+          if (selectedTokenIn?.address) {
+            const unitsSendAmount = parseUnits(
+              tokenIn.toString(),
+              selectedTokenIn?.decimals as number
+            ).toString()
             transactions.push({
               receiverId: receiverIdIn,
               actions: [
                 {
                   type: "FunctionCall",
                   params: {
-                    methodName: "storage_deposit",
-                    args: {
-                      account_id: accountId as string,
-                      registration_only: true,
-                    },
+                    methodName: "near_deposit",
+                    args: {},
                     gas: FT_STORAGE_DEPOSIT_GAS,
-                    deposit: FT_MINIMUM_STORAGE_BALANCE_LARGE,
+                    deposit: unitsSendAmount,
                   },
                 },
               ],
@@ -440,75 +386,98 @@ export const useSwap = ({ accountId, selector }: Props) => {
             mutateEstimateQueue.queueInTrack--
             tempQueueTransactionsTrack =
               mutateEstimateQueue.queueTransactionsTrack.filter(
-                (queue) => queue !== QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN
+                (queue) => queue !== QueueTransactions.DEPOSIT
               )
             mutateEstimateQueue.queueTransactionsTrack =
               tempQueueTransactionsTrack
-            break
-          case QueueTransactions.STORAGE_DEPOSIT_TOKEN_OUT:
-            transactions.push({
-              receiverId: receiverIdOut,
-              actions: [
-                {
-                  type: "FunctionCall",
-                  params: {
-                    methodName: "storage_deposit",
-                    args: {
-                      account_id: accountId as string,
-                      registration_only: true,
-                    },
-                    gas: FT_STORAGE_DEPOSIT_GAS,
-                    deposit: FT_MINIMUM_STORAGE_BALANCE_LARGE,
+          }
+          break
+        case QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN:
+          transactions.push({
+            receiverId: receiverIdIn,
+            actions: [
+              {
+                type: "FunctionCall",
+                params: {
+                  methodName: "storage_deposit",
+                  args: {
+                    account_id: accountId as string,
+                    registration_only: true,
                   },
+                  gas: FT_STORAGE_DEPOSIT_GAS,
+                  deposit: FT_MINIMUM_STORAGE_BALANCE_LARGE,
                 },
-              ],
-            })
-            mutateEstimateQueue.queueInTrack--
-            tempQueueTransactionsTrack =
-              mutateEstimateQueue.queueTransactionsTrack.filter(
-                (queue) => queue !== QueueTransactions.STORAGE_DEPOSIT_TOKEN_OUT
-              )
-            mutateEstimateQueue.queueTransactionsTrack =
-              tempQueueTransactionsTrack
-            break
-          case QueueTransactions.CREATE_INTENT:
-            const getIntentsTransactionCall = mapCreateIntentTransactionCall({
-              tokenIn,
-              tokenOut,
-              selectedTokenIn,
-              selectedTokenOut,
-              clientId,
-              blockHeight: getBlock.height,
-              accountId,
-            })
-            // TODO Concurrent mode for intents where selection is picked by criteria
-            const findFirst = getIntentsTransactionCall.find(
-              ([intentId, transaction]) => intentId === 0
+              },
+            ],
+          })
+          mutateEstimateQueue.queueInTrack--
+          tempQueueTransactionsTrack =
+            mutateEstimateQueue.queueTransactionsTrack.filter(
+              (queue) => queue !== QueueTransactions.STORAGE_DEPOSIT_TOKEN_IN
             )
-            if (!findFirst) {
-              throw new Error("getIntentsTransactionCall - intent is not found")
-            }
-            transactions.push(findFirst[1])
-            break
-        }
+          mutateEstimateQueue.queueTransactionsTrack =
+            tempQueueTransactionsTrack
+          break
+        case QueueTransactions.STORAGE_DEPOSIT_TOKEN_OUT:
+          transactions.push({
+            receiverId: receiverIdOut,
+            actions: [
+              {
+                type: "FunctionCall",
+                params: {
+                  methodName: "storage_deposit",
+                  args: {
+                    account_id: accountId as string,
+                    registration_only: true,
+                  },
+                  gas: FT_STORAGE_DEPOSIT_GAS,
+                  deposit: FT_MINIMUM_STORAGE_BALANCE_LARGE,
+                },
+              },
+            ],
+          })
+          mutateEstimateQueue.queueInTrack--
+          tempQueueTransactionsTrack =
+            mutateEstimateQueue.queueTransactionsTrack.filter(
+              (queue) => queue !== QueueTransactions.STORAGE_DEPOSIT_TOKEN_OUT
+            )
+          mutateEstimateQueue.queueTransactionsTrack =
+            tempQueueTransactionsTrack
+          break
+        case QueueTransactions.CREATE_INTENT:
+          const getIntentsTransactionCall = mapCreateIntentTransactionCall({
+            tokenIn,
+            tokenOut,
+            selectedTokenIn,
+            selectedTokenOut,
+            clientId,
+            blockHeight: getBlock.height,
+            accountId,
+          })
+          // TODO Concurrent mode for intents where selection is picked by criteria
+          const findFirst = getIntentsTransactionCall.find(
+            ([intentId, transaction]) => intentId === 0
+          )
+          if (!findFirst) {
+            throw new Error("getIntentsTransactionCall - intent is not found")
+          }
+          transactions.push(findFirst[1])
+          break
+      }
+    })
+
+    mutate &&
+      mutate({
+        ...inputs,
+        estimateQueue: mutateEstimateQueue,
       })
 
-      mutate &&
-        mutate({
-          ...inputs,
-          estimateQueue: mutateEstimateQueue,
-        })
+    const wallet = await selector!.wallet()
+    transactionResult = await wallet.signAndSendTransactions({
+      transactions: transactions.filter((tx) => tx.actions.length),
+    })
 
-      const wallet = await selector!.wallet()
-      transactionResult = await wallet.signAndSendTransactions({
-        transactions: transactions.filter((tx) => tx.actions.length),
-      })
-
-      setIsProcessing(false)
-      return transactionResult
-    } catch (e) {
-      handleError(e)
-    }
+    return transactionResult
   }
 
   const callRequestRollbackIntent = async (inputs: { id: string }) => {
@@ -535,13 +504,11 @@ export const useSwap = ({ accountId, selector }: Props) => {
         ],
       })
     } catch (e) {
-      handleError(e)
+      console.error(e)
     }
   }
 
   return {
-    isError,
-    isProcessing,
     nextEstimateQueueTransactions,
     getEstimateQueueTransactions,
     callRequestCreateIntent,
