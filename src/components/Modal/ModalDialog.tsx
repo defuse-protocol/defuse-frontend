@@ -11,7 +11,7 @@ import { useModalStore } from "@src/providers/ModalStoreProvider"
 import useResize from "@src/hooks/useResize"
 
 interface ModalDialogProps {
-  allowOtherModals: boolean
+  allowOtherModals?: boolean
 }
 
 const ModalDialog = ({
