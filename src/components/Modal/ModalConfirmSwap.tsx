@@ -34,6 +34,7 @@ import {
   NetworkTokenWithSwapRoute,
   QueueTransactions,
 } from "@src/types/interfaces"
+import userCancelTx from "@src/utils/userCancelTx"
 
 export interface ModalConfirmSwapPayload extends CallRequestIntentProps {}
 
@@ -338,7 +339,7 @@ const ModalConfirmSwap = () => {
       }
     } catch (e) {
       console.error(e)
-      if (e === "User canceled Ethereum wallet transaction(s).") {
+      if (userCancelTx(e)) {
         onCloseModal()
         return
       }
