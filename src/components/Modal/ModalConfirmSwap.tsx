@@ -338,13 +338,12 @@ const ModalConfirmSwap = () => {
         }
       }
     } catch (e) {
-      console.error(e)
+      onCloseModal()
+      router.replace(pathname)
       if (userCancelTx(e)) {
-        onCloseModal()
+        console.error(e)
         return
       }
-
-      router.replace(pathname)
       setNotification({
         id: "418",
         message:
@@ -377,13 +376,10 @@ const ModalConfirmSwap = () => {
     if (isSuccess) {
       onCloseModal()
       ongoingPublishingRef.current = false
-      setIsProcessing(false)
       router.replace(pathname)
     }
     if (isError) {
       ongoingPublishingRef.current = false
-      onCloseModal()
-      setIsProcessing(false)
       setNotification({
         id: v4(),
         message: "Intent hasn't been published!",
@@ -400,7 +396,7 @@ const ModalConfirmSwap = () => {
     <ModalDialog allowOtherModals={allowOtherModals}>
       <div className="flex flex-col min-h-[256px] max-h-[680px] h-full p-5">
         <div className="relative flex justify-between items-start mb-[44px]">
-          <div className="w-full shrink absolute relative top-[30px] left-[50%] -translate-x-2/4 flex justify-center items-center">
+          <div className="w-full shrink absolute top-[30px] left-[50%] -translate-x-2/4 flex justify-center items-center">
             <div className="relative w-[56px] h-[56px]">
               <Image
                 src="/static/icons/Wallet.svg"
