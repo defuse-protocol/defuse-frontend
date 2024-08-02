@@ -203,12 +203,12 @@ export const WalletSelectorProvider: React.FC<{
         }),
         setupNearMobileWallet(),
         setupMintbaseWallet({
-          contractId: CONTRACTS_REGISTER[INDEXER.INTENT_0],
+          contractId: "",
         }) as WalletModuleFactory<Wallet>,
       ],
     })
     const _modal = setupModal(_selector, {
-      contractId: CONTRACTS_REGISTER[INDEXER.INTENT_0],
+      contractId: "",
     })
     const state = _selector.store.getState()
     setAccounts(state.accounts)
