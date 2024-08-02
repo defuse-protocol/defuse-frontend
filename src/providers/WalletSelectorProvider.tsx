@@ -27,6 +27,18 @@ import { setupXDEFI } from "@near-wallet-selector/xdefi"
 import { setupRamperWallet } from "@near-wallet-selector/ramper-wallet"
 import { setupNearMobileWallet } from "@near-wallet-selector/near-mobile-wallet"
 import { setupMintbaseWallet } from "@near-wallet-selector/mintbase-wallet"
+import { setupEthereumWallets } from "@aurora-is-near/ethereum-wallets"
+import { createWeb3Modal } from "@web3modal/wagmi"
+import {
+  reconnect,
+  http,
+  createConfig,
+  type Config,
+  createStorage,
+  cookieStorage,
+} from "@wagmi/core"
+import { type Chain } from "@wagmi/core/chains"
+import { injected, walletConnect } from "@wagmi/connectors"
 import {
   createContext,
   ReactNode,
@@ -55,10 +67,79 @@ interface WalletSelectorContextValue {
 
 import { Loading } from "@src/components/Loading"
 import { CONTRACTS_REGISTER, INDEXER } from "@src/constants/contracts"
+import getWebsiteUrl from "@src/utils/getWebsiteUrl"
 
 const NEAR_ENV = process.env.NEAR_ENV ?? "testnet"
 const NEAR_NODE_URL = process.env.nearNodeUrl ?? "https://rpc.mainnet.near.org"
 const WALLET_CONNECT_PROJECT_ID = process.env.walletConnectProjectId ?? ""
+
+const chainId = Number(process.env.nearChainIdEthWallets)
+const near: Chain = {
+  id: chainId,
+  name: "Near",
+  nativeCurrency: {
+    decimals: 18,
+    name: "NEAR",
+    symbol: "NEAR",
+  },
+  rpcUrls: {
+    default: { http: [process.env.rpcEthWallets!] },
+    public: { http: [process.env.rpcEthWallets!] },
+  },
+  blockExplorers: {
+    default: {
+      name: "NEAR Explorer",
+      url: process.env.walletExplorerUrlEthWallets!,
+    },
+  },
+  testnet: false,
+}
+
+const url = getWebsiteUrl()
+const metadata = {
+  name: "Defuse",
+  description: "Your Multichain DeFi Hub",
+  url,
+  icons: [`${url}/android-chrome-512x512.png`],
+}
+export const wagmiConfig: Config = createConfig({
+  chains: [near],
+  transports: {
+    [near.id]: http(),
+  },
+  connectors: [
+    walletConnect({
+      projectId: WALLET_CONNECT_PROJECT_ID!,
+      metadata,
+      showQrModal: false,
+    }),
+    injected({ shimDisconnect: true }),
+  ],
+  storage: createStorage({
+    storage: cookieStorage,
+  }),
+})
+reconnect(wagmiConfig)
+
+const web3Modal = createWeb3Modal({
+  wagmiConfig: wagmiConfig,
+  projectId: WALLET_CONNECT_PROJECT_ID,
+  themeMode: "light",
+  themeVariables: {
+    "--w3m-font-size-master": "9.5px",
+    "--w3m-font-family":
+      '__monaSans_70dae0, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
+    // https://docs.walletconnect.com/appkit/react/core/theming#themevariables
+  },
+  allWallets: "SHOW",
+  enableOnramp: false,
+  featuredWalletIds: [
+    "c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96", // MetaMask
+    "163d2cf19babf05eb8962e9748f9ebe613ed52ebf9c8107c9a0f104bfcf161b3", // Brave
+    "fbc8d86ad914ebd733fec4812b4b7af5ca709fdd9e75a930115e5baa02c4ef4c", // Rabby
+    "ecc4036f814562b41a5268adc86270fba1365471402006302e70169465b7ac18", // Zerion
+  ],
+})
 
 export const WalletSelectorContext =
   createContext<WalletSelectorContextValue | null>(null)
@@ -111,6 +192,14 @@ export const WalletSelectorProvider: React.FC<{
             url: "https://github.com/defuse-protocol",
             icons: ["https://defuse.org/static/icons/Logo.svg"],
           },
+        }),
+        setupEthereumWallets({
+          wagmiConfig,
+          web3Modal,
+          alwaysOnboardDuringSignIn: true,
+          devMode: true,
+          chainId,
+          devModeAccount: "tellawraen.near",
         }),
         setupNearMobileWallet(),
         setupMintbaseWallet({

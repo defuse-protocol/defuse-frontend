@@ -59,8 +59,11 @@
     "react-hook-form": "^7.51.5",
     "rxjs": "^7.8.1",
     "uuid": "^10.0.0",
-    "viem": "^2.13.2",
-    "zustand": "^4.5.2"
+    "viem": "2.16.2",
+    "zustand": "^4.5.2",
+    "@aurora-is-near/ethereum-wallets": "1.0.0-alpha.20",
+    "@web3modal/wagmi": "5.0.6",
+    "wagmi": "2.10.9"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.7",
