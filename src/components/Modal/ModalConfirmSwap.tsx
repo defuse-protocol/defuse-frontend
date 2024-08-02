@@ -38,6 +38,7 @@ import {
 export interface ModalConfirmSwapPayload extends CallRequestIntentProps {}
 
 const ModalConfirmSwap = () => {
+  const [isProcessing, setIsProcessing] = useState(false)
   const [transactionQueue, setTransactionQueue] = useState(0)
   const [dataFromLocal, setDataFromLocal] = useState<ModalConfirmSwapPayload>()
   const [isReadingHistory, setIsReadingHistory] = useState(false)
@@ -46,8 +47,6 @@ const ModalConfirmSwap = () => {
     callRequestCreateIntent,
     nextEstimateQueueTransactions,
     getEstimateQueueTransactions,
-    isProcessing,
-    isError: isErrorSwap,
   } = useSwap({
     selector,
     accountId,
@@ -57,12 +56,9 @@ const ModalConfirmSwap = () => {
   const searchParams = useSearchParams()
   const { onCloseModal, payload } = useModalStore((state) => state)
   const modalPayload = payload as ModalReviewSwapPayload
-  const {
-    data: historyData,
-    updateOneHistory,
-    isFetched,
-  } = useHistoryStore((state) => state)
+  const { updateOneHistory } = useHistoryStore((state) => state)
   const { mutate, isSuccess, isError } = usePublishIntentSolver0()
+  const [allowOtherModals, setAllowOtherModal] = useState(false)
   const ongoingPublishingRef = useRef(false)
   const { togglePreview } = useHistoryStore((state) => state)
 
@@ -173,188 +169,220 @@ const ModalConfirmSwap = () => {
   }
 
   const handleTrackSwap = async () => {
-    if (ongoingPublishingRef.current) return
+    try {
+      if (ongoingPublishingRef.current) return
 
-    if (!modalPayload) {
-      const data = getSwapFromLocal()
+      if (!modalPayload) {
+        const data = getSwapFromLocal()
+        setIsProcessing(true)
+        if (data) {
+          setDataFromLocal(data)
 
-      if (data) {
-        setDataFromLocal(data)
-
-        // TODO Linked to [#1]
-        const receivedHash = searchParams.get(
-          UseQueryCollectorKeys.TRANSACTION_HASHS
-        )
-        const receivedClientId = searchParams.get(
-          UseQueryCollectorKeys.CLIENT_ID
-        )
-
-        const isBatchHashes = receivedHash?.split(",")
-        if (!isBatchHashes) {
-          console.log(
-            "EstimateQueueTransactions has stopped due to the hash is missing, UseQueryCollectorKeys.TRANSACTION_HASHS"
+          // TODO Linked to [#1]
+          const receivedHash = searchParams.get(
+            UseQueryCollectorKeys.TRANSACTION_HASHS
           )
-          return
+          const receivedClientId = searchParams.get(
+            UseQueryCollectorKeys.CLIENT_ID
+          )
+
+          const isBatchHashes = receivedHash?.split(",")
+          if (!isBatchHashes) {
+            console.log(
+              "EstimateQueueTransactions has stopped due to the hash is missing, UseQueryCollectorKeys.TRANSACTION_HASHS"
+            )
+            return
+          }
+          const lastInTransactionHashes =
+            isBatchHashes?.length > 1 ? isBatchHashes.at(-1) : isBatchHashes[0]
+
+          const isCreateIntentRequest =
+            data.estimateQueue.queueTransactionsTrack.includes(
+              QueueTransactions.CREATE_INTENT
+            )
+
+          const { value, done } = await nextEstimateQueueTransactions({
+            estimateQueue: data.estimateQueue,
+            receivedHash: lastInTransactionHashes as string,
+          })
+
+          const isNativeTokenIn = data!.selectedTokenIn.address === "native"
+          const mutateSelectedTokenIn = isNativeTokenIn
+            ? handleMutateTokenToNativeSupport(data!.selectedTokenIn)
+            : data!.selectedTokenIn
+
+          const inputs = {
+            tokenIn: data!.tokenIn,
+            tokenOut: data!.tokenOut,
+            selectedTokenIn: mutateSelectedTokenIn,
+            selectedTokenOut: data!.selectedTokenOut,
+            clientId: data.clientId,
+            estimateQueue: value,
+          }
+
+          if (done && isCreateIntentRequest) {
+            ongoingPublishingRef.current = true
+            handlePublishIntentToSolver(
+              inputs,
+              receivedClientId ?? data.clientId,
+              lastInTransactionHashes as string
+            )
+            return
+          }
+          if (done) {
+            onCloseModal()
+            router.replace(pathname)
+            return
+          }
+
+          setIsReadingHistory(true)
+
+          handleBatchCleanupQuery([
+            UseQueryCollectorKeys.CLIENT_ID,
+            UseQueryCollectorKeys.TRANSACTION_HASHS,
+          ])
+
+          setSwapToLocal(inputs)
+          handleBatchCreateSwapQuery({
+            clientId: data.clientId as string,
+          })
+          await callRequestCreateIntent(inputs)
         }
-        const lastInTransactionHashes =
-          isBatchHashes?.length > 1 ? isBatchHashes.at(-1) : isBatchHashes[0]
-
-        const isCreateIntentRequest =
-          data.estimateQueue.queueTransactionsTrack.includes(
-            QueueTransactions.CREATE_INTENT
-          )
-
-        const { value, done } = await nextEstimateQueueTransactions({
-          estimateQueue: data.estimateQueue,
-          receivedHash: lastInTransactionHashes as string,
+        return
+      }
+      ongoingPublishingRef.current = true
+      const newClientId = await sha256(v4())
+      if (
+        handleBatchCreateSwapQuery({
+          clientId: newClientId,
         })
-
-        const isNativeTokenIn = data!.selectedTokenIn.address === "native"
-        const mutateSelectedTokenIn = isNativeTokenIn
-          ? handleMutateTokenToNativeSupport(data!.selectedTokenIn)
-          : data!.selectedTokenIn
-
-        const inputs = {
-          tokenIn: data!.tokenIn,
-          tokenOut: data!.tokenOut,
-          selectedTokenIn: mutateSelectedTokenIn,
-          selectedTokenOut: data!.selectedTokenOut,
-          clientId: data.clientId,
-          estimateQueue: value,
-        }
-
-        if (done && isCreateIntentRequest) {
-          ongoingPublishingRef.current = true
-          handlePublishIntentToSolver(
-            inputs,
-            receivedClientId ?? data.clientId,
-            lastInTransactionHashes as string
-          )
-          return
-        }
-        if (done) {
-          onCloseModal()
-          router.replace(pathname)
-          return
-        }
+      ) {
+        const estimateQueue = await handleEstimateQueueTransactions(newClientId)
 
         setIsReadingHistory(true)
 
-        handleBatchCleanupQuery([
-          UseQueryCollectorKeys.CLIENT_ID,
-          UseQueryCollectorKeys.TRANSACTION_HASHS,
-        ])
+        const inputs = {
+          tokenIn: modalPayload.tokenIn,
+          tokenOut: modalPayload.tokenOut,
+          selectedTokenIn: modalPayload.selectedTokenIn,
+          selectedTokenOut: modalPayload.selectedTokenOut,
+          clientId: newClientId,
+          estimateQueue,
+          accountFrom: modalPayload?.accountFrom,
+          accountTo: modalPayload?.accountTo,
+          solverId: modalPayload?.solverId,
+        }
 
         setSwapToLocal(inputs)
-        handleBatchCreateSwapQuery({
-          clientId: data.clientId as string,
-        })
-        await callRequestCreateIntent(inputs)
-      }
-      return
-    }
 
-    const newClientId = await sha256(v4())
-    if (
-      handleBatchCreateSwapQuery({
-        clientId: newClientId,
-      })
-    ) {
-      const estimateQueue = await handleEstimateQueueTransactions(newClientId)
-
-      setIsReadingHistory(true)
-
-      const inputs = {
-        tokenIn: modalPayload.tokenIn,
-        tokenOut: modalPayload.tokenOut,
-        selectedTokenIn: modalPayload.selectedTokenIn,
-        selectedTokenOut: modalPayload.selectedTokenOut,
-        clientId: newClientId,
-        estimateQueue,
-        accountFrom: modalPayload?.accountFrom,
-        accountTo: modalPayload?.accountTo,
-        solverId: modalPayload?.solverId,
-      }
-
-      setSwapToLocal(inputs)
-
-      ongoingPublishingRef.current = true
-      const callResult: NearTX[] | void = await callRequestCreateIntent(
-        inputs,
-        (mutate) => setSwapToLocal(mutate)
-      )
-      if (callResult?.length) {
-        const timestamps = await Promise.all(
-          callResult.map(async (result) => {
-            const { result: resultBlock } = (await getNearBlockById(
-              result.transaction.hash as string
-            )) as NearBlock
-            return (
-              resultBlock?.header?.timestamp ??
-              Number(`${new Date().getTime()}` + "0".repeat(6))
-            )
-          })
+        ongoingPublishingRef.current = true
+        const callResult: NearTX[] | void = await callRequestCreateIntent(
+          inputs,
+          (mutate) => setSwapToLocal(mutate)
         )
-
-        callResult.forEach((result, i) => {
-          updateOneHistory({
-            clientId: inputs.clientId as string,
-            hash: result.transaction.hash as string,
-            timestamp: timestamps[i] ?? 0,
-            details: {
-              tokenIn: modalPayload.tokenIn,
-              tokenOut: modalPayload.tokenOut,
-              selectedTokenIn: modalPayload.selectedTokenIn,
-              selectedTokenOut: modalPayload.selectedTokenOut,
-            },
-          })
-          // Toggle preview for the main transaction in batch
-          if (i === callResult.length - 1) {
-            togglePreview(result.transaction.hash as string)
-            if (
-              estimateQueue.queueTransactionsTrack.includes(
-                QueueTransactions.CREATE_INTENT
-              )
-            ) {
-              const isNativeTokenIn =
-                modalPayload!.selectedTokenIn.address === "native"
-              const mutateSelectedTokenIn = isNativeTokenIn
-                ? handleMutateTokenToNativeSupport(
-                    modalPayload!.selectedTokenIn
-                  )
-                : modalPayload!.selectedTokenIn
-
-              handlePublishIntentToSolver(
-                Object.assign(inputs, {
-                  selectedTokenIn: mutateSelectedTokenIn,
-                }),
-                inputs.clientId,
+        if (callResult?.length) {
+          const timestamps = await Promise.all(
+            callResult.map(async (result) => {
+              const { result: resultBlock } = (await getNearBlockById(
                 result.transaction.hash as string
+              )) as NearBlock
+              return (
+                resultBlock?.header?.timestamp ??
+                Number(`${new Date().getTime()}` + "0".repeat(6))
               )
-            } else {
-              onCloseModal()
-              router.replace(pathname)
+            })
+          )
+
+          callResult.forEach((result, i) => {
+            updateOneHistory({
+              clientId: inputs.clientId as string,
+              hash: result.transaction.hash as string,
+              timestamp: timestamps[i] ?? 0,
+              details: {
+                tokenIn: modalPayload.tokenIn,
+                tokenOut: modalPayload.tokenOut,
+                selectedTokenIn: modalPayload.selectedTokenIn,
+                selectedTokenOut: modalPayload.selectedTokenOut,
+              },
+            })
+            // Toggle preview for the main transaction in batch
+            if (i === callResult.length - 1) {
+              togglePreview(result.transaction.hash as string)
+              if (
+                estimateQueue.queueTransactionsTrack.includes(
+                  QueueTransactions.CREATE_INTENT
+                )
+              ) {
+                const isNativeTokenIn =
+                  modalPayload!.selectedTokenIn.address === "native"
+                const mutateSelectedTokenIn = isNativeTokenIn
+                  ? handleMutateTokenToNativeSupport(
+                      modalPayload!.selectedTokenIn
+                    )
+                  : modalPayload!.selectedTokenIn
+
+                handlePublishIntentToSolver(
+                  Object.assign(inputs, {
+                    selectedTokenIn: mutateSelectedTokenIn,
+                  }),
+                  inputs.clientId,
+                  result.transaction.hash as string
+                )
+              } else {
+                onCloseModal()
+                router.replace(pathname)
+              }
             }
-          }
-        })
+          })
+        }
       }
+    } catch (e) {
+      console.error(e)
+      if (e === "User canceled Ethereum wallet transaction(s).") {
+        onCloseModal()
+        return
+      }
+
+      router.replace(pathname)
+      setNotification({
+        id: "418",
+        message:
+          e instanceof Error ? e.message : "An unexpected error occurred!",
+        type: NotificationType.ERROR,
+      })
+    } finally {
+      ongoingPublishingRef.current = false
+      setIsProcessing(false)
     }
   }
 
   useEffect(() => {
-    if (isFetched && !isProcessing) {
-      handleTrackSwap()
+    async function checkWalletSelector() {
+      const wallet = await selector.wallet()
+      if (wallet.id === "ethereum-wallets") {
+        setAllowOtherModal(true)
+      } else {
+        setAllowOtherModal(false)
+      }
     }
-  }, [historyData, isFetched, isProcessing])
+    checkWalletSelector()
+  }, [selector])
+
+  useEffect(() => {
+    handleTrackSwap()
+  }, [])
 
   useEffect(() => {
     if (isSuccess) {
       onCloseModal()
       ongoingPublishingRef.current = false
+      setIsProcessing(false)
       router.replace(pathname)
     }
     if (isError) {
       ongoingPublishingRef.current = false
+      onCloseModal()
+      setIsProcessing(false)
       setNotification({
         id: v4(),
         message: "Intent hasn't been published!",
@@ -363,25 +391,12 @@ const ModalConfirmSwap = () => {
     }
   }, [isSuccess, isError])
 
-  useEffect(() => {
-    if (isErrorSwap) {
-      onCloseModal()
-      ongoingPublishingRef.current = false
-      router.replace(pathname)
-      setNotification({
-        id: "418",
-        message: isErrorSwap,
-        type: NotificationType.ERROR,
-      })
-    }
-  }, [isErrorSwap])
-
   if (!isReadingHistory) {
     return null
   }
 
   return (
-    <ModalDialog>
+    <ModalDialog allowOtherModals={allowOtherModals}>
       <div className="flex flex-col min-h-[256px] max-h-[680px] h-full p-5">
         <div className="relative flex justify-between items-start mb-[44px]">
           <div className="w-full shrink absolute relative top-[30px] left-[50%] -translate-x-2/4 flex justify-center items-center">

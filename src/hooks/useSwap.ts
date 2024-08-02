@@ -66,11 +66,7 @@ export interface CallRequestIntentProps extends WithAccounts {
   solverId?: string
 }
 
-const REFERRAL_ACCOUNT = process.env.REFERRAL_ACCOUNT ?? ""
-
 export const useSwap = ({ accountId, selector }: Props) => {
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [isError, setIsError] = useState("")
   const { getStorageBalance, setStorageDeposit } = useStorageDeposit({
     accountId,
     selector,
@@ -82,15 +78,6 @@ export const useSwap = ({ accountId, selector }: Props) => {
     })
   const { getNearBlock } = useNearBlock()
   const { getTransactionScan } = useTransactionScan()
-
-  const handleError = (e: unknown) => {
-    console.error(e)
-    if (e instanceof Error) {
-      setIsError(e.message)
-    } else {
-      setIsError("An unexpected error occurred!")
-    }
-  }
 
   const isValidInputs = (inputs: CallRequestIntentProps): boolean => {
     if (!accountId) {
@@ -213,7 +200,7 @@ export const useSwap = ({ accountId, selector }: Props) => {
         queueTransactionsTrack: queueTransaction,
       }
     } catch (e) {
-      handleError(e)
+      console.error(e)
       return {
         queueInTrack: 0,
         queueTransactionsTrack: [],
@@ -249,7 +236,7 @@ export const useSwap = ({ accountId, selector }: Props) => {
         done: updateEstimateQueue!.length ? false : true,
       } as NextEstimateQueueTransactionsResult
     } catch (e) {
-      handleError(e)
+      console.error(e)
       return {
         value: estimateQueue,
         done: false,
@@ -278,8 +265,6 @@ export const useSwap = ({ accountId, selector }: Props) => {
         accountTo,
         solverId,
       } = inputs
-
-      setIsProcessing(true)
 
       const getBlock = await getNearBlock()
 
@@ -377,7 +362,6 @@ export const useSwap = ({ accountId, selector }: Props) => {
             break
         }
 
-        setIsProcessing(false)
         return transactionResult
       }
 
@@ -499,6 +483,7 @@ export const useSwap = ({ accountId, selector }: Props) => {
             const findFirst = getIntentsTransactionCall.find(
               ([intentId, transaction]) => intentId === 0 || intentId === 1
             )
+
             if (!findFirst) {
               throw new Error("getIntentsTransactionCall - intent is not found")
             }
@@ -518,10 +503,9 @@ export const useSwap = ({ accountId, selector }: Props) => {
         transactions: transactions.filter((tx) => tx.actions.length),
       })
 
-      setIsProcessing(false)
       return transactionResult
     } catch (e) {
-      handleError(e)
+      console.error(e)
     }
   }
 
@@ -553,13 +537,11 @@ export const useSwap = ({ accountId, selector }: Props) => {
         ],
       })
     } catch (e) {
-      handleError(e)
+      console.error(e)
     }
   }
 
   return {
-    isError,
-    isProcessing,
     nextEstimateQueueTransactions,
     getEstimateQueueTransactions,
     callRequestCreateIntent,
