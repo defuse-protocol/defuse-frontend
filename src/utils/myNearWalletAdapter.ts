@@ -1,8 +1,13 @@
-import type { WalletSelector } from "@near-wallet-selector/core"
+import type {
+  WalletSelector,
+  WalletSelectorState,
+} from "@near-wallet-selector/core"
 import type {
   SignMessageParams,
   SignedMessage,
 } from "@near-wallet-selector/core/src/lib/wallet/wallet.types"
+import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
+import { useEffect, useState } from "react"
 import { z } from "zod"
 
 // Define substitute types
@@ -250,4 +255,114 @@ function abortablePromise<T>(
       })
     }),
   ])
+}
+
+export interface NearAccount {
+  accountId: string
+  pubKey: string
+}
+
+/**
+ * Hook to get current account from Near wallets.
+ * It is a workaround for MyNearWallet, which doesn't provide public key in the wallet.
+ */
+export function useNearCurrentAccount(): null | NearAccount {
+  const { selector, accountId } = useWalletSelector()
+  const [currentAccount, setCurrentAccount] = useState<null | NearAccount>(null)
+
+  if (currentAccount == null && accountId != null) {
+    const state = selector.store.getState()
+    const nextNearCurrentAccount = determinePubKeyAndAccountId(state)
+    if (nextNearCurrentAccount) {
+      setCurrentAccount(nextNearCurrentAccount)
+    }
+  }
+
+  useEffect(() => {
+    const sub = selector.store.observable.subscribe((state) => {
+      const nextNearCurrentAccount = determinePubKeyAndAccountId(state)
+      setCurrentAccount((prev) => {
+        // Don't want to accidentally change a reference of the object, if fields didn't change
+        if (
+          prev &&
+          nextNearCurrentAccount &&
+          prev.accountId === nextNearCurrentAccount.accountId &&
+          prev.pubKey === nextNearCurrentAccount.pubKey
+        ) {
+          return prev
+        }
+
+        return nextNearCurrentAccount
+      })
+    })
+
+    return () => {
+      sub.unsubscribe()
+    }
+  }, [selector])
+
+  return currentAccount
+}
+
+export function determinePubKeyAndAccountId(
+  state: Pick<WalletSelectorState, "accounts" | "selectedWalletId">
+) {
+  const activeAccount = state.accounts.find((acc) => {
+    return acc.active
+  })
+
+  if (!activeAccount) {
+    return null
+  }
+
+  // MyNearWallet sets empty string when has no info about publicKey
+  if (activeAccount.publicKey != null && activeAccount.publicKey !== "") {
+    return {
+      accountId: activeAccount.accountId,
+      pubKey: activeAccount.publicKey,
+    }
+  }
+
+  if (state.selectedWalletId === "my-near-wallet") {
+    const pubKey = extractPubKeyFromLocalStorage(activeAccount.accountId)
+    if (pubKey != null) {
+      return {
+        accountId: activeAccount.accountId,
+        pubKey,
+      }
+    }
+  }
+
+  console.warn(
+    "Cannot determine public key of the account, considering user unauthorized"
+  )
+
+  return null
+}
+
+function extractPubKeyFromLocalStorage(accountId: string): string | null {
+  try {
+    const nearWalletAuthKeyJson = localStorage.getItem(
+      "near_app_wallet_auth_key"
+    )
+    if (nearWalletAuthKeyJson == null) {
+      throw new Error("Cannot get near_app_wallet_auth_key from localStorage")
+    }
+    const nearWalletAuthKey = JSON.parse(nearWalletAuthKeyJson)
+
+    if (nearWalletAuthKey.accountId !== accountId) {
+      throw new Error("AccountId missmatch")
+    }
+
+    const pubkey = nearWalletAuthKey.allKeys[0] // We don't know which is correct, but assume it is first
+    if (typeof pubkey !== "string") {
+      throw new Error("Retrieved pubkey is not string")
+    }
+
+    return pubkey
+  } catch (err) {
+    console.error(err)
+  }
+
+  return null
 }

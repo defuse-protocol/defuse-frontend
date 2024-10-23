@@ -9,11 +9,13 @@ import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import { useNotificationStore } from "@src/providers/NotificationProvider"
 import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
 import { NotificationType } from "@src/stores/notificationStore"
+import { useNearCurrentAccount } from "@src/utils/myNearWalletAdapter"
 
 export default function Swap() {
   const { accountId } = useWalletSelector()
   const { signMessage } = useNearWalletActions()
   const setNotification = useNotificationStore((state) => state.setNotification)
+  const nearCurrentAccount = useNearCurrentAccount()
 
   return (
     <Paper
