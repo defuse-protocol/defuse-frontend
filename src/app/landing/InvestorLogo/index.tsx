@@ -1,6 +1,6 @@
 import { Text } from "@radix-ui/themes"
 
-import CardInvestorLogo from "@src/app/(home)/Card/CardInvestorLogo"
+import CardInvestorLogo from "@src/app/landing/Card/CardInvestorLogo"
 
 const InvestorLogo = () => {
   return (

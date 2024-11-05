@@ -1,65 +1,48 @@
 "use client"
 
-import { useEffect } from "react"
+import { SwapWidget } from "@defuse-protocol/defuse-sdk"
 
-import Banner from "@src/app/(home)/Banner"
-import CardSocial from "@src/app/(home)/Card/CardSocial"
-import Evolution from "@src/app/(home)/Evolution"
-import FAQ from "@src/app/(home)/FAQ"
-import Infrastructure from "@src/app/(home)/Infrastructure"
-import Interested from "@src/app/(home)/Interested"
-import PaperHome from "@src/app/(home)/PaperHome"
-import TryDefuse from "@src/app/(home)/TryDefuse"
-// import InvestorLogo from "@src/app/(home)/InvestorLogo"
-import Vision from "@src/app/(home)/Vision"
-import { THEME_MODE_KEY } from "@src/constants/contracts"
+import Paper from "@src/components/Paper"
+import { LIST_TOKENS } from "@src/constants/tokens"
+import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
+import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
 
-const SOCIAL_LINK_X = process?.env?.socialX ?? ""
-const SOCIAL_LINK_DISCORD = process?.env?.socialDiscord ?? ""
-const LINK_DOCS = process?.env?.socialDocs ?? ""
-
-export default function Home() {
-  useEffect(() => {
-    localStorage.setItem(THEME_MODE_KEY, "light")
-  }, [])
+export default function Swap() {
+  const { accountId } = useWalletSelector()
+  const { signMessage, signAndSendTransactions } = useNearWalletActions()
 
   return (
-    <div className="flex flex-col flex-1 justify-start item-center">
-      <Banner />
-      <TryDefuse />
-      <PaperHome>
-        {/* TODO Hidden until investment information is available */}
-        {/*<InvestorLogo />*/}
-        <Vision />
-        <Evolution />
-        <Infrastructure />
-        <Interested />
-        <FAQ />
-      </PaperHome>
-      <div className="flex flex-col mt-[56px] md:mt-[108px] mb-[39px] md:mb-[106px]">
-        <div className="max-w-[189px] md:max-w-full mx-auto mb-[28px] md:[56px]">
-          <h2 className="font-black mb-5 text-black-400 text-[32px] md:text-5xl text-center">
-            Connect with Defuse
-          </h2>
-        </div>
-        <div className="w-full justify-center flex flex-wrap gap-5 px-5">
-          <CardSocial
-            name="Follow on X"
-            icon="/static/icons/X.svg"
-            link={SOCIAL_LINK_X}
-          />
-          <CardSocial
-            name="Join Discord"
-            icon="/static/icons/discord.svg"
-            link={SOCIAL_LINK_DISCORD}
-          />
-          <CardSocial
-            name="Documentation"
-            icon="/static/icons/Docs.svg"
-            link={LINK_DOCS}
-          />
-        </div>
-      </div>
-    </div>
+    <Paper
+      title="Swap"
+      description="Cross-chain swap across any network, any token."
+    >
+      <SwapWidget
+        tokenList={LIST_TOKENS}
+        userAddress={accountId}
+        sendNearTransaction={async (tx) => {
+          const result = await signAndSendTransactions({ transactions: [tx] })
+
+          if (typeof result === "string") {
+            return { txHash: result }
+          }
+
+          const outcome = result[0]
+          if (!outcome) {
+            throw new Error("No outcome")
+          }
+
+          return { txHash: outcome.transaction.hash }
+        }}
+        signMessage={async (params) => {
+          const { signatureData, signedData } = await signMessage({
+            ...params.NEP413,
+            nonce: Buffer.from(params.NEP413.nonce),
+          })
+
+          return { type: "NEP413", signatureData, signedData }
+        }}
+        onSuccessSwap={() => {}}
+      />
+    </Paper>
   )
 }

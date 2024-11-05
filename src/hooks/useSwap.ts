@@ -4,7 +4,7 @@ import type { WalletSelector } from "@near-wallet-selector/core"
 import { useState } from "react"
 
 import { getNearTransactionDetails } from "@src/api/transaction"
-import { getBalanceNearAllowedToSwap } from "@src/app/swap/SwapForm/service/getBalanceNearAllowedToSwap"
+import { getBalanceNearAllowedToSwap } from "@src/app/(home)/SwapForm/service/getBalanceNearAllowedToSwap"
 import {
   CONTRACTS_REGISTER,
   FT_MINIMUM_STORAGE_BALANCE_LARGE,

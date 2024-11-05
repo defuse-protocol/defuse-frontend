@@ -5,13 +5,13 @@ import type { PropsWithChildren } from "react"
 import Layout from "@src/components/Layout"
 
 export const metadata: Metadata = {
-  title: "Your Multichain DeFi Hub",
+  title: "Swap - Efficient Cross-Chain Asset Swapping",
   description:
-    "The premier platform for cross-chain liquidity and trading. Experience efficient, secure, and transparent swaps across multiple blockchains.",
+    "Swap ensures fast transactions and the best rates across multiple blockchains. Start swapping today for a superior trading experience.",
 }
 
-const HomeLayout: React.FC<PropsWithChildren> = ({ children }) => {
+const SwapLayout: React.FC<PropsWithChildren> = ({ children }) => {
   return <Layout>{children}</Layout>
 }
 
-export default HomeLayout
+export default SwapLayout

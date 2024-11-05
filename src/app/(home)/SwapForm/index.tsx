@@ -8,9 +8,9 @@ import { v4 } from "uuid"
 import {
   balanceToBignumberString,
   balanceToDecimal,
-} from "@src/app/swap/SwapForm/service/balanceTo"
-import { getBalanceNearAllowedToSwap } from "@src/app/swap/SwapForm/service/getBalanceNearAllowedToSwap"
-import isWalletConnected from "@src/app/swap/SwapForm/utils/isWalletConnected"
+} from "@src/app/(home)/SwapForm/service/balanceTo"
+import { getBalanceNearAllowedToSwap } from "@src/app/(home)/SwapForm/service/getBalanceNearAllowedToSwap"
+import isWalletConnected from "@src/app/(home)/SwapForm/utils/isWalletConnected"
 import BlockEvaluatePrice from "@src/components/Block/BlockEvaluatePrice"
 import Button from "@src/components/Button/Button"
 import ButtonSwitch from "@src/components/Button/ButtonSwitch"

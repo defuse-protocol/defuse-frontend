@@ -1,6 +1,7 @@
 "use client"
 
 import { Spinner, Text } from "@radix-ui/themes"
+import { balanceToDecimal } from "@src/app/(home)/SwapForm/service/balanceTo"
 import Image from "next/image"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import React, { useEffect, useRef, useState } from "react"
@@ -9,7 +10,7 @@ import { v4 } from "uuid"
 import { usePublishIntentSolver0 } from "@src/api/hooks/intent/usePublishIntentSolver0"
 import type { PublishAtomicNearIntentProps } from "@src/api/intent"
 import { getNearBlockById } from "@src/api/transaction"
-import { balanceToDecimal } from "@src/app/swap/SwapForm/service/balanceTo"
+
 import ModalDialog from "@src/components/Modal/ModalDialog"
 import type { ModalReviewSwapPayload } from "@src/components/Modal/ModalReviewSwap"
 import { CONFIRM_SWAP_LOCAL_KEY } from "@src/constants/contracts"

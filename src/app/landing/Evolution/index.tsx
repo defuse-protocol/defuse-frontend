@@ -3,9 +3,9 @@
 import { Text } from "@radix-ui/themes"
 import { useEffect, useRef, useState } from "react"
 
-import Section from "@src/app/(home)/Section"
-import TableInfrastructure from "@src/app/(home)/Table/TableInfrastructure"
-import { infrastructureData } from "@src/app/(home)/mocks"
+import Section from "@src/app/landing/Section"
+import TableInfrastructure from "@src/app/landing/Table/TableInfrastructure"
+import { infrastructureData } from "@src/app/landing/mocks"
 import useResize from "@src/hooks/useResize"
 
 const Evolution = () => {

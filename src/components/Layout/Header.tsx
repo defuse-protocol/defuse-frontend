@@ -16,8 +16,7 @@ const NEXT_PUBLIC_APP_URL = process?.env?.appUrl ?? ""
 
 const Header = () => {
   const pathname = usePathname()
-  const isMarketPage =
-    pathname === Navigation.HOME || pathname === Navigation.JOBS
+  const isMarketPage = pathname === Navigation.JOBS
 
   return (
     <>

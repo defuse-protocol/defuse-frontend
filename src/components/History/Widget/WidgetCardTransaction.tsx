@@ -2,7 +2,7 @@
 
 import React from "react"
 
-import { safeBalanceToDecimal } from "@src/app/swap/SwapForm/service/balanceTo"
+import { safeBalanceToDecimal } from "@src/app/(home)/SwapForm/service/balanceTo"
 import WidgetCardDeposit from "@src/components/History/Widget/WidgetCardDeposit"
 import WidgetCardFailed from "@src/components/History/Widget/WidgetCardFailed"
 import WidgetCardLoading from "@src/components/History/Widget/WidgetCardLoading"

@@ -4,7 +4,7 @@ import { Text } from "@radix-ui/themes"
 import Image from "next/image"
 import { type PropsWithChildren, useEffect, useRef, useState } from "react"
 
-import Section from "@src/app/(home)/Section"
+import Section from "@src/app/landing/Section"
 import useResize from "@src/hooks/useResize"
 
 const CardTopic = ({ children, id }: { id: number } & PropsWithChildren) => {

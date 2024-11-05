@@ -7,7 +7,7 @@ import Image from "next/image"
 import Link from "next/link"
 import React, { useEffect, useState } from "react"
 
-import { balanceToDecimal } from "@src/app/swap/SwapForm/service/balanceTo"
+import { balanceToDecimal } from "@src/app/(home)/SwapForm/service/balanceTo"
 import Button from "@src/components/Button/Button"
 import { WidgetCardTimer } from "@src/components/History/Widget/WidgetCardTimer"
 import { LIST_NATIVE_TOKENS } from "@src/constants/tokens"

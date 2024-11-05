@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 
 import { useGetViewAccount } from "@src/api/hooks/account/useGetViewAccount"
-import { minimumNearBalance } from "@src/app/swap/SwapForm/service/getBalanceNearAllowedToSwap"
+import { minimumNearBalance } from "@src/app/(home)/SwapForm/service/getBalanceNearAllowedToSwap"
 
 export const useMinimumNearBalance = (accountId: string | null) => {
   const [minNearBalance, setMinNearBalance] = useState("0")
