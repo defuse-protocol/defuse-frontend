@@ -23,6 +23,7 @@ import "@defuse-protocol/defuse-sdk/styles"
 import "../styles/global.scss"
 import { SentryTracer } from "@src/components/SentryTracer"
 import { config } from "@src/config/wagmi"
+import { SolanaWalletProvider } from "@src/providers/SolanaWalletProvider"
 
 const DEV_MODE = process?.env?.NEXT_PUBLIC_DEV_MODE === "true" ?? false
 const DARK_MODE_ENABLED =
@@ -47,19 +48,21 @@ const RootLayout = ({
             <NotificationStoreProvider>
               <QueryClientProvider client={queryClient}>
                 <WalletSelectorProvider>
-                  <ThemeProvider attribute="class">
-                    <Theme>
-                      <HistoryStoreProvider>
-                        <TokensStoreProvider>
-                          <ModalStoreProvider>
-                            {children}
-                            <Modal />
-                          </ModalStoreProvider>
-                        </TokensStoreProvider>
-                      </HistoryStoreProvider>
-                    </Theme>
-                  </ThemeProvider>
-                  <SentryTracer />
+                  <SolanaWalletProvider>
+                    <ThemeProvider attribute="class">
+                      <Theme>
+                        <HistoryStoreProvider>
+                          <TokensStoreProvider>
+                            <ModalStoreProvider>
+                              {children}
+                              <Modal />
+                            </ModalStoreProvider>
+                          </TokensStoreProvider>
+                        </HistoryStoreProvider>
+                      </Theme>
+                    </ThemeProvider>
+                    <SentryTracer />
+                  </SolanaWalletProvider>
                 </WalletSelectorProvider>
                 {DEV_MODE && <ReactQueryDevtools initialIsOpen={false} />}
               </QueryClientProvider>

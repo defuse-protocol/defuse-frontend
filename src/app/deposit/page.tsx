@@ -15,6 +15,7 @@ export default function Deposit() {
       <DepositWidget
         tokenList={LIST_TOKENS}
         userAddress={state.address}
+        // @ts-expect-error
         chainType={state.chainType}
         sendTransactionNear={async (tx) => {
           const result = await sendTransaction({

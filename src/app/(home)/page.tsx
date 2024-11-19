@@ -62,6 +62,8 @@ export default function Swap() {
             }
             case undefined:
               throw new Error("User not signed in")
+            case ChainType.Solana:
+              throw new Error("Solana not supported")
             default:
               chainType satisfies never
               throw new Error(`Unsupported sign in type: ${chainType}`)

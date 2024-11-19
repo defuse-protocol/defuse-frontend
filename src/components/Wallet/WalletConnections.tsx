@@ -33,6 +33,7 @@ const connections: MapsEnum[] = [
   MapsEnum.NEAR_MAINNET,
   MapsEnum.EVM_ETHEREUM,
   MapsEnum.BTC_MAINNET,
+  MapsEnum.SOLANA_MAINNET,
 ]
 
 const WalletConnectionsConnector = ({
@@ -163,6 +164,25 @@ const WalletConnections = () => {
                 onCopy={() => setCopyWalletAddress(MapsEnum.EVM_ETHEREUM)}
                 isCopied={copyWalletAddress === MapsEnum.EVM_ETHEREUM}
                 onDisconnect={() => signOut({ id: ChainType.EVM })}
+                onConnect={() => {}}
+                key={connector}
+                index={i}
+              />
+            )
+          case MapsEnum.SOLANA_MAINNET:
+            if (state.chainType !== ChainType.Solana) {
+              return null
+            }
+            chainIcon = getChainIconFromId("sol")
+            return (
+              <WalletConnectionsConnector
+                accountId={(state?.address as string) ?? null}
+                chainLabel={state?.network ?? ""}
+                chainName="sol"
+                chainIcon={chainIcon}
+                onCopy={() => setCopyWalletAddress(MapsEnum.SOLANA_MAINNET)}
+                isCopied={copyWalletAddress === MapsEnum.SOLANA_MAINNET}
+                onDisconnect={() => signOut({ id: ChainType.Solana })}
                 onConnect={() => {}}
                 key={connector}
                 index={i}

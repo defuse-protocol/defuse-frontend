@@ -21,6 +21,8 @@ export const getChainIconFromId = (defuseAssetId: string): string => {
       return "/static/icons/network/ethereum.svg"
     case "btc":
       return "/static/icons/network/btc.svg"
+    case "sol":
+      return "/static/icons/wallets/solana-logo-mark.svg"
     default:
       return ""
   }
