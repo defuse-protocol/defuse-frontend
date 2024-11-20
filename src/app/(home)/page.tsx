@@ -1,6 +1,8 @@
 "use client"
 
 import { SwapWidget } from "@defuse-protocol/defuse-sdk"
+import { useWallet as useWalletSolana } from "@solana/wallet-adapter-react"
+import { useRouter } from "next/navigation"
 import { useSignMessage } from "wagmi"
 
 import Paper from "@src/components/Paper"
@@ -8,12 +10,12 @@ import { LIST_TOKENS } from "@src/constants/tokens"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useFlatTokenList } from "@src/hooks/useFlatTokenList"
 import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
-import { useRouter } from "next/navigation"
 
 export default function Swap() {
   const { state } = useConnectWallet()
   const { signMessage, signAndSendTransactions } = useNearWalletActions()
   const { signMessageAsync: signMessageAsyncWagmi } = useSignMessage()
+  const solanaWallet = useWalletSolana()
   const tokenList = useFlatTokenList(LIST_TOKENS)
   const router = useRouter()
 
@@ -53,6 +55,7 @@ export default function Swap() {
                 signedData: params.ERC191,
               }
             }
+
             case ChainType.Near: {
               const { signatureData, signedData } = await signMessage({
                 ...params.NEP413,
@@ -60,10 +63,26 @@ export default function Swap() {
               })
               return { type: "NEP413", signatureData, signedData }
             }
+
+            case ChainType.Solana: {
+              if (solanaWallet.signMessage == null) {
+                throw new Error("Solana wallet does not support signMessage")
+              }
+
+              const signatureData = await solanaWallet.signMessage(
+                params.SOLANA.message
+              )
+
+              return {
+                type: "SOLANA",
+                signatureData,
+                signedData: params.SOLANA,
+              }
+            }
+
             case undefined:
               throw new Error("User not signed in")
-            case ChainType.Solana:
-              throw new Error("Solana not supported")
+
             default:
               chainType satisfies never
               throw new Error(`Unsupported sign in type: ${chainType}`)
