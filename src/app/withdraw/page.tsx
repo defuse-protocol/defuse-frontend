@@ -1,8 +1,9 @@
 "use client"
 
+import { WithdrawWidget } from "@defuse-protocol/defuse-sdk"
+import { useWallet as useWalletSolana } from "@solana/wallet-adapter-react"
 import { useSignMessage } from "wagmi"
 
-import { WithdrawWidget } from "@defuse-protocol/defuse-sdk"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
@@ -13,6 +14,7 @@ export default function Withdraw() {
   const { state } = useConnectWallet()
   const { signMessage, signAndSendTransactions } = useNearWalletActions()
   const { signMessageAsync: signMessageAsyncWagmi } = useSignMessage()
+  const solanaWallet = useWalletSolana()
   const tokenList = useFlatTokenList(LIST_TOKENS)
 
   return (
@@ -49,6 +51,7 @@ export default function Withdraw() {
                 signedData: params.ERC191,
               }
             }
+
             case ChainType.Near: {
               const { signatureData, signedData } = await signMessage({
                 ...params.NEP413,
@@ -56,10 +59,26 @@ export default function Withdraw() {
               })
               return { type: "NEP413", signatureData, signedData }
             }
+
+            case ChainType.Solana: {
+              if (solanaWallet.signMessage == null) {
+                throw new Error("Solana wallet does not support signMessage")
+              }
+
+              const signatureData = await solanaWallet.signMessage(
+                params.SOLANA.message
+              )
+
+              return {
+                type: "SOLANA",
+                signatureData,
+                signedData: params.SOLANA,
+              }
+            }
+
             case undefined:
               throw new Error("User not signed in")
-            case ChainType.Solana:
-              throw new Error("Solana not supported")
+
             default:
               chainType satisfies never
               throw new Error(`Unsupported sign in type: ${chainType}`)
