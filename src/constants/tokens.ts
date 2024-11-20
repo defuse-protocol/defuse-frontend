@@ -392,7 +392,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
 
 NEXT_PUBLIC_SOLANA_ENABLED &&
   LIST_TOKENS.unshift({
-    defuseAssetId: "near:native.omft.near",
+    defuseAssetId: "nep141:sol.omft.near",
     address: "native",
     decimals: 9,
     icon: "https://assets.coingecko.com/coins/images/4128/standard/solana.png?1718769756",
