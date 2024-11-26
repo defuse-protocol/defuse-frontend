@@ -5,8 +5,6 @@ import type {
 import type { NetworkTokenWithSwapRoute } from "@src/types/interfaces"
 
 const environment = process.env.environment || "production"
-const NEXT_PUBLIC_SOLANA_ENABLED =
-  process?.env?.NEXT_PUBLIC_SOLANA_ENABLED === "true"
 
 /** @deprecated */
 export const NEAR_TOKEN_META = {
@@ -388,10 +386,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     symbol: "SWEAT",
     name: "Sweat Economy",
   },
-]
-
-NEXT_PUBLIC_SOLANA_ENABLED &&
-  LIST_TOKENS.unshift({
+  {
     defuseAssetId: "nep141:sol.omft.near",
     address: "native",
     decimals: 9,
@@ -402,7 +397,8 @@ NEXT_PUBLIC_SOLANA_ENABLED &&
     routes: [],
     symbol: "SOL",
     name: "Solana",
-  })
+  },
+]
 
 /** @deprecated */
 const listNativeTokensTestnet = [

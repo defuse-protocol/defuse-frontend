@@ -13,7 +13,7 @@ import type {
   SignAndSendTransactionsParams,
 } from "@src/types/interfaces"
 import type { SendTransactionParameters } from "@wagmi/core"
-import { useCallback, useEffect } from "react"
+import { useCallback } from "react"
 import { type Connector, useAccount, useConnect, useDisconnect } from "wagmi"
 import { useEVMWalletActions } from "./useEVMWalletActions"
 import { useNearWalletActions } from "./useNearWalletActions"
@@ -52,9 +52,6 @@ const defaultState: State = {
   network: undefined,
   address: undefined,
 }
-
-const NEXT_PUBLIC_SOLANA_ENABLED =
-  process?.env?.NEXT_PUBLIC_SOLANA_ENABLED === "true"
 
 export const useConnectWallet = (): ConnectWalletAction => {
   let state: State = defaultState
@@ -150,16 +147,6 @@ export const useConnectWallet = (): ConnectWalletAction => {
       chainType: ChainType.Solana,
     }
   }
-
-  /**
-   * This hook is used to disconnect the wallet under the feature flag is off
-   * to prevent reconnections again in the next session
-   */
-  useEffect(() => {
-    if (!NEXT_PUBLIC_SOLANA_ENABLED) {
-      handleSignOutViaSolanaSelector()
-    }
-  }, [handleSignOutViaSolanaSelector])
 
   return {
     async signIn(params: {

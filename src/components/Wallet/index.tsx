@@ -17,8 +17,6 @@ import useShortAccountId from "@src/hooks/useShortAccountId"
 import { useHistoryStore } from "@src/providers/HistoryStoreProvider"
 
 const TURN_OFF_APPS = process?.env?.turnOffApps === "true" ?? true
-const NEXT_PUBLIC_SOLANA_ENABLED =
-  process?.env?.NEXT_PUBLIC_SOLANA_ENABLED === "true"
 
 const ConnectWallet = () => {
   const { state } = useConnectWallet()
@@ -101,28 +99,28 @@ const ConnectWallet = () => {
                   Popular wallets
                 </Text>
                 {/* TODO: Show first 3 connectors */}
-                {NEXT_PUBLIC_SOLANA_ENABLED && (
-                  <Button
-                    onClick={handleSolanaWalletSelector}
-                    size="4"
-                    radius="medium"
-                    variant="soft"
-                    color="gray"
-                    className="px-2.5"
-                  >
-                    <div className="w-full flex items-center justify-start gap-2">
-                      <Image
-                        src="/static/icons/wallets/solana-logo-mark.svg"
-                        alt="Solana Wallet Selector"
-                        width={36}
-                        height={36}
-                      />
-                      <Text size="2" weight="bold">
-                        Solana Wallet
-                      </Text>
-                    </div>
-                  </Button>
-                )}
+
+                <Button
+                  onClick={handleSolanaWalletSelector}
+                  size="4"
+                  radius="medium"
+                  variant="soft"
+                  color="gray"
+                  className="px-2.5"
+                >
+                  <div className="w-full flex items-center justify-start gap-2">
+                    <Image
+                      src="/static/icons/wallets/solana-logo-mark.svg"
+                      alt="Solana Wallet Selector"
+                      width={36}
+                      height={36}
+                    />
+                    <Text size="2" weight="bold">
+                      Solana Wallet
+                    </Text>
+                  </div>
+                </Button>
+
                 <Button
                   onClick={handleNearWalletSelector}
                   size="4"
