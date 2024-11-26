@@ -6,7 +6,16 @@ const nextConfig = {
     // We check the code quality in the CI pipeline
     ignoreDuringBuilds: true,
   },
-  webpack: (config) => {
+  webpack: (config, context) => {
+    if (!context.isServer) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        // Use the ES module version of @metamask/sdk for the client bundle
+        // This avoids bundling React and other dependencies from the UMD version
+        "@metamask/sdk": "@metamask/sdk/dist/browser/es/metamask-sdk.js",
+      }
+    }
+
     config.resolve = {
       ...config.resolve,
       fallback: {
