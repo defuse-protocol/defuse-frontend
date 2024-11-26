@@ -16,6 +16,14 @@ const nextConfig = {
       }
     }
 
+    // Suppress warnings from libraries trying to load optional dependencies
+    config.externals.push(
+      // `pino` wants `pino-pretty`
+      "pino-pretty",
+      // `@metamask/sdk` wants `encoding`
+      "encoding"
+    )
+
     config.resolve = {
       ...config.resolve,
       fallback: {
