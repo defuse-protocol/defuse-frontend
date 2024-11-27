@@ -1,7 +1,11 @@
 import { unstable_evaluate as evaluate } from "@vercel/flags/next"
 import type { ReactNode } from "react"
 
-import { enableDogecoin } from "@src/config/featureFlags"
+import {
+  type WhitelabelTemplateValue,
+  enableDogecoin,
+  whitelabelTemplateFlag,
+} from "@src/config/featureFlags"
 import { FeatureFlagsProvider } from "@src/providers/FeatureFlagsProvider"
 
 export async function PreloadFeatureFlags({
@@ -13,11 +17,12 @@ export async function PreloadFeatureFlags({
 }
 
 async function getEvaluatedFeatureFlags(): Promise<FeatureFlagValues> {
-  const flags = [enableDogecoin]
-  const [dogecoin] = await evaluate(flags)
-  return { dogecoin }
+  const flags = [whitelabelTemplateFlag, enableDogecoin] as const
+  const [whitelabelTemplate, dogecoin] = await evaluate(flags)
+  return { whitelabelTemplate, dogecoin }
 }
 
 export interface FeatureFlagValues {
+  whitelabelTemplate: WhitelabelTemplateValue
   dogecoin: boolean
 }
