@@ -388,6 +388,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
   },
   {
     defuseAssetId: "nep141:sol.omft.near",
+    type: "native",
     address: "native",
     decimals: 9,
     icon: "https://assets.coingecko.com/coins/images/4128/standard/solana.png?1718769756",
@@ -397,6 +398,19 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "SOL",
     name: "Solana",
+  },
+  {
+    defuseAssetId: "nep141:doge.omft.near",
+    type: "native",
+    address: "native",
+    decimals: 8,
+    icon: "https://assets.coingecko.com/coins/images/5/standard/dogecoin.png?1696501409",
+    chainId: "",
+    chainIcon: "/static/icons/network/dogecoin.svg",
+    chainName: "dogecoin",
+    routes: [],
+    symbol: "DOGE",
+    name: "Dogecoin",
   },
 ]
 
