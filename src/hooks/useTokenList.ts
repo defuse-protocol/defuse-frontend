@@ -13,7 +13,7 @@ export function useTokenList(tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]) {
 
   const flags = useContext(FeatureFlagsContext)
 
-  if (flags.dogecoin) {
+  if (!flags.dogecoin) {
     list = list.filter((token) => {
       if (isBaseToken(token)) {
         return token.chainName !== "dogecoin"
