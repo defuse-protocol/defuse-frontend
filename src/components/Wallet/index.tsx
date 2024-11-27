@@ -7,13 +7,14 @@ import {
 import { Button, Callout, Flex, Popover, Text } from "@radix-ui/themes"
 import clsx from "clsx"
 import Image from "next/image"
-import React, { useEffect, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import type { Connector } from "wagmi"
 
 import WalletConnections from "@src/components/Wallet/WalletConnections"
 import WalletTabs from "@src/components/Wallet/WalletTabs"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import useShortAccountId from "@src/hooks/useShortAccountId"
+import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { useHistoryStore } from "@src/providers/HistoryStoreProvider"
 
 const TURN_OFF_APPS = process?.env?.turnOffApps === "true" ?? true
@@ -24,6 +25,7 @@ const ConnectWallet = () => {
   const { openWidget } = useHistoryStore((state) => state)
   const { signIn, connectors } = useConnectWallet()
   const connAgreement = useNearConnAgreement()
+  const { whitelabelTemplate } = useContext(FeatureFlagsContext)
 
   const handleNearWalletSelector = () => {
     if (connAgreement.confirmed) {
@@ -121,65 +123,69 @@ const ConnectWallet = () => {
                   </div>
                 </Button>
 
-                <Button
-                  onClick={handleNearWalletSelector}
-                  size="4"
-                  radius="medium"
-                  variant="soft"
-                  color="gray"
-                  className="px-2.5"
-                >
-                  <div className="w-full flex items-center justify-start gap-2">
-                    <Image
-                      src="/static/icons/wallets/near-wallet-selector.svg"
-                      alt="Near Wallet Selector"
-                      width={36}
-                      height={36}
-                    />
-                    <Text size="2" weight="bold">
-                      NEAR Wallet
+                {whitelabelTemplate !== "solswap" && (
+                  <>
+                    <Button
+                      onClick={handleNearWalletSelector}
+                      size="4"
+                      radius="medium"
+                      variant="soft"
+                      color="gray"
+                      className="px-2.5"
+                    >
+                      <div className="w-full flex items-center justify-start gap-2">
+                        <Image
+                          src="/static/icons/wallets/near-wallet-selector.svg"
+                          alt="Near Wallet Selector"
+                          width={36}
+                          height={36}
+                        />
+                        <Text size="2" weight="bold">
+                          NEAR Wallet
+                        </Text>
+                      </div>
+                    </Button>
+                    {connectors.slice(0, 1).map((connector) => (
+                      <Button
+                        key={connector.uid}
+                        onClick={() => handleWalletConnect(connector)}
+                        size="4"
+                        radius="medium"
+                        variant="soft"
+                        color="gray"
+                        className="px-2.5"
+                      >
+                        <div className="w-full flex items-center justify-start gap-2">
+                          <WalletIcon connector={connector} />
+                          <Text size="2" weight="bold">
+                            {renderWalletName(connector)}
+                          </Text>
+                        </div>
+                      </Button>
+                    ))}
+                    <Text size="1" color="gray">
+                      Other wallets
                     </Text>
-                  </div>
-                </Button>
-                {connectors.slice(0, 1).map((connector) => (
-                  <Button
-                    key={connector.uid}
-                    onClick={() => handleWalletConnect(connector)}
-                    size="4"
-                    radius="medium"
-                    variant="soft"
-                    color="gray"
-                    className="px-2.5"
-                  >
-                    <div className="w-full flex items-center justify-start gap-2">
-                      <WalletIcon connector={connector} />
-                      <Text size="2" weight="bold">
-                        {renderWalletName(connector)}
-                      </Text>
-                    </div>
-                  </Button>
-                ))}
-                <Text size="1" color="gray">
-                  Other wallets
-                </Text>
-                {connectors.slice(1).map((connector) => (
-                  <Button
-                    key={connector.uid}
-                    onClick={() => handleWalletConnect(connector)}
-                    size="4"
-                    radius="medium"
-                    variant="soft"
-                    color="gray"
-                    className="px-2.5"
-                  >
-                    <div className="w-full flex items-center justify-start gap-2">
-                      <WalletIcon connector={connector} />
-                      <Text size="2" weight="bold">
-                        {renderWalletName(connector)}
-                      </Text>
-                    </div>
-                  </Button>
-                ))}
+                    {connectors.slice(1).map((connector) => (
+                      <Button
+                        key={connector.uid}
+                        onClick={() => handleWalletConnect(connector)}
+                        size="4"
+                        radius="medium"
+                        variant="soft"
+                        color="gray"
+                        className="px-2.5"
+                      >
+                        <div className="w-full flex items-center justify-start gap-2">
+                          <WalletIcon connector={connector} />
+                          <Text size="2" weight="bold">
+                            {renderWalletName(connector)}
+                          </Text>
+                        </div>
+                      </Button>
+                    ))}
+                  </>
+                )}
               </div>
             </>
           )}
