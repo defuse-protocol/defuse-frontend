@@ -255,10 +255,10 @@
     eventemitter3 "^5.0.1"
     preact "^10.16.0"
 
-"@defuse-protocol/defuse-sdk@^2.12.0":
-  version "2.12.0"
-  resolved "https://npm.pkg.github.com/download/@defuse-protocol/defuse-sdk/2.12.0/7272161c7307ba93f1898e570e49640144b7a81f#7272161c7307ba93f1898e570e49640144b7a81f"
-  integrity sha512-iOdinzx3xI2oF9V98ygosLc+zAnt0b11b3cICcYYCYOjFye4RjJGNH0/LHHrHQQmbOh66YABiCWa+bZCoAIWHg==
+"@defuse-protocol/defuse-sdk@^2.14.0":
+  version "2.14.0"
+  resolved "https://npm.pkg.github.com/download/@defuse-protocol/defuse-sdk/2.14.0/88b7e13dfa9e793c178b3bd8a7546d6759aff86f#88b7e13dfa9e793c178b3bd8a7546d6759aff86f"
+  integrity sha512-anCUb3eBRQulm7V4e1akdouXH9QMiLQO6aoZH5Y4ERwYgxHOM8zyC26VH7zTAnlojHtt6wzvK6fza2iKUtPrpQ==
   dependencies:
     "@defuse-protocol/swap-facade" "^1.0.3"
     "@noble/curves" "1.4.0"
@@ -5336,6 +5336,13 @@
   resolved "https://registry.yarnpkg.com/@ungap/structured-clone/-/structured-clone-1.2.0.tgz#756641adb587851b5ccb3e095daf27ae581c8406"
   integrity sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==
 
+"@vercel/flags@^2.6.3":
+  version "2.6.3"
+  resolved "https://registry.yarnpkg.com/@vercel/flags/-/flags-2.6.3.tgz#fc54bc8908111f1f77632f2a1efd8044da1cf23f"
+  integrity sha512-knLDYS8MCc/zx4FF6KRzHQzAKdo8VQ3V0PEBI5WvRlFIhcqhcEomxHoK41/xMnNEQvUzETACHw610/i/pVwYSA==
+  dependencies:
+    jose "5.2.1"
+
 "@vitest/expect@2.1.2":
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/@vitest/expect/-/expect-2.1.2.tgz#e92fa284b8472548f72cacfe896020c64af6bf78"
@@ -9646,6 +9653,11 @@ jiti@^2.1.2:
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/jiti/-/jiti-2.4.0.tgz#393d595fb6031a11d11171b5e4fc0b989ba3e053"
   integrity sha512-H5UpaUI+aHOqZXlYOaFP/8AzKsg+guWu+Pr3Y8i7+Y3zr1aXAvCvTAQ1RxSc6oVD8R8c7brgNtTVP91E7upH/g==
+
+jose@5.2.1:
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/jose/-/jose-5.2.1.tgz#ec3befe173896e592e2d9ef5f267d061ffb203c5"
+  integrity sha512-qiaQhtQRw6YrOaOj0v59h3R6hUY9NvxBmmnMfKemkqYmBB0tEc97NbLP7ix44VP5p9/0YHG8Vyhzuo5YBNwviA==
 
 js-base64@^3.7.5:
   version "3.7.7"

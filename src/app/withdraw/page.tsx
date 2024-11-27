@@ -7,15 +7,15 @@ import { useSignMessage } from "wagmi"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
-import { useFlatTokenList } from "@src/hooks/useFlatTokenList"
 import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
+import { useTokenList } from "@src/hooks/useTokenList"
 
 export default function Withdraw() {
   const { state } = useConnectWallet()
   const { signMessage, signAndSendTransactions } = useNearWalletActions()
   const { signMessageAsync: signMessageAsyncWagmi } = useSignMessage()
   const solanaWallet = useWalletSolana()
-  const tokenList = useFlatTokenList(LIST_TOKENS)
+  const tokenList = useTokenList(LIST_TOKENS)
 
   return (
     <Paper title="Withdraw">
