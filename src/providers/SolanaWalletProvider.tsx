@@ -16,8 +16,6 @@ import { WalletModalProvider } from "@solana/wallet-adapter-react-ui"
 // Default styles that can be overridden by your app
 import "@solana/wallet-adapter-react-ui/styles.css"
 
-const SOLANA_RPC_URL = process.env.SOLANA_RPC_URL
-
 export const SolanaWalletProvider: FC<{ children: ReactNode }> = ({
   children,
 }) => {
@@ -25,7 +23,10 @@ export const SolanaWalletProvider: FC<{ children: ReactNode }> = ({
   const network = WalletAdapterNetwork.Mainnet
 
   // You can also provide a custom RPC endpoint.
-  const endpoint = useMemo(() => clusterApiUrl(network), [network])
+  const endpoint = useMemo(
+    () => process.env.SOLANA_RPC_URL || clusterApiUrl(network),
+    [network]
+  )
 
   const wallets = useMemo(() => {
     /**
@@ -60,7 +61,7 @@ export const SolanaWalletProvider: FC<{ children: ReactNode }> = ({
   }, [network])
 
   return (
-    <ConnectionProvider endpoint={SOLANA_RPC_URL ?? endpoint}>
+    <ConnectionProvider endpoint={endpoint}>
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>{children}</WalletModalProvider>
       </WalletProvider>
