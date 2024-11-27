@@ -4,6 +4,7 @@ import type { FeatureFlagValues } from "@src/components/PreloadFeatureFlags"
 import { type ReactNode, createContext } from "react"
 
 export const FeatureFlagsContext = createContext<FeatureFlagValues>({
+  whitelabelTemplate: "near-intents",
   dogecoin: false,
 })
 
