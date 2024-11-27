@@ -5,8 +5,6 @@ import type {
 import type { NetworkTokenWithSwapRoute } from "@src/types/interfaces"
 
 const environment = process.env.environment || "production"
-const NEXT_PUBLIC_SOLANA_ENABLED =
-  process?.env?.NEXT_PUBLIC_SOLANA_ENABLED === "true"
 
 /** @deprecated */
 export const NEAR_TOKEN_META = {
@@ -52,6 +50,30 @@ export const W_BASE_TOKEN_META = {
 }
 
 export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
+  {
+    defuseAssetId: "nep141:sol.omft.near",
+    address: "native",
+    decimals: 9,
+    icon: "https://assets.coingecko.com/coins/images/4128/standard/solana.png?1718769756",
+    chainId: "",
+    chainIcon: "/static/icons/network/solana.svg",
+    chainName: "solana",
+    routes: [],
+    symbol: "SOL",
+    name: "Solana",
+  },
+  {
+    defuseAssetId: "nep141:wrap.near",
+    address: "wrap.near",
+    decimals: 24,
+    icon: "https://assets.coingecko.com/coins/images/10365/standard/near.jpg",
+    chainId: "mainnet",
+    chainIcon: "/static/icons/network/near.svg",
+    chainName: "near",
+    routes: [],
+    symbol: "NEAR",
+    name: "Near",
+  },
   {
     unifiedAssetId: "usdc",
     decimals: 6,
@@ -235,18 +257,6 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     name: "Aurora",
   },
   {
-    defuseAssetId: "nep141:wrap.near",
-    address: "wrap.near",
-    decimals: 24,
-    icon: "https://assets.coingecko.com/coins/images/10365/standard/near.jpg",
-    chainId: "mainnet",
-    chainIcon: "/static/icons/network/near.svg",
-    chainName: "near",
-    routes: [],
-    symbol: "NEAR",
-    name: "Near",
-  },
-  {
     defuseAssetId: "nep141:btc.omft.near",
     type: "native",
     address: "native",
@@ -389,20 +399,6 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     name: "Sweat Economy",
   },
 ]
-
-NEXT_PUBLIC_SOLANA_ENABLED &&
-  LIST_TOKENS.unshift({
-    defuseAssetId: "nep141:sol.omft.near",
-    address: "native",
-    decimals: 9,
-    icon: "https://assets.coingecko.com/coins/images/4128/standard/solana.png?1718769756",
-    chainId: "",
-    chainIcon: "/static/icons/network/solana.svg",
-    chainName: "solana",
-    routes: [],
-    symbol: "SOL",
-    name: "Solana",
-  })
 
 /** @deprecated */
 const listNativeTokensTestnet = [
