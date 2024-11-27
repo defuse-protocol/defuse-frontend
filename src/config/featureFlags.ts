@@ -8,6 +8,6 @@ export const enableDogecoin = flag({
     { label: "On", value: true },
   ],
   decide: (): boolean => {
-    return false
+    return process.env.FF_DOGECOIN === "true"
   },
 })
