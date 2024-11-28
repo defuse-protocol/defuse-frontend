@@ -1,7 +1,5 @@
 "use client"
 
-import { useEffect } from "react"
-
 import Banner from "@src/app/landing/Banner"
 import CardSocial from "@src/app/landing/Card/CardSocial"
 import Evolution from "@src/app/landing/Evolution"
@@ -13,17 +11,12 @@ import TryDefuse from "@src/app/landing/TryDefuse"
 // import InvestorLogo from "@src/app/landing/InvestorLogo"
 import Vision from "@src/app/landing/Vision"
 import { settings } from "@src/config/settings"
-import { THEME_MODE_KEY } from "@src/constants/contracts"
 
 const SOCIAL_LINK_X = process?.env?.socialX ?? ""
 const SOCIAL_LINK_DISCORD = process?.env?.socialDiscord ?? ""
 const LINK_DOCS = process?.env?.socialDocs ?? ""
 
 export default function Home() {
-  useEffect(() => {
-    localStorage.setItem(THEME_MODE_KEY, "light")
-  }, [])
-
   return (
     <div className="flex flex-col flex-1 justify-start item-center">
       <Banner />
