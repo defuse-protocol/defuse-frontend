@@ -1,29 +1,22 @@
 "use client"
 
-import {
-  CountdownTimerIcon,
-  ExclamationTriangleIcon,
-} from "@radix-ui/react-icons"
-import { Button, Callout, Flex, Popover, Text } from "@radix-ui/themes"
+import { Button, Popover, Text } from "@radix-ui/themes"
 import clsx from "clsx"
 import Image from "next/image"
-import React, { useContext, useEffect, useState } from "react"
+import React, { useContext } from "react"
 import type { Connector } from "wagmi"
 
 import WalletConnections from "@src/components/Wallet/WalletConnections"
-import WalletTabs from "@src/components/Wallet/WalletTabs"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import useShortAccountId from "@src/hooks/useShortAccountId"
 import { useWalletAgreement } from "@src/hooks/useWalletAgreement"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
-import { useHistoryStore } from "@src/providers/HistoryStoreProvider"
 
 const TURN_OFF_APPS = process?.env?.turnOffApps === "true" ?? true
 
 const ConnectWallet = () => {
   const { state } = useConnectWallet()
   const { shortAccountId } = useShortAccountId(state.address ?? "")
-  const { openWidget } = useHistoryStore((state) => state)
   const { signIn, connectors } = useConnectWallet()
   const walletAgreement = useWalletAgreement()
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
@@ -46,26 +39,20 @@ const ConnectWallet = () => {
     walletAgreement.setContext({ show: true, chain: ChainType.Solana })
   }
 
-  const handleWalletAgreementSubmit = () => {
+  const handleWalletAgreement = (call: (cb: () => void) => void) => {
     if (!walletAgreement.context) return
     const chain = walletAgreement.context.chain
     switch (chain) {
       case "near":
-        walletAgreement.submit(() => signIn({ id: ChainType.Near }))
+        call(() => signIn({ id: ChainType.Near }))
         break
       case "solana":
-        walletAgreement.submit(() => signIn({ id: ChainType.Solana }))
+        call(() => signIn({ id: ChainType.Solana }))
         break
       default:
         chain satisfies never
     }
   }
-
-  const handleWalletAgreementOff = () => {
-    walletAgreement.off(() => signIn({ id: ChainType.Near }))
-  }
-
-  const handleTradeHistory = () => openWidget()
 
   if (!state.address || TURN_OFF_APPS) {
     return (
@@ -98,14 +85,14 @@ const ConnectWallet = () => {
               <Button
                 variant="soft"
                 color="orange"
-                onClick={handleWalletAgreementSubmit}
+                onClick={() => handleWalletAgreement(walletAgreement.submit)}
               >
                 <Text size="1">Ok</Text>
               </Button>
               <Button
                 variant="soft"
                 color="gray"
-                onClick={handleWalletAgreementOff}
+                onClick={() => handleWalletAgreement(walletAgreement.off)}
               >
                 <Text size="1">Don't show again</Text>
               </Button>
@@ -226,22 +213,7 @@ const ConnectWallet = () => {
         </Popover.Trigger>
         <Popover.Content className="min-w-[330px] mt-1 md:mr-[48px] dark:bg-black-800 rounded-2xl">
           <div className="flex flex-col gap-5">
-            {/* <WalletTabs /> */}
             <WalletConnections />
-            {/* TODO: Transactions button has to be redesigned or removed */}
-            {/* <Button
-              onClick={handleTradeHistory}
-              size="2"
-              variant="soft"
-              radius="full"
-              color="gray"
-              className="w-full text-black dark:text-white cursor-pointer"
-            >
-              <CountdownTimerIcon width={16} height={16} />
-              <Text size="2" weight="medium">
-                Transactions
-              </Text>
-            </Button> */}
           </div>
         </Popover.Content>
       </Popover.Root>
