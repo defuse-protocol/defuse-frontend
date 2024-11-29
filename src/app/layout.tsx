@@ -42,7 +42,11 @@ const RootLayout = ({
               <QueryClientProvider client={queryClient}>
                 <WalletSelectorProvider>
                   <SolanaWalletProvider>
-                    <ThemeProvider attribute="class">
+                    {/*
+                      Added `forcedTheme` to prevent the dark theme from being applied.
+                      TODO: remove `forcedTheme` when dark mode will be enabled
+                    */}
+                    <ThemeProvider attribute="class" forcedTheme="light">
                       <Theme>
                         <HistoryStoreProvider>
                           <TokensStoreProvider>
