@@ -1,45 +1,31 @@
 "use client"
 
-import {
-  CountdownTimerIcon,
-  ExclamationTriangleIcon,
-} from "@radix-ui/react-icons"
-import { Button, Callout, Flex, Popover, Text } from "@radix-ui/themes"
+import { Button, Popover, Text } from "@radix-ui/themes"
 import clsx from "clsx"
 import Image from "next/image"
-import React, { useContext, useEffect, useState } from "react"
+import React, { useContext } from "react"
 import type { Connector } from "wagmi"
 
 import WalletConnections from "@src/components/Wallet/WalletConnections"
-import WalletTabs from "@src/components/Wallet/WalletTabs"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import useShortAccountId from "@src/hooks/useShortAccountId"
+import { useWalletAgreement } from "@src/hooks/useWalletAgreement"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
-import { useHistoryStore } from "@src/providers/HistoryStoreProvider"
 
 const TURN_OFF_APPS = process?.env?.turnOffApps === "true" ?? true
 
 const ConnectWallet = () => {
   const { state } = useConnectWallet()
   const { shortAccountId } = useShortAccountId(state.address ?? "")
-  const { openWidget } = useHistoryStore((state) => state)
   const { signIn, connectors } = useConnectWallet()
-  const connAgreement = useNearConnAgreement()
+  const walletAgreement = useWalletAgreement()
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
 
   const handleNearWalletSelector = () => {
-    if (connAgreement.confirmed) {
+    if (walletAgreement.nearConfirmed) {
       return signIn({ id: ChainType.Near })
     }
-    connAgreement.setShow(true)
-  }
-
-  const handleConnAgreementSubmit = () => {
-    connAgreement.submit(() => signIn({ id: ChainType.Near }))
-  }
-
-  const handleConnAgreementOff = () => {
-    connAgreement.off(() => signIn({ id: ChainType.Near }))
+    walletAgreement.setContext({ show: true, chain: ChainType.Near })
   }
 
   const handleWalletConnect = (connector: Connector) => {
@@ -47,10 +33,26 @@ const ConnectWallet = () => {
   }
 
   const handleSolanaWalletSelector = () => {
-    signIn({ id: ChainType.Solana })
+    if (walletAgreement.solanaConfirmed) {
+      return signIn({ id: ChainType.Solana })
+    }
+    walletAgreement.setContext({ show: true, chain: ChainType.Solana })
   }
 
-  const handleTradeHistory = () => openWidget()
+  const handleWalletAgreement = (call: (cb: () => void) => void) => {
+    if (!walletAgreement.context) return
+    const chain = walletAgreement.context.chain
+    switch (chain) {
+      case "near":
+        call(() => signIn({ id: ChainType.Near }))
+        break
+      case "solana":
+        call(() => signIn({ id: ChainType.Solana }))
+        break
+      default:
+        chain satisfies never
+    }
+  }
 
   if (!state.address || TURN_OFF_APPS) {
     return (
@@ -70,30 +72,33 @@ const ConnectWallet = () => {
           </button>
         </Popover.Trigger>
         <Popover.Content className="min-w-[330px] md:mr-[48px] dark:bg-black-800 rounded-2xl">
-          {connAgreement.show && (
+          {walletAgreement.context?.show && (
             <div className="w-full grid grid-cols-1 gap-4 mt-4">
               <Text size="2">
-                Ledger is not currently supported on NEAR wallets. Please use
-                other wallets with Ledger. We are actively working on adding
-                support for it.
+                Ledger is not currently supported on
+                <span className="font-bold mx-1">
+                  {walletAgreement.context?.chain}
+                </span>
+                wallets. Please use other wallets with Ledger. We are actively
+                working on adding support for it.
               </Text>
               <Button
                 variant="soft"
                 color="orange"
-                onClick={handleConnAgreementSubmit}
+                onClick={() => handleWalletAgreement(walletAgreement.submit)}
               >
                 <Text size="1">Ok</Text>
               </Button>
               <Button
                 variant="soft"
                 color="gray"
-                onClick={handleConnAgreementOff}
+                onClick={() => handleWalletAgreement(walletAgreement.off)}
               >
                 <Text size="1">Don't show again</Text>
               </Button>
             </div>
           )}
-          {!connAgreement.show && (
+          {!walletAgreement.context?.show && (
             <>
               <Text size="1">How do you want to connect?</Text>
               <div className="w-full grid grid-cols-1 gap-4 mt-4">
@@ -208,22 +213,7 @@ const ConnectWallet = () => {
         </Popover.Trigger>
         <Popover.Content className="min-w-[330px] mt-1 md:mr-[48px] dark:bg-black-800 rounded-2xl">
           <div className="flex flex-col gap-5">
-            {/* <WalletTabs /> */}
             <WalletConnections />
-            {/* TODO: Transactions button has to be redesigned or removed */}
-            {/* <Button
-              onClick={handleTradeHistory}
-              size="2"
-              variant="soft"
-              radius="full"
-              color="gray"
-              className="w-full text-black dark:text-white cursor-pointer"
-            >
-              <CountdownTimerIcon width={16} height={16} />
-              <Text size="2" weight="medium">
-                Transactions
-              </Text>
-            </Button> */}
           </div>
         </Popover.Content>
       </Popover.Root>
@@ -287,43 +277,6 @@ function renderWalletName(connector: Connector) {
       return "Browser Wallet"
     default:
       return connector.name
-  }
-}
-
-const NEAR_CONNECTION_AGREEMENT_CONFIRMED =
-  "near_connection_agreement_confirmed"
-
-function useNearConnAgreement() {
-  const [show, setShow] = useState(false)
-  const [confirmed, setConfirmed] = useState(false)
-
-  const submit = (cb: () => void) => {
-    setConfirmed(true)
-    setShow(false)
-    cb()
-  }
-
-  const off = (cb: () => void) => {
-    localStorage.setItem(NEAR_CONNECTION_AGREEMENT_CONFIRMED, "true")
-    setConfirmed(true)
-    setShow(false)
-    cb()
-  }
-
-  useEffect(() => {
-    const confirmed = localStorage.getItem(NEAR_CONNECTION_AGREEMENT_CONFIRMED)
-    if (confirmed && confirmed === "true") {
-      return setConfirmed(true)
-    }
-    setConfirmed(false)
-  }, [])
-
-  return {
-    show,
-    setShow,
-    confirmed,
-    submit,
-    off,
   }
 }
 
