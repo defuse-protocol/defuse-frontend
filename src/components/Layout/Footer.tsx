@@ -29,6 +29,10 @@ const Footer = () => {
     )
   }
 
+  if (whitelabelTemplate === "turboswap") {
+    return null
+  }
+
   return (
     <footer className="w-full flex justify-center items-center py-7">
       <div className="flex justify-center items-center text-sm text-secondary gap-1.5 bg-white px-3 py-1.5 rounded-full dark:bg-gray-700 dark:text-white">
