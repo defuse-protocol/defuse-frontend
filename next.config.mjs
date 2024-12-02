@@ -1,4 +1,6 @@
 import { withSentryConfig } from "@sentry/nextjs"
+import { DedupePlugin } from "@tinkoff/webpack-dedupe-plugin"
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   productionBrowserSourceMaps: true,
@@ -32,6 +34,9 @@ const nextConfig = {
         os: false,
       },
     }
+
+    config.plugins.push(new DedupePlugin({ strategy: "equality" }))
+
     return config
   },
   env: {
