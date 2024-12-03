@@ -9,6 +9,7 @@ import Header from "@src/components/Layout/Header"
 import NavbarMobile from "@src/components/NavbarMobile"
 import PageBackground from "@src/components/PageBackground"
 import Snackbar from "@src/components/Snackbar"
+import Main from "./Main"
 
 const Layout: React.FC<PropsWithChildren> = ({ children }) => {
   useInterceptors()
@@ -18,7 +19,7 @@ const Layout: React.FC<PropsWithChildren> = ({ children }) => {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="flex md:flex-1">{children}</main>
+      <Main>{children}</Main>
       <Footer />
       <NavbarMobile />
       <PageBackground />

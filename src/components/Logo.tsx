@@ -29,6 +29,48 @@ const Logo = () => {
     )
   }
 
+  if (whitelabelTemplate === "turboswap") {
+    return (
+      <Link href={Navigation.HOME}>
+        <Image
+          src="/static/templates/turboswap/logo.svg"
+          alt="Turboswap Logo"
+          width={175}
+          height={32}
+          className="hidden dark:block"
+        />
+        <Image
+          src="/static/templates/turboswap/logo.svg"
+          alt="Turboswap Logo"
+          width={175}
+          height={32}
+          className="dark:hidden"
+        />
+      </Link>
+    )
+  }
+
+  if (whitelabelTemplate === "dogecoinswap") {
+    return (
+      <Link href={Navigation.HOME}>
+        <Image
+          src="/static/templates/dogecoinswap/logo.svg"
+          alt="Dogecoinswap Logo"
+          width={175}
+          height={32}
+          className="hidden dark:block"
+        />
+        <Image
+          src="/static/templates/dogecoinswap/logo.svg"
+          alt="Dogecoinswap Logo"
+          width={175}
+          height={32}
+          className="dark:hidden"
+        />
+      </Link>
+    )
+  }
+
   return (
     <Link href={Navigation.HOME}>
       <Image

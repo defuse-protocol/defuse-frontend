@@ -29,6 +29,39 @@ const Footer = () => {
     )
   }
 
+  if (whitelabelTemplate === "turboswap") {
+    return null
+  }
+
+  if (whitelabelTemplate === "dogecoinswap") {
+    return (
+      <footer className="w-full flex justify-center items-center py-7">
+        <div className="flex justify-center items-center text-sm text-secondary gap-1.5 bg-white px-3 py-1.5 rounded-full dark:bg-gray-700 dark:text-white">
+          <span>Built by</span>
+          <Image
+            src="/static/icons/network/near_dark.svg"
+            width={16}
+            height={16}
+            alt="Near logo"
+          />
+          <span className="text-black-400 dark:text-white font-medium">
+            Near
+          </span>
+          <span>with love for</span>
+          <Image
+            src="/static/templates/dogecoinswap/icon.svg"
+            width={20}
+            height={20}
+            alt="Dogecoin logo"
+          />
+          <span className="text-black-400 dark:text-white font-medium">
+            Dogecoin
+          </span>
+        </div>
+      </footer>
+    )
+  }
+
   return (
     <footer className="w-full flex justify-center items-center py-7">
       <div className="flex justify-center items-center text-sm text-secondary gap-1.5 bg-white px-3 py-1.5 rounded-full dark:bg-gray-700 dark:text-white">
