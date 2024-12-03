@@ -50,6 +50,27 @@ const Logo = () => {
     )
   }
 
+  if (whitelabelTemplate === "dogecoinswap") {
+    return (
+      <Link href={Navigation.HOME}>
+        <Image
+          src="/static/templates/dogecoinswap/logo.svg"
+          alt="Dogecoinswap Logo"
+          width={175}
+          height={32}
+          className="hidden dark:block"
+        />
+        <Image
+          src="/static/templates/dogecoinswap/logo.svg"
+          alt="Dogecoinswap Logo"
+          width={175}
+          height={32}
+          className="dark:hidden"
+        />
+      </Link>
+    )
+  }
+
   return (
     <Link href={Navigation.HOME}>
       <Image
