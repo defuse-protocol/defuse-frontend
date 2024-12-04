@@ -99,7 +99,6 @@ const DarkMode = () => {
         onCheckedChange={(checked: boolean) => {
           setTheme(checked ? Themes.DARK : Themes.LIGHT)
         }}
-        color="orange"
         defaultChecked={theme === Themes.DARK}
       />
     </div>

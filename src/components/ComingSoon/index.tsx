@@ -17,9 +17,10 @@ export const LabelComingSoon = ({ className }: { className?: string }) => {
   return (
     <span
       className={clsx(
-        "absolute -top-2 -right-3 text-[8px] text-nowrap text-primary",
+        "absolute -top-2 -right-3 text-[8px] text-nowrap",
         className && className
       )}
+      style={{ color: "var(--accent-11)" }}
     >
       Coming Soon
     </span>
