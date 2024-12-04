@@ -58,18 +58,16 @@ const ConnectWallet = () => {
     return (
       <Popover.Root>
         <Popover.Trigger>
-          <button
+          <Button
             type={"button"}
-            className={clsx(
-              "rounded-full text-white px-4 py-2.5 text-sm",
-              TURN_OFF_APPS ? "bg-gray-500" : "bg-primary"
-            )}
+            size={"3"}
+            radius={"full"}
             disabled={TURN_OFF_APPS}
           >
             <Text size="2" weight="medium" wrap="nowrap">
               Connect wallet
             </Text>
-          </button>
+          </Button>
         </Popover.Trigger>
         <Popover.Content className="min-w-[330px] md:mr-[48px] dark:bg-black-800 rounded-2xl">
           {walletAgreement.context?.show && (
@@ -84,17 +82,16 @@ const ConnectWallet = () => {
               </Text>
               <Button
                 variant="soft"
-                color="orange"
                 onClick={() => handleWalletAgreement(walletAgreement.submit)}
               >
-                <Text size="1">Ok</Text>
+                Ok
               </Button>
               <Button
                 variant="soft"
                 color="gray"
                 onClick={() => handleWalletAgreement(walletAgreement.off)}
               >
-                <Text size="1">Don't show again</Text>
+                Don't show again
               </Button>
             </div>
           )}
