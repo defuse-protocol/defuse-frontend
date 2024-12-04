@@ -45,7 +45,7 @@ const RootLayout = ({
                       TODO: remove `forcedTheme` when dark mode will be enabled
                     */}
                   <ThemeProvider attribute="class" forcedTheme="light">
-                    <Theme>
+                    <Theme accentColor={"orange"}>
                       <HistoryStoreProvider>
                         <TokensStoreProvider>
                           <ModalStoreProvider>
