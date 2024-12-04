@@ -1,3 +1,5 @@
+"use client"
+
 import { type Adapter, WalletAdapterNetwork } from "@solana/wallet-adapter-base"
 import {
   ConnectionProvider,

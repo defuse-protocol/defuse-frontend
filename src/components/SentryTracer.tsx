@@ -1,3 +1,5 @@
+"use client"
+
 import { useSentrySetContextWallet } from "@src/hooks/useSetSentry"
 
 import { useConnectWallet } from "@src/hooks/useConnectWallet"

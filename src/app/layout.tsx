@@ -1,5 +1,3 @@
-"use client"
-
 import { GoogleAnalytics } from "@next/third-parties/google"
 import { QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"

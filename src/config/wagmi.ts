@@ -1,3 +1,5 @@
+"use client"
+
 import { http, createConfig } from "wagmi"
 import { arbitrum, base, mainnet } from "wagmi/chains"
 import {
