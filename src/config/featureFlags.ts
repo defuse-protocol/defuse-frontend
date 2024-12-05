@@ -30,15 +30,3 @@ export const whitelabelTemplateFlag = flag({
     return "near-intents"
   },
 })
-
-export const enableDogecoin = flag({
-  key: "dogecoin",
-  description: "Enable Dogecoin support",
-  options: [
-    { label: "Off", value: false },
-    { label: "On", value: true },
-  ],
-  decide: (): boolean => {
-    return process.env.FF_DOGECOIN === "true"
-  },
-})
