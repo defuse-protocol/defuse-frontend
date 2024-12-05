@@ -12,6 +12,7 @@ import {
 const PROJECT_ID = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID
 
 export const config = createConfig({
+  // TODO: Add Turbochain chain
   chains: [mainnet, base, arbitrum],
   connectors: [
     injected(),
@@ -27,5 +28,7 @@ export const config = createConfig({
     [mainnet.id]: http(),
     [base.id]: http(),
     [arbitrum.id]: http(),
+    // Turbochain network
+    [1313161567]: http("https://rpc-0x4e45415f.aurora-cloud.dev"),
   },
 })
