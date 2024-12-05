@@ -201,13 +201,22 @@ const ConnectWallet = () => {
     <div className="flex gap-2">
       <Popover.Root>
         <Popover.Trigger>
-          <button
+          <Button
             type={"button"}
-            className="rounded-full bg-gray-200 text-black-400 text-sm px-3 py-1.5 dark:bg-gray-1000 dark:text-gray-100"
+            variant={"soft"}
+            color={"gray"}
+            size={"2"}
+            radius={"full"}
             disabled={TURN_OFF_APPS}
           >
-            {shortAccountId}
-          </button>
+            <Text
+              weight="bold"
+              wrap="nowrap"
+              style={{ color: "var(--gray-12)" }}
+            >
+              {shortAccountId}
+            </Text>
+          </Button>
         </Popover.Trigger>
         <Popover.Content className="min-w-[330px] mt-1 md:mr-[48px] dark:bg-black-800 rounded-2xl">
           <div className="flex flex-col gap-5">
