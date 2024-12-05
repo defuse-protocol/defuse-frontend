@@ -33,14 +33,11 @@ const Paper = ({ children, title, description }: Props) => {
             >
               <span>Powered by</span>
               <Image
-                src="/static/templates/turboswap/aurora-labs-logo.svg"
-                width={16}
-                height={16}
-                alt="Aurora Labs logo"
+                src="/static/logos/blockchain-strips/aurora.svg"
+                width={103}
+                height={20}
+                alt="Aurora logo"
               />
-              <span className="text-black-400 dark:text-white">
-                Aurora Labs
-              </span>
             </Link>
           </div>
         </div>
