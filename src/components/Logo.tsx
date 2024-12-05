@@ -12,16 +12,16 @@ const Logo = () => {
     return (
       <Link href={Navigation.HOME}>
         <Image
-          src="/static/icons/solswap.svg"
+          src="/static/templates/solswap/logo.svg"
           alt="Solswap Logo"
-          width={175}
+          width={100}
           height={32}
           className="hidden dark:block"
         />
         <Image
-          src="/static/icons/solswap.svg"
+          src="/static/templates/solswap/logo.svg"
           alt="Solswap Logo"
-          width={175}
+          width={100}
           height={32}
           className="dark:hidden"
         />
@@ -35,14 +35,14 @@ const Logo = () => {
         <Image
           src="/static/templates/turboswap/logo.svg"
           alt="Turboswap Logo"
-          width={175}
+          width={120}
           height={32}
           className="hidden dark:block"
         />
         <Image
           src="/static/templates/turboswap/logo.svg"
           alt="Turboswap Logo"
-          width={175}
+          width={120}
           height={32}
           className="dark:hidden"
         />
@@ -56,14 +56,14 @@ const Logo = () => {
         <Image
           src="/static/templates/dogecoinswap/logo.svg"
           alt="Dogecoinswap Logo"
-          width={175}
+          width={118}
           height={32}
           className="hidden dark:block"
         />
         <Image
           src="/static/templates/dogecoinswap/logo.svg"
           alt="Dogecoinswap Logo"
-          width={175}
+          width={118}
           height={32}
           className="dark:hidden"
         />
@@ -74,16 +74,16 @@ const Logo = () => {
   return (
     <Link href={Navigation.HOME}>
       <Image
-        src="/static/icons/NearIntentsLOGO.svg"
+        src="/static/templates/near-intents/logo.svg"
         alt="Near Intent Logo"
-        width={175}
+        width={125}
         height={32}
         className="hidden dark:block"
       />
       <Image
-        src="/static/icons/NearIntentsLOGO.svg"
+        src="/static/templates/near-intents/logo.svg"
         alt="Near Intent Logo"
-        width={175}
+        width={125}
         height={32}
         className="dark:hidden"
       />
