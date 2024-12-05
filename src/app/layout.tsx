@@ -50,8 +50,8 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 
   return {
-    metadataBase: process.env.NEXT_PUBLIC_APP_URL
-      ? new URL(process.env.NEXT_PUBLIC_APP_URL)
+    metadataBase: process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? new URL(`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`)
       : null,
     icons: {
       icon: `/favicons/${templ}/favicon-32x32.png`,
