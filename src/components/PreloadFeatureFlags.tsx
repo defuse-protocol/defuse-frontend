@@ -3,7 +3,6 @@ import type { ReactNode } from "react"
 
 import {
   type WhitelabelTemplateValue,
-  enableDogecoin,
   whitelabelTemplateFlag,
 } from "@src/config/featureFlags"
 import { FeatureFlagsProvider } from "@src/providers/FeatureFlagsProvider"
@@ -17,12 +16,11 @@ export async function PreloadFeatureFlags({
 }
 
 async function getEvaluatedFeatureFlags(): Promise<FeatureFlagValues> {
-  const flags = [whitelabelTemplateFlag, enableDogecoin] as const
-  const [whitelabelTemplate, dogecoin] = await evaluate(flags)
-  return { whitelabelTemplate, dogecoin }
+  const flags = [whitelabelTemplateFlag] as const
+  const [whitelabelTemplate] = await evaluate(flags)
+  return { whitelabelTemplate }
 }
 
 export interface FeatureFlagValues {
   whitelabelTemplate: WhitelabelTemplateValue
-  dogecoin: boolean
 }

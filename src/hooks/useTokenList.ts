@@ -23,15 +23,6 @@ export function useTokenList(tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]) {
   let list = useFlatTokenList(tokenList)
   const flags = useContext(FeatureFlagsContext)
 
-  if (!flags.dogecoin) {
-    list = list.filter((token) => {
-      if (isBaseToken(token)) {
-        return token.chainName !== "dogecoin"
-      }
-      return true
-    })
-  }
-
   list = sortTokensWithPriority(
     list,
     TEMPLATE_PRIORITY_TOKENS[flags.whitelabelTemplate]

@@ -26,7 +26,9 @@ export async function ThemeProvider({ children }: { children: ReactNode }) {
       TODO: remove `forcedTheme` when dark mode will be enabled
     */
     <NextThemesThemeProvider attribute="class" forcedTheme="light">
-      <Theme accentColor={accentsColors[tpl]}>{children}</Theme>
+      <Theme accentColor={accentsColors[tpl]} hasBackground={false}>
+        {children}
+      </Theme>
     </NextThemesThemeProvider>
   )
 }

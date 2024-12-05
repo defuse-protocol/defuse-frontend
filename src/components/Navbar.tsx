@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@radix-ui/themes"
+import { Button, Text } from "@radix-ui/themes"
 import clsx from "clsx"
 import { usePathname, useRouter } from "next/navigation"
 
@@ -22,16 +22,17 @@ const Navbar = ({ links = LINKS_HEADER }: Props) => {
         const isCurrentPage = route.href === pathname
         if (route.action) {
           return (
-            <button
+            <Button
               // biome-ignore lint/suspicious/noArrayIndexKey: <reason>
               key={i}
               type={"button"}
-              className="text-sm"
               onClick={route.action}
               disabled={TURN_OFF_APPS || route.comingSoon}
             >
-              {route.label}
-            </button>
+              <Text weight="bold" wrap="nowrap">
+                {route.label}
+              </Text>
+            </Button>
           )
         }
         return (
@@ -53,7 +54,9 @@ const Navbar = ({ links = LINKS_HEADER }: Props) => {
             key={i}
             onClick={() => router.push(route.href ?? "")}
           >
-            {route.label}
+            <Text weight="bold" wrap="nowrap">
+              {route.label}
+            </Text>
             {route.comingSoon && !isCurrentPage && <LabelComingSoon />}
           </Button>
         )
