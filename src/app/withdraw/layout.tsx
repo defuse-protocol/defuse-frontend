@@ -4,9 +4,18 @@ import type { PropsWithChildren } from "react"
 
 import Layout from "@src/components/Layout"
 import { PreloadFeatureFlags } from "@src/components/PreloadFeatureFlags"
+import { whitelabelTemplateFlag } from "@src/config/featureFlags"
 import { settings } from "@src/config/settings"
 
-export const metadata: Metadata = settings.metadata.withdraw
+export async function generateMetadata(): Promise<Metadata> {
+  const templ = await whitelabelTemplateFlag()
+
+  if (templ !== "dogecoinswap") {
+    return settings.metadata.withdraw
+  }
+
+  return {}
+}
 
 const WithdrawLayout: React.FC<PropsWithChildren> = ({ children }) => {
   return (

@@ -16,7 +16,6 @@
 
 body {
   color: var(--color);
-  background: var(--background);
 }
 
 @layer utilities {
@@ -36,12 +35,16 @@ body {
   height: 100%;
   overflow-x: hidden;
   color: var(--color);
-  background: var(--background);
 }
 
 html.tmpl-solswap,
 .tmpl-solswap body {
   background: var(--purple-2);
+}
+
+html.tmpl-dogecoinswap,
+.tmpl-dogecoinswap body {
+  background: var(--gray-2);
 }
 
 

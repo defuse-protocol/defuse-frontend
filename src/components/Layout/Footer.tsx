@@ -1,6 +1,9 @@
-import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
-import Image from "next/image"
 import { useContext } from "react"
+
+import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
+import DogecoinLogo from "../../../public/static/logos/blockchain-strips/dogecoin.svg"
+import NearLogo from "../../../public/static/logos/blockchain-strips/near.svg"
+import SolanaLogo from "../../../public/static/logos/blockchain-strips/solana.svg"
 
 const Footer = () => {
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
@@ -8,22 +11,11 @@ const Footer = () => {
   if (whitelabelTemplate === "solswap") {
     return (
       <footer className="w-full flex justify-center items-center py-7">
-        <div className="flex justify-center items-center text-sm text-secondary gap-1.5 bg-white px-3 py-1.5 rounded-full dark:bg-gray-700 dark:text-white">
+        <div className="flex justify-center items-center text-sm font-medium text-white gap-1.5 bg-black/25 px-3 py-1.5 rounded-full">
           <span>Built by</span>
-          <Image
-            src="/static/icons/network/near_dark.svg"
-            width={16}
-            height={16}
-            alt="Near logo"
-          />
-          <span className="text-black-400 dark:text-white">Near</span>
-          <span>with ❤ to</span>
-          <Image
-            src="/static/logos/SolanaSolLogoHorizontal.svg"
-            width={88}
-            height={22}
-            alt="Solana logo"
-          />
+          <NearLogo />
+          <span>with love for</span>
+          <SolanaLogo />
         </div>
       </footer>
     )
@@ -36,27 +28,11 @@ const Footer = () => {
   if (whitelabelTemplate === "dogecoinswap") {
     return (
       <footer className="w-full flex justify-center items-center py-7">
-        <div className="flex justify-center items-center text-sm text-secondary gap-1.5 bg-white px-3 py-1.5 rounded-full dark:bg-gray-700 dark:text-white">
-          <span>Built by</span>
-          <Image
-            src="/static/icons/network/near_dark.svg"
-            width={16}
-            height={16}
-            alt="Near logo"
-          />
-          <span className="text-black-400 dark:text-white font-medium">
-            Near
-          </span>
-          <span>with love for</span>
-          <Image
-            src="/static/templates/dogecoinswap/icon.svg"
-            width={20}
-            height={20}
-            alt="Dogecoin logo"
-          />
-          <span className="text-black-400 dark:text-white font-medium">
-            Dogecoin
-          </span>
+        <div className="flex justify-center items-center gap-1.5 text-sm font-medium bg-white dark:bg-black px-3 py-1.5 rounded-full">
+          <span className="text-secondary">Built by</span>
+          <NearLogo className="text-black dark:text-white" />
+          <span className="text-secondary">with love for</span>
+          <DogecoinLogo className="text-black dark:text-white" />
         </div>
       </footer>
     )
@@ -64,15 +40,9 @@ const Footer = () => {
 
   return (
     <footer className="w-full flex justify-center items-center py-7">
-      <div className="flex justify-center items-center text-sm text-secondary gap-1.5 bg-white px-3 py-1.5 rounded-full dark:bg-gray-700 dark:text-white">
-        <span>Powered by</span>
-        <Image
-          src="/static/icons/network/near_dark.svg"
-          width={16}
-          height={16}
-          alt="Near logo"
-        />
-        <span className="text-black-400 dark:text-white">Near</span>
+      <div className="flex justify-center items-center gap-1.5 text-sm font-medium bg-white dark:bg-black px-3 py-1.5 rounded-full">
+        <span className="text-secondary">Powered by</span>
+        <NearLogo className="text-black dark:text-white" />
       </div>
     </footer>
   )
