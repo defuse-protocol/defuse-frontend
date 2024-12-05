@@ -39,6 +39,12 @@ body {
   background: var(--background);
 }
 
+html.tmpl-solswap,
+.tmpl-solswap body {
+  background: var(--purple-2);
+}
+
+
 h1 {
   font-size: 3rem; // 48px
   font-weight: 700;

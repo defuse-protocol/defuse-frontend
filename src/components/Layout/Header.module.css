@@ -1,0 +1,7 @@
+.header {
+    @apply bg-white;
+}
+
+:global(.tmpl-solswap) .header {
+  background-color: var(--purple-2);
+}
