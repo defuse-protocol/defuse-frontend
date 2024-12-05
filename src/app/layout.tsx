@@ -29,12 +29,36 @@ const DEV_MODE = process?.env?.NEXT_PUBLIC_DEV_MODE === "true" ?? false
 export async function generateMetadata(): Promise<Metadata> {
   const templ = await whitelabelTemplateFlag()
 
+  const metadata: Metadata = {}
+
+  if (templ === "dogecoinswap") {
+    Object.assign(metadata, {
+      title: "DogecoinSwap: Let Your Meme Coins Run Wild",
+      description: "Fast, easy cross-chain swaps for DOGE and more",
+      openGraph: {
+        type: "website",
+        images: `/favicons/${templ}/og-image.jpg`,
+        title: "DogecoinSwap: Let Your Meme Coins Run Wild",
+        description: "Fast, easy cross-chain swaps for DOGE and more",
+      },
+      twitter: {
+        title: "DogecoinSwap: Let Your Meme Coins Run Wild",
+        description: "Fast, easy cross-chain swaps for DOGE and more",
+        images: `/favicons/${templ}/og-image.jpg`,
+      },
+    })
+  }
+
   return {
+    metadataBase: process.env.NEXT_PUBLIC_APP_URL
+      ? new URL(process.env.NEXT_PUBLIC_APP_URL)
+      : null,
     icons: {
       icon: `/favicons/${templ}/favicon-32x32.png`,
       apple: `/favicons/${templ}/apple-touch-icon.png`,
     },
     manifest: `/favicons/${templ}/site.webmanifest`,
+    ...metadata,
   }
 }
 
