@@ -111,7 +111,7 @@ const config: Config = {
           200: "rgba(219, 95, 0, 1)",
           100: "rgba(239, 95, 0, 1)",
         },
-        secondary: "rgba(128, 128, 128, 1)",
+        secondary: "#82827c",
       },
       boxShadow: {
         paper:

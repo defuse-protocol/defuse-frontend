@@ -1,7 +1,8 @@
-import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
-import Image from "next/image"
 import Link from "next/link"
 import { type PropsWithChildren, useContext } from "react"
+
+import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
+import AuroraLogo from "../../public/static/logos/blockchain-strips/aurora.svg"
 
 interface Props extends PropsWithChildren {
   title?: string
@@ -29,15 +30,10 @@ const Paper = ({ children, title, description }: Props) => {
               href="https://auroralabs.dev"
               target="_blank"
               rel="noreferrer"
-              className="flex justify-center items-center text-sm text-secondary gap-1.5 bg-white px-3 py-1.5 rounded-full dark:bg-gray-700 dark:text-white"
+              className="flex justify-center items-center gap-1.5 text-sm font-medium bg-white dark:bg-black px-3 py-1.5 rounded-full"
             >
-              <span>Powered by</span>
-              <Image
-                src="/static/logos/blockchain-strips/aurora.svg"
-                width={103}
-                height={20}
-                alt="Aurora logo"
-              />
+              <span className="text-secondary">Powered by</span>
+              <AuroraLogo className="text-black dark:text-white" />
             </Link>
           </div>
         </div>
