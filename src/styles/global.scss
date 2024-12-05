@@ -16,7 +16,6 @@
 
 body {
   color: var(--color);
-  background: var(--background);
 }
 
 @layer utilities {
@@ -36,7 +35,6 @@ body {
   height: 100%;
   overflow-x: hidden;
   color: var(--color);
-  background: var(--background);
 }
 
 html.tmpl-solswap,
