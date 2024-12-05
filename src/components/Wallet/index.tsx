@@ -60,11 +60,12 @@ const ConnectWallet = () => {
         <Popover.Trigger>
           <Button
             type={"button"}
-            size={"3"}
+            variant={"classic"}
+            size={"2"}
             radius={"full"}
             disabled={TURN_OFF_APPS}
           >
-            <Text size="2" weight="medium" wrap="nowrap">
+            <Text weight="bold" wrap="nowrap">
               Connect wallet
             </Text>
           </Button>
