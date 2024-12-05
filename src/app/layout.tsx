@@ -38,13 +38,15 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-const RootLayout = ({
+const RootLayout = async ({
   children,
 }: Readonly<{
   children?: ReactNode
 }>) => {
+  const tmpl = await whitelabelTemplateFlag()
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={`tmpl-${tmpl}`}>
       <body>
         <ThemeProvider>
           <WagmiProvider config={config}>
