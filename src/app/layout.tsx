@@ -1,11 +1,13 @@
 import { GoogleAnalytics } from "@next/third-parties/google"
 import { QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
+import type { Metadata } from "next"
 import type { ReactNode } from "react"
 import { WagmiProvider } from "wagmi"
 
 import Modal from "@src/components/Modal"
 import { SentryTracer } from "@src/components/SentryTracer"
+import { whitelabelTemplateFlag } from "@src/config/featureFlags"
 import { config } from "@src/config/wagmi"
 import queryClient from "@src/constants/queryClient"
 import { HistoryStoreProvider } from "@src/providers/HistoryStoreProvider"
@@ -24,13 +26,27 @@ import "../styles/global.scss"
 
 const DEV_MODE = process?.env?.NEXT_PUBLIC_DEV_MODE === "true" ?? false
 
-const RootLayout = ({
+export async function generateMetadata(): Promise<Metadata> {
+  const templ = await whitelabelTemplateFlag()
+
+  return {
+    icons: {
+      icon: `/favicons/${templ}/favicon-32x32.png`,
+      apple: `/favicons/${templ}/apple-touch-icon.png`,
+    },
+    manifest: `/favicons/${templ}/site.webmanifest`,
+  }
+}
+
+const RootLayout = async ({
   children,
 }: Readonly<{
   children?: ReactNode
 }>) => {
+  const tmpl = await whitelabelTemplateFlag()
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={`tmpl-${tmpl}`}>
       <body>
         <ThemeProvider>
           <WagmiProvider config={config}>

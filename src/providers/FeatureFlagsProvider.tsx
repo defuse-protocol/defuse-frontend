@@ -5,7 +5,6 @@ import { type ReactNode, createContext } from "react"
 
 export const FeatureFlagsContext = createContext<FeatureFlagValues>({
   whitelabelTemplate: "near-intents",
-  dogecoin: false,
 })
 
 export function FeatureFlagsProvider({
