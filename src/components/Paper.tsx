@@ -25,12 +25,13 @@ const Paper = ({ children, title, description }: Props) => {
             )}
           </div>
           <div className="flex justify-center md:justify-start">{children}</div>
+
           <div className="w-full flex justify-center md:justify-start items-center pt-7">
             <Link
               href="https://auroralabs.dev"
               target="_blank"
               rel="noreferrer"
-              className="flex justify-center items-center gap-1.5 text-sm font-medium bg-white dark:bg-black px-3 py-1.5 rounded-full"
+              className="flex justify-center items-center gap-1.5 text-sm font-medium bg-white dark:bg-black px-3 py-1.5 rounded-full shadow"
             >
               <span className="text-secondary">Powered by</span>
               <AuroraLogo className="text-black dark:text-white" />
