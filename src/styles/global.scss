@@ -42,6 +42,11 @@ html.tmpl-solswap,
   background: var(--purple-2);
 }
 
+html.tmpl-dogecoinswap,
+.tmpl-dogecoinswap body {
+  background: var(--gray-2);
+}
+
 
 h1 {
   font-size: 3rem; // 48px
