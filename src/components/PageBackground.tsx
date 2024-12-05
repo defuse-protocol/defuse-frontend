@@ -1,8 +1,24 @@
-import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
+import Image from "next/image"
 import React, { useContext } from "react"
+
+import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
+import solswapBg from "../../public/static/templates/solswap/bg.png"
 
 const PageBackground = () => {
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
+
+  if (whitelabelTemplate === "solswap") {
+    return (
+      <div className="absolute bottom-0 w-full h-full -z-[1]">
+        <Image
+          src={solswapBg}
+          unoptimized
+          alt={""}
+          className="w-full h-full object-cover object-bottom"
+        />
+      </div>
+    )
+  }
 
   if (whitelabelTemplate === "turboswap") {
     return (
