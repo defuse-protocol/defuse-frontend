@@ -15,9 +15,8 @@ import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 const TURN_OFF_APPS = process?.env?.turnOffApps === "true" ?? true
 
 const ConnectWallet = () => {
-  const { state } = useConnectWallet()
+  const { state, signIn, connectors } = useConnectWallet()
   const { shortAccountId } = useShortAccountId(state.address ?? "")
-  const { signIn, connectors } = useConnectWallet()
   const walletAgreement = useWalletAgreement()
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
 

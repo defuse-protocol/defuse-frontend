@@ -121,11 +121,15 @@ export const useConnectWallet = (): ConnectWalletAction => {
     }
   }
 
-  if (evmWalletAccount.address != null && evmWalletAccount.chain) {
+  // We check `account.chainId` instead of `account.chain` to determine if
+  // the user is connected. This is because the user might be connected to
+  // an unsupported chain (so `.chain` will undefined), but we still want
+  // to recognize that their wallet is connected.
+  if (evmWalletAccount.address != null && evmWalletAccount.chainId) {
     state = {
       address: evmWalletAccount.address,
-      network: evmWalletAccount.chain.id
-        ? `eth:${evmWalletAccount.chain.id}`
+      network: evmWalletAccount.chainId
+        ? `eth:${evmWalletAccount.chainId}`
         : "unknown",
       chainType: ChainType.EVM,
     }
