@@ -39,7 +39,7 @@ function sortTokensWithPriority(
 
   const priorityMap = new Map(priorityTokenIds.map((id, index) => [id, index]))
 
-  return tokens.toSorted((a, b) => {
+  return Array.from(tokens).sort((a, b) => {
     const aIndex = getTokenPriorityIndex(priorityMap, a)
     const bIndex = getTokenPriorityIndex(priorityMap, b)
 
