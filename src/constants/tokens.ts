@@ -416,7 +416,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     unifiedAssetId: "turbo",
     decimals: 18,
     symbol: "TURBO",
-    name: "TURBO",
+    name: "Turbo",
     icon: "https://assets.coingecko.com/coins/images/30117/standard/TurboMark-QL_200.png",
     groupedTokens: [
       {
@@ -427,11 +427,11 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
         decimals: 18,
         icon: "https://assets.coingecko.com/coins/images/30117/standard/TurboMark-QL_200.png",
         chainId: "",
-        chainIcon: "/static/icons/network/turbochain.svg",
+        chainIcon: "/static/icons/network/turbochain.png",
         chainName: "turbochain",
         routes: [],
         symbol: "TURBO",
-        name: "TURBO",
+        name: "Turbo",
       },
       {
         defuseAssetId:
@@ -444,7 +444,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
         chainName: "near",
         routes: [],
         symbol: "TURBO",
-        name: "TURBO",
+        name: "Turbo",
       },
     ],
   },
