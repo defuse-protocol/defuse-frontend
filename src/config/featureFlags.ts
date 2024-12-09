@@ -1,3 +1,4 @@
+import { get } from "@vercel/edge-config"
 import { unstable_flag as flag } from "@vercel/flags/next"
 
 const validWhitelabelTemplates = [
@@ -28,5 +29,22 @@ export const whitelabelTemplateFlag = flag({
     }
 
     return "near-intents"
+  },
+})
+
+export const maintenanceModeFlag = flag({
+  key: "maintenanceMode",
+  defaultValue: false as boolean,
+  options: [
+    { label: "On", value: true },
+    { label: "Off", value: false },
+  ],
+  async decide() {
+    try {
+      const isMaintenanceMode = await get("isMaintenanceMode")
+      return isMaintenanceMode === true
+    } catch {
+      return false
+    }
   },
 })
