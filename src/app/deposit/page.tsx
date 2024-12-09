@@ -23,8 +23,17 @@ export default function Deposit() {
             id: ChainType.Near,
             tx,
           })
-          // For batch transactions, the result is an array with the transaction hash as the second element
-          return Array.isArray(result) ? result[1].transaction.hash : result
+
+          if (typeof result === "string") {
+            return result
+          }
+
+          const outcome = result[0]
+          if (!outcome) {
+            throw new Error("No outcome")
+          }
+
+          return outcome.transaction.hash
         }}
         sendTransactionEVM={async (tx) => {
           const result = await sendTransaction({
