@@ -6956,6 +6956,18 @@
   resolved "https://registry.yarnpkg.com/@ungap/structured-clone/-/structured-clone-1.2.0.tgz#756641adb587851b5ccb3e095daf27ae581c8406"
   integrity sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==
 
+"@vercel/edge-config-fs@0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@vercel/edge-config-fs/-/edge-config-fs-0.1.0.tgz#cda8327f611418c1d1cbb28c6bed02d782be928b"
+  integrity sha512-NRIBwfcS0bUoUbRWlNGetqjvLSwgYH/BqKqDN7vK1g32p7dN96k0712COgaz6VFizAm9b0g6IG6hR6+hc0KCPg==
+
+"@vercel/edge-config@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@vercel/edge-config/-/edge-config-1.4.0.tgz#b6290037c25f0f730f46bc86c81fdd110929e9bb"
+  integrity sha512-69Wg5gw9DzwnyUmnjToSeLRm1nm8mCPgN0kflX8EHRHyqvzH80wPem5A8rI2LXPb2Y9tJNoqN3vXPcQhS2Wh5g==
+  dependencies:
+    "@vercel/edge-config-fs" "0.1.0"
+
 "@vercel/flags@^2.6.3":
   version "2.6.3"
   resolved "https://registry.yarnpkg.com/@vercel/flags/-/flags-2.6.3.tgz#fc54bc8908111f1f77632f2a1efd8044da1cf23f"
