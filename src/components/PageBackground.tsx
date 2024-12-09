@@ -28,8 +28,8 @@ const PageBackground = () => {
 
   if (whitelabelTemplate === "dogecoinswap") {
     return (
-      <div className="absolute bottom-0 w-full h-full -z-[1]">
-        <div className="w-full h-full bg-no-repeat bg-bottom bg-contain md:bg-cover bg-[url('/static/templates/dogecoinswap/bg-light.jpg')]" />
+      <div className="hidden md:block absolute bottom-0 w-full h-full -z-[1]">
+        <div className="w-full h-full bg-no-repeat bg-center bg-cover bg-[url('/static/templates/dogecoinswap/bg-light.jpg')]" />
       </div>
     )
   }

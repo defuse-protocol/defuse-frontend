@@ -1,3 +1,4 @@
+import Image from "next/image"
 import { useContext } from "react"
 
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
@@ -27,13 +28,24 @@ const Footer = () => {
 
   if (whitelabelTemplate === "dogecoinswap") {
     return (
-      <footer className="w-full flex justify-center items-center py-7">
-        <div className="flex justify-center items-center gap-1.5 text-sm font-medium bg-white dark:bg-black px-3 py-1.5 rounded-full">
-          <span className="text-secondary">Built by</span>
-          <NearLogo className="text-black dark:text-white" />
-          <span className="text-secondary">with love for</span>
-          <DogecoinLogo className="text-black dark:text-white" />
+      <footer className="py-7">
+        <div className=" flex justify-center items-center">
+          <div className="flex justify-center items-center gap-1.5 text-sm font-medium bg-white dark:bg-black px-3 py-1.5 rounded-full">
+            <span className="text-secondary">Built by</span>
+            <NearLogo className="text-black dark:text-white" />
+            <span className="text-secondary">with love for</span>
+            <DogecoinLogo className="text-black dark:text-white" />
+          </div>
         </div>
+
+        <Image
+          src="/static/templates/dogecoinswap/doge-bottom.png"
+          alt=""
+          loading="lazy"
+          width={750}
+          height={528}
+          className="object-contain md:hidden"
+        />
       </footer>
     )
   }

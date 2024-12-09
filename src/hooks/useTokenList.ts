@@ -4,18 +4,25 @@ import {
   isBaseToken,
   isUnifiedToken,
 } from "@defuse-protocol/defuse-sdk"
+import { useContext } from "react"
+
 import type { WhitelabelTemplateValue } from "@src/config/featureFlags"
 import { useFlatTokenList } from "@src/hooks/useFlatTokenList"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
-import { useContext } from "react"
 
 const TEMPLATE_PRIORITY_TOKENS: Record<WhitelabelTemplateValue, string[]> = {
   "near-intents": [
     "nep141:eth-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.omft.near",
     "nep141:wrap.near",
   ],
-  solswap: ["nep141:sol.omft.near", "nep141:wrap.near"],
-  dogecoinswap: ["nep141:doge.omft.near", "nep141:wrap.near"],
+  solswap: [
+    "nep141:eth-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.omft.near",
+    "nep141:sol.omft.near",
+  ],
+  dogecoinswap: [
+    "nep141:eth-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.omft.near",
+    "nep141:doge.omft.near",
+  ],
   turboswap: [],
 }
 
@@ -39,7 +46,7 @@ function sortTokensWithPriority(
 
   const priorityMap = new Map(priorityTokenIds.map((id, index) => [id, index]))
 
-  return tokens.toSorted((a, b) => {
+  return Array.from(tokens).sort((a, b) => {
     const aIndex = getTokenPriorityIndex(priorityMap, a)
     const bIndex = getTokenPriorityIndex(priorityMap, b)
 
