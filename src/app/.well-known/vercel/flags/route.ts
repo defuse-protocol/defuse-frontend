@@ -2,7 +2,10 @@ import { type ApiData, verifyAccess } from "@vercel/flags"
 import { unstable_getProviderData as getProviderData } from "@vercel/flags/next"
 import { type NextRequest, NextResponse } from "next/server"
 
-import { whitelabelTemplateFlag } from "@src/config/featureFlags"
+import {
+  maintenanceModeFlag,
+  whitelabelTemplateFlag,
+} from "@src/config/featureFlags"
 
 export async function GET(request: NextRequest) {
   const access = await verifyAccess(request.headers.get("Authorization"))
@@ -11,6 +14,7 @@ export async function GET(request: NextRequest) {
   return NextResponse.json<ApiData>(
     getProviderData({
       [whitelabelTemplateFlag.key]: whitelabelTemplateFlag,
+      [maintenanceModeFlag.key]: maintenanceModeFlag,
     })
   )
 }

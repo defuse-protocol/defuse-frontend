@@ -1,50 +1,24 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
-const allowedOrigins = [
-  process.env.SOLVER_RELAY_0_URL ?? "https://solver-relay.chaindefuser.com/rpc",
-]
-
-const corsOptions = {
-  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-}
-
-export function middleware(request: NextRequest) {
-  const origin = request.headers.get("origin") ?? ""
-
-  const isAllowedOrigin = allowedOrigins.includes(origin)
-
-  const isPreflight = request.method === "OPTIONS"
-
-  if (isPreflight) {
-    const preflightHeaders = {
-      ...(isAllowedOrigin && { "Access-Control-Allow-Origin": origin }),
-      ...corsOptions,
-    }
-    return NextResponse.json({}, { headers: preflightHeaders })
-  }
-
-  const response = NextResponse.next()
-
-  if (isAllowedOrigin) {
-    response.headers.set("Access-Control-Allow-Origin", origin)
-  }
-
-  for (const [key, value] of Object.entries(corsOptions)) {
-    response.headers.set(key, value)
-  }
-
-  return response
-}
+import { maintenanceModeFlag } from "@src/config/featureFlags"
 
 export const config = {
-  matcher: [
-    "/",
-    "/swap/:path*",
-    "/deposit/:path*",
-    "/withdraw/:path*",
-    "/wallet/:path*",
-    "/jobs/:path*",
-  ],
+  matcher:
+    "/((?!api|.well-known/vercel|_next/static|_next/image|favicon.ico|favicons|static|maintenance).*)",
+}
+
+export async function middleware(request: NextRequest) {
+  try {
+    const isMaintenanceMode = await maintenanceModeFlag()
+
+    if (isMaintenanceMode) {
+      return NextResponse.rewrite(new URL("/maintenance", request.url))
+    }
+  } catch (error) {
+    // If feature flag evaluation fails, continue normally
+    console.error("Feature flag evaluation error:", error)
+  }
+
+  return NextResponse.next()
 }
