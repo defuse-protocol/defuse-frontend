@@ -43,7 +43,8 @@ export const maintenanceModeFlag = flag({
     try {
       const isMaintenanceMode = await get("isMaintenanceMode")
       return isMaintenanceMode === true
-    } catch {
+    } catch (err) {
+      console.error("Error getting edge config:", err)
       return false
     }
   },
