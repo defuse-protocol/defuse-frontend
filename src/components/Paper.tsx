@@ -15,7 +15,7 @@ const Paper = ({ children, title, description }: Props) => {
   if (whitelabelTemplate === "turboswap") {
     return (
       <div className="flex flex-col flex-1 justify-start items-center sm:mt-[5.5rem] md:mt-0">
-        <div className="w-full px-3 max-w-[472px]">
+        <div className="w-full px-3">
           <div className="flex flex-col mb-8 text-center md:text-left">
             {title && <h1 className="mb-3 font-black">{title}</h1>}
             {description && (
@@ -44,7 +44,7 @@ const Paper = ({ children, title, description }: Props) => {
 
   return (
     <div className="flex flex-col flex-1 justify-start items-center mt-[5.5rem]">
-      <div className="w-full px-3 max-w-[472px]">
+      <div className="w-full px-3">
         <div className="flex flex-col mb-8 text-center">
           {title && <h1 className="mb-3 font-black">{title}</h1>}
           {description && (
