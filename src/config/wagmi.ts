@@ -1,5 +1,6 @@
 "use client"
 
+import type { Chain } from "viem"
 import { http, createConfig } from "wagmi"
 import { arbitrum, base, mainnet } from "wagmi/chains"
 import {
@@ -11,8 +12,20 @@ import {
 
 const PROJECT_ID = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID
 
+const turbo = {
+  id: 1313161567,
+  name: "Turbo",
+  nativeCurrency: { name: "Turbo", symbol: "TURBO", decimals: 18 },
+  rpcUrls: {
+    default: { http: ["https://rpc-0x4e45415f.aurora-cloud.dev"] },
+  },
+  blockExplorers: {
+    default: { name: "Explorer", url: "https://explorer.turbo.aurora.dev" },
+  },
+} as const satisfies Chain
+
 export const config = createConfig({
-  chains: [mainnet, base, arbitrum],
+  chains: [mainnet, base, arbitrum, turbo],
   connectors: [
     injected(),
     metaMask(),
@@ -27,5 +40,6 @@ export const config = createConfig({
     [mainnet.id]: http(),
     [base.id]: http(),
     [arbitrum.id]: http(),
+    [turbo.id]: http(),
   },
 })
