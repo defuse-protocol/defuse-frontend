@@ -23,7 +23,6 @@ fi
 git pull origin main
 
 # Run one after the other: 
-git push origin main:near-intents
 git push origin main:solana
 git push origin main:dogecoinswap
 git push origin main:turboswap
