@@ -1,17 +1,13 @@
 import { config } from "@src/config/wagmi"
 import { type SendTransactionParameters, sendTransaction } from "@wagmi/core"
-import { useAccount } from "wagmi"
+import { useAccount, useSendTransaction } from "wagmi"
 
 export function useEVMWalletActions() {
-  const { connector } = useAccount()
-
+  const { sendTransactionAsync } = useSendTransaction()
   return {
-    sendTransactions: async (calldata: SendTransactionParameters) => {
-      const outcome = await sendTransaction(config, {
-        connector,
-        to: calldata.to,
-        data: calldata.data,
-        value: calldata.value,
+    sendTransactions: async (tx: SendTransactionParameters) => {
+      const outcome = await sendTransactionAsync({
+        ...tx,
       })
       if (!outcome) {
         throw new Error("No outcome")
