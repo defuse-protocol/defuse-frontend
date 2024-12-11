@@ -412,6 +412,44 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     symbol: "DOGE",
     name: "Dogecoin",
   },
+  {
+    unifiedAssetId: "turbo",
+    decimals: 18,
+    symbol: "TURBO",
+    name: "Turbo",
+    icon: "https://assets.coingecko.com/coins/images/30117/standard/TurboMark-QL_200.png",
+    groupedTokens: [
+      {
+        defuseAssetId:
+          "nep141:a35923162c49cf95e6bf26623385eb431ad920d3.factory.bridge.near",
+        type: "native",
+        address: "native",
+        decimals: 18,
+        icon: "https://assets.coingecko.com/coins/images/30117/standard/TurboMark-QL_200.png",
+        chainId: "",
+        chainIcon: "/static/icons/network/turbochain.png",
+        chainName: "turbochain",
+        routes: [],
+        symbol: "TURBO",
+        name: "Turbo",
+      },
+      /*
+      {
+        defuseAssetId:
+          "nep141:a35923162c49cf95e6bf26623385eb431ad920d3.factory.bridge.near",
+        address: "a35923162c49cf95e6bf26623385eb431ad920d3.factory.bridge.near",
+        decimals: 18,
+        icon: "https://assets.coingecko.com/coins/images/30117/standard/TurboMark-QL_200.png",
+        chainId: "",
+        chainIcon: "/static/icons/network/near.svg",
+        chainName: "near",
+        routes: [],
+        symbol: "TURBO",
+        name: "Turbo",
+      },
+       */
+    ],
+  },
 ]
 
 /** @deprecated */
