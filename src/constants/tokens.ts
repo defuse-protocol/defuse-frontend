@@ -433,6 +433,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
         symbol: "TURBO",
         name: "Turbo",
       },
+      /*
       {
         defuseAssetId:
           "nep141:a35923162c49cf95e6bf26623385eb431ad920d3.factory.bridge.near",
@@ -446,6 +447,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
         symbol: "TURBO",
         name: "Turbo",
       },
+       */
     ],
   },
 ]
