@@ -23,31 +23,21 @@ export default function Deposit() {
             id: ChainType.Near,
             tx,
           })
-
-          if (typeof result === "string") {
-            return result
-          }
-
-          const outcome = result[0]
-          if (!outcome) {
-            throw new Error("No outcome")
-          }
-
-          return outcome.transaction.hash
+          return Array.isArray(result) ? result[0].transaction.hash : result
         }}
         sendTransactionEVM={async (tx) => {
           const result = await sendTransaction({
             id: ChainType.EVM,
             tx,
           })
-          return Array.isArray(result) ? result[1].transaction.hash : result
+          return Array.isArray(result) ? result[0].transaction.hash : result
         }}
         sendTransactionSolana={async (tx) => {
           const result = await sendTransaction({
             id: ChainType.Solana,
             tx,
           })
-          return Array.isArray(result) ? result[1].transaction.hash : result
+          return Array.isArray(result) ? result[0].transaction.hash : result
         }}
       />
     </Paper>
