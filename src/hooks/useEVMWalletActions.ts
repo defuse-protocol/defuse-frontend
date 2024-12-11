@@ -12,6 +12,7 @@ export function useEVMWalletActions() {
         to: calldata.to,
         data: calldata.data,
         value: calldata.value,
+        gasPrice: calldata?.gasPrice ?? undefined,
       })
       if (!outcome) {
         throw new Error("No outcome")
