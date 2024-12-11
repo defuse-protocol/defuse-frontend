@@ -1,5 +1,7 @@
+"use client"
+
 import Image from "next/image"
-import React, { useContext } from "react"
+import { useContext } from "react"
 
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import solswapBg from "../../public/static/templates/solswap/bg.png"
