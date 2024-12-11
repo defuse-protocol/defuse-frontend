@@ -23,7 +23,10 @@ const TEMPLATE_PRIORITY_TOKENS: Record<WhitelabelTemplateValue, string[]> = {
     "nep141:eth-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.omft.near",
     "nep141:doge.omft.near",
   ],
-  turboswap: [],
+  turboswap: [
+    "nep141:eth-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.omft.near",
+    "nep141:a35923162c49cf95e6bf26623385eb431ad920d3.factory.bridge.near",
+  ],
 }
 
 export function useTokenList(tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]) {
@@ -34,6 +37,16 @@ export function useTokenList(tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]) {
     list,
     TEMPLATE_PRIORITY_TOKENS[flags.whitelabelTemplate]
   )
+
+  // Show $Turbo only on TurboSwap
+  if (flags.whitelabelTemplate !== "turboswap") {
+    list = list.filter((token) => {
+      if (isUnifiedToken(token)) {
+        return token.unifiedAssetId !== "turbo"
+      }
+      return true
+    })
+  }
 
   return list
 }
