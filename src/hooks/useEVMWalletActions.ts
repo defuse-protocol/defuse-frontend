@@ -1,19 +1,32 @@
-import { config } from "@src/config/wagmi"
-import { type SendTransactionParameters, sendTransaction } from "@wagmi/core"
-import { useAccount, useSendTransaction } from "wagmi"
+import type { SendTransactionParameters } from "@wagmi/core"
+import { withTimeout } from "viem"
+import { useSendTransaction, useSwitchChain } from "wagmi"
 
 export function useEVMWalletActions() {
   const { sendTransactionAsync } = useSendTransaction()
+  const { switchChainAsync } = useSwitchChain()
+
   return {
     sendTransactions: async (tx: SendTransactionParameters) => {
-      const outcome = await sendTransactionAsync({
-        ...tx,
-      })
-      if (!outcome) {
-        throw new Error("No outcome")
+      console.log("Sending transaction", serializeStructuredLogData({ tx }))
+
+      const chainId = tx.chainId
+      if (chainId != null) {
+        await withTimeout(() => switchChainAsync({ chainId }), {
+          errorInstance: new Error(`Chain switch timeout chainId=${chainId}`),
+          timeout: 20000,
+        })
       }
 
-      return outcome
+      const txHash = await sendTransactionAsync(tx)
+
+      return txHash
     },
   }
+}
+
+function serializeStructuredLogData(data: object) {
+  return JSON.stringify(data, (key, value) =>
+    typeof value === "bigint" ? value.toString() : value
+  )
 }

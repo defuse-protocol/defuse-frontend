@@ -25,10 +25,13 @@ export default function Deposit() {
           })
           return Array.isArray(result) ? result[0].transaction.hash : result
         }}
-        sendTransactionEVM={async (tx) => {
+        sendTransactionEVM={async ({ from, ...tx }) => {
           const result = await sendTransaction({
             id: ChainType.EVM,
-            tx,
+            tx: {
+              ...tx,
+              account: from,
+            },
           })
           return Array.isArray(result) ? result[0].transaction.hash : result
         }}
