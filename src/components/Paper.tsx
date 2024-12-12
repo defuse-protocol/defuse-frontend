@@ -33,8 +33,10 @@ const Paper = ({ children, title, description }: Props) => {
               rel="noreferrer"
               className="flex justify-center items-center gap-1.5 text-sm font-medium bg-white dark:bg-black px-3 py-1.5 rounded-full shadow"
             >
-              <span className="text-secondary">Powered by</span>
+              <span className="text-secondary">Built by</span>
               <AuroraLogo className="text-black dark:text-white" />
+              <span className="text-secondary">with love for</span>
+              <span className="text-black">Turbo</span>
             </Link>
           </div>
         </div>
