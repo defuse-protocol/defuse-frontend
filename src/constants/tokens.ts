@@ -421,6 +421,19 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     groupedTokens: [
       {
         defuseAssetId:
+          "nep141:eth-0xa35923162c49cf95e6bf26623385eb431ad920d3.omft.near",
+        address: "0xA35923162C49cF95e6BF26623385eb431ad920D3",
+        decimals: 18,
+        icon: "https://assets.coingecko.com/coins/images/30117/standard/TurboMark-QL_200.png",
+        chainId: "",
+        chainIcon: "/static/icons/network/eth.svg",
+        chainName: "eth",
+        routes: [],
+        symbol: "TURBO",
+        name: "Turbo",
+      },
+      {
+        defuseAssetId:
           "nep141:a35923162c49cf95e6bf26623385eb431ad920d3.factory.bridge.near",
         type: "native",
         address: "native",
@@ -433,7 +446,6 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
         symbol: "TURBO",
         name: "Turbo",
       },
-      /*
       {
         defuseAssetId:
           "nep141:a35923162c49cf95e6bf26623385eb431ad920d3.factory.bridge.near",
@@ -447,7 +459,6 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
         symbol: "TURBO",
         name: "Turbo",
       },
-       */
     ],
   },
 ]
