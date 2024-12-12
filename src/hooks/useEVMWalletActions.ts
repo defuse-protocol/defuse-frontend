@@ -14,7 +14,8 @@ export function useEVMWalletActions() {
       if (chainId != null) {
         await withTimeout(() => switchChainAsync({ chainId }), {
           errorInstance: new Error(`Chain switch timeout chainId=${chainId}`),
-          timeout: 20000,
+          // WalletConnect issue: when network switching is not possible, it'll hang forever, so we need to set a timeout
+          timeout: 30000,
         })
       }
 
