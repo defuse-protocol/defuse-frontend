@@ -40,12 +40,25 @@ export function useTokenList(tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]) {
 
   // Show $Turbo only on TurboSwap
   if (flags.whitelabelTemplate !== "turboswap") {
-    list = list.filter((token) => {
-      if (isUnifiedToken(token)) {
-        return token.unifiedAssetId !== "turbo"
-      }
-      return true
-    })
+    list = list
+      .filter((t) => {
+        return isBaseToken(t) ? t.chainName !== "turbochain" : true
+      })
+      .filter((t) => {
+        return t.name !== "Turbo"
+      })
+      .map((token) => {
+        if (isUnifiedToken(token)) {
+          return {
+            ...token,
+            groupedTokens: token.groupedTokens.filter(
+              (t) => t.chainName !== "turbochain"
+            ),
+          }
+        }
+
+        return token
+      })
   }
 
   return list
