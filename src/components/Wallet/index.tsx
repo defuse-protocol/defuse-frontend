@@ -69,7 +69,11 @@ const ConnectWallet = () => {
             </Text>
           </Button>
         </Popover.Trigger>
-        <Popover.Content className="min-w-[330px] md:mr-[48px] dark:bg-black-800 rounded-2xl">
+        <Popover.Content
+          maxWidth={{ initial: "90vw", xs: "480px" }}
+          minWidth={{ initial: "300px", xs: "330px" }}
+          className="md:mr-[48px] dark:bg-black-800 rounded-2xl"
+        >
           {walletAgreement.context?.show && (
             <div className="w-full grid grid-cols-1 gap-4 mt-4">
               <Text size="2">
