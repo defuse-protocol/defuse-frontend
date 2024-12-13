@@ -221,7 +221,10 @@ const ConnectWallet = () => {
             </Text>
           </Button>
         </Popover.Trigger>
-        <Popover.Content className="min-w-[330px] mt-1 md:mr-[48px] dark:bg-black-800 rounded-2xl">
+        <Popover.Content
+          minWidth={{ initial: "300px", xs: "330px" }}
+          className="mt-1 md:mr-[48px] dark:bg-black-800 rounded-2xl"
+        >
           <div className="flex flex-col gap-5">
             <WalletConnections />
           </div>
