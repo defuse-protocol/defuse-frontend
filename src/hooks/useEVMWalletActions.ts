@@ -24,14 +24,17 @@ export function useEVMWalletActions() {
 
       if (chainId != null && currentChainId !== chainId) {
         console.log("Switching chain", serialize({ currentChainId, chainId }))
-        await withTimeout(() => switchChainAsync({ chainId }), {
+        await withTimeout(() => switchChainAsync({ connector, chainId }), {
           errorInstance: new Error(`Chain switch timeout chainId=${chainId}`),
           // WalletConnect issue: when network switching is not possible, it'll hang forever, so we need to set a timeout
           timeout: 30000,
         })
       }
 
-      const txHash = await sendTransactionAsync(tx)
+      const txHash = await sendTransactionAsync({
+        connector,
+        ...tx,
+      })
 
       return txHash
     },
