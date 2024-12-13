@@ -282,6 +282,17 @@ function WalletIcon({ connector }: { connector: Connector }) {
         />
       )
   }
+
+  if (connector.icon != null) {
+    return (
+      <Image
+        src={connector.icon.trim()}
+        alt={connector.name}
+        width={36}
+        height={36}
+      />
+    )
+  }
 }
 
 function renderWalletName(connector: Connector) {
