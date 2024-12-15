@@ -86,7 +86,7 @@ export const signMessageInNewWindow = async ({
       onClose: () => {
         reject(new Error("Window closed"))
       },
-      signal: AbortSignal.any([signal, completeAbortCtrl.signal]),
+      signal: anySignal([signal, completeAbortCtrl.signal]),
     })
   })
 
@@ -130,7 +130,7 @@ export const signAndSendTransactionsInNewWindow = async ({
       onClose: () => {
         reject(new Error("Window closed"))
       },
-      signal: AbortSignal.any([signal, completeAbortCtrl.signal]),
+      signal: anySignal([signal, completeAbortCtrl.signal]),
     })
   })
 
@@ -246,4 +246,32 @@ function abortablePromise<T>(
       })
     }),
   ])
+}
+
+// AbortSignal.any polyfill
+function anySignal(iterable: AbortSignal[]): AbortSignal {
+  if (typeof AbortSignal.any === "function") {
+    return AbortSignal.any(iterable)
+  }
+
+  const controller = new AbortController()
+
+  function abort() {
+    controller.abort()
+    clean()
+  }
+
+  function clean() {
+    for (const signal of iterable) signal.removeEventListener("abort", abort)
+  }
+
+  for (const signal of iterable) {
+    if (signal.aborted) {
+      controller.abort(signal.reason)
+      break
+    }
+    signal.addEventListener("abort", abort)
+  }
+
+  return controller.signal
 }
