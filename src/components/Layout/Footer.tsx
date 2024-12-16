@@ -23,7 +23,18 @@ const Footer = () => {
   }
 
   if (whitelabelTemplate === "turboswap") {
-    return null
+    return (
+      <footer className="lg:hidden">
+        <Image
+          src="/static/templates/turboswap/coin-frog.png"
+          alt=""
+          width={400}
+          height={400}
+          className="w-full max-w-[400px] mx-auto"
+          priority
+        />
+      </footer>
+    )
   }
 
   if (whitelabelTemplate === "dogecoinswap") {
