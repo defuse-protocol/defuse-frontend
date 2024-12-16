@@ -1,7 +1,9 @@
 "use client"
 
+import { CheckIcon, CopyIcon } from "@radix-ui/react-icons"
+import { IconButton } from "@radix-ui/themes"
 import clsx from "clsx"
-import { type PropsWithChildren, useState } from "react"
+import { type PropsWithChildren, useState, useTransition } from "react"
 import { CopyToClipboard } from "react-copy-to-clipboard"
 
 interface Props extends PropsWithChildren {
@@ -30,3 +32,31 @@ const Copy = ({ children, value }: Props) => {
 }
 
 export default Copy
+
+export function CopyIconButton({ copyValue }: { copyValue: string }) {
+  const [isCopied, startTransition] = useTransition()
+
+  return (
+    <IconButton
+      size={"3"}
+      radius={"full"}
+      variant={"soft"}
+      color={"gray"}
+      highContrast
+      onClick={() => {
+        startTransition(async () => {
+          try {
+            await navigator.clipboard.writeText(copyValue)
+            await new Promise((resolve) => setTimeout(resolve, 1000))
+          } catch {}
+        })
+      }}
+    >
+      {isCopied ? (
+        <CheckIcon width={"18"} height={"18"} />
+      ) : (
+        <CopyIcon width={"18"} height={"18"} />
+      )}
+    </IconButton>
+  )
+}
