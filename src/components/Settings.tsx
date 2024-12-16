@@ -52,10 +52,23 @@ const Settings = () => {
                 className="w-full flex justify-between items-center gap-2"
               >
                 <Text size="2" weight="medium">
+                  Docs
+                </Text>
+                <ExternalLinkIcon width={16} height={16} />
+              </a>
+
+              <a
+                href={NEXT_PUBLIC_PUBLIC_TG}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex justify-between items-center gap-2"
+              >
+                <Text size="2" weight="medium">
                   Help center
                 </Text>
                 <ExternalLinkIcon width={16} height={16} />
               </a>
+
               <a
                 href={`mailto:${NEXT_PUBLIC_PUBLIC_MAIL}`}
                 className="w-full flex justify-between items-center gap-2"
@@ -65,30 +78,20 @@ const Settings = () => {
                 </Text>
                 <ExternalLinkIcon width={16} height={16} />
               </a>
-              <LabelNew className="right-1/2">
+
+              {whitelabelTemplate === "near-intents" && (
                 <a
-                  href={NEXT_PUBLIC_PUBLIC_TG}
+                  href="/jobs"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full flex justify-between items-center gap-2"
                 >
                   <Text size="2" weight="medium">
-                    Telegram
+                    Jobs
                   </Text>
                   <ExternalLinkIcon width={16} height={16} />
                 </a>
-              </LabelNew>
-              <a
-                href="/jobs"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex justify-between items-center gap-2"
-              >
-                <Text size="2" weight="medium">
-                  Jobs
-                </Text>
-                <ExternalLinkIcon width={16} height={16} />
-              </a>
+              )}
             </div>
           </div>
         </Popover.Content>
