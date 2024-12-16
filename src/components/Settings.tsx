@@ -3,8 +3,11 @@
 import { ExternalLinkIcon } from "@radix-ui/react-icons"
 import { Popover, Separator, Switch, Text } from "@radix-ui/themes"
 import { useTheme } from "next-themes"
+import { useContext } from "react"
 
+import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import Themes from "@src/types/themes"
+import AddTurboChainButton from "./AddTurboChainButton"
 import ComingSoon from "./ComingSoon"
 import LabelNew from "./LabelNew"
 
@@ -13,6 +16,7 @@ const NEXT_PUBLIC_PUBLIC_MAIL = process?.env?.NEXT_PUBLIC_PUBLIC_MAIL ?? ""
 const NEXT_PUBLIC_PUBLIC_TG = process?.env?.NEXT_PUBLIC_PUBLIC_TG ?? ""
 
 const Settings = () => {
+  const { whitelabelTemplate } = useContext(FeatureFlagsContext)
   const elementCircleStyle =
     "bg-black w-[3px] h-[3px] rounded-full dark:bg-gray-100"
   return (
@@ -30,8 +34,16 @@ const Settings = () => {
         </Popover.Trigger>
         <Popover.Content className="min-w-[180px] mt-1 dark:bg-black-800 rounded-2xl">
           <div className="flex flex-col gap-4">
-            <DarkMode />
-            <Separator orientation="horizontal" size="4" />
+            {whitelabelTemplate === "turboswap" && (
+              <div className="md:hidden">
+                <AddTurboChainButton />
+                <Separator orientation="horizontal" size="4" className="mt-4" />
+              </div>
+            )}
+
+            {/*<DarkMode />*/}
+            {/*<Separator orientation="horizontal" size="4" />*/}
+
             <div className="flex flex-col justify-between items-center gap-1.5">
               <a
                 href={NEXT_PUBLIC_LINK_DOCS}

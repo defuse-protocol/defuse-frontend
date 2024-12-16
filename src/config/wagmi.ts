@@ -7,7 +7,7 @@ import { coinbaseWallet, injected, walletConnect } from "wagmi/connectors"
 
 const PROJECT_ID = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID
 
-const turbo = {
+export const turbo = {
   id: 1313161567,
   name: "Turbo",
   nativeCurrency: { name: "Turbo", symbol: "TURBO", decimals: 18 },
