@@ -42,9 +42,25 @@ export async function generateMetadata(): Promise<Metadata> {
         description: "Fast, easy cross-chain swaps for DOGE and more",
       },
       twitter: {
+        images: `/favicons/${templ}/og-image.jpg`,
         title: "DogecoinSwap: Let Your Meme Coins Run Wild",
         description: "Fast, easy cross-chain swaps for DOGE and more",
+      },
+    })
+  } else if (templ === "turboswap") {
+    Object.assign(metadata, {
+      title: "",
+      description: "",
+      openGraph: {
+        type: "website",
         images: `/favicons/${templ}/og-image.jpg`,
+        title: "",
+        description: "",
+      },
+      twitter: {
+        images: `/favicons/${templ}/og-image.jpg`,
+        title: "",
+        description: "",
       },
     })
   }
