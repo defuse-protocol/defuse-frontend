@@ -322,6 +322,19 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
         symbol: "AURORA",
         name: "Aurora",
       },
+      {
+        defuseAssetId:
+          "nep141:eth-0xaaaaaa20d9e0e2461697782ef11675f668207961.omft.near",
+        address: "0xAaAAAA20D9E0e2461697782ef11675f668207961",
+        decimals: 18,
+        icon: "https://assets.coingecko.com/coins/images/20582/standard/aurora.jpeg?1696519989",
+        chainId: "",
+        chainIcon: "/static/icons/network/eth.svg",
+        chainName: "eth",
+        routes: [],
+        symbol: "AURORA",
+        name: "Aurora",
+      },
     ],
   },
   {
