@@ -12,7 +12,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion"
 import Image from "next/image"
 import { useState, useTransition } from "react"
-import { type Connector, useSwitchChain } from "wagmi"
+import { type Connector, ProviderNotFoundError, useSwitchChain } from "wagmi"
 
 import { CopyIconButton } from "@src/components/CopyToClipboard"
 import { turbo } from "@src/config/wagmi"
@@ -200,10 +200,9 @@ function AddToMetaMaskButton() {
           startAdding(async () => {
             try {
               if (state.address == null) {
-                const connector = getPreferredConnector(connectors)
                 await signIn({
                   id: ChainType.EVM,
-                  connector,
+                  connector: getPreferredConnector(connectors),
                 })
               } else if (state.chainType !== ChainType.EVM) {
                 setError("Please connect an EVM wallet first, like MetaMask.")
@@ -221,10 +220,13 @@ function AddToMetaMaskButton() {
               })
               setIsSuccess(true)
             } catch (err) {
-              console.error(err)
-              setError(
-                "Couldn't add chain automatically. Please try adding manually using the details below."
-              )
+              if (err instanceof ProviderNotFoundError) {
+                setError("Please install an EVM wallet first, like MetaMask.")
+              } else {
+                setError(
+                  "Couldn't add chain automatically. Please try adding manually using the details below."
+                )
+              }
             }
           })
         }}
