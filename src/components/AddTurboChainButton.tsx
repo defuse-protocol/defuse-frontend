@@ -1,5 +1,7 @@
+import { InfoCircledIcon } from "@radix-ui/react-icons"
 import {
   Button,
+  Callout,
   Dialog,
   Flex,
   Heading,
@@ -7,19 +9,18 @@ import {
   Text,
   VisuallyHidden,
 } from "@radix-ui/themes"
+import { AnimatePresence, motion } from "framer-motion"
 import Image from "next/image"
-import { useTransition } from "react"
-import { useSwitchChain } from "wagmi"
+import { useState, useTransition } from "react"
+import { type Connector, useSwitchChain } from "wagmi"
 
 import { CopyIconButton } from "@src/components/CopyToClipboard"
 import { turbo } from "@src/config/wagmi"
+import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 
 export default function AddTurboChainButton() {
-  const { switchChainAsync } = useSwitchChain()
-  const [isAdding, startAdding] = useTransition()
-
   return (
-    <Dialog.Root>
+    <Dialog.Root onOpenChange={(open) => !open}>
       <Dialog.Trigger>
         <Button type="button" variant="soft" size="2" radius="full">
           <div className="flex items-center gap-2">
@@ -57,33 +58,7 @@ export default function AddTurboChainButton() {
               <br /> to your MetaMask wallet
             </Heading>
 
-            <Button
-              type="button"
-              variant="classic"
-              size="3"
-              onClick={() => {
-                startAdding(async () => {
-                  try {
-                    await switchChainAsync({ chainId: turbo.id })
-                  } catch (err) {
-                    console.error(err)
-                  }
-                })
-              }}
-              disabled={isAdding}
-            >
-              <div className="flex items-center gap-2">
-                <Image
-                  src="/static/icons/wallets/meta-mask.svg"
-                  alt="MetaMask"
-                  width={16}
-                  height={16}
-                />
-                <Text weight="bold" wrap="nowrap">
-                  Add to MetaMask
-                </Text>
-              </div>
-            </Button>
+            <AddToMetaMaskButton />
           </Flex>
 
           <Flex direction={"column"} align={"center"} gap={"2"}>
@@ -202,5 +177,92 @@ export default function AddTurboChainButton() {
         </Flex>
       </Dialog.Content>
     </Dialog.Root>
+  )
+}
+
+function AddToMetaMaskButton() {
+  const { switchChainAsync } = useSwitchChain()
+  const [isAdding, startAdding] = useTransition()
+  const { signIn, connectors, state } = useConnectWallet()
+  const [error, setError] = useState<string | null>(null)
+
+  return (
+    <Flex direction="column" align="center" gap="2">
+      <Button
+        type="button"
+        variant="classic"
+        size="3"
+        onClick={() => {
+          setError(null)
+          startAdding(async () => {
+            try {
+              if (state.address == null) {
+                const connector = getPreferredConnector(connectors)
+                await signIn({
+                  id: ChainType.EVM,
+                  connector,
+                })
+              } else if (state.chainType !== ChainType.EVM) {
+                setError("Please connect an EVM wallet first, like MetaMask.")
+                return
+              }
+
+              await switchChainAsync({
+                chainId: turbo.id,
+                addEthereumChainParameter: {
+                  chainName: turbo.name,
+                  nativeCurrency: turbo.nativeCurrency,
+                  rpcUrls: turbo.rpcUrls.default.http,
+                  blockExplorerUrls: [turbo.blockExplorers.default.url],
+                },
+              })
+            } catch (err) {
+              console.error(err)
+              setError(
+                "Couldn't add chain automatically. Please try adding manually using the details below."
+              )
+            }
+          })
+        }}
+        disabled={isAdding}
+      >
+        <div className="flex items-center gap-2">
+          <Image
+            src="/static/icons/wallets/meta-mask.svg"
+            alt="MetaMask"
+            width={16}
+            height={16}
+          />
+          <Text weight="bold" wrap="nowrap">
+            Add to MetaMask
+          </Text>
+        </div>
+      </Button>
+
+      <AnimatePresence mode="sync">
+        {error && (
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            layout
+          >
+            <Callout.Root color="yellow" role="alert" size="1">
+              <Callout.Icon>
+                <InfoCircledIcon />
+              </Callout.Icon>
+
+              <Callout.Text weight={"medium"}>{error}</Callout.Text>
+            </Callout.Root>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </Flex>
+  )
+}
+
+function getPreferredConnector(connectors: Connector[]): Connector | undefined {
+  return (
+    connectors.find((connector) => connector.id === "injected") ?? connectors[0]
   )
 }
