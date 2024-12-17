@@ -33,7 +33,7 @@ export default function AddTurboChainButton() {
               wrap="nowrap"
               style={{ color: "var(--gray-12)" }}
             >
-              Add to MetaMask
+              Add TurboChain
             </Text>
           </div>
         </Button>
