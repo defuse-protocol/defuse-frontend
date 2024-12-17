@@ -3,6 +3,7 @@ import { type PropsWithChildren, useContext } from "react"
 
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import AuroraLogo from "../../public/static/logos/blockchain-strips/aurora.svg"
+import TurboLogoFrog from "../../public/static/templates/turboswap/logotype-frog.svg"
 
 interface Props extends PropsWithChildren {
   title?: string
@@ -36,7 +37,9 @@ const Paper = ({ children, title, description }: Props) => {
               <span className="text-secondary">Built by</span>
               <AuroraLogo className="text-black dark:text-white" />
               <span className="text-secondary">with love for</span>
-              <span className="text-black">Turbo</span>
+              <span className="text-black dark:text-white text-nowrap flex items-center gap-1">
+                <TurboLogoFrog width={26} height={26} /> Turbo
+              </span>
             </Link>
           </div>
         </div>
