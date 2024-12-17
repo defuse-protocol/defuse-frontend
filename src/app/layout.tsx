@@ -49,18 +49,21 @@ export async function generateMetadata(): Promise<Metadata> {
     })
   } else if (templ === "turboswap") {
     Object.assign(metadata, {
-      title: "",
-      description: "",
+      title: "TurboSwap: Revolutionizing Web3 Trading",
+      description:
+        "Experience zero-fee trading with TurboSwap. Powered by NEAR and Aurora Cloud, TurboSwap delivers unmatched speed and advanced functionality, setting a new standard for decentralized trading in the TURBO ecosystem.",
       openGraph: {
         type: "website",
         images: `/favicons/${templ}/og-image.jpg`,
-        title: "",
-        description: "",
+        title: "TurboSwap: Revolutionizing Web3 Trading",
+        description:
+          "Experience zero-fee trading with TurboSwap. Powered by NEAR and Aurora Cloud, TurboSwap delivers unmatched speed and advanced functionality, setting a new standard for decentralized trading in the TURBO ecosystem.",
       },
       twitter: {
         images: `/favicons/${templ}/og-image.jpg`,
-        title: "",
-        description: "",
+        title: "TurboSwap: Revolutionizing Web3 Trading",
+        description:
+          "Experience zero-fee trading with TurboSwap. Powered by NEAR and Aurora Cloud, TurboSwap delivers unmatched speed and advanced functionality, setting a new standard for decentralized trading in the TURBO ecosystem.",
       },
     })
   }
