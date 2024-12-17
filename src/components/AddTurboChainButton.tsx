@@ -5,6 +5,7 @@ import {
   Heading,
   Separator,
   Text,
+  VisuallyHidden,
 } from "@radix-ui/themes"
 import Image from "next/image"
 import { useTransition } from "react"
@@ -42,7 +43,13 @@ export default function AddTurboChainButton() {
         minWidth={{ initial: "300px", xs: "330px" }}
         maxHeight={{ initial: "90vh", xs: "80vh" }}
         className={"p-8"}
+        // Suppressing the warning about missing aria-describedby
+        aria-describedby={undefined}
       >
+        <VisuallyHidden>
+          <Dialog.Title>Add TurboChain to your MetaMask wallet</Dialog.Title>
+        </VisuallyHidden>
+
         <Flex direction={"column"} align={"center"} gap={"5"}>
           <Flex direction={"column"} align={"center"} gap={"4"}>
             <Heading as={"h2"} size={"6"} className={"text-center font-black"}>
