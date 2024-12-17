@@ -9,7 +9,7 @@ const PROJECT_ID = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID
 
 export const turbo = {
   id: 1313161567,
-  name: "Turbo",
+  name: "TurboChain",
   nativeCurrency: { name: "Turbo", symbol: "TURBO", decimals: 18 },
   rpcUrls: {
     default: { http: ["https://rpc-0x4e45415f.aurora-cloud.dev"] },
