@@ -14,9 +14,10 @@ const PageBackground = () => {
       <div className="absolute bottom-0 w-full h-full -z-[1]">
         <Image
           src={solswapBg}
-          unoptimized
           alt={""}
           className="w-full h-full object-cover object-bottom"
+          unoptimized
+          priority
         />
       </div>
     )
@@ -30,8 +31,9 @@ const PageBackground = () => {
           <Image
             src="/static/templates/turboswap/coin-frog.png"
             alt=""
-            fill
             className="object-contain"
+            fill
+            unoptimized
             priority
           />
         </div>
