@@ -7,7 +7,7 @@ const Main = ({ children }: PropsWithChildren) => {
 
   if (whitelabelTemplate === "turboswap") {
     return (
-      <main className="flex-1 w-full max-w-[1280px] mx-auto md:p-12">
+      <main className="flex-1 w-full max-w-[1280px] mx-auto md:pt-[10vh]">
         <div className="flex justify-center lg:justify-end lg:w-1/2">
           <div className="w-[480px] max-w-full">{children}</div>
         </div>
