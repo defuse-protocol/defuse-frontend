@@ -68,6 +68,7 @@
     "crypto-js": "^4.2.0",
     "dayjs": "^1.11.11",
     "ethers": "^6.13.2",
+    "framer-motion": "^11.15.0",
     "near-api-js": "^0.45.1",
     "next": "14.2.3",
     "next-themes": "^0.3.0",
