@@ -132,7 +132,9 @@ const ConnectWallet = () => {
 
                     {/* EIP-6963 detected wallets */}
                     {connectors
-                      .filter((c) => c.type === "injected")
+                      .filter(
+                        (c) => c.type === "injected" && c.id !== "injected"
+                      )
                       .map((connector) => (
                         <Button
                           key={connector.uid}
@@ -289,24 +291,27 @@ const ConnectWallet = () => {
                         <Text size="1" color="gray">
                           Other wallets
                         </Text>
-                        {connectors.slice(1).map((connector) => (
-                          <Button
-                            key={connector.uid}
-                            onClick={() => handleWalletConnect(connector)}
-                            size="4"
-                            radius="medium"
-                            variant="soft"
-                            color="gray"
-                            className="px-2.5"
-                          >
-                            <div className="w-full flex items-center justify-start gap-2">
-                              <WalletIcon connector={connector} />
-                              <Text size="2" weight="bold">
-                                {renderWalletName(connector)}
-                              </Text>
-                            </div>
-                          </Button>
-                        ))}
+                        {connectors
+                          .slice(1)
+                          .filter((connector) => connector.id !== "injected")
+                          .map((connector) => (
+                            <Button
+                              key={connector.uid}
+                              onClick={() => handleWalletConnect(connector)}
+                              size="4"
+                              radius="medium"
+                              variant="soft"
+                              color="gray"
+                              className="px-2.5"
+                            >
+                              <div className="w-full flex items-center justify-start gap-2">
+                                <WalletIcon connector={connector} />
+                                <Text size="2" weight="bold">
+                                  {renderWalletName(connector)}
+                                </Text>
+                              </div>
+                            </Button>
+                          ))}
                       </>
                     )}
                   </>

@@ -1,5 +1,6 @@
 "use client"
 
+import { injected } from "@wagmi/core"
 import type { Chain } from "viem"
 import { http, createConfig } from "wagmi"
 import { arbitrum, base, mainnet } from "wagmi/chains"
@@ -28,6 +29,7 @@ export const config = createConfig({
         showQrModal: true,
       }),
     coinbaseWallet({ appName: "Near Intents" }),
+    injected(),
   ].filter((a): a is Exclude<typeof a, boolean> => !!a),
   transports: {
     [mainnet.id]: http(),
