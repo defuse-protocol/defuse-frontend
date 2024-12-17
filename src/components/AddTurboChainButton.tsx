@@ -1,4 +1,4 @@
-import { InfoCircledIcon } from "@radix-ui/react-icons"
+import { CheckIcon, InfoCircledIcon } from "@radix-ui/react-icons"
 import {
   Button,
   Callout,
@@ -185,15 +185,18 @@ function AddToMetaMaskButton() {
   const [isAdding, startAdding] = useTransition()
   const { signIn, connectors, state } = useConnectWallet()
   const [error, setError] = useState<string | null>(null)
+  const [isSuccess, setIsSuccess] = useState(false)
 
   return (
     <Flex direction="column" align="center" gap="2">
       <Button
         type="button"
-        variant="classic"
+        variant={isSuccess ? "soft" : "classic"}
+        color={isSuccess ? "green" : undefined}
         size="3"
         onClick={() => {
           setError(null)
+          setIsSuccess(false)
           startAdding(async () => {
             try {
               if (state.address == null) {
@@ -216,6 +219,7 @@ function AddToMetaMaskButton() {
                   blockExplorerUrls: [turbo.blockExplorers.default.url],
                 },
               })
+              setIsSuccess(true)
             } catch (err) {
               console.error(err)
               setError(
@@ -226,16 +230,32 @@ function AddToMetaMaskButton() {
         }}
         disabled={isAdding}
       >
-        <div className="flex items-center gap-2">
-          <Image
-            src="/static/icons/wallets/meta-mask.svg"
-            alt="MetaMask"
-            width={16}
-            height={16}
-          />
-          <Text weight="bold" wrap="nowrap">
-            Add to MetaMask
-          </Text>
+        <div className="grid grid-cols-1 grid-rows-1 items-center justify-items-center w-full">
+          <div
+            className={`col-start-1 row-start-1 inline-flex items-center justify-center gap-2 transition-opacity duration-200 ${
+              isSuccess ? "opacity-0" : "opacity-100"
+            }`}
+          >
+            <Image
+              src="/static/icons/wallets/meta-mask.svg"
+              alt="MetaMask"
+              width={16}
+              height={16}
+            />
+            <Text weight="bold" wrap="nowrap">
+              Add to MetaMask
+            </Text>
+          </div>
+          <div
+            className={`col-start-1 row-start-1 inline-flex items-center justify-center gap-2 transition-opacity duration-200 ${
+              isSuccess ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            <CheckIcon width={16} height={16} />
+            <Text weight="bold" wrap="nowrap">
+              Chain Added
+            </Text>
+          </div>
         </div>
       </Button>
 
