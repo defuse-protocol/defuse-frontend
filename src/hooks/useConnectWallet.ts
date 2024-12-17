@@ -98,7 +98,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
     if (!connector) {
       throw new Error("Invalid connector")
     }
-    evmWalletConnect.connect({ connector })
+    await evmWalletConnect.connectAsync({ connector })
   }
   const handleSignOutViaWagmi = async () => {
     for (const { connector } of evmWalletConnections) {
