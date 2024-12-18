@@ -1030,10 +1030,10 @@
     eventemitter3 "^5.0.1"
     preact "^10.16.0"
 
-"@defuse-protocol/defuse-sdk@^2.24.0":
-  version "2.24.0"
-  resolved "https://npm.pkg.github.com/download/@defuse-protocol/defuse-sdk/2.24.0/1d996f3d42de6db37af832cdee3bb46d0ccb520f#1d996f3d42de6db37af832cdee3bb46d0ccb520f"
-  integrity sha512-iME8xwaLqbEN7nnFtQzA33hdt7+kjHS5Xn1xmTKfaLUyb+CvJYJPNIfjc+8NAHvRu+Q45HrqOViwN1k7yCT8eA==
+"@defuse-protocol/defuse-sdk@^2.25.0":
+  version "2.25.0"
+  resolved "https://npm.pkg.github.com/download/@defuse-protocol/defuse-sdk/2.25.0/7987f145274a8dff360f07a23a96d3884cd8ca1f#7987f145274a8dff360f07a23a96d3884cd8ca1f"
+  integrity sha512-03B3b+dLqijxYBrDbN8/zW+CQxxdj74Ylto+nh5jhPttb7V7utS8KuuoVmd3eTtC+cj+nQiAKj3ovxDXXJuG4w==
   dependencies:
     "@lifeomic/attempt" "^3.1.0"
     "@noble/curves" "1.4.0"
@@ -1057,6 +1057,7 @@
     react-copy-to-clipboard "^5.1.0"
     react-dom "^18.3.1"
     react-hook-form "^7.52.1"
+    ripple-address-codec "^5.0.0"
     tweetnacl "^1.0.3"
     uuid "^10.0.0"
     viem "^2.18.1"
@@ -3007,6 +3008,11 @@
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.5.0.tgz#abadc5ca20332db2b1b2aa3e496e9af1213570b0"
   integrity sha512-1j6kQFb7QRru7eKN3ZDvRcP13rugwdxZqCjbiAVZfIJwgj2A65UmT4TgARXGlXgnRkORLTDTrO19ZErt7+QXgA==
+
+"@noble/hashes@^1.0.0":
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.6.1.tgz#df6e5943edcea504bac61395926d6fd67869a0d5"
+  integrity sha512-pq5D8h10hHBjyqX+cfBm0i8JUXJ0UhczFc4r74zbuT9XgewFo2E3J1cOaGtdZynILNmQ685YWGzGE1Zv6io50w==
 
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
@@ -7566,6 +7572,15 @@
   dependencies:
     "@walletconnect/window-getters" "^1.0.1"
     tslib "1.14.1"
+
+"@xrplf/isomorphic@^1.0.0":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@xrplf/isomorphic/-/isomorphic-1.0.1.tgz#d7676e0ec0e55a39f37ddc1f3cc30eeab52e0739"
+  integrity sha512-0bIpgx8PDjYdrLFeC3csF305QQ1L7sxaWnL5y71mCvhenZzJgku9QsA+9QCXBC1eNYtxWO/xR91zrXJy2T/ixg==
+  dependencies:
+    "@noble/hashes" "^1.0.0"
+    eventemitter3 "5.0.1"
+    ws "^8.13.0"
 
 "@xstate/react@^4.1.3":
   version "4.1.3"
@@ -14365,6 +14380,14 @@ ripple-address-codec@^4.1.1, ripple-address-codec@^4.3.1:
     base-x "^3.0.9"
     create-hash "^1.1.2"
 
+ripple-address-codec@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/ripple-address-codec/-/ripple-address-codec-5.0.0.tgz#97059f7bba6f9ed7a52843de8aa427723fb529f6"
+  integrity sha512-de7osLRH/pt5HX2xw2TRJtbdLLWHu0RXirpQaEeCnWKY5DYHykh3ETSkofvm0aX0LJiV7kwkegJxQkmbO94gWw==
+  dependencies:
+    "@scure/base" "^1.1.3"
+    "@xrplf/isomorphic" "^1.0.0"
+
 ripple-binary-codec@^1.1.3:
   version "1.11.0"
   resolved "https://registry.yarnpkg.com/ripple-binary-codec/-/ripple-binary-codec-1.11.0.tgz#d99c848c51a19746b738785001fb7208704bfe30"
@@ -16406,7 +16429,7 @@ ws@8.17.1, ws@~8.17.1:
   resolved "https://registry.yarnpkg.com/ws/-/ws-8.17.1.tgz#9293da530bb548febc95371d90f9c878727d919b"
   integrity sha512-6XQFvXTkbfUOZOKKILFG1PDK2NDQs4azKQl26T0YS5CxqWLgXajbPZ+h4gZekJyRqFU8pvnbAbbs/3TgRPy+GQ==
 
-ws@8.18.0, ws@^8.18.0, ws@^8.5.0:
+ws@8.18.0, ws@^8.13.0, ws@^8.18.0, ws@^8.5.0:
   version "8.18.0"
   resolved "https://registry.yarnpkg.com/ws/-/ws-8.18.0.tgz#0d7505a6eafe2b0e712d232b42279f53bc289bbc"
   integrity sha512-8VbfWfHLbbwu3+N6OKsOMpBdT4kXPDDB9cJk2bJ6mh9ucxdlnNvH1e+roYkKmN9Nxw2yjz7VzeO9oOz2zJ04Pw==
