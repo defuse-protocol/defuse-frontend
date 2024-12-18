@@ -1030,11 +1030,12 @@
     eventemitter3 "^5.0.1"
     preact "^10.16.0"
 
-"@defuse-protocol/defuse-sdk@^2.22.6":
-  version "2.22.6"
-  resolved "https://npm.pkg.github.com/download/@defuse-protocol/defuse-sdk/2.22.6/3b320054b0cacd1fdbc9ae06f1d93acd50acc7ac#3b320054b0cacd1fdbc9ae06f1d93acd50acc7ac"
-  integrity sha512-b2K2XrV63NmSJ+V2KFvHj3HDsN0FBTq+ud5wuSMDXlVxeLixJV1nesimOQqfAhlAks6N5wMdf8J8D3AC6U1l5g==
+"@defuse-protocol/defuse-sdk@^2.24.0":
+  version "2.24.0"
+  resolved "https://npm.pkg.github.com/download/@defuse-protocol/defuse-sdk/2.24.0/1d996f3d42de6db37af832cdee3bb46d0ccb520f#1d996f3d42de6db37af832cdee3bb46d0ccb520f"
+  integrity sha512-iME8xwaLqbEN7nnFtQzA33hdt7+kjHS5Xn1xmTKfaLUyb+CvJYJPNIfjc+8NAHvRu+Q45HrqOViwN1k7yCT8eA==
   dependencies:
+    "@lifeomic/attempt" "^3.1.0"
     "@noble/curves" "1.4.0"
     "@radix-ui/react-checkbox" "^1.1.1"
     "@radix-ui/react-dialog" "1.1.1"
@@ -1044,7 +1045,6 @@
     "@radix-ui/react-toast" "^1.2.1"
     "@radix-ui/react-tooltip" "^1.1.3"
     "@radix-ui/themes" "^3.1.1"
-    "@ref-finance/ref-sdk" "^1.3.8"
     "@scure/base" "^1.1.9"
     "@solana/web3.js" "^1.95.4"
     "@tanstack/react-query" "^5.59.16"
@@ -1919,6 +1919,11 @@
   integrity sha512-pu0K1jCIdnQ12aWNaAVU5bzi7Bd1w54J3ECgANPmYLtQKP0HBj2cE/5coBD66MT10xbtIuUr7tg0Shbsvk0mDA==
   dependencies:
     "@lezer/common" "^1.0.0"
+
+"@lifeomic/attempt@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@lifeomic/attempt/-/attempt-3.1.0.tgz#7fc703559177b81a008b9d263e3d9a001d11d08a"
+  integrity sha512-QZqem4QuAnAyzfz+Gj5/+SLxqwCAw2qmt7732ZXodr6VDWGeYLG6w1i/vYLa55JQM9wRuBKLmXmiZ2P0LtE5rw==
 
 "@lit-labs/ssr-dom-shim@^1.0.0", "@lit-labs/ssr-dom-shim@^1.1.0":
   version "1.2.1"
@@ -10685,6 +10690,15 @@ fraction.js@^4.1.1:
   resolved "https://registry.yarnpkg.com/fraction.js/-/fraction.js-4.3.7.tgz#06ca0085157e42fda7f9e726e79fefc4068840f7"
   integrity sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==
 
+framer-motion@^11.15.0:
+  version "11.15.0"
+  resolved "https://registry.yarnpkg.com/framer-motion/-/framer-motion-11.15.0.tgz#93e5d1839d500ba9cab1d617959a36142a61212b"
+  integrity sha512-MLk8IvZntxOMg7lDBLw2qgTHHv664bYoYmnFTmE0Gm/FW67aOJk0WM3ctMcG+Xhcv+vh5uyyXwxvxhSeJzSe+w==
+  dependencies:
+    motion-dom "^11.14.3"
+    motion-utils "^11.14.3"
+    tslib "^2.4.0"
+
 fresh@0.5.2:
   version "0.5.2"
   resolved "https://registry.yarnpkg.com/fresh/-/fresh-0.5.2.tgz#3d8cadd90d976569fa835ab1f8e4b23a105605a7"
@@ -12584,6 +12598,16 @@ module-details-from-path@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/module-details-from-path/-/module-details-from-path-1.0.3.tgz#114c949673e2a8a35e9d35788527aa37b679da2b"
   integrity sha512-ySViT69/76t8VhE1xXHK6Ch4NcDd26gx0MzKXLO+F7NOtnqH68d9zF94nT8ZWSxXh8ELOERsnJO/sWt1xZYw5A==
+
+motion-dom@^11.14.3:
+  version "11.14.3"
+  resolved "https://registry.yarnpkg.com/motion-dom/-/motion-dom-11.14.3.tgz#725c72c0f1d0b632e42fdd8d13b69ecf9fe202c0"
+  integrity sha512-lW+D2wBy5vxLJi6aCP0xyxTxlTfiu+b+zcpVbGVFUxotwThqhdpPRSmX8xztAgtZMPMeU0WGVn/k1w4I+TbPqA==
+
+motion-utils@^11.14.3:
+  version "11.14.3"
+  resolved "https://registry.yarnpkg.com/motion-utils/-/motion-utils-11.14.3.tgz#cd4a413463739498411f82abb67b3dd58768b0f8"
+  integrity sha512-Xg+8xnqIJTpr0L/cidfTTBFkvRw26ZtGGuIhA94J9PQ2p4mEa06Xx7QVYZH0BP+EpMSaDlu+q0I0mmvwADPsaQ==
 
 motion@10.16.2:
   version "10.16.2"

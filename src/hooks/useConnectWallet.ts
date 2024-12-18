@@ -13,8 +13,13 @@ import type {
   SignAndSendTransactionsParams,
 } from "@src/types/interfaces"
 import type { SendTransactionParameters } from "@wagmi/core"
-import { useCallback } from "react"
-import { type Connector, useAccount, useConnect, useDisconnect } from "wagmi"
+import {
+  type Connector,
+  useAccount,
+  useConnect,
+  useConnections,
+  useDisconnect,
+} from "wagmi"
 import { useEVMWalletActions } from "./useEVMWalletActions"
 import { useNearWalletActions } from "./useNearWalletActions"
 
@@ -82,9 +87,10 @@ export const useConnectWallet = (): ConnectWalletAction => {
   const evmWalletConnect = useConnect()
   const evmWalletDisconnect = useDisconnect()
   const evmWalletAccount = useAccount()
+  const evmWalletConnections = useConnections()
   const { sendTransactions } = useEVMWalletActions()
 
-  const handleSignInViaWalletConnect = async ({
+  const handleSignInViaWagmi = async ({
     connector,
   }: {
     connector: Connector
@@ -92,10 +98,12 @@ export const useConnectWallet = (): ConnectWalletAction => {
     if (!connector) {
       throw new Error("Invalid connector")
     }
-    evmWalletConnect.connect({ connector })
+    await evmWalletConnect.connectAsync({ connector })
   }
-  const handleSignOutViaWalletConnect = async () => {
-    await evmWalletDisconnect.disconnect()
+  const handleSignOutViaWagmi = async () => {
+    for (const { connector } of evmWalletConnections) {
+      evmWalletDisconnect.disconnect({ connector })
+    }
   }
 
   /**
@@ -109,9 +117,12 @@ export const useConnectWallet = (): ConnectWalletAction => {
     setVisible(true)
   }
 
-  const handleSignOutViaSolanaSelector = useCallback(async () => {
+  const handleSignOutViaSolanaSelector = async () => {
     await solanaWallet.disconnect()
-  }, [solanaWallet])
+
+    // Issue: Phantom wallet also connects EVM wallet when it connects Solana wallet
+    await handleSignOutViaWagmi()
+  }
 
   if (nearWallet.accountId != null) {
     state = {
@@ -161,7 +172,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
         [ChainType.Near]: () => handleSignInViaNearWalletSelector(),
         [ChainType.EVM]: () =>
           params.connector
-            ? handleSignInViaWalletConnect({ connector: params.connector })
+            ? handleSignInViaWagmi({ connector: params.connector })
             : undefined,
         [ChainType.Solana]: () => handleSignInViaSolanaSelector(),
       }
@@ -173,7 +184,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
     }): Promise<void> {
       const strategies = {
         [ChainType.Near]: () => handleSignOutViaNearWalletSelector(),
-        [ChainType.EVM]: () => handleSignOutViaWalletConnect(),
+        [ChainType.EVM]: () => handleSignOutViaWagmi(),
         [ChainType.Solana]: () => handleSignOutViaSolanaSelector(),
       }
       return strategies[params.id]()

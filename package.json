@@ -12,7 +12,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@defuse-protocol/defuse-sdk": "^2.22.6",
+    "@defuse-protocol/defuse-sdk": "^2.24.0",
     "@near-eth/aurora-erc20": "^2.8.0",
     "@near-eth/aurora-ether": "^3.0.0",
     "@near-eth/aurora-nep141": "^1.5.3",
@@ -68,6 +68,7 @@
     "crypto-js": "^4.2.0",
     "dayjs": "^1.11.11",
     "ethers": "^6.13.2",
+    "framer-motion": "^11.15.0",
     "near-api-js": "^0.45.1",
     "next": "14.2.3",
     "next-themes": "^0.3.0",

@@ -9,15 +9,6 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   webpack: (config, context) => {
-    if (!context.isServer) {
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        // Use the ES module version of @metamask/sdk for the client bundle
-        // This avoids bundling React and other dependencies from the UMD version
-        "@metamask/sdk": "@metamask/sdk/dist/browser/es/metamask-sdk.js",
-      }
-    }
-
     // Suppress warnings from libraries trying to load optional dependencies
     config.externals.push(
       // `pino` wants `pino-pretty`
