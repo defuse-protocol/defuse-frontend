@@ -28,6 +28,7 @@ export function useEVMWalletActions() {
 
       const txHash = await sendTransactionAsync({
         connector,
+        gas: null, // Skip gas estimation
         ...tx,
       })
 
