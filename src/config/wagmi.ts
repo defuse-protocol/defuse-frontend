@@ -3,7 +3,7 @@
 import { injected } from "@wagmi/core"
 import type { Chain } from "viem"
 import { http, createConfig } from "wagmi"
-import { arbitrum, base, mainnet } from "wagmi/chains"
+import { arbitrum, aurora, base, mainnet } from "wagmi/chains"
 import { coinbaseWallet, walletConnect } from "wagmi/connectors"
 
 const PROJECT_ID = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID
@@ -21,7 +21,7 @@ export const turbo = {
 } as const satisfies Chain
 
 export const config = createConfig({
-  chains: [mainnet, base, arbitrum, turbo],
+  chains: [mainnet, base, arbitrum, turbo, aurora],
   connectors: [
     PROJECT_ID != null &&
       walletConnect({
@@ -36,5 +36,6 @@ export const config = createConfig({
     [base.id]: http(),
     [arbitrum.id]: http(),
     [turbo.id]: http(),
+    [aurora.id]: http(),
   },
 })
