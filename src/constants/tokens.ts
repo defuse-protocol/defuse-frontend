@@ -617,6 +617,19 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
       },
     ],
   },
+  {
+    defuseAssetId: "nep141:xrp.omft.near",
+    type: "native",
+    address: "native",
+    decimals: 6,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/52.png",
+    chainId: "",
+    chainIcon: "/static/icons/network/xrpledger.svg",
+    chainName: "xrpledger",
+    routes: [],
+    symbol: "XRP",
+    name: "XRP",
+  },
 ]
 
 /** @deprecated */

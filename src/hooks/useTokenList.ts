@@ -9,7 +9,6 @@ import { useContext } from "react"
 import type { WhitelabelTemplateValue } from "@src/config/featureFlags"
 import { useFlatTokenList } from "@src/hooks/useFlatTokenList"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
-import { useSearchParams } from "next/navigation"
 
 const TEMPLATE_PRIORITY_TOKENS: Record<WhitelabelTemplateValue, string[]> = {
   "near-intents": [
@@ -33,31 +32,11 @@ const TEMPLATE_PRIORITY_TOKENS: Record<WhitelabelTemplateValue, string[]> = {
 export function useTokenList(tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]) {
   let list = useFlatTokenList(tokenList)
   const flags = useContext(FeatureFlagsContext)
-  const searchParams = useSearchParams()
 
   list = sortTokensWithPriority(
     list,
     TEMPLATE_PRIORITY_TOKENS[flags.whitelabelTemplate]
   )
-
-  if (searchParams.get("xrp")) {
-    list = [
-      ...list,
-      {
-        defuseAssetId: "nep141:xrp.omft.near",
-        type: "native",
-        address: "native",
-        decimals: 6,
-        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/52.png",
-        chainId: "",
-        chainIcon: "/static/icons/network/xrpledger.svg",
-        chainName: "xrpledger",
-        routes: [],
-        symbol: "XRP",
-        name: "XRP",
-      },
-    ]
-  }
 
   return list
 }
