@@ -1,7 +1,8 @@
 {
-  "name": "widget",
+  "name": "defuse-frontend",
   "version": "0.1.0",
-  "private": true,
+  "author": "Defuse Protocol",
+  "license": "MIT",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
