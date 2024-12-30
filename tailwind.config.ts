@@ -1,5 +1,4 @@
 import forms from "@tailwindcss/forms"
-import lineClamp from "@tailwindcss/line-clamp"
 import typography from "@tailwindcss/typography"
 import type { Config } from "tailwindcss"
 import colors from "tailwindcss/colors"
@@ -162,7 +161,6 @@ const config: Config = {
   plugins: [
     forms,
     typography,
-    lineClamp,
     plugin(({ addUtilities }) => {
       const newUtilities = {
         ".hide-scrollbar": {
