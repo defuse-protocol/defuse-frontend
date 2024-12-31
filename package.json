@@ -88,7 +88,6 @@
     "@biomejs/biome": "1.9.3",
     "@svgr/webpack": "^8.1.0",
     "@tailwindcss/forms": "^0.5.7",
-    "@tailwindcss/line-clamp": "^0.4.4",
     "@tailwindcss/typography": "^0.5.13",
     "@tinkoff/webpack-dedupe-plugin": "^3.0.3",
     "@types/bn.js": "^5.1.5",

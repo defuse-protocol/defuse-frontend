@@ -14,4 +14,9 @@ Sentry.init({
       levels: ["info", "warn", "error", "assert"],
     }),
   ],
+  ignoreErrors: [
+    // This warning pollutes the logs and is not actionable, happens on server only
+    // node_modules/bigint-buffer/dist/node.js:10
+    /^bigint: Failed to load bindings/,
+  ],
 })
