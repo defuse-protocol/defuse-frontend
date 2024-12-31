@@ -62,11 +62,9 @@ export const useSentrySetUser = () => {
 
       return {
         id: userConnectionState.address,
-        wallet: {
-          blockchainType: userConnectionState.chainType,
-          walletProvider,
-          walletAppName,
-        },
+        walletChainType: userConnectionState.chainType,
+        walletProvider,
+        walletAppName,
       }
     }
   }, [selector.wallet, connector, solanaWallet, userConnectionState])
