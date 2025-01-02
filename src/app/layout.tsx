@@ -5,11 +5,13 @@ import type { Metadata } from "next"
 import type { ReactNode } from "react"
 import { WagmiProvider } from "wagmi"
 
+import { InitDefuseSDK } from "@src/components/InitDefuseSDK"
 import Modal from "@src/components/Modal"
 import { SentryTracer } from "@src/components/SentryTracer"
 import { whitelabelTemplateFlag } from "@src/config/featureFlags"
 import { config } from "@src/config/wagmi"
 import queryClient from "@src/constants/queryClient"
+import { initSDK } from "@src/libs/defuse-sdk/initSDK"
 import { HistoryStoreProvider } from "@src/providers/HistoryStoreProvider"
 import { ModalStoreProvider } from "@src/providers/ModalStoreProvider"
 import { NotificationStoreProvider } from "@src/providers/NotificationProvider"
@@ -87,10 +89,13 @@ const RootLayout = async ({
   children?: ReactNode
 }>) => {
   const tmpl = await whitelabelTemplateFlag()
+  initSDK()
 
   return (
     <html lang="en" suppressHydrationWarning className={`tmpl-${tmpl}`}>
       <body>
+        <InitDefuseSDK />
+
         <ThemeProvider>
           <WagmiProvider config={config}>
             <NotificationStoreProvider>
