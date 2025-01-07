@@ -136,6 +136,19 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
         symbol: "USDC",
         name: "USD Coin",
       },
+      {
+        defuseAssetId:
+          "nep141:sol-5ce3bf3a31af18be40ba30f721101b4341690186.omft.near",
+        address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        decimals: 6,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+        chainId: "",
+        chainIcon: "/static/icons/network/solana.svg",
+        chainName: "solana",
+        routes: [],
+        symbol: "USDC",
+        name: "USD Coin",
+      },
     ],
   },
   {
@@ -248,6 +261,19 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
         chainId: "",
         chainIcon: "/static/icons/network/arbitrum.svg",
         chainName: "arbitrum",
+        routes: [],
+        symbol: "USDT",
+        name: "Tether USD",
+      },
+      {
+        defuseAssetId:
+          "nep141:sol-c800a4bd850783ccb82c2b2c7e84175443606352.omft.near",
+        address: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+        decimals: 6,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+        chainId: "",
+        chainIcon: "/static/icons/network/solana.svg",
+        chainName: "solana",
         routes: [],
         symbol: "USDT",
         name: "Tether USD",
@@ -629,6 +655,32 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "XRP",
     name: "XRP",
+  },
+  {
+    defuseAssetId:
+      "nep141:sol-b9c68f94ec8fd160137af8cdfe5e61cd68e2afba.omft.near",
+    address: "EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm",
+    decimals: 6,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/28752.png",
+    chainId: "",
+    chainIcon: "/static/icons/network/solana.svg",
+    chainName: "solana",
+    routes: [],
+    symbol: "WIF",
+    name: "dogwifhat",
+  },
+  {
+    defuseAssetId:
+      "nep141:sol-57d087fd8c460f612f8701f5499ad8b2eec5ab68.omft.near",
+    address: "ukHH6c7mMyiWCf1b9pnWe25TSpkDDt3H5pQZgZ74J82",
+    decimals: 6,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/29870.png",
+    chainId: "",
+    chainIcon: "/static/icons/network/solana.svg",
+    chainName: "solana",
+    routes: [],
+    symbol: "BOME",
+    name: "BOOK OF MEME",
   },
 ]
 
