@@ -48,7 +48,7 @@ const Paper = ({ children, title, description }: Props) => {
   }
 
   return (
-    <div className="flex flex-col flex-1 justify-start items-center mt-[5.5rem]">
+    <div className="flex flex-col flex-1 justify-start items-center mt-[5.5rem] min-w-0">
       <div className="w-full px-3">
         <div className="flex flex-col mb-8 text-center">
           {title && <h1 className="mb-3 font-black">{title}</h1>}
