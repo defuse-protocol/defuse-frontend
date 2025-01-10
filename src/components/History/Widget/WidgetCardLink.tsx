@@ -4,7 +4,7 @@ import { Button } from "@radix-ui/themes"
 const WidgetCardLink = () => {
   return (
     <Button
-      variant="classic"
+      variant="solid"
       color="gray"
       className="relative w-[32px] h-[32px] cursor-pointer"
     >

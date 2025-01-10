@@ -191,7 +191,7 @@ function AddToMetaMaskButton() {
     <Flex direction="column" align="center" gap="2">
       <Button
         type="button"
-        variant={isSuccess ? "soft" : "classic"}
+        variant={isSuccess ? "soft" : "solid"}
         color={isSuccess ? "green" : undefined}
         size="3"
         onClick={() => {

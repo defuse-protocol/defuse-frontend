@@ -160,7 +160,7 @@ const WidgetCardSwap = ({
           {cardStatus !== CardSwapStatusEnum.COMPLETED && (
             <div className="flex-none">
               <Button
-                variant="classic"
+                variant="solid"
                 color="red"
                 onClick={(e) => {
                   e.stopPropagation()

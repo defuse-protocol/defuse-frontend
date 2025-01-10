@@ -40,7 +40,7 @@ const Navbar = ({ links = LINKS_HEADER }: Props) => {
             radius="full"
             color="gray"
             highContrast
-            variant={isCurrentPage ? "classic" : "soft"}
+            variant={isCurrentPage ? "solid" : "soft"}
             className={clsx(
               "relative text-sm",
               TURN_OFF_APPS || route.comingSoon

@@ -33,7 +33,7 @@ const CustomButton = <T extends FieldValues>({
   let buttonColorStyle: ButtonProps["color"]
   switch (variant) {
     case "primary":
-      buttonVariantStyle = "classic"
+      buttonVariantStyle = "solid"
       buttonColorStyle = "orange"
       break
     case "secondary":
