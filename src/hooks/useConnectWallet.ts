@@ -29,7 +29,7 @@ export enum ChainType {
   Solana = "solana",
 }
 
-type State = {
+export type State = {
   chainType?: ChainType
   network?: string
   address?: string
