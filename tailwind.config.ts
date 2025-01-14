@@ -10,7 +10,6 @@ const config: Config = {
   content: [
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
@@ -62,31 +61,14 @@ const config: Config = {
           200: "rgba(130, 130, 124, 1)",
           100: "rgba(232, 232, 232, 1)",
         },
-        gray: {
-          ...colors.gray,
-          DEFAULT: "rgba(249, 249, 248, 1)",
-          1000: "rgba(251, 251, 235, 0.14)",
-          950: "rgba(241, 240, 239, 1)",
-          900: "rgba(141, 141, 141, 1)",
-          800: "rgba(249, 249, 249, 1)",
-          700: "rgba(100, 100, 100, 1)",
-          600: "rgba(99, 99, 94, 1)",
-          500: "rgba(181, 179, 173, 1)",
-          400: "rgba(217, 217, 217, 1)",
-          300: "rgba(228, 228, 228, 1)",
-          200: "rgba(241, 241, 241, 1)",
-          100: "rgba(233, 232, 230, 1)",
-          50: "rgba(249, 249, 248, 1)",
-        },
+        gray: colors.gray,
         silver: {
           300: "rgba(246, 246, 245, 0.07)",
           200: "rgba(139, 141, 152, 1)",
           100: "rgba(31, 24, 0, 0.13)",
         },
-        blue: {
-          600: "rgba(98, 126, 234, 1)",
-          300: "#101d46",
-        },
+        blue: colors.blue,
+        amber: colors.amber,
         red: {
           600: "rgba(206, 44, 49, 1)",
           500: "rgba(229, 72, 77, 1)",
