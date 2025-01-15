@@ -16,7 +16,7 @@ export default function Deposit() {
     <Paper title="Deposit">
       <DepositWidget
         tokenList={tokenList}
-        userAddress={state.address}
+        userAddress={state.isVerified ? state.address : undefined}
         chainType={state.chainType}
         sendTransactionNear={async (tx) => {
           const result = await sendTransaction({
