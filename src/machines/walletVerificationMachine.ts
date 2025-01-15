@@ -1,13 +1,13 @@
 import { assign, fromPromise, setup } from "xstate"
 
-export const walletConfirmationMachine = setup({
+export const walletVerificationMachine = setup({
   types: {} as {
     context: {
       hadError: boolean
     }
   },
   actors: {
-    confirmWallet: fromPromise((): Promise<boolean> => {
+    verifyWallet: fromPromise((): Promise<boolean> => {
       throw new Error("not implemented")
     }),
   },
@@ -20,7 +20,7 @@ export const walletConfirmationMachine = setup({
     }),
   },
 }).createMachine({
-  id: "confirm-wallet",
+  id: "verify-wallet",
   initial: "idle",
   context: {
     hadError: false,
@@ -28,21 +28,21 @@ export const walletConfirmationMachine = setup({
   states: {
     idle: {
       on: {
-        START: "confirming",
+        START: "verifying",
         ABORT: "aborted",
       },
     },
     error: {
       on: {
-        START: "confirming",
+        START: "verifying",
         ABORT: "aborted",
       },
     },
-    confirming: {
+    verifying: {
       invoke: {
-        src: "confirmWallet",
+        src: "verifyWallet",
         onDone: {
-          target: "confirmed",
+          target: "verified",
         },
         onError: {
           target: "idle",
@@ -59,7 +59,7 @@ export const walletConfirmationMachine = setup({
         },
       },
     },
-    confirmed: {
+    verified: {
       type: "final",
     },
     aborted: {

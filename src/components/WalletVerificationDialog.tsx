@@ -18,13 +18,13 @@ export function WalletVerificationDialog({
   open,
   onConfirm,
   onCancel,
-  isConfirming,
+  isVerifying,
   isFailure,
 }: {
   open: boolean
   onConfirm: () => void
   onCancel: () => void
-  isConfirming: boolean
+  isVerifying: boolean
   isFailure: boolean
 }) {
   return (
@@ -35,14 +35,14 @@ export function WalletVerificationDialog({
             open={open}
             onConfirm={onConfirm}
             onCancel={onCancel}
-            isConfirming={isConfirming}
+            isVerifying={isVerifying}
           />
         ) : (
           <DefaultContent
             open={open}
             onConfirm={onConfirm}
             onCancel={onCancel}
-            isConfirming={isConfirming}
+            isVerifying={isVerifying}
           />
         )}
       </themes_AlertDialog.Content>
@@ -54,12 +54,12 @@ function DefaultContent({
   open,
   onConfirm,
   onCancel,
-  isConfirming,
+  isVerifying,
 }: {
   open: boolean
   onConfirm: () => void
   onCancel: () => void
-  isConfirming: boolean
+  isVerifying: boolean
 }) {
   return (
     <>
@@ -128,8 +128,8 @@ function DefaultContent({
         </themes_AlertDialog.Cancel>
         <themes_AlertDialog.Action>
           <Button size="3" type="button" onClick={onConfirm}>
-            <Spinner loading={isConfirming} />
-            {isConfirming ? "Verifying..." : "Verify Now"}
+            <Spinner loading={isVerifying} />
+            {isVerifying ? "Verifying..." : "Verify Now"}
           </Button>
         </themes_AlertDialog.Action>
       </div>
@@ -141,12 +141,12 @@ function FailureContent({
   open,
   onConfirm,
   onCancel,
-  isConfirming,
+  isVerifying,
 }: {
   open: boolean
   onConfirm: () => void
   onCancel: () => void
-  isConfirming: boolean
+  isVerifying: boolean
 }) {
   return (
     <>
@@ -206,7 +206,7 @@ function FailureContent({
         </themes_AlertDialog.Cancel>
         <themes_AlertDialog.Action>
           <Button size="3" type="button" onClick={onConfirm}>
-            <Spinner loading={isConfirming}>
+            <Spinner loading={isVerifying}>
               <ReloadIcon />
             </Spinner>
             Try Again

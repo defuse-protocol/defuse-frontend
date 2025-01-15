@@ -7,20 +7,20 @@ import { fromPromise } from "xstate"
 import { WalletVerificationDialog } from "@src/components/WalletVerificationDialog"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
-import { walletConfirmationMachine } from "@src/machines/walletConfirmationMachine"
+import { walletVerificationMachine } from "@src/machines/walletVerificationMachine"
 import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
 import {
   verifyWalletSignature,
-  walletConfirmationMessageFactory,
+  walletVerificationMessageFactory,
 } from "@src/utils/walletMessage"
 
-export function WalletConfirmationProvider() {
+export function WalletVerificationProvider() {
   const { state, signOut } = useConnectWallet()
   const { addWalletAddress } = useVerifiedWalletsStore()
 
   if (state.address != null && !state.isVerified) {
     return (
-      <WalletConfirmationUI
+      <WalletVerificationUI
         onConfirm={() => {
           if (state.address != null) {
             addWalletAddress(state.address)
@@ -38,7 +38,7 @@ export function WalletConfirmationProvider() {
   return null
 }
 
-function WalletConfirmationUI({
+function WalletVerificationUI({
   onConfirm,
   onAbort,
 }: { onConfirm: () => void; onAbort: () => void }) {
@@ -47,15 +47,15 @@ function WalletConfirmationUI({
   const signMessage = useWalletAgnosticSignMessage()
 
   const [state, send, serviceRef] = useActor(
-    walletConfirmationMachine.provide({
+    walletVerificationMachine.provide({
       actors: {
-        confirmWallet: fromPromise(async () => {
+        verifyWallet: fromPromise(async () => {
           if (unconfirmedWallet.address == null) {
             return false
           }
 
           const walletSignature = await signMessage(
-            walletConfirmationMessageFactory(unconfirmedWallet.address)
+            walletVerificationMessageFactory(unconfirmedWallet.address)
           )
 
           return verifyWalletSignature(
@@ -75,7 +75,7 @@ function WalletConfirmationUI({
   useEffect(
     () =>
       serviceRef.subscribe((state) => {
-        if (state.matches("confirmed")) {
+        if (state.matches("verified")) {
           onConfirmRef.current()
         }
         if (state.matches("aborted")) {
@@ -94,7 +94,7 @@ function WalletConfirmationUI({
       onCancel={() => {
         send({ type: "ABORT" })
       }}
-      isConfirming={state.matches("confirming")}
+      isVerifying={state.matches("verifying")}
       isFailure={state.context.hadError}
     />
   )

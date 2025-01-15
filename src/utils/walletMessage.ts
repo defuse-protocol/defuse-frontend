@@ -40,16 +40,14 @@ export async function verifyWalletSignature(
   }
 }
 
-export function walletConfirmationMessageFactory(
+export function walletVerificationMessageFactory(
   address: string
 ): WalletMessage {
-  // Generate current timestamp in milliseconds
   const timestamp = Date.now()
 
   // Generate a secure nonce for NEP-413
   const nonce = crypto.getRandomValues(new Uint8Array(32))
 
-  // Create a standard confirmation message with address and timestamp
   const baseMessage = `Welcome! To keep your account secure, please verify your wallet.
 
 Wallet: ${address}
