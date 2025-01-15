@@ -65,43 +65,39 @@ function DefaultContent({
     <>
       {/* Header Section */}
       <div className="flex flex-col items-center text-center mb-6">
-        <div className="bg-blue-50 p-3 rounded-full mb-4">
-          <LockClosedIcon className="w-6 h-6 text-blue-600" />
+        <div className="bg-blue-50 dark:bg-blue-950 p-3 rounded-full mb-4">
+          <LockClosedIcon className="w-6 h-6 text-blue-600 darkL:text-blue-400" />
         </div>
-        <AlertDialog.Title className="text-xl font-semibold text-gray-900">
+        <AlertDialog.Title className="text-xl font-semibold text-gray-900 dark:text-gray-100">
           Wallet Verification Required
         </AlertDialog.Title>
-        <AlertDialog.Description className="mt-2 text-gray-600">
+        <AlertDialog.Description className="mt-2 text-gray-600 dark:text-gray-400">
           Please verify your wallet to enable full platform functionality
         </AlertDialog.Description>
       </div>
 
       {/* Features List */}
-      <div className="bg-gray-50 rounded-lg p-4 mb-5">
+      <div className="bg-gray-50 dark:bg-gray-800  text-gray-600 dark:text-gray-300 rounded-lg p-4 mb-5">
         <ul className="space-y-3">
           <li className="flex items-center gap-3">
-            <div className="bg-blue-100 rounded-full p-1">
-              <CheckIcon className="w-3 h-3 text-blue-600" />
+            <div className="bg-blue-100 dark:bg-blue-900 rounded-full p-1">
+              <CheckIcon className="w-3 h-3 text-blue-600 dark:text-blue-400" />
             </div>
-            <span className="text-sm text-gray-600">
-              Safe transactions and transfers
-            </span>
+            <span className="text-sm">Safe transactions and transfers</span>
           </li>
           <li className="flex items-center gap-3">
-            <div className="bg-blue-100 rounded-full p-1">
-              <CheckIcon className="w-3 h-3 text-blue-600" />
+            <div className="bg-blue-100 dark:bg-blue-900 rounded-full p-1">
+              <CheckIcon className="w-3 h-3 text-blue-600 dark:text-blue-400" />
             </div>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm">
               Full access to all platform features
             </span>
           </li>
           <li className="flex items-center gap-3">
-            <div className="bg-blue-100 rounded-full p-1">
-              <CheckIcon className="w-3 h-3 text-blue-600" />
+            <div className="bg-blue-100 dark:bg-blue-900 rounded-full p-1">
+              <CheckIcon className="w-3 h-3 text-blue-600 dark:text-blue-400" />
             </div>
-            <span className="text-sm text-gray-600">
-              Protection of your funds
-            </span>
+            <span className="text-sm">Protection of your funds</span>
           </li>
         </ul>
       </div>
@@ -152,33 +148,33 @@ function FailureContent({
     <>
       {/* Header Section */}
       <div className="flex flex-col items-center text-center mb-6">
-        <div className="bg-amber-50 p-3 rounded-full mb-4">
-          <ExclamationTriangleIcon className="w-6 h-6 text-amber-600" />
+        <div className="bg-amber-50 dark:bg-amber-950 p-3 rounded-full mb-4">
+          <ExclamationTriangleIcon className="w-6 h-6 text-amber-600 dark:text-amber-400" />
         </div>
-        <AlertDialog.Title className="text-xl font-semibold text-gray-900">
+        <AlertDialog.Title className="text-xl font-semibold text-gray-900 dark:text-gray-100">
           Unable to Verify Wallet
         </AlertDialog.Title>
-        <AlertDialog.Description className="mt-2 text-gray-600">
+        <AlertDialog.Description className="mt-2 text-gray-600 dark:text-gray-400">
           The verification process couldn't be completed
         </AlertDialog.Description>
       </div>
 
       {/* Info List */}
-      <div className="bg-gray-50 rounded-lg p-4 mb-5">
+      <div className="bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-lg p-4 mb-5">
         <ul className="space-y-3">
           <li className="flex items-start gap-3">
-            <div className="bg-amber-100 rounded-full p-1 mt-0.5">
-              <Cross2Icon className="w-3 h-3 text-amber-600" />
+            <div className="bg-amber-100 dark:bg-amber-900 rounded-full p-1 mt-0.5">
+              <Cross2Icon className="w-3 h-3 text-amber-600 dark:text-amber-400" />
             </div>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm">
               The verification was interrupted or cancelled
             </span>
           </li>
           <li className="flex items-start gap-3">
-            <div className="bg-amber-100 rounded-full p-1 mt-0.5">
-              <MinusCircledIcon className="w-3 h-3 text-amber-600" />
+            <div className="bg-amber-100 dark:bg-amber-900 rounded-full p-1 mt-0.5">
+              <MinusCircledIcon className="w-3 h-3 text-amber-600 dark:text-amber-400" />
             </div>
-            <span className="text-sm text-gray-600">
+            <span className="text-sm">
               Some wallets, like Ledger, can't access important app features
             </span>
           </li>

@@ -61,7 +61,7 @@ const config: Config = {
           200: "rgba(130, 130, 124, 1)",
           100: "rgba(232, 232, 232, 1)",
         },
-        gray: colors.gray,
+        gray: colors.stone,
         silver: {
           300: "rgba(246, 246, 245, 0.07)",
           200: "rgba(139, 141, 152, 1)",
