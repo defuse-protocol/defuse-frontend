@@ -123,6 +123,20 @@ const config: Config = {
       borderRadius: {
         "4xl": "1.875rem",
       },
+      keyframes: {
+        "slide-up": {
+          "0%": { transform: "translateY(100%)" },
+          "100%": { transform: "translateY(0)" },
+        },
+        "slide-down": {
+          "0%": { transform: "translateY(0)" },
+          "100%": { transform: "translateY(100%)" },
+        },
+      },
+      animation: {
+        "slide-up": "slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+        "slide-down": "slide-down 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+      },
       backgroundImage: {
         "page-light": "url(/static/images/bg-light.svg)",
         "page-dark": "url(/static/images/bg-dark.svg)",

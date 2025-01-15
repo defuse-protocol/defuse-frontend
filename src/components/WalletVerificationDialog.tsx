@@ -29,7 +29,7 @@ export function WalletVerificationDialog({
 }) {
   return (
     <AlertDialog.Root open={open}>
-      <themes_AlertDialog.Content className="max-w-md p-6">
+      <themes_AlertDialog.Content className="max-w-md p-6 sm:animate-none animate-slide-up">
         {isFailure ? (
           <FailureContent
             open={open}
