@@ -7,12 +7,14 @@ import {
 } from "@solana/wallet-adapter-react"
 import { useWalletModal } from "@solana/wallet-adapter-react-ui"
 import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
+import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
 import type {
   SendTransactionEVMParams,
   SendTransactionSolanaParams,
   SignAndSendTransactionsParams,
 } from "@src/types/interfaces"
 import type { SendTransactionParameters } from "@wagmi/core"
+import { useCallback } from "react"
 import {
   type Connector,
   useAccount,
@@ -33,6 +35,7 @@ export type State = {
   chainType?: ChainType
   network?: string
   address?: string
+  isVerified: boolean
 }
 
 interface ConnectWalletAction {
@@ -56,6 +59,7 @@ const defaultState: State = {
   chainType: undefined,
   network: undefined,
   address: undefined,
+  isVerified: false,
 }
 
 export const useConnectWallet = (): ConnectWalletAction => {
@@ -129,6 +133,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
       address: nearWallet.accountId,
       network: "near:mainnet",
       chainType: ChainType.Near,
+      isVerified: false,
     }
   }
 
@@ -143,6 +148,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
         ? `eth:${evmWalletAccount.chainId}`
         : "unknown",
       chainType: ChainType.EVM,
+      isVerified: false,
     }
   }
 
@@ -160,8 +166,19 @@ export const useConnectWallet = (): ConnectWalletAction => {
       address: solanaWallet.publicKey.toBase58(),
       network: "sol:mainnet",
       chainType: ChainType.Solana,
+      isVerified: false,
     }
   }
+
+  state.isVerified = useVerifiedWalletsStore(
+    useCallback(
+      (store) =>
+        state.address != null
+          ? store.walletAddresses.includes(state.address)
+          : false,
+      [state.address]
+    )
+  )
 
   return {
     async signIn(params: {

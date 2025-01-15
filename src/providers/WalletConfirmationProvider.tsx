@@ -8,34 +8,27 @@ import { WalletVerificationDialog } from "@src/components/WalletVerificationDial
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import { walletConfirmationMachine } from "@src/machines/walletConfirmationMachine"
-import { useUserWalletStore } from "@src/stores/userWalletStore"
+import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
 import {
   verifyWalletSignature,
   walletConfirmationMessageFactory,
 } from "@src/utils/walletMessage"
 
 export function WalletConfirmationProvider() {
-  const { state: unconfirmedWallet, signOut } = useConnectWallet()
-  const { wallet, clearWallet, confirmWallet } = useUserWalletStore()
+  const { state, signOut } = useConnectWallet()
+  const { addWalletAddress } = useVerifiedWalletsStore()
 
-  useEffect(() => {
-    if (unconfirmedWallet.address !== wallet.address) {
-      clearWallet()
-    }
-  }, [unconfirmedWallet.address, wallet.address, clearWallet])
-
-  if (
-    unconfirmedWallet.address != null &&
-    unconfirmedWallet.address !== wallet.address
-  ) {
+  if (state.address != null && !state.isVerified) {
     return (
       <WalletConfirmationUI
         onConfirm={() => {
-          confirmWallet(unconfirmedWallet)
+          if (state.address != null) {
+            addWalletAddress(state.address)
+          }
         }}
         onAbort={() => {
-          if (unconfirmedWallet.chainType != null) {
-            void signOut({ id: unconfirmedWallet.chainType })
+          if (state.chainType != null) {
+            void signOut({ id: state.chainType })
           }
         }}
       />
