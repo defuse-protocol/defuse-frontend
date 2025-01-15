@@ -110,10 +110,10 @@ function DefaultContent({
         </Callout.Text>
       </Callout.Root>
 
-      <div className="flex justify-end gap-3 mt-6">
+      <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
         <themes_AlertDialog.Cancel>
           <Button
-            size="3"
+            size="4"
             type="button"
             variant="soft"
             color="gray"
@@ -123,7 +123,7 @@ function DefaultContent({
           </Button>
         </themes_AlertDialog.Cancel>
         <themes_AlertDialog.Action>
-          <Button size="3" type="button" onClick={onConfirm}>
+          <Button size="4" type="button" onClick={onConfirm}>
             <Spinner loading={isVerifying} />
             {isVerifying ? "Verifying..." : "Verify Now"}
           </Button>
@@ -188,10 +188,10 @@ function FailureContent({
         </Callout.Text>
       </Callout.Root>
 
-      <div className="flex justify-end gap-3 mt-6">
+      <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
         <themes_AlertDialog.Cancel>
           <Button
-            size="3"
+            size="4"
             type="button"
             variant="soft"
             color="gray"
@@ -201,7 +201,7 @@ function FailureContent({
           </Button>
         </themes_AlertDialog.Cancel>
         <themes_AlertDialog.Action>
-          <Button size="3" type="button" onClick={onConfirm}>
+          <Button size="4" type="button" onClick={onConfirm}>
             <Spinner loading={isVerifying}>
               <ReloadIcon />
             </Spinner>
