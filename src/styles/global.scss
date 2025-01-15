@@ -28,6 +28,16 @@ body {
   html {
     font-family: CircularXXSub, system-ui, sans-serif;
   }
+
+  :root {
+    --color-warning: var(--amber-a2);
+    --color-warning-foreground: var(--amber-a11);
+  }
+
+  .dark {
+    --color-warning: var(--amber-a2);
+    --color-warning-foreground: var(--amber-a11);
+  }
 }
 html,
 body {

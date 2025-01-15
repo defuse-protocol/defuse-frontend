@@ -102,6 +102,7 @@ function WalletConfirmationUI({
         send({ type: "ABORT" })
       }}
       isConfirming={state.matches("confirming")}
+      isFailure={state.context.hadError}
     />
   )
 }

@@ -1,6 +1,11 @@
-import { fromPromise, setup } from "xstate"
+import { assign, fromPromise, setup } from "xstate"
 
 export const walletConfirmationMachine = setup({
+  types: {} as {
+    context: {
+      hadError: boolean
+    }
+  },
   actors: {
     confirmWallet: fromPromise((): Promise<boolean> => {
       throw new Error("not implemented")
@@ -10,10 +15,16 @@ export const walletConfirmationMachine = setup({
     logError: (_, { error }: { error: unknown }) => {
       console.error(error)
     },
+    setError: assign({
+      hadError: (_, { hadError }: { hadError: true }) => hadError,
+    }),
   },
 }).createMachine({
   id: "confirm-wallet",
   initial: "idle",
+  context: {
+    hadError: false,
+  },
   states: {
     idle: {
       on: {
@@ -34,11 +45,15 @@ export const walletConfirmationMachine = setup({
           target: "confirmed",
         },
         onError: {
-          target: "error",
+          target: "idle",
           actions: [
             {
               type: "logError",
               params: ({ event }) => event,
+            },
+            {
+              type: "setError",
+              params: { hadError: true },
             },
           ],
         },

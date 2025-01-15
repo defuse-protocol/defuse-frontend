@@ -93,6 +93,8 @@ const config: Config = {
           100: "rgba(239, 95, 0, 1)",
         },
         secondary: "#82827c",
+        warning: "var(--color-warning)",
+        "warning-foreground": "var(--color-warning-foreground)",
       },
       boxShadow: {
         paper:
