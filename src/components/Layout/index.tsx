@@ -9,6 +9,7 @@ import Header from "@src/components/Layout/Header"
 import NavbarMobile from "@src/components/NavbarMobile"
 import PageBackground from "@src/components/PageBackground"
 import Snackbar from "@src/components/Snackbar"
+import { WalletVerificationProvider } from "@src/providers/WalletVerificationProvider"
 import Main from "./Main"
 
 const Layout: React.FC<PropsWithChildren> = ({ children }) => {
@@ -24,6 +25,8 @@ const Layout: React.FC<PropsWithChildren> = ({ children }) => {
       <NavbarMobile />
       <PageBackground />
       <Snackbar />
+
+      <WalletVerificationProvider />
     </div>
   )
 }
