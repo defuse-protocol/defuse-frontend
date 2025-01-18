@@ -71,6 +71,27 @@ const Logo = () => {
     )
   }
 
+  if (whitelabelTemplate === "trumpswap") {
+    return (
+      <Link href={Navigation.HOME}>
+        <Image
+          src="/static/templates/trumpswap/logo.svg"
+          alt="TrumpSwap Logo"
+          width={126}
+          height={32}
+          className="hidden dark:block"
+        />
+        <Image
+          src="/static/templates/trumpswap/logo.svg"
+          alt="TrumpSwap Logo"
+          width={126}
+          height={32}
+          className="dark:hidden"
+        />
+      </Link>
+    )
+  }
+
   return (
     <Link href={Navigation.HOME}>
       <Image

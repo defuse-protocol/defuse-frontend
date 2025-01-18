@@ -37,6 +37,21 @@ const Footer = () => {
     )
   }
 
+  if (whitelabelTemplate === "trumpswap") {
+    return (
+      <footer className="lg:hidden">
+        <Image
+          src="/static/templates/trumpswap/trump-standing.png"
+          alt=""
+          width={400}
+          height={400}
+          className="w-full max-w-[400px] mx-auto"
+          priority
+        />
+      </footer>
+    )
+  }
+
   if (whitelabelTemplate === "dogecoinswap") {
     return (
       <footer className="py-7">
