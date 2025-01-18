@@ -682,6 +682,19 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     symbol: "BOME",
     name: "BOOK OF MEME",
   },
+  {
+    defuseAssetId:
+      "nep141:sol-c58e6539c2f2e097c251f8edf11f9c03e581f8d4.omft.near",
+    address: "6p6xgHyF7AeE6TZkSmFsko444wqoP15icUSqi2jfGiPN",
+    decimals: 6,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/35336.png",
+    chainId: "",
+    chainIcon: "/static/icons/network/solana.svg",
+    chainName: "solana",
+    routes: [],
+    symbol: "TRUMP",
+    name: "OFFICIAL TRUMP",
+  },
 ]
 
 /** @deprecated */
