@@ -13,7 +13,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@defuse-protocol/defuse-sdk": "^2.36.2",
+    "@defuse-protocol/defuse-sdk": "^2.36.4",
     "@near-eth/aurora-erc20": "^2.8.0",
     "@near-eth/aurora-ether": "^3.0.0",
     "@near-eth/aurora-nep141": "^1.5.3",
