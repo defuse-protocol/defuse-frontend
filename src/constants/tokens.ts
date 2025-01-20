@@ -165,6 +165,19 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     name: "OFFICIAL TRUMP",
   },
   {
+    defuseAssetId:
+      "nep141:sol-d600e625449a4d9380eaf5e3265e54c90d34e260.omft.near",
+    address: "FUAfBo2jgks6gB4Z4LfZkqSZgzNucisEHqnNebaRxM1P",
+    decimals: 6,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/35347.png",
+    chainId: "",
+    chainIcon: "/static/icons/network/solana.svg",
+    chainName: "solana",
+    routes: [],
+    symbol: "MELANIA",
+    name: "Official Melania Meme",
+  },
+  {
     unifiedAssetId: "near",
     decimals: 24,
     symbol: "NEAR",
