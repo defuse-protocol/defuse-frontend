@@ -93,6 +93,7 @@ export default function Swap() {
           router.push("/deposit")
         }}
         userChainType={state.chainType ?? null}
+        referral={process?.env?.NEXT_PUBLIC_REFERRAL}
       />
     </Paper>
   )

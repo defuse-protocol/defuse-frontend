@@ -84,6 +84,7 @@ export default function Withdraw() {
               throw new Error(`Unsupported sign in type: ${chainType}`)
           }
         }}
+        referral={process?.env?.NEXT_PUBLIC_REFERRAL}
       />
     </Paper>
   )
