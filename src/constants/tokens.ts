@@ -667,6 +667,19 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
         symbol: "TURBO",
         name: "Turbo",
       },
+      {
+        defuseAssetId:
+          "nep141:sol-df27d7abcc1c656d4ac3b1399bbfbba1994e6d8c.omft.near",
+        address: "2Dyzu65QA9zdX1UeE7Gx71k7fiwyUK6sZdrvJ7auq5wm",
+        decimals: 8,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/24911.png",
+        chainId: "",
+        chainIcon: "/static/icons/network/solana.svg",
+        chainName: "solana",
+        routes: [],
+        symbol: "TURBO",
+        name: "Turbo",
+      },
     ],
   },
   {
