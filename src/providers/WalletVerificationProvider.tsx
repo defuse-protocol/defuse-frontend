@@ -1,5 +1,6 @@
 "use client"
 
+import { useQuery } from "@tanstack/react-query"
 import { useActor } from "@xstate/react"
 import { useEffect, useRef } from "react"
 import { fromPromise } from "xstate"
@@ -10,7 +11,6 @@ import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import { walletVerificationMachine } from "@src/machines/walletVerificationMachine"
 import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
-import { isBannedNearAddress } from "@src/utils/bannedNearAddress"
 import {
   verifyWalletSignature,
   walletVerificationMessageFactory,
@@ -18,9 +18,19 @@ import {
 
 export function WalletVerificationProvider() {
   const { state, signOut } = useConnectWallet()
+
+  const safetyCheck = useQuery({
+    queryKey: ["address_safety", state.address],
+    queryFn: async () => {
+      const response = await fetch(`/api/addresses/${state.address}/safety`)
+      return response.json() as Promise<{ safetyStatus: "safe" | "unsafe" }>
+    },
+    enabled: state.address != null,
+  })
+
   const { addWalletAddress } = useVerifiedWalletsStore()
 
-  if (state.address != null && isBannedNearAddress(state.address)) {
+  if (state.address != null && safetyCheck.data?.safetyStatus === "unsafe") {
     return (
       <WalletBannedUI
         onAbort={() => {
@@ -32,7 +42,11 @@ export function WalletVerificationProvider() {
     )
   }
 
-  if (state.address != null && !state.isVerified) {
+  if (
+    state.address != null &&
+    safetyCheck.data?.safetyStatus === "safe" &&
+    !state.isVerified
+  ) {
     return (
       <WalletVerificationUI
         onConfirm={() => {
