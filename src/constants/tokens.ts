@@ -721,19 +721,6 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     symbol: "BOME",
     name: "BOOK OF MEME",
   },
-  {
-    defuseAssetId:
-      "nep141:base-0xa5c67d8d37b88c2d88647814da5578128e2c93b2.omft.near",
-    address: "0xa5c67d8d37b88c2d88647814da5578128e2c93b2",
-    decimals: 18,
-    icon: "/static/icons/icon-fms.svg",
-    chainId: "",
-    chainIcon: "/static/icons/network/base.svg",
-    chainName: "base",
-    routes: [],
-    symbol: "FMS",
-    name: "FMS",
-  },
 ]
 
 /** @deprecated */
