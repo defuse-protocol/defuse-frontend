@@ -8,8 +8,8 @@ mkdir -p "$(dirname "$output_file")"
 
 echo "Downloading banned near addresses from gist..."
 
-# Download and validate addresses from gist
-addresses=$(curl -s "$gist_url" | grep -E '^0x[a-fA-F0-9]{40}$' || true)
+# Download and validate addresses from gist, convert to lowercase
+addresses=$(curl -s "$gist_url" | grep -E '^0x[a-fA-F0-9]{40}$' | tr '[:upper:]' '[:lower:]' || true)
 
 # Check if addresses were successfully retrieved and valid
 if [ -z "$addresses" ]; then
