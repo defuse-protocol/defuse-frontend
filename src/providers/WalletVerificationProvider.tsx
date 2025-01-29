@@ -4,11 +4,13 @@ import { useActor } from "@xstate/react"
 import { useEffect, useRef } from "react"
 import { fromPromise } from "xstate"
 
+import { WalletBannedDialog } from "@src/components/WalletBannedDialog"
 import { WalletVerificationDialog } from "@src/components/WalletVerificationDialog"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import { walletVerificationMachine } from "@src/machines/walletVerificationMachine"
 import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
+import { isBannedNearAddress } from "@src/utils/bannedNearAddress"
 import {
   verifyWalletSignature,
   walletVerificationMessageFactory,
@@ -17,6 +19,18 @@ import {
 export function WalletVerificationProvider() {
   const { state, signOut } = useConnectWallet()
   const { addWalletAddress } = useVerifiedWalletsStore()
+
+  if (state.address != null && isBannedNearAddress(state.address)) {
+    return (
+      <WalletBannedUI
+        onAbort={() => {
+          if (state.chainType != null) {
+            void signOut({ id: state.chainType })
+          }
+        }}
+      />
+    )
+  }
 
   if (state.address != null && !state.isVerified) {
     return (
@@ -36,6 +50,10 @@ export function WalletVerificationProvider() {
   }
 
   return null
+}
+
+function WalletBannedUI({ onAbort }: { onAbort: () => void }) {
+  return <WalletBannedDialog open={true} onCancel={onAbort} />
 }
 
 function WalletVerificationUI({
