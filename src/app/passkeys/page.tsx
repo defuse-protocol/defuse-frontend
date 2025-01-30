@@ -6,9 +6,14 @@ import { base58, base64, hex } from "@scure/base"
 import { parseAuthenticatorData } from "@simplewebauthn/server/helpers"
 import Button from "@src/components/Button/Button"
 import cbor from "cbor"
+import { useRef } from "react"
 import { type Hex, hexToBytes, toHex } from "viem"
 
+const msg = `{"signer_id":"$signerId","verifying_contract":"intents.near","deadline":{"timestamp":1732035219},"nonce":"XVoKfmScb3G+XqH9ke/fSlJ/3xO59sNhCxhpG821BH8=","intents":[{"intent":"token_diff","diff":{"nep141:base-0x833589fcd6edb6e08f4c7c32d4f71b54bda02913.omft.near":"-1000","nep141:eth-0xdac17f958d2ee523a2206206994597c13d831ec7.omft.near":"998"}}]}`
+
 export default function WebAuthnExamplePage() {
+  const textRef = useRef<HTMLTextAreaElement>(null)
+
   const handleClickSignIn = async () => {
     try {
       const publicKeyCredentialCreationOptions: PublicKeyCredentialCreationOptions =
@@ -47,7 +52,8 @@ export default function WebAuthnExamplePage() {
   }
 
   const makeMessageToSign = (signerId: string) => {
-    return `{"signer_id":"${signerId}","verifying_contract":"intents.near","deadline":{"timestamp":1732035219},"nonce":"XVoKfmScb3G+XqH9ke/fSlJ/3xO59sNhCxhpG821BH8=","intents":[{"intent":"token_diff","diff":{"nep141:base-0x833589fcd6edb6e08f4c7c32d4f71b54bda02913.omft.near":"-1000","nep141:eth-0xdac17f958d2ee523a2206206994597c13d831ec7.omft.near":"998"}}]}`
+    // @ts-ignore
+    return textRef.current.value.replace("$signerId", signerId)
   }
 
   const toIntentsUser = async (pubKey: CreateCredential["pubKey"]) => {
@@ -157,6 +163,15 @@ export default function WebAuthnExamplePage() {
       <Button type={"button"} onClick={handleClickSignMessage}>
         Sign Message
       </Button>
+
+      <textarea
+        ref={textRef}
+        defaultValue={msg}
+        style={{
+          width: "100%",
+          height: "300px",
+        }}
+      />
     </div>
   )
 }
