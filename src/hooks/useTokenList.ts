@@ -9,6 +9,7 @@ import { useContext } from "react"
 import type { WhitelabelTemplateValue } from "@src/config/featureFlags"
 import { useFlatTokenList } from "@src/hooks/useFlatTokenList"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
+import { useSearchParams } from "next/navigation"
 
 const TEMPLATE_PRIORITY_TOKENS: Record<WhitelabelTemplateValue, string[]> = {
   "near-intents": [
@@ -36,11 +37,31 @@ const TEMPLATE_PRIORITY_TOKENS: Record<WhitelabelTemplateValue, string[]> = {
 export function useTokenList(tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]) {
   let list = useFlatTokenList(tokenList)
   const flags = useContext(FeatureFlagsContext)
+  const searchParams = useSearchParams()
 
   list = sortTokensWithPriority(
     list,
     TEMPLATE_PRIORITY_TOKENS[flags.whitelabelTemplate]
   )
+
+  if (searchParams.get("zec")) {
+    list = [
+      ...list,
+      {
+        defuseAssetId: "nep141:zec.omft.near",
+        type: "native",
+        address: "native",
+        decimals: 8,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/1437.png",
+        chainId: "",
+        chainIcon: "/static/icons/network/zcash-icon-black.svg",
+        chainName: "zcash",
+        routes: [],
+        symbol: "ZEC",
+        name: "Zcash",
+      },
+    ]
+  }
 
   return list
 }

@@ -13,7 +13,7 @@
     "prepare": "husky && ./scripts/gen-banned-near-address.sh"
   },
   "dependencies": {
-    "@defuse-protocol/defuse-sdk": "^1.0.0-beta.10",
+    "@defuse-protocol/defuse-sdk": "^1.0.0-beta.11",
     "@near-eth/aurora-erc20": "^2.8.0",
     "@near-eth/aurora-ether": "^3.0.0",
     "@near-eth/aurora-nep141": "^1.5.3",
