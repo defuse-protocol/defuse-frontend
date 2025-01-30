@@ -21,11 +21,15 @@ export default function WebAuthnExamplePage() {
           challenge: new Uint8Array(32),
           rp: { name: "Example" },
           user: {
-            id: new Uint8Array(32),
+            id: crypto.getRandomValues(new Uint8Array(32)),
             name: "foo",
             displayName: "",
           },
-          pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+          pubKeyCredParams: [
+            { type: "public-key", alg: -7 },
+            // { type: "public-key", alg: -8 },
+            // { type: "public-key", alg: -257 },
+          ],
           authenticatorSelection: { authenticatorAttachment: "platform" },
           timeout: 60000,
           attestation: "direct",
@@ -36,6 +40,8 @@ export default function WebAuthnExamplePage() {
       })
 
       if (credential) {
+        console.log("credential", (credential as PublicKeyCredential).toJSON())
+
         const userCreds: CreateCredential = {
           rawId: toHex(
             new Uint8Array((credential as PublicKeyCredential).rawId)
