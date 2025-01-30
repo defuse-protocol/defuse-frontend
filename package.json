@@ -10,7 +10,7 @@
     "test": "vitest",
     "typecheck": "tsc --noEmit",
     "check": "biome check",
-    "prepare": "husky"
+    "prepare": "husky && ./scripts/gen-banned-near-address.sh"
   },
   "dependencies": {
     "@defuse-protocol/defuse-sdk": "^1.0.0-beta.11",

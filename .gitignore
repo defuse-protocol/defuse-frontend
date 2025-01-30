@@ -40,3 +40,6 @@ next-env.d.ts
 
 # sentry
 .env.sentry-build-plugin
+
+# generated files
+/src/gen
