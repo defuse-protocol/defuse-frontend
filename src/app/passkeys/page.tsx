@@ -27,11 +27,11 @@ export default function WebAuthnExamplePage() {
             displayName: "",
           },
           pubKeyCredParams: [
-            { type: "public-key", alg: -7 },
             { type: "public-key", alg: -8 },
+            { type: "public-key", alg: -7 },
             // { type: "public-key", alg: -257 },
           ],
-          authenticatorSelection: { authenticatorAttachment: "platform" },
+          authenticatorSelection: {},
           timeout: 60000,
           attestation: "direct",
         }
@@ -64,16 +64,27 @@ export default function WebAuthnExamplePage() {
   }
 
   const toIntentsUser = async (pubKey: CreateCredential["pubKey"]) => {
-    const pk = new Uint8Array([
-      ...hexToBytes(pubKey.x),
-      ...hexToBytes(pubKey.y),
-    ])
+    let address: string
 
-    const p256 = new TextEncoder().encode("p256")
-    const addressBytes = keccak_256(new Uint8Array([...p256, ...pk])).slice(-20)
+    if (pubKey.startsWith("p256:")) {
+      const pk = base58.decode(pubKey.slice(5))
+      // todo: verify public size, must equal to 64 bytes
 
-    // biome-ignore lint/style/useTemplate: <explanation>
-    const address = "0x" + hex.encode(addressBytes)
+      const p256 = new TextEncoder().encode("p256")
+      const addressBytes = keccak_256(new Uint8Array([...p256, ...pk])).slice(
+        -20
+      )
+
+      // biome-ignore lint/style/useTemplate: <explanation>
+      address = "0x" + hex.encode(addressBytes)
+    } else if (pubKey.startsWith("ed25519:")) {
+      const pk = base58.decode(pubKey.slice(8))
+      // todo: verify public size, must equal to 32 bytes
+
+      address = hex.encode(pk)
+    } else {
+      throw new Error("Unsupported public key type")
+    }
 
     return address
   }
@@ -84,17 +95,23 @@ export default function WebAuthnExamplePage() {
     return new Uint8Array(hash)
   }
 
-  const formatSignature = (signature: ArrayBuffer) => {
-    return `p256:${base58.encode(new Uint8Array(signature))}`
+  const formatSignature = (
+    signature: ArrayBuffer,
+    publicKey: CreateCredential["pubKey"]
+  ) => {
+    if (publicKey.startsWith("p256:")) {
+      return `p256:${base58.encode(new Uint8Array(signature))}`
+    }
+
+    if (publicKey.startsWith("ed25519:")) {
+      return `ed25519:${base58.encode(new Uint8Array(signature))}`
+    }
+
+    throw new Error("Unsupported public key type")
   }
 
   const formatPublicKey = (pubKey: CreateCredential["pubKey"]) => {
-    const pk = new Uint8Array([
-      ...hexToBytes(pubKey.x),
-      ...hexToBytes(pubKey.y),
-    ])
-
-    return `p256:${base58.encode(pk)}`
+    return pubKey
   }
 
   const handleClickSignMessage = async () => {
@@ -105,6 +122,7 @@ export default function WebAuthnExamplePage() {
       }
 
       const parsedCredential: CreateCredential = JSON.parse(storedCredential)
+      console.log("parsedCredential", parsedCredential)
       const payload = makeMessageToSign(
         await toIntentsUser(parsedCredential.pubKey)
       )
@@ -118,7 +136,7 @@ export default function WebAuthnExamplePage() {
             {
               id: hexToBytes(parsedCredential.rawId),
               type: "public-key",
-              transports: ["internal"],
+              // transports: ["internal"],
             },
           ],
           timeout: 60000,
@@ -134,19 +152,23 @@ export default function WebAuthnExamplePage() {
         console.log(
           JSON.stringify(
             {
-              standard: "web_authn",
+              standard: "webauthn",
               payload,
               public_key: formatPublicKey(parsedCredential.pubKey),
               signature: formatSignature(
-                // @ts-expect-error
-                parseSignature(assertion.response.signature)
+                parseSignature(
+                  // @ts-expect-error
+                  assertion.response.signature,
+                  parsedCredential.pubKey
+                ),
+                parsedCredential.pubKey
               ),
               client_data_json: new TextDecoder("utf-8").decode(
                 // @ts-expect-error
                 assertion.response.clientDataJSON
               ),
               // url safe base64 unpadded
-              authenticator_data: base64.encode(
+              authenticator_data: encodeURLSafeBase64(
                 // @ts-expect-error
                 new Uint8Array(assertion.response.authenticatorData)
               ),
@@ -183,7 +205,7 @@ export default function WebAuthnExamplePage() {
   )
 }
 
-function encodeURLSafeBase64(id: string): Uint8Array {
+function decodeURLSafeBase64(id: string): Uint8Array {
   // Convert URL-safe base64 to regular base64
   const base64 = id.replace(/-/g, "+").replace(/_/g, "/")
   // Add padding if necessary
@@ -198,8 +220,36 @@ function encodeURLSafeBase64(id: string): Uint8Array {
   return uint8Array
 }
 
+function encodeURLSafeBase64(uint8Array: Uint8Array): string {
+  // Convert Uint8Array to binary string
+  let binaryStr = ""
+  for (let i = 0; i < uint8Array.length; i++) {
+    binaryStr += String.fromCharCode(uint8Array[i])
+  }
+  // Convert binary string to regular base64
+  const base64 = btoa(binaryStr)
+  // Convert regular base64 to URL-safe base64
+  const urlSafeBase64 = base64
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "")
+  return urlSafeBase64
+}
+
 // Parse the signature from the authenticator and remove the leading zero if necessary
-function parseSignature(signature: Uint8Array): Uint8Array {
+function parseSignature(
+  signature: Uint8Array,
+  publicKey: CreateCredential["pubKey"]
+): Uint8Array {
+  if (publicKey.startsWith("ed25519:")) {
+    // todo: verify signature size, must equal to 64 bytes
+    return signature
+  }
+
+  if (!publicKey.startsWith("p256:")) {
+    throw new Error("Unsupported public key type")
+  }
+
   const parsedSignature = AsnParser.parse(signature, ECDSASigValue)
   let rBytes = new Uint8Array(parsedSignature.r)
   let sBytes = new Uint8Array(parsedSignature.s)
@@ -217,7 +267,9 @@ function parseSignature(signature: Uint8Array): Uint8Array {
   // }
 }
 
-function parsePublicKey(cred: PublicKeyCredential) {
+function parsePublicKey(
+  cred: PublicKeyCredential
+): `p256:${string}` | `ed25519:${string}` {
   const decodedAttestationObj = cbor.decode(
     (cred.response as AuthenticatorAttestationResponse).attestationObject
   )
@@ -225,9 +277,25 @@ function parsePublicKey(cred: PublicKeyCredential) {
   const publicKey = cbor.decode(
     authData?.credentialPublicKey?.buffer as ArrayBuffer
   )
-  const x = toHex(publicKey.get(-2))
-  const y = toHex(publicKey.get(-3))
-  return { x, y }
+
+  switch (publicKey.get(3)) {
+    case -7: {
+      const keyBytes = new Uint8Array([
+        ...publicKey.get(-2),
+        ...publicKey.get(-3),
+      ])
+      return `p256:${base58.encode(keyBytes)}`
+    }
+
+    case -8: {
+      const keyBytes = publicKey.get(-2)
+      return `ed25519:${base58.encode(keyBytes)}`
+    }
+
+    default: {
+      throw new Error("Unsupported public key type")
+    }
+  }
 }
 
 function shouldRemoveLeadingZero(bytes: Uint8Array): boolean {
@@ -250,10 +318,7 @@ function concatUint8Arrays(arrays: Uint8Array[]): Uint8Array {
 
 type CreateCredential = {
   rawId: Hex
-  pubKey: {
-    x: Hex
-    y: Hex
-  }
+  pubKey: `p256:${string}` | `ed25519:${string}`
 }
 
 type P256Credential = {
