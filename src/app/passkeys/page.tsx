@@ -1,5 +1,6 @@
 "use client"
 
+import { keccak_256 } from "@noble/hashes/sha3"
 import { ECDSASigValue } from "@peculiar/asn1-ecc"
 import { AsnParser } from "@peculiar/asn1-schema"
 import { base58, base64, hex } from "@scure/base"
@@ -68,13 +69,13 @@ export default function WebAuthnExamplePage() {
       ...hexToBytes(pubKey.y),
     ])
 
-    const hash = await crypto.subtle.digest("SHA-256", pk)
-    const hashArray = new Uint8Array(hash)
-    const last20Bytes = hashArray.slice(-20)
-    const hexString = Array.from(last20Bytes)
-      .map((byte) => byte.toString(16).padStart(2, "0"))
-      .join("")
-    return `${hexString}.p256`
+    const p256 = new TextEncoder().encode("p256")
+    const addressBytes = keccak_256(new Uint8Array([...p256, ...pk])).slice(-20)
+
+    // biome-ignore lint/style/useTemplate: <explanation>
+    const address = "0x" + hex.encode(addressBytes)
+
+    return address
   }
 
   const makeChallenge = async (message: string) => {
