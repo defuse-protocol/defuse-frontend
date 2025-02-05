@@ -1,6 +1,7 @@
 "use client"
 
 import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
+import { logger } from "@src/utils/logger"
 import { useState } from "react"
 
 export default function Page() {
@@ -20,7 +21,7 @@ export default function Page() {
         setState({ status: "success", data: result })
       },
       (err) => {
-        console.error("failed to sign", err)
+        logger.error(err)
         setState({ type: "error", error: err.message })
       }
     )

@@ -39,6 +39,7 @@ import {
 import { distinctUntilChanged, map } from "rxjs"
 
 import { Loading } from "@src/components/Loading"
+import { logger } from "@src/utils/logger"
 
 declare global {
   interface Window {
@@ -135,7 +136,7 @@ export const WalletSelectorProvider: React.FC<{
 
   useEffect(() => {
     init().catch((err) => {
-      console.error(err)
+      logger.error(err)
       alert("Failed to initialise wallet selector")
     })
   }, [init])

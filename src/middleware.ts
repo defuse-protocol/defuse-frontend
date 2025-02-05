@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
 import { maintenanceModeFlag } from "@src/config/featureFlags"
+import { logger } from "@src/utils/logger"
 
 export const config = {
   matcher:
@@ -17,7 +18,7 @@ export async function middleware(request: NextRequest) {
     }
   } catch (error) {
     // If feature flag evaluation fails, continue normally
-    console.error("Feature flag evaluation error:", error)
+    logger.error(error)
   }
 
   return NextResponse.next()

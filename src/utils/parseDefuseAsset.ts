@@ -1,3 +1,5 @@
+import { logger } from "@src/utils/logger"
+
 export type ParseDefuseAssetResult = {
   blockchain: string
   network: string
@@ -15,7 +17,7 @@ export default function parseDefuseAsset(
       contractId,
     }
   } catch (e) {
-    console.error("Failed to parse defuse asset id", e)
+    logger.error(e)
     return null
   }
 }

@@ -24,6 +24,7 @@ import {
   type NetworkToken,
 } from "@src/types/interfaces"
 import { sendGaEvent } from "@src/utils/googleAnalytics"
+import { logger } from "@src/utils/logger"
 import parseDefuseAsset from "@src/utils/parseDefuseAsset"
 import { smallBalanceToFormat } from "@src/utils/token"
 
@@ -97,10 +98,7 @@ const ModalReviewSwap = () => {
         : "0"
       setConvertPayload({ ...convertPayload, tokenOut: formattedOut })
     } catch (e) {
-      console.error(
-        "Failed to recalculate swap estimation in Modal Review Swap",
-        e
-      )
+      logger.error(e)
     } finally {
       setIsFetching(false)
     }

@@ -3,6 +3,7 @@ import { providers } from "near-api-js"
 import type { CodeResult } from "near-api-js/lib/providers/provider"
 
 import type { NearViewAccount } from "@src/types/interfaces"
+import { logger } from "@src/utils/logger"
 
 const NEAR_NODE_URL =
   process?.env?.nearNodeUrl ?? "https://rpc.testnet.near.org"
@@ -25,7 +26,7 @@ export async function storageBalance(contractId: string, accountId: string) {
     // console.log("Fetching near storage balance of result:", result)
     return BigInt(balance?.total || "0")
   } catch (e) {
-    console.error("Failed to check storage balance")
+    logger.error("Failed to check storage balance")
     return null
   }
 }
@@ -45,7 +46,7 @@ export async function nearAccount(
     // console.log("Fetching near account result:", result)
     return result as NearViewAccount
   } catch (e) {
-    console.error(`Failed to fetch account or it doesn't exist - ${accountId}`)
+    logger.error(`Failed to fetch account or it doesn't exist - ${accountId}`)
     return null
   }
 }
@@ -71,7 +72,7 @@ export async function nep141Balance(
     // )
     return JSON.parse(Buffer.from(storageBalance.result).toString())
   } catch (e) {
-    console.error("Failed to check NEP-141 balance")
+    logger.error("Failed to check NEP-141 balance")
     return null
   }
 }
@@ -97,7 +98,7 @@ export async function intentStatus(
     const intent = JSON.parse(Buffer.from(result.result).toString())
     return intent
   } catch (e) {
-    console.error("Failed to get intent status")
+    logger.error("Failed to get intent status")
     return null
   }
 }

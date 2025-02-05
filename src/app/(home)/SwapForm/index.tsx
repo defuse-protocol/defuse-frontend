@@ -42,6 +42,7 @@ import { tieNativeToWrapToken } from "@src/utils/tokenList"
 
 import WarnBox from "../WarnBox"
 
+import { logger } from "@src/utils/logger"
 import {
   type EvaluateResultEnum,
   getEvaluateSwapEstimate,
@@ -277,7 +278,7 @@ export default function Swap() {
             }
           })
           .catch((e) => {
-            console.error(e)
+            logger.error(e)
           })
         isProgrammaticUpdate.current = true
         const formattedOut =
@@ -290,7 +291,7 @@ export default function Swap() {
         setIsFetchingData(false)
       }
     } catch (e) {
-      console.error(e)
+      logger.error(e)
       setIsFetchingData(false)
     }
   }

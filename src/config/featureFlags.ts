@@ -1,3 +1,4 @@
+import { logger } from "@src/utils/logger"
 import { get } from "@vercel/edge-config"
 import { unstable_flag as flag } from "@vercel/flags/next"
 
@@ -46,7 +47,7 @@ export const maintenanceModeFlag = flag({
       const isMaintenanceMode = await get("isMaintenanceMode")
       return isMaintenanceMode === true
     } catch (err) {
-      console.error("Error getting edge config:", err)
+      logger.error(err)
       return false
     }
   },

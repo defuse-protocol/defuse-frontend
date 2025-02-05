@@ -1,3 +1,4 @@
+import { logger } from "@src/utils/logger"
 import { nearAccount } from "@src/utils/near"
 
 // See source here - https://github.com/near/nearcore/blob/master/core/parameters/res/runtime_configs/parameters.yaml#L28
@@ -36,7 +37,7 @@ export const getBalanceNearAllowedToSwap = async (
       ? balanceAllowedToSwap.toString()
       : "0"
   } catch (e) {
-    console.error("Failed to get Near balance", e)
+    logger.error(e)
     return "0"
   }
 }

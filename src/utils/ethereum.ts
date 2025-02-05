@@ -1,6 +1,7 @@
 import { Contract, ethers } from "ethers"
 
 import { Erc20Abi } from "@src/abis/erc20"
+import { logger } from "@src/utils/logger"
 
 export async function ethereumNativeBalance(
   accountId: string,
@@ -11,7 +12,7 @@ export async function ethereumNativeBalance(
     const balance = await provider.getBalance(accountId)
     return balance.toString()
   } catch (e) {
-    console.error("Failed to check native balance")
+    logger.error("Failed to check native balance")
     return null
   }
 }
@@ -27,7 +28,8 @@ export async function ethereumERC20Balance(
     const balance = await contract.balanceOf(accountId)
     return balance.toString()
   } catch (e) {
-    console.error("Failed to check ERC-20 balance", contractId)
+    // biome-ignore lint/style/useTemplate: <explanation>
+    logger.error("Failed to check ERC-20 balance " + contractId)
     return null
   }
 }

@@ -28,6 +28,7 @@ import {
   type Result,
 } from "@src/types/interfaces"
 import { TransactionMethod } from "@src/types/solver0"
+import { logger } from "@src/utils/logger"
 import { isStorageDepositException, nep141Balance } from "@src/utils/near"
 import { isForeignNetworkToken } from "@src/utils/network"
 
@@ -82,7 +83,7 @@ export const useSwap = ({ accountId, selector }: Props) => {
   const { getTransactionScan } = useTransactionScan()
 
   const handleError = (e: unknown) => {
-    console.error(e)
+    logger.error(e)
     if (e instanceof Error) {
       setIsError(e.message)
     } else {

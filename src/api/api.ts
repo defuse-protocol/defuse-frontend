@@ -4,6 +4,7 @@ import { v4 } from "uuid"
 
 import { useNotificationStore } from "@src/providers/NotificationProvider"
 import { NotificationType } from "@src/stores/notificationStore"
+import { logger } from "@src/utils/logger"
 
 const SOLVER_RELAY_0_URL = process.env.SOLVER_RELAY_0_URL || ""
 const COINGECKO_API_KEY = process.env.COINGECKO_API_KEY || ""
@@ -25,7 +26,7 @@ export const useInterceptors = () => {
     try {
       payload = JSON.parse(requestPayload)
     } catch (e) {
-      console.error("Failed to parse request payload", e)
+      logger.error(e)
       return
     }
 

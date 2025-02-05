@@ -1,3 +1,4 @@
+import { logger } from "@src/utils/logger"
 import { assign, fromPromise, setup } from "xstate"
 
 export const walletVerificationMachine = setup({
@@ -13,7 +14,7 @@ export const walletVerificationMachine = setup({
   },
   actions: {
     logError: (_, { error }: { error: unknown }) => {
-      console.error(error)
+      logger.error(error)
     },
     setError: assign({
       hadError: (_, { hadError }: { hadError: true }) => hadError,

@@ -1,4 +1,5 @@
 import type { AnalyticsData, AnalyticsEvent } from "@src/types/analytics"
+import { logger } from "@src/utils/logger"
 
 export const SHOULD_SEND_ANALYTICS = process.env.environment === "production"
 
@@ -21,6 +22,6 @@ export function sendGaEvent<T extends keyof AnalyticsEvent>({
       window.gtag<AnalyticsData>("event", name, parameters || {})
     }
   } catch (error) {
-    console.error(error)
+    logger.error(error)
   }
 }

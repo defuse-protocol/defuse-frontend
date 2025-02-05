@@ -8,6 +8,7 @@ import type {
   SolverQuoteData,
   SwapEstimateProviderResponse,
 } from "@src/libs/de-sdk/types/interfaces"
+import { logger } from "@src/utils/logger"
 import sortBigIntDesc from "@src/utils/sortBigIntDesc"
 
 const DEFAULT_ESTIMATES_VALUE = {
@@ -51,7 +52,7 @@ const useSwapEstimateBot = () => {
       setPrices(result)
       return result
     } catch (error) {
-      console.error(error)
+      logger.error(error)
       return DEFAULT_ESTIMATES_VALUE
     }
   }
