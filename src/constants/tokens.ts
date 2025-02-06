@@ -829,6 +829,18 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     symbol: "gnear",
     name: "gnear",
   },
+  {
+    defuseAssetId: "nep141:bera.omft.near",
+    type: "native",
+    decimals: 18,
+    icon: "",
+    chainId: "",
+    chainIcon: "/static/icons/network/berachain.svg",
+    chainName: "berachain",
+    routes: [],
+    symbol: "BERA",
+    name: "BERA",
+  },
 ]
 
 /** @deprecated */
