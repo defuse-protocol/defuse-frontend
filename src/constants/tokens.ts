@@ -178,6 +178,18 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     name: "Official Melania Meme",
   },
   {
+    defuseAssetId: "nep141:bera.omft.near",
+    type: "native",
+    decimals: 18,
+    icon: "/static/icons/network/berachain.svg",
+    chainId: "",
+    chainIcon: "/static/icons/network/berachain.svg",
+    chainName: "berachain",
+    routes: [],
+    symbol: "BERA",
+    name: "BERA",
+  },
+  {
     unifiedAssetId: "near",
     decimals: 24,
     symbol: "NEAR",
@@ -828,18 +840,6 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "gnear",
     name: "gnear",
-  },
-  {
-    defuseAssetId: "nep141:bera.omft.near",
-    type: "native",
-    decimals: 18,
-    icon: "",
-    chainId: "",
-    chainIcon: "/static/icons/network/berachain.svg",
-    chainName: "berachain",
-    routes: [],
-    symbol: "BERA",
-    name: "BERA",
   },
 ]
 
