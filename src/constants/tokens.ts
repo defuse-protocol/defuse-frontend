@@ -181,7 +181,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     defuseAssetId: "nep141:bera.omft.near",
     type: "native",
     decimals: 18,
-    icon: "/static/icons/network/berachain.svg",
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/24647.png",
     chainId: "",
     chainIcon: "/static/icons/network/berachain.svg",
     chainName: "berachain",
