@@ -190,6 +190,18 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     name: "BERA",
   },
   {
+    defuseAssetId: "nep141:zec.omft.near",
+    type: "native",
+    decimals: 8,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/1437.png",
+    chainId: "",
+    chainIcon: "/static/icons/network/zcash-icon-black.svg",
+    chainName: "zcash",
+    routes: [],
+    symbol: "ZEC",
+    name: "Zcash",
+  },
+  {
     unifiedAssetId: "near",
     decimals: 24,
     symbol: "NEAR",
