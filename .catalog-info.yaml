@@ -2,8 +2,8 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: defuse-frontend
-  description: frontend for defuse
+  name: intents-frontend
+  description: frontend for intents
   tags:
     - website
   links:
@@ -11,9 +11,9 @@ metadata:
   annotations:
     aurora.dev/security-tier: "2"
 spec:
-  owner: defuse-team
-  system: defuse-protocol
+  owner: intents-team
+  system: intents-protocol
   type: website
   lifecycle: production
   dependsOn:
-    - component:defuse-contract
+    - component:intents-contract
