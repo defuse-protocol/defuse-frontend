@@ -44,25 +44,6 @@ export function useTokenList(tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]) {
     TEMPLATE_PRIORITY_TOKENS[flags.whitelabelTemplate]
   )
 
-  if (searchParams.get("zec")) {
-    list = [
-      ...list,
-      {
-        defuseAssetId: "nep141:zec.omft.near",
-        type: "native",
-        address: "native",
-        decimals: 8,
-        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/1437.png",
-        chainId: "",
-        chainIcon: "/static/icons/network/zcash-icon-black.svg",
-        chainName: "zcash",
-        routes: [],
-        symbol: "ZEC",
-        name: "Zcash",
-      },
-    ]
-  }
-
   if (searchParams.get("fms")) {
     list = [
       ...list,
