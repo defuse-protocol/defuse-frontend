@@ -981,13 +981,16 @@
     eventemitter3 "^5.0.1"
     preact "^10.16.0"
 
-"@defuse-protocol/defuse-sdk@^1.0.0-beta.18":
-  version "1.0.0-beta.18"
-  resolved "https://registry.yarnpkg.com/@defuse-protocol/defuse-sdk/-/defuse-sdk-1.0.0-beta.18.tgz#ac4e89c7a8a1bfdfcf7cc2f69bf4953d1fd2ac84"
-  integrity sha512-iWqdoMYDd2r+7bSzE0WjCW8Lw5ON8RZ4yaQEN9slYzQYalR71PNaoohFoemm2fuAAh9EmKFBn98RlX5VY2ovEQ==
+"@defuse-protocol/defuse-sdk@^1.0.0-beta.19":
+  version "1.0.0-beta.19"
+  resolved "https://registry.yarnpkg.com/@defuse-protocol/defuse-sdk/-/defuse-sdk-1.0.0-beta.19.tgz#d9138be303e8ee9a2612ccbfef35771518c3e8bb"
+  integrity sha512-2bWxxdRrDvhqAfP58ZfER2kSLjZTn9M0ZyBHtcqJ7yF0xjygoWWN9aRsU7VO6d+7uZoEY+ZaE11QSA7SsBWL2Q==
   dependencies:
     "@lifeomic/attempt" "^3.1.0"
     "@noble/curves" "1.4.0"
+    "@noble/hashes" "^1.7.1"
+    "@peculiar/asn1-ecc" "^2.3.15"
+    "@peculiar/asn1-schema" "^2.3.15"
     "@radix-ui/react-accordion" "^1.0.0"
     "@radix-ui/react-checkbox" "^1.0.0"
     "@radix-ui/react-dialog" "^1.0.0"
