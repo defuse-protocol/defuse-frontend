@@ -151,8 +151,8 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
       },
       {
         defuseAssetId:
-          "nep141:gnosis-0xddafbb505ad214d7b80b1f830fccc89b60fb7a83.omft.near",
-        address: "0xddafbb505ad214d7b80b1f830fccc89b60fb7a83",
+          "nep141:gnosis-0x2a22f9c3b484c3629090feed35f17ff8f88f76f0.omft.near",
+        address: "0x2a22f9c3b484c3629090feed35f17ff8f88f76f0",
         decimals: 6,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
         chainId: "",
