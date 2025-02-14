@@ -51,7 +51,7 @@ export function useWebAuthnActions() {
     const attestation = await navigator.credentials.create({
       publicKey: {
         challenge: new Uint8Array(32),
-        rp: { name: "Example" },
+        rp: { name: "Near Intents" },
         user: {
           id: crypto.getRandomValues(new Uint8Array(32)),
           name: `User ${formattedDate}`,
