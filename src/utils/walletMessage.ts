@@ -7,8 +7,8 @@ import type {
   WalletSignatureResult,
 } from "@src/types/walletMessages"
 
-export async function verifyWalletSignature(
-  signature: WalletSignatureResult,
+export async function verifyWalletSignature<T>(
+  signature: WalletSignatureResult<T>,
   userAddress: string
 ) {
   if (signature == null) return false
@@ -34,6 +34,10 @@ export async function verifyWalletSignature(
         base58.decode(userAddress)
       )
     }
+    case "WEBAUTHN": {
+      // todo: do we need to verify webauthn signatures?
+      return true
+    }
     default:
       signatureType satisfies never
       throw new Error("exhaustive check failed")
@@ -42,7 +46,7 @@ export async function verifyWalletSignature(
 
 export function walletVerificationMessageFactory(
   address: string
-): WalletMessage {
+): WalletMessage<unknown> {
   const timestamp = Date.now()
 
   // Generate a secure nonce for NEP-413
@@ -69,6 +73,12 @@ By signing this message, you're confirming that you own this wallet.`
     },
     SOLANA: {
       message: solanaMessage,
+    },
+    WEBAUTHN: {
+      // just a placeholder
+      challenge: nonce,
+      payload: "",
+      parsedPayload: {},
     },
   }
 }
