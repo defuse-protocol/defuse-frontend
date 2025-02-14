@@ -3,6 +3,7 @@ import { useSignMessage } from "wagmi"
 
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
+import { useWebAuthnActions } from "@src/hooks/useWebAuthnActions"
 import type {
   WalletMessage,
   WalletSignatureResult,
@@ -13,10 +14,11 @@ export function useWalletAgnosticSignMessage() {
   const { signMessage: signMessageNear } = useNearWalletActions()
   const { signMessageAsync: signMessageAsyncWagmi } = useSignMessage()
   const solanaWallet = useWalletSolana()
+  const { signMessage: signMessageWebAuthn } = useWebAuthnActions()
 
-  return async (
-    walletMessage: WalletMessage
-  ): Promise<WalletSignatureResult> => {
+  return async <T,>(
+    walletMessage: WalletMessage<T>
+  ): Promise<WalletSignatureResult<T>> => {
     const chainType = state.chainType
 
     switch (chainType) {
@@ -52,6 +54,15 @@ export function useWalletAgnosticSignMessage() {
           type: "SOLANA",
           signatureData,
           signedData: walletMessage.SOLANA,
+        }
+      }
+
+      case ChainType.WebAuthn: {
+        const signatureData = await signMessageWebAuthn(walletMessage.WEBAUTHN)
+        return {
+          type: "WEBAUTHN",
+          signatureData,
+          signedData: walletMessage.WEBAUTHN,
         }
       }
 
