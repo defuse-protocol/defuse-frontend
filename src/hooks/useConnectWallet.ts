@@ -6,7 +6,9 @@ import {
   useWallet as useSolanaWallet,
 } from "@solana/wallet-adapter-react"
 import { useWalletModal } from "@solana/wallet-adapter-react-ui"
+import { useWebAuthnActions } from "@src/hooks/useWebAuthnActions"
 import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
+import { useCurrentPasskey } from "@src/stores/passkeyStore"
 import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
 import type {
   SendTransactionEVMParams,
@@ -29,6 +31,7 @@ export enum ChainType {
   Near = "near",
   EVM = "evm",
   Solana = "solana",
+  WebAuthn = "webauthn",
 }
 
 export type State = {
@@ -42,6 +45,7 @@ interface ConnectWalletAction {
   signIn: (params: {
     id: ChainType
     connector?: Connector
+    webAuthnType?: "existing" | "new"
   }) => Promise<void>
   signOut: (params: { id: ChainType }) => Promise<void>
   sendTransaction: (params: {
@@ -170,7 +174,18 @@ export const useConnectWallet = (): ConnectWalletAction => {
     }
   }
 
-  state.isVerified = useVerifiedWalletsStore(
+  const { credential } = useCurrentPasskey()
+  const webAuthnActions = useWebAuthnActions()
+
+  if (credential != null) {
+    state = {
+      address: credential.publicKey,
+      chainType: ChainType.WebAuthn,
+      isVerified: true, // WebAuthn credentials are always verified
+    }
+  }
+
+  const isVerified = useVerifiedWalletsStore(
     useCallback(
       (store) =>
         state.address != null
@@ -179,11 +194,13 @@ export const useConnectWallet = (): ConnectWalletAction => {
       [state.address]
     )
   )
+  state.isVerified ||= isVerified
 
   return {
     async signIn(params: {
       id: ChainType
       connector?: Connector
+      webAuthnType?: "existing" | "new"
     }): Promise<void> {
       const strategies = {
         [ChainType.Near]: () => handleSignInViaNearWalletSelector(),
@@ -192,6 +209,11 @@ export const useConnectWallet = (): ConnectWalletAction => {
             ? handleSignInViaWagmi({ connector: params.connector })
             : undefined,
         [ChainType.Solana]: () => handleSignInViaSolanaSelector(),
+        [ChainType.WebAuthn]: async () => {
+          params.webAuthnType === "existing"
+            ? await webAuthnActions.signIn()
+            : await webAuthnActions.createNew()
+        },
       }
       return strategies[params.id]()
     },
@@ -203,6 +225,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
         [ChainType.Near]: () => handleSignOutViaNearWalletSelector(),
         [ChainType.EVM]: () => handleSignOutViaWagmi(),
         [ChainType.Solana]: () => handleSignOutViaSolanaSelector(),
+        [ChainType.WebAuthn]: () => webAuthnActions.signOut(),
       }
       return strategies[params.id]()
     },
@@ -227,6 +250,10 @@ export const useConnectWallet = (): ConnectWalletAction => {
             transaction,
             solanaConnection.connection
           )
+        },
+
+        [ChainType.WebAuthn]: async () => {
+          throw new Error("WebAuthn does not support transactions")
         },
       }
 
