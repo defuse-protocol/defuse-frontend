@@ -29,6 +29,10 @@ const ConnectWallet = () => {
     return signIn({ id: ChainType.Solana })
   }
 
+  const handlePasskey = (type: "existing" | "new") => {
+    return signIn({ id: ChainType.WebAuthn, webAuthnType: type })
+  }
+
   if (!state.address || TURN_OFF_APPS) {
     return (
       <Popover.Root>
@@ -55,6 +59,48 @@ const ConnectWallet = () => {
             <Text size="1" color="gray">
               Popular wallets
             </Text>
+
+            <Button
+              onClick={() => handlePasskey("existing")}
+              size="4"
+              radius="medium"
+              variant="soft"
+              color="gray"
+              className="px-2.5"
+            >
+              <div className="w-full flex items-center justify-start gap-2">
+                <Image
+                  src="/static/icons/wallets/webauthn.svg"
+                  alt=""
+                  width={36}
+                  height={36}
+                />
+                <Text size="2" weight="bold">
+                  Passkey
+                </Text>
+              </div>
+            </Button>
+
+            <Button
+              onClick={() => handlePasskey("new")}
+              size="4"
+              radius="medium"
+              variant="soft"
+              color="gray"
+              className="px-2.5"
+            >
+              <div className="w-full flex items-center justify-start gap-2">
+                <Image
+                  src="/static/icons/wallets/webauthn.svg"
+                  alt=""
+                  width={36}
+                  height={36}
+                />
+                <Text size="2" weight="bold">
+                  Create New Passkey
+                </Text>
+              </div>
+            </Button>
 
             {whitelabelTemplate === "turboswap" ? (
               <>
