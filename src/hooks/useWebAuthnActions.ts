@@ -50,19 +50,40 @@ export function useWebAuthnActions() {
 
     const attestation = await navigator.credentials.create({
       publicKey: {
-        challenge: new Uint8Array(32),
-        rp: { name: "Near Intents" },
+        challenge: crypto.getRandomValues(new Uint8Array(32)),
+        rp: {
+          name: "Near Intents",
+          id: window.location.hostname,
+        },
         user: {
           id: crypto.getRandomValues(new Uint8Array(32)),
           name: `User ${formattedDate}`,
           displayName: `User ${formattedDate}`,
         },
         pubKeyCredParams: [
+          /**
+           * Currently supported -8 (P-256) and -7 (ed25519) algorithms by the smart contract.
+           * -8 (P-256) is preferred because its verification consumes less gas.
+           */
           { type: "public-key", alg: -8 },
           { type: "public-key", alg: -7 },
         ],
+        authenticatorSelection: {
+          /**
+           * We have a usernameless authentication system. So we can't look up the user's keys.
+           * We store only `rawId` and `publicKey`, which are not bound to any user.
+           * We force users to have their keys discoverable by the platform,
+           * which means their device MUST have a list of keys.
+           */
+          requireResidentKey: true,
+          residentKey: "required", // this can be omitted if requireResidentKey is true, but it's here for clarity
+        },
         timeout: 60000,
         attestation: "direct",
+        extensions: {
+          // This will be used to check if the authenticator supports discoverable credentials
+          credProps: true,
+        },
       },
     })
 
@@ -71,6 +92,23 @@ export function useWebAuthnActions() {
       !(attestation.response instanceof AuthenticatorAttestationResponse)
     ) {
       throw new Error("Invalid attestation type")
+    }
+
+    const extensionResults = attestation.getClientExtensionResults()
+    const credProps = extensionResults.credProps
+
+    if (!credProps) {
+      throw new Error(
+        "Authenticator doesn't support the credProps extension. " +
+          "Cannot verify discoverable credential support."
+      )
+    }
+
+    if (credProps.rk !== true) {
+      throw new Error(
+        "Authenticator created a non-discoverable credential despite requirement. " +
+          "This credential won't work with usernameless authentication."
+      )
     }
 
     const pubKey = attestation.response.getPublicKey()
