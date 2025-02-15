@@ -1,15 +1,22 @@
 import { logger } from "@src/utils/logger"
 import { get } from "@vercel/edge-config"
 import { unstable_flag as flag } from "@vercel/flags/next"
+import { headers } from "next/headers"
 
-const validWhitelabelTemplates = [
-  "near-intents",
-  "solswap",
-  "dogecoinswap",
-  "turboswap",
-  "trumpswap",
-] as const
-export type WhitelabelTemplateValue = (typeof validWhitelabelTemplates)[number]
+export type WhitelabelTemplateValue =
+  | "near-intents"
+  | "solswap"
+  | "dogecoinswap"
+  | "turboswap"
+  | "trumpswap"
+
+const domains: Record<string, WhitelabelTemplateValue> = {
+  "app.near-intents.org": "near-intents",
+  "solswap.org": "solswap",
+  "dogecoinswap.org": "dogecoinswap",
+  "turboswap.org": "turboswap",
+  "trump-swap.org": "trumpswap",
+}
 
 export const whitelabelTemplateFlag = flag({
   key: "whitelabelTemplate",
@@ -22,13 +29,11 @@ export const whitelabelTemplateFlag = flag({
     { label: "trump-swap.org", value: "trumpswap" },
   ],
   decide(): WhitelabelTemplateValue {
-    const val = process.env.FF_WHITELABEL_TEMPLATE
-
-    if (
-      val != null &&
-      (validWhitelabelTemplates as readonly string[]).includes(val)
-    ) {
-      return val as WhitelabelTemplateValue
+    const host = headers().get("host")
+    if (host != null) {
+      if (domains[host]) {
+        return domains[host]
+      }
     }
 
     return "near-intents"
