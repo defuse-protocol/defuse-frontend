@@ -7,6 +7,7 @@ import { useSignMessage } from "wagmi"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
+import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
 import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import { useTokenList } from "@src/hooks/useTokenList"
 
@@ -16,6 +17,7 @@ export default function Withdraw() {
   const { signMessageAsync: signMessageAsyncWagmi } = useSignMessage()
   const solanaWallet = useWalletSolana()
   const tokenList = useTokenList(LIST_TOKENS)
+  const referral = useIntentsReferral()
 
   return (
     <Paper title="Withdraw">
@@ -84,7 +86,7 @@ export default function Withdraw() {
               throw new Error(`Unsupported sign in type: ${chainType}`)
           }
         }}
-        referral={process?.env?.NEXT_PUBLIC_REFERRAL}
+        referral={referral}
       />
     </Paper>
   )
