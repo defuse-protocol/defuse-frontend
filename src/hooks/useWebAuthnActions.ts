@@ -94,23 +94,6 @@ export function useWebAuthnActions() {
       throw new Error("Invalid attestation type")
     }
 
-    const extensionResults = attestation.getClientExtensionResults()
-    const credProps = extensionResults.credProps
-
-    if (!credProps) {
-      throw new Error(
-        "Authenticator doesn't support the credProps extension. " +
-          "Cannot verify discoverable credential support."
-      )
-    }
-
-    if (credProps.rk !== true) {
-      throw new Error(
-        "Authenticator created a non-discoverable credential despite requirement. " +
-          "This credential won't work with usernameless authentication."
-      )
-    }
-
     const pubKey = attestation.response.getPublicKey()
     if (pubKey == null) {
       throw new Error("Public key is null")
