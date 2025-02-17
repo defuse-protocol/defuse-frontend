@@ -5,7 +5,6 @@ type Credential = { publicKey: string; rawId: string }
 
 type State = {
   credential: Credential | undefined
-  knownCredentials: Credential[]
 }
 
 type Actions = {
@@ -19,20 +18,8 @@ export const useCurrentPasskey = create<Store>()(
   persist(
     (set) => ({
       credential: undefined,
-      knownCredentials: [],
       setCredential: (passkey: Credential) => {
         set({ credential: passkey })
-
-        set((state) => {
-          if (
-            !state.knownCredentials.some(
-              (c) => c.publicKey === passkey.publicKey
-            )
-          ) {
-            return { knownCredentials: [...state.knownCredentials, passkey] }
-          }
-          return {}
-        })
       },
       clearCredential: () => set({ credential: undefined }),
     }),
