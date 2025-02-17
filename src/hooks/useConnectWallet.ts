@@ -6,13 +6,12 @@ import {
   useWallet as useSolanaWallet,
 } from "@solana/wallet-adapter-react"
 import { useWalletModal } from "@solana/wallet-adapter-react-ui"
+import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
+import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
 import {
   useWebAuthnActions,
   useWebAuthnCurrentCredential,
-} from "@src/hooks/webAuthnHooks"
-import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
-import { useCurrentPasskey } from "@src/stores/passkeyStore"
-import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
+} from "@src/stores/webAuthnStore"
 import type {
   SendTransactionEVMParams,
   SendTransactionSolanaParams,

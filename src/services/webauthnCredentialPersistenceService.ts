@@ -1,0 +1,44 @@
+import {
+  createWebauthnCredential,
+  getWebauthnCredential,
+} from "@src/api/webauthnCredentials"
+import type { WebauthnCredential } from "./webauthnService"
+
+export async function getCredential(
+  rawId: string
+): Promise<WebauthnCredential> {
+  const response = await getWebauthnCredential(rawId)
+  return { rawId, publicKey: response.public_key }
+}
+
+export async function saveCredential(
+  credential: WebauthnCredential
+): Promise<void> {
+  await retryOperation(async () => {
+    const response = await createWebauthnCredential({
+      raw_id: credential.rawId,
+      public_key: credential.publicKey,
+      hostname: window.location.hostname,
+    })
+    if (!response.success) {
+      throw new Error("Failed to save credential")
+    }
+  })
+}
+
+async function retryOperation<T>(
+  operation: () => Promise<T>,
+  maxRetries = 10,
+  delay = 1000
+): Promise<T> {
+  let lastError: Error | undefined
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await operation()
+    } catch (error) {
+      lastError = error as Error
+      await new Promise((resolve) => setTimeout(resolve, delay))
+    }
+  }
+  throw lastError ?? new Error("Operation failed after max retries")
+}

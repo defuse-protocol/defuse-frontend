@@ -3,7 +3,7 @@ import { useSignMessage } from "wagmi"
 
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
-import { useWebAuthnActions } from "@src/hooks/webAuthnHooks"
+import { useWebAuthnActions } from "@src/stores/webAuthnStore"
 import type {
   WalletMessage,
   WalletSignatureResult,
