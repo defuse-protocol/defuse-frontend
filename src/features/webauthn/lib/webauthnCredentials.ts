@@ -3,7 +3,7 @@ import type {
   ErrorResponse,
   GetCredentialResponse,
   WebauthnCredential,
-} from "@src/types/api/webauthnCredentials"
+} from "@src/features/webauthn/types/webauthnCredentials"
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? ""
 
