@@ -1,7 +1,8 @@
 import { defineConfig } from "vitest/config"
 
 export default defineConfig({
-  resolve: {
+  test: {
+    setupFiles: ["./src/tests/setup.ts"],
     alias: {
       "@src": "/src",
     },
