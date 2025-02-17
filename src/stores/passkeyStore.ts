@@ -7,9 +7,11 @@ import { create } from "zustand"
 import { createJSONStorage, persist } from "zustand/middleware"
 
 type Credential = { publicKey: string; rawId: string }
+type Status = "idle" | "signing-in" | "creating-new"
 
 type State = {
   credential: Credential | undefined
+  status: Status
 }
 
 type Actions = {
@@ -28,6 +30,7 @@ export const useCurrentPasskey = create<Store>()(
   persist(
     (set, get) => ({
       credential: undefined,
+      status: "idle" as Status,
 
       setCredential: (passkey: Credential) => {
         set({ credential: passkey })
@@ -40,25 +43,35 @@ export const useCurrentPasskey = create<Store>()(
           throw new Error("Already authenticated")
         }
 
-        const assertion = await navigator.credentials.get({
-          publicKey: {
-            challenge: new Uint8Array(32),
-            allowCredentials: [],
-            timeout: 60000,
-          },
-        })
-
-        if (!(assertion instanceof PublicKeyCredential)) {
-          throw new Error("Invalid assertion type")
+        if (get().status !== "idle") {
+          throw new Error("Authentication already in progress")
         }
 
-        const rawId = base58.encode(new Uint8Array(assertion.rawId))
-        const response = await getWebauthnCredential(rawId)
-        const fetchedCredential = { rawId, publicKey: response.public_key }
+        set({ status: "signing-in" })
 
-        set({ credential: fetchedCredential })
+        try {
+          const assertion = await navigator.credentials.get({
+            publicKey: {
+              challenge: new Uint8Array(32),
+              allowCredentials: [],
+              timeout: 60000,
+            },
+          })
 
-        return fetchedCredential
+          if (!(assertion instanceof PublicKeyCredential)) {
+            throw new Error("Invalid assertion type")
+          }
+
+          const rawId = base58.encode(new Uint8Array(assertion.rawId))
+          const response = await getWebauthnCredential(rawId)
+          const fetchedCredential = { rawId, publicKey: response.public_key }
+
+          set({ credential: fetchedCredential })
+
+          return fetchedCredential
+        } finally {
+          set({ status: "idle" })
+        }
       },
 
       createNew: async () => {
@@ -66,73 +79,82 @@ export const useCurrentPasskey = create<Store>()(
           throw new Error("Already authenticated")
         }
 
-        const formattedDate = new Date().toLocaleString(undefined, {
-          month: "short",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-        })
-
-        const attestation = await navigator.credentials.create({
-          publicKey: {
-            challenge: crypto.getRandomValues(new Uint8Array(32)),
-            rp: {
-              name: "Near Intents",
-              id: window.location.hostname,
-            },
-            user: {
-              id: crypto.getRandomValues(new Uint8Array(32)),
-              name: `User ${formattedDate}`,
-              displayName: `User ${formattedDate}`,
-            },
-            pubKeyCredParams: [
-              { type: "public-key", alg: -8 },
-              { type: "public-key", alg: -7 },
-            ],
-            authenticatorSelection: {
-              requireResidentKey: true,
-              residentKey: "required",
-            },
-            timeout: 60000,
-            attestation: "direct",
-          },
-        })
-
-        if (
-          !(attestation instanceof PublicKeyCredential) ||
-          !(attestation.response instanceof AuthenticatorAttestationResponse)
-        ) {
-          throw new Error("Invalid attestation type")
+        if (get().status !== "idle") {
+          throw new Error("Authentication already in progress")
         }
 
-        const pubKey = attestation.response.getPublicKey()
-        if (pubKey == null) {
-          throw new Error("Public key is null")
-        }
+        set({ status: "creating-new" })
 
-        const algorithm = attestation.response.getPublicKeyAlgorithm()
-        const rawPublicKey = await parseWebAuthnPublicKey(pubKey, algorithm)
-
-        const newCredential = {
-          rawId: base58.encode(new Uint8Array(attestation.rawId)),
-          publicKey: formatPublicKey(rawPublicKey, algorithm),
-        }
-
-        await retryOperation(async () => {
-          const response = await createWebauthnCredential({
-            raw_id: newCredential.rawId,
-            public_key: newCredential.publicKey,
-            hostname: window.location.hostname,
+        try {
+          const formattedDate = new Date().toLocaleString(undefined, {
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
           })
-          if (!response.success) {
-            throw new Error("Failed to save credential")
+
+          const attestation = await navigator.credentials.create({
+            publicKey: {
+              challenge: crypto.getRandomValues(new Uint8Array(32)),
+              rp: {
+                name: "Near Intents",
+                id: window.location.hostname,
+              },
+              user: {
+                id: crypto.getRandomValues(new Uint8Array(32)),
+                name: `User ${formattedDate}`,
+                displayName: `User ${formattedDate}`,
+              },
+              pubKeyCredParams: [
+                { type: "public-key", alg: -8 },
+                { type: "public-key", alg: -7 },
+              ],
+              authenticatorSelection: {
+                requireResidentKey: true,
+                residentKey: "required",
+              },
+              timeout: 60000,
+              attestation: "direct",
+            },
+          })
+
+          if (
+            !(attestation instanceof PublicKeyCredential) ||
+            !(attestation.response instanceof AuthenticatorAttestationResponse)
+          ) {
+            throw new Error("Invalid attestation type")
           }
-        })
 
-        set({ credential: newCredential })
+          const pubKey = attestation.response.getPublicKey()
+          if (pubKey == null) {
+            throw new Error("Public key is null")
+          }
 
-        return newCredential
+          const algorithm = attestation.response.getPublicKeyAlgorithm()
+          const rawPublicKey = await parseWebAuthnPublicKey(pubKey, algorithm)
+
+          const newCredential = {
+            rawId: base58.encode(new Uint8Array(attestation.rawId)),
+            publicKey: formatPublicKey(rawPublicKey, algorithm),
+          }
+
+          await retryOperation(async () => {
+            const response = await createWebauthnCredential({
+              raw_id: newCredential.rawId,
+              public_key: newCredential.publicKey,
+              hostname: window.location.hostname,
+            })
+            if (!response.success) {
+              throw new Error("Failed to save credential")
+            }
+          })
+
+          set({ credential: newCredential })
+          return newCredential
+        } finally {
+          set({ status: "idle" })
+        }
       },
 
       signMessage: async (challenge: Uint8Array) => {
@@ -165,6 +187,7 @@ export const useCurrentPasskey = create<Store>()(
     {
       name: "app_wallets_passkey",
       storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({ credential: state.credential }),
     }
   )
 )
