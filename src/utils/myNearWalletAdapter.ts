@@ -157,8 +157,6 @@ function makeSignUrl(params: SignMessageParams, channelId: string) {
   url.searchParams.set("params", serializedParams)
 
   return url.toString()
-
-  // return `${getGatewayURL(channelId)}/?action=signMessage&channelId=${channelId}&params=${encodeURIComponent(serializedParams)}`
 }
 
 function makeSignAndSendTransactionsUrl(
@@ -172,8 +170,6 @@ function makeSignAndSendTransactionsUrl(
   url.searchParams.set("params", serializedParams)
 
   return url.toString()
-
-  // return `${getGatewayURL()}/?action=signAndSendTransactions&channelId=${channelId}&params=${encodeURIComponent(serializedParams)}`
 }
 
 export function serializeSignAndSendTransactionsParams(
@@ -234,6 +230,10 @@ function openWindowWithMessageHandler({
   )
 
   if (win != null) {
+    // Need to clean opener to prevent security issues;
+    //  also, MyNearWallet does not redirect back, when `window.opener` is present.
+    // We can't use `noopener` rule because we need to have a reference to the window
+    // to track if it's closed or not.
     win.opener = null
   }
 
