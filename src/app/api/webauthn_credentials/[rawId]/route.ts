@@ -29,7 +29,7 @@ export async function GET(
       .from("webauthn_credentials")
       .select("public_key")
       .eq("raw_id", rawId)
-      .single()
+      .maybeSingle()
 
     if (error) {
       logger.error(error)
