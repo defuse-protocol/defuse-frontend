@@ -1,4 +1,5 @@
 import { GoogleAnalytics } from "@next/third-parties/google"
+import { WebAuthnProvider } from "@src/features/webauthn/providers/WebAuthnProvider"
 import { QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import type { Metadata } from "next"
@@ -123,7 +124,7 @@ const RootLayout = async ({
                     <HistoryStoreProvider>
                       <TokensStoreProvider>
                         <ModalStoreProvider>
-                          {children}
+                          <WebAuthnProvider>{children}</WebAuthnProvider>
                           <Modal />
                         </ModalStoreProvider>
                       </TokensStoreProvider>
