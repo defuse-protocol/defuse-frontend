@@ -1,7 +1,8 @@
-import { Button, Dialog, Spinner } from "@radix-ui/themes"
-import { useWebAuthnUIStore } from "@src/features/webauthn/lib/webauthnUIStore"
+import { Button, Dialog, Spinner, Text } from "@radix-ui/themes"
 import Image from "next/image"
 import React from "react"
+
+import { useWebAuthnUIStore } from "@src/features/webauthn/lib/webauthnUIStore"
 
 export function WebAuthnDialog() {
   const webauthnUI = useWebAuthnUIStore()
@@ -25,11 +26,17 @@ export function WebAuthnDialog() {
           </div>
         </Dialog.Title>
 
+        {webauthnUI.error != null && (
+          <Text color="red" className="text-center mt-4">
+            {webauthnUI.error}
+          </Text>
+        )}
+
         <div className="flex flex-col gap-4 mt-5">
           <Button
             type="button"
             onClick={() => webauthnUI.signIn()}
-            disabled={webauthnUI.isSigningIn}
+            disabled={webauthnUI.isSigningIn || webauthnUI.isCreating}
             size="4"
             className="font-bold"
           >
@@ -39,7 +46,7 @@ export function WebAuthnDialog() {
           <Button
             type="button"
             onClick={() => webauthnUI.createNew()}
-            disabled={webauthnUI.isCreating}
+            disabled={webauthnUI.isCreating || webauthnUI.isSigningIn}
             size="4"
             variant="soft"
             color="gray"
