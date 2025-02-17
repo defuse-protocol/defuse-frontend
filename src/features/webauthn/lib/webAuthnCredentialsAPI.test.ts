@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest"
 import {
   createWebauthnCredential,
   getWebauthnCredential,
-} from "./webauthnCredentials"
+} from "./webAuthnCredentialsAPI"
 
 describe("webauthnCredentials", () => {
   describe("createWebauthnCredential", () => {

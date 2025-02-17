@@ -6,7 +6,7 @@ import type {
   CreateCredentialResponse,
   ErrorResponse,
   WebauthnCredential,
-} from "@src/features/webauthn/types/webauthnCredentials"
+} from "@src/features/webauthn/types/webAuthnTypes"
 import { supabase } from "@src/libs/supabase"
 import { logger } from "@src/utils/logger"
 

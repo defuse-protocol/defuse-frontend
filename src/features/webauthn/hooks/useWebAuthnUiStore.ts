@@ -2,7 +2,7 @@ import { create } from "zustand"
 
 import { toError } from "@src/utils/errors"
 import { logger } from "@src/utils/logger"
-import { useWebAuthnStore } from "../hooks"
+import { useWebAuthnStore } from "./useWebAuthnStore"
 
 type State = {
   isOpen: boolean

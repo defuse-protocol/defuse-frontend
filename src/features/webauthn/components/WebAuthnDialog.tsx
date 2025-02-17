@@ -2,7 +2,7 @@ import { Button, Dialog, Spinner, Text } from "@radix-ui/themes"
 import Image from "next/image"
 import React from "react"
 
-import { useWebAuthnUIStore } from "@src/features/webauthn/lib/webauthnUIStore"
+import { useWebAuthnUIStore } from "@src/features/webauthn/hooks/useWebAuthnUiStore"
 
 export function WebAuthnDialog() {
   const webauthnUI = useWebAuthnUIStore()

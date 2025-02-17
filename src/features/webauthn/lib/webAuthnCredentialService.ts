@@ -1,7 +1,7 @@
 import {
   createWebauthnCredential,
   getWebauthnCredential,
-} from "@src/features/webauthn/lib/webauthnCredentials"
+} from "@src/features/webauthn/lib/webAuthnCredentialsAPI"
 import type { WebauthnCredential } from "./webauthnService"
 
 export async function getCredential(
