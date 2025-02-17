@@ -1,7 +1,7 @@
 import { useWallet as useWalletSolana } from "@solana/wallet-adapter-react"
 import { useSignMessage } from "wagmi"
 
-import { useWebAuthnActions } from "@src/features/webauthn/hooks"
+import { useWebAuthnActions } from "@src/features/webauthn/hooks/useWebAuthnStore"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import type {

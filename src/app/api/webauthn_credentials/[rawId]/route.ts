@@ -2,7 +2,7 @@ import { base58 } from "@scure/base"
 import { NextResponse } from "next/server"
 import { z } from "zod"
 
-import type { GetCredentialResponse } from "@src/features/webauthn/types/webauthnCredentials"
+import type { GetCredentialResponse } from "@src/features/webauthn/types/webAuthnTypes"
 import { supabase } from "@src/libs/supabase"
 import { logger } from "@src/utils/logger"
 

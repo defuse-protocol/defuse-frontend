@@ -10,7 +10,7 @@ import {
   useWebAuthnActions,
   useWebAuthnCurrentCredential,
   useWebAuthnUIStore,
-} from "@src/features/webauthn/hooks"
+} from "@src/features/webauthn/hooks/useWebAuthnStore"
 import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
 import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
 import type {
