@@ -1,9 +1,13 @@
 import {
   getCredential,
   saveCredential,
-} from "@src/services/webauthnCredentialPersistenceService"
-import { createNew, signIn, signMessage } from "@src/services/webauthnService"
-import { createWebAuthnStore } from "./createWebAuthnStore"
+} from "@src/features/webauthn/lib/webauthnCredentialPersistenceService"
+import {
+  createNew,
+  signIn,
+  signMessage,
+} from "@src/features/webauthn/lib/webauthnService"
+import { createWebAuthnStore } from "./lib/createWebAuthnStore"
 
 export const useWebAuthnStore = createWebAuthnStore({
   async signIn() {

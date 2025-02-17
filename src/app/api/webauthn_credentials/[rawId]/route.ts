@@ -2,8 +2,8 @@ import { base58 } from "@scure/base"
 import { NextResponse } from "next/server"
 import { z } from "zod"
 
+import type { GetCredentialResponse } from "@src/features/webauthn/types/webauthnCredentials"
 import { supabase } from "@src/libs/supabase"
-import type { GetCredentialResponse } from "@src/types/api/webauthnCredentials"
 import { logger } from "@src/utils/logger"
 
 const rawIdSchema = z.string().refine(
