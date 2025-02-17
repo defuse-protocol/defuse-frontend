@@ -961,7 +961,7 @@
 
 "@defuse-protocol/defuse-sdk@defuse-protocol/defuse-sdk#feat/balances-in-flight-enabled":
   version "1.0.0-beta.18"
-  resolved "https://codeload.github.com/defuse-protocol/defuse-sdk/tar.gz/813499fbb4442abdb94aba35905e137df609771d"
+  resolved "https://codeload.github.com/defuse-protocol/defuse-sdk/tar.gz/7decc751eca3f86bf29c58bd27563caa5a602790"
   dependencies:
     "@lifeomic/attempt" "^3.1.0"
     "@noble/curves" "1.4.0"
