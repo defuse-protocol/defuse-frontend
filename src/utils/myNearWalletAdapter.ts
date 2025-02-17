@@ -203,7 +203,7 @@ function openWindowWithMessageHandler({
   const win = window.open(
     url,
     "_blank",
-    `width=${width},height=${height},top=${top},left=${left},resizable,scrollbars`
+    `width=${width},height=${height},top=${top},left=${left},resizable,scrollbars,noopener`
   )
 
   const interval = setInterval(() => {
@@ -213,18 +213,18 @@ function openWindowWithMessageHandler({
     }
   }, 1000)
 
-  const messageHandler = (event: MessageEvent) => {
-    if (event.origin !== window.location.origin) return
-    if (event.source !== win) return
+  const channel = new BroadcastChannel("wallet-gateway-channel")
 
+  const messageHandler = (event: MessageEvent) => {
     onMessage(event.data)
   }
 
-  window.addEventListener("message", messageHandler, { signal })
+  channel.addEventListener("message", messageHandler)
   signal.addEventListener("abort", cleanup, { once: true })
 
   function cleanup() {
     clearInterval(interval)
+    channel.close()
   }
 }
 
