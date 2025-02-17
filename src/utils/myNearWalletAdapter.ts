@@ -203,8 +203,12 @@ function openWindowWithMessageHandler({
   const win = window.open(
     url,
     "_blank",
-    `width=${width},height=${height},top=${top},left=${left},resizable,scrollbars,noopener`
+    `width=${width},height=${height},top=${top},left=${left},resizable,scrollbars`
   )
+
+  if (win != null) {
+    win.opener = null
+  }
 
   const interval = setInterval(() => {
     if (win?.closed) {
