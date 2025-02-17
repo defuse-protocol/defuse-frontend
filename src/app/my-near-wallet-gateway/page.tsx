@@ -54,14 +54,20 @@ export default function MyNearWalletGateway() {
  * Receives the callback from the wallet and sends the message to the app
  */
 function relayResultToOpener(url: URL) {
-  const channel = new BroadcastChannel("wallet-gateway-channel")
+  const channelId = url.searchParams.get("channelId")
+  if (!channelId) throw new Error("Missing channelId")
+
+  const channel = new BroadcastChannel(channelId)
   channel.postMessage(queryStringToObject(url.hash))
   channel.close()
   window.close()
 }
 
 function relayResultToOpenerError(url: URL) {
-  const channel = new BroadcastChannel("wallet-gateway-channel")
+  const channelId = url.searchParams.get("channelId")
+  if (!channelId) throw new Error("Missing channelId")
+
+  const channel = new BroadcastChannel(channelId)
   channel.postMessage({
     errorCode: url.searchParams.get("errorCode"),
     errorMessage: url.searchParams.get("errorMessage"),
@@ -71,7 +77,10 @@ function relayResultToOpenerError(url: URL) {
 }
 
 function relayResultToOpenerTransactionHashes(url: URL) {
-  const channel = new BroadcastChannel("wallet-gateway-channel")
+  const channelId = url.searchParams.get("channelId")
+  if (!channelId) throw new Error("Missing channelId")
+
+  const channel = new BroadcastChannel(channelId)
   channel.postMessage({
     transactionHashes: url.searchParams.get("transactionHashes"),
   })
