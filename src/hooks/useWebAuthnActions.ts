@@ -1,6 +1,32 @@
 import { base58 } from "@scure/base"
+import {
+  createWebauthnCredential,
+  getWebauthnCredential,
+} from "@src/api/webauthnCredentials"
 import { useCurrentPasskey } from "@src/stores/passkeyStore"
 import type { WebAuthnMessage } from "@src/types/walletMessages"
+
+const MAX_RETRIES = 10
+const RETRY_DELAY = 1000
+
+async function retryOperation<T>(
+  operation: () => Promise<T>,
+  maxRetries: number = MAX_RETRIES,
+  delay: number = RETRY_DELAY
+): Promise<T> {
+  let lastError: Error | undefined
+
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await operation()
+    } catch (error) {
+      lastError = error as Error
+      await new Promise((resolve) => setTimeout(resolve, delay))
+    }
+  }
+
+  throw lastError ?? new Error("Operation failed after max retries")
+}
 
 export function useWebAuthnActions() {
   const { credential, setCredential, clearCredential, knownCredentials } =
@@ -23,12 +49,17 @@ export function useWebAuthnActions() {
       throw new Error("Invalid assertion type")
     }
 
-    const found = knownCredentials.find(
-      (cred) => cred.rawId === base58.encode(new Uint8Array(assertion.rawId))
-    )
+    const rawId = base58.encode(new Uint8Array(assertion.rawId))
+    let found = knownCredentials.find((cred) => cred.rawId === rawId)
 
-    if (found == null) {
-      throw new Error("Cannot find public key for the given credential")
+    if (!found) {
+      // Fallback to API if not found locally
+      try {
+        const response = await getWebauthnCredential(rawId)
+        found = { rawId, publicKey: response.public_key }
+      } catch (error) {
+        throw new Error("Cannot find public key for the given credential")
+      }
     }
 
     setCredential(found)
@@ -80,10 +111,6 @@ export function useWebAuthnActions() {
         },
         timeout: 60000,
         attestation: "direct",
-        extensions: {
-          // This will be used to check if the authenticator supports discoverable credentials
-          credProps: true,
-        },
       },
     })
 
@@ -106,6 +133,18 @@ export function useWebAuthnActions() {
       rawId: base58.encode(new Uint8Array(attestation.rawId)),
       publicKey: formatPublicKey(rawPublicKey, algorithm),
     }
+
+    await retryOperation(async () => {
+      const response = await createWebauthnCredential({
+        raw_id: newCredential.rawId,
+        public_key: newCredential.publicKey,
+        hostname: window.location.hostname,
+      })
+      if (!response.success) {
+        throw new Error("Failed to save credential")
+      }
+    }, Number.POSITIVE_INFINITY)
+
     setCredential(newCredential)
     return newCredential
   }
