@@ -29,8 +29,7 @@ async function retryOperation<T>(
 }
 
 export function useWebAuthnActions() {
-  const { credential, setCredential, clearCredential, knownCredentials } =
-    useCurrentPasskey()
+  const { credential, setCredential, clearCredential } = useCurrentPasskey()
 
   const signIn = async () => {
     if (credential != null) {
@@ -50,20 +49,11 @@ export function useWebAuthnActions() {
     }
 
     const rawId = base58.encode(new Uint8Array(assertion.rawId))
-    let found = knownCredentials.find((cred) => cred.rawId === rawId)
+    const response = await getWebauthnCredential(rawId)
+    const fetchedCredential = { rawId, publicKey: response.public_key }
 
-    if (!found) {
-      // Fallback to API if not found locally
-      try {
-        const response = await getWebauthnCredential(rawId)
-        found = { rawId, publicKey: response.public_key }
-      } catch (error) {
-        throw new Error("Cannot find public key for the given credential")
-      }
-    }
-
-    setCredential(found)
-    return found
+    setCredential(fetchedCredential)
+    return fetchedCredential
   }
 
   const createNew = async () => {
