@@ -34,3 +34,5 @@ export function useWebAuthnActions() {
 export function useWebAuthnCurrentCredential() {
   return useWebAuthnStore((state) => state.credential)
 }
+
+export { useWebAuthnUIStore } from "./lib/webauthnUIStore"

@@ -9,6 +9,7 @@ import { useWalletModal } from "@solana/wallet-adapter-react-ui"
 import {
   useWebAuthnActions,
   useWebAuthnCurrentCredential,
+  useWebAuthnUIStore,
 } from "@src/features/webauthn/hooks"
 import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
 import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
@@ -47,7 +48,6 @@ interface ConnectWalletAction {
   signIn: (params: {
     id: ChainType
     connector?: Connector
-    webAuthnType?: "existing" | "new"
   }) => Promise<void>
   signOut: (params: { id: ChainType }) => Promise<void>
   sendTransaction: (params: {
@@ -178,6 +178,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
 
   const currentPasskey = useWebAuthnCurrentCredential()
   const webAuthnActions = useWebAuthnActions()
+  const webAuthnUI = useWebAuthnUIStore()
 
   if (currentPasskey != null) {
     state = {
@@ -202,7 +203,6 @@ export const useConnectWallet = (): ConnectWalletAction => {
     async signIn(params: {
       id: ChainType
       connector?: Connector
-      webAuthnType?: "existing" | "new"
     }): Promise<void> {
       const strategies = {
         [ChainType.Near]: () => handleSignInViaNearWalletSelector(),
@@ -211,11 +211,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
             ? handleSignInViaWagmi({ connector: params.connector })
             : undefined,
         [ChainType.Solana]: () => handleSignInViaSolanaSelector(),
-        [ChainType.WebAuthn]: async () => {
-          params.webAuthnType === "existing"
-            ? await webAuthnActions.signIn()
-            : await webAuthnActions.createNew()
-        },
+        [ChainType.WebAuthn]: () => webAuthnUI.open(),
       }
       return strategies[params.id]()
     },
