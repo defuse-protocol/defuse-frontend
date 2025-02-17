@@ -6,7 +6,10 @@ import {
   useWallet as useSolanaWallet,
 } from "@solana/wallet-adapter-react"
 import { useWalletModal } from "@solana/wallet-adapter-react-ui"
-import { useWebAuthnActions } from "@src/hooks/useWebAuthnActions"
+import {
+  useWebAuthnActions,
+  useWebAuthnCurrentCredential,
+} from "@src/hooks/webAuthnHooks"
 import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
 import { useCurrentPasskey } from "@src/stores/passkeyStore"
 import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
@@ -174,12 +177,12 @@ export const useConnectWallet = (): ConnectWalletAction => {
     }
   }
 
-  const { credential } = useCurrentPasskey()
+  const currentPasskey = useWebAuthnCurrentCredential()
   const webAuthnActions = useWebAuthnActions()
 
-  if (credential != null) {
+  if (currentPasskey != null) {
     state = {
-      address: credential.publicKey,
+      address: currentPasskey.publicKey,
       chainType: ChainType.WebAuthn,
       isVerified: true, // WebAuthn credentials are always verified
     }

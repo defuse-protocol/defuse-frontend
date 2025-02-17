@@ -3,7 +3,7 @@ import { useSignMessage } from "wagmi"
 
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
-import { useWebAuthnActions } from "@src/hooks/useWebAuthnActions"
+import { useWebAuthnActions } from "@src/hooks/webAuthnHooks"
 import type {
   WalletMessage,
   WalletSignatureResult,
@@ -58,7 +58,9 @@ export function useWalletAgnosticSignMessage() {
       }
 
       case ChainType.WebAuthn: {
-        const signatureData = await signMessageWebAuthn(walletMessage.WEBAUTHN)
+        const signatureData = await signMessageWebAuthn(
+          walletMessage.WEBAUTHN.challenge
+        )
         return {
           type: "WEBAUTHN",
           signatureData,
