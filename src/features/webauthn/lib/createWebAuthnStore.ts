@@ -12,7 +12,7 @@ type Actions<T, P, C> = {
   setCredential: (passkey: T) => void
   signOut: () => void
   signIn: () => Promise<T>
-  createNew: () => Promise<T>
+  createNew: (passkeyName: string) => Promise<T>
   signMessage: (challenge: C) => Promise<P>
 }
 
@@ -20,7 +20,7 @@ type Store<T, P, C> = State<T> & Actions<T, P, C>
 
 type PasskeyService<T, P, C> = {
   signIn: () => Promise<T>
-  createNew: () => Promise<T>
+  createNew: (passkeyName: string) => Promise<T>
   signMessage: (challenge: C, credential: T) => Promise<P>
 }
 
@@ -59,7 +59,7 @@ export const createWebAuthnStore = <T, P, C>(
           }
         },
 
-        createNew: async () => {
+        createNew: async (passkeyName) => {
           if (get().credential != null) {
             throw new Error("Already authenticated")
           }
@@ -71,7 +71,7 @@ export const createWebAuthnStore = <T, P, C>(
           set({ status: "creating-new" })
 
           try {
-            const credential = await service.createNew()
+            const credential = await service.createNew(passkeyName)
             set({ credential })
             return credential
           } finally {

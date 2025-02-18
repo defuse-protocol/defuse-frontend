@@ -14,7 +14,7 @@ type State = {
 type Actions = {
   open: () => void
   close: () => void
-  createNew: () => Promise<void>
+  createNew: (passkeyName: string) => Promise<void>
   signIn: () => Promise<void>
   clearError: () => void
 }
@@ -29,10 +29,10 @@ export const useWebAuthnUIStore = create<State & Actions>()((set, get) => ({
   close: () => set({ isOpen: false, error: null }),
   clearError: () => set({ error: null }),
 
-  createNew: async () => {
+  createNew: async (passkeyName) => {
     set({ isCreating: true, error: null })
     try {
-      await useWebAuthnStore.getState().createNew()
+      await useWebAuthnStore.getState().createNew(passkeyName)
       set({ isOpen: false })
     } catch (error) {
       logger.error(error)

@@ -14,8 +14,8 @@ export const useWebAuthnStore = createWebAuthnStore({
     const rawId = await signIn()
     return getCredential(rawId)
   },
-  async createNew() {
-    const credential = await createNew()
+  async createNew(passkeyName) {
+    const credential = await createNew(passkeyName)
     await saveCredential(credential)
     return credential
   },

@@ -30,7 +30,9 @@ export async function signIn(): Promise<string> {
   return base58.encode(new Uint8Array(credential.rawId))
 }
 
-export async function createNew(): Promise<WebauthnCredential> {
+export async function createNew(
+  passkeyName?: string
+): Promise<WebauthnCredential> {
   const formattedDate = new Date().toLocaleString(undefined, {
     month: "short",
     day: "numeric",
@@ -38,6 +40,11 @@ export async function createNew(): Promise<WebauthnCredential> {
     minute: "2-digit",
     hour12: false,
   })
+
+  const finalPasskeyName =
+    passkeyName == null || passkeyName === ""
+      ? `User ${formattedDate}`
+      : passkeyName
 
   const registration = await navigator.credentials.create({
     publicKey: {
@@ -48,8 +55,8 @@ export async function createNew(): Promise<WebauthnCredential> {
       },
       user: {
         id: crypto.getRandomValues(new Uint8Array(32)),
-        name: `User ${formattedDate}`,
-        displayName: `User ${formattedDate}`,
+        name: finalPasskeyName,
+        displayName: finalPasskeyName,
       },
       pubKeyCredParams: [
         { type: "public-key", alg: -8 },
