@@ -1,4 +1,5 @@
 import { base58 } from "@scure/base"
+import { logger } from "@src/utils/logger"
 
 export type WebauthnCredential = {
   publicKey: string
@@ -30,7 +31,7 @@ export async function createNew(): Promise<WebauthnCredential> {
     hour12: false,
   })
 
-  const attestation = await navigator.credentials.create({
+  const registration = await navigator.credentials.create({
     publicKey: {
       challenge: crypto.getRandomValues(new Uint8Array(32)),
       rp: {
@@ -55,24 +56,18 @@ export async function createNew(): Promise<WebauthnCredential> {
     },
   })
 
-  if (
-    !(attestation instanceof PublicKeyCredential) ||
-    !(attestation.response instanceof AuthenticatorAttestationResponse)
-  ) {
+  // We can't check using instanceof, because some providers may return a plain object
+  if (registration == null || registration.type !== "public-key") {
     throw new Error("Invalid attestation type")
   }
+  // Typecasting tricks tsc, but in most cases, the interface of `registration` matches PublicKeyCredential
+  const credential = registration as PublicKeyCredential
 
-  const pubKey = attestation.response.getPublicKey()
-  if (pubKey == null) {
-    throw new Error("Public key is null")
-  }
-
-  const algorithm = attestation.response.getPublicKeyAlgorithm()
-  const rawPublicKey = await parseWebAuthnPublicKey(pubKey, algorithm)
+  const { publicKey, algorithm } = await extractCredentialPublicKey(credential)
 
   return {
-    rawId: base58.encode(new Uint8Array(attestation.rawId)),
-    publicKey: formatPublicKey(rawPublicKey, algorithm),
+    rawId: base58.encode(new Uint8Array(credential.rawId)),
+    publicKey: formatPublicKey(publicKey, algorithm),
   }
 }
 
@@ -97,15 +92,38 @@ export async function signMessage(
   return assertion.response
 }
 
-async function parseWebAuthnPublicKey(
-  publicKeyBuffer: ArrayBuffer,
-  algorithm: number
-): Promise<Uint8Array> {
+async function extractCredentialPublicKey(credential: PublicKeyCredential) {
+  return parsePublicKeyWithWebCrypto(
+    credential.response as AuthenticatorAttestationResponse
+  ).catch(async (err) => {
+    logger.error(err)
+
+    // Fallback
+    const { parsePublicKeyFromCBOR } = await import("./parsePublicKeyFromCBOR")
+    return parsePublicKeyFromCBOR(credential)
+  })
+}
+
+async function parsePublicKeyWithWebCrypto(
+  response: AuthenticatorAttestationResponse
+): Promise<{ publicKey: Uint8Array; algorithm: number }> {
+  const publicKeyBuffer = response.getPublicKey()
+  if (publicKeyBuffer == null) {
+    throw new Error("Public key is null")
+  }
+
+  const algorithm = response.getPublicKeyAlgorithm()
   switch (algorithm) {
     case -7: // ES256
-      return parseECDSAKey(publicKeyBuffer, "P-256")
+      return {
+        publicKey: await parseECDSAKey(publicKeyBuffer, "P-256"),
+        algorithm,
+      }
     case -8: // EdDSA (Ed25519)
-      return parseEdDSAKey(publicKeyBuffer)
+      return {
+        publicKey: await parseEdDSAKey(publicKeyBuffer),
+        algorithm,
+      }
     default:
       throw new Error(`Unsupported algorithm: ${algorithm}`)
   }
@@ -116,13 +134,15 @@ async function parseECDSAKey(
   namedCurve: string
 ): Promise<Uint8Array> {
   const cryptoKey = await crypto.subtle.importKey(
-    "spki",
+    "spki", // Simple public-key infrastructure
     publicKey,
     { name: "ECDSA", namedCurve },
     true,
     ["verify"]
   )
+
   const rawKey = await crypto.subtle.exportKey("raw", cryptoKey)
+
   const rawKeyArray = new Uint8Array(rawKey)
   if (rawKeyArray.length !== 65) {
     throw new Error(
