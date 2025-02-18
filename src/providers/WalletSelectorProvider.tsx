@@ -37,7 +37,6 @@ interface WalletSelectorContextValue {
 
 const NEAR_ENV = process.env.NEAR_ENV ?? "testnet"
 const NEAR_NODE_URL = process.env.nearNodeUrl ?? "https://rpc.mainnet.near.org"
-const WALLET_CONNECT_PROJECT_ID = process.env.walletConnectProjectId ?? ""
 
 export const WalletSelectorContext =
   createContext<WalletSelectorContextValue | null>(null)
@@ -64,7 +63,7 @@ export const WalletSelectorProvider: React.FC<{
       modules: [setupMyNearWallet(), setupMeteorWallet()],
     })
     const _modal = setupModal(_selector, {
-      contractId: "",
+      contractId: "intents.near",
     })
     const state = _selector.store.getState()
     setAccounts(state.accounts)
