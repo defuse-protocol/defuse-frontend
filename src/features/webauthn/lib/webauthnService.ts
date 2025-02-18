@@ -85,12 +85,18 @@ export async function createNew(): Promise<WebauthnCredential> {
 }
 
 export async function signMessage(
-  challenge: Uint8Array
+  challenge: Uint8Array,
+  credential_: WebauthnCredential
 ): Promise<AuthenticatorAssertionResponse> {
   const assertion = await navigator.credentials.get({
     publicKey: {
       challenge,
-      allowCredentials: [],
+      allowCredentials: [
+        {
+          id: base58.decode(credential_.rawId),
+          type: "public-key",
+        },
+      ],
       timeout: 60000,
     },
   })

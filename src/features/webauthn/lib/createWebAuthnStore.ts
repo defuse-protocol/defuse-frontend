@@ -21,7 +21,7 @@ type Store<T, P, C> = State<T> & Actions<T, P, C>
 type PasskeyService<T, P, C> = {
   signIn: () => Promise<T>
   createNew: () => Promise<T>
-  signMessage: (challenge: C) => Promise<P>
+  signMessage: (challenge: C, credential: T) => Promise<P>
 }
 
 export const createWebAuthnStore = <T, P, C>(
@@ -80,10 +80,11 @@ export const createWebAuthnStore = <T, P, C>(
         },
 
         signMessage: async (challenge) => {
-          if (get().credential == null) {
+          const credential = get().credential
+          if (credential == null) {
             throw new Error("Unauthenticated")
           }
-          return service.signMessage(challenge)
+          return service.signMessage(challenge, credential)
         },
       }),
       {
