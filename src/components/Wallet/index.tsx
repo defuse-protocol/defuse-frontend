@@ -9,6 +9,7 @@ import WalletConnections from "@src/components/Wallet/WalletConnections"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import useShortAccountId from "@src/hooks/useShortAccountId"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
+import { mapStringToEmojis } from "@src/utils/emoji"
 
 const TURN_OFF_APPS = process?.env?.turnOffApps === "true" ?? true
 
@@ -306,14 +307,31 @@ const ConnectWallet = () => {
             size={"2"}
             radius={"full"}
             disabled={TURN_OFF_APPS}
+            className="font-bold text-gray-12"
           >
-            <Text
-              weight="bold"
-              wrap="nowrap"
-              style={{ color: "var(--gray-12)" }}
-            >
-              {shortAccountId}
-            </Text>
+            {state.chainType !== "webauthn" ? (
+              shortAccountId
+            ) : (
+              <div className="flex items-center gap-2">
+                <div className="flex">
+                  <Image
+                    src="/static/icons/wallets/webauthn.svg"
+                    alt=""
+                    width={24}
+                    height={24}
+                    className="rounded-full size-6 bg-[#000]"
+                    style={{
+                      mask: "radial-gradient(13px at 31px 50%, transparent 99%, rgb(255, 255, 255) 100%)",
+                    }}
+                  />
+                  <div className="-ml-1 rounded-full size-6 bg-white text-black text-base flex items-center justify-center">
+                    {mapStringToEmojis(state.address, { count: 1 }).join("")}
+                  </div>
+                </div>
+
+                <div className="font-bold text-gray-12">passkey</div>
+              </div>
+            )}
           </Button>
         </Popover.Trigger>
         <Popover.Content
