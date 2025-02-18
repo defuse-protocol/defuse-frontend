@@ -15,11 +15,19 @@ export async function signIn(): Promise<string> {
     },
   })
 
-  if (!(assertion instanceof PublicKeyCredential)) {
-    throw new Error("Invalid assertion type")
+  /**
+   * Some providers may return a plain object (e.g. 1Password),
+   * other can return a PublicKeyCredential instance (e.g. iCloud Keychain).
+   *
+   * All in all, the interface of `assertion` matches PublicKeyCredential,
+   * so we can safely cast it.
+   */
+  if (assertion == null || assertion.type !== "public-key") {
+    throw new Error("Invalid attestation type")
   }
+  const credential = assertion as PublicKeyCredential
 
-  return base58.encode(new Uint8Array(assertion.rawId))
+  return base58.encode(new Uint8Array(credential.rawId))
 }
 
 export async function createNew(): Promise<WebauthnCredential> {
@@ -56,11 +64,16 @@ export async function createNew(): Promise<WebauthnCredential> {
     },
   })
 
-  // We can't check using instanceof, because some providers may return a plain object
+  /**
+   * Some providers may return a plain object (e.g. 1Password),
+   * other can return a PublicKeyCredential instance (e.g. iCloud Keychain).
+   *
+   * All in all, the interface of `registration` matches PublicKeyCredential,
+   * so we can safely cast it.
+   */
   if (registration == null || registration.type !== "public-key") {
     throw new Error("Invalid attestation type")
   }
-  // Typecasting tricks tsc, but in most cases, the interface of `registration` matches PublicKeyCredential
   const credential = registration as PublicKeyCredential
 
   const { publicKey, algorithm } = await extractCredentialPublicKey(credential)
@@ -82,14 +95,19 @@ export async function signMessage(
     },
   })
 
-  if (
-    !(assertion instanceof PublicKeyCredential) ||
-    !(assertion.response instanceof AuthenticatorAssertionResponse)
-  ) {
+  /**
+   * Some providers may return a plain object (e.g. 1Password),
+   * other can return a PublicKeyCredential instance (e.g. iCloud Keychain).
+   *
+   * All in all, the interface of `assertion` matches PublicKeyCredential,
+   * so we can safely cast it.
+   */
+  if (assertion == null || assertion.type !== "public-key") {
     throw new Error("Invalid assertion")
   }
+  const credential = assertion as PublicKeyCredential
 
-  return assertion.response
+  return credential.response as AuthenticatorAssertionResponse
 }
 
 async function extractCredentialPublicKey(credential: PublicKeyCredential) {
