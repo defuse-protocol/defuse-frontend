@@ -98,7 +98,8 @@ function WalletVerificationUI({
 
           return verifyWalletSignature(
             walletSignature,
-            unconfirmedWallet.address
+            unconfirmedWallet.address,
+            unconfirmedWallet.chainType
           )
         }),
       },
