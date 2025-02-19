@@ -78,6 +78,23 @@ function WalletVerificationUI({
 
   const signMessage = useWalletAgnosticSignMessage()
 
+  /**
+   * Resolves an issue in `radix-ui` where the `Dialog` component applies `aria-hidden="true"` 
+   * to all elements outside the dialog when opened. This prevents interaction with the 
+   * wallet selector, making it unclickable.
+   * 
+   * @see https://github.com/radix-ui/primitives/blob/main/packages/react/dialog/src/dialog.tsx#L263
+   */
+  function enableAriaOnWalletSelector() {
+    const body = document.querySelector("body");
+    const walletSelectorIframe = document.querySelector("iframe");
+    if (body && walletSelectorIframe) {
+      body.style.pointerEvents = "unset";
+      walletSelectorIframe.removeAttribute("aria-hidden");
+      walletSelectorIframe.removeAttribute("data-aria-hidden");
+    }
+  }
+
   const [state, send, serviceRef] = useActor(
     walletVerificationMachine.provide({
       actors: {
@@ -85,7 +102,7 @@ function WalletVerificationUI({
           if (unconfirmedWallet.address == null) {
             return false
           }
-
+          enableAriaOnWalletSelector()
           const walletSignature = await signMessage(
             walletVerificationMessageFactory(unconfirmedWallet.address)
           )
