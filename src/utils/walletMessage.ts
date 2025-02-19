@@ -2,6 +2,8 @@ import { base58 } from "@scure/base"
 import { sign } from "tweetnacl"
 import { verifyMessage as verifyMessageViem } from "viem"
 
+import { createEmptyIntentMessage } from "@defuse-protocol/defuse-sdk"
+import type { ChainType } from "@src/hooks/useConnectWallet"
 import type {
   WalletMessage,
   WalletSignatureResult,
@@ -45,40 +47,10 @@ export async function verifyWalletSignature<T>(
 }
 
 export function walletVerificationMessageFactory(
-  address: string
+  credential: string,
+  credentialType: ChainType
 ): WalletMessage<unknown> {
-  const timestamp = Date.now()
-
-  // Generate a secure nonce for NEP-413
-  const nonce = crypto.getRandomValues(new Uint8Array(32))
-
-  const baseMessage = `Welcome! To keep your account secure, please verify your wallet.
-
-Wallet: ${address}
-Time: ${new Date(timestamp).toLocaleString()}
-
-By signing this message, you're confirming that you own this wallet.`
-
-  // For Solana, we'll create a UTF-8 encoded message
-  const solanaMessage = new TextEncoder().encode(baseMessage)
-
-  return {
-    ERC191: {
-      message: baseMessage,
-    },
-    NEP413: {
-      message: baseMessage,
-      nonce: nonce,
-      recipient: "intents.near",
-    },
-    SOLANA: {
-      message: solanaMessage,
-    },
-    WEBAUTHN: {
-      // just a placeholder
-      challenge: nonce,
-      payload: "",
-      parsedPayload: {},
-    },
-  }
+  return createEmptyIntentMessage({
+    signerId: { credential, credentialType },
+  })
 }
