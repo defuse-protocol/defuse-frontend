@@ -224,3 +224,10 @@ function formatPublicKey(rawPublicKey: Uint8Array, algorithm: number): string {
       throw new Error(`Unsupported public key algorithm ${algorithm}`)
   }
 }
+
+export function isSupportedByBrowser(): boolean {
+  return (
+    window?.PublicKeyCredential !== undefined &&
+    typeof window.PublicKeyCredential === "function"
+  )
+}
