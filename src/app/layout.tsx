@@ -2,7 +2,7 @@ import { GoogleAnalytics } from "@next/third-parties/google"
 import { WebAuthnProvider } from "@src/features/webauthn/providers/WebAuthnProvider"
 import { QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import type { ReactNode } from "react"
 import { WagmiProvider } from "wagmi"
 
@@ -27,6 +27,13 @@ import "@near-wallet-selector/account-export/styles.css"
 import "../styles/global.scss"
 
 const DEV_MODE = process?.env?.NEXT_PUBLIC_DEV_MODE === "true" ?? false
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   const templ = await whitelabelTemplateFlag()
