@@ -15,7 +15,7 @@ export function WebAuthnDialog() {
 
   return (
     <Dialog.Root open={webauthnUI.isOpen} onOpenChange={webauthnUI.close}>
-      <Dialog.Content className="max-w-md pt-7 pb-6">
+      <Dialog.Content className="max-w-full md:max-w-md pt-7 pb-6 animate-slide-up md:animate-none">
         <Dialog.Close>
           <button
             type="button"
