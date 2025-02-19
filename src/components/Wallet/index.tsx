@@ -6,6 +6,7 @@ import React, { useContext } from "react"
 import type { Connector } from "wagmi"
 
 import WalletConnections from "@src/components/Wallet/WalletConnections"
+import { isSupportedByBrowser } from "@src/features/webauthn/lib/webauthnService"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import useShortAccountId from "@src/hooks/useShortAccountId"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
@@ -61,26 +62,28 @@ const ConnectWallet = () => {
               Popular wallets
             </Text>
 
-            <Button
-              onClick={() => handlePasskey()}
-              size="4"
-              radius="medium"
-              variant="soft"
-              color="gray"
-              className="px-2.5"
-            >
-              <div className="w-full flex items-center justify-start gap-2">
-                <Image
-                  src="/static/icons/wallets/webauthn.svg"
-                  alt=""
-                  width={36}
-                  height={36}
-                />
-                <Text size="2" weight="bold">
-                  Passkey
-                </Text>
-              </div>
-            </Button>
+            {isSupportedByBrowser() && (
+              <Button
+                onClick={() => handlePasskey()}
+                size="4"
+                radius="medium"
+                variant="soft"
+                color="gray"
+                className="px-2.5"
+              >
+                <div className="w-full flex items-center justify-start gap-2">
+                  <Image
+                    src="/static/icons/wallets/webauthn.svg"
+                    alt=""
+                    width={36}
+                    height={36}
+                  />
+                  <Text size="2" weight="bold">
+                    Passkey
+                  </Text>
+                </div>
+              </Button>
+            )}
 
             {whitelabelTemplate === "turboswap" ? (
               <>
