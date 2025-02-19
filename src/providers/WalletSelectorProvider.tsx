@@ -59,6 +59,7 @@ interface WalletSelectorContextValue {
 const NEAR_ENV = process.env.NEAR_ENV ?? "testnet"
 const NEAR_NODE_URL = process.env.nearNodeUrl ?? "https://rpc.mainnet.near.org"
 const WALLET_CONNECT_PROJECT_ID = process.env.walletConnectProjectId ?? ""
+const CONTRACT_ID = process.env.contractId ?? "intents.near"
 
 export const WalletSelectorContext =
   createContext<WalletSelectorContextValue | null>(null)
@@ -112,14 +113,20 @@ export const WalletSelectorProvider: React.FC<{
         //     icons: ["https://app.near-intents.org/static/icons/Logo.svg"],
         //   },
         // }),
-        // setupNearMobileWallet(),
+        setupNearMobileWallet({
+          dAppMetadata: {
+            name: 'near intents',
+            logoUrl: 'https://peersyst-public-production.s3.eu-west-1.amazonaws.com/f9b73b02-5845-45a4-8167-361acb84be75.png',
+            url: 'https://app.near-intents.org/',
+          },
+        }),
         // setupMintbaseWallet({
         //   contractId: "",
         // }) as WalletModuleFactory<Wallet>,
       ],
     })
     const _modal = setupModal(_selector, {
-      contractId: "",
+      contractId: CONTRACT_ID,
     })
     const state = _selector.store.getState()
     setAccounts(state.accounts)

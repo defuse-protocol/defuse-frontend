@@ -126,5 +126,8 @@
     "hooks": {
       "pre-commit": "lint-staged"
     }
+  },
+  "resolutions": {
+    "@peersyst/near-mobile-signer": "1.1.4"
   }
 }
