@@ -51,7 +51,7 @@ export async function createNew(
       challenge: crypto.getRandomValues(new Uint8Array(32)),
       rp: {
         name: "Near Intents",
-        id: window.location.hostname,
+        id: getRootDomain(window.location.hostname),
       },
       user: {
         id: crypto.getRandomValues(new Uint8Array(32)),
@@ -89,6 +89,16 @@ export async function createNew(
     rawId: base58.encode(new Uint8Array(credential.rawId)),
     publicKey: formatPublicKey(publicKey, algorithm),
   }
+}
+
+/**
+ * Simple root domain extraction. Works for domains like "app.foo.com".
+ * Warning: Does not handle special TLDs correctly (e.g., "foo.co.uk" will return "co.uk").
+ * Use a proper domain parser for production.
+ */
+function getRootDomain(hostname: string): string {
+  const parts = hostname.split(".")
+  return parts.slice(-2).join(".")
 }
 
 export async function signMessage(
