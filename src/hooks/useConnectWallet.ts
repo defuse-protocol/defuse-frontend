@@ -184,11 +184,11 @@ export const useConnectWallet = (): ConnectWalletAction => {
     state = {
       address: currentPasskey.publicKey,
       chainType: ChainType.WebAuthn,
-      isVerified: true, // WebAuthn credentials are always verified
+      isVerified: false,
     }
   }
 
-  const isVerified = useVerifiedWalletsStore(
+  state.isVerified = useVerifiedWalletsStore(
     useCallback(
       (store) =>
         state.address != null
@@ -197,7 +197,6 @@ export const useConnectWallet = (): ConnectWalletAction => {
       [state.address]
     )
   )
-  state.isVerified ||= isVerified
 
   return {
     async signIn(params: {
