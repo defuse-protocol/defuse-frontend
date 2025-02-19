@@ -8,6 +8,11 @@ import { useWebAuthnUIStore } from "@src/features/webauthn/hooks/useWebAuthnUiSt
 export function WebAuthnDialog() {
   const webauthnUI = useWebAuthnUIStore()
 
+  // This is a hack to prevent the dialog background from being flickering
+  if (!webauthnUI.isOpen) {
+    return null
+  }
+
   return (
     <Dialog.Root open={webauthnUI.isOpen} onOpenChange={webauthnUI.close}>
       <Dialog.Content className="max-w-md pt-7 pb-6">
