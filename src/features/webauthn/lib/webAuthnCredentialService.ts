@@ -2,7 +2,7 @@ import {
   createWebauthnCredential,
   getWebauthnCredential,
 } from "@src/features/webauthn/lib/webAuthnCredentialsAPI"
-import type { WebauthnCredential } from "./webauthnService"
+import { type WebauthnCredential, getRelayingPartyId } from "./webauthnService"
 
 export async function getCredential(
   rawId: string
@@ -18,7 +18,7 @@ export async function saveCredential(
     const response = await createWebauthnCredential({
       raw_id: credential.rawId,
       public_key: credential.publicKey,
-      hostname: window.location.hostname,
+      hostname: getRelayingPartyId(),
     })
     if (!response.success) {
       throw new Error("Failed to save credential")

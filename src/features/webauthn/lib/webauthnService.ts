@@ -1,4 +1,5 @@
 import { base58 } from "@scure/base"
+import { domains } from "@src/config/domains"
 import { logger } from "@src/utils/logger"
 
 export type WebauthnCredential = {
@@ -51,7 +52,7 @@ export async function createNew(
       challenge: crypto.getRandomValues(new Uint8Array(32)),
       rp: {
         name: "Near Intents",
-        id: window.location.hostname,
+        id: getRelayingPartyId(),
       },
       user: {
         id: crypto.getRandomValues(new Uint8Array(32)),
@@ -89,6 +90,24 @@ export async function createNew(
     rawId: base58.encode(new Uint8Array(credential.rawId)),
     publicKey: formatPublicKey(publicKey, algorithm),
   }
+}
+
+export function getRelayingPartyId(): string {
+  const hostname = window.location.hostname
+  if (Object.keys(domains).includes(hostname)) {
+    return getRootDomain(hostname)
+  }
+  return hostname
+}
+
+/**
+ * Simple root domain extraction. Works for domains like "app.foo.com".
+ * Warning: Does not handle special TLDs correctly (e.g., "foo.co.uk" will return "co.uk").
+ * Use a proper domain parser for production.
+ */
+function getRootDomain(hostname: string): string {
+  const parts = hostname.split(".")
+  return parts.slice(-2).join(".")
 }
 
 export async function signMessage(
