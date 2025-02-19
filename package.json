@@ -23,6 +23,7 @@
     "@near-eth/nep141-erc20": "^2.5.1",
     "@near-wallet-selector/account-export": "^8.10.0",
     "@near-wallet-selector/core": "^8.10.0",
+    "@near-wallet-selector/hot-wallet": "^8.10.0",
     "@near-wallet-selector/meteor-wallet": "^8.10.0",
     "@near-wallet-selector/modal-ui": "^8.10.0",
     "@near-wallet-selector/my-near-wallet": "^8.10.0",
