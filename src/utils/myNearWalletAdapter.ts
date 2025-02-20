@@ -53,17 +53,20 @@ export const signMessageInNewWindow = async ({
 }): Promise<SignOutput> => {
   const completeAbortCtrl = new AbortController()
 
+  const channelId = crypto.randomUUID()
+
   /**
    * It is important to specify callbackUrl, otherwise near wallet SDK will
    * implicitly set `callbackUrl` to the current URL. As a result, the NEP-413
    * message will be different from ours, and we won't be able to verify the
    * signature.
    */
-  params = { ...params, callbackUrl: getGatewayURL() }
+  params = { ...params, callbackUrl: getGatewayURL(channelId).toString() }
 
   const promise = new Promise<SignOutput>((resolve, reject) => {
     openWindowWithMessageHandler({
-      url: makeSignUrl(params),
+      url: makeSignUrl(params, channelId),
+      channelId,
       onMessage: (message) => {
         const parsedMessage = windowMessageSchema.safeParse(message)
 
@@ -105,9 +108,12 @@ export const signAndSendTransactionsInNewWindow = async ({
 }): Promise<TransactionHashes> => {
   const completeAbortCtrl = new AbortController()
 
+  const channelId = crypto.randomUUID()
+
   const promise = new Promise<TransactionHashes>((resolve, reject) => {
     openWindowWithMessageHandler({
-      url: makeSignAndSendTransactionsUrl(params),
+      url: makeSignAndSendTransactionsUrl(params, channelId),
+      channelId,
       onMessage: (message) => {
         const parsedMessage = windowMessageSchema.safeParse(message)
 
@@ -137,18 +143,33 @@ export const signAndSendTransactionsInNewWindow = async ({
   return promise
 }
 
-function getGatewayURL() {
-  return `${window.location.origin}/my-near-wallet-gateway`
+function getGatewayURL(channelId: string): URL {
+  const url = new URL("my-near-wallet-gateway/", window.location.origin)
+  url.searchParams.set("channelId", channelId)
+  return url
 }
 
-function makeSignUrl(params: SignMessageParams) {
+function makeSignUrl(params: SignMessageParams, channelId: string) {
   const serializedParams = serializeSignMessageParams(params)
-  return `${getGatewayURL()}/?action=signMessage&params=${encodeURIComponent(serializedParams)}`
+
+  const url = getGatewayURL(channelId)
+  url.searchParams.set("action", "signMessage")
+  url.searchParams.set("params", serializedParams)
+
+  return url.toString()
 }
 
-function makeSignAndSendTransactionsUrl(params: SignAndSendTransactionsParams) {
+function makeSignAndSendTransactionsUrl(
+  params: SignAndSendTransactionsParams,
+  channelId: string
+) {
   const serializedParams = serializeSignAndSendTransactionsParams(params)
-  return `${getGatewayURL()}/?action=signAndSendTransactions&params=${encodeURIComponent(serializedParams)}`
+
+  const url = getGatewayURL(channelId)
+  url.searchParams.set("action", "signAndSendTransactions")
+  url.searchParams.set("params", serializedParams)
+
+  return url.toString()
 }
 
 export function serializeSignAndSendTransactionsParams(
@@ -186,11 +207,13 @@ export function deserializeSignMessageParams(
 
 function openWindowWithMessageHandler({
   url,
+  channelId,
   onMessage,
   onClose,
   signal,
 }: {
   url: string
+  channelId: string
   onMessage: (data: unknown) => void
   onClose: () => void
   signal: AbortSignal
@@ -206,6 +229,14 @@ function openWindowWithMessageHandler({
     `width=${width},height=${height},top=${top},left=${left},resizable,scrollbars`
   )
 
+  if (win != null) {
+    // Need to clean opener to prevent security issues;
+    //  also, MyNearWallet does not redirect back, when `window.opener` is present.
+    // We can't use `noopener` rule because we need to have a reference to the window
+    // to track if it's closed or not.
+    win.opener = null
+  }
+
   const interval = setInterval(() => {
     if (win?.closed) {
       cleanup()
@@ -213,18 +244,18 @@ function openWindowWithMessageHandler({
     }
   }, 1000)
 
-  const messageHandler = (event: MessageEvent) => {
-    if (event.origin !== window.location.origin) return
-    if (event.source !== win) return
+  const channel = new BroadcastChannel(channelId)
 
+  const messageHandler = (event: MessageEvent) => {
     onMessage(event.data)
   }
 
-  window.addEventListener("message", messageHandler, { signal })
+  channel.addEventListener("message", messageHandler)
   signal.addEventListener("abort", cleanup, { once: true })
 
   function cleanup() {
     clearInterval(interval)
+    channel.close()
   }
 }
 
