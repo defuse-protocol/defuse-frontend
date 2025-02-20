@@ -11,6 +11,7 @@ import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import useShortAccountId from "@src/hooks/useShortAccountId"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { mapStringToEmojis } from "@src/utils/emoji"
+import { useSearchParams } from "next/navigation"
 
 const TURN_OFF_APPS = process?.env?.turnOffApps === "true" ?? true
 
@@ -18,6 +19,7 @@ const ConnectWallet = () => {
   const { state, signIn, connectors } = useConnectWallet()
   const { shortAccountId } = useShortAccountId(state.address ?? "")
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
+  const passkeyIsEnabled = !!useSearchParams().get("passkey")
 
   const handleNearWalletSelector = () => {
     return signIn({ id: ChainType.Near })
@@ -56,13 +58,13 @@ const ConnectWallet = () => {
           minWidth={{ initial: "300px", xs: "330px" }}
           className="md:mr-[48px] dark:bg-black-800 rounded-2xl"
         >
-          <Text size="1">How do you want to connect?</Text>
+          <Text size="1">How do you want to sign in?</Text>
           <div className="w-full grid grid-cols-1 gap-4 mt-4">
             <Text size="1" color="gray">
-              Popular wallets
+              Popular options
             </Text>
 
-            {isSupportedByBrowser() && (
+            {passkeyIsEnabled && isSupportedByBrowser() && (
               <Button
                 onClick={() => handlePasskey()}
                 size="4"
@@ -266,7 +268,7 @@ const ConnectWallet = () => {
                       </Button>
                     ))}
                     <Text size="1" color="gray">
-                      Other wallets
+                      Other options
                     </Text>
                     {connectors
                       .slice(1)
