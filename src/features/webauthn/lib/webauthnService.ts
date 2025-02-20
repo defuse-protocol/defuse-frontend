@@ -47,7 +47,7 @@ export async function createNew(
       ? `User ${formattedDate}`
       : passkeyName
 
-  const registration = await navigator.credentials.create({
+  const registrationOptions: CredentialCreationOptions = {
     publicKey: {
       challenge: crypto.getRandomValues(new Uint8Array(32)),
       rp: {
@@ -70,7 +70,9 @@ export async function createNew(
       timeout: 60000,
       attestation: "direct",
     },
-  })
+  }
+  console.log("registrationOptions", registrationOptions)
+  const registration = await navigator.credentials.create(registrationOptions)
 
   /**
    * Some providers may return a plain object (e.g. 1Password),
