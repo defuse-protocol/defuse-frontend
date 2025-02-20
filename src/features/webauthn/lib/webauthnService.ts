@@ -66,12 +66,13 @@ export async function createNew(
       authenticatorSelection: {
         requireResidentKey: true,
         residentKey: "required",
+        userVerification: "preferred",
       },
       timeout: 60000,
       attestation: "direct",
     },
   }
-  console.log("registrationOptions", registrationOptions)
+
   const registration = await navigator.credentials.create(registrationOptions)
 
   /**
@@ -85,8 +86,6 @@ export async function createNew(
     throw new Error("Invalid attestation type")
   }
   const credential = registration as PublicKeyCredential
-
-  console.log("credential", credential)
 
   const { publicKey, algorithm } = await extractCredentialPublicKey(credential)
 
