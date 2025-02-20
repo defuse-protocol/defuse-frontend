@@ -84,6 +84,8 @@ export async function createNew(
   }
   const credential = registration as PublicKeyCredential
 
+  console.log("credential", credential)
+
   const { publicKey, algorithm } = await extractCredentialPublicKey(credential)
 
   return {
