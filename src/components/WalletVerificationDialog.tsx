@@ -69,11 +69,10 @@ function DefaultContent({
           <LockClosedIcon className="w-6 h-6 text-blue-600 darkL:text-blue-400" />
         </div>
         <AlertDialog.Title className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-          Wallet Feature Check Required
+          Signature Check Required
         </AlertDialog.Title>
         <AlertDialog.Description className="mt-2 text-gray-600 dark:text-gray-400">
-          Please sign a message to verify your wallet's compatibility with our
-          features
+          Please verify your device compatibility with the platform
         </AlertDialog.Description>
       </div>
 
@@ -106,8 +105,8 @@ function DefaultContent({
       {/* Warning Message */}
       <Callout.Root className="mb-6 bg-warning px-3 py-2 text-warning-foreground">
         <Callout.Text className="text-xs">
-          Canceling this check will disconnect your wallet. You can reconnect
-          and verify anytime.
+          Canceling this check will sign you out. You can sign in and verify
+          anytime.
         </Callout.Text>
       </Callout.Root>
 
@@ -153,7 +152,7 @@ function FailureContent({
           <ExclamationTriangleIcon className="w-6 h-6 text-amber-600 dark:text-amber-400" />
         </div>
         <AlertDialog.Title className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-          Unable to Verify Wallet Features
+          Unable to Verify
         </AlertDialog.Title>
         <AlertDialog.Description className="mt-2 text-gray-600 dark:text-gray-400">
           The compatibility check couldn't be completed
@@ -176,7 +175,7 @@ function FailureContent({
               <MinusCircledIcon className="w-3 h-3 text-amber-600 dark:text-amber-400" />
             </div>
             <span className="text-sm">
-              Some wallets, like Ledger, can't access important app features
+              Some wallets (or devices) are incompatible with the platform
             </span>
           </li>
         </ul>
@@ -185,7 +184,7 @@ function FailureContent({
       {/* Warning Message */}
       <Callout.Root className="mb-6 bg-warning px-3 py-2 text-warning-foreground">
         <Callout.Text className="text-xs">
-          Try again or connect a different wallet to continue.
+          Try again or choose another sign-in option to continue.
         </Callout.Text>
       </Callout.Root>
 
@@ -198,7 +197,7 @@ function FailureContent({
             color="gray"
             onClick={onCancel}
           >
-            Disconnect
+            Sign out
           </Button>
         </themes_AlertDialog.Cancel>
         <themes_AlertDialog.Action>
@@ -206,7 +205,7 @@ function FailureContent({
             <Spinner loading={isVerifying}>
               <ReloadIcon />
             </Spinner>
-            Try Again
+            Try again
           </Button>
         </themes_AlertDialog.Action>
       </div>

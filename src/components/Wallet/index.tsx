@@ -47,7 +47,7 @@ const ConnectWallet = () => {
             disabled={TURN_OFF_APPS}
           >
             <Text weight="bold" wrap="nowrap">
-              Connect wallet
+              Sign in
             </Text>
           </Button>
         </Popover.Trigger>
