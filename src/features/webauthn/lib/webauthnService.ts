@@ -10,6 +10,7 @@ export type WebauthnCredential = {
 export async function signIn(): Promise<string> {
   const assertion = await navigator.credentials.get({
     publicKey: {
+      rpId: getRelayingPartyId(),
       challenge: new Uint8Array(32),
       allowCredentials: [],
       timeout: 60000,
@@ -119,6 +120,7 @@ export async function signMessage(
 ): Promise<AuthenticatorAssertionResponse> {
   const assertion = await navigator.credentials.get({
     publicKey: {
+      rpId: getRelayingPartyId(),
       challenge,
       allowCredentials: [
         {
