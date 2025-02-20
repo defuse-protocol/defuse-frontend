@@ -11,7 +11,6 @@ import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import useShortAccountId from "@src/hooks/useShortAccountId"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { mapStringToEmojis } from "@src/utils/emoji"
-import { useSearchParams } from "next/navigation"
 
 const TURN_OFF_APPS = process?.env?.turnOffApps === "true" ?? true
 
@@ -19,7 +18,6 @@ const ConnectWallet = () => {
   const { state, signIn, connectors } = useConnectWallet()
   const { shortAccountId } = useShortAccountId(state.address ?? "")
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
-  const passkeyIsEnabled = !!useSearchParams().get("passkey")
 
   const handleNearWalletSelector = () => {
     return signIn({ id: ChainType.Near })
@@ -64,7 +62,7 @@ const ConnectWallet = () => {
               Popular options
             </Text>
 
-            {passkeyIsEnabled && isSupportedByBrowser() && (
+            {isSupportedByBrowser() && (
               <Button
                 onClick={() => handlePasskey()}
                 size="4"
