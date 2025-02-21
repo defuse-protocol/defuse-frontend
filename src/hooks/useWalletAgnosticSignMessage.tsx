@@ -1,6 +1,7 @@
 import { useWallet as useWalletSolana } from "@solana/wallet-adapter-react"
 import { useSignMessage } from "wagmi"
 
+import { useWebAuthnActions } from "@src/features/webauthn/hooks/useWebAuthnStore"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import type {
@@ -13,10 +14,11 @@ export function useWalletAgnosticSignMessage() {
   const { signMessage: signMessageNear } = useNearWalletActions()
   const { signMessageAsync: signMessageAsyncWagmi } = useSignMessage()
   const solanaWallet = useWalletSolana()
+  const { signMessage: signMessageWebAuthn } = useWebAuthnActions()
 
-  return async (
-    walletMessage: WalletMessage
-  ): Promise<WalletSignatureResult> => {
+  return async <T,>(
+    walletMessage: WalletMessage<T>
+  ): Promise<WalletSignatureResult<T>> => {
     const chainType = state.chainType
 
     switch (chainType) {
@@ -52,6 +54,17 @@ export function useWalletAgnosticSignMessage() {
           type: "SOLANA",
           signatureData,
           signedData: walletMessage.SOLANA,
+        }
+      }
+
+      case ChainType.WebAuthn: {
+        const signatureData = await signMessageWebAuthn(
+          walletMessage.WEBAUTHN.challenge
+        )
+        return {
+          type: "WEBAUTHN",
+          signatureData,
+          signedData: walletMessage.WEBAUTHN,
         }
       }
 

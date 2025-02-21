@@ -8,7 +8,7 @@ vi.mock("@src/libs/supabase", () => ({
     from: vi.fn(() => ({
       select: vi.fn(),
       eq: vi.fn(),
-      single: vi.fn(),
+      maybeSingle: vi.fn(),
     })),
   },
 }))
@@ -27,7 +27,7 @@ describe("GET /api/webauthn_credentials/[rawId]", () => {
       data: { public_key: "2Kc5WSg4kBsxQXBuBPjEH9" },
       error: null,
     })
-    const mockEq = vi.fn().mockReturnValue({ single: mockSingle })
+    const mockEq = vi.fn().mockReturnValue({ maybeSingle: mockSingle })
     const mockSelect = vi.fn().mockReturnValue({ eq: mockEq })
     vi.mocked(supabase.from).mockReturnValue({ select: mockSelect })
 
@@ -46,7 +46,7 @@ describe("GET /api/webauthn_credentials/[rawId]", () => {
 
   it("should return 404 when credential not found", async () => {
     const mockSingle = vi.fn().mockResolvedValue({ data: null, error: null })
-    const mockEq = vi.fn().mockReturnValue({ single: mockSingle })
+    const mockEq = vi.fn().mockReturnValue({ maybeSingle: mockSingle })
     const mockSelect = vi.fn().mockReturnValue({ eq: mockEq })
     vi.mocked(supabase.from).mockReturnValue({ select: mockSelect })
 
@@ -73,7 +73,7 @@ describe("GET /api/webauthn_credentials/[rawId]", () => {
     const mockSingle = vi
       .fn()
       .mockResolvedValue({ data: null, error: new Error("dummy error") })
-    const mockEq = vi.fn().mockReturnValue({ single: mockSingle })
+    const mockEq = vi.fn().mockReturnValue({ maybeSingle: mockSingle })
     const mockSelect = vi.fn().mockReturnValue({ eq: mockEq })
     vi.mocked(supabase.from).mockReturnValue({ select: mockSelect })
 

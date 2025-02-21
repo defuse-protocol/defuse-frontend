@@ -6,6 +6,11 @@ import {
   useWallet as useSolanaWallet,
 } from "@solana/wallet-adapter-react"
 import { useWalletModal } from "@solana/wallet-adapter-react-ui"
+import {
+  useWebAuthnActions,
+  useWebAuthnCurrentCredential,
+  useWebAuthnUIStore,
+} from "@src/features/webauthn/hooks/useWebAuthnStore"
 import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
 import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
 import type {
@@ -29,6 +34,7 @@ export enum ChainType {
   Near = "near",
   EVM = "evm",
   Solana = "solana",
+  WebAuthn = "webauthn",
 }
 
 export type State = {
@@ -170,6 +176,18 @@ export const useConnectWallet = (): ConnectWalletAction => {
     }
   }
 
+  const currentPasskey = useWebAuthnCurrentCredential()
+  const webAuthnActions = useWebAuthnActions()
+  const webAuthnUI = useWebAuthnUIStore()
+
+  if (currentPasskey != null) {
+    state = {
+      address: currentPasskey.publicKey,
+      chainType: ChainType.WebAuthn,
+      isVerified: false,
+    }
+  }
+
   state.isVerified = useVerifiedWalletsStore(
     useCallback(
       (store) =>
@@ -192,6 +210,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
             ? handleSignInViaWagmi({ connector: params.connector })
             : undefined,
         [ChainType.Solana]: () => handleSignInViaSolanaSelector(),
+        [ChainType.WebAuthn]: () => webAuthnUI.open(),
       }
       return strategies[params.id]()
     },
@@ -203,6 +222,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
         [ChainType.Near]: () => handleSignOutViaNearWalletSelector(),
         [ChainType.EVM]: () => handleSignOutViaWagmi(),
         [ChainType.Solana]: () => handleSignOutViaSolanaSelector(),
+        [ChainType.WebAuthn]: () => webAuthnActions.signOut(),
       }
       return strategies[params.id]()
     },
@@ -227,6 +247,10 @@ export const useConnectWallet = (): ConnectWalletAction => {
             transaction,
             solanaConnection.connection
           )
+        },
+
+        [ChainType.WebAuthn]: async () => {
+          throw new Error("WebAuthn does not support transactions")
         },
       }
 

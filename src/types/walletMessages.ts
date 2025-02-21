@@ -49,13 +49,35 @@ type SolanaSignatureData = {
   signedData: SolanaMessage
 }
 
-export type WalletMessage = {
+// WebAuthn
+
+export type WebAuthnMessage<T> = {
+  /** Hash that needs to be signed */
+  challenge: Uint8Array
+  /** Underlying payload that will be executed onchain */
+  payload: string
+  /** Parsed payload in case UI needs to display it */
+  parsedPayload: T
+}
+
+/** Full response of WebAuthn Login */
+export type WebAuthnSignature = AuthenticatorAssertionResponse
+
+export type WebAuthnSignatureData<T> = {
+  type: "WEBAUTHN"
+  signatureData: WebAuthnSignature
+  signedData: WebAuthnMessage<T>
+}
+
+export type WalletMessage<T> = {
   ERC191: ERC191Message
   NEP413: NEP413Message
   SOLANA: SolanaMessage
+  WEBAUTHN: WebAuthnMessage<T>
 }
 
-export type WalletSignatureResult =
+export type WalletSignatureResult<T> =
   | ERC191SignatureData
   | NEP413SignatureData
   | SolanaSignatureData
+  | WebAuthnSignatureData<T>

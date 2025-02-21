@@ -29,15 +29,21 @@ body {
     font-family: CircularXXSub, system-ui, sans-serif;
   }
 
-  :root {
-    --color-warning: var(--amber-a2);
-    --color-warning-foreground: var(--amber-a11);
-  }
+	:root {
+		--color-border: var(--sand-4);
+		--color-warning: var(--amber-a2);
+		--color-warning-foreground: var(--amber-a11);
+	}
 
-  .dark {
-    --color-warning: var(--amber-a2);
-    --color-warning-foreground: var(--amber-a11);
-  }
+	.dark {
+		/**
+		 * It's not a mistake, duplicating the same color values here.
+		 * They are Radix UI colors palette, and they're switched based on the theme.
+		 */
+		--color-border: var(--sand-4);
+		--color-warning: var(--amber-a2);
+		--color-warning-foreground: var(--amber-a11);
+	}
 }
 html,
 body {

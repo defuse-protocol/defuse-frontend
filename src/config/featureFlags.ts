@@ -1,3 +1,4 @@
+import { domains } from "@src/config/domains"
 import { logger } from "@src/utils/logger"
 import { get } from "@vercel/edge-config"
 import { unstable_flag as flag } from "@vercel/flags/next"
@@ -9,14 +10,6 @@ export type WhitelabelTemplateValue =
   | "dogecoinswap"
   | "turboswap"
   | "trumpswap"
-
-const domains: Record<string, WhitelabelTemplateValue> = {
-  "app.near-intents.org": "near-intents",
-  "solswap.org": "solswap",
-  "dogecoinswap.org": "dogecoinswap",
-  "turboswap.org": "turboswap",
-  "trump-swap.org": "trumpswap",
-}
 
 export const whitelabelTemplateFlag = flag({
   key: "whitelabelTemplate",

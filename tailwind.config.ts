@@ -10,6 +10,7 @@ const config: Config = {
   content: [
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/**/components/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
@@ -61,7 +62,37 @@ const config: Config = {
           200: "rgba(130, 130, 124, 1)",
           100: "rgba(232, 232, 232, 1)",
         },
-        gray: colors.stone,
+        gray: {
+          // Figma design uses Sand palette from Radix colors.
+          // "Stone" is the closest match in Tailwind colors.
+          ...colors.stone,
+
+          1: "var(--sand-1)",
+          2: "var(--sand-2)",
+          3: "var(--sand-3)",
+          4: "var(--sand-4)",
+          5: "var(--sand-5)",
+          6: "var(--sand-6)",
+          7: "var(--sand-7)",
+          8: "var(--sand-8)",
+          9: "var(--sand-9)",
+          10: "var(--sand-10)",
+          11: "var(--sand-11)",
+          12: "var(--sand-12)",
+          // Alpha variants
+          a1: "var(--sand-a1)",
+          a2: "var(--sand-a2)",
+          a3: "var(--sand-a3)",
+          a4: "var(--sand-a4)",
+          a5: "var(--sand-a5)",
+          a6: "var(--sand-a6)",
+          a7: "var(--sand-a7)",
+          a8: "var(--sand-a8)",
+          a9: "var(--sand-a9)",
+          a10: "var(--sand-a10)",
+          a11: "var(--sand-a11)",
+          a12: "var(--sand-a12)",
+        },
         silver: {
           300: "rgba(246, 246, 245, 0.07)",
           200: "rgba(139, 141, 152, 1)",
@@ -93,8 +124,38 @@ const config: Config = {
           100: "rgba(239, 95, 0, 1)",
         },
         secondary: "#82827c",
+        border: "var(--color-border)",
         warning: "var(--color-warning)",
         "warning-foreground": "var(--color-warning-foreground)",
+
+        accent: {
+          DEFAULT: "var(--accent-9)",
+          1: "var(--accent-1)",
+          2: "var(--accent-2)",
+          3: "var(--accent-3)",
+          4: "var(--accent-4)",
+          5: "var(--accent-5)",
+          6: "var(--accent-6)",
+          7: "var(--accent-7)",
+          8: "var(--accent-8)",
+          9: "var(--accent-9)",
+          10: "var(--accent-10)",
+          11: "var(--accent-11)",
+          12: "var(--accent-12)",
+          // Alpha variants
+          a1: "var(--accent-a1)",
+          a2: "var(--accent-a2)",
+          a3: "var(--accent-a3)",
+          a4: "var(--accent-a4)",
+          a5: "var(--accent-a5)",
+          a6: "var(--accent-a6)",
+          a7: "var(--accent-a7)",
+          a8: "var(--accent-a8)",
+          a9: "var(--accent-a9)",
+          a10: "var(--accent-a10)",
+          a11: "var(--accent-a11)",
+          a12: "var(--accent-a12)",
+        },
       },
       boxShadow: {
         paper:

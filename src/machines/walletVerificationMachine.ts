@@ -20,6 +20,9 @@ export const walletVerificationMachine = setup({
       hadError: (_, { hadError }: { hadError: true }) => hadError,
     }),
   },
+  guards: {
+    isTrue: (_, value: boolean) => value,
+  },
 }).createMachine({
   id: "verify-wallet",
   initial: "idle",
@@ -42,9 +45,30 @@ export const walletVerificationMachine = setup({
     verifying: {
       invoke: {
         src: "verifyWallet",
-        onDone: {
-          target: "verified",
-        },
+        onDone: [
+          {
+            target: "verified",
+            guard: {
+              type: "isTrue",
+              params: ({ event }) => event.output,
+            },
+          },
+          {
+            target: "idle",
+            actions: [
+              {
+                type: "logError",
+                params: {
+                  error: "Wallet produced an unverifiable signature",
+                },
+              },
+              {
+                type: "setError",
+                params: { hadError: true },
+              },
+            ],
+          },
+        ],
         onError: {
           target: "idle",
           actions: [
