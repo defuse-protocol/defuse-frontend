@@ -8,8 +8,12 @@ import { logger } from "@src/utils/logger"
 const NEAR_NODE_URL =
   process?.env?.nearNodeUrl ?? "https://rpc.testnet.near.org"
 
+/**
+ * @deprecated
+ */
 export async function storageBalance(contractId: string, accountId: string) {
   try {
+    // @ts-expect-error
     setNearProvider(new providers.JsonRpcProvider({ url: NEAR_NODE_URL }))
 
     const nearProvider = getNearProvider()
@@ -31,10 +35,14 @@ export async function storageBalance(contractId: string, accountId: string) {
   }
 }
 
+/**
+ * @deprecated
+ */
 export async function nearAccount(
   accountId: string
 ): Promise<NearViewAccount | null> {
   try {
+    // @ts-expect-error
     setNearProvider(new providers.JsonRpcProvider({ url: NEAR_NODE_URL }))
 
     const nearProvider = getNearProvider()
@@ -51,11 +59,15 @@ export async function nearAccount(
   }
 }
 
+/**
+ * @deprecated
+ */
 export async function nep141Balance(
   accountId: string,
   contractId: string
 ): Promise<string | null> {
   try {
+    // @ts-expect-error
     setNearProvider(new providers.JsonRpcProvider({ url: NEAR_NODE_URL }))
     const nearProvider = getNearProvider()
     const storageBalance = await nearProvider.query<CodeResult>({
@@ -77,11 +89,15 @@ export async function nep141Balance(
   }
 }
 
+/**
+ * @deprecated
+ */
 export async function intentStatus(
   contractId: string,
   intentId: string
 ): Promise<string | null> {
   try {
+    // @ts-expect-error
     setNearProvider(new providers.JsonRpcProvider({ url: NEAR_NODE_URL }))
 
     const nearProvider = getNearProvider()
