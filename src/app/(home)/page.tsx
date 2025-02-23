@@ -82,7 +82,7 @@ const pairs: Record<WhitelabelTemplateValue, [string, string]> = {
   ],
 }
 
-function useDeterminePair() {
+export function useDeterminePair() {
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
 
   const pair = pairs[whitelabelTemplate]
