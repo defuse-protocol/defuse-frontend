@@ -3,7 +3,7 @@
 import React from "react"
 
 import { OtcMakerWidget } from "@defuse-protocol/defuse-sdk"
-import { useDeterminePair } from "@src/app/(home)/page"
+import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
 import { createOTCOrderLink } from "@src/app/otc-desk/_utils/link"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
