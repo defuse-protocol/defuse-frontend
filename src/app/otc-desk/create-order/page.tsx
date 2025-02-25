@@ -11,6 +11,7 @@ import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
+import { useRouter } from "next/navigation"
 
 export default function CreateOrderPage() {
   const { state } = useConnectWallet()
@@ -18,6 +19,7 @@ export default function CreateOrderPage() {
   const signMessage = useWalletAgnosticSignMessage()
   const { tokenIn, tokenOut } = useDeterminePair()
   const { signAndSendTransactions } = useNearWalletActions()
+  const router = useRouter()
 
   return (
     <Paper>
@@ -46,6 +48,9 @@ export default function CreateOrderPage() {
         }}
         initialTokenIn={tokenIn}
         initialTokenOut={tokenOut}
+        onNavigateSwap={() => {
+          router.push("/")
+        }}
       />
     </Paper>
   )
