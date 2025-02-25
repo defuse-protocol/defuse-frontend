@@ -13,6 +13,17 @@ export async function verifyWalletSignature(
   credential: string,
   credentialType: ChainType
 ): Promise<boolean> {
+  if (
+    /**
+     * NEP-413 signatures can't be verified onchain for explicit account IDs (e.g., foo.near)
+     * until the user sends a one-time transaction to register their public key with the account.
+     * So we fall back to local verification.
+     */
+    signature.type === "NEP413"
+  ) {
+    return signature.signatureData.accountId === credential
+  }
+
   const signedIntent = formatSignedIntent(signature, {
     credential,
     credentialType,
