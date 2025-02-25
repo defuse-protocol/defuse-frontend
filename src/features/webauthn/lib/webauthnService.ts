@@ -74,8 +74,6 @@ export async function createNew(
     },
   }
 
-  console.log("registrationOptions", registrationOptions)
-
   const registration = await navigator.credentials.create(registrationOptions)
 
   /**
