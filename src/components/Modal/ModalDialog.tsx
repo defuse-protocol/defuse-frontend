@@ -42,7 +42,7 @@ const ModalDialog = ({ children }: PropsWithChildren) => {
       <Dialog.Title />
       <Dialog.Content
         maxWidth={screenWidth < 768 ? "100%" : defaultMaxWidth}
-        className="p-0 dark:bg-black-800"
+        className="px-0 pt-0 pb-[env(safe-area-inset-bottom,0px)] dark:bg-black-800"
       >
         <div ref={divRef}>{children}</div>
       </Dialog.Content>
