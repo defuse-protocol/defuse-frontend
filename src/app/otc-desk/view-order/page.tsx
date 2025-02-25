@@ -5,6 +5,7 @@ import React from "react"
 import { OtcTakerWidget } from "@defuse-protocol/defuse-sdk"
 import Paper from "@src/components/Paper"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
+import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
 import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
@@ -17,6 +18,7 @@ export default function CreateOrderPage() {
   const signMessage = useWalletAgnosticSignMessage()
   const multiPayload = useOTCOrder()
   const { signAndSendTransactions } = useNearWalletActions()
+  const referral = useIntentsReferral()
 
   return (
     <Paper>
@@ -40,6 +42,7 @@ export default function CreateOrderPage() {
 
           return { txHash: outcome.transaction.hash }
         }}
+        referral={referral}
       />
     </Paper>
   )

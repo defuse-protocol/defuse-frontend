@@ -7,6 +7,7 @@ import { OtcMakerWidget } from "@defuse-protocol/defuse-sdk"
 import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
 import Paper from "@src/components/Paper"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
+import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
 import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
@@ -20,6 +21,7 @@ export default function CreateOrderPage() {
   const { tokenIn, tokenOut } = useDeterminePair()
   const { signAndSendTransactions } = useNearWalletActions()
   const router = useRouter()
+  const referral = useIntentsReferral()
 
   return (
     <Paper>
@@ -51,6 +53,7 @@ export default function CreateOrderPage() {
         onNavigateSwap={() => {
           router.push("/")
         }}
+        referral={referral}
       />
     </Paper>
   )
