@@ -4,16 +4,16 @@ import React from "react"
 
 import { OtcTakerWidget } from "@defuse-protocol/defuse-sdk"
 import Paper from "@src/components/Paper"
-import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import { useOTCOrder } from "../_utils/link"
+import { safeTokenList } from "../_utils/safeTokenList"
 
 export default function CreateOrderPage() {
   const { state } = useConnectWallet()
-  const tokenList = useTokenList(LIST_TOKENS)
+  const tokenList = useTokenList(safeTokenList)
   const signMessage = useWalletAgnosticSignMessage()
   const multiPayload = useOTCOrder()
   const { signAndSendTransactions } = useNearWalletActions()
