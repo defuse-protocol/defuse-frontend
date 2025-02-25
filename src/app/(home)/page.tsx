@@ -22,10 +22,7 @@ export default function Swap() {
   const referral = useIntentsReferral()
 
   return (
-    <Paper
-      title="Swap"
-      description="Cross-chain swap across any network, any token."
-    >
+    <Paper>
       <SwapWidget
         tokenList={tokenList}
         userAddress={(state.isVerified ? state.address : undefined) ?? null}
@@ -47,6 +44,9 @@ export default function Swap() {
         onSuccessSwap={() => {}}
         onNavigateDeposit={() => {
           router.push("/deposit")
+        }}
+        onNavigateOTC={() => {
+          router.push("/otc-desk/create-order")
         }}
         userChainType={state.chainType ?? null}
         referral={referral}
