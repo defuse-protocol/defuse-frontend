@@ -19,11 +19,6 @@ import {
 import { distinctUntilChanged, map } from "rxjs"
 
 import { Loading } from "@src/components/Loading"
-import {
-  createHotWalletIframeObserver,
-  startHotWalletObserver,
-  stopHotWalletObserver,
-} from "@src/utils/hotWalletIframe"
 import { logger } from "@src/utils/logger"
 
 declare global {
@@ -113,14 +108,9 @@ export const WalletSelectorProvider: React.FC<{
       console.log(`The reason for hiding the modal ${hideReason}`)
     })
 
-    // Initialize and start Hot Wallet iframe observer
-    const observer = createHotWalletIframeObserver()
-    startHotWalletObserver(observer)
-
     return () => {
       subscription.unsubscribe()
       onHideSubscription.remove()
-      stopHotWalletObserver(observer)
     }
   }, [selector, modal])
 
