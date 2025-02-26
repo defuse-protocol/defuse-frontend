@@ -387,6 +387,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
         name: "xDAI",
       },
     ],
+    tags: ["mc:25", "type:stablecoin"],
   },
   {
     unifiedAssetId: "eth",
@@ -964,6 +965,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
     routes: [],
     symbol: "GNO",
     name: "Gnosis",
+    tags: ["mc:133"],
   },
   {
     defuseAssetId:
@@ -977,6 +979,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
     routes: [],
     symbol: "COW",
     name: "CoW Protocol",
+    tags: ["mc:266"],
   },
   {
     defuseAssetId:
@@ -990,6 +993,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
     routes: [],
     symbol: "SAFE",
     name: "Safe",
+    tags: ["mc:168"],
   },
 ]
 
