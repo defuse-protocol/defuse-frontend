@@ -13,7 +13,6 @@ import {
   Spinner,
   AlertDialog as themes_AlertDialog,
 } from "@radix-ui/themes"
-import { useEffect } from "react"
 
 export function WalletVerificationDialog({
   open,
@@ -28,16 +27,6 @@ export function WalletVerificationDialog({
   isVerifying: boolean
   isFailure: boolean
 }) {
-  // When Radix Dialog is open, it sets `pointer-events: none`. This can cause issues with modals from third-party libraries,
-  // as they might not function correctly when opened from within the dialog. For more details and discussion,
-  // see: [GitHub Discussion](https://github.com/radix-ui/primitives/issues/2122)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      document.body.style.pointerEvents = ""
-    }, 0)
-    return () => clearTimeout(timer)
-  }, [])
-
   return (
     <AlertDialog.Root open={open}>
       <themes_AlertDialog.Content className="max-w-md px-5 pt-5 pb-[max(env(safe-area-inset-bottom,0px),theme(spacing.5))] sm:animate-none animate-slide-up">
