@@ -49,7 +49,11 @@ export const W_BASE_TOKEN_META = {
   decimals: 18,
 }
 
-export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
+type TokenWithTags =
+  | (BaseTokenInfo & { tags?: string[] })
+  | (UnifiedTokenInfo & { tags?: string[] })
+
+export const LIST_TOKENS: TokenWithTags[] = [
   {
     unifiedAssetId: "usdc",
     decimals: 6,
@@ -163,6 +167,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
         name: "USD Coin",
       },
     ],
+    tags: ["mc:7", "type:stablecoin"],
   },
   {
     defuseAssetId:
@@ -176,6 +181,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "TRUMP",
     name: "OFFICIAL TRUMP",
+    tags: ["mc:39", "type:meme"],
   },
   {
     defuseAssetId:
@@ -189,6 +195,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "MELANIA",
     name: "Official Melania Meme",
+    tags: ["mc:96", "type:meme"],
   },
   {
     defuseAssetId: "nep141:bera.omft.near",
@@ -201,6 +208,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "BERA",
     name: "BERA",
+    tags: ["mc:104"],
   },
   {
     defuseAssetId: "nep141:zec.omft.near",
@@ -213,6 +221,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "ZEC",
     name: "Zcash",
+    tags: ["mc:120"],
   },
   {
     unifiedAssetId: "near",
@@ -258,6 +267,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
         name: "Near",
       },
     ],
+    tags: ["mc:31"],
   },
   {
     unifiedAssetId: "usdt",
@@ -342,6 +352,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
         name: "Tether USD",
       },
     ],
+    tags: ["mc:3", "type:stablecoin"],
   },
 
   {
@@ -474,6 +485,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
         name: "wETH",
       },
     ],
+    tags: ["mc:2"],
   },
   {
     unifiedAssetId: "aurora",
@@ -535,6 +547,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
         name: "Aurora",
       },
     ],
+    tags: ["mc:462"],
   },
   {
     defuseAssetId: "nep141:btc.omft.near",
@@ -548,6 +561,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "BTC",
     name: "Bitcoin",
+    tags: ["mc:1"],
   },
   {
     defuseAssetId:
@@ -561,6 +575,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "PEPE",
     name: "Pepe",
+    tags: ["mc:30", "type:meme"],
   },
   {
     defuseAssetId:
@@ -574,6 +589,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "SHIB",
     name: "Shiba Inu",
+    tags: ["mc:15", "type:meme"],
   },
   {
     defuseAssetId:
@@ -587,6 +603,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "LINK",
     name: "Chainlink",
+    tags: ["mc:11"],
   },
   {
     defuseAssetId:
@@ -600,6 +617,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "UNI",
     name: "Uniswap",
+    tags: ["mc:25"],
   },
   {
     defuseAssetId:
@@ -613,6 +631,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "ARB",
     name: "Arbitrum",
+    tags: ["mc:49"],
   },
   {
     defuseAssetId:
@@ -626,6 +645,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "AAVE",
     name: "Aave",
+    tags: ["mc:32"],
   },
   {
     defuseAssetId:
@@ -639,6 +659,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "GMX",
     name: "GMX",
+    tags: ["mc:183"],
   },
   {
     defuseAssetId:
@@ -652,6 +673,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "MOG",
     name: "Mog Coin",
+    tags: ["mc:160", "type:meme"],
   },
   {
     defuseAssetId:
@@ -665,6 +687,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "BRETT",
     name: "Brett",
+    tags: ["mc:139", "type:meme"],
   },
   {
     defuseAssetId: "nep141:token.sweat",
@@ -677,6 +700,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "SWEAT",
     name: "Sweat Economy",
+    tags: ["mc:571"],
   },
   {
     defuseAssetId: "nep141:sol.omft.near",
@@ -690,6 +714,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "SOL",
     name: "Solana",
+    tags: ["mc:6"],
   },
   {
     defuseAssetId: "nep141:doge.omft.near",
@@ -703,6 +728,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "DOGE",
     name: "Dogecoin",
+    tags: ["mc:8", "type:meme"],
   },
   {
     unifiedAssetId: "turbo",
@@ -765,6 +791,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
         name: "Turbo",
       },
     ],
+    tags: ["mc:183", "type:meme"],
   },
   {
     defuseAssetId: "nep141:xrp.omft.near",
@@ -778,6 +805,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "XRP",
     name: "XRP",
+    tags: ["mc:4"],
   },
   {
     defuseAssetId:
@@ -791,6 +819,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "WIF",
     name: "dogwifhat",
+    tags: ["mc:112", "type:meme"],
   },
   {
     defuseAssetId:
@@ -804,6 +833,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "BOME",
     name: "BOOK OF MEME",
+    tags: ["mc:305", "type:meme"],
   },
   {
     defuseAssetId: "nep141:blackdragon.tkn.near",
@@ -816,6 +846,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "BLACKDRAGON",
     name: "Black Dragon",
+    tags: ["mc:4666", "type:meme"],
   },
   {
     defuseAssetId: "nep141:token.0xshitzu.near",
@@ -828,6 +859,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "SHITZU",
     name: "Shitzu",
+    tags: ["mc:999999", "type:meme"],
   },
   {
     defuseAssetId: "nep141:purge-558.meme-cooking.near",
@@ -840,6 +872,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "PURGE",
     name: "Forgive Me Father",
+    tags: ["mc:999999", "type:meme"],
   },
   {
     defuseAssetId: "nep141:token.burrow.near",
@@ -852,6 +885,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "BRRR",
     name: "Burrow",
+    tags: ["mc:6091"],
   },
   {
     defuseAssetId: "nep141:abg-966.meme-cooking.near",
@@ -864,6 +898,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "ABG",
     name: "Asian Girl Boss",
+    tags: ["mc:999999", "type:meme"],
   },
   {
     defuseAssetId: "nep141:noear-324.meme-cooking.near",
@@ -876,6 +911,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "NOEAR",
     name: "NOEAR",
+    tags: ["mc:999999", "type:meme"],
   },
   {
     defuseAssetId: "nep141:token.v2.ref-finance.near",
@@ -888,6 +924,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "REF",
     name: "Ref Finance",
+    tags: ["mc:1452"],
   },
   {
     defuseAssetId: "nep141:mpdao-token.near",
@@ -900,6 +937,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "mpDAO",
     name: "Meta DAO Governance Token",
+    tags: ["mc:999999"],
   },
   {
     defuseAssetId: "nep141:gnear-229.meme-cooking.near",
@@ -912,6 +950,7 @@ export const LIST_TOKENS: (BaseTokenInfo | UnifiedTokenInfo)[] = [
     routes: [],
     symbol: "GNEAR",
     name: "gnear",
+    tags: ["mc:999999", "type:meme"],
   },
   {
     defuseAssetId:

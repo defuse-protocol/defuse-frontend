@@ -1,29 +1,28 @@
 "use client"
 
 import { SwapWidget } from "@defuse-protocol/defuse-sdk"
-import { useWallet as useWalletSolana } from "@solana/wallet-adapter-react"
 import { useRouter } from "next/navigation"
-import { useSignMessage } from "wagmi"
 
+import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
-import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
+import { useConnectWallet } from "@src/hooks/useConnectWallet"
+import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
 import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import { useTokenList } from "@src/hooks/useTokenList"
+import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 
 export default function Swap() {
   const { state } = useConnectWallet()
-  const { signMessage, signAndSendTransactions } = useNearWalletActions()
-  const { signMessageAsync: signMessageAsyncWagmi } = useSignMessage()
-  const solanaWallet = useWalletSolana()
+  const signMessage = useWalletAgnosticSignMessage()
+  const { signAndSendTransactions } = useNearWalletActions()
   const tokenList = useTokenList(LIST_TOKENS)
+  const { tokenIn, tokenOut } = useDeterminePair()
   const router = useRouter()
+  const referral = useIntentsReferral()
 
   return (
-    <Paper
-      title="Swap"
-      description="Cross-chain swap across any network, any token."
-    >
+    <Paper>
       <SwapWidget
         tokenList={tokenList}
         userAddress={(state.isVerified ? state.address : undefined) ?? null}
@@ -41,59 +40,18 @@ export default function Swap() {
 
           return { txHash: outcome.transaction.hash }
         }}
-        signMessage={async (params) => {
-          const chainType = state.chainType
-
-          switch (chainType) {
-            case ChainType.EVM: {
-              const signatureData = await signMessageAsyncWagmi({
-                message: params.ERC191.message,
-              })
-              return {
-                type: "ERC191",
-                signatureData,
-                signedData: params.ERC191,
-              }
-            }
-
-            case ChainType.Near: {
-              const { signatureData, signedData } = await signMessage({
-                ...params.NEP413,
-                nonce: Buffer.from(params.NEP413.nonce),
-              })
-              return { type: "NEP413", signatureData, signedData }
-            }
-
-            case ChainType.Solana: {
-              if (solanaWallet.signMessage == null) {
-                throw new Error("Solana wallet does not support signMessage")
-              }
-
-              const signatureData = await solanaWallet.signMessage(
-                params.SOLANA.message
-              )
-
-              return {
-                type: "SOLANA",
-                signatureData,
-                signedData: params.SOLANA,
-              }
-            }
-
-            case undefined:
-              throw new Error("User not signed in")
-
-            default:
-              chainType satisfies never
-              throw new Error(`Unsupported sign in type: ${chainType}`)
-          }
-        }}
+        signMessage={(params) => signMessage(params)}
         onSuccessSwap={() => {}}
         onNavigateDeposit={() => {
           router.push("/deposit")
         }}
+        onNavigateOTC={() => {
+          router.push("/otc-desk/create-order")
+        }}
         userChainType={state.chainType ?? null}
-        referral={process?.env?.NEXT_PUBLIC_REFERRAL}
+        referral={referral}
+        initialTokenIn={tokenIn}
+        initialTokenOut={tokenOut}
       />
     </Paper>
   )

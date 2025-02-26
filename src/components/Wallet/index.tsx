@@ -6,9 +6,11 @@ import React, { useContext } from "react"
 import type { Connector } from "wagmi"
 
 import WalletConnections from "@src/components/Wallet/WalletConnections"
+import { isSupportedByBrowser } from "@src/features/webauthn/lib/webauthnService"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import useShortAccountId from "@src/hooks/useShortAccountId"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
+import { mapStringToEmojis } from "@src/utils/emoji"
 
 const TURN_OFF_APPS = process?.env?.turnOffApps === "true" ?? true
 
@@ -29,6 +31,10 @@ const ConnectWallet = () => {
     return signIn({ id: ChainType.Solana })
   }
 
+  const handlePasskey = () => {
+    return signIn({ id: ChainType.WebAuthn })
+  }
+
   if (!state.address || TURN_OFF_APPS) {
     return (
       <Popover.Root>
@@ -41,7 +47,7 @@ const ConnectWallet = () => {
             disabled={TURN_OFF_APPS}
           >
             <Text weight="bold" wrap="nowrap">
-              Connect wallet
+              Sign in
             </Text>
           </Button>
         </Popover.Trigger>
@@ -50,11 +56,34 @@ const ConnectWallet = () => {
           minWidth={{ initial: "300px", xs: "330px" }}
           className="md:mr-[48px] dark:bg-black-800 rounded-2xl"
         >
-          <Text size="1">How do you want to connect?</Text>
+          <Text size="1">How do you want to sign in?</Text>
           <div className="w-full grid grid-cols-1 gap-4 mt-4">
             <Text size="1" color="gray">
-              Popular wallets
+              Popular options
             </Text>
+
+            {isSupportedByBrowser() && (
+              <Button
+                onClick={() => handlePasskey()}
+                size="4"
+                radius="medium"
+                variant="soft"
+                color="gray"
+                className="px-2.5"
+              >
+                <div className="w-full flex items-center justify-start gap-2">
+                  <Image
+                    src="/static/icons/wallets/webauthn.svg"
+                    alt=""
+                    width={36}
+                    height={36}
+                  />
+                  <Text size="2" weight="bold">
+                    Passkey
+                  </Text>
+                </div>
+              </Button>
+            )}
 
             {whitelabelTemplate === "turboswap" ? (
               <>
@@ -237,7 +266,7 @@ const ConnectWallet = () => {
                       </Button>
                     ))}
                     <Text size="1" color="gray">
-                      Other wallets
+                      Other options
                     </Text>
                     {connectors
                       .slice(1)
@@ -281,19 +310,36 @@ const ConnectWallet = () => {
             size={"2"}
             radius={"full"}
             disabled={TURN_OFF_APPS}
+            className="font-bold text-gray-12"
           >
-            <Text
-              weight="bold"
-              wrap="nowrap"
-              style={{ color: "var(--gray-12)" }}
-            >
-              {shortAccountId}
-            </Text>
+            {state.chainType !== "webauthn" ? (
+              shortAccountId
+            ) : (
+              <div className="flex items-center gap-2">
+                <div className="flex">
+                  <Image
+                    src="/static/icons/wallets/webauthn.svg"
+                    alt=""
+                    width={24}
+                    height={24}
+                    className="rounded-full size-6 bg-[#000]"
+                    style={{
+                      mask: "radial-gradient(13px at 31px 50%, transparent 99%, rgb(255, 255, 255) 100%)",
+                    }}
+                  />
+                  <div className="-ml-1 rounded-full size-6 bg-white text-black text-base flex items-center justify-center">
+                    {mapStringToEmojis(state.address, { count: 1 }).join("")}
+                  </div>
+                </div>
+
+                <div className="font-bold text-gray-12">passkey</div>
+              </div>
+            )}
           </Button>
         </Popover.Trigger>
         <Popover.Content
           minWidth={{ initial: "300px", xs: "330px" }}
-          className="mt-1 md:mr-[48px] dark:bg-black-800 rounded-2xl"
+          className="mt-1 md:mr-[48px] max-w-xs dark:bg-black-800 rounded-2xl"
         >
           <div className="flex flex-col gap-5">
             <WalletConnections />

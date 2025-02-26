@@ -54,38 +54,38 @@ export default function MyNearWalletGateway() {
  * Receives the callback from the wallet and sends the message to the app
  */
 function relayResultToOpener(url: URL) {
-  if (window.opener) {
-    window.opener.postMessage(
-      queryStringToObject(url.hash),
-      window.location.origin
-    )
-    window.close()
-  }
+  const channelId = url.searchParams.get("channelId")
+  if (!channelId) throw new Error("Missing channelId")
+
+  const channel = new BroadcastChannel(channelId)
+  channel.postMessage(queryStringToObject(url.hash))
+  channel.close()
+  window.close()
 }
 
 function relayResultToOpenerError(url: URL) {
-  if (window.opener) {
-    window.opener.postMessage(
-      {
-        errorCode: url.searchParams.get("errorCode"),
-        errorMessage: url.searchParams.get("errorMessage"),
-      },
-      window.location.origin
-    )
-    window.close()
-  }
+  const channelId = url.searchParams.get("channelId")
+  if (!channelId) throw new Error("Missing channelId")
+
+  const channel = new BroadcastChannel(channelId)
+  channel.postMessage({
+    errorCode: url.searchParams.get("errorCode"),
+    errorMessage: url.searchParams.get("errorMessage"),
+  })
+  channel.close()
+  window.close()
 }
 
 function relayResultToOpenerTransactionHashes(url: URL) {
-  if (window.opener) {
-    window.opener.postMessage(
-      {
-        transactionHashes: url.searchParams.get("transactionHashes"),
-      },
-      window.location.origin
-    )
-    window.close()
-  }
+  const channelId = url.searchParams.get("channelId")
+  if (!channelId) throw new Error("Missing channelId")
+
+  const channel = new BroadcastChannel(channelId)
+  channel.postMessage({
+    transactionHashes: url.searchParams.get("transactionHashes"),
+  })
+  channel.close()
+  window.close()
 }
 
 async function signAndSendTransactions(
