@@ -63,7 +63,7 @@ export const WalletSelectorProvider: React.FC<{
       modules: [setupMyNearWallet(), setupMeteorWallet()],
     })
     const _modal = setupModal(_selector, {
-      contractId: "intents.near",
+      contractId: "",
     })
     const state = _selector.store.getState()
     setAccounts(state.accounts)
