@@ -2585,6 +2585,15 @@
     "@near-wallet-selector/wallet-utils" "8.10.0"
     near-api-js "4.0.3"
 
+"@near-wallet-selector/nightly@^8.10.0":
+  version "8.10.0"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/nightly/-/nightly-8.10.0.tgz#5038632f81b63c1dad6279ad9ae9baabaed8c410"
+  integrity sha512-vMxsY/55Z5tPOP0gKsf+/L3HNELu0X9GtPU3p4R9PP6DZ+gWBSPbLSEZyZoXQ5s7ieCXzX2dEjFs9awv5IRAbA==
+  dependencies:
+    "@near-wallet-selector/core" "8.10.0"
+    "@near-wallet-selector/wallet-utils" "8.10.0"
+    near-api-js "4.0.3"
+
 "@near-wallet-selector/wallet-utils@8.10.0":
   version "8.10.0"
   resolved "https://registry.yarnpkg.com/@near-wallet-selector/wallet-utils/-/wallet-utils-8.10.0.tgz#e650557c2ea5190aa014d90f8f49839892b607b6"

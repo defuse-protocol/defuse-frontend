@@ -26,6 +26,7 @@
     "@near-wallet-selector/meteor-wallet": "^8.10.0",
     "@near-wallet-selector/modal-ui": "^8.10.0",
     "@near-wallet-selector/my-near-wallet": "^8.10.0",
+    "@near-wallet-selector/nightly": "^8.10.0",
     "@next/third-parties": "^14.2.5",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-checkbox": "^1.1.1",
