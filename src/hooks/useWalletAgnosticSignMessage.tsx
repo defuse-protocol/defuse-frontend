@@ -8,6 +8,7 @@ import type {
   WalletMessage,
   WalletSignatureResult,
 } from "@src/types/walletMessages"
+import { withWalletInteractionTimeout } from "@src/utils/withWalletInteractionTimeout"
 
 export function useWalletAgnosticSignMessage() {
   const { state } = useConnectWallet()
@@ -34,11 +35,14 @@ export function useWalletAgnosticSignMessage() {
       }
 
       case ChainType.Near: {
-        const { signatureData, signedData } = await signMessageNear({
-          ...walletMessage.NEP413,
-          nonce: Buffer.from(walletMessage.NEP413.nonce),
+        const result = await withWalletInteractionTimeout(async () => {
+          const { signatureData, signedData } = await signMessageNear({
+            ...walletMessage.NEP413,
+            nonce: Buffer.from(walletMessage.NEP413.nonce),
+          })
+          return { type: "NEP413", signatureData, signedData }
         })
-        return { type: "NEP413", signatureData, signedData }
+        return result as WalletSignatureResult<T>
       }
 
       case ChainType.Solana: {
