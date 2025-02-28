@@ -3,38 +3,38 @@
 @tailwind utilities;
 @tailwind variants;
 
+/* Core imports - ordered by dependency */
 @import "fonts";
 @import "loading";
 @import "modal";
 @import "accordion";
 @import "toast";
 
-:root {
-  --color: text-black;
-  --background: rgba(28, 32, 36, 1);
-}
-
-body {
-  color: var(--color);
-}
-
+/* Utilities */
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
 }
 
+/* Base styles */
 @layer base {
   html {
     font-family: CircularXXSub, system-ui, sans-serif;
   }
 
+  body {
+    max-width: 100vw;
+    height: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Theme colors */
 	:root {
 		--color-border: var(--sand-4);
 		--color-warning: var(--amber-a2);
 		--color-warning-foreground: var(--amber-a11);
 	}
-
 	.dark {
 		/**
 		 * It's not a mistake, duplicating the same color values here.
@@ -45,14 +45,8 @@ body {
 		--color-warning-foreground: var(--amber-a11);
 	}
 }
-html,
-body {
-  max-width: 100vw;
-  height: 100%;
-  overflow-x: hidden;
-  color: var(--color);
-}
 
+/* Template-specific styles */
 html.tmpl-solswap,
 .tmpl-solswap body {
   background: var(--purple-2);
@@ -61,11 +55,4 @@ html.tmpl-solswap,
 html.tmpl-dogecoinswap,
 .tmpl-dogecoinswap body {
   background: var(--gray-2);
-}
-
-
-h1 {
-  font-size: 3rem; // 48px
-  font-weight: 700;
-  line-height: 48px;
 }
