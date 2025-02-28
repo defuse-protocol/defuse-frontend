@@ -27,6 +27,13 @@
     max-width: 100vw;
     height: 100%;
     overflow-x: hidden;
+    /* This is a workaround for a Radix UI issue where dialogs can interfere with pointer events.
+     * When a Radix dialog is open, it may incorrectly block pointer events on other elements,
+     * particularly affecting third-party components rendered inside the dialog.
+     * Setting pointer-events to 'unset' ensures elements remain interactive.
+     * @see https://github.com/radix-ui/primitives/issues/2122
+     */
+    pointer-events: unset !important;
   }
 
   /* Theme colors */
