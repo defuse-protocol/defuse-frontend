@@ -8,6 +8,10 @@ import type {
   WalletMessage,
   WalletSignatureResult,
 } from "@src/types/walletMessages"
+import {
+  createHotWalletCloseObserver,
+  raceFirst,
+} from "@src/utils/hotWalletIframe"
 
 export function useWalletAgnosticSignMessage() {
   const { state } = useConnectWallet()
@@ -34,10 +38,13 @@ export function useWalletAgnosticSignMessage() {
       }
 
       case ChainType.Near: {
-        const { signatureData, signedData } = await signMessageNear({
-          ...walletMessage.NEP413,
-          nonce: Buffer.from(walletMessage.NEP413.nonce),
-        })
+        const { signatureData, signedData } = await raceFirst(
+          signMessageNear({
+            ...walletMessage.NEP413,
+            nonce: Buffer.from(walletMessage.NEP413.nonce),
+          }),
+          createHotWalletCloseObserver()
+        )
         return { type: "NEP413", signatureData, signedData }
       }
 
