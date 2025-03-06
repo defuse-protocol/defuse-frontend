@@ -1,14 +1,14 @@
 import axios from "axios"
 import { v4 } from "uuid"
 
-const NEAR_NODE_URL = process?.env?.nearNodeUrl ?? ""
+import { NEAR_NODE_URL_2 } from "@src/utils/environment"
 
 export const getNearTransactionDetails = (
   transactionHash: string,
   accountId: string
 ) =>
   axios
-    .post(NEAR_NODE_URL, {
+    .post(NEAR_NODE_URL_2, {
       jsonrpc: "2.0",
       id: v4(),
       method: "tx",
@@ -23,7 +23,7 @@ export const getNearTransactionDetails = (
 
 export const getNearFinalBlock = () =>
   axios
-    .post(NEAR_NODE_URL, {
+    .post(NEAR_NODE_URL_2, {
       id: v4(),
       jsonrpc: "2.0",
       method: "block",
@@ -35,7 +35,7 @@ export const getNearFinalBlock = () =>
 
 export const getNearBlockById = (block_hash?: string) =>
   axios
-    .post(NEAR_NODE_URL, {
+    .post(NEAR_NODE_URL_2, {
       id: v4(),
       jsonrpc: "2.0",
       method: "block",

@@ -7,6 +7,7 @@ import AssetComboIcon from "@src/components/Network/AssetComboIcon"
 import { NEAR_TOKEN_META } from "@src/constants/tokens"
 import { useActiveHover } from "@src/hooks/useActiveHover"
 import useShortAccountId from "@src/hooks/useShortAccountId"
+import { NEAR_EXPLORER } from "@src/utils/environment"
 import { smallBalanceToFormat } from "@src/utils/token"
 
 type Props = {
@@ -14,8 +15,6 @@ type Props = {
   amount: string
   hash: string
 }
-
-const NEAR_EXPLORER = process?.env?.nearExplorer ?? ""
 
 const WidgetCardStorageDeposit = ({ receiverId, amount, hash }: Props) => {
   const { isActive, handleMouseLeave, handleMouseOver } = useActiveHover()

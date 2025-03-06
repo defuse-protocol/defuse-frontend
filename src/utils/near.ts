@@ -3,16 +3,15 @@ import { providers } from "near-api-js"
 import type { CodeResult } from "near-api-js/lib/providers/provider"
 
 import type { NearViewAccount } from "@src/types/interfaces"
+import { NEAR_NODE_URL } from "@src/utils/environment"
 import { logger } from "@src/utils/logger"
-
-const NEAR_NODE_URL =
-  process?.env?.nearNodeUrl ?? "https://rpc.testnet.near.org"
 
 /**
  * @deprecated
  */
 export async function storageBalance(contractId: string, accountId: string) {
   try {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
     setNearProvider(new providers.JsonRpcProvider({ url: NEAR_NODE_URL }))
 
@@ -42,6 +41,7 @@ export async function nearAccount(
   accountId: string
 ): Promise<NearViewAccount | null> {
   try {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
     setNearProvider(new providers.JsonRpcProvider({ url: NEAR_NODE_URL }))
 
@@ -67,6 +67,7 @@ export async function nep141Balance(
   contractId: string
 ): Promise<string | null> {
   try {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
     setNearProvider(new providers.JsonRpcProvider({ url: NEAR_NODE_URL }))
     const nearProvider = getNearProvider()
@@ -97,6 +98,7 @@ export async function intentStatus(
   intentId: string
 ): Promise<string | null> {
   try {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
     setNearProvider(new providers.JsonRpcProvider({ url: NEAR_NODE_URL }))
 

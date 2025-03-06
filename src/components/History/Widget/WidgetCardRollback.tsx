@@ -7,6 +7,7 @@ import AssetComboIcon from "@src/components/Network/AssetComboIcon"
 import { useActiveHover } from "@src/hooks/useActiveHover"
 import type { NearTX, NetworkTokenWithSwapRoute } from "@src/types/interfaces"
 import { TransactionMethod } from "@src/types/solver0"
+import { NEAR_EXPLORER } from "@src/utils/environment"
 import { smallBalanceToFormat } from "@src/utils/token"
 
 enum CardRollbackStatusEnum {
@@ -31,8 +32,6 @@ type Props = {
   selectedTokenOut: NetworkTokenWithSwapRoute
   hash: string
 }
-
-const NEAR_EXPLORER = process?.env?.nearExplorer ?? ""
 
 const WidgetCardRollback = ({
   actions,

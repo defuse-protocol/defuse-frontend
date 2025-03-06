@@ -8,6 +8,7 @@ import { W_NEAR_TOKEN_META } from "@src/constants/tokens"
 import { useActiveHover } from "@src/hooks/useActiveHover"
 import useShortAccountId from "@src/hooks/useShortAccountId"
 import type { NetworkTokenWithSwapRoute } from "@src/types/interfaces"
+import { NEAR_EXPLORER } from "@src/utils/environment"
 import { smallBalanceToFormat } from "@src/utils/token"
 
 type Props = {
@@ -16,8 +17,6 @@ type Props = {
   selectedTokenOut: NetworkTokenWithSwapRoute
   hash: string
 }
-
-const NEAR_EXPLORER = process?.env?.nearExplorer ?? ""
 
 const WidgetCardWithdraw = ({
   accountId,

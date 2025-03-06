@@ -2,6 +2,7 @@ import { providers } from "near-api-js"
 import type { AccountView } from "near-api-js/lib/providers/provider"
 
 import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
+import { NEAR_NODE_URL } from "@src/utils/environment"
 
 export interface GetAccountBalanceProps {
   provider: providers.Provider
@@ -12,8 +13,6 @@ export interface GetAccountBalanceResult {
   hasBalance: boolean
   balance: string
 }
-
-const NEAR_NODE_URL = process.env.nearNodeUrl ?? "https://rpc.mainnet.near.org"
 
 export const useAccountBalance = () => {
   const { accountId } = useWalletSelector()

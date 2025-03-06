@@ -11,10 +11,11 @@ import TryDefuse from "@src/app/landing/TryDefuse"
 // import InvestorLogo from "@src/app/landing/InvestorLogo"
 import Vision from "@src/app/landing/Vision"
 import { settings } from "@src/config/settings"
-
-const SOCIAL_LINK_X = process?.env?.socialX ?? ""
-const SOCIAL_LINK_DISCORD = process?.env?.socialDiscord ?? ""
-const LINK_DOCS = process?.env?.socialDocs ?? ""
+import {
+  LINK_DOCS,
+  SOCIAL_LINK_DISCORD,
+  SOCIAL_LINK_X,
+} from "@src/utils/environment"
 
 export default function Home() {
   return (

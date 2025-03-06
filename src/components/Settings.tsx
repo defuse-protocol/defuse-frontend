@@ -7,13 +7,15 @@ import { useContext } from "react"
 
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import Themes from "@src/types/themes"
+import {
+  NEXT_PUBLIC_LINK_DOCS,
+  NEXT_PUBLIC_PUBLIC_MAIL,
+  NEXT_PUBLIC_PUBLIC_TG,
+} from "@src/utils/environment"
+
 import AddTurboChainButton from "./AddTurboChainButton"
 import ComingSoon from "./ComingSoon"
 import LabelNew from "./LabelNew"
-
-const NEXT_PUBLIC_LINK_DOCS = process.env.NEXT_PUBLIC_LINK_DOCS ?? ""
-const NEXT_PUBLIC_PUBLIC_MAIL = process?.env?.NEXT_PUBLIC_PUBLIC_MAIL ?? ""
-const NEXT_PUBLIC_PUBLIC_TG = process?.env?.NEXT_PUBLIC_PUBLIC_TG ?? ""
 
 const Settings = () => {
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
