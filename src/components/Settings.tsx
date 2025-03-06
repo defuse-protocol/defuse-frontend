@@ -79,6 +79,23 @@ const Settings = () => {
                 <ExternalLinkIcon width={16} height={16} />
               </a>
 
+              <a
+                href="/privacy-policy"
+                className="w-full flex justify-between items-center gap-2"
+              >
+                <Text size="2" weight="medium">
+                  Privacy Policy
+                </Text>
+              </a>
+
+              <a
+                href="/terms-and-conditions"
+                className="w-full flex justify-between items-center gap-2"
+              >
+                <Text size="2" weight="medium">
+                  Terms and Conditions
+                </Text>
+              </a>
               {whitelabelTemplate === "near-intents" && (
                 <a
                   href="/jobs"
