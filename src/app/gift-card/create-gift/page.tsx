@@ -1,8 +1,5 @@
 "use client"
 
-import { useRouter } from "next/navigation"
-import React from "react"
-
 import { GiftMakerWidget } from "@defuse-protocol/defuse-sdk"
 import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
 import Paper from "@src/components/Paper"
@@ -11,9 +8,10 @@ import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
 import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
-
-import { safeTokenList } from "../../otc-desk/_utils/safeTokenList"
+import { useRouter } from "next/navigation"
+import React from "react"
 import { createGiftCardLink } from "../_utils/link"
+import { safeTokenList } from "../_utils/safeTokenList"
 
 export default function CreateOrderPage() {
   const { state } = useConnectWallet()
@@ -46,9 +44,9 @@ export default function CreateOrderPage() {
           return { txHash: outcome.transaction.hash }
         }}
         referral={referral}
-        generateLink={(multiPayload) => {
-          console.log("multiPayload", multiPayload)
-          return createGiftCardLink(multiPayload)
+        generateLink={(secretKey) => {
+          console.log("secretKey", secretKey)
+          return createGiftCardLink(secretKey)
         }}
       />
     </Paper>
