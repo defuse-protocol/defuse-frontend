@@ -11,8 +11,7 @@ import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import useShortAccountId from "@src/hooks/useShortAccountId"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { mapStringToEmojis } from "@src/utils/emoji"
-
-const TURN_OFF_APPS = process?.env?.turnOffApps === "true" ?? true
+import { TURN_OFF_APPS } from "@src/utils/environment"
 
 const ConnectWallet = () => {
   const { state, signIn, connectors } = useConnectWallet()

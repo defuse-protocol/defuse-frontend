@@ -21,10 +21,9 @@ import {
   type NearIntent1CreateSingleChain,
 } from "@src/types/interfaces"
 import { TransactionMethod } from "@src/types/solver0"
+import { REFERRAL_ACCOUNT } from "@src/utils/environment"
 import parseDefuseAsset from "@src/utils/parseDefuseAsset"
 import { swapSchema } from "@src/utils/schema"
-
-const REFERRAL_ACCOUNT = process.env.REFERRAL_ACCOUNT ?? ""
 
 export const prepareCreateIntent0 = (inputs: MapCreateIntentProps) => {
   const isNativeTokenIn = inputs.selectedTokenIn.address === "native"

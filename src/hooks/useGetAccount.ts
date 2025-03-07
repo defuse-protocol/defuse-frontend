@@ -9,13 +9,12 @@ import {
 } from "@src/constants/contracts"
 import { useAccountBalance } from "@src/hooks/useAccountBalance"
 import type { Account } from "@src/types/interfaces"
+import { NEAR_NODE_URL } from "@src/utils/environment"
 
 type Props = {
   accountId: string | null
   selector: WalletSelector | null
 }
-
-const NEAR_NODE_URL = process.env.nearNodeUrl ?? "https://rpc.mainnet.near.org"
 
 export const useGetAccount = ({ accountId, selector }: Props) => {
   const { getAccountBalance } = useAccountBalance()

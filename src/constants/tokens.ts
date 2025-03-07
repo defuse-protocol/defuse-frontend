@@ -2,9 +2,9 @@ import type {
   BaseTokenInfo,
   UnifiedTokenInfo,
 } from "@defuse-protocol/defuse-sdk"
-import type { NetworkTokenWithSwapRoute } from "@src/types/interfaces"
 
-const environment = process.env.environment || "production"
+import type { NetworkTokenWithSwapRoute } from "@src/types/interfaces"
+import { IS_DEVELOPMENT } from "@src/utils/environment"
 
 /** @deprecated */
 export const NEAR_TOKEN_META = {
@@ -1017,7 +1017,6 @@ const listNativeTokensTestnet = [
 const listNativeTokensMainnet = [NEAR_TOKEN_META]
 
 /** @deprecated */
-export const LIST_NATIVE_TOKENS: NetworkTokenWithSwapRoute[] =
-  environment === "development"
-    ? listNativeTokensTestnet
-    : listNativeTokensMainnet
+export const LIST_NATIVE_TOKENS: NetworkTokenWithSwapRoute[] = IS_DEVELOPMENT
+  ? listNativeTokensTestnet
+  : listNativeTokensMainnet

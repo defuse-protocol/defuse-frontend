@@ -19,6 +19,7 @@ import {
 import { distinctUntilChanged, map } from "rxjs"
 
 import { Loading } from "@src/components/Loading"
+import { NEAR_ENV, NEAR_NODE_URL } from "@src/utils/environment"
 import { logger } from "@src/utils/logger"
 
 declare global {
@@ -35,9 +36,6 @@ interface WalletSelectorContextValue {
   accountId: string | null
   selectedWalletId: string | null
 }
-
-const NEAR_ENV = process.env.NEAR_ENV ?? "testnet"
-const NEAR_NODE_URL = process.env.nearNodeUrl ?? "https://rpc.mainnet.near.org"
 
 export const WalletSelectorContext =
   createContext<WalletSelectorContextValue | null>(null)

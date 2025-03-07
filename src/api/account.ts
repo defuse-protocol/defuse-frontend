@@ -1,8 +1,7 @@
 import axios from "axios"
 
 import type { NearViewAccount, Result } from "@src/types/interfaces"
-
-const NEAR_NODE_URL = process.env.nearNodeUrl ?? "https://rpc.mainnet.near.org"
+import { NEAR_NODE_URL } from "@src/utils/environment"
 
 export const getViewAccount = (
   accountId: string | null

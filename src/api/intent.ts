@@ -1,7 +1,7 @@
 import axios from "axios"
 import { v4 } from "uuid"
 
-const SOLVER_RELAY_0_URL = process.env.SOLVER_RELAY_0_URL ?? ""
+import { SOLVER_RELAY_0_URL } from "@src/utils/environment"
 
 export type PublishAtomicNearIntentProps = {
   hash: string

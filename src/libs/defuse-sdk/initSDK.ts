@@ -1,6 +1,8 @@
 import { setLogger } from "@defuse-protocol/defuse-sdk/logger"
 import * as Sentry from "@sentry/core"
 
+import { NODE_IS_DEVELOPMENT } from "@src/utils/environment"
+
 let hasInitialized = false
 
 export function initSDK() {
@@ -9,7 +11,7 @@ export function initSDK() {
   }
   hasInitialized = true
 
-  if (process.env.NODE_ENV === "development") {
+  if (NODE_IS_DEVELOPMENT) {
     setLogger({
       verbose: console.log,
       info: console.info,
