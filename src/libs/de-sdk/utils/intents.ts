@@ -76,7 +76,7 @@ export const prepareCreateIntent0 = (inputs: MapCreateIntentProps) => {
   }
 
   // biome-ignore lint/suspicious/noExplicitAny: <reason>
-  const msgBorsh = borsh.serialize(swapSchema as never, msg)
+  const msgBorsh = borsh.serialize(swapSchema as any, msg)
 
   return {
     receiverId: receiverIdIn,

@@ -11,7 +11,6 @@ import { logger } from "@src/utils/logger"
  */
 export async function storageBalance(contractId: string, accountId: string) {
   try {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
     setNearProvider(new providers.JsonRpcProvider({ url: NEAR_NODE_URL }))
 
@@ -41,7 +40,6 @@ export async function nearAccount(
   accountId: string
 ): Promise<NearViewAccount | null> {
   try {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
     setNearProvider(new providers.JsonRpcProvider({ url: NEAR_NODE_URL }))
 
@@ -67,7 +65,6 @@ export async function nep141Balance(
   contractId: string
 ): Promise<string | null> {
   try {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
     setNearProvider(new providers.JsonRpcProvider({ url: NEAR_NODE_URL }))
     const nearProvider = getNearProvider()
@@ -98,7 +95,6 @@ export async function intentStatus(
   intentId: string
 ): Promise<string | null> {
   try {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
     setNearProvider(new providers.JsonRpcProvider({ url: NEAR_NODE_URL }))
 
