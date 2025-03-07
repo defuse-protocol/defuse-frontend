@@ -33,5 +33,10 @@ export const settings: Settings = {
       description:
         "Easily manage your withdrawals with our secure and user-friendly platform. Experience seamless transactions and exceptional support.",
     },
+    gift: {
+      title: "Gift Card",
+      description:
+        "Receive assets from friends and start your journey on NEAR Intents, hassle-free",
+    },
   },
 }
