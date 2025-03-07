@@ -91,11 +91,11 @@ const Settings = () => {
               </a>
 
               <a
-                href="/terms-and-conditions"
+                href="/terms-of-service"
                 className="w-full flex justify-between items-center gap-2"
               >
                 <Text size="2" weight="medium">
-                  Terms and Conditions
+                  Terms of Service
                 </Text>
               </a>
               {whitelabelTemplate === "near-intents" && (
