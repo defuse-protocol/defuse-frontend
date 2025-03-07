@@ -1,5 +1,4 @@
 import { GoogleAnalytics } from "@next/third-parties/google"
-import { WebAuthnProvider } from "@src/features/webauthn/providers/WebAuthnProvider"
 import { QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import type { Metadata, Viewport } from "next"
@@ -12,6 +11,7 @@ import { SentryTracer } from "@src/components/SentryTracer"
 import { whitelabelTemplateFlag } from "@src/config/featureFlags"
 import { config } from "@src/config/wagmi"
 import queryClient from "@src/constants/queryClient"
+import { WebAuthnProvider } from "@src/features/webauthn/providers/WebAuthnProvider"
 import { initSDK } from "@src/libs/defuse-sdk/initSDK"
 import { HistoryStoreProvider } from "@src/providers/HistoryStoreProvider"
 import { ModalStoreProvider } from "@src/providers/ModalStoreProvider"
@@ -25,8 +25,7 @@ import "@radix-ui/themes/styles.css"
 import "@near-wallet-selector/modal-ui/styles.css"
 import "@near-wallet-selector/account-export/styles.css"
 import "../styles/global.scss"
-
-const DEV_MODE = process?.env?.NEXT_PUBLIC_DEV_MODE === "true" ?? false
+import { DEV_MODE, VERCEL_PROJECT_PRODUCTION_URL } from "@src/utils/environment"
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -98,9 +97,7 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 
   return {
-    metadataBase: process.env.VERCEL_PROJECT_PRODUCTION_URL
-      ? new URL(`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`)
-      : null,
+    metadataBase: VERCEL_PROJECT_PRODUCTION_URL,
     icons: {
       icon: `/favicons/${templ}/favicon-32x32.png`,
       apple: `/favicons/${templ}/apple-touch-icon.png`,

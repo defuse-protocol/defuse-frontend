@@ -4,8 +4,7 @@ import type {
   GetCredentialResponse,
   WebauthnCredential,
 } from "@src/features/webauthn/types/webAuthnTypes"
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? ""
+import { BASE_URL } from "@src/utils/environment"
 
 export async function createWebauthnCredential(credential: WebauthnCredential) {
   const response = await fetch(`${BASE_URL}/api/webauthn_credentials`, {

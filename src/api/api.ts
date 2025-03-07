@@ -4,10 +4,8 @@ import { v4 } from "uuid"
 
 import { useNotificationStore } from "@src/providers/NotificationProvider"
 import { NotificationType } from "@src/stores/notificationStore"
+import { COINGECKO_API_KEY, SOLVER_RELAY_0_URL } from "@src/utils/environment"
 import { logger } from "@src/utils/logger"
-
-const SOLVER_RELAY_0_URL = process.env.SOLVER_RELAY_0_URL || ""
-const COINGECKO_API_KEY = process.env.COINGECKO_API_KEY || ""
 
 export const useInterceptors = () => {
   const notification = useNotificationStore((state) => state)

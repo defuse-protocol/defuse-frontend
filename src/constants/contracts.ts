@@ -1,3 +1,5 @@
+import { IS_DEVELOPMENT } from "@src/utils/environment"
+
 export enum INDEXER {
   INTENT_0 = 0,
   INTENT_1 = 1,
@@ -13,10 +15,9 @@ const CONTRACTS_TESTNET = {
   [INDEXER.INTENT_1]: "",
 }
 
-export const CONTRACTS_REGISTER =
-  process.env.environment === "development"
-    ? Object.assign({}, CONTRACTS_TESTNET)
-    : Object.assign({}, CONTRACTS_MAINNET)
+export const CONTRACTS_REGISTER = IS_DEVELOPMENT
+  ? Object.assign({}, CONTRACTS_TESTNET)
+  : Object.assign({}, CONTRACTS_MAINNET)
 
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
 export const MAX_GAS_TRANSACTION = `300${"0".repeat(12)}`

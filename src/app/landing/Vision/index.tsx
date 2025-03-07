@@ -5,8 +5,7 @@ import { Button, Text } from "@radix-ui/themes"
 import CardVision from "@src/app/landing/Card/CardVision"
 import Section from "@src/app/landing/Section"
 import { settings } from "@src/config/settings"
-
-const NEXT_PUBLIC_PUBLIC_MAIL = process?.env?.NEXT_PUBLIC_PUBLIC_MAIL ?? ""
+import { NEXT_PUBLIC_PUBLIC_MAIL } from "@src/utils/environment"
 
 const Vision = () => {
   return (

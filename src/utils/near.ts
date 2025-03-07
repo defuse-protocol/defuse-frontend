@@ -3,10 +3,8 @@ import { providers } from "near-api-js"
 import type { CodeResult } from "near-api-js/lib/providers/provider"
 
 import type { NearViewAccount } from "@src/types/interfaces"
+import { NEAR_NODE_URL } from "@src/utils/environment"
 import { logger } from "@src/utils/logger"
-
-const NEAR_NODE_URL =
-  process?.env?.nearNodeUrl ?? "https://rpc.testnet.near.org"
 
 /**
  * @deprecated

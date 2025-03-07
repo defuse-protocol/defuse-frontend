@@ -10,11 +10,11 @@ import {
   init_env,
 } from "@ref-finance/ref-sdk"
 
+import { ENVIRONMENT } from "@src/utils/environment"
+
 import type { DataEstimateRequest } from "../types/interfaces"
 
-const environment =
-  process?.env?.environment === "production" ? "mainnet" : "testnet"
-init_env(environment)
+init_env(ENVIRONMENT)
 
 export const REGISTRAR_ID_REF_FINANCE = "ref.finance"
 

@@ -7,7 +7,6 @@ import { setupMeteorWallet } from "@near-wallet-selector/meteor-wallet"
 import type { WalletSelectorModal } from "@near-wallet-selector/modal-ui"
 import { setupModal } from "@near-wallet-selector/modal-ui"
 import { setupMyNearWallet } from "@near-wallet-selector/my-near-wallet"
-import { setupNightly as setupNightlyWallet } from "@near-wallet-selector/nightly"
 import {
   type ReactNode,
   createContext,
@@ -20,6 +19,7 @@ import {
 import { distinctUntilChanged, map } from "rxjs"
 
 import { Loading } from "@src/components/Loading"
+import { NEAR_ENV, NEAR_NODE_URL } from "@src/utils/environment"
 import { logger } from "@src/utils/logger"
 
 declare global {
@@ -36,9 +36,6 @@ interface WalletSelectorContextValue {
   accountId: string | null
   selectedWalletId: string | null
 }
-
-const NEAR_ENV = process.env.NEAR_ENV ?? "testnet"
-const NEAR_NODE_URL = process.env.nearNodeUrl ?? "https://rpc.mainnet.near.org"
 
 export const WalletSelectorContext =
   createContext<WalletSelectorContextValue | null>(null)
@@ -62,12 +59,7 @@ export const WalletSelectorProvider: React.FC<{
           "postgres://public_readonly:nearprotocol@mainnet.db.explorer.indexer.near.dev/mainnet_explorer",
       },
       debug: true,
-      modules: [
-        setupMyNearWallet(),
-        setupMeteorWallet(),
-        setupNightlyWallet(),
-        setupHotWallet(),
-      ],
+      modules: [setupMyNearWallet(), setupMeteorWallet(), setupHotWallet()],
     })
     const _modal = setupModal(_selector, {
       contractId: "",

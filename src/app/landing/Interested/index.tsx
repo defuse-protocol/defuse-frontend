@@ -1,10 +1,9 @@
 "use client"
 
 import { Button, Text } from "@radix-ui/themes"
-import { settings } from "@src/config/settings"
 
-const NEXT_PUBLIC_PUBLIC_MAIL = process?.env?.NEXT_PUBLIC_PUBLIC_MAIL ?? ""
-const SOCIAL_LINK_X = process?.env?.socialX ?? ""
+import { settings } from "@src/config/settings"
+import { NEXT_PUBLIC_PUBLIC_MAIL, SOCIAL_LINK_X } from "@src/utils/environment"
 
 const Interested = () => {
   return (

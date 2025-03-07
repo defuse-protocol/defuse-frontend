@@ -12,6 +12,11 @@ import {
   BlockchainEnum,
   type NetworkTokenWithSwapRoute,
 } from "@src/types/interfaces"
+import {
+  BASE_EXPLORER,
+  BITCOIN_EXPLORER,
+  NEAR_EXPLORER,
+} from "@src/utils/environment"
 import { smallBalanceToFormat } from "@src/utils/token"
 
 enum CardSwapStatusEnum {
@@ -32,10 +37,6 @@ type Props = {
   handleCloseIntent: ({ id }: { id: string; receiverId?: string }) => void
   receiverId?: string
 }
-
-const NEAR_EXPLORER = process?.env?.nearExplorer ?? ""
-const BASE_EXPLORER = process?.env?.baseExplorer ?? ""
-const BITCOIN_EXPLORER = process?.env?.bitcoinExplorer ?? ""
 
 const WidgetCardSwap = ({
   hash,
