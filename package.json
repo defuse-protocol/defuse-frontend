@@ -33,7 +33,7 @@
     "@near-wallet-selector/modal-ui": "^8.9.12",
     "@near-wallet-selector/my-near-wallet": "^8.9.12",
     "@near-wallet-selector/narwallets": "^8.9.12",
-    "@near-wallet-selector/near-mobile-wallet": "^8.9.12",
+    "@near-wallet-selector/near-mobile-wallet": "^8.10.1",
     "@near-wallet-selector/near-snap": "^8.9.12",
     "@near-wallet-selector/nearfi": "^8.9.12",
     "@near-wallet-selector/neth": "^8.9.12",
@@ -126,8 +126,5 @@
     "hooks": {
       "pre-commit": "lint-staged"
     }
-  },
-  "resolutions": {
-    "@peersyst/near-mobile-signer": "1.1.4"
   }
 }

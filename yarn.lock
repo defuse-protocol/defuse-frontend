@@ -2680,6 +2680,16 @@
     is-mobile "4.0.0"
     near-api-js "4.0.3"
 
+"@near-wallet-selector/core@8.10.1":
+  version "8.10.1"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/core/-/core-8.10.1.tgz#fc0e5414117796c5e2e72d036b19290eaf290b1c"
+  integrity sha512-FHZNLIPF3Qvj2M8cwyeHFH0Gwq58q7ibw02r+TkekyzZgXESvd/kU/OcF11T4r3WG1OrHPiZay7XXeAwDc9Txw==
+  dependencies:
+    borsh "1.0.0"
+    events "3.3.0"
+    js-sha256 "0.9.0"
+    rxjs "7.8.1"
+
 "@near-wallet-selector/core@8.9.12", "@near-wallet-selector/core@^8.2.0", "@near-wallet-selector/core@^8.9.12":
   version "8.9.12"
   resolved "https://registry.yarnpkg.com/@near-wallet-selector/core/-/core-8.9.12.tgz#6ce355fa70f4102122e812365726f82f884472a9"
@@ -2774,12 +2784,12 @@
     "@near-wallet-selector/core" "8.9.12"
     is-mobile "4.0.0"
 
-"@near-wallet-selector/near-mobile-wallet@^8.9.12":
-  version "8.9.12"
-  resolved "https://registry.yarnpkg.com/@near-wallet-selector/near-mobile-wallet/-/near-mobile-wallet-8.9.12.tgz#20e2b840c776e1a1700087f2a07c675273695b06"
-  integrity sha512-F4RNh+sPNOdNmOWDn4RwecZNm3qBCfgO8zLX7AGPYPfXMnC435MJz313mFMmUtdIA72RBpVW/ULWpmLUa20k+w==
+"@near-wallet-selector/near-mobile-wallet@^8.10.1":
+  version "8.10.1"
+  resolved "https://registry.yarnpkg.com/@near-wallet-selector/near-mobile-wallet/-/near-mobile-wallet-8.10.1.tgz#532174bb7b8bc3a3812b3bdd9d4e5188b873663e"
+  integrity sha512-vpZjubvReD/rB8YwYArtwCTFfJcQrXELx1pMxS8zJhwvLV0b0+Nm+udUSTJulEPqyG5Xt3YMUZjCzJmmTR6Zow==
   dependencies:
-    "@near-wallet-selector/core" "8.9.12"
+    "@near-wallet-selector/core" "8.10.1"
     "@peersyst/near-mobile-signer" "1.1.4"
 
 "@near-wallet-selector/near-snap@^8.9.12":
