@@ -981,10 +981,10 @@
     eventemitter3 "^5.0.1"
     preact "^10.16.0"
 
-"@defuse-protocol/defuse-sdk@^1.0.0-beta.51":
-  version "1.0.0-beta.51"
-  resolved "https://registry.yarnpkg.com/@defuse-protocol/defuse-sdk/-/defuse-sdk-1.0.0-beta.51.tgz#7cfe44536cfa286c5a27a2c00820f8b500d9637e"
-  integrity sha512-yWo94U7ODIjFVVhq/wETTPQSDUrk+vS7WvxPa+9Lr9luKZvUA0dlOnJucie+ImuYpvsjQuvcO/BCu/qQw7vuSg==
+"@defuse-protocol/defuse-sdk@^1.0.0-beta.52":
+  version "1.0.0-beta.52"
+  resolved "https://registry.yarnpkg.com/@defuse-protocol/defuse-sdk/-/defuse-sdk-1.0.0-beta.52.tgz#36cfb6294a36edcf1717ccda125d4701a1d908a1"
+  integrity sha512-4qzpL372xVyK37CeHNxHocFJvDrbDJ9Z8/SnZ7TXeyjsYb4RtfU1JO6n8ceBijHF4RBH+VtKfDR8+icvF4PTAQ==
   dependencies:
     "@lifeomic/attempt" "^3.1.0"
     "@noble/curves" "1.4.0"
