@@ -12,6 +12,7 @@ export enum MapsEnum {
   EVM_BASE = "evm:8453",
   BTC_MAINNET = "btc:mainnet",
   SOLANA_MAINNET = "sol:mainnet",
+  WEBAUTHN = "webauthn",
 }
 
 export interface MapCreateIntentProps {

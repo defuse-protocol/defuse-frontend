@@ -22,7 +22,7 @@ const NavbarMobile = () => {
 
   return (
     <>
-      <div className="fixed bottom-0 z-50 left-0 md:hidden w-full px-5 py-3 bg-white border-t-[1px] border-white-200">
+      <div className="fixed bottom-0 z-50 left-0 md:hidden w-full px-5 pt-3 pb-[max(env(safe-area-inset-bottom,0px),theme(spacing.3))] bg-white border-t-[1px] border-white-200">
         {!isMarketPage && <Navbar links={[...LINKS_HEADER]} />}
         {isMarketPage && (
           <div className="flex justify-center items-center gap-4">
@@ -35,7 +35,7 @@ const NavbarMobile = () => {
           </div>
         )}
       </div>
-      <div className="block md:hidden h-[56px]" />
+      <div className="block md:hidden h-[calc(44px+max(env(safe-area-inset-bottom,0px),theme(spacing.3)))]" />
     </>
   )
 }

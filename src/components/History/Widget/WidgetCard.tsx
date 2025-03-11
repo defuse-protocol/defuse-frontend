@@ -18,12 +18,12 @@ import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
 import { type HistoryData, HistoryStatus } from "@src/stores/historyStore"
 import { type NearTX, QueueTransactions } from "@src/types/interfaces"
 import { TransactionMethod } from "@src/types/solver0"
+import { NEAR_EXPLORER } from "@src/utils/environment"
 import {
   smallBalanceToFormat,
   tokenBalanceToFormatUnits,
 } from "@src/utils/token"
 
-const NEAR_EXPLORER = process?.env?.nearExplorer ?? ""
 const PLACEHOLDER = "XX"
 const WAIT_MORE_2MIN = 120000
 

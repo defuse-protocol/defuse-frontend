@@ -1,11 +1,13 @@
 import * as Sentry from "@sentry/nextjs"
 
+import { NEXT_RUNTIME_EDGE, NEXT_RUNTIME_NODE_JS } from "@src/utils/environment"
+
 export async function register() {
-  if (process.env.NEXT_RUNTIME === "nodejs") {
+  if (NEXT_RUNTIME_NODE_JS) {
     await import("../sentry.server.config")
   }
 
-  if (process.env.NEXT_RUNTIME === "edge") {
+  if (NEXT_RUNTIME_EDGE) {
     await import("../sentry.edge.config")
   }
 }

@@ -1,7 +1,7 @@
 "use client"
 
 import { CopyIcon, EnterIcon } from "@radix-ui/react-icons"
-import { Button, Separator, Text } from "@radix-ui/themes"
+import { Button, Callout, Separator, Text } from "@radix-ui/themes"
 import clsx from "clsx"
 import React, { useEffect, useState } from "react"
 import { CopyToClipboard } from "react-copy-to-clipboard"
@@ -13,6 +13,7 @@ import { getChainIconFromId } from "@src/hooks/useTokensListAdapter"
 import { MapsEnum } from "@src/libs/de-sdk/utils/maps"
 import { useTokensStore } from "@src/providers/TokensStoreProvider"
 import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
+import Image from "next/image"
 
 type WalletConnectionState = {
   chainIcon: string
@@ -34,6 +35,7 @@ const connections: MapsEnum[] = [
   MapsEnum.EVM_ETHEREUM,
   MapsEnum.BTC_MAINNET,
   MapsEnum.SOLANA_MAINNET,
+  MapsEnum.WEBAUTHN,
 ]
 
 const WalletConnectionsConnector = ({
@@ -125,7 +127,7 @@ const WalletConnections = () => {
         weight="medium"
         className="text-gray-600 dark:text-gray-500 pb-2"
       >
-        Connection
+        Connected with
       </Text>
       {connections.map((connector, i) => {
         let chainIcon = ""
@@ -188,6 +190,20 @@ const WalletConnections = () => {
                 index={i}
               />
             )
+
+          case MapsEnum.WEBAUTHN: {
+            if (state.chainType !== ChainType.WebAuthn) {
+              return null
+            }
+            return (
+              <PasskeyConnectionInfo
+                // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                key={i}
+                credential={state.address ?? ""}
+                onSignOut={() => signOut({ id: ChainType.WebAuthn })}
+              />
+            )
+          }
           default:
             return null
         }
@@ -197,3 +213,44 @@ const WalletConnections = () => {
 }
 
 export default WalletConnections
+
+function PasskeyConnectionInfo({
+  credential,
+  onSignOut,
+}: { credential: string; onSignOut: () => void }) {
+  return (
+    <div className="flex flex-col justify-between gap-2.5">
+      <div className="flex items-center gap-3">
+        <Image
+          src="/static/icons/wallets/webauthn.svg"
+          alt=""
+          width={36}
+          height={36}
+        />
+
+        <div className="flex-1">
+          <div className="text-sm font-medium text-gray-12">passkey</div>
+          <div className="text-xs font-medium text-gray-11">{`${credential.slice(0, 6)}...${credential.slice(-6)}`}</div>
+        </div>
+
+        <button
+          type={"button"}
+          onClick={onSignOut}
+          className="w-[32px] h-[32px] flex justify-center items-center rounded-full bg-white-200 dark:border dark:border-white"
+        >
+          <EnterIcon width={16} height={16} />
+        </button>
+      </div>
+
+      <Separator orientation="horizontal" size="4" />
+
+      <Callout.Root className="bg-warning px-3 py-2 text-warning-foreground">
+        <Callout.Text className="text-xs font-medium">
+          <span className="font-bold">Store your passkeys securely.</span>{" "}
+          Losing your passkey means losing access to your account and any
+          associated funds permanently.
+        </Callout.Text>
+      </Callout.Root>
+    </div>
+  )
+}

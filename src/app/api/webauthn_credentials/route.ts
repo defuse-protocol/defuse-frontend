@@ -2,12 +2,12 @@ import { base58 } from "@scure/base"
 import { NextResponse } from "next/server"
 import { z } from "zod"
 
-import { supabase } from "@src/libs/supabase"
 import type {
   CreateCredentialResponse,
   ErrorResponse,
   WebauthnCredential,
-} from "@src/types/api/webauthnCredentials"
+} from "@src/features/webauthn/types/webAuthnTypes"
+import { supabase } from "@src/libs/supabase"
 import { logger } from "@src/utils/logger"
 
 const credentialSchema: z.ZodType<WebauthnCredential> = z.object({

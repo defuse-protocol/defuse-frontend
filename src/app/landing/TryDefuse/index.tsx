@@ -1,9 +1,9 @@
 "use client"
 
 import { Button } from "@radix-ui/themes"
-import { settings } from "@src/config/settings"
 
-const APP_URL = process?.env?.appUrl ?? "/"
+import { settings } from "@src/config/settings"
+import { APP_URL } from "@src/utils/environment"
 
 const TryDefuse = () => {
   return (

@@ -1,22 +1,28 @@
 import { useWallet as useWalletSolana } from "@solana/wallet-adapter-react"
 import { useSignMessage } from "wagmi"
 
+import { useWebAuthnActions } from "@src/features/webauthn/hooks/useWebAuthnStore"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import type {
   WalletMessage,
   WalletSignatureResult,
 } from "@src/types/walletMessages"
+import {
+  createHotWalletCloseObserver,
+  raceFirst,
+} from "@src/utils/hotWalletIframe"
 
 export function useWalletAgnosticSignMessage() {
   const { state } = useConnectWallet()
   const { signMessage: signMessageNear } = useNearWalletActions()
   const { signMessageAsync: signMessageAsyncWagmi } = useSignMessage()
   const solanaWallet = useWalletSolana()
+  const { signMessage: signMessageWebAuthn } = useWebAuthnActions()
 
-  return async (
-    walletMessage: WalletMessage
-  ): Promise<WalletSignatureResult> => {
+  return async <T,>(
+    walletMessage: WalletMessage<T>
+  ): Promise<WalletSignatureResult<T>> => {
     const chainType = state.chainType
 
     switch (chainType) {
@@ -32,10 +38,13 @@ export function useWalletAgnosticSignMessage() {
       }
 
       case ChainType.Near: {
-        const { signatureData, signedData } = await signMessageNear({
-          ...walletMessage.NEP413,
-          nonce: Buffer.from(walletMessage.NEP413.nonce),
-        })
+        const { signatureData, signedData } = await raceFirst(
+          signMessageNear({
+            ...walletMessage.NEP413,
+            nonce: Buffer.from(walletMessage.NEP413.nonce),
+          }),
+          createHotWalletCloseObserver()
+        )
         return { type: "NEP413", signatureData, signedData }
       }
 
@@ -52,6 +61,17 @@ export function useWalletAgnosticSignMessage() {
           type: "SOLANA",
           signatureData,
           signedData: walletMessage.SOLANA,
+        }
+      }
+
+      case ChainType.WebAuthn: {
+        const signatureData = await signMessageWebAuthn(
+          walletMessage.WEBAUTHN.challenge
+        )
+        return {
+          type: "WEBAUTHN",
+          signatureData,
+          signedData: walletMessage.WEBAUTHN,
         }
       }
 

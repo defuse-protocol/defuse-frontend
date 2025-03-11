@@ -99,17 +99,24 @@ function WalletVerificationUI({
     walletVerificationMachine.provide({
       actors: {
         verifyWallet: fromPromise(async () => {
-          if (unconfirmedWallet.address == null) {
+          if (
+            unconfirmedWallet.address == null ||
+            unconfirmedWallet.chainType == null
+          ) {
             return false
           }
           enableAriaOnWalletSelector()
           const walletSignature = await signMessage(
-            walletVerificationMessageFactory(unconfirmedWallet.address)
+            walletVerificationMessageFactory(
+              unconfirmedWallet.address,
+              unconfirmedWallet.chainType
+            )
           )
 
           return verifyWalletSignature(
             walletSignature,
-            unconfirmedWallet.address
+            unconfirmedWallet.address,
+            unconfirmedWallet.chainType
           )
         }),
       },

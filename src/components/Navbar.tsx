@@ -5,9 +5,9 @@ import clsx from "clsx"
 import { usePathname, useRouter } from "next/navigation"
 
 import { LINKS_HEADER, type NavigationLinks } from "@src/constants/routes"
-import { LabelComingSoon } from "./ComingSoon"
+import { TURN_OFF_APPS } from "@src/utils/environment"
 
-const TURN_OFF_APPS = process?.env?.turnOffApps === "true" ?? true
+import { LabelComingSoon } from "./ComingSoon"
 
 type Props = {
   links?: NavigationLinks[]

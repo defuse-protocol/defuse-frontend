@@ -1,6 +1,10 @@
 import axios, { type AxiosRequestConfig } from "axios"
 
 import { REGISTRAR_ID_REF_FINANCE } from "@src/libs/de-sdk/providers/refFinanceProvider"
+import {
+  APP_ORIGINAL_URL,
+  COINGECKO_API_KEY_LOWER,
+} from "@src/utils/environment"
 
 import type {
   DataEstimateRequest,
@@ -9,15 +13,12 @@ import type {
 
 export const REGISTRAR_ID_COINGECKO = "coingecko"
 
-const coingeckoApiKey = process?.env?.coingeckoApiKey ?? ""
-const appOriginUrl = process.env.appUrl ?? "*"
-
 const getExchangesList = () => {
   const config: AxiosRequestConfig = {
     headers: {
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": appOriginUrl,
-      "x-cg-pro-api-key": coingeckoApiKey,
+      "Access-Control-Allow-Origin": APP_ORIGINAL_URL,
+      "x-cg-pro-api-key": COINGECKO_API_KEY_LOWER,
     },
   }
   const id = "coinbase"
@@ -30,8 +31,8 @@ export const getTrendingList = (id = "binance") => {
   const config: AxiosRequestConfig = {
     headers: {
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": appOriginUrl,
-      "x-cg-pro-api-key": coingeckoApiKey,
+      "Access-Control-Allow-Origin": APP_ORIGINAL_URL,
+      "x-cg-pro-api-key": COINGECKO_API_KEY_LOWER,
     },
   }
   return axios
@@ -43,8 +44,8 @@ export const getCoinsListWithMarketData = (currency = "usd") => {
   const config: AxiosRequestConfig = {
     headers: {
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": appOriginUrl,
-      "x-cg-pro-api-key": coingeckoApiKey,
+      "Access-Control-Allow-Origin": APP_ORIGINAL_URL,
+      "x-cg-pro-api-key": COINGECKO_API_KEY_LOWER,
     },
   }
   return axios

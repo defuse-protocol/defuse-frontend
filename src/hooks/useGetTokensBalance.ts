@@ -20,6 +20,7 @@ import {
   type TokenBalance,
 } from "@src/types/interfaces"
 import { bitcoinNativeBalance } from "@src/utils/bitcoin"
+import { BASE_RPC } from "@src/utils/environment"
 import {
   ethereumERC20Balance,
   ethereumNativeBalance,
@@ -28,8 +29,6 @@ import { nep141Balance } from "@src/utils/near"
 import parseDefuseAsset from "@src/utils/parseDefuseAsset"
 
 import { useGetAccount } from "./useGetAccount"
-
-const baseRpc = process.env.BASE_RPC || ""
 
 export const useGetTokensBalance = (
   tokensList: NetworkTokenWithSwapRoute[]
@@ -138,14 +137,14 @@ export const useGetTokensBalance = (
 
     const accountId = getAccountIdBase()
     if (accountId && isTokenNative(address)) {
-      const balance = await ethereumNativeBalance(accountId, baseRpc)
+      const balance = await ethereumNativeBalance(accountId, BASE_RPC)
       if (balance) {
         Object.assign(tokenBalance, {
           balance,
         })
       }
     } else if (accountId && !isTokenNative(address)) {
-      const balance = await ethereumERC20Balance(accountId, address, baseRpc)
+      const balance = await ethereumERC20Balance(accountId, address, BASE_RPC)
       if (balance) {
         Object.assign(tokenBalance, { balance })
       }

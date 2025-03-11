@@ -6,10 +6,11 @@ import type {
   BitcoinPriceInUsdEntity,
   Result,
 } from "@src/types/interfaces"
-
-const SOLVER_RELAY_0_URL = process.env.SOLVER_RELAY_0_URL ?? ""
-const BITCOIN_INFO_URL = process.env.BITCOIN_INFO_URL ?? ""
-const COINGECKO_API_URL = process.env.COINGECKO_API_URL ?? ""
+import {
+  BITCOIN_INFO_URL,
+  COINGECKO_API_URL,
+  SOLVER_RELAY_0_URL,
+} from "@src/utils/environment"
 
 export const getDiscoverDefuseAssets = (
   address: string

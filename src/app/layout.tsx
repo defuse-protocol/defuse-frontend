@@ -1,7 +1,7 @@
 import { GoogleAnalytics } from "@next/third-parties/google"
 import { QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import type { ReactNode } from "react"
 import { WagmiProvider } from "wagmi"
 
@@ -11,6 +11,7 @@ import { SentryTracer } from "@src/components/SentryTracer"
 import { whitelabelTemplateFlag } from "@src/config/featureFlags"
 import { config } from "@src/config/wagmi"
 import queryClient from "@src/constants/queryClient"
+import { WebAuthnProvider } from "@src/features/webauthn/providers/WebAuthnProvider"
 import { initSDK } from "@src/libs/defuse-sdk/initSDK"
 import { HistoryStoreProvider } from "@src/providers/HistoryStoreProvider"
 import { ModalStoreProvider } from "@src/providers/ModalStoreProvider"
@@ -24,8 +25,15 @@ import "@radix-ui/themes/styles.css"
 import "@near-wallet-selector/modal-ui/styles.css"
 import "@near-wallet-selector/account-export/styles.css"
 import "../styles/global.scss"
+import { DEV_MODE, VERCEL_PROJECT_PRODUCTION_URL } from "@src/utils/environment"
 
-const DEV_MODE = process?.env?.NEXT_PUBLIC_DEV_MODE === "true" ?? false
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   const templ = await whitelabelTemplateFlag()
@@ -89,9 +97,7 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 
   return {
-    metadataBase: process.env.VERCEL_PROJECT_PRODUCTION_URL
-      ? new URL(`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`)
-      : null,
+    metadataBase: VERCEL_PROJECT_PRODUCTION_URL,
     icons: {
       icon: `/favicons/${templ}/favicon-32x32.png`,
       apple: `/favicons/${templ}/apple-touch-icon.png`,
@@ -123,7 +129,7 @@ const RootLayout = async ({
                     <HistoryStoreProvider>
                       <TokensStoreProvider>
                         <ModalStoreProvider>
-                          {children}
+                          <WebAuthnProvider>{children}</WebAuthnProvider>
                           <Modal />
                         </ModalStoreProvider>
                       </TokensStoreProvider>

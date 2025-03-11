@@ -1,32 +1,13 @@
 "use client"
 
-import { setupBitgetWallet } from "@near-wallet-selector/bitget-wallet"
-import { setupCoin98Wallet } from "@near-wallet-selector/coin98-wallet"
-import type {
-  AccountState,
-  Wallet,
-  WalletSelector,
-} from "@near-wallet-selector/core"
+import type { AccountState, WalletSelector } from "@near-wallet-selector/core"
 import { setupWalletSelector } from "@near-wallet-selector/core"
-import { setupHereWallet } from "@near-wallet-selector/here-wallet"
-import { setupLedger } from "@near-wallet-selector/ledger"
-import { setupMathWallet } from "@near-wallet-selector/math-wallet"
+import { setupHotWallet } from "@near-wallet-selector/hot-wallet"
 import { setupMeteorWallet } from "@near-wallet-selector/meteor-wallet"
-import { setupMintbaseWallet } from "@near-wallet-selector/mintbase-wallet"
 import type { WalletSelectorModal } from "@near-wallet-selector/modal-ui"
 import { setupModal } from "@near-wallet-selector/modal-ui"
 import { setupMyNearWallet } from "@near-wallet-selector/my-near-wallet"
-import { setupNarwallets } from "@near-wallet-selector/narwallets"
 import { setupNearMobileWallet } from "@near-wallet-selector/near-mobile-wallet"
-import { setupNearSnap } from "@near-wallet-selector/near-snap"
-import { setupNearFi } from "@near-wallet-selector/nearfi"
-import { setupNeth } from "@near-wallet-selector/neth"
-import { setupNightly } from "@near-wallet-selector/nightly"
-import { setupRamperWallet } from "@near-wallet-selector/ramper-wallet"
-import { setupSender } from "@near-wallet-selector/sender"
-import { setupWalletConnect } from "@near-wallet-selector/wallet-connect"
-import { setupWelldoneWallet } from "@near-wallet-selector/welldone-wallet"
-import { setupXDEFI } from "@near-wallet-selector/xdefi"
 import {
   type ReactNode,
   createContext,
@@ -39,6 +20,7 @@ import {
 import { distinctUntilChanged, map } from "rxjs"
 
 import { Loading } from "@src/components/Loading"
+import { NEAR_ENV, NEAR_NODE_URL } from "@src/utils/environment"
 import { logger } from "@src/utils/logger"
 
 declare global {
@@ -56,9 +38,6 @@ interface WalletSelectorContextValue {
   selectedWalletId: string | null
 }
 
-const NEAR_ENV = process.env.NEAR_ENV ?? "testnet"
-const NEAR_NODE_URL = process.env.nearNodeUrl ?? "https://rpc.mainnet.near.org"
-const WALLET_CONNECT_PROJECT_ID = process.env.walletConnectProjectId ?? ""
 const CONTRACT_ID = process.env.contractId ?? "intents.near"
 
 export const WalletSelectorContext =
@@ -83,47 +62,13 @@ export const WalletSelectorProvider: React.FC<{
           "postgres://public_readonly:nearprotocol@mainnet.db.explorer.indexer.near.dev/mainnet_explorer",
       },
       debug: true,
-      modules: [
-        setupMyNearWallet(),
-        setupMeteorWallet(),
-        // setupHereWallet(),
-        // setupSender(),
-        // setupNearSnap(),
-        // setupNearFi(),
-        // setupLedger(),
-        // setupBitgetWallet(),
-        // setupMathWallet(),
-        // setupNightly(),
-        // setupNarwallets(),
-        // setupWelldoneWallet(),
-        // setupCoin98Wallet(),
-        // setupRamperWallet(),
-        // setupNeth({
-        //   gas: "300000000000000",
-        //   bundle: false,
-        // }),
-        // setupXDEFI(),
-        // setupWalletConnect({
-        //   projectId: WALLET_CONNECT_PROJECT_ID,
-        //   metadata: {
-        //     name: "NEAR Intents Protocol",
-        //     description:
-        //       "NEAR Intents: the premier platform for cross-chain liquidity and trading. Experience efficient, secure, and transparent swaps across multiple blockchains.",
-        //     url: "https://github.com/defuse-protocol",
-        //     icons: ["https://app.near-intents.org/static/icons/Logo.svg"],
-        //   },
-        // }),
-        setupNearMobileWallet({
-          dAppMetadata: {
-            name: 'near intents',
-            logoUrl: 'https://peersyst-public-production.s3.eu-west-1.amazonaws.com/f9b73b02-5845-45a4-8167-361acb84be75.png',
-            url: 'https://app.near-intents.org/',
-          },
-        }),
-        // setupMintbaseWallet({
-        //   contractId: "",
-        // }) as WalletModuleFactory<Wallet>,
-      ],
+      modules: [setupMyNearWallet(), setupMeteorWallet(), setupHotWallet(),  setupNearMobileWallet({
+        dAppMetadata: {
+          name: 'near intents',
+          logoUrl: 'https://peersyst-public-production.s3.eu-west-1.amazonaws.com/f9b73b02-5845-45a4-8167-361acb84be75.png',
+          url: 'https://app.near-intents.org/',
+        },
+      }),],
     })
     const _modal = setupModal(_selector, {
       contractId: CONTRACT_ID,

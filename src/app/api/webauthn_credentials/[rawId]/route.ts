@@ -2,8 +2,8 @@ import { base58 } from "@scure/base"
 import { NextResponse } from "next/server"
 import { z } from "zod"
 
+import type { GetCredentialResponse } from "@src/features/webauthn/types/webAuthnTypes"
 import { supabase } from "@src/libs/supabase"
-import type { GetCredentialResponse } from "@src/types/api/webauthnCredentials"
 import { logger } from "@src/utils/logger"
 
 const rawIdSchema = z.string().refine(
@@ -29,7 +29,7 @@ export async function GET(
       .from("webauthn_credentials")
       .select("public_key")
       .eq("raw_id", rawId)
-      .single()
+      .maybeSingle()
 
     if (error) {
       logger.error(error)

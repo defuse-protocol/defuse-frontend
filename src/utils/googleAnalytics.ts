@@ -1,7 +1,6 @@
 import type { AnalyticsData, AnalyticsEvent } from "@src/types/analytics"
+import { IS_PRODUCTION } from "@src/utils/environment"
 import { logger } from "@src/utils/logger"
-
-export const SHOULD_SEND_ANALYTICS = process.env.environment === "production"
 
 /**
  * Send an event to Google Analytics.
@@ -17,7 +16,7 @@ export function sendGaEvent<T extends keyof AnalyticsEvent>({
   parameters?: AnalyticsEvent[T]
 }) {
   try {
-    if (!SHOULD_SEND_ANALYTICS) return
+    if (!IS_PRODUCTION) return
     if (window.gtag) {
       window.gtag<AnalyticsData>("event", name, parameters || {})
     }
