@@ -1,10 +1,14 @@
 "use client"
 
 import { MultiPayloadDeepSchema } from "@defuse-protocol/defuse-sdk"
+import { Button, Code } from "@radix-ui/themes"
 import React, { useState } from "react"
 import * as v from "valibot"
+import examples from "./_examples/multipayloads.json" with { type: "json" }
 
 export default function JsonValidatorPage() {
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null)
+
   const [validationResult, setValidationResult] = useState<null | {
     parsed: unknown
     errors: null | ReturnType<typeof formatValibotErrors>
@@ -55,9 +59,69 @@ export default function JsonValidatorPage() {
     return [{ path: "", message: error.message }]
   }
 
+  const setJSON = (json: string) => {
+    if (textareaRef.current) {
+      textareaRef.current.value = json
+      validateJson(json)
+    }
+  }
+
   return (
     <div className="p-6 mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Multipayload JSON Validator</h1>
+      <h1 className="text-2xl font-bold mb-4">
+        Multipayload JSON Validation Tool
+      </h1>
+
+      <p className="my-4 max-w-xl">
+        What is a Multipayload? In short, it's a JSON object which contains
+        multiple signed intents that follow a specific schema and can be
+        directly executed onchain via the <Code>intents.near</Code> contract.
+      </p>
+
+      <p className="my-4 max-w-xl">
+        On this page, you can paste a Multipayload JSON object and validate it
+        against the schema provided by SDK and see errors if it is malformed.
+        The schema is defined in{" "}
+        <a
+          href="https://github.com/defuse-protocol/defuse-sdk/blob/4f01b7b833ad7eddf30af79f738bba4cbb6e02eb/src/features/otcDesk/utils/schemaMultipayload.ts#L115"
+          rel="noopener noreferrer"
+          className="text-blue-700"
+        >
+          schemaMultipayload.ts
+        </a>{" "}
+        file.
+      </p>
+
+      <div className="my-4 flex items-center gap-4">
+        Paste an example:
+        <Button
+          type="button"
+          onClick={() => {
+            setJSON(JSON.stringify(examples.swap_nep413, null, 2))
+          }}
+          variant="outline"
+        >
+          Swap (signed using Near wallet)
+        </Button>
+        <Button
+          type="button"
+          onClick={() => {
+            setJSON(JSON.stringify(examples.withdraw_raw_ed25519, null, 2))
+          }}
+          variant="outline"
+        >
+          Withdraw (signed using Phantom)
+        </Button>
+        <Button
+          type="button"
+          onClick={() => {
+            setJSON(JSON.stringify(examples.native_withdraw_erc191, null, 2))
+          }}
+          variant="outline"
+        >
+          Native Withdraw (signed using MetaMask)
+        </Button>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -65,11 +129,12 @@ export default function JsonValidatorPage() {
             Enter Multipayload JSON
           </h2>
           <textarea
+            ref={textareaRef}
             className="w-full h-64 p-2 border rounded font-mono"
             onChange={(e) => {
               validateJson(e.target.value)
             }}
-            placeholder='{"name": "John Doe", "age": 30, ...}'
+            placeholder='{"standard": "nep413", "payload": {...}, "public_key": "...", "signature": "..."}'
           />
         </div>
 
