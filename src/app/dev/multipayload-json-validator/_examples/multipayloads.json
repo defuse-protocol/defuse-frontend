@@ -1,0 +1,23 @@
+{
+  "swap_nep413": {
+    "standard": "nep413",
+    "payload": {
+      "message": "{\"deadline\":\"2025-03-12T18:51:09.472Z\",\"intents\":[{\"intent\":\"token_diff\",\"diff\":{\"nep141:wrap.near\":\"-1000000000000000000000\",\"nep141:eth-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.omft.near\":\"2493\"},\"referral\":\"near-intents.intents-referral.near\"}],\"signer_id\":\"226a0eceead177138b56937a05f8bdb19b4091a5cdc4419bdea07b3ea0bd9195\"}",
+      "nonce": "YqUdbIORyNPrrucoXuJj7GfVEliht/vsNmEYuSt14wE=",
+      "recipient": "intents.near"
+    },
+    "public_key": "ed25519:3KLfGdhUSYpdYtLvjRXDryT6Za5wEQHvhiJcBN398yjS",
+    "signature": "ed25519:4ctEfCSXuKXLx6TMbd6if5Eg93M5qKeHMQMHHNaoeSCzpVRR3yBeSJnVhDcm6kivdgwFWECVcDgdwyQux6e6qMt1"
+  },
+  "native_withdraw_erc191": {
+    "standard": "erc191",
+    "payload": "{\n  \"signer_id\": \"0xdead698d1ff2efca2c4c1f171d6a92dd3b3e5e73\",\n  \"verifying_contract\": \"intents.near\",\n  \"deadline\": \"2025-03-12T18:59:25.199Z\",\n  \"nonce\": \"AIHEp7IX5YkQZo6nakQYke1HhNUh2YHiNFt/iFQld70=\",\n  \"intents\": [\n    {\n      \"intent\": \"native_withdraw\",\n      \"receiver_id\": \"226a0eceead177138b56937a05f8bdb19b4091a5cdc4419bdea07b3ea0bd9195\",\n      \"amount\": \"20000000000000000000000\"\n    }\n  ]\n}",
+    "signature": "secp256k1:M2PWD9kCFxL8GvDKDfRAWExuWXTobuiiWTtD4Q2FjtxDqf8eK8PXm7rbkbmRCDXWAT8eP321fuBoJ9azxyZmi45qA"
+  },
+  "withdraw_raw_ed25519": {
+    "standard": "raw_ed25519",
+    "payload": "{\"signer_id\":\"74affa71ab030d400fdfa1bed033dfa6fd3ae34f92d17c046ebe368e80d53751\",\"verifying_contract\":\"intents.near\",\"deadline\":\"2025-03-12T19:10:31.140Z\",\"nonce\":\"JbXKZZJUMeVkxMTk7gtntNO/zZnCAxJZp5KJgXiD6e4=\",\"intents\":[{\"intent\":\"ft_withdraw\",\"token\":\"sol-c800a4bd850783ccb82c2b2c7e84175443606352.omft.near\",\"receiver_id\":\"sol-c800a4bd850783ccb82c2b2c7e84175443606352.omft.near\",\"amount\":\"1000000\",\"memo\":\"WITHDRAW_TO:8rVvtHWFr8hasdQGGD5WiQBTyr4iH2ruEPPVfj491RPN\"}]}",
+    "public_key": "ed25519:8rVvtHWFr8hasdQGGD5WiQBTyr4iH2ruEPPVfj491RPN",
+    "signature": "ed25519:4TCXf6JZvgnharfRuAsXM45YA4u21wstDvtYha8XyGejfUNd6q9KT6Df4V1vQyG7XX6j74kRuwFQ3YkPzCkjC6uD"
+  }
+}
