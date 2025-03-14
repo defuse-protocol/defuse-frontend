@@ -65,6 +65,7 @@ const nextConfig = {
   },
   env: {
     nearChainId: process.env.NEAR_CAHIN_ID,
+    contractId: process.env.NEAR_CONTRACT_ID,
     nearNodeUrl: process.env.NEAR_NODE_URL,
     ethChainId: process.env.ETH_CHAIN_ID,
     baseChainId: process.env.BASE_CHAIN_ID,

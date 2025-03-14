@@ -7,6 +7,7 @@ import { setupMeteorWallet } from "@near-wallet-selector/meteor-wallet"
 import type { WalletSelectorModal } from "@near-wallet-selector/modal-ui"
 import { setupModal } from "@near-wallet-selector/modal-ui"
 import { setupMyNearWallet } from "@near-wallet-selector/my-near-wallet"
+import { setupNearMobileWallet } from "@near-wallet-selector/near-mobile-wallet"
 import {
   type ReactNode,
   createContext,
@@ -37,6 +38,8 @@ interface WalletSelectorContextValue {
   selectedWalletId: string | null
 }
 
+const CONTRACT_ID = process.env.contractId ?? "intents.near"
+
 export const WalletSelectorContext =
   createContext<WalletSelectorContextValue | null>(null)
 
@@ -59,10 +62,16 @@ export const WalletSelectorProvider: React.FC<{
           "postgres://public_readonly:nearprotocol@mainnet.db.explorer.indexer.near.dev/mainnet_explorer",
       },
       debug: true,
-      modules: [setupMyNearWallet(), setupMeteorWallet(), setupHotWallet()],
+      modules: [setupMyNearWallet(), setupMeteorWallet(), setupHotWallet(),  setupNearMobileWallet({
+        dAppMetadata: {
+          name: 'near intents',
+          logoUrl: 'https://peersyst-public-production.s3.eu-west-1.amazonaws.com/f9b73b02-5845-45a4-8167-361acb84be75.png',
+          url: 'https://app.near-intents.org/',
+        },
+      }),],
     })
     const _modal = setupModal(_selector, {
-      contractId: "",
+      contractId: CONTRACT_ID,
     })
     const state = _selector.store.getState()
     setAccounts(state.accounts)
