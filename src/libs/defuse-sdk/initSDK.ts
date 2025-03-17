@@ -1,7 +1,7 @@
 import { configureSDK } from "@defuse-protocol/defuse-sdk/config"
 import * as Sentry from "@sentry/core"
 
-import { NODE_IS_DEVELOPMENT } from "@src/utils/environment"
+import { INTENTS_ENV, NODE_IS_DEVELOPMENT } from "@src/utils/environment"
 
 let hasInitialized = false
 
@@ -13,6 +13,7 @@ export function initSDK() {
 
   if (NODE_IS_DEVELOPMENT) {
     configureSDK({
+      env: INTENTS_ENV,
       logger: {
         verbose: console.log,
         info: console.info,
@@ -22,6 +23,7 @@ export function initSDK() {
     })
   } else {
     configureSDK({
+      env: INTENTS_ENV,
       logger: {
         verbose: (msg, data) => {
           Sentry.addBreadcrumb({
