@@ -1,3 +1,5 @@
+import * as v from "valibot"
+
 export const NEAR_NODE_URL_2 = process?.env?.nearNodeUrl ?? ""
 export const NEAR_NODE_URL =
   process.env.nearNodeUrl ?? "https://rpc.mainnet.near.org"
@@ -51,3 +53,8 @@ export const IS_DISABLE_QUOTING_FROM_SOLVER_0 =
 
 export const DEV_MODE = process?.env?.NEXT_PUBLIC_DEV_MODE === "true" ?? false
 export const TURN_OFF_APPS = process?.env?.turnOffApps === "true" ?? true
+
+export const INTENTS_ENV = v.parse(
+  v.picklist(["production", "stage"]),
+  process.env.NEXT_PUBLIC_INTENTS_ENV || "production"
+)
