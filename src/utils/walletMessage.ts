@@ -2,6 +2,7 @@ import {
   createEmptyIntentMessage,
   formatSignedIntent,
 } from "@defuse-protocol/defuse-sdk"
+import { config } from "@defuse-protocol/defuse-sdk/config"
 import { JsonRpcProvider } from "@near-js/providers"
 import type { CodeResult } from "near-api-js/lib/providers/provider"
 
@@ -36,7 +37,7 @@ export async function verifyWalletSignature(
     // Warning: `CodeResult` is not correct type for `call_function`, but it's closest we have.
     await rpc.query<CodeResult>({
       request_type: "call_function",
-      account_id: "intents.near",
+      account_id: config.env.contractID,
       method_name: "simulate_intents",
       args_base64: btoa(JSON.stringify({ signed: [signedIntent] })),
       finality: "optimistic",
