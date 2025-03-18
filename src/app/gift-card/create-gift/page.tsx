@@ -27,17 +27,17 @@ export default function CreateOrderPage() {
           userChainType={state.chainType}
           signMessage={signMessage}
           referral={referral}
-          generateLink={(secretKey) => {
-            console.log("secretKey", secretKey)
-            return createGiftCardLink(secretKey)
+          generateLink={(giftPayload) => {
+            console.log("giftPayload", giftPayload)
+            return createGiftCardLink(giftPayload)
           }}
           initialToken={tokenIn}
         />
-        {/* <GiftHistoryWidget
+        <GiftHistoryWidget
           userAddress={state.isVerified ? state.address : undefined}
           userChainType={state.chainType}
           generateLink={(secretKey) => createGiftCardLink(secretKey)}
-        /> */}
+        />
       </div>
     </Paper>
   )

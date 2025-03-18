@@ -1,11 +1,11 @@
 import { logger } from "@src/utils/logger"
 import { useSearchParams } from "next/navigation"
 import { useState } from "react"
-import { decodeSecretKey, encodeSecretKey } from "./encoder"
+import { decodeGift, encodeGift } from "./encoder"
 
-export function createGiftCardLink(secretKey: string): string {
+export function createGiftCardLink(payload: unknown): string {
   const url = new URL("/gift-card/view-gift", window.location.origin)
-  url.searchParams.set("gift", encodeSecretKey(secretKey))
+  url.searchParams.set("gift", encodeGift(payload))
   return url.toString()
 }
 
@@ -14,7 +14,7 @@ export function useGiftCard() {
 
   const [payload] = useState(() => {
     try {
-      return decodeSecretKey(encodedGift ?? "")
+      return decodeGift(encodedGift ?? "")
     } catch (e) {
       logger.error(e)
       return ""
