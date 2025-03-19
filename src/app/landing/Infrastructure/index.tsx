@@ -6,7 +6,6 @@ import { type PropsWithChildren, useEffect, useRef, useState } from "react"
 
 import Section from "@src/app/landing/Section"
 import { settings } from "@src/config/settings"
-import useResize from "@src/hooks/useResize"
 
 const CardTopic = ({ children, id }: { id: number } & PropsWithChildren) => {
   return (
@@ -23,7 +22,6 @@ const CardTopic = ({ children, id }: { id: number } & PropsWithChildren) => {
 
 const Infrastructure = () => {
   const divRef = useRef<HTMLDivElement>(null)
-  const { width } = useResize(divRef)
   const [containerWidth, setContainerWidth] = useState<number>(0)
 
   useEffect(() => {

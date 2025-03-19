@@ -3,7 +3,7 @@
 import { CopyIcon, EnterIcon } from "@radix-ui/react-icons"
 import { Button, Callout, Separator, Text } from "@radix-ui/themes"
 import clsx from "clsx"
-import React, { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { CopyToClipboard } from "react-copy-to-clipboard"
 
 import NetworkIcon from "@src/components/Network/NetworkIcon"
@@ -11,7 +11,6 @@ import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import useShortAccountId from "@src/hooks/useShortAccountId"
 import { getChainIconFromId } from "@src/hooks/useTokensListAdapter"
 import { MapsEnum } from "@src/libs/de-sdk/utils/maps"
-import { useTokensStore } from "@src/providers/TokensStoreProvider"
 import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
 import Image from "next/image"
 
@@ -47,7 +46,6 @@ const WalletConnectionsConnector = ({
   isCopied,
   onDisconnect,
   onConnect,
-  index,
 }: WalletConnectionState & WalletConnectionActions) => {
   const { shortAccountId } = useShortAccountId(accountId ?? "")
   return (
@@ -112,7 +110,6 @@ const WalletConnections = () => {
   const { state, signOut } = useConnectWallet()
   const { accountId } = useWalletSelector()
   const [copyWalletAddress, setCopyWalletAddress] = useState<MapsEnum>()
-  const { triggerTokenUpdate } = useTokensStore((state) => state)
   const [isProcessing, setIsProcessing] = useState(false)
 
   useEffect(() => {
@@ -146,7 +143,6 @@ const WalletConnections = () => {
                 isCopied={copyWalletAddress === MapsEnum.NEAR_MAINNET}
                 onDisconnect={() => {
                   signOut({ id: ChainType.Near })
-                  triggerTokenUpdate()
                 }}
                 key={connector}
                 index={i}

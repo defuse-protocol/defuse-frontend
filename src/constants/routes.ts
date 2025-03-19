@@ -2,7 +2,6 @@ export enum Navigation {
   HOME = "/",
   DEPOSIT = "/deposit",
   WITHDRAW = "/withdraw",
-  WALLET = "/wallet",
   JOBS = "/jobs",
 }
 

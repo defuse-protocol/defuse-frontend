@@ -15,7 +15,6 @@ import {
 
 import AddTurboChainButton from "./AddTurboChainButton"
 import ComingSoon from "./ComingSoon"
-import LabelNew from "./LabelNew"
 
 const Settings = () => {
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
@@ -119,6 +118,7 @@ const Settings = () => {
   )
 }
 
+// biome-ignore lint/correctness/noUnusedVariables: It will be used in the future
 const DarkMode = () => {
   const { theme, setTheme } = useTheme()
 

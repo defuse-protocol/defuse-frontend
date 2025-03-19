@@ -6,19 +6,14 @@ import type { ReactNode } from "react"
 import { WagmiProvider } from "wagmi"
 
 import { InitDefuseSDK } from "@src/components/InitDefuseSDK"
-import Modal from "@src/components/Modal"
 import { SentryTracer } from "@src/components/SentryTracer"
 import { whitelabelTemplateFlag } from "@src/config/featureFlags"
 import { config } from "@src/config/wagmi"
 import queryClient from "@src/constants/queryClient"
 import { WebAuthnProvider } from "@src/features/webauthn/providers/WebAuthnProvider"
 import { initSDK } from "@src/libs/defuse-sdk/initSDK"
-import { HistoryStoreProvider } from "@src/providers/HistoryStoreProvider"
-import { ModalStoreProvider } from "@src/providers/ModalStoreProvider"
-import { NotificationStoreProvider } from "@src/providers/NotificationProvider"
 import { SolanaWalletProvider } from "@src/providers/SolanaWalletProvider"
 import { ThemeProvider } from "@src/providers/ThemeProvider"
-import { TokensStoreProvider } from "@src/providers/TokensStoreProvider"
 import { WalletSelectorProvider } from "@src/providers/WalletSelectorProvider"
 
 import "@radix-ui/themes/styles.css"
@@ -122,25 +117,16 @@ const RootLayout = async ({
 
         <ThemeProvider>
           <WagmiProvider config={config}>
-            <NotificationStoreProvider>
-              <QueryClientProvider client={queryClient}>
-                <WalletSelectorProvider>
-                  <SolanaWalletProvider>
-                    <HistoryStoreProvider>
-                      <TokensStoreProvider>
-                        <ModalStoreProvider>
-                          <WebAuthnProvider>{children}</WebAuthnProvider>
-                          <Modal />
-                        </ModalStoreProvider>
-                      </TokensStoreProvider>
-                    </HistoryStoreProvider>
+            <QueryClientProvider client={queryClient}>
+              <WalletSelectorProvider>
+                <SolanaWalletProvider>
+                  <WebAuthnProvider>{children}</WebAuthnProvider>
 
-                    <SentryTracer />
-                  </SolanaWalletProvider>
-                </WalletSelectorProvider>
-                {DEV_MODE && <ReactQueryDevtools initialIsOpen={false} />}
-              </QueryClientProvider>
-            </NotificationStoreProvider>
+                  <SentryTracer />
+                </SolanaWalletProvider>
+              </WalletSelectorProvider>
+              {DEV_MODE && <ReactQueryDevtools initialIsOpen={false} />}
+            </QueryClientProvider>
           </WagmiProvider>
         </ThemeProvider>
       </body>
