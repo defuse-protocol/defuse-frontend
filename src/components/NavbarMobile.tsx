@@ -2,23 +2,13 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import React from "react"
 
 import Navbar from "@src/components/Navbar"
 import { LINKS_HEADER, Navigation } from "@src/constants/routes"
-import { useHistoryStore } from "@src/providers/HistoryStoreProvider"
 
 const NavbarMobile = () => {
   const pathname = usePathname()
   const isMarketPage = pathname === Navigation.JOBS
-  const { active, openWidget, closeWidget } = useHistoryStore((state) => state)
-
-  const handleOpenHistory = () => {
-    if (!active) {
-      return openWidget()
-    }
-    closeWidget()
-  }
 
   return (
     <>

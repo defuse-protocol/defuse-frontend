@@ -7,11 +7,9 @@ import { infrastructureData } from "@src/app/landing/mocks"
 import { useEffect, useRef, useState } from "react"
 
 import { settings } from "@src/config/settings"
-import useResize from "@src/hooks/useResize"
 
 const Evolution = () => {
   const divRef = useRef<HTMLDivElement>(null)
-  const { width } = useResize(divRef)
   const [containerWidth, setContainerWidth] = useState<number>(0)
 
   useEffect(() => {
