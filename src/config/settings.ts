@@ -33,10 +33,28 @@ export const settings: Settings = {
       description:
         "Easily manage your withdrawals with our secure and user-friendly platform. Experience seamless transactions and exceptional support.",
     },
-    gift: {
+    giftCreate: {
       title: "Gift Card",
       description:
         "Receive assets from friends and start your journey on NEAR Intents, hassle-free",
+    },
+    giftView: {
+      title: "Сlaim your Gift",
+      description:
+        "Receive assets from friends and start your journey on NEAR Intents, hassle-free",
+      openGraph: {
+        type: "website",
+        images: "/static/images/og-gift-card.jpg",
+        title: "Сlaim your Gift",
+        description:
+          "Receive assets from friends and start your journey on NEAR Intents, hassle-free",
+      },
+      twitter: {
+        images: "/static/images/og-gift-card.jpg",
+        title: "Сlaim your Gift",
+        description:
+          "Receive assets from friends and start your journey on NEAR Intents, hassle-free",
+      },
     },
   },
 }

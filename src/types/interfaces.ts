@@ -296,6 +296,17 @@ export type Settings = {
     [key: string]: {
       title: string
       description: string
+      openGraph?: {
+        type: string
+        images: string
+        title: string
+        description: string
+      }
+      twitter?: {
+        images: string
+        title: string
+        description: string
+      }
     }
   }
 }
