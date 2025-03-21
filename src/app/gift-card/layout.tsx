@@ -6,7 +6,7 @@ import type { PropsWithChildren } from "react"
 const GiftCardLayout: React.FC<PropsWithChildren> = ({ children }) => {
   return (
     <PreloadFeatureFlags>
-      <Layout>{children}</Layout>
+      <Layout enableBackground={false}>{children}</Layout>
     </PreloadFeatureFlags>
   )
 }

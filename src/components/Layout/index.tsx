@@ -9,7 +9,14 @@ import type React from "react"
 import type { PropsWithChildren } from "react"
 import Main from "./Main"
 
-const Layout: React.FC<PropsWithChildren> = ({ children }) => {
+type LayoutProps = PropsWithChildren & {
+  enableBackground?: boolean
+}
+
+const Layout: React.FC<LayoutProps> = ({
+  children,
+  enableBackground = true,
+}) => {
   // PREFETCH: Prefetch action could be done similarly to the prefetch action
   //           in _app.ts within the pages Router.
   return (
@@ -18,7 +25,7 @@ const Layout: React.FC<PropsWithChildren> = ({ children }) => {
       <Main>{children}</Main>
       <Footer />
       <NavbarMobile />
-      <PageBackground />
+      {enableBackground && <PageBackground />}
 
       <WalletVerificationProvider />
     </div>
