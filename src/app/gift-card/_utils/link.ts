@@ -5,12 +5,12 @@ import { decodeGift, encodeGift } from "./encoder"
 
 export function createGiftCardLink(payload: unknown): string {
   const url = new URL("/gift-card/view-gift", window.location.origin)
-  url.searchParams.set("gift", encodeGift(payload))
+  url.searchParams.set("#", encodeGift(payload))
   return url.toString()
 }
 
 export function useGiftCard() {
-  const encodedGift = useSearchParams().get("gift")
+  const encodedGift = useSearchParams().get("#")
 
   const [payload] = useState(() => {
     try {
