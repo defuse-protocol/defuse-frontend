@@ -8,22 +8,13 @@ import AuroraLogo from "../../public/static/logos/blockchain-strips/aurora.svg"
 import NearLogo from "../../public/static/logos/blockchain-strips/near.svg"
 import TurboLogoFrog from "../../public/static/templates/turboswap/logotype-frog.svg"
 
-interface Props extends PropsWithChildren {
-  title?: string
-}
-
-export default function Paper({ children, title }: Props) {
+export default function Paper({ children }: PropsWithChildren) {
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
 
   if (whitelabelTemplate === "turboswap") {
     return (
       <div className="flex flex-col flex-1 justify-start items-center mt-5 md:mt-0">
         <div className="w-full px-3">
-          {!!title && (
-            <div className="flex flex-col mb-8 text-center md:text-left">
-              <h1 className="mb-3 font-black">{title}</h1>
-            </div>
-          )}
           <div className="flex justify-center md:justify-start">{children}</div>
 
           <div className="w-full flex justify-center md:justify-start items-center pt-7">
@@ -49,11 +40,6 @@ export default function Paper({ children, title }: Props) {
     return (
       <div className="flex flex-col flex-1 justify-start items-center mt-5 md:mt-0">
         <div className="w-full px-3">
-          {!!title && (
-            <div className="flex flex-col mb-8 text-center md:text-left">
-              <h1 className="mb-3 font-black">{title}</h1>
-            </div>
-          )}
           <div className="flex justify-center md:justify-start">{children}</div>
 
           <div className="w-full flex justify-center md:justify-start items-center pt-7">
@@ -72,11 +58,6 @@ export default function Paper({ children, title }: Props) {
   return (
     <div className="flex flex-col flex-1 justify-start items-center mt-5 md:mt-14 min-w-0">
       <div className="w-full px-3">
-        {!!title && (
-          <div className="flex flex-col mb-8 text-center">
-            <h1 className="mb-3 font-black">{title}</h1>
-          </div>
-        )}
         <div className="flex justify-center">{children}</div>
       </div>
     </div>
