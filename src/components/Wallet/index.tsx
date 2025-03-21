@@ -2,7 +2,7 @@
 
 import { Button, Popover, Text } from "@radix-ui/themes"
 import Image from "next/image"
-import React, { useContext } from "react"
+import { useContext } from "react"
 import type { Connector } from "wagmi"
 
 import WalletConnections from "@src/components/Wallet/WalletConnections"
@@ -10,10 +10,12 @@ import { isSupportedByBrowser } from "@src/features/webauthn/lib/webauthnService
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import useShortAccountId from "@src/hooks/useShortAccountId"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
+import { useSignInWindowOpenState } from "@src/stores/useSignInWindowOpenState"
 import { mapStringToEmojis } from "@src/utils/emoji"
 import { TURN_OFF_APPS } from "@src/utils/environment"
 
 const ConnectWallet = () => {
+  const { isOpen, setIsOpen } = useSignInWindowOpenState()
   const { state, signIn, connectors } = useConnectWallet()
   const { shortAccountId } = useShortAccountId(state.address ?? "")
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
@@ -36,7 +38,7 @@ const ConnectWallet = () => {
 
   if (!state.address || TURN_OFF_APPS) {
     return (
-      <Popover.Root>
+      <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
         <Popover.Trigger>
           <Button
             type={"button"}
