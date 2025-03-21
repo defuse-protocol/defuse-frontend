@@ -1,3 +1,5 @@
+"use client"
+
 import Link from "next/link"
 import { type PropsWithChildren, useContext } from "react"
 
@@ -8,24 +10,20 @@ import TurboLogoFrog from "../../public/static/templates/turboswap/logotype-frog
 
 interface Props extends PropsWithChildren {
   title?: string
-  description?: string
 }
 
-const Paper = ({ children, title, description }: Props) => {
+export default function Paper({ children, title }: Props) {
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
 
   if (whitelabelTemplate === "turboswap") {
     return (
-      <div className="flex flex-col flex-1 justify-start items-center sm:mt-[5.5rem] md:mt-0">
+      <div className="flex flex-col flex-1 justify-start items-center mt-5 md:mt-0">
         <div className="w-full px-3">
-          <div className="flex flex-col mb-8 text-center md:text-left">
-            {title && <h1 className="mb-3 font-black">{title}</h1>}
-            {description && (
-              <span className="text-sm text-gray-600 dark:text-gray-500">
-                {description}
-              </span>
-            )}
-          </div>
+          {!!title && (
+            <div className="flex flex-col mb-8 text-center md:text-left">
+              <h1 className="mb-3 font-black">{title}</h1>
+            </div>
+          )}
           <div className="flex justify-center md:justify-start">{children}</div>
 
           <div className="w-full flex justify-center md:justify-start items-center pt-7">
@@ -49,16 +47,13 @@ const Paper = ({ children, title, description }: Props) => {
   }
   if (whitelabelTemplate === "trumpswap") {
     return (
-      <div className="flex flex-col flex-1 justify-start items-center sm:mt-[5.5rem] md:mt-0">
+      <div className="flex flex-col flex-1 justify-start items-center mt-5 md:mt-0">
         <div className="w-full px-3">
-          <div className="flex flex-col mb-8 text-center md:text-left">
-            {title && <h1 className="mb-3 font-black">{title}</h1>}
-            {description && (
-              <span className="text-sm text-gray-600 dark:text-gray-500">
-                {description}
-              </span>
-            )}
-          </div>
+          {!!title && (
+            <div className="flex flex-col mb-8 text-center md:text-left">
+              <h1 className="mb-3 font-black">{title}</h1>
+            </div>
+          )}
           <div className="flex justify-center md:justify-start">{children}</div>
 
           <div className="w-full flex justify-center md:justify-start items-center pt-7">
@@ -75,20 +70,15 @@ const Paper = ({ children, title, description }: Props) => {
   }
 
   return (
-    <div className="flex flex-col flex-1 justify-start items-center mt-[5.5rem] min-w-0">
+    <div className="flex flex-col flex-1 justify-start items-center mt-5 md:mt-14 min-w-0">
       <div className="w-full px-3">
-        <div className="flex flex-col mb-8 text-center">
-          {title && <h1 className="mb-3 font-black">{title}</h1>}
-          {description && (
-            <span className="text-sm text-gray-600 dark:text-gray-500">
-              {description}
-            </span>
-          )}
-        </div>
+        {!!title && (
+          <div className="flex flex-col mb-8 text-center">
+            <h1 className="mb-3 font-black">{title}</h1>
+          </div>
+        )}
         <div className="flex justify-center">{children}</div>
       </div>
     </div>
   )
 }
-
-export default Paper
