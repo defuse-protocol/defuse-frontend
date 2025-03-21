@@ -32,7 +32,7 @@ export function renderAppLink(
         <button
           type="button"
           onClick={() => {
-            useSignInWindowOpenState.getState().open()
+            useSignInWindowOpenState.getState().setIsOpen(true)
           }}
           {...props}
         >
