@@ -1,8 +1,9 @@
 "use client"
 
 import { CopyIcon, EnterIcon } from "@radix-ui/react-icons"
-import { Button, Callout, Separator, Text } from "@radix-ui/themes"
+import { Callout, Separator, Text } from "@radix-ui/themes"
 import clsx from "clsx"
+import Image from "next/image"
 import { useEffect, useState } from "react"
 import { CopyToClipboard } from "react-copy-to-clipboard"
 
@@ -11,8 +12,6 @@ import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import useShortAccountId from "@src/hooks/useShortAccountId"
 import { getChainIconFromId } from "@src/hooks/useTokensListAdapter"
 import { MapsEnum } from "@src/libs/de-sdk/utils/maps"
-import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
-import Image from "next/image"
 
 type WalletConnectionState = {
   chainIcon: string
@@ -45,7 +44,6 @@ const WalletConnectionsConnector = ({
   onCopy,
   isCopied,
   onDisconnect,
-  onConnect,
 }: WalletConnectionState & WalletConnectionActions) => {
   const { shortAccountId } = useShortAccountId(accountId ?? "")
   return (
@@ -57,6 +55,7 @@ const WalletConnectionsConnector = ({
             chainName={chainName}
             isConnect={!!accountId}
           />
+
           <div className="flex flex-col">
             <Text size="2" weight="medium">
               {shortAccountId}
@@ -66,41 +65,29 @@ const WalletConnectionsConnector = ({
             </Text>
           </div>
         </div>
-        {accountId ? (
-          <div className="flex justify-center items-center gap-2.5">
-            <CopyToClipboard onCopy={onCopy} text={accountId ?? ""}>
-              <button
-                type={"button"}
-                className={clsx(
-                  "w-[32px] h-[32px] flex justify-center items-center rounded-full border border-gray-500 dark:border-white",
-                  isCopied && "bg-primary border-0 text-white"
-                )}
-              >
-                <CopyIcon width={16} height={16} />
-              </button>
-            </CopyToClipboard>
+
+        <div className="flex justify-center items-center gap-2.5">
+          <CopyToClipboard onCopy={onCopy} text={accountId ?? ""}>
             <button
-              type={"button"}
-              onClick={onDisconnect}
-              className="w-[32px] h-[32px] flex justify-center items-center rounded-full bg-white-200 dark:border dark:border-white"
+              type="button"
+              className={clsx(
+                "w-[32px] h-[32px] flex justify-center items-center rounded-full border border-gray-500 dark:border-white",
+                isCopied && "bg-primary border-0 text-white"
+              )}
             >
-              <EnterIcon width={16} height={16} />
+              <CopyIcon width={16} height={16} />
             </button>
-          </div>
-        ) : (
-          <Button
-            radius="full"
-            variant="solid"
-            color="orange"
-            className="cursor-pointer"
-            onClick={onConnect}
+          </CopyToClipboard>
+          <button
+            type="button"
+            onClick={onDisconnect}
+            className="w-[32px] h-[32px] flex justify-center items-center rounded-full bg-white-200 dark:border dark:border-white"
           >
-            <Text size="2" weight="medium" wrap="nowrap">
-              Connect wallet
-            </Text>
-          </Button>
-        )}
+            <EnterIcon width={16} height={16} />
+          </button>
+        </div>
       </div>
+
       <Separator orientation="horizontal" size="4" />
     </div>
   )
@@ -108,7 +95,6 @@ const WalletConnectionsConnector = ({
 
 const WalletConnections = () => {
   const { state, signOut } = useConnectWallet()
-  const { accountId } = useWalletSelector()
   const [copyWalletAddress, setCopyWalletAddress] = useState<MapsEnum>()
   const [isProcessing, setIsProcessing] = useState(false)
 
@@ -116,6 +102,11 @@ const WalletConnections = () => {
     // Finalize state update after forced re-render
     if (isProcessing) setIsProcessing(false)
   }, [isProcessing])
+
+  const userAddress = state.address
+  if (userAddress == null) {
+    return null
+  }
 
   return (
     <div className="flex flex-col">
@@ -135,7 +126,7 @@ const WalletConnections = () => {
             }
             return (
               <WalletConnectionsConnector
-                accountId={accountId}
+                accountId={userAddress}
                 chainLabel="NEAR Protocol"
                 chainName="near"
                 chainIcon={getChainIconFromId(`${MapsEnum.NEAR_MAINNET}:0`)}
@@ -155,7 +146,7 @@ const WalletConnections = () => {
             chainIcon = getChainIconFromId("eth")
             return (
               <WalletConnectionsConnector
-                accountId={(state?.address as string) ?? null}
+                accountId={userAddress}
                 chainLabel={state?.network ?? ""}
                 chainName="eth"
                 chainIcon={chainIcon}
@@ -174,7 +165,7 @@ const WalletConnections = () => {
             chainIcon = getChainIconFromId("sol")
             return (
               <WalletConnectionsConnector
-                accountId={(state?.address as string) ?? null}
+                accountId={userAddress}
                 chainLabel={state?.network ?? ""}
                 chainName="sol"
                 chainIcon={chainIcon}
@@ -195,7 +186,7 @@ const WalletConnections = () => {
               <PasskeyConnectionInfo
                 // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
                 key={i}
-                credential={state.address ?? ""}
+                credential={userAddress}
                 onSignOut={() => signOut({ id: ChainType.WebAuthn })}
               />
             )
@@ -230,7 +221,7 @@ function PasskeyConnectionInfo({
         </div>
 
         <button
-          type={"button"}
+          type="button"
           onClick={onSignOut}
           className="w-[32px] h-[32px] flex justify-center items-center rounded-full bg-white-200 dark:border dark:border-white"
         >
