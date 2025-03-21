@@ -1,7 +1,6 @@
 "use client"
 
 import { SwapWidget } from "@defuse-protocol/defuse-sdk"
-import { useRouter } from "next/navigation"
 
 import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
 import Paper from "@src/components/Paper"
@@ -11,6 +10,7 @@ import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
 import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
+import { renderAppLink } from "@src/utils/renderAppLink"
 
 export default function Swap() {
   const { state } = useConnectWallet()
@@ -18,7 +18,6 @@ export default function Swap() {
   const { signAndSendTransactions } = useNearWalletActions()
   const tokenList = useTokenList(LIST_TOKENS)
   const { tokenIn, tokenOut } = useDeterminePair()
-  const router = useRouter()
   const referral = useIntentsReferral()
 
   return (
@@ -42,12 +41,7 @@ export default function Swap() {
         }}
         signMessage={(params) => signMessage(params)}
         onSuccessSwap={() => {}}
-        onNavigateDeposit={() => {
-          router.push("/deposit")
-        }}
-        onNavigateOTC={() => {
-          router.push("/otc-desk/create-order")
-        }}
+        renderHostAppLink={renderAppLink}
         userChainType={state.chainType ?? null}
         referral={referral}
         initialTokenIn={tokenIn}

@@ -1,7 +1,5 @@
 "use client"
 
-import React from "react"
-
 import { DepositWidget } from "@defuse-protocol/defuse-sdk"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
@@ -13,7 +11,7 @@ export default function Deposit() {
   const tokenList = useTokenList(LIST_TOKENS)
 
   return (
-    <Paper title="Deposit">
+    <Paper>
       <DepositWidget
         tokenList={tokenList}
         userAddress={state.isVerified ? state.address : undefined}

@@ -18,7 +18,7 @@ export default function Withdraw() {
   const referral = useIntentsReferral()
 
   return (
-    <Paper title="Withdraw">
+    <Paper>
       <WithdrawWidget
         tokenList={tokenList}
         userAddress={state.isVerified ? state.address : undefined}
