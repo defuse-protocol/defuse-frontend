@@ -7,8 +7,7 @@ export enum Navigation {
 }
 
 export type NavigationLinks = {
-  action?: () => void
-  href?: Navigation
+  href: Navigation
   label: string
   comingSoon?: true
 }
