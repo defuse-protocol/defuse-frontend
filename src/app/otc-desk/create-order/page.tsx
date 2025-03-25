@@ -1,20 +1,22 @@
 "use client"
 
 import { OtcMakerWidget } from "@defuse-protocol/defuse-sdk"
+
 import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
 import Paper from "@src/components/Paper"
+import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
 import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import { renderAppLink } from "@src/utils/renderAppLink"
+
 import { createOTCOrderLink } from "../_utils/link"
-import { safeTokenList } from "../_utils/safeTokenList"
 
 export default function CreateOrderPage() {
   const { state } = useConnectWallet()
-  const tokenList = useTokenList(safeTokenList)
+  const tokenList = useTokenList(LIST_TOKENS)
   const signMessage = useWalletAgnosticSignMessage()
   const { tokenIn, tokenOut } = useDeterminePair()
   const { signAndSendTransactions } = useNearWalletActions()
