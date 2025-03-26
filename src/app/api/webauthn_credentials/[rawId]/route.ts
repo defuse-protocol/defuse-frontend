@@ -20,10 +20,11 @@ const rawIdSchema = z.string().refine(
 
 export async function GET(
   request: Request,
-  { params }: { params: { rawId: string } }
+  { params }: { params: Promise<{ rawId: string }> }
 ) {
   try {
-    const rawId = rawIdSchema.parse(params.rawId)
+    const { rawId: rawId_ } = await params
+    const rawId = rawIdSchema.parse(rawId_)
 
     const { data, error } = await supabase
       .from("webauthn_credentials")
