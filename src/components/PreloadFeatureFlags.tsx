@@ -1,4 +1,4 @@
-import { unstable_evaluate as evaluate } from "@vercel/flags/next"
+import { evaluate } from "@vercel/flags/next"
 import type { ReactNode } from "react"
 
 import {
@@ -9,7 +9,9 @@ import { FeatureFlagsProvider } from "@src/providers/FeatureFlagsProvider"
 
 export async function PreloadFeatureFlags({
   children,
-}: { children: ReactNode }) {
+}: {
+  children: ReactNode
+}) {
   const flags = await getEvaluatedFeatureFlags()
 
   return <FeatureFlagsProvider flags={flags}>{children}</FeatureFlagsProvider>
@@ -17,7 +19,8 @@ export async function PreloadFeatureFlags({
 
 async function getEvaluatedFeatureFlags(): Promise<FeatureFlagValues> {
   const flags = [whitelabelTemplateFlag] as const
-  const [whitelabelTemplate] = await evaluate(flags)
+  const [whitelabelTemplate_] = await evaluate(flags)
+  const whitelabelTemplate = whitelabelTemplate_ as WhitelabelTemplateValue
   return { whitelabelTemplate }
 }
 

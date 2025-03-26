@@ -1,8 +1,9 @@
+import { get } from "@vercel/edge-config"
+import { flag } from "@vercel/flags/next"
+import { headers } from "next/headers"
+
 import { domains } from "@src/config/domains"
 import { logger } from "@src/utils/logger"
-import { get } from "@vercel/edge-config"
-import { unstable_flag as flag } from "@vercel/flags/next"
-import { headers } from "next/headers"
 
 export type WhitelabelTemplateValue =
   | "near-intents"
@@ -21,8 +22,9 @@ export const whitelabelTemplateFlag = flag({
     { label: "TurboSwap.org", value: "turboswap" },
     { label: "trump-swap.org", value: "trumpswap" },
   ],
-  decide(): WhitelabelTemplateValue {
-    const host = headers().get("host")
+  async decide(): Promise<WhitelabelTemplateValue> {
+    const headers_ = await headers()
+    const host = headers_.get("host")
     if (host != null) {
       if (domains[host]) {
         return domains[host]
