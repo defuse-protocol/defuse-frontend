@@ -35,7 +35,7 @@ describe("GET /api/webauthn_credentials/[rawId]", () => {
       new Request(
         "http://localhost:3000/api/webauthn_credentials/5VJs8P7bXCgYo1HhVnwuVQ"
       ),
-      { params: { rawId: "5VJs8P7bXCgYo1HhVnwuVQ" } }
+      { params: Promise.resolve({ rawId: "5VJs8P7bXCgYo1HhVnwuVQ" }) }
     )
 
     expect(response.status).toBe(200)
@@ -54,7 +54,7 @@ describe("GET /api/webauthn_credentials/[rawId]", () => {
       new Request(
         "http://localhost:3000/api/webauthn_credentials/5VJs8P7bXCgYo1HhVnwuVQ"
       ),
-      { params: { rawId: "5VJs8P7bXCgYo1HhVnwuVQ" } }
+      { params: Promise.resolve({ rawId: "5VJs8P7bXCgYo1HhVnwuVQ" }) }
     )
 
     expect(response.status).toBe(404)
@@ -63,7 +63,7 @@ describe("GET /api/webauthn_credentials/[rawId]", () => {
   it("should return 400 for invalid rawId", async () => {
     const response = await GET(
       new Request("http://localhost:3000/api/webauthn_credentials/invalid"),
-      { params: { rawId: "invalid" } }
+      { params: Promise.resolve({ rawId: "invalid" }) }
     )
 
     expect(response.status).toBe(400)
@@ -81,7 +81,7 @@ describe("GET /api/webauthn_credentials/[rawId]", () => {
       new Request(
         "http://localhost:3000/api/webauthn_credentials/5VJs8P7bXCgYo1HhVnwuVQ"
       ),
-      { params: { rawId: "5VJs8P7bXCgYo1HhVnwuVQ" } }
+      { params: Promise.resolve({ rawId: "5VJs8P7bXCgYo1HhVnwuVQ" }) }
     )
 
     expect(response.status).toBe(500)

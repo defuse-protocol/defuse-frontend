@@ -14868,10 +14868,10 @@ sucrase@^3.32.0:
     pirates "^4.0.1"
     ts-interface-checker "^0.1.9"
 
-supabase@^2.12.1:
-  version "2.12.1"
-  resolved "https://registry.yarnpkg.com/supabase/-/supabase-2.12.1.tgz#a61e0618fc5a340e03759c843e645e1e6eb5412e"
-  integrity sha512-vB6LX1KGrqku8AFlp2vJw49IUB9g6Rz2b84qpcWSZ3mMDFumA6hDSbXbFJUnr3hcvyPzoOsQlhMTZN7a6o3hfA==
+supabase@^2.20.5:
+  version "2.20.5"
+  resolved "https://registry.yarnpkg.com/supabase/-/supabase-2.20.5.tgz#8d8a92bf00e002cece6553262dd04b6cc58a2057"
+  integrity sha512-3d6YbIqEzLatw0BpYPSeQwAaVQY9WUBkGiy7a+DLJPN17UsW5KYNEik3mO8PeX1a7TaJvtWxDs/Ve05pxfvldw==
   dependencies:
     bin-links "^5.0.0"
     https-proxy-agent "^7.0.2"
