@@ -24,6 +24,7 @@ export function useTokenList(tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]) {
         chainId: "",
         chainIcon: "/static/icons/network/base.svg",
         chainName: "base",
+        bridge: "poa",
         routes: [],
         symbol: "FMS",
         name: "FOMO SOLVER",
