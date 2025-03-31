@@ -22,12 +22,11 @@ export function renderAppLink(
         </Link>
       )
     case "gift":
-      return <></>
-    // return (
-    //   <Link href="/gift-card/create-gift" {...props}>
-    //     {children}
-    //   </Link>
-    // )
+      return (
+        <Link href="/gift-card/create-gift" {...props}>
+          {children}
+        </Link>
+      )
     case "sign-in":
       return (
         <button
