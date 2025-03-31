@@ -9,6 +9,7 @@ import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import React from "react"
+import { useNearWalletActions } from "../../../hooks/useNearWalletActions"
 import { createGiftCardLink } from "../_utils/link"
 
 export default function CreateGiftPage() {
@@ -17,6 +18,7 @@ export default function CreateGiftPage() {
   const signMessage = useWalletAgnosticSignMessage()
   const { tokenIn } = useDeterminePair()
   const referral = useIntentsReferral()
+  const { signAndSendTransactions } = useNearWalletActions()
 
   return (
     <Paper>
@@ -26,6 +28,20 @@ export default function CreateGiftPage() {
           userAddress={state.isVerified ? state.address : undefined}
           userChainType={state.chainType}
           signMessage={signMessage}
+          sendNearTransaction={async (tx) => {
+            const result = await signAndSendTransactions({ transactions: [tx] })
+
+            if (typeof result === "string") {
+              return { txHash: result }
+            }
+
+            const outcome = result[0]
+            if (!outcome) {
+              throw new Error("No outcome")
+            }
+
+            return { txHash: outcome.transaction.hash }
+          }}
           referral={referral}
           generateLink={(giftLinkData) => createGiftCardLink(giftLinkData)}
           initialToken={tokenIn}
