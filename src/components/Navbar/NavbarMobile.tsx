@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
-import Navbar from "@src/components/Navbar"
+import NavbarDesktop from "@src/components/Navbar/NavbarDesktop"
 import { LINKS_HEADER, Navigation } from "@src/constants/routes"
 
 const NavbarMobile = () => {
@@ -13,7 +13,7 @@ const NavbarMobile = () => {
   return (
     <>
       <div className="fixed bottom-0 z-50 left-0 md:hidden w-full px-5 pt-3 pb-[max(env(safe-area-inset-bottom,0px),theme(spacing.3))] bg-white border-t-[1px] border-white-200">
-        {!isMarketPage && <Navbar links={[...LINKS_HEADER]} />}
+        {!isMarketPage && <NavbarDesktop links={[...LINKS_HEADER]} />}
         {isMarketPage && (
           <div className="flex justify-center items-center gap-4">
             <Link

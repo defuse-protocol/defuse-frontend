@@ -8,13 +8,13 @@ import { LINKS_HEADER, type NavigationLinks } from "@src/constants/routes"
 import { TURN_OFF_APPS } from "@src/utils/environment"
 
 import Link from "next/link"
-import { LabelComingSoon } from "./ComingSoon"
+import { LabelComingSoon } from "../ComingSoon"
 
 type Props = {
   links?: NavigationLinks[]
 }
 
-const Navbar = ({ links = LINKS_HEADER }: Props) => {
+const NavbarDesktop = ({ links = LINKS_HEADER }: Props) => {
   const pathname = usePathname()
   return (
     <nav className="flex justify-between items-center gap-4">
@@ -53,4 +53,4 @@ const Navbar = ({ links = LINKS_HEADER }: Props) => {
   )
 }
 
-export default Navbar
+export default NavbarDesktop

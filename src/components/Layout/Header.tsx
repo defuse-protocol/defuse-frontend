@@ -1,16 +1,15 @@
 "use client"
 
-import React, { useContext } from "react"
-
 import AddTurboChainButton from "@src/components/AddTurboChainButton"
 import Logo from "@src/components/Logo"
-import Navbar from "@src/components/Navbar"
 import Settings from "@src/components/Settings"
 import ConnectWallet from "@src/components/Wallet"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
+import type React from "react"
+import { type ReactNode, useContext } from "react"
 import styles from "./Header.module.css"
 
-const Header = () => {
+export function Header({ navbarSlot }: { navbarSlot?: ReactNode }) {
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
 
   return (
@@ -22,9 +21,10 @@ const Header = () => {
           <div className="lg:basis-[360px]">
             <Logo />
           </div>
-          <div className="hidden md:flex flex-1 justify-center">
-            <Navbar />
-          </div>
+
+          {/* Navbar */}
+          <div className="shrink-0 hidden md:flex">{navbarSlot}</div>
+
           <div className="flex justify-end items-center gap-4 lg:basis-[360px]">
             {whitelabelTemplate === "turboswap" && (
               <div className="hidden md:block">
@@ -41,4 +41,10 @@ const Header = () => {
   )
 }
 
-export default Header
+Header.DisplayNavbar = function DisplayNavbar({
+  children,
+}: {
+  children: ReactNode
+}) {
+  return <div className="flex-1 justify-center">{children}</div>
+}
