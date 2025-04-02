@@ -817,4 +817,27 @@ export const LIST_TOKENS: TokenWithTags[] = [
     name: "Safe",
     tags: ["mc:168"],
   },
+  {
+    defuseAssetId:
+      "nep141:eth-0xd9c2d319cd7e6177336b0a9c93c21cb48d84fb54.omft.near",
+    address: "0xD9c2D319Cd7e6177336b0a9c93c21cb48d84Fb54",
+    decimals: 18,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/8567.png",
+    chainName: "eth",
+    bridge: "poa",
+    symbol: "HAPI",
+    name: "HAPI Protocol",
+    tags: ["mc:1539"],
+  },
+  {
+    defuseAssetId: "nep141:score.aidols.near",
+    address: "score.aidols.near",
+    decimals: 24,
+    icon: "data:image/jpeg;base64,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",
+    chainName: "near",
+    bridge: "direct",
+    symbol: "SCORE",
+    name: "Trust Score",
+    tags: [],
+  },
 ]
