@@ -23,7 +23,7 @@ export function Header({ navbarSlot }: { navbarSlot?: ReactNode }) {
           </div>
 
           {/* Navbar */}
-          <div className="shrink-0 hidden md:flex">{navbarSlot}</div>
+          <div className="shrink-0 ">{navbarSlot}</div>
 
           <div className="flex justify-end items-center gap-4 lg:basis-[360px]">
             {whitelabelTemplate === "turboswap" && (
@@ -46,5 +46,5 @@ Header.DisplayNavbar = function DisplayNavbar({
 }: {
   children: ReactNode
 }) {
-  return <div className="flex-1 justify-center">{children}</div>
+  return <div className="hidden md:flex flex-1 justify-center">{children}</div>
 }

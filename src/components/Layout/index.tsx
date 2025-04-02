@@ -13,7 +13,13 @@ import Main from "./Main"
 const Layout: React.FC<PropsWithChildren> = ({ children }) => {
   return (
     <div className="flex flex-col min-h-screen">
-      <Header navbarSlot={<NavbarDesktop />} />
+      <Header
+        navbarSlot={
+          <Header.DisplayNavbar>
+            <NavbarDesktop />
+          </Header.DisplayNavbar>
+        }
+      />
       <Main>{children}</Main>
       <Footer />
       <NavbarMobile />
