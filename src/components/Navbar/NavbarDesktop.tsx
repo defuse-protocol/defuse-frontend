@@ -1,28 +1,25 @@
 "use client"
 
 import { Button, Text } from "@radix-ui/themes"
-import clsx from "clsx"
-import { usePathname } from "next/navigation"
-
-import { LINKS_HEADER, type NavigationLinks } from "@src/constants/routes"
+import type { AppRoutes, NavigationLinks } from "@src/constants/routes"
 import { TURN_OFF_APPS } from "@src/utils/environment"
-
+import clsx from "clsx"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { LabelComingSoon } from "../ComingSoon"
 
-type Props = {
-  links?: NavigationLinks[]
+type NavbarDesktopProps = {
+  links: Record<AppRoutes, NavigationLinks>
 }
 
-const NavbarDesktop = ({ links = LINKS_HEADER }: Props) => {
+const NavbarDesktop = ({ links }: NavbarDesktopProps) => {
   const pathname = usePathname()
   return (
     <nav className="flex justify-between items-center gap-4">
-      {links.map((route, i) => {
+      {Object.values(links).map((route) => {
         const isCurrentPage = route.href === pathname
         return (
-          // biome-ignore lint/suspicious/noArrayIndexKey: <reason>
-          <Link key={i} href={route.href}>
+          <Link key={route.href} href={route.href}>
             <Button
               radius="full"
               color="gray"

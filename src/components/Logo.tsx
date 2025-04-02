@@ -1,7 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 
-import { Navigation } from "@src/constants/routes"
+import { navigation } from "@src/constants/routes"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { useContext } from "react"
 
@@ -10,7 +10,7 @@ const Logo = () => {
 
   if (whitelabelTemplate === "solswap") {
     return (
-      <Link href={Navigation.HOME}>
+      <Link href={navigation.home}>
         <Image
           src="/static/templates/solswap/logo.svg"
           alt="Solswap Logo"
@@ -31,7 +31,7 @@ const Logo = () => {
 
   if (whitelabelTemplate === "turboswap") {
     return (
-      <Link href={Navigation.HOME}>
+      <Link href={navigation.home}>
         <Image
           src="/static/templates/turboswap/logo.svg"
           alt="Turboswap Logo"
@@ -52,7 +52,7 @@ const Logo = () => {
 
   if (whitelabelTemplate === "dogecoinswap") {
     return (
-      <Link href={Navigation.HOME}>
+      <Link href={navigation.home}>
         <Image
           src="/static/templates/dogecoinswap/logo.svg"
           alt="Dogecoinswap Logo"
@@ -73,7 +73,7 @@ const Logo = () => {
 
   if (whitelabelTemplate === "trumpswap") {
     return (
-      <Link href={Navigation.HOME}>
+      <Link href={navigation.home}>
         <Image
           src="/static/templates/trumpswap/logo.svg"
           alt="TrumpSwap Logo"
@@ -93,7 +93,7 @@ const Logo = () => {
   }
 
   return (
-    <Link href={Navigation.HOME}>
+    <Link href={navigation.home}>
       <Image
         src="/static/templates/near-intents/logo.svg"
         alt="Near Intent Logo"
