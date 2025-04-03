@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowsDownUp, Plus, Wallet } from "@phosphor-icons/react"
+import { ArrowsDownUp, Plus } from "@phosphor-icons/react"
 import type { AppRoutes, NavigationLinks } from "@src/constants/routes"
 import { useIsActiveLink } from "@src/hooks/useIsActiveLink"
 import { cn } from "@src/utils/cn"
@@ -27,7 +27,7 @@ export function NavbarMobile({ links }: NavbarMobileProps) {
             isActive={isActive(links.account.href)}
             iconSlot={
               <NavItem.DisplayIcon>
-                {<Wallet weight="bold" className="size-4 text-gray-11" />}
+                {<WalletIcon active={isActive(links.account.href)} />}
               </NavItem.DisplayIcon>
             }
           />
@@ -85,7 +85,6 @@ export function NavbarMobile({ links }: NavbarMobileProps) {
     </>
   )
 }
-
 function NavItem({
   href,
   label,
@@ -105,7 +104,7 @@ function NavItem({
           "text-sm",
           isActive
             ? "font-medium text-gray-12 dark:text-black-400"
-            : "text-gray-11"
+            : "font-medium text-gray-11"
         )}
       >
         {label}
@@ -116,4 +115,15 @@ function NavItem({
 
 NavItem.DisplayIcon = ({ children }: { children: ReactNode }) => {
   return <div className="relative">{children}</div>
+}
+
+function WalletIcon({ active }: { active: boolean }) {
+  return (
+    <div
+      className={cn(
+        "w-4 h-4  [mask-image:url(/static/icons/wallet_no_active.svg)] bg-no-repeat bg-contain",
+        active ? "bg-gray-12" : "bg-gray-11"
+      )}
+    />
+  )
 }
