@@ -1,32 +1,34 @@
 "use client"
 
 import Footer from "@src/components/Layout/Footer"
-import Header from "@src/components/Layout/Header"
-import NavbarMobile from "@src/components/NavbarMobile"
+import { Header } from "@src/components/Layout/Header"
+import { NavbarMobile } from "@src/components/Navbar/NavbarMobile"
 import PageBackground from "@src/components/PageBackground"
 import { WalletVerificationProvider } from "@src/providers/WalletVerificationProvider"
 import type React from "react"
 import type { PropsWithChildren } from "react"
+import { NavbarDeposit, NavbarDesktop } from "../Navbar/NavbarDesktop"
 import Main from "./Main"
 
-type LayoutProps = PropsWithChildren & {
-  enableBackground?: boolean
-}
-
-const Layout: React.FC<LayoutProps> = ({
-  children,
-  enableBackground = true,
-}) => {
-  // PREFETCH: Prefetch action could be done similarly to the prefetch action
-  //           in _app.ts within the pages Router.
+const Layout: React.FC<PropsWithChildren> = ({ children }) => {
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
+      <Header
+        navbarSlot={
+          <Header.DisplayNavbar>
+            <NavbarDesktop />
+          </Header.DisplayNavbar>
+        }
+        depositSlot={
+          <Header.DepositSlot>
+            <NavbarDeposit />
+          </Header.DepositSlot>
+        }
+      />
       <Main>{children}</Main>
       <Footer />
       <NavbarMobile />
-      {enableBackground && <PageBackground />}
-
+      <PageBackground />
       <WalletVerificationProvider />
     </div>
   )

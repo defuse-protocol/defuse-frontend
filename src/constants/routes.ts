@@ -1,20 +1,16 @@
-export enum Navigation {
-  HOME = "/",
-  ACCOUNT = "/account",
-  DEPOSIT = "/deposit",
-  WITHDRAW = "/withdraw",
-  JOBS = "/jobs",
-}
+export const navigation = {
+  home: "/",
+  account: "/account",
+  deposit: "/deposit",
+  withdraw: "/withdraw",
+  otc: "/otc-desk/create-order",
+  jobs: "/jobs",
+} satisfies Record<AppRoutes, string>
 
-export type NavigationLinks = {
-  href: Navigation
-  label: string
-  comingSoon?: true
-}
-
-export const LINKS_HEADER: NavigationLinks[] = [
-  { href: Navigation.ACCOUNT, label: "Account" },
-  { href: Navigation.DEPOSIT, label: "Deposit" },
-  { href: Navigation.HOME, label: "Swap" },
-  { href: Navigation.WITHDRAW, label: "Withdraw" },
-]
+export type AppRoutes =
+  | "home"
+  | "account"
+  | "deposit"
+  | "withdraw"
+  | "otc"
+  | "jobs"
