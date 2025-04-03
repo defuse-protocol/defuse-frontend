@@ -818,15 +818,34 @@ export const LIST_TOKENS: TokenWithTags[] = [
     tags: ["mc:168"],
   },
   {
-    defuseAssetId:
-      "nep141:eth-0xd9c2d319cd7e6177336b0a9c93c21cb48d84fb54.omft.near",
-    address: "0xD9c2D319Cd7e6177336b0a9c93c21cb48d84Fb54",
-    decimals: 18,
+    unifiedAssetId: "hapi",
     icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/8567.png",
-    chainName: "eth",
-    bridge: "poa",
     symbol: "HAPI",
     name: "HAPI Protocol",
+    groupedTokens: [
+      {
+        defuseAssetId:
+          "nep141:eth-0xd9c2d319cd7e6177336b0a9c93c21cb48d84fb54.omft.near",
+        address: "0xD9c2D319Cd7e6177336b0a9c93c21cb48d84Fb54",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/8567.png",
+        chainName: "eth",
+        bridge: "poa",
+        symbol: "HAPI",
+        name: "HAPI Protocol",
+      },
+      {
+        defuseAssetId:
+          "nep141:d9c2d319cd7e6177336b0a9c93c21cb48d84fb54.factory.bridge.near",
+        address: "d9c2d319cd7e6177336b0a9c93c21cb48d84fb54.factory.bridge.near",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/8567.png",
+        chainName: "near",
+        bridge: "direct",
+        symbol: "HAPI",
+        name: "HAPI Protocol",
+      },
+    ],
     tags: ["mc:1539"],
   },
   {
