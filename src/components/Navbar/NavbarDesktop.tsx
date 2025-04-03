@@ -2,8 +2,8 @@
 
 import { Button, Text } from "@radix-ui/themes"
 import type { AppRoutes, NavigationLinks } from "@src/constants/routes"
+import { cn } from "@src/utils/cn"
 import { TURN_OFF_APPS } from "@src/utils/environment"
-import clsx from "clsx"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { LabelComingSoon } from "../ComingSoon"
@@ -25,7 +25,7 @@ const NavbarDesktop = ({ links }: NavbarDesktopProps) => {
               color="gray"
               highContrast
               variant={isCurrentPage ? "solid" : "soft"}
-              className={clsx(
+              className={cn(
                 "relative text-sm",
                 TURN_OFF_APPS || route.comingSoon
                   ? "pointer-events-none text-gray-500"
