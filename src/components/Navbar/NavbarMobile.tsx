@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowsDownUp, Plus } from "@phosphor-icons/react"
+import { ArrowsDownUp, ArrowsLeftRight, Plus } from "@phosphor-icons/react"
 import { type NavigationLinks, navigation } from "@src/constants/routes"
 import { useIsActiveLink } from "@src/hooks/useIsActiveLink"
 import { cn } from "@src/utils/cn"
@@ -38,22 +38,13 @@ export function NavbarMobile() {
             isActive={isTradeActive}
             iconSlot={
               <NavItem.DisplayIcon>
-                {
-                  <div
-                    className={cn(
-                      "flex items-center justify-center w-10 h-10 rounded-full",
-                      isTradeActive ? "bg-gray-12" : "bg-accent-9"
-                    )}
-                  >
-                    <ArrowsDownUp
-                      className={cn(
-                        "size-5",
-                        isTradeActive ? "text-white" : "text-gray-12"
-                      )}
-                      weight="bold"
-                    />
-                  </div>
-                }
+                <ArrowsLeftRight
+                  className={cn(
+                    "size-4",
+                    isTradeActive ? "text-gray-12" : "text-gray-11"
+                  )}
+                  weight="bold"
+                />
               </NavItem.DisplayIcon>
             }
           />
