@@ -4,6 +4,7 @@ export const navigation = {
   deposit: "/deposit",
   withdraw: "/withdraw",
   jobs: "/jobs",
+  otc: "/otc-desk/create-order",
 } as const
 
 export type NavigationLinks = {
@@ -12,11 +13,12 @@ export type NavigationLinks = {
   comingSoon?: true
 }
 
-export type AppRoutes = "account" | "deposit" | "swap" | "withdraw"
+export type AppRoutes = "account" | "deposit" | "swap" | "otc" | "withdraw"
 
 export const appRoutes: Record<AppRoutes, NavigationLinks> = {
   account: { href: navigation.account, label: "Account" },
   deposit: { href: navigation.deposit, label: "Deposit" },
   swap: { href: navigation.home, label: "Swap" },
+  otc: { href: navigation.otc, label: "OTC" },
   withdraw: { href: navigation.withdraw, label: "Withdraw" },
 }
