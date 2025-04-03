@@ -1,7 +1,7 @@
 "use client"
 
-import { ArrowsDownUp, ArrowsLeftRight, Plus } from "@phosphor-icons/react"
-import { type NavigationLinks, navigation } from "@src/constants/routes"
+import { ArrowsLeftRight, Plus } from "@phosphor-icons/react"
+import { navigation } from "@src/constants/routes"
 import { useIsActiveLink } from "@src/hooks/useIsActiveLink"
 import { cn } from "@src/utils/cn"
 import Link from "next/link"
@@ -80,7 +80,12 @@ function NavItem({
   label,
   isActive,
   iconSlot,
-}: NavigationLinks & { isActive: boolean; iconSlot: React.ReactNode }) {
+}: {
+  href: string
+  label: string
+  isActive: boolean
+  iconSlot: React.ReactNode
+}) {
   return (
     <Link href={href} className="flex flex-col items-center text-black">
       <div className="relative h-4">

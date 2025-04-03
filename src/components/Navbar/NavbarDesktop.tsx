@@ -1,62 +1,78 @@
 "use client"
 
-import { Button, Text } from "@radix-ui/themes"
-import {
-  type AppRoutes,
-  type NavigationLinks,
-  navigation,
-} from "@src/constants/routes"
+import { Plus } from "@phosphor-icons/react"
+import { Button } from "@radix-ui/themes"
+import { navigation } from "@src/constants/routes"
+import { useIsActiveLink } from "@src/hooks/useIsActiveLink"
 import { cn } from "@src/utils/cn"
-import { TURN_OFF_APPS } from "@src/utils/environment"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { LabelComingSoon } from "../ComingSoon"
+import { useRouter } from "next/navigation"
 
-type NavbarDesktopProps = {
-  links: Record<AppRoutes, NavigationLinks>
-}
+export function NavbarDesktop() {
+  const { isActive } = useIsActiveLink()
+  const router = useRouter()
 
-const NavbarDesktop = ({ links }: NavbarDesktopProps) => {
-  const pathname = usePathname()
+  const isAccountActive = isActive(navigation.account)
+  const isTradeActive = isActive(navigation.home) || isActive(navigation.otc)
+
   return (
     <nav className="flex justify-between items-center gap-4">
-      {Object.values(links).map((route) => {
-        const isCurrentPage = route.href === pathname
+      {/* Account */}
+      <NavItem
+        label="Account"
+        isActive={isAccountActive}
+        onNavigate={() => router.push(navigation.account)}
+      />
 
-        // We don't want to show this routes in the navbar
-        if (route.href === navigation.otc || route.href === navigation.jobs)
-          return null
-
-        return (
-          <Link key={route.href} href={route.href}>
-            <Button
-              radius="full"
-              color="gray"
-              highContrast
-              variant={isCurrentPage ? "solid" : "soft"}
-              className={cn(
-                "relative text-sm",
-                TURN_OFF_APPS || route.comingSoon
-                  ? "pointer-events-none text-gray-500"
-                  : "cursor-pointer",
-                isCurrentPage
-                  ? "text-white dark:text-black-400"
-                  : "bg-transparent"
-              )}
-              asChild
-            >
-              <div>
-                <Text weight="bold" wrap="nowrap">
-                  {route.label}
-                </Text>
-                {route.comingSoon && !isCurrentPage && <LabelComingSoon />}
-              </div>
-            </Button>
-          </Link>
-        )
-      })}
+      {/* Trade */}
+      <NavItem
+        label="Trade"
+        isActive={isTradeActive}
+        onNavigate={() => router.push(navigation.home)}
+      />
     </nav>
   )
 }
 
-export default NavbarDesktop
+function NavItem({
+  label,
+  isActive,
+  onNavigate,
+}: {
+  label: string
+  isActive: boolean
+  onNavigate: () => void
+}) {
+  return (
+    <Button
+      radius="full"
+      color="gray"
+      highContrast
+      variant={isActive ? "solid" : "soft"}
+      className={cn(
+        "relative text-sm cursor-pointer",
+        isActive ? "text-white dark:text-black-400" : "bg-transparent"
+      )}
+      onClick={onNavigate}
+      asChild
+    >
+      <span className="text-sm font-bold whitespace-nowrap">{label}</span>
+    </Button>
+  )
+}
+
+export function NavbarDeposit() {
+  const router = useRouter()
+  return (
+    <Button
+      radius="full"
+      color="gray"
+      highContrast
+      variant="soft"
+      className="flex items-center gap-2 text-sm cursor-pointer"
+      onClick={() => router.push(navigation.deposit)}
+    >
+      <Plus className="size-3 text-gray-12" weight="bold" />
+      <span className="text-sm font-bold whitespace-nowrap">Deposit</span>
+    </Button>
+  )
+}
