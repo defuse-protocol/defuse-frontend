@@ -3,9 +3,17 @@ export const navigation = {
   account: "/account",
   deposit: "/deposit",
   withdraw: "/withdraw",
-  jobs: "/jobs",
   otc: "/otc-desk/create-order",
-} as const
+  jobs: "/jobs",
+} satisfies Record<AppRoutes, string>
+
+export type AppRoutes =
+  | "home"
+  | "account"
+  | "deposit"
+  | "withdraw"
+  | "otc"
+  | "jobs"
 
 export type NavigationLinks = {
   href: (typeof navigation)[keyof typeof navigation]
@@ -13,12 +21,14 @@ export type NavigationLinks = {
   comingSoon?: true
 }
 
-export type AppRoutes = "account" | "deposit" | "swap" | "otc" | "withdraw"
-
+/**
+ * @deprecated Use navigation object directly instead of appRoutes
+ */
 export const appRoutes: Record<AppRoutes, NavigationLinks> = {
   account: { href: navigation.account, label: "Account" },
   deposit: { href: navigation.deposit, label: "Deposit" },
-  swap: { href: navigation.home, label: "Swap" },
+  home: { href: navigation.home, label: "Swap" },
   otc: { href: navigation.otc, label: "OTC" },
   withdraw: { href: navigation.withdraw, label: "Withdraw" },
+  jobs: { href: navigation.jobs, label: "Jobs" },
 }

@@ -1,7 +1,11 @@
 "use client"
 
 import { Button, Text } from "@radix-ui/themes"
-import type { AppRoutes, NavigationLinks } from "@src/constants/routes"
+import {
+  type AppRoutes,
+  type NavigationLinks,
+  navigation,
+} from "@src/constants/routes"
 import { cn } from "@src/utils/cn"
 import { TURN_OFF_APPS } from "@src/utils/environment"
 import Link from "next/link"
@@ -18,6 +22,11 @@ const NavbarDesktop = ({ links }: NavbarDesktopProps) => {
     <nav className="flex justify-between items-center gap-4">
       {Object.values(links).map((route) => {
         const isCurrentPage = route.href === pathname
+
+        // We don't want to show this routes in the navbar
+        if (route.href === navigation.otc || route.href === navigation.jobs)
+          return null
+
         return (
           <Link key={route.href} href={route.href}>
             <Button

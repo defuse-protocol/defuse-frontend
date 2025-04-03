@@ -23,7 +23,7 @@ const Layout: React.FC<PropsWithChildren> = ({ children }) => {
       />
       <Main>{children}</Main>
       <Footer />
-      <NavbarMobile links={appRoutes} />
+      <NavbarMobile />
       <PageBackground />
       <WalletVerificationProvider />
     </div>

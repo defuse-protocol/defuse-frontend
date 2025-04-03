@@ -1,20 +1,19 @@
 "use client"
 
 import { ArrowsDownUp, Plus } from "@phosphor-icons/react"
-import type { AppRoutes, NavigationLinks } from "@src/constants/routes"
+import { type NavigationLinks, navigation } from "@src/constants/routes"
 import { useIsActiveLink } from "@src/hooks/useIsActiveLink"
 import { cn } from "@src/utils/cn"
 import Link from "next/link"
 
 import type { ReactNode } from "react"
 
-type NavbarMobileProps = {
-  links: Record<AppRoutes, NavigationLinks>
-}
-
-export function NavbarMobile({ links }: NavbarMobileProps) {
+export function NavbarMobile() {
   const { isActive } = useIsActiveLink()
-  const isTradeActive = isActive(links.swap.href) || isActive(links.otc.href)
+
+  const isAccountActive = isActive(navigation.account)
+  const isTradeActive = isActive(navigation.home) || isActive(navigation.otc)
+  const isDepositActive = isActive(navigation.deposit)
 
   return (
     <>
@@ -22,19 +21,19 @@ export function NavbarMobile({ links }: NavbarMobileProps) {
         <nav className="flex justify-around items-center gap-4">
           {/* Account */}
           <NavItem
-            href={links.account.href}
-            label={links.account.label}
-            isActive={isActive(links.account.href)}
+            href={navigation.account}
+            label="Account"
+            isActive={isAccountActive}
             iconSlot={
               <NavItem.DisplayIcon>
-                {<WalletIcon active={isActive(links.account.href)} />}
+                {<WalletIcon active={isAccountActive} />}
               </NavItem.DisplayIcon>
             }
           />
 
           {/* Trade */}
           <NavItem
-            href={links.swap.href}
+            href={navigation.home}
             label="Trade"
             isActive={isTradeActive}
             iconSlot={
@@ -61,16 +60,16 @@ export function NavbarMobile({ links }: NavbarMobileProps) {
 
           {/* Deposit */}
           <NavItem
-            href={links.deposit.href}
-            label={links.deposit.label}
-            isActive={isActive(links.deposit.href)}
+            href={navigation.deposit}
+            label="Deposit"
+            isActive={isDepositActive}
             iconSlot={
               <NavItem.DisplayIcon>
                 {
                   <div
                     className={cn(
                       "flex items-center justify-center w-4 h-4 rounded-full",
-                      isActive(links.deposit.href) ? "bg-gray-12" : "bg-gray-11"
+                      isDepositActive ? "bg-gray-12" : "bg-gray-11"
                     )}
                   >
                     <Plus className="size-3 text-white" weight="bold" />
