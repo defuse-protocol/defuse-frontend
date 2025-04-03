@@ -10,7 +10,6 @@ type TokenWithTags =
 export const LIST_TOKENS: TokenWithTags[] = [
   {
     unifiedAssetId: "usdc",
-    decimals: 6,
     symbol: "USDC",
     name: "USD Coin",
     icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
@@ -155,7 +154,6 @@ export const LIST_TOKENS: TokenWithTags[] = [
   },
   {
     unifiedAssetId: "near",
-    decimals: 24,
     symbol: "NEAR",
     name: "Near",
     icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/6535.png",
@@ -195,7 +193,6 @@ export const LIST_TOKENS: TokenWithTags[] = [
   },
   {
     unifiedAssetId: "usdt",
-    decimals: 6,
     symbol: "USDT",
     name: "Tether USD",
     icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
@@ -299,7 +296,6 @@ export const LIST_TOKENS: TokenWithTags[] = [
   },
   {
     unifiedAssetId: "eth",
-    decimals: 18,
     symbol: "ETH",
     name: "ETH",
     icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/1027.png",
@@ -384,7 +380,6 @@ export const LIST_TOKENS: TokenWithTags[] = [
   },
   {
     unifiedAssetId: "aurora",
-    decimals: 18,
     symbol: "AURORA",
     name: "Aurora",
     icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/14803.png",
@@ -593,7 +588,6 @@ export const LIST_TOKENS: TokenWithTags[] = [
   },
   {
     unifiedAssetId: "turbo",
-    decimals: 18,
     symbol: "TURBO",
     name: "Turbo",
     icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/24911.png",
