@@ -2,7 +2,7 @@
 
 import Footer from "@src/components/Layout/Footer"
 import { Header } from "@src/components/Layout/Header"
-import NavbarMobile from "@src/components/Navbar/NavbarMobile"
+import { NavbarMobile } from "@src/components/Navbar/NavbarMobile"
 import PageBackground from "@src/components/PageBackground"
 import { appRoutes } from "@src/constants/routes"
 import { WalletVerificationProvider } from "@src/providers/WalletVerificationProvider"
@@ -23,7 +23,7 @@ const Layout: React.FC<PropsWithChildren> = ({ children }) => {
       />
       <Main>{children}</Main>
       <Footer />
-      <NavbarMobile />
+      <NavbarMobile links={appRoutes} />
       <PageBackground />
       <WalletVerificationProvider />
     </div>
