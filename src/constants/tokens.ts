@@ -834,4 +834,16 @@ export const LIST_TOKENS: TokenWithTags[] = [
     name: "Trust Score",
     tags: [],
   },
+  {
+    defuseAssetId:
+      "nep141:base-0x98d0baa52b2d063e780de12f615f963fe8537553.omft.near",
+    address: "0x98d0baa52b2D063E780DE12F615f963Fe8537553",
+    decimals: 18,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/64x64/35763.png",
+    chainName: "base",
+    bridge: "poa",
+    symbol: "KAITO",
+    name: "KAITO",
+    tags: ["mc:158"],
+  },
 ]
