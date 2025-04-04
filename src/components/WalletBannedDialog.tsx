@@ -43,13 +43,13 @@ function FailureContent({
         <AlertDialog.Title className="text-xl font-semibold text-gray-900 dark:text-gray-100">
           Not Supported Wallet Address
         </AlertDialog.Title>
-        <AlertDialog.Description className="mt-2 text-gray-600 dark:text-gray-400">
+        <AlertDialog.Description className="mt-2 text-gray-11">
           For your safety, your wallet address can't be used with this app.
         </AlertDialog.Description>
       </div>
 
       {/* Info List */}
-      <div className="bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-lg p-4 mb-5">
+      <div className="bg-gray-50 dark:bg-gray-800 text-gray-11 rounded-lg p-4 mb-5">
         <ul className="space-y-3">
           <li className="flex items-start gap-3">
             <div className="bg-amber-100 dark:bg-amber-900 rounded-full p-1 mt-0.5">
