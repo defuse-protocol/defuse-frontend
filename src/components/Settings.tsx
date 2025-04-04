@@ -26,7 +26,7 @@ const Settings = () => {
         <Popover.Trigger>
           <button
             type={"button"}
-            className="w-[32px] h-[32px] flex justify-center items-center bg-gray-200 rounded-full gap-1 dark:bg-gray-1000"
+            className="w-[32px] h-[32px] flex justify-center items-center rounded-full gap-1 bg-gray-a3"
           >
             <span className={elementCircleStyle} />
             <span className={elementCircleStyle} />

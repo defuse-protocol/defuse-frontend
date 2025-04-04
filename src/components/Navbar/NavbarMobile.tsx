@@ -17,7 +17,7 @@ export function NavbarMobile() {
 
   return (
     <>
-      <div className="fixed bottom-0 z-50 left-0 md:hidden w-full px-5 pt-3 pb-[max(env(safe-area-inset-bottom,0px),theme(spacing.3))] bg-white border-t-[1px] border-white-200">
+      <div className="fixed bottom-0 z-50 left-0 md:hidden w-full px-5 pt-3 pb-[max(env(safe-area-inset-bottom,0px),theme(spacing.3))] bg-gray-1 border-t-[1px] border-gray-a3">
         <nav className="flex justify-around items-center gap-4">
           {/* Account */}
           <NavItem
@@ -63,7 +63,7 @@ export function NavbarMobile() {
                       isDepositActive ? "bg-gray-12" : "bg-gray-11"
                     )}
                   >
-                    <Plus className="size-3 text-white" weight="bold" />
+                    <Plus className="size-3 text-gray-1" weight="bold" />
                   </div>
                 }
               </NavItem.DisplayIcon>
@@ -97,9 +97,7 @@ function NavItem({
       <span
         className={cn(
           "text-sm",
-          isActive
-            ? "font-medium text-gray-12 dark:text-black-400"
-            : "font-medium text-gray-11"
+          isActive ? "font-medium text-gray-12" : "font-medium text-gray-11"
         )}
       >
         {label}

@@ -21,7 +21,7 @@ export function Header({
   return (
     <>
       <header
-        className={`${styles.header} h-[56px] fixed top-0 left-0 w-full md:relative border-b-[1px] border-white-200 z-50 dark:bg-black-900 dark:border-black-600`}
+        className={`${styles.header} h-[56px] fixed top-0 left-0 w-full md:relative border-b-[1px] z-50 border-gray-a3`}
       >
         <div className="h-full flex justify-between items-center px-3">
           <div className="flex-shrink-0">
