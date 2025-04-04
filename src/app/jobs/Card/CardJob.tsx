@@ -13,7 +13,7 @@ const CardJob = ({ team, position, link, applicationLink }: JobsDetails) => {
     <Link
       href={link}
       className={clsx(
-        "min-h-[147px] flex flex-col p-4 ld:p-8 shadow-card-multi bg-white rounded-2xl",
+        "min-h-[147px] flex flex-col p-4 ld:p-8 shadow-card-multi bg-gray-1 rounded-2xl",
         animationStyle
       )}
     >

@@ -24,13 +24,13 @@ const MaintenancePage: NextPage = async () => {
           direction="column"
           gap="5"
           align="center"
-          className="bg-white dark:bg-black-700 rounded-[16px] md:rounded-[24px] shadow-paper dark:shadow-paper-dark p-5 md:p-8"
+          className="bg-gray-1 rounded-[16px] md:rounded-[24px] shadow-paper dark:shadow-paper-dark p-5 md:p-8"
         >
           <Heading
             as="h1"
             size={{ initial: "7", md: "8" }}
             weight="bold"
-            className="text-black-400"
+            className="text-gray-11"
           >
             Site Maintenance
           </Heading>
@@ -38,7 +38,7 @@ const MaintenancePage: NextPage = async () => {
           <Text
             size={{ initial: "2", md: "3" }}
             weight="medium"
-            className="text-gray-600"
+            className="text-gray-11"
           >
             We're currently performing maintenance on our site. Please check
             back soon.

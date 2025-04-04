@@ -11,7 +11,7 @@ const TryDefuse = () => {
       <h1 className="text-3xl md:text-6xl text-center font-bold md:text-nowrap">
         Welcome to {settings.appName}
       </h1>
-      <p className="max-w-[561px] text-center text-xl md:text-[40px] font-black md:leading-[48px] tracking-[-0.4px] text-gray-600">
+      <p className="max-w-[561px] text-center text-xl md:text-[40px] font-black md:leading-[48px] tracking-[-0.4px] text-gray-11">
         Multichain DeFi Hub
       </p>
       <Button
