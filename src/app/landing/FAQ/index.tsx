@@ -17,13 +17,13 @@ const ButtonFAQ = ({
   return (
     <div
       className={clsx(
-        "h-[74px] md:h-[76px] w-full flex justify-between items-center bg-gray-950 px-6 md:px-8 py-6 rounded-2xl cursor-pointer",
+        "h-[74px] md:h-[76px] w-full flex justify-between items-center bg-gray-1 px-6 md:px-8 py-6 rounded-2xl cursor-pointer",
         isActive && "rounded-b-none"
       )}
     >
       <Text
         className={clsx(
-          "leading-6 text-base md:text-xl text-black-400 font-bold",
+          "leading-6 text-base md:text-xl text-gray-11 font-bold bg-gray-1",
           isActive && "text-primary-300"
         )}
       >
@@ -50,8 +50,8 @@ const ButtonFAQ = ({
 
 const SectionFAQ = ({ children }: PropsWithChildren) => {
   return (
-    <div className="w-full flex justify-between items-center bg-gray-950 px-6 md:px-8 pb-6 rounded-b-2xl">
-      <Text size="2" weight="medium" className="text-gray-600">
+    <div className="w-full flex justify-between items-center bg-gray-1 px-6 md:px-8 pb-6 rounded-b-2xl">
+      <Text size="2" weight="medium" className="text-gray-11">
         {children}
       </Text>
     </div>

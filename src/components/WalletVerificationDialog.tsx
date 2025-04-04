@@ -71,13 +71,13 @@ function DefaultContent({
         <AlertDialog.Title className="text-xl font-semibold text-gray-900 dark:text-gray-100">
           Signature Check Required
         </AlertDialog.Title>
-        <AlertDialog.Description className="mt-2 text-gray-600 dark:text-gray-400">
+        <AlertDialog.Description className="mt-2 text-gray-11">
           Please verify your device compatibility with the platform
         </AlertDialog.Description>
       </div>
 
       {/* Features List */}
-      <div className="bg-gray-50 dark:bg-gray-800  text-gray-600 dark:text-gray-300 rounded-lg p-4 mb-5">
+      <div className="bg-gray-50 dark:bg-gray-800  text-gray-11 rounded-lg p-4 mb-5">
         <ul className="space-y-3">
           <li className="flex items-center gap-3">
             <div className="bg-blue-100 dark:bg-blue-900 rounded-full p-1">
@@ -154,13 +154,13 @@ function FailureContent({
         <AlertDialog.Title className="text-xl font-semibold text-gray-900 dark:text-gray-100">
           Unable to Verify
         </AlertDialog.Title>
-        <AlertDialog.Description className="mt-2 text-gray-600 dark:text-gray-400">
+        <AlertDialog.Description className="mt-2 text-gray-11">
           The compatibility check couldn't be completed
         </AlertDialog.Description>
       </div>
 
       {/* Info List */}
-      <div className="bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-lg p-4 mb-5">
+      <div className="bg-gray-50 dark:bg-gray-800 text-gray-11 rounded-lg p-4 mb-5">
         <ul className="space-y-3">
           <li className="flex items-start gap-3">
             <div className="bg-amber-100 dark:bg-amber-900 rounded-full p-1 mt-0.5">

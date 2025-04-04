@@ -20,7 +20,9 @@ const CardSocial = ({ name, icon, link }: Props) => {
     >
       <div className="flex items-center lg:items-start  lg:flex-col gap-4">
         <Image src={icon} width={48} height={48} alt="Social Icon" />
-        <Text className="text-base md:text-xl font-bold">{name}</Text>
+        <Text className="text-base md:text-xl text-gray-11 font-bold">
+          {name}
+        </Text>
       </div>
       <div className="absolute inset-y-1/2 -translate-y-[12px] lg:translate-y-0 lg:top-5 right-5">
         <Image

@@ -71,8 +71,8 @@ const WalletConnectionsConnector = ({
             <button
               type="button"
               className={clsx(
-                "w-[32px] h-[32px] flex justify-center items-center rounded-full border border-gray-500 dark:border-white",
-                isCopied && "bg-primary border-0 text-white"
+                "w-[32px] h-[32px] flex justify-center items-center rounded-full border border-gray-a7",
+                isCopied && "bg-primary border-primary text-white"
               )}
             >
               <CopyIcon width={16} height={16} />
@@ -81,7 +81,7 @@ const WalletConnectionsConnector = ({
           <button
             type="button"
             onClick={onDisconnect}
-            className="w-[32px] h-[32px] flex justify-center items-center rounded-full bg-white-200 dark:border dark:border-white"
+            className="w-[32px] h-[32px] flex justify-center items-center rounded-full bg-gray-a3"
           >
             <EnterIcon width={16} height={16} />
           </button>
@@ -113,7 +113,7 @@ const WalletConnections = () => {
       <Text
         size="1"
         weight="medium"
-        className="text-gray-600 dark:text-gray-500 pb-2"
+        className="text-gray-a11 dark:text-gray-a11 pb-2"
       >
         Connected with
       </Text>
@@ -223,7 +223,7 @@ function PasskeyConnectionInfo({
         <button
           type="button"
           onClick={onSignOut}
-          className="w-[32px] h-[32px] flex justify-center items-center rounded-full bg-white-200 dark:border dark:border-white"
+          className="w-[32px] h-[32px] flex justify-center items-center rounded-full bg-gray-a3"
         >
           <EnterIcon width={16} height={16} />
         </button>

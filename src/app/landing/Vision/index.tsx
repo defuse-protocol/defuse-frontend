@@ -11,7 +11,7 @@ const Vision = () => {
   return (
     <Section title="Our vision">
       <div className="flex flex-col justify-center">
-        <p className="text-center text-[20px] md:text-[32px] font-black text-gray-600 mb-4 md:mb-5">
+        <p className="text-center text-[20px] md:text-[32px] font-black text-gray-11 mb-4 md:mb-5">
           <Text as="span">
             {settings.appName} is the first platform that&nbsp;
           </Text>
@@ -23,7 +23,7 @@ const Vision = () => {
             ecosystem.
           </Text>
         </p>
-        <p className="text-center text-[20px] md:text-[32px] font-black text-gray-600 mb-[40px] md:mb-[56px]">
+        <p className="text-center text-[20px] md:text-[32px] font-black text-gray-11 mb-[40px] md:mb-[56px]">
           <Text as="span">
             With {settings.appName}, you can create, trade, and innovate without
             limitations, enjoying unified liquidity.

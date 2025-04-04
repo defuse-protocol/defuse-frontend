@@ -50,7 +50,7 @@ function NavItem({
       variant={isActive ? "solid" : "soft"}
       className={cn(
         "relative text-sm cursor-pointer",
-        isActive ? "text-white dark:text-black-400" : "bg-transparent"
+        isActive ? "text-gray-1" : "bg-transparent"
       )}
       onClick={onNavigate}
       asChild

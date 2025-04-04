@@ -33,7 +33,7 @@ export default function Home() {
       </PaperHome>
       <div className="flex flex-col mt-[56px] md:mt-[108px] mb-[39px] md:mb-[106px]">
         <div className="max-w-[189px] md:max-w-full mx-auto mb-[28px] md:[56px]">
-          <h2 className="font-black mb-5 text-black-400 text-[32px] md:text-5xl text-center">
+          <h2 className="font-black mb-5 text-gray-11 text-[32px] md:text-5xl text-center">
             Connect with {settings.appName}
           </h2>
         </div>

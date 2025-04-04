@@ -1,5 +1,5 @@
 .header {
-    @apply bg-white;
+  background-color: var(--gray-2);
 }
 
 :global(.tmpl-solswap) .header {

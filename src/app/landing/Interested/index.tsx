@@ -13,7 +13,7 @@ const Interested = () => {
       </Text>
       <Text
         weight="bold"
-        className="text-sm md:text-xl max-w-[558px] text-gray-600"
+        className="text-sm md:text-xl max-w-[558px] text-gray-11"
       >
         Connect with us to explore how {settings.appName} is revolutionizing
         multichain financial products and how you can be a part of this

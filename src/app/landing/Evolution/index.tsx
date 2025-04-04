@@ -22,7 +22,7 @@ const Evolution = () => {
         className="flex flex-col justify-center mb-[40px] md:mb-[96px]"
         ref={divRef}
       >
-        <p className="text-center text-[20px] md:text-[32px] font-black text-gray-600">
+        <p className="text-center text-[20px] md:text-[32px] font-black text-gray-11">
           <Text as="span">
             {settings.appName} unifies the best of CEXs and DEXs with a
             scalable, multi-chain infrastructure. Our goal is to&nbsp;
