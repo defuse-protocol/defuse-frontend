@@ -42,8 +42,8 @@ const Settings = () => {
               </div>
             )}
 
-            {/*<DarkMode />*/}
-            {/*<Separator orientation="horizontal" size="4" />*/}
+            <DarkMode />
+            <Separator orientation="horizontal" size="4" />
 
             <div className="flex flex-col justify-between items-center gap-1.5">
               <a
@@ -118,9 +118,11 @@ const Settings = () => {
   )
 }
 
-// biome-ignore lint/correctness/noUnusedVariables: It will be used in the future
 const DarkMode = () => {
-  const { theme, setTheme } = useTheme()
+  const { theme, setTheme, resolvedTheme } = useTheme()
+
+  // This accounts for system preference when theme is set to "system"
+  const isDarkMode = resolvedTheme === Themes.DARK
 
   const darkModeSwitch = (
     <div className="flex justify-between items-center gap-4">
@@ -133,12 +135,12 @@ const DarkMode = () => {
         onCheckedChange={(checked: boolean) => {
           setTheme(checked ? Themes.DARK : Themes.LIGHT)
         }}
-        defaultChecked={theme === Themes.DARK}
+        checked={isDarkMode}
       />
     </div>
   )
 
-  return <ComingSoon className="top-[0.25rem]">{darkModeSwitch}</ComingSoon>
+  return darkModeSwitch
 }
 
 export default Settings
