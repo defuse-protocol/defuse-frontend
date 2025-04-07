@@ -8,6 +8,7 @@ import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
+import { renderAppLink } from "@src/utils/renderAppLink"
 import React from "react"
 import { useNearWalletActions } from "../../../hooks/useNearWalletActions"
 import { createGiftCardLink } from "../_utils/link"
@@ -45,6 +46,7 @@ export default function CreateGiftPage() {
           referral={referral}
           generateLink={(giftLinkData) => createGiftCardLink(giftLinkData)}
           initialToken={tokenIn}
+          renderHostAppLink={renderAppLink}
         />
         <GiftHistoryWidget
           tokenList={tokenList}

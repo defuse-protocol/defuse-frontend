@@ -5,6 +5,7 @@ import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useTokenList } from "@src/hooks/useTokenList"
+import { renderAppLink } from "@src/utils/renderAppLink"
 
 export default function Deposit() {
   const { state, sendTransaction } = useConnectWallet()
@@ -40,6 +41,7 @@ export default function Deposit() {
           })
           return Array.isArray(result) ? result[0].transaction.hash : result
         }}
+        renderHostAppLink={renderAppLink}
       />
     </Paper>
   )

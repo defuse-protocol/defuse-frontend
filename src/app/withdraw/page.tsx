@@ -9,6 +9,7 @@ import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
 import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
+import { renderAppLink } from "@src/utils/renderAppLink"
 
 export default function Withdraw() {
   const { state } = useConnectWallet()
@@ -38,6 +39,7 @@ export default function Withdraw() {
           return { txHash: outcome.transaction.hash }
         }}
         signMessage={(params) => signMessage(params)}
+        renderHostAppLink={renderAppLink}
         referral={referral}
       />
     </Paper>

@@ -10,7 +10,7 @@ import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
 import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
-
+import { renderAppLink } from "@src/utils/renderAppLink"
 import { useOTCOrder } from "../_utils/link"
 
 export default function CreateOrderPage() {
@@ -44,6 +44,7 @@ export default function CreateOrderPage() {
           return { txHash: outcome.transaction.hash }
         }}
         referral={referral}
+        renderHostAppLink={renderAppLink}
       />
     </Paper>
   )
