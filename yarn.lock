@@ -981,10 +981,10 @@
     eventemitter3 "^5.0.1"
     preact "^10.16.0"
 
-"@defuse-protocol/defuse-sdk@^1.0.0-beta.95":
-  version "1.0.0-beta.95"
-  resolved "https://registry.yarnpkg.com/@defuse-protocol/defuse-sdk/-/defuse-sdk-1.0.0-beta.95.tgz#4450bdfdde71b4e8aa91d043655a67614e0cbcf1"
-  integrity sha512-c2qbwL0+a0VaCgr2EkfDHXj6svuzgCasz4bPRj3Fx4kPFsjajjiQVx2GIOv6Nbt7DaBPhY4ae6lgEyKPCQgOtw==
+"@defuse-protocol/defuse-sdk@^1.0.0-beta.96":
+  version "1.0.0-beta.96"
+  resolved "https://registry.yarnpkg.com/@defuse-protocol/defuse-sdk/-/defuse-sdk-1.0.0-beta.96.tgz#f2db614147aeeb13cb0300455fb0b451b187433e"
+  integrity sha512-5Ren/zeEVqkmFIo9pPZL4Zl44ILKdFnEPWvoVP01uZg8vLjtNoCkto0IxX+p/scRs1vTPbm++Zvp7iS5VZwhuA==
   dependencies:
     "@lifeomic/attempt" "^3.1.0"
     "@noble/curves" "1.4.0"
@@ -1011,12 +1011,10 @@
     "@xstate/react" "^4.1.3"
     "@xstate/store" "^3.0.1"
     borsher "^3.5.0"
-    bs58 "^6.0.0"
     clsx "^2.1.1"
     near-api-js "^5.0.1"
     qrcode.react "^4.0.1"
     react "^18.3.1"
-    react-copy-to-clipboard "^5.1.0"
     react-dom "^18.3.1"
     react-hook-form "^7.52.1"
     react-shadow "^20.5.0"
@@ -1027,7 +1025,6 @@
     valibot "^1.0.0-rc.1"
     viem "^2.18.1"
     xstate "^5.18.2"
-    zod "^3.24.2"
     zustand "^5.0.0-rc.2"
 
 "@ecies/ciphers@^0.2.1":
@@ -16465,11 +16462,6 @@ zod@^3.23.8:
   version "3.23.8"
   resolved "https://registry.yarnpkg.com/zod/-/zod-3.23.8.tgz#e37b957b5d52079769fb8097099b592f0ef4067d"
   integrity sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==
-
-zod@^3.24.2:
-  version "3.24.2"
-  resolved "https://registry.yarnpkg.com/zod/-/zod-3.24.2.tgz#8efa74126287c675e92f46871cfc8d15c34372b3"
-  integrity sha512-lY7CDW43ECgW9u1TcT3IoXHflywfVqDYze4waEz812jR/bZ8FHDsl7pFQoSZTz5N+2NqRXs8GBwnAwo3ZNxqhQ==
 
 zustand@5.0.0, zustand@^5.0.0-rc.2:
   version "5.0.0"
