@@ -162,7 +162,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
         address: "zec.omft.near",
         decimals: 8,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/1437.png",
-        chainName: "zcash",
+        chainName: "near",
         bridge: "direct",
         symbol: "ZEC",
         name: "Zcash",
