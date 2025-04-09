@@ -14,7 +14,7 @@
     "update-types": "supabase gen types --lang=typescript --local > src/types/database-generated.ts"
   },
   "dependencies": {
-    "@defuse-protocol/defuse-sdk": "^1.0.0-beta.102",
+    "@defuse-protocol/defuse-sdk": "^1.0.0-beta.103",
     "@near-eth/aurora-erc20": "^2.8.0",
     "@near-eth/aurora-ether": "^3.0.0",
     "@near-eth/aurora-nep141": "^1.5.3",
