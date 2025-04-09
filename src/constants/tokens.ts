@@ -312,8 +312,8 @@ export const LIST_TOKENS: TokenWithTags[] = [
         name: "ETH",
       },
       {
-        defuseAssetId: "nep141:aurora",
-        address: "aurora",
+        defuseAssetId: "nep141:eth.bridge.near",
+        address: "eth.bridge.near",
         decimals: 18,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/1027.png",
         chainName: "near",
@@ -322,7 +322,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
         name: "ETH",
       },
       {
-        defuseAssetId: "nep141:aurora",
+        defuseAssetId: "nep141:eth.bridge.near",
         address: "0x5a524251df27A25AC6b9964a93E1c23AD692688D",
         decimals: 18,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/1027.png",
@@ -332,7 +332,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
         name: "ETH",
       },
       {
-        defuseAssetId: "nep141:aurora",
+        defuseAssetId: "nep141:eth.bridge.near",
         type: "native",
         address: "native",
         decimals: 18,
