@@ -26,6 +26,11 @@ export const useSentrySetUser = () => {
     }
 
     async function getUserDetails() {
+      // This is a special case, since for faked user there is no wallet info
+      if (userConnectionState.isFake) {
+        return null
+      }
+
       let walletProvider: string | undefined = undefined
       let walletAppName: string | undefined = undefined
 

@@ -19,6 +19,7 @@ import type {
   SignAndSendTransactionsParams,
 } from "@src/types/interfaces"
 import type { SendTransactionParameters } from "@wagmi/core"
+import { useSearchParams } from "next/navigation"
 import { useCallback } from "react"
 import {
   type Connector,
@@ -42,6 +43,7 @@ export type State = {
   network?: string
   address?: string
   isVerified: boolean
+  isFake: boolean // in most cases, this is used for testing purposes only
 }
 
 interface ConnectWalletAction {
@@ -66,6 +68,7 @@ const defaultState: State = {
   network: undefined,
   address: undefined,
   isVerified: false,
+  isFake: false,
 }
 
 export const useConnectWallet = (): ConnectWalletAction => {
@@ -140,6 +143,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
       network: "near:mainnet",
       chainType: ChainType.Near,
       isVerified: false,
+      isFake: false,
     }
   }
 
@@ -155,6 +159,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
         : "unknown",
       chainType: ChainType.EVM,
       isVerified: false,
+      isFake: false,
     }
   }
 
@@ -173,6 +178,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
       network: "sol:mainnet",
       chainType: ChainType.Solana,
       isVerified: false,
+      isFake: false,
     }
   }
 
@@ -185,6 +191,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
       address: currentPasskey.publicKey,
       chainType: ChainType.WebAuthn,
       isVerified: false,
+      isFake: false,
     }
   }
 
@@ -197,6 +204,11 @@ export const useConnectWallet = (): ConnectWalletAction => {
       [state.address]
     )
   )
+
+  const impersonatedUser = useImpersonatedUser()
+  if (impersonatedUser) {
+    state = impersonatedUser
+  }
 
   return {
     async signIn(params: {
@@ -263,5 +275,23 @@ export const useConnectWallet = (): ConnectWalletAction => {
 
     connectors: evmWalletConnect.connectors as Connector[],
     state,
+  }
+}
+
+/**
+ * Allows getting the impersonation user from the URL.
+ * This is used for testing purposes only.
+ * example: "/account?user=evm:0xdeadbeef" will return { method: "evm", identifier: "0xdeadbeef" }
+ */
+function useImpersonatedUser() {
+  const searchParams = useSearchParams()
+  const user = searchParams.get("user")
+  if (user == null) return null
+  const index = user.indexOf(":")
+  return {
+    chainType: user.slice(0, index) as ChainType,
+    address: user.slice(index + 1),
+    isVerified: true,
+    isFake: true,
   }
 }
