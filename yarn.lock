@@ -981,10 +981,10 @@
     eventemitter3 "^5.0.1"
     preact "^10.16.0"
 
-"@defuse-protocol/defuse-sdk@^1.0.0-beta.112":
-  version "1.0.0-beta.112"
-  resolved "https://registry.yarnpkg.com/@defuse-protocol/defuse-sdk/-/defuse-sdk-1.0.0-beta.112.tgz#883016ab1b4021bcf4094da08767ed4b84db49bf"
-  integrity sha512-mUxGWgMRRm3W/9VKWeIz9WcvAqhlwhIygMaL0FLU4JbTHhAQReBYChYpuRgiQyKOCVC0nGa+ZAw8+ubtcb7BEQ==
+"@defuse-protocol/defuse-sdk@^1.0.0-beta.114":
+  version "1.0.0-beta.114"
+  resolved "https://registry.yarnpkg.com/@defuse-protocol/defuse-sdk/-/defuse-sdk-1.0.0-beta.114.tgz#8dc24f7ab19a330e576ee32f63651c4bfe893eee"
+  integrity sha512-kjKxa57ZUAyr4JW2121I5ChcVq3US3j7HEKdqR9FEoU5H0QJU9SuD6kCLSVKsSWk+60Z+sTnTsHbJxgjCxp3cw==
   dependencies:
     "@lifeomic/attempt" "^3.1.0"
     "@noble/curves" "1.4.0"
@@ -1016,7 +1016,7 @@
     qrcode.react "^4.0.1"
     react "^18.3.1"
     react-dom "^18.3.1"
-    react-hook-form "^7.52.1"
+    react-hook-form ">=7.52.1 <7.55.0"
     react-shadow "^20.5.0"
     ripple-address-codec "^5.0.0"
     tailwind-merge "^3.0.1"
@@ -13559,7 +13559,12 @@ react-dom@^18, react-dom@^18.3.1:
     loose-envify "^1.1.0"
     scheduler "^0.23.2"
 
-react-hook-form@^7.51.5, react-hook-form@^7.52.1:
+"react-hook-form@>=7.52.1 <7.55.0":
+  version "7.54.2"
+  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.54.2.tgz#8c26ed54c71628dff57ccd3c074b1dd377cfb211"
+  integrity sha512-eHpAUgUjWbZocoQYUHposymRb4ZP6d0uwUnooL2uOybA9/3tPUvoAKqEWK1WaSiTxxOfTpffNZP7QwlnM3/gEg==
+
+react-hook-form@^7.51.5:
   version "7.53.0"
   resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.53.0.tgz#3cf70951bf41fa95207b34486203ebefbd3a05ab"
   integrity sha512-M1n3HhqCww6S2hxLxciEXy2oISPnAzxY7gvwVPrtlczTM/1dDadXgUxDpHMrMTblDOcm/AXtXxHwZ3jpg1mqKQ==
