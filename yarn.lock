@@ -981,10 +981,10 @@
     eventemitter3 "^5.0.1"
     preact "^10.16.0"
 
-"@defuse-protocol/defuse-sdk@^1.0.0-beta.115":
-  version "1.0.0-beta.115"
-  resolved "https://registry.yarnpkg.com/@defuse-protocol/defuse-sdk/-/defuse-sdk-1.0.0-beta.115.tgz#e729d538421f2e60a4800a3962540b5bdc3ea2ec"
-  integrity sha512-a20aP9JBYpZIZNHtx94cfSl3PAhXVZnHWrkUpZ+A0irY1GohUAY2UgA1VjJDx/+wzP9dhay123V2G/sBJmXWZA==
+"@defuse-protocol/defuse-sdk@^1.0.0-beta.116":
+  version "1.0.0-beta.116"
+  resolved "https://registry.yarnpkg.com/@defuse-protocol/defuse-sdk/-/defuse-sdk-1.0.0-beta.116.tgz#6dc3f414294b2947f80389706e1d864985f17745"
+  integrity sha512-SLQniR8xKhbehDx4kLVZZjkZPp9V/HHfUCWQog722C49vXl2+yIYzrgWMW4VlC3hyxSBVgoM0+ZiPfP2I+t5cg==
   dependencies:
     "@lifeomic/attempt" "^3.1.0"
     "@noble/curves" "1.4.0"
@@ -15546,6 +15546,7 @@ word-wrap@^1.2.5:
   integrity sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==
 
 "wrap-ansi-cjs@npm:wrap-ansi@^7.0.0", wrap-ansi@^7.0.0:
+  name wrap-ansi-cjs
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/wrap-ansi/-/wrap-ansi-7.0.0.tgz#67e145cff510a6a6984bdf1152911d69d2eb9e43"
   integrity sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q==
