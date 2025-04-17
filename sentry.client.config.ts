@@ -6,6 +6,7 @@ import { isBaseToken } from "@defuse-protocol/defuse-sdk"
 import * as Sentry from "@sentry/nextjs"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import * as v from "valibot"
+import { formatUnits } from "viem"
 
 Sentry.init({
   dsn: "https://12f8f38e9e78e2900f386bec2549c9d7@o4504157766942720.ingest.us.sentry.io/4507589484544000",
@@ -39,6 +40,10 @@ function processNoLiquidityEvent(event: Sentry.ErrorEvent) {
   const event_: Sentry.ErrorEvent = event
   event_.tags ??= {}
   event_.tags["liquidity-alerts"] = true
+  event_.tags["amount-in"] = formatUnits(
+    BigInt(event.contexts.quoteParams.exact_amount_in ?? 0),
+    tokenIn?.decimals ?? 0
+  )
   event_.message = `No liquidity available for $${tokenIn?.symbol} (${tokenIn?.chainName}) to $${tokenOut?.symbol} (${tokenOut?.chainName})`
   return event_
 }
@@ -67,6 +72,7 @@ const noLiquidityEventSchema = v.object({
     quoteParams: v.object({
       defuse_asset_identifier_in: v.string(),
       defuse_asset_identifier_out: v.string(),
+      exact_amount_in: v.optional(v.string()),
     }),
   }),
 })
