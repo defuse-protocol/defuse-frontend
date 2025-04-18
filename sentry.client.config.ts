@@ -44,6 +44,7 @@ function processNoLiquidityEvent(event: Sentry.ErrorEvent) {
     BigInt(event.contexts.quoteParams.exact_amount_in ?? 0),
     tokenIn?.decimals ?? 0
   )
+  event_.tags["rpc-request-id"] = event.contexts.quoteRequestInfo.requestId
   event_.message = `No liquidity available for $${tokenIn?.symbol} (${tokenIn?.chainName}) to $${tokenOut?.symbol} (${tokenOut?.chainName})`
   return event_
 }
@@ -73,6 +74,9 @@ const noLiquidityEventSchema = v.object({
       defuse_asset_identifier_in: v.string(),
       defuse_asset_identifier_out: v.string(),
       exact_amount_in: v.optional(v.string()),
+    }),
+    quoteRequestInfo: v.object({
+      requestId: v.string(),
     }),
   }),
 })
