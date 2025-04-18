@@ -40,6 +40,7 @@ function processNoLiquidityEvent(event: Sentry.ErrorEvent) {
   const event_: Sentry.ErrorEvent = event
   event_.tags ??= {}
   event_.tags["liquidity-alerts"] = true
+  event_.tags["wait-ms"] = event.contexts.quoteParams.wait_ms
   event_.tags["amount-in"] = formatUnits(
     BigInt(event.contexts.quoteParams.exact_amount_in ?? 0),
     tokenIn?.decimals ?? 0
@@ -74,6 +75,7 @@ const noLiquidityEventSchema = v.object({
       defuse_asset_identifier_in: v.string(),
       defuse_asset_identifier_out: v.string(),
       exact_amount_in: v.optional(v.string()),
+      wait_ms: v.optional(v.number()),
     }),
     quoteRequestInfo: v.object({
       requestId: v.string(),
