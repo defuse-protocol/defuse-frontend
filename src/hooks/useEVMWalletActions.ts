@@ -13,6 +13,8 @@ export function useEVMWalletActions() {
 
       const chainId = tx.chainId
 
+      console.log("chainId", chainId, tx)
+
       // We can't rely on `chainId` from `useSwitchChain()` or other hooks,
       // because it might out of sync with the actual chainId of the wallet.
       const currentChainId = await connector?.getChainId()
