@@ -10,17 +10,26 @@ import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import { renderAppLink } from "@src/utils/renderAppLink"
-
+import { useSearchParams } from "next/navigation"
 export default function Withdraw() {
   const { state } = useConnectWallet()
   const signMessage = useWalletAgnosticSignMessage()
   const { signAndSendTransactions } = useNearWalletActions()
   const tokenList = useTokenList(LIST_TOKENS)
   const referral = useIntentsReferral()
+  const queryParams = useSearchParams()
+  const amount = queryParams.get("amount") ?? undefined
+  const tokenSymbol = queryParams.get("token") ?? undefined
+  const network = queryParams.get("network") ?? undefined
+  const recipient = queryParams.get("recipient") ?? undefined
 
   return (
     <Paper>
       <WithdrawWidget
+        presetAmount={amount}
+        presetNetwork={network}
+        presetRecipient={recipient}
+        presetTokenSymbol={tokenSymbol}
         tokenList={tokenList}
         userAddress={state.isVerified ? state.address : undefined}
         chainType={state.chainType}
