@@ -9,6 +9,18 @@ type TokenWithTags =
 
 export const LIST_TOKENS: TokenWithTags[] = [
   {
+    defuseAssetId:
+      "nep141:arb-0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9.omft.near",
+    address: "arb-0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9.omft.near",
+    decimals: 6,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+    chainName: "near",
+    bridge: "direct",
+    symbol: "iUSDC",
+    name: "USDT (arbitrum)",
+    tags: ["mc:3", "type:stablecoin"],
+  },
+  {
     unifiedAssetId: "usdc",
     symbol: "USDC",
     name: "USD Coin",
