@@ -43,9 +43,9 @@ export default function CreateOrderPage() {
 
           return { txHash: outcome.transaction.hash }
         }}
-        generateLink={(multiPayload) => {
+        generateLink={async (multiPayload, tradeId) => {
           console.log("multiPayload", multiPayload)
-          return createOTCOrderLink(multiPayload)
+          return await createOTCOrderLink(multiPayload, tradeId)
         }}
         initialTokenIn={tokenIn}
         initialTokenOut={tokenOut}

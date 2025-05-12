@@ -1,7 +1,7 @@
 "use client"
 
 import { OtcTakerWidget } from "@defuse-protocol/defuse-sdk"
-import React from "react"
+import React, { useEffect, useState } from "react"
 
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
@@ -17,9 +17,15 @@ export default function CreateOrderPage() {
   const { state } = useConnectWallet()
   const tokenList = useTokenList(LIST_TOKENS)
   const signMessage = useWalletAgnosticSignMessage()
-  const multiPayload = useOTCOrder()
+  const otcOrder = useOTCOrder()
   const { signAndSendTransactions } = useNearWalletActions()
   const referral = useIntentsReferral()
+
+  const [multiPayload, setMultiPayload] = useState<string | null>(null)
+
+  useEffect(() => {
+    setMultiPayload(otcOrder)
+  }, [otcOrder])
 
   return (
     <Paper>
