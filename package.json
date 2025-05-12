@@ -80,6 +80,7 @@
     "@tailwindcss/typography": "^0.5.13",
     "@tinkoff/webpack-dedupe-plugin": "^3.0.3",
     "@types/bn.js": "^5.1.5",
+    "@types/crypto-js": "^4.2.2",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-copy-to-clipboard": "^5.0.7",
