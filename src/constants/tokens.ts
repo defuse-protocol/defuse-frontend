@@ -16,8 +16,8 @@ export const LIST_TOKENS: TokenWithTags[] = [
     icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
     chainName: "near",
     bridge: "direct",
-    symbol: "iUSDC",
-    name: "USDT (arbitrum)",
+    symbol: "iUSDT",
+    name: "Tether USD (arbitrum)",
     tags: ["mc:3", "type:stablecoin"],
   },
   {
