@@ -34,6 +34,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      otc_trades: {
+        Row: {
+          created_at: string | null
+          encrypted_payload: string
+          hostname: string
+          raw_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          encrypted_payload: string
+          hostname: string
+          raw_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          encrypted_payload?: string
+          hostname?: string
+          raw_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       webauthn_credentials: {
         Row: {
           created_at: string | null
@@ -187,4 +211,3 @@ export const Constants = {
     Enums: {},
   },
 } as const
-
