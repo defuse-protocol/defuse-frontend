@@ -1194,5 +1194,6 @@ export const LIST_TOKENS: TokenWithTags[] = [
     bridge: "poa",
     symbol: "USDf",
     name: "Falcon USD",
+    tags: ["mc:221", "type:stablecoin"],
   },
 ]
