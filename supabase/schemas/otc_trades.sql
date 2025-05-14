@@ -1,7 +1,6 @@
 CREATE TABLE otc_trades (
-    raw_id TEXT PRIMARY KEY,
+    trade_id TEXT PRIMARY KEY,
     encrypted_payload TEXT NOT NULL,
-    hostname TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

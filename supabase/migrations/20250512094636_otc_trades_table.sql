@@ -1,12 +1,11 @@
 create table "public"."otc_trades" (
-    "raw_id" text not null,
+    "trade_id" uuid default gen_random_uuid() not null,
     "encrypted_payload" text not null,
-    "hostname" text not null,
     "created_at" timestamp with time zone default CURRENT_TIMESTAMP,
     "updated_at" timestamp with time zone default CURRENT_TIMESTAMP
 );
 
-CREATE UNIQUE INDEX otc_trades_pkey ON public.otc_trades USING btree (raw_id);
+CREATE UNIQUE INDEX otc_trades_pkey ON public.otc_trades USING btree (trade_id);
 
 alter table "public"."otc_trades" add constraint "otc_trades_pkey" PRIMARY KEY using index "otc_trades_pkey";
 
