@@ -1,15 +1,9 @@
 create table "public"."otc_trades" (
-    "trade_id" uuid default gen_random_uuid() not null,
+    "trade_id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     "encrypted_payload" text not null,
     "created_at" timestamp with time zone default CURRENT_TIMESTAMP,
     "updated_at" timestamp with time zone default CURRENT_TIMESTAMP
 );
-
-CREATE UNIQUE INDEX otc_trades_pkey ON public.otc_trades USING btree (trade_id);
-
-alter table "public"."otc_trades" add constraint "otc_trades_pkey" PRIMARY KEY using index "otc_trades_pkey";
-
-set check_function_bodies = off;
 
 -- Grant permissions to anon users
 grant delete on table "public"."otc_trades" to "anon";

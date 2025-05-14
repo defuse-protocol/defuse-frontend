@@ -10,9 +10,3 @@ CREATE TRIGGER otc_trades_set_updated_at
     BEFORE UPDATE ON otc_trades
     FOR EACH ROW
     EXECUTE FUNCTION trigger_set_timestamp();
-
--- Create a trigger for trade_id
-CREATE TRIGGER otc_trades_gen_trade_id
-    BEFORE INSERT ON otc_trades
-    FOR EACH ROW
-    EXECUTE FUNCTION trigger_gen_trade_id();
