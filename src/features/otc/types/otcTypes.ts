@@ -1,11 +1,11 @@
 export interface OtcTrade {
-  raw_id: string
+  trade_id?: string
   encrypted_payload: string
-  hostname: string
 }
 
 export interface CreateOtcTradeResponse {
   success: boolean
+  trade_id: string
 }
 
 export interface GetOtcTradeResponse {
