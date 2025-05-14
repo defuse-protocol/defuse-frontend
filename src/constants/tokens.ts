@@ -1184,4 +1184,28 @@ export const LIST_TOKENS: TokenWithTags[] = [
     ],
     tags: ["mc:10"],
   },
+  {
+    defuseAssetId:
+      "nep141:eth-0xfa2b947eec368f42195f24f36d2af29f7c24cec2.omft.near",
+    address: "0xfa2b947eec368f42195f24f36d2af29f7c24cec2",
+    decimals: 18,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/35721.png",
+    chainName: "eth",
+    bridge: "poa",
+    symbol: "USDf",
+    name: "Falcon USD",
+    tags: ["mc:221", "type:stablecoin"],
+  },
+  {
+    defuseAssetId:
+      "nep141:eth-0x8d0d000ee44948fc98c9b98a4fa4921476f08b0d.omft.near",
+    address: "0x8d0d000ee44948fc98c9b98a4fa4921476f08b0d",
+    decimals: 18,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/36148.png",
+    chainName: "eth",
+    bridge: "poa",
+    symbol: "USD1",
+    name: "World Liberty Financial USD",
+    tags: ["mc:47", "type:stablecoin"],
+  },
 ]
