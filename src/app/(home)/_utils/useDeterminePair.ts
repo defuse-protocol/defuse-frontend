@@ -1,4 +1,4 @@
-import { isBaseToken } from "@defuse-protocol/defuse-sdk"
+import { isBaseToken } from "@defuse-protocol/defuse-sdk/utils"
 import type { WhitelabelTemplateValue } from "@src/config/featureFlags"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"

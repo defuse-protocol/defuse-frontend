@@ -1,8 +1,8 @@
-import {
-  type BaseTokenInfo,
-  type UnifiedTokenInfo,
-  isBaseToken,
-} from "@defuse-protocol/defuse-sdk"
+import type {
+  BaseTokenInfo,
+  UnifiedTokenInfo,
+} from "@defuse-protocol/defuse-sdk/types"
+import { isBaseToken } from "@defuse-protocol/defuse-sdk/utils"
 import { useSearchParams } from "next/navigation"
 import { useMemo } from "react"
 

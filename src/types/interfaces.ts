@@ -47,3 +47,41 @@ export type Settings = {
     }
   }
 }
+
+export type LastLiquidityCheckStatus = "passed" | "failed"
+
+export type PairItem = {
+  defuseAssetId: string
+  decimals: number
+}
+
+export type MaxLiquidity = {
+  amount: bigint
+  validatedAmount: bigint
+  lastStepSize?: bigint
+  lastLiquidityCheck?: LastLiquidityCheckStatus
+}
+
+export type MaxLiquidityInJson = {
+  validatedAmount: {
+    value: string
+    __type?: string
+  }
+  amount: {
+    value: string
+    __type?: string
+  }
+  lastStepSize?: {
+    value: string
+    __type?: string
+  }
+  lastLiquidityCheck?: LastLiquidityCheckStatus
+}
+
+export type Pairs =
+  | {
+      in: PairItem
+      out: PairItem
+      maxLiquidity: MaxLiquidity
+    }[]
+  | null
