@@ -1,23 +1,22 @@
-import { base58 } from "@scure/base"
 import type { GetOtcTradeResponse } from "@src/features/otc/types/otcTypes"
 import { supabase } from "@src/libs/supabase"
 import { logger } from "@src/utils/logger"
 import { NextResponse } from "next/server"
 import { z } from "zod"
-import { rawIdSchema } from "../_utils/validation"
+import { tradeIdSchema } from "../_utils/validation"
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ rawId: string }> }
+  { params }: { params: Promise<{ tradeId: string }> }
 ) {
   try {
-    const { rawId: rawId_ } = await params
-    const rawId = rawIdSchema.parse(rawId_)
+    const { tradeId } = await params
+    const parsedTradeId = tradeIdSchema.parse(tradeId)
 
     const { data, error } = await supabase
       .from("otc_trades")
       .select("encrypted_payload")
-      .eq("raw_id", rawId)
+      .eq("trade_id", parsedTradeId)
       .maybeSingle()
 
     if (error) {

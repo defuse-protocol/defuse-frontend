@@ -33,10 +33,12 @@ describe("GET /api/otc_trades/[rawId]", () => {
 
     const response = await GET(
       new Request(
-        "http://localhost:3000/api/otc_trades/vi97r57ot-3e1x447a64c2zto"
+        "http://localhost:3000/api/otc_trades/e00e4eb4-6d0f-446e-a93e-7632bf40ede9"
       ),
       {
-        params: Promise.resolve({ rawId: "vi97r57ot-3e1x447a64c2zto" }),
+        params: Promise.resolve({
+          tradeId: "e00e4eb4-6d0f-446e-a93e-7632bf40ede9",
+        }),
       }
     )
 
@@ -54,10 +56,12 @@ describe("GET /api/otc_trades/[rawId]", () => {
 
     const response = await GET(
       new Request(
-        "http://localhost:3000/api/otc_trades/vi97r57ot-3e1x447a64c2zto"
+        "http://localhost:3000/api/otc_trades/e00e4eb4-6d0f-446e-a93e-7632bf40ede9"
       ),
       {
-        params: Promise.resolve({ rawId: "vi97r57ot-3e1x447a64c2zto" }),
+        params: Promise.resolve({
+          tradeId: "e00e4eb4-6d0f-446e-a93e-7632bf40ede9",
+        }),
       }
     )
 
@@ -67,7 +71,9 @@ describe("GET /api/otc_trades/[rawId]", () => {
   it("should return 400 for invalid rawId", async () => {
     const response = await GET(
       new Request("http://localhost:3000/api/otc_trades/invalid"),
-      { params: Promise.resolve({ rawId: "invalid" }) }
+      {
+        params: Promise.resolve({ tradeId: "invalid" }),
+      }
     )
 
     expect(response.status).toBe(400)
@@ -83,10 +89,12 @@ describe("GET /api/otc_trades/[rawId]", () => {
 
     const response = await GET(
       new Request(
-        "http://localhost:3000/api/otc_trades/vi97r57ot-3e1x447a64c2zto"
+        "http://localhost:3000/api/otc_trades/e00e4eb4-6d0f-446e-a93e-7632bf40ede9"
       ),
       {
-        params: Promise.resolve({ rawId: "vi97r57ot-3e1x447a64c2zto" }),
+        params: Promise.resolve({
+          tradeId: "e00e4eb4-6d0f-446e-a93e-7632bf40ede9",
+        }),
       }
     )
 

@@ -1,12 +1,12 @@
 import { z } from "zod"
 
-export const rawIdSchema = z.string().refine(
+export const tradeIdSchema = z.string().refine(
   (val) => {
-    // Format: 25 characters of lowercase letters, numbers, and hyphens
-    return /^[a-z0-9-]{25}$/.test(val)
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      val
+    )
   },
   {
-    message:
-      "raw_id must be 25 characters long and contain only lowercase letters, numbers, and hyphens",
+    message: "trade_id must be a valid UUID",
   }
 )
