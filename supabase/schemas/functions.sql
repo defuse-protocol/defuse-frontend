@@ -7,3 +7,12 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION trigger_gen_trade_id()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.trade_id IS NULL THEN
+    NEW.trade_id = gen_random_uuid();
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
