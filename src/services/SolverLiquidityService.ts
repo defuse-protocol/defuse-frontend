@@ -12,6 +12,7 @@ import { getPairsPerToken } from "@src/utils/tokenUtils"
 const redis = Redis.fromEnv()
 
 export class SolverLiquidityService {
+  private static STORAGE_KEY = "tokenPairsLiquidity"
   private constructor() {}
 
   private static pairs: Pairs = null
@@ -42,7 +43,7 @@ export class SolverLiquidityService {
       return null
     }
 
-    const exists = await redis.exists("tokenPairsLiquidity")
+    const exists = await redis.exists(SolverLiquidityService.STORAGE_KEY)
     if (!exists) {
       const pairs = SolverLiquidityService.pairs.reduce(
         (acc: Record<string, MaxLiquidity>, pair) => {
@@ -57,7 +58,7 @@ export class SolverLiquidityService {
       return JSON.parse(serialize(pairs))
     }
 
-    return await redis.get("tokenPairsLiquidity")
+    return await redis.get(SolverLiquidityService.STORAGE_KEY)
   }
 
   public static setMaxLiquidityData = async (
@@ -70,8 +71,11 @@ export class SolverLiquidityService {
       return null
     }
 
-    await redis.set("tokenPairsLiquidity", serialize(tokenPairsLiquidity))
+    await redis.set(
+      SolverLiquidityService.STORAGE_KEY,
+      serialize(tokenPairsLiquidity)
+    )
 
-    return await redis.get("tokenPairsLiquidity")
+    return await redis.get(SolverLiquidityService.STORAGE_KEY)
   }
 }
