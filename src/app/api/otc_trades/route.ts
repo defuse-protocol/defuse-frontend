@@ -1,3 +1,4 @@
+import { base58 } from "@scure/base"
 import type {
   CreateOtcTradeResponse,
   ErrorResponse,
@@ -7,39 +8,56 @@ import { supabase } from "@src/libs/supabase"
 import { logger } from "@src/utils/logger"
 import { NextResponse } from "next/server"
 import { z } from "zod"
-import { rawIdSchema } from "./_utils/validation"
 
 const otcTradesSchema: z.ZodType<OtcTrade> = z.object({
-  raw_id: rawIdSchema,
-  encrypted_payload: z.string(),
-  hostname: z.string().min(1).max(255),
+  encrypted_payload: z.string().refine((val) => {
+    try {
+      const decoded = base58.decode(val)
+      // AES-256 requires 32 bytes (256 bits) key and produces output in blocks of 16 bytes
+      return decoded.length % 16 === 0
+    } catch (err) {
+      return false
+    }
+  }, "Invalid encrypted_payload format"),
 })
 
-export async function PUT(request: Request) {
+export async function POST(request: Request) {
   try {
     const body = await request.json()
     const validatedData = otcTradesSchema.parse(body)
 
-    const { error } = await supabase.from("otc_trades").upsert([
-      {
-        raw_id: validatedData.raw_id,
-        encrypted_payload: validatedData.encrypted_payload,
-        hostname: validatedData.hostname,
-      },
-    ])
+    const { data, error } = await supabase
+      .from("otc_trades")
+      .upsert([
+        {
+          encrypted_payload: validatedData.encrypted_payload,
+        },
+      ])
+      .select("trade_id")
+      .single()
 
     if (error) {
       logger.error(error)
       return NextResponse.json(
         {
-          error: "Failed to create or update otc trade",
+          error: "Failed to create otc trade",
         } satisfies ErrorResponse,
         { status: 500 }
       )
     }
 
+    if (!data) {
+      return NextResponse.json(
+        { error: "Failed to retrieve otc trade data" } satisfies ErrorResponse,
+        { status: 500 }
+      )
+    }
+
     return NextResponse.json(
-      { success: true } satisfies CreateOtcTradeResponse,
+      {
+        success: true,
+        trade_id: data.trade_id,
+      } satisfies CreateOtcTradeResponse,
       {
         status: 200,
       }
