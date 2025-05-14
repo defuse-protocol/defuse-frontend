@@ -1196,4 +1196,16 @@ export const LIST_TOKENS: TokenWithTags[] = [
     name: "Falcon USD",
     tags: ["mc:221", "type:stablecoin"],
   },
+  {
+    defuseAssetId:
+      "nep141:eth-0x8d0d000ee44948fc98c9b98a4fa4921476f08b0d.omft.near",
+    address: "0x8d0d000ee44948fc98c9b98a4fa4921476f08b0d",
+    decimals: 18,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/36148.png",
+    chainName: "eth",
+    bridge: "poa",
+    symbol: "USD1",
+    name: "World Liberty Financial USD",
+    tags: ["mc:47", "type:stablecoin"],
+  },
 ]
