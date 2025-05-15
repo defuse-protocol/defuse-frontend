@@ -12,40 +12,39 @@ import { getPairsPerToken } from "@src/utils/tokenUtils"
 const redis = Redis.fromEnv()
 
 export class SolverLiquidityService {
-  private static STORAGE_KEY = "tokenPairsLiquidity"
-  private constructor() {}
+  private STORAGE_KEY = "tokenPairsLiquidity"
 
-  private static pairs: Pairs = null
+  private pairs: Pairs = null
 
-  public static getPairs = () => {
-    if (!SolverLiquidityService.hasPairs()) {
-      SolverLiquidityService.generatePairs()
+  public getPairs = () => {
+    if (!this.hasPairs()) {
+      this.generatePairs()
     }
 
-    return SolverLiquidityService.pairs
+    return this.pairs
   }
 
-  public static generatePairs = (): NonNullable<Pairs> => {
-    SolverLiquidityService.pairs = getPairsPerToken(LIST_TOKENS)
+  public generatePairs = (): NonNullable<Pairs> => {
+    this.pairs = getPairsPerToken(LIST_TOKENS)
 
-    return SolverLiquidityService.pairs
+    return this.pairs
   }
 
-  public static hasPairs = (): boolean => {
-    return SolverLiquidityService.pairs != null
+  public hasPairs = (): boolean => {
+    return this.pairs != null
   }
 
-  public static getMaxLiquidityData = async (): Promise<Record<
+  public getMaxLiquidityData = async (): Promise<Record<
     string,
     MaxLiquidityInJson
   > | null> => {
-    if (SolverLiquidityService.pairs == null) {
+    if (this.pairs == null) {
       return null
     }
 
-    const exists = await redis.exists(SolverLiquidityService.STORAGE_KEY)
+    const exists = await redis.exists(this.STORAGE_KEY)
     if (!exists) {
-      const pairs = SolverLiquidityService.pairs.reduce(
+      const pairs = this.pairs.reduce(
         (acc: Record<string, MaxLiquidity>, pair) => {
           acc[`${pair.in.defuseAssetId}#${pair.out.defuseAssetId}`] =
             pair.maxLiquidity
@@ -54,14 +53,14 @@ export class SolverLiquidityService {
         {}
       )
 
-      await SolverLiquidityService.setMaxLiquidityData(pairs)
+      await this.setMaxLiquidityData(pairs)
       return JSON.parse(serialize(pairs))
     }
 
-    return await redis.get(SolverLiquidityService.STORAGE_KEY)
+    return await redis.get(this.STORAGE_KEY)
   }
 
-  public static setMaxLiquidityData = async (
+  public setMaxLiquidityData = async (
     tokenPairsLiquidity: Record<
       string,
       MaxLiquidity | MaxLiquidityInJson
@@ -71,11 +70,8 @@ export class SolverLiquidityService {
       return null
     }
 
-    await redis.set(
-      SolverLiquidityService.STORAGE_KEY,
-      serialize(tokenPairsLiquidity)
-    )
+    await redis.set(this.STORAGE_KEY, serialize(tokenPairsLiquidity))
 
-    return await redis.get(SolverLiquidityService.STORAGE_KEY)
+    return serialize(tokenPairsLiquidity)
   }
 }

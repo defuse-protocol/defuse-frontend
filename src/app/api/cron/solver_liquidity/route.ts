@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server"
 
-import type {
-  AggregatedQuote,
-  AggregatedQuoteErr,
-} from "@defuse-protocol/defuse-sdk/types"
-import { manyQuotes } from "@defuse-protocol/defuse-sdk/utils"
+import { getQuote } from "@defuse-protocol/defuse-sdk/utils"
 import { SolverLiquidityService } from "@src/services/SolverLiquidityService"
 import type {
   LastLiquidityCheckStatus,
@@ -16,13 +12,14 @@ import { joinAddresses } from "@src/utils/tokenUtils"
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 export async function POST() {
-  const tokenPairs = SolverLiquidityService.getPairs()
+  const solverLiquidityService = new SolverLiquidityService()
+  const tokenPairs = solverLiquidityService.getPairs()
   if (tokenPairs == null) {
     logger.error("tokenPairs was null")
     return NextResponse.json({ error: "tokenPairs was null" }, { status: 500 })
   }
 
-  const tokenPairsLiquidity = await SolverLiquidityService.getMaxLiquidityData()
+  const tokenPairsLiquidity = await solverLiquidityService.getMaxLiquidityData()
   if (tokenPairsLiquidity == null) {
     logger.error("tokenPairsLiquidity was null")
     return NextResponse.json(
@@ -44,32 +41,36 @@ export async function POST() {
       continue
     }
 
-    const quoteParams = [
-      {
-        tokenIn: token.in.defuseAssetId,
-        tokenOut: token.out.defuseAssetId,
-        amountIn: maxLiquidity.amount.value,
-      },
-    ]
+    const quoteParams = {
+      defuse_asset_identifier_in: token.in.defuseAssetId,
+      defuse_asset_identifier_out: token.out.defuseAssetId,
+      exact_amount_in: maxLiquidity.amount.value,
+    }
 
-    await manyQuotes(quoteParams, {
-      logBalanceSufficient: false,
+    await getQuote({
+      quoteParams,
+      config: {
+        logBalanceSufficient: false,
+      },
     })
-      .then((quotes: { val: AggregatedQuote | AggregatedQuoteErr }) => {
-        const hasLiquidity = !("reason" in quotes.val)
+      .then(() => {
         tokenPairsLiquidity[joinedAddressesKey] = prepareUpdatedLiquidity(
           maxLiquidity,
-          hasLiquidity
+          true
         )
       })
       .catch((err: Error) => {
+        tokenPairsLiquidity[joinedAddressesKey] = prepareUpdatedLiquidity(
+          maxLiquidity,
+          false
+        )
         logger.error(`${err}: ${joinedAddressesKey}`)
       })
 
     await delay(500)
   }
 
-  await SolverLiquidityService.setMaxLiquidityData(tokenPairsLiquidity)
+  await solverLiquidityService.setMaxLiquidityData(tokenPairsLiquidity)
   return NextResponse.json({ error: null }, { status: 200 })
 }
 
