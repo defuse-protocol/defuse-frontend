@@ -19,19 +19,16 @@ export async function POST() {
   const tokenPairs = SolverLiquidityService.getPairs()
   if (tokenPairs == null) {
     logger.error("tokenPairs was null")
-    return NextResponse.json({
-      success: false,
-      reason: "tokenPairs was null",
-    })
+    return NextResponse.json({ error: "tokenPairs was null" }, { status: 500 })
   }
 
   const tokenPairsLiquidity = await SolverLiquidityService.getMaxLiquidityData()
   if (tokenPairsLiquidity == null) {
     logger.error("tokenPairsLiquidity was null")
-    return NextResponse.json({
-      success: false,
-      reason: "tokenPairsLiquidity was null",
-    })
+    return NextResponse.json(
+      { error: "tokenPairsLiquidity was null" },
+      { status: 500 }
+    )
   }
 
   for (const token of tokenPairs) {
@@ -73,10 +70,7 @@ export async function POST() {
   }
 
   await SolverLiquidityService.setMaxLiquidityData(tokenPairsLiquidity)
-
-  return NextResponse.json({
-    success: true,
-  })
+  return NextResponse.json({ error: null }, { status: 200 })
 }
 
 const prepareUpdatedLiquidity = (
