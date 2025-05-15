@@ -1,4 +1,3 @@
-import { ENCRYPTION_KEY } from "@src/utils/environment"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { decodeAES256Order, encodeAES256Order } from "./encoder"
 
@@ -24,6 +23,8 @@ describe("encoder", () => {
       "secp256k1:CKUPsyCGCcTstHRvPR2sTU2LQFC5Rv3CbbSr3udUxPkB7amBhrzb1M4SZepeq1jyJLFjvFHZ3KycbD8iDsqgPsDk4",
     standard: "erc191",
   }
+
+  const pKey = "12345678901234567890123456789012"
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -65,11 +66,8 @@ describe("encoder", () => {
 
   describe("AES256 encryption/decryption", () => {
     it("should verify encryption/decryption with environment key", async () => {
-      const encrypted = await encodeAES256Order(
-        makerMultiPayload,
-        ENCRYPTION_KEY
-      )
-      const decrypted = await decodeAES256Order(encrypted, ENCRYPTION_KEY)
+      const encrypted = await encodeAES256Order(makerMultiPayload, pKey)
+      const decrypted = await decodeAES256Order(encrypted, pKey)
       expect(decrypted).toEqual(makerMultiPayload)
 
       // Verify crypto API was called correctly
@@ -90,9 +88,7 @@ describe("encoder", () => {
 
     it("should fail with invalid encrypted data", async () => {
       const invalidData = "not-encrypted-data"
-      await expect(
-        decodeAES256Order(invalidData, ENCRYPTION_KEY)
-      ).rejects.toThrow()
+      await expect(decodeAES256Order(invalidData, pKey)).rejects.toThrow()
     })
 
     it("should produce different ciphertexts for same input", async () => {
@@ -119,14 +115,8 @@ describe("encoder", () => {
         return encoded.buffer
       })
 
-      const encrypted1 = await encodeAES256Order(
-        makerMultiPayload,
-        ENCRYPTION_KEY
-      )
-      const encrypted2 = await encodeAES256Order(
-        makerMultiPayload,
-        ENCRYPTION_KEY
-      )
+      const encrypted1 = await encodeAES256Order(makerMultiPayload, pKey)
+      const encrypted2 = await encodeAES256Order(makerMultiPayload, pKey)
       expect(encrypted1).not.toEqual(encrypted2)
     })
   })

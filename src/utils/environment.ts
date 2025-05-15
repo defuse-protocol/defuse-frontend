@@ -38,6 +38,3 @@ export const INTENTS_ENV = v.parse(
   v.picklist(["production", "stage"]),
   process.env.NEXT_PUBLIC_INTENTS_ENV || "production"
 )
-
-export const ENCRYPTION_KEY =
-  process.env.NEXT_PUBLIC_ENCRYPTION_KEY ?? "12345678901234567890123456789012" // key must be 32-bytes
