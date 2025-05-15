@@ -1,4 +1,4 @@
-import { base58 } from "@scure/base"
+import { base64 } from "@scure/base"
 import type {
   CreateOtcTradeResponse,
   ErrorResponse,
@@ -12,13 +12,22 @@ import { z } from "zod"
 const otcTradesSchema: z.ZodType<OtcTrade> = z.object({
   encrypted_payload: z.string().refine((val) => {
     try {
-      const decoded = base58.decode(val)
+      const decoded = base64.decode(val)
       // AES-256 requires 32 bytes (256 bits) key and produces output in blocks of 16 bytes
       return decoded.length % 16 === 0
     } catch (err) {
       return false
     }
   }, "Invalid encrypted_payload format"),
+  iv: z.string().refine((val) => {
+    try {
+      const decoded = base64.decode(val)
+      // IV should be exactly 12 bytes for AES-GCM
+      return decoded.length === 12
+    } catch (err) {
+      return false
+    }
+  }, "Invalid IV format"),
 })
 
 export async function POST(request: Request) {
@@ -31,6 +40,7 @@ export async function POST(request: Request) {
       .upsert([
         {
           encrypted_payload: validatedData.encrypted_payload,
+          iv: validatedData.iv,
         },
       ])
       .select("trade_id")
