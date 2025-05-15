@@ -93,11 +93,9 @@ const prepareUpdatedLiquidity = (
   const amount = BigInt(amount_.value)
   let validatedAmount = BigInt(validatedAmount_.value)
   let currentAmount: bigint = BigInt(amount)
-  const basicStep = currentAmount / BigInt(10)
+  const basicStep = currentAmount / 10n
   let currentStep =
-    lastStepSize_ == null
-      ? currentAmount / BigInt(5)
-      : BigInt(lastStepSize_.value)
+    lastStepSize_ == null ? currentAmount / 5n : BigInt(lastStepSize_.value)
 
   let currentLiquidityCheck: LastLiquidityCheckStatus
 
