@@ -1,6 +1,6 @@
 export interface OtcTrade {
-  trade_id?: string
   encrypted_payload: string
+  iv: string
 }
 
 export interface CreateOtcTradeResponse {

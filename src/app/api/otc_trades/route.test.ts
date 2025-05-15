@@ -16,7 +16,7 @@ vi.mock("@src/utils/logger", () => ({
   logger: { error: vi.fn() },
 }))
 
-describe("PUT /api/otc_trades", () => {
+describe("POST /api/otc_trades", () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -37,6 +37,7 @@ describe("PUT /api/otc_trades", () => {
         body: JSON.stringify({
           encrypted_payload:
             "2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U",
+          iv: "FAP3itbQYiwcEpKD",
         }),
       })
     )
@@ -54,6 +55,7 @@ describe("PUT /api/otc_trades", () => {
         method: "POST",
         body: JSON.stringify({
           encrypted_payload: "invalid aes256",
+          iv: "invalid iv",
         }),
       })
     )
@@ -78,10 +80,11 @@ describe("PUT /api/otc_trades", () => {
         body: JSON.stringify({
           encrypted_payload:
             "2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U2NEpo7TZRRrLZSi2U",
+          iv: "FAP3itbQYiwcEpKD",
         }),
       })
     )
-    console.log(response)
+
     expect(response.status).toBe(500)
     expect(await response.json()).toEqual({
       error: "Failed to create otc trade",
