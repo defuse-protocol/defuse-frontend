@@ -15,7 +15,7 @@ export async function GET(
 
     const { data, error } = await supabase
       .from("otc_trades")
-      .select("encrypted_payload")
+      .select("encrypted_payload, iv")
       .eq("trade_id", parsedTradeId)
       .maybeSingle()
 
@@ -36,6 +36,7 @@ export async function GET(
 
     return NextResponse.json({
       encrypted_payload: data.encrypted_payload,
+      iv: data.iv,
     } satisfies GetOtcTradeResponse)
   } catch (error) {
     if (error instanceof z.ZodError) {

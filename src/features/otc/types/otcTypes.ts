@@ -10,6 +10,7 @@ export interface CreateOtcTradeResponse {
 
 export interface GetOtcTradeResponse {
   encrypted_payload: string
+  iv: string
 }
 
 export interface ErrorResponse {
