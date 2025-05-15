@@ -1,8 +1,15 @@
 import { NextResponse } from "next/server"
 
+import type {
+  AggregatedQuote,
+  AggregatedQuoteErr,
+} from "@defuse-protocol/defuse-sdk/types"
 import { manyQuotes } from "@defuse-protocol/defuse-sdk/utils"
 import { SolverLiquidityService } from "@src/services/SolverLiquidityService"
-import type { MaxLiquidityInJson } from "@src/types/interfaces"
+import type {
+  LastLiquidityCheckStatus,
+  MaxLiquidityInJson,
+} from "@src/types/interfaces"
 import { logger } from "@src/utils/logger"
 import { joinAddresses } from "@src/utils/tokenUtils"
 
@@ -51,11 +58,11 @@ export async function POST() {
     await manyQuotes(quoteParams, {
       logBalanceSufficient: false,
     })
-      .then((quotes: { val: never }) => {
-        const currentHasLiquidity = !("reason" in quotes.val)
+      .then((quotes: { val: AggregatedQuote | AggregatedQuoteErr }) => {
+        const hasLiquidity = !("reason" in quotes.val)
         tokenPairsLiquidity[joinedAddressesKey] = prepareUpdatedLiquidity(
           maxLiquidity,
-          currentHasLiquidity
+          hasLiquidity
         )
       })
       .catch((err: Error) => {
@@ -85,14 +92,14 @@ const prepareUpdatedLiquidity = (
 
   const amount = BigInt(amount_.value)
   let validatedAmount = BigInt(validatedAmount_.value)
-  const lastStepSize: bigint | undefined =
-    lastStepSize_ != null ? BigInt(lastStepSize_.value) : lastStepSize_
   let currentAmount: bigint = BigInt(amount)
   const basicStep = currentAmount / BigInt(10)
   let currentStep =
-    lastStepSize != null ? lastStepSize : currentAmount / BigInt(5)
+    lastStepSize_ == null
+      ? currentAmount / BigInt(5)
+      : BigInt(lastStepSize_.value)
 
-  let currentLiquidityCheck: "passed" | "failed"
+  let currentLiquidityCheck: LastLiquidityCheckStatus
 
   if (hasLiquidity) {
     validatedAmount = amount
