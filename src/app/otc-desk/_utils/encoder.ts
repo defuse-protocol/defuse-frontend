@@ -1,4 +1,4 @@
-import { base64urlnopad } from "@scure/base"
+import { base64, base64urlnopad } from "@scure/base"
 
 export function encodeOrder(order: unknown): string {
   const format = {
@@ -15,31 +15,33 @@ export function decodeOrder(encodedOrder: string): string {
 
 export async function encodeAES256Order(
   order: unknown,
-  key: string
+  pKey: string,
+  iv: string
 ): Promise<string> {
-  validateKey(key)
+  validateKey(pKey)
 
   const format = {
     version: 1,
     payload: JSON.stringify(order),
   }
   const jsonString = JSON.stringify(format)
-  const combined = await createEncryptedPayload(jsonString, key)
-  return base64urlnopad.encode(combined)
+  const combined = await createEncryptedPayload(jsonString, pKey, iv)
+  return base64.encode(combined)
 }
 
 export async function decodeAES256Order(
   encodedOrder: string,
-  key: string
+  pKey: string,
+  iv: string
 ): Promise<string> {
-  validateKey(key)
+  validateKey(pKey)
 
   try {
-    const decoded = base64urlnopad.decode(encodedOrder)
-    const { iv, ciphertext } = extractIVAndCiphertext(decoded)
+    const decoded = base64.decode(encodedOrder)
+    const iv_ = base64.decode(iv)
 
     // Convert the key to a CryptoKey object
-    const keyData = new TextEncoder().encode(key)
+    const keyData = new TextEncoder().encode(pKey)
     const cryptoKey = await crypto.subtle.importKey(
       "raw",
       keyData,
@@ -51,10 +53,10 @@ export async function decodeAES256Order(
     const decrypted = await crypto.subtle.decrypt(
       {
         name: "AES-GCM",
-        iv: iv,
+        iv: iv_,
       },
       cryptoKey,
-      ciphertext
+      decoded
     )
 
     const json = new TextDecoder().decode(decrypted)
@@ -72,13 +74,13 @@ export async function decodeAES256Order(
 
 async function createEncryptedPayload(
   jsonString: string,
-  key: string
+  pKey: string,
+  iv: string
 ): Promise<Uint8Array> {
-  // Generate a random IV
-  const iv = crypto.getRandomValues(new Uint8Array(12))
+  const iv_ = base64.decode(iv)
 
   // Convert the key to a CryptoKey object
-  const keyData = new TextEncoder().encode(key)
+  const keyData = new TextEncoder().encode(pKey)
   const cryptoKey = await crypto.subtle.importKey(
     "raw",
     keyData,
@@ -92,31 +94,17 @@ async function createEncryptedPayload(
   const ciphertext = await crypto.subtle.encrypt(
     {
       name: "AES-GCM",
-      iv: iv,
+      iv: iv_,
     },
     cryptoKey,
     data
   )
 
-  // Combine IV and ciphertext
-  const combined = new Uint8Array(iv.length + ciphertext.byteLength)
-  combined.set(iv)
-  combined.set(new Uint8Array(ciphertext), iv.length)
-
-  return combined
+  return new Uint8Array(ciphertext)
 }
 
-function extractIVAndCiphertext(data: Uint8Array): {
-  iv: Uint8Array
-  ciphertext: ArrayBuffer
-} {
-  const iv = data.slice(0, 12)
-  const ciphertext = data.slice(12).buffer
-  return { iv, ciphertext }
-}
-
-function validateKey(key: string): void {
-  if (key.length !== 32) {
+function validateKey(pKey: string): void {
+  if (pKey.length !== 32) {
     throw new Error("Key must be 32-bytes")
   }
 }
