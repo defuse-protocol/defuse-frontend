@@ -7,6 +7,6 @@ export const tradeIdSchema = z.string().refine(
     )
   },
   {
-    message: "trade_id must be a valid UUID",
+    message: "Invalid trade_id format",
   }
 )

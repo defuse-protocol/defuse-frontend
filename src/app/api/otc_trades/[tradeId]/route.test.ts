@@ -24,7 +24,10 @@ describe("GET /api/otc_trades/[rawId]", () => {
 
   it("should return otc trade when found", async () => {
     const mockSingle = vi.fn().mockResolvedValue({
-      data: { encrypted_payload: "2Kc5WSg4kBsxQXBuBPjEH9" },
+      data: {
+        encrypted_payload: "2Kc5WSg4kBsxQXBuBPjEH9",
+        iv: "FAP3itbQYiwcEpKD",
+      },
       error: null,
     })
     const mockEq = vi.fn().mockReturnValue({ maybeSingle: mockSingle })
@@ -45,6 +48,7 @@ describe("GET /api/otc_trades/[rawId]", () => {
     expect(response.status).toBe(200)
     expect(await response.json()).toEqual({
       encrypted_payload: "2Kc5WSg4kBsxQXBuBPjEH9",
+      iv: "FAP3itbQYiwcEpKD",
     })
   })
 

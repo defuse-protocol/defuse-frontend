@@ -1,4 +1,3 @@
-import { ENCRYPTION_KEY } from "@src/utils/environment"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { decodeAES256Order, encodeAES256Order } from "./encoder"
 
@@ -25,6 +24,10 @@ describe("encoder", () => {
     standard: "erc191",
   }
 
+  const pKey = "12345678901234567890123456789012"
+
+  const iv = "q/fEfO4EboQgW+7u"
+
   beforeEach(() => {
     vi.clearAllMocks()
 
@@ -41,7 +44,7 @@ describe("encoder", () => {
 
     // Mock encrypt to simulate actual encryption
     mockCrypto.subtle.encrypt.mockImplementation(async (_, key, data) => {
-      // Create a mock encrypted result that includes the IV and ciphertext
+      // Create a mock encrypted result that includes just the ciphertext
       const encoder = new TextEncoder()
       const originalData = new TextDecoder().decode(data)
       const format = {
@@ -65,11 +68,8 @@ describe("encoder", () => {
 
   describe("AES256 encryption/decryption", () => {
     it("should verify encryption/decryption with environment key", async () => {
-      const encrypted = await encodeAES256Order(
-        makerMultiPayload,
-        ENCRYPTION_KEY
-      )
-      const decrypted = await decodeAES256Order(encrypted, ENCRYPTION_KEY)
+      const encrypted = await encodeAES256Order(makerMultiPayload, pKey, iv)
+      const decrypted = await decodeAES256Order(encrypted, pKey, iv)
       expect(decrypted).toEqual(makerMultiPayload)
 
       // Verify crypto API was called correctly
@@ -81,18 +81,16 @@ describe("encoder", () => {
     it("should fail with invalid key length", async () => {
       const invalidKey = "too-short-key"
       await expect(
-        encodeAES256Order(makerMultiPayload, invalidKey)
+        encodeAES256Order(makerMultiPayload, invalidKey, iv)
       ).rejects.toThrow("Key must be 32-bytes")
       await expect(
-        decodeAES256Order("some-encrypted-data", invalidKey)
+        decodeAES256Order("some-encrypted-data", invalidKey, iv)
       ).rejects.toThrow("Key must be 32-bytes")
     })
 
     it("should fail with invalid encrypted data", async () => {
       const invalidData = "not-encrypted-data"
-      await expect(
-        decodeAES256Order(invalidData, ENCRYPTION_KEY)
-      ).rejects.toThrow()
+      await expect(decodeAES256Order(invalidData, pKey, iv)).rejects.toThrow()
     })
 
     it("should produce different ciphertexts for same input", async () => {
@@ -106,27 +104,21 @@ describe("encoder", () => {
         return arr
       })
 
-      // Mock encrypt to include the IV in the output
+      // Mock encrypt to include a random component in the output
       mockCrypto.subtle.encrypt.mockImplementation(async (_, key, data) => {
         const encoder = new TextEncoder()
         const originalData = new TextDecoder().decode(data)
         const format = {
           version: 1,
           payload: originalData,
-          iv: Array.from(new Uint8Array(12)).map((_, i) => counter + i), // Include IV in output
+          random: counter++, // Add a random component to ensure different outputs
         }
         const encoded = encoder.encode(JSON.stringify(format))
         return encoded.buffer
       })
 
-      const encrypted1 = await encodeAES256Order(
-        makerMultiPayload,
-        ENCRYPTION_KEY
-      )
-      const encrypted2 = await encodeAES256Order(
-        makerMultiPayload,
-        ENCRYPTION_KEY
-      )
+      const encrypted1 = await encodeAES256Order(makerMultiPayload, pKey, iv)
+      const encrypted2 = await encodeAES256Order(makerMultiPayload, pKey, iv)
       expect(encrypted1).not.toEqual(encrypted2)
     })
   })
