@@ -22,7 +22,7 @@ const otcTradesSchema: z.ZodType<OtcTrade> = z.object({
   }, "Invalid encrypted_payload format"),
   iv: z.string().refine((val) => {
     try {
-      const decoded = base64urlnopad.decode(val)
+      const decoded = base58.decode(val)
       // IV should be exactly 12 bytes for AES-GCM
       return decoded.length === 12
     } catch (err) {
