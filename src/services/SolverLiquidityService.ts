@@ -12,7 +12,7 @@ import { getPairsPerToken } from "@src/utils/tokenUtils"
 const redis = Redis.fromEnv()
 
 export class SolverLiquidityService {
-  private STORAGE_KEY = "tokenPairsLiquidity"
+  private STORAGE_KEY = `tokenPairsLiquidity_${process.env.NODE_ENV}`
 
   private pairs: Pairs = null
 
