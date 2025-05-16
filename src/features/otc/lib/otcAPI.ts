@@ -1,14 +1,14 @@
 import type {
+  CreateOtcTradeRequest,
   CreateOtcTradeResponse,
   ErrorResponse,
   GetOtcTradeResponse,
-  OtcTrade,
 } from "@src/features/otc/types/otcTypes"
 import { BASE_URL } from "@src/utils/environment"
 
-export async function createOTCTrade(request: OtcTrade) {
+export async function createOTCTrade(request: CreateOtcTradeRequest) {
   const response = await fetch(`${BASE_URL}/api/otc_trades`, {
-    method: "PUT",
+    method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
