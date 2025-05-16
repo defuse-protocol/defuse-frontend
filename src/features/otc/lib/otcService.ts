@@ -10,6 +10,7 @@ export async function getTrade(
   const { tradeId, pKey } = deriveTradeParams(params)
   const response = await getOTCTrade(tradeId)
   return {
+    tradeId,
     encrypted_payload: response.encrypted_payload,
     iv: response.iv,
     pKey: pKey,
@@ -17,7 +18,7 @@ export async function getTrade(
 }
 
 export async function saveTrade(
-  trade: Omit<OtcTrade, "pKey">
+  trade: Omit<OtcTrade, "pKey" | "tradeId">
 ): Promise<CreateOtcTradeResponse> {
   const response = await createOTCTrade({
     encrypted_payload: trade.encrypted_payload,

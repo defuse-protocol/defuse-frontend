@@ -16,13 +16,14 @@ export default function CreateOrderPage() {
   const { state } = useConnectWallet()
   const tokenList = useTokenList(LIST_TOKENS)
   const signMessage = useWalletAgnosticSignMessage()
-  const { multiPayload } = useOtcOrder()
+  const { multiPayload, tradeId } = useOtcOrder()
   const { signAndSendTransactions } = useNearWalletActions()
   const referral = useIntentsReferral()
 
   return (
     <Paper>
       <OtcTakerWidget
+        tradeId={tradeId}
         multiPayload={multiPayload}
         tokenList={tokenList}
         userAddress={state.isVerified ? state.address : undefined}
