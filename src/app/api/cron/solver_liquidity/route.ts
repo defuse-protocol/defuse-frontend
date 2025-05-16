@@ -11,7 +11,7 @@ import { joinAddresses } from "@src/utils/tokenUtils"
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-export async function POST() {
+export async function GET() {
   const solverLiquidityService = new SolverLiquidityService()
   const tokenPairs = solverLiquidityService.getPairs()
   if (tokenPairs == null) {
