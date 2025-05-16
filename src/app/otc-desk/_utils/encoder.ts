@@ -1,13 +1,5 @@
 import { base64, base64urlnopad } from "@scure/base"
 
-export function encodeOrder(order: unknown): string {
-  const format = {
-    version: 1,
-    payload: JSON.stringify(order),
-  }
-  return base64urlnopad.encode(new TextEncoder().encode(JSON.stringify(format)))
-}
-
 export function decodeOrder(encodedOrder: string): string {
   const json = new TextDecoder().decode(base64urlnopad.decode(encodedOrder))
   return JSON.parse(json).payload
@@ -16,7 +8,7 @@ export function decodeOrder(encodedOrder: string): string {
 export async function encodeAES256Order(
   order: unknown,
   pKey: string,
-  iv: string
+  iv: Uint8Array<ArrayBuffer>
 ): Promise<string> {
   validateKey(pKey)
 
@@ -75,10 +67,8 @@ export async function decodeAES256Order(
 async function createEncryptedPayload(
   jsonString: string,
   pKey: string,
-  iv: string
+  iv: Uint8Array<ArrayBuffer>
 ): Promise<Uint8Array> {
-  const iv_ = base64.decode(iv)
-
   // Convert the key to a CryptoKey object
   const keyData = new TextEncoder().encode(pKey)
   const cryptoKey = await crypto.subtle.importKey(
@@ -94,7 +84,7 @@ async function createEncryptedPayload(
   const ciphertext = await crypto.subtle.encrypt(
     {
       name: "AES-GCM",
-      iv: iv_,
+      iv,
     },
     cryptoKey,
     data
