@@ -8,7 +8,7 @@ export function decodeOrder(encodedOrder: string): string {
 export async function encodeAES256Order(
   order: unknown,
   pKey: string,
-  iv: Uint8Array<ArrayBuffer>
+  iv: Uint8Array
 ): Promise<string> {
   validateKey(pKey)
 
@@ -67,7 +67,7 @@ export async function decodeAES256Order(
 async function createEncryptedPayload(
   jsonString: string,
   pKey: string,
-  iv: Uint8Array<ArrayBuffer>
+  iv: Uint8Array
 ): Promise<Uint8Array> {
   // Convert the key to a CryptoKey object
   const keyData = new TextEncoder().encode(pKey)

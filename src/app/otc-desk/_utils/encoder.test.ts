@@ -1,3 +1,4 @@
+import { base64 } from "@scure/base"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { decodeAES256Order, encodeAES256Order } from "./encoder"
 
@@ -26,7 +27,7 @@ describe("encoder", () => {
 
   const pKey = "12345678901234567890123456789012"
 
-  const iv = "q/fEfO4EboQgW+7u"
+  const iv = base64.decode("q/fEfO4EboQgW+7u")
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -69,7 +70,11 @@ describe("encoder", () => {
   describe("AES256 encryption/decryption", () => {
     it("should verify encryption/decryption with environment key", async () => {
       const encrypted = await encodeAES256Order(makerMultiPayload, pKey, iv)
-      const decrypted = await decodeAES256Order(encrypted, pKey, iv)
+      const decrypted = await decodeAES256Order(
+        encrypted,
+        pKey,
+        base64.encode(iv)
+      )
       expect(decrypted).toEqual(makerMultiPayload)
 
       // Verify crypto API was called correctly
@@ -84,13 +89,15 @@ describe("encoder", () => {
         encodeAES256Order(makerMultiPayload, invalidKey, iv)
       ).rejects.toThrow("Key must be 32-bytes")
       await expect(
-        decodeAES256Order("some-encrypted-data", invalidKey, iv)
+        decodeAES256Order("some-encrypted-data", invalidKey, base64.encode(iv))
       ).rejects.toThrow("Key must be 32-bytes")
     })
 
     it("should fail with invalid encrypted data", async () => {
       const invalidData = "not-encrypted-data"
-      await expect(decodeAES256Order(invalidData, pKey, iv)).rejects.toThrow()
+      await expect(
+        decodeAES256Order(invalidData, pKey, base64.encode(iv))
+      ).rejects.toThrow()
     })
 
     it("should produce different ciphertexts for same input", async () => {

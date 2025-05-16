@@ -9,26 +9,28 @@ import { logger } from "@src/utils/logger"
 import { NextResponse } from "next/server"
 import { z } from "zod"
 
-const otcTradesSchema: z.ZodType<Omit<OtcTrade, "pKey">> = z.object({
-  encrypted_payload: z.string().refine((val) => {
-    try {
-      const decoded = base64.decode(val)
-      // AES-GCM produces variable length output, but should be at least 16 bytes
-      return decoded.length >= 16
-    } catch (err) {
-      return false
-    }
-  }, "Invalid encrypted_payload format"),
-  iv: z.string().refine((val) => {
-    try {
-      const decoded = base64.decode(val)
-      // IV should be exactly 12 bytes for AES-GCM
-      return decoded.length === 12
-    } catch (err) {
-      return false
-    }
-  }, "Invalid IV format"),
-})
+const otcTradesSchema: z.ZodType<Omit<OtcTrade, "pKey" | "tradeId">> = z.object(
+  {
+    encrypted_payload: z.string().refine((val) => {
+      try {
+        const decoded = base64.decode(val)
+        // AES-GCM produces variable length output, but should be at least 16 bytes
+        return decoded.length >= 16
+      } catch (err) {
+        return false
+      }
+    }, "Invalid encrypted_payload format"),
+    iv: z.string().refine((val) => {
+      try {
+        const decoded = base64.decode(val)
+        // IV should be exactly 12 bytes for AES-GCM
+        return decoded.length === 12
+      } catch (err) {
+        return false
+      }
+    }, "Invalid IV format"),
+  }
+)
 
 export async function POST(request: Request) {
   try {

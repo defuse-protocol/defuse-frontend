@@ -100,6 +100,5 @@ export function useOtcOrder() {
   return {
     tradeId,
     multiPayload,
-    isFetched,
   }
 }
