@@ -4,7 +4,12 @@ import {
   decodeOrder,
   encodeAES256Order,
 } from "@src/app/otc-desk/_utils/encoder"
-import { genPKey, getTrade, saveTrade } from "@src/features/otc/lib/otcService"
+import {
+  genLocalTradeId,
+  genPKey,
+  getTrade,
+  saveTrade,
+} from "@src/features/otc/lib/otcService"
 import type { OtcTrade } from "@src/features/otc/types/otcTypes"
 import { logger } from "@src/utils/logger"
 import { useQuery } from "@tanstack/react-query"
@@ -47,6 +52,7 @@ export async function createOtcOrder(payload: unknown): Promise<{
 export function useOtcOrder() {
   const params = useSearchParams().get("order")
   const [multiPayload, setPayload] = useState<string | null>(null)
+  const [tradeId, setTradeId] = useState<string | null>(null)
 
   const { data: trade, isFetched } = useQuery({
     queryKey: ["otc_trade"],
@@ -70,8 +76,9 @@ export function useOtcOrder() {
       decrypt(trade)
         .then((decrypted) => {
           setPayload(decrypted)
+          setTradeId(trade.tradeId)
         })
-        .catch((e) => {
+        .catch(() => {
           logger.error("Failed to decrypt order")
           setPayload("")
         })
@@ -83,6 +90,7 @@ export function useOtcOrder() {
     try {
       const decoded = params ? decodeOrder(params) : ""
       setPayload(decoded)
+      setTradeId(genLocalTradeId(decoded))
     } catch {
       logger.error("Failed to decode order")
       setPayload("")
@@ -90,7 +98,8 @@ export function useOtcOrder() {
   }, [trade, isFetched, params, decrypt])
 
   return {
-    isFetched,
+    tradeId,
     multiPayload,
+    isFetched,
   }
 }
