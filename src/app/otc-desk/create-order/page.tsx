@@ -44,9 +44,6 @@ export default function CreateOrderPage() {
         createOtcTrade={async (multiPayload) => {
           return createOtcOrder(multiPayload)
         }}
-        deleteOtcTrade={async (tradeId) => {
-          throw new Error("Not implemented")
-        }}
         generateLink={(tradeId, pKey) => {
           return createOtcOrderLink(tradeId, pKey)
         }}
