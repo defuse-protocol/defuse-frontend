@@ -1,6 +1,6 @@
+import { getQuote } from "@defuse-protocol/defuse-sdk/utils"
 import { NextResponse } from "next/server"
 
-import { getQuote } from "@defuse-protocol/defuse-sdk/utils"
 import { SolverLiquidityService } from "@src/services/SolverLiquidityService"
 import type {
   LastLiquidityCheckStatus,
@@ -47,7 +47,7 @@ export async function GET() {
       exact_amount_in: maxLiquidity.amount.value,
     }
 
-    await getQuote({
+    getQuote({
       quoteParams,
       config: {
         logBalanceSufficient: false,
@@ -58,19 +58,22 @@ export async function GET() {
           maxLiquidity,
           true
         )
+
+        solverLiquidityService.setMaxLiquidityData(tokenPairsLiquidity)
       })
       .catch((err: Error) => {
         tokenPairsLiquidity[joinedAddressesKey] = prepareUpdatedLiquidity(
           maxLiquidity,
           false
         )
+        solverLiquidityService.setMaxLiquidityData(tokenPairsLiquidity)
+
         logger.error(`${err}: ${joinedAddressesKey}`)
       })
 
-    await delay(500)
+    await delay(50 + Math.floor(Math.random() * 50))
   }
 
-  await solverLiquidityService.setMaxLiquidityData(tokenPairsLiquidity)
   return NextResponse.json({ error: null }, { status: 200 })
 }
 
