@@ -1,8 +1,10 @@
-import { isBaseToken } from "@defuse-protocol/defuse-sdk"
+import { isBaseToken } from "@defuse-protocol/defuse-sdk/utils"
+import { useContext } from "react"
+
+import type { BaseTokenInfo } from "@defuse-protocol/defuse-sdk/types"
 import type { WhitelabelTemplateValue } from "@src/config/featureFlags"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
-import { useContext } from "react"
 
 const pairs: Record<WhitelabelTemplateValue, [string, string]> = {
   "near-intents": [
@@ -37,7 +39,9 @@ export function useDeterminePair() {
       return token.defuseAssetId === pair[0]
     }
 
-    return token.groupedTokens.some((t) => t.defuseAssetId === pair[0])
+    return token.groupedTokens.some(
+      (t: BaseTokenInfo) => t.defuseAssetId === pair[0]
+    )
   })
 
   const tokenOut = LIST_TOKENS.find((token) => {
@@ -45,7 +49,9 @@ export function useDeterminePair() {
       return token.defuseAssetId === pair[1]
     }
 
-    return token.groupedTokens.some((t) => t.defuseAssetId === pair[1])
+    return token.groupedTokens.some(
+      (t: BaseTokenInfo) => t.defuseAssetId === pair[1]
+    )
   })
 
   return { tokenIn, tokenOut }

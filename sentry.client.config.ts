@@ -2,7 +2,7 @@
 // The config you add here will be used whenever a users loads a page in their browser.
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
-import { isBaseToken } from "@defuse-protocol/defuse-sdk"
+import { isBaseToken } from "@defuse-protocol/defuse-sdk/utils"
 import * as Sentry from "@sentry/nextjs"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import * as v from "valibot"

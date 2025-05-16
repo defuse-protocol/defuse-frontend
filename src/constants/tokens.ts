@@ -1,7 +1,7 @@
 import type {
   BaseTokenInfo,
   UnifiedTokenInfo,
-} from "@defuse-protocol/defuse-sdk"
+} from "@defuse-protocol/defuse-sdk/types"
 
 type TokenWithTags =
   | (BaseTokenInfo & { tags?: string[] })
@@ -1209,3 +1209,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
     tags: ["mc:47", "type:stablecoin"],
   },
 ]
+
+export const DEPRECATED_TOKENS: Record<string, boolean> = {
+  "nep141:aurora": true,
+}
