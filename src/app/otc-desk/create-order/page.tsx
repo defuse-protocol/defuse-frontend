@@ -1,7 +1,6 @@
 "use client"
 
 import { OtcMakerWidget } from "@defuse-protocol/defuse-sdk"
-
 import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
@@ -11,8 +10,7 @@ import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import { renderAppLink } from "@src/utils/renderAppLink"
-
-import { createOTCOrderLink } from "../_utils/link"
+import { createOtcOrder, createOtcOrderLink } from "../_utils/link"
 
 export default function CreateOrderPage() {
   const { state } = useConnectWallet()
@@ -43,9 +41,14 @@ export default function CreateOrderPage() {
 
           return { txHash: outcome.transaction.hash }
         }}
-        generateLink={async (multiPayload, tradeId) => {
-          console.log("multiPayload", multiPayload)
-          return await createOTCOrderLink(multiPayload, tradeId)
+        createOtcTrade={async (multiPayload) => {
+          return createOtcOrder(multiPayload)
+        }}
+        deleteOtcTrade={async (tradeId) => {
+          throw new Error("Not implemented")
+        }}
+        generateLink={(tradeId, pKey) => {
+          return createOtcOrderLink(tradeId, pKey)
         }}
         initialTokenIn={tokenIn}
         initialTokenOut={tokenOut}

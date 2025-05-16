@@ -1,8 +1,6 @@
 "use client"
 
 import { OtcTakerWidget } from "@defuse-protocol/defuse-sdk"
-import React, { useEffect, useState } from "react"
-
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
@@ -11,21 +9,16 @@ import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import { renderAppLink } from "@src/utils/renderAppLink"
-import { useOTCOrder } from "../_utils/link"
+import React from "react"
+import { useOtcOrder } from "../_utils/link"
 
 export default function CreateOrderPage() {
   const { state } = useConnectWallet()
   const tokenList = useTokenList(LIST_TOKENS)
   const signMessage = useWalletAgnosticSignMessage()
-  const otcOrder = useOTCOrder()
+  const { multiPayload } = useOtcOrder()
   const { signAndSendTransactions } = useNearWalletActions()
   const referral = useIntentsReferral()
-
-  const [multiPayload, setMultiPayload] = useState<string | null>(null)
-
-  useEffect(() => {
-    setMultiPayload(otcOrder)
-  }, [otcOrder])
 
   return (
     <Paper>

@@ -1,78 +1,96 @@
+import { base64 } from "@scure/base"
 import {
   decodeAES256Order,
   decodeOrder,
   encodeAES256Order,
-  encodeOrder,
 } from "@src/app/otc-desk/_utils/encoder"
-import { getTrade, saveTrade } from "@src/features/otc/lib/otcService"
-import { ENCRYPTION_KEY } from "@src/utils/environment"
+import { genPKey, getTrade, saveTrade } from "@src/features/otc/lib/otcService"
+import type { OtcTrade } from "@src/features/otc/types/otcTypes"
 import { logger } from "@src/utils/logger"
+import { useQuery } from "@tanstack/react-query"
 import { useSearchParams } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
-export async function createOTCOrderLink(
-  payload: unknown,
-  tradeId: string
-): Promise<string> {
-  let orderId: string
-  try {
-    const encrypted = encodeAES256Order(payload, ENCRYPTION_KEY)
-    await saveTrade({
-      raw_id: tradeId,
-      encrypted_payload: encrypted,
-    })
-    orderId = tradeId
-  } catch (e) {
-    // Fallback: If encryption or database storage fails,
-    // encode the payload directly into the URL (results in longer URLs)
-    orderId = encodeOrder(payload)
-  }
+export function createOtcOrderLink(tradeId: string, pKey: string) {
   const url = new URL("/otc-desk/view-order", window.location.origin)
-  url.searchParams.set("order", orderId)
+  url.searchParams.set("order", `${tradeId}#${pKey}`)
   return url.toString()
 }
 
-export function useOTCOrder() {
-  const encodedOrder = useSearchParams().get("order")
-  const [payload, setPayload] = useState("")
+export async function createOtcOrder(payload: unknown): Promise<{
+  tradeId: string
+  pKey: string
+}> {
+  try {
+    // Generate client-side IV and pKey for the order
+    const iv = crypto.getRandomValues(new Uint8Array(12))
+    const pKey = genPKey()
+
+    const encrypted = await encodeAES256Order(payload, pKey, iv)
+
+    const result = await saveTrade({
+      encrypted_payload: encrypted,
+      iv: base64.encode(iv),
+    })
+    if (!result.success) {
+      throw new Error("Failed to save trade")
+    }
+    return {
+      tradeId: result.trade_id,
+      pKey,
+    }
+  } catch (e) {
+    throw new Error("Failed to create order")
+  }
+}
+
+export function useOtcOrder() {
+  const params = useSearchParams().get("order")
+  const [multiPayload, setPayload] = useState<string | null>(null)
+
+  const { data: trade, isFetched } = useQuery({
+    queryKey: ["otc_trade"],
+    queryFn: () => getTrade(params),
+    enabled: !!params,
+  })
+
+  const decrypt = useCallback(async (trade: OtcTrade) => {
+    const { encrypted_payload, iv, pKey } = trade
+    const decrypted = await decodeAES256Order(encrypted_payload, pKey, iv)
+    return decrypted
+  }, [])
 
   useEffect(() => {
-    async function fetchOrder() {
-      if (!encodedOrder) {
-        setPayload("")
-        return
-      }
-
-      // 1. Attempt: Try to fetch and decrypt the order from the database
-      // This handles the new encrypted format with shorter URLs
-      try {
-        const encryptedPayload = await getTrade(encodedOrder)
-
-        if (encryptedPayload) {
-          const decrypted = decodeAES256Order(
-            encryptedPayload.encrypted_payload,
-            ENCRYPTION_KEY
-          )
+    if (!isFetched) {
+      return
+    }
+    // 1. Attempt: Try to fetch and decrypt the order from the database
+    // This handles the new encrypted format with shorter URLs
+    if (trade) {
+      decrypt(trade)
+        .then((decrypted) => {
           setPayload(decrypted)
-          return
-        }
-      } catch {
-        logger.error("Failed to get trade from DB")
-      }
-
-      // 2. Attempt: Try to decode the order directly from the URL
-      // This maintains backward compatibility with older order links
-      try {
-        const decoded = decodeOrder(encodedOrder)
-        setPayload(decoded)
-      } catch {
-        logger.error("Failed to decode order")
-        setPayload("")
-      }
+        })
+        .catch((e) => {
+          logger.error("Failed to decrypt order")
+          setPayload("")
+        })
+      return
     }
 
-    fetchOrder()
-  }, [encodedOrder])
+    // 2. Attempt: Try to decode the order directly from the URL
+    // This maintains backward compatibility with older order links
+    try {
+      const decoded = params ? decodeOrder(params) : ""
+      setPayload(decoded)
+    } catch {
+      logger.error("Failed to decode order")
+      setPayload("")
+    }
+  }, [trade, isFetched, params, decrypt])
 
-  return payload
+  return {
+    isFetched,
+    multiPayload,
+  }
 }
