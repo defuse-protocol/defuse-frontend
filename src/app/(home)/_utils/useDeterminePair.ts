@@ -1,6 +1,7 @@
 import { isBaseToken } from "@defuse-protocol/defuse-sdk/utils"
 import { useContext } from "react"
 
+import type { BaseTokenInfo } from "@defuse-protocol/defuse-sdk/types"
 import type { WhitelabelTemplateValue } from "@src/config/featureFlags"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
@@ -39,8 +40,7 @@ export function useDeterminePair() {
     }
 
     return token.groupedTokens.some(
-      // BaseTokenInfo
-      (t: { defuseAssetId: string }) => t.defuseAssetId === pair[0]
+      (t: BaseTokenInfo) => t.defuseAssetId === pair[0]
     )
   })
 
@@ -50,8 +50,7 @@ export function useDeterminePair() {
     }
 
     return token.groupedTokens.some(
-      // BaseTokenInfo
-      (t: { defuseAssetId: string }) => t.defuseAssetId === pair[1]
+      (t: BaseTokenInfo) => t.defuseAssetId === pair[1]
     )
   })
 

@@ -1,7 +1,7 @@
 import type {
   BaseTokenInfo,
   UnifiedTokenInfo,
-} from "@defuse-protocol/defuse-sdk"
+} from "@defuse-protocol/defuse-sdk/types"
 
 type TokenWithTags =
   | (BaseTokenInfo & { tags?: string[] })
