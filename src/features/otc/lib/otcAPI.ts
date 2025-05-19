@@ -16,10 +16,7 @@ export async function createOTCTrade(request: CreateOtcTradeRequest) {
   })
 
   if (!response.ok) {
-    const error = (await response.json()) as ErrorResponse
-    throw new Error(
-      typeof error.error === "string" ? error.error : "Failed to request OTC"
-    )
+    await handleApiError(response, "Failed to request OTC")
   }
 
   return response.json() as Promise<CreateOtcTradeResponse>
@@ -34,11 +31,15 @@ export async function getOTCTrade(tradeId: string) {
   })
 
   if (!response.ok) {
-    const error = (await response.json()) as ErrorResponse
-    throw new Error(
-      typeof error.error === "string" ? error.error : "Failed to verify OTC"
-    )
+    await handleApiError(response, "Failed to verify OTC")
   }
 
   return response.json() as Promise<GetOtcTradeResponse>
+}
+
+async function handleApiError(response: Response, fallbackMessage: string) {
+  const error = (await response.json()) as ErrorResponse
+  throw new Error(
+    typeof error.error === "string" ? error.error : fallbackMessage
+  )
 }
