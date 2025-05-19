@@ -1,3 +1,4 @@
+import { base64urlnopad } from "@scure/base"
 import type {
   CreateOtcTradeRequest,
   CreateOtcTradeResponse,
@@ -43,14 +44,18 @@ function deriveTradeParams(params: string) {
 }
 
 // Key for AES-256-GCM must be 32-bytes and URL safe
-export function genPKey() {
-  const array = new Uint8Array(32)
-  crypto.getRandomValues(array)
-  return btoa(String.fromCharCode.apply(null, Array.from(array)))
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=/g, "")
-    .slice(0, 32)
+export async function genPKey() {
+  const key = await crypto.subtle.generateKey(
+    {
+      name: "AES-GCM",
+      length: 256,
+    },
+    true,
+    ["encrypt", "decrypt"]
+  )
+  const rawKey = await crypto.subtle.exportKey("raw", key)
+  const keyBytes = new Uint8Array(rawKey)
+  return base64urlnopad.encode(keyBytes)
 }
 
 /**

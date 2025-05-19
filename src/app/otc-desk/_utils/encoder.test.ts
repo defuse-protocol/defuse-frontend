@@ -25,7 +25,7 @@ describe("encoder", () => {
     standard: "erc191",
   }
 
-  const pKey = "12345678901234567890123456789012"
+  const pKey = "iWRbd_YTptQT4w4hdIEgfI7JJjM0-uFwRCpRVXk5IFs"
 
   const iv = base64.decode("q/fEfO4EboQgW+7u")
 
@@ -84,13 +84,14 @@ describe("encoder", () => {
     })
 
     it("should fail with invalid key length", async () => {
-      const invalidKey = "too-short-key"
+      const emptyKey = ""
+      const aes160Key = "YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4" // 24 bytes when decoded
       await expect(
-        encodeAES256Order(makerMultiPayload, invalidKey, iv)
-      ).rejects.toThrow("Key must be 32-bytes")
+        encodeAES256Order(makerMultiPayload, emptyKey, iv)
+      ).rejects.toThrow("Key must be exactly 32 bytes (AES-256)")
       await expect(
-        decodeAES256Order("some-encrypted-data", invalidKey, base64.encode(iv))
-      ).rejects.toThrow("Key must be 32-bytes")
+        decodeAES256Order("some-encrypted-data", aes160Key, base64.encode(iv))
+      ).rejects.toThrow("Key must be exactly 32 bytes (AES-256)")
     })
 
     it("should fail with invalid encrypted data", async () => {

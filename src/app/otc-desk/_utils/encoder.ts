@@ -33,10 +33,10 @@ export async function decodeAES256Order(
     const iv_ = base64.decode(iv)
 
     // Convert the key to a CryptoKey object
-    const keyData = new TextEncoder().encode(pKey)
+    const keyBytes = base64urlnopad.decode(pKey)
     const cryptoKey = await crypto.subtle.importKey(
       "raw",
-      keyData,
+      keyBytes,
       { name: "AES-GCM" },
       false,
       ["decrypt"]
@@ -70,10 +70,10 @@ async function createEncryptedPayload(
   iv: Uint8Array
 ): Promise<Uint8Array> {
   // Convert the key to a CryptoKey object
-  const keyData = new TextEncoder().encode(pKey)
+  const keyBytes = base64urlnopad.decode(pKey)
   const cryptoKey = await crypto.subtle.importKey(
     "raw",
-    keyData,
+    keyBytes,
     { name: "AES-GCM" },
     false,
     ["encrypt"]
@@ -94,7 +94,12 @@ async function createEncryptedPayload(
 }
 
 function validateKey(pKey: string): void {
-  if (pKey.length !== 32) {
-    throw new Error("Key must be 32-bytes")
+  try {
+    const keyBytes = base64urlnopad.decode(pKey)
+    if (keyBytes.length !== 32) {
+      throw new Error("Key must be exactly 32 bytes (AES-256)")
+    }
+  } catch {
+    throw new Error("Key must be exactly 32 bytes (AES-256)")
   }
 }

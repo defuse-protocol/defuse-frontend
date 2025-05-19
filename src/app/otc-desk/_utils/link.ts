@@ -29,7 +29,7 @@ export async function createOtcOrder(payload: unknown): Promise<{
   try {
     // Generate client-side IV and pKey for the order
     const iv = crypto.getRandomValues(new Uint8Array(12))
-    const pKey = genPKey()
+    const pKey = await genPKey()
 
     const encrypted = await encodeAES256Order(payload, pKey, iv)
 
