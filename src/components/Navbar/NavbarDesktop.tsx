@@ -12,7 +12,7 @@ export function NavbarDesktop() {
 
   const isAccountActive = isActive(navigation.account)
   const isTradeActive = isActive(navigation.home) || isActive(navigation.otc)
-
+  const isExploreActive = isActive(navigation.explore)
   return (
     <nav className="flex justify-between items-center gap-4">
       {/* Account */}
@@ -24,6 +24,13 @@ export function NavbarDesktop() {
 
       {/* Trade */}
       <NavItem label="Trade" isActive={isTradeActive} href={navigation.home} />
+
+      {/* Explore */}
+      <NavItem
+        label="Explore"
+        isActive={isExploreActive}
+        href={navigation.explore}
+      />
     </nav>
   )
 }
