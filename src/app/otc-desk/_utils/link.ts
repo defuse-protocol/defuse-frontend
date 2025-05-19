@@ -15,9 +15,22 @@ import { logger } from "@src/utils/logger"
 import { useQuery } from "@tanstack/react-query"
 import { useSearchParams } from "next/navigation"
 
-export function createOtcOrderLink(tradeId: string, pKey: string) {
+export function createOtcOrderLink(
+  tradeId: string,
+  pKey: string,
+  /**
+   * Required for backwards compatibility
+   * @deprecated
+   */
+  multiPayload: unknown
+) {
   const url = new URL("/otc-desk/view-order", window.location.origin)
-  url.hash = encodeOrder(`${tradeId}#${pKey}`)
+  if (tradeId && pKey) {
+    url.hash = encodeOrder(`${tradeId}#${pKey}`)
+    return url.toString()
+  }
+  // Allow generation of links from multiPayload for backwards compatibility
+  url.searchParams.set("order", encodeOrder(multiPayload))
   return url.toString()
 }
 
