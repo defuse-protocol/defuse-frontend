@@ -14,7 +14,7 @@ export function NavbarMobile() {
   const isAccountActive = isActive(navigation.account)
   const isTradeActive = isActive(navigation.home) || isActive(navigation.otc)
   const isDepositActive = isActive(navigation.deposit)
-
+  const isExploreActive = isActive(navigation.explore)
   return (
     <>
       <div className="fixed bottom-0 z-50 left-0 md:hidden w-full px-5 pt-3 pb-[max(env(safe-area-inset-bottom,0px),theme(spacing.3))] bg-gray-1 border-t-[1px] border-gray-a3">
@@ -66,6 +66,18 @@ export function NavbarMobile() {
                     <Plus className="size-3 text-gray-1" weight="bold" />
                   </div>
                 }
+              </NavItem.DisplayIcon>
+            }
+          />
+
+          {/* Explore */}
+          <NavItem
+            href={navigation.explore}
+            label="Explore"
+            isActive={isExploreActive}
+            iconSlot={
+              <NavItem.DisplayIcon>
+                <Plus className="size-3 text-gray-1" weight="bold" />
               </NavItem.DisplayIcon>
             }
           />
