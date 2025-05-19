@@ -50,14 +50,14 @@ export async function createOtcOrder(payload: unknown): Promise<{
 }
 
 export function useOtcOrder() {
-  const params = useSearchParams().get("order")
+  const order = useSearchParams().get("order")
   const [multiPayload, setPayload] = useState<string | null>(null)
   const [tradeId, setTradeId] = useState<string | null>(null)
 
   const { data: trade, isFetched } = useQuery({
-    queryKey: ["otc_trade"],
-    queryFn: () => getTrade(params),
-    enabled: !!params,
+    queryKey: ["otc_trade", order],
+    queryFn: () => getTrade(order),
+    enabled: !!order,
   })
 
   const decrypt = useCallback(async (trade: OtcTrade) => {
@@ -81,6 +81,7 @@ export function useOtcOrder() {
         .catch(() => {
           logger.error("Failed to decrypt order")
           setPayload("")
+          setTradeId(null)
         })
       return
     }
@@ -88,14 +89,15 @@ export function useOtcOrder() {
     // 2. Attempt: Try to decode the order directly from the URL
     // This maintains backward compatibility with older order links
     try {
-      const decoded = params ? decodeOrder(params) : ""
+      const decoded = order ? decodeOrder(order) : ""
       setPayload(decoded)
       setTradeId(genLocalTradeId(decoded))
     } catch {
       logger.error("Failed to decode order")
       setPayload("")
+      setTradeId(null)
     }
-  }, [trade, isFetched, params, decrypt])
+  }, [trade, isFetched, order, decrypt])
 
   return {
     tradeId,
