@@ -89,9 +89,8 @@ const prepareUpdatedLiquidity = (
     lastLiquidityCheck,
   } = maxLiquidity
 
-  const amount = BigInt(amount_.value)
+  let currentAmount = BigInt(amount_.value)
   let validatedAmount = BigInt(validatedAmount_.value)
-  let currentAmount: bigint = BigInt(amount)
   const basicStep = currentAmount / 10n
   let currentStep =
     lastStepSize_ == null ? currentAmount / 5n : BigInt(lastStepSize_.value)
@@ -99,7 +98,7 @@ const prepareUpdatedLiquidity = (
   let currentLiquidityCheck: LastLiquidityCheckStatus
 
   if (hasLiquidity) {
-    validatedAmount = amount
+    validatedAmount = currentAmount
     currentLiquidityCheck = "passed"
 
     if (!lastLiquidityCheck || currentLiquidityCheck === lastLiquidityCheck) {
@@ -110,6 +109,10 @@ const prepareUpdatedLiquidity = (
       currentStep = basicStep
     }
   } else {
+    // in case smaller amount failed, then no need to keep bigger value as validatedAmount
+    validatedAmount =
+      validatedAmount > currentAmount ? currentAmount : validatedAmount
+
     const tempAmount = currentAmount
     currentLiquidityCheck = "failed"
 
