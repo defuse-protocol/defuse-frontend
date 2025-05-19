@@ -1,4 +1,8 @@
-import type { CreateOtcTradeResponse, OtcTrade } from "../types/otcTypes"
+import type {
+  CreateOtcTradeRequest,
+  CreateOtcTradeResponse,
+  OtcTrade,
+} from "../types/otcTypes"
 import { createOTCTrade, getOTCTrade } from "./otcAPI"
 
 export async function getTrade(
@@ -18,7 +22,7 @@ export async function getTrade(
 }
 
 export async function saveTrade(
-  trade: Omit<OtcTrade, "pKey" | "tradeId">
+  trade: CreateOtcTradeRequest
 ): Promise<CreateOtcTradeResponse> {
   const response = await createOTCTrade({
     encrypted_payload: trade.encrypted_payload,
