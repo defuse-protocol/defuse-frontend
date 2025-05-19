@@ -3,6 +3,7 @@ import {
   decodeAES256Order,
   decodeOrder,
   encodeAES256Order,
+  encodeOrder,
 } from "@src/app/otc-desk/_utils/encoder"
 import {
   genLocalTradeId,
@@ -10,15 +11,13 @@ import {
   getTrade,
   saveTrade,
 } from "@src/features/otc/lib/otcService"
-import type { OtcTrade } from "@src/features/otc/types/otcTypes"
 import { logger } from "@src/utils/logger"
 import { useQuery } from "@tanstack/react-query"
 import { useSearchParams } from "next/navigation"
-import { useCallback, useEffect, useState } from "react"
 
 export function createOtcOrderLink(tradeId: string, pKey: string) {
   const url = new URL("/otc-desk/view-order", window.location.origin)
-  url.searchParams.set("order", `${tradeId}#${pKey}`)
+  url.hash = encodeOrder(`${tradeId}#${pKey}`)
   return url.toString()
 }
 
