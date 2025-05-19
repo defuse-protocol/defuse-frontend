@@ -61,14 +61,15 @@ export async function GET() {
 
         solverLiquidityService.setMaxLiquidityData(tokenPairsLiquidity)
       })
-      .catch((err: Error) => {
+      .catch(() => {
         tokenPairsLiquidity[joinedAddressesKey] = prepareUpdatedLiquidity(
           maxLiquidity,
           false
         )
         solverLiquidityService.setMaxLiquidityData(tokenPairsLiquidity)
 
-        logger.error(`${err}: ${joinedAddressesKey}`)
+        // enable it if you want to debug, disabled as we are out of sentry errors limit, this generates a lot of errors
+        // logger.error(`${err}: ${joinedAddressesKey}`)
       })
 
     await delay(50 + Math.floor(Math.random() * 50))
