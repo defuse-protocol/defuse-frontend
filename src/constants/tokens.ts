@@ -1210,6 +1210,6 @@ export const LIST_TOKENS: TokenWithTags[] = [
   },
 ]
 
-export const DEPRECATED_TOKENS: Record<string, string> = {
+export const DEPRECATED_TOKEN_TO_REPLACEMENT: Record<string, string> = {
   "nep141:aurora": "nep141:eth.bridge.near",
 }
