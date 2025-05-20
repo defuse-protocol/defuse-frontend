@@ -44,7 +44,7 @@ function compareTokens(
   const bVolume = getVolumeOrder(bTags)
 
   if (aVolume !== undefined && bVolume !== undefined) {
-    return aVolume - bVolume // Lower volume number comes first
+    return aVolume - bVolume
   }
 
   if (aVolume !== undefined) return -1
