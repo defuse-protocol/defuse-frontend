@@ -1210,6 +1210,17 @@ export const LIST_TOKENS: TokenWithTags[] = [
   },
 ]
 
+/**
+ * A map of deprecated token addresses to their valid replacement addresses.
+ *
+ * This map is used to ensure compatibility when encountering outdated or legacy token identifiers
+ * in the system. Each key represents a deprecated token identifier, and the corresponding value
+ * is the updated token identifier that should be used in its place.
+ *
+ * Example:
+ * - "nep141:aurora" is an old identifier for a token on the NEAR blockchain bridged from Aurora.
+ * - It should be replaced with "nep141:eth.bridge.near", the updated identifier.
+ */
 export const DEPRECATED_TOKEN_TO_REPLACEMENT: Record<string, string> = {
   "nep141:aurora": "nep141:eth.bridge.near",
 }
