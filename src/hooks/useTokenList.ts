@@ -62,7 +62,7 @@ function compareTokens(
   const bMarketCap = getMarketCapOrder(bTags)
 
   if (aMarketCap !== undefined && bMarketCap !== undefined) {
-    return aMarketCap - bMarketCap // Lower market cap number comes first
+    return aMarketCap - bMarketCap
   }
   if (aMarketCap !== undefined) return -1
   if (bMarketCap !== undefined) return 1
