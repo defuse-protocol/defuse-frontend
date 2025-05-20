@@ -148,7 +148,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
         name: "USD Coin",
       },
     ],
-    tags: ["mc:7", "type:stablecoin"],
+    tags: ["mc:7", "type:stablecoin", "tvol:4"],
   },
   {
     defuseAssetId:
@@ -183,7 +183,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
     bridge: "poa",
     symbol: "BERA",
     name: "BERA",
-    tags: ["mc:104"],
+    tags: ["mc:104", "tvol:10"],
   },
   {
     unifiedAssetId: "zcash",
@@ -212,7 +212,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
         name: "Zcash",
       },
     ],
-    tags: ["mc:120"],
+    tags: ["mc:120", "tvol:1"],
   },
   {
     unifiedAssetId: "near",
@@ -291,7 +291,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
         name: "Near",
       },
     ],
-    tags: ["mc:31"],
+    tags: ["mc:31", "tvol:2"],
   },
   {
     unifiedAssetId: "usdt",
@@ -414,7 +414,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
         name: "Tether USD",
       },
     ],
-    tags: ["mc:3", "type:stablecoin"],
+    tags: ["mc:3", "type:stablecoin", "tvol:3"],
   },
 
   {
@@ -580,7 +580,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
         name: "ETH",
       },
     ],
-    tags: ["mc:2"],
+    tags: ["mc:2", "tvol:7"],
   },
   {
     unifiedAssetId: "aurora",
@@ -677,7 +677,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
         name: "Aurora",
       },
     ],
-    tags: ["mc:462"],
+    tags: ["mc:462", "tvol:12"],
   },
   {
     unifiedAssetId: "btc",
@@ -707,7 +707,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
         name: "Bitcoin",
       },
     ],
-    tags: ["mc:1"],
+    tags: ["mc:1", "tvol:6"],
   },
   {
     defuseAssetId:
@@ -767,7 +767,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
     bridge: "poa",
     symbol: "ARB",
     name: "Arbitrum",
-    tags: ["mc:49"],
+    tags: ["mc:49", "tvol:14"],
   },
   {
     defuseAssetId:
@@ -838,7 +838,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
     bridge: "poa",
     symbol: "SOL",
     name: "Solana",
-    tags: ["mc:6"],
+    tags: ["mc:6", "tvol:5"],
   },
   {
     defuseAssetId: "nep141:doge.omft.near",
@@ -850,7 +850,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
     bridge: "poa",
     symbol: "DOGE",
     name: "Dogecoin",
-    tags: ["mc:8", "type:meme"],
+    tags: ["mc:8", "type:meme", "tvol:8"],
   },
   {
     unifiedAssetId: "turbo",
@@ -927,7 +927,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
     bridge: "poa",
     symbol: "XRP",
     name: "XRP",
-    tags: ["mc:4"],
+    tags: ["mc:4", "tvol:11"],
   },
   {
     defuseAssetId:
@@ -1062,7 +1062,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
     bridge: "poa",
     symbol: "GNO",
     name: "Gnosis",
-    tags: ["mc:133"],
+    tags: ["mc:133", "tvol:9"],
   },
   {
     defuseAssetId:
