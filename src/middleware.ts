@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server"
-import type { NextRequest } from "next/server"
-
+import { csp } from "@src/config/csp"
 import { maintenanceModeFlag } from "@src/config/featureFlags"
 import { logger } from "@src/utils/logger"
+import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
 
 export const config = {
   matcher:
@@ -21,5 +21,26 @@ export async function middleware(request: NextRequest) {
     logger.error(error)
   }
 
-  return NextResponse.next()
+  const { nonce, contentSecurityPolicyHeaderValue } = csp()
+
+  /** Request headers */
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set("x-nonce", nonce)
+  requestHeaders.set(
+    "Content-Security-Policy",
+    contentSecurityPolicyHeaderValue
+  )
+
+  /**  Response headers */
+  const response = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  })
+  response.headers.set(
+    "Content-Security-Policy",
+    contentSecurityPolicyHeaderValue
+  )
+
+  return response
 }
