@@ -4,10 +4,7 @@ import { WithdrawWidget } from "@defuse-protocol/defuse-sdk"
 import { useSearchParams } from "next/navigation"
 
 import Paper from "@src/components/Paper"
-import {
-  DEPRECATED_TOKEN_TO_REPLACEMENT,
-  LIST_TOKENS,
-} from "@src/constants/tokens"
+import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
 import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
@@ -35,7 +32,6 @@ export default function Withdraw() {
         presetRecipient={recipient}
         presetTokenSymbol={tokenSymbol}
         tokenList={tokenList}
-        deprecatedTokenToReplacementList={DEPRECATED_TOKEN_TO_REPLACEMENT}
         userAddress={state.isVerified ? state.address : undefined}
         chainType={state.chainType}
         sendNearTransaction={async (tx) => {

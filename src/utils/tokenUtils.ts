@@ -3,7 +3,7 @@ import type {
   UnifiedTokenInfo,
 } from "@defuse-protocol/defuse-sdk/types"
 import { isBaseToken } from "@defuse-protocol/defuse-sdk/utils"
-import { DEPRECATED_TOKEN_TO_REPLACEMENT } from "@src/constants/tokens"
+import { DEPRECATED_TOKEN_LIST } from "@src/constants/tokens"
 import type { PairItem, Pairs } from "@src/types/interfaces"
 
 export const joinAddresses = (addresses: string[]): string =>
@@ -45,7 +45,7 @@ export const getPairsPerToken = (
 
     const defuseAssetIds = token.groupedTokens.reduce(
       (acc: Record<string, PairItem>, curr) => {
-        if (DEPRECATED_TOKEN_TO_REPLACEMENT[curr.defuseAssetId]) {
+        if (DEPRECATED_TOKEN_LIST[curr.defuseAssetId]) {
           return acc
         }
 
