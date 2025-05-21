@@ -33,6 +33,7 @@ const cspConfig = {
     "https://*.chaindefuser.com",
     "https://*.google-analytics.com",
     "https://region1.google-analytics.com",
+    "https://as.coinbase.com/metrics",
 
     /** Wallets */
     "https://*.walletconnect.org",
