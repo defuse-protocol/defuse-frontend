@@ -19,13 +19,20 @@ export async function GET() {
     return NextResponse.error()
   }
 
+  const query = `
+    SELECT
+        date_at as DATE,
+        sum(volume_amount_usd) as GROSS_AMOUNT_USD
+    FROM near_intents_metrics.intents_external_metrics
+    GROUP BY date_at
+    ORDER BY date_at DESC
+  `
+
   const res = await fetch(
     new URL("query?format=JSON", CLICKHOUSE_SERVICE_URL),
     {
       method: "POST",
-      body: JSON.stringify({
-        sql: "SELECT date_at as DATE, sum(volume_amount_usd) as GROSS_AMOUNT_USD FROM near_intents_metrics.intents_external_metrics GROUP BY date_at ORDER BY date_at DESC",
-      }),
+      body: JSON.stringify({ sql: query }),
       headers: {
         "content-type": "application/json",
         authorization: `Basic ${btoa(CLICKHOUSE_API_KEY)}`,
