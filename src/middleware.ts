@@ -11,6 +11,12 @@ export const config = {
 
 export async function middleware(request: NextRequest) {
   try {
+    // Check for legacy redirects first
+    const legacyRedirect = handleLegacyOtcRedirects(request)
+    if (legacyRedirect) {
+      return legacyRedirect
+    }
+
     const isMaintenanceMode = await maintenanceModeFlag()
 
     if (isMaintenanceMode) {
@@ -43,4 +49,31 @@ export async function middleware(request: NextRequest) {
   )
 
   return response
+}
+
+function handleLegacyOtcRedirects(request: NextRequest): NextResponse | null {
+  const url = new URL(request.url)
+
+  // Handle create-order redirect
+  if (url.pathname === "/otc-desk/create-order") {
+    return NextResponse.redirect(new URL("/otc/create-order", request.url))
+  }
+
+  // Handle view-order redirects (both hash and query parameter versions)
+  if (url.pathname === "/otc-desk/view-order") {
+    const newUrl = new URL("/otc/order", request.url)
+
+    if (url.hash) {
+      newUrl.hash = url.hash
+    } else {
+      const orderParam = url.searchParams.get("order")
+      if (orderParam) {
+        newUrl.searchParams.set("order", orderParam)
+      }
+    }
+
+    return NextResponse.redirect(newUrl)
+  }
+
+  return null
 }
