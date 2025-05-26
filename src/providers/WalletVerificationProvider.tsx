@@ -121,7 +121,6 @@ function WalletVerificationUI({
           mixPanel?.track("wallet_verified", {
             wallet: unconfirmedWallet.address,
             wallet_type: unconfirmedWallet.chainType,
-            timestamp: new Date().toISOString(),
           })
         }
         if (state.matches("aborted")) {
