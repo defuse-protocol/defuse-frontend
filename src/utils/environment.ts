@@ -38,3 +38,6 @@ export const INTENTS_ENV = v.parse(
   v.picklist(["production", "stage"]),
   process.env.NEXT_PUBLIC_INTENTS_ENV || "production"
 )
+
+export const CLICKHOUSE_SERVICE_URL = process.env.CLICKHOUSE_SERVICE_URL
+export const CLICKHOUSE_API_KEY = process.env.CLICKHOUSE_API_KEY
