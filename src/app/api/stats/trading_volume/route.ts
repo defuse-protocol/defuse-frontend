@@ -24,8 +24,9 @@ export async function GET() {
         date_at as DATE,
         sum(volume_amount_usd) as GROSS_AMOUNT_USD
     FROM near_intents_metrics.intents_external_metrics
+    WHERE date_at >= '2024-12-10' -- previous dates have no data
     GROUP BY date_at
-    ORDER BY date_at DESC
+    ORDER BY date_at ASC
   `
 
   const res = await fetch(
