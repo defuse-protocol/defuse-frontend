@@ -39,4 +39,7 @@ export const INTENTS_ENV = v.parse(
   process.env.NEXT_PUBLIC_INTENTS_ENV || "production"
 )
 
+export const CLICKHOUSE_SERVICE_URL = process.env.CLICKHOUSE_SERVICE_URL
+export const CLICKHOUSE_API_KEY = process.env.CLICKHOUSE_API_KEY
+
 export const MIXPANEL_TOKEN = process.env.NEXT_PUBLIC_MIXPANEL_TOKEN
