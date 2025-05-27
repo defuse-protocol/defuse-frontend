@@ -12,6 +12,13 @@ import { z } from "zod"
 
 const otcTradesSchema = z
   .object({
+    trade_id: z
+      .string()
+      .uuid()
+      .refine((val) => {
+        // UUID v5 has version bits set to 5 (0101)
+        return val[14] === "5"
+      }, "Invalid trade_id format"),
     encrypted_payload: z.string().refine((val) => {
       try {
         const decoded = base64.decode(val)
@@ -57,6 +64,7 @@ export async function POST(request: Request) {
 
     const { error } = await supabase.from("otc_trades").insert([
       {
+        trade_id: validatedData.trade_id,
         encrypted_payload: validatedData.encrypted_payload,
         ...("iv" in validatedData
           ? { iv: validatedData.iv }

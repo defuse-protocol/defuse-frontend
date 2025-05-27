@@ -6,6 +6,7 @@ export interface OtcTrade {
 }
 
 export type CreateOtcTradeRequest = {
+  trade_id: string
   encrypted_payload: string
 } & ({ iv: string } | { p_key: string })
 

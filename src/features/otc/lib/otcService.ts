@@ -34,15 +34,15 @@ export async function saveTrade(
   trade: CreateOtcTradeRequest
 ): Promise<CreateOtcTradeResponse> {
   const response = await createOTCTrade({
+    trade_id: trade.trade_id,
     encrypted_payload: trade.encrypted_payload,
-    ...("iv" in trade ? { iv: trade.iv } : { pKey: trade.pKey }),
+    ...("iv" in trade ? { iv: trade.iv } : { p_key: trade.p_key }),
   })
   if (!response.success) {
     throw new Error("Failed to save credential")
   }
   return {
     success: response.success,
-    trade_id: response.trade_id,
   }
 }
 
