@@ -1,7 +1,11 @@
-import { getQuote } from "@defuse-protocol/defuse-sdk/utils"
 import { NextResponse } from "next/server"
 
-import { SolverLiquidityService } from "@src/services/SolverLiquidityService"
+import { getQuote } from "@defuse-protocol/defuse-sdk/utils"
+import {
+  LIST_TOKEN_PAIRS,
+  getMaxLiquidityData,
+  setMaxLiquidityData,
+} from "@src/services/SolverLiquidityService"
 import type {
   LastLiquidityCheckStatus,
   MaxLiquidityInJson,
@@ -12,14 +16,13 @@ import { joinAddresses } from "@src/utils/tokenUtils"
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 export async function GET() {
-  const solverLiquidityService = new SolverLiquidityService()
-  const tokenPairs = solverLiquidityService.getPairs()
+  const tokenPairs = LIST_TOKEN_PAIRS
   if (tokenPairs == null) {
     logger.error("tokenPairs was null")
     return NextResponse.json({ error: "tokenPairs was null" }, { status: 500 })
   }
 
-  const tokenPairsLiquidity = await solverLiquidityService.getMaxLiquidityData()
+  const tokenPairsLiquidity = await getMaxLiquidityData()
   if (tokenPairsLiquidity == null) {
     logger.error("tokenPairsLiquidity was null")
     return NextResponse.json(
@@ -59,14 +62,14 @@ export async function GET() {
           true
         )
 
-        solverLiquidityService.setMaxLiquidityData(tokenPairsLiquidity)
+        setMaxLiquidityData(tokenPairsLiquidity)
       })
       .catch(() => {
         tokenPairsLiquidity[joinedAddressesKey] = prepareUpdatedLiquidity(
           maxLiquidity,
           false
         )
-        solverLiquidityService.setMaxLiquidityData(tokenPairsLiquidity)
+        setMaxLiquidityData(tokenPairsLiquidity)
 
         // enable it if you want to debug, disabled as we are out of sentry errors limit, this generates a lot of errors
         // logger.error(`${err}: ${joinedAddressesKey}`)
