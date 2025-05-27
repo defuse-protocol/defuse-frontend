@@ -73,9 +73,12 @@ export function useOtcOrder() {
         const trade = await getTrade(decodeOrder(order))
         if (trade) {
           try {
-            const { encrypted_payload, iv, pKey } = trade
+            const { encryptedPayload, iv, pKey } = trade
+            if (!iv || !pKey) {
+              throw new Error("Invalid decoded params")
+            }
             const decrypted = await decodeAES256Order(
-              encrypted_payload,
+              encryptedPayload,
               pKey,
               iv
             )

@@ -1,4 +1,5 @@
 import { base64urlnopad } from "@scure/base"
+import { deriveTradeIdFromIV } from "@src/app/otc-desk/_utils/encoder"
 import type {
   CreateOtcTradeRequest,
   CreateOtcTradeResponse,
@@ -12,13 +13,20 @@ export async function getTrade(
   if (!params) {
     return null
   }
-  const { tradeId, pKey } = deriveTradeParams(params)
-  const response = await getOTCTrade(tradeId)
+  const { tradeId, pKey, iv } = deriveTradeParams(params)
+
+  // Get trade ID either directly or derive it from IV
+  const resolvedTradeId = tradeId || (iv ? deriveTradeIdFromIV(iv) : null)
+  if (!resolvedTradeId) {
+    throw new Error("Invalid trade params")
+  }
+
+  const response = await getOTCTrade(resolvedTradeId)
   return {
-    tradeId,
-    encrypted_payload: response.encrypted_payload,
-    iv: response.iv,
-    pKey: pKey,
+    tradeId: resolvedTradeId,
+    encryptedPayload: response.encrypted_payload,
+    iv: iv ?? response.iv,
+    pKey: pKey ?? response.p_key,
   }
 }
 
@@ -27,7 +35,7 @@ export async function saveTrade(
 ): Promise<CreateOtcTradeResponse> {
   const response = await createOTCTrade({
     encrypted_payload: trade.encrypted_payload,
-    iv: trade.iv,
+    ...("iv" in trade ? { iv: trade.iv } : { pKey: trade.pKey }),
   })
   if (!response.success) {
     throw new Error("Failed to save credential")
@@ -38,9 +46,18 @@ export async function saveTrade(
   }
 }
 
-function deriveTradeParams(params: string) {
+function deriveTradeParams(params: string): {
+  tradeId: string | null
+  pKey: string | null
+  iv: string | null
+} {
+  // v1: tradeId#pKey
   const [tradeId, pKey] = params.split("#")
-  return { tradeId, pKey }
+  if (tradeId && pKey) {
+    return { tradeId, pKey, iv: null }
+  }
+  // v2: iv
+  return { iv: params, tradeId: null, pKey: null }
 }
 
 // Key for AES-256-GCM must be 32-bytes and URL safe

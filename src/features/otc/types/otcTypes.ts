@@ -1,20 +1,22 @@
 export interface OtcTrade {
   tradeId: string
-  encrypted_payload: string
-  iv: string
-  pKey: string
+  encryptedPayload: string
+  iv: string | null
+  pKey: string | null
 }
 
-export type CreateOtcTradeRequest = Omit<OtcTrade, "pKey" | "tradeId">
+export type CreateOtcTradeRequest = {
+  encrypted_payload: string
+} & ({ iv: string } | { p_key: string })
 
 export interface CreateOtcTradeResponse {
   success: boolean
-  trade_id: string
 }
 
 export interface GetOtcTradeResponse {
   encrypted_payload: string
-  iv: string
+  iv: string | null
+  p_key: string | null
 }
 
 export interface ErrorResponse {
