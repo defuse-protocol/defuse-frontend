@@ -2,6 +2,7 @@ import { base64 } from "@scure/base"
 import {
   decodeAES256Order,
   decodeOrder,
+  deriveTradeIdFromIV,
   encodeAES256Order,
   encodeOrder,
 } from "@src/app/otc-desk/_utils/encoder"
@@ -42,10 +43,12 @@ export async function createOtcOrder(payload: unknown): Promise<{
     // Generate client-side IV and pKey for the order
     const iv = crypto.getRandomValues(new Uint8Array(12))
     const pKey = await genPKey()
+    const tradeId = deriveTradeIdFromIV(base64.encode(iv))
 
     const encrypted = await encodeAES256Order(payload, pKey, iv)
 
     const result = await saveTrade({
+      trade_id: tradeId,
       encrypted_payload: encrypted,
       iv: base64.encode(iv),
     })
@@ -53,7 +56,7 @@ export async function createOtcOrder(payload: unknown): Promise<{
       throw new Error("Failed to save trade")
     }
     return {
-      tradeId: result.trade_id,
+      tradeId,
       pKey,
     }
   } catch (e) {
@@ -70,9 +73,9 @@ export function useOtcOrder() {
     queryFn: async () => {
       // 1. Attempt: Try to fetch and decrypt the order from the database
       if (order) {
-        const trade = await getTrade(decodeOrder(order))
-        if (trade) {
-          try {
+        try {
+          const trade = await getTrade(decodeOrder(order))
+          if (trade) {
             const { encryptedPayload, iv, pKey } = trade
             if (!iv || !pKey) {
               throw new Error("Invalid decoded params")
@@ -86,13 +89,9 @@ export function useOtcOrder() {
               tradeId: trade.tradeId,
               multiPayload: decrypted,
             }
-          } catch (error) {
-            logger.error("Failed to decrypt order")
-            return {
-              tradeId: null,
-              multiPayload: "",
-            }
           }
+        } catch (error) {
+          logger.error("Failed to decrypt order")
         }
       }
 
@@ -105,11 +104,7 @@ export function useOtcOrder() {
             multiPayload: decoded,
           }
         } catch (error) {
-          logger.error("Failed to decode order")
-          return {
-            tradeId: null,
-            multiPayload: "",
-          }
+          logger.error("Failed to decode legacy order")
         }
       }
 
