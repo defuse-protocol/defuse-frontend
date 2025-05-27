@@ -44,8 +44,8 @@ export default function CreateOrderPage() {
         createOtcTrade={async (multiPayload) => {
           return createOtcOrder(multiPayload)
         }}
-        generateLink={(tradeId, pKey, multiPayload) => {
-          return createOtcOrderLink(tradeId, pKey, multiPayload)
+        generateLink={(tradeId, pKey, multiPayload, iv) => {
+          return createOtcOrderLink(tradeId, pKey, multiPayload, iv)
         }}
         initialTokenIn={tokenIn}
         initialTokenOut={tokenOut}

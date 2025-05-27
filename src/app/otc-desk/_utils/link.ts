@@ -16,15 +16,19 @@ import { useQuery } from "@tanstack/react-query"
 import { useSearchParams } from "next/navigation"
 
 export function createOtcOrderLink(
+  /** @deprecated Required for backwards compatibility */
   tradeId: string,
+  /** @deprecated Required for backwards compatibility */
   pKey: string,
-  /**
-   * Required for backwards compatibility
-   * @deprecated
-   */
-  multiPayload: unknown
+  /** @deprecated Required for backwards compatibility */
+  multiPayload: unknown,
+  iv: string
 ) {
   const url = new URL("/otc-desk/view-order", window.location.origin)
+  if (iv) {
+    url.hash = iv
+    return url.toString()
+  }
   if (tradeId && pKey) {
     url.hash = encodeOrder(`${tradeId}#${pKey}`)
     return url.toString()
