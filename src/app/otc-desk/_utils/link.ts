@@ -1,4 +1,4 @@
-import { base64 } from "@scure/base"
+import { base64urlnopad } from "@scure/base"
 import {
   decodeAES256Order,
   decodeOrder,
@@ -37,6 +37,7 @@ export function createOtcOrderLink(
 export async function createOtcOrder(payload: unknown): Promise<{
   tradeId: string
   pKey: string
+  iv: string
 }> {
   try {
     // Generate client-side IV and pKey for the order
@@ -45,9 +46,12 @@ export async function createOtcOrder(payload: unknown): Promise<{
 
     const encrypted = await encodeAES256Order(payload, pKey, iv)
 
+    const encodedIv = base64urlnopad.encode(iv)
+    const tradeId = deriveTradeIdFromIV(encodedIv)
+
     const result = await saveTrade({
       encrypted_payload: encrypted,
-      iv: base64.encode(iv),
+      p_key: pKey,
     })
     if (!result.success) {
       throw new Error("Failed to save trade")
@@ -55,6 +59,7 @@ export async function createOtcOrder(payload: unknown): Promise<{
     return {
       tradeId: result.trade_id,
       pKey,
+      iv: encodedIv,
     }
   } catch (e) {
     throw new Error("Failed to create order")
