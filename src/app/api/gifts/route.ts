@@ -10,14 +10,14 @@ import { logger } from "@src/utils/logger"
 import { NextResponse } from "next/server"
 import { z } from "zod"
 
-const otcTradesSchema = z.object({
+const giftsSchema = z.object({
   gift_id: z
     .string()
     .uuid()
     .refine((val) => {
       // UUID v5 has version bits set to 5 (0101)
       return val[14] === "5"
-    }, "Invalid trade_id format"),
+    }, "Invalid gift_id format"),
   encrypted_payload: z.string().refine((val) => {
     try {
       const decoded = base64.decode(val)
@@ -40,15 +40,8 @@ const otcTradesSchema = z.object({
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const validatedData = otcTradesSchema.parse(body)
-
-    const { error } = await supabase.from("gifts").insert([
-      {
-        gift_id: validatedData.gift_id,
-        encrypted_payload: validatedData.encrypted_payload,
-        p_key: validatedData.p_key,
-      },
-    ])
+    const validatedData = giftsSchema.parse(body)
+    const { error } = await supabase.from("gifts").insert(validatedData)
 
     if (error) {
       logger.error(error)
