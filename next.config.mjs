@@ -1,5 +1,6 @@
 import { withSentryConfig } from "@sentry/nextjs"
 import { DedupePlugin } from "@tinkoff/webpack-dedupe-plugin"
+import path from "node:path"
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -25,6 +26,12 @@ const nextConfig = {
         os: false,
       },
     }
+
+    // "build/utils" is not exported in the package.json, but it exists and accessible
+    config.resolve.alias["@hot-labs/omni-sdk/build/utils"] = path.resolve(
+      import.meta.dirname,
+      "node_modules/@hot-labs/omni-sdk/build/utils"
+    )
 
     /**
      * Setup SVG (just copy-paste from the official documentation https://react-svgr.com/docs/next/)
