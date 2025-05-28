@@ -12,7 +12,7 @@ export const config = {
 export async function middleware(request: NextRequest) {
   try {
     // Check for legacy redirects first
-    const legacyRedirect = handleLegacyOtcRedirects(request)
+    const legacyRedirect = handleLegacyRedirects(request)
     if (legacyRedirect) {
       return legacyRedirect
     }
@@ -51,18 +51,17 @@ export async function middleware(request: NextRequest) {
   return response
 }
 
-function handleLegacyOtcRedirects(request: NextRequest): NextResponse | null {
+function handleLegacyRedirects(request: NextRequest): NextResponse | null {
   const url = new URL(request.url)
 
-  // Handle create-order redirect
   if (url.pathname === "/otc-desk/create-order") {
     return NextResponse.redirect(new URL("/otc/create-order", request.url))
   }
 
-  // Handle view-order redirects (both hash and query parameter versions)
   if (url.pathname === "/otc-desk/view-order") {
     const newUrl = new URL("/otc/order", request.url)
 
+    // Handle both hash and query parameter versions of the old URL
     if (url.hash) {
       newUrl.hash = url.hash
     } else {
