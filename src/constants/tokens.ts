@@ -448,9 +448,9 @@ export const LIST_TOKENS: TokenWithTags[] = [
       },
       {
         defuseAssetId:
-          "nep245:v2_1.omni.hot.tg:56_2PaRDQLCcP4uTRrTZwu9YEsjBj2D",
-        address: "0x63b7e5aE00cc6053358fb9b97B361372FbA10a5e",
-        decimals: 6,
+          "nep245:v2_1.omni.hot.tg:56_2CMMyVTGZkeyNZTSvS5sarzfir6g",
+        address: "0x55d398326f99059fF775485246999027B3197955",
+        decimals: 18,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
         chainName: "bsc",
         bridge: "hot_omni",
