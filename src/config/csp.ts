@@ -59,6 +59,8 @@ const cspConfig = {
     "https://rpc.berachain.com",
     "https://rpc.mainnet.near.org/",
     "https://free.rpc.fastnear.com/",
+    "https://polygon-rpc.com",
+    "https://bsc-dataseed.bnbchain.org",
   ],
   "object-src": ["'none'"],
   "base-uri": ["'self'"],
