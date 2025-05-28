@@ -1262,7 +1262,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
     bridge: "poa",
     symbol: "xBTC",
     name: "OKX Wrapped BTC",
-    tags: [],
+    tags: ["mc:159"], // put it after KAITO, so the marketcap might not be correct
   },
   {
     defuseAssetId: "nep245:v2_1.omni.hot.tg:137_11111111111111111111",
