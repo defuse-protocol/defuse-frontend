@@ -48,7 +48,6 @@ export async function createOtcOrder(payload: unknown): Promise<{
     // Generate client-side IV and pKey for the order
     const iv = crypto.getRandomValues(new Uint8Array(12))
     const pKey = await genPKey()
-    const tradeId = deriveTradeIdFromIV(base64.encode(iv))
 
     const encrypted = await encodeAES256Order(payload, pKey, iv)
 
