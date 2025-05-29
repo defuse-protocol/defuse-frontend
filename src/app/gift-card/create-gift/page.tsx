@@ -11,7 +11,7 @@ import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMe
 import { renderAppLink } from "@src/utils/renderAppLink"
 import React from "react"
 import { useNearWalletActions } from "../../../hooks/useNearWalletActions"
-import { createGiftCardLink } from "../_utils/link"
+import { createGiftIntent, createGiftLink } from "../_utils/link"
 
 export default function CreateGiftPage() {
   const { state } = useConnectWallet()
@@ -44,7 +44,8 @@ export default function CreateGiftPage() {
             return { txHash: outcome.transaction.hash }
           }}
           referral={referral}
-          generateLink={(giftLinkData) => createGiftCardLink(giftLinkData)}
+          createGiftIntent={async (payload) => createGiftIntent(payload)}
+          generateLink={(giftLinkData) => createGiftLink(giftLinkData)}
           initialToken={tokenIn}
           renderHostAppLink={renderAppLink}
         />
@@ -52,7 +53,7 @@ export default function CreateGiftPage() {
           tokenList={tokenList}
           userAddress={state.isVerified ? state.address : undefined}
           userChainType={state.chainType}
-          generateLink={(giftLinkData) => createGiftCardLink(giftLinkData)}
+          generateLink={(giftLinkData) => createGiftLink(giftLinkData)}
         />
       </div>
     </Paper>
