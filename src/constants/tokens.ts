@@ -1218,7 +1218,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
     bridge: "poa",
     symbol: "xBTC",
     name: "OKX Wrapped BTC",
-    tags: [],
+    tags: ["mc:159"], // put it after KAITO, so the marketcap might not be correct
   },
 ]
 
