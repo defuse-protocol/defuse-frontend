@@ -47,7 +47,7 @@ export async function decodeAES256Order(
 
   try {
     const decoded = base64.decode(encodedOrder)
-    const iv_ = base64.decode(iv)
+    const iv_ = base64urlnopad.decode(iv)
 
     // Convert the key to a CryptoKey object
     const keyBytes = base64urlnopad.decode(pKey)
