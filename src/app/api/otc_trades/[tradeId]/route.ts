@@ -36,7 +36,6 @@ export async function GET(
 
     return NextResponse.json({
       encrypted_payload: data.encrypted_payload,
-      // @ts-expect-error - iv is not null in current implementation so it can be neglected for now
       iv: data.iv,
       p_key: data.p_key,
     } satisfies GetOtcTradeResponse)
