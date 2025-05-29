@@ -1,3 +1,4 @@
+import { base64urlnopad } from "@scure/base"
 import { supabase } from "@src/libs/supabase"
 import { TEST_BASE_URL } from "@src/tests/setup"
 import { logger } from "@src/utils/logger"
@@ -7,7 +8,7 @@ import { POST } from "./route"
 vi.mock("@src/libs/supabase", () => ({
   supabase: {
     from: vi.fn(() => ({
-      upsert: vi.fn(),
+      insert: vi.fn(),
     })),
   },
 }))
@@ -21,20 +22,19 @@ describe("POST /api/otc_trades", () => {
     vi.clearAllMocks()
   })
 
-  it("should create otc trade successfully", async () => {
-    const mockUpsert = vi.fn().mockResolvedValue({
+  it("should create otc trade successfully with iv", async () => {
+    const mockInsert = vi.fn().mockResolvedValue({
       error: null,
-      data: { trade_id: "84b1d4b5-f9df-4d12-8706-72bd67bad634" },
     })
-    const mockSelect = vi.fn().mockReturnValue({ single: () => mockUpsert() })
     vi.mocked(supabase.from).mockReturnValue({
-      upsert: () => ({ select: mockSelect }),
+      insert: mockInsert,
     })
 
     const response = await POST(
       new Request(`${TEST_BASE_URL}/api/otc_trades`, {
         method: "POST",
         body: JSON.stringify({
+          trade_id: "09e02623-d6b7-59be-ae65-0f562986ea14",
           encrypted_payload:
             "DMlO/ObmxvFplP8Xm6k7g5V0XFZd8PfAzJdX5hgBupHYW3odASMe/B/v2+zQdQw9Tu2cADi9H0oUfbK4gGHD79ik0WlIpAkQlJXPHkloqF8xLAVJZkn9i4KduNOKTIDGA58rEcN8v+dZd1kYiKAyH9t4fpzTsxYcI0bJNQIOvVwE4K/TB7MHw/nnbkiNvVWSuwVroQJ0Hw5eNQxfKfmhC6IutBmTP6aQCEMWtKAb6jkgEbSy3MIl/xzEAVFgk+BP/rWYjoGX3xgot6LhVEuZNe3aZDpLvwvdURUVwDwN6ABMBhYNW9u1Vmphk4r6qAD9HUuKltozBjX90q04G9VwGG9bkAqebnOvSrBwW3iXgEXQcMiQ9id2BvT7zfWFOUgelOlEfPwxQy+wnElx8NsP1RXXaOdp4ZgH6SzLOrh/2Lb6nKGn4s/d1G3yNLr+9GiOF3IySxiBZB6D17OPFFWm3ZmyoH3tpE5SkH1PAQRBYf3S+dKvbmE/8uvICvzoCcIvXU+O7W45sZIz9aloNERTG0hRxEfRAqLuMQG/WeQ5rLyJJzG2AUXe0AScO2KJD85xEdVM+JR0n6qCvfWkOmZkIQ==",
           iv: "e9QTDukeRo97zGVZ",
@@ -42,10 +42,35 @@ describe("POST /api/otc_trades", () => {
       })
     )
 
-    expect(response.status).toBe(200)
+    expect(response.status).toBe(201)
     await expect(response.json()).resolves.toEqual({
       success: true,
-      trade_id: "84b1d4b5-f9df-4d12-8706-72bd67bad634",
+    })
+  })
+
+  it("should create otc trade successfully with p_key", async () => {
+    const mockInsert = vi.fn().mockResolvedValue({
+      error: null,
+    })
+    vi.mocked(supabase.from).mockReturnValue({
+      insert: mockInsert,
+    })
+
+    const response = await POST(
+      new Request(`${TEST_BASE_URL}/api/otc_trades`, {
+        method: "POST",
+        body: JSON.stringify({
+          trade_id: "09e02623-d6b7-59be-ae65-0f562986ea14",
+          encrypted_payload:
+            "DMlO/ObmxvFplP8Xm6k7g5V0XFZd8PfAzJdX5hgBupHYW3odASMe/B/v2+zQdQw9Tu2cADi9H0oUfbK4gGHD79ik0WlIpAkQlJXPHkloqF8xLAVJZkn9i4KduNOKTIDGA58rEcN8v+dZd1kYiKAyH9t4fpzTsxYcI0bJNQIOvVwE4K/TB7MHw/nnbkiNvVWSuwVroQJ0Hw5eNQxfKfmhC6IutBmTP6aQCEMWtKAb6jkgEbSy3MIl/xzEAVFgk+BP/rWYjoGX3xgot6LhVEuZNe3aZDpLvwvdURUVwDwN6ABMBhYNW9u1Vmphk4r6qAD9HUuKltozBjX90q04G9VwGG9bkAqebnOvSrBwW3iXgEXQcMiQ9id2BvT7zfWFOUgelOlEfPwxQy+wnElx8NsP1RXXaOdp4ZgH6SzLOrh/2Lb6nKGn4s/d1G3yNLr+9GiOF3IySxiBZB6D17OPFFWm3ZmyoH3tpE5SkH1PAQRBYf3S+dKvbmE/8uvICvzoCcIvXU+O7W45sZIz9aloNERTG0hRxEfRAqLuMQG/WeQ5rLyJJzG2AUXe0AScO2KJD85xEdVM+JR0n6qCvfWkOmZkIQ==",
+          p_key: "oNn2ERFTt5qfeqHeY8zKsO5CxfECNl8AhWvdRdD38sw",
+        }),
+      })
+    )
+
+    expect(response.status).toBe(201)
+    await expect(response.json()).resolves.toEqual({
+      success: true,
     })
   })
 
@@ -54,6 +79,7 @@ describe("POST /api/otc_trades", () => {
       new Request(`${TEST_BASE_URL}/api/otc_trades`, {
         method: "POST",
         body: JSON.stringify({
+          trade_id: "09e02623-d6b7-59be-ae65-0f562986ea14",
           encrypted_payload: "invalid aes256",
           iv: "invalid iv",
         }),
@@ -66,18 +92,18 @@ describe("POST /api/otc_trades", () => {
   })
 
   it("should return 500 when database insert fails", async () => {
-    const mockUpsert = vi.fn().mockResolvedValue({
+    const mockInsert = vi.fn().mockResolvedValue({
       error: new Error("DB error"),
     })
-    const mockSelect = vi.fn().mockReturnValue({ single: () => mockUpsert() })
     vi.mocked(supabase.from).mockReturnValue({
-      upsert: () => ({ select: mockSelect }),
+      insert: mockInsert,
     })
 
     const response = await POST(
       new Request(`${TEST_BASE_URL}/api/otc_trades`, {
         method: "POST",
         body: JSON.stringify({
+          trade_id: "09e02623-d6b7-59be-ae65-0f562986ea14",
           encrypted_payload:
             "DMlO/ObmxvFplP8Xm6k7g5V0XFZd8PfAzJdX5hgBupHYW3odASMe/B/v2+zQdQw9Tu2cADi9H0oUfbK4gGHD79ik0WlIpAkQlJXPHkloqF8xLAVJZkn9i4KduNOKTIDGA58rEcN8v+dZd1kYiKAyH9t4fpzTsxYcI0bJNQIOvVwE4K/TB7MHw/nnbkiNvVWSuwVroQJ0Hw5eNQxfKfmhC6IutBmTP6aQCEMWtKAb6jkgEbSy3MIl/xzEAVFgk+BP/rWYjoGX3xgot6LhVEuZNe3aZDpLvwvdURUVwDwN6ABMBhYNW9u1Vmphk4r6qAD9HUuKltozBjX90q04G9VwGG9bkAqebnOvSrBwW3iXgEXQcMiQ9id2BvT7zfWFOUgelOlEfPwxQy+wnElx8NsP1RXXaOdp4ZgH6SzLOrh/2Lb6nKGn4s/d1G3yNLr+9GiOF3IySxiBZB6D17OPFFWm3ZmyoH3tpE5SkH1PAQRBYf3S+dKvbmE/8uvICvzoCcIvXU+O7W45sZIz9aloNERTG0hRxEfRAqLuMQG/WeQ5rLyJJzG2AUXe0AScO2KJD85xEdVM+JR0n6qCvfWkOmZkIQ==",
           iv: "e9QTDukeRo97zGVZ",
@@ -90,5 +116,42 @@ describe("POST /api/otc_trades", () => {
       error: "Failed to create otc trade",
     })
     expect(logger.error).toHaveBeenCalledOnce()
+  })
+
+  it("should return 400 for invalid p_key data", async () => {
+    const response = await POST(
+      new Request(`${TEST_BASE_URL}/api/otc_trades`, {
+        method: "POST",
+        body: JSON.stringify({
+          trade_id: "09e02623-d6b7-59be-ae65-0f562986ea14",
+          encrypted_payload:
+            "DMlO/ObmxvFplP8Xm6k7g5V0XFZd8PfAzJdX5hgBupHYW3odASMe/B/v2+zQdQw9Tu2cADi9H0oUfbK4gGHD79ik0WlIpAkQlJXPHkloqF8xLAVJZkn9i4KduNOKTIDGA58rEcN8v+dZd1kYiKAyH9t4fpzTsxYcI0bJNQIOvVwE4K/TB7MHw/nnbkiNvVWSuwVroQJ0Hw5eNQxfKfmhC6IutBmTP6aQCEMWtKAb6jkgEbSy3MIl/xzEAVFgk+BP/rWYjoGX3xgot6LhVEuZNe3aZDpLvwvdURUVwDwN6ABMBhYNW9u1Vmphk4r6qAD9HUuKltozBjX90q04G9VwGG9bkAqebnOvSrBwW3iXgEXQcMiQ9id2BvT7zfWFOUgelOlEfPwxQy+wnElx8NsP1RXXaOdp4ZgH6SzLOrh/2Lb6nKGn4s/d1G3yNLr+9GiOF3IySxiBZB6D17OPFFWm3ZmyoH3tpE5SkH1PAQRBYf3S+dKvbmE/8uvICvzoCcIvXU+O7W45sZIz9aloNERTG0hRxEfRAqLuMQG/WeQ5rLyJJzG2AUXe0AScO2KJD85xEdVM+JR0n6qCvfWkOmZkIQ==",
+          p_key: "invalid-key",
+        }),
+      })
+    )
+
+    expect(response.status).toBe(400)
+    const body = await response.json()
+    expect(body.error).toBeDefined()
+  })
+
+  it("should return 400 when both iv and p_key are provided", async () => {
+    const response = await POST(
+      new Request(`${TEST_BASE_URL}/api/otc_trades`, {
+        method: "POST",
+        body: JSON.stringify({
+          trade_id: "09e02623-d6b7-59be-ae65-0f562986ea14",
+          encrypted_payload:
+            "DMlO/ObmxvFplP8Xm6k7g5V0XFZd8PfAzJdX5hgBupHYW3odASMe/B/v2+zQdQw9Tu2cADi9H0oUfbK4gGHD79ik0WlIpAkQlJXPHkloqF8xLAVJZkn9i4KduNOKTIDGA58rEcN8v+dZd1kYiKAyH9t4fpzTsxYcI0bJNQIOvVwE4K/TB7MHw/nnbkiNvVWSuwVroQJ0Hw5eNQxfKfmhC6IutBmTP6aQCEMWtKAb6jkgEbSy3MIl/xzEAVFgk+BP/rWYjoGX3xgot6LhVEuZNe3aZDpLvwvdURUVwDwN6ABMBhYNW9u1Vmphk4r6qAD9HUuKltozBjX90q04G9VwGG9bkAqebnOvSrBwW3iXgEXQcMiQ9id2BvT7zfWFOUgelOlEfPwxQy+wnElx8NsP1RXXaOdp4ZgH6SzLOrh/2Lb6nKGn4s/d1G3yNLr+9GiOF3IySxiBZB6D17OPFFWm3ZmyoH3tpE5SkH1PAQRBYf3S+dKvbmE/8uvICvzoCcIvXU+O7W45sZIz9aloNERTG0hRxEfRAqLuMQG/WeQ5rLyJJzG2AUXe0AScO2KJD85xEdVM+JR0n6qCvfWkOmZkIQ==",
+          iv: "e9QTDukeRo97zGVZ",
+          p_key: "oNn2ERFTt5qfeqHeY8zKsO5CxfECNl8AhWvdRdD38sw",
+        }),
+      })
+    )
+
+    expect(response.status).toBe(400)
+    const body = await response.json()
+    expect(body.error).toBeDefined()
   })
 })
