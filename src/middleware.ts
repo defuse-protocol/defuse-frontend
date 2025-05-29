@@ -61,14 +61,9 @@ function handleLegacyRedirects(request: NextRequest): NextResponse | null {
   if (url.pathname === "/otc-desk/view-order") {
     const newUrl = new URL("/otc/order", request.url)
 
-    // Handle both hash and query parameter versions of the old URL
-    if (url.hash) {
-      newUrl.hash = url.hash
-    } else {
-      const orderParam = url.searchParams.get("order")
-      if (orderParam) {
-        newUrl.searchParams.set("order", orderParam)
-      }
+    const orderParam = url.searchParams.get("order")
+    if (orderParam) {
+      newUrl.searchParams.set("order", orderParam)
     }
 
     return NextResponse.redirect(newUrl)
