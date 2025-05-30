@@ -1,5 +1,5 @@
 import { base64urlnopad } from "@scure/base"
-import { v5 as uuidv5 } from "uuid"
+import { deriveIdFromIV } from "@src/utils/deriveIdFromIV"
 import type {
   CreateGiftRequest,
   CreateGiftResponse,
@@ -44,7 +44,7 @@ function getGiftAccessParams(params: string): {
   giftId: string
 } {
   const [iv] = params.split("#")
-  const giftId = deriveGiftIdFromIV(iv)
+  const giftId = deriveIdFromIV(iv)
   return { iv, giftId }
 }
 
@@ -61,8 +61,4 @@ export async function genPKey() {
   const rawKey = await crypto.subtle.exportKey("raw", key)
   const keyBytes = new Uint8Array(rawKey)
   return base64urlnopad.encode(keyBytes)
-}
-
-export function deriveGiftIdFromIV(iv: string): string {
-  return uuidv5(iv, "6ba7b810-9dad-11d1-80b4-00c04fd430c8")
 }
