@@ -1,5 +1,5 @@
 import { base64urlnopad } from "@scure/base"
-import { v5 as uuidv5 } from "uuid"
+import { deriveIdFromIV } from "@src/utils/deriveIdFromIV"
 import type {
   CreateGiftRequest,
   CreateGiftResponse,
@@ -7,24 +7,18 @@ import type {
 } from "../types/giftTypes"
 import { createGift, getGift } from "./giftAPI"
 
-export async function getGiftIntent(
+export async function getGiftEncryptedIntent(
   params: string | null
 ): Promise<Gift | null> {
   if (!params) {
     return null
   }
-  const { iv } = deriveGiftParams(params)
+  const { giftId } = getGiftAccessParams(params)
 
-  const resolvedGiftId = deriveGiftIdFromIV(iv)
-  if (!resolvedGiftId) {
-    throw new Error("Invalid trade params")
-  }
-
-  const response = await getGift(resolvedGiftId)
+  const response = await getGift(giftId)
   return {
-    giftId: resolvedGiftId,
+    giftId,
     encryptedPayload: response.encrypted_payload,
-    iv,
     pKey: response.p_key,
   }
 }
@@ -45,11 +39,13 @@ export async function saveGiftIntent(
   }
 }
 
-function deriveGiftParams(params: string): {
+function getGiftAccessParams(params: string): {
   iv: string
+  giftId: string
 } {
   const [iv] = params.split("#")
-  return { iv }
+  const giftId = deriveIdFromIV(iv)
+  return { iv, giftId }
 }
 
 // Key for AES-256-GCM must be 32-bytes and URL safe
@@ -65,8 +61,4 @@ export async function genPKey() {
   const rawKey = await crypto.subtle.exportKey("raw", key)
   const keyBytes = new Uint8Array(rawKey)
   return base64urlnopad.encode(keyBytes)
-}
-
-export function deriveGiftIdFromIV(iv: string): string {
-  return uuidv5(iv, "6ba7b810-9dad-11d1-80b4-00c04fd430c8")
 }
