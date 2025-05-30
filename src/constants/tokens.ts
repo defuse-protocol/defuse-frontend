@@ -147,6 +147,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
         symbol: "USDC",
         name: "USD Coin",
       },
+      /*
       {
         defuseAssetId:
           "nep245:v2_1.omni.hot.tg:137_qiStmoQJDQPTebaPjgx5VBxZv6L",
@@ -158,6 +159,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
         symbol: "USDC",
         name: "USD Coin",
       },
+      */
       {
         defuseAssetId:
           "nep245:v2_1.omni.hot.tg:56_2w93GqMcEmQFDru84j3HZZWt557r",
@@ -435,6 +437,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
         symbol: "USDT",
         name: "Tether USD",
       },
+      /*
       {
         defuseAssetId:
           "nep245:v2_1.omni.hot.tg:137_3hpYoaLtt8MP1Z2GH1U473DMRKgr",
@@ -446,6 +449,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
         symbol: "USDT",
         name: "Tether USD",
       },
+       */
       {
         defuseAssetId:
           "nep245:v2_1.omni.hot.tg:56_2CMMyVTGZkeyNZTSvS5sarzfir6g",
@@ -1264,6 +1268,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
     name: "OKX Wrapped BTC",
     tags: ["mc:159"], // put it after KAITO, so the marketcap might not be correct
   },
+  /*
   {
     defuseAssetId: "nep245:v2_1.omni.hot.tg:137_11111111111111111111",
     type: "native",
@@ -1275,6 +1280,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
     name: "POL",
     tags: ["mc:43"],
   },
+   */
   {
     defuseAssetId: "nep245:v2_1.omni.hot.tg:56_11111111111111111111",
     type: "native",
