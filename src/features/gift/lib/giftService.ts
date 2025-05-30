@@ -7,7 +7,7 @@ import type {
 } from "../types/giftTypes"
 import { createGift, getGift } from "./giftAPI"
 
-export async function getGiftIntent(
+export async function getGiftEncryptedIntent(
   params: string | null
 ): Promise<Gift | null> {
   if (!params) {
