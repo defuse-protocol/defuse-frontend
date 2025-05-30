@@ -1,4 +1,4 @@
-import { base64 } from "@scure/base"
+import { base64urlnopad } from "@scure/base"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { decodeAES256Order, encodeAES256Order } from "./encoder"
 
@@ -27,7 +27,7 @@ describe("encoder", () => {
 
   const pKey = "iWRbd_YTptQT4w4hdIEgfI7JJjM0-uFwRCpRVXk5IFs"
 
-  const iv = base64.decode("q/fEfO4EboQgW+7u")
+  const iv = base64urlnopad.decode("InQci4kRc3nrT8T1")
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -73,7 +73,7 @@ describe("encoder", () => {
       const decrypted = await decodeAES256Order(
         encrypted,
         pKey,
-        base64.encode(iv)
+        base64urlnopad.encode(iv)
       )
       expect(decrypted).toEqual(makerMultiPayload)
 
@@ -90,14 +90,18 @@ describe("encoder", () => {
         encodeAES256Order(makerMultiPayload, emptyKey, iv)
       ).rejects.toThrow("Key must be exactly 32 bytes (AES-256)")
       await expect(
-        decodeAES256Order("some-encrypted-data", aes160Key, base64.encode(iv))
+        decodeAES256Order(
+          "some-encrypted-data",
+          aes160Key,
+          base64urlnopad.encode(iv)
+        )
       ).rejects.toThrow("Key must be exactly 32 bytes (AES-256)")
     })
 
     it("should fail with invalid encrypted data", async () => {
       const invalidData = "not-encrypted-data"
       await expect(
-        decodeAES256Order(invalidData, pKey, base64.encode(iv))
+        decodeAES256Order(invalidData, pKey, base64urlnopad.encode(iv))
       ).rejects.toThrow()
     })
 
