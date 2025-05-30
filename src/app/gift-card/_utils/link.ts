@@ -1,14 +1,12 @@
-import { base64, base64urlnopad } from "@scure/base"
+import { base64urlnopad } from "@scure/base"
 import {
-  deriveGiftIdFromIV,
   genPKey,
-  getGiftIntent,
+  getGiftEncryptedIntent,
   saveGiftIntent,
 } from "@src/features/gift/lib/giftService"
+import { deriveIdFromIV } from "@src/utils/deriveIdFromIV"
 import { logger } from "@src/utils/logger"
 import { useQuery } from "@tanstack/react-query"
-import { useSearchParams } from "next/navigation"
-import { useState } from "react"
 import {
   decodeAES256Gift,
   decodeGift,
@@ -49,7 +47,7 @@ export async function createGiftIntent(payload: GiftLinkData): Promise<{
     const encrypted = await encodeAES256Gift(payload, pKey, iv)
 
     const encodedIv = base64urlnopad.encode(iv)
-    const giftId = deriveGiftIdFromIV(encodedIv)
+    const giftId = deriveIdFromIV(encodedIv)
 
     const result = await saveGiftIntent({
       gift_id: giftId,
@@ -76,7 +74,7 @@ export function useGiftIntent() {
       // 1. Attempt: Try to fetch and decrypt the order from the database
       if (encodedGift) {
         try {
-          const gift = await getGiftIntent(decodeGift(encodedGift))
+          const gift = await getGiftEncryptedIntent(decodeGift(encodedGift))
           if (gift) {
             const { encryptedPayload, pKey, iv } = gift
             if (!iv || !pKey) {
