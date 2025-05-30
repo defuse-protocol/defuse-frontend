@@ -56,11 +56,6 @@ export async function createGiftIntent(payload: GiftLinkData): Promise<{
       encrypted_payload: encrypted,
       p_key: pKey,
     })
-
-    // test decodeAES256Gift > expect(decrypted).toEqual(payload)
-    const decrypted = await decodeAES256Gift(encrypted, pKey, encodedIv)
-    console.log("decrypted", decrypted, decrypted === JSON.stringify(payload))
-
     if (!result.success) {
       throw new Error("Failed to save trade")
     }
