@@ -27,6 +27,13 @@ const cspConfig = {
     "'unsafe-eval'",
     "https://www.googletagmanager.com",
   ],
+  "worker-src": [
+    "'self'",
+    "https://*.near-intents.org",
+    "https://*.solswap.org",
+    "https://*.dogecoinswap.org",
+    "https://*.turboswap.org",
+  ],
   "connect-src": [
     "'self'",
     /** Services */
@@ -34,6 +41,7 @@ const cspConfig = {
     "https://*.google-analytics.com",
     "https://region1.google-analytics.com",
     "https://as.coinbase.com/metrics",
+    "https://api-js.mixpanel.com",
 
     /** Wallets */
     "https://*.walletconnect.org",

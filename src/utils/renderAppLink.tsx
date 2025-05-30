@@ -54,7 +54,7 @@ export function renderAppLink(
       )
     case "otc":
       return (
-        <Link href="/otc-desk/create-order" {...props}>
+        <Link href="/otc/create-order" {...props}>
           {children}
         </Link>
       )
