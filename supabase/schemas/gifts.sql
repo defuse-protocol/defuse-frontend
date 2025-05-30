@@ -1,5 +1,5 @@
-CREATE TABLE otc_trades (
-    gift_id TEXT PRIMARY KEY,
+CREATE TABLE gifts (
+    gift_id UUID PRIMARY KEY,
     encrypted_payload TEXT NOT NULL,
     p_key TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -7,7 +7,7 @@ CREATE TABLE otc_trades (
 );
 
 -- Create an update trigger for updated_at
-CREATE TRIGGER otc_gifts_set_updated_at
+CREATE TRIGGER gifts_set_updated_at
     BEFORE UPDATE ON gifts
     FOR EACH ROW
     EXECUTE FUNCTION trigger_set_timestamp();
