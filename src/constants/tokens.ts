@@ -147,6 +147,30 @@ export const LIST_TOKENS: TokenWithTags[] = [
         symbol: "USDC",
         name: "USD Coin",
       },
+      /*
+      {
+        defuseAssetId:
+          "nep245:v2_1.omni.hot.tg:137_qiStmoQJDQPTebaPjgx5VBxZv6L",
+        address: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+        decimals: 6,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+        chainName: "polygon",
+        bridge: "hot_omni",
+        symbol: "USDC",
+        name: "USD Coin",
+      },
+      */
+      {
+        defuseAssetId:
+          "nep245:v2_1.omni.hot.tg:56_2w93GqMcEmQFDru84j3HZZWt557r",
+        address: "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+        chainName: "bsc",
+        bridge: "hot_omni",
+        symbol: "USDC",
+        name: "USD Coin",
+      },
     ],
     tags: ["mc:7", "type:stablecoin", "tvol:4"],
   },
@@ -410,6 +434,30 @@ export const LIST_TOKENS: TokenWithTags[] = [
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
         chainName: "optima",
         bridge: "aurora_engine",
+        symbol: "USDT",
+        name: "Tether USD",
+      },
+      /*
+      {
+        defuseAssetId:
+          "nep245:v2_1.omni.hot.tg:137_3hpYoaLtt8MP1Z2GH1U473DMRKgr",
+        address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+        decimals: 6,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+        chainName: "polygon",
+        bridge: "hot_omni",
+        symbol: "USDT",
+        name: "Tether USD",
+      },
+       */
+      {
+        defuseAssetId:
+          "nep245:v2_1.omni.hot.tg:56_2CMMyVTGZkeyNZTSvS5sarzfir6g",
+        address: "0x55d398326f99059fF775485246999027B3197955",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+        chainName: "bsc",
+        bridge: "hot_omni",
         symbol: "USDT",
         name: "Tether USD",
       },
@@ -1219,6 +1267,30 @@ export const LIST_TOKENS: TokenWithTags[] = [
     symbol: "xBTC",
     name: "OKX Wrapped BTC",
     tags: ["mc:159"], // put it after KAITO, so the marketcap might not be correct
+  },
+  /*
+  {
+    defuseAssetId: "nep245:v2_1.omni.hot.tg:137_11111111111111111111",
+    type: "native",
+    decimals: 18,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/28321.png",
+    chainName: "polygon",
+    bridge: "hot_omni",
+    symbol: "POL",
+    name: "POL",
+    tags: ["mc:43"],
+  },
+   */
+  {
+    defuseAssetId: "nep245:v2_1.omni.hot.tg:56_11111111111111111111",
+    type: "native",
+    decimals: 18,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/1839.png",
+    chainName: "bsc",
+    bridge: "hot_omni",
+    symbol: "BNB",
+    name: "BNB",
+    tags: ["mc:4"],
   },
 ]
 
