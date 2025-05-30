@@ -13,16 +13,11 @@ export async function getGiftIntent(
   if (!params) {
     return null
   }
-  const { iv } = deriveGiftParams(params)
+  const { giftId } = getGiftAccessParams(params)
 
-  const resolvedGiftId = deriveGiftIdFromIV(iv)
-  if (!resolvedGiftId) {
-    throw new Error("Invalid trade params")
-  }
-
-  const response = await getGift(resolvedGiftId)
+  const response = await getGift(giftId)
   return {
-    giftId: resolvedGiftId,
+    giftId,
     encryptedPayload: response.encrypted_payload,
     pKey: response.p_key,
   }
@@ -44,11 +39,13 @@ export async function saveGiftIntent(
   }
 }
 
-function deriveGiftParams(params: string): {
+function getGiftAccessParams(params: string): {
   iv: string
+  giftId: string
 } {
   const [iv] = params.split("#")
-  return { iv }
+  const giftId = deriveGiftIdFromIV(iv)
+  return { iv, giftId }
 }
 
 // Key for AES-256-GCM must be 32-bytes and URL safe
