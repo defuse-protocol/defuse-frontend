@@ -1,6 +1,8 @@
 CREATE TABLE otc_trades (
-    trade_id TEXT PRIMARY KEY,
+    trade_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     encrypted_payload TEXT NOT NULL,
+    iv TEXT,
+    p_key TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
