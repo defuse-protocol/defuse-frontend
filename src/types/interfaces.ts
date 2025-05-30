@@ -56,26 +56,10 @@ export type PairItem = {
 }
 
 export type MaxLiquidity = {
-  amount: bigint
-  validatedAmount: bigint
-  lastStepSize?: bigint
-  lastLiquidityCheck?: LastLiquidityCheckStatus
-}
-
-export type MaxLiquidityInJson = {
-  validatedAmount: {
-    value: string
-    __type?: string
-  }
-  amount: {
-    value: string
-    __type?: string
-  }
-  lastStepSize?: {
-    value: string
-    __type?: string
-  }
-  lastLiquidityCheck?: LastLiquidityCheckStatus
+  amount: string
+  validated_amount: string
+  last_step_size?: string | null
+  last_liquidity_check?: LastLiquidityCheckStatus | null
 }
 
 export type Pairs =
