@@ -1,51 +1,102 @@
-import { Redis } from "@upstash/redis"
-
-import { serialize } from "@defuse-protocol/defuse-sdk/utils"
 import { LIST_TOKENS } from "@src/constants/tokens"
-import type { MaxLiquidity, MaxLiquidityInJson } from "@src/types/interfaces"
-import { redisEnvVariables } from "@src/utils/environment"
+import { supabase } from "@src/libs/supabase"
+import type {
+  LastLiquidityCheckStatus,
+  MaxLiquidity,
+} from "@src/types/interfaces"
+import { logger } from "@src/utils/logger"
 import { getPairsPerToken } from "@src/utils/tokenUtils"
-
-const redis = new Redis(redisEnvVariables)
 
 export const LIST_TOKEN_PAIRS = getPairsPerToken(LIST_TOKENS)
 
-const STORAGE_KEY = `tokenPairsLiquidity_${process.env.NODE_ENV}`
-
 export const setMaxLiquidityData = async (
-  tokenPairsLiquidity: Record<string, MaxLiquidity | MaxLiquidityInJson> | null
-): Promise<Record<string, MaxLiquidityInJson> | null> => {
+  address_from_to: string,
+  tokenPairsLiquidity: MaxLiquidity
+): Promise<MaxLiquidity | null> => {
   if (tokenPairsLiquidity == null) {
     return null
   }
 
-  await redis.set(STORAGE_KEY, serialize(tokenPairsLiquidity))
+  const { error } = await supabase
+    .from("solver_liquidity")
+    .update({
+      amount: tokenPairsLiquidity.amount,
+      validated_amount: tokenPairsLiquidity.validated_amount,
+      last_step_size: tokenPairsLiquidity.last_step_size,
+      last_liquidity_check: tokenPairsLiquidity.last_liquidity_check,
+    })
+    .eq("address_from_to", address_from_to)
 
-  return serialize(tokenPairsLiquidity)
+  if (error) {
+    logger.error(`Could not update solver_liquidity supabase table ${error}`)
+    return null
+  }
+
+  return tokenPairsLiquidity
 }
 
 export const getMaxLiquidityData = async (): Promise<Record<
   string,
-  MaxLiquidityInJson
+  MaxLiquidity
 > | null> => {
   try {
-    const exists = await redis.exists(STORAGE_KEY)
-    if (!exists) {
-      const pairs = LIST_TOKEN_PAIRS.reduce(
-        (acc: Record<string, MaxLiquidity>, pair) => {
-          acc[`${pair.in.defuseAssetId}#${pair.out.defuseAssetId}`] =
-            pair.maxLiquidity
-          return acc
-        },
-        {}
+    const { data, error: errorConnecting } = await supabase
+      .from("solver_liquidity")
+      .select("*")
+
+    if (errorConnecting) {
+      logger.error(
+        `Could not connect to solver_liquidity supabase table ${errorConnecting}`
       )
 
-      await setMaxLiquidityData(pairs)
-
-      return JSON.parse(serialize(pairs))
+      return null
     }
 
-    return await redis.get(STORAGE_KEY)
+    if (data?.length) {
+      return data.reduce((acc: Record<string, MaxLiquidity>, cur) => {
+        acc[cur.address_from_to] = {
+          amount: cur.amount,
+          validated_amount: cur.validated_amount,
+          last_step_size: cur.last_step_size,
+          last_liquidity_check:
+            cur.last_liquidity_check as LastLiquidityCheckStatus | null,
+        }
+        return acc
+      }, {})
+    }
+
+    const pairs: {
+      address_from_to: string
+      validated_amount: string
+      amount: string
+    }[] = []
+
+    for (const pair of LIST_TOKEN_PAIRS) {
+      const fromTo = `${pair.in.defuseAssetId}#${pair.out.defuseAssetId}`
+      pairs.push({
+        address_from_to: fromTo,
+        validated_amount: pair.maxLiquidity.validated_amount.toString(),
+        amount: pair.maxLiquidity.amount.toString(),
+      })
+    }
+
+    const { error: errorInserting } = await supabase
+      .from("solver_liquidity")
+      .insert(pairs)
+
+    if (errorInserting) {
+      logger.error(
+        `Could not insert into solver_liquidity supabase table ${errorInserting}`
+      )
+    }
+
+    return pairs.reduce((acc: Record<string, MaxLiquidity>, cur) => {
+      acc[cur.address_from_to] = {
+        amount: cur.amount,
+        validated_amount: cur.validated_amount,
+      }
+      return acc
+    }, {})
   } catch (error) {
     return null
   }

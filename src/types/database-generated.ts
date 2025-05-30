@@ -85,6 +85,36 @@ export type Database = {
         }
         Relationships: []
       }
+      solver_liquidity: {
+        Row: {
+          address_from_to: string
+          amount: string
+          created_at: string | null
+          last_liquidity_check: string | null
+          last_step_size: string | null
+          updated_at: string | null
+          validated_amount: string
+        }
+        Insert: {
+          address_from_to: string
+          amount: string
+          created_at?: string | null
+          last_liquidity_check?: string | null
+          last_step_size?: string | null
+          updated_at?: string | null
+          validated_amount: string
+        }
+        Update: {
+          address_from_to?: string
+          amount?: string
+          created_at?: string | null
+          last_liquidity_check?: string | null
+          last_step_size?: string | null
+          updated_at?: string | null
+          validated_amount?: string
+        }
+        Relationships: []
+      }
       webauthn_credentials: {
         Row: {
           created_at: string | null
@@ -238,4 +268,3 @@ export const Constants = {
     Enums: {},
   },
 } as const
-

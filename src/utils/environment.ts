@@ -39,17 +39,6 @@ export const INTENTS_ENV = v.parse(
   process.env.NEXT_PUBLIC_INTENTS_ENV || "production"
 )
 
-export const redisEnvVariables =
-  typeof window === "undefined"
-    ? {
-        url: process.env.KV_REST_API_URL,
-        token: process.env.KV_REST_API_TOKEN,
-      } // server only
-    : {
-        url: process.env.NEXT_PUBLIC_KV_REST_API_URL,
-        token: process.env.NEXT_PUBLIC_KV_REST_API_TOKEN,
-      } // client only
-
 export const CLICKHOUSE_SERVICE_URL = process.env.CLICKHOUSE_SERVICE_URL
 export const CLICKHOUSE_API_KEY = process.env.CLICKHOUSE_API_KEY
 

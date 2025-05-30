@@ -22,8 +22,8 @@ const generatePairs = (arr: PairItem[]): NonNullable<Pairs> => {
           in: arr[i],
           out: arr[j],
           maxLiquidity: {
-            amount: defaultAmount,
-            validatedAmount: defaultAmount,
+            amount: defaultAmount.toString(),
+            validated_amount: defaultAmount.toString(),
           },
         })
       }
