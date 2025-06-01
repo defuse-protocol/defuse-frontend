@@ -1294,7 +1294,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
   },
   {
     defuseAssetId:
-      "nep141:sol-b1a5baaef40c89feef4b46f225b173c27821890c.omft.near", // This address needs to be verified before merging
+      "nep141:sol-bb27241c87aa401cc963c360c175dd7ca7035873.omft.near",
     address: "EJZJpNa4tDZ3kYdcRZgaAtaKm3fLJ5akmyPkCaKmfWvd",
     decimals: 6,
     icon: "https://dd.dexscreener.com/ds-data/tokens/solana/EJZJpNa4tDZ3kYdcRZgaAtaKm3fLJ5akmyPkCaKmfWvd.png?size=lg&key=9f72fc",
