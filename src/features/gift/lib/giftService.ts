@@ -13,13 +13,14 @@ export async function getGiftEncryptedIntent(
   if (!params) {
     return null
   }
-  const { giftId } = getGiftAccessParams(params)
+  const { giftId, iv } = getGiftAccessParams(params)
 
   const response = await getGift(giftId)
   return {
     giftId,
     encryptedPayload: response.encrypted_payload,
     pKey: response.p_key,
+    iv,
   }
 }
 
