@@ -1292,6 +1292,18 @@ export const LIST_TOKENS: TokenWithTags[] = [
     name: "BNB",
     tags: ["mc:4"],
   },
+  {
+    defuseAssetId:
+      "nep141:sol-bb27241c87aa401cc963c360c175dd7ca7035873.omft.near",
+    address: "EJZJpNa4tDZ3kYdcRZgaAtaKm3fLJ5akmyPkCaKmfWvd",
+    decimals: 6,
+    icon: "https://dd.dexscreener.com/ds-data/tokens/solana/EJZJpNa4tDZ3kYdcRZgaAtaKm3fLJ5akmyPkCaKmfWvd.png?size=lg&key=9f72fc",
+    chainName: "solana",
+    bridge: "poa",
+    symbol: "LOUD",
+    name: "Loud",
+    tags: ["tvol:6"],
+  },
 ]
 
 export const DEPRECATED_TOKENS: Record<string, boolean> = {

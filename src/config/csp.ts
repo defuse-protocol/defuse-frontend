@@ -20,6 +20,7 @@ const cspConfig = {
     "https://*.walletconnect.org",
     "https://*.walletconnect.com",
     "https://storage.herewallet.app",
+    "https://dd.dexscreener.com",
   ],
   "script-src": [
     "'self'",
