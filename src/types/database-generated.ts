@@ -34,6 +34,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      gifts: {
+        Row: {
+          created_at: string | null
+          encrypted_payload: string
+          gift_id: string
+          p_key: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          encrypted_payload: string
+          gift_id: string
+          p_key: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          encrypted_payload?: string
+          gift_id?: string
+          p_key?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       otc_trades: {
         Row: {
           created_at: string | null

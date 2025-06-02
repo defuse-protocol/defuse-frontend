@@ -2,7 +2,6 @@ export interface Gift {
   giftId: string
   encryptedPayload: string
   pKey: string | null
-  iv: string | null
 }
 
 export type CreateGiftRequest = {
