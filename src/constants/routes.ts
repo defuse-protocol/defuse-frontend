@@ -5,6 +5,7 @@ export const navigation = {
   withdraw: "/withdraw",
   otc: "/otc/create-order",
   jobs: "/jobs",
+  explore: "/explore",
 } satisfies Record<AppRoutes, string>
 
 export type AppRoutes =
@@ -14,3 +15,4 @@ export type AppRoutes =
   | "withdraw"
   | "otc"
   | "jobs"
+  | "explore"
