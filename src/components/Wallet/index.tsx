@@ -18,7 +18,7 @@ import { TonConnectButton } from "./TonConnectButton"
 const ConnectWallet = () => {
   const { isOpen, setIsOpen } = useSignInWindowOpenState()
   const { state, signIn, connectors } = useConnectWallet()
-  const { shortAccountId } = useShortAccountId(state.address ?? "")
+  const { shortAccountId } = useShortAccountId(state.displayAddress ?? "")
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
 
   const handleNearWalletSelector = () => {

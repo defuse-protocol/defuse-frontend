@@ -103,7 +103,7 @@ const WalletConnections = () => {
     if (isProcessing) setIsProcessing(false)
   }, [isProcessing])
 
-  const userAddress = state.address
+  const userAddress = state.displayAddress
   if (userAddress == null) {
     return null
   }

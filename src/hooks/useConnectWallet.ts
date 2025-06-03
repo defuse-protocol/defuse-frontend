@@ -48,6 +48,7 @@ export type State = {
   chainType?: ChainType
   network?: string
   address?: string
+  displayAddress?: string
   isVerified: boolean
   isFake: boolean // in most cases, this is used for testing purposes only
 }
@@ -73,6 +74,7 @@ const defaultState: State = {
   chainType: undefined,
   network: undefined,
   address: undefined,
+  displayAddress: undefined,
   isVerified: false,
   isFake: false,
 }
@@ -146,6 +148,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
   if (nearWallet.accountId != null) {
     state = {
       address: nearWallet.accountId,
+      displayAddress: nearWallet.accountId,
       network: "near:mainnet",
       chainType: ChainType.Near,
       isVerified: false,
@@ -160,6 +163,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
   if (evmWalletAccount.address != null && evmWalletAccount.chainId) {
     state = {
       address: evmWalletAccount.address,
+      displayAddress: evmWalletAccount.address,
       network: evmWalletAccount.chainId
         ? `eth:${evmWalletAccount.chainId}`
         : "unknown",
@@ -181,6 +185,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
   if (solanaWallet.publicKey != null) {
     state = {
       address: solanaWallet.publicKey.toBase58(),
+      displayAddress: solanaWallet.publicKey.toBase58(),
       network: "sol:mainnet",
       chainType: ChainType.Solana,
       isVerified: false,
@@ -195,6 +200,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
   if (currentPasskey != null) {
     state = {
       address: currentPasskey.publicKey,
+      displayAddress: currentPasskey.publicKey,
       chainType: ChainType.WebAuthn,
       isVerified: false,
       isFake: false,
@@ -208,6 +214,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
   if (tonWallet) {
     state = {
       address: tonWallet.account.publicKey,
+      displayAddress: tonWallet.account.address,
       network: "ton",
       chainType: ChainType.Ton,
       isVerified: false,
