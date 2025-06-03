@@ -18,6 +18,11 @@ import type {
   SendTransactionSolanaParams,
   SignAndSendTransactionsParams,
 } from "@src/types/interfaces"
+import {
+  useTonConnectModal,
+  useTonConnectUI,
+  useTonWallet,
+} from "@tonconnect/ui-react"
 import type { SendTransactionParameters } from "@wagmi/core"
 import { useSearchParams } from "next/navigation"
 import { useCallback } from "react"
@@ -36,6 +41,7 @@ export enum ChainType {
   EVM = "evm",
   Solana = "solana",
   WebAuthn = "webauthn",
+  Ton = "ton",
 }
 
 export type State = {
@@ -195,6 +201,20 @@ export const useConnectWallet = (): ConnectWalletAction => {
     }
   }
 
+  const tonWallet = useTonWallet()
+  const tonConnectModal = useTonConnectModal()
+  const [tonConnectUI] = useTonConnectUI()
+
+  if (tonWallet) {
+    state = {
+      address: tonWallet.account.publicKey,
+      network: "ton",
+      chainType: ChainType.Ton,
+      isVerified: false,
+      isFake: false,
+    }
+  }
+
   state.isVerified = useVerifiedWalletsStore(
     useCallback(
       (store) =>
@@ -223,6 +243,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
             : undefined,
         [ChainType.Solana]: () => handleSignInViaSolanaSelector(),
         [ChainType.WebAuthn]: () => webAuthnUI.open(),
+        [ChainType.Ton]: () => tonConnectModal.open(),
       }
       return strategies[params.id]()
     },
@@ -235,6 +256,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
         [ChainType.EVM]: () => handleSignOutViaWagmi(),
         [ChainType.Solana]: () => handleSignOutViaSolanaSelector(),
         [ChainType.WebAuthn]: () => webAuthnActions.signOut(),
+        [ChainType.Ton]: () => tonConnectUI.disconnect(),
       }
       return strategies[params.id]()
     },
@@ -263,6 +285,10 @@ export const useConnectWallet = (): ConnectWalletAction => {
 
         [ChainType.WebAuthn]: async () => {
           throw new Error("WebAuthn does not support transactions")
+        },
+
+        [ChainType.Ton]: async () => {
+          throw new Error("not implemented")
         },
       }
 
