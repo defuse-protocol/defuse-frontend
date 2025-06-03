@@ -51,6 +51,8 @@ const cspConfig = {
     "https://*.walletlink.org",
     "wss://*.walletlink.org",
     "https://h4n.app",
+    "https://logout-bridge-service.intear.tech",
+    "wss://logout-bridge-service.intear.tech",
 
     /** RPCs */
     "https://*.aurora-cloud.dev",
