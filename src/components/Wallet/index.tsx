@@ -1,7 +1,6 @@
 "use client"
 
 import { Button, Popover, Text } from "@radix-ui/themes"
-import { TonConnectButton } from "@tonconnect/ui-react"
 import Image from "next/image"
 import { useContext } from "react"
 import type { Connector } from "wagmi"
@@ -14,6 +13,7 @@ import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { useSignInWindowOpenState } from "@src/stores/useSignInWindowOpenState"
 import { mapStringToEmojis } from "@src/utils/emoji"
 import { TURN_OFF_APPS } from "@src/utils/environment"
+import { TonConnectButton } from "./TonConnectButton"
 
 const ConnectWallet = () => {
   const { isOpen, setIsOpen } = useSignInWindowOpenState()
@@ -87,8 +87,6 @@ const ConnectWallet = () => {
               </Button>
             )}
 
-            <TonConnectButton />
-
             {whitelabelTemplate === "turboswap" ? (
               <>
                 {/* WalletConnect */}
@@ -134,6 +132,8 @@ const ConnectWallet = () => {
                       </div>
                     </Button>
                   ))}
+
+                <TonConnectButton />
 
                 <Text size="1" color="gray">
                   Other options
@@ -269,6 +269,9 @@ const ConnectWallet = () => {
                         </div>
                       </Button>
                     ))}
+
+                    <TonConnectButton />
+
                     <Text size="1" color="gray">
                       Other options
                     </Text>
