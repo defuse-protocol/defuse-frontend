@@ -62,10 +62,10 @@ export type MaxLiquidity = {
   last_liquidity_check?: LastLiquidityCheckStatus | null
 }
 
-export type Pairs =
-  | {
-      in: PairItem
-      out: PairItem
-      maxLiquidity: MaxLiquidity
-    }[]
-  | null
+export type Pair = {
+  in: PairItem
+  out: PairItem
+  maxLiquidity: MaxLiquidity
+}
+
+export type Pairs = Pair[] | null

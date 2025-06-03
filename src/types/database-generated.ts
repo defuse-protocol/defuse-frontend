@@ -87,7 +87,8 @@ export type Database = {
       }
       solver_liquidity: {
         Row: {
-          address_from_to: string
+          address_from: string
+          address_to: string
           amount: string
           created_at: string | null
           last_liquidity_check: string | null
@@ -96,7 +97,8 @@ export type Database = {
           validated_amount: string
         }
         Insert: {
-          address_from_to: string
+          address_from: string
+          address_to: string
           amount: string
           created_at?: string | null
           last_liquidity_check?: string | null
@@ -105,7 +107,8 @@ export type Database = {
           validated_amount: string
         }
         Update: {
-          address_from_to?: string
+          address_from?: string
+          address_to?: string
           amount?: string
           created_at?: string | null
           last_liquidity_check?: string | null

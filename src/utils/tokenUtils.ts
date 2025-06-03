@@ -9,6 +9,9 @@ import type { PairItem, Pairs } from "@src/types/interfaces"
 export const joinAddresses = (addresses: string[]): string =>
   addresses.join("#")
 
+export const splitAddresses = (addresses: string): string[] =>
+  addresses.split("#")
+
 const generatePairs = (arr: PairItem[]): NonNullable<Pairs> => {
   const pairs: NonNullable<Pairs> = []
   for (let i = 0; i < arr.length; i++) {

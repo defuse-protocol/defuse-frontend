@@ -1,12 +1,15 @@
 CREATE TABLE solver_liquidity
 (
-    address_from_to      TEXT PRIMARY KEY,
+    address_from         TEXT NOT NULL,
+    address_to           TEXT NOT NULL,
     validated_amount     TEXT NOT NULL,
     amount               TEXT NOT NULL,
     last_step_size       TEXT NULL,
     last_liquidity_check TEXT NULL,
     created_at           TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at           TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    updated_at           TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (address_from, address_to)
 );
 
 -- Create an update trigger for updated_at

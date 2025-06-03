@@ -1,12 +1,15 @@
 create table "public"."solver_liquidity"
 (
-    "address_from_to"      text PRIMARY KEY,
+    "address_from"         text not null,
+    "address_to"           text not null,
     "validated_amount"     text not null,
     "amount"               text not null,
     "last_step_size"       text null,
     "last_liquidity_check" text null,
     "created_at"           timestamp with time zone default CURRENT_TIMESTAMP,
-    "updated_at"           timestamp with time zone default CURRENT_TIMESTAMP
+    "updated_at"           timestamp with time zone default CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (address_from, address_to)
 );
 
 

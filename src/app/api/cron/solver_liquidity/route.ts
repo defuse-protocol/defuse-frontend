@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server"
+import { type NextRequest, NextResponse } from "next/server"
 
 import { getQuote } from "@defuse-protocol/defuse-sdk/utils"
 import {
   LIST_TOKEN_PAIRS,
+  cleanUpInvalidatedTokens,
   getMaxLiquidityData,
   setMaxLiquidityData,
 } from "@src/services/SolverLiquidityService"
@@ -15,7 +16,18 @@ import { joinAddresses } from "@src/utils/tokenUtils"
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const secret = req.headers.get("cron-secret")
+  if (secret == null) {
+    logger.error("Secret didn't find")
+    return NextResponse.json({ error: "Secret didn't find" }, { status: 500 })
+  }
+
+  if (secret !== process.env.CRON_SECRET) {
+    logger.error("Found incorrect secret")
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
   const tokenPairs = LIST_TOKEN_PAIRS
   if (tokenPairs == null) {
     logger.error("tokenPairs was null")
@@ -57,24 +69,23 @@ export async function GET() {
       },
     })
       .then(() => {
-        tokenPairsLiquidity[joinedAddressesKey] = prepareUpdatedLiquidity(
-          maxLiquidity,
-          true
-        )
+        const updatedData = prepareUpdatedLiquidity(maxLiquidity, true)
+        tokenPairsLiquidity[joinedAddressesKey] = updatedData
 
         setMaxLiquidityData(
-          joinedAddressesKey,
-          tokenPairsLiquidity[joinedAddressesKey]
+          token.in.defuseAssetId,
+          token.out.defuseAssetId,
+          updatedData
         )
       })
       .catch(() => {
-        tokenPairsLiquidity[joinedAddressesKey] = prepareUpdatedLiquidity(
-          maxLiquidity,
-          false
-        )
+        const updatedData = prepareUpdatedLiquidity(maxLiquidity, false)
+        tokenPairsLiquidity[joinedAddressesKey] = updatedData
+
         setMaxLiquidityData(
-          joinedAddressesKey,
-          tokenPairsLiquidity[joinedAddressesKey]
+          token.in.defuseAssetId,
+          token.out.defuseAssetId,
+          updatedData
         )
 
         // enable it if you want to debug, disabled as we are out of sentry errors limit, this generates a lot of errors
@@ -83,6 +94,8 @@ export async function GET() {
 
     await delay(50 + Math.floor(Math.random() * 50))
   }
+
+  cleanUpInvalidatedTokens(tokenPairs, tokenPairsLiquidity)
 
   return NextResponse.json({ error: null }, { status: 200 })
 }
