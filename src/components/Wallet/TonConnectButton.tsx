@@ -1,9 +1,16 @@
 import { Button, Text } from "@radix-ui/themes"
 import { useTonConnectUI } from "@tonconnect/ui-react"
 import Image from "next/image"
+import { useSearchParams } from "next/navigation"
 
 export function TonConnectButton() {
+  const tonIsEnabled = !!useSearchParams().get("ton")
   const [tonConnectUI] = useTonConnectUI()
+
+  if (!tonIsEnabled) {
+    return null
+  }
+
   return (
     <Button
       type="button"
