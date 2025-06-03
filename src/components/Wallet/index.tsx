@@ -1,6 +1,7 @@
 "use client"
 
 import { Button, Popover, Text } from "@radix-ui/themes"
+import { TonConnectButton } from "@tonconnect/ui-react"
 import Image from "next/image"
 import { useContext } from "react"
 import type { Connector } from "wagmi"
@@ -85,6 +86,8 @@ const ConnectWallet = () => {
                 </div>
               </Button>
             )}
+
+            <TonConnectButton />
 
             {whitelabelTemplate === "turboswap" ? (
               <>
