@@ -2,10 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/solver_liquidity",
-      "schedule": "*/1 * * * *",
-      "headers": {
-        "cron-secret": "@cron_secret"
-      }
+      "schedule": "*/1 * * * *"
     }
   ]
 }
