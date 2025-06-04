@@ -114,17 +114,17 @@ export const cleanUpInvalidatedTokens = async (
   tokenPairs: NonNullable<Pairs>,
   tokenPairsLiquidity: Record<string, MaxLiquidity>
 ) => {
-  const mostFreshTokenPairs: Record<string, boolean> = {}
+  const mostFreshTokenPairs = new Set()
   for (const token of tokenPairs) {
     const joinedAddressesKey = joinAddresses([
       token.in.defuseAssetId,
       token.out.defuseAssetId,
     ])
-    mostFreshTokenPairs[joinedAddressesKey] = true
+    mostFreshTokenPairs.add(joinedAddressesKey)
   }
 
   for (const [tokenPair] of Object.entries(tokenPairsLiquidity)) {
-    if (!mostFreshTokenPairs[tokenPair]) {
+    if (!mostFreshTokenPairs.has(tokenPair)) {
       const tokenPairs = splitAddresses(tokenPair)
       const { error } = await supabase
         .from("solver_liquidity")
