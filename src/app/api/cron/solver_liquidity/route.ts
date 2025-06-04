@@ -1,6 +1,6 @@
+import { getQuote } from "@defuse-protocol/defuse-sdk/utils"
 import { type NextRequest, NextResponse } from "next/server"
 
-import { getQuote } from "@defuse-protocol/defuse-sdk/utils"
 import {
   LIST_TOKEN_PAIRS,
   cleanUpInvalidatedTokens,
@@ -17,21 +17,24 @@ import { joinAddresses } from "@src/utils/tokenUtils"
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 export async function GET(req: NextRequest) {
-  const secret = req.headers.get("cron-secret")
+  const secret = req.headers.get("authorization")
   if (secret == null) {
-    logger.error("Secret didn't find")
-    return NextResponse.json({ error: "Secret didn't find" }, { status: 500 })
+    logger.error("Cron Secret not found")
+    return NextResponse.json(
+      { error: "Cron Secret not found" },
+      { status: 500 }
+    )
   }
 
-  if (secret !== process.env.CRON_SECRET) {
+  if (secret !== `Bearer ${process.env.CRON_SECRET}`) {
     logger.error("Found incorrect secret")
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
   const tokenPairs = LIST_TOKEN_PAIRS
   if (tokenPairs == null) {
-    logger.error("tokenPairs was null")
-    return NextResponse.json({ error: "tokenPairs was null" }, { status: 500 })
+    logger.error("TokenPairs was null")
+    return NextResponse.json({ error: "TokenPairs was null" }, { status: 500 })
   }
 
   const tokenPairsLiquidity = await getMaxLiquidityData()
@@ -95,7 +98,7 @@ export async function GET(req: NextRequest) {
     await delay(50 + Math.floor(Math.random() * 50))
   }
 
-  cleanUpInvalidatedTokens(tokenPairs, tokenPairsLiquidity)
+  await cleanUpInvalidatedTokens(tokenPairs, tokenPairsLiquidity)
 
   return NextResponse.json({ error: null }, { status: 200 })
 }
