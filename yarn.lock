@@ -1049,12 +1049,12 @@
     tweetnacl "^1.0.3"
     tweetnacl-util "^0.15.1"
 
-"@defuse-protocol/defuse-sdk@^1.0.0-beta.147":
-  version "1.0.0-beta.147"
-  resolved "https://registry.yarnpkg.com/@defuse-protocol/defuse-sdk/-/defuse-sdk-1.0.0-beta.147.tgz#ffc4105b7382df0193fefaa1a66e28a66f719a28"
-  integrity sha512-To5I9a4SnJ3y9DmtCe/oxkiAGqTsu8hSU6JTAaqHwTqyTzpkWw3BPlCfo2nvrRQza6wB/j3l7Bymwj/JeGaWZA==
+"@defuse-protocol/defuse-sdk@^1.0.0-beta.150":
+  version "1.0.0-beta.150"
+  resolved "https://registry.yarnpkg.com/@defuse-protocol/defuse-sdk/-/defuse-sdk-1.0.0-beta.150.tgz#541a5275b20c5e18034883929c57fb471ed9b242"
+  integrity sha512-THUXb8V0pkK2OLhgB5i65ia8fP0q7PUZgniN5vd1+84cbqSdlhlHDAFGqaSKnO1vHvOY5LSwMJwMHdEoqbJ+9w==
   dependencies:
-    "@hot-labs/omni-sdk" "2.6.0"
+    "@hot-labs/omni-sdk" "2.7.0"
     "@lifeomic/attempt" "^3.1.0"
     "@noble/curves" "1.4.0"
     "@noble/hashes" "^1.7.1"
@@ -1772,10 +1772,10 @@
   resolved "https://registry.yarnpkg.com/@hexagon/base64/-/base64-1.1.28.tgz#7d306a97f1423829be5b27c9d388fe50e3099d48"
   integrity sha512-lhqDEAvWixy3bZ+UOYbPwUbBkwBq5C1LAJ/xPC8Oi+lL54oyakv/npbA0aU2hgCsx/1NUd4IBvV03+aUBWxerw==
 
-"@hot-labs/omni-sdk@2.6.0":
-  version "2.6.0"
-  resolved "https://registry.yarnpkg.com/@hot-labs/omni-sdk/-/omni-sdk-2.6.0.tgz#983564f70894229703f4eae35ec7b84dc942ca6d"
-  integrity sha512-L7K1OTsZh1mJdFmu7HFYzntLM6poY0FquMAet6ImK8LSKzAzvCDLYE510dt7T6V57JLeYShlm0y/Gi/BvmnuWw==
+"@hot-labs/omni-sdk@2.7.0":
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/@hot-labs/omni-sdk/-/omni-sdk-2.7.0.tgz#9338d55d0c5a69d134b5229dd88fb484235bcff5"
+  integrity sha512-vCBq6ZKjqV9CZRu17guiMzYq9kixgoJIaYC1FzmLe/j8tmjlrcprMoVvRNxyjoAfOAbD4hbS+i9Z9stwQ24suw==
   dependencies:
     "@coral-xyz/anchor" "0.29.0"
     "@creit.tech/stellar-wallets-kit" "^1.7.3"
