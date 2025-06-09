@@ -1,4 +1,5 @@
 import { useWallet as useWalletSolana } from "@solana/wallet-adapter-react"
+import { useTonConnectUI } from "@tonconnect/ui-react"
 import { useSignMessage } from "wagmi"
 
 import { useWebAuthnActions } from "@src/features/webauthn/hooks/useWebAuthnStore"
@@ -19,6 +20,7 @@ export function useWalletAgnosticSignMessage() {
   const { signMessageAsync: signMessageAsyncWagmi } = useSignMessage()
   const solanaWallet = useWalletSolana()
   const { signMessage: signMessageWebAuthn } = useWebAuthnActions()
+  const [tonConnectUi] = useTonConnectUI()
 
   return async <T,>(
     walletMessage: WalletMessage<T>
@@ -72,6 +74,17 @@ export function useWalletAgnosticSignMessage() {
           type: "WEBAUTHN",
           signatureData,
           signedData: walletMessage.WEBAUTHN,
+        }
+      }
+
+      case ChainType.Ton: {
+        const signatureData = await tonConnectUi.signData(
+          walletMessage.TON_CONNECT.message
+        )
+        return {
+          type: "TON_CONNECT",
+          signatureData,
+          signedData: walletMessage.TON_CONNECT,
         }
       }
 

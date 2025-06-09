@@ -1,12 +1,15 @@
 import { z } from "zod"
 
-export const tradeIdSchema = z.string().refine(
-  (val) => {
-    return /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-      val
-    )
-  },
-  {
-    message: "Invalid trade_id format",
-  }
-)
+export const tradeIdSchema = z
+  .string()
+  .uuid()
+  .refine(
+    (val) => {
+      const version = val[14]
+      // Need to support both UUID v4 and v5 for backwards compatibility
+      return version === "4" || version === "5"
+    },
+    {
+      message: "Invalid trade_id format",
+    }
+  )

@@ -1,4 +1,5 @@
 import { base64, base64urlnopad } from "@scure/base"
+import { v5 as uuidv5 } from "uuid"
 
 export function encodeOrder(order: unknown): string {
   const format = {
@@ -8,9 +9,17 @@ export function encodeOrder(order: unknown): string {
   return base64urlnopad.encode(new TextEncoder().encode(JSON.stringify(format)))
 }
 
+/**
+ * First try to decode legacy format which contains version and payload components.
+ * If this fails, assume the encoded order is just an IV string.
+ */
 export function decodeOrder(encodedOrder: string): string {
-  const json = new TextDecoder().decode(base64urlnopad.decode(encodedOrder))
-  return JSON.parse(json).payload
+  try {
+    const json = new TextDecoder().decode(base64urlnopad.decode(encodedOrder))
+    return JSON.parse(json).payload
+  } catch {
+    return encodedOrder
+  }
 }
 
 export async function encodeAES256Order(
@@ -38,7 +47,7 @@ export async function decodeAES256Order(
 
   try {
     const decoded = base64.decode(encodedOrder)
-    const iv_ = base64.decode(iv)
+    const iv_ = base64urlnopad.decode(iv)
 
     // Convert the key to a CryptoKey object
     const keyBytes = base64urlnopad.decode(pKey)
@@ -110,4 +119,8 @@ function validateKey(pKey: string): void {
   } catch {
     throw new Error("Key must be exactly 32 bytes (AES-256)")
   }
+}
+
+export function deriveTradeIdFromIV(iv: string): string {
+  return uuidv5(iv, "6ba7b810-9dad-11d1-80b4-00c04fd430c8")
 }

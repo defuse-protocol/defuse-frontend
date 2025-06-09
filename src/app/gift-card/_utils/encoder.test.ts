@@ -1,6 +1,6 @@
-import { base64 } from "@scure/base"
+import { base64urlnopad } from "@scure/base"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { decodeAES256Order, encodeAES256Order } from "./encoder"
+import { decodeAES256Gift, encodeAES256Gift } from "./encoder"
 
 const mockCrypto = {
   subtle: {
@@ -17,17 +17,15 @@ Object.defineProperty(global, "crypto", {
 })
 
 describe("encoder", () => {
-  const makerMultiPayload = {
-    payload:
-      '{\n  "signer_id": "0xsucke9c9029ef5172c0a0f58ea6e7205a82a24e1",\n  "verifying_contract": "intents.near",\n  "deadline": "2025-05-13T10:47:06.528Z",\n  "nonce": "MabxnXcg2XmKJflJyvUELj1u5uLqjbbmx4lZuS+YLmk=",\n  "intents": [\n    {\n      "intent": "token_diff",\n      "diff": {\n        "nep141:wrap.near": "-177353300864365114070857",\n        "nep141:eth-0xa35923162c49cf95e6bf26623385eb431ad920d3.omft.near": "2493000000000000000"\n      },\n      "referral": "near-intents.intents-referral.near",\n      "memo": "OTC_CREATE"\n    }\n  ]\n}',
-    signature:
-      "secp256k1:CKUPsyCGCcTstHRvPR2sTU2LQFC5Rv3CbbSr3udUxPkB7amBhrzb1M4SZepeq1jyJLFjvFHZ3KycbD8iDsqgPsDk4",
-    standard: "erc191",
+  const payload = {
+    message: "Happy Gift",
+    secretKey:
+      "ed25519:dB3AZsPidf1mawyCTPtAQp11YGEjV7WApWMdS3F16YaAyoKAtJyMzGG5skzZs6H54J75Afeq4W3GsBST48GoHDw",
   }
 
   const pKey = "iWRbd_YTptQT4w4hdIEgfI7JJjM0-uFwRCpRVXk5IFs"
 
-  const iv = base64.decode("q/fEfO4EboQgW+7u")
+  const iv = base64urlnopad.decode("InQci4kRc3nrT8T1")
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -69,13 +67,13 @@ describe("encoder", () => {
 
   describe("AES256 encryption/decryption", () => {
     it("should verify encryption/decryption with environment key", async () => {
-      const encrypted = await encodeAES256Order(makerMultiPayload, pKey, iv)
-      const decrypted = await decodeAES256Order(
+      const encrypted = await encodeAES256Gift(payload, pKey, iv)
+      const decrypted = await decodeAES256Gift(
         encrypted,
         pKey,
-        base64.encode(iv)
+        base64urlnopad.encode(iv)
       )
-      expect(decrypted).toEqual(makerMultiPayload)
+      expect(decrypted).toEqual(payload)
 
       // Verify crypto API was called correctly
       expect(mockCrypto.subtle.importKey).toHaveBeenCalledTimes(2) // Once for encrypt, once for decrypt
@@ -86,18 +84,22 @@ describe("encoder", () => {
     it("should fail with invalid key length", async () => {
       const emptyKey = ""
       const aes160Key = "YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4" // 24 bytes when decoded
+      await expect(encodeAES256Gift(payload, emptyKey, iv)).rejects.toThrow(
+        "Key must be exactly 32 bytes (AES-256)"
+      )
       await expect(
-        encodeAES256Order(makerMultiPayload, emptyKey, iv)
-      ).rejects.toThrow("Key must be exactly 32 bytes (AES-256)")
-      await expect(
-        decodeAES256Order("some-encrypted-data", aes160Key, base64.encode(iv))
+        decodeAES256Gift(
+          "some-encrypted-data",
+          aes160Key,
+          base64urlnopad.encode(iv)
+        )
       ).rejects.toThrow("Key must be exactly 32 bytes (AES-256)")
     })
 
     it("should fail with invalid encrypted data", async () => {
       const invalidData = "not-encrypted-data"
       await expect(
-        decodeAES256Order(invalidData, pKey, base64.encode(iv))
+        decodeAES256Gift(invalidData, pKey, base64urlnopad.encode(iv))
       ).rejects.toThrow()
     })
 
@@ -125,8 +127,8 @@ describe("encoder", () => {
         return encoded.buffer
       })
 
-      const encrypted1 = await encodeAES256Order(makerMultiPayload, pKey, iv)
-      const encrypted2 = await encodeAES256Order(makerMultiPayload, pKey, iv)
+      const encrypted1 = await encodeAES256Gift(payload, pKey, iv)
+      const encrypted2 = await encodeAES256Gift(payload, pKey, iv)
       expect(encrypted1).not.toEqual(encrypted2)
     })
   })

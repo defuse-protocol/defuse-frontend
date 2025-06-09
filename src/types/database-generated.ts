@@ -34,27 +34,87 @@ export type Database = {
   }
   public: {
     Tables: {
+      gifts: {
+        Row: {
+          created_at: string | null
+          encrypted_payload: string
+          gift_id: string
+          p_key: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          encrypted_payload: string
+          gift_id: string
+          p_key: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          encrypted_payload?: string
+          gift_id?: string
+          p_key?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       otc_trades: {
         Row: {
           created_at: string | null
           encrypted_payload: string
-          iv: string
+          iv: string | null
+          p_key: string | null
           trade_id: string
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
           encrypted_payload: string
-          iv: string
+          iv?: string | null
+          p_key?: string | null
           trade_id?: string
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
           encrypted_payload?: string
-          iv?: string
+          iv?: string | null
+          p_key?: string | null
           trade_id?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      solver_liquidity: {
+        Row: {
+          address_from: string
+          address_to: string
+          amount: string
+          created_at: string | null
+          last_liquidity_check: string | null
+          last_step_size: string | null
+          updated_at: string | null
+          validated_amount: string
+        }
+        Insert: {
+          address_from: string
+          address_to: string
+          amount: string
+          created_at?: string | null
+          last_liquidity_check?: string | null
+          last_step_size?: string | null
+          updated_at?: string | null
+          validated_amount: string
+        }
+        Update: {
+          address_from?: string
+          address_to?: string
+          amount?: string
+          created_at?: string | null
+          last_liquidity_check?: string | null
+          last_step_size?: string | null
+          updated_at?: string | null
+          validated_amount?: string
         }
         Relationships: []
       }

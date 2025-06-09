@@ -1,5 +1,6 @@
 import { withSentryConfig } from "@sentry/nextjs"
 import { DedupePlugin } from "@tinkoff/webpack-dedupe-plugin"
+import path from "node:path"
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -25,6 +26,9 @@ const nextConfig = {
         os: false,
       },
     }
+
+    // "false" tells webpack "don't attempt to bundle sodium-native at all"
+    config.resolve.alias["sodium-native"] = false
 
     /**
      * Setup SVG (just copy-paste from the official documentation https://react-svgr.com/docs/next/)
