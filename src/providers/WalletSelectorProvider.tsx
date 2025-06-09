@@ -7,6 +7,7 @@ import { setupMeteorWallet } from "@near-wallet-selector/meteor-wallet"
 import type { WalletSelectorModal } from "@near-wallet-selector/modal-ui"
 import { setupModal } from "@near-wallet-selector/modal-ui"
 import { setupMyNearWallet } from "@near-wallet-selector/my-near-wallet"
+import { setupNightly as setupNightlyWallet } from "@near-wallet-selector/nightly"
 import {
   type ReactNode,
   createContext,
@@ -59,7 +60,12 @@ export const WalletSelectorProvider: React.FC<{
           "postgres://public_readonly:nearprotocol@mainnet.db.explorer.indexer.near.dev/mainnet_explorer",
       },
       debug: true,
-      modules: [setupMyNearWallet(), setupMeteorWallet(), setupHotWallet()],
+      modules: [
+        setupMyNearWallet(),
+        setupMeteorWallet(),
+        setupHotWallet(),
+        setupNightlyWallet(),
+      ],
     })
     const _modal = setupModal(_selector, {
       contractId: "",
