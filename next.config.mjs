@@ -27,11 +27,8 @@ const nextConfig = {
       },
     }
 
-    // "build/utils" is not exported in the package.json, but it exists and accessible
-    config.resolve.alias["@hot-labs/omni-sdk/build/utils"] = path.resolve(
-      import.meta.dirname,
-      "node_modules/@hot-labs/omni-sdk/build/utils"
-    )
+    // "false" tells webpack "don't attempt to bundle sodium-native at all"
+    config.resolve.alias["sodium-native"] = false
 
     /**
      * Setup SVG (just copy-paste from the official documentation https://react-svgr.com/docs/next/)
