@@ -43,6 +43,9 @@ const cspConfig = {
     "https://*.walletlink.org",
     "wss://*.walletlink.org",
     "https://h4n.app",
+    "https://logout-bridge-service.intear.tech",
+    "wss://logout-bridge-service.intear.tech",
+
     /** TON Wallets */
     "https://tonconnect.tonkeeper.com/wallets-v2.json",
     "https://walletbot.me",
