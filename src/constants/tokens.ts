@@ -1179,7 +1179,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
     groupedTokens: [
       {
         defuseAssetId:
-          "eth-0xd9c2d319cd7e6177336b0a9c93c21cb48d84fb54.omft.near",
+          "nep141:eth-0xd9c2d319cd7e6177336b0a9c93c21cb48d84fb54.omft.near",
         address: "0xD9c2D319Cd7e6177336b0a9c93c21cb48d84Fb54",
         decimals: 18,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/8567.png",
