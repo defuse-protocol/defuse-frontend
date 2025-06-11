@@ -42,6 +42,9 @@ export function initSDK() {
           Sentry.captureException(err, { contexts })
         },
       },
+      features: {
+        hyperliquid: true,
+      },
     })
   }
 }
