@@ -1337,6 +1337,18 @@ export const LIST_TOKENS: TokenWithTags[] = [
     name: "Loud",
     tags: ["tvol:6"],
   },
+  {
+    defuseAssetId:
+      "nep141:eth-0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202.omft.near",
+    address: "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202",
+    decimals: 18,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/64x64/9444.png",
+    chainName: "eth",
+    bridge: "poa",
+    symbol: "KNC",
+    name: "Kyber Network Crystal v2",
+    tags: ["mc:461"],
+  },
 ]
 
 export const DEPRECATED_TOKENS: Record<string, boolean> = {
