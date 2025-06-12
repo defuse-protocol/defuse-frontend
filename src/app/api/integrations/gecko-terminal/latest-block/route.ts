@@ -6,7 +6,7 @@ import type {
 } from "@src/app/api/integrations/gecko-terminal/types"
 import { clickHouseClient } from "@src/clickhouse/clickhouse"
 
-import { EVENTS_QUERY } from "../events/route"
+import { EVENTS_QUERY } from "../queries"
 
 let latestBlock: number | null = null
 
