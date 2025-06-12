@@ -976,6 +976,18 @@
     "@types/tough-cookie" "^4.0.5"
     tough-cookie "^4.1.4"
 
+"@clickhouse/client-common@1.11.2":
+  version "1.11.2"
+  resolved "https://registry.yarnpkg.com/@clickhouse/client-common/-/client-common-1.11.2.tgz#c2c212aa9ff03454a801ead87c980a3642ab75fb"
+  integrity sha512-H4ECHqaipzMgiZKqpb1Z4N3Ofq+lVTCn8I59XsSynqrsfR4jWZD3PipXVvIzMpDmTMvrlJWrOwAdm0DMNiMQbA==
+
+"@clickhouse/client@^1.11.2":
+  version "1.11.2"
+  resolved "https://registry.yarnpkg.com/@clickhouse/client/-/client-1.11.2.tgz#c7b00c32b013720d3c5ffa9f0a7c2150b6413df5"
+  integrity sha512-ZE7Q1qxsDNXCkGPf1zqmhpZpwAKxKT+1s4Z432J1Mb2Gm26Y4tG/sJoug81AfAJTt6s7taO2vzNBAKfSR3SStg==
+  dependencies:
+    "@clickhouse/client-common" "1.11.2"
+
 "@coinbase/wallet-sdk@4.1.0":
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/@coinbase/wallet-sdk/-/wallet-sdk-4.1.0.tgz#3224a102b724dcb1a63005f371d596ae2999953b"

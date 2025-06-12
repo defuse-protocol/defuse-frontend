@@ -1,0 +1,84 @@
+import { type NextRequest, NextResponse } from "next/server"
+
+import type {
+  Asset,
+  AssetResponse,
+} from "@src/app/api/integrations/gecko-terminal/types"
+import { clickHouseClient } from "@src/clickhouse/clickhouse"
+
+interface RawAsset {
+  id: string
+  name: string
+  symbol: string
+  decimals: number
+  blockchain: string
+  contract_address: string
+  price: number
+  price_updated_at: string
+}
+
+const ASSET_QUERY = `
+SELECT
+  defuse_asset_id AS id,
+  defuse_asset_id AS name,
+  symbol,
+  CAST(decimals AS UInt32) AS decimals,
+  blockchain,
+  contract_address,
+  price,
+  formatDateTime(price_updated_at, '%Y-%m-%d %H:%i:%s') AS price_updated_at
+FROM near_intents_db.defuse_assets
+WHERE defuse_asset_id = {assetId:String}
+ORDER BY price_updated_at DESC
+LIMIT 1`
+
+/**
+ * Fetches information for a specific asset by its ID.
+ *
+ * All asset properties aside from `id` may be mutable. The indexer will
+ * periodically query assets for their most up-to-date information.
+ *
+ * test:
+ * http://localhost:3000/api/integrations/gecko-terminal/asset?id=nep141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1
+ *
+ * @param request - The incoming Next.js request, containing the asset ID in the query parameters.
+ * @returns A response containing the asset's information.
+ */
+export async function GET(
+  request: NextRequest
+): Promise<NextResponse<AssetResponse | { error: string }>> {
+  const { searchParams } = new URL(request.url)
+  const id = searchParams.get("id")
+
+  if (!id) {
+    return NextResponse.json({ error: "Missing id parameter" }, { status: 400 })
+  }
+
+  const {
+    data: [rawAsset],
+  } = await clickHouseClient
+    .query({
+      query: ASSET_QUERY,
+      query_params: {
+        assetId: id,
+      },
+    })
+    .then((res) => res.json<RawAsset>())
+
+  if (!rawAsset) {
+    return NextResponse.json({ error: "Asset not found" }, { status: 404 })
+  }
+
+  const asset: Asset = {
+    id: rawAsset.id,
+    name: rawAsset.name,
+    symbol: rawAsset.symbol,
+    decimals: rawAsset.decimals,
+    metadata: {
+      blockchain: rawAsset.blockchain,
+      contract_address: rawAsset.contract_address,
+    },
+  }
+
+  return NextResponse.json({ asset })
+}
