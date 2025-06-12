@@ -1049,10 +1049,10 @@
     tweetnacl "^1.0.3"
     tweetnacl-util "^0.15.1"
 
-"@defuse-protocol/defuse-sdk@^1.0.0-beta.160":
-  version "1.0.0-beta.160"
-  resolved "https://registry.yarnpkg.com/@defuse-protocol/defuse-sdk/-/defuse-sdk-1.0.0-beta.160.tgz#a99d85beafa1059fd1e5cb1d59a0025f66f6b947"
-  integrity sha512-o3Ew8f/uQbAUYZSghvHhye0qEES1uq0uYXlm8JmpsRj+dWseXLg8j1iciNqcoFt3SM+43XjWjvhSBTrjLKRu/Q==
+"@defuse-protocol/defuse-sdk@^1.0.0-beta.161":
+  version "1.0.0-beta.161"
+  resolved "https://registry.yarnpkg.com/@defuse-protocol/defuse-sdk/-/defuse-sdk-1.0.0-beta.161.tgz#9fa67d451331e788d053fb3a6f894ec678d0e62c"
+  integrity sha512-S/l+Q6H6RZ56uTVvULxcK+7ogxnVV3J7RpS9OlyJZoaajkVTsIp6IbicskpUzsC9Q7yEf1GruH6Iutyf88Rfhw==
   dependencies:
     "@hot-labs/omni-sdk" "2.7.0"
     "@lifeomic/attempt" "^3.1.0"
