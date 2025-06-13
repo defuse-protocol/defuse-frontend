@@ -9,17 +9,14 @@ import { clickHouseClient } from "@src/clickhouse/clickhouse"
 import { EVENTS_QUERY } from "../queries"
 
 let latestBlock: number | null = null
+const LATEST_KNOWN_BLOCK = 150810776
 
 const LATEST_BLOCK_QUERY = `
-WITH events AS (
-  ${EVENTS_QUERY}
-)
+WITH events AS (${EVENTS_QUERY})
 SELECT
   CAST(MAX(blockNumber) AS UInt32) AS blockNumber,
   toUnixTimestamp(MAX(blockTimestamp)) AS blockTimestamp
 FROM events`
-
-const LATEST_KNOWN_BLOCK = 150810776
 
 /**
  * Fetches the latest block available for event data.

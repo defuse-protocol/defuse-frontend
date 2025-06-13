@@ -2,12 +2,10 @@ import { PAIR_SEPARATOR } from "./utils"
 
 export const EVENTS_QUERY = `
 SELECT
-  CAST(d.block_height AS UInt32) AS blockNumber,
-  toUnixTimestamp(d.block_timestamp) AS blockTimestamp,
-  'swap' AS eventType,
+  CAST(any(d.block_height) AS UInt32) AS blockNumber,
+  toUnixTimestamp(any(d.block_timestamp)) AS blockTimestamp,
   d.tx_hash AS txnId,
-  0 AS txnIndex,
-  CAST(MIN(d.index_in_log) AS UInt32) AS eventIndex,
+  CAST(max(d.index_in_log) AS UInt32) AS eventIndex,
   argMax(d.account_id, d.token_in IS NOT NULL) AS maker,
   concat(
     argMax(d.token_in, d.token_in IS NOT NULL),
@@ -31,18 +29,13 @@ WHERE
   AND d.block_height >= { fromBlock :UInt32 }
   AND d.block_height <= { toBlock :UInt32 }
 GROUP BY
-  d.block_height,
-  d.block_timestamp,
-  d.block_hash,
   d.tx_hash,
-  d.intent_hash,
-  d.account_id,
-  d.contract_id
+  d.intent_hash
 HAVING
   count(DISTINCT d.token_out) = 1
   AND count(DISTINCT d.token_in) = 1
   AND asset0Decimals != 0
   AND asset1Decimals != 0
 ORDER BY
-  d.block_height ASC,
-  MIN(d.index_in_log) ASC`
+  blockNumber ASC,
+  eventIndex ASC`

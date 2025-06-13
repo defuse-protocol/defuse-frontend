@@ -12,9 +12,7 @@ import { addDecimalPoint, calculatePriceWithMaxPrecision } from "../utils"
 interface RawEvent {
   blockNumber: number
   blockTimestamp: number
-  eventType: "swap"
   txnId: string
-  txnIndex: number
   eventIndex: number
   maker: string
   pairId: string
@@ -97,9 +95,9 @@ export async function GET(
         blockNumber: rawEvent.blockNumber,
         blockTimestamp: rawEvent.blockTimestamp,
       },
-      eventType: rawEvent.eventType,
+      eventType: "swap",
       txnId: rawEvent.txnId,
-      txnIndex: rawEvent.txnIndex,
+      txnIndex: 0,
       eventIndex: rawEvent.eventIndex,
       maker: rawEvent.maker,
       pairId: rawEvent.pairId,

@@ -13,8 +13,6 @@ interface RawAsset {
   decimals: number
   blockchain: string
   contract_address: string
-  price: number
-  price_updated_at: string
 }
 
 const ASSET_QUERY = `
@@ -24,9 +22,7 @@ SELECT
   symbol,
   CAST(decimals AS UInt32) AS decimals,
   blockchain,
-  contract_address,
-  price,
-  formatDateTime(price_updated_at, '%Y-%m-%d %H:%i:%s') AS price_updated_at
+  contract_address
 FROM near_intents_db.defuse_assets
 WHERE defuse_asset_id = {assetId:String}
 ORDER BY price_updated_at DESC
