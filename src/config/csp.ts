@@ -13,15 +13,17 @@ const cspConfig = {
   ],
   "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
   "font-src": ["'self'", "https://fonts.gstatic.com"],
-  "img-src": ["*", "data:"],
+  "img-src": ["*", "data:", "blob:"],
   "script-src": [
     "'self'",
     "'unsafe-inline'",
     "'unsafe-eval'",
     "https://www.googletagmanager.com",
+    "https://beacon-v2.helpscout.net",
   ],
   "worker-src": [
     "'self'",
+    "blob:",
     "https://*.near-intents.org",
     "https://*.solswap.org",
     "https://*.dogecoinswap.org",
@@ -36,6 +38,10 @@ const cspConfig = {
     "https://region1.google-analytics.com",
     "https://as.coinbase.com/metrics",
     "https://api-js.mixpanel.com",
+
+    /** Helpscout */
+    "https://beaconapi.helpscout.net",
+    "https://*.cloudfront.net",
 
     /** Wallets */
     "https://*.walletconnect.org",
