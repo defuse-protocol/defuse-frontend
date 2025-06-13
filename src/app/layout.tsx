@@ -21,7 +21,11 @@ import "@radix-ui/themes/styles.css"
 import "@near-wallet-selector/modal-ui/styles.css"
 import "../styles/global.scss"
 import Helpscout from "@src/components/Helpscout"
-import { DEV_MODE, VERCEL_PROJECT_PRODUCTION_URL } from "@src/utils/environment"
+import {
+  DEV_MODE,
+  HELPSCOUT_BEACON_ID,
+  VERCEL_PROJECT_PRODUCTION_URL,
+} from "@src/utils/environment"
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -134,7 +138,7 @@ const RootLayout = async ({
         </ThemeProvider>
       </body>
       <GoogleAnalytics gaId="G-WNE3NB46KM" />
-      <Helpscout />
+      {HELPSCOUT_BEACON_ID && <Helpscout />}
     </html>
   )
 }
