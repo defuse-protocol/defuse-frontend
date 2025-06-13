@@ -20,6 +20,7 @@ import { WalletSelectorProvider } from "@src/providers/WalletSelectorProvider"
 import "@radix-ui/themes/styles.css"
 import "@near-wallet-selector/modal-ui/styles.css"
 import "../styles/global.scss"
+import Helpscout from "@src/components/Helpscout"
 import { DEV_MODE, VERCEL_PROJECT_PRODUCTION_URL } from "@src/utils/environment"
 
 export const viewport: Viewport = {
@@ -133,6 +134,7 @@ const RootLayout = async ({
         </ThemeProvider>
       </body>
       <GoogleAnalytics gaId="G-WNE3NB46KM" />
+      <Helpscout />
     </html>
   )
 }
