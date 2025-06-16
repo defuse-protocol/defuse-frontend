@@ -237,7 +237,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
     state = impersonatedUser
   }
 
-  const { onSignOut, onSignInStart } = useSignInLogger(
+  const { onSignOut } = useSignInLogger(
     state.address,
     state.chainType,
     state.isVerified
@@ -259,7 +259,6 @@ export const useConnectWallet = (): ConnectWalletAction => {
         [ChainType.Ton]: () => tonConnectModal.open(),
       }
 
-      onSignInStart()
       return strategies[params.id]()
     },
 
