@@ -10,18 +10,25 @@ export const useSignInLogger = (
   const mixPanel = useMixpanel()
   const storageKey = "signedInAddress"
 
+  const sendMixPanelEvent = useCallback(
+    (eventName: string) => {
+      mixPanel?.track(eventName, {
+        wallet_type: chainType,
+        wallet_address: address,
+        timestamp: Date.now(),
+      })
+    },
+    [chainType, address, mixPanel]
+  )
+
   useEffect(() => {
     if (address != null && isVerified) {
       if (!localStorage.getItem(storageKey)) {
         localStorage.setItem(storageKey, address)
-        mixPanel?.track("wallet_connection_success", {
-          wallet_type: chainType,
-          wallet_address: address,
-          timestamp: Date.now(),
-        })
+        sendMixPanelEvent("wallet_connection_success")
       }
     }
-  }, [address, isVerified, chainType, mixPanel])
+  }, [address, isVerified, sendMixPanelEvent])
 
   return {
     onSignOut: useCallback(() => {
