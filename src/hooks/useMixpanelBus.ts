@@ -1,9 +1,23 @@
 import type { Dict } from "mixpanel-browser"
-import { useEffect } from "react"
+import { useCallback, useEffect } from "react"
 
-import { setEventEmitter } from "@defuse-protocol/defuse-sdk/utils"
+import { serialize, setEventEmitter } from "@defuse-protocol/defuse-sdk/utils"
 import { useMixpanel } from "@src/providers/MixpanelProvider"
 import bus from "@src/services/EventBus"
+import { logger } from "@src/utils/logger"
+
+const events = [
+  "gift_created",
+  "deposit_initiated",
+  "deposit_success",
+  "gift_claimed",
+  "otc_deal_initiated",
+  "swap_initiated",
+  "swap_confirmed",
+  "otc_confirmed",
+  "withdrawal_initiated",
+  "withdrawal_confirmed",
+]
 
 export function useMixpanelBus() {
   const mixPanel = useMixpanel()
@@ -12,52 +26,25 @@ export function useMixpanelBus() {
     setEventEmitter(bus)
   }, [])
 
-  useEffect(() => {
-    const sendMixPanelEvent = (eventName: string, payload: Dict) => {
-      mixPanel?.track(eventName, payload)
-    }
+  const sendMixPanelEvent = useCallback(
+    (eventName: string, payload: Dict) => {
+      console.log("mixPanel", mixPanel)
+      mixPanel?.track(eventName, JSON.parse(serialize(payload)))
+    },
+    [mixPanel]
+  )
 
-    bus.on("gift_created", (payload: Dict) => {
-      console.log("gift_created", payload)
-      sendMixPanelEvent("gift_created", payload)
-    })
-    bus.on("deposit_initiated", (payload: Dict) => {
-      console.log("deposit_initiated", payload)
-      sendMixPanelEvent("deposit_initiated", payload)
-    })
-    bus.on("deposit_success", (payload: Dict) => {
-      console.log("deposit_success", payload)
-      sendMixPanelEvent("deposit_success", payload)
-    })
-    bus.on("gift_claimed", (payload: Dict) => {
-      console.log("gift_claimed", payload)
-      sendMixPanelEvent("gift_claimed", payload)
-    })
-    bus.on("otc_deal_initiated", (payload: Dict) => {
-      console.log("otc_deal_initiated", payload)
-      sendMixPanelEvent("otc_deal_initiated", payload)
-    })
-    bus.on("swap_initiated", (payload: Dict) => {
-      console.log("swap_initiated", payload)
-      sendMixPanelEvent("swap_initiated", payload)
-    })
-    bus.on("swap_confirmed", (payload: Dict) => {
-      console.log("swap_confirmed", payload)
-      sendMixPanelEvent("swap_confirmed", payload)
-    })
-    bus.on("otc_confirmed", (payload: Dict) => {
-      console.log("otc_confirmed", payload)
-      sendMixPanelEvent("otc_confirmed", payload)
-    })
-    bus.on("withdrawal_initiated", (payload: Dict) => {
-      console.log("withdrawal_initiated", payload)
-      sendMixPanelEvent("withdrawal_initiated", payload)
-    })
-    bus.on("withdrawal_confirmed", (payload: Dict) => {
-      console.log("withdrawal_confirmed", payload)
-      sendMixPanelEvent("withdrawal_confirmed", payload)
-    })
-  }, [mixPanel])
+  useEffect(() => {
+    if (bus) {
+      for (const event of events) {
+        bus.on(event, (payload: Dict) => {
+          sendMixPanelEvent(event, payload)
+        })
+      }
+    } else {
+      logger.error("event bus is not defined")
+    }
+  }, [sendMixPanelEvent])
 
   return mixPanel
 }

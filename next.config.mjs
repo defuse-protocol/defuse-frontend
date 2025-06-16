@@ -24,6 +24,7 @@ const nextConfig = {
         fs: false,
         path: false,
         os: false,
+        events: 'events'
       },
     }
 

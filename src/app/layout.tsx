@@ -21,6 +21,7 @@ import "@radix-ui/themes/styles.css"
 import "@near-wallet-selector/modal-ui/styles.css"
 import "../styles/global.scss"
 import Helpscout from "@src/components/Helpscout"
+import { MixpanelProvider } from "@src/providers/MixpanelProvider"
 import {
   DEV_MODE,
   HELPSCOUT_BEACON_ID,
@@ -126,7 +127,9 @@ const RootLayout = async ({
               <WalletSelectorProvider>
                 <SolanaWalletProvider>
                   <TonConnectUIProvider>
-                    <WebAuthnProvider>{children}</WebAuthnProvider>
+                    <WebAuthnProvider>
+                      <MixpanelProvider>{children}</MixpanelProvider>
+                    </WebAuthnProvider>
 
                     <SentryTracer />
                   </TonConnectUIProvider>
