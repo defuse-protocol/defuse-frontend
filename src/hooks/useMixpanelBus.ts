@@ -28,7 +28,6 @@ export function useMixpanelBus() {
 
   const sendMixPanelEvent = useCallback(
     (eventName: string, payload: Dict) => {
-      console.log("mixPanel", mixPanel)
       mixPanel?.track(eventName, JSON.parse(serialize(payload)))
     },
     [mixPanel]
