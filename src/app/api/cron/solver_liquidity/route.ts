@@ -59,14 +59,13 @@ export async function GET(req: NextRequest) {
       continue
     }
 
-    const quoteParams = {
-      defuse_asset_identifier_in: token.in.defuseAssetId,
-      defuse_asset_identifier_out: token.out.defuseAssetId,
-      exact_amount_in: maxLiquidity.amount,
-    }
-
     getQuote({
-      quoteParams,
+      quoteParams: {
+        defuse_asset_identifier_in: token.in.defuseAssetId,
+        defuse_asset_identifier_out: token.out.defuseAssetId,
+        exact_amount_in: maxLiquidity.amount,
+        wait_ms: 2888, // hot fix for filtering out such failed quotes from stats
+      },
       config: {
         logBalanceSufficient: false,
       },
