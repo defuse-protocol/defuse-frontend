@@ -35,7 +35,7 @@ import type {
   SendTransactionSolanaParams,
   SignAndSendTransactionsParams,
 } from "@src/types/interfaces"
-
+import { parseTonAddress } from "@src/utils/parseTonAddress"
 import { useEVMWalletActions } from "./useEVMWalletActions"
 import { useNearWalletActions } from "./useNearWalletActions"
 
@@ -207,6 +207,10 @@ export const useConnectWallet = (): ConnectWalletAction => {
     }
   }
 
+  /**
+   * TON:
+   * Down below are TON Wallet handlers and actions
+   */
   const tonWallet = useTonWallet()
   const tonConnectModal = useTonConnectModal()
   const [tonConnectUI] = useTonConnectUI()
@@ -214,7 +218,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
   if (tonWallet) {
     state = {
       address: tonWallet.account.publicKey,
-      displayAddress: tonWallet.account.address,
+      displayAddress: parseTonAddress(tonWallet.account.address),
       network: "ton",
       chainType: ChainType.Ton,
       isVerified: false,
