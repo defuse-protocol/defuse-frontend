@@ -1,25 +1,43 @@
 import { getQuote } from "@defuse-protocol/defuse-sdk/utils"
-import { NextResponse } from "next/server"
+import { type NextRequest, NextResponse } from "next/server"
 
-import { SolverLiquidityService } from "@src/services/SolverLiquidityService"
+import {
+  LIST_TOKEN_PAIRS,
+  cleanUpInvalidatedTokens,
+  getMaxLiquidityData,
+  setMaxLiquidityData,
+} from "@src/services/SolverLiquidityService"
 import type {
   LastLiquidityCheckStatus,
-  MaxLiquidityInJson,
+  MaxLiquidity,
 } from "@src/types/interfaces"
 import { logger } from "@src/utils/logger"
 import { joinAddresses } from "@src/utils/tokenUtils"
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-export async function GET() {
-  const solverLiquidityService = new SolverLiquidityService()
-  const tokenPairs = solverLiquidityService.getPairs()
-  if (tokenPairs == null) {
-    logger.error("tokenPairs was null")
-    return NextResponse.json({ error: "tokenPairs was null" }, { status: 500 })
+export async function GET(req: NextRequest) {
+  const secret = req.headers.get("authorization")
+  if (secret == null) {
+    logger.error("Cron Secret not found")
+    return NextResponse.json(
+      { error: "Cron Secret not found" },
+      { status: 500 }
+    )
   }
 
-  const tokenPairsLiquidity = await solverLiquidityService.getMaxLiquidityData()
+  if (secret !== `Bearer ${process.env.CRON_SECRET}`) {
+    logger.error("Found incorrect secret")
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
+  const tokenPairs = LIST_TOKEN_PAIRS
+  if (tokenPairs == null) {
+    logger.error("TokenPairs was null")
+    return NextResponse.json({ error: "TokenPairs was null" }, { status: 500 })
+  }
+
+  const tokenPairsLiquidity = await getMaxLiquidityData()
   if (tokenPairsLiquidity == null) {
     logger.error("tokenPairsLiquidity was null")
     return NextResponse.json(
@@ -41,32 +59,36 @@ export async function GET() {
       continue
     }
 
-    const quoteParams = {
-      defuse_asset_identifier_in: token.in.defuseAssetId,
-      defuse_asset_identifier_out: token.out.defuseAssetId,
-      exact_amount_in: maxLiquidity.amount.value,
-    }
-
     getQuote({
-      quoteParams,
+      quoteParams: {
+        defuse_asset_identifier_in: token.in.defuseAssetId,
+        defuse_asset_identifier_out: token.out.defuseAssetId,
+        exact_amount_in: maxLiquidity.amount,
+        wait_ms: 2888, // hot fix for filtering out such failed quotes from stats
+      },
       config: {
         logBalanceSufficient: false,
       },
     })
       .then(() => {
-        tokenPairsLiquidity[joinedAddressesKey] = prepareUpdatedLiquidity(
-          maxLiquidity,
-          true
-        )
+        const updatedData = prepareUpdatedLiquidity(maxLiquidity, true)
+        tokenPairsLiquidity[joinedAddressesKey] = updatedData
 
-        solverLiquidityService.setMaxLiquidityData(tokenPairsLiquidity)
+        setMaxLiquidityData(
+          token.in.defuseAssetId,
+          token.out.defuseAssetId,
+          updatedData
+        )
       })
       .catch(() => {
-        tokenPairsLiquidity[joinedAddressesKey] = prepareUpdatedLiquidity(
-          maxLiquidity,
-          false
+        const updatedData = prepareUpdatedLiquidity(maxLiquidity, false)
+        tokenPairsLiquidity[joinedAddressesKey] = updatedData
+
+        setMaxLiquidityData(
+          token.in.defuseAssetId,
+          token.out.defuseAssetId,
+          updatedData
         )
-        solverLiquidityService.setMaxLiquidityData(tokenPairsLiquidity)
 
         // enable it if you want to debug, disabled as we are out of sentry errors limit, this generates a lot of errors
         // logger.error(`${err}: ${joinedAddressesKey}`)
@@ -75,25 +97,27 @@ export async function GET() {
     await delay(50 + Math.floor(Math.random() * 50))
   }
 
+  await cleanUpInvalidatedTokens(tokenPairs, tokenPairsLiquidity)
+
   return NextResponse.json({ error: null }, { status: 200 })
 }
 
 const prepareUpdatedLiquidity = (
-  maxLiquidity: MaxLiquidityInJson,
+  maxLiquidity: MaxLiquidity,
   hasLiquidity: boolean
-) => {
+): MaxLiquidity => {
   const {
     amount: amount_,
-    validatedAmount: validatedAmount_,
-    lastStepSize: lastStepSize_,
-    lastLiquidityCheck,
+    validated_amount: validatedAmount_,
+    last_step_size: lastStepSize_,
+    last_liquidity_check,
   } = maxLiquidity
 
-  let currentAmount = BigInt(amount_.value)
-  let validatedAmount = BigInt(validatedAmount_.value)
+  let currentAmount = BigInt(amount_)
+  let validatedAmount = BigInt(validatedAmount_)
   const basicStep = currentAmount / 10n
   let currentStep =
-    lastStepSize_ == null ? currentAmount / 5n : BigInt(lastStepSize_.value)
+    lastStepSize_ == null ? currentAmount / 5n : BigInt(lastStepSize_)
 
   let currentLiquidityCheck: LastLiquidityCheckStatus
 
@@ -101,7 +125,10 @@ const prepareUpdatedLiquidity = (
     validatedAmount = currentAmount
     currentLiquidityCheck = "passed"
 
-    if (!lastLiquidityCheck || currentLiquidityCheck === lastLiquidityCheck) {
+    if (
+      !last_liquidity_check ||
+      currentLiquidityCheck === last_liquidity_check
+    ) {
       currentAmount += currentStep
       currentStep *= 2n
     } else {
@@ -116,7 +143,10 @@ const prepareUpdatedLiquidity = (
     const tempAmount = currentAmount
     currentLiquidityCheck = "failed"
 
-    if (!lastLiquidityCheck || currentLiquidityCheck === lastLiquidityCheck) {
+    if (
+      !last_liquidity_check ||
+      currentLiquidityCheck === last_liquidity_check
+    ) {
       currentAmount -= currentStep
       currentStep *= 2n
     } else {
@@ -130,9 +160,9 @@ const prepareUpdatedLiquidity = (
   }
 
   return {
-    validatedAmount: { value: validatedAmount.toString(), __type: "bigint" },
-    amount: { value: currentAmount.toString(), __type: "bigint" },
-    lastStepSize: { value: currentStep.toString(), __type: "bigint" },
-    lastLiquidityCheck: currentLiquidityCheck,
+    validated_amount: validatedAmount.toString(),
+    amount: currentAmount.toString(),
+    last_step_size: currentStep.toString(),
+    last_liquidity_check: currentLiquidityCheck,
   }
 }

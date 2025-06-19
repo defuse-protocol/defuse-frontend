@@ -1,16 +1,23 @@
 export interface OtcTrade {
-  encrypted_payload: string
-  iv: string
+  tradeId: string
+  encryptedPayload: string
+  iv: string | null
+  pKey: string | null
 }
+
+export type CreateOtcTradeRequest = {
+  trade_id: string
+  encrypted_payload: string
+} & ({ iv: string } | { p_key: string })
 
 export interface CreateOtcTradeResponse {
   success: boolean
-  trade_id: string
 }
 
 export interface GetOtcTradeResponse {
   encrypted_payload: string
-  iv: string
+  iv: string | null
+  p_key: string | null
 }
 
 export interface ErrorResponse {

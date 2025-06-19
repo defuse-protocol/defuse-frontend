@@ -31,10 +31,16 @@ export const SUPABASE_URL = process.env.SUPABASE_URL
 export const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 export const SOLANA_RPC_URL = process.env.SOLANA_RPC_URL
 
-export const DEV_MODE = process?.env?.NEXT_PUBLIC_DEV_MODE === "true" ?? false
-export const TURN_OFF_APPS = process?.env?.turnOffApps === "true" ?? true
+export const DEV_MODE = process?.env?.NEXT_PUBLIC_DEV_MODE === "true"
+export const TURN_OFF_APPS = process?.env?.turnOffApps === "true"
 
 export const INTENTS_ENV = v.parse(
   v.picklist(["production", "stage"]),
   process.env.NEXT_PUBLIC_INTENTS_ENV || "production"
 )
+
+export const CLICKHOUSE_SERVICE_URL = process.env.CLICKHOUSE_SERVICE_URL
+export const CLICKHOUSE_API_KEY = process.env.CLICKHOUSE_API_KEY
+
+export const MIXPANEL_TOKEN = process.env.NEXT_PUBLIC_MIXPANEL_TOKEN
+export const HELPSCOUT_BEACON_ID = process.env.NEXT_PUBLIC_HELPSCOUT_BEACON_ID

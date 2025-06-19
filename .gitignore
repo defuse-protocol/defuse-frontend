@@ -30,6 +30,7 @@ yarn-error.log*
 # local env files, except .env.local.example
 .env*.local
 !.env.local.example
+.envrc
 
 # vercel
 .vercel
@@ -43,3 +44,6 @@ next-env.d.ts
 
 # generated files
 /src/gen
+
+# nix
+.direnv

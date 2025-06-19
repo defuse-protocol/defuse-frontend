@@ -7,17 +7,10 @@ import {
 } from "@solana/wallet-adapter-react"
 import { useWalletModal } from "@solana/wallet-adapter-react-ui"
 import {
-  useWebAuthnActions,
-  useWebAuthnCurrentCredential,
-  useWebAuthnUIStore,
-} from "@src/features/webauthn/hooks/useWebAuthnStore"
-import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
-import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
-import type {
-  SendTransactionEVMParams,
-  SendTransactionSolanaParams,
-  SignAndSendTransactionsParams,
-} from "@src/types/interfaces"
+  useTonConnectModal,
+  useTonConnectUI,
+  useTonWallet,
+} from "@tonconnect/ui-react"
 import type { SendTransactionParameters } from "@wagmi/core"
 import { useSearchParams } from "next/navigation"
 import { useCallback } from "react"
@@ -28,6 +21,21 @@ import {
   useConnections,
   useDisconnect,
 } from "wagmi"
+
+import {
+  useWebAuthnActions,
+  useWebAuthnCurrentCredential,
+  useWebAuthnUIStore,
+} from "@src/features/webauthn/hooks/useWebAuthnStore"
+import { useSignInLogger } from "@src/hooks/useSignInLogger"
+import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
+import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
+import type {
+  SendTransactionEVMParams,
+  SendTransactionSolanaParams,
+  SignAndSendTransactionsParams,
+} from "@src/types/interfaces"
+
 import { useEVMWalletActions } from "./useEVMWalletActions"
 import { useNearWalletActions } from "./useNearWalletActions"
 
@@ -36,21 +44,20 @@ export enum ChainType {
   EVM = "evm",
   Solana = "solana",
   WebAuthn = "webauthn",
+  Ton = "ton",
 }
 
 export type State = {
   chainType?: ChainType
   network?: string
   address?: string
+  displayAddress?: string
   isVerified: boolean
   isFake: boolean // in most cases, this is used for testing purposes only
 }
 
 interface ConnectWalletAction {
-  signIn: (params: {
-    id: ChainType
-    connector?: Connector
-  }) => Promise<void>
+  signIn: (params: { id: ChainType; connector?: Connector }) => Promise<void>
   signOut: (params: { id: ChainType }) => Promise<void>
   sendTransaction: (params: {
     id: ChainType
@@ -67,6 +74,7 @@ const defaultState: State = {
   chainType: undefined,
   network: undefined,
   address: undefined,
+  displayAddress: undefined,
   isVerified: false,
   isFake: false,
 }
@@ -140,6 +148,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
   if (nearWallet.accountId != null) {
     state = {
       address: nearWallet.accountId,
+      displayAddress: nearWallet.accountId,
       network: "near:mainnet",
       chainType: ChainType.Near,
       isVerified: false,
@@ -154,6 +163,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
   if (evmWalletAccount.address != null && evmWalletAccount.chainId) {
     state = {
       address: evmWalletAccount.address,
+      displayAddress: evmWalletAccount.address,
       network: evmWalletAccount.chainId
         ? `eth:${evmWalletAccount.chainId}`
         : "unknown",
@@ -175,6 +185,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
   if (solanaWallet.publicKey != null) {
     state = {
       address: solanaWallet.publicKey.toBase58(),
+      displayAddress: solanaWallet.publicKey.toBase58(),
       network: "sol:mainnet",
       chainType: ChainType.Solana,
       isVerified: false,
@@ -189,7 +200,23 @@ export const useConnectWallet = (): ConnectWalletAction => {
   if (currentPasskey != null) {
     state = {
       address: currentPasskey.publicKey,
+      displayAddress: currentPasskey.publicKey,
       chainType: ChainType.WebAuthn,
+      isVerified: false,
+      isFake: false,
+    }
+  }
+
+  const tonWallet = useTonWallet()
+  const tonConnectModal = useTonConnectModal()
+  const [tonConnectUI] = useTonConnectUI()
+
+  if (tonWallet) {
+    state = {
+      address: tonWallet.account.publicKey,
+      displayAddress: tonWallet.account.address,
+      network: "ton",
+      chainType: ChainType.Ton,
       isVerified: false,
       isFake: false,
     }
@@ -210,6 +237,12 @@ export const useConnectWallet = (): ConnectWalletAction => {
     state = impersonatedUser
   }
 
+  const { onSignOut } = useSignInLogger(
+    state.address,
+    state.chainType,
+    state.isVerified
+  )
+
   return {
     async signIn(params: {
       id: ChainType
@@ -223,19 +256,22 @@ export const useConnectWallet = (): ConnectWalletAction => {
             : undefined,
         [ChainType.Solana]: () => handleSignInViaSolanaSelector(),
         [ChainType.WebAuthn]: () => webAuthnUI.open(),
+        [ChainType.Ton]: () => tonConnectModal.open(),
       }
+
       return strategies[params.id]()
     },
 
-    async signOut(params: {
-      id: ChainType
-    }): Promise<void> {
+    async signOut(params: { id: ChainType }): Promise<void> {
       const strategies = {
         [ChainType.Near]: () => handleSignOutViaNearWalletSelector(),
         [ChainType.EVM]: () => handleSignOutViaWagmi(),
         [ChainType.Solana]: () => handleSignOutViaSolanaSelector(),
         [ChainType.WebAuthn]: () => webAuthnActions.signOut(),
+        [ChainType.Ton]: () => tonConnectUI.disconnect(),
       }
+
+      onSignOut()
       return strategies[params.id]()
     },
 
@@ -263,6 +299,10 @@ export const useConnectWallet = (): ConnectWalletAction => {
 
         [ChainType.WebAuthn]: async () => {
           throw new Error("WebAuthn does not support transactions")
+        },
+
+        [ChainType.Ton]: async () => {
+          throw new Error("not implemented")
         },
       }
 

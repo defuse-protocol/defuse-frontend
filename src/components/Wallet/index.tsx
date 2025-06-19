@@ -13,11 +13,12 @@ import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { useSignInWindowOpenState } from "@src/stores/useSignInWindowOpenState"
 import { mapStringToEmojis } from "@src/utils/emoji"
 import { TURN_OFF_APPS } from "@src/utils/environment"
+import { TonConnectButton } from "./TonConnectButton"
 
 const ConnectWallet = () => {
   const { isOpen, setIsOpen } = useSignInWindowOpenState()
   const { state, signIn, connectors } = useConnectWallet()
-  const { shortAccountId } = useShortAccountId(state.address ?? "")
+  const { shortAccountId } = useShortAccountId(state.displayAddress ?? "")
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
 
   const handleNearWalletSelector = () => {
@@ -131,6 +132,8 @@ const ConnectWallet = () => {
                       </div>
                     </Button>
                   ))}
+
+                <TonConnectButton />
 
                 <Text size="1" color="gray">
                   Other options
@@ -266,6 +269,9 @@ const ConnectWallet = () => {
                         </div>
                       </Button>
                     ))}
+
+                    <TonConnectButton />
+
                     <Text size="1" color="gray">
                       Other options
                     </Text>

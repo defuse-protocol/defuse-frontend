@@ -147,8 +147,30 @@ export const LIST_TOKENS: TokenWithTags[] = [
         symbol: "USDC",
         name: "USD Coin",
       },
+      {
+        defuseAssetId:
+          "nep245:v2_1.omni.hot.tg:137_qiStmoQJDQPTebaPjgx5VBxZv6L",
+        address: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+        decimals: 6,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+        chainName: "polygon",
+        bridge: "hot_omni",
+        symbol: "USDC",
+        name: "USD Coin",
+      },
+      {
+        defuseAssetId:
+          "nep245:v2_1.omni.hot.tg:56_2w93GqMcEmQFDru84j3HZZWt557r",
+        address: "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+        chainName: "bsc",
+        bridge: "hot_omni",
+        symbol: "USDC",
+        name: "USD Coin",
+      },
     ],
-    tags: ["mc:7", "type:stablecoin"],
+    tags: ["mc:7", "type:stablecoin", "tvol:4"],
   },
   {
     defuseAssetId:
@@ -183,7 +205,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
     bridge: "poa",
     symbol: "BERA",
     name: "BERA",
-    tags: ["mc:104"],
+    tags: ["mc:104", "tvol:10"],
   },
   {
     unifiedAssetId: "zcash",
@@ -212,7 +234,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
         name: "Zcash",
       },
     ],
-    tags: ["mc:120"],
+    tags: ["mc:120", "tvol:1"],
   },
   {
     unifiedAssetId: "near",
@@ -291,7 +313,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
         name: "Near",
       },
     ],
-    tags: ["mc:31"],
+    tags: ["mc:31", "tvol:2"],
   },
   {
     unifiedAssetId: "usdt",
@@ -413,8 +435,30 @@ export const LIST_TOKENS: TokenWithTags[] = [
         symbol: "USDT",
         name: "Tether USD",
       },
+      {
+        defuseAssetId:
+          "nep245:v2_1.omni.hot.tg:137_3hpYoaLtt8MP1Z2GH1U473DMRKgr",
+        address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+        decimals: 6,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+        chainName: "polygon",
+        bridge: "hot_omni",
+        symbol: "USDT",
+        name: "Tether USD",
+      },
+      {
+        defuseAssetId:
+          "nep245:v2_1.omni.hot.tg:56_2CMMyVTGZkeyNZTSvS5sarzfir6g",
+        address: "0x55d398326f99059fF775485246999027B3197955",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+        chainName: "bsc",
+        bridge: "hot_omni",
+        symbol: "USDT",
+        name: "Tether USD",
+      },
     ],
-    tags: ["mc:3", "type:stablecoin"],
+    tags: ["mc:3", "type:stablecoin", "tvol:3"],
   },
 
   {
@@ -579,8 +623,19 @@ export const LIST_TOKENS: TokenWithTags[] = [
         symbol: "ETH",
         name: "ETH",
       },
+      {
+        defuseAssetId: "nep141:eth.omft.near",
+        type: "native",
+        address: "native",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/1027.png",
+        chainName: "hyperliquid",
+        bridge: "poa",
+        symbol: "ETH",
+        name: "ETH",
+      },
     ],
-    tags: ["mc:2"],
+    tags: ["mc:2", "tvol:7"],
   },
   {
     unifiedAssetId: "aurora",
@@ -677,7 +732,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
         name: "Aurora",
       },
     ],
-    tags: ["mc:462"],
+    tags: ["mc:462", "tvol:12"],
   },
   {
     unifiedAssetId: "btc",
@@ -706,8 +761,18 @@ export const LIST_TOKENS: TokenWithTags[] = [
         symbol: "nBTC",
         name: "Bitcoin",
       },
+      {
+        defuseAssetId: "nep141:btc.omft.near",
+        address: "native",
+        decimals: 8,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/1.png",
+        chainName: "hyperliquid",
+        bridge: "poa",
+        symbol: "BTC",
+        name: "Bitcoin",
+      },
     ],
-    tags: ["mc:1"],
+    tags: ["mc:1", "tvol:6"],
   },
   {
     defuseAssetId:
@@ -767,7 +832,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
     bridge: "poa",
     symbol: "ARB",
     name: "Arbitrum",
-    tags: ["mc:49"],
+    tags: ["mc:49", "tvol:14"],
   },
   {
     defuseAssetId:
@@ -829,16 +894,34 @@ export const LIST_TOKENS: TokenWithTags[] = [
     tags: ["mc:571"],
   },
   {
-    defuseAssetId: "nep141:sol.omft.near",
-    type: "native",
-    address: "native",
-    decimals: 9,
-    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/5426.png",
-    chainName: "solana",
-    bridge: "poa",
+    unifiedAssetId: "sol",
     symbol: "SOL",
     name: "Solana",
-    tags: ["mc:6"],
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/5426.png",
+    groupedTokens: [
+      {
+        defuseAssetId: "nep141:sol.omft.near",
+        type: "native",
+        address: "native",
+        decimals: 9,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/5426.png",
+        chainName: "solana",
+        bridge: "poa",
+        symbol: "SOL",
+        name: "Solana",
+      },
+      {
+        defuseAssetId: "nep141:sol.omft.near",
+        address: "native",
+        decimals: 9,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/5426.png",
+        chainName: "hyperliquid",
+        bridge: "poa",
+        symbol: "SOL",
+        name: "Solana",
+      },
+    ],
+    tags: ["mc:6", "tvol:5"],
   },
   {
     defuseAssetId: "nep141:doge.omft.near",
@@ -850,7 +933,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
     bridge: "poa",
     symbol: "DOGE",
     name: "Dogecoin",
-    tags: ["mc:8", "type:meme"],
+    tags: ["mc:8", "type:meme", "tvol:8"],
   },
   {
     unifiedAssetId: "turbo",
@@ -927,7 +1010,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
     bridge: "poa",
     symbol: "XRP",
     name: "XRP",
-    tags: ["mc:4"],
+    tags: ["mc:4", "tvol:11"],
   },
   {
     defuseAssetId:
@@ -1062,7 +1145,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
     bridge: "poa",
     symbol: "GNO",
     name: "Gnosis",
-    tags: ["mc:133"],
+    tags: ["mc:133", "tvol:9"],
   },
   {
     defuseAssetId:
@@ -1096,7 +1179,7 @@ export const LIST_TOKENS: TokenWithTags[] = [
     groupedTokens: [
       {
         defuseAssetId:
-          "eth-0xd9c2d319cd7e6177336b0a9c93c21cb48d84fb54.omft.near",
+          "nep141:eth-0xd9c2d319cd7e6177336b0a9c93c21cb48d84fb54.omft.near",
         address: "0xD9c2D319Cd7e6177336b0a9c93c21cb48d84Fb54",
         decimals: 18,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/8567.png",
@@ -1207,6 +1290,64 @@ export const LIST_TOKENS: TokenWithTags[] = [
     symbol: "USD1",
     name: "World Liberty Financial USD",
     tags: ["mc:47", "type:stablecoin"],
+  },
+  {
+    defuseAssetId:
+      "nep141:sol-91914f13d3b54f8126a2824d71632d4b078d7403.omft.near",
+    address: "CtzPWv73Sn1dMGVU3ZtLv9yWSyUAanBni19YWDaznnkn",
+    decimals: 8,
+    icon: "https://app.near-intents.org/static/icons/token/xbtc.png",
+    chainName: "solana",
+    bridge: "poa",
+    symbol: "xBTC",
+    name: "OKX Wrapped BTC",
+    tags: ["mc:159"], // put it after KAITO, so the marketcap might not be correct
+  },
+  {
+    defuseAssetId: "nep245:v2_1.omni.hot.tg:137_11111111111111111111",
+    type: "native",
+    decimals: 18,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/28321.png",
+    chainName: "polygon",
+    bridge: "hot_omni",
+    symbol: "POL",
+    name: "POL",
+    tags: ["mc:43"],
+  },
+  {
+    defuseAssetId: "nep245:v2_1.omni.hot.tg:56_11111111111111111111",
+    type: "native",
+    decimals: 18,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/1839.png",
+    chainName: "bsc",
+    bridge: "hot_omni",
+    symbol: "BNB",
+    name: "BNB",
+    tags: ["mc:4"],
+  },
+  {
+    defuseAssetId:
+      "nep141:sol-bb27241c87aa401cc963c360c175dd7ca7035873.omft.near",
+    address: "EJZJpNa4tDZ3kYdcRZgaAtaKm3fLJ5akmyPkCaKmfWvd",
+    decimals: 6,
+    icon: "https://dd.dexscreener.com/ds-data/tokens/solana/EJZJpNa4tDZ3kYdcRZgaAtaKm3fLJ5akmyPkCaKmfWvd.png?size=lg&key=9f72fc",
+    chainName: "solana",
+    bridge: "poa",
+    symbol: "LOUD",
+    name: "Loud",
+    tags: ["tvol:6"],
+  },
+  {
+    defuseAssetId:
+      "nep141:eth-0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202.omft.near",
+    address: "0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202",
+    decimals: 18,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/64x64/9444.png",
+    chainName: "eth",
+    bridge: "poa",
+    symbol: "KNC",
+    name: "Kyber Network Crystal v2",
+    tags: ["mc:461"],
   },
 ]
 

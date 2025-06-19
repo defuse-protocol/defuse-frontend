@@ -1,6 +1,7 @@
 "use client"
 
 import { WithdrawWidget } from "@defuse-protocol/defuse-sdk"
+import { useSearchParams } from "next/navigation"
 
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
@@ -10,7 +11,6 @@ import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import { renderAppLink } from "@src/utils/renderAppLink"
-import { useSearchParams } from "next/navigation"
 export default function Withdraw() {
   const { state } = useConnectWallet()
   const signMessage = useWalletAgnosticSignMessage()

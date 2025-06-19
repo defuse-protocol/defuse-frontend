@@ -14,13 +14,19 @@ import { WebAuthnProvider } from "@src/features/webauthn/providers/WebAuthnProvi
 import { initSDK } from "@src/libs/defuse-sdk/initSDK"
 import { SolanaWalletProvider } from "@src/providers/SolanaWalletProvider"
 import { ThemeProvider } from "@src/providers/ThemeProvider"
+import { TonConnectUIProvider } from "@src/providers/TonConnectUIProvider"
 import { WalletSelectorProvider } from "@src/providers/WalletSelectorProvider"
 
 import "@radix-ui/themes/styles.css"
 import "@near-wallet-selector/modal-ui/styles.css"
-import "@near-wallet-selector/account-export/styles.css"
 import "../styles/global.scss"
-import { DEV_MODE, VERCEL_PROJECT_PRODUCTION_URL } from "@src/utils/environment"
+import Helpscout from "@src/components/Helpscout"
+import { MixpanelProvider } from "@src/providers/MixpanelProvider"
+import {
+  DEV_MODE,
+  HELPSCOUT_BEACON_ID,
+  VERCEL_PROJECT_PRODUCTION_URL,
+} from "@src/utils/environment"
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -120,9 +126,13 @@ const RootLayout = async ({
             <QueryClientProvider client={queryClient}>
               <WalletSelectorProvider>
                 <SolanaWalletProvider>
-                  <WebAuthnProvider>{children}</WebAuthnProvider>
+                  <TonConnectUIProvider>
+                    <WebAuthnProvider>
+                      <MixpanelProvider>{children}</MixpanelProvider>
+                    </WebAuthnProvider>
 
-                  <SentryTracer />
+                    <SentryTracer />
+                  </TonConnectUIProvider>
                 </SolanaWalletProvider>
               </WalletSelectorProvider>
               {DEV_MODE && <ReactQueryDevtools initialIsOpen={false} />}
@@ -131,6 +141,7 @@ const RootLayout = async ({
         </ThemeProvider>
       </body>
       <GoogleAnalytics gaId="G-WNE3NB46KM" />
+      {HELPSCOUT_BEACON_ID && <Helpscout />}
     </html>
   )
 }
