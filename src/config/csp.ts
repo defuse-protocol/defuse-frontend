@@ -94,6 +94,7 @@ const cspConfig = {
     "https://free.rpc.fastnear.com/",
     "https://polygon-rpc.com",
     "https://bsc-dataseed.bnbchain.org",
+    "https://ton.api.onfinality.io",
   ],
   "object-src": ["'none'"],
   "base-uri": ["'self'"],
