@@ -1326,6 +1326,17 @@ export const LIST_TOKENS: TokenWithTags[] = [
     tags: ["mc:4"],
   },
   {
+    defuseAssetId: "nep245:v2_1.omni.hot.tg:1117_",
+    type: "native",
+    decimals: 9,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/11419.png",
+    chainName: "ton",
+    bridge: "hot_omni",
+    symbol: "TON",
+    name: "TON",
+    tags: ["mc:4"],
+  },
+  {
     defuseAssetId:
       "nep141:sol-bb27241c87aa401cc963c360c175dd7ca7035873.omft.near",
     address: "EJZJpNa4tDZ3kYdcRZgaAtaKm3fLJ5akmyPkCaKmfWvd",

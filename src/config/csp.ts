@@ -33,6 +33,7 @@ const cspConfig = {
     "'self'",
     /** Services */
     "https://*.chaindefuser.com",
+    "https://api0.herewallet.app",
     "https://api.hyperunit.xyz",
     "https://*.google-analytics.com",
     "https://region1.google-analytics.com",

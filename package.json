@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@clickhouse/client": "^1.11.2",
-    "@defuse-protocol/defuse-sdk": "^1.0.0-beta.164",
+    "@defuse-protocol/defuse-sdk": "^1.0.0-beta.167",
     "@near-eth/aurora-erc20": "^2.8.0",
     "@near-eth/aurora-ether": "^3.0.0",
     "@near-eth/aurora-nep141": "^1.5.3",
@@ -118,5 +118,6 @@
     "hooks": {
       "pre-commit": "lint-staged"
     }
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
