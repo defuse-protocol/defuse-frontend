@@ -9,7 +9,7 @@ import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 const pairs: Record<WhitelabelTemplateValue, [string, string]> = {
   "near-intents": [
     "nep141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",
-    "nep141:wrap.near",
+    "nep141:stjack.tkn.primitives.near",
   ],
   solswap: [
     "nep141:eth-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.omft.near",
