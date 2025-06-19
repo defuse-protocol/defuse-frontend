@@ -44,6 +44,7 @@ export function initSDK() {
       },
       features: {
         hyperliquid: true,
+        ton: true,
       },
     })
   }
