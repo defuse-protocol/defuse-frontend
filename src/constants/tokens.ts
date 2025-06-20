@@ -27,9 +27,8 @@ export const LIST_TOKENS: TokenWithTags[] = [
       },
       {
         defuseAssetId:
-          "nep141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",
-        address:
-          "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",
+          "nep141:base-0x833589fcd6edb6e08f4c7c32d4f71b54bda02913.omft.near",
+        address: "base-0x833589fcd6edb6e08f4c7c32d4f71b54bda02913.omft.near",
         decimals: 6,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
         chainName: "near",
@@ -39,8 +38,9 @@ export const LIST_TOKENS: TokenWithTags[] = [
       },
       {
         defuseAssetId:
-          "nep141:base-0x833589fcd6edb6e08f4c7c32d4f71b54bda02913.omft.near",
-        address: "base-0x833589fcd6edb6e08f4c7c32d4f71b54bda02913.omft.near",
+          "nep141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",
+        address:
+          "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",
         decimals: 6,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
         chainName: "near",
