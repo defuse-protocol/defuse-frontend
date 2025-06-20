@@ -1349,6 +1349,17 @@ export const LIST_TOKENS: TokenWithTags[] = [
     name: "Kyber Network Crystal v2",
     tags: ["mc:461"],
   },
+  {
+    defuseAssetId: "nep141:stjack.tkn.primitives.near",
+    address: "stjack.tkn.primitives.near",
+    decimals: 18,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/24647.png",
+    chainName: "near",
+    bridge: "direct",
+    symbol: "STJACK",
+    name: "STJACK",
+    tags: ["mc:1", "tvol:1", "type:meme"],
+  },
 ]
 
 export const DEPRECATED_TOKENS: Record<string, boolean> = {
