@@ -6,11 +6,13 @@ import {
   useWallet as useSolanaWallet,
 } from "@solana/wallet-adapter-react"
 import { useWalletModal } from "@solana/wallet-adapter-react-ui"
+import { Cell } from "@ton/ton"
 import {
   useTonConnectModal,
   useTonConnectUI,
   useTonWallet,
 } from "@tonconnect/ui-react"
+import type { SendTransactionResponse } from "@tonconnect/ui-react"
 import type { SendTransactionParameters } from "@wagmi/core"
 import { useSearchParams } from "next/navigation"
 import { useCallback } from "react"
@@ -33,6 +35,7 @@ import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
 import type {
   SendTransactionEVMParams,
   SendTransactionSolanaParams,
+  SendTransactionTonParams,
   SignAndSendTransactionsParams,
 } from "@src/types/interfaces"
 import { parseTonAddress } from "@src/utils/parseTonAddress"
@@ -65,7 +68,8 @@ interface ConnectWalletAction {
       | SignAndSendTransactionsParams["transactions"]
       | SendTransactionEVMParams["transactions"]
       | SendTransactionSolanaParams["transactions"]
-  }) => Promise<string | FinalExecutionOutcome[]>
+      | SendTransactionTonParams["transactions"]
+  }) => Promise<string | FinalExecutionOutcome[] | SendTransactionResponse>
   connectors: Connector[]
   state: State
 }
@@ -281,7 +285,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
 
     sendTransaction: async (
       params
-    ): Promise<string | FinalExecutionOutcome[]> => {
+    ): Promise<string | FinalExecutionOutcome[] | SendTransactionResponse> => {
       const strategies = {
         [ChainType.Near]: async () =>
           await nearWalletConnect.signAndSendTransactions({
@@ -306,7 +310,16 @@ export const useConnectWallet = (): ConnectWalletAction => {
         },
 
         [ChainType.Ton]: async () => {
-          throw new Error("not implemented")
+          if (!tonWallet) {
+            throw new Error("TON wallet not connected")
+          }
+          const transaction =
+            params.tx as SendTransactionTonParams["transactions"]
+
+          const response = await tonConnectUI.sendTransaction(transaction)
+          const cell = Cell.fromBoc(Buffer.from(response.boc, "base64"))[0]
+          const hash = cell.hash().toString("hex")
+          return hash
         },
       }
 

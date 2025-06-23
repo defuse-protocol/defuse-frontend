@@ -1,5 +1,6 @@
 import type { Transaction } from "@near-wallet-selector/core/src/lib/wallet/transactions.types"
 import type { Transaction as TransactionSolana } from "@solana/web3.js"
+import type { SendTransactionRequest } from "@tonconnect/ui-react"
 import type { SendTransactionParameters } from "viem"
 
 export type JobsDetails = {
@@ -69,3 +70,7 @@ export type Pair = {
 }
 
 export type Pairs = Pair[] | null
+
+export type SendTransactionTonParams = {
+  transactions: SendTransactionRequest
+}
