@@ -22,8 +22,7 @@ SELECT
   block_height AS blockNumber,
   toUnixTimestamp(block_timestamp) AS blockTimestamp
 FROM near_intents_db.silver_dip4_token_diff_new
-WHERE block_timestamp <= toDateTime({timestamp:UInt64})
-ORDER BY block_timestamp DESC
+ORDER BY abs(toUnixTimestamp(block_timestamp) - {timestamp:UInt64})
 LIMIT 1`
 
 /**
