@@ -83,7 +83,6 @@ export interface RawEvent {
   pairId: string
   asset0In: string
   asset1Out: string
-  priceNative: string
   reserveAsset0: string
   reserveAsset1: string
   asset0Decimals: number
