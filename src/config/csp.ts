@@ -95,6 +95,8 @@ const cspConfig = {
     "https://polygon-rpc.com",
     "https://bsc-dataseed.bnbchain.org",
     "https://ton.api.onfinality.io",
+    "https://ton.api.onfinality.io/public",
+    "https://toncenter.com/api/v2/jsonRPC",
   ],
   "object-src": ["'none'"],
   "base-uri": ["'self'"],
