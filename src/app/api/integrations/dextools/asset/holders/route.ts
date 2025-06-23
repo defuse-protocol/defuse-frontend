@@ -1,9 +1,13 @@
 import type { NextRequest } from "next/server"
+import { z } from "zod"
 
 import type { AssetHoldersResponse } from "@src/app/api/integrations/dextools/types"
 
-import { err, ok, tryCatch } from "../../../shared/result"
+import { isErr, ok, tryCatch } from "../../../shared/result"
 import type { ApiResult } from "../../../shared/types"
+import { validateQueryParams } from "../../../shared/utils"
+
+const querySchema = z.object({ id: z.string() })
 
 /**
  * Returns a paginated list of the largest token holders.
@@ -11,13 +15,12 @@ import type { ApiResult } from "../../../shared/types"
  */
 export const GET = tryCatch(
   async (request: NextRequest): ApiResult<AssetHoldersResponse> => {
-    const { searchParams } = new URL(request.url)
-    const id = searchParams.get("id")
+    const res = validateQueryParams(request, querySchema)
 
-    if (!id) {
-      return err("Bad Request", "Missing id parameter")
+    if (isErr(res)) {
+      return res
     }
 
-    return ok({ asset: { id, totalHoldersCount: 0, holders: [] } })
+    return ok({ asset: { id: res.ok.id, totalHoldersCount: 0, holders: [] } })
   }
 )

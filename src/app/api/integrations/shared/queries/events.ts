@@ -1,4 +1,5 @@
 import type { NextRequest } from "next/server"
+import { z } from "zod"
 
 import type {
   ApiResult,
@@ -7,12 +8,18 @@ import type {
 } from "@src/app/api/integrations/shared/types"
 import { chQuery } from "@src/clickhouse/clickhouse"
 
-import { err, ok, tryCatch } from "../result"
+import { isErr, ok, tryCatch } from "../result"
 import {
   PAIR_SEPARATOR,
   addDecimalPoint,
   calculatePriceWithMaxPrecision,
+  validateQueryParams,
 } from "../utils"
+
+const querySchema = z.object({
+  fromBlock: z.coerce.number(),
+  toBlock: z.coerce.number(),
+})
 
 export const EVENTS_QUERY = `
 WITH distinct_assets as (
@@ -99,17 +106,10 @@ export interface RawEvent {
  */
 export const getEvents = tryCatch(
   async (request: NextRequest): ApiResult<EventsResponse> => {
-    const { searchParams } = new URL(request.url)
-    const fromBlock = searchParams.get("fromBlock")
+    const res = validateQueryParams(request, querySchema)
 
-    if (!fromBlock) {
-      return err("Bad Request", "Missing fromBlock parameter")
-    }
-
-    const toBlock = searchParams.get("toBlock")
-
-    if (!toBlock) {
-      return err("Bad Request", "Missing toBlock parameter")
+    if (isErr(res)) {
+      return res
     }
 
     const rawEvents = await chQuery<
@@ -117,10 +117,7 @@ export const getEvents = tryCatch(
         asset0Decimals: number
         asset1Decimals: number
       }
-    >(EVENTS_QUERY, {
-      fromBlock: Number.parseInt(fromBlock),
-      toBlock: Number.parseInt(toBlock),
-    })
+    >(EVENTS_QUERY, res.ok)
 
     const events = rawEvents.map((rawEvent): Event => {
       const asset0In = addDecimalPoint(

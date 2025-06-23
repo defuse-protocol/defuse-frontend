@@ -1,10 +1,32 @@
 import type { NextRequest } from "next/server"
+import { z } from "zod"
 
+import {
+  PAIR_SEPARATOR,
+  validateQueryParams,
+} from "@src/app/api/integrations/shared/utils"
 import { clickHouseClient } from "@src/clickhouse/clickhouse"
 
-import { err, ok, tryCatch } from "../../shared/result"
+import { err, isErr, ok, tryCatch } from "../../shared/result"
 import type { ApiResult } from "../../shared/types"
 import type { PairResponse } from "../types"
+
+const querySchema = z.object({ id: z.string() }).pipe(
+  z.object({ id: z.string() }).transform(({ id }, ctx) => {
+    const [asset0Id, asset1Id, ...rest] = id.split(PAIR_SEPARATOR)
+
+    if (asset0Id === undefined || asset1Id === undefined || rest.length > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Invalid pair ID format. Expected a composite key like asset0${PAIR_SEPARATOR}asset1`,
+      })
+
+      return z.NEVER
+    }
+
+    return { id, asset0Id, asset1Id }
+  })
+)
 
 interface RawAsset {
   defuse_asset_id: string
@@ -31,23 +53,13 @@ WHERE defuse_asset_id IN ({asset0Id:String}, {asset1Id:String})`
  */
 export const GET = tryCatch(
   async (request: NextRequest): ApiResult<PairResponse> => {
-    const { searchParams } = new URL(request.url)
-    const id = searchParams.get("id")
+    const res = validateQueryParams(request, querySchema)
 
-    if (!id) {
-      return err("Bad Request", "Missing id parameter")
+    if (isErr(res)) {
+      return res
     }
 
-    const parts = id.split("___")
-
-    if (parts.length !== 2) {
-      return err(
-        "Bad Request",
-        "Invalid pair ID format. Expected: asset0___asset1"
-      )
-    }
-
-    const [asset0Id, asset1Id] = parts
+    const { id, asset0Id, asset1Id } = res.ok
 
     const { data: assets } = await clickHouseClient
       .query({

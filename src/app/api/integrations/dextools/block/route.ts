@@ -1,4 +1,5 @@
 import type { NextRequest } from "next/server"
+import { z } from "zod"
 
 import type {
   Block,
@@ -6,20 +7,26 @@ import type {
 } from "@src/app/api/integrations/dextools/types"
 import { chQueryFirst } from "@src/clickhouse/clickhouse"
 
-import { err, ok, tryCatch } from "../../shared/result"
+import { err, isErr, ok, tryCatch } from "../../shared/result"
 import type { ApiResult } from "../../shared/types"
+import { validateQueryParams } from "../../shared/utils"
+
+const numberSchema = z.object({ number: z.coerce.number() })
+const timestampSchema = z.object({ timestamp: z.coerce.number() })
+const bothSchema = numberSchema.merge(timestampSchema)
+const querySchema = z.union([numberSchema, timestampSchema, bothSchema])
 
 const BLOCK_BY_NUMBER_QUERY = `
 SELECT
-  block_height AS blockNumber,
+  CAST(block_height AS UInt32) AS blockNumber,
   toUnixTimestamp(block_timestamp) AS blockTimestamp
 FROM near_intents_db.silver_dip4_token_diff_new
-WHERE block_height = {blockNumber:UInt64}
+WHERE block_height = {blockNumber:UInt32}
 LIMIT 1`
 
 const BLOCK_BY_TIMESTAMP_QUERY = `
 SELECT
-  block_height AS blockNumber,
+  CAST(block_height AS UInt32) AS blockNumber,
   toUnixTimestamp(block_timestamp) AS blockTimestamp
 FROM near_intents_db.silver_dip4_token_diff_new
 ORDER BY abs(toUnixTimestamp(block_timestamp) - {timestamp:UInt64})
@@ -31,31 +38,20 @@ LIMIT 1`
  */
 export const GET = tryCatch(
   async (request: NextRequest): ApiResult<BlockResponse> => {
-    const { searchParams } = new URL(request.url)
+    const res = validateQueryParams(request, querySchema)
 
-    const numberParam = searchParams.get("number")
-    const timestampParam = searchParams.get("timestamp")
-
-    if (!numberParam && !timestampParam) {
-      return err(
-        "Bad Request",
-        "Either number or timestamp query parameter must be supplied"
-      )
+    if (isErr(res)) {
+      return res
     }
 
-    let block: Block | undefined
-
-    if (numberParam) {
-      block = await chQueryFirst<Block>(BLOCK_BY_NUMBER_QUERY, {
-        blockNumber: Number.parseInt(numberParam),
-      })
-    } else {
-      // timestampParam is non-null here due to the check above
-      const timestamp = Number.parseInt(timestampParam as string)
-      block = await chQueryFirst<Block>(BLOCK_BY_TIMESTAMP_QUERY, {
-        timestamp,
-      })
-    }
+    const block =
+      "number" in res.ok
+        ? await chQueryFirst<Block>(BLOCK_BY_NUMBER_QUERY, {
+            blockNumber: res.ok.number,
+          })
+        : await chQueryFirst<Block>(BLOCK_BY_TIMESTAMP_QUERY, {
+            timestamp: res.ok.timestamp,
+          })
 
     if (!block) {
       return err("Not Found", "Block not found")

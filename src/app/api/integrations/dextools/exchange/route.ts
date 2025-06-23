@@ -1,12 +1,16 @@
 import type { NextRequest } from "next/server"
+import { z } from "zod"
 
 import type {
   Exchange,
   ExchangeResponse,
 } from "@src/app/api/integrations/dextools/types"
 
-import { err, ok, tryCatch } from "../../shared/result"
+import { isErr, ok, tryCatch } from "../../shared/result"
 import type { ApiResult } from "../../shared/types"
+import { validateQueryParams } from "../../shared/utils"
+
+const querySchema = z.object({ id: z.string() })
 
 /**
  * Returns details for an individual DEX (factory / router).
@@ -14,15 +18,14 @@ import type { ApiResult } from "../../shared/types"
  */
 export const GET = tryCatch(
   async (request: NextRequest): ApiResult<ExchangeResponse> => {
-    const { searchParams } = new URL(request.url)
-    const id = searchParams.get("id")
+    const res = validateQueryParams(request, querySchema)
 
-    if (!id) {
-      return err("Bad Request", "Missing id parameter")
+    if (isErr(res)) {
+      return res
     }
 
     const exchange: Exchange = {
-      factoryAddress: id,
+      factoryAddress: res.ok.id,
       name: "Stubbed Exchange",
       logoURL: "https://defuse.fi/logo_placeholder.png",
     }

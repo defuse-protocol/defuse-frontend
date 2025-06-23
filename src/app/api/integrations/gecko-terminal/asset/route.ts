@@ -1,4 +1,5 @@
 import type { NextRequest } from "next/server"
+import { z } from "zod"
 
 import type {
   Asset,
@@ -6,8 +7,11 @@ import type {
 } from "@src/app/api/integrations/gecko-terminal/types"
 import { chQueryFirst } from "@src/clickhouse/clickhouse"
 
-import { err, ok, tryCatch } from "../../shared/result"
+import { err, isErr, ok, tryCatch } from "../../shared/result"
 import type { ApiResult } from "../../shared/types"
+import { validateQueryParams } from "../../shared/utils"
+
+const querySchema = z.object({ id: z.string() })
 
 interface RawAsset {
   id: string
@@ -27,7 +31,7 @@ SELECT
   blockchain,
   contract_address
 FROM near_intents_db.defuse_assets
-WHERE defuse_asset_id = {assetId:String}
+WHERE defuse_asset_id = {id:String}
 ORDER BY price_updated_at DESC
 LIMIT 1`
 
@@ -45,14 +49,13 @@ LIMIT 1`
  */
 export const GET = tryCatch(
   async (request: NextRequest): ApiResult<AssetResponse> => {
-    const { searchParams } = new URL(request.url)
-    const assetId = searchParams.get("id")
+    const res = validateQueryParams(request, querySchema)
 
-    if (!assetId) {
-      return err("Bad Request", "Missing id parameter")
+    if (isErr(res)) {
+      return res
     }
 
-    const rawAsset = await chQueryFirst<RawAsset>(ASSET_QUERY, { assetId })
+    const rawAsset = await chQueryFirst<RawAsset>(ASSET_QUERY, res.ok)
 
     if (!rawAsset) {
       return err("Not Found", "Asset not found")

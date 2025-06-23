@@ -47,6 +47,13 @@ export function err(
   }
 }
 
+export function isErr<T>(result: Awaited<ApiResult<T>>): result is {
+  ok?: never
+  err: ErrorWithStatus
+} {
+  return "err" in result
+}
+
 export function tryCatch<T, Args extends unknown[]>(
   fn: (...args: Args) => ApiResult<T>
 ): (...args: Args) => Promise<NextResponse<T | ErrorResponse>> {
