@@ -33,8 +33,8 @@ const cspConfig = {
     "'self'",
     /** Services */
     "https://*.chaindefuser.com",
-    "https://api.hyperunit.xyz",
     "https://*.google-analytics.com",
+    "https://api.hyperunit.xyz",
     "https://region1.google-analytics.com",
     "https://as.coinbase.com/metrics",
     "https://api-js.mixpanel.com",
@@ -79,6 +79,7 @@ const cspConfig = {
     /** RPCs */
     "https://*.aurora-cloud.dev",
     "https://*.aurora.dev",
+    "https://*.quiknode.pro",
     "https://veriee-t2i7nw-fast-mainnet.helius-rpc.com",
     "https://eth-mainnet.public.blastapi.io",
     "https://mainnet.base.org",
