@@ -1079,10 +1079,10 @@
   resolved "https://registry.yarnpkg.com/@defuse-protocol/contract-types/-/contract-types-0.0.2.tgz#921acf85081123826809273635c08d6be9b6b033"
   integrity sha512-BRcyQrhVuY6kAmUg/fxqMr1zAdsijN3Neeo8uZqKKvBNe4mnoM07rTQLtC5LKqZpIUobhH2bsbzvbqjAM3zJ9w==
 
-"@defuse-protocol/defuse-sdk@^1.0.0-beta.173":
-  version "1.0.0-beta.173"
-  resolved "https://registry.yarnpkg.com/@defuse-protocol/defuse-sdk/-/defuse-sdk-1.0.0-beta.173.tgz#421772a0390d6d1f97ef2474d4b4ef5709760819"
-  integrity sha512-6x+FDTmYXyHgkqFH2eixgMOm4UIvnun2fATkPe+5Gqa5uHqQe7UamCnmvEphtgNlP9qCilABKFarGKXlkEapDQ==
+"@defuse-protocol/defuse-sdk@^1.0.0-beta.174":
+  version "1.0.0-beta.174"
+  resolved "https://registry.yarnpkg.com/@defuse-protocol/defuse-sdk/-/defuse-sdk-1.0.0-beta.174.tgz#5d43c41a20de3564ef1d834915a53f672eb8aa5e"
+  integrity sha512-Ko99vAN5+inFYgbGTIRTz9r6R5DBuV3tc5AhV88qlF3hvVzemYSe50XJrr4RUUz99ubV7MDqMP0NwjVmDzarbw==
   dependencies:
     "@defuse-protocol/bridge-sdk" "^0.3.0"
     "@lifeomic/attempt" "^3.1.0"
@@ -1110,6 +1110,7 @@
     "@ton/ton" "^15.3.0"
     "@xstate/react" "^4.1.3"
     "@xstate/store" "^3.0.1"
+    axios "^1.0.0"
     borsher "^3.5.0"
     clsx "^2.1.1"
     near-api-js "^5.1.1"
@@ -8638,6 +8639,15 @@ axe-core@^4.10.0:
   resolved "https://registry.yarnpkg.com/axe-core/-/axe-core-4.10.3.tgz#04145965ac7894faddbac30861e5d8f11bfd14fc"
   integrity sha512-Xm7bpRXnDSX2YE2YFfBk2FnF0ep6tmG7xPh8iHee8MIcrgq762Nkce856dYtJYLkuIoYZvGfTs/PbZhideTcEg==
 
+axios@^1.0.0, axios@^1.7.9:
+  version "1.10.0"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.10.0.tgz#af320aee8632eaf2a400b6a1979fa75856f38d54"
+  integrity sha512-/1xYAC4MP/HEG+3duIhFr4ZQXR4sQXOIe+o6sdqzeykGLx6Upp/1p8MHqhINOvGeP7xyNHe7tsiJByc4SSVUxw==
+  dependencies:
+    follow-redirects "^1.15.6"
+    form-data "^4.0.0"
+    proxy-from-env "^1.1.0"
+
 axios@^1.6.7:
   version "1.9.0"
   resolved "https://registry.yarnpkg.com/axios/-/axios-1.9.0.tgz#25534e3b72b54540077d33046f77e3b8d7081901"
@@ -8651,15 +8661,6 @@ axios@^1.7.2:
   version "1.7.7"
   resolved "https://registry.yarnpkg.com/axios/-/axios-1.7.7.tgz#2f554296f9892a72ac8d8e4c5b79c14a91d0a47f"
   integrity sha512-S4kL7XrjgBmvdGut0sN3yJxqYzrDOnivkBiN0OFs6hLiUam3UPvswUo0kqGyhqUZGEOytHyumEdXsAkgCOUf3Q==
-  dependencies:
-    follow-redirects "^1.15.6"
-    form-data "^4.0.0"
-    proxy-from-env "^1.1.0"
-
-axios@^1.7.9:
-  version "1.10.0"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-1.10.0.tgz#af320aee8632eaf2a400b6a1979fa75856f38d54"
-  integrity sha512-/1xYAC4MP/HEG+3duIhFr4ZQXR4sQXOIe+o6sdqzeykGLx6Upp/1p8MHqhINOvGeP7xyNHe7tsiJByc4SSVUxw==
   dependencies:
     follow-redirects "^1.15.6"
     form-data "^4.0.0"
