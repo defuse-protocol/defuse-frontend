@@ -1,7 +1,10 @@
-import { type NextRequest, NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
 
-import type { PairResponse } from "@src/app/api/integrations/gecko-terminal/types"
 import { clickHouseClient } from "@src/clickhouse/clickhouse"
+
+import { err, ok, tryCatch } from "../../shared/result"
+import type { ApiResult } from "../../shared/types"
+import type { PairResponse } from "../types"
 
 interface RawAsset {
   defuse_asset_id: string
@@ -26,42 +29,39 @@ WHERE defuse_asset_id IN ({asset0Id:String}, {asset1Id:String})`
  * @param request - The incoming Next.js request, containing the pair ID in the query parameters.
  * @returns A response containing the pair's information.
  */
-export async function GET(
-  request: NextRequest
-): Promise<NextResponse<PairResponse | { error: string }>> {
-  const { searchParams } = new URL(request.url)
-  const id = searchParams.get("id")
+export const GET = tryCatch(
+  async (request: NextRequest): ApiResult<PairResponse> => {
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get("id")
 
-  if (!id) {
-    return NextResponse.json({ error: "Missing id parameter" }, { status: 400 })
-  }
+    if (!id) {
+      return err("Bad Request", "Missing id parameter")
+    }
 
-  const parts = id.split("___")
+    const parts = id.split("___")
 
-  if (parts.length !== 2) {
-    return NextResponse.json(
-      { error: "Invalid pair ID format. Expected: asset0___asset1" },
-      { status: 400 }
-    )
-  }
+    if (parts.length !== 2) {
+      return err(
+        "Bad Request",
+        "Invalid pair ID format. Expected: asset0___asset1"
+      )
+    }
 
-  const [asset0Id, asset1Id] = parts
+    const [asset0Id, asset1Id] = parts
 
-  const { data: assets } = await clickHouseClient
-    .query({
-      query: ASSETS_QUERY,
-      query_params: { asset0Id, asset1Id },
+    const { data: assets } = await clickHouseClient
+      .query({
+        query: ASSETS_QUERY,
+        query_params: { asset0Id, asset1Id },
+      })
+      .then((res) => res.json<RawAsset>())
+
+    if (assets.length !== 2) {
+      return err("Not Found", "One or both assets not found")
+    }
+
+    return ok({
+      pair: { id, dexKey: "defuse", asset0Id, asset1Id },
     })
-    .then((res) => res.json<RawAsset>())
-
-  if (assets.length !== 2) {
-    return NextResponse.json(
-      { error: "One or both assets not found" },
-      { status: 404 }
-    )
   }
-
-  return NextResponse.json({
-    pair: { id, dexKey: "defuse", asset0Id, asset1Id },
-  })
-}
+)

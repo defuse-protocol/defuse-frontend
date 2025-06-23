@@ -1,5 +1,8 @@
 export const PAIR_SEPARATOR = "___"
 
+/**
+ * Utility to insert a decimal point into a string representing an integer value, according to the asset decimals.
+ */
 export function addDecimalPoint(
   price: string,
   decimalsFromArgs: number | string | null | undefined
@@ -62,7 +65,7 @@ export function calculatePriceWithMaxPrecision(
 
   const priceStr = price.toString()
 
-  if (priceStr.length <= PRECISION_DECIMALS_BIGINT) {
+  if (priceStr.length <= PRECISION_DECIMALS) {
     const zerosNeeded = PRECISION_DECIMALS - priceStr.length
     return `0.${"0".repeat(zerosNeeded)}${priceStr}`.replace(
       TRIM_ZERO_REGEX,
