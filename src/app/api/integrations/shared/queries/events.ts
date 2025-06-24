@@ -30,9 +30,10 @@ WITH distinct_assets as (
     near_intents_db.defuse_assets
 )
 SELECT
-  CAST(any(d.block_height) AS UInt32) AS blockNumber,
-  toUnixTimestamp(any(d.block_timestamp)) AS blockTimestamp,
+  CAST(max(d.block_height) AS UInt32) AS blockNumber,
+  toUnixTimestamp(max(d.block_timestamp)) AS blockTimestamp,
   d.tx_hash AS txnId,
+  CAST(max(d.receipt_index_in_block) AS UInt32) AS txnIndex,
   CAST(max(d.index_in_log) AS UInt32) AS eventIndex,
   argMax(d.account_id, d.token_in IS NOT NULL) AS maker,
   concat(
@@ -79,12 +80,14 @@ HAVING
   AND asset1Decimals != 0
 ORDER BY
   blockNumber ASC,
+  txnIndex ASC,
   eventIndex ASC`
 
 export interface RawEvent {
   blockNumber: number
   blockTimestamp: number
   txnId: string
+  txnIndex: number
   eventIndex: number
   maker: string
   pairId: string
@@ -143,8 +146,7 @@ export const getEvents = tryCatch(
         },
         eventType: "swap",
         txnId: rawEvent.txnId,
-        // TODO: Can we get the order of tx in the block?
-        txnIndex: 0,
+        txnIndex: rawEvent.txnIndex,
         eventIndex: rawEvent.eventIndex,
         maker: rawEvent.maker,
         pairId: rawEvent.pairId,
