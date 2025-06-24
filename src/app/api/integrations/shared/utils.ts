@@ -1,5 +1,14 @@
+import type { NextRequest } from "next/server"
+import type { z } from "zod"
+
+import { err, ok } from "./result"
+import type { ApiResult } from "./types"
+
 export const PAIR_SEPARATOR = "___"
 
+/**
+ * Utility to insert a decimal point into a string representing an integer value, according to the asset decimals.
+ */
 export function addDecimalPoint(
   price: string,
   decimalsFromArgs: number | string | null | undefined
@@ -62,7 +71,7 @@ export function calculatePriceWithMaxPrecision(
 
   const priceStr = price.toString()
 
-  if (priceStr.length <= PRECISION_DECIMALS_BIGINT) {
+  if (priceStr.length <= PRECISION_DECIMALS) {
     const zerosNeeded = PRECISION_DECIMALS - priceStr.length
     return `0.${"0".repeat(zerosNeeded)}${priceStr}`.replace(
       TRIM_ZERO_REGEX,
@@ -73,4 +82,25 @@ export function calculatePriceWithMaxPrecision(
   const integerPart = priceStr.slice(0, priceStr.length - PRECISION_DECIMALS)
   const decimalPart = priceStr.slice(-PRECISION_DECIMALS)
   return `${integerPart}.${decimalPart}`.replace(TRIM_ZERO_REGEX, "")
+}
+
+export function validateQueryParams<T>(
+  request: NextRequest,
+  schema: z.ZodSchema<T>
+): Awaited<ApiResult<T>> {
+  const res = schema.safeParse(
+    Object.fromEntries(new URL(request.url).searchParams)
+  )
+
+  return res.success
+    ? ok(res.data)
+    : err(
+        "Bad Request",
+        "Query param validation failed",
+        res.error.errors.map(({ code, message, path }) => ({
+          code,
+          message,
+          param: path.join("."),
+        }))
+      )
 }
