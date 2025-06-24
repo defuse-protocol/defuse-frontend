@@ -34,6 +34,7 @@ const cspConfig = {
     /** Services */
     "https://*.chaindefuser.com",
     "https://*.google-analytics.com",
+    "https://*.near-intents.org",
     "https://api.hyperunit.xyz",
     "https://region1.google-analytics.com",
     "https://as.coinbase.com/metrics",
@@ -75,6 +76,9 @@ const cspConfig = {
     "https://tc.architecton.su",
     "https://ton-connect.mytokenpocket.vip",
     "https://bridge.uxuy.me",
+
+    /** HOT */
+    "http://*.herewallet.app",
 
     /** RPCs */
     "https://*.aurora-cloud.dev",
