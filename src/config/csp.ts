@@ -116,13 +116,14 @@ const cspConfig = {
 export const csp = () => {
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64")
 
-  let contentSecurityPolicyHeaderValue = Object.entries(cspConfig)
+  const contentSecurityPolicyHeaderValue = Object.entries(cspConfig)
     .map(([key, value]) => `${key} ${value.join(" ")}`)
     .join("; ")
 
   // This is a special top-level (value-less) directive that instructs the browser
   // to upgrade HTTP requests to HTTPS
-  contentSecurityPolicyHeaderValue += "; upgrade-insecure-requests"
+  // TODO: Uncomment this when we have HTTPS for stage
+  // contentSecurityPolicyHeaderValue += "; upgrade-insecure-requests"
 
   return {
     nonce,
