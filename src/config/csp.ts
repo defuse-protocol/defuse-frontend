@@ -39,6 +39,10 @@ const cspConfig = {
     "https://as.coinbase.com/metrics",
     "https://api-js.mixpanel.com",
 
+    /** Stage Solver Relay and Bridge Services */
+    "http://35.242.147.168/rpc",
+    "http://34.105.197.59/rpc",
+
     /** Helpscout */
     "https://beaconapi.helpscout.net",
     "https://*.cloudfront.net",
