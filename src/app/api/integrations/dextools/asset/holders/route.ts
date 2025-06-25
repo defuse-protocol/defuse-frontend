@@ -7,7 +7,11 @@ import { isErr, ok, tryCatch } from "../../../shared/result"
 import type { ApiResult } from "../../../shared/types"
 import { validateQueryParams } from "../../../shared/utils"
 
-const querySchema = z.object({ id: z.string() })
+const querySchema = z.object({
+  id: z.string(),
+  page: z.coerce.number().optional(),
+  pageSize: z.coerce.number().optional(),
+})
 
 /**
  * Returns a paginated list of the largest token holders.
