@@ -84,10 +84,10 @@ export function calculatePriceWithMaxPrecision(
   return `${integerPart}.${decimalPart}`.replace(TRIM_ZERO_REGEX, "")
 }
 
-export function validateQueryParams<T>(
+export function validateQueryParams<T extends z.ZodSchema>(
   request: NextRequest,
-  schema: z.ZodSchema<T>
-): Awaited<ApiResult<T>> {
+  schema: T
+): Awaited<ApiResult<z.infer<T>>> {
   const res = schema.safeParse(
     Object.fromEntries(new URL(request.url).searchParams)
   )
