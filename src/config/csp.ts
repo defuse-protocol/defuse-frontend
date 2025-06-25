@@ -41,8 +41,8 @@ const cspConfig = {
     "https://api-js.mixpanel.com",
 
     /** Stage Solver Relay and Bridge Services */
-    "http://35.242.147.168/rpc",
-    "http://34.105.197.59/rpc",
+    "http://35.242.147.168",
+    "http://34.105.197.59",
 
     /** Helpscout */
     "https://beaconapi.helpscout.net",
