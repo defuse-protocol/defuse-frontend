@@ -33,8 +33,9 @@ const cspConfig = {
     "'self'",
     /** Services */
     "https://*.chaindefuser.com",
-    "https://api.hyperunit.xyz",
     "https://*.google-analytics.com",
+    "https://*.near-intents.org",
+    "https://api.hyperunit.xyz",
     "https://region1.google-analytics.com",
     "https://as.coinbase.com/metrics",
     "https://api-js.mixpanel.com",
@@ -80,9 +81,13 @@ const cspConfig = {
     "https://ton-connect.mytokenpocket.vip",
     "https://bridge.uxuy.me",
 
+    /** HOT */
+    "http://*.herewallet.app",
+
     /** RPCs */
     "https://*.aurora-cloud.dev",
     "https://*.aurora.dev",
+    "https://*.quiknode.pro",
     "https://veriee-t2i7nw-fast-mainnet.helius-rpc.com",
     "https://eth-mainnet.public.blastapi.io",
     "https://mainnet.base.org",
@@ -98,6 +103,9 @@ const cspConfig = {
     "https://free.rpc.fastnear.com/",
     "https://polygon-rpc.com",
     "https://bsc-dataseed.bnbchain.org",
+    "https://ton.api.onfinality.io",
+    "https://ton.api.onfinality.io/public",
+    "https://toncenter.com/api/v2/jsonRPC",
   ],
   "object-src": ["'none'"],
   "base-uri": ["'self'"],

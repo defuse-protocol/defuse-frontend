@@ -458,6 +458,17 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         symbol: "USDT",
         name: "Tether USD",
       },
+      {
+        defuseAssetId:
+          "nep245:v2_1.omni.hot.tg:1117_3tsdfyziyc7EJbP2aULWSKU4toBaAcN4FdTgfm5W1mC4ouR",
+        address: "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs",
+        decimals: 6,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+        chainName: "ton",
+        bridge: "hot_omni",
+        symbol: "USDT",
+        name: "Tether USD",
+      },
     ],
     tags: ["mc:3", "type:stablecoin", "tvol:3"],
   },
@@ -1349,6 +1360,17 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
     symbol: "KNC",
     name: "Kyber Network Crystal v2",
     tags: ["mc:461"],
+  },
+  {
+    defuseAssetId: "nep245:v2_1.omni.hot.tg:1117_",
+    type: "native",
+    decimals: 9,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/11419.png",
+    chainName: "ton",
+    bridge: "hot_omni",
+    symbol: "TON",
+    name: "TON",
+    tags: ["mc:18"],
   },
 ]
 

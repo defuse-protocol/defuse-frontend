@@ -20,6 +20,10 @@ export function initSDK() {
         warn: console.warn,
         error: console.error,
       },
+      features: {
+        hyperliquid: true,
+        ton: true,
+      },
     })
   } else {
     configureSDK({
@@ -44,6 +48,7 @@ export function initSDK() {
       },
       features: {
         hyperliquid: true,
+        ton: true,
       },
     })
   }
