@@ -14,7 +14,8 @@ import { validateQueryParams } from "../../shared/utils"
 const querySchema = z.object({ id: z.string() })
 /**
  * Returns details for an individual DEX (factory / router).
- * NOTE: This is a stub
+ * test:
+ * http://localhost:3000/api/integrations/dextools/exchange?id=intents.near
  */
 export const GET = tryCatch(
   async (request: NextRequest): ApiResult<ExchangeResponse> => {
@@ -27,7 +28,7 @@ export const GET = tryCatch(
     if (res.ok.id !== CONTRACT_ADDRESS) {
       return err(
         "Not Found",
-        `Exchange not found for ${res.ok.id}. ${CONTRACT_ADDRESS} is the only supported`
+        `Exchange not found for ${res.ok.id}. ${CONTRACT_ADDRESS} is the only supported exchange.`
       )
     }
 

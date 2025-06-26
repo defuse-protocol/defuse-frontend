@@ -8,6 +8,8 @@ import type { ErrorResponse } from "../../shared/types"
 /**
  * Returns a list of swap events that occurred between `fromBlock` and `toBlock`,
  * both inclusive, based on the DEXTools API spec
+ * test:
+ * http://localhost:3000/api/integrations/dextools/events?fromBlock=150810776&toBlock=150810776
  */
 export async function GET(
   request: NextRequest

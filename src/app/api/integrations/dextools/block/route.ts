@@ -35,6 +35,10 @@ LIMIT 1`
 /**
  * Returns a block either by number (takes precedence) or by timestamp,
  * sourcing data from the main events table.
+ * test:
+ * http://localhost:3000/api/integrations/dextools/block?number=150810776
+ * http://localhost:3000/api/integrations/dextools/block?timestamp=1749744832
+ * http://localhost:3000/api/integrations/dextools/block?number=150810776&timestamp=1749744832
  */
 export const GET = tryCatch(
   async (request: NextRequest): ApiResult<BlockResponse> => {
