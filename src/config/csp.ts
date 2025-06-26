@@ -41,8 +41,8 @@ const cspConfig = {
     "https://api-js.mixpanel.com",
 
     /** Stage Solver Relay and Bridge Services */
-    "http://35.242.147.168/rpc",
-    "http://34.105.197.59/rpc",
+    "http://35.242.147.168",
+    "http://34.105.197.59",
 
     /** Helpscout */
     "https://beaconapi.helpscout.net",
@@ -116,13 +116,14 @@ const cspConfig = {
 export const csp = () => {
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64")
 
-  let contentSecurityPolicyHeaderValue = Object.entries(cspConfig)
+  const contentSecurityPolicyHeaderValue = Object.entries(cspConfig)
     .map(([key, value]) => `${key} ${value.join(" ")}`)
     .join("; ")
 
   // This is a special top-level (value-less) directive that instructs the browser
   // to upgrade HTTP requests to HTTPS
-  contentSecurityPolicyHeaderValue += "; upgrade-insecure-requests"
+  // TODO: Uncomment this when we have HTTPS for stage
+  // contentSecurityPolicyHeaderValue += "; upgrade-insecure-requests"
 
   return {
     nonce,
