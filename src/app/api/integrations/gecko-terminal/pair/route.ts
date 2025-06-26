@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server"
 import { z } from "zod"
 
+import { CONTRACT_ADDRESS } from "@src/app/api/integrations/shared/constants"
 import {
   PAIR_SEPARATOR,
   validateQueryParams,
@@ -73,7 +74,7 @@ export const GET = tryCatch(
     }
 
     return ok({
-      pair: { id, dexKey: "defuse", asset0Id, asset1Id },
+      pair: { id, dexKey: CONTRACT_ADDRESS, asset0Id, asset1Id },
     })
   }
 )
