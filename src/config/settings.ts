@@ -56,5 +56,9 @@ export const settings: Settings = {
           "Receive assets from friends and start your journey on NEAR Intents, hassle-free",
       },
     },
+    explore: {
+      title: "Explore",
+      description: "Explore the world of NEAR Intents",
+    },
   },
 }
