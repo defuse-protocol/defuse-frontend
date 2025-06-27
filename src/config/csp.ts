@@ -39,6 +39,9 @@ const cspConfig = {
     "https://as.coinbase.com/metrics",
     "https://api-js.mixpanel.com",
 
+    /** CoinGecko API */
+    "https://api.coingecko.com",
+
     /** Helpscout */
     "https://beaconapi.helpscout.net",
     "https://*.cloudfront.net",
