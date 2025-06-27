@@ -1,7 +1,33 @@
-import { type NextRequest, NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
+import { z } from "zod"
 
-import type { PairResponse } from "@src/app/api/integrations/gecko-terminal/types"
+import { CONTRACT_ADDRESS } from "@src/app/api/integrations/shared/constants"
+import {
+  PAIR_SEPARATOR,
+  validateQueryParams,
+} from "@src/app/api/integrations/shared/utils"
 import { clickHouseClient } from "@src/clickhouse/clickhouse"
+
+import { err, isErr, ok, tryCatch } from "../../shared/result"
+import type { ApiResult } from "../../shared/types"
+import type { PairResponse } from "../types"
+
+const querySchema = z.object({ id: z.string() }).pipe(
+  z.object({ id: z.string() }).transform(({ id }, ctx) => {
+    const [asset0Id, asset1Id, ...rest] = id.split(PAIR_SEPARATOR)
+
+    if (asset0Id === undefined || asset1Id === undefined || rest.length > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Invalid pair ID format. Expected a composite key like asset0${PAIR_SEPARATOR}asset1`,
+      })
+
+      return z.NEVER
+    }
+
+    return { id, asset0Id, asset1Id }
+  })
+)
 
 interface RawAsset {
   defuse_asset_id: string
@@ -26,42 +52,29 @@ WHERE defuse_asset_id IN ({asset0Id:String}, {asset1Id:String})`
  * @param request - The incoming Next.js request, containing the pair ID in the query parameters.
  * @returns A response containing the pair's information.
  */
-export async function GET(
-  request: NextRequest
-): Promise<NextResponse<PairResponse | { error: string }>> {
-  const { searchParams } = new URL(request.url)
-  const id = searchParams.get("id")
+export const GET = tryCatch(
+  async (request: NextRequest): ApiResult<PairResponse> => {
+    const res = validateQueryParams(request, querySchema)
 
-  if (!id) {
-    return NextResponse.json({ error: "Missing id parameter" }, { status: 400 })
-  }
+    if (isErr(res)) {
+      return res
+    }
 
-  const parts = id.split("___")
+    const { id, asset0Id, asset1Id } = res.ok
 
-  if (parts.length !== 2) {
-    return NextResponse.json(
-      { error: "Invalid pair ID format. Expected: asset0___asset1" },
-      { status: 400 }
-    )
-  }
+    const { data: assets } = await clickHouseClient
+      .query({
+        query: ASSETS_QUERY,
+        query_params: { asset0Id, asset1Id },
+      })
+      .then((res) => res.json<RawAsset>())
 
-  const [asset0Id, asset1Id] = parts
+    if (assets.length !== 2) {
+      return err("Not Found", "One or both assets not found")
+    }
 
-  const { data: assets } = await clickHouseClient
-    .query({
-      query: ASSETS_QUERY,
-      query_params: { asset0Id, asset1Id },
+    return ok({
+      pair: { id, dexKey: CONTRACT_ADDRESS, asset0Id, asset1Id },
     })
-    .then((res) => res.json<RawAsset>())
-
-  if (assets.length !== 2) {
-    return NextResponse.json(
-      { error: "One or both assets not found" },
-      { status: 404 }
-    )
   }
-
-  return NextResponse.json({
-    pair: { id, dexKey: "defuse", asset0Id, asset1Id },
-  })
-}
+)

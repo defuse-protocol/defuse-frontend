@@ -1,22 +1,9 @@
-import { NextResponse } from "next/server"
+import type { NextResponse } from "next/server"
 
-import type {
-  Block,
-  LatestBlockResponse,
-} from "@src/app/api/integrations/gecko-terminal/types"
-import { clickHouseClient } from "@src/clickhouse/clickhouse"
+import type { LatestBlockResponse } from "@src/app/api/integrations/gecko-terminal/types"
 
-import { EVENTS_QUERY } from "../queries"
-
-let latestBlock: number | null = null
-const LATEST_KNOWN_BLOCK = 150810776
-
-const LATEST_BLOCK_QUERY = `
-WITH events AS (${EVENTS_QUERY})
-SELECT
-  CAST(MAX(blockNumber) AS UInt32) AS blockNumber,
-  toUnixTimestamp(MAX(blockTimestamp)) AS blockTimestamp
-FROM events`
+import { getLatestBlock } from "../../shared/queries/latestBlock"
+import type { ErrorResponse } from "../../shared/types"
 
 /**
  * Fetches the latest block available for event data.
@@ -30,19 +17,8 @@ FROM events`
  *
  * @returns A response containing the latest block information.
  */
-export async function GET(): Promise<NextResponse<LatestBlockResponse>> {
-  const {
-    data: [block],
-  } = await clickHouseClient
-    .query({
-      query: LATEST_BLOCK_QUERY,
-      query_params: {
-        fromBlock: latestBlock ?? LATEST_KNOWN_BLOCK,
-        toBlock: Number.MAX_SAFE_INTEGER,
-      },
-    })
-    .then((res) => res.json<Block>())
-
-  latestBlock = block.blockNumber
-  return NextResponse.json({ block })
+export async function GET(): Promise<
+  NextResponse<LatestBlockResponse | ErrorResponse>
+> {
+  return getLatestBlock()
 }

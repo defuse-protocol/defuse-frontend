@@ -16,6 +16,13 @@ export default function Deposit() {
       <DepositWidget
         tokenList={tokenList}
         userAddress={state.isVerified ? state.address : undefined}
+        userWalletAddress={
+          state.isVerified &&
+          state.chainType !== ChainType.WebAuthn &&
+          state.displayAddress
+            ? state.displayAddress
+            : null
+        }
         chainType={state.chainType}
         sendTransactionNear={async (tx) => {
           const result = await sendTransaction({
@@ -37,6 +44,13 @@ export default function Deposit() {
         sendTransactionSolana={async (tx) => {
           const result = await sendTransaction({
             id: ChainType.Solana,
+            tx,
+          })
+          return Array.isArray(result) ? result[0].transaction.hash : result
+        }}
+        sendTransactionTon={async (tx) => {
+          const result = await sendTransaction({
+            id: ChainType.Ton,
             tx,
           })
           return Array.isArray(result) ? result[0].transaction.hash : result

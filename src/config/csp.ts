@@ -33,14 +33,19 @@ const cspConfig = {
     "'self'",
     /** Services */
     "https://*.chaindefuser.com",
-    "https://api.hyperunit.xyz",
     "https://*.google-analytics.com",
+    "https://*.near-intents.org",
+    "https://api.hyperunit.xyz",
     "https://region1.google-analytics.com",
     "https://as.coinbase.com/metrics",
     "https://api-js.mixpanel.com",
 
     /** CoinGecko API */
     "https://api.coingecko.com",
+
+    /** Stage Solver Relay and Bridge Services */
+    "http://35.242.147.168",
+    "http://34.105.197.59",
 
     /** Helpscout */
     "https://beaconapi.helpscout.net",
@@ -79,9 +84,13 @@ const cspConfig = {
     "https://ton-connect.mytokenpocket.vip",
     "https://bridge.uxuy.me",
 
+    /** HOT */
+    "http://*.herewallet.app",
+
     /** RPCs */
     "https://*.aurora-cloud.dev",
     "https://*.aurora.dev",
+    "https://*.quiknode.pro",
     "https://veriee-t2i7nw-fast-mainnet.helius-rpc.com",
     "https://eth-mainnet.public.blastapi.io",
     "https://mainnet.base.org",
@@ -97,6 +106,9 @@ const cspConfig = {
     "https://free.rpc.fastnear.com/",
     "https://polygon-rpc.com",
     "https://bsc-dataseed.bnbchain.org",
+    "https://ton.api.onfinality.io",
+    "https://ton.api.onfinality.io/public",
+    "https://toncenter.com/api/v2/jsonRPC",
   ],
   "object-src": ["'none'"],
   "base-uri": ["'self'"],
@@ -107,13 +119,14 @@ const cspConfig = {
 export const csp = () => {
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64")
 
-  let contentSecurityPolicyHeaderValue = Object.entries(cspConfig)
+  const contentSecurityPolicyHeaderValue = Object.entries(cspConfig)
     .map(([key, value]) => `${key} ${value.join(" ")}`)
     .join("; ")
 
   // This is a special top-level (value-less) directive that instructs the browser
   // to upgrade HTTP requests to HTTPS
-  contentSecurityPolicyHeaderValue += "; upgrade-insecure-requests"
+  // TODO: Uncomment this when we have HTTPS for stage
+  // contentSecurityPolicyHeaderValue += "; upgrade-insecure-requests"
 
   return {
     nonce,

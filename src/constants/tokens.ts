@@ -2,12 +2,13 @@ import type {
   BaseTokenInfo,
   UnifiedTokenInfo,
 } from "@defuse-protocol/defuse-sdk/types"
+import { INTENTS_ENV } from "@src/utils/environment"
 
 type TokenWithTags =
   | (BaseTokenInfo & { tags?: string[] })
   | (UnifiedTokenInfo & { tags?: string[] })
 
-export const LIST_TOKENS: TokenWithTags[] = [
+export const PRODUCTION_TOKENS: TokenWithTags[] = [
   {
     unifiedAssetId: "usdc",
     symbol: "USDC",
@@ -453,6 +454,17 @@ export const LIST_TOKENS: TokenWithTags[] = [
         decimals: 18,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
         chainName: "bsc",
+        bridge: "hot_omni",
+        symbol: "USDT",
+        name: "Tether USD",
+      },
+      {
+        defuseAssetId:
+          "nep245:v2_1.omni.hot.tg:1117_3tsdfyziyc7EJbP2aULWSKU4toBaAcN4FdTgfm5W1mC4ouR",
+        address: "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs",
+        decimals: 6,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+        chainName: "ton",
         bridge: "hot_omni",
         symbol: "USDT",
         name: "Tether USD",
@@ -1349,7 +1361,126 @@ export const LIST_TOKENS: TokenWithTags[] = [
     name: "Kyber Network Crystal v2",
     tags: ["mc:461"],
   },
+  {
+    defuseAssetId: "nep245:v2_1.omni.hot.tg:1117_",
+    type: "native",
+    decimals: 9,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/11419.png",
+    chainName: "ton",
+    bridge: "hot_omni",
+    symbol: "TON",
+    name: "TON",
+    tags: ["mc:18"],
+  },
 ]
+
+const STAGE_TOKENS: TokenWithTags[] = [
+  {
+    unifiedAssetId: "usdc",
+    symbol: "USDC",
+    name: "USD Coin",
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+    groupedTokens: [
+      {
+        defuseAssetId:
+          "nep141:base-0x833589fcd6edb6e08f4c7c32d4f71b54bda02913.stft.near",
+        address: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+        decimals: 6,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+        chainName: "base",
+        bridge: "poa",
+        symbol: "USDC",
+        name: "USD Coin",
+      },
+      {
+        defuseAssetId:
+          "nep141:sol-5ce3bf3a31af18be40ba30f721101b4341690186.stft.near",
+        address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        decimals: 6,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+        chainName: "solana",
+        bridge: "poa",
+        symbol: "USDC",
+        name: "USD Coin",
+      },
+    ],
+    tags: ["mc:7", "type:stablecoin", "tvol:4"],
+  },
+  {
+    unifiedAssetId: "usdt",
+    symbol: "USDT",
+    name: "Tether USD",
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+    groupedTokens: [
+      {
+        defuseAssetId:
+          "nep141:sol-c800a4bd850783ccb82c2b2c7e84175443606352.stft.near",
+        address: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+        decimals: 6,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+        chainName: "solana",
+        bridge: "poa",
+        symbol: "USDT",
+        name: "Tether USD",
+      },
+    ],
+    tags: ["mc:3", "type:stablecoin", "tvol:3"],
+  },
+  {
+    unifiedAssetId: "eth",
+    symbol: "ETH",
+    name: "ETH",
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/1027.png",
+    groupedTokens: [
+      {
+        defuseAssetId: "nep141:eth.stft.near",
+        type: "native",
+        address: "native",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/1027.png",
+        chainName: "eth",
+        bridge: "poa",
+        symbol: "ETH",
+        name: "ETH",
+      },
+      {
+        defuseAssetId: "nep141:base.stft.near",
+        type: "native",
+        address: "native",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/1027.png",
+        chainName: "base",
+        bridge: "poa",
+        symbol: "ETH",
+        name: "ETH",
+      },
+    ],
+    tags: ["mc:2", "tvol:7"],
+  },
+  {
+    unifiedAssetId: "sol",
+    symbol: "SOL",
+    name: "Solana",
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/5426.png",
+    groupedTokens: [
+      {
+        defuseAssetId: "nep141:sol.stft.near",
+        type: "native",
+        address: "native",
+        decimals: 9,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/5426.png",
+        chainName: "solana",
+        bridge: "poa",
+        symbol: "SOL",
+        name: "Solana",
+      },
+    ],
+    tags: ["mc:6", "tvol:5"],
+  },
+]
+
+export const LIST_TOKENS: TokenWithTags[] =
+  INTENTS_ENV === "production" ? PRODUCTION_TOKENS : STAGE_TOKENS
 
 export const DEPRECATED_TOKENS: Record<string, boolean> = {
   "nep141:aurora": true,
