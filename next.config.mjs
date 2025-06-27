@@ -1,6 +1,6 @@
+import path from "node:path"
 import { withSentryConfig } from "@sentry/nextjs"
 import { DedupePlugin } from "@tinkoff/webpack-dedupe-plugin"
-import path from "node:path"
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -24,7 +24,7 @@ const nextConfig = {
         fs: false,
         path: false,
         os: false,
-        events: 'events'
+        events: "events",
       },
     }
 
@@ -103,6 +103,24 @@ const nextConfig = {
         hostname: "assets.coingecko.com",
         port: "",
         pathname: "/coins/images/**",
+      },
+      {
+        protocol: "https",
+        hostname: "s2.coinmarketcap.com",
+        port: "",
+        pathname: "/static/img/**",
+      },
+      {
+        protocol: "https",
+        hostname: "dd.dexscreener.com",
+        port: "",
+        pathname: "/ds-data/tokens/**",
+      },
+      {
+        protocol: "https",
+        hostname: "app.near-intents.org",
+        port: "",
+        pathname: "/**",
       },
       {
         protocol: "https",
