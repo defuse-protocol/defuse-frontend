@@ -783,17 +783,6 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         symbol: "BTC",
         name: "Bitcoin",
       },
-      {
-        defuseAssetId:
-          "nep141:eth-0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599.omft.near",
-        address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
-        decimals: 8,
-        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/1.png",
-        chainName: "eth",
-        bridge: "poa",
-        symbol: "WBTC",
-        name: "Bitcoin",
-      },
     ],
     tags: ["mc:1", "tvol:6"],
   },
@@ -1382,6 +1371,18 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
     symbol: "TON",
     name: "TON",
     tags: ["mc:18"],
+  },
+  {
+    defuseAssetId:
+      "nep141:eth-0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599.omft.near",
+    address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+    decimals: 8,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3717.png",
+    chainName: "eth",
+    bridge: "poa",
+    symbol: "WBTC",
+    name: "Wrapped Bitcoin",
+    tags: ["mc:3"],
   },
 ]
 
