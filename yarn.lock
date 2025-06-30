@@ -1061,10 +1061,10 @@
     tweetnacl "^1.0.3"
     tweetnacl-util "^0.15.1"
 
-"@defuse-protocol/bridge-sdk@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@defuse-protocol/bridge-sdk/-/bridge-sdk-0.3.0.tgz#ab430ad87457b4ea725600c6e35f1359431526b8"
-  integrity sha512-qVccF4X6+2zffwTuoYTIqN5YDKjC+a+NJmZmJTfcM9kAvxwBTRNiBtww0Hd8aGhDGDMd+vxUDJb3COHf7/Nq8A==
+"@defuse-protocol/bridge-sdk@^0.4.1":
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/@defuse-protocol/bridge-sdk/-/bridge-sdk-0.4.1.tgz#33c213746ec702f4cb9881d7b6f890ae903a7f4d"
+  integrity sha512-0oofRfyZEjJCx0iaXx2g49geJDBBBmkrATdigSLbP7s0n1Dw0Zhe60Mvz0ys8LqZWsQf69oW78nEh1u4JWuIcA==
   dependencies:
     "@defuse-protocol/contract-types" "0.0.2"
     "@defuse-protocol/internal-utils" "0.0.6"
@@ -1079,12 +1079,12 @@
   resolved "https://registry.yarnpkg.com/@defuse-protocol/contract-types/-/contract-types-0.0.2.tgz#921acf85081123826809273635c08d6be9b6b033"
   integrity sha512-BRcyQrhVuY6kAmUg/fxqMr1zAdsijN3Neeo8uZqKKvBNe4mnoM07rTQLtC5LKqZpIUobhH2bsbzvbqjAM3zJ9w==
 
-"@defuse-protocol/defuse-sdk@^1.0.0-beta.179":
-  version "1.0.0-beta.179"
-  resolved "https://registry.yarnpkg.com/@defuse-protocol/defuse-sdk/-/defuse-sdk-1.0.0-beta.179.tgz#46d6f8f49da5acc5d5fe1b620d0e7e8e0a1407dc"
-  integrity sha512-zZ+IUYcdTKUpvJYF6CGdek1QLa5VVtarOSoTizT0WpWKfgjHWwerL3Yb9kiICk0DbUJ9+3mpw0B8CYN0IJ3cGA==
+"@defuse-protocol/defuse-sdk@^1.0.0-beta.181":
+  version "1.0.0-beta.181"
+  resolved "https://registry.yarnpkg.com/@defuse-protocol/defuse-sdk/-/defuse-sdk-1.0.0-beta.181.tgz#1ef8f5afe9b09cdbad71e8913a2319b48f6d5095"
+  integrity sha512-yQvhAW2TtdNMFwBU7XL9WOMWQvO7nmslr3sYnDkEKoQ+rIGF25qsEbj5vYUQkDDdvMezIHMWHkCN4DIkLDrksA==
   dependencies:
-    "@defuse-protocol/bridge-sdk" "^0.3.0"
+    "@defuse-protocol/bridge-sdk" "^0.4.1"
     "@lifeomic/attempt" "^3.1.0"
     "@noble/curves" "1.4.0"
     "@noble/hashes" "^1.7.1"
