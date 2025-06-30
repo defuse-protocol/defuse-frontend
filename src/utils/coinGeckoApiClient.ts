@@ -4,6 +4,12 @@ import { logger } from "@src/utils/logger"
 
 const COINGECKO_BASE_URL = "https://api.coingecko.com/"
 
+export type CoinGeckoPriceResponse = {
+  [key: string]: {
+    usd: number
+  }
+}
+
 export type MarketDataReturnType = {
   prices: [number, number][]
   market_caps: [number, number][]
@@ -40,7 +46,7 @@ const request = async <T>(endpoint: string, init?: RequestInit): Promise<T> => {
     throw new Error(`CoinGecko API call failed [${res.status}]: ${endpoint}`)
   }
 
-  logger.info(`CoinGecko API response ${href} ${data}`)
+  logger.info(`CoinGecko API response ${href} ${JSON.stringify(data)}`)
 
   return data
 }
@@ -54,12 +60,12 @@ export const coinGeckoApiClient = {
   // ids - string. Multiple ids can be passed separated by commas.
   // vs_currencies - string
   getUsdPrice: async (ids: string) =>
-    await request<
-      Promise<Awaited<ReturnType<CoinGecko["simple"]["price"]>>["data"]>
-    >(`/api/v3/simple/price?ids=${ids}&vs_currencies=usd`),
+    await request<CoinGeckoPriceResponse>(
+      `/api/v3/simple/price?ids=${ids}&vs_currencies=usd`
+    ),
 
-  getTokenMarketData: async (id: string) =>
+  getTokenMarketData: async (id: string, days = 7) =>
     await request<Promise<MarketDataReturnType>>(
-      `/api/v3/coins/${id}/market_chart?vs_currency=usd&days=7`
+      `/api/v3/coins/${id}/market_chart?vs_currency=usd&days=${days}`
     ),
 }
