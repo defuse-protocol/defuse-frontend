@@ -8,7 +8,7 @@ import {
 import MiniPriceChart from "./MiniPriceChart"
 import type { TokenRowData } from "./page"
 
-const TokenRow = async ({
+const TokenRow = ({
   token,
   prices,
   marketData,
