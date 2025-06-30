@@ -170,6 +170,17 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         symbol: "USDC",
         name: "USD Coin",
       },
+      {
+        defuseAssetId:
+          "nep245:v2_1.omni.hot.tg:43114_3atVJH3r5c4GqiSYmg9fECvjc47o",
+        address: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+        decimals: 6,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+        chainName: "avalanche",
+        bridge: "hot_omni",
+        symbol: "USDC",
+        name: "USD Coin",
+      },
     ],
     tags: ["mc:7", "type:stablecoin", "tvol:4"],
   },
@@ -465,6 +476,17 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         decimals: 6,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
         chainName: "ton",
+        bridge: "hot_omni",
+        symbol: "USDT",
+        name: "Tether USD",
+      },
+      {
+        defuseAssetId:
+          "nep245:v2_1.omni.hot.tg:43114_372BeH7ENZieCaabwkbWkBiTTgXp",
+        address: "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7",
+        decimals: 6,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+        chainName: "avalanche",
         bridge: "hot_omni",
         symbol: "USDT",
         name: "Tether USD",
@@ -1384,6 +1406,17 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
     symbol: "WBTC",
     name: "Wrapped Bitcoin",
     tags: ["mc:3"],
+  },
+  {
+    defuseAssetId: "nep245:v2_1.omni.hot.tg:43114_11111111111111111111",
+    type: "native",
+    decimals: 18,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/5805.png",
+    chainName: "avalanche",
+    bridge: "hot_omni",
+    symbol: "AVAX",
+    name: "AVAX",
+    tags: ["mc:16"],
   },
 ]
 
