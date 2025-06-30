@@ -1373,19 +1373,18 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
   //   name: "TON",
   //   tags: ["mc:18"],
   // },
-  // Temporary disable WBTC until bridge is ready
-  // {
-  //   defuseAssetId:
-  //     "nep141:eth-0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599.omft.near",
-  //   address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
-  //   decimals: 8,
-  //   icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3717.png",
-  //   chainName: "eth",
-  //   bridge: "poa",
-  //   symbol: "WBTC",
-  //   name: "Wrapped Bitcoin",
-  //   tags: ["mc:3"],
-  // },
+  {
+    defuseAssetId:
+      "nep141:eth-0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599.omft.near",
+    address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+    decimals: 8,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3717.png",
+    chainName: "eth",
+    bridge: "poa",
+    symbol: "WBTC",
+    name: "Wrapped Bitcoin",
+    tags: ["mc:3"],
+  },
 ]
 
 const STAGE_TOKENS: TokenWithTags[] = [
