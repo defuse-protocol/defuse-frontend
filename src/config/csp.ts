@@ -106,6 +106,7 @@ const cspConfig = {
     "https://ton.api.onfinality.io",
     "https://ton.api.onfinality.io/public",
     "https://toncenter.com/api/v2/jsonRPC",
+    "https://api.avax.network/ext/bc/C/rpc",
   ],
   "object-src": ["'none'"],
   "base-uri": ["'self'"],
