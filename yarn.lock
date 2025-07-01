@@ -1079,10 +1079,10 @@
   resolved "https://registry.yarnpkg.com/@defuse-protocol/contract-types/-/contract-types-0.0.2.tgz#921acf85081123826809273635c08d6be9b6b033"
   integrity sha512-BRcyQrhVuY6kAmUg/fxqMr1zAdsijN3Neeo8uZqKKvBNe4mnoM07rTQLtC5LKqZpIUobhH2bsbzvbqjAM3zJ9w==
 
-"@defuse-protocol/defuse-sdk@^1.0.0-beta.183":
-  version "1.0.0-beta.183"
-  resolved "https://registry.yarnpkg.com/@defuse-protocol/defuse-sdk/-/defuse-sdk-1.0.0-beta.183.tgz#d86afb8e8c132390e27d610e1651a4e08640a34f"
-  integrity sha512-82wWuU61KSR3VGFOnpqPbY71BMYMaMYhrL1dQ6vCMoTxioy9E8jYefo4VhMzXv+bz7k4YIk7D1KUsYrTrP28Rw==
+"@defuse-protocol/defuse-sdk@^1.0.0-beta.185":
+  version "1.0.0-beta.185"
+  resolved "https://registry.yarnpkg.com/@defuse-protocol/defuse-sdk/-/defuse-sdk-1.0.0-beta.185.tgz#6178abdd3334580afc1298fb1b9abc8fa466fe37"
+  integrity sha512-7yeQRH6CpK6NC0um+xMGtVsHuZHN5/3d53Dr9pvNEelrR+FPul2JlalqIwYU7zE6iqXUaAIsV/vTba5rht770A==
   dependencies:
     "@defuse-protocol/bridge-sdk" "^0.5.0"
     "@lifeomic/attempt" "^3.1.0"
