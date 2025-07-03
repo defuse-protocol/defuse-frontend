@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "check": "biome check",
     "prepare": "husky && ./scripts/gen-banned-near-address.sh",
-    "update-types": "supabase gen types --lang=typescript --local > src/types/database-generated.ts"
+    "update-types": "supabase gen types --lang=typescript --local > src/types/database-generated.ts",
+    "import:token-prices-90d": "tsx scripts/import-token-prices-90d.ts"
   },
   "dependencies": {
     "@clickhouse/client": "^1.11.2",
@@ -73,6 +74,8 @@
     "react-dom": "^18",
     "react-hook-form": "^7.51.5",
     "rxjs": "^7.8.1",
+    "uplot": "^1.6.32",
+    "uplot-react": "^1.2.2",
     "uuid": "^10.0.0",
     "viem": "2.x",
     "wagmi": "^2.12.20",
@@ -104,6 +107,7 @@
     "sass": "^1.77.2",
     "supabase": "^2.20.5",
     "tailwindcss": "^3.4.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5",
     "vitest": "^2.1.2"
   },
