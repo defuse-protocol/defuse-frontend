@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowsLeftRight, Plus } from "@phosphor-icons/react"
+import { ArrowsLeftRight, MagnifyingGlass, Plus } from "@phosphor-icons/react"
 import { navigation } from "@src/constants/routes"
 import { useIsActiveLink } from "@src/hooks/useIsActiveLink"
 import { cn } from "@src/utils/cn"
@@ -77,7 +77,7 @@ export function NavbarMobile() {
             isActive={isExploreActive}
             iconSlot={
               <NavItem.DisplayIcon>
-                <Plus className="size-3 text-gray-1" weight="bold" />
+                <MagnifyingGlass className="size-3 text-gray-1" weight="bold" />
               </NavItem.DisplayIcon>
             }
           />

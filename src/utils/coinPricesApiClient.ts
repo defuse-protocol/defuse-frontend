@@ -19,10 +19,19 @@ export const MarketCapsResponseSchema = z.record(
   z.number() // market cap
 )
 
+export interface SimpleMarketData {
+  prices: number[]
+}
+
+export interface ProcessedPriceData {
+  prices: Record<string, number>
+  marketData: Record<string, SimpleMarketData>
+}
+
 const request = async <T>(endpoint: string, init?: RequestInit): Promise<T> => {
   const { href } = new URL(endpoint, COIN_PRICES_API_BASE_URL)
 
-  logger.info(`Coin Prices API request ${href})`)
+  logger.info(`Coin Prices API request ${href}`)
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -42,8 +51,6 @@ const request = async <T>(endpoint: string, init?: RequestInit): Promise<T> => {
     ...init,
   })
 
-  console.log("res", href, COIN_PRICES_API_BASE_URL)
-
   const data = (await res.json()) as T
 
   if (!res.ok) {
@@ -61,23 +68,4 @@ export const coinPricesApiClient = {
 
   getMarketCaps: async () =>
     request<typeof MarketCapsResponseSchema>("/market-caps"),
-}
-
-export const getDaysFromPeriod = (period: string): string => {
-  switch (period) {
-    case "1d":
-      return "1"
-    case "7d":
-      return "7"
-    case "1m":
-      return "30"
-    case "3m":
-      return "90"
-    case "6m":
-      return "180"
-    case "12m":
-      return "365"
-    default:
-      return "7"
-  }
 }

@@ -23,6 +23,8 @@ const parseAlignedData = (data: number[]): AlignedData => {
 }
 
 const MiniPriceChart: React.FC<MiniPriceChartProps> = ({ data }) => {
+  if (data.length < 2) return null
+
   const width = 111
   const height = 47
   const parsedData = parseAlignedData(data)

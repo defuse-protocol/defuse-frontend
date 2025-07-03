@@ -1,12 +1,12 @@
 "use client"
 
-import Pill from "@src/components/Pill"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useState } from "react"
 
-import { LIST_TOKENS } from "@src/constants/tokens"
-import { coinPricesApiClient } from "@src/utils/coinPricesApiClient"
-import { useEffect, useState } from "react"
+import Pill from "@src/components/Pill"
+import type { SimpleMarketData } from "@src/utils/coinPricesApiClient"
+
 import TokenRow from "./TokenRow"
-import type { SimpleMarketData } from "./page"
 import type { TokenRowData } from "./page"
 
 const ExplorePage = ({
@@ -21,7 +21,8 @@ const ExplorePage = ({
   period: string
 }) => {
   const [search, setSearch] = useState("")
-  const searchParams = new URLSearchParams(window?.location?.search)
+  const urlSearchParams = useSearchParams()
+  const router = useRouter()
 
   const filteredTokenList = patchedTokenList
     .filter(
@@ -32,11 +33,11 @@ const ExplorePage = ({
     .filter((token) => !["gnear", "noer"].includes(token.symbol.toLowerCase()))
 
   const setSearchParams = (params: Record<string, string>) => {
-    const newSearchParams = new URLSearchParams(searchParams)
+    const newSearchParams = new URLSearchParams(urlSearchParams)
     for (const [key, value] of Object.entries(params)) {
       newSearchParams.set(key, value)
     }
-    window.location.href = `${window.location.pathname}?${newSearchParams.toString()}`
+    router.push(`${window.location.pathname}?${newSearchParams.toString()}`)
   }
 
   return (

@@ -1,7 +1,9 @@
 import Image from "next/image"
 
+import type { SimpleMarketData } from "@src/utils/coinPricesApiClient"
+
 import MiniPriceChart from "./MiniPriceChart"
-import type { SimpleMarketData, TokenRowData } from "./page"
+import type { TokenRowData } from "./page"
 
 const TokenRow = ({
   token,
@@ -18,17 +20,11 @@ const TokenRow = ({
   const percentChange =
     chartData.length > 1 && chartData[0] !== 0
       ? (priceDiff / chartData[0]) * 100
-      : token.change // Use the token's change property as fallback
-  const marketCap =
-    marketData?.market_caps?.[marketData.market_caps.length - 1] ??
-    token.marketCap
+      : token.change
 
   const tdClassNames = "py-4 px-6 text-center text-sm text-gray-12 font-medium"
   return (
-    <tr
-      key={token.symbol}
-      className="text-left text-xs text-gray-11 dark:text-gray-12 py-4 px-6 hover:bg-gray-3 dark:hover:bg-gray-3"
-    >
+    <tr className="text-left text-xs text-gray-11 dark:text-gray-12 py-4 px-6 hover:bg-gray-3 dark:hover:bg-gray-3">
       <td className="py-4 px-6">
         <div className="flex flex-row items-center gap-2">
           <div className="relative overflow-hidden size-7 flex justify-center items-center rounded-full z-0">
@@ -97,7 +93,7 @@ const TokenRow = ({
       {/* <td className={tdClassNames}>{token.mindshare}%</td> */}
       <td className={tdClassNames}>
         {(() => {
-          const cap = marketCap ?? 0
+          const cap = token.marketCap ?? 0
           if (cap >= 1e12) return `$${(cap / 1e12).toFixed(1)}T`
           if (cap >= 1e9) return `$${(cap / 1e9).toFixed(1)}B`
           if (cap >= 1e6) return `$${(cap / 1e6).toFixed(1)}M`
