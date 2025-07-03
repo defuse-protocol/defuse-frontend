@@ -1,3 +1,5 @@
+import { ArrowRightIcon } from "@radix-ui/react-icons"
+import { Button } from "@radix-ui/themes"
 import Image from "next/image"
 
 import type { SimpleMarketData } from "@src/utils/coinPricesApiClient"
@@ -23,9 +25,23 @@ const TokenRow = ({
       : token.change
 
   const tdClassNames = "py-4 px-6 text-center text-sm text-gray-12 font-medium"
+
+  const handleClick = () => {
+    window.location.href = `/?tokenOut=${token.symbol}`
+  }
+
   return (
-    <tr className="text-left text-xs text-gray-11 dark:text-gray-12 py-4 px-6 hover:bg-gray-3 dark:hover:bg-gray-3">
-      <td className="py-4 px-6">
+    <tr
+      className="text-left text-xs text-gray-11 dark:text-gray-12 py-4 px-6 hover:bg-gray-3 dark:hover:bg-gray-3 group cursor-pointer"
+      onClick={handleClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          handleClick()
+        }
+      }}
+      tabIndex={0}
+    >
+      <td className="py-4 px-6 flex flex-row justify-between items-center">
         <div className="flex flex-row items-center gap-2">
           <div className="relative overflow-hidden size-7 flex justify-center items-center rounded-full z-0">
             <Image
@@ -43,6 +59,15 @@ const TokenRow = ({
             </p>
           </div>
         </div>
+        <Button
+          variant="solid"
+          size="2"
+          radius="full"
+          color="teal"
+          className="opacity-0  md:group-hover:opacity-100 transition-opacity duration-300"
+        >
+          Trade <ArrowRightIcon className="w-4 h-4" />
+        </Button>
       </td>
       <td>
         <MiniPriceChart data={chartData} />
