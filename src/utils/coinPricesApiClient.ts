@@ -62,10 +62,10 @@ const request = async <T>(endpoint: string, init?: RequestInit): Promise<T> => {
 
 export const coinPricesApiClient = {
   getPrices: async (symbols: string, days?: string, months?: string) =>
-    request<typeof PricesResponseSchema>(
+    request<z.infer<typeof PricesResponseSchema>>(
       `/prices?symbols=${symbols}&days=${days}&months=${months}`
     ),
 
   getMarketCaps: async () =>
-    request<typeof MarketCapsResponseSchema>("/market-caps"),
+    request<z.infer<typeof MarketCapsResponseSchema>>("/market-caps"),
 }
