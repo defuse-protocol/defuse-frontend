@@ -42,7 +42,7 @@ const ExplorePage = ({
 
   return (
     <div className="w-full flex flex-col mx-auto mt-[24px] md:mt-[64px] pl-[5%] pr-[5%] max-w-7xl gap-12">
-      <div className="flex flex-row justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4">
         <div className="flex flex-row items-center gap-4">
           <h1 className="text-4xl font-extrabold tracking-tight">Explore</h1>
           <Pill>{filteredTokenList.length} assets</Pill>
@@ -72,35 +72,37 @@ const ExplorePage = ({
           </select>
         </div>
       </div>
-      <table className="w-full shadow-2xl rounded-md bg-white dark:bg-gray-4">
-        <thead className="sticky top-0 z-10">
-          <tr className="text-left text-xs text-gray-11 dark:text-gray-12 py-4 px-6 bg-white dark:bg-gray-4">
-            <th className="py-4 px-6">Token</th>
-            <th />
-            <th className="py-4 px-6 text-center">Price</th>
-            <th className="py-4 px-6 text-center">Change</th>
-            {/* <th className="py-4 px-6 text-center">Mindshare</th> */}
-            <th className="py-4 px-6 text-center">Market Cap</th>
-            {/* <th className="py-4 px-6 text-center">Volume</th> */}
-          </tr>
-        </thead>
-        <tbody className="max-h-[500px] overflow-y-auto">
-          {filteredTokenList.map((token) => (
-            <TokenRow
-              key={token.symbol}
-              token={token}
-              prices={prices}
-              marketData={
-                marketData[token.symbol] || {
-                  prices: [],
-                  market_caps: [],
-                  total_volumes: [],
+      <div className="w-full overflow-x-auto">
+        <table className="w-full min-w-[640px] shadow-2xl rounded-md bg-white dark:bg-gray-4">
+          <thead className="sticky top-0 z-10">
+            <tr className="text-left text-xs text-gray-11 dark:text-gray-12 py-4 px-6 bg-white dark:bg-gray-4">
+              <th className="py-4 px-6">Token</th>
+              <th />
+              <th className="py-4 px-2 md:px-6 text-center">Price</th>
+              <th className="py-4 px-2 md:px-6 text-center">Change</th>
+              {/* <th className="py-4 px-2 md:px-6 text-center">Mindshare</th> */}
+              <th className="py-4 px-2 md:px-6 text-center">Market Cap</th>
+              {/* <th className="py-4 px-2 md:px-6 text-center">Volume</th> */}
+            </tr>
+          </thead>
+          <tbody className="max-h-[500px] overflow-y-auto">
+            {filteredTokenList.map((token) => (
+              <TokenRow
+                key={token.symbol}
+                token={token}
+                prices={prices}
+                marketData={
+                  marketData[token.symbol] || {
+                    prices: [],
+                    market_caps: [],
+                    total_volumes: [],
+                  }
                 }
-              }
-            />
-          ))}
-        </tbody>
-      </table>
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }

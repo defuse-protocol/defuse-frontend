@@ -1,3 +1,4 @@
+import type { z } from "zod"
 import type {
   PricesResponseSchema,
   ProcessedPriceData,
@@ -5,7 +6,7 @@ import type {
 } from "./coinPricesApiClient"
 
 export const parsePriceData = (
-  livePrices: typeof PricesResponseSchema
+  livePrices: z.infer<typeof PricesResponseSchema>
 ): ProcessedPriceData => {
   const prices: Record<string, number> = {}
   const marketData: Record<string, SimpleMarketData> = {}
