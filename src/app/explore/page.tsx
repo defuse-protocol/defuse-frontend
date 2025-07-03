@@ -5,11 +5,10 @@ import type {
 
 import { LIST_TOKENS } from "@src/constants/tokens"
 import {
-  type CoinGeckoId,
-  coinGeckoIdBySymbol,
-} from "@src/utils/coinGeckoTokenIds"
+  coinPricesApiClient,
+  getDaysFromPeriod,
+} from "@src/utils/coinPricesApiClient"
 
-import { coinGeckoApiClient } from "@src/utils/coinGeckoApiClient"
 import ExplorePage from "./ExplorePage"
 
 export type TokenRowData = (UnifiedTokenInfo | BaseTokenInfo) & {
@@ -20,25 +19,17 @@ export type TokenRowData = (UnifiedTokenInfo | BaseTokenInfo) & {
   volume: number
 }
 
-// Type for our API response
-type TokenPriceData = {
-  latestPrice: number | null
-  priceChange: number | null
-  priceChangePercent: number | null
-  history: Array<{
-    price: number
-    timestamp: string
-  }>
+export interface SimpleMarketData {
+  prices: number[]
+  market_caps: number[]
+  total_volumes: number[]
 }
 
-// Mock MarketDataReturnType to maintain compatibility
-type MockMarketDataReturnType = {
-  prices: [number, number][]
-  market_caps: [number, number][]
-  total_volumes: [number, number][]
+interface PageProps {
+  searchParams: Promise<{ period?: string }>
 }
 
-const Page = async () => {
+const Page = async ({ searchParams }: PageProps) => {
   const patchedTokenList: TokenRowData[] = LIST_TOKENS.map((token) => ({
     ...token,
     price: 0,
@@ -48,92 +39,56 @@ const Page = async () => {
     volume: 0,
   }))
 
-  // Get all supported token symbols
-  const supportedSymbols = patchedTokenList
-    .map((token) => token.symbol.toUpperCase())
-    .filter((symbol) =>
-      Object.keys(coinGeckoIdBySymbol).includes(symbol.toLowerCase())
-    )
+  const resolvedSearchParams = await searchParams
+  const period = resolvedSearchParams.period || "7d"
 
-  // Fetch fresh token prices from CoinGecko
-  try {
-    const result = await coinGeckoApiClient.getUsdPrice(
-      supportedSymbols.join(",")
-    )
-    for (const [symbol, price] of Object.entries(result)) {
-      const patchedToken = patchedTokenList.find((t) => t.symbol === symbol)
-      if (patchedToken) {
-        patchedToken.marketCap = price.usd
-      }
-    }
-  } catch (error) {
-    console.error("Failed to fetch prices from CoinGecko:", error)
-  }
+  const days = getDaysFromPeriod(period)
 
-  // Fetch data from our API endpoint
-  let tokenPricesData: Record<string, TokenPriceData> = {}
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/token-prices?symbols=${supportedSymbols.join(",")}&days=7`,
-      { cache: "no-store" }
-    )
+  // Get prices for all tokens for the specified period
+  const livePrices = await coinPricesApiClient.getPrices(
+    LIST_TOKENS.map((token) => token.symbol).join(","),
+    days
+  )
 
-    if (response.ok) {
-      const result = await response.json()
-      if (result.success) {
-        tokenPricesData = result.data
-      }
-    }
-  } catch (error) {
-    console.error("Failed to fetch token prices from API:", error)
-  }
+  const liveMarketCaps = await coinPricesApiClient.getMarketCaps()
 
-  // Convert our API data to the expected format
+  // Process prices to match the expected format
   const prices: Record<string, number> = {}
-  const marketData: Record<string, MockMarketDataReturnType> = {}
+  const marketData: Record<string, SimpleMarketData> = {}
 
-  for (const [symbol, data] of Object.entries(tokenPricesData)) {
-    if (data.latestPrice !== null) {
-      // Store price using the CoinGecko ID as key for compatibility
-      const coinGeckoId =
-        coinGeckoIdBySymbol[symbol.toLowerCase() as CoinGeckoId]
-      if (coinGeckoId) {
-        prices[coinGeckoId] = data.latestPrice
+  for (const [symbol, priceData] of Object.entries(livePrices)) {
+    if (priceData && priceData.length > 0) {
+      // Get the latest price (last in the array)
+      const latestPrice = priceData[priceData.length - 1][1]
+      prices[symbol] = latestPrice
 
-        // Convert history to the expected format for charts
-        const pricesArray: [number, number][] = data.history.map((entry) => [
-          new Date(entry.timestamp).getTime(), // timestamp
-          entry.price, // price
-        ])
+      // Create market data structure for charts
+      const priceValues = priceData.map(([, price]: [string, number]) => price)
+      const marketCapValues = priceValues.map(() =>
+        Number(liveMarketCaps[symbol as keyof typeof liveMarketCaps] || 0)
+      ) // Use actual market cap
+      const volumeValues = priceValues.map(() => 0) // Placeholder for volume
 
-        // Mock market cap data (we don't have this from our API yet)
-        const marketCapsArray: [number, number][] = data.history.map(
-          (entry) => [
-            new Date(entry.timestamp).getTime(),
-            0, // placeholder for market cap
-          ]
-        )
-
-        // Mock volume data (we don't have this from our API yet)
-        const volumesArray: [number, number][] = data.history.map((entry) => [
-          new Date(entry.timestamp).getTime(),
-          0, // placeholder for volume
-        ])
-
-        marketData[coinGeckoId] = {
-          prices: pricesArray,
-          market_caps: marketCapsArray,
-          total_volumes: volumesArray,
-        }
+      marketData[symbol] = {
+        prices: priceValues,
+        market_caps: marketCapValues,
+        total_volumes: volumeValues,
       }
     }
+  }
+
+  // Also update the token list for consistency
+  for (const token of patchedTokenList) {
+    const symbol = token.symbol as keyof typeof liveMarketCaps
+    token.marketCap = Number(liveMarketCaps[symbol] || 0)
   }
 
   return (
     <ExplorePage
       patchedTokenList={patchedTokenList}
-      initialPrices={prices}
-      initialMarketData={marketData}
+      prices={prices}
+      marketData={marketData}
+      period={period}
     />
   )
 }

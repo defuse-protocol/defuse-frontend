@@ -47,6 +47,9 @@ const cspConfig = {
     "http://35.242.147.168",
     "http://34.105.197.59",
 
+    /** CoinGecko API */
+    "https://api.coingecko.com",
+
     /** Helpscout */
     "https://beaconapi.helpscout.net",
     "https://*.cloudfront.net",

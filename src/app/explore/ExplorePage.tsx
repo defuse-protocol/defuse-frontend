@@ -2,68 +2,26 @@
 
 import Pill from "@src/components/Pill"
 
-import type { MarketDataReturnType } from "@src/utils/coinGeckoApiClient"
-import {
-  type CoinGeckoId,
-  coinGeckoIdBySymbol,
-} from "@src/utils/coinGeckoTokenIds"
+import { LIST_TOKENS } from "@src/constants/tokens"
+import { coinPricesApiClient } from "@src/utils/coinPricesApiClient"
 import { useEffect, useState } from "react"
 import TokenRow from "./TokenRow"
+import type { SimpleMarketData } from "./page"
 import type { TokenRowData } from "./page"
-
-// Type for our API response
-type TokenPriceData = {
-  latestPrice: number | null
-  priceChange: number | null
-  priceChangePercent: number | null
-  history: Array<{
-    price: number
-    timestamp: string
-  }>
-}
-
-// Mock MarketDataReturnType to maintain compatibility
-type MockMarketDataReturnType = {
-  prices: [number, number][]
-  market_caps: [number, number][]
-  total_volumes: [number, number][]
-}
-
-// Convert period to days
-const getDaysFromPeriod = (period: string) => {
-  switch (period) {
-    case "1d":
-      return 1
-    case "7d":
-      return 7
-    case "1m":
-      return 30
-    case "3m":
-      return 90
-    case "6m":
-      return 180
-    case "1y":
-      return 365
-    default:
-      return 7
-  }
-}
 
 const ExplorePage = ({
   patchedTokenList,
-  initialPrices,
-  initialMarketData,
+  prices,
+  marketData,
+  period,
 }: {
   patchedTokenList: TokenRowData[]
-  initialPrices: Record<string, number>
-  initialMarketData: Record<string, MarketDataReturnType>
+  prices: Record<string, number>
+  marketData: Record<string, SimpleMarketData>
+  period: string
 }) => {
   const [search, setSearch] = useState("")
   const searchParams = new URLSearchParams(window?.location?.search)
-  const [period, setPeriod] = useState(searchParams.get("period") || "7d")
-  const [prices, setPrices] = useState(initialPrices)
-  const [marketData, setMarketData] = useState(initialMarketData)
-  const [loading, setLoading] = useState(false)
 
   const filteredTokenList = patchedTokenList
     .filter(
@@ -78,93 +36,8 @@ const ExplorePage = ({
     for (const [key, value] of Object.entries(params)) {
       newSearchParams.set(key, value)
     }
-    window.history.pushState(
-      {},
-      "",
-      `${window.location.pathname}?${newSearchParams.toString()}`
-    )
+    window.location.href = `${window.location.pathname}?${newSearchParams.toString()}`
   }
-
-  // Fetch data when period changes
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true)
-      try {
-        const supportedSymbols = patchedTokenList
-          .map((token) => token.symbol.toUpperCase())
-          .filter((symbol) =>
-            Object.keys(coinGeckoIdBySymbol).includes(symbol.toLowerCase())
-          )
-
-        const days = getDaysFromPeriod(period)
-        const response = await fetch(
-          `/api/token-prices?symbols=${supportedSymbols.join(",")}&days=${days}`,
-          { cache: "no-store" }
-        )
-
-        if (response.ok) {
-          const result = await response.json()
-          if (result.success) {
-            const tokenPricesData: Record<string, TokenPriceData> = result.data
-
-            // Convert our API data to the expected format
-            const newPrices: Record<string, number> = {}
-            const newMarketData: Record<string, MockMarketDataReturnType> = {}
-
-            for (const [symbol, data] of Object.entries(tokenPricesData)) {
-              if (data.latestPrice !== null) {
-                // Store price using the CoinGecko ID as key for compatibility
-                const coinGeckoId =
-                  coinGeckoIdBySymbol[symbol.toLowerCase() as CoinGeckoId]
-                if (coinGeckoId) {
-                  newPrices[coinGeckoId] = data.latestPrice
-
-                  // Convert history to the expected format for charts
-                  const pricesArray: [number, number][] = data.history.map(
-                    (entry) => [
-                      new Date(entry.timestamp).getTime(), // timestamp
-                      entry.price, // price
-                    ]
-                  )
-
-                  // Mock market cap data (we don't have this from our API yet)
-                  const marketCapsArray: [number, number][] = data.history.map(
-                    (entry) => [
-                      new Date(entry.timestamp).getTime(),
-                      0, // placeholder for market cap
-                    ]
-                  )
-
-                  // Mock volume data (we don't have this from our API yet)
-                  const volumesArray: [number, number][] = data.history.map(
-                    (entry) => [
-                      new Date(entry.timestamp).getTime(),
-                      0, // placeholder for volume
-                    ]
-                  )
-
-                  newMarketData[coinGeckoId] = {
-                    prices: pricesArray,
-                    market_caps: marketCapsArray,
-                    total_volumes: volumesArray,
-                  }
-                }
-              }
-            }
-
-            setPrices(newPrices)
-            setMarketData(newMarketData)
-          }
-        }
-      } catch (error) {
-        console.error("Failed to fetch token prices:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchData()
-  }, [period, patchedTokenList])
 
   return (
     <div className="w-full flex flex-col mx-auto mt-[24px] md:mt-[64px] pl-[5%] pr-[5%] max-w-7xl gap-12">
@@ -172,7 +45,6 @@ const ExplorePage = ({
         <div className="flex flex-row items-center gap-4">
           <h1 className="text-4xl font-extrabold tracking-tight">Explore</h1>
           <Pill>{filteredTokenList.length} assets</Pill>
-          {loading && <Pill>Loading...</Pill>}
         </div>
         <div className="flex flex-row items-center gap-4">
           <input
@@ -186,7 +58,6 @@ const ExplorePage = ({
             value={period}
             onChange={(e) => {
               const newPeriod = e.target.value
-              setPeriod(newPeriod)
               setSearchParams({ period: newPeriod })
             }}
             className="rounded-md border border-gray-3 font-bold bg-gray-3 p-4 pr-8 text-sm text-gray-12 dark:border-gray-7 dark:bg-gray-8 dark:text-white"
@@ -196,7 +67,7 @@ const ExplorePage = ({
             <option value="1m">1 month</option>
             <option value="3m">3 months</option>
             <option value="6m">6 months</option>
-            <option value="1y">1 year</option>
+            <option value="12m">12 months</option>
           </select>
         </div>
       </div>
@@ -219,9 +90,11 @@ const ExplorePage = ({
               token={token}
               prices={prices}
               marketData={
-                marketData[
-                  coinGeckoIdBySymbol[token.symbol.toLowerCase() as CoinGeckoId]
-                ]
+                marketData[token.symbol] || {
+                  prices: [],
+                  market_caps: [],
+                  total_volumes: [],
+                }
               }
             />
           ))}
