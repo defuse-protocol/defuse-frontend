@@ -1,31 +1,27 @@
 import Image from "next/image"
 
-import type { MarketDataReturnType } from "@src/utils/coinGeckoApiClient"
-import {
-  type CoinGeckoId,
-  coinGeckoIdBySymbol,
-} from "@src/utils/coinGeckoTokenIds"
 import MiniPriceChart from "./MiniPriceChart"
-import type { TokenRowData } from "./page"
+import type { SimpleMarketData, TokenRowData } from "./page"
 
-const TokenRow = async ({
+const TokenRow = ({
   token,
   prices,
   marketData,
 }: {
   token: TokenRowData
   prices: Record<string, number>
-  marketData: MarketDataReturnType
+  marketData: SimpleMarketData
 }) => {
-  const chartData = marketData?.prices?.map((price: number[]) => price[1]) ?? []
+  const chartData = marketData?.prices ?? []
   const priceDiff =
     chartData.length > 1 ? chartData[chartData.length - 1] - chartData[0] : 0
   const percentChange =
     chartData.length > 1 && chartData[0] !== 0
       ? (priceDiff / chartData[0]) * 100
-      : 0
+      : token.change // Use the token's change property as fallback
   const marketCap =
-    marketData?.market_caps?.[marketData.market_caps.length - 1]?.[1]
+    marketData?.market_caps?.[marketData.market_caps.length - 1] ??
+    token.marketCap
 
   const tdClassNames = "py-4 px-6 text-center text-sm text-gray-12 font-medium"
   return (
@@ -56,10 +52,7 @@ const TokenRow = async ({
         <MiniPriceChart data={chartData} />
       </td>
       <td className={tdClassNames}>
-        $
-        {prices[
-          coinGeckoIdBySymbol[token.symbol.toLowerCase() as CoinGeckoId]
-        ]?.toFixed(2) ?? "N/A"}
+        ${prices[token.symbol]?.toFixed(2) ?? token.price?.toFixed(2) ?? "N/A"}
       </td>
       <td className="py-4 px-6">
         <div className="flex flex-row justify-center items-center gap-2 text-sm text-gray-12 font-medium">

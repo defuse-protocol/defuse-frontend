@@ -2,27 +2,26 @@
 
 import Pill from "@src/components/Pill"
 
-import type { MarketDataReturnType } from "@src/utils/coinGeckoApiClient"
-import {
-  type CoinGeckoId,
-  coinGeckoIdBySymbol,
-} from "@src/utils/coinGeckoTokenIds"
-import { useState } from "react"
+import { LIST_TOKENS } from "@src/constants/tokens"
+import { coinPricesApiClient } from "@src/utils/coinPricesApiClient"
+import { useEffect, useState } from "react"
 import TokenRow from "./TokenRow"
+import type { SimpleMarketData } from "./page"
 import type { TokenRowData } from "./page"
 
 const ExplorePage = ({
   patchedTokenList,
   prices,
   marketData,
+  period,
 }: {
   patchedTokenList: TokenRowData[]
   prices: Record<string, number>
-  marketData: Record<string, MarketDataReturnType>
+  marketData: Record<string, SimpleMarketData>
+  period: string
 }) => {
   const [search, setSearch] = useState("")
   const searchParams = new URLSearchParams(window?.location?.search)
-  const [period, setPeriod] = useState(searchParams.get("period") || "7d")
 
   const filteredTokenList = patchedTokenList
     .filter(
@@ -37,11 +36,7 @@ const ExplorePage = ({
     for (const [key, value] of Object.entries(params)) {
       newSearchParams.set(key, value)
     }
-    window.history.pushState(
-      {},
-      "",
-      `${window.location.pathname}?${newSearchParams.toString()}`
-    )
+    window.location.href = `${window.location.pathname}?${newSearchParams.toString()}`
   }
 
   return (
@@ -63,7 +58,6 @@ const ExplorePage = ({
             value={period}
             onChange={(e) => {
               const newPeriod = e.target.value
-              setPeriod(newPeriod)
               setSearchParams({ period: newPeriod })
             }}
             className="rounded-md border border-gray-3 font-bold bg-gray-3 p-4 pr-8 text-sm text-gray-12 dark:border-gray-7 dark:bg-gray-8 dark:text-white"
@@ -73,7 +67,7 @@ const ExplorePage = ({
             <option value="1m">1 month</option>
             <option value="3m">3 months</option>
             <option value="6m">6 months</option>
-            <option value="1y">1 year</option>
+            <option value="12m">12 months</option>
           </select>
         </div>
       </div>
@@ -96,9 +90,11 @@ const ExplorePage = ({
               token={token}
               prices={prices}
               marketData={
-                marketData[
-                  coinGeckoIdBySymbol[token.symbol.toLowerCase() as CoinGeckoId]
-                ]
+                marketData[token.symbol] || {
+                  prices: [],
+                  market_caps: [],
+                  total_volumes: [],
+                }
               }
             />
           ))}

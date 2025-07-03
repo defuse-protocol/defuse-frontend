@@ -5,13 +5,9 @@ import type {
 
 import { LIST_TOKENS } from "@src/constants/tokens"
 import {
-  type MarketDataReturnType,
-  coinGeckoApiClient,
-} from "@src/utils/coinGeckoApiClient"
-import {
-  type CoinGeckoId,
-  coinGeckoIdBySymbol,
-} from "@src/utils/coinGeckoTokenIds"
+  coinPricesApiClient,
+  getDaysFromPeriod,
+} from "@src/utils/coinPricesApiClient"
 
 import ExplorePage from "./ExplorePage"
 
@@ -23,7 +19,17 @@ export type TokenRowData = (UnifiedTokenInfo | BaseTokenInfo) & {
   volume: number
 }
 
-const Page = async () => {
+export interface SimpleMarketData {
+  prices: number[]
+  market_caps: number[]
+  total_volumes: number[]
+}
+
+interface PageProps {
+  searchParams: Promise<{ period?: string }>
+}
+
+const Page = async ({ searchParams }: PageProps) => {
   const patchedTokenList: TokenRowData[] = LIST_TOKENS.map((token) => ({
     ...token,
     price: 0,
@@ -33,40 +39,48 @@ const Page = async () => {
     volume: 0,
   }))
 
-  const coinGeckoIds = patchedTokenList
-    .map(
-      (token) => coinGeckoIdBySymbol[token.symbol.toLowerCase() as CoinGeckoId]
-    )
-    .filter(Boolean)
+  const resolvedSearchParams = await searchParams
+  const period = resolvedSearchParams.period || "7d"
 
-  let result = {}
-  try {
-    result = await coinGeckoApiClient.getUsdPrice(coinGeckoIds.join(","))
-  } catch (error) {
-    console.error("Failed to fetch prices from CoinGecko:", error)
-  }
+  const days = getDaysFromPeriod(period)
 
+  // Get prices for all tokens for the specified period
+  const livePrices = await coinPricesApiClient.getPrices(
+    LIST_TOKENS.map((token) => token.symbol).join(","),
+    days
+  )
+
+  const liveMarketCaps = await coinPricesApiClient.getMarketCaps()
+
+  // Process prices to match the expected format
   const prices: Record<string, number> = {}
-  for (const [id, price] of Object.entries(result)) {
-    if (
-      price &&
-      typeof price === "object" &&
-      "usd" in price &&
-      typeof price.usd === "number"
-    ) {
-      prices[id] = price.usd
+  const marketData: Record<string, SimpleMarketData> = {}
+
+  for (const [symbol, priceData] of Object.entries(livePrices)) {
+    if (priceData && priceData.length > 0) {
+      // Get the latest price (last in the array)
+      const latestPrice = priceData[priceData.length - 1][1]
+      prices[symbol] = latestPrice
+
+      // Create market data structure for charts
+      const priceValues = priceData.map(([, price]: [string, number]) => price)
+      const marketCapValues = priceValues.map(() =>
+        Number(liveMarketCaps[symbol as keyof typeof liveMarketCaps] || 0)
+      ) // Use actual market cap
+      const volumeValues = priceValues.map(() => 0) // Placeholder for volume
+
+      marketData[symbol] = {
+        prices: priceValues,
+        market_caps: marketCapValues,
+        total_volumes: volumeValues,
+      }
     }
   }
 
-  // This is a bit of a problem with rate limits
-  // See: https://support.coingecko.com/hc/en-us/articles/23402236550553-Can-I-batch-call-multiple-tokens-historical-data
-  const marketData: Record<string, MarketDataReturnType> = {}
-  for (const id of coinGeckoIds) {
-    try {
-      marketData[id] = await coinGeckoApiClient.getTokenMarketData(id)
-    } catch (error) {
-      console.error("Failed to fetch market data:", error)
-    }
+  // Also update the token list for consistency
+  for (const token of patchedTokenList) {
+    const symbol = token.symbol as keyof typeof liveMarketCaps
+    token.marketCap = Number(liveMarketCaps[symbol] || 0)
   }
 
   return (
@@ -74,6 +88,7 @@ const Page = async () => {
       patchedTokenList={patchedTokenList}
       prices={prices}
       marketData={marketData}
+      period={period}
     />
   )
 }
