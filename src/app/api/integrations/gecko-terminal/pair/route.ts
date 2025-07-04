@@ -25,6 +25,14 @@ const querySchema = z.object({ id: z.string() }).pipe(
       return z.NEVER
     }
 
+    if (asset0Id >= asset1Id) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "Invalid pair ID format. Expected asset ids to be sorted in ascending order",
+      })
+    }
+
     return { id, asset0Id, asset1Id }
   })
 )

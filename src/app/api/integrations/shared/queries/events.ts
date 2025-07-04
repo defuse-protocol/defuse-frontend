@@ -36,29 +36,26 @@ SELECT
   CAST(max(d.receipt_index_in_block) AS UInt32) AS txnIndex,
   CAST(max(d.index_in_log) AS UInt32) AS eventIndex,
   argMax(d.account_id, d.token_in IS NOT NULL) AS maker,
-  concat(
-    argMax(d.token_in, d.token_in IS NOT NULL),
-    '${PAIR_SEPARATOR}',
-    argMax(d.token_out, d.token_out IS NOT NULL)
-  ) AS pairId,
+  argMax(d.token_in, d.token_in IS NOT NULL) AS tokenIn,
+  argMax(d.token_out, d.token_out IS NOT NULL) AS tokenOut,
   printf(
     '%.0f',
     sumIf(abs(d.amount_in), d.amount_in IS NOT NULL)
-  ) AS asset0In,
+  ) AS assetIn,
   printf(
     '%.0f',
     sumIf(d.amount_out, d.amount_out IS NOT NULL)
-  ) AS asset1Out,
+  ) AS assetOut,
   printf(
     '%.0f',
     sumIf(abs(d.amount_in), d.amount_in IS NOT NULL)
-  ) AS reserveAsset0,
+  ) AS reserveAssetIn,
   printf(
     '%.0f',
     sumIf(d.amount_out, d.amount_out IS NOT NULL)
-  ) AS reserveAsset1,
-  argMax(asset_in.decimals, d.token_in IS NOT NULL) AS asset0Decimals,
-  argMax(asset_out.decimals, d.token_out IS NOT NULL) AS asset1Decimals
+  ) AS reserveAssetOut,
+  argMax(asset_in.decimals, d.token_in IS NOT NULL) AS assetInDecimals,
+  argMax(asset_out.decimals, d.token_out IS NOT NULL) AS assetOutDecimals
 FROM
   near_intents_db.silver_dip4_token_diff_new d
   LEFT JOIN distinct_assets asset_in ON d.token_in = asset_in.defuse_asset_id
@@ -76,8 +73,8 @@ HAVING
   count(DISTINCT d.token_out) = 1
   AND count(DISTINCT d.token_in) = 1
   -- TODO: Find decimals for everything then remove this filter
-  AND asset0Decimals != 0
-  AND asset1Decimals != 0
+  AND assetInDecimals != 0
+  AND assetOutDecimals != 0
 ORDER BY
   blockNumber ASC,
   txnIndex ASC,
@@ -91,12 +88,14 @@ export interface RawEvent {
   eventIndex: number
   maker: string
   pairId: string
-  asset0In: string
-  asset1Out: string
-  reserveAsset0: string
-  reserveAsset1: string
-  asset0Decimals: number
-  asset1Decimals: number
+  assetIn: string
+  assetOut: string
+  reserveAssetIn: string
+  reserveAssetOut: string
+  assetInDecimals: number
+  assetOutDecimals: number
+  tokenIn: string
+  tokenOut: string
 }
 
 /**
@@ -123,23 +122,19 @@ export const getEvents = tryCatch(
     >(EVENTS_QUERY, res.ok)
 
     const events = rawEvents.map((rawEvent): Event => {
-      const asset0In = addDecimalPoint(
-        rawEvent.asset0In,
-        rawEvent.asset0Decimals
+      const tokenIn = rawEvent.tokenIn
+      const tokenOut = rawEvent.tokenOut
+
+      const assetIn = addDecimalPoint(
+        rawEvent.assetIn,
+        rawEvent.assetInDecimals
       )
-      const asset1Out = addDecimalPoint(
-        rawEvent.asset1Out,
-        rawEvent.asset1Decimals
+      const assetOut = addDecimalPoint(
+        rawEvent.assetOut,
+        rawEvent.assetOutDecimals
       )
 
-      const priceNative = calculatePriceWithMaxPrecision(
-        rawEvent.asset0In,
-        rawEvent.asset1Out,
-        rawEvent.asset0Decimals,
-        rawEvent.asset1Decimals
-      )
-
-      return {
+      const common = {
         block: {
           blockNumber: rawEvent.blockNumber,
           blockTimestamp: rawEvent.blockTimestamp,
@@ -149,13 +144,41 @@ export const getEvents = tryCatch(
         txnIndex: rawEvent.txnIndex,
         eventIndex: rawEvent.eventIndex,
         maker: rawEvent.maker,
-        pairId: rawEvent.pairId,
-        asset0In,
-        asset1Out,
-        priceNative,
+      } as const
+
+      if (tokenIn < tokenOut) {
+        return {
+          ...common,
+          pairId: `${tokenIn}${PAIR_SEPARATOR}${tokenOut}`,
+          asset0In: assetIn,
+          asset1Out: assetOut,
+          priceNative: calculatePriceWithMaxPrecision(
+            rawEvent.assetIn,
+            rawEvent.assetOut,
+            rawEvent.assetInDecimals,
+            rawEvent.assetOutDecimals
+          ),
+          reserves: {
+            asset0: assetIn,
+            asset1: assetOut,
+          },
+        }
+      }
+
+      return {
+        ...common,
+        pairId: `${tokenOut}${PAIR_SEPARATOR}${tokenIn}`,
+        asset1In: assetIn,
+        asset0Out: assetOut,
+        priceNative: calculatePriceWithMaxPrecision(
+          rawEvent.assetOut,
+          rawEvent.assetIn,
+          rawEvent.assetOutDecimals,
+          rawEvent.assetInDecimals
+        ),
         reserves: {
-          asset0: asset0In,
-          asset1: asset1Out,
+          asset0: assetOut,
+          asset1: assetIn,
         },
       }
     })
