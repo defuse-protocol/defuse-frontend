@@ -31,6 +31,8 @@ const querySchema = z.object({ id: z.string() }).pipe(
         message:
           "Invalid pair ID format. Expected asset ids to be sorted in ascending order",
       })
+
+      return z.NEVER
     }
 
     return { id, asset0Id, asset1Id }
