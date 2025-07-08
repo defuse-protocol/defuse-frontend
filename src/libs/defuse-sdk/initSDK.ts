@@ -23,6 +23,7 @@ export function initSDK() {
       features: {
         hyperliquid: true,
         ton: true,
+        stellar: true,
       },
     })
   } else {
@@ -49,6 +50,7 @@ export function initSDK() {
       features: {
         hyperliquid: true,
         ton: true,
+        stellar: true,
       },
     })
   }
