@@ -118,27 +118,6 @@ export type Database = {
         }
         Relationships: []
       }
-      token_prices: {
-        Row: {
-          created_at: string | null
-          price: number
-          symbol: string
-          timestamp: string
-        }
-        Insert: {
-          created_at?: string | null
-          price: number
-          symbol: string
-          timestamp: string
-        }
-        Update: {
-          created_at?: string | null
-          price?: number
-          symbol?: string
-          timestamp?: string
-        }
-        Relationships: []
-      }
       webauthn_credentials: {
         Row: {
           created_at: string | null
