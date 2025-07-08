@@ -1383,18 +1383,17 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
     name: "Kyber Network Crystal v2",
     tags: ["mc:461"],
   },
-  // Temporarily disable TON until HOT fixes passive withdrawals
-  // {
-  //   defuseAssetId: "nep245:v2_1.omni.hot.tg:1117_",
-  //   type: "native",
-  //   decimals: 9,
-  //   icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/11419.png",
-  //   chainName: "ton",
-  //   bridge: "hot_omni",
-  //   symbol: "TON",
-  //   name: "TON",
-  //   tags: ["mc:18"],
-  // },
+  {
+    defuseAssetId: "nep245:v2_1.omni.hot.tg:1117_",
+    type: "native",
+    decimals: 9,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/11419.png",
+    chainName: "ton",
+    bridge: "hot_omni",
+    symbol: "TON",
+    name: "TON",
+    tags: ["mc:18"],
+  },
   {
     defuseAssetId:
       "nep141:eth-0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599.omft.near",

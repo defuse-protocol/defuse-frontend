@@ -1061,30 +1061,30 @@
     tweetnacl "^1.0.3"
     tweetnacl-util "^0.15.1"
 
-"@defuse-protocol/bridge-sdk@^0.5.0":
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/@defuse-protocol/bridge-sdk/-/bridge-sdk-0.5.0.tgz#ccd4c62baacbc0fae61fbf72394edf4a5ac7a423"
-  integrity sha512-NX6T2sCYTdjHvZnXnB5Z11ovaNlwRXaB0BuhN1/GFsV8MlWnNRCFwTqA1+qXLaZN6FYszE20OUyPRM+azzSbPA==
+"@defuse-protocol/bridge-sdk@^0.5.2":
+  version "0.5.2"
+  resolved "https://registry.yarnpkg.com/@defuse-protocol/bridge-sdk/-/bridge-sdk-0.5.2.tgz#9a07550df32d22d0ab376b6044b461610b06c0cd"
+  integrity sha512-yP57ph862K1ab7b4VhvTnl57cNkZewqDwG8k0bSIErJF6ja22vSqCa6py898cnGc2RhLz+WdpXKXJ2PdMzK6uQ==
   dependencies:
-    "@defuse-protocol/contract-types" "0.0.2"
-    "@defuse-protocol/internal-utils" "0.0.6"
+    "@defuse-protocol/contract-types" "0.0.3"
+    "@defuse-protocol/internal-utils" "0.0.7"
     "@hot-labs/omni-sdk" "2.8.3"
     "@scure/base" "^1.2.5"
     borsher "^4.0.0"
     near-api-js "^5.1.1"
     viem "^2.29.4"
 
-"@defuse-protocol/contract-types@0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@defuse-protocol/contract-types/-/contract-types-0.0.2.tgz#921acf85081123826809273635c08d6be9b6b033"
-  integrity sha512-BRcyQrhVuY6kAmUg/fxqMr1zAdsijN3Neeo8uZqKKvBNe4mnoM07rTQLtC5LKqZpIUobhH2bsbzvbqjAM3zJ9w==
+"@defuse-protocol/contract-types@0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@defuse-protocol/contract-types/-/contract-types-0.0.3.tgz#ed7f8070c80e9cd2ac2fd7f2c4dd6cd4918205a8"
+  integrity sha512-N3LJS4tfshw6+kldrx6Hij8c8tzTHbmNPVByhursQ86Apu8p/gOPixfBbUZh21fKCCqktERbjeKzGe5EJV0gWA==
 
-"@defuse-protocol/defuse-sdk@^1.0.0-beta.186":
-  version "1.0.0-beta.186"
-  resolved "https://registry.yarnpkg.com/@defuse-protocol/defuse-sdk/-/defuse-sdk-1.0.0-beta.186.tgz#88e9a7bdb9024f713362cc919420ce0eae819314"
-  integrity sha512-xP5kkYx+CDM7oewxzABJFeLgedaHNoY6ajCCbpZkgkJcA45IS3YNjPoqwt7YW7Q8dtXI4sFUkuNGmwdB6cI08g==
+"@defuse-protocol/defuse-sdk@^1.0.0-beta.189":
+  version "1.0.0-beta.189"
+  resolved "https://registry.yarnpkg.com/@defuse-protocol/defuse-sdk/-/defuse-sdk-1.0.0-beta.189.tgz#b0b9282d6d68c8e8c91d7cb230e193cd24291afe"
+  integrity sha512-xv3a35VrSSwAO/vjF+Wi9IWuLR9kwERhJAlMfF0i3A+ULRkGU8pWt4LJmwrIvfXU3c2W68mOlPUhB4N2F/mq4w==
   dependencies:
-    "@defuse-protocol/bridge-sdk" "^0.5.0"
+    "@defuse-protocol/bridge-sdk" "^0.5.2"
     "@lifeomic/attempt" "^3.1.0"
     "@noble/curves" "1.4.0"
     "@noble/hashes" "^1.7.1"
@@ -1128,12 +1128,12 @@
     xstate "^5.18.2"
     zustand "^5.0.0-rc.2"
 
-"@defuse-protocol/internal-utils@0.0.6":
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/@defuse-protocol/internal-utils/-/internal-utils-0.0.6.tgz#5aab7265a6625c4175a69a4fe39653bd65618550"
-  integrity sha512-/wM1xAfEBJMSE0nM8J4Xen1d9F7OutUMM1yhzhPJAHFEEOTdNxiSCYrx8AjY1AsaBulLcrSu2ogH56DNPf6PYA==
+"@defuse-protocol/internal-utils@0.0.7":
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/@defuse-protocol/internal-utils/-/internal-utils-0.0.7.tgz#ce2db5c2b20b40205ba64eed6471b32fe3b6cbc2"
+  integrity sha512-+mMjXog7Fg9qD1aICRqyobj3gR651PoJjGebwriNl8e3Ug506yiLFqg47HIjz5vu9q4avkFNCa21VOxAQeH/aQ==
   dependencies:
-    "@defuse-protocol/contract-types" "0.0.2"
+    "@defuse-protocol/contract-types" "0.0.3"
     "@hot-labs/omni-sdk" "2.8.3"
     "@lifeomic/attempt" "^3.1.0"
     "@noble/hashes" "^1.7.1"
