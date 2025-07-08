@@ -1025,6 +1025,36 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
     tags: ["mc:4", "tvol:11"],
   },
   {
+    unifiedAssetId: "xrp",
+    symbol: "XRP",
+    name: "XRP",
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/52.png",
+    groupedTokens: [
+      {
+        defuseAssetId: "nep141:xrp.omft.near",
+        type: "native",
+        address: "native",
+        decimals: 6,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/52.png",
+        chainName: "xrpledger",
+        bridge: "poa",
+        symbol: "XRP",
+        name: "XRP",
+      },
+      {
+        defuseAssetId: "nep141:xrp.omft.near",
+        address: "xrp.omft.near",
+        decimals: 6,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/52.png",
+        chainName: "near",
+        bridge: "direct",
+        symbol: "XRP",
+        name: "XRP",
+      },
+    ],
+    tags: ["mc:4", "tvol:11"],
+  },
+  {
     defuseAssetId:
       "nep141:sol-b9c68f94ec8fd160137af8cdfe5e61cd68e2afba.omft.near",
     address: "EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm",
