@@ -1013,18 +1013,6 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
     tags: ["mc:183", "type:meme"],
   },
   {
-    defuseAssetId: "nep141:xrp.omft.near",
-    type: "native",
-    address: "native",
-    decimals: 6,
-    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/52.png",
-    chainName: "xrpledger",
-    bridge: "poa",
-    symbol: "XRP",
-    name: "XRP",
-    tags: ["mc:4", "tvol:11"],
-  },
-  {
     unifiedAssetId: "xrp",
     symbol: "XRP",
     name: "XRP",
