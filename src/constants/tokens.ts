@@ -469,6 +469,18 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         symbol: "USDT",
         name: "Tether USD",
       },
+      {
+        defuseAssetId:
+          "sui:mainnet:0x375f70cf2ae4c00bf37117d0c85a2c71545e6ee05c4a5c7d282cd66a4504b068::usdt::USDT",
+        address:
+          "0x375f70cf2ae4c00bf37117d0c85a2c71545e6ee05c4a5c7d282cd66a4504b068::usdt::USDT",
+        decimals: 6,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+        chainName: "sui",
+        bridge: "hot_omni",
+        symbol: "USDT",
+        name: "Tether USD",
+      },
     ],
     tags: ["mc:3", "type:stablecoin", "tvol:3"],
   },
@@ -1383,6 +1395,17 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
     symbol: "WBTC",
     name: "Wrapped Bitcoin",
     tags: ["mc:3"],
+  },
+  {
+    defuseAssetId: "sui:mainnet:0x2::sui::SUI",
+    type: "native",
+    decimals: 9,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/20947.png",
+    chainName: "sui",
+    bridge: "hot_omni",
+    symbol: "SUI",
+    name: "SUI",
+    tags: ["mc:13"],
   },
 ]
 
