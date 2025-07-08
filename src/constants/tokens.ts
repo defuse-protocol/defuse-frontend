@@ -469,6 +469,18 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         symbol: "USDT",
         name: "Tether USD",
       },
+      {
+        defuseAssetId:
+          "aptos:mainnet:0x357b0b74bc833e95a115ad22604854d6b0fca151cecd94111770e5d6ffc9dc2b",
+        address:
+          "0x357b0b74bc833e95a115ad22604854d6b0fca151cecd94111770e5d6ffc9dc2b",
+        decimals: 6,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+        chainName: "aptos",
+        bridge: "hot_omni",
+        symbol: "USDT",
+        name: "Tether USD",
+      },
     ],
     tags: ["mc:3", "type:stablecoin", "tvol:3"],
   },
@@ -1383,6 +1395,17 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
     symbol: "WBTC",
     name: "Wrapped Bitcoin",
     tags: ["mc:3"],
+  },
+  {
+    defuseAssetId: "aptos:mainnet:0x1::aptos_coin::AptosCoin",
+    type: "native",
+    decimals: 9,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/21794.png",
+    chainName: "aptos",
+    bridge: "hot_omni",
+    symbol: "APT",
+    name: "Aptos",
+    tags: ["mc:34"],
   },
 ]
 
