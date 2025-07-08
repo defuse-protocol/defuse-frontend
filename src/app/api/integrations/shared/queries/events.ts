@@ -228,6 +228,14 @@ export const getEvents = tryCatch(
         rawEvent.assetOut,
         rawEvent.assetOutDecimals
       )
+      const reserveAssetIn = addDecimalPoint(
+        rawEvent.reserveAssetIn,
+        rawEvent.assetInDecimals
+      )
+      const reserveAssetOut = addDecimalPoint(
+        rawEvent.reserveAssetOut,
+        rawEvent.assetOutDecimals
+      )
 
       const common = {
         block: {
@@ -254,8 +262,8 @@ export const getEvents = tryCatch(
             rawEvent.assetOutDecimals
           ),
           reserves: {
-            asset0: assetIn,
-            asset1: assetOut,
+            asset0: reserveAssetIn,
+            asset1: reserveAssetOut,
           },
         }
       }
@@ -272,8 +280,8 @@ export const getEvents = tryCatch(
           rawEvent.assetInDecimals
         ),
         reserves: {
-          asset0: assetOut,
-          asset1: assetIn,
+          asset0: reserveAssetOut,
+          asset1: reserveAssetIn,
         },
       }
     })
