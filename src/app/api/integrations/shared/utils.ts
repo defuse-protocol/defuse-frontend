@@ -58,16 +58,16 @@ export function calculatePriceWithMaxPrecision(
   asset0Decimals: number,
   asset1Decimals: number
 ): string {
-  const asset0 = BigInt(asset0Amount)
   const asset1 = BigInt(asset1Amount)
+  const asset0 = BigInt(asset0Amount)
 
-  if (asset0 === 0n || asset1 === 0n) {
+  if (asset1 === 0n || asset0 === 0n) {
     return "0"
   }
 
   const price =
-    (asset0 * precisionFactor * 10n ** BigInt(asset1Decimals)) /
-    (asset1 * 10n ** BigInt(asset0Decimals))
+    (asset1 * precisionFactor * 10n ** BigInt(asset0Decimals)) /
+    (asset0 * 10n ** BigInt(asset1Decimals))
 
   const priceStr = price.toString()
 
