@@ -5,6 +5,7 @@ import { useState } from "react"
 
 import Pill from "@src/components/Pill"
 import type { SimpleMarketData } from "@src/utils/coinPricesApiClient"
+import { prepareExplorePageTokens } from "@src/utils/prepareExplorePageTokens"
 
 import TokenRow from "./TokenRow"
 import type { TokenRowData } from "./page"
@@ -24,19 +25,11 @@ const ExplorePage = ({
   const urlSearchParams = useSearchParams()
   const router = useRouter()
 
-  const filteredTokenList = patchedTokenList
-    .filter(
-      (token) =>
-        token.symbol.toLowerCase().includes(search.toLowerCase()) ||
-        token.name.toLowerCase().includes(search.toLowerCase())
-    )
-    .filter((token) => !["gnear", "noer"].includes(token.symbol.toLowerCase()))
-    .filter((token) => marketData[token.symbol])
-    .sort((a, b) => {
-      const aMarketCap = a.marketCap ?? 0
-      const bMarketCap = b.marketCap ?? 0
-      return bMarketCap - aMarketCap
-    })
+  const filteredTokenList = prepareExplorePageTokens(
+    patchedTokenList,
+    marketData,
+    search
+  )
 
   const setSearchParams = (params: Record<string, string>) => {
     const newSearchParams = new URLSearchParams(urlSearchParams)
