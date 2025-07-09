@@ -28,7 +28,7 @@ const MiniPriceChart: React.FC<MiniPriceChartProps> = ({ data }) => {
   const width = 111
   const height = 47
   const parsedData = parseAlignedData(data)
-  const isPositive = data[0] < data[data.length - 1]
+  const isPositive = data[0] <= data[data.length - 1]
   const stroke = isPositive ? "green" : "red"
 
   // y-values are in data[1]
