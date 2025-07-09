@@ -7,7 +7,7 @@ export const prepareExplorePageTokens = (
   patchedTokenList: TokenRowData[],
   marketData: Record<string, SimpleMarketData>,
   search: string
-) => {
+): TokenRowData[] => {
   return patchedTokenList
     .filter(
       (token) =>
