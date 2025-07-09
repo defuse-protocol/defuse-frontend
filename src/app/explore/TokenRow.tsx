@@ -4,6 +4,7 @@ import Image from "next/image"
 
 import type { SimpleMarketData } from "@src/utils/coinPricesApiClient"
 
+import { useRouter } from "next/navigation"
 import MiniPriceChart from "./MiniPriceChart"
 import type { TokenRowData } from "./page"
 
@@ -16,6 +17,7 @@ const TokenRow = ({
   prices: Record<string, number>
   marketData: SimpleMarketData
 }) => {
+  const router = useRouter()
   const chartData = marketData?.prices ?? []
   const priceDiff =
     chartData.length > 1 ? chartData[chartData.length - 1] - chartData[0] : 0
@@ -27,7 +29,7 @@ const TokenRow = ({
   const tdClassNames = "py-4 px-6 text-center text-sm text-gray-12 font-medium"
 
   const handleClick = () => {
-    window.location.href = `/?tokenOut=${token.symbol}`
+    router.push(`/?tokenOut=${token.symbol}`)
   }
 
   return (
