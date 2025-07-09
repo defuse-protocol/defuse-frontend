@@ -16,7 +16,6 @@ import { SolanaWalletProvider } from "@src/providers/SolanaWalletProvider"
 import { ThemeProvider } from "@src/providers/ThemeProvider"
 import { TonConnectUIProvider } from "@src/providers/TonConnectUIProvider"
 import { WalletSelectorProvider } from "@src/providers/WalletSelectorProvider"
-
 import "@radix-ui/themes/styles.css"
 import "@near-wallet-selector/modal-ui/styles.css"
 import "../styles/global.scss"

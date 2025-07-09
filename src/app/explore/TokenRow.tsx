@@ -1,10 +1,10 @@
 import { ArrowRightIcon } from "@radix-ui/react-icons"
 import { Button } from "@radix-ui/themes"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 
 import type { SimpleMarketData } from "@src/utils/coinPricesApiClient"
 
-import { useRouter } from "next/navigation"
 import MiniPriceChart from "./MiniPriceChart"
 import type { TokenRowData } from "./page"
 
@@ -29,7 +29,11 @@ const TokenRow = ({
   const tdClassNames = "py-4 px-6 text-center text-sm text-gray-12 font-medium"
 
   const handleClick = () => {
-    router.push(`/?tokenOut=${token.symbol}`)
+    if (["usdc", "usdt"].includes(token.symbol.toLowerCase())) {
+      router.push(`/?tokenIn=${token.symbol}&tokenOut=NEAR`)
+    } else {
+      router.push(`/?tokenOut=${token.symbol}`)
+    }
   }
 
   return (
