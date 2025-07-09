@@ -29,7 +29,7 @@ const TokenRow = ({
   const tdClassNames = "py-4 px-6 text-center text-sm text-gray-12 font-medium"
 
   const handleClick = () => {
-    if (["usdc", "usdt"].includes(token.symbol.toLowerCase())) {
+    if (["usdc", "usdt", "dai"].includes(token.symbol.toLowerCase())) {
       router.push(`/?tokenIn=${token.symbol}&tokenOut=NEAR`)
     } else {
       router.push(`/?tokenOut=${token.symbol}`)
