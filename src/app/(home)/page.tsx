@@ -1,6 +1,7 @@
 "use client"
-
 import { SwapWidget } from "@defuse-protocol/defuse-sdk"
+import { useSearchParams } from "next/navigation"
+import { useMemo } from "react"
 
 import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
 import Paper from "@src/components/Paper"
@@ -10,6 +11,7 @@ import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
 import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
+import { findTokenBySymbol } from "@src/utils/findTokenBySymbol"
 import { renderAppLink } from "@src/utils/renderAppLink"
 
 export default function Swap() {
@@ -17,8 +19,20 @@ export default function Swap() {
   const signMessage = useWalletAgnosticSignMessage()
   const { signAndSendTransactions } = useNearWalletActions()
   const tokenList = useTokenList(LIST_TOKENS)
-  const { tokenIn, tokenOut } = useDeterminePair()
+  const { tokenIn: defaultTokenIn, tokenOut: defaultTokenOut } =
+    useDeterminePair()
   const referral = useIntentsReferral()
+  const searchParams = useSearchParams()
+  const tokenInSymbol = searchParams.get("tokenIn")
+  const tokenOutSymbol = searchParams.get("tokenOut")
+
+  const tokenIn = useMemo(() => {
+    return findTokenBySymbol(tokenInSymbol, defaultTokenIn)
+  }, [tokenInSymbol, defaultTokenIn])
+
+  const tokenOut = useMemo(() => {
+    return findTokenBySymbol(tokenOutSymbol, defaultTokenOut)
+  }, [tokenOutSymbol, defaultTokenOut])
 
   return (
     <Paper>
