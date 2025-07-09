@@ -31,6 +31,11 @@ const ExplorePage = ({
         token.name.toLowerCase().includes(search.toLowerCase())
     )
     .filter((token) => !["gnear", "noer"].includes(token.symbol.toLowerCase()))
+    .sort((a, b) => {
+      const aMarketCap = a.marketCap ?? 0
+      const bMarketCap = b.marketCap ?? 0
+      return bMarketCap - aMarketCap
+    })
 
   const setSearchParams = (params: Record<string, string>) => {
     const newSearchParams = new URLSearchParams(urlSearchParams)
@@ -86,20 +91,23 @@ const ExplorePage = ({
             </tr>
           </thead>
           <tbody className="max-h-[500px] overflow-y-auto">
-            {filteredTokenList.map((token) => (
-              <TokenRow
-                key={token.symbol}
-                token={token}
-                prices={prices}
-                marketData={
-                  marketData[token.symbol] || {
-                    prices: [],
-                    market_caps: [],
-                    total_volumes: [],
-                  }
-                }
-              />
-            ))}
+            {filteredTokenList.map(
+              (token) =>
+                marketData[token.symbol] && (
+                  <TokenRow
+                    key={token.symbol}
+                    token={token}
+                    prices={prices}
+                    marketData={
+                      marketData[token.symbol] || {
+                        prices: [],
+                        market_caps: [],
+                        total_volumes: [],
+                      }
+                    }
+                  />
+                )
+            )}
           </tbody>
         </table>
       </div>
