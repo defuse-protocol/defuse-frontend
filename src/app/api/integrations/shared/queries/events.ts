@@ -22,56 +22,151 @@ const querySchema = z.object({
 })
 
 export const EVENTS_QUERY = `
-WITH distinct_assets as (
-  SELECT
-    DISTINCT defuse_asset_id,
-    decimals
-  FROM
-    near_intents_db.defuse_assets
-)
+WITH
+  distinct_assets AS (
+    SELECT DISTINCT defuse_asset_id, decimals
+    FROM near_intents_db.defuse_assets
+  ),
+
+  inflows AS (
+    SELECT
+      token_id,
+      block_height,
+      sum(multiIf(memo = 'deposit', amount, 0)) - sum(multiIf(memo = 'withdraw', amount, 0)) AS inflow
+    FROM near_intents_db.silver_nep_245_events
+    WHERE memo IN ('deposit', 'withdraw')
+      AND execution_status != 'failure'
+      AND contract_id = 'intents.near'
+    GROUP BY token_id, block_height
+  ),
+
+reserves as (SELECT
+  token_id,
+  block_height,
+  sum(inflow) over (partition by token_id order by block_height rows between unbounded preceding and current row) as balance
+  FROM inflows),
+
+swaps_and_inflows as (SELECT
+  d.block_height,
+  d.block_timestamp,
+  d.tx_hash,
+  d.intent_hash,
+  d.receipt_index_in_block,
+  d.index_in_log,
+  d.account_id,
+  d.token_in,
+  d.token_out,
+  d.amount_in,
+  d.amount_out,
+  asset_in.decimals AS decimals_in,
+  asset_out.decimals AS decimals_out,
+  reserves_in.balance AS balance_in,
+  reserves_out.balance AS balance_out
+FROM near_intents_db.silver_dip4_token_diff_new d
+LEFT JOIN distinct_assets asset_in ON d.token_in = asset_in.defuse_asset_id
+LEFT JOIN distinct_assets asset_out ON d.token_out = asset_out.defuse_asset_id
+LEFT JOIN reserves reserves_in
+  ON d.token_in = reserves_in.token_id AND d.block_height = reserves_in.block_height
+LEFT JOIN reserves reserves_out
+  ON d.token_out = reserves_out.token_id AND d.block_height = reserves_out.block_height
+WHERE d.block_height >= { fromBlock :UInt32 }
+  AND d.block_height <= { toBlock :UInt32 }
+
+UNION ALL
+
 SELECT
-  CAST(max(d.block_height) AS UInt32) AS blockNumber,
-  toUnixTimestamp(max(d.block_timestamp)) AS blockTimestamp,
-  d.tx_hash AS txnId,
-  CAST(max(d.receipt_index_in_block) AS UInt32) AS txnIndex,
-  CAST(max(d.index_in_log) AS UInt32) AS eventIndex,
-  argMax(d.account_id, d.token_in IS NOT NULL) AS maker,
-  argMax(d.token_in, d.token_in IS NOT NULL) AS tokenIn,
-  argMax(d.token_out, d.token_out IS NOT NULL) AS tokenOut,
+  r.block_height,
+  NULL, NULL, NULL, NULL, NULL, NULL,
+  r.token_id AS token_in,
+  NULL AS token_out,
+  NULL as amount_in,
+  NULL as amount_out,
+  asset_in.decimals AS decimals_in,
+  NULL AS decimals_out,
+  r.balance AS balance_in,
+  NULL AS balance_out
+FROM reserves r
+LEFT JOIN near_intents_db.silver_dip4_token_diff_new d
+  ON d.token_in = r.token_id AND d.block_height = r.block_height
+LEFT JOIN distinct_assets asset_in ON r.token_id = asset_in.defuse_asset_id
+WHERE d.token_in IS NULL
+
+UNION ALL
+
+SELECT
+  r.block_height,
+  NULL, NULL, NULL, NULL, NULL, NULL,
+  NULL AS token_in,
+  r.token_id AS token_out,
+  NULL as amount_in,
+  NULL as amount_out,
+  NULL AS decimals_in,
+  asset_out.decimals AS decimals_out,
+  NULL AS balance_in,
+  r.balance AS balance_out
+FROM reserves r
+LEFT JOIN near_intents_db.silver_dip4_token_diff_new d
+  ON d.token_out = r.token_id AND d.block_height = r.block_height
+LEFT JOIN distinct_assets asset_out ON r.token_id = asset_out.defuse_asset_id
+WHERE d.token_out IS NULL
+),
+
+final as (SELECT
+  d.block_height as block_height,
+  block_timestamp,
+  tx_hash,
+  intent_hash,
+  receipt_index_in_block,
+  index_in_log,
+  account_id,
+  token_in,
+  token_out,
+  amount_in,
+  amount_out,
+  decimals_in,
+  decimals_out,
+  anyLast(balance_in) OVER (PARTITION BY token_in ORDER BY d.block_height ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS balance_in,
+  anyLast(balance_out) OVER (PARTITION BY token_out ORDER BY d.block_height ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS balance_out
+FROM swaps_and_inflows)
+
+SELECT
+  CAST(max(block_height) AS UInt32) AS blockNumber,
+  toUnixTimestamp(max(block_timestamp)) AS blockTimestamp,
+  tx_hash AS txnId,
+  CAST(max(receipt_index_in_block) AS UInt32) AS txnIndex,
+  CAST(max(index_in_log) AS UInt32) AS eventIndex,
+  argMax(account_id, token_in IS NOT NULL) AS maker,
+  argMax(token_in, token_in IS NOT NULL) AS tokenIn,
+  argMax(token_out, token_out IS NOT NULL) AS tokenOut,
   printf(
     '%.0f',
-    sumIf(abs(d.amount_in), d.amount_in IS NOT NULL)
+    sumIf(abs(amount_in), amount_in IS NOT NULL)
   ) AS assetIn,
   printf(
     '%.0f',
-    sumIf(d.amount_out, d.amount_out IS NOT NULL)
+    sumIf(amount_out, amount_out IS NOT NULL)
   ) AS assetOut,
   printf(
     '%.0f',
-    sumIf(abs(d.amount_in), d.amount_in IS NOT NULL)
+    sumIf(abs(balance_in), balance_in IS NOT NULL)
   ) AS reserveAssetIn,
   printf(
     '%.0f',
-    sumIf(d.amount_out, d.amount_out IS NOT NULL)
+    sumIf(abs(balance_out), balance_out IS NOT NULL)
   ) AS reserveAssetOut,
-  argMax(asset_in.decimals, d.token_in IS NOT NULL) AS assetInDecimals,
-  argMax(asset_out.decimals, d.token_out IS NOT NULL) AS assetOutDecimals
+  argMax(decimals_in, token_in IS NOT NULL) AS assetInDecimals,
+  argMax(decimals_out, token_out IS NOT NULL) AS assetOutDecimals
 FROM
-  near_intents_db.silver_dip4_token_diff_new d
-  LEFT JOIN distinct_assets asset_in ON d.token_in = asset_in.defuse_asset_id
-  LEFT JOIN distinct_assets asset_out ON d.token_out = asset_out.defuse_asset_id
+  final
 WHERE
-  d.tokens_cnt = 2
-  AND d.tx_hash IS NOT NULL
-  AND d.intent_hash IS NOT NULL
-  AND d.block_height >= { fromBlock :UInt32 }
-  AND d.block_height <= { toBlock :UInt32 }
+  block_height >= { fromBlock :UInt32 }
+  AND block_height <= { toBlock :UInt32 }
 GROUP BY
-  d.tx_hash,
-  d.intent_hash
+  tx_hash,
+  intent_hash
 HAVING
-  count(DISTINCT d.token_out) = 1
-  AND count(DISTINCT d.token_in) = 1
+  count(DISTINCT token_out) = 1
+  AND count(DISTINCT token_in) = 1
   -- TODO: Find decimals for everything then remove this filter
   AND assetInDecimals != 0
   AND assetOutDecimals != 0
@@ -133,6 +228,14 @@ export const getEvents = tryCatch(
         rawEvent.assetOut,
         rawEvent.assetOutDecimals
       )
+      const reserveAssetIn = addDecimalPoint(
+        rawEvent.reserveAssetIn,
+        rawEvent.assetInDecimals
+      )
+      const reserveAssetOut = addDecimalPoint(
+        rawEvent.reserveAssetOut,
+        rawEvent.assetOutDecimals
+      )
 
       const common = {
         block: {
@@ -159,8 +262,8 @@ export const getEvents = tryCatch(
             rawEvent.assetOutDecimals
           ),
           reserves: {
-            asset0: assetIn,
-            asset1: assetOut,
+            asset0: reserveAssetIn,
+            asset1: reserveAssetOut,
           },
         }
       }
@@ -177,8 +280,8 @@ export const getEvents = tryCatch(
           rawEvent.assetInDecimals
         ),
         reserves: {
-          asset0: assetOut,
-          asset1: assetIn,
+          asset0: reserveAssetOut,
+          asset1: reserveAssetIn,
         },
       }
     })
