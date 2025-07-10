@@ -1,8 +1,6 @@
 "use client"
-
 import { SwapWidget } from "@defuse-protocol/defuse-sdk"
 
-import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
@@ -17,7 +15,6 @@ export default function Swap() {
   const signMessage = useWalletAgnosticSignMessage()
   const { signAndSendTransactions } = useNearWalletActions()
   const tokenList = useTokenList(LIST_TOKENS)
-  const { tokenIn, tokenOut } = useDeterminePair()
   const referral = useIntentsReferral()
 
   return (
@@ -44,8 +41,6 @@ export default function Swap() {
         renderHostAppLink={renderAppLink}
         userChainType={state.chainType ?? null}
         referral={referral}
-        initialTokenIn={tokenIn}
-        initialTokenOut={tokenOut}
       />
     </Paper>
   )

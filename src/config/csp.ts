@@ -48,6 +48,9 @@ const cspConfig = {
     "https://beaconapi.helpscout.net",
     "https://*.cloudfront.net",
 
+    /** Coin Prices API */
+    "https://coin-prices-api.vercel.app",
+
     /** Wallets */
     "https://*.walletconnect.org",
     "https://*.walletconnect.com",
