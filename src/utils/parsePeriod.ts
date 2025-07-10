@@ -8,11 +8,5 @@ export const parsePeriod = (period: string): string => {
       return "30"
     case "3m":
       return "90"
-    case "6m":
-      return "180"
-    case "12m":
-      return "365"
-    default:
-      return "7"
   }
 }
