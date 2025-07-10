@@ -1392,7 +1392,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
   },
   {
     defuseAssetId:
-      "nep141:eth-0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599.omft.near",
+      "nep141:eth-0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.omft.near",
     address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
     decimals: 8,
     icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3717.png",
