@@ -71,7 +71,7 @@ export function NavbarMobile() {
           />
 
           {/* Explore */}
-          <NavItem
+          {/* <NavItem
             href={navigation.explore}
             label="Explore"
             isActive={isExploreActive}
@@ -80,7 +80,7 @@ export function NavbarMobile() {
                 <MagnifyingGlass className="size-3 text-gray-1" weight="bold" />
               </NavItem.DisplayIcon>
             }
-          />
+          /> */}
         </nav>
       </div>
       <div className="block md:hidden h-[calc(44px+max(env(safe-area-inset-bottom,0px),theme(spacing.3)))]" />

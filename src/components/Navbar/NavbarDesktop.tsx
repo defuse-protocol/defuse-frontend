@@ -26,11 +26,11 @@ export function NavbarDesktop() {
       <NavItem label="Trade" isActive={isTradeActive} href={navigation.home} />
 
       {/* Explore */}
-      <NavItem
+      {/* <NavItem
         label="Explore"
         isActive={isExploreActive}
         href={navigation.explore}
-      />
+      /> */}
     </nav>
   )
 }
