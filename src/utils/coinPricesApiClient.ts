@@ -2,7 +2,10 @@ import { z } from "zod"
 
 import { logger } from "@src/utils/logger"
 
-import { COIN_PRICES_API_BASE_URL, COIN_PRICES_API_KEY } from "./environment"
+import {
+  NEXT_PUBLIC_COIN_PRICES_API_BASE_URL,
+  NEXT_PUBLIC_COIN_PRICES_API_KEY,
+} from "./environment"
 
 export const PriceDataSchema = z.object({
   timestamp: z.string(),
@@ -29,14 +32,14 @@ export interface ProcessedPriceData {
 }
 
 const request = async <T>(endpoint: string, init?: RequestInit): Promise<T> => {
-  const { href } = new URL(endpoint, COIN_PRICES_API_BASE_URL)
+  const { href } = new URL(endpoint, NEXT_PUBLIC_COIN_PRICES_API_BASE_URL)
 
   logger.info(`Coin Prices API request ${href}`)
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    ...(COIN_PRICES_API_KEY && {
-      Authorization: `Bearer ${COIN_PRICES_API_KEY}`,
+    ...(NEXT_PUBLIC_COIN_PRICES_API_KEY && {
+      Authorization: `Bearer ${NEXT_PUBLIC_COIN_PRICES_API_KEY}`,
     }),
   }
 
@@ -61,9 +64,9 @@ const request = async <T>(endpoint: string, init?: RequestInit): Promise<T> => {
 }
 
 export const coinPricesApiClient = {
-  getPrices: async (symbols: string, days?: string, months?: string) =>
+  getPrices: async (symbols: string, days?: string) =>
     request<z.infer<typeof PricesResponseSchema>>(
-      `/prices?symbols=${symbols}&days=${days}&months=${months}`
+      `/prices?symbols=${symbols}&days=${days}`
     ),
 
   getMarketCaps: async () =>

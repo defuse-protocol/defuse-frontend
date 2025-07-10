@@ -1,29 +1,45 @@
+"use client"
+
 import { ArrowRightIcon } from "@radix-ui/react-icons"
 import { Button } from "@radix-ui/themes"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 
-import type { SimpleMarketData } from "@src/utils/coinPricesApiClient"
+import { coinPricesApiClient } from "@src/utils/coinPricesApiClient"
+import { parsePeriod } from "@src/utils/parsePeriod"
 
 import MiniPriceChart from "./MiniPriceChart"
 import type { TokenRowData } from "./page"
 
 const TokenRow = ({
   token,
-  prices,
-  marketData,
+  period,
 }: {
   token: TokenRowData
-  prices: Record<string, number>
-  marketData: SimpleMarketData
+  period: string
 }) => {
+  const [prices, setPrices] = useState<number[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchPrices = async () => {
+      const livePrices = await coinPricesApiClient.getPrices(
+        token.symbol,
+        parsePeriod(period)
+      )
+      setPrices(livePrices[token.symbol].map(([_, price]) => price))
+      setIsLoading(false)
+    }
+    fetchPrices()
+  }, [token.symbol, period])
+
   const router = useRouter()
-  const chartData = marketData?.prices ?? []
   const priceDiff =
-    chartData.length > 1 ? chartData[chartData.length - 1] - chartData[0] : 0
+    prices.length > 1 ? prices[prices.length - 1] - prices[0] : 0
   const percentChange =
-    chartData.length > 1 && chartData[0] !== 0
-      ? (priceDiff / chartData[0]) * 100
+    prices.length > 1 && prices[0] !== 0
+      ? (priceDiff / prices[0]) * 100
       : token.change
 
   const tdClassNames = "py-4 px-6 text-center text-sm text-gray-12 font-medium"
@@ -34,6 +50,13 @@ const TokenRow = ({
     } else {
       router.push(`/?tokenOut=${token.symbol}`)
     }
+  }
+
+  if (isLoading) {
+    return <TokenRowSkeleton />
+  }
+  if (prices.length < 2 && !isLoading) {
+    return null
   }
 
   return (
@@ -76,10 +99,10 @@ const TokenRow = ({
         </Button>
       </td>
       <td>
-        <MiniPriceChart data={chartData} />
+        <MiniPriceChart data={prices} />
       </td>
       <td className={tdClassNames}>
-        ${prices[token.symbol]?.toFixed(2) ?? token.price?.toFixed(2) ?? "N/A"}
+        ${prices[prices.length - 1]?.toFixed(2) ?? "N/A"}
       </td>
       <td className="py-4 px-6">
         <div className="flex flex-row justify-center items-center gap-2 text-sm text-gray-12 font-medium">
@@ -132,6 +155,36 @@ const TokenRow = ({
         })()}
       </td>
       {/* <td className={tdClassNames}>{`$${(token.volume / 1e9).toFixed(1)}B`}</td> */}
+    </tr>
+  )
+}
+
+const TokenRowSkeleton = () => {
+  return (
+    <tr className="text-left text-xs text-gray-11 dark:text-gray-12 py-4 px-6">
+      <td className="py-4 px-6">
+        <div className="flex flex-row items-center gap-2">
+          <div className="relative overflow-hidden size-7 flex justify-center items-center rounded-full z-0">
+            <div className="w-7 h-7 bg-gray-3 dark:bg-gray-7 rounded-full animate-pulse" />
+          </div>
+          <div className="flex flex-col items-start gap-1">
+            <div className="h-4 w-24 bg-gray-3 dark:bg-gray-7 rounded animate-pulse" />
+            <div className="h-3 w-16 bg-gray-3 dark:bg-gray-7 rounded animate-pulse" />
+          </div>
+        </div>
+      </td>
+      <td>
+        <div className="h-12 w-32 bg-gray-3 dark:bg-gray-7 rounded animate-pulse" />
+      </td>
+      <td className="py-4 px-6 text-center">
+        <div className="h-4 w-16 bg-gray-3 dark:bg-gray-7 rounded animate-pulse mx-auto" />
+      </td>
+      <td className="py-4 px-6 text-center">
+        <div className="h-4 w-16 bg-gray-3 dark:bg-gray-7 rounded animate-pulse mx-auto" />
+      </td>
+      <td className="py-4 px-6 text-center">
+        <div className="h-4 w-24 bg-gray-3 dark:bg-gray-7 rounded animate-pulse mx-auto" />
+      </td>
     </tr>
   )
 }

@@ -4,7 +4,6 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
 
 import Pill from "@src/components/Pill"
-import type { SimpleMarketData } from "@src/utils/coinPricesApiClient"
 import { prepareExplorePageTokens } from "@src/utils/prepareExplorePageTokens"
 
 import TokenRow from "./TokenRow"
@@ -12,24 +11,16 @@ import type { TokenRowData } from "./page"
 
 const ExplorePage = ({
   patchedTokenList,
-  prices,
-  marketData,
   period,
 }: {
   patchedTokenList: TokenRowData[]
-  prices: Record<string, number>
-  marketData: Record<string, SimpleMarketData>
   period: string
 }) => {
   const [search, setSearch] = useState("")
   const urlSearchParams = useSearchParams()
   const router = useRouter()
 
-  const filteredTokenList = prepareExplorePageTokens(
-    patchedTokenList,
-    marketData,
-    search
-  )
+  const filteredTokenList = prepareExplorePageTokens(patchedTokenList, search)
 
   const setSearchParams = (params: Record<string, string>) => {
     const newSearchParams = new URLSearchParams(urlSearchParams)
@@ -84,18 +75,7 @@ const ExplorePage = ({
           </thead>
           <tbody className="max-h-[500px] overflow-y-auto">
             {filteredTokenList.map((token) => (
-              <TokenRow
-                key={token.symbol}
-                token={token}
-                prices={prices}
-                marketData={
-                  marketData[token.symbol] || {
-                    prices: [],
-                    market_caps: [],
-                    total_volumes: [],
-                  }
-                }
-              />
+              <TokenRow key={token.symbol} token={token} period={period} />
             ))}
           </tbody>
         </table>

@@ -35,28 +35,14 @@ const Page = async ({ searchParams }: PageProps) => {
   const resolvedSearchParams = await searchParams
   const period = resolvedSearchParams.period || "7d"
 
-  const days = parsePeriod(period)
-
-  const livePrices = await coinPricesApiClient.getPrices(
-    LIST_TOKENS.map((token) => token.symbol).join(","),
-    days
-  )
   const liveMarketCaps = await coinPricesApiClient.getMarketCaps()
-  const { prices, marketData } = parsePriceData(livePrices)
 
   for (const token of patchedTokenList) {
     const symbol = token.symbol as keyof typeof liveMarketCaps
     token.marketCap = Number(liveMarketCaps[symbol] || 0)
   }
 
-  return (
-    <ExplorePage
-      patchedTokenList={patchedTokenList}
-      prices={prices}
-      marketData={marketData}
-      period={period}
-    />
-  )
+  return <ExplorePage patchedTokenList={patchedTokenList} period={period} />
 }
 
 export default Page
