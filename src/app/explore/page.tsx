@@ -5,8 +5,6 @@ import type {
 
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { coinPricesApiClient } from "@src/utils/coinPricesApiClient"
-import { parsePeriod } from "@src/utils/parsePeriod"
-import { parsePriceData } from "@src/utils/parsePriceData"
 
 import ExplorePage from "./ExplorePage"
 
