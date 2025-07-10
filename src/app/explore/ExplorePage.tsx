@@ -66,8 +66,6 @@ const ExplorePage = ({
             <option value="7d">7 days</option>
             <option value="1m">1 month</option>
             <option value="3m">3 months</option>
-            <option value="6m">6 months</option>
-            <option value="12m">12 months</option>
           </select>
         </div>
       </div>
