@@ -24,6 +24,7 @@ export function initSDK() {
         hyperliquid: true,
         ton: true,
         near_intents: true,
+        sui: true,
       },
     })
   } else {
@@ -51,6 +52,7 @@ export function initSDK() {
         hyperliquid: true,
         ton: true,
         near_intents: true,
+        sui: true,
       },
     })
   }
