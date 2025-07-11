@@ -471,7 +471,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
       },
       {
         defuseAssetId:
-          "sui:mainnet:0x375f70cf2ae4c00bf37117d0c85a2c71545e6ee05c4a5c7d282cd66a4504b068::usdt::USDT",
+          "nep141:sui-349a5b23674603c086ceac1fa9f139c4bbc30cf8.omft.near",
         address:
           "0x375f70cf2ae4c00bf37117d0c85a2c71545e6ee05c4a5c7d282cd66a4504b068::usdt::USDT",
         decimals: 6,
@@ -1415,7 +1415,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
     tags: ["mc:3"],
   },
   {
-    defuseAssetId: "sui:mainnet:0x2::sui::SUI",
+    defuseAssetId: "nep141:sui.omft.near",
     type: "native",
     decimals: 9,
     icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/20947.png",
