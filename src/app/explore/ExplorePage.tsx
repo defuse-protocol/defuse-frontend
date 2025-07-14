@@ -60,17 +60,17 @@ const ExplorePage = ({
           </select>
         </div>
       </div>
-      <div className="w-full overflow-x-auto">
-        <table className="w-full min-w-[640px] shadow-2xl rounded-md bg-white dark:bg-gray-4">
-          <thead className="sticky top-0 z-10">
-            <tr className="text-left text-xs text-gray-11 dark:text-gray-12 py-4 px-6 bg-white dark:bg-gray-4">
-              <th className="py-4 px-6">Token</th>
+      <div className="w-full ">
+        <table className="w-full min-w-[640px] shadow-xl rounded-4xl bg-white dark:bg-gray-4">
+          <thead className="sticky top-0 z-10 pt-2">
+            <tr className="text-left text-sm text-gray-11 dark:text-gray-12 py-4 px-6 ">
+              <th className="pt-6 pb-4 px-6">Token</th>
               <th />
-              <th className="py-4 px-2 md:px-6 text-center">Price</th>
-              <th className="py-4 px-2 md:px-6 text-center">Change</th>
-              {/* <th className="py-4 px-2 md:px-6 text-center">Mindshare</th> */}
-              <th className="py-4 px-2 md:px-6 text-center">Market Cap</th>
-              {/* <th className="py-4 px-2 md:px-6 text-center">Volume</th> */}
+              <th className="pt-6 pb-4 px-2 md:px-6 text-center">Price</th>
+              <th className="pt-6 pb-4 px-2 md:px-6 text-center">Change</th>
+              {/* <th className="pt-6 pb-4 px-2 md:px-6 text-center">Mindshare</th> */}
+              <th className="pt-6 pb-4 px-2 md:px-6 text-center">Market Cap</th>
+              {/* <th className="pt-6 pb-4 px-2 md:px-6 text-center">Volume</th> */}
             </tr>
           </thead>
           <tbody className="max-h-[500px] overflow-y-auto">

@@ -40,7 +40,12 @@ const Page = async ({ searchParams }: PageProps) => {
     token.marketCap = Number(liveMarketCaps[symbol] || 0)
   }
 
-  return <ExplorePage patchedTokenList={patchedTokenList} period={period} />
+  return (
+    <ExplorePage
+      patchedTokenList={patchedTokenList.filter((token) => token.marketCap > 0)}
+      period={period}
+    />
+  )
 }
 
 export default Page

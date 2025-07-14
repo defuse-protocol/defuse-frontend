@@ -6,6 +6,7 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
+import { cn } from "@src/utils/cn"
 import { coinPricesApiClient } from "@src/utils/coinPricesApiClient"
 import { parsePeriod } from "@src/utils/parsePeriod"
 
@@ -42,13 +43,13 @@ const TokenRow = ({
       ? (priceDiff / prices[0]) * 100
       : token.change
 
-  const tdClassNames = "py-4 px-6 text-center text-sm text-gray-12 font-medium"
+  const tdClassNames = "py-4 px-6 text-center text-md text-gray-12 font-bold"
 
   const handleClick = () => {
     if (["usdc", "usdt", "dai"].includes(token.symbol.toLowerCase())) {
-      router.push(`/?tokenIn=${token.symbol}&tokenOut=NEAR`)
+      router.push(`/?from=${token.symbol}&to=NEAR`)
     } else {
-      router.push(`/?tokenOut=${token.symbol}`)
+      router.push(`/?from=USDC&tokenOut=${token.symbol}`)
     }
   }
 
@@ -56,12 +57,22 @@ const TokenRow = ({
     return <TokenRowSkeleton />
   }
   if (prices.length < 2 && !isLoading) {
+    console.log("No data for", token.symbol)
     return null
   }
 
+  const formatPrice = (price: number) => {
+    if (price < 0.01) {
+      return `$${price.toFixed(8)}`
+    }
+    return `$${price.toFixed(2)}`
+  }
+
+  console.log(token.symbol, prices)
+
   return (
     <tr
-      className="text-left text-xs text-gray-11 dark:text-gray-12 py-4 px-6 hover:bg-gray-3 dark:hover:bg-gray-3 group cursor-pointer"
+      className="text-left text-xs text-gray-11 dark:text-gray-12 py-4 px-6 hover:bg-gray-3 dark:hover:bg-gray-3 group cursor-pointer border-t border-gray-100 dark:border-gray-700"
       onClick={handleClick}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -101,8 +112,8 @@ const TokenRow = ({
       <td>
         <MiniPriceChart data={prices} />
       </td>
-      <td className={tdClassNames}>
-        ${prices[prices.length - 1]?.toFixed(2) ?? "N/A"}
+      <td className={cn(tdClassNames, "text-base")}>
+        {formatPrice(prices[prices.length - 1] ?? 0)}
       </td>
       <td className="py-4 px-6">
         <div className="flex flex-row justify-center items-center gap-2 text-sm text-gray-12 font-medium">
