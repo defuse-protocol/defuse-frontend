@@ -1061,17 +1061,18 @@
     tweetnacl "^1.0.3"
     tweetnacl-util "^0.15.1"
 
-"@defuse-protocol/bridge-sdk@^0.6.0":
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/@defuse-protocol/bridge-sdk/-/bridge-sdk-0.6.0.tgz#0caecca614e4d9a59706571b377e648e364f817d"
-  integrity sha512-jtMShwi90UH4u/TEzmlJrp24GK3z8ZGghHexbSNvPwKEI1WBy4C2zSSf9MaufImYDO46f5hatYSU78K6eVswYQ==
+"@defuse-protocol/bridge-sdk@^0.7.4":
+  version "0.7.4"
+  resolved "https://registry.yarnpkg.com/@defuse-protocol/bridge-sdk/-/bridge-sdk-0.7.4.tgz#3c71967635c579714f620a05086c59c35fdb347c"
+  integrity sha512-zqYxqX7CQvHhP30OLHnkVJm5dmssubDM51jF2JkgADCfYRwMsLcADaV+Klk8ebnsb8e/b9T3QpHHFaN+PlseNw==
   dependencies:
     "@defuse-protocol/contract-types" "0.0.3"
-    "@defuse-protocol/internal-utils" "0.0.7"
+    "@defuse-protocol/internal-utils" "0.0.10"
     "@hot-labs/omni-sdk" "2.8.3"
+    "@lifeomic/attempt" "^3.0.0"
     "@scure/base" "^1.2.5"
     borsher "^4.0.0"
-    near-api-js "^5.1.1"
+    near-api-js "^5.0.1"
     viem "^2.29.4"
 
 "@defuse-protocol/contract-types@0.0.3":
@@ -1079,12 +1080,12 @@
   resolved "https://registry.yarnpkg.com/@defuse-protocol/contract-types/-/contract-types-0.0.3.tgz#ed7f8070c80e9cd2ac2fd7f2c4dd6cd4918205a8"
   integrity sha512-N3LJS4tfshw6+kldrx6Hij8c8tzTHbmNPVByhursQ86Apu8p/gOPixfBbUZh21fKCCqktERbjeKzGe5EJV0gWA==
 
-"@defuse-protocol/defuse-sdk@^1.0.0-beta.198":
-  version "1.0.0-beta.198"
-  resolved "https://registry.yarnpkg.com/@defuse-protocol/defuse-sdk/-/defuse-sdk-1.0.0-beta.198.tgz#b1cbe3513276daaa3038393e7a81c7e509c67979"
-  integrity sha512-qq9cb0gZ8Fhw0cnadHq9o1csBBtffRDhkKiAgs/BjRWHfj+6x/8WrWWP1h1ParsbfUZHm5DBDTrWgClSw4WMyA==
+"@defuse-protocol/defuse-sdk@^1.0.0-beta.201":
+  version "1.0.0-beta.201"
+  resolved "https://registry.yarnpkg.com/@defuse-protocol/defuse-sdk/-/defuse-sdk-1.0.0-beta.201.tgz#be0346aa6a5dcde09dfa1928bc0467cb8837016d"
+  integrity sha512-Dwz/00LXNCA8o40pv/80weT33bFeqXQKiMYMwJ3OgiXwvhqrrSw8WevKxpnE2rU2yiPkznLKHG8zsLHiv34Afg==
   dependencies:
-    "@defuse-protocol/bridge-sdk" "^0.6.0"
+    "@defuse-protocol/bridge-sdk" "^0.7.4"
     "@lifeomic/attempt" "^3.1.0"
     "@noble/curves" "1.4.0"
     "@noble/hashes" "^1.7.1"
@@ -1128,10 +1129,10 @@
     xstate "^5.18.2"
     zustand "^5.0.0-rc.2"
 
-"@defuse-protocol/internal-utils@0.0.7":
-  version "0.0.7"
-  resolved "https://registry.yarnpkg.com/@defuse-protocol/internal-utils/-/internal-utils-0.0.7.tgz#ce2db5c2b20b40205ba64eed6471b32fe3b6cbc2"
-  integrity sha512-+mMjXog7Fg9qD1aICRqyobj3gR651PoJjGebwriNl8e3Ug506yiLFqg47HIjz5vu9q4avkFNCa21VOxAQeH/aQ==
+"@defuse-protocol/internal-utils@0.0.10":
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/@defuse-protocol/internal-utils/-/internal-utils-0.0.10.tgz#73d7592bc4668a9959c0651dc95c4e3612d1efee"
+  integrity sha512-zHHAjZJslHm4mtIRhxI6waRyAymmFynAlOIi9i/3kcDnECctkq13D2oMaOO93VLjud3ZDHpsCbsbSTtDsrncYQ==
   dependencies:
     "@defuse-protocol/contract-types" "0.0.3"
     "@hot-labs/omni-sdk" "2.8.3"
@@ -1141,7 +1142,7 @@
     "@peculiar/asn1-schema" "^2.3.15"
     "@scure/base" "^1.1.9"
     "@thames/monads" "^0.7.0"
-    near-api-js "^5.1.1"
+    near-api-js "^5.0.1"
     tweetnacl "^1.0.3"
     valibot "^1.0.0-rc.1"
     viem "^2.18.1"
@@ -2255,7 +2256,7 @@
   resolved "https://registry.yarnpkg.com/@levischuck/tiny-cbor/-/tiny-cbor-0.2.11.tgz#833ddf7f3627dcb62d855d9c184061b4a1a875b3"
   integrity sha512-llBRm4dT4Z89aRsm6u2oEZ8tfwL/2l6BwpZ7JcyieouniDECM5AqNgr/y08zalEIvW3RSK4upYyybDcmjXqAow==
 
-"@lifeomic/attempt@^3.1.0":
+"@lifeomic/attempt@^3.0.0", "@lifeomic/attempt@^3.1.0":
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/@lifeomic/attempt/-/attempt-3.1.0.tgz#7fc703559177b81a008b9d263e3d9a001d11d08a"
   integrity sha512-QZqem4QuAnAyzfz+Gj5/+SLxqwCAw2qmt7732ZXodr6VDWGeYLG6w1i/vYLa55JQM9wRuBKLmXmiZ2P0LtE5rw==
