@@ -31,7 +31,7 @@ SELECT
   blockchain,
   contract_address
 FROM near_intents_db.defuse_assets
-WHERE defuse_asset_id = {id:String}
+WHERE defuse_asset_id = {id:String} AND contract_address != ''
 ORDER BY price_updated_at DESC
 LIMIT 1`
 
