@@ -170,6 +170,18 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         symbol: "USDC",
         name: "USD Coin",
       },
+      {
+        defuseAssetId:
+          "nep141:sui-c1b81ecaf27933252d31a963bc5e9458f13c18ce.omft.near",
+        address:
+          "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+        chainName: "sui",
+        bridge: "poa",
+        symbol: "USDC",
+        name: "USD Coin",
+      },
     ],
     tags: ["mc:7", "type:stablecoin", "tvol:4"],
   },
