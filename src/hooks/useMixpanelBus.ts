@@ -35,14 +35,26 @@ export function useMixpanelBus() {
 
   useEffect(() => {
     if (bus) {
+      const listeners: Array<(payload: Dict) => void> = []
+
       for (const event of events) {
-        bus.on(event, (payload: Dict) => {
+        const listener = (payload: Dict) => {
           sendMixPanelEvent(event, payload)
-        })
+        }
+        listeners.push(listener)
+        bus.on(event, listener)
       }
-    } else {
-      logger.error("event bus is not defined")
+
+      return () => {
+        if (bus) {
+          for (let i = 0; i < events.length; i++) {
+            bus.removeListener(events[i], listeners[i])
+          }
+        }
+      }
     }
+
+    logger.error("event bus is not defined")
   }, [sendMixPanelEvent])
 
   return mixPanel
