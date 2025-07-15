@@ -1417,7 +1417,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
   {
     defuseAssetId: "nep141:aptos.omft.near",
     type: "native",
-    decimals: 9,
+    decimals: 8,
     icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/21794.png",
     chainName: "aptos",
     bridge: "poa",
