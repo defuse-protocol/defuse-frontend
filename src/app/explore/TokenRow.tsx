@@ -151,8 +151,8 @@ const TokenRow = ({ token }: { token: TokenRowData }) => {
 
 const TokenRowSkeleton = () => {
   return (
-    <tr className="text-left text-xs text-gray-11 dark:text-gray-12 py-4 px-6">
-      <td className="py-4 px-6 w-full">
+    <tr className="text-left text-xs text-gray-11 dark:text-gray-12 py-5 px-6 border-t border-gray-100 dark:border-gray-700">
+      <td className="py-4 px-6 w-96">
         <div className="flex flex-row items-center gap-2">
           <div className="relative overflow-hidden size-7 flex justify-center items-center rounded-full z-0">
             <div className="w-7 h-7 bg-gray-3 dark:bg-gray-7 rounded-full animate-pulse" />
@@ -164,7 +164,7 @@ const TokenRowSkeleton = () => {
         </div>
       </td>
       <td className="w-32">
-        <div className="h-6 w-24 bg-gray-3 dark:bg-gray-7 rounded animate-pulse" />
+        <div className="h-6 px-6 w-full bg-gray-3 dark:bg-gray-7 rounded animate-pulse" />
       </td>
       <td className="py-4 px-6 text-center w-24">
         <div className="h-4 w-16 bg-gray-3 dark:bg-gray-7 rounded animate-pulse mx-auto" />
@@ -176,10 +176,10 @@ const TokenRowSkeleton = () => {
         <div className="h-4 w-16 bg-gray-3 dark:bg-gray-7 rounded animate-pulse mx-auto" />
       </td>
       <td className="w-32">
-        <div className="h-6 w-20 bg-gray-3 dark:bg-gray-7 rounded animate-pulse" />
+        <div className="h-6 px-6 w-full bg-gray-3 dark:bg-gray-7 rounded animate-pulse" />
       </td>
       <td className="w-30 px-4">
-        <div className="h-12 w-40 bg-gray-3 dark:bg-gray-7 rounded animate-pulse" />
+        <div className="h-12 w-28 bg-gray-3 dark:bg-gray-7 rounded animate-pulse" />
       </td>
     </tr>
   )
