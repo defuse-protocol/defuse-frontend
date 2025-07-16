@@ -55,7 +55,7 @@ const TokenRow = ({ token }: { token: TokenRowData }) => {
     if (["usdc", "usdt", "dai"].includes(token.symbol.toLowerCase())) {
       router.push(`/?from=${token.symbol}&to=NEAR`)
     } else {
-      router.push(`/?from=USDC&tokenOut=${token.symbol}`)
+      router.push(`/?from=USDC&to=${token.symbol}`)
     }
   }
 
