@@ -38,6 +38,7 @@ export function createGiftLink(payload: GiftLinkPayload): string {
 
 export async function createGiftIntent(payload: GiftLinkData): Promise<{
   iv: string
+  giftId: string
 }> {
   try {
     // Generate client-side IV and pKey for the order
@@ -59,6 +60,7 @@ export async function createGiftIntent(payload: GiftLinkData): Promise<{
     }
     return {
       iv: encodedIv,
+      giftId,
     }
   } catch (e) {
     throw new Error("Failed to create order")
@@ -83,6 +85,7 @@ export function useGiftIntent() {
             const decrypted = await decodeAES256Gift(encryptedPayload, pKey, iv)
             return {
               payload: decrypted,
+              giftId: deriveIdFromIV(iv),
             }
           }
         } catch (error) {
@@ -109,5 +112,6 @@ export function useGiftIntent() {
 
   return {
     payload: data?.payload ?? null,
+    giftId: data?.giftId ?? null,
   }
 }
