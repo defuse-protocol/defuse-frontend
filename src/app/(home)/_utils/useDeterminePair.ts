@@ -118,6 +118,11 @@ export function updateURLParams({
   router: ReturnType<typeof useRouter>
   searchParams: ReturnType<typeof useSearchParams>
 }) {
+  // Only update if 'from' or 'to' is present in the current params
+  const hasFrom = searchParams.has("from")
+  const hasTo = searchParams.has("to")
+  if (!hasFrom && !hasTo) return
+
   const params = new URLSearchParams(searchParams.toString())
   if (tokenIn?.symbol) params.set("from", tokenIn.symbol)
   if (tokenOut?.symbol) params.set("to", tokenOut.symbol)
