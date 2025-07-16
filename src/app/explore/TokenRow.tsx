@@ -70,7 +70,7 @@ const TokenRow = ({ token }: { token: TokenRowData }) => {
     if (price < 0.01) {
       return `$${price.toFixed(8)}`
     }
-    return `$${price.toFixed(2)}`
+    return `$${price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
   }
 
   return (

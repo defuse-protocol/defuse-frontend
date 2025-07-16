@@ -35,9 +35,9 @@ const ExplorePage = ({
         </div>
       </div>
       <div className="w-full ">
-        <table className="w-full min-w-[640px] shadow-xl rounded-4xl bg-white dark:bg-gray-4">
-          <thead className="sticky top-0 z-10 pt-2">
-            <tr className="text-left text-sm text-gray-11 dark:text-gray-12 py-4 px-6 ">
+        <table className="w-full min-w-[640px] shadow-xl rounded-4xl bg-white dark:bg-gray-4 overflow-clip">
+          <thead className="sticky top-0 z-10 pt-2 ">
+            <tr className="text-left text-sm text-gray-11 dark:text-gray-12 py-4 px-6 bg-white dark:bg-gray-4 rounded-t-4xl overflow-hidden">
               <th className="w-full pt-6 pb-4 px-6">Token</th>
               <th className="w-32 pt-6 pb-4 px-2 md:px-6 text-center">Price</th>
               <th className="w-24 pt-6 pb-4 px-2 md:px-6 text-center">24h</th>
