@@ -55,8 +55,8 @@ function getPairFromUrlParams(
   fromParam: string | null,
   toParam: string | null
 ) {
-  const fromToken = findTokenBySymbolOrDefuseId(fromParam, LIST_TOKENS)
-  const toToken = findTokenBySymbolOrDefuseId(toParam, LIST_TOKENS)
+  const fromToken = findTokenBySymbol(fromParam, LIST_TOKENS)
+  const toToken = findTokenBySymbol(toParam, LIST_TOKENS)
 
   if (fromToken || toToken) {
     return { tokenIn: fromToken, tokenOut: toToken }
@@ -87,7 +87,7 @@ function getPairFromWhitelabelTemplate(whitelabelTemplate: string) {
   return { tokenIn, tokenOut }
 }
 
-function findTokenBySymbolOrDefuseId(
+function findTokenBySymbol(
   input: string | null,
   tokens: (BaseTokenInfo | UnifiedTokenInfo)[]
 ): BaseTokenInfo | UnifiedTokenInfo | null {
