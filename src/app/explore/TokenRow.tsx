@@ -49,7 +49,7 @@ const TokenRow = ({ token }: { token: TokenRowData }) => {
   }, [token.symbol])
 
   const router = useRouter()
-  const tdClassNames = "py-4 px-6 text-center text-md text-gray-12 font-bold"
+  const tdClassNames = "py-4 px-6 text-center text-md text-gray-12 font-medium"
 
   const handleClick = () => {
     if (["usdc", "usdt", "dai"].includes(token.symbol.toLowerCase())) {
@@ -112,7 +112,7 @@ const TokenRow = ({ token }: { token: TokenRowData }) => {
           Trade <ArrowRightIcon className="w-4 h-4" />
         </Button>
       </td>
-      <td className={cn(tdClassNames, "text-base w-32")}>
+      <td className={cn(tdClassNames, "text-sm w-32")}>
         {formatPrice(prices[prices.length - 1] ?? 0)}
       </td>
 
