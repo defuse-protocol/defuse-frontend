@@ -6,43 +6,49 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
+import PercentChangeIndicator from "@src/components/PercentChangeIndicator"
 import { cn } from "@src/utils/cn"
 import { coinPricesApiClient } from "@src/utils/coinPricesApiClient"
-import { parsePeriod } from "@src/utils/parsePeriod"
 
 import MiniPriceChart from "./MiniPriceChart"
 import type { TokenRowData } from "./page"
 
-const TokenRow = ({
-  token,
-  period,
-}: {
-  token: TokenRowData
-  period: string
-}) => {
+type PriceChangeType = {
+  day: number
+  week: number
+  month: number
+  weekIndex: number
+}
+
+const TokenRow = ({ token }: { token: TokenRowData }) => {
   const [prices, setPrices] = useState<number[]>([])
+  const [priceChanges, setPriceChanges] = useState<PriceChangeType>({
+    day: 0,
+    week: 0,
+    month: 0,
+    weekIndex: 0,
+  })
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const fetchPrices = async () => {
-      const livePrices = await coinPricesApiClient.getPrices(
-        token.symbol,
-        parsePeriod(period)
+      const livePrices = await coinPricesApiClient.getPrices(token.symbol, "30")
+
+      const priceChanges = calculatePriceChanges(
+        livePrices[token.symbol].map(([_, price]) => price),
+        livePrices[token.symbol].map(([timestamp]) =>
+          new Date(timestamp).getTime()
+        )
       )
+
       setPrices(livePrices[token.symbol].map(([_, price]) => price))
+      setPriceChanges(priceChanges)
       setIsLoading(false)
     }
     fetchPrices()
-  }, [token.symbol, period])
+  }, [token.symbol])
 
   const router = useRouter()
-  const priceDiff =
-    prices.length > 1 ? prices[prices.length - 1] - prices[0] : 0
-  const percentChange =
-    prices.length > 1 && prices[0] !== 0
-      ? (priceDiff / prices[0]) * 100
-      : token.change
-
   const tdClassNames = "py-4 px-6 text-center text-md text-gray-12 font-bold"
 
   const handleClick = () => {
@@ -57,7 +63,6 @@ const TokenRow = ({
     return <TokenRowSkeleton />
   }
   if (prices.length < 2 && !isLoading) {
-    console.log("No data for", token.symbol)
     return null
   }
 
@@ -67,8 +72,6 @@ const TokenRow = ({
     }
     return `$${price.toFixed(2)}`
   }
-
-  console.log(token.symbol, prices)
 
   return (
     <tr
@@ -81,7 +84,7 @@ const TokenRow = ({
       }}
       tabIndex={0}
     >
-      <td className="py-4 px-6 flex flex-row justify-between items-center">
+      <td className="py-4 px-6 flex flex-row justify-between items-center w-full">
         <div className="flex flex-row items-center gap-2">
           <div className="relative overflow-hidden size-7 flex justify-center items-center rounded-full z-0">
             <Image
@@ -109,54 +112,23 @@ const TokenRow = ({
           Trade <ArrowRightIcon className="w-4 h-4" />
         </Button>
       </td>
-      <td>
-        <MiniPriceChart data={prices} />
-      </td>
-      <td className={cn(tdClassNames, "text-base")}>
+      <td className={cn(tdClassNames, "text-base w-32")}>
         {formatPrice(prices[prices.length - 1] ?? 0)}
       </td>
-      <td className="py-4 px-6">
-        <div className="flex flex-row justify-center items-center gap-2 text-sm text-gray-12 font-medium">
-          {typeof percentChange === "number" && (
-            <>
-              <span
-                className={
-                  percentChange > 0
-                    ? "text-green-600 font-medium"
-                    : percentChange < 0
-                      ? "text-red-600 font-medium"
-                      : "text-gray-11 font-medium"
-                }
-              >
-                {Math.abs(percentChange).toFixed(2)}%
-              </span>
-              {percentChange > 0 ? (
-                <svg
-                  className="w-3 h-3 text-green-600"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <title>Up arrow</title>
-                  <path d="M12 8L19 15H5L12 8Z" />
-                </svg>
-              ) : percentChange < 0 ? (
-                <svg
-                  className="w-3 h-3 text-red-600"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <title>Down arrow</title>
-                  <path d="M12 16L19 9H5L12 16Z" />
-                </svg>
-              ) : null}
-            </>
-          )}
-        </div>
+
+      <td className="py-4 px-6 w-24">
+        <PercentChangeIndicator percentChange={priceChanges.day} />
       </td>
-      {/* <td className={tdClassNames}>{token.mindshare}%</td> */}
-      <td className={tdClassNames}>
+
+      <td className="py-4 px-6 w-24">
+        <PercentChangeIndicator percentChange={priceChanges.week} />
+      </td>
+
+      <td className="py-4 px-6 w-24">
+        <PercentChangeIndicator percentChange={priceChanges.month} />
+      </td>
+
+      <td className={cn(tdClassNames, "w-36")}>
         {(() => {
           const cap = token.marketCap ?? 0
           if (cap >= 1e12) return `$${(cap / 1e12).toFixed(1)}T`
@@ -165,6 +137,13 @@ const TokenRow = ({
           return "$0"
         })()}
       </td>
+      <td className="px-4 w-30 items-center justify-center">
+        <MiniPriceChart
+          data={prices.slice(priceChanges.weekIndex, prices.length)}
+        />
+      </td>
+
+      {/* <td className={tdClassNames}>{token.mindshare}%</td> */}
       {/* <td className={tdClassNames}>{`$${(token.volume / 1e9).toFixed(1)}B`}</td> */}
     </tr>
   )
@@ -173,7 +152,7 @@ const TokenRow = ({
 const TokenRowSkeleton = () => {
   return (
     <tr className="text-left text-xs text-gray-11 dark:text-gray-12 py-4 px-6">
-      <td className="py-4 px-6">
+      <td className="py-4 px-6 w-full">
         <div className="flex flex-row items-center gap-2">
           <div className="relative overflow-hidden size-7 flex justify-center items-center rounded-full z-0">
             <div className="w-7 h-7 bg-gray-3 dark:bg-gray-7 rounded-full animate-pulse" />
@@ -184,20 +163,75 @@ const TokenRowSkeleton = () => {
           </div>
         </div>
       </td>
-      <td>
-        <div className="h-12 w-32 bg-gray-3 dark:bg-gray-7 rounded animate-pulse" />
+      <td className="w-32">
+        <div className="h-6 w-24 bg-gray-3 dark:bg-gray-7 rounded animate-pulse" />
       </td>
-      <td className="py-4 px-6 text-center">
+      <td className="py-4 px-6 text-center w-24">
         <div className="h-4 w-16 bg-gray-3 dark:bg-gray-7 rounded animate-pulse mx-auto" />
       </td>
-      <td className="py-4 px-6 text-center">
+      <td className="py-4 px-6 text-center w-24">
         <div className="h-4 w-16 bg-gray-3 dark:bg-gray-7 rounded animate-pulse mx-auto" />
       </td>
-      <td className="py-4 px-6 text-center">
-        <div className="h-4 w-24 bg-gray-3 dark:bg-gray-7 rounded animate-pulse mx-auto" />
+      <td className="py-4 px-6 text-center w-24">
+        <div className="h-4 w-16 bg-gray-3 dark:bg-gray-7 rounded animate-pulse mx-auto" />
+      </td>
+      <td className="w-32">
+        <div className="h-6 w-20 bg-gray-3 dark:bg-gray-7 rounded animate-pulse" />
+      </td>
+      <td className="w-30 px-4">
+        <div className="h-12 w-40 bg-gray-3 dark:bg-gray-7 rounded animate-pulse" />
       </td>
     </tr>
   )
+}
+
+const calculatePriceChanges = (prices: number[], timestamps: number[]) => {
+  if (prices.length < 2) {
+    return { day: 0, week: 0, month: 0, weekIndex: 0 }
+  }
+
+  const now = timestamps[timestamps.length - 1]
+  const dayAgo = now - 86400000
+  const weekAgo = now - 604800000
+  const monthAgo = now - 2592000000
+
+  let dayIndex = timestamps.length - 1
+  let weekIndex = timestamps.length - 1
+  let monthIndex = timestamps.length - 1
+
+  for (let i = timestamps.length - 1; i >= 0; i--) {
+    if (
+      Math.abs(timestamps[i] - dayAgo) < Math.abs(timestamps[dayIndex] - dayAgo)
+    ) {
+      dayIndex = i
+    }
+    if (
+      Math.abs(timestamps[i] - weekAgo) <
+      Math.abs(timestamps[weekIndex] - weekAgo)
+    ) {
+      weekIndex = i
+    }
+    if (
+      Math.abs(timestamps[i] - monthAgo) <
+      Math.abs(timestamps[monthIndex] - monthAgo)
+    ) {
+      monthIndex = i
+    }
+  }
+
+  const currentPrice = prices[prices.length - 1]
+  const dayChange = ((currentPrice - prices[dayIndex]) / prices[dayIndex]) * 100
+  const weekChange =
+    ((currentPrice - prices[weekIndex]) / prices[weekIndex]) * 100
+  const monthChange =
+    ((currentPrice - prices[monthIndex]) / prices[monthIndex]) * 100
+
+  return {
+    weekIndex,
+    day: dayChange,
+    week: weekChange,
+    month: monthChange,
+  }
 }
 
 export default TokenRow

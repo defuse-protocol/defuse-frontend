@@ -1,3 +1,4 @@
+import { cn } from "@src/utils/cn"
 import type React from "react"
 import type { AlignedData } from "uplot"
 import UplotReact from "uplot-react"
@@ -50,7 +51,7 @@ const MiniPriceChart: React.FC<MiniPriceChartProps> = ({ data }) => {
       {},
       {
         stroke,
-        width: 2,
+        width: 1,
         points: { show: false },
       },
     ],
@@ -65,15 +66,13 @@ const MiniPriceChart: React.FC<MiniPriceChartProps> = ({ data }) => {
 
   return (
     <div
-      style={{
-        background: "transparent",
-        display: "block",
-        width: `${width}px`,
-        height: `${height}px`,
-        minWidth: width,
-        minHeight: height,
-        overflow: "hidden",
-      }}
+      className={cn(
+        "block bg-transparent overflow-hidden",
+        `w-[${width}px]`,
+        `h-[${height}px]`,
+        `min-w-[${width}px]`,
+        `min-h-[${height}px]`
+      )}
     >
       <UplotReact options={options} data={parsedData} />
     </div>

@@ -1,6 +1,5 @@
 "use client"
 
-import { useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
 
 import Pill from "@src/components/Pill"
@@ -11,24 +10,12 @@ import type { TokenRowData } from "./page"
 
 const ExplorePage = ({
   patchedTokenList,
-  period,
 }: {
   patchedTokenList: TokenRowData[]
-  period: string
 }) => {
   const [search, setSearch] = useState("")
-  const urlSearchParams = useSearchParams()
-  const router = useRouter()
 
   const filteredTokenList = prepareExplorePageTokens(patchedTokenList, search)
-
-  const setSearchParams = (params: Record<string, string>) => {
-    const newSearchParams = new URLSearchParams(urlSearchParams)
-    for (const [key, value] of Object.entries(params)) {
-      newSearchParams.set(key, value)
-    }
-    router.push(`${window.location.pathname}?${newSearchParams.toString()}`)
-  }
 
   return (
     <div className="w-full flex flex-col mx-auto mt-[24px] md:mt-[64px] pl-[5%] pr-[5%] max-w-7xl gap-12">
@@ -45,37 +32,30 @@ const ExplorePage = ({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <select
-            value={period}
-            onChange={(e) => {
-              const newPeriod = e.target.value
-              setSearchParams({ period: newPeriod })
-            }}
-            className="rounded-md border border-gray-3 font-bold bg-gray-3 p-4 pr-8 text-sm text-gray-12 dark:border-gray-7 dark:bg-gray-8 dark:text-white"
-          >
-            <option value="1d">1 day</option>
-            <option value="7d">7 days</option>
-            <option value="1m">1 month</option>
-            <option value="3m">3 months</option>
-          </select>
         </div>
       </div>
       <div className="w-full ">
         <table className="w-full min-w-[640px] shadow-xl rounded-4xl bg-white dark:bg-gray-4">
           <thead className="sticky top-0 z-10 pt-2">
             <tr className="text-left text-sm text-gray-11 dark:text-gray-12 py-4 px-6 ">
-              <th className="pt-6 pb-4 px-6">Token</th>
-              <th />
-              <th className="pt-6 pb-4 px-2 md:px-6 text-center">Price</th>
-              <th className="pt-6 pb-4 px-2 md:px-6 text-center">Change</th>
+              <th className="w-full pt-6 pb-4 px-6">Token</th>
+              <th className="w-32 pt-6 pb-4 px-2 md:px-6 text-center">Price</th>
+              <th className="w-24 pt-6 pb-4 px-2 md:px-6 text-center">24h</th>
+              <th className="w-24 pt-6 pb-4 px-2 md:px-6 text-center">7d</th>
+              <th className="w-24 pt-6 pb-4 px-2 md:px-6 text-center">30d</th>
+              <th className="w-36 pt-6 pb-4 px-2 md:px-6 text-center whitespace-nowrap">
+                Market Cap
+              </th>
+              <th className="w-30 pt-6 pb-4 px-2 md:px-6 text-center whitespace-nowrap">
+                7d Change
+              </th>
               {/* <th className="pt-6 pb-4 px-2 md:px-6 text-center">Mindshare</th> */}
-              <th className="pt-6 pb-4 px-2 md:px-6 text-center">Market Cap</th>
               {/* <th className="pt-6 pb-4 px-2 md:px-6 text-center">Volume</th> */}
             </tr>
           </thead>
           <tbody className="max-h-[500px] overflow-y-auto">
             {filteredTokenList.map((token) => (
-              <TokenRow key={token.symbol} token={token} period={period} />
+              <TokenRow key={token.symbol} token={token} />
             ))}
           </tbody>
         </table>

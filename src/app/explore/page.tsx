@@ -16,11 +16,7 @@ export type TokenRowData = (UnifiedTokenInfo | BaseTokenInfo) & {
   volume: number
 }
 
-interface PageProps {
-  searchParams: Promise<{ period?: string }>
-}
-
-const Page = async ({ searchParams }: PageProps) => {
+const Page = async () => {
   const patchedTokenList: TokenRowData[] = LIST_TOKENS.map((token) => ({
     ...token,
     price: 0,
@@ -29,9 +25,6 @@ const Page = async ({ searchParams }: PageProps) => {
     marketCap: 0,
     volume: 0,
   }))
-
-  const resolvedSearchParams = await searchParams
-  const period = resolvedSearchParams.period || "7d"
 
   const liveMarketCaps = await coinPricesApiClient.getMarketCaps()
 
@@ -43,7 +36,6 @@ const Page = async ({ searchParams }: PageProps) => {
   return (
     <ExplorePage
       patchedTokenList={patchedTokenList.filter((token) => token.marketCap > 0)}
-      period={period}
     />
   )
 }

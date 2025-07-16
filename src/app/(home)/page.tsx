@@ -10,12 +10,15 @@ import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import { renderAppLink } from "@src/utils/renderAppLink"
 
+import { useDeterminePair } from "./_utils/useDeterminePair"
+
 export default function Swap() {
   const { state } = useConnectWallet()
   const signMessage = useWalletAgnosticSignMessage()
   const { signAndSendTransactions } = useNearWalletActions()
   const tokenList = useTokenList(LIST_TOKENS)
   const referral = useIntentsReferral()
+  const { tokenIn, tokenOut } = useDeterminePair()
 
   return (
     <Paper>
@@ -41,6 +44,8 @@ export default function Swap() {
         renderHostAppLink={renderAppLink}
         userChainType={state.chainType ?? null}
         referral={referral}
+        initialTokenIn={tokenIn}
+        initialTokenOut={tokenOut}
       />
     </Paper>
   )
