@@ -1,8 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import Pill from "@src/components/Pill"
+import { coinPricesApiClient } from "@src/utils/coinPricesApiClient"
 import { prepareExplorePageTokens } from "@src/utils/prepareExplorePageTokens"
 
 import TokenRow from "./TokenRow"
@@ -14,6 +15,36 @@ const ExplorePage = ({
   patchedTokenList: TokenRowData[]
 }) => {
   const [search, setSearch] = useState("")
+  const [prices, setPrices] = useState<Record<string, number[]>>({})
+  const [timestamps, setTimestamps] = useState<Record<string, number[]>>({})
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchPrices = async () => {
+      const livePrices = await coinPricesApiClient.getPrices(
+        patchedTokenList.map((t) => t.symbol).join(","),
+        "30"
+      )
+      const [priceEntries, timestampEntries] = Object.entries(
+        livePrices
+      ).reduce(
+        (acc, [symbol, prices]) => {
+          acc[0].push([symbol, prices.map(([_, price]) => price)])
+          acc[1].push([
+            symbol,
+            prices.map(([timestamp]) => new Date(timestamp).getTime()),
+          ])
+          return acc
+        },
+        [[], []] as [Array<[string, number[]]>, Array<[string, number[]]>]
+      )
+
+      setPrices(Object.fromEntries(priceEntries))
+      setTimestamps(Object.fromEntries(timestampEntries))
+      setIsLoading(false)
+    }
+    fetchPrices()
+  }, [patchedTokenList])
 
   const filteredTokenList = prepareExplorePageTokens(patchedTokenList, search)
 
@@ -55,7 +86,15 @@ const ExplorePage = ({
           </thead>
           <tbody className="max-h-[500px] overflow-y-auto">
             {filteredTokenList.map((token) => (
-              <TokenRow key={token.symbol} token={token} />
+              <TokenRow
+                key={token.symbol}
+                priceData={{
+                  prices: prices[token.symbol],
+                  timestamps: timestamps[token.symbol],
+                }}
+                token={token}
+                isLoading={isLoading}
+              />
             ))}
           </tbody>
         </table>
@@ -63,5 +102,4 @@ const ExplorePage = ({
     </div>
   )
 }
-
 export default ExplorePage

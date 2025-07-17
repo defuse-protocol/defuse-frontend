@@ -4,11 +4,9 @@ import { ArrowRightIcon } from "@radix-ui/react-icons"
 import { Button } from "@radix-ui/themes"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
 
 import PercentChangeIndicator from "@src/components/PercentChangeIndicator"
 import { cn } from "@src/utils/cn"
-import { coinPricesApiClient } from "@src/utils/coinPricesApiClient"
 
 import MiniPriceChart from "./MiniPriceChart"
 import type { TokenRowData } from "./page"
@@ -20,33 +18,17 @@ type PriceChangeType = {
   weekIndex: number
 }
 
-const TokenRow = ({ token }: { token: TokenRowData }) => {
-  const [prices, setPrices] = useState<number[]>([])
-  const [priceChanges, setPriceChanges] = useState<PriceChangeType>({
-    day: 0,
-    week: 0,
-    month: 0,
-    weekIndex: 0,
-  })
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchPrices = async () => {
-      const livePrices = await coinPricesApiClient.getPrices(token.symbol, "30")
-
-      const priceChanges = calculatePriceChanges(
-        livePrices[token.symbol].map(([_, price]) => price),
-        livePrices[token.symbol].map(([timestamp]) =>
-          new Date(timestamp).getTime()
-        )
-      )
-
-      setPrices(livePrices[token.symbol].map(([_, price]) => price))
-      setPriceChanges(priceChanges)
-      setIsLoading(false)
-    }
-    fetchPrices()
-  }, [token.symbol])
+const TokenRow = ({
+  token,
+  priceData,
+  isLoading,
+}: {
+  token: TokenRowData
+  priceData: { prices: number[]; timestamps: number[] }
+  isLoading: boolean
+}) => {
+  const { prices, timestamps } = priceData
+  const priceChanges = calculatePriceChanges(prices, timestamps)
 
   const router = useRouter()
   const tdClassNames = "py-4 px-6 text-center text-md text-gray-12 font-medium"
@@ -185,8 +167,11 @@ const TokenRowSkeleton = () => {
   )
 }
 
-const calculatePriceChanges = (prices: number[], timestamps: number[]) => {
-  if (prices.length < 2) {
+const calculatePriceChanges = (
+  prices: number[],
+  timestamps: number[]
+): PriceChangeType => {
+  if (!prices || prices.length < 2) {
     return { day: 0, week: 0, month: 0, weekIndex: 0 }
   }
 
