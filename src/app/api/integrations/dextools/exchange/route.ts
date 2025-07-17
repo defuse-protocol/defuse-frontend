@@ -36,7 +36,7 @@ export const GET = tryCatch(
       factoryAddress: CONTRACT_ADDRESS,
       name: "Near Intents",
       logoURL:
-        "https://app.near-intents.org/favicons/near-intents/android-chrome-192x192.png",
+        "https://near-intents.org/favicons/near-intents/android-chrome-192x192.png",
     }
 
     return ok({ exchange })

@@ -1403,7 +1403,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
       "nep141:sol-91914f13d3b54f8126a2824d71632d4b078d7403.omft.near",
     address: "CtzPWv73Sn1dMGVU3ZtLv9yWSyUAanBni19YWDaznnkn",
     decimals: 8,
-    icon: "https://app.near-intents.org/static/icons/token/xbtc.png",
+    icon: "https://near-intents.org/static/icons/token/xbtc.png",
     chainName: "solana",
     bridge: "poa",
     symbol: "xBTC",
