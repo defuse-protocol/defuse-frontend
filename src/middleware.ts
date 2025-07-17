@@ -7,18 +7,14 @@ import { logger } from "@src/utils/logger"
 
 export const config = {
   matcher:
-    "/((?!.well-known/vercel|_next/static|_next/image|favicon.ico|favicons|static|maintenance).*)",
+    "/(api/integrations.*|(?!api|.well-known/vercel|_next/static|_next/image|favicon.ico|favicons|static|maintenance).*)",
 }
 
 export async function middleware(request: NextRequest) {
   // Temporarily return 404 for integrations endpoints
   const url = new URL(request.url)
-  if (url.pathname.startsWith("/api")) {
-    if (url.pathname.startsWith("/api/integrations")) {
-      return new NextResponse(null, { status: 404 })
-    }
-
-    return NextResponse.next()
+  if (url.pathname.startsWith("/api/integrations")) {
+    return new NextResponse(null, { status: 404 })
   }
 
   try {
