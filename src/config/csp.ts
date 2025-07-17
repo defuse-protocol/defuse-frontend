@@ -42,6 +42,7 @@ const cspConfig = {
 
     /** Stage Solver Relay and Bridge Services */
     "https://*.intents-near.org",
+    "https://near-intents.org",
 
     /** Helpscout */
     "https://beaconapi.helpscout.net",
