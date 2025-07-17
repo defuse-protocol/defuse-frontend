@@ -51,33 +51,37 @@ const ExplorePage = ({
   return (
     <div className="w-full flex flex-col mx-auto mt-[24px] md:mt-[64px] pl-[5%] pr-[5%] max-w-7xl gap-12">
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-        <div className="flex flex-row items-center gap-4">
+        <div className="flex flex-row w-full md:w-auto justify-between md:justify-center items-center gap-4">
           <h1 className="text-4xl font-extrabold tracking-tight">Explore</h1>
           <Pill>{filteredTokenList.length} assets</Pill>
         </div>
-        <div className="flex flex-row items-center gap-4">
+        <div className="flex flex-row w-full md:w-auto items-center gap-4">
           <input
             type="text"
             placeholder="Search"
-            className="rounded-md border border-gray-3 bg-gray-3 p-4 text-sm text-gray-11 dark:border-gray-7 dark:bg-gray-8 dark:text-white placeholder:text-gray-12 font-bold"
+            className="w-full rounded-md border border-gray-3 bg-gray-3 p-4 text-sm text-gray-11 dark:border-gray-7 dark:bg-gray-8 dark:text-white placeholder:text-gray-12 font-bold"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
       </div>
-      <div className="w-full ">
-        <table className="w-full min-w-[640px] shadow-xl rounded-4xl bg-white dark:bg-gray-4 overflow-clip">
+      <div className="w-full overflow-x-auto">
+        <table className="w-full lg:min-w-[640px] shadow-xl rounded-4xl bg-white dark:bg-gray-4 overflow-clip">
           <thead className="sticky top-0 z-10 pt-2 ">
-            <tr className="text-left text-sm text-gray-11 dark:text-gray-12 py-4 px-6 bg-white dark:bg-gray-4 rounded-t-4xl overflow-hidden">
-              <th className="w-full pt-6 pb-4 px-6">Token</th>
-              <th className="w-32 pt-6 pb-4 px-2 md:px-6 text-center">Price</th>
-              <th className="w-24 pt-6 pb-4 px-2 md:px-6 text-center">24h</th>
-              <th className="w-24 pt-6 pb-4 px-2 md:px-6 text-center">7d</th>
-              <th className="w-24 pt-6 pb-4 px-2 md:px-6 text-center">30d</th>
-              <th className="w-36 pt-6 pb-4 px-2 md:px-6 text-center whitespace-nowrap">
+            <tr className="text-left text-sm text-gray-11 dark:text-gray-12 py-4 px-6 bg-white dark:bg-gray-4 rounded-t-4xl">
+              <th className="w-24 lg:w-full pt-6 pb-4 px-6">Token</th>
+              <th className="w-24 pt-6 pb-4 px-2 lg:px-6 text-center">Price</th>
+              <th className="hidden xl:table-cell w-24 pt-6 pb-4 px-2 xl:px-6 text-center">
+                24h
+              </th>
+              <th className="w-24 pt-6 pb-4 px-2 lg:px-6 text-center">7d</th>
+              <th className="hidden xl:table-cell w-24 pt-6 pb-4 px-2 lg:px-6 text-center">
+                30d
+              </th>
+              <th className="hidden lg:table-cell w-36 pt-6 pb-4 px-2 lg:px-6 text-center whitespace-nowrap">
                 Market Cap
               </th>
-              <th className="w-30 pt-6 pb-4 px-2 md:px-6 text-center whitespace-nowrap">
+              <th className="hidden lg:table-cell w-30 pt-6 pb-4 px-2 lg:px-6 text-center whitespace-nowrap">
                 7d Change
               </th>
               {/* <th className="pt-6 pb-4 px-2 md:px-6 text-center">Mindshare</th> */}

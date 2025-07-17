@@ -31,7 +31,6 @@ const TokenRow = ({
   const priceChanges = calculatePriceChanges(prices, timestamps)
 
   const router = useRouter()
-  const tdClassNames = "py-4 px-6 text-center text-md text-gray-12 font-medium"
 
   const handleClick = () => {
     if (["usdc", "usdt", "dai"].includes(token.symbol.toLowerCase())) {
@@ -66,7 +65,7 @@ const TokenRow = ({
       }}
       tabIndex={0}
     >
-      <td className="py-4 px-6 flex flex-row justify-between items-center w-full">
+      <td className="w-auto lg:w-full py-4 pl-6 pr-0 lg:pr-6 flex flex-row justify-between items-center">
         <div className="flex flex-row items-center gap-2">
           <div className="relative overflow-hidden size-7 flex justify-center items-center rounded-full z-0">
             <Image
@@ -89,28 +88,28 @@ const TokenRow = ({
           size="2"
           radius="full"
           color="teal"
-          className="opacity-0  md:group-hover:opacity-100 transition-opacity duration-300"
+          className="hidden lg:block opacity-0 md:group-hover:opacity-100 transition-opacity duration-300"
         >
           Trade <ArrowRightIcon className="w-4 h-4" />
         </Button>
       </td>
-      <td className={cn(tdClassNames, "text-sm w-32")}>
+      <td className="lg:py-4 lg:px-6 text-center text-md text-gray-12 font-medium text-sm w-auto lg:w-32">
         {formatPrice(prices[prices.length - 1] ?? 0)}
       </td>
 
-      <td className="py-4 px-6 w-24">
+      <td className="hidden xl:table-cell py-4 px-6 w-24">
         <PercentChangeIndicator percentChange={priceChanges.day} />
       </td>
 
-      <td className="py-4 px-6 w-24">
+      <td className="lg:py-4 lg:px-6 w-24">
         <PercentChangeIndicator percentChange={priceChanges.week} />
       </td>
 
-      <td className="py-4 px-6 w-24">
+      <td className="hidden xl:table-cell py-4 px-6 w-24">
         <PercentChangeIndicator percentChange={priceChanges.month} />
       </td>
 
-      <td className={cn(tdClassNames, "w-36")}>
+      <td className="hidden lg:table-cell lg:py-4 lg:px-6 text-center text-md text-gray-12 font-medium text-sm w-36">
         {(() => {
           const cap = token.marketCap ?? 0
           if (cap >= 1e12) return `$${(cap / 1e12).toFixed(1)}T`
@@ -119,7 +118,7 @@ const TokenRow = ({
           return "$0"
         })()}
       </td>
-      <td className="px-4 w-30 items-center justify-center">
+      <td className="hidden lg:table-cell px-4 w-30 items-center justify-center">
         <MiniPriceChart
           data={prices.slice(priceChanges.weekIndex, prices.length)}
         />
