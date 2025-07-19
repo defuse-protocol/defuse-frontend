@@ -52,6 +52,7 @@ const cspConfig = {
     "https://*.walletconnect.org",
     "https://*.walletconnect.com",
     "wss://*.walletconnect.org",
+    "wss://*.walletconnect.com",
     "https://*.walletlink.org",
     "wss://*.walletlink.org",
     "https://h4n.app",

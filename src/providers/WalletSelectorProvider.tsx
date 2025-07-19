@@ -9,6 +9,7 @@ import type { WalletSelectorModal } from "@near-wallet-selector/modal-ui"
 import { setupModal } from "@near-wallet-selector/modal-ui"
 import { setupMyNearWallet } from "@near-wallet-selector/my-near-wallet"
 import { setupNightly as setupNightlyWallet } from "@near-wallet-selector/nightly"
+import { setupUnityWallet } from "@near-wallet-selector/unity-wallet"
 import {
   type ReactNode,
   createContext,
@@ -21,7 +22,7 @@ import {
 import { distinctUntilChanged, map } from "rxjs"
 
 import { Loading } from "@src/components/Loading"
-import { NEAR_ENV, NEAR_NODE_URL } from "@src/utils/environment"
+import { NEAR_ENV, NEAR_NODE_URL, PROJECT_ID } from "@src/utils/environment"
 import { logger } from "@src/utils/logger"
 
 declare global {
@@ -66,7 +67,16 @@ export const WalletSelectorProvider: React.FC<{
         setupMeteorWallet(),
         setupHotWallet(),
         setupIntearWallet(),
-        setupNightlyWallet(),
+        setupNightlyWallet({}) as ReturnType<typeof setupMyNearWallet>,
+        setupUnityWallet({
+          projectId: PROJECT_ID ?? "not-set",
+          metadata: {
+            name: "NEAR Intents",
+            description: "NEAR Intents",
+            url: "https://near-intents.org/",
+            icons: ["https://near-intents.org/favicon.ico"],
+          },
+        }),
       ],
     })
     const _modal = setupModal(_selector, {
