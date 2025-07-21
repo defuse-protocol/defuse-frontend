@@ -41,8 +41,8 @@ const cspConfig = {
     "https://api-js.mixpanel.com",
 
     /** Stage Solver Relay and Bridge Services */
-    "http://35.242.147.168",
-    "http://34.105.197.59",
+    "https://*.intents-near.org",
+    "https://near-intents.org",
 
     /** Helpscout */
     "https://beaconapi.helpscout.net",
@@ -106,6 +106,7 @@ const cspConfig = {
     "https://ton.api.onfinality.io",
     "https://ton.api.onfinality.io/public",
     "https://toncenter.com/api/v2/jsonRPC",
+    "https://fullnode.mainnet.sui.io:443",
     "https://horizon.stellar.org",
   ],
   "object-src": ["'none'"],

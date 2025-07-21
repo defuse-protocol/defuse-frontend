@@ -172,6 +172,18 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
       },
       {
         defuseAssetId:
+          "nep141:sui-c1b81ecaf27933252d31a963bc5e9458f13c18ce.omft.near",
+        address:
+          "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+        decimals: 6,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+        chainName: "sui",
+        bridge: "poa",
+        symbol: "USDC",
+        name: "USD Coin",
+      },
+      {
+        defuseAssetId:
           "nep245:v2_1.omni.hot.tg:1100_111bzQBB65GxAPAVoxqmMcgYo5oS3txhqs1Uh1cgahKQUeTUq1TJu",
         address: "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
         decimals: 7,
@@ -480,6 +492,19 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         symbol: "USDT",
         name: "Tether USD",
       },
+      // TODO: Add once we have a liquidity
+      // {
+      //   defuseAssetId:
+      //     "nep141:sui-349a5b23674603c086ceac1fa9f139c4bbc30cf8.omft.near",
+      //   address:
+      //     "0x375f70cf2ae4c00bf37117d0c85a2c71545e6ee05c4a5c7d282cd66a4504b068::usdt::USDT",
+      //   decimals: 6,
+      //   icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+      //   chainName: "sui",
+      //   bridge: "poa",
+      //   symbol: "USDT",
+      //   name: "Tether USD",
+      // },
     ],
     tags: ["mc:3", "type:stablecoin", "tvol:3"],
   },
@@ -906,14 +931,66 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
     tags: ["mc:139", "type:meme"],
   },
   {
-    defuseAssetId: "nep141:token.sweat",
-    address: "token.sweat",
-    decimals: 18,
-    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/21351.png",
-    chainName: "near",
-    bridge: "direct",
+    unifiedAssetId: "sweat",
     symbol: "SWEAT",
     name: "Sweat Economy",
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/21351.png",
+    groupedTokens: [
+      {
+        defuseAssetId: "nep141:token.sweat",
+        address: "token.sweat",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/21351.png",
+        chainName: "near",
+        bridge: "direct",
+        symbol: "SWEAT",
+        name: "Sweat Economy",
+      },
+      {
+        defuseAssetId:
+          "nep141:arb-0xca7dec8550f43a5e46e3dfb95801f64280e75b27.omft.near",
+        address: "0xca7dec8550f43a5e46e3dfb95801f64280e75b27",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/21351.png",
+        chainName: "arbitrum",
+        bridge: "poa",
+        symbol: "SWEAT",
+        name: "Sweat Economy",
+      },
+      {
+        defuseAssetId:
+          "nep141:base-0x227d920e20ebac8a40e7d6431b7d724bb64d7245.omft.near",
+        address: "0x227d920e20ebac8a40e7d6431b7d724bb64d7245",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/21351.png",
+        chainName: "base",
+        bridge: "poa",
+        symbol: "SWEAT",
+        name: "Sweat Economy",
+      },
+      {
+        defuseAssetId:
+          "nep141:eth-0xb4b9dc1c77bdbb135ea907fd5a08094d98883a35.omft.near",
+        address: "0xb4b9dc1c77bdbb135ea907fd5a08094d98883a35",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/21351.png",
+        chainName: "eth",
+        bridge: "poa",
+        symbol: "SWEAT",
+        name: "Sweat Economy",
+      },
+      {
+        defuseAssetId:
+          "nep245:v2_1.omni.hot.tg:56_28V9BijGeZDBFEEtkAcnJo4tPRH4",
+        address: "0x510Ad22d8C956dCC20f68932861f54A591001283",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/21351.png",
+        chainName: "bsc",
+        bridge: "hot_omni",
+        symbol: "SWEAT",
+        name: "Sweat Economy",
+      },
+    ],
     tags: ["mc:571"],
   },
   {
@@ -1337,7 +1414,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
       "nep141:sol-91914f13d3b54f8126a2824d71632d4b078d7403.omft.near",
     address: "CtzPWv73Sn1dMGVU3ZtLv9yWSyUAanBni19YWDaznnkn",
     decimals: 8,
-    icon: "https://app.near-intents.org/static/icons/token/xbtc.png",
+    icon: "https://near-intents.org/static/icons/token/xbtc.png",
     chainName: "solana",
     bridge: "poa",
     symbol: "xBTC",
@@ -1412,6 +1489,17 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
     symbol: "WBTC",
     name: "Wrapped Bitcoin",
     tags: ["mc:3"],
+  },
+  {
+    defuseAssetId: "nep141:sui.omft.near",
+    type: "native",
+    decimals: 9,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/20947.png",
+    chainName: "sui",
+    bridge: "poa",
+    symbol: "SUI",
+    name: "SUI",
+    tags: ["mc:13"],
   },
   {
     defuseAssetId:
