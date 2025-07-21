@@ -182,17 +182,18 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         symbol: "USDC",
         name: "USD Coin",
       },
-      {
-        defuseAssetId:
-          "nep245:v2_1.omni.hot.tg:1100_111bzQBB65GxAPAVoxqmMcgYo5oS3txhqs1Uh1cgahKQUeTUq1TJu",
-        address: "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
-        decimals: 7,
-        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
-        chainName: "stellar",
-        bridge: "hot_omni",
-        symbol: "USDC",
-        name: "USD Coin",
-      },
+      // TODO: Uncomment when Stellar is removed from feature flag
+      // {
+      //   defuseAssetId:
+      //     "nep245:v2_1.omni.hot.tg:1100_111bzQBB65GxAPAVoxqmMcgYo5oS3txhqs1Uh1cgahKQUeTUq1TJu",
+      //   address: "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
+      //   decimals: 7,
+      //   icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+      //   chainName: "stellar",
+      //   bridge: "hot_omni",
+      //   symbol: "USDC",
+      //   name: "USD Coin",
+      // },
     ],
     tags: ["mc:7", "type:stablecoin", "tvol:4"],
   },
@@ -1501,18 +1502,19 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
     name: "SUI",
     tags: ["mc:13"],
   },
-  {
-    defuseAssetId:
-      "nep245:v2_1.omni.hot.tg:1100_111bzQBB5v7AhLyPMDwS8uJgQV24KaAPXtwyVWu2KXbbfQU6NXRCz",
-    type: "native",
-    decimals: 7,
-    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/512.png",
-    chainName: "stellar",
-    bridge: "hot_omni",
-    symbol: "XLM",
-    name: "Stellar Lumens",
-    tags: ["mc:3"],
-  },
+  // TODO: Uncomment when Stellar is removed from feature flag
+  // {
+  //   defuseAssetId:
+  //     "nep245:v2_1.omni.hot.tg:1100_111bzQBB5v7AhLyPMDwS8uJgQV24KaAPXtwyVWu2KXbbfQU6NXRCz",
+  //   type: "native",
+  //   decimals: 7,
+  //   icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/512.png",
+  //   chainName: "stellar",
+  //   bridge: "hot_omni",
+  //   symbol: "XLM",
+  //   name: "Stellar Lumens",
+  //   tags: ["mc:3"],
+  // },
 ]
 
 const STAGE_TOKENS: TokenWithTags[] = [
