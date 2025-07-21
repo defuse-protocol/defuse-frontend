@@ -182,18 +182,17 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         symbol: "USDC",
         name: "USD Coin",
       },
-      // TODO: Uncomment when Stellar is removed from feature flag
-      // {
-      //   defuseAssetId:
-      //     "nep245:v2_1.omni.hot.tg:1100_111bzQBB65GxAPAVoxqmMcgYo5oS3txhqs1Uh1cgahKQUeTUq1TJu",
-      //   address: "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
-      //   decimals: 7,
-      //   icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
-      //   chainName: "stellar",
-      //   bridge: "hot_omni",
-      //   symbol: "USDC",
-      //   name: "USD Coin",
-      // },
+      {
+        defuseAssetId:
+          "nep245:v2_1.omni.hot.tg:1100_111bzQBB65GxAPAVoxqmMcgYo5oS3txhqs1Uh1cgahKQUeTUq1TJu",
+        address: "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
+        decimals: 7,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+        chainName: "stellar",
+        bridge: "hot_omni",
+        symbol: "USDC",
+        name: "USD Coin",
+      },
       {
         defuseAssetId: "nep245:v2_1.omni.hot.tg:10_A2ewyUyDp6qsue1jqZsGypkCxRJ",
         address: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
