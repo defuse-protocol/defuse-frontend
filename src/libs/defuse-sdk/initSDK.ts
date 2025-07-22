@@ -1,6 +1,5 @@
 import { configureSDK } from "@defuse-protocol/defuse-sdk/config"
 import * as Sentry from "@sentry/core"
-
 import { INTENTS_ENV, NODE_IS_DEVELOPMENT } from "@src/utils/environment"
 
 let hasInitialized = false
@@ -10,6 +9,15 @@ export function initSDK() {
     return
   }
   hasInitialized = true
+
+  // TODO: Remove this workaround when Stellar is fully supported.
+  // Note: initSDK may be called both on the server and the client.
+  // On the client, it can be triggered inside a useEffect, so window is accessible.
+  let stellarEnabled = false
+  if (typeof window !== "undefined") {
+    const params = new URLSearchParams(window.location.search)
+    stellarEnabled = params.get("stellar") === "true"
+  }
 
   if (NODE_IS_DEVELOPMENT) {
     configureSDK({
@@ -25,6 +33,8 @@ export function initSDK() {
         ton: true,
         near_intents: true,
         sui: true,
+        // TODO: Make it true when Stellar is supported
+        stellar: stellarEnabled,
       },
     })
   } else {
@@ -53,6 +63,8 @@ export function initSDK() {
         ton: true,
         near_intents: true,
         sui: true,
+        // TODO: Make it true when Stellar is supported
+        stellar: stellarEnabled,
       },
     })
   }
