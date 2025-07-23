@@ -22,8 +22,10 @@ import {
 import { distinctUntilChanged, map } from "rxjs"
 
 import { Loading } from "@src/components/Loading"
-import { NEAR_ENV, NEAR_NODE_URL, PROJECT_ID } from "@src/utils/environment"
+import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
+import { NEAR_ENV, NEAR_NODE_URL } from "@src/utils/environment"
 import { logger } from "@src/utils/logger"
+import { getDomainMetadataParams } from "@src/utils/whitelabelDomainMetadata"
 
 declare global {
   interface Window {
@@ -51,6 +53,8 @@ export const WalletSelectorProvider: React.FC<{
   const [accounts, setAccounts] = useState<Array<AccountState>>([])
   const [loading, setLoading] = useState<boolean>(true)
 
+  const { whitelabelTemplate } = useContext(FeatureFlagsContext)
+
   const init = useCallback(async () => {
     const _selector = await setupWalletSelector({
       network: {
@@ -67,16 +71,8 @@ export const WalletSelectorProvider: React.FC<{
         setupMeteorWallet(),
         setupHotWallet(),
         setupIntearWallet(),
-        setupNightlyWallet({}) as ReturnType<typeof setupMyNearWallet>,
-        setupUnityWallet({
-          projectId: PROJECT_ID ?? "not-set",
-          metadata: {
-            name: "NEAR Intents",
-            description: "NEAR Intents",
-            url: "https://near-intents.org/",
-            icons: ["https://near-intents.org/favicon.ico"],
-          },
-        }),
+        setupNightlyWallet(),
+        setupUnityWallet(getDomainMetadataParams(whitelabelTemplate)),
       ],
     })
     const _modal = setupModal(_selector, {
@@ -93,7 +89,7 @@ export const WalletSelectorProvider: React.FC<{
     setSelector(_selector)
     setModal(_modal)
     setLoading(false)
-  }, [])
+  }, [whitelabelTemplate])
 
   useEffect(() => {
     init().catch((err) => {
