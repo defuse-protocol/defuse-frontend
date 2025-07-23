@@ -31,7 +31,7 @@ export const getDomainMetadataParams = (
     params.metadata.description = "TurboSwap"
     params.metadata.url = "https://turboswap.org/"
     params.metadata.icons = [
-      "https://turboswap.io/favicons/turboswap/favicon-32x32.png",
+      "https://turboswap.org/favicons/turboswap/favicon-32x32.png",
     ]
   }
 
