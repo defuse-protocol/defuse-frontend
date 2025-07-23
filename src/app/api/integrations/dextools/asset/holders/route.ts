@@ -9,7 +9,10 @@ import { chQuery } from "@src/clickhouse/clickhouse"
 
 import { isErr, ok, tryCatch } from "../../../shared/result"
 import type { ApiResult } from "../../../shared/types"
-import { validateQueryParams } from "../../../shared/utils"
+import {
+  geckoIdToDefuseAssetId,
+  validateQueryParams,
+} from "../../../shared/utils"
 
 const querySchema = z.object({
   id: z.string(),
@@ -51,7 +54,7 @@ OFFSET {offset:UInt64}
 /**
  * Returns a paginated list of the largest token holders.
  * test:
- * http://localhost:3000/api/integrations/dextools/asset/holders?id=nep141:base-0x833589fcd6edb6e08f4c7c32d4f71b54bda02913.omft.near&page=1&pageSize=10
+ * http://localhost:3000/api/integrations/dextools/asset/holders?id=NEP-141:base-0x833589fcd6edb6e08f4c7c32d4f71b54bda02913.omft.near&page=1&pageSize=10
  */
 export const GET = tryCatch(
   async (request: NextRequest): ApiResult<AssetHoldersResponse> => {
@@ -61,7 +64,16 @@ export const GET = tryCatch(
       return res
     }
 
-    const { id, page, pageSize } = res.ok
+    const { id: geckoId, page, pageSize } = res.ok
+
+    const defuseAssetId = geckoIdToDefuseAssetId(geckoId)
+
+    if (isErr(defuseAssetId)) {
+      return defuseAssetId
+    }
+
+    const id = defuseAssetId.ok
+
     const offset = (page - 1) * pageSize
 
     const holdersData = await chQuery<
@@ -71,7 +83,7 @@ export const GET = tryCatch(
     const [first] = holdersData
 
     if (first === undefined) {
-      return ok({ asset: { id, totalHoldersCount: 0, holders: [] } })
+      return ok({ asset: { id: geckoId, totalHoldersCount: 0, holders: [] } })
     }
 
     const { totalHoldersCount } = first
@@ -79,6 +91,6 @@ export const GET = tryCatch(
       ({ totalHoldersCount: _, ...rest }): AssetHolder => rest
     )
 
-    return ok({ asset: { id, totalHoldersCount, holders } })
+    return ok({ asset: { id: geckoId, totalHoldersCount, holders } })
   }
 )

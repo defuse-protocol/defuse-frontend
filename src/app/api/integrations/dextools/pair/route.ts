@@ -6,12 +6,16 @@ import type {
   PairResponse,
 } from "@src/app/api/integrations/dextools/types"
 import { EVENTS_QUERY } from "@src/app/api/integrations/shared/queries/events"
+import {
+  PAIR_SEPARATOR,
+  defuseAssetIdToGeckoId,
+  validateQueryParams,
+} from "@src/app/api/integrations/shared/utils"
 import { chQueryFirst } from "@src/clickhouse/clickhouse"
 
 import { CONTRACT_ADDRESS } from "../../shared/constants"
 import { err, isErr, ok, tryCatch } from "../../shared/result"
 import type { ApiResult } from "../../shared/types"
-import { PAIR_SEPARATOR, validateQueryParams } from "../../shared/utils"
 
 const querySchema = z.object({ id: z.string() }).pipe(
   z.object({ id: z.string() }).transform(({ id }, ctx) => {
@@ -83,10 +87,22 @@ export const GET = tryCatch(
       return err("Not Found", "Pair not found")
     }
 
+    const geckoId0 = defuseAssetIdToGeckoId(asset0Id)
+
+    if (isErr(geckoId0)) {
+      return geckoId0
+    }
+
+    const geckoId1 = defuseAssetIdToGeckoId(asset1Id)
+
+    if (isErr(geckoId1)) {
+      return geckoId1
+    }
+
     const pair: Pair = {
       id,
-      asset0Id,
-      asset1Id,
+      asset0Id: geckoId0.ok,
+      asset1Id: geckoId1.ok,
       // NOTE: we use first time the pair was traded as the creation time
       ...pairInfo,
       factoryAddress: CONTRACT_ADDRESS,
