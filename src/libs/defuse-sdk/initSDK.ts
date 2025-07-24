@@ -11,15 +11,6 @@ export function initSDK() {
   }
   hasInitialized = true
 
-  // TODO: Remove this workaround when Stellar is fully supported.
-  // Note: initSDK may be called both on the server and the client.
-  // On the client, it can be triggered inside a useEffect, so window is accessible.
-  let stellarEnabled = false
-  if (typeof window !== "undefined") {
-    const params = new URLSearchParams(window.location.search)
-    stellarEnabled = params.get("stellar") === "true"
-  }
-
   if (NODE_IS_DEVELOPMENT) {
     configureSDK({
       env: INTENTS_ENV,
@@ -35,8 +26,7 @@ export function initSDK() {
         ton: true,
         near_intents: true,
         sui: true,
-        // TODO: Make it true when Stellar is supported
-        stellar: stellarEnabled,
+        stellar: true,
       },
     })
   } else {
@@ -77,8 +67,7 @@ export function initSDK() {
         ton: true,
         near_intents: true,
         sui: true,
-        // TODO: Make it true when Stellar is supported
-        stellar: stellarEnabled,
+        stellar: true,
       },
     })
   }
