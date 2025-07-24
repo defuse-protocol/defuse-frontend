@@ -17,7 +17,8 @@ export default function ViewGiftPage() {
   return (
     <Paper>
       <GiftTakerWidget
-        giftId={giftId}
+        // TODO: Enable in next @defuse-protocol/defuse-sdk release
+        // giftId={giftId}
         payload={payload}
         tokenList={tokenList}
         userAddress={state.isVerified ? state.address : undefined}
