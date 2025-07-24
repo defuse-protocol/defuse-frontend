@@ -118,7 +118,6 @@ export function updateURLParams({
   router: ReturnType<typeof useRouter>
   searchParams: ReturnType<typeof useSearchParams>
 }) {
-  // Only update if 'from' or 'to' is present in the current params
   const hasFrom = searchParams.has("from")
   const hasTo = searchParams.has("to")
   if (!hasFrom && !hasTo) return
