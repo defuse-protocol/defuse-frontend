@@ -51,6 +51,7 @@ export default function Swap() {
   )
 }
 
+// These tokens no longer tradable and might be removed in future.
 function filterOutRefAndBrrrTokens(LIST_TOKENS: TokenWithTags[]) {
   return LIST_TOKENS.filter(
     (token) => token.symbol !== "REF" && token.symbol !== "BRRR"
