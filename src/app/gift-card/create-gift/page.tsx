@@ -46,7 +46,7 @@ export default function CreateGiftPage() {
           referral={referral}
           createGiftIntent={async (payload) => createGiftIntent(payload)}
           generateLink={(giftLinkData) => createGiftLink(giftLinkData)}
-          initialToken={tokenIn}
+          initialToken={tokenIn ?? undefined}
           renderHostAppLink={renderAppLink}
         />
         <GiftHistoryWidget
