@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@clickhouse/client": "^1.11.2",
-    "@defuse-protocol/defuse-sdk": "^1.0.0-beta.203",
+    "@defuse-protocol/defuse-sdk": "^1.0.0-beta.205",
     "@near-eth/aurora-erc20": "^2.8.0",
     "@near-eth/aurora-ether": "^3.0.0",
     "@near-eth/aurora-nep141": "^1.5.3",
