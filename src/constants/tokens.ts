@@ -4,7 +4,7 @@ import type {
 } from "@defuse-protocol/defuse-sdk/types"
 import { INTENTS_ENV } from "@src/utils/environment"
 
-type TokenWithTags =
+export type TokenWithTags =
   | (BaseTokenInfo & { tags?: string[] })
   | (UnifiedTokenInfo & { tags?: string[] })
 

@@ -4,7 +4,7 @@ import { SwapWidget } from "@defuse-protocol/defuse-sdk"
 
 import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
 import Paper from "@src/components/Paper"
-import { LIST_TOKENS } from "@src/constants/tokens"
+import { LIST_TOKENS, type TokenWithTags } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
 import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
@@ -16,7 +16,7 @@ export default function Swap() {
   const { state } = useConnectWallet()
   const signMessage = useWalletAgnosticSignMessage()
   const { signAndSendTransactions } = useNearWalletActions()
-  const tokenList = useTokenList(LIST_TOKENS)
+  const tokenList = useTokenList(filterOutRefAndBrrrTokens(LIST_TOKENS))
   const { tokenIn, tokenOut } = useDeterminePair()
   const referral = useIntentsReferral()
 
@@ -48,5 +48,11 @@ export default function Swap() {
         initialTokenOut={tokenOut}
       />
     </Paper>
+  )
+}
+
+function filterOutRefAndBrrrTokens(LIST_TOKENS: TokenWithTags[]) {
+  return LIST_TOKENS.filter(
+    (token) => token.symbol !== "REF" && token.symbol !== "BRRR"
   )
 }
