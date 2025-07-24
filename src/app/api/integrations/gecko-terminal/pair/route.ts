@@ -4,6 +4,7 @@ import { z } from "zod"
 import { CONTRACT_ADDRESS } from "@src/app/api/integrations/shared/constants"
 import {
   PAIR_SEPARATOR,
+  defuseAssetIdToGeckoId,
   validateQueryParams,
 } from "@src/app/api/integrations/shared/utils"
 import { clickHouseClient } from "@src/clickhouse/clickhouse"
@@ -83,8 +84,25 @@ export const GET = tryCatch(
       return err("Not Found", "One or both assets not found")
     }
 
+    const geckoId0 = defuseAssetIdToGeckoId(asset0Id)
+
+    if (isErr(geckoId0)) {
+      return geckoId0
+    }
+
+    const geckoId1 = defuseAssetIdToGeckoId(asset1Id)
+
+    if (isErr(geckoId1)) {
+      return geckoId1
+    }
+
     return ok({
-      pair: { id, dexKey: CONTRACT_ADDRESS, asset0Id, asset1Id },
+      pair: {
+        id,
+        dexKey: CONTRACT_ADDRESS,
+        asset0Id: geckoId0.ok,
+        asset1Id: geckoId1.ok,
+      },
     })
   }
 )

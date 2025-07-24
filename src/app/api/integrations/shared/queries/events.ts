@@ -37,6 +37,7 @@ WITH
     WHERE memo IN ('deposit', 'withdraw')
       AND execution_status != 'failure'
       AND contract_id = 'intents.near'
+      AND block_height <= { toBlock :UInt32 }
     GROUP BY token_id, block_height
   ),
 
@@ -60,8 +61,8 @@ swaps_and_inflows as (SELECT
   d.amount_out,
   asset_in.decimals AS decimals_in,
   asset_out.decimals AS decimals_out,
-  reserves_in.balance AS balance_in,
-  reserves_out.balance AS balance_out
+  NULL AS balance_in,
+  NULL AS balance_out
 FROM near_intents_db.silver_dip4_token_diff_new d
 LEFT JOIN distinct_assets asset_in ON d.token_in = asset_in.defuse_asset_id
 LEFT JOIN distinct_assets asset_out ON d.token_out = asset_out.defuse_asset_id
@@ -86,10 +87,7 @@ SELECT
   r.balance AS balance_in,
   NULL AS balance_out
 FROM reserves r
-LEFT JOIN near_intents_db.silver_dip4_token_diff_new d
-  ON d.token_in = r.token_id AND d.block_height = r.block_height
 LEFT JOIN distinct_assets asset_in ON r.token_id = asset_in.defuse_asset_id
-WHERE d.token_in IS NULL
 
 UNION ALL
 
@@ -105,10 +103,7 @@ SELECT
   NULL AS balance_in,
   r.balance AS balance_out
 FROM reserves r
-LEFT JOIN near_intents_db.silver_dip4_token_diff_new d
-  ON d.token_out = r.token_id AND d.block_height = r.block_height
 LEFT JOIN distinct_assets asset_out ON r.token_id = asset_out.defuse_asset_id
-WHERE d.token_out IS NULL
 ),
 
 final as (SELECT
@@ -158,16 +153,12 @@ SELECT
   argMax(decimals_out, token_out IS NOT NULL) AS assetOutDecimals
 FROM
   final
-WHERE
-  block_height >= { fromBlock :UInt32 }
-  AND block_height <= { toBlock :UInt32 }
 GROUP BY
   tx_hash,
   intent_hash
 HAVING
   count(DISTINCT token_out) = 1
   AND count(DISTINCT token_in) = 1
-  -- TODO: Find decimals for everything then remove this filter
   AND assetInDecimals != 0
   AND assetOutDecimals != 0
 ORDER BY

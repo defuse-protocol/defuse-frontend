@@ -9,7 +9,7 @@ import { chQueryFirst } from "@src/clickhouse/clickhouse"
 
 import { err, isErr, ok, tryCatch } from "../../shared/result"
 import type { ApiResult } from "../../shared/types"
-import { validateQueryParams } from "../../shared/utils"
+import { geckoIdToDefuseAssetId, validateQueryParams } from "../../shared/utils"
 
 const querySchema = z.object({ id: z.string() })
 
@@ -42,7 +42,7 @@ LIMIT 1`
  * periodically query assets for their most up-to-date information.
  *
  * test:
- * http://localhost:3000/api/integrations/gecko-terminal/asset?id=nep141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1
+ * http://localhost:3000/api/integrations/gecko-terminal/asset?id=NEP-141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1
  *
  * @param request - The incoming Next.js request, containing the asset ID in the query parameters.
  * @returns A response containing the asset's information.
@@ -55,14 +55,23 @@ export const GET = tryCatch(
       return res
     }
 
-    const rawAsset = await chQueryFirst<RawAsset>(ASSET_QUERY, res.ok)
+    const geckoId = res.ok.id
+    const defuseAssetId = geckoIdToDefuseAssetId(geckoId)
+
+    if (isErr(defuseAssetId)) {
+      return defuseAssetId
+    }
+
+    const rawAsset = await chQueryFirst<RawAsset>(ASSET_QUERY, {
+      id: defuseAssetId.ok,
+    })
 
     if (!rawAsset) {
       return err("Not Found", "Asset not found")
     }
 
     const asset: Asset = {
-      id: rawAsset.id,
+      id: geckoId,
       name: rawAsset.name,
       symbol: rawAsset.symbol,
       decimals: rawAsset.decimals,
