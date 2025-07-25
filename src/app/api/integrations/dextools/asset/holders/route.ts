@@ -54,7 +54,7 @@ OFFSET {offset:UInt64}
 /**
  * Returns a paginated list of the largest token holders.
  * test:
- * http://localhost:3000/api/integrations/dextools/asset/holders?id=NEP-141:base-0x833589fcd6edb6e08f4c7c32d4f71b54bda02913.omft.near&page=1&pageSize=10
+ * curl -X GET http://localhost:3000/api/integrations/dextools/asset/holders?id=NEP-141:base-0x833589fcd6edb6e08f4c7c32d4f71b54bda02913.omft.near&page=1&pageSize=10 -H "Authorization: Bearer <JWT_TOKEN>" -H "Content-Type: application/json"
  */
 export const GET = tryCatch(
   async (request: NextRequest): ApiResult<AssetHoldersResponse> => {

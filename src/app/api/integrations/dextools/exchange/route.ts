@@ -15,7 +15,7 @@ const querySchema = z.object({ id: z.string() })
 /**
  * Returns details for an individual DEX (factory / router).
  * test:
- * http://localhost:3000/api/integrations/dextools/exchange?id=intents.near
+ * curl -X GET http://localhost:3000/api/integrations/dextools/exchange?id=intents.near -H "Authorization: Bearer <JWT_TOKEN>" -H "Content-Type: application/json"
  */
 export const GET = tryCatch(
   async (request: NextRequest): ApiResult<ExchangeResponse> => {
