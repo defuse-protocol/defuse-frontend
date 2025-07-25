@@ -5,16 +5,33 @@ import { csp } from "@src/config/csp"
 import { maintenanceModeFlag } from "@src/config/featureFlags"
 import { logger } from "@src/utils/logger"
 
+import { verifyApiKey } from "./app/api/integrations/shared/api-auth"
+
 export const config = {
   matcher:
     "/(api/integrations.*|(?!api|.well-known/vercel|_next/static|_next/image|favicon.ico|favicons|static|maintenance).*)",
 }
 
 export async function middleware(request: NextRequest) {
-  // Temporarily return 404 for integrations endpoints
   const url = new URL(request.url)
+
   if (url.pathname.startsWith("/api/integrations")) {
-    return new NextResponse(null, { status: 404 })
+    const authResult = await verifyApiKey(request)
+
+    if (authResult.err) {
+      return NextResponse.json(authResult.err.error, {
+        status: authResult.err.status,
+      })
+    }
+
+    const requestHeaders = new Headers(request.headers)
+    requestHeaders.set("x-jwt-payload", JSON.stringify(authResult.ok))
+
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    })
   }
 
   try {
