@@ -51,7 +51,7 @@ LIMIT 1`
 /**
  * Returns metadata for a single asset
  * test:
- * http://localhost:3000/api/integrations/dextools/asset?id=NEP-141:base-0x833589fcd6edb6e08f4c7c32d4f71b54bda02913.omft.near
+ * curl -X GET http://localhost:3000/api/integrations/dextools/asset?id=NEP-141:base-0x833589fcd6edb6e08f4c7c32d4f71b54bda02913.omft.near -H "Authorization: Bearer <JWT_TOKEN>" -H "Content-Type: application/json"
  */
 export const GET = tryCatch(
   async (request: NextRequest): ApiResult<AssetResponse> => {

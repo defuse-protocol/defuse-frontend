@@ -58,7 +58,7 @@ WHERE defuse_asset_id IN ({asset0Id:String}, {asset1Id:String})`
  * The pair ID format is: {asset0Id}___{asset1Id}
  *
  * test:
- * http://localhost:3000/api/integrations/gecko-terminal/pair?id=nep141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1___nep141:arb-0xaf88d065e77c8cc2239327c5edb3a432268e5831.omft.near
+ * curl -X GET http://localhost:3000/api/integrations/gecko-terminal/pair?id=nep141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1___nep141:arb-0xaf88d065e77c8cc2239327c5edb3a432268e5831.omft.near -H "Authorization: Bearer <JWT_TOKEN>" -H "Content-Type: application/json"
  *
  * @param request - The incoming Next.js request, containing the pair ID in the query parameters.
  * @returns A response containing the pair's information.
