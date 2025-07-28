@@ -511,6 +511,18 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
   },
 
   {
+    defuseAssetId:
+      "nep141:arb-0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9.omft.near",
+    address: "arb-0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9.omft.near",
+    decimals: 6,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+    chainName: "near",
+    bridge: "direct",
+    symbol: "USDT (near)",
+    name: "Tether USD",
+  },
+
+  {
     unifiedAssetId: "dai",
     symbol: "DAI",
     name: "DAI",
