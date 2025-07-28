@@ -28,9 +28,6 @@
       },
       "suspicious": {
         "noConsole": "error"
-      },
-      "nursery": {
-        "useConsistentCurlyBraces": "error"
       }
     }
   },
