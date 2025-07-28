@@ -23,6 +23,7 @@ export function useMixpanelBus() {
   const mixPanel = useMixpanel()
 
   useEffect(() => {
+    // @ts-expect-error TODO: fix later
     setEventEmitter(bus)
   }, [])
 

@@ -12,7 +12,8 @@
     "check": "biome check",
     "prepare": "husky && ./scripts/gen-banned-near-address.sh && ./scripts/gen-defuse-types.sh",
     "update-types": "supabase gen types --lang=typescript --local > src/types/database-generated.ts",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "node-jq": "yarn node-jq"
   },
   "dependencies": {
     "@clickhouse/client": "^1.11.2",

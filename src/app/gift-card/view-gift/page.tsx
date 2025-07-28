@@ -19,8 +19,8 @@ export default function ViewGiftPage() {
 
   return (
     <Paper>
+      {/* @ts-expect-error TODO: Enable in next @defuse-protocol/defuse-sdk release */}
       <GiftTakerWidget
-        // TODO: Enable in next @defuse-protocol/defuse-sdk release
         // giftId={giftId}
         payload={payload}
         tokenList={tokenList}

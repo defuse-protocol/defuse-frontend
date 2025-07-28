@@ -8,7 +8,7 @@ import type { SupportedChainName } from "@src/components/DefuseSDK/types/base"
  */
 export function getHyperliquidSrcChain(
   tokenIn: BaseTokenInfo
-): GeneratHLAddressParams["@src/components/DefuseSDKChain"] {
+): GeneratHLAddressParams["srcChain"] {
   const symbol = tokenIn.symbol
   switch (symbol) {
     case "BTC":
