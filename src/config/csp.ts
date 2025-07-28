@@ -10,6 +10,7 @@ const cspConfig = {
     "https://hot-labs.org",
     "https://widget.solflare.com",
     "https://verify.walletconnect.org",
+    "https://connect.solflare.com",
   ],
   "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
   "font-src": ["'self'", "https://fonts.gstatic.com"],
