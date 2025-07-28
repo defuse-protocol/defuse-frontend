@@ -14,6 +14,7 @@
             (pkgs.yarn.override { nodejs = pkgs.nodejs_20; })
             pkgs.udev
             pkgs.pkg-config
+            pkgs.jq
           ];
         };
       });

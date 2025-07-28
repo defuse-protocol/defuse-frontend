@@ -1,7 +1,7 @@
 import type { Dict } from "mixpanel-browser"
 import { useCallback, useEffect } from "react"
 
-import { serialize, setEventEmitter } from "@defuse-protocol/defuse-sdk/utils"
+import { serialize, setEventEmitter } from "@src/components/DefuseSDK/utils"
 import { useMixpanel } from "@src/providers/MixpanelProvider"
 import bus from "@src/services/EventBus"
 import { logger } from "@src/utils/logger"

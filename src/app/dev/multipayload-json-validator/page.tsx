@@ -1,9 +1,12 @@
 "use client"
 
-import { MultiPayloadDeepSchema } from "@defuse-protocol/defuse-sdk"
 import { Button, Code } from "@radix-ui/themes"
 import React, { useState } from "react"
 import * as v from "valibot"
+
+import { MultiPayloadDeepSchema } from "@src/components/DefuseSDK"
+import { SPACE } from "@src/constants/constants"
+
 import examples from "./_examples/multipayloads.json"
 
 export default function JsonValidatorPage() {
@@ -81,14 +84,15 @@ export default function JsonValidatorPage() {
       <p className="my-4 max-w-xl">
         On this page, you can paste a Multipayload JSON object and validate it
         against the schema provided by SDK and see errors if it is malformed.
-        The schema is defined in{" "}
+        The schema is defined in{SPACE}
         <a
           href="https://github.com/defuse-protocol/defuse-sdk/blob/4f01b7b833ad7eddf30af79f738bba4cbb6e02eb/src/features/otcDesk/utils/schemaMultipayload.ts#L115"
           rel="noopener noreferrer"
           className="text-blue-700"
         >
           schemaMultipayload.ts
-        </a>{" "}
+        </a>
+        {SPACE}
         file.
       </p>
 

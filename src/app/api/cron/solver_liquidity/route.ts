@@ -1,4 +1,4 @@
-import { getQuote } from "@defuse-protocol/defuse-sdk/utils"
+import { getQuote } from "@src/components/DefuseSDK/utils"
 import { type NextRequest, NextResponse } from "next/server"
 
 import {
