@@ -11,8 +11,7 @@
     "typecheck": "tsc --noEmit",
     "check": "biome check",
     "prepare": "husky && ./scripts/gen-banned-near-address.sh && ./scripts/gen-defuse-types.sh",
-    "update-types": "supabase gen types --lang=typescript --local > src/types/database-generated.ts",
-    "postinstall": "patch-package"
+    "update-types": "supabase gen types --lang=typescript --local > src/types/database-generated.ts"
   },
   "dependencies": {
     "@clickhouse/client": "^1.11.2",
@@ -144,10 +143,8 @@
     "husky": "^9.1.1",
     "jsdom": "^26.1.0",
     "lint-staged": "^15.2.10",
-    "patch-package": "^8.0.0",
     "postcss": "^8.4.47",
     "postcss-import": "^15.1.0",
-    "postinstall-postinstall": "^2.1.0",
     "prettier": "^3.2.5",
     "rollup": "^4.22.5",
     "rollup-plugin-postcss": "^4.0.2",
