@@ -1,7 +1,7 @@
 import type {
   BaseTokenInfo,
   UnifiedTokenInfo,
-} from "@defuse-protocol/defuse-sdk/types"
+} from "@src/components/DefuseSDK/types"
 import { INTENTS_ENV } from "@src/utils/environment"
 
 export type TokenWithTags =

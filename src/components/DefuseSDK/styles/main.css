@@ -1,0 +1,36 @@
+@import "@radix-ui/themes/styles.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@tailwind variants;
+
+:host {
+  @apply contents;
+}
+
+@layer base {
+  :host {
+    --color-border: var(--sand-4);
+    --color-label: var(--sand-12);
+    --color-warning: var(--amber-a2);
+    --color-warning-foreground: var(--amber-a11);
+  }
+
+  .dark {
+    /**
+     * It's not a mistake, duplicating the same color values here.
+     * They are Radix UI colors palette, and they're switched based on the theme.
+     */
+    --color-border: var(--sand-4);
+    --color-label: var(--sand-12);
+    --color-warning: var(--amber-a2);
+    --color-warning-foreground: var(--amber-a11);
+  }
+}
+
+@layer utilities {
+  .widget-container {
+    @apply w-full max-w-[min(472px,100%)];
+  }
+}

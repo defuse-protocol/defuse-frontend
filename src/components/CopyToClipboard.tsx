@@ -16,6 +16,7 @@ const Copy = ({ children, value }: Props) => {
   return (
     <div className="relative cursor-pointer">
       <CopyToClipboard onCopy={() => setIsCopied(true)} text={value}>
+        {/* @ts-expect-error this is a valid use case */}
         {children}
       </CopyToClipboard>
       <span
@@ -38,10 +39,10 @@ export function CopyIconButton({ copyValue }: { copyValue: string }) {
 
   return (
     <IconButton
-      size={"3"}
-      radius={"full"}
-      variant={"soft"}
-      color={"gray"}
+      size="3"
+      radius="full"
+      variant="soft"
+      color="gray"
       highContrast
       onClick={() => {
         startTransition(async () => {
@@ -53,9 +54,9 @@ export function CopyIconButton({ copyValue }: { copyValue: string }) {
       }}
     >
       {isCopied ? (
-        <CheckIcon width={"18"} height={"18"} />
+        <CheckIcon width="18" height="18" />
       ) : (
-        <CopyIcon width={"18"} height={"18"} />
+        <CopyIcon width="18" height="18" />
       )}
     </IconButton>
   )

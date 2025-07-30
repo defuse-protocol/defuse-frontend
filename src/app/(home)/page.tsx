@@ -1,6 +1,6 @@
 "use client"
 
-import { SwapWidget } from "@defuse-protocol/defuse-sdk"
+import { SwapWidget } from "@src/components/DefuseSDK"
 
 import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
 import Paper from "@src/components/Paper"

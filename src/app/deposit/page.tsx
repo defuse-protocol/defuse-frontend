@@ -1,34 +1,15 @@
 "use client"
 
-import { DepositWidget } from "@defuse-protocol/defuse-sdk"
-import { isBaseToken } from "@defuse-protocol/defuse-sdk/utils"
+import { DepositWidget } from "@src/components/DefuseSDK"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { renderAppLink } from "@src/utils/renderAppLink"
-import { useMemo } from "react"
 
 export default function Deposit() {
   const { state, sendTransaction } = useConnectWallet()
-  const tokenList = useTokenList(
-    useMemo(
-      () =>
-        LIST_TOKENS.filter((t) => {
-          return isBaseToken(t) ? t.bridge !== "hot_omni" : true
-        }).map((t) => {
-          return isBaseToken(t)
-            ? t
-            : {
-                ...t,
-                groupedTokens: t.groupedTokens.filter(
-                  (t) => t.bridge !== "hot_omni"
-                ),
-              }
-        }),
-      []
-    )
-  )
+  const tokenList = useTokenList(LIST_TOKENS)
 
   return (
     <Paper>
