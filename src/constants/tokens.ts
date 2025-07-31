@@ -1545,6 +1545,17 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
     ],
     tags: ["mc:1452"],
   },
+  {
+    defuseAssetId: "nep141:cardano.omft.near",
+    type: "native",
+    decimals: 6,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/2010.png",
+    chainName: "cardano",
+    bridge: "poa",
+    symbol: "ADA",
+    name: "ADA",
+    tags: ["mc:10", "feature:ada"],
+  },
 ]
 
 const STAGE_TOKENS: TokenWithTags[] = [
