@@ -56,6 +56,8 @@ export function chainTxExplorer(blockchain: SupportedChainName): string | null {
       return "https://stellar.expert/explorer/public/tx/"
     case "aptos":
       return "https://explorer.aptoslabs.com/txn/"
+    case "cardano":
+      return "https://adastat.net/transactions/"
     default:
       blockchain satisfies never
       return null

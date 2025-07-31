@@ -53,5 +53,6 @@ export const settings: Settings = {
     sui: "https://fullnode.mainnet.sui.io:443",
     stellar: "https://horizon.stellar.org",
     aptos: "https://fullnode.mainnet.aptoslabs.com",
+    cardano: "",
   },
 }

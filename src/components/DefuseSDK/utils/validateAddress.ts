@@ -71,6 +71,9 @@ export function validateAddress(
     case "aptos":
       return /^0x[a-fA-F0-9]{64}$/.test(address)
 
+    case "cardano":
+      return false
+
     default:
       blockchain satisfies never
       return false

@@ -29,6 +29,7 @@ export const assetNetworkAdapter: Record<SupportedChainName, BlockchainEnum> = {
   sui: BlockchainEnum.SUI,
   stellar: BlockchainEnum.STELLAR,
   aptos: BlockchainEnum.APTOS,
+  cardano: BlockchainEnum.CARDANO,
 }
 
 export const reverseAssetNetworkAdapter: Record<
@@ -62,6 +63,7 @@ export const reverseAssetNetworkAdapter: Record<
   [BlockchainEnum.SUI]: "sui",
   [BlockchainEnum.STELLAR]: "stellar",
   [BlockchainEnum.APTOS]: "aptos",
+  [BlockchainEnum.CARDANO]: "cardano",
 }
 
 export function isValidBlockchainEnumKey(
