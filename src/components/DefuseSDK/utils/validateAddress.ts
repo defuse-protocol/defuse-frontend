@@ -6,6 +6,7 @@ import {
   isValidXAddress as xrp_isValidXAddress,
 } from "ripple-address-codec"
 import type { SupportedChainName } from "../types/base"
+import { validateCardanoAddress } from "./addressValidation/cardano"
 import { isLegitAccountId } from "./near"
 
 export function validateAddress(
@@ -72,7 +73,7 @@ export function validateAddress(
       return /^0x[a-fA-F0-9]{64}$/.test(address)
 
     case "cardano":
-      return false
+      return validateCardanoAddress(address)
 
     default:
       blockchain satisfies never
