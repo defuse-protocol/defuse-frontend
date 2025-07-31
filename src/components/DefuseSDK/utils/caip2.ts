@@ -1,4 +1,4 @@
-import { CAIP2_NETWORK } from "@defuse-protocol/bridge-sdk"
+import { type Chain, Chains } from "@defuse-protocol/bridge-sdk"
 import type {
   MockedChains,
   SupportedChainName,
@@ -7,30 +7,31 @@ import type {
 
 type RealChains = Exclude<SupportedChainName, VirtualChains | MockedChains>
 
-const mapping: Record<RealChains, CAIP2_NETWORK> = {
-  bitcoin: CAIP2_NETWORK.Bitcoin,
-  eth: CAIP2_NETWORK.Ethereum,
-  base: CAIP2_NETWORK.Base,
-  arbitrum: CAIP2_NETWORK.Arbitrum,
-  bsc: CAIP2_NETWORK.BNB,
-  polygon: CAIP2_NETWORK.Polygon,
-  near: CAIP2_NETWORK.Near,
-  solana: CAIP2_NETWORK.Solana,
-  tron: CAIP2_NETWORK.Tron,
-  gnosis: CAIP2_NETWORK.Gnosis,
-  xrpledger: CAIP2_NETWORK.XRPL,
-  dogecoin: CAIP2_NETWORK.Dogecoin,
-  zcash: CAIP2_NETWORK.Zcash,
-  berachain: CAIP2_NETWORK.Berachain,
-  ton: CAIP2_NETWORK.TON,
-  optimism: CAIP2_NETWORK.Optimism,
-  avalanche: CAIP2_NETWORK.Avalanche,
-  sui: CAIP2_NETWORK.Sui,
-  stellar: CAIP2_NETWORK.Stellar,
-  aptos: CAIP2_NETWORK.Aptos,
+const mapping: Record<RealChains, Chain> = {
+  bitcoin: Chains.Bitcoin,
+  eth: Chains.Ethereum,
+  base: Chains.Base,
+  arbitrum: Chains.Arbitrum,
+  bsc: Chains.BNB,
+  polygon: Chains.Polygon,
+  near: Chains.Near,
+  solana: Chains.Solana,
+  tron: Chains.Tron,
+  gnosis: Chains.Gnosis,
+  xrpledger: Chains.XRPL,
+  dogecoin: Chains.Dogecoin,
+  zcash: Chains.Zcash,
+  berachain: Chains.Berachain,
+  ton: Chains.TON,
+  optimism: Chains.Optimism,
+  avalanche: Chains.Avalanche,
+  sui: Chains.Sui,
+  stellar: Chains.Stellar,
+  aptos: Chains.Aptos,
+  cardano: Chains.Cardano,
 }
 
-export function getCAIP2(chainName: SupportedChainName): CAIP2_NETWORK {
+export function getCAIP2(chainName: SupportedChainName): Chain {
   if (chainName in mapping) {
     return mapping[chainName as keyof typeof mapping]
   }
