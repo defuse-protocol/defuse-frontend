@@ -1,3 +1,4 @@
+import { authIdentity } from "@defuse-protocol/internal-utils"
 import { ArrowDown } from "@phosphor-icons/react"
 import { useQuery } from "@tanstack/react-query"
 import { None } from "@thames/monads"
@@ -13,7 +14,6 @@ import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
 import type { MultiPayload } from "../../../types/defuse-contracts-types"
 import type { RenderHostAppLink } from "../../../types/hostAppLink"
 import { assert } from "../../../utils/assert"
-import { authHandleToIntentsUserId } from "../../../utils/authIdentity"
 import { formatTokenValue, formatUsdAmount } from "../../../utils/format"
 import getTokenUsdPrice from "../../../utils/getTokenUsdPrice"
 import {
@@ -57,7 +57,7 @@ export function OtcTakerForm({
 }: OtcTakerFormProps) {
   const signerId =
     signerCredentials != null
-      ? authHandleToIntentsUserId(
+      ? authIdentity.authHandleToIntentsUserId(
           signerCredentials.credential,
           signerCredentials.credentialType
         )

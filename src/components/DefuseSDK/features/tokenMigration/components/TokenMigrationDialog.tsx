@@ -1,10 +1,9 @@
+import { type AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Button, Callout, Dialog, Spinner } from "@radix-ui/themes"
 import { useActor } from "@xstate/react"
 import { CopyButton } from "../../../components/IntentCard/CopyButton"
 import { BaseModalDialog } from "../../../components/Modal/ModalDialog"
-import type { AuthMethod } from "../../../types/authHandle"
-import { authHandleToIntentsUserId } from "../../../utils/authIdentity"
 import { blockExplorerTxLinkFactory } from "../../../utils/chainTxExplorer"
 import type { SignMessage } from "../../otcDesk/types/sharedTypes"
 import { tokenMigrationMachine } from "../machines/tokenMigrationMachine"
@@ -22,7 +21,10 @@ export function TokenMigrationDialog({
   signMessage: SignMessage
   onExit: () => void
 }) {
-  const userId = authHandleToIntentsUserId(userAddress, userChainType)
+  const userId = authIdentity.authHandleToIntentsUserId(
+    userAddress,
+    userChainType
+  )
 
   const [state, send] = useActor(tokenMigrationMachine, {
     input: {

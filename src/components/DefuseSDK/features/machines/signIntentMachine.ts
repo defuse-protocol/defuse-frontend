@@ -1,4 +1,5 @@
 import { errors } from "@defuse-protocol/internal-utils"
+import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { assertEvent, assign, fromPromise, setup } from "xstate"
 import { nearClient } from "../../constants/nearClient"
 import {
@@ -7,10 +8,6 @@ import {
 } from "../../core/formatters"
 import { logger } from "../../logger"
 import type { MultiPayload } from "../../types/defuse-contracts-types"
-import type {
-  WalletMessage,
-  WalletSignatureResult,
-} from "../../types/walletMessage"
 import { assert } from "../../utils/assert"
 import { verifyWalletSignature } from "../../utils/verifyWalletSignature"
 import {
@@ -36,20 +33,20 @@ export type Errors = {
 
 export type Success = {
   multiPayload: MultiPayload
-  signatureResult: WalletSignatureResult
+  signatureResult: walletMessage.WalletSignatureResult
   signerCredentials: SignerCredentials
 }
 
 type Context = {
   signerCredentials: SignerCredentials
-  signature: WalletSignatureResult | null
+  signature: walletMessage.WalletSignatureResult | null
   error: null | Errors
 }
 
 export type Input = {
   signerCredentials: SignerCredentials
   signMessage: SignMessage
-  walletMessage: WalletMessage
+  walletMessage: walletMessage.WalletMessage
 }
 
 export type Output =
@@ -70,7 +67,8 @@ export const signIntentMachine = setup({
       error: (_, error: Errors) => error,
     }),
     setSignature: assign({
-      signature: (_, signature: WalletSignatureResult | null) => signature,
+      signature: (_, signature: walletMessage.WalletSignatureResult | null) =>
+        signature,
     }),
   },
   actors: {
@@ -79,7 +77,7 @@ export const signIntentMachine = setup({
         input,
       }: {
         input: {
-          signature: WalletSignatureResult
+          signature: walletMessage.WalletSignatureResult
           signerCredentials: SignerCredentials
         }
       }) =>

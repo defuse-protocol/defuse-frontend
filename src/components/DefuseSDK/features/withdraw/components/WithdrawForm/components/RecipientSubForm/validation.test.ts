@@ -1,6 +1,5 @@
-import { authHandleToIntentsUserId } from "@src/components/DefuseSDK/utils/authIdentity"
+import { AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
 import { describe, expect, it } from "vitest"
-import { AuthMethod } from "../../../../../../types"
 import { validateAddressSoft } from "./validation"
 
 describe("validateAddressSoft", () => {
@@ -43,7 +42,10 @@ describe("validateAddressSoft", () => {
       const result = validateAddressSoft(
         "valid-recipient.near",
         "near_intents",
-        authHandleToIntentsUserId(webAuthnPublicKey, AuthMethod.WebAuthn),
+        authIdentity.authHandleToIntentsUserId(
+          webAuthnPublicKey,
+          AuthMethod.WebAuthn
+        ),
         AuthMethod.Near
       )
       expect(result).toBeNull()
@@ -51,7 +53,7 @@ describe("validateAddressSoft", () => {
     it("should reject self WebAuthn address", () => {
       const webAuthnPublicKey =
         "p256:3NSY8SFTWoPFMrTGdLVqPogirCyt3kMnUajXoDQuVeCsA6wzkMMp5whBqymAPM7xFiBthDKueiUv1zVAj7GDT8rQ"
-      const userAddress = authHandleToIntentsUserId(
+      const userAddress = authIdentity.authHandleToIntentsUserId(
         webAuthnPublicKey,
         AuthMethod.WebAuthn
       )
@@ -93,13 +95,13 @@ describe("validateAddressSoft", () => {
       const result = validateAddressSoft(
         "valid-recipient.near",
         "near_intents",
-        authHandleToIntentsUserId(userAddress, AuthMethod.Solana),
+        authIdentity.authHandleToIntentsUserId(userAddress, AuthMethod.Solana),
         AuthMethod.Near
       )
       expect(result).toBeNull()
     })
     it("should reject self Solana address", () => {
-      const userAddress = authHandleToIntentsUserId(
+      const userAddress = authIdentity.authHandleToIntentsUserId(
         "DRpbCBMxVnDK7maPGv7vhuYme3jNdBAt4YHw2wKgqWPU",
         AuthMethod.Solana
       )
@@ -120,13 +122,13 @@ describe("validateAddressSoft", () => {
       const result = validateAddressSoft(
         "valid-recipient.near",
         "near_intents",
-        authHandleToIntentsUserId(userAddress, AuthMethod.Ton),
+        authIdentity.authHandleToIntentsUserId(userAddress, AuthMethod.Ton),
         AuthMethod.Near
       )
       expect(result).toBeNull()
     })
     it("should reject self Ton address", () => {
-      const userAddress = authHandleToIntentsUserId(
+      const userAddress = authIdentity.authHandleToIntentsUserId(
         "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
         AuthMethod.Ton
       )
@@ -150,7 +152,7 @@ describe("validateAddressSoft", () => {
 
     it("should accept EVM address for NEAR network", () => {
       const result = validateAddressSoft(
-        authHandleToIntentsUserId(
+        authIdentity.authHandleToIntentsUserId(
           "0x32Be343B94f860124dC4fEe278FDCBD38C102D88",
           AuthMethod.Near
         ),
@@ -161,7 +163,7 @@ describe("validateAddressSoft", () => {
 
     it("should accept any EVM address for NEAR network", () => {
       const result = validateAddressSoft(
-        authHandleToIntentsUserId("0xd", AuthMethod.Near), // TODO: this is invalid EVM address
+        authIdentity.authHandleToIntentsUserId("0xd", AuthMethod.Near), // TODO: this is invalid EVM address
         "near"
       )
       expect(result).toBeNull()

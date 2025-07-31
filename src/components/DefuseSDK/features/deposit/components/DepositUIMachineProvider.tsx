@@ -1,3 +1,4 @@
+import { authIdentity } from "@defuse-protocol/internal-utils"
 import { depositMachine } from "@src/components/DefuseSDK/features/machines/depositMachine"
 import { createActorContext } from "@xstate/react"
 import type { PropsWithChildren, ReactElement, ReactNode } from "react"
@@ -31,7 +32,6 @@ import type { Transaction } from "../../../types/deposit"
 import type { SwappableToken } from "../../../types/swap"
 import { assetNetworkAdapter } from "../../../utils/adapters"
 import { assert } from "../../../utils/assert"
-import { authHandleToIntentsUserId } from "../../../utils/authIdentity"
 import { getEVMChainId } from "../../../utils/evmChainId"
 import { isFungibleToken, isNativeToken } from "../../../utils/token"
 import { depositGenerateAddressMachine } from "../../machines/depositGenerateAddressMachine"
@@ -94,7 +94,10 @@ export function DepositUIMachineProvider({
                 const { userAddress, blockchain, userChainType } = input
 
                 const generatedResult = await generateDepositAddress(
-                  authHandleToIntentsUserId(userAddress, userChainType),
+                  authIdentity.authHandleToIntentsUserId(
+                    userAddress,
+                    userChainType
+                  ),
                   assetNetworkAdapter[blockchain]
                 )
 

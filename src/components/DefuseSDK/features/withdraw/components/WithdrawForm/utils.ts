@@ -1,8 +1,8 @@
+import { AuthMethod } from "@defuse-protocol/internal-utils"
 import { reverseAssetNetworkAdapter } from "@src/components/DefuseSDK/utils/adapters"
 import { formatUnits } from "viem"
 import { getBlockchainsOptions } from "../../../../constants/blockchains"
 import type { TokenBalances as TokenBalancesRecord } from "../../../../services/defuseBalanceService"
-import { AuthMethod } from "../../../../types/authHandle"
 import type {
   BaseTokenInfo,
   SupportedChainName,

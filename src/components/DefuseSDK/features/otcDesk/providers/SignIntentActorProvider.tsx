@@ -1,9 +1,9 @@
+import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { Err, type Result } from "@thames/monads"
 import { useSelector } from "@xstate/react"
 import { type ReactNode, createContext, useEffect, useState } from "react"
 import { type ActorRefFrom, createActor, toPromise } from "xstate"
 import type { SignerCredentials } from "../../../core/formatters"
-import type { WalletMessage } from "../../../types/walletMessage"
 import type { SendNearTransaction } from "../../machines/publicKeyVerifierMachine"
 import {
   type Errors,
@@ -21,7 +21,7 @@ export const SignIntentContext = createContext<{
   signIntent: (arg: {
     signerCredentials: SignerCredentials
     signMessage: SignMessage
-    walletMessage: WalletMessage
+    walletMessage: walletMessage.WalletMessage
   }) => Promise<Result<SignIntentOk, SignIntentErr>>
 }>({
   signIntent: async () => {
@@ -56,7 +56,7 @@ export function SignIntentActorProvider({
   }: {
     signerCredentials: SignerCredentials
     signMessage: SignMessage
-    walletMessage: WalletMessage
+    walletMessage: walletMessage.WalletMessage
   }) => {
     if (actorRef) {
       return Err<SignIntentOk, SignIntentErr>({ reason: "SIGNING_IN_PROGRESS" })

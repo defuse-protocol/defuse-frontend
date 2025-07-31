@@ -1,3 +1,4 @@
+import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import {
   type ActorRefFrom,
@@ -8,7 +9,6 @@ import {
   setup,
 } from "xstate"
 import { config } from "../../config"
-import type { AuthMethod } from "../../types/authHandle"
 import type { BaseTokenInfo, SupportedChainName } from "../../types/base"
 import type { SwappableToken } from "../../types/swap"
 import { depositEstimationMachine } from "./depositEstimationActor"

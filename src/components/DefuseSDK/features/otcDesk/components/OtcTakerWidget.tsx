@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query"
 import { Err, Ok, type Result } from "@thames/monads"
 import { type ReactNode, useMemo, useState } from "react"
 
+import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { WidgetRoot } from "../../../components/WidgetRoot"
 import { nearClient } from "../../../constants/nearClient"
 import type { IntentsUserId, SignerCredentials } from "../../../core/formatters"
@@ -13,7 +14,6 @@ import {
   getProtocolFee,
   isNonceUsed,
 } from "../../../services/intentsContractService"
-import type { AuthMethod } from "../../../types/authHandle"
 import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
 import type { RenderHostAppLink } from "../../../types/hostAppLink"
 import type { SendNearTransaction } from "../../machines/publicKeyVerifierMachine"

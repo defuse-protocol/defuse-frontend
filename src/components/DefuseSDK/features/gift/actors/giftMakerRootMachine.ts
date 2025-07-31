@@ -1,4 +1,5 @@
 import { errors, solverRelay } from "@defuse-protocol/internal-utils"
+import type { walletMessage } from "@defuse-protocol/internal-utils"
 import {
   type ActorRefFrom,
   type DoneActorEvent,
@@ -14,10 +15,6 @@ import type { SignerCredentials } from "../../../core/formatters"
 import { logger } from "../../../logger"
 import { emitEvent } from "../../../services/emitter"
 import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
-import type {
-  WalletMessage,
-  WalletSignatureResult,
-} from "../../../types/walletMessage"
 import { assert } from "../../../utils/assert"
 import {
   type Events as DepositedBalanceEvents,
@@ -93,8 +90,8 @@ export const giftMakerRootMachine = setup({
           type: "REQUEST_SIGN"
           signerCredentials: SignerCredentials
           signMessage: (
-            params: WalletMessage
-          ) => Promise<WalletSignatureResult | null>
+            params: walletMessage.WalletMessage
+          ) => Promise<walletMessage.WalletSignatureResult | null>
         }
       | {
           type: "COMPLETE_SIGN"

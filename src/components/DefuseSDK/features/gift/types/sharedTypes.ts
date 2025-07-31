@@ -1,14 +1,11 @@
+import type { walletMessage } from "@defuse-protocol/internal-utils"
 import type { SignerCredentials } from "../../../core/formatters"
 import type { MultiPayload } from "../../../types/defuse-contracts-types"
-import type {
-  WalletMessage,
-  WalletSignatureResult,
-} from "../../../types/walletMessage"
 import type { StorageOperationErr } from "../stores/storageOperations"
 
 export type SignMessage = (
-  params: WalletMessage
-) => Promise<WalletSignatureResult | null>
+  params: walletMessage.WalletMessage
+) => Promise<walletMessage.WalletSignatureResult | null>
 
 export type GiftLinkData = {
   secretKey: string
@@ -18,7 +15,7 @@ export type GiftLinkData = {
 export type GiftSignedResult = {
   multiPayload: MultiPayload
   signerCredentials: SignerCredentials
-  signatureResult: WalletSignatureResult
+  signatureResult: walletMessage.WalletSignatureResult
 }
 
 export type CreateGiftIntent = (

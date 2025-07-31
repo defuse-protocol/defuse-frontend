@@ -1,4 +1,5 @@
 import { errors } from "@defuse-protocol/internal-utils"
+import type { walletMessage } from "@defuse-protocol/internal-utils"
 import {
   type ActorRefFrom,
   type PromiseActorLogic,
@@ -12,10 +13,6 @@ import { logger } from "../../../logger"
 import { emitEvent } from "../../../services/emitter"
 import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
 import type { MultiPayload } from "../../../types/defuse-contracts-types"
-import type {
-  WalletMessage,
-  WalletSignatureResult,
-} from "../../../types/walletMessage"
 import { assert } from "../../../utils/assert"
 import {
   type Events as DepositedBalanceEvents,
@@ -76,8 +73,8 @@ type EventType =
       type: "REQUEST_SIGN"
       signerCredentials: SignerCredentials
       signMessage: (
-        params: WalletMessage
-      ) => Promise<WalletSignatureResult | null>
+        params: walletMessage.WalletMessage
+      ) => Promise<walletMessage.WalletSignatureResult | null>
     }
   | CompleteSignEvent
   | CompleteStoringEvent

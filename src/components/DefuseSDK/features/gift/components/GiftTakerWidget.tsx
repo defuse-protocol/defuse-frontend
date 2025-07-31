@@ -1,17 +1,15 @@
 "use client"
+import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { useActorRef, useSelector } from "@xstate/react"
 import { useCallback, useEffect } from "react"
 import type { ActorRefFrom } from "xstate"
-
 import { WidgetRoot } from "../../../components/WidgetRoot"
 import type { SignerCredentials } from "../../../core/formatters"
 import { SwapWidgetProvider } from "../../../providers/SwapWidgetProvider"
-import type { AuthMethod } from "../../../types/authHandle"
 import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
 import type { RenderHostAppLink } from "../../../types/hostAppLink"
 import { giftTakerRootMachine } from "../actors/giftTakerRootMachine"
 import type { giftClaimActor } from "../actors/shared/giftClaimActor"
-
 import { GiftTakerForm } from "./GiftTakerForm"
 import { GiftTakerInvalidClaim } from "./GiftTakerInvalidClaim"
 import { GiftTakerSuccessScreen } from "./GiftTakerSuccessScreen"

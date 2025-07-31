@@ -1,4 +1,5 @@
 import { BlockchainEnum, poaBridge } from "@defuse-protocol/internal-utils"
+import { AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
 import {
   createAssociatedTokenAccountInstruction,
   createTransferInstruction,
@@ -31,13 +32,11 @@ import type { depositTokenBalanceMachine } from "../features/machines/depositTok
 import { getNearTxSuccessValue } from "../features/machines/getTxMachine"
 import type { storageDepositAmountMachine } from "../features/machines/storageDepositAmountMachine"
 import { logger } from "../logger"
-import { AuthMethod } from "../types/authHandle"
 import type { BaseTokenInfo, SupportedChainName } from "../types/base"
 import type { SendTransactionEVMParams, Transaction } from "../types/deposit"
 import type { SendTransactionTonParams } from "../types/deposit"
 import type { IntentsUserId } from "../types/intentsUserId"
 import { assert } from "../utils/assert"
-import { authHandleToIntentsUserId } from "../utils/authIdentity"
 import { getEVMChainId } from "../utils/evmChainId"
 import { isNativeToken } from "../utils/token"
 import { createTonClient } from "./tonJettonService"
@@ -518,7 +517,7 @@ export function createDepositFromSiloTransaction(
       getAddress(tokenAddress),
       amount,
       depositAddress,
-      authHandleToIntentsUserId(userAddress, AuthMethod.EVM),
+      authIdentity.authHandleToIntentsUserId(userAddress, AuthMethod.EVM),
     ],
   })
   const tx: SendTransactionEVMParams = {
@@ -892,6 +891,7 @@ export function getAvailableDepositRoutes(
           network satisfies never
           throw new Error("exhaustive check failed")
       }
+    case AuthMethod.Stellar:
     case AuthMethod.Solana:
       switch (network) {
         /* allowed all */

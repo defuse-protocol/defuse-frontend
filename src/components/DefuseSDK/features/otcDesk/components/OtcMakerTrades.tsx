@@ -1,3 +1,4 @@
+import { authIdentity } from "@defuse-protocol/internal-utils"
 import {
   Check as CheckIcon,
   Copy as CopyIcon,
@@ -26,7 +27,6 @@ import { isNonceUsed } from "../../../services/intentsContractService"
 import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
 import type { MultiPayload } from "../../../types/defuse-contracts-types"
 import { assert } from "../../../utils/assert"
-import { authHandleToIntentsUserId } from "../../../utils/authIdentity"
 import { formatTokenValue } from "../../../utils/format"
 import { computeTotalBalanceDifferentDecimals } from "../../../utils/tokenUtils"
 import type { SendNearTransaction } from "../../machines/publicKeyVerifierMachine"
@@ -69,7 +69,7 @@ export function OtcMakerTrades({
   sendNearTransaction,
 }: OtcMakerTradesProps) {
   const trades = useOtcMakerTrades((s) => {
-    const userId = authHandleToIntentsUserId(
+    const userId = authIdentity.authHandleToIntentsUserId(
       signerCredentials.credential,
       signerCredentials.credentialType
     )
