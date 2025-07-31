@@ -1,6 +1,6 @@
-import { configureSDK } from "@defuse-protocol/defuse-sdk/config"
 import * as Sentry from "@sentry/core"
 import type { Context, Contexts } from "@sentry/types"
+import { configureSDK } from "@src/components/DefuseSDK/config"
 import { INTENTS_ENV, NODE_IS_DEVELOPMENT } from "@src/utils/environment"
 
 let hasInitialized = false

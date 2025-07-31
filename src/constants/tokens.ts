@@ -1,10 +1,10 @@
 import type {
   BaseTokenInfo,
   UnifiedTokenInfo,
-} from "@defuse-protocol/defuse-sdk/types"
+} from "@src/components/DefuseSDK/types"
 import { INTENTS_ENV } from "@src/utils/environment"
 
-type TokenWithTags =
+export type TokenWithTags =
   | (BaseTokenInfo & { tags?: string[] })
   | (UnifiedTokenInfo & { tags?: string[] })
 
@@ -1515,6 +1515,36 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
   //   name: "Stellar Lumens",
   //   tags: ["mc:3"],
   // },
+  {
+    unifiedAssetId: "rhea",
+    symbol: "RHEA",
+    name: "Rhea",
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/37529.png",
+    groupedTokens: [
+      {
+        defuseAssetId: "nep141:token.rhealab.near",
+        address: "token.rhealab.near",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/37529.png",
+        chainName: "near",
+        bridge: "direct",
+        symbol: "RHEA",
+        name: "Rhea",
+      },
+      {
+        defuseAssetId:
+          "nep245:v2_1.omni.hot.tg:56_24S22V8GMmQN8t6PbCdRb3mBewAd",
+        address: "0x4c067DE26475E1CeFee8b8d1f6E2266b33a2372E",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/37529.png",
+        chainName: "bsc",
+        bridge: "hot_omni",
+        symbol: "RHEA",
+        name: "Rhea",
+      },
+    ],
+    tags: ["mc:1452"],
+  },
 ]
 
 const STAGE_TOKENS: TokenWithTags[] = [

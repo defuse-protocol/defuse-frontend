@@ -1,9 +1,11 @@
 "use client"
 
-import { MultiPayloadDeepSchema } from "@defuse-protocol/defuse-sdk"
 import { Button, Code } from "@radix-ui/themes"
 import React, { useState } from "react"
 import * as v from "valibot"
+
+import { MultiPayloadDeepSchema } from "@src/components/DefuseSDK"
+
 import examples from "./_examples/multipayloads.json"
 
 export default function JsonValidatorPage() {

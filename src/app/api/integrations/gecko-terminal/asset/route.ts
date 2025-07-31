@@ -42,7 +42,7 @@ LIMIT 1`
  * periodically query assets for their most up-to-date information.
  *
  * test:
- * http://localhost:3000/api/integrations/gecko-terminal/asset?id=NEP-141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1
+ * curl -X GET http://localhost:3000/api/integrations/gecko-terminal/asset?id=NEP-141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1 -H "Authorization: Bearer <JWT_TOKEN>" -H "Content-Type: application/json"
  *
  * @param request - The incoming Next.js request, containing the asset ID in the query parameters.
  * @returns A response containing the asset's information.

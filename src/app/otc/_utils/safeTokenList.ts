@@ -1,8 +1,8 @@
 import type {
   BaseTokenInfo,
   UnifiedTokenInfo,
-} from "@defuse-protocol/defuse-sdk/types"
-import { isBaseToken } from "@defuse-protocol/defuse-sdk/utils"
+} from "@src/components/DefuseSDK/types"
+import { isBaseToken } from "@src/components/DefuseSDK/utils"
 import { LIST_TOKENS } from "@src/constants/tokens"
 
 export const safeTokenList = filterTokenWithDifferentDecimals(LIST_TOKENS)

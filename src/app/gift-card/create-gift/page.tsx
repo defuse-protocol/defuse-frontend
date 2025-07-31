@@ -1,7 +1,7 @@
 "use client"
 
-import { GiftHistoryWidget, GiftMakerWidget } from "@defuse-protocol/defuse-sdk"
 import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
+import { GiftHistoryWidget, GiftMakerWidget } from "@src/components/DefuseSDK"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
@@ -9,7 +9,6 @@ import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import { renderAppLink } from "@src/utils/renderAppLink"
-import React from "react"
 import { useNearWalletActions } from "../../../hooks/useNearWalletActions"
 import { createGiftIntent, createGiftLink } from "../_utils/link"
 

@@ -62,6 +62,7 @@ export function tryCatch<T, Args extends unknown[]>(
       try {
         return await fn(...args)
       } catch (error) {
+        // biome-ignore lint/suspicious/noConsole: <explanation>
         console.error(error)
         return err("Internal Server Error", "Internal server error")
       }
