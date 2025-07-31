@@ -1,10 +1,10 @@
 import type {
   BaseTokenInfo,
   UnifiedTokenInfo,
-} from "@defuse-protocol/defuse-sdk/types"
+} from "@src/components/DefuseSDK/types"
 import { INTENTS_ENV } from "@src/utils/environment"
 
-type TokenWithTags =
+export type TokenWithTags =
   | (BaseTokenInfo & { tags?: string[] })
   | (UnifiedTokenInfo & { tags?: string[] })
 
@@ -132,7 +132,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         address: "0x368ebb46aca6b8d0787c96b2b20bd3cc3f2c45f7",
         decimals: 6,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
-        chainName: "coineasy",
+        chainName: "easychain",
         bridge: "aurora_engine",
         symbol: "USDC",
         name: "USD Coin",
@@ -321,7 +321,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         address: "0xC42C30aC6Cc15faC9bD938618BcaA1a1FaE8501d",
         decimals: 24,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/6535.png",
-        chainName: "coineasy",
+        chainName: "easychain",
         bridge: "aurora_engine",
         symbol: "NEAR",
         name: "Near",
@@ -444,7 +444,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         address: "0x80Da25Da4D783E57d2FCdA0436873A193a4BEccF",
         decimals: 6,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
-        chainName: "coineasy",
+        chainName: "easychain",
         bridge: "aurora_engine",
         symbol: "USDT",
         name: "Tether USD",
@@ -656,7 +656,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         address: "0x5a524251df27A25AC6b9964a93E1c23AD692688D",
         decimals: 18,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/1027.png",
-        chainName: "coineasy",
+        chainName: "easychain",
         bridge: "aurora_engine",
         symbol: "ETH",
         name: "ETH",
@@ -763,7 +763,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         address: "0x8BEc47865aDe3B172A928df8f990Bc7f2A3b9f79",
         decimals: 18,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/14803.png",
-        chainName: "coineasy",
+        chainName: "easychain",
         bridge: "aurora_engine",
         symbol: "AURORA",
         name: "Aurora",
@@ -1512,6 +1512,36 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
     symbol: "XLM",
     name: "Stellar Lumens",
     tags: ["mc:3"],
+  },
+  {
+    unifiedAssetId: "rhea",
+    symbol: "RHEA",
+    name: "Rhea",
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/37529.png",
+    groupedTokens: [
+      {
+        defuseAssetId: "nep141:token.rhealab.near",
+        address: "token.rhealab.near",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/37529.png",
+        chainName: "near",
+        bridge: "direct",
+        symbol: "RHEA",
+        name: "Rhea",
+      },
+      {
+        defuseAssetId:
+          "nep245:v2_1.omni.hot.tg:56_24S22V8GMmQN8t6PbCdRb3mBewAd",
+        address: "0x4c067DE26475E1CeFee8b8d1f6E2266b33a2372E",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/37529.png",
+        chainName: "bsc",
+        bridge: "hot_omni",
+        symbol: "RHEA",
+        name: "Rhea",
+      },
+    ],
+    tags: ["mc:1452"],
   },
 ]
 

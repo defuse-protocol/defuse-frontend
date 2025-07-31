@@ -1,3 +1,5 @@
+import { useShallow } from "zustand/react/shallow"
+
 import {
   getCredential,
   saveCredential,
@@ -7,6 +9,7 @@ import {
   signIn,
   signMessage,
 } from "@src/features/webauthn/lib/webauthnService"
+
 import { createWebAuthnStore } from "../lib/createWebAuthnStore"
 
 export const useWebAuthnStore = createWebAuthnStore({
@@ -23,12 +26,14 @@ export const useWebAuthnStore = createWebAuthnStore({
 })
 
 export function useWebAuthnActions() {
-  return useWebAuthnStore((state) => ({
-    signIn: state.signIn,
-    createNew: state.createNew,
-    signMessage: state.signMessage,
-    signOut: state.signOut,
-  }))
+  return useWebAuthnStore(
+    useShallow((state: ReturnType<typeof useWebAuthnStore.getState>) => ({
+      signIn: state.signIn,
+      createNew: state.createNew,
+      signMessage: state.signMessage,
+      signOut: state.signOut,
+    }))
+  )
 }
 
 export function useWebAuthnCurrentCredential() {

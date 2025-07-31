@@ -12,7 +12,7 @@ import {
   WalletConnectWalletAdapter,
 } from "@solana/wallet-adapter-wallets"
 import { clusterApiUrl } from "@solana/web3.js"
-import React, { type FC, type ReactNode, useMemo } from "react"
+import { type FC, type ReactNode, useMemo } from "react"
 
 // Default styles that can be overridden by your app
 import "@solana/wallet-adapter-react-ui/styles.css"

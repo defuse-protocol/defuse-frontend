@@ -1,6 +1,6 @@
 "use client"
 
-import { DepositWidget } from "@defuse-protocol/defuse-sdk"
+import { DepositWidget } from "@src/components/DefuseSDK"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"

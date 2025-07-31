@@ -4,6 +4,7 @@ import { z } from "zod"
 import { CONTRACT_ADDRESS } from "@src/app/api/integrations/shared/constants"
 import {
   PAIR_SEPARATOR,
+  defuseAssetIdToGeckoId,
   validateQueryParams,
 } from "@src/app/api/integrations/shared/utils"
 import { clickHouseClient } from "@src/clickhouse/clickhouse"
@@ -57,7 +58,7 @@ WHERE defuse_asset_id IN ({asset0Id:String}, {asset1Id:String})`
  * The pair ID format is: {asset0Id}___{asset1Id}
  *
  * test:
- * http://localhost:3000/api/integrations/gecko-terminal/pair?id=nep141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1___nep141:arb-0xaf88d065e77c8cc2239327c5edb3a432268e5831.omft.near
+ * curl -X GET http://localhost:3000/api/integrations/gecko-terminal/pair?id=nep141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1___nep141:arb-0xaf88d065e77c8cc2239327c5edb3a432268e5831.omft.near -H "Authorization: Bearer <JWT_TOKEN>" -H "Content-Type: application/json"
  *
  * @param request - The incoming Next.js request, containing the pair ID in the query parameters.
  * @returns A response containing the pair's information.
@@ -83,8 +84,25 @@ export const GET = tryCatch(
       return err("Not Found", "One or both assets not found")
     }
 
+    const geckoId0 = defuseAssetIdToGeckoId(asset0Id)
+
+    if (isErr(geckoId0)) {
+      return geckoId0
+    }
+
+    const geckoId1 = defuseAssetIdToGeckoId(asset1Id)
+
+    if (isErr(geckoId1)) {
+      return geckoId1
+    }
+
     return ok({
-      pair: { id, dexKey: CONTRACT_ADDRESS, asset0Id, asset1Id },
+      pair: {
+        id,
+        dexKey: CONTRACT_ADDRESS,
+        asset0Id: geckoId0.ok,
+        asset1Id: geckoId1.ok,
+      },
     })
   }
 )

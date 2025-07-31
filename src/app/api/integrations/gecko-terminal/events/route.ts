@@ -10,7 +10,7 @@ import type { EventsResponse } from "../types"
  * The `fromBlock` and `toBlock` parameters are both inclusive.
  *
  * test:
- * http://localhost:3000/api/integrations/gecko-terminal/events?fromBlock=150777201&toBlock=150777222
+ * curl -X GET http://localhost:3000/api/integrations/gecko-terminal/events?fromBlock=150777201&toBlock=150777222 -H "Authorization: Bearer <JWT_TOKEN>" -H "Content-Type: application/json"
  *
  * @param request - The incoming Next.js request, containing the fromBlock and toBlock in the query parameters.
  * @returns A response containing a list of events.

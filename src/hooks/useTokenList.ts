@@ -1,8 +1,8 @@
 import type {
   BaseTokenInfo,
   UnifiedTokenInfo,
-} from "@defuse-protocol/defuse-sdk/types"
-import { isUnifiedToken } from "@defuse-protocol/defuse-sdk/utils"
+} from "@src/components/DefuseSDK/types"
+import { isUnifiedToken } from "@src/components/DefuseSDK/utils"
 import { useFlatTokenList } from "@src/hooks/useFlatTokenList"
 import { useSearchParams } from "next/navigation"
 

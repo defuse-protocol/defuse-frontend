@@ -1,7 +1,7 @@
-import { isBaseToken } from "@defuse-protocol/defuse-sdk/utils"
+import { isBaseToken } from "@src/components/DefuseSDK/utils"
 import { useContext } from "react"
 
-import type { BaseTokenInfo } from "@defuse-protocol/defuse-sdk/types"
+import type { BaseTokenInfo } from "@src/components/DefuseSDK/types"
 import type { WhitelabelTemplateValue } from "@src/config/featureFlags"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"

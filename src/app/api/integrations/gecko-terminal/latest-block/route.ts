@@ -13,7 +13,7 @@ import type { ErrorResponse } from "../../shared/types"
  * It should not return a block for which /events has no data available yet.
  *
  * test:
- * http://localhost:3000/api/integrations/gecko-terminal/latest-block
+ * curl -X GET http://localhost:3000/api/integrations/gecko-terminal/latest-block -H "Authorization: Bearer <JWT_TOKEN>" -H "Content-Type: application/json"
  *
  * @returns A response containing the latest block information.
  */

@@ -1,6 +1,7 @@
 import forms from "@tailwindcss/forms"
 import typography from "@tailwindcss/typography"
 import type { Config } from "tailwindcss"
+import animate from "tailwindcss-animate"
 import colors from "tailwindcss/colors"
 import defaultTheme from "tailwindcss/defaultTheme"
 import plugin from "tailwindcss/plugin"
@@ -98,23 +99,82 @@ const config: Config = {
           200: "rgba(139, 141, 152, 1)",
           100: "rgba(31, 24, 0, 0.13)",
         },
-        blue: colors.blue,
+        blue: {
+          ...colors.blue,
+          // Cyan variants
+          c11: "var(--cyan-11)",
+        },
         amber: colors.amber,
         red: {
+          ...colors.red,
           600: "rgba(206, 44, 49, 1)",
           500: "rgba(229, 72, 77, 1)",
           400: "rgba(204, 78, 0, 0.77)",
           200: "rgba(251, 106, 0, 0.15)",
           100: "rgba(255, 156, 0, 0.16)",
+          // defuse sdk:
+          1: "var(--red-1)",
+          2: "var(--red-2)",
+          3: "var(--red-3)",
+          4: "var(--red-4)",
+          5: "var(--red-5)",
+          6: "var(--red-6)",
+          7: "var(--red-7)",
+          8: "var(--red-8)",
+          9: "var(--red-9)",
+          10: "var(--red-10)",
+          11: "var(--red-11)",
+          12: "var(--red-12)",
+          // Alpha variants
+          a1: "var(--red-a1)",
+          a2: "var(--red-a2)",
+          a3: "var(--red-a3)",
+          a4: "var(--red-a4)",
+          a5: "var(--red-a5)",
+          a6: "var(--red-a6)",
+          a7: "var(--red-a7)",
+          a8: "var(--red-a8)",
+          a9: "var(--red-a9)",
+          a10: "var(--red-a10)",
+          a11: "var(--red-a11)",
+          a12: "var(--red-a12)",
         },
         pink: {
           DEFAULT: "rgba(214, 64, 159, 1)",
         },
         green: {
+          ...colors.green,
           800: "rgba(134, 234, 212, 1)",
           400: "rgba(33, 131, 88, 1)",
           100: "rgba(0, 164, 51, 0.1)",
           DEFAULT: "rgba(0, 113, 63, 0.87)",
+
+          // defuse sdk:
+          1: "var(--green-1)",
+          2: "var(--green-2)",
+          3: "var(--green-3)",
+          4: "var(--green-4)",
+          5: "var(--green-5)",
+          6: "var(--green-6)",
+          7: "var(--green-7)",
+          8: "var(--green-8)",
+          9: "var(--green-9)",
+          10: "var(--green-10)",
+          11: "var(--green-11)",
+          12: "var(--green-12)",
+          // Alpha variants
+          a1: "var(--green-a1)",
+          a2: "var(--green-a2)",
+          a3: "var(--green-a3)",
+          a4: "var(--green-a4)",
+          a5: "var(--green-a5)",
+          a6: "var(--green-a6)",
+          a7: "var(--green-a7)",
+          a8: "var(--green-a8)",
+          a9: "var(--green-a9)",
+          a10: "var(--green-a10)",
+          a11: "var(--green-a11)",
+          a12: "var(--green-a12)",
         },
         primary: {
           DEFAULT: "rgba(247, 107, 21, 1)",
@@ -130,6 +190,30 @@ const config: Config = {
 
         accent: {
           DEFAULT: "var(--accent-9)",
+          50: "var(--accent-1)",
+          100: "var(--accent-2)",
+          200: "var(--accent-3)",
+          300: "var(--accent-4)",
+          400: "var(--accent-5)",
+          500: "var(--accent-6)",
+          600: "var(--accent-7)",
+          700: "var(--accent-8)",
+          800: "var(--accent-10)",
+          900: "var(--accent-11)",
+          950: "var(--accent-12)",
+          // Alpha variants
+          a50: "var(--accent-a1)",
+          a100: "var(--accent-a2)",
+          a200: "var(--accent-a3)",
+          a300: "var(--accent-a4)",
+          a400: "var(--accent-a5)",
+          a500: "var(--accent-a6)",
+          a600: "var(--accent-a7)",
+          a700: "var(--accent-a8)",
+          a800: "var(--accent-a10)",
+          a900: "var(--accent-a11)",
+          a950: "var(--accent-a12)",
+
           1: "var(--accent-1)",
           2: "var(--accent-2)",
           3: "var(--accent-3)",
@@ -156,6 +240,16 @@ const config: Config = {
           a11: "var(--accent-a11)",
           a12: "var(--accent-a12)",
         },
+
+        yellow: {
+          DEFAULT: "var(--yellow-9)",
+          50: "var(--yellow-1)",
+          100: "var(--yellow-2)",
+          200: "var(--yellow-3)",
+          300: "var(--yellow-4)",
+        },
+
+        label: "var(--color-label)",
       },
       boxShadow: {
         paper:
@@ -193,10 +287,41 @@ const config: Config = {
           "0%": { transform: "translateY(0)" },
           "100%": { transform: "translateY(100%)" },
         },
+        contentShow: {
+          from: {
+            opacity: "0",
+            transform: "translate(-50%, -48%) scale(0.96)",
+          },
+          to: {
+            opacity: "1",
+            transform: "translate(-50%, -50%) scale(1)",
+          },
+        },
+        slideUpAndFade: {
+          from: {
+            opacity: "0",
+            transform: "translateY(100%)",
+          },
+          to: {
+            opacity: "1",
+            transform: "translateY(0)",
+          },
+        },
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
       },
       animation: {
         "slide-up": "slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
         "slide-down": "slide-down 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+        "content-show": "contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
       },
       backgroundImage: {
         "page-light": "url(/static/images/bg-light.svg)",
@@ -215,11 +340,11 @@ const config: Config = {
           "url(/static/images/group-account-bringing--mobile.svg)",
       },
     },
-    display: ["group-hover"],
   },
   plugins: [
     forms,
     typography,
+    animate,
     plugin(({ addUtilities }) => {
       const newUtilities = {
         ".hide-scrollbar": {

@@ -1,6 +1,6 @@
 "use client"
 
-import { OtcTakerWidget } from "@defuse-protocol/defuse-sdk"
+import { OtcTakerWidget } from "@src/components/DefuseSDK"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
@@ -9,7 +9,6 @@ import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import { renderAppLink } from "@src/utils/renderAppLink"
-import React from "react"
 import { useOtcOrder } from "../_utils/link"
 
 export default function CreateOrderPage() {

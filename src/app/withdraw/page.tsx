@@ -1,6 +1,6 @@
 "use client"
 
-import { WithdrawWidget } from "@defuse-protocol/defuse-sdk"
+import { WithdrawWidget } from "@src/components/DefuseSDK"
 import { useSearchParams } from "next/navigation"
 
 import Paper from "@src/components/Paper"

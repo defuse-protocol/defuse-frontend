@@ -1,0 +1,71 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`prepareSwapSignedData() > should return the correct signed data for a NEP141 signature 1`] = `
+{
+  "payload": {
+    "callbackUrl": undefined,
+    "message": "{"foo":"bar"}",
+    "nonce": "esXbbxyJNApGznX1v8kT5ojuat7jqUv84Ib+Q6hWdzI=",
+    "recipient": "defuse.near",
+  },
+  "public_key": "ed25519:Gxa24TGbJu4mqdhW3GbvLXmf4bSEyxVicrtpChDWbgga",
+  "signature": "ed25519:D33GxHszz1ZpkXpnEWYAwkQxeYBU9YCkTMKZ5uwDS1B9",
+  "standard": "nep413",
+}
+`;
+
+exports[`prepareSwapSignedData() > should return the correct signed data for a Solana signature 1`] = `
+{
+  "payload": "{"foo":"bar"}",
+  "public_key": "ed25519:DRpbCBMxVnDK7maPM5tGv6MvB3v1sRMC86PZ8okm21hy",
+  "signature": "ed25519:S88bG8B",
+  "standard": "raw_ed25519",
+}
+`;
+
+exports[`prepareSwapSignedData() > should return the correct signed data for a TonConnect signature 1`] = `
+{
+  "address": "0:fa63f5195b0f8682d3f3413e2b40decfae7778b3691748a2d55dae5b243a3054",
+  "domain": "ton-connect.github.io",
+  "payload": {
+    "text": "{
+  "signer_id": "user.near",
+  "verifying_contract": "intents.near",
+  "deadline": "2024-01-01T12:00:00.000Z",
+  "nonce": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+  "intents": [
+    {
+      "intent": "token_diff",
+      "diff": {
+        "foo.near": "100"
+      }
+    }
+  ]
+}",
+    "type": "text",
+  },
+  "public_key": "ed25519:F8PB56zdMYNDL7Mq43DV4cV17uRqQkpn6ZygNdqavXCr",
+  "signature": "ed25519:5XidPDRhEdQBvHuMx9xAx4q6hfsBzYtv4XDxpsfDgTmSXgZhEboy7kytdQfwJCKnjLYQwPrdqc7ACR3tr6F1HSGR",
+  "standard": "ton_connect",
+  "timestamp": 1748949269,
+}
+`;
+
+exports[`prepareSwapSignedData() > should return the correct signed data for a WebAuthn signature 1`] = `
+{
+  "authenticator_data": "3q0",
+  "client_data_json": "{"some": "json"}",
+  "payload": "{"signer_id":"user.near","verifying_contract":"intents.near","deadline":"2024-01-01T12:00:00.000Z","nonce":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=","intents":[{"intent":"token_diff","diff":{"foo.near":"100"}}]}",
+  "public_key": "ed25519:Gxa24TGbJu4mqdhW3GbvLXmf4bSEyxVicrtpChDWbgga",
+  "signature": "ed25519:FXk",
+  "standard": "webauthn",
+}
+`;
+
+exports[`prepareSwapSignedData() > should return the correct signed data for an ERC191 signature 1`] = `
+{
+  "payload": "{"foo":"bar"}",
+  "signature": "secp256k1:S88bG7i",
+  "standard": "erc191",
+}
+`;

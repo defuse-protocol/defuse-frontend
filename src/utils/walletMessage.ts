@@ -1,9 +1,9 @@
+import { JsonRpcProvider } from "@near-js/providers"
 import {
   createEmptyIntentMessage,
   formatSignedIntent,
-} from "@defuse-protocol/defuse-sdk"
-import { config } from "@defuse-protocol/defuse-sdk/config"
-import { JsonRpcProvider } from "@near-js/providers"
+} from "@src/components/DefuseSDK"
+import { config } from "@src/components/DefuseSDK/config"
 import type { CodeResult } from "near-api-js/lib/providers/provider"
 
 import type { ChainType } from "@src/hooks/useConnectWallet"
