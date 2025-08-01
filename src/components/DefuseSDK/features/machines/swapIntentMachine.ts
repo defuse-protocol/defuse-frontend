@@ -1,6 +1,7 @@
 import type { FeeEstimation } from "@defuse-protocol/bridge-sdk"
 import { errors, solverRelay } from "@defuse-protocol/internal-utils"
 import { secp256k1 } from "@noble/curves/secp256k1"
+import { APP_FEE_RECIPIENT } from "@src/utils/environment"
 import type { providers } from "near-api-js"
 import { assign, fromPromise, setup } from "xstate"
 import { settings } from "../../constants/settings"
@@ -218,6 +219,8 @@ export const swapIntentMachine = setup({
           signerId: context.defuseUserId,
           deadlineTimestamp: Date.now() + settings.swapExpirySec * 1000,
           referral: context.referral,
+          appFee: context.intentOperationParams.quote.appFee,
+          appFeeRecipient: APP_FEE_RECIPIENT,
         })
 
         return {

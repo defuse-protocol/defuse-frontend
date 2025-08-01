@@ -20,6 +20,8 @@ import { buildHotOmniWithdrawIntent } from "./hotOmniUtils"
  * @param deadlineTimestamp Unix timestamp in milliseconds
  * @param referral
  * @param memo
+ * @param appFee
+ * @param appFeeRecipient
  */
 export function makeInnerSwapMessage({
   tokenDeltas,
@@ -27,12 +29,16 @@ export function makeInnerSwapMessage({
   deadlineTimestamp,
   referral,
   memo,
+  appFee,
+  appFeeRecipient,
 }: {
   tokenDeltas: [string, bigint][]
   signerId: IntentsUserId
   deadlineTimestamp: number
   referral?: string
   memo?: string
+  appFee: [string, bigint][]
+  appFeeRecipient: string
 }): Nep413DefuseMessageFor_DefuseIntents {
   const tokenDiff: Record<string, string> = {}
   const tokenDiffNum: Record<string, bigint> = {}
@@ -53,16 +59,29 @@ export function makeInnerSwapMessage({
     }
   }
 
+  const intents: Intent[] = [
+    {
+      intent: "token_diff",
+      diff: tokenDiff,
+      referral,
+      memo,
+    },
+  ]
+
+  if (appFee.length) {
+    intents.push({
+      intent: "transfer",
+      tokens: Object.fromEntries(
+        appFee.map(([token, amount]) => [token, amount.toString()])
+      ),
+      receiver_id: appFeeRecipient,
+      memo: "APP_FEE",
+    })
+  }
+
   return {
     deadline: new Date(deadlineTimestamp).toISOString(),
-    intents: [
-      {
-        intent: "token_diff",
-        diff: tokenDiff,
-        referral,
-        memo,
-      },
-    ],
+    intents,
     signer_id: signerId,
   }
 }
@@ -131,6 +150,8 @@ export function makeInnerSwapAndWithdrawMessage({
       signerId,
       deadlineTimestamp,
       referral,
+      appFee: [],
+      appFeeRecipient: "",
     })
     assert(swapIntents, "swapIntents must be defined")
     intents.push(...swapIntents)
@@ -142,6 +163,8 @@ export function makeInnerSwapAndWithdrawMessage({
       signerId,
       deadlineTimestamp,
       referral,
+      appFee: [],
+      appFeeRecipient: "",
     })
     assert(storageIntents, "storageIntents must be defined")
     intents.push(...storageIntents)

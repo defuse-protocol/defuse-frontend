@@ -53,6 +53,7 @@ describe("queryQuote()", () => {
       amountIn: { amount: adjustDecimals(150n, 0, 6), decimals: 6 },
       balances: { token1: adjustDecimals(100n, 0, 6) },
       waitMs: 0,
+      appFeeBps: 0,
     }
 
     vi.mocked(solverRelay.quote).mockImplementationOnce(async () => [
@@ -88,6 +89,7 @@ describe("queryQuote()", () => {
           ["token1", -150000000n],
           ["tokenOut", 200n],
         ],
+        appFee: [],
       },
     })
   })
@@ -103,6 +105,7 @@ describe("queryQuote()", () => {
         token3: adjustDecimals(100n, 0, token3.decimals),
       },
       waitMs: 0,
+      appFeeBps: 0,
     }
 
     vi.mocked(solverRelay.quote)
@@ -161,6 +164,7 @@ describe("queryQuote()", () => {
           ["token2", -5000000000n],
           ["tokenOut", 10n],
         ],
+        appFee: [],
       },
     })
   })
@@ -172,6 +176,7 @@ describe("queryQuote()", () => {
       amountIn: { amount: adjustDecimals(150n, 0, 6), decimals: 6 },
       balances: { token1: adjustDecimals(100n, 0, token1.decimals) },
       waitMs: 0,
+      appFeeBps: 0,
     }
 
     vi.mocked(solverRelay.quote).mockImplementationOnce(async () => [
@@ -212,6 +217,7 @@ describe("queryQuote()", () => {
           ["token1", -150n],
           ["tokenOut", 200n],
         ],
+        appFee: [],
       },
     })
   })
@@ -223,6 +229,7 @@ describe("queryQuote()", () => {
       amountIn: { amount: adjustDecimals(150n, 0, 6), decimals: 6 },
       balances: { token1: adjustDecimals(100n, 0, token1.decimals) },
       waitMs: 0,
+      appFeeBps: 0,
     }
 
     vi.mocked(solverRelay.quote)
@@ -254,6 +261,7 @@ describe("queryQuote()", () => {
         token2: adjustDecimals(100n, 0, token2.decimals),
       },
       waitMs: 0,
+      appFeeBps: 0,
     }
 
     vi.mocked(solverRelay.quote)
@@ -278,6 +286,7 @@ describe("queryQuote()", () => {
           ["token1", -100n],
           ["tokenOut", 20n],
         ],
+        appFee: [],
       },
     })
   })
@@ -289,6 +298,7 @@ describe("queryQuote()", () => {
       amountIn: { amount: adjustDecimals(150n, 0, 6), decimals: 6 },
       balances: { token1: adjustDecimals(100n, 0, token1.decimals) },
       waitMs: 0,
+      appFeeBps: 0,
     }
 
     vi.mocked(solverRelay.quote).mockImplementationOnce(async () => [
@@ -314,6 +324,7 @@ describe("queryQuote()", () => {
           ["token1", -150n],
           ["tokenOut", 200n],
         ],
+        appFee: [],
       },
     })
   })

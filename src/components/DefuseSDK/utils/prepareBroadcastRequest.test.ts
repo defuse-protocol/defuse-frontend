@@ -17,6 +17,8 @@ describe("prepareSwapSignedData()", () => {
       tokenDeltas: [["foo.near", 100n]],
       signerId: authHandleToIntentsUserId("user.near", "near"),
       deadlineTimestamp: 1704110400000,
+      appFee: [],
+      appFeeRecipient: "",
     }),
     nonce: new Uint8Array(32),
   })

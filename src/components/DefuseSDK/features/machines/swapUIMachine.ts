@@ -1,3 +1,4 @@
+import { APP_FEE_BPS } from "@src/utils/environment"
 import type { providers } from "near-api-js"
 import {
   type ActorRefFrom,
@@ -208,6 +209,7 @@ export const swapUIMachine = setup({
             tokenOut: context.parsedFormValues.tokenOut,
             amountIn: context.parsedFormValues.amountIn,
             balances: balances ?? {},
+            appFeeBps: APP_FEE_BPS,
           },
         }
       }

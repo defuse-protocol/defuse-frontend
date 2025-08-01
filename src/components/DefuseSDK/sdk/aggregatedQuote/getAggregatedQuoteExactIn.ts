@@ -7,6 +7,7 @@ import {
   adjustDecimals,
   compareAmounts,
   computeTotalBalanceDifferentDecimals,
+  netDownAmount,
 } from "../../utils/tokenUtils"
 import {
   type GetQuoteParams,
@@ -27,9 +28,12 @@ export interface GetAggregatedExactInQuoteParams {
   amountIn: TokenValue // total amount in
   balances: Record<string, bigint> // how many tokens of each type are available
   waitMs: number
+  appFeeBps: number
 }
 
-export type GetAggregatedQuoteExactInReturnType = AggregatedQuote
+export type GetAggregatedQuoteExactInReturnType = AggregatedQuote & {
+  appFee: [string, bigint][]
+}
 export type GetAggregatedQuoteExactInErrorType =
   | poaBridge.httpClient.JSONRPCErrorType
   | AggregatedQuoteError
@@ -57,11 +61,22 @@ export async function getAggregatedQuoteExactIn({
     totalAvailableIn == null ||
     compareAmounts(totalAvailableIn, aggregatedQuoteParams.amountIn) === -1
   ) {
-    const exactAmountIn: bigint = adjustDecimals(
+    const totalAmountIn: bigint = adjustDecimals(
       aggregatedQuoteParams.amountIn.amount,
       aggregatedQuoteParams.amountIn.decimals,
       tokenIn.decimals
     )
+    const exactAmountIn: bigint = netDownAmount(
+      totalAmountIn,
+      aggregatedQuoteParams.appFeeBps * 100
+    )
+
+    const appFees: [string, bigint][] = []
+    const appFee: bigint = totalAmountIn - exactAmountIn
+    if (appFee > 0n) {
+      appFees.push([tokenIn.defuseAssetId, appFee])
+    }
+
     const quoteParams: GetQuoteParams["quoteParams"] = {
       defuse_asset_identifier_in: tokenIn.defuseAssetId,
       defuse_asset_identifier_out: tokenOut.defuseAssetId,
@@ -79,6 +94,7 @@ export async function getAggregatedQuoteExactIn({
 
     return {
       ...aggregateQuotes(await Promise.allSettled([q]), [quoteParams]),
+      appFee: appFees,
       isSimulation: true,
     }
   }
@@ -88,6 +104,19 @@ export async function getAggregatedQuoteExactIn({
     aggregatedQuoteParams.amountIn,
     aggregatedQuoteParams.balances
   )
+
+  const appFees: [string, bigint][] = []
+  for (const [tokenIn1, totalAmountIn] of Object.entries(amountsToQuote)) {
+    const amountIn = netDownAmount(
+      totalAmountIn,
+      aggregatedQuoteParams.appFeeBps * 100
+    )
+    amountsToQuote[tokenIn1] = amountIn
+    const appFee = totalAmountIn - amountIn
+    if (appFee > 0n) {
+      appFees.push([tokenIn1, appFee])
+    }
+  }
 
   const { quotes, quoteParams } = await fetchQuotesForTokens(
     tokenOut.defuseAssetId,
@@ -99,7 +128,10 @@ export async function getAggregatedQuoteExactIn({
     }
   )
 
-  return aggregateQuotes(quotes, quoteParams)
+  return {
+    ...aggregateQuotes(quotes, quoteParams),
+    appFee: appFees,
+  }
 }
 
 async function fetchQuotesForTokens(
