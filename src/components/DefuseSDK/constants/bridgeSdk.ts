@@ -1,6 +1,8 @@
 import { BridgeSDK, Chains } from "@defuse-protocol/bridge-sdk"
+import { INTENTS_ENV } from "@src/utils/environment"
 
 export const bridgeSDK = new BridgeSDK({
+  env: INTENTS_ENV,
   rpc: {
     // hardcoded for now
     [Chains.Polygon]: ["https://polygon-rpc.com"],
