@@ -25,6 +25,7 @@ export type OtcMakerStoreActorErrors = { reason: "ERR_STORE_FAILED" }
 export const otcMakerStoreActor = setup({
   types: {
     input: {} as OtcMakerStoreActorInput,
+    output: {} as OtcMakerStoreActorOutput,
     context: {} as OtcMakerStoreActorInput,
   },
   actors: {

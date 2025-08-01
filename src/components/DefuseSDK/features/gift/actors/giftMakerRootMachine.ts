@@ -3,7 +3,6 @@ import {
   type ActorRefFrom,
   type DoneActorEvent,
   type InputFrom,
-  type PromiseActorLogic,
   assertEvent,
   assign,
   fromPromise,
@@ -41,21 +40,13 @@ import { assembleGiftInfo, getParsedValues } from "../utils/makerMachine"
 import { giftMakerFormMachine } from "./giftMakerFormMachine"
 import {
   type GiftMakerPublishingActorErrors,
-  type GiftMakerPublishingActorInput,
-  type GiftMakerPublishingActorOutput,
   giftMakerPublishingActor,
 } from "./giftMakerPublishingActor"
 import {
   type GiftMakerReadyActorErrors,
-  type GiftMakerReadyActorInput,
-  type GiftMakerReadyActorOutput,
   giftMakerReadyActor,
 } from "./giftMakerReadyActor"
-import type {
-  GiftMakerSignActorErrors,
-  GiftMakerSignActorInput,
-  GiftMakerSignActorOutput,
-} from "./giftMakerSignActor"
+import type { GiftMakerSignActorErrors } from "./giftMakerSignActor"
 import { giftMakerSignActor } from "./giftMakerSignActor"
 
 type GiftMakerRootMachineErrors =
@@ -108,20 +99,10 @@ export const giftMakerRootMachine = setup({
   },
   actors: {
     formActor: giftMakerFormMachine,
-    // biome-ignore lint/suspicious/noExplicitAny: bypass xstate+ts bloating; be careful when interacting with `depositedBalanceActor` string
-    depositedBalanceActor: depositedBalanceMachine as any,
-    signActor: giftMakerSignActor as unknown as PromiseActorLogic<
-      GiftMakerSignActorOutput,
-      GiftMakerSignActorInput
-    >,
-    publishingActor: giftMakerPublishingActor as unknown as PromiseActorLogic<
-      GiftMakerPublishingActorOutput,
-      GiftMakerPublishingActorInput
-    >,
-    readyGiftActor: giftMakerReadyActor as unknown as PromiseActorLogic<
-      GiftMakerReadyActorOutput,
-      GiftMakerReadyActorInput
-    >,
+    depositedBalanceActor: depositedBalanceMachine,
+    signActor: giftMakerSignActor,
+    publishingActor: giftMakerPublishingActor,
+    readyGiftActor: giftMakerReadyActor,
     settlingActor: fromPromise(
       ({
         input,

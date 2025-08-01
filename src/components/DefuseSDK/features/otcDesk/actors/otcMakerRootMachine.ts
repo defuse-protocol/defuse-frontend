@@ -1,12 +1,5 @@
 import { errors } from "@defuse-protocol/internal-utils"
-import {
-  type ActorRefFrom,
-  type PromiseActorLogic,
-  assertEvent,
-  assign,
-  sendTo,
-  setup,
-} from "xstate"
+import { type ActorRefFrom, assertEvent, assign, sendTo, setup } from "xstate"
 import type { SignerCredentials } from "../../../core/formatters"
 import { logger } from "../../../logger"
 import { emitEvent } from "../../../services/emitter"
@@ -25,20 +18,13 @@ import { otcMakerTradesStore } from "../stores/otcMakerTrades"
 import type { CreateOtcTrade } from "../types/sharedTypes"
 import { otcMakerConfigLoadActor } from "./otcMakerConfigLoadActor"
 import { otcMakerFormMachine } from "./otcMakerFormMachine"
-import {
-  type OTCMakerReadyOrderActorInput,
-  otcMakerReadyOrderActor,
-} from "./otcMakerReadyOrderActor"
+import { otcMakerReadyOrderActor } from "./otcMakerReadyOrderActor"
 import {
   type OTCMakerSignActorErrors,
-  type OTCMakerSignActorInput,
-  type OTCMakerSignActorOutput,
   otcMakerSignMachine,
 } from "./otcMakerSignActor"
 import {
   type OtcMakerStoreActorErrors,
-  type OtcMakerStoreActorInput,
-  type OtcMakerStoreActorOutput,
   otcMakerStoreActor,
 } from "./otcMakerStoreActor"
 
@@ -113,19 +99,10 @@ export const otcMakerRootMachine = setup({
   actors: {
     formActor: otcMakerFormMachine,
     depositedBalanceActor: depositedBalanceMachine,
-    signActor: otcMakerSignMachine as unknown as PromiseActorLogic<
-      OTCMakerSignActorOutput,
-      OTCMakerSignActorInput
-    >,
-    readyOrderActor: otcMakerReadyOrderActor as unknown as PromiseActorLogic<
-      void,
-      OTCMakerReadyOrderActorInput
-    >,
+    signActor: otcMakerSignMachine,
+    readyOrderActor: otcMakerReadyOrderActor,
     otcMakerConfigLoadActor: otcMakerConfigLoadActor,
-    storeActor: otcMakerStoreActor as unknown as PromiseActorLogic<
-      OtcMakerStoreActorOutput,
-      OtcMakerStoreActorInput
-    >,
+    storeActor: otcMakerStoreActor,
   },
   actions: {
     logError: (_, event: { error: unknown }) => {
