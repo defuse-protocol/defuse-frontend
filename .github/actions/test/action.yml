@@ -4,16 +4,16 @@ description: "Each pull request to the stage branch has to be passed by types an
 runs:
   using: composite
   steps:
-    - name: Setup Node
-      uses: actions/setup-node@v4
+    - name: Setup Bun
+      uses: oven-sh/setup-bun@v2
       with:
-        node-version-file: package.json
+        bun-version: latest
     - name: Install
-      run: yarn install --frozen-lockfile --non-interactive --prefer-offline
+      run: bun install --frozen-lockfile --non-interactive --prefer-offline
       shell: bash
     - name: Check types
-      run: yarn run typecheck
+      run: bun run typecheck
       shell: bash
     - name: Lint
-      run: yarn run check
+      run: bun run check
       shell: bash

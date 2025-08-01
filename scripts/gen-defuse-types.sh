@@ -29,6 +29,6 @@ fi
 # Step 2: Pass the modified JSON directly to json-schema-to-typescript
 echo "$schema" | npm_config_registry="https://registry.npmjs.org" npx json-schema-to-typescript -o "$type_output" --unreachableDefinitions
 # Prettify the output
-yarn -s biome format "$type_output" --write
+bun biome format "$type_output" --write
 
 echo "Types generated successfully in "$type_output""
