@@ -1,7 +1,7 @@
+import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import type { SupportedChainName } from "@src/components/DefuseSDK/types/base"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { assertEvent, assign, fromPromise, setup } from "xstate"
-import type { AuthMethod } from "../../types/authHandle"
 
 export type Context = {
   userAddress: string | null

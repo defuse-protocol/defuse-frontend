@@ -1,10 +1,10 @@
+import { prepareBroadcastRequest } from "@defuse-protocol/internal-utils"
 import { base58, hex } from "@scure/base"
 import { Keypair } from "@solana/web3.js"
 import nacl from "tweetnacl"
 import * as v from "valibot"
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts"
 import { describe, expect, it } from "vitest"
-import { transformERC191Signature } from "../../../utils/prepareBroadcastRequest"
 import { normalizeSignatureS } from "../../../utils/webAuthn"
 import {
   PublicKeyED25519Schema,
@@ -57,7 +57,7 @@ describe("SignatureED25519Schema", () => {
 describe("SignatureSecp256k1Schema", () => {
   it("valid signature", async () => {
     const signer = privateKeyToAccount(generatePrivateKey())
-    const formatted = transformERC191Signature(
+    const formatted = prepareBroadcastRequest.transformERC191Signature(
       await signer.signMessage({ message: "0x" })
     )
     expect(() => v.parse(SignatureSecp256k1Schema, formatted)).not.toThrow()

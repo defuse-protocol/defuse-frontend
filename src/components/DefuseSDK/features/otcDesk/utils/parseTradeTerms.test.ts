@@ -1,3 +1,4 @@
+import { authIdentity } from "@defuse-protocol/internal-utils"
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import {
@@ -9,7 +10,6 @@ import {
   createSwapIntentMessage,
 } from "../../../core/messages"
 import { logger } from "../../../logger"
-import { authHandleToIntentsUserId } from "../../../utils/authIdentity"
 import { parseTradeTerms } from "./parseTradeTerms"
 
 vi.mock("../../../logger", () => ({
@@ -21,7 +21,7 @@ describe("parseTradeTerms", () => {
     credential: "joe.near",
     credentialType: "near",
   }
-  const trade1Id = authHandleToIntentsUserId(
+  const trade1Id = authIdentity.authHandleToIntentsUserId(
     trader1.credential,
     trader1.credentialType
   )

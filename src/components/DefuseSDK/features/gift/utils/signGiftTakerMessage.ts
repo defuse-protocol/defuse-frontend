@@ -1,14 +1,9 @@
+import { authIdentity, messageFactory } from "@defuse-protocol/internal-utils"
+import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { base64 } from "@scure/base"
-import { authHandleToIntentsUserId } from "@src/components/DefuseSDK/utils/authIdentity"
 import { KeyPair } from "near-api-js"
 import type { IntentsUserId, SignerCredentials } from "../../../core/formatters"
 import { formatUserIdentity } from "../../../core/formatters"
-import type { NEP413SignatureData } from "../../../types/walletMessage"
-import {
-  makeInnerTransferMessage,
-  makeSwapMessage,
-} from "../../../utils/messageFactory"
-import { randomDefuseNonce } from "../../../utils/messageFactory"
 import type { GiftInfo } from "../actors/shared/getGiftInfo"
 import { hashing } from "./hashing"
 
@@ -20,7 +15,7 @@ type GiftTakerMessage = {
 export async function signGiftTakerMessage({
   giftInfo,
   signerCredentials,
-}: GiftTakerMessage): Promise<NEP413SignatureData> {
+}: GiftTakerMessage): Promise<walletMessage.NEP413SignatureData> {
   const walletMessage = assembleWalletMessage({ giftInfo, signerCredentials })
   const keyPair = KeyPair.fromString(giftInfo.secretKey)
 
@@ -46,23 +41,23 @@ function assembleWalletMessage({
   giftInfo,
   signerCredentials,
 }: GiftTakerMessage) {
-  const nonce = randomDefuseNonce()
+  const nonce = messageFactory.randomDefuseNonce()
 
   // Signer should be with `near` credential type as we use ED25519 signing
   const signerId = resolveSignerId(
-    authHandleToIntentsUserId(giftInfo.accountId, "near")
+    authIdentity.authHandleToIntentsUserId(giftInfo.accountId, "near")
   )
 
-  const innerMessage = makeInnerTransferMessage({
+  const innerMessage = messageFactory.makeInnerTransferMessage({
     tokenDeltas: [...Object.entries(giftInfo.tokenDiff)],
     signerId,
     deadlineTimestamp: minutesFromNow(5),
-    receiverId: authHandleToIntentsUserId(
+    receiverId: authIdentity.authHandleToIntentsUserId(
       signerCredentials.credential,
       signerCredentials.credentialType
     ),
   })
-  return makeSwapMessage({
+  return messageFactory.makeSwapMessage({
     innerMessage,
     nonce: nonce,
   })

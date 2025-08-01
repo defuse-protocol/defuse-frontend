@@ -1,6 +1,6 @@
+import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { type PropsWithChildren, useEffect } from "react"
 import { useFormContext } from "react-hook-form"
-import type { AuthMethod } from "../../../types/authHandle"
 import { reverseAssetNetworkAdapter } from "../../../utils/adapters"
 import type { DepositFormValues } from "./DepositForm"
 import { DepositUIMachineContext } from "./DepositUIMachineProvider"

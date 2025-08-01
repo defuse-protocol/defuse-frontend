@@ -1,4 +1,5 @@
-import { solverRelay } from "@defuse-protocol/internal-utils"
+import { messageFactory, solverRelay } from "@defuse-protocol/internal-utils"
+import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { assign, fromPromise, setup } from "xstate"
 import { config } from "../../../config"
 import { nearClient } from "../../../constants/nearClient"
@@ -7,9 +8,7 @@ import { logger } from "../../../logger"
 import { convertPublishIntentToLegacyFormat } from "../../../sdk/solverRelay/utils/parseFailedPublishError"
 import { getDepositedBalances } from "../../../services/defuseBalanceService"
 import type { IntentsUserId } from "../../../types/intentsUserId"
-import type { WalletSignatureResult } from "../../../types/walletMessage"
 import { assert } from "../../../utils/assert"
-import { makeSwapMessage } from "../../../utils/messageFactory"
 import { signIntentMachine } from "../../machines/signIntentMachine"
 import type { SignMessage } from "../../otcDesk/types/sharedTypes"
 import type { TokenBalances } from "../../otcDesk/utils/fillWithMinimalExchanges"
@@ -28,7 +27,7 @@ export const tokenMigrationMachine = setup({
       signerCredentials: SignerCredentials
       signMessage: SignMessage
       tokensToMigrate: TokenBalances
-      signature: null | WalletSignatureResult
+      signature: null | walletMessage.WalletSignatureResult
       intentHash: null | string
       error: null | string
       intentStatus: null | solverRelay.WaitForIntentSettlementReturnType
@@ -141,7 +140,7 @@ export const tokenMigrationMachine = setup({
             src: "signIntent",
 
             input: ({ context }) => {
-              const walletMessage = makeSwapMessage({
+              const walletMessage = messageFactory.makeSwapMessage({
                 innerMessage: {
                   signer_id: context.userId,
                   deadline: new Date(Date.now() + 5 * 60 * 1000).toISOString(),

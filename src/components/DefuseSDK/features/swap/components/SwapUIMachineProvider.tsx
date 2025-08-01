@@ -1,3 +1,4 @@
+import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { createActorContext } from "@xstate/react"
 import type { PropsWithChildren, ReactElement, ReactNode } from "react"
@@ -11,10 +12,6 @@ import {
   fromPromise,
 } from "xstate"
 import type { SwappableToken } from "../../../types/swap"
-import type {
-  WalletMessage,
-  WalletSignatureResult,
-} from "../../../types/walletMessage"
 import { computeTotalDeltaDifferentDecimals } from "../../../utils/tokenUtils"
 import { swapIntentMachine } from "../../machines/swapIntentMachine"
 import { swapUIMachine } from "../../machines/swapUIMachine"
@@ -55,7 +52,9 @@ interface SwapUIMachineProviderProps extends PropsWithChildren {
   initialTokenIn?: SwappableToken
   initialTokenOut?: SwappableToken
   tokenList: SwappableToken[]
-  signMessage: (params: WalletMessage) => Promise<WalletSignatureResult | null>
+  signMessage: (
+    params: walletMessage.WalletMessage
+  ) => Promise<walletMessage.WalletSignatureResult | null>
   referral?: string
   onTokenChange?: (params: {
     tokenIn: SwappableToken | null

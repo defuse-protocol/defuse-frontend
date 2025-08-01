@@ -1,4 +1,5 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
+import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Callout } from "@radix-ui/themes"
 import { ModalSelectNetwork } from "@src/components/DefuseSDK/components/Network/ModalSelectNetwork"
@@ -25,7 +26,6 @@ import { getBlockchainsOptions } from "../../../../constants/blockchains"
 import { useModalStore } from "../../../../providers/ModalStoreProvider"
 import { getAvailableDepositRoutes } from "../../../../services/depositService"
 import { ModalType } from "../../../../stores/modalStore"
-import type { AuthMethod } from "../../../../types/authHandle"
 import type {
   BaseTokenInfo,
   SupportedChainName,

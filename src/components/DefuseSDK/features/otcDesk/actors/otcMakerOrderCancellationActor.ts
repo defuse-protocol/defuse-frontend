@@ -1,4 +1,5 @@
 import { solverRelay } from "@defuse-protocol/internal-utils"
+import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { base64 } from "@scure/base"
 import { createEmptyIntentMessage } from "@src/components/DefuseSDK/core/messages"
 import { assertEvent, assign, fromPromise, setup } from "xstate"
@@ -9,7 +10,6 @@ import {
   convertPublishIntentsToLegacyFormat,
 } from "../../../sdk/solverRelay/publishIntents"
 import type { MultiPayload } from "../../../types/defuse-contracts-types"
-import type { WalletSignatureResult } from "../../../types/walletMessage"
 import { assert } from "../../../utils/assert"
 import {
   type Errors as SignIntentErrors,
@@ -58,7 +58,7 @@ export const otcMakerOrderCancellationActor = setup({
       | {
           type: "_INTERNAL_SIGNED"
           multiPayload: MultiPayload
-          signatureResult: WalletSignatureResult
+          signatureResult: walletMessage.WalletSignatureResult
           signerCredentials: SignerCredentials
         },
   },

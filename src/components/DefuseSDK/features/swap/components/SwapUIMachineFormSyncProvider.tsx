@@ -1,7 +1,7 @@
+import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { useSelector } from "@xstate/react"
 import { type PropsWithChildren, useEffect, useRef } from "react"
 import { useFormContext } from "react-hook-form"
-import type { AuthMethod } from "../../../types/authHandle"
 import type { SwapWidgetProps } from "../../../types/swap"
 import { usePublicKeyModalOpener } from "../hooks/usePublicKeyModalOpener"
 import type { SwapFormValues } from "./SwapForm"

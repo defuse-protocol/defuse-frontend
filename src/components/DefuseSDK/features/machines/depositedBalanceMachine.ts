@@ -1,3 +1,5 @@
+import { authIdentity } from "@defuse-protocol/internal-utils"
+import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { nearClient } from "@src/components/DefuseSDK/constants/nearClient"
 import { type QueryClient, QueryObserver } from "@tanstack/query-core"
 import {
@@ -12,14 +14,12 @@ import {
 import { queryClient } from "../../providers/QueryClientProvider"
 import { getDepositedBalances } from "../../services/defuseBalanceService"
 import { getTransitBalance } from "../../services/getTransitBalance"
-import type { AuthMethod } from "../../types/authHandle"
 import type {
   BaseTokenInfo,
   TokenValue,
   UnifiedTokenInfo,
 } from "../../types/base"
 import type { IntentsUserId } from "../../types/intentsUserId"
-import { authHandleToIntentsUserId } from "../../utils/authIdentity"
 import {
   computeTotalBalanceDifferentDecimals,
   getUnderlyingBaseTokenInfos,
@@ -264,7 +264,7 @@ export const depositedBalanceMachine = setup({
         {
           type: "updateUser",
           params: ({ event }) =>
-            authHandleToIntentsUserId(
+            authIdentity.authHandleToIntentsUserId(
               event.params.userAddress,
               event.params.userChainType
             ),

@@ -1,4 +1,5 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
+import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { MagicWandIcon, PersonIcon } from "@radix-ui/react-icons"
 import { Box, Flex, IconButton, Text, TextField } from "@radix-ui/themes"
 import { getMinWithdrawalHiperliquidAmount } from "@src/components/DefuseSDK/features/withdraw/utils/hyperliquid"
@@ -17,7 +18,6 @@ import {
   getNearIntentsOption,
 } from "../../../../../../constants/blockchains"
 import { useSolverLiquidityQuery } from "../../../../../../queries/solverLiquidityQuerires"
-import type { AuthMethod } from "../../../../../../types"
 import type {
   SupportedChainName,
   TokenValue,

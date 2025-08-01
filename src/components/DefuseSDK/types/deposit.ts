@@ -1,12 +1,12 @@
+import type { authHandle } from "@defuse-protocol/internal-utils"
 import type { Transaction as TransactionSolana } from "@solana/web3.js"
 import type { Address, Hash } from "viem"
-import type { AuthHandle } from "./authHandle"
 import type { RenderHostAppLink } from "./hostAppLink"
 import type { SwappableToken } from "./swap"
 
 export type DepositWidgetProps = {
-  userAddress: AuthHandle["identifier"] | undefined
-  chainType: AuthHandle["method"] | undefined
+  userAddress: authHandle.AuthHandle["identifier"] | undefined
+  chainType: authHandle.AuthHandle["method"] | undefined
   userWalletAddress: string | null
   renderHostAppLink: RenderHostAppLink
   tokenList: SwappableToken[]

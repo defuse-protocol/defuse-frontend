@@ -1,14 +1,11 @@
+import type { walletMessage } from "@defuse-protocol/internal-utils"
 import type { Result } from "@thames/monads"
 import type { TokenValue } from "../../../types/base"
 import type { MultiPayload } from "../../../types/defuse-contracts-types"
-import type {
-  WalletMessage,
-  WalletSignatureResult,
-} from "../../../types/walletMessage"
 
 export type SignMessage = (
-  params: WalletMessage
-) => Promise<WalletSignatureResult | null>
+  params: walletMessage.WalletMessage
+) => Promise<walletMessage.WalletSignatureResult | null>
 
 export type TradeBreakdown = {
   makerSends: TokenValue
