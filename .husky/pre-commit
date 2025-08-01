@@ -1,8 +1,5 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-# Add Yarn to PATH
-export PATH="$PATH:$(yarn global bin)"
-
 # Run lint-staged
-yarn lint-staged
+bun lint-staged

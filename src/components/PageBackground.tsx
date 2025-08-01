@@ -4,7 +4,6 @@ import Image from "next/image"
 import { useContext } from "react"
 
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
-import solswapBg from "../../public/static/templates/solswap/bg.png"
 
 const PageBackground = () => {
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
@@ -13,7 +12,7 @@ const PageBackground = () => {
     return (
       <div className="absolute bottom-0 w-full h-full -z-[1]">
         <Image
-          src={solswapBg}
+          src="/static/templates/solswap/bg.png"
           alt={""}
           className="w-full h-full object-cover object-bottom"
           unoptimized
