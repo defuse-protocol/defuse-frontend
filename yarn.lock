@@ -1304,14 +1304,14 @@
   resolved "https://registry.yarnpkg.com/@csstools/css-tokenizer/-/css-tokenizer-3.0.4.tgz#333fedabc3fd1a8e5d0100013731cf19e6a8c5d3"
   integrity sha512-Vd/9EVDiu6PPJt9yAh6roZP6El1xHrdvIVGjyBsHR0RYwNHgL7FJPyIIW4fANJNG6FtyZfvlRPpFI4ZM/lubvw==
 
-"@defuse-protocol/bridge-sdk@0.10.0":
-  version "0.10.0"
-  resolved "https://registry.yarnpkg.com/@defuse-protocol/bridge-sdk/-/bridge-sdk-0.10.0.tgz#68a7770cb2f881055699765d8a12d1942f178fc2"
-  integrity sha512-urSujeuloO1N2EWi332WpuKfZhdwFchjveHzFdpv1RkWTPW3y9wUjg93kPUeg+BfSUk8KCjK/BmDxUIDbYGrkQ==
+"@defuse-protocol/bridge-sdk@^0.11.0":
+  version "0.11.0"
+  resolved "https://registry.yarnpkg.com/@defuse-protocol/bridge-sdk/-/bridge-sdk-0.11.0.tgz#2282dfc3852867f667022641ce5ff3ecce577e6a"
+  integrity sha512-g0s+WA9J3ccN72bRi8wSSbjb+7OXMV6W7cATb00gGAtuCYHc7LvOqOXoQ9lxO5/FJtUsP9ksQai6baxwF10VDA==
   dependencies:
     "@defuse-protocol/contract-types" "0.0.3"
-    "@defuse-protocol/internal-utils" "0.1.2"
-    "@hot-labs/omni-sdk" "2.14.0"
+    "@defuse-protocol/internal-utils" "0.2.0"
+    "@hot-labs/omni-sdk" "2.16.0"
     "@isaacs/ttlcache" "^1.0.0"
     "@lifeomic/attempt" "^3.0.0"
     "@scure/base" "^1.0.0"
@@ -1324,10 +1324,10 @@
   resolved "https://registry.yarnpkg.com/@defuse-protocol/contract-types/-/contract-types-0.0.3.tgz#ed7f8070c80e9cd2ac2fd7f2c4dd6cd4918205a8"
   integrity sha512-N3LJS4tfshw6+kldrx6Hij8c8tzTHbmNPVByhursQ86Apu8p/gOPixfBbUZh21fKCCqktERbjeKzGe5EJV0gWA==
 
-"@defuse-protocol/internal-utils@0.1.2":
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/@defuse-protocol/internal-utils/-/internal-utils-0.1.2.tgz#a1647aaf8f3b12f850946cd572ee97b71d21e6e0"
-  integrity sha512-AiPO7oURTnnn2JBG8yHtDsY4XegL1U3MyNO5Omptgqu8PUiVD/cNIChrb/V32C5fuOuquly8jQ2JL1qwKoOFRQ==
+"@defuse-protocol/internal-utils@0.2.0", "@defuse-protocol/internal-utils@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@defuse-protocol/internal-utils/-/internal-utils-0.2.0.tgz#08d3301509f796fb0f22a8f9faf0ece6e8a9ba85"
+  integrity sha512-AqnUvR0+Dt1Y1NYC0M3xA7mjslbA5U5PlMrUjfs2AcD0rO7TpWDxjAE3TafdWwbs9y9pFu3RqzP6UMkQaJ89lA==
   dependencies:
     "@defuse-protocol/contract-types" "0.0.3"
     "@hot-labs/omni-sdk" "2.8.3"
@@ -2036,10 +2036,10 @@
   resolved "https://registry.yarnpkg.com/@hexagon/base64/-/base64-1.1.28.tgz#7d306a97f1423829be5b27c9d388fe50e3099d48"
   integrity sha512-lhqDEAvWixy3bZ+UOYbPwUbBkwBq5C1LAJ/xPC8Oi+lL54oyakv/npbA0aU2hgCsx/1NUd4IBvV03+aUBWxerw==
 
-"@hot-labs/omni-sdk@2.14.0":
-  version "2.14.0"
-  resolved "https://registry.yarnpkg.com/@hot-labs/omni-sdk/-/omni-sdk-2.14.0.tgz#5dc6c534a2d84f74660fed71c0e00ae59cb88ac2"
-  integrity sha512-AjGol0QmACDN0ODXxkSRrSUKaA3oYOPtARiu/L6gcNL+NLJCl/tRWYiz0cQ1OEp6kP24u8R1VFbL0CkXbQTVFA==
+"@hot-labs/omni-sdk@2.16.0":
+  version "2.16.0"
+  resolved "https://registry.yarnpkg.com/@hot-labs/omni-sdk/-/omni-sdk-2.16.0.tgz#7e2921cc2ba1b3bdaf1ab941790f6f2334dd8119"
+  integrity sha512-OQAxiNGOuczEk5LIMfIcnDpNG28RPGmn/kgWuj/Z6Y7OV0vDwBypYlDkiMZZ+s5DyabCrVObbr0Qc6jjRb+Ddg==
   dependencies:
     "@coral-xyz/anchor" "0.29.0"
     "@near-js/crypto" "^2.0.0"

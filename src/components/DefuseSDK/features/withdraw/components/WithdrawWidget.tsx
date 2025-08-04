@@ -11,6 +11,7 @@ import { swapIntentMachine } from "../../machines/swapIntentMachine"
 import { withdrawUIMachine } from "../../machines/withdrawUIMachine"
 import { WithdrawUIMachineContext } from "../WithdrawUIMachineContext"
 
+import { APP_FEE_RECIPIENT } from "@src/utils/environment"
 import { WithdrawForm } from "./WithdrawForm"
 
 export const WithdrawWidget = (props: WithdrawWidgetProps) => {
@@ -70,6 +71,8 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
                         referral: context.referral,
                         signerId: context.defuseUserId,
                         tokenDeltas: quote?.tokenDeltas ?? [],
+                        appFee: quote?.appFee ?? [],
+                        appFeeRecipient: APP_FEE_RECIPIENT,
                       })
 
                       innerMessage.intents ??= []

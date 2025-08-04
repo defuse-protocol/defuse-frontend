@@ -56,6 +56,8 @@ export function createSwapIntentMessage(
     deadlineTimestamp: options.deadlineTimestamp ?? minutesFromNow(5),
     referral: options.referral,
     memo: options.memo,
+    appFee: [],
+    appFeeRecipient: "",
   })
 
   return messageFactory.makeSwapMessage({

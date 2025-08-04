@@ -239,6 +239,7 @@ export const withdrawUIMachine = setup({
             ...preparationOutput.value.swap.swapParams,
             balances:
               context.depositedBalanceRef.getSnapshot().context.balances,
+            appFeeBps: 0, // no app fee for withdrawals
           },
         }
       }

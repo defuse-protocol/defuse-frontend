@@ -32,4 +32,5 @@ export const CHAIN_IDS: Record<SupportedChainName, number | undefined> = {
   sui: undefined,
   stellar: undefined,
   aptos: undefined,
+  cardano: undefined,
 }

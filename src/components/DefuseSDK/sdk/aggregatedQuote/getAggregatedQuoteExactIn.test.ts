@@ -55,6 +55,7 @@ describe("getAggregatedQuoteExactIn()", () => {
       amountIn: { amount: adjustDecimals(150n, 0, 6), decimals: 6 },
       balances: { token1: adjustDecimals(100n, 0, 6) },
       waitMs: 0,
+      appFeeBps: 0,
     }
 
     vi.mocked(solverRelay.quote).mockImplementationOnce(async () => [
@@ -92,6 +93,7 @@ describe("getAggregatedQuoteExactIn()", () => {
         ["token1", -150000000n],
         ["tokenOut", 200n],
       ],
+      appFee: [],
       quoteParams: [quoteParams],
       fillStatus: "FULL",
       isSimulation: true,
@@ -109,6 +111,7 @@ describe("getAggregatedQuoteExactIn()", () => {
         token3: adjustDecimals(100n, 0, token3.decimals),
       },
       waitMs: 0,
+      appFeeBps: 0,
     }
 
     vi.mocked(solverRelay.quote)
@@ -172,6 +175,7 @@ describe("getAggregatedQuoteExactIn()", () => {
         ["token2", -5000000000n],
         ["tokenOut", 10n],
       ],
+      appFee: [],
       quoteParams,
       fillStatus: "FULL",
       isSimulation: false,
@@ -185,6 +189,7 @@ describe("getAggregatedQuoteExactIn()", () => {
       amountIn: { amount: adjustDecimals(150n, 0, 6), decimals: 6 },
       balances: { token1: adjustDecimals(100n, 0, token1.decimals) },
       waitMs: 0,
+      appFeeBps: 0,
     }
 
     vi.mocked(solverRelay.quote).mockImplementationOnce(async () => [
@@ -225,6 +230,7 @@ describe("getAggregatedQuoteExactIn()", () => {
         ["token1", -150n],
         ["tokenOut", 200n],
       ],
+      appFee: [],
       quoteParams: [
         {
           defuse_asset_identifier_in: "token1",
@@ -246,6 +252,7 @@ describe("getAggregatedQuoteExactIn()", () => {
       amountIn: { amount: adjustDecimals(150n, 0, 6), decimals: 6 },
       balances: { token1: adjustDecimals(100n, 0, token1.decimals) },
       waitMs: 0,
+      appFeeBps: 0,
     }
 
     vi.mocked(solverRelay.quote)
@@ -270,6 +277,7 @@ describe("getAggregatedQuoteExactIn()", () => {
         token2: adjustDecimals(100n, 0, token2.decimals),
       },
       waitMs: 0,
+      appFeeBps: 0,
     }
 
     const quoteParams = [
@@ -313,6 +321,7 @@ describe("getAggregatedQuoteExactIn()", () => {
         ["token1", -100n],
         ["tokenOut", 20n],
       ],
+      appFee: [],
       quoteParams: [quoteParams[0]],
       isSimulation: false,
       fillStatus: "PARTIAL",
@@ -333,6 +342,7 @@ describe("getAggregatedQuoteExactIn()", () => {
       amountIn: { amount: adjustDecimals(150n, 0, 6), decimals: 6 },
       balances: { token1: adjustDecimals(100n, 0, token1.decimals) },
       waitMs: 0,
+      appFeeBps: 0,
     }
 
     vi.mocked(solverRelay.quote).mockImplementationOnce(async () => [
@@ -367,6 +377,7 @@ describe("getAggregatedQuoteExactIn()", () => {
           wait_ms: 0,
         },
       ],
+      appFee: [],
       isSimulation: true,
       fillStatus: "FULL",
     })

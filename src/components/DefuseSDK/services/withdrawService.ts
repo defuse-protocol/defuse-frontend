@@ -146,6 +146,7 @@ export async function prepareWithdraw(
       tokensIn: swapNeeded.tokens,
       tokenOut: formValues.tokenOut,
       balances: balances,
+      appFeeBps: 0, // no app fee for withdrawals
     }
 
     const swapQuote = await new Promise<QuoteResult>((resolve) => {

@@ -19,6 +19,7 @@ export type SupportedChainName =
   | "sui"
   | "stellar"
   | "aptos"
+  | "cardano"
   | VirtualChains
   | MockedChains
 

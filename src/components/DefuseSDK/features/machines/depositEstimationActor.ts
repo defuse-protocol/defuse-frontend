@@ -120,6 +120,7 @@ export const depositEstimateMaxValueActor = fromPromise(
       case BlockchainEnum.SUI:
       case BlockchainEnum.STELLAR:
       case BlockchainEnum.APTOS:
+      case BlockchainEnum.CARDANO:
         return 0n
       default:
         // TODO: remove this once cardano is supported

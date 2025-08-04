@@ -78,6 +78,7 @@ function handleQuote(
         [bestQuote.defuse_asset_identifier_in, -BigInt(bestQuote.amount_in)],
         [bestQuote.defuse_asset_identifier_out, BigInt(bestQuote.amount_out)],
       ],
+      appFee: [],
     })
   }
 

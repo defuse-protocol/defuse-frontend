@@ -1,5 +1,7 @@
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { authIdentity } from "@defuse-protocol/internal-utils"
+import { computeAppFeeBps } from "@src/components/DefuseSDK/utils/appFee"
+import { APP_FEE_BPS } from "@src/utils/environment"
 import type { providers } from "near-api-js"
 import {
   type ActorRefFrom,
@@ -208,6 +210,11 @@ export const swapUIMachine = setup({
             tokenOut: context.parsedFormValues.tokenOut,
             amountIn: context.parsedFormValues.amountIn,
             balances: balances ?? {},
+            appFeeBps: computeAppFeeBps(
+              APP_FEE_BPS,
+              context.formValues.tokenIn,
+              context.formValues.tokenOut
+            ),
           },
         }
       }

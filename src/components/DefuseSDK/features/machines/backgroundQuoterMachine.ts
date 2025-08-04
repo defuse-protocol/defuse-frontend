@@ -16,12 +16,14 @@ export type QuoteInput =
       tokenOut: BaseTokenInfo
       amountIn: { amount: bigint; decimals: number }
       balances: Record<BaseTokenInfo["defuseAssetId"], bigint>
+      appFeeBps: number
     }
   | {
       tokensIn: Array<BaseTokenInfo>
       tokenOut: BaseTokenInfo
       amountIn: { amount: bigint; decimals: number }
       balances: Record<BaseTokenInfo["defuseAssetId"], bigint>
+      appFeeBps: number
     }
 
 export type Events =
@@ -121,6 +123,7 @@ function pollQuote(
       tokenOut: quoteInput.tokenOut,
       amountIn: quoteInput.amountIn,
       balances: quoteInput.balances,
+      appFeeBps: quoteInput.appFeeBps,
     },
     onResult: ({ requestId, result }) => {
       // Often fast initial quotes fail with "no quote".

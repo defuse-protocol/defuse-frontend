@@ -195,6 +195,7 @@ export const backgroundBalanceActor = fromPromise(
       case BlockchainEnum.SUI:
       case BlockchainEnum.STELLAR:
       case BlockchainEnum.APTOS:
+      case BlockchainEnum.CARDANO:
         break
       default:
         // TODO: remove this once cardano is supported

@@ -3,14 +3,32 @@ import type {
   UnifiedTokenInfo,
 } from "@src/components/DefuseSDK/types"
 import { isUnifiedToken } from "@src/components/DefuseSDK/utils"
+import type { TokenWithTags } from "@src/constants/tokens"
 import { useFlatTokenList } from "@src/hooks/useFlatTokenList"
 import { useSearchParams } from "next/navigation"
+import { useMemo } from "react"
 
 export function useTokenList(tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]) {
   let list = useFlatTokenList(tokenList)
   const searchParams = useSearchParams()
 
-  list = sortTokensByMarketCap(list)
+  list = useMemo(() => sortTokensByMarketCap(list), [list])
+
+  /**
+   * Enable tokens with `feature:${string}` tag depended on URL search params.
+   * E.g. /?ada=1 will enable tokens with a tag "feature:ada"
+   */
+  list = useMemo(() => {
+    return list.filter((token) => {
+      const feature = (token as TokenWithTags).tags?.find((tag) =>
+        tag.startsWith("feature:")
+      )
+      if (feature == null) {
+        return true
+      }
+      return searchParams.has(feature.split(":")[1])
+    })
+  }, [searchParams, list])
 
   if (searchParams.get("fms")) {
     list = [

@@ -1,3 +1,4 @@
+import { configureSDK as configureSDK_iu } from "@defuse-protocol/internal-utils"
 import { type ILogger, setLogger } from "./logger"
 
 interface SDKConfig {
@@ -17,6 +18,7 @@ interface SDKConfig {
 
 export interface EnvConfig {
   contractID: string
+  poaTokenFactoryContractID: string
   poaBridgeBaseURL: string
   solverRelayBaseURL: string
   managerConsoleBaseURL: string
@@ -28,6 +30,7 @@ export type NearIntentsEnv = "production" | "stage"
 const configsByEnvironment: Record<NearIntentsEnv, EnvConfig> = {
   production: {
     contractID: "intents.near",
+    poaTokenFactoryContractID: "omft.near",
     poaBridgeBaseURL: "https://bridge.chaindefuser.com",
     solverRelayBaseURL: "https://solver-relay-v2.chaindefuser.com",
     managerConsoleBaseURL: "https://api-mng-console.chaindefuser.com/api/",
@@ -35,6 +38,7 @@ const configsByEnvironment: Record<NearIntentsEnv, EnvConfig> = {
   },
   stage: {
     contractID: "staging-intents.near",
+    poaTokenFactoryContractID: "stft.near",
     poaBridgeBaseURL: "https://poa-stage.intents-near.org",
     solverRelayBaseURL: "https://solver-relay-stage.intents-near.org",
     managerConsoleBaseURL: "https://mng-console-stage.intents-near.org/api/",
@@ -84,4 +88,11 @@ export function configureSDK({
       ...features,
     },
   }
+
+  // This is temporary, `configureSDK` will be removed from `internal-utils` package
+  configureSDK_iu({
+    logger,
+    env,
+    features,
+  })
 }

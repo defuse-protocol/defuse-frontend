@@ -23,6 +23,7 @@ export interface AggregatedQuoteParams extends BaseQuoteParams {
   tokenOut: TokenSlice // set of close tokens, e.g. [USDC on Solana, USDC on Ethereum, USDC on Near]
   amountIn: TokenValue // total amount in
   balances: Record<string, bigint> // how many tokens of each type are available
+  appFeeBps: number
 }
 
 export interface AggregatedQuote {
@@ -30,6 +31,7 @@ export interface AggregatedQuote {
   /** Earliest expiration time in ISO-8601 format */
   expirationTime: string
   tokenDeltas: [string, bigint][]
+  appFee: [string, bigint][]
 }
 
 export type QuoteResult =
@@ -65,6 +67,7 @@ export async function queryQuote(
         amountIn: input.amountIn,
         balances: input.balances,
         waitMs: input.waitMs,
+        appFeeBps: input.appFeeBps,
       },
       config: {
         fetchOptions: { signal },
@@ -77,6 +80,7 @@ export async function queryQuote(
         quoteHashes: aggregateQuote.quoteHashes,
         expirationTime: aggregateQuote.expirationTime,
         tokenDeltas: aggregateQuote.tokenDeltas,
+        appFee: aggregateQuote.appFee,
       },
     }
   } catch (err: unknown) {
@@ -180,6 +184,7 @@ export async function queryQuoteExactOut(
           [input.tokenIn, -BigInt(bestQuote.amount_in)],
           [input.tokenOut, BigInt(bestQuote.amount_out)],
         ],
+        appFee: [],
       },
     }
   }

@@ -59,6 +59,7 @@ export const chainIcons: Record<SupportedChainName, string> = {
   sui: "/static/icons/network/sui.svg",
   stellar: "/static/icons/network/stellar.svg",
   aptos: "/static/icons/network/aptos.svg",
+  cardano: "/static/icons/network/cardano.svg",
 }
 
 export function getBlockchainsOptions(): Record<
@@ -256,6 +257,12 @@ export function getBlockchainsOptions(): Record<
       label: "Aptos",
       icon: <NetworkIcon chainIcon={chainIcons.aptos} chainName="Aptos" />,
       value: BlockchainEnum.APTOS,
+      tags: [],
+    },
+    [BlockchainEnum.CARDANO]: {
+      label: "Cardano",
+      icon: <NetworkIcon chainIcon={chainIcons.cardano} chainName="Cardano" />,
+      value: BlockchainEnum.CARDANO,
       tags: [],
     },
   }
