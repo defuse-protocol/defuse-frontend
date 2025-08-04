@@ -26,9 +26,17 @@ export async function verifyWalletSignature(
         signature: signature.signatureData as "0x${string}",
       })
     }
-    case "SOLANA":
+    case "SOLANA": {
+      return sign.detached.verify(
+        signature.signedData.message,
+        signature.signatureData,
+        base58.decode(userAddress)
+      )
+    }
     case "STELLAR": {
       return sign.detached.verify(
+        // TODO: remove this once stellar is supported
+        // @ts-expect-error stellar is not supported yet
         signature.signedData.message,
         signature.signatureData,
         base58.decode(userAddress)

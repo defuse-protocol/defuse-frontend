@@ -122,6 +122,8 @@ export const depositEstimateMaxValueActor = fromPromise(
       case BlockchainEnum.APTOS:
         return 0n
       default:
+        // TODO: remove this once cardano is supported
+        // @ts-expect-error cardano is not supported yet
         networkToSolverFormat satisfies never
         throw new Error("exhaustive check failed")
     }

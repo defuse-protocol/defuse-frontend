@@ -65,6 +65,8 @@ export function getBlockchainsOptions(): Record<
   BlockchainEnum,
   BlockchainOption
 > {
+  // TODO: remove this once cardano is supported
+  // @ts-expect-error cardano is not supported yet
   const options: Record<BlockchainEnum, BlockchainOption> = {
     [BlockchainEnum.NEAR]: {
       label: "Near",
