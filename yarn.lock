@@ -1342,6 +1342,24 @@
     valibot "^1.0.0"
     viem "^2.0.0"
 
+"@defuse-protocol/internal-utils@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@defuse-protocol/internal-utils/-/internal-utils-0.3.0.tgz#c10f5e79ee2107325618676f01b908c571c9411f"
+  integrity sha512-676j651m2n5ljDr+7znKcjGZHajjvnY1PnWlwn7iVc1Vr4YHzcX38xS5dyEWfLWCWN6S1aewMOysWfTjJy3gnA==
+  dependencies:
+    "@defuse-protocol/contract-types" "0.0.3"
+    "@hot-labs/omni-sdk" "2.8.3"
+    "@lifeomic/attempt" "^3.0.0"
+    "@noble/hashes" "^1.7.1"
+    "@peculiar/asn1-ecc" "^2.0.0"
+    "@peculiar/asn1-schema" "^2.0.0"
+    "@scure/base" "^1.0.0"
+    "@thames/monads" "^0.7.0"
+    near-api-js "^4.0.0 || ^5.0.0"
+    tweetnacl "^1.0.0"
+    valibot "^1.0.0"
+    viem "^2.0.0"
+
 "@ecies/ciphers@^0.2.1":
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/@ecies/ciphers/-/ciphers-0.2.1.tgz#a3119516fb55d27ed2d21c497b1c4988f0b4ca02"
