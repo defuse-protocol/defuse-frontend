@@ -833,8 +833,6 @@ export function getAvailableDepositRoutes(
             passiveDeposit: false,
           }
         default:
-          // TODO: remove this once cardano is supported
-          // @ts-expect-error cardano is not supported yet
           network satisfies never
           throw new Error("exhaustive check failed")
       }
@@ -892,8 +890,6 @@ export function getAvailableDepositRoutes(
             passiveDeposit: false,
           }
         default:
-          // TODO: remove this once cardano is supported
-          // @ts-expect-error cardano is not supported yet
           network satisfies never
           throw new Error("exhaustive check failed")
       }
@@ -946,8 +942,6 @@ export function getAvailableDepositRoutes(
             passiveDeposit: false,
           }
         default:
-          // TODO: remove this once cardano is supported
-          // @ts-expect-error cardano is not supported yet
           network satisfies never
           throw new Error("exhaustive check failed")
       }
@@ -993,8 +987,6 @@ export function getAvailableDepositRoutes(
             passiveDeposit: false,
           }
         default:
-          // TODO: remove this once cardano is supported
-          // @ts-expect-error cardano is not supported yet
           network satisfies never
           throw new Error("exhaustive check failed")
       }
@@ -1046,8 +1038,6 @@ export function getAvailableDepositRoutes(
             passiveDeposit: false,
           }
         default:
-          // TODO: remove this once cardano is supported
-          // @ts-expect-error cardano is not supported yet
           network satisfies never
           throw new Error("exhaustive check failed")
       }
@@ -1117,8 +1107,6 @@ export function getWalletRpcUrl(network: BlockchainEnum): string {
     case BlockchainEnum.CARDANO:
       return settings.rpcUrls.cardano
     default:
-      // TODO: remove this once cardano is supported
-      // @ts-expect-error cardano is not supported yet
       network satisfies never
       throw new Error("exhaustive check failed")
   }

@@ -198,8 +198,6 @@ export const backgroundBalanceActor = fromPromise(
       case BlockchainEnum.CARDANO:
         break
       default:
-        // TODO: remove this once cardano is supported
-        // @ts-expect-error cardano is not supported yet
         networkToSolverFormat satisfies never
         throw new Error("exhaustive check failed")
     }

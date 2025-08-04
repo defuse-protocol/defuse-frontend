@@ -32,8 +32,6 @@ export const assetNetworkAdapter: Record<SupportedChainName, BlockchainEnum> = {
   cardano: BlockchainEnum.CARDANO,
 }
 
-// TODO: remove this once cardano is supported
-// @ts-expect-error cardano is not supported yet
 export const reverseAssetNetworkAdapter: Record<
   BlockchainEnum,
   SupportedChainName
