@@ -22,6 +22,7 @@ import "@near-wallet-selector/modal-ui/styles.css"
 import "../styles/global.scss"
 import Helpscout from "@src/components/Helpscout"
 import { MixpanelProvider } from "@src/providers/MixpanelProvider"
+import { StellarWalletProvider } from "@src/providers/StellarWalletProvider"
 import {
   DEV_MODE,
   HELPSCOUT_BEACON_ID,
@@ -126,13 +127,15 @@ const RootLayout = async ({
             <QueryClientProvider client={queryClient}>
               <WalletSelectorProvider>
                 <SolanaWalletProvider>
-                  <TonConnectUIProvider>
-                    <WebAuthnProvider>
-                      <MixpanelProvider>{children}</MixpanelProvider>
-                    </WebAuthnProvider>
+                  <StellarWalletProvider>
+                    <TonConnectUIProvider>
+                      <WebAuthnProvider>
+                        <MixpanelProvider>{children}</MixpanelProvider>
+                      </WebAuthnProvider>
 
-                    <SentryTracer />
-                  </TonConnectUIProvider>
+                      <SentryTracer />
+                    </TonConnectUIProvider>
+                  </StellarWalletProvider>
                 </SolanaWalletProvider>
               </WalletSelectorProvider>
               {DEV_MODE && <ReactQueryDevtools initialIsOpen={false} />}

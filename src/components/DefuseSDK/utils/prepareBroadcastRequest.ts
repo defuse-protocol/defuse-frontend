@@ -4,6 +4,7 @@ import type { AuthMethod } from "../types/authHandle"
 import type { WalletSignatureResult } from "../types/walletMessage"
 import { assert } from "./assert"
 import { makeWebAuthnMultiPayload } from "./multiPayload/webauthn"
+import { stellarAddressToBytes } from "./stellarAddressToBytes"
 
 export function prepareSwapSignedData(
   signature: WalletSignatureResult,
@@ -59,6 +60,22 @@ export function prepareSwapSignedData(
         payload: signature.signatureData.payload,
         public_key: `ed25519:${base58.encode(hex.decode(userInfo.userAddress))}`,
         signature: `ed25519:${base58.encode(base64.decode(signature.signatureData.signature))}`,
+      }
+    }
+
+    case "STELLAR": {
+      assert(
+        userInfo.userChainType === "stellar",
+        "User chain and signature chain must match"
+      )
+      return {
+        standard: "raw_ed25519",
+        payload: signature.signedData.message,
+        // We should encode the Stellar address to base58
+        public_key: `ed25519:${base58.encode(
+          stellarAddressToBytes(userInfo.userAddress)
+        )}`,
+        signature: `ed25519:${base58.encode(signature.signatureData)}`,
       }
     }
 

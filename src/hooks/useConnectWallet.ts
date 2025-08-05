@@ -30,6 +30,7 @@ import {
   useWebAuthnUIStore,
 } from "@src/features/webauthn/hooks/useWebAuthnStore"
 import { useSignInLogger } from "@src/hooks/useSignInLogger"
+import { useStellarWallet } from "@src/providers/StellarWalletProvider"
 import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
 import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
 import type {
@@ -48,6 +49,7 @@ export enum ChainType {
   Solana = "solana",
   WebAuthn = "webauthn",
   Ton = "ton",
+  Stellar = "stellar",
 }
 
 export type State = {
@@ -101,6 +103,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
       const wallet = await nearWallet.selector.wallet()
       await wallet.signOut()
     } catch (e) {
+      // biome-ignore lint/suspicious/noConsole: <explanation>
       console.log("Failed to sign out", e)
     }
   }
@@ -230,6 +233,33 @@ export const useConnectWallet = (): ConnectWalletAction => {
     }
   }
 
+  /**
+   * Stellar:
+   * Down below are Stellar Wallet handlers and actions
+   */
+  const { publicKey, connect, disconnect } = useStellarWallet()
+
+  const handleSignInViaStellar = async (): Promise<void> => {
+    await connect()
+  }
+
+  const handleSignOutViaStellar = async (): Promise<void> => {
+    await disconnect()
+  }
+
+  if (publicKey) {
+    // biome-ignore lint/suspicious/noConsole: <explanation>
+    console.log("Updated useConnectWallet state [Stellar]:", publicKey)
+    state = {
+      address: publicKey,
+      displayAddress: publicKey,
+      network: "stellar:mainnet",
+      chainType: ChainType.Stellar,
+      isVerified: false,
+      isFake: false,
+    }
+  }
+
   state.isVerified = useVerifiedWalletsStore(
     useCallback(
       (store) =>
@@ -265,6 +295,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
         [ChainType.Solana]: () => handleSignInViaSolanaSelector(),
         [ChainType.WebAuthn]: () => webAuthnUI.open(),
         [ChainType.Ton]: () => tonConnectModal.open(),
+        [ChainType.Stellar]: () => handleSignInViaStellar(),
       }
 
       return strategies[params.id]()
@@ -277,6 +308,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
         [ChainType.Solana]: () => handleSignOutViaSolanaSelector(),
         [ChainType.WebAuthn]: () => webAuthnActions.signOut(),
         [ChainType.Ton]: () => tonConnectUI.disconnect(),
+        [ChainType.Stellar]: () => handleSignOutViaStellar(),
       }
 
       onSignOut()
@@ -320,6 +352,11 @@ export const useConnectWallet = (): ConnectWalletAction => {
           const cell = Cell.fromBoc(Buffer.from(response.boc, "base64"))[0]
           const hash = cell.hash().toString("hex")
           return hash
+        },
+
+        [ChainType.Stellar]: async () => {
+          // TODO: Implement Stellar transaction handling
+          throw new Error("Stellar transaction handling not yet implemented")
         },
       }
 

@@ -307,6 +307,9 @@ export function makeSwapMessage({
         text: JSON.stringify(payload, null, 2),
       },
     },
+    STELLAR: {
+      message: JSON.stringify(payload, null, 2),
+    },
   }
 }
 

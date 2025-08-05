@@ -99,12 +99,24 @@ export type TonConnectSignatureData = {
   signedData: TonConnectMessage
 }
 
+// Message for Stellar wallets
+export type StellarMessage = {
+  message: string
+}
+
+export type StellarSignatureData = {
+  type: "STELLAR"
+  signatureData: Uint8Array
+  signedData: StellarMessage
+}
+
 export type WalletMessage<T> = {
   ERC191: ERC191Message
   NEP413: NEP413Message
   SOLANA: SolanaMessage
   WEBAUTHN: WebAuthnMessage<T>
   TON_CONNECT: TonConnectMessage
+  STELLAR: StellarMessage
 }
 
 export type WalletSignatureResult<T> =
@@ -113,3 +125,4 @@ export type WalletSignatureResult<T> =
   | SolanaSignatureData
   | WebAuthnSignatureData<T>
   | TonConnectSignatureData
+  | StellarSignatureData

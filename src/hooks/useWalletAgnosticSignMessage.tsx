@@ -1,10 +1,8 @@
 import { useWallet as useWalletSolana } from "@solana/wallet-adapter-react"
-import { useTonConnectUI } from "@tonconnect/ui-react"
-import { useSignMessage } from "wagmi"
-
 import { useWebAuthnActions } from "@src/features/webauthn/hooks/useWebAuthnStore"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
+import { signMessageStellar } from "@src/providers/StellarWalletProvider"
 import type {
   WalletMessage,
   WalletSignatureResult,
@@ -13,6 +11,8 @@ import {
   createHotWalletCloseObserver,
   raceFirst,
 } from "@src/utils/hotWalletIframe"
+import { useTonConnectUI } from "@tonconnect/ui-react"
+import { useSignMessage } from "wagmi"
 
 export function useWalletAgnosticSignMessage() {
   const { state } = useConnectWallet()
@@ -85,6 +85,17 @@ export function useWalletAgnosticSignMessage() {
           type: "TON_CONNECT",
           signatureData,
           signedData: walletMessage.TON_CONNECT,
+        }
+      }
+
+      case ChainType.Stellar: {
+        const signatureData = await signMessageStellar(
+          walletMessage.STELLAR.message
+        )
+        return {
+          type: "STELLAR",
+          signatureData,
+          signedData: walletMessage.STELLAR,
         }
       }
 
