@@ -33,15 +33,6 @@ export async function verifyWalletSignature(
         base58.decode(userAddress)
       )
     }
-    case "STELLAR": {
-      return sign.detached.verify(
-        // TODO: remove this once stellar is supported
-        // @ts-expect-error stellar is not supported yet
-        signature.signedData.message,
-        signature.signatureData,
-        base58.decode(userAddress)
-      )
-    }
     case "WEBAUTHN":
       return verifyAuthenticatorAssertion(
         signature.signatureData,
@@ -51,7 +42,10 @@ export async function verifyWalletSignature(
     case "TON_CONNECT":
       // todo: implement https://github.com/tonkeeper/demo-dapp-with-wallet/blob/master/src/components/SignDataForm/verify.ts
       return true
-
+    case "STELLAR": {
+      // TODO: update once support for Stellar is added
+      return false
+    }
     default:
       signatureType satisfies never
       throw new Error("exhaustive check failed")

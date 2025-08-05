@@ -893,7 +893,6 @@ export function getAvailableDepositRoutes(
           network satisfies never
           throw new Error("exhaustive check failed")
       }
-    case AuthMethod.Stellar:
     case AuthMethod.Solana:
       switch (network) {
         /* allowed all */
@@ -1040,6 +1039,12 @@ export function getAvailableDepositRoutes(
         default:
           network satisfies never
           throw new Error("exhaustive check failed")
+      }
+    case AuthMethod.Stellar:
+      // TODO: update once support for Stellar is added
+      return {
+        activeDeposit: false,
+        passiveDeposit: false,
       }
     default:
       chainTypeFromWallet satisfies never
