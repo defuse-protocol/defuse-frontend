@@ -53,3 +53,7 @@ export const APP_FEE_RECIPIENT = v.parse(
   v.optional(v.string(), ""),
   process.env.NEXT_PUBLIC_APP_FEE_RECIPIENT
 )
+
+export const STELLAR_SELECTED_WALLET_ID =
+  process.env.NEXT_PUBLIC_STELLAR_SELECTED_WALLET_ID ||
+  "stellar-selected-wallet-id"

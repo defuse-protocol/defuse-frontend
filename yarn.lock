@@ -1267,6 +1267,32 @@
     lit "3.2.0"
     rxjs "7.8.1"
 
+"@creit.tech/stellar-wallets-kit@^1.7.7":
+  version "1.7.7"
+  resolved "https://registry.yarnpkg.com/@creit.tech/stellar-wallets-kit/-/stellar-wallets-kit-1.7.7.tgz#c200da13d9efd2ac1816324f580f955f38caa5cb"
+  integrity sha512-XUyiTDI7v4L6LaQtSW80iIGsnzx3WabZCcCjd7enXaz3N8nXQCs2d3G2ZQNErxF8uM400TwHyDhftL1m6Oec4g==
+  dependencies:
+    "@albedo-link/intent" "0.12.0"
+    "@creit.tech/xbull-wallet-connect" "0.3.0"
+    "@hot-wallet/sdk" "1.0.11"
+    "@ledgerhq/hw-app-str" "7.0.4"
+    "@ledgerhq/hw-transport" "6.31.4"
+    "@ledgerhq/hw-transport-webusb" "6.29.4"
+    "@lobstrco/signer-extension-api" "1.0.0-beta.0"
+    "@ngneat/elf" "2.5.1"
+    "@ngneat/elf-devtools" "1.3.0"
+    "@ngneat/elf-entities" "5.0.2"
+    "@ngneat/elf-persist-state" "1.2.1"
+    "@stellar/freighter-api" "4.0.0"
+    "@trezor/connect-plugin-stellar" "9.0.6"
+    "@trezor/connect-web" "9.5.1"
+    "@walletconnect/modal" "2.6.2"
+    "@walletconnect/sign-client" "2.11.2"
+    buffer "6.0.3"
+    events "3.3.0"
+    lit "3.2.0"
+    rxjs "7.8.1"
+
 "@creit.tech/xbull-wallet-connect@0.3.0":
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/@creit.tech/xbull-wallet-connect/-/xbull-wallet-connect-0.3.0.tgz#c0686fcacf6794381ce71396d0ad803e09f742ce"
