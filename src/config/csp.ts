@@ -10,6 +10,7 @@ const cspConfig = {
     "https://hot-labs.org",
     "https://widget.solflare.com",
     "https://verify.walletconnect.org",
+    "https://connect.solflare.com",
   ],
   "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
   "font-src": ["'self'", "https://fonts.gstatic.com"],
@@ -41,8 +42,8 @@ const cspConfig = {
     "https://api-js.mixpanel.com",
 
     /** Stage Solver Relay and Bridge Services */
-    "http://35.242.147.168",
-    "http://34.105.197.59",
+    "https://*.intents-near.org",
+    "https://near-intents.org",
 
     /** Helpscout */
     "https://beaconapi.helpscout.net",
@@ -52,6 +53,7 @@ const cspConfig = {
     "https://*.walletconnect.org",
     "https://*.walletconnect.com",
     "wss://*.walletconnect.org",
+    "wss://*.walletconnect.com",
     "https://*.walletlink.org",
     "wss://*.walletlink.org",
     "https://h4n.app",
@@ -106,6 +108,9 @@ const cspConfig = {
     "https://ton.api.onfinality.io",
     "https://ton.api.onfinality.io/public",
     "https://toncenter.com/api/v2/jsonRPC",
+    "https://fullnode.mainnet.sui.io:443",
+    "https://horizon.stellar.org",
+    "https://mainnet.optimism.io",
     "https://api.avax.network/ext/bc/C/rpc",
     "https://c1.rpc.fastnear.com",
     "https://rpc.near.org",
