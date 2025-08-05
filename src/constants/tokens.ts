@@ -1,10 +1,10 @@
 import type {
   BaseTokenInfo,
   UnifiedTokenInfo,
-} from "@defuse-protocol/defuse-sdk/types"
+} from "@src/components/DefuseSDK/types"
 import { INTENTS_ENV } from "@src/utils/environment"
 
-type TokenWithTags =
+export type TokenWithTags =
   | (BaseTokenInfo & { tags?: string[] })
   | (UnifiedTokenInfo & { tags?: string[] })
 
@@ -132,7 +132,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         address: "0x368ebb46aca6b8d0787c96b2b20bd3cc3f2c45f7",
         decimals: 6,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
-        chainName: "coineasy",
+        chainName: "easychain",
         bridge: "aurora_engine",
         symbol: "USDC",
         name: "USD Coin",
@@ -170,6 +170,30 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         symbol: "USDC",
         name: "USD Coin",
       },
+      {
+        defuseAssetId:
+          "nep141:sui-c1b81ecaf27933252d31a963bc5e9458f13c18ce.omft.near",
+        address:
+          "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+        decimals: 6,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+        chainName: "sui",
+        bridge: "poa",
+        symbol: "USDC",
+        name: "USD Coin",
+      },
+      // TODO: Uncomment when Stellar is removed from feature flag
+      // {
+      //   defuseAssetId:
+      //     "nep245:v2_1.omni.hot.tg:1100_111bzQBB65GxAPAVoxqmMcgYo5oS3txhqs1Uh1cgahKQUeTUq1TJu",
+      //   address: "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
+      //   decimals: 7,
+      //   icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+      //   chainName: "stellar",
+      //   bridge: "hot_omni",
+      //   symbol: "USDC",
+      //   name: "USD Coin",
+      // },
       {
         defuseAssetId: "nep245:v2_1.omni.hot.tg:10_A2ewyUyDp6qsue1jqZsGypkCxRJ",
         address: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
@@ -308,7 +332,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         address: "0xC42C30aC6Cc15faC9bD938618BcaA1a1FaE8501d",
         decimals: 24,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/6535.png",
-        chainName: "coineasy",
+        chainName: "easychain",
         bridge: "aurora_engine",
         symbol: "NEAR",
         name: "Near",
@@ -431,7 +455,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         address: "0x80Da25Da4D783E57d2FCdA0436873A193a4BEccF",
         decimals: 6,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
-        chainName: "coineasy",
+        chainName: "easychain",
         bridge: "aurora_engine",
         symbol: "USDT",
         name: "Tether USD",
@@ -479,6 +503,19 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         symbol: "USDT",
         name: "Tether USD",
       },
+      // TODO: Add once we have a liquidity
+      // {
+      //   defuseAssetId:
+      //     "nep141:sui-349a5b23674603c086ceac1fa9f139c4bbc30cf8.omft.near",
+      //   address:
+      //     "0x375f70cf2ae4c00bf37117d0c85a2c71545e6ee05c4a5c7d282cd66a4504b068::usdt::USDT",
+      //   decimals: 6,
+      //   icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+      //   chainName: "sui",
+      //   bridge: "poa",
+      //   symbol: "USDT",
+      //   name: "Tether USD",
+      // },
       {
         defuseAssetId:
           "nep245:v2_1.omni.hot.tg:10_359RPSJVdTxwTJT9TyGssr2rFoWo",
@@ -641,7 +678,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         address: "0x5a524251df27A25AC6b9964a93E1c23AD692688D",
         decimals: 18,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/1027.png",
-        chainName: "coineasy",
+        chainName: "easychain",
         bridge: "aurora_engine",
         symbol: "ETH",
         name: "ETH",
@@ -759,7 +796,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         address: "0x8BEc47865aDe3B172A928df8f990Bc7f2A3b9f79",
         decimals: 18,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/14803.png",
-        chainName: "coineasy",
+        chainName: "easychain",
         bridge: "aurora_engine",
         symbol: "AURORA",
         name: "Aurora",
@@ -927,14 +964,66 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
     tags: ["mc:139", "type:meme"],
   },
   {
-    defuseAssetId: "nep141:token.sweat",
-    address: "token.sweat",
-    decimals: 18,
-    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/21351.png",
-    chainName: "near",
-    bridge: "direct",
+    unifiedAssetId: "sweat",
     symbol: "SWEAT",
     name: "Sweat Economy",
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/21351.png",
+    groupedTokens: [
+      {
+        defuseAssetId: "nep141:token.sweat",
+        address: "token.sweat",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/21351.png",
+        chainName: "near",
+        bridge: "direct",
+        symbol: "SWEAT",
+        name: "Sweat Economy",
+      },
+      {
+        defuseAssetId:
+          "nep141:arb-0xca7dec8550f43a5e46e3dfb95801f64280e75b27.omft.near",
+        address: "0xca7dec8550f43a5e46e3dfb95801f64280e75b27",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/21351.png",
+        chainName: "arbitrum",
+        bridge: "poa",
+        symbol: "SWEAT",
+        name: "Sweat Economy",
+      },
+      {
+        defuseAssetId:
+          "nep141:base-0x227d920e20ebac8a40e7d6431b7d724bb64d7245.omft.near",
+        address: "0x227d920e20ebac8a40e7d6431b7d724bb64d7245",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/21351.png",
+        chainName: "base",
+        bridge: "poa",
+        symbol: "SWEAT",
+        name: "Sweat Economy",
+      },
+      {
+        defuseAssetId:
+          "nep141:eth-0xb4b9dc1c77bdbb135ea907fd5a08094d98883a35.omft.near",
+        address: "0xb4b9dc1c77bdbb135ea907fd5a08094d98883a35",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/21351.png",
+        chainName: "eth",
+        bridge: "poa",
+        symbol: "SWEAT",
+        name: "Sweat Economy",
+      },
+      {
+        defuseAssetId:
+          "nep245:v2_1.omni.hot.tg:56_28V9BijGeZDBFEEtkAcnJo4tPRH4",
+        address: "0x510Ad22d8C956dCC20f68932861f54A591001283",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/21351.png",
+        chainName: "bsc",
+        bridge: "hot_omni",
+        symbol: "SWEAT",
+        name: "Sweat Economy",
+      },
+    ],
     tags: ["mc:571"],
   },
   {
@@ -1045,15 +1134,33 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
     tags: ["mc:183", "type:meme"],
   },
   {
-    defuseAssetId: "nep141:xrp.omft.near",
-    type: "native",
-    address: "native",
-    decimals: 6,
-    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/52.png",
-    chainName: "xrpledger",
-    bridge: "poa",
+    unifiedAssetId: "xrp",
     symbol: "XRP",
     name: "XRP",
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/52.png",
+    groupedTokens: [
+      {
+        defuseAssetId: "nep141:xrp.omft.near",
+        type: "native",
+        address: "native",
+        decimals: 6,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/52.png",
+        chainName: "xrpledger",
+        bridge: "poa",
+        symbol: "XRP",
+        name: "XRP",
+      },
+      {
+        defuseAssetId: "nep141:xrp.omft.near",
+        address: "xrp.omft.near",
+        decimals: 6,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/52.png",
+        chainName: "near",
+        bridge: "direct",
+        symbol: "XRP",
+        name: "XRP",
+      },
+    ],
     tags: ["mc:4", "tvol:11"],
   },
   {
@@ -1340,7 +1447,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
       "nep141:sol-91914f13d3b54f8126a2824d71632d4b078d7403.omft.near",
     address: "CtzPWv73Sn1dMGVU3ZtLv9yWSyUAanBni19YWDaznnkn",
     decimals: 8,
-    icon: "https://app.near-intents.org/static/icons/token/xbtc.png",
+    icon: "https://near-intents.org/static/icons/token/xbtc.png",
     chainName: "solana",
     bridge: "poa",
     symbol: "xBTC",
@@ -1406,7 +1513,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
   },
   {
     defuseAssetId:
-      "nep141:eth-0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599.omft.near",
+      "nep141:eth-0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.omft.near",
     address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
     decimals: 8,
     icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3717.png",
@@ -1415,6 +1522,71 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
     symbol: "WBTC",
     name: "Wrapped Bitcoin",
     tags: ["mc:3"],
+  },
+  {
+    defuseAssetId: "nep141:sui.omft.near",
+    type: "native",
+    decimals: 9,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/20947.png",
+    chainName: "sui",
+    bridge: "poa",
+    symbol: "SUI",
+    name: "SUI",
+    tags: ["mc:13"],
+  },
+  // TODO: Uncomment when Stellar is removed from feature flag
+  // {
+  //   defuseAssetId:
+  //     "nep245:v2_1.omni.hot.tg:1100_111bzQBB5v7AhLyPMDwS8uJgQV24KaAPXtwyVWu2KXbbfQU6NXRCz",
+  //   type: "native",
+  //   decimals: 7,
+  //   icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/512.png",
+  //   chainName: "stellar",
+  //   bridge: "hot_omni",
+  //   symbol: "XLM",
+  //   name: "Stellar Lumens",
+  //   tags: ["mc:3"],
+  // },
+  {
+    unifiedAssetId: "rhea",
+    symbol: "RHEA",
+    name: "Rhea",
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/37529.png",
+    groupedTokens: [
+      {
+        defuseAssetId: "nep141:token.rhealab.near",
+        address: "token.rhealab.near",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/37529.png",
+        chainName: "near",
+        bridge: "direct",
+        symbol: "RHEA",
+        name: "Rhea",
+      },
+      {
+        defuseAssetId:
+          "nep245:v2_1.omni.hot.tg:56_24S22V8GMmQN8t6PbCdRb3mBewAd",
+        address: "0x4c067DE26475E1CeFee8b8d1f6E2266b33a2372E",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/37529.png",
+        chainName: "bsc",
+        bridge: "hot_omni",
+        symbol: "RHEA",
+        name: "Rhea",
+      },
+    ],
+    tags: ["mc:1452"],
+  },
+  {
+    defuseAssetId: "nep141:cardano.omft.near",
+    type: "native",
+    decimals: 6,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/2010.png",
+    chainName: "cardano",
+    bridge: "poa",
+    symbol: "ADA",
+    name: "ADA",
+    tags: ["mc:10", "feature:ada"],
   },
   {
     defuseAssetId: "nep245:v2_1.omni.hot.tg:10_vLAiSt9KfUGKpw5cD3vsSyNYBo7",

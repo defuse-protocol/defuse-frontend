@@ -44,3 +44,12 @@ export const CLICKHOUSE_API_KEY = process.env.CLICKHOUSE_API_KEY
 
 export const MIXPANEL_TOKEN = process.env.NEXT_PUBLIC_MIXPANEL_TOKEN
 export const HELPSCOUT_BEACON_ID = process.env.NEXT_PUBLIC_HELPSCOUT_BEACON_ID
+
+export const APP_FEE_BPS = v.parse(
+  v.pipe(v.optional(v.string(), "0"), v.transform(Number)),
+  process.env.NEXT_PUBLIC_APP_FEE_BPS
+)
+export const APP_FEE_RECIPIENT = v.parse(
+  v.optional(v.string(), ""),
+  process.env.NEXT_PUBLIC_APP_FEE_RECIPIENT
+)

@@ -27,6 +27,7 @@ export const config = createConfig({
       walletConnect({
         projectId: PROJECT_ID,
         showQrModal: true,
+        customStoragePrefix: "near-intents",
       }),
     coinbaseWallet({ appName: "Near Intents" }),
     injected(),

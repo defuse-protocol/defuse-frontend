@@ -1,7 +1,7 @@
 import type { Dict } from "mixpanel-browser"
 import { useCallback, useEffect } from "react"
 
-import { serialize, setEventEmitter } from "@defuse-protocol/defuse-sdk/utils"
+import { serialize, setEventEmitter } from "@src/components/DefuseSDK/utils"
 import { useMixpanel } from "@src/providers/MixpanelProvider"
 import bus from "@src/services/EventBus"
 import { logger } from "@src/utils/logger"
@@ -23,6 +23,7 @@ export function useMixpanelBus() {
   const mixPanel = useMixpanel()
 
   useEffect(() => {
+    // @ts-expect-error TODO: fix later
     setEventEmitter(bus)
   }, [])
 
@@ -35,14 +36,26 @@ export function useMixpanelBus() {
 
   useEffect(() => {
     if (bus) {
+      const listeners: Array<(payload: Dict) => void> = []
+
       for (const event of events) {
-        bus.on(event, (payload: Dict) => {
+        const listener = (payload: Dict) => {
           sendMixPanelEvent(event, payload)
-        })
+        }
+        listeners.push(listener)
+        bus.on(event, listener)
       }
-    } else {
-      logger.error("event bus is not defined")
+
+      return () => {
+        if (bus) {
+          for (let i = 0; i < events.length; i++) {
+            bus.removeListener(events[i], listeners[i])
+          }
+        }
+      }
     }
+
+    logger.error("event bus is not defined")
   }, [sendMixPanelEvent])
 
   return mixPanel

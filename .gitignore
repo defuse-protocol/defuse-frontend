@@ -47,3 +47,12 @@ next-env.d.ts
 
 # nix
 .direnv
+
+# Logs
+*.log
+
+# Vi
+*.swp
+
+# Generated types
+src/components/DefuseSDK/types/defuse-contracts-types.d.ts
