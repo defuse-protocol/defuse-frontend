@@ -1590,13 +1590,13 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
   },
   {
     defuseAssetId: "nep245:v2_1.omni.hot.tg:10_vLAiSt9KfUGKpw5cD3vsSyNYBo7",
-    type: "native",
+    address: "0x4200000000000000000000000000000000000042",
     decimals: 18,
     icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/11840.png",
     chainName: "optimism",
     bridge: "hot_omni",
     symbol: "OP",
-    name: "Optimism",
+    name: "OP",
     tags: ["mc:72"],
   },
 ]
