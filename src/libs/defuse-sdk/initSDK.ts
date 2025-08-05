@@ -34,9 +34,11 @@ export function initSDK() {
         hyperliquid: true,
         ton: true,
         near_intents: true,
+        avalanche: true,
         sui: true,
         // TODO: Make it true when Stellar is supported
         stellar: stellarEnabled,
+        optimism: true,
       },
     })
   } else {
@@ -77,6 +79,8 @@ export function initSDK() {
         ton: true,
         near_intents: true,
         sui: true,
+        optimism: true,
+        avalanche: true,
         // TODO: Make it true when Stellar is supported
         stellar: stellarEnabled,
       },
