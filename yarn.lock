@@ -19702,10 +19702,10 @@ sucrase@^3.35.0:
     pirates "^4.0.1"
     ts-interface-checker "^0.1.9"
 
-supabase@^2.31.4:
-  version "2.31.4"
-  resolved "https://registry.yarnpkg.com/supabase/-/supabase-2.31.4.tgz#025111246981be37e569267d7e336c2d7bc36635"
-  integrity sha512-5OIhaXuJHq/rdu6yIozmD4kZa1//IzfQTmrSE74DgJOP4Nz6Y5ynMdaCCg8kTWv34MyOMn0GXrbjhObLdsyElA==
+supabase@^2.33.9:
+  version "2.33.9"
+  resolved "https://registry.yarnpkg.com/supabase/-/supabase-2.33.9.tgz#94ed562bdb7041df0321436a4b4a7965bd53b81b"
+  integrity sha512-bjCdzcAzbzmPn5B4FNjsAE32aHDgCHtHngj0eDZdZ1+tVbH1/4TwGeZWy41JeiraNx5VPMG+BUOG2VNBXXcXEA==
   dependencies:
     bin-links "^5.0.0"
     https-proxy-agent "^7.0.2"
