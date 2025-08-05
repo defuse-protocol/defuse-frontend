@@ -6,6 +6,7 @@ import { http, createConfig } from "wagmi"
 import {
   arbitrum,
   aurora,
+  avalanche,
   base,
   bsc,
   mainnet,
@@ -29,7 +30,17 @@ export const turbo = {
 } as const satisfies Chain
 
 export const config = createConfig({
-  chains: [mainnet, base, arbitrum, turbo, aurora, polygon, bsc, optimism],
+  chains: [
+    mainnet,
+    base,
+    arbitrum,
+    turbo,
+    aurora,
+    polygon,
+    bsc,
+    optimism,
+    avalanche,
+  ],
   connectors: [
     PROJECT_ID != null &&
       walletConnect({
@@ -49,5 +60,6 @@ export const config = createConfig({
     [polygon.id]: http(),
     [bsc.id]: http(),
     [optimism.id]: http(),
+    [avalanche.id]: http(),
   },
 })
