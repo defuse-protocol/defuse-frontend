@@ -1555,19 +1555,18 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
     name: "SUI",
     tags: ["mc:13"],
   },
-  // TODO: Uncomment when Stellar is removed from feature flag
-  // {
-  //   defuseAssetId:
-  //     "nep245:v2_1.omni.hot.tg:1100_111bzQBB5v7AhLyPMDwS8uJgQV24KaAPXtwyVWu2KXbbfQU6NXRCz",
-  //   type: "native",
-  //   decimals: 7,
-  //   icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/512.png",
-  //   chainName: "stellar",
-  //   bridge: "hot_omni",
-  //   symbol: "XLM",
-  //   name: "Stellar Lumens",
-  //   tags: ["mc:3"],
-  // },
+  {
+    defuseAssetId:
+      "nep245:v2_1.omni.hot.tg:1100_111bzQBB5v7AhLyPMDwS8uJgQV24KaAPXtwyVWu2KXbbfQU6NXRCz",
+    type: "native",
+    decimals: 7,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/512.png",
+    chainName: "stellar",
+    bridge: "hot_omni",
+    symbol: "XLM",
+    name: "Stellar Lumens",
+    tags: ["mc:3"],
+  },
   {
     unifiedAssetId: "rhea",
     symbol: "RHEA",
