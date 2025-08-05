@@ -617,6 +617,8 @@ export const withdrawUIMachine = setup({
               destinationMemo: formValues.parsedDestinationMemo,
               prebuiltWithdrawalIntents:
                 context.preparationOutput.value.prebuiltWithdrawalIntents,
+              withdrawalParams:
+                context.preparationOutput.value.withdrawalParams,
               nearIntentsNetwork: isNearIntentsNetwork(formValues.blockchain),
             },
           }
