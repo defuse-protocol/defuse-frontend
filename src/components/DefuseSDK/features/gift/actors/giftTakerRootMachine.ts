@@ -1,5 +1,5 @@
 import { assert } from "@src/components/DefuseSDK/utils/assert"
-import { type PromiseActorLogic, assign, setup } from "xstate"
+import { assign, setup } from "xstate"
 import type { SignerCredentials } from "../../../core/formatters"
 import { logger } from "../../../logger"
 import type { PublishIntentsErr } from "../../../sdk/solverRelay/publishIntents"
@@ -9,14 +9,9 @@ import type { MultiPayload } from "../../../types/defuse-contracts-types"
 import {
   type GiftInfo,
   type GiftInfoErr,
-  type GiftOpenSecretActorInput,
-  type GiftOpenSecretActorOutput,
   getGiftInfo,
 } from "./shared/getGiftInfo"
-import {
-  type GiftClaimActorOutput,
-  giftClaimActor,
-} from "./shared/giftClaimActor"
+import { giftClaimActor } from "./shared/giftClaimActor"
 
 type GiftTakeClaimErr = { reason: "EXCEPTION" }
 
@@ -72,14 +67,8 @@ export const giftTakerRootMachine = setup({
     },
   },
   actors: {
-    getGiftInfoActor: getGiftInfo as unknown as PromiseActorLogic<
-      GiftOpenSecretActorOutput,
-      GiftOpenSecretActorInput
-    >,
-    claimGiftActor: giftClaimActor as unknown as PromiseActorLogic<
-      GiftClaimActorOutput,
-      void
-    >,
+    getGiftInfoActor: getGiftInfo,
+    claimGiftActor: giftClaimActor,
   },
   actions: {
     logError: (_, event: { error: unknown }) => {

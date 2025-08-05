@@ -114,8 +114,7 @@ export const withdrawUIMachine = setup({
   },
   actors: {
     backgroundQuoterActor: backgroundQuoterMachine,
-    // biome-ignore lint/suspicious/noExplicitAny: bypass xstate+ts bloating; be careful when interacting with `depositedBalanceActor` string
-    depositedBalanceActor: depositedBalanceMachine as any,
+    depositedBalanceActor: depositedBalanceMachine,
     swapActor: swapIntentMachine,
     intentStatusActor: intentStatusMachine,
     withdrawFormActor: withdrawFormReducer,
