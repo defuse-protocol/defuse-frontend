@@ -213,7 +213,6 @@ export const swapIntentMachine = setup({
           signerId: context.defuseUserId,
           deadlineTimestamp: Date.now() + settings.swapExpirySec * 1000,
           referral: context.referral,
-          // @ts-expect-error remove this once it's supported
           appFee: context.intentOperationParams.quote.appFee,
           appFeeRecipient: APP_FEE_RECIPIENT,
         })

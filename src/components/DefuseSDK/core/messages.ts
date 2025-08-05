@@ -56,7 +56,6 @@ export function createSwapIntentMessage(
     deadlineTimestamp: options.deadlineTimestamp ?? minutesFromNow(5),
     referral: options.referral,
     memo: options.memo,
-    // @ts-expect-error remove this once it's supported
     appFee: [],
     appFeeRecipient: "",
   })

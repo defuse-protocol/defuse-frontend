@@ -71,7 +71,6 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
                         referral: context.referral,
                         signerId: context.defuseUserId,
                         tokenDeltas: quote?.tokenDeltas ?? [],
-                        // @ts-expect-error remove this once it's supported
                         appFee: quote?.appFee ?? [],
                         appFeeRecipient: APP_FEE_RECIPIENT,
                       })
