@@ -30,6 +30,7 @@ import {
   useWebAuthnUIStore,
 } from "@src/features/webauthn/hooks/useWebAuthnStore"
 import { useSignInLogger } from "@src/hooks/useSignInLogger"
+import { useStellarWallet } from "@src/providers/StellarWalletProvider"
 import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
 import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
 import type {
@@ -38,6 +39,7 @@ import type {
   SendTransactionTonParams,
   SignAndSendTransactionsParams,
 } from "@src/types/interfaces"
+import { logger } from "@src/utils/logger"
 import { parseTonAddress } from "@src/utils/parseTonAddress"
 import { useEVMWalletActions } from "./useEVMWalletActions"
 import { useNearWalletActions } from "./useNearWalletActions"
@@ -48,6 +50,7 @@ export enum ChainType {
   Solana = "solana",
   WebAuthn = "webauthn",
   Ton = "ton",
+  Stellar = "stellar",
 }
 
 export type State = {
@@ -100,8 +103,19 @@ export const useConnectWallet = (): ConnectWalletAction => {
     try {
       const wallet = await nearWallet.selector.wallet()
       await wallet.signOut()
-    } catch (e) {
-      console.log("Failed to sign out", e)
+    } catch {
+      logger.warn("Failed to sign out from Near wallet")
+    }
+  }
+
+  if (nearWallet.accountId != null) {
+    state = {
+      address: nearWallet.accountId,
+      displayAddress: nearWallet.accountId,
+      network: "near:mainnet",
+      chainType: ChainType.Near,
+      isVerified: false,
+      isFake: false,
     }
   }
 
@@ -131,35 +145,6 @@ export const useConnectWallet = (): ConnectWalletAction => {
     }
   }
 
-  /**
-   * Solana:
-   * Down below are Solana Wallet handlers and actions
-   */
-  const { setVisible } = useWalletModal()
-  const solanaWallet = useSolanaWallet()
-  const solanaConnection = useSolanaConnection()
-  const handleSignInViaSolanaSelector = async () => {
-    setVisible(true)
-  }
-
-  const handleSignOutViaSolanaSelector = async () => {
-    await solanaWallet.disconnect()
-
-    // Issue: Phantom wallet also connects EVM wallet when it connects Solana wallet
-    await handleSignOutViaWagmi()
-  }
-
-  if (nearWallet.accountId != null) {
-    state = {
-      address: nearWallet.accountId,
-      displayAddress: nearWallet.accountId,
-      network: "near:mainnet",
-      chainType: ChainType.Near,
-      isVerified: false,
-      isFake: false,
-    }
-  }
-
   // We check `account.chainId` instead of `account.chain` to determine if
   // the user is connected. This is because the user might be connected to
   // an unsupported chain (so `.chain` will undefined), but we still want
@@ -178,6 +163,9 @@ export const useConnectWallet = (): ConnectWalletAction => {
   }
 
   /**
+   * Solana:
+   * Down below are Solana Wallet handlers and actions
+   *
    * Ensure Solana Wallet state overrides EVM Wallet state:
    * Context:
    *   Phantom Wallet supports both Solana and EVM chains.
@@ -186,6 +174,19 @@ export const useConnectWallet = (): ConnectWalletAction => {
    *   This causes `wagmi` to connect to the EVM chain, leading to unexpected
    *   address switching. Placing Solana Wallet state last prevents this.
    */
+  const { setVisible } = useWalletModal()
+  const solanaWallet = useSolanaWallet()
+  const solanaConnection = useSolanaConnection()
+  const handleSignInViaSolanaSelector = async () => {
+    setVisible(true)
+  }
+
+  const handleSignOutViaSolanaSelector = async () => {
+    await solanaWallet.disconnect()
+    // Issue: Phantom wallet also connects EVM wallet when it connects Solana wallet
+    await handleSignOutViaWagmi()
+  }
+
   if (solanaWallet.publicKey != null) {
     state = {
       address: solanaWallet.publicKey.toBase58(),
@@ -197,6 +198,10 @@ export const useConnectWallet = (): ConnectWalletAction => {
     }
   }
 
+  /**
+   * WebAuthn:
+   * Down below are WebAuthn Wallet handlers and actions
+   */
   const currentPasskey = useWebAuthnCurrentCredential()
   const webAuthnActions = useWebAuthnActions()
   const webAuthnUI = useWebAuthnUIStore()
@@ -225,6 +230,31 @@ export const useConnectWallet = (): ConnectWalletAction => {
       displayAddress: parseTonAddress(tonWallet.account.address),
       network: "ton",
       chainType: ChainType.Ton,
+      isVerified: false,
+      isFake: false,
+    }
+  }
+
+  /**
+   * Stellar:
+   * Down below are Stellar Wallet handlers and actions
+   */
+  const { publicKey, connect, disconnect } = useStellarWallet()
+
+  const handleSignInViaStellar = async (): Promise<void> => {
+    await connect()
+  }
+
+  const handleSignOutViaStellar = async (): Promise<void> => {
+    await disconnect()
+  }
+
+  if (publicKey) {
+    state = {
+      address: publicKey,
+      displayAddress: publicKey,
+      network: "stellar:mainnet",
+      chainType: ChainType.Stellar,
       isVerified: false,
       isFake: false,
     }
@@ -265,6 +295,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
         [ChainType.Solana]: () => handleSignInViaSolanaSelector(),
         [ChainType.WebAuthn]: () => webAuthnUI.open(),
         [ChainType.Ton]: () => tonConnectModal.open(),
+        [ChainType.Stellar]: () => handleSignInViaStellar(),
       }
 
       return strategies[params.id]()
@@ -277,6 +308,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
         [ChainType.Solana]: () => handleSignOutViaSolanaSelector(),
         [ChainType.WebAuthn]: () => webAuthnActions.signOut(),
         [ChainType.Ton]: () => tonConnectUI.disconnect(),
+        [ChainType.Stellar]: () => handleSignOutViaStellar(),
       }
 
       onSignOut()
@@ -320,6 +352,11 @@ export const useConnectWallet = (): ConnectWalletAction => {
           const cell = Cell.fromBoc(Buffer.from(response.boc, "base64"))[0]
           const hash = cell.hash().toString("hex")
           return hash
+        },
+
+        [ChainType.Stellar]: async () => {
+          // TODO: Implement Stellar transaction handling
+          throw new Error("Stellar transaction handling not yet implemented")
         },
       }
 

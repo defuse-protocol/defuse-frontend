@@ -13,6 +13,7 @@ import queryClient from "@src/constants/queryClient"
 import { WebAuthnProvider } from "@src/features/webauthn/providers/WebAuthnProvider"
 import { initSDK } from "@src/libs/defuse-sdk/initSDK"
 import { SolanaWalletProvider } from "@src/providers/SolanaWalletProvider"
+import { StellarWalletProvider } from "@src/providers/StellarWalletProvider"
 import { ThemeProvider } from "@src/providers/ThemeProvider"
 import { TonConnectUIProvider } from "@src/providers/TonConnectUIProvider"
 import { WalletSelectorProvider } from "@src/providers/WalletSelectorProvider"
@@ -126,13 +127,14 @@ const RootLayout = async ({
             <QueryClientProvider client={queryClient}>
               <WalletSelectorProvider>
                 <SolanaWalletProvider>
-                  <TonConnectUIProvider>
-                    <WebAuthnProvider>
-                      <MixpanelProvider>{children}</MixpanelProvider>
-                    </WebAuthnProvider>
-
-                    <SentryTracer />
-                  </TonConnectUIProvider>
+                  <StellarWalletProvider>
+                    <TonConnectUIProvider>
+                      <WebAuthnProvider>
+                        <MixpanelProvider>{children}</MixpanelProvider>
+                      </WebAuthnProvider>
+                      <SentryTracer />
+                    </TonConnectUIProvider>
+                  </StellarWalletProvider>
                 </SolanaWalletProvider>
               </WalletSelectorProvider>
               {DEV_MODE && <ReactQueryDevtools initialIsOpen={false} />}
