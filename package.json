@@ -139,6 +139,7 @@
     "conventional-changelog-conventionalcommits": "^8.0.0",
     "husky": "^9.1.1",
     "jsdom": "^26.1.0",
+    "json-schema-to-typescript": "^15.0.4",
     "lint-staged": "^15.2.10",
     "postcss": "^8.4.47",
     "postcss-import": "^15.1.0",
