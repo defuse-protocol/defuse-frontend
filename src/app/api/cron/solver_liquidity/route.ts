@@ -55,7 +55,8 @@ export async function GET(req: NextRequest) {
     const maxLiquidity = tokenPairsLiquidity[joinedAddressesKey]
 
     if (!maxLiquidity) {
-      logger.error(`No maxLiquidity: ${joinedAddressesKey}`)
+      // tmp suppress to avoid sentry errors limit
+      // logger.error(`No maxLiquidity: ${joinedAddressesKey}`)
       continue
     }
 
