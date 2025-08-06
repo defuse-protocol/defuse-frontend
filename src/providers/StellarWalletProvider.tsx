@@ -54,9 +54,9 @@ export const signTransactionStellar = async (
  */
 export const signMessageStellar = async (message: string) => {
   const k = getKit()
-  const base64Payload = btoa(message)
+  const base64Payload = base64.encode(new TextEncoder().encode(message))
   const { signedMessage } = await k.signMessage(base64Payload)
-  const raw = atob(signedMessage)
+  const raw = new TextDecoder().decode(base64.decode(signedMessage))
   // TODO: This will not work for HOT wallets or other wallets as they use a different message format.
   return base64.decode(raw)
 }
