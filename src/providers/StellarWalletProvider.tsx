@@ -46,6 +46,24 @@ export const signTransactionStellar = async (
   ...args: Parameters<StellarWalletsKit["signTransaction"]>
 ) => getKit().signTransaction(...args)
 
+export const submitTransactionStellar = async (signedTxXdr: string) => {
+  const response = await fetch("https://horizon.stellar.org/transactions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: `tx=${encodeURIComponent(signedTxXdr)}`,
+  })
+
+  if (!response.ok) {
+    const error = await response.text()
+    throw new Error(`Failed to submit transaction: ${error}`)
+  }
+
+  const result = await response.json()
+  return result.hash
+}
+
 /**
  * Caution: Wallet modules use different signature conversion formats.
  * For example, Freighter expects the message to be signed in base64 format.

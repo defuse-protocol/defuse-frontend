@@ -6,6 +6,7 @@ import {
   useWallet as useSolanaWallet,
 } from "@solana/wallet-adapter-react"
 import { useWalletModal } from "@solana/wallet-adapter-react-ui"
+
 import { Cell } from "@ton/ton"
 import {
   useTonConnectModal,
@@ -24,13 +25,18 @@ import {
   useDisconnect,
 } from "wagmi"
 
+import type { SendTransactionStellarParams } from "@src/components/DefuseSDK/types/deposit"
 import {
   useWebAuthnActions,
   useWebAuthnCurrentCredential,
   useWebAuthnUIStore,
 } from "@src/features/webauthn/hooks/useWebAuthnStore"
 import { useSignInLogger } from "@src/hooks/useSignInLogger"
-import { useStellarWallet } from "@src/providers/StellarWalletProvider"
+import {
+  signTransactionStellar,
+  submitTransactionStellar,
+  useStellarWallet,
+} from "@src/providers/StellarWalletProvider"
 import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
 import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
 import type {
@@ -72,6 +78,7 @@ interface ConnectWalletAction {
       | SendTransactionEVMParams["transactions"]
       | SendTransactionSolanaParams["transactions"]
       | SendTransactionTonParams["transactions"]
+      | SendTransactionStellarParams
   }) => Promise<string | FinalExecutionOutcome[] | SendTransactionResponse>
   connectors: Connector[]
   state: State
@@ -355,8 +362,14 @@ export const useConnectWallet = (): ConnectWalletAction => {
         },
 
         [ChainType.Stellar]: async () => {
-          // TODO: Implement Stellar transaction handling
-          throw new Error("Stellar transaction handling not yet implemented")
+          if (!publicKey) {
+            throw new Error("Stellar wallet not connected")
+          }
+          const stellarParams = params.tx as SendTransactionStellarParams
+          const xdrString = stellarParams.transaction.toXDR()
+          const { signedTxXdr } = await signTransactionStellar(xdrString)
+          const txHash = await submitTransactionStellar(signedTxXdr)
+          return txHash
         },
       }
 
