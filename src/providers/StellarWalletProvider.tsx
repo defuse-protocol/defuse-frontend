@@ -8,6 +8,7 @@ import {
 } from "@creit.tech/stellar-wallets-kit"
 import { base64 } from "@scure/base"
 import { logger } from "@src/utils/logger"
+import { Horizon, Networks, TransactionBuilder } from "@stellar/stellar-sdk"
 import { createContext, useContext, useEffect, useState } from "react"
 
 interface StellarWalletContextType {
@@ -47,21 +48,10 @@ export const signTransactionStellar = async (
 ) => getKit().signTransaction(...args)
 
 export const submitTransactionStellar = async (signedTxXdr: string) => {
-  const response = await fetch("https://horizon.stellar.org/transactions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: `tx=${encodeURIComponent(signedTxXdr)}`,
-  })
-
-  if (!response.ok) {
-    const error = await response.text()
-    throw new Error(`Failed to submit transaction: ${error}`)
-  }
-
-  const result = await response.json()
-  return result.hash
+  const server = new Horizon.Server("https://horizon.stellar.org")
+  const transaction = TransactionBuilder.fromXDR(signedTxXdr, Networks.PUBLIC)
+  const response = await server.submitTransaction(transaction)
+  return response.hash
 }
 
 /**
