@@ -7,7 +7,6 @@ import {
   allowAllModules,
 } from "@creit.tech/stellar-wallets-kit"
 import { base64 } from "@scure/base"
-import { STELLAR_SELECTED_WALLET_ID } from "@src/utils/environment"
 import { logger } from "@src/utils/logger"
 import { createContext, useContext, useEffect, useState } from "react"
 
@@ -26,10 +25,6 @@ interface StellarWalletContextType {
 const StellarWalletContext = createContext<StellarWalletContextType | null>(
   null
 )
-
-function getSelectedWalletId() {
-  return localStorage.getItem(STELLAR_SELECTED_WALLET_ID)
-}
 
 let kit: StellarWalletsKit | null = null
 
@@ -70,6 +65,12 @@ export async function getPublicKeyStellar() {
   if (!getSelectedWalletId()) return null
   const { address } = await getKit().getAddress()
   return address
+}
+
+const STELLAR_SELECTED_WALLET_ID = "stellar-selected-wallet-id"
+
+function getSelectedWalletId() {
+  return localStorage.getItem(STELLAR_SELECTED_WALLET_ID)
 }
 
 export async function setWalletStellar(walletId: string) {
