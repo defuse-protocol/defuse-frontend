@@ -1,5 +1,6 @@
 import type { authHandle } from "@defuse-protocol/internal-utils"
 import type { Transaction as TransactionSolana } from "@solana/web3.js"
+import type { Transaction as TransactionStellar } from "@stellar/stellar-sdk"
 import type { Address, Hash } from "viem"
 import type { RenderHostAppLink } from "./hostAppLink"
 import type { SwappableToken } from "./swap"
@@ -65,4 +66,8 @@ export interface SendTransactionTonParams {
     amount: string
     payload?: string
   }>
+}
+
+export interface SendTransactionStellarParams {
+  transaction: TransactionStellar
 }
