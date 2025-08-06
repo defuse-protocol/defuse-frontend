@@ -1368,24 +1368,6 @@
     valibot "^1.0.0"
     viem "^2.0.0"
 
-"@defuse-protocol/internal-utils@^0.5.0":
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/@defuse-protocol/internal-utils/-/internal-utils-0.5.0.tgz#96806da8ba71ec5d145f22666bf061049c330a5f"
-  integrity sha512-s54oxhV1IxHIPsAuERaMidYhoV8zPiZzFODCNjKYXdW/23Jt0tVXemv+EYBY3RwRwhTzZlbN+Qr3Uv1egRUJcg==
-  dependencies:
-    "@defuse-protocol/contract-types" "0.0.3"
-    "@hot-labs/omni-sdk" "2.8.3"
-    "@lifeomic/attempt" "^3.0.0"
-    "@noble/hashes" "^1.7.1"
-    "@peculiar/asn1-ecc" "^2.0.0"
-    "@peculiar/asn1-schema" "^2.0.0"
-    "@scure/base" "^1.0.0"
-    "@thames/monads" "^0.7.0"
-    near-api-js "^4.0.0 || ^5.0.0"
-    tweetnacl "^1.0.0"
-    valibot "^1.0.0"
-    viem "^2.0.0"
-
 "@ecies/ciphers@^0.2.1":
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/@ecies/ciphers/-/ciphers-0.2.1.tgz#a3119516fb55d27ed2d21c497b1c4988f0b4ca02"
@@ -7198,7 +7180,7 @@
     toml "^3.0.0"
     urijs "^1.19.1"
 
-"@stellar/stellar-sdk@^13.0.0":
+"@stellar/stellar-sdk@^13.0.0", "@stellar/stellar-sdk@^13.3.0":
   version "13.3.0"
   resolved "https://registry.yarnpkg.com/@stellar/stellar-sdk/-/stellar-sdk-13.3.0.tgz#72bf3eea4797de053aaebb889bf4de342d0b6b54"
   integrity sha512-8+GHcZLp+mdin8gSjcgfb/Lb6sSMYRX6Nf/0LcSJxvjLQR0XHpjGzOiRbYb2jSXo51EnA6kAV5j+4Pzh5OUKUg==
