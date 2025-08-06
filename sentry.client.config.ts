@@ -16,7 +16,6 @@ Sentry.init({
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0,
   integrations: [
-    // eslint-disable-next-line import/namespace
     Sentry.replayIntegration({
       maskAllInputs: false,
       maskAllText: false,

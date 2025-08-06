@@ -15,8 +15,8 @@ const Copy = ({ children, value }: Props) => {
   const animationStyle = "transition ease-in-out duration-150"
   return (
     <div className="relative cursor-pointer">
+      {/* @ts-ignore this is a valid use case */}
       <CopyToClipboard onCopy={() => setIsCopied(true)} text={value}>
-        {/* @ts-expect-error this is a valid use case */}
         {children}
       </CopyToClipboard>
       <span
