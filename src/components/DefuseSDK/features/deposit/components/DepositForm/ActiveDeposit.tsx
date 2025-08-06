@@ -62,7 +62,8 @@ export function ActiveDeposit({
         snapshot.matches("submittingNearTx") ||
         snapshot.matches("submittingEVMTx") ||
         snapshot.matches("submittingSolanaTx") ||
-        snapshot.matches("submittingTurboTx"),
+        snapshot.matches("submittingTurboTx") ||
+        snapshot.matches("submittingStellarTx"),
     }
   })
 
