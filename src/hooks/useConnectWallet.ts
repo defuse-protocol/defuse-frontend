@@ -122,11 +122,6 @@ export const useConnectWallet = (): ConnectWalletAction => {
   /**
    * EVM:
    * Down below are Wagmi Wallet handlers and actions
-   *
-   * We check `account.chainId` instead of `account.chain` to determine if
-   * the user is connected. This is because the user might be connected to
-   * an unsupported chain (so `.chain` will undefined), but we still want
-   * to recognize that their wallet is connected.
    */
   const evmWalletConnect = useConnect()
   const evmWalletDisconnect = useDisconnect()
@@ -150,6 +145,10 @@ export const useConnectWallet = (): ConnectWalletAction => {
     }
   }
 
+  // We check `account.chainId` instead of `account.chain` to determine if
+  // the user is connected. This is because the user might be connected to
+  // an unsupported chain (so `.chain` will undefined), but we still want
+  // to recognize that their wallet is connected.
   if (evmWalletAccount.address != null && evmWalletAccount.chainId) {
     state = {
       address: evmWalletAccount.address,

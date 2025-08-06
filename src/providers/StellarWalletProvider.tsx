@@ -52,9 +52,10 @@ export const signTransactionStellar = async (
 ) => getKit().signTransaction(...args)
 
 /**
- * Caustion: Wallet modules use different signature convertion
- * Example of this is Freighter which expacte to sign message in base64 format
- * Implemented as per https://github.com/Creit-Tech/Stellar-Wallets-Kit/blob/main/src/modules/freighter.module.ts#L117
+ * Caution: Wallet modules use different signature conversion formats.
+ * For example, Freighter expects the message to be signed in base64 format.
+ * This is implemented as per:
+ * https://github.com/Creit-Tech/Stellar-Wallets-Kit/blob/main/src/modules/freighter.module.ts#L117
  */
 export const signMessageStellar = async (message: string) => {
   const k = getKit()
