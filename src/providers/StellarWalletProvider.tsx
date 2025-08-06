@@ -8,6 +8,7 @@ import {
 } from "@creit.tech/stellar-wallets-kit"
 import { base64 } from "@scure/base"
 import { STELLAR_SELECTED_WALLET_ID } from "@src/utils/environment"
+import { logger } from "@src/utils/logger"
 import { createContext, useContext, useEffect, useState } from "react"
 
 interface StellarWalletContextType {
@@ -88,10 +89,7 @@ export async function connectStellar(): Promise<void> {
           await setWalletStellar(option.id as string)
           resolve()
         } catch (error) {
-          const errorMessage =
-            error instanceof Error ? error.message : String(error)
-          // biome-ignore lint/suspicious/noConsole: <explanation>
-          console.error("Error connecting Stellar wallet:", errorMessage)
+          logger.warn("Error connecting Stellar wallet")
           reject(error)
         }
         return option.id

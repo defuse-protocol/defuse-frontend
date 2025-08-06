@@ -39,6 +39,7 @@ import type {
   SendTransactionTonParams,
   SignAndSendTransactionsParams,
 } from "@src/types/interfaces"
+import { logger } from "@src/utils/logger"
 import { parseTonAddress } from "@src/utils/parseTonAddress"
 import { useEVMWalletActions } from "./useEVMWalletActions"
 import { useNearWalletActions } from "./useNearWalletActions"
@@ -102,9 +103,8 @@ export const useConnectWallet = (): ConnectWalletAction => {
     try {
       const wallet = await nearWallet.selector.wallet()
       await wallet.signOut()
-    } catch (e) {
-      // biome-ignore lint/suspicious/noConsole: <explanation>
-      console.log("Failed to sign out", e)
+    } catch {
+      logger.warn("Failed to sign out from Near wallet")
     }
   }
 
@@ -251,8 +251,6 @@ export const useConnectWallet = (): ConnectWalletAction => {
   }
 
   if (publicKey) {
-    // biome-ignore lint/suspicious/noConsole: <explanation>
-    console.log("Updated useConnectWallet state [Stellar]:", publicKey)
     state = {
       address: publicKey,
       displayAddress: publicKey,
