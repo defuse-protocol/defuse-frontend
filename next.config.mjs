@@ -1,15 +1,18 @@
 import { withSentryConfig } from "@sentry/nextjs"
 import { DedupePlugin } from "@tinkoff/webpack-dedupe-plugin"
-import path from "node:path"
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   productionBrowserSourceMaps: true,
-  eslint: {
-    // We check the code quality in the CI pipeline
-    ignoreDuringBuilds: true,
+  turbopack: {
+    rules: {
+      "*.svg": {
+        loaders: ["@svgr/webpack"],
+        as: "*.js",
+      },
+    },
   },
-  webpack: (config, context) => {
+  webpack: (config) => {
     // Suppress warnings from libraries trying to load optional dependencies
     config.externals.push(
       // `pino` wants `pino-pretty`
@@ -24,7 +27,7 @@ const nextConfig = {
         fs: false,
         path: false,
         os: false,
-        events: 'events'
+        events: "events",
       },
     }
 
@@ -120,6 +123,7 @@ const nextConfig = {
   },
 }
 
+/** @type {import('@sentry/nextjs').SentryBuildOptions} */
 const sentryConfig = {
   org: "aurora-k2",
   project: "defuse",
@@ -132,6 +136,9 @@ const sentryConfig = {
   },
   tunnelRoute: "/monitoring",
   automaticVercelMonitors: true,
+  sourcemaps: {
+    disable: true,
+  },
 }
 
 export default withSentryConfig(nextConfig, sentryConfig)

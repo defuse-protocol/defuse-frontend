@@ -68,6 +68,7 @@ const WalletConnectionsConnector = ({
         </div>
 
         <div className="flex justify-center items-center gap-2.5">
+          {/* @ts-ignore this is a valid use case */}
           <CopyToClipboard onCopy={onCopy} text={accountId ?? ""}>
             <button
               type="button"

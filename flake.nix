@@ -9,12 +9,7 @@
       let pkgs = nixpkgs.legacyPackages.${system};
       in {
         devShells.default = pkgs.mkShell {
-          buildInputs = [
-            pkgs.nodejs_20
-            (pkgs.yarn.override { nodejs = pkgs.nodejs_20; })
-            pkgs.udev
-            pkgs.pkg-config
-          ];
+          buildInputs = [ pkgs.udev pkgs.pkg-config pkgs.bun ];
         };
       });
 }
