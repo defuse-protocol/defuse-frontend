@@ -35,7 +35,10 @@ let kit: StellarWalletsKit | null = null
 function getKit() {
   if (!kit) {
     kit = new StellarWalletsKit({
-      modules: allowAllModules(),
+      modules: allowAllModules({
+        // TODO: Remove this once we will support all Stellar wallets signature format
+        filterBy: (module) => module.productId === FREIGHTER_ID,
+      }),
       network: WalletNetwork.PUBLIC,
       selectedWalletId: getSelectedWalletId() ?? FREIGHTER_ID,
     })
