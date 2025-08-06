@@ -54,13 +54,11 @@ export async function verifyWalletSignature(
           ? new TextEncoder().encode(signature.signedData.message)
           : signature.signedData.message
 
-      // Ensure signature is Uint8Array
-      const signatureBytes =
-        signature.signatureData instanceof Uint8Array
-          ? signature.signatureData
-          : new Uint8Array(signature.signatureData)
-
-      return sign.detached.verify(messageBytes, signatureBytes, publicKeyBytes)
+      return sign.detached.verify(
+        messageBytes,
+        signature.signatureData,
+        publicKeyBytes
+      )
     }
     default:
       signatureType satisfies never
