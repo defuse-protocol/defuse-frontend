@@ -1,6 +1,7 @@
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { secp256k1 } from "@noble/curves/secp256k1"
 import { base58 } from "@scure/base"
+import { Keypair } from "@stellar/stellar-sdk"
 import { sign } from "tweetnacl"
 import { verifyMessage as verifyMessageViem } from "viem"
 import { parsePublicKey, verifyAuthenticatorAssertion } from "./webAuthn"
@@ -43,8 +44,23 @@ export async function verifyWalletSignature(
       // todo: implement https://github.com/tonkeeper/demo-dapp-with-wallet/blob/master/src/components/SignDataForm/verify.ts
       return true
     case "STELLAR": {
-      // TODO: update once support for Stellar is added
-      return false
+      // Convert Stellar address to public key bytes
+      const keypair = Keypair.fromPublicKey(userAddress)
+      const publicKeyBytes = keypair.rawPublicKey()
+
+      // Convert message to Uint8Array if it's a string
+      const messageBytes =
+        typeof signature.signedData.message === "string"
+          ? new TextEncoder().encode(signature.signedData.message)
+          : signature.signedData.message
+
+      // Ensure signature is Uint8Array
+      const signatureBytes =
+        signature.signatureData instanceof Uint8Array
+          ? signature.signatureData
+          : new Uint8Array(signature.signatureData)
+
+      return sign.detached.verify(messageBytes, signatureBytes, publicKeyBytes)
     }
     default:
       signatureType satisfies never

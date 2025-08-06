@@ -3,6 +3,7 @@ import { useWallet as useWalletSolana } from "@solana/wallet-adapter-react"
 import { useWebAuthnActions } from "@src/features/webauthn/hooks/useWebAuthnStore"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
+import { signMessageStellar } from "@src/providers/StellarWalletProvider"
 import {
   createHotWalletCloseObserver,
   raceFirst,
@@ -81,6 +82,17 @@ export function useWalletAgnosticSignMessage() {
           type: "TON_CONNECT",
           signatureData,
           signedData: walletMessage.TON_CONNECT,
+        }
+      }
+
+      case ChainType.Stellar: {
+        const signatureData = await signMessageStellar(
+          walletMessage.STELLAR.message
+        )
+        return {
+          type: "STELLAR",
+          signatureData,
+          signedData: walletMessage.STELLAR,
         }
       }
 

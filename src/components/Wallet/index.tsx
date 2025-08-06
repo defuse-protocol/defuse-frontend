@@ -272,6 +272,28 @@ const ConnectWallet = () => {
 
                     <TonConnectButton />
 
+                    {/* Stellar connector */}
+                    <Button
+                      onClick={() => signIn({ id: ChainType.Stellar })}
+                      size="4"
+                      radius="medium"
+                      variant="soft"
+                      color="gray"
+                      className="px-2.5"
+                    >
+                      <div className="w-full flex items-center justify-start gap-2">
+                        <Image
+                          src="/static/icons/network/stellar.svg"
+                          alt="Stellar"
+                          width={36}
+                          height={36}
+                        />
+                        <Text size="2" weight="bold">
+                          Stellar Wallet
+                        </Text>
+                      </div>
+                    </Button>
+
                     <Text size="1" color="gray">
                       Other options
                     </Text>
