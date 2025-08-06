@@ -722,12 +722,6 @@ function createTransferLumenTransaction(
   amount: string,
   memo?: string | null
 ): SendTransactionStellarParams {
-  // biome-ignore lint/suspicious/noConsole: <explanation>
-  console.log("🔵 account", account)
-  // biome-ignore lint/suspicious/noConsole: <explanation>
-  console.log("🔵 to", to)
-  // biome-ignore lint/suspicious/noConsole: <explanation>
-  console.log("🔵 amount", amount)
   const transaction = new TransactionBuilder(account, {
     fee: "100", // TODO: Should be checked
     networkPassphrase: Networks.PUBLIC,
@@ -757,10 +751,6 @@ function createTrustlineTransferStellarTransaction(
   trustlineExists: boolean,
   memo?: string | null
 ): SendTransactionStellarParams {
-  // biome-ignore lint/suspicious/noConsole: <explanation>
-  console.log("🔵 tokenAddress", tokenAddress)
-  // biome-ignore lint/suspicious/noConsole: <explanation>
-  console.log("🔵 tokenSymbol", tokenSymbol)
   const asset = new Asset(tokenSymbol, tokenAddress)
   const transaction = new TransactionBuilder(account, {
     fee: "100", // TODO: Should be checked
