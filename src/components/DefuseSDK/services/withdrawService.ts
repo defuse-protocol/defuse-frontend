@@ -2,6 +2,7 @@ import {
   type FeeEstimation,
   FeeExceedsAmountError,
   type RouteConfig,
+  type WithdrawalParams,
   createDefaultRoute,
   createInternalTransferRoute,
   createNearWithdrawalRoute,
@@ -73,6 +74,7 @@ export type PreparedWithdrawReturnType = {
   feeEstimation: FeeEstimation
   receivedAmount: TokenValue
   prebuiltWithdrawalIntents: Intent[]
+  withdrawalParams: WithdrawalParams
 }
 
 export type PreparationOutput =
@@ -199,11 +201,17 @@ export async function prepareWithdraw(
       ? createNearWithdrawalRoute()
       : createDefaultRoute()
 
-  const feeEstimation = await estimateFee({
-    defuseAssetId: formValues.tokenOut.defuseAssetId,
-    amount: totalWithdrawn.amount,
-    recipient: formValues.parsedRecipient,
+  const baseWithdrawalParams: WithdrawalParams = {
+    assetId: formValues.tokenOut.defuseAssetId,
+    amount: 0n,
+    destinationAddress: formValues.parsedRecipient,
+    destinationMemo: formValues.parsedDestinationMemo ?? undefined,
+    feeInclusive: false,
     routeConfig,
+  }
+
+  const feeEstimation = await estimateFee({
+    withdrawalParams: baseWithdrawalParams,
   })
   if (feeEstimation.isErr()) {
     return { tag: "err", value: feeEstimation.unwrapErr() }
@@ -232,15 +240,13 @@ export async function prepareWithdraw(
     }
   }
 
+  const withdrawalParams: WithdrawalParams = {
+    ...baseWithdrawalParams,
+    amount: receivedAmount.amount,
+  }
+
   const withdrawalIntents = await bridgeSDK.createWithdrawalIntents({
-    withdrawalParams: {
-      assetId: formValues.tokenOut.defuseAssetId,
-      amount: receivedAmount.amount,
-      destinationAddress: formValues.parsedRecipient,
-      destinationMemo: formValues.parsedDestinationMemo ?? undefined,
-      feeInclusive: false,
-      routeConfig,
-    },
+    withdrawalParams,
     feeEstimation: feeEstimation.unwrap(),
   })
 
@@ -252,6 +258,7 @@ export async function prepareWithdraw(
       feeEstimation: feeEstimation.unwrap(),
       receivedAmount: receivedAmount,
       prebuiltWithdrawalIntents: withdrawalIntents,
+      withdrawalParams,
     },
   }
 }
@@ -361,26 +368,12 @@ async function getBalances(
 }
 
 async function estimateFee({
-  defuseAssetId,
-  amount,
-  recipient,
-  routeConfig,
+  withdrawalParams,
 }: {
-  defuseAssetId: string
-  amount: bigint
-  recipient: string
-  routeConfig: RouteConfig | undefined
+  withdrawalParams: WithdrawalParams
 }): Promise<Result<FeeEstimation, { reason: "ERR_WITHDRAWAL_FEE_FETCH" }>> {
   return bridgeSDK
-    .estimateWithdrawalFee({
-      withdrawalParams: {
-        assetId: defuseAssetId,
-        amount: amount,
-        destinationAddress: recipient,
-        feeInclusive: true,
-        routeConfig,
-      },
-    })
+    .estimateWithdrawalFee({ withdrawalParams })
     .then(Ok, (err) => {
       const feeExceedsAmountError = findError(err, FeeExceedsAmountError)
 
@@ -558,20 +551,26 @@ async function prepareNearIntentsWithdraw({
     balances
   )
 
+  const withdrawalParams: WithdrawalParams[] = Object.entries(amounts).map(
+    ([defuseAssetId, amount]) => {
+      assert(formValues.parsedRecipient != null, "parsedRecipient is null")
+
+      return {
+        assetId: defuseAssetId,
+        amount: amount,
+        destinationAddress: formValues.parsedRecipient,
+        destinationMemo: undefined, // Destination memo is only used for XRP Ledger withdrawals
+        feeInclusive: false,
+        routeConfig: createInternalTransferRoute(),
+      }
+    }
+  )
+
   const intents = (
     await Promise.all(
-      Object.entries(amounts).map(([defuseAssetId, amount]) => {
-        assert(formValues.parsedRecipient != null, "parsedRecipient is null")
-
+      withdrawalParams.map((wp) => {
         return bridgeSDK.createWithdrawalIntents({
-          withdrawalParams: {
-            assetId: defuseAssetId,
-            amount: amount,
-            destinationAddress: formValues.parsedRecipient,
-            destinationMemo: undefined, // Destination memo is only used for XRP Ledger withdrawals
-            feeInclusive: false,
-            routeConfig: createInternalTransferRoute(),
-          },
+          withdrawalParams: wp,
           feeEstimation: {
             amount: 0n,
             quote: null,
@@ -589,6 +588,8 @@ async function prepareNearIntentsWithdraw({
       feeEstimation: { amount: 0n, quote: null },
       receivedAmount: formValues.parsedAmount,
       prebuiltWithdrawalIntents: intents,
+      // biome-ignore lint/style/noNonNullAssertion: <explanation>
+      withdrawalParams: withdrawalParams[0]!,
     },
   }
 }

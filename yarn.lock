@@ -1304,13 +1304,13 @@
   resolved "https://registry.yarnpkg.com/@csstools/css-tokenizer/-/css-tokenizer-3.0.4.tgz#333fedabc3fd1a8e5d0100013731cf19e6a8c5d3"
   integrity sha512-Vd/9EVDiu6PPJt9yAh6roZP6El1xHrdvIVGjyBsHR0RYwNHgL7FJPyIIW4fANJNG6FtyZfvlRPpFI4ZM/lubvw==
 
-"@defuse-protocol/bridge-sdk@^0.11.0":
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/@defuse-protocol/bridge-sdk/-/bridge-sdk-0.11.0.tgz#2282dfc3852867f667022641ce5ff3ecce577e6a"
-  integrity sha512-g0s+WA9J3ccN72bRi8wSSbjb+7OXMV6W7cATb00gGAtuCYHc7LvOqOXoQ9lxO5/FJtUsP9ksQai6baxwF10VDA==
+"@defuse-protocol/bridge-sdk@^0.12.0":
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/@defuse-protocol/bridge-sdk/-/bridge-sdk-0.12.0.tgz#98b36db53c892857350b3d7f4b22fc625263e1e6"
+  integrity sha512-u6ztLoGarsqVmvJfYh8WQvvtr+9Tq7lS7bvcir16YTAzC8SBKZiV2MN0As+vvOcm9PFTMyWLlbrRlTtkDxuO8w==
   dependencies:
     "@defuse-protocol/contract-types" "0.0.3"
-    "@defuse-protocol/internal-utils" "0.2.0"
+    "@defuse-protocol/internal-utils" "0.5.0"
     "@hot-labs/omni-sdk" "2.16.0"
     "@isaacs/ttlcache" "^1.0.0"
     "@lifeomic/attempt" "^3.0.0"
@@ -1324,10 +1324,10 @@
   resolved "https://registry.yarnpkg.com/@defuse-protocol/contract-types/-/contract-types-0.0.3.tgz#ed7f8070c80e9cd2ac2fd7f2c4dd6cd4918205a8"
   integrity sha512-N3LJS4tfshw6+kldrx6Hij8c8tzTHbmNPVByhursQ86Apu8p/gOPixfBbUZh21fKCCqktERbjeKzGe5EJV0gWA==
 
-"@defuse-protocol/internal-utils@0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@defuse-protocol/internal-utils/-/internal-utils-0.2.0.tgz#08d3301509f796fb0f22a8f9faf0ece6e8a9ba85"
-  integrity sha512-AqnUvR0+Dt1Y1NYC0M3xA7mjslbA5U5PlMrUjfs2AcD0rO7TpWDxjAE3TafdWwbs9y9pFu3RqzP6UMkQaJ89lA==
+"@defuse-protocol/internal-utils@0.5.0", "@defuse-protocol/internal-utils@^0.5.0":
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/@defuse-protocol/internal-utils/-/internal-utils-0.5.0.tgz#96806da8ba71ec5d145f22666bf061049c330a5f"
+  integrity sha512-s54oxhV1IxHIPsAuERaMidYhoV8zPiZzFODCNjKYXdW/23Jt0tVXemv+EYBY3RwRwhTzZlbN+Qr3Uv1egRUJcg==
   dependencies:
     "@defuse-protocol/contract-types" "0.0.3"
     "@hot-labs/omni-sdk" "2.8.3"

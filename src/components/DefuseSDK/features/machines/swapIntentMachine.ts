@@ -1,4 +1,7 @@
-import type { FeeEstimation } from "@defuse-protocol/bridge-sdk"
+import type {
+  FeeEstimation,
+  WithdrawalParams,
+} from "@defuse-protocol/bridge-sdk"
 import { errors, solverRelay } from "@defuse-protocol/internal-utils"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { messageFactory } from "@defuse-protocol/internal-utils"
@@ -62,6 +65,7 @@ type IntentOperationParams =
       recipient: string
       destinationMemo: string | null
       prebuiltWithdrawalIntents: Intent[]
+      withdrawalParams: WithdrawalParams
       nearIntentsNetwork: boolean
     }
 
@@ -79,6 +83,7 @@ export type IntentDescription =
       chainName: SupportedChainName
       recipient: string
       nearIntentsNetwork: boolean
+      withdrawalParams: WithdrawalParams
     }
 
 type Context = {
@@ -358,6 +363,8 @@ export const swapIntentMachine = setup({
                 recipient: context.intentOperationParams.recipient,
                 nearIntentsNetwork:
                   context.intentOperationParams.nearIntentsNetwork,
+                withdrawalParams:
+                  context.intentOperationParams.withdrawalParams,
               },
             },
           }

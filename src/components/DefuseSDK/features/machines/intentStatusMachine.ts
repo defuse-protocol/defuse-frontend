@@ -1,8 +1,4 @@
-import {
-  type RouteConfig,
-  createNearWithdrawalRoute,
-  createVirtualChainRoute,
-} from "@defuse-protocol/bridge-sdk"
+import type { WithdrawalParams } from "@defuse-protocol/bridge-sdk"
 import { solverRelay } from "@defuse-protocol/internal-utils"
 import {
   type ActorRef,
@@ -13,18 +9,10 @@ import {
   sendTo,
   setup,
 } from "xstate"
-import { getAuroraEngineContractId } from "../../constants/aurora"
 import { bridgeSDK } from "../../constants/bridgeSdk"
 import { logger } from "../../logger"
-import type {
-  BaseTokenInfo,
-  SupportedBridge,
-  SupportedChainName,
-  UnifiedTokenInfo,
-} from "../../types/base"
-import type { IntentsUserId } from "../../types/intentsUserId"
+import type { BaseTokenInfo, UnifiedTokenInfo } from "../../types/base"
 import { assert } from "../../utils/assert"
-import { getCAIP2 } from "../../utils/caip2"
 import type { IntentDescription } from "./swapIntentMachine"
 
 type ChildEvent = {
@@ -93,22 +81,14 @@ export const intentStatusMachine = setup({
         input,
       }: {
         input: {
+          withdrawalParams: WithdrawalParams
           sourceTxHash: string
-          bridge: SupportedBridge
-          accountId: IntentsUserId
-          chainName: SupportedChainName
-          recipient: string
-          nearIntentsNetwork: boolean
         }
       }) => {
         return bridgeSDK
           .waitForWithdrawalCompletion({
-            routeConfig: toRouteConfig(
-              input.nearIntentsNetwork ? "direct" : input.bridge,
-              input.chainName
-            ),
-            index: 0,
-            tx: {
+            withdrawalParams: input.withdrawalParams,
+            intentTx: {
               hash: input.sourceTxHash,
               accountId: "intents.near", // our relayer sends txs on behalf of "intents.near"
             },
@@ -197,12 +177,8 @@ export const intentStatusMachine = setup({
           assert(context.txHash != null, "txHash is null")
           assert(context.intentDescription.type === "withdraw")
           return {
-            bridge: context.intentDescription.tokenOut.bridge,
             sourceTxHash: context.txHash,
-            accountId: context.intentDescription.accountId,
-            chainName: context.intentDescription.chainName,
-            recipient: context.intentDescription.recipient,
-            nearIntentsNetwork: context.intentDescription.nearIntentsNetwork,
+            withdrawalParams: context.intentDescription.withdrawalParams,
           }
         },
 
@@ -252,32 +228,3 @@ export const intentStatusMachine = setup({
     },
   },
 })
-
-function toRouteConfig(
-  bridge: SupportedBridge,
-  chainName: SupportedChainName
-): RouteConfig {
-  switch (bridge) {
-    case "aurora_engine": {
-      return createVirtualChainRoute(
-        getAuroraEngineContractId(chainName),
-        null // TODO: provide the correct value once you know it
-      )
-    }
-    case "hot_omni":
-      return {
-        route: "hot_bridge",
-        chain: getCAIP2(chainName),
-      }
-    case "poa":
-      return {
-        route: "poa_bridge",
-        chain: getCAIP2(chainName),
-      }
-    case "direct":
-      return createNearWithdrawalRoute()
-    default:
-      bridge satisfies never
-      throw new Error(`Unsupported bridge: ${bridge}`)
-  }
-}
