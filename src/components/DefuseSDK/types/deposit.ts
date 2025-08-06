@@ -15,6 +15,7 @@ export type DepositWidgetProps = {
   sendTransactionEVM: (tx: Transaction["EVM"]) => Promise<Hash | null>
   sendTransactionSolana: (tx: Transaction["Solana"]) => Promise<string | null>
   sendTransactionTon: (tx: Transaction["TON"]) => Promise<string | null>
+  sendTransactionStellar: (tx: Transaction["Stellar"]) => Promise<string | null>
 }
 
 export type Transaction = {
@@ -22,6 +23,7 @@ export type Transaction = {
   EVM: SendTransactionEVMParams
   Solana: SendTransactionSolanaParams
   TON: SendTransactionTonParams
+  Stellar: SendTransactionStellarParams
 }
 
 export type DepositEvent = {

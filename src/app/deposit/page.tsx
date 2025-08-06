@@ -55,6 +55,13 @@ export default function Deposit() {
           })
           return Array.isArray(result) ? result[0].transaction.hash : result
         }}
+        sendTransactionStellar={async (tx) => {
+          const result = await sendTransaction({
+            id: ChainType.Stellar,
+            tx,
+          })
+          return Array.isArray(result) ? result[0].transaction.hash : result
+        }}
         renderHostAppLink={renderAppLink}
       />
     </Paper>

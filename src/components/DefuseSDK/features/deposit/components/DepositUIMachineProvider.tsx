@@ -21,6 +21,7 @@ import {
   createDepositEVMNativeTransaction,
   createDepositFromSiloTransaction,
   createDepositSolanaTransaction,
+  createDepositStellarTransaction,
   createDepositTonTransaction,
   createDepositVirtualChainERC20Transaction,
   createExitToNearPrecompileTransaction,
@@ -68,6 +69,7 @@ interface DepositUIMachineProviderProps extends PropsWithChildren {
   sendTransactionEVM: (tx: Transaction["EVM"]) => Promise<Hash | null>
   sendTransactionSolana: (tx: Transaction["Solana"]) => Promise<string | null>
   sendTransactionTon: (tx: Transaction["TON"]) => Promise<string | null>
+  sendTransactionStellar: (tx: Transaction["Stellar"]) => Promise<string | null>
 }
 
 export function DepositUIMachineProvider({
@@ -77,6 +79,7 @@ export function DepositUIMachineProvider({
   sendTransactionEVM,
   sendTransactionSolana,
   sendTransactionTon,
+  sendTransactionStellar,
 }: DepositUIMachineProviderProps) {
   const { setValue } = useFormContext<DepositFormValues>()
   return (
@@ -441,6 +444,44 @@ export function DepositUIMachineProvider({
                 const txHash = await sendTransactionTon(tx)
                 assert(txHash != null, "Transaction failed")
                 logger.verbose("Waiting for deposit TON transaction", {
+                  txHash,
+                })
+
+                return txHash
+              }),
+            },
+            guards: {
+              isDepositParamsValid: ({ context }) => {
+                return context.depositAddress !== null
+              },
+            },
+          }),
+          depositStellarActor: depositMachine.provide({
+            actors: {
+              signAndSendTransactions: fromPromise(async ({ input }) => {
+                const {
+                  amount,
+                  depositAddress,
+                  userAddress,
+                  derivedToken,
+                  memo,
+                } = input
+
+                assert(depositAddress != null, "Deposit address is not defined")
+
+                const tx = await createDepositStellarTransaction({
+                  userAddress,
+                  depositAddress,
+                  amount,
+                  token: derivedToken,
+                  // TODO: check if trustline exists
+                  trustlineExists: true,
+                  memo,
+                })
+
+                const txHash = await sendTransactionStellar(tx)
+                assert(txHash != null, "Tx hash is not defined")
+                logger.verbose("Waiting for deposit Stellar transaction", {
                   txHash,
                 })
 

@@ -110,6 +110,10 @@ export const depositEstimateMaxValueActor = fromPromise(
         }
         return balance - fee
       }
+      case BlockchainEnum.STELLAR: {
+        // TODO: Implement this
+        return 0n
+      }
       // For next blockchains - active deposits are not supported, so no network fees
       case BlockchainEnum.BITCOIN:
       case BlockchainEnum.DOGECOIN:
@@ -118,7 +122,6 @@ export const depositEstimateMaxValueActor = fromPromise(
       case BlockchainEnum.TRON:
       case BlockchainEnum.HYPERLIQUID:
       case BlockchainEnum.SUI:
-      case BlockchainEnum.STELLAR:
       case BlockchainEnum.APTOS:
       case BlockchainEnum.CARDANO:
         return 0n
