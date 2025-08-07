@@ -8,6 +8,7 @@ import {
 } from "@creit.tech/stellar-wallets-kit"
 import { base64 } from "@scure/base"
 import { logger } from "@src/utils/logger"
+import { Horizon, Networks, TransactionBuilder } from "@stellar/stellar-sdk"
 import { createContext, useContext, useEffect, useState } from "react"
 
 interface StellarWalletContextType {
@@ -45,6 +46,13 @@ function getKit() {
 export const signTransactionStellar = async (
   ...args: Parameters<StellarWalletsKit["signTransaction"]>
 ) => getKit().signTransaction(...args)
+
+export const submitTransactionStellar = async (signedTxXdr: string) => {
+  const server = new Horizon.Server("https://horizon.stellar.org")
+  const transaction = TransactionBuilder.fromXDR(signedTxXdr, Networks.PUBLIC)
+  const response = await server.submitTransaction(transaction)
+  return response.hash
+}
 
 /**
  * Caution: Wallet modules use different signature conversion formats.

@@ -14,6 +14,15 @@ import {
 } from "@solana/web3.js"
 import { auroraErc20ABI } from "@src/components/DefuseSDK/utils/blockchain"
 import {
+  type Account,
+  Asset,
+  Horizon,
+  Memo,
+  Networks,
+  Operation,
+  TransactionBuilder,
+} from "@stellar/stellar-sdk"
+import {
   http,
   type Address,
   type Hash,
@@ -33,11 +42,16 @@ import { getNearTxSuccessValue } from "../features/machines/getTxMachine"
 import type { storageDepositAmountMachine } from "../features/machines/storageDepositAmountMachine"
 import { logger } from "../logger"
 import type { BaseTokenInfo, SupportedChainName } from "../types/base"
-import type { SendTransactionEVMParams, Transaction } from "../types/deposit"
+import type {
+  SendTransactionEVMParams,
+  SendTransactionStellarParams,
+  Transaction,
+} from "../types/deposit"
 import type { SendTransactionTonParams } from "../types/deposit"
 import type { IntentsUserId } from "../types/intentsUserId"
 import { assert } from "../utils/assert"
 import { getEVMChainId } from "../utils/evmChainId"
+import { formatTokenValue } from "../utils/format"
 import { isNativeToken } from "../utils/token"
 import { createTonClient } from "./tonJettonService"
 import {
@@ -659,6 +673,116 @@ function createSPLTransferSolanaTransaction(
 }
 
 /**
+ * Creates a deposit transaction for Stellar
+ */
+export async function createDepositStellarTransaction({
+  userAddress,
+  depositAddress,
+  amount,
+  token,
+  trustlineExists,
+  memo,
+}: {
+  userAddress: string
+  depositAddress: string
+  amount: bigint
+  token: BaseTokenInfo
+  trustlineExists: boolean
+  memo?: string | null
+}): Promise<SendTransactionStellarParams> {
+  assert(token.chainName === "stellar", "Token must be a Stellar token")
+
+  const server = new Horizon.Server(getWalletRpcUrl(BlockchainEnum.STELLAR))
+  const account = await server.loadAccount(userAddress)
+  const amountToFormat = formatTokenValue(amount, token.decimals)
+
+  if (isNativeToken(token)) {
+    return createTransferLumenTransaction(
+      account,
+      depositAddress,
+      amountToFormat,
+      memo
+    )
+  }
+
+  return createTrustlineTransferStellarTransaction(
+    account,
+    depositAddress,
+    amountToFormat,
+    token.address,
+    token.symbol,
+    trustlineExists,
+    memo
+  )
+}
+
+function createTransferLumenTransaction(
+  account: Account,
+  to: string,
+  amount: string,
+  memo?: string | null
+): SendTransactionStellarParams {
+  const transaction = new TransactionBuilder(account, {
+    fee: "100", // TODO: Should be checked
+    networkPassphrase: Networks.PUBLIC,
+  })
+    .addOperation(
+      Operation.payment({
+        destination: to,
+        asset: Asset.native(),
+        amount: amount,
+      })
+    )
+    .setTimeout(30)
+
+  if (memo) {
+    transaction.addMemo(Memo.text(memo))
+  }
+
+  return { transaction: transaction.build() }
+}
+
+function createTrustlineTransferStellarTransaction(
+  account: Account,
+  to: string,
+  amount: string,
+  tokenAddress: string,
+  tokenSymbol: string,
+  trustlineExists: boolean,
+  memo?: string | null
+): SendTransactionStellarParams {
+  const asset = new Asset(tokenSymbol, tokenAddress)
+  const transaction = new TransactionBuilder(account, {
+    fee: "100", // TODO: Should be checked
+    networkPassphrase: Networks.PUBLIC,
+  })
+
+  // TODO: Revisit this once trustlineExists is implemented
+  if (!trustlineExists) {
+    transaction.addOperation(
+      Operation.changeTrust({
+        asset: asset,
+        limit: "922337203685.4775807", // max trustline limit
+      })
+    )
+  }
+
+  transaction.addOperation(
+    Operation.payment({
+      destination: to,
+      asset: asset,
+      amount: amount,
+    })
+  )
+
+  if (memo) {
+    transaction.addMemo(Memo.text(memo))
+  }
+
+  return { transaction: transaction.setTimeout(30).build() }
+}
+
+/**
  * Generate a deposit address for the specified blockchain and asset through the POA bridge API call.
  *
  * @param userAddress - The user address from the wallet
@@ -1041,10 +1165,55 @@ export function getAvailableDepositRoutes(
           throw new Error("exhaustive check failed")
       }
     case AuthMethod.Stellar:
-      // TODO: update once support for Stellar is added
-      return {
-        activeDeposit: false,
-        passiveDeposit: false,
+      switch (network) {
+        /* allowed all */
+        case BlockchainEnum.STELLAR:
+          return {
+            activeDeposit: true,
+            passiveDeposit: true,
+          }
+
+        /* allowed passive */
+        case BlockchainEnum.ETHEREUM:
+        case BlockchainEnum.BASE:
+        case BlockchainEnum.ARBITRUM:
+        case BlockchainEnum.BITCOIN:
+        case BlockchainEnum.DOGECOIN:
+        case BlockchainEnum.XRPLEDGER:
+        case BlockchainEnum.ZCASH:
+        case BlockchainEnum.GNOSIS:
+        case BlockchainEnum.BERACHAIN:
+        case BlockchainEnum.TRON:
+        case BlockchainEnum.POLYGON:
+        case BlockchainEnum.BSC:
+        case BlockchainEnum.NEAR:
+        case BlockchainEnum.TON:
+        case BlockchainEnum.OPTIMISM:
+        case BlockchainEnum.AVALANCHE:
+        case BlockchainEnum.SUI:
+        case BlockchainEnum.SOLANA:
+        case BlockchainEnum.APTOS:
+        case BlockchainEnum.CARDANO:
+          return {
+            activeDeposit: false,
+            passiveDeposit: true,
+          }
+
+        /* not-allowed all */
+        case BlockchainEnum.TURBOCHAIN:
+        case BlockchainEnum.TUXAPPCHAIN:
+        case BlockchainEnum.VERTEX:
+        case BlockchainEnum.OPTIMA:
+        case BlockchainEnum.EASYCHAIN:
+        case BlockchainEnum.AURORA:
+        case BlockchainEnum.HYPERLIQUID:
+          return {
+            activeDeposit: false,
+            passiveDeposit: false,
+          }
+        default:
+          network satisfies never
+          throw new Error("exhaustive check failed")
       }
     default:
       chainTypeFromWallet satisfies never

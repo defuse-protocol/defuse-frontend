@@ -82,6 +82,7 @@ export const depositUIMachine = setup({
     depositTurboActor: depositMachine,
     depositVirtualChainActor: depositMachine,
     depositTonActor: depositMachine,
+    depositStellarActor: depositMachine,
     prepareDepositActor: prepareDepositActor,
     depositFormActor: depositFormReducer,
     depositGenerateAddressActor: depositGenerateAddressMachine,
@@ -214,6 +215,11 @@ export const depositUIMachine = setup({
     isChainTonSelected: ({ context }) => {
       return context.depositFormRef.getSnapshot().context.blockchain === "ton"
     },
+    isChainStellarSelected: ({ context }) => {
+      return (
+        context.depositFormRef.getSnapshot().context.blockchain === "stellar"
+      )
+    },
     isOk: (_, a: { tag: "err" | "ok" }) => a.tag === "ok",
     isDepositParamsComplete: and([
       "isTokenValid",
@@ -338,6 +344,12 @@ export const depositUIMachine = setup({
               {
                 target: "#deposit-ui.submittingTonTx",
                 guard: "isChainTonSelected",
+                actions: "clearResults",
+                reenter: true,
+              },
+              {
+                target: "#deposit-ui.submittingStellarTx",
+                guard: "isChainStellarSelected",
                 actions: "clearResults",
                 reenter: true,
               },
@@ -572,6 +584,34 @@ export const depositUIMachine = setup({
         },
       },
     },
+    submittingStellarTx: {
+      invoke: {
+        id: "depositStellarRef",
+        src: "depositStellarActor",
+        input: ({ context, event }) => {
+          assertEvent(event, "SUBMIT")
+          const params = extractDepositParams(context)
+          assert(params.depositAddress, "depositAddress is null")
+          return {
+            ...params,
+            type: "depositStellar",
+            depositAddress: params.depositAddress,
+            memo: params.memo,
+          }
+        },
+        onDone: {
+          target: "editing.reset_previous_preparation",
+          actions: [
+            {
+              type: "setDepositOutput",
+              params: ({ event }) => event.output,
+            },
+            { type: "clearUIDepositAmount" },
+          ],
+          reenter: true,
+        },
+      },
+    },
   },
 
   initial: "editing",
@@ -589,6 +629,7 @@ type DepositParams = {
   storageDepositRequired: bigint | null
   solanaATACreationRequired: boolean
   tonJettonWalletCreationRequired: boolean
+  memo: string | null
 }
 
 function extractDepositParams(context: Context): DepositParams {
@@ -621,5 +662,6 @@ function extractDepositParams(context: Context): DepositParams {
     storageDepositRequired: prepOutput.storageDepositRequired,
     solanaATACreationRequired: prepOutput.solanaATACreationRequired,
     tonJettonWalletCreationRequired: prepOutput.tonJettonWalletCreationRequired,
+    memo: prepOutput.memo,
   }
 }

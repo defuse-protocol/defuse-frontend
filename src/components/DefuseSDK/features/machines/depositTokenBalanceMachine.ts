@@ -14,6 +14,7 @@ import {
   getNearNep141Balance,
   getSolanaNativeBalance,
   getSolanaSplBalance,
+  getStellarBalance,
   getTonJettonBalance,
   getTonNativeBalance,
 } from "../../services/blockchainBalanceService"
@@ -185,6 +186,21 @@ export const backgroundBalanceActor = fromPromise(
         result.balance = balance
         break
       }
+      case BlockchainEnum.STELLAR: {
+        const balance = await getStellarBalance({
+          tokenAddress: !isNativeToken(derivedToken)
+            ? derivedToken.address
+            : null,
+          tokenDecimals: derivedToken.decimals,
+          userAddress: userWalletAddress,
+          rpcUrl: getWalletRpcUrl(networkToSolverFormat),
+        })
+        if (balance === null) {
+          throw new Error("Failed to fetch STELLAR balances")
+        }
+        result.balance = balance
+        break
+      }
       // Active deposits through Bitcoin and other blockchains are not supported, so we don't need to check balances
       case BlockchainEnum.BITCOIN:
       case BlockchainEnum.DOGECOIN:
@@ -193,7 +209,6 @@ export const backgroundBalanceActor = fromPromise(
       case BlockchainEnum.TRON:
       case BlockchainEnum.HYPERLIQUID:
       case BlockchainEnum.SUI:
-      case BlockchainEnum.STELLAR:
       case BlockchainEnum.APTOS:
       case BlockchainEnum.CARDANO:
         break

@@ -1,11 +1,13 @@
 import { AccountLayout } from "@solana/spl-token"
 import { Connection, PublicKey } from "@solana/web3.js"
+import { type AssetType, Horizon } from "@stellar/stellar-sdk"
 import { Address as TonAddress, beginCell } from "@ton/ton"
 import * as v from "valibot"
 import { http, type Address, createPublicClient, erc20Abi } from "viem"
 import { nearClient } from "../constants/nearClient"
 import { logger } from "../logger"
 import { decodeQueryResult } from "../utils/near"
+import { parseUnits } from "../utils/parse"
 import { createTonClient } from "./tonJettonService"
 
 export const RESERVED_NEAR_BALANCE = 100000000000000000000000n // 0.1 NEAR reserved for transaction fees and storage
@@ -212,4 +214,70 @@ export const getTonJettonBalance = async ({
     logger.error(new Error("error fetching TON Tep74 balance", { cause: err }))
     return null
   }
+}
+
+export const getStellarBalance = async ({
+  tokenAddress,
+  tokenDecimals,
+  userAddress,
+  rpcUrl,
+}: {
+  tokenAddress: string | null
+  tokenDecimals: number
+  userAddress: string
+  rpcUrl: string
+}): Promise<bigint | null> => {
+  try {
+    const server = new Horizon.Server(rpcUrl)
+    const response = await server.loadAccount(userAddress)
+    const account = v.parse(
+      v.object({
+        balances: v.array(
+          v.union([
+            v.object({
+              asset_type: v.literal("native"),
+              balance: v.string(),
+            }),
+            // This schema describes *issued tokens* (non-native assets),
+            // which can be either credit_alphanum4 or credit_alphanum12.
+            // See: https://stellar.org/developers/guides/concepts/assets#asset-types
+            v.object({
+              asset_type: v.union([
+                v.literal("credit_alphanum4"),
+                v.literal("credit_alphanum12"),
+              ]),
+              asset_issuer: v.string(),
+              asset_code: v.string(),
+              balance: v.string(),
+            }),
+          ])
+        ),
+      }),
+      response
+    )
+
+    const findTokenBalance = account.balances.find(
+      (balance) =>
+        (!tokenAddress && isStellarNativeToken(balance.asset_type)) ||
+        (tokenAddress &&
+          isStellarTrustlineToken(balance.asset_type) &&
+          "asset_issuer" in balance &&
+          balance.asset_issuer === tokenAddress)
+    )
+    if (!findTokenBalance) {
+      return 0n
+    }
+
+    return parseUnits(findTokenBalance.balance, tokenDecimals)
+  } catch (err: unknown) {
+    logger.error(new Error("Error fetching Stellar balance", { cause: err }))
+    return null
+  }
+}
+
+function isStellarNativeToken(assetType: AssetType): boolean {
+  return assetType === "native"
+}
+function isStellarTrustlineToken(assetType: AssetType): boolean {
+  return assetType === "credit_alphanum4" || assetType === "credit_alphanum12"
 }

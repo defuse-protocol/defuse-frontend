@@ -94,6 +94,12 @@ export const PreparationResult = ({
     case "ERR_WITHDRAWAL_FEE_FETCH":
       content = "Cannot fetch withdrawal fee"
       break
+    case "ERR_STELLAR_NO_TRUSTLINE":
+      content = `Recipient must have at least some ${err.token.symbol} on Stellar to be able to withdraw it.`
+      break
+    case "ERR_CANNOT_MAKE_WITHDRAWAL_INTENT":
+      content = "Operation could not be completed. Please try again."
+      break
     default:
       val satisfies never
       content = val

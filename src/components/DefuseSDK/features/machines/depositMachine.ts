@@ -23,6 +23,7 @@ export type Input = {
   tonJettonWalletCreationRequired: boolean
   nearBalance: bigint | null
   type: string
+  memo: string | null
 }
 
 export type DepositDescription = {

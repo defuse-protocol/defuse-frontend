@@ -2,6 +2,7 @@ import {
   type FeeEstimation,
   FeeExceedsAmountError,
   type RouteConfig,
+  TrustlineNotFoundError,
   type WithdrawalParams,
   createDefaultRoute,
   createInternalTransferRoute,
@@ -59,12 +60,17 @@ export type PrepareWithdrawErrorType =
         | "ERR_CANNOT_FETCH_POA_BRIDGE_INFO"
         | "ERR_CANNOT_FETCH_QUOTE"
         | "ERR_WITHDRAWAL_FEE_FETCH"
+        | "ERR_CANNOT_MAKE_WITHDRAWAL_INTENT"
     }
   | {
       reason: "ERR_AMOUNT_TOO_LOW"
       shortfall: TokenValue
       receivedAmount: bigint
       minWithdrawalAmount: bigint
+      token: BaseTokenInfo
+    }
+  | {
+      reason: "ERR_STELLAR_NO_TRUSTLINE"
       token: BaseTokenInfo
     }
 
@@ -245,10 +251,30 @@ export async function prepareWithdraw(
     amount: receivedAmount.amount,
   }
 
-  const withdrawalIntents = await bridgeSDK.createWithdrawalIntents({
-    withdrawalParams,
-    feeEstimation: feeEstimation.unwrap(),
-  })
+  let withdrawalIntents: Intent[]
+  try {
+    withdrawalIntents = await bridgeSDK.createWithdrawalIntents({
+      withdrawalParams,
+      feeEstimation: feeEstimation.unwrap(),
+    })
+  } catch (err: unknown) {
+    const trustlineNotFoundErr = findError(err, TrustlineNotFoundError)
+    if (trustlineNotFoundErr != null) {
+      return {
+        tag: "err",
+        value: {
+          reason: "ERR_STELLAR_NO_TRUSTLINE",
+          token: formValues.tokenOut,
+        },
+      }
+    }
+
+    logger.error(err)
+    return {
+      tag: "err",
+      value: { reason: "ERR_CANNOT_MAKE_WITHDRAWAL_INTENT" },
+    }
+  }
 
   return {
     tag: "ok",
