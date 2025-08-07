@@ -30,6 +30,7 @@ export type VirtualChains =
   | "optima"
   | "easychain"
   | "aurora"
+  | "aurora_devnet"
 
 export type MockedChains = "hyperliquid"
 
