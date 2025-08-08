@@ -47,4 +47,4 @@ export function renderMinDepositAmountHint(
 }
 
 const formatShortenedContractAddress = (token: BaseTokenInfo): string =>
-  isFungibleToken(token) ? `(...${token.address.slice(-4)})` : ""
+  isFungibleToken(token) ? `(...${token.address.slice(-7)})` : ""
