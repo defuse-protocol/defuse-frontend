@@ -34,7 +34,7 @@ import type {
 import type { RenderHostAppLink } from "../../../../types/hostAppLink"
 import type { SwappableToken } from "../../../../types/swap"
 import { getPOABridgeInfo } from "../../../machines/poaBridgeInfoActor"
-import { getWithdrawTokenWithFallback } from "../../../machines/withdrawFormReducer"
+import { getBaseTokenInfoWithFallback } from "../../../machines/withdrawFormReducer"
 import { DepositUIMachineContext } from "../DepositUIMachineProvider"
 import { ActiveDeposit } from "./ActiveDeposit"
 import { DepositMethodSelector } from "./DepositMethodSelector"
@@ -153,7 +153,7 @@ export const DepositForm = ({
 
   const minDepositAmount = useSelector(poaBridgeInfoRef, (state) => {
     const tokenOut = token
-      ? getWithdrawTokenWithFallback(token, formNetwork)
+      ? getBaseTokenInfoWithFallback(token, formNetwork)
       : null
     if (tokenOut == null) {
       return null
