@@ -117,7 +117,7 @@ export const withdrawFormReducer = fromTransition(
     const eventType = event.type
     switch (eventType) {
       case "WITHDRAW_FORM.UPDATE_TOKEN": {
-        const tokenOut = getWithdrawTokenWithFallback(
+        const tokenOut = getBaseTokenInfoWithFallback(
           event.params.token,
           state.tokenOut.chainName
         )
@@ -147,7 +147,7 @@ export const withdrawFormReducer = fromTransition(
 
         const tokenOut = isNearIntentsNetwork(blockchain)
           ? getAnyBaseTokenInfo(state.tokenIn)
-          : getWithdrawTokenWithFallback(state.tokenIn, determinedBlockchain)
+          : getBaseTokenInfoWithFallback(state.tokenIn, determinedBlockchain)
 
         const cexFundsLooseConfirmation = isNearIntentsNetwork(blockchain)
           ? "not_required"
@@ -245,7 +245,7 @@ export const withdrawFormReducer = fromTransition(
   }: {
     input: { parentRef: ParentActor; tokenIn: BaseTokenInfo | UnifiedTokenInfo }
   }): State => {
-    const tokenOut = getWithdrawTokenWithFallback(input.tokenIn, null)
+    const tokenOut = getBaseTokenInfoWithFallback(input.tokenIn, null)
 
     return {
       parentRef: input.parentRef,
@@ -265,7 +265,7 @@ export const withdrawFormReducer = fromTransition(
   }
 )
 
-export function getWithdrawTokenWithFallback(
+export function getBaseTokenInfoWithFallback(
   tokenIn: BaseTokenInfo | UnifiedTokenInfo,
   chainName: string | null
 ): BaseTokenInfo {
