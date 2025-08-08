@@ -1215,6 +1215,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.OPTIMA:
         case BlockchainEnum.EASYCHAIN:
         case BlockchainEnum.AURORA:
+        case BlockchainEnum.AURORA_DEVNET:
         case BlockchainEnum.HYPERLIQUID:
           return {
             activeDeposit: false,
