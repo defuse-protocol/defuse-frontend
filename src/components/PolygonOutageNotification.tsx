@@ -48,8 +48,8 @@ const PolygonOutageNotification: React.FC = () => {
           />
         </svg>
         <span>
-          <strong>Polygon Network Issue:</strong> Deposits and withdrawals on
-          Polygon may not go through. Please use alternative networks for
+          <strong>XRP Ledger Issue:</strong> Deposits and withdrawals on XRP
+          Ledger may not go through. Please use alternative networks for
           transactions.
         </span>
         <button
