@@ -245,9 +245,9 @@ export function addAmounts(
 }
 
 /**
- * @param chainType - User's wallet connectected chain type.
- * @param blockchain - The blockchain user is trying to bridge to.
- * No minimum deposit amount required for NEAR-to-NEAR bridge.
+ * @param chainType - The chain type of the user's connected wallet.
+ * @param blockchain - The target blockchain the user is bridging to.
+ * Note: There is no minimum deposit or withdrawal amount for NEAR-to-NEAR bridging.
  * Effectively, it can be as low as 0.000001 USDC (i.e., negligible).
  */
 export function isMinAmountNotRequired(
