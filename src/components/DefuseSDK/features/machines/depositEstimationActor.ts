@@ -9,6 +9,7 @@ import { assign, fromPromise, setup } from "xstate"
 import {
   estimateEVMTransferCost,
   estimateSolanaTransferCost,
+  estimateStellarXLMTransferCost,
   estimateTonTransferCost,
 } from "../../services/estimateService"
 import type { BaseTokenInfo, SupportedChainName } from "../../types/base"
@@ -112,8 +113,18 @@ export const depositEstimateMaxValueActor = fromPromise(
         return balance - fee
       }
       case BlockchainEnum.STELLAR: {
-        // TODO: Implement this
-        return 0n
+        const rpcUrl = getWalletRpcUrl(assetNetworkAdapter[blockchain])
+        if (isNativeToken(token)) {
+          const fee = await estimateStellarXLMTransferCost({
+            rpcUrl,
+            userAddress,
+          })
+          if (balance < fee) {
+            return 0n
+          }
+          return balance - fee
+        }
+        return balance
       }
       // For next blockchains - active deposits are not supported, so no network fees
       case BlockchainEnum.BITCOIN:
