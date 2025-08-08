@@ -77,15 +77,26 @@ export function ActiveDeposit({
       ? parsedAmount >= minDepositAmount
       : true
 
+  const maxDepositValue =
+    preparationOutput?.tag === "ok"
+      ? preparationOutput.value.maxDepositValue
+      : null
+
   const handleSetMaxValue = async () => {
     if (token == null || balance == null) return
-    const amountToFormat = formatTokenValue(balance, token.decimals)
+    const amountToFormat = formatTokenValue(
+      maxDepositValue || balance,
+      token.decimals
+    )
     setValue("amount", amountToFormat)
   }
 
   const handleSetHalfValue = async () => {
     if (token == null || balance == null) return
-    const amountToFormat = formatTokenValue(balance / 2n, token.decimals)
+    const amountToFormat = formatTokenValue(
+      (maxDepositValue || balance) / 2n,
+      token.decimals
+    )
     setValue("amount", amountToFormat)
   }
 
