@@ -1,5 +1,11 @@
+import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import type { BalanceMapping } from "../features/machines/depositedBalanceMachine"
-import type { BaseTokenInfo, TokenValue, UnifiedTokenInfo } from "../types/base"
+import type {
+  BaseTokenInfo,
+  SupportedChainName,
+  TokenValue,
+  UnifiedTokenInfo,
+} from "../types/base"
 import { assert, type AssertErrorType } from "./assert"
 import { isLegitAccountId } from "./near"
 import { isBaseToken } from "./token"
@@ -236,6 +242,19 @@ export function addAmounts(
     amount: sum,
     decimals: maxDecimals,
   }
+}
+
+/**
+ * @param chainType - User's wallet connectected chain type.
+ * @param blockchain - The blockchain user is trying to bridge to.
+ * No minimum deposit amount required for NEAR-to-NEAR bridge.
+ * Effectively, it can be as low as 0.000001 USDC (i.e., negligible).
+ */
+export function isMinAmountNotRequired(
+  chainType: AuthMethod,
+  blockchain: SupportedChainName | "near_intents"
+) {
+  return chainType === "near" && blockchain === "near"
 }
 
 export function subtractAmounts(
