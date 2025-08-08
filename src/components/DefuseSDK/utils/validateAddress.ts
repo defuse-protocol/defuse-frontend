@@ -25,6 +25,7 @@ export function validateAddress(
     case "optima":
     case "easychain":
     case "aurora":
+    case "aurora_devnet":
     case "gnosis":
     case "berachain":
     case "polygon":
