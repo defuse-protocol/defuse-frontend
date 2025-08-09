@@ -2,7 +2,10 @@
 
 import { SwapWidget } from "@src/components/DefuseSDK"
 
-import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
+import {
+  updateURLParams,
+  useDeterminePair,
+} from "@src/app/(home)/_utils/useDeterminePair"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS, type TokenWithTags } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
@@ -11,6 +14,7 @@ import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import { renderAppLink } from "@src/utils/renderAppLink"
+import { useRouter, useSearchParams } from "next/navigation"
 
 export default function Swap() {
   const { state } = useConnectWallet()
@@ -19,6 +23,8 @@ export default function Swap() {
   const tokenList = useTokenList(filterOutRefAndBrrrTokens(LIST_TOKENS))
   const { tokenIn, tokenOut } = useDeterminePair()
   const referral = useIntentsReferral()
+  const router = useRouter()
+  const searchParams = useSearchParams()
 
   return (
     <Paper>
@@ -44,8 +50,11 @@ export default function Swap() {
         renderHostAppLink={renderAppLink}
         userChainType={state.chainType ?? null}
         referral={referral}
-        initialTokenIn={tokenIn}
-        initialTokenOut={tokenOut}
+        initialTokenIn={tokenIn ?? undefined}
+        initialTokenOut={tokenOut ?? undefined}
+        onTokenChange={(params) =>
+          updateURLParams({ ...params, router, searchParams })
+        }
       />
     </Paper>
   )
