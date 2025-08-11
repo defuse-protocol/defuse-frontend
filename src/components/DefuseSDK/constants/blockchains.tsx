@@ -45,6 +45,7 @@ export const chainIcons: Record<SupportedChainName, string> = {
   optima: "/static/icons/network/optima.svg",
   easychain: "/static/icons/network/easychain.svg",
   aurora: "/static/icons/network/aurora.svg",
+  aurora_devnet: "/static/icons/network/aurora_devnet.svg",
   xrpledger: "/static/icons/network/xrpledger.svg",
   zcash: "/static/icons/network/zcash-icon-black.svg",
   gnosis: "/static/icons/network/gnosis.svg",
@@ -126,6 +127,12 @@ export function getBlockchainsOptions(): Record<
       icon: <NetworkIcon chainIcon={chainIcons.aurora} chainName="aurora" />,
       value: BlockchainEnum.AURORA,
       tags: ["vol:101"],
+    },
+    [BlockchainEnum.AURORA_DEVNET]: {
+      label: "Aurora Devnet",
+      icon: <NetworkIcon chainIcon={chainIcons.aurora} chainName="aurora" />,
+      value: BlockchainEnum.AURORA_DEVNET,
+      tags: ["vol:200"],
     },
     [BlockchainEnum.XRPLEDGER]: {
       label: "XRP Ledger",

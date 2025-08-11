@@ -18,6 +18,7 @@ export const CHAIN_IDS: Record<SupportedChainName, number | undefined> = {
   optima: 1313161569,
   easychain: 1313161752,
   aurora: 1313161554,
+  aurora_devnet: 1313161834,
   xrpledger: undefined,
   zcash: undefined,
   gnosis: 100,

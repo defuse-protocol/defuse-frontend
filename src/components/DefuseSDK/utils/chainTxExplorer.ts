@@ -20,6 +20,8 @@ export function chainTxExplorer(blockchain: SupportedChainName): string | null {
       return "https://dogechain.info/tx/"
     case "aurora":
       return "https://explorer.aurora.dev/tx/"
+    case "aurora_devnet":
+      return "https://0x4e45426a.explorer.aurora-cloud.dev/tx/"
     case "xrpledger":
       return "https://livenet.xrpl.org/transactions/"
     case "zcash":

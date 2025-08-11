@@ -78,7 +78,8 @@ export const depositGenerateAddressMachine = setup({
         event.params.blockchain === "vertex" ||
         event.params.blockchain === "optima" ||
         event.params.blockchain === "easychain" ||
-        event.params.blockchain === "aurora"
+        event.params.blockchain === "aurora" ||
+        event.params.blockchain === "aurora_devnet"
       ) {
         return false
       }
