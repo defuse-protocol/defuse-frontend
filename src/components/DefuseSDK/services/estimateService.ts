@@ -53,8 +53,8 @@ export async function estimateStellarXLMTransferCost({
   rpcUrl: string
   userAddress: string
 }): Promise<bigint> {
-  const BASE_RESERVE_XLM = 0.5
-  const SAFETY_MARGIN_XLM = 0.001
+  const BASE_RESERVE_STROOPS = 5000000n // 0.5 XLM in stroops
+  const SAFETY_MARGIN_STROOPS = 10000n // 0.001 XLM in stroops
   const FEE_BUFFER_PERCENT = 115n
   const FEE_BASE_PERCENT = 100n
 
@@ -68,8 +68,9 @@ export async function estimateStellarXLMTransferCost({
 
   // Calculate the minimum required balance for the account based on its subentries
   const subentries: number = account.subentry_count ?? 0
-  const minBalanceXLM = (2 + subentries) * BASE_RESERVE_XLM + SAFETY_MARGIN_XLM
-  const minBalanceStroops = BigInt(Math.ceil(minBalanceXLM * 1e7)) // 1 XLM = 10^7 stroops
+  // Calculate minimum balance in stroops: (2 + subentries) * BASE_RESERVE_STROOPS + SAFETY_MARGIN_STROOPS
+  const minBalanceStroops =
+    BigInt(2 + subentries) * BASE_RESERVE_STROOPS + SAFETY_MARGIN_STROOPS
 
   // Calculate transaction fee for a single XLM transfer with buffer
   const baseFeeStroops = BigInt(feeData.fee_charged?.p10 ?? 100) // p10 fee or defaults to 100 stroops if unavailable
