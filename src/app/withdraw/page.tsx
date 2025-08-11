@@ -32,6 +32,7 @@ export default function Withdraw() {
         presetTokenSymbol={tokenSymbol}
         tokenList={tokenList}
         userAddress={state.isVerified ? state.address : undefined}
+        displayAddress={state.isVerified ? state.displayAddress : undefined}
         chainType={state.chainType}
         sendNearTransaction={async (tx) => {
           const result = await signAndSendTransactions({ transactions: [tx] })
