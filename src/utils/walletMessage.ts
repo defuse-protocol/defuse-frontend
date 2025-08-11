@@ -30,7 +30,7 @@ export async function verifyWalletSignature(
     credentialType,
   })
 
-  const rpc = new JsonRpcProvider({ url: "https://nearrpc.aurora.dev" })
+  const rpc = new JsonRpcProvider({ url: "https://relmn.aurora.dev" })
 
   // todo: Consider moving verification to SDK?
   try {
