@@ -68,7 +68,6 @@ export async function estimateStellarXLMTransferCost({
 
   // Calculate the minimum required balance for the account based on its subentries
   const subentries: number = account.subentry_count ?? 0
-  // Calculate minimum balance in stroops: (2 + subentries) * BASE_RESERVE_STROOPS + SAFETY_MARGIN_STROOPS
   const minBalanceStroops =
     BigInt(2 + subentries) * BASE_RESERVE_STROOPS + SAFETY_MARGIN_STROOPS
 
