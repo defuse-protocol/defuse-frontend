@@ -6,8 +6,8 @@
       "dependencies": {
         "@clickhouse/client": "^1.11.2",
         "@creit.tech/stellar-wallets-kit": "^1.7.7",
-        "@defuse-protocol/bridge-sdk": "^0.12.0",
-        "@defuse-protocol/internal-utils": "^0.5.0",
+        "@defuse-protocol/bridge-sdk": "^0.13.1",
+        "@defuse-protocol/internal-utils": "^0.6.0",
         "@lifeomic/attempt": "^3.1.0",
         "@near-eth/aurora-erc20": "^2.8.0",
         "@near-eth/aurora-ether": "^3.0.0",
@@ -482,11 +482,11 @@
 
     "@csstools/css-tokenizer": ["@csstools/css-tokenizer@3.0.4", "", {}, "sha512-Vd/9EVDiu6PPJt9yAh6roZP6El1xHrdvIVGjyBsHR0RYwNHgL7FJPyIIW4fANJNG6FtyZfvlRPpFI4ZM/lubvw=="],
 
-    "@defuse-protocol/bridge-sdk": ["@defuse-protocol/bridge-sdk@0.12.0", "", { "dependencies": { "@defuse-protocol/contract-types": "0.0.3", "@defuse-protocol/internal-utils": "0.5.0", "@hot-labs/omni-sdk": "2.16.0", "@isaacs/ttlcache": "^1.0.0", "@lifeomic/attempt": "^3.0.0", "@scure/base": "^1.0.0", "borsher": "^4.0.0", "near-api-js": "^4.0.0 || ^5.0.0", "viem": "^2.0.0" }, "peerDependencies": { "typescript": "^5" } }, "sha512-u6ztLoGarsqVmvJfYh8WQvvtr+9Tq7lS7bvcir16YTAzC8SBKZiV2MN0As+vvOcm9PFTMyWLlbrRlTtkDxuO8w=="],
+    "@defuse-protocol/bridge-sdk": ["@defuse-protocol/bridge-sdk@0.13.2", "", { "dependencies": { "@defuse-protocol/contract-types": "0.0.3", "@defuse-protocol/internal-utils": "0.6.0", "@hot-labs/omni-sdk": "2.16.0", "@isaacs/ttlcache": "^1.0.0", "@lifeomic/attempt": "^3.0.0", "@scure/base": "^1.0.0", "borsher": "^4.0.0", "near-api-js": "^4.0.0 || ^5.0.0", "viem": "^2.0.0" }, "peerDependencies": { "typescript": "^5" } }, "sha512-GsOLnN8TEUW5njjuh6HnvyVsHt4v3w9ggk1S4fc5SQAQQ1y+a7FMvKKkkqq6tHpc7Lmvg/9QSrK9jAUj9Sz/7A=="],
 
     "@defuse-protocol/contract-types": ["@defuse-protocol/contract-types@0.0.3", "", {}, "sha512-N3LJS4tfshw6+kldrx6Hij8c8tzTHbmNPVByhursQ86Apu8p/gOPixfBbUZh21fKCCqktERbjeKzGe5EJV0gWA=="],
 
-    "@defuse-protocol/internal-utils": ["@defuse-protocol/internal-utils@0.5.0", "", { "dependencies": { "@defuse-protocol/contract-types": "0.0.3", "@hot-labs/omni-sdk": "2.8.3", "@lifeomic/attempt": "^3.0.0", "@noble/hashes": "^1.7.1", "@peculiar/asn1-ecc": "^2.0.0", "@peculiar/asn1-schema": "^2.0.0", "@scure/base": "^1.0.0", "@thames/monads": "^0.7.0", "near-api-js": "^4.0.0 || ^5.0.0", "tweetnacl": "^1.0.0", "valibot": "^1.0.0", "viem": "^2.0.0" } }, "sha512-s54oxhV1IxHIPsAuERaMidYhoV8zPiZzFODCNjKYXdW/23Jt0tVXemv+EYBY3RwRwhTzZlbN+Qr3Uv1egRUJcg=="],
+    "@defuse-protocol/internal-utils": ["@defuse-protocol/internal-utils@0.6.0", "", { "dependencies": { "@defuse-protocol/contract-types": "0.0.3", "@hot-labs/omni-sdk": "2.8.3", "@lifeomic/attempt": "^3.0.0", "@noble/hashes": "^1.7.1", "@peculiar/asn1-ecc": "^2.0.0", "@peculiar/asn1-schema": "^2.0.0", "@scure/base": "^1.0.0", "@thames/monads": "^0.7.0", "near-api-js": "^4.0.0 || ^5.0.0", "tweetnacl": "^1.0.0", "valibot": "^1.0.0", "viem": "^2.0.0" } }, "sha512-yvHF4+bPmcLY2oDGshQDSCu9NILW+k9Hx8rYvYS0Vs3unhZj9bzskwRDm6wVrHvSwkwBdPJpkb4rdwsztj0Fsw=="],
 
     "@ecies/ciphers": ["@ecies/ciphers@0.2.4", "", { "peerDependencies": { "@noble/ciphers": "^1.0.0" } }, "sha512-t+iX+Wf5nRKyNzk8dviW3Ikb/280+aEJAnw9YXvCp2tYGPSkMki+NRY+8aNLmVFv3eNtMdvViPNOPxS8SZNP+w=="],
 
