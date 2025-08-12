@@ -11,6 +11,7 @@ import type {
 import type { SelectItemToken } from "../Modal/ModalSelectAssets"
 
 import { chainIcons } from "@src/components/DefuseSDK/constants/blockchains"
+import { FormattedCurrency } from "../../features/account/components/shared/FormattedCurrency"
 import { formatTokenValue } from "../../utils/format"
 import { isBaseToken } from "../../utils/token"
 import { AssetComboIcon } from "./AssetComboIcon"
@@ -34,7 +35,7 @@ export const AssetList = <T extends Token>({
 }: Props<T>) => {
   return (
     <div className={clsx("flex flex-col", className && className)}>
-      {assets.map(({ itemId, token, selected, balance }, i) => {
+      {assets.map(({ itemId, token, selected, balance, usdValue }, i) => {
         const chainIcon = isBaseToken(token)
           ? chainIcons[token.chainName]
           : undefined
@@ -73,12 +74,20 @@ export const AssetList = <T extends Token>({
               </div>
               <div className="flex justify-between items-center text-gray-11">
                 <Text as="span" size="2">
-                  {/* biome-ignore lint/nursery/useConsistentCurlyBraces: <explanation> */}
                   {token.symbol}{" "}
                   {showChain && isBaseToken(token)
                     ? token.chainName.toUpperCase()
                     : ""}
                 </Text>
+                {usdValue != null ? (
+                  <FormattedCurrency
+                    value={usdValue}
+                    formatOptions={{ currency: "USD" }}
+                    className="text-sm font-medium text-gray-11"
+                  />
+                ) : (
+                  ""
+                )}
               </div>
             </div>
           </button>

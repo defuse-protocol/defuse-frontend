@@ -2,7 +2,9 @@
 
 import { SwapWidget } from "@src/components/DefuseSDK"
 
+import { authIdentity } from "@defuse-protocol/internal-utils"
 import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
+import { useWatchHoldings } from "@src/components/DefuseSDK/features/account/hooks/useWatchHoldings"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS, type TokenWithTags } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
@@ -20,11 +22,20 @@ export default function Swap() {
   const { tokenIn, tokenOut } = useDeterminePair()
   const referral = useIntentsReferral()
 
+  const userAddress = (state.isVerified ? state.address : undefined) ?? null
+  const userChainType = state.chainType ?? null
+
+  const userId =
+    userAddress != null && userChainType != null
+      ? authIdentity.authHandleToIntentsUserId(userAddress, userChainType)
+      : null
+  const holdings = useWatchHoldings({ userId, tokenList })
+
   return (
     <Paper>
       <SwapWidget
         tokenList={tokenList}
-        userAddress={(state.isVerified ? state.address : undefined) ?? null}
+        userAddress={userAddress}
         sendNearTransaction={async (tx) => {
           const result = await signAndSendTransactions({ transactions: [tx] })
 
@@ -42,10 +53,11 @@ export default function Swap() {
         signMessage={(params) => signMessage(params)}
         onSuccessSwap={() => {}}
         renderHostAppLink={renderAppLink}
-        userChainType={state.chainType ?? null}
+        userChainType={userChainType}
         referral={referral}
         initialTokenIn={tokenIn}
         initialTokenOut={tokenOut}
+        holdings={holdings}
       />
     </Paper>
   )

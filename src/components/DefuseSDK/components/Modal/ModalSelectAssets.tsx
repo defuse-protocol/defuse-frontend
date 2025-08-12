@@ -7,6 +7,7 @@ import {
   useMemo,
   useState,
 } from "react"
+import type { Holding } from "../../features/account/types/sharedTypes"
 import type { BalanceMapping } from "../../features/machines/depositedBalanceMachine"
 import { useModalStore } from "../../providers/ModalStoreProvider"
 import { useTokensStore } from "../../providers/TokensStoreProvider"
@@ -16,7 +17,7 @@ import type {
   TokenValue,
   UnifiedTokenInfo,
 } from "../../types/base"
-import { isBaseToken } from "../../utils/token"
+import { getTokenId, isBaseToken } from "../../utils/token"
 import {
   compareAmounts,
   computeTotalBalanceDifferentDecimals,
@@ -38,6 +39,7 @@ export type ModalSelectAssetsPayload = {
   balances?: BalanceMapping
   accountId?: string
   onConfirm?: (payload: ModalSelectAssetsPayload) => void
+  holdings?: Holding[]
 }
 
 export type SelectItemToken<T = Token> = {
@@ -47,6 +49,10 @@ export type SelectItemToken<T = Token> = {
   selected: boolean
   defuseAssetId?: string
   balance?: TokenValue
+  value?: TokenValue
+  usdValue?: number
+  transitValue?: TokenValue
+  transitUsdValue?: number
 }
 
 export const ModalSelectAssets = () => {
@@ -98,8 +104,8 @@ export const ModalSelectAssets = () => {
     const fieldName = _payload.fieldName || "token"
     const selectToken = _payload[fieldName]
 
-    // Warning: This is unsafe type casting, payload could be anything
-    const balances = (payload as ModalSelectAssetsPayload).balances ?? {}
+    const balances = _payload.balances ?? {}
+    const holdings = _payload.holdings
 
     const selectedTokenId = selectToken
       ? isBaseToken(selectToken)
@@ -112,13 +118,19 @@ export const ModalSelectAssets = () => {
     for (const [tokenId, token] of data) {
       const disabled = selectedTokenId != null && tokenId === selectedTokenId
       const balance = computeTotalBalanceDifferentDecimals(token, balances)
-
+      const findHolding = holdings?.find(
+        (holding) => getTokenId(holding.token) === tokenId
+      )
       getAssetList.push({
         itemId: tokenId,
         token,
         disabled,
         selected: disabled,
         balance,
+        transitUsdValue: findHolding?.transitUsdValue,
+        transitValue: findHolding?.transitValue,
+        usdValue: findHolding?.usdValue,
+        value: findHolding?.value,
       })
     }
 
