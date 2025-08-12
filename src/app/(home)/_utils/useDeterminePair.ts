@@ -1,5 +1,5 @@
 import { isBaseToken } from "@src/components/DefuseSDK/utils"
-import { useContext, useMemo } from "react"
+import { useContext, useEffect, useMemo } from "react"
 
 import type {
   BaseTokenInfo,
@@ -7,8 +7,9 @@ import type {
 } from "@src/components/DefuseSDK/types"
 import type { WhitelabelTemplateValue } from "@src/config/featureFlags"
 import { LIST_TOKENS } from "@src/constants/tokens"
+import { useTokenList } from "@src/hooks/useTokenList"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
-import { type useRouter, useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
 const pairs: Record<WhitelabelTemplateValue, [string, string]> = {
   "near-intents": [
@@ -36,28 +37,40 @@ const pairs: Record<WhitelabelTemplateValue, [string, string]> = {
 export function useDeterminePair() {
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
   const searchParams = useSearchParams()
+  const router = useRouter()
+  const processedTokenList = useTokenList(LIST_TOKENS)
 
   const fromParam = searchParams.get("from")
   const toParam = searchParams.get("to")
 
   const { tokenIn, tokenOut } = useMemo(() => {
     // First, try to get pair from URL params
-    const urlPair = getPairFromUrlParams(fromParam, toParam)
+    const urlPair = getPairFromUrlParams(fromParam, toParam, processedTokenList)
     if (urlPair) return urlPair
 
     // Fallback to whitelabelTemplate pair
-    return getPairFromWhitelabelTemplate(whitelabelTemplate)
-  }, [fromParam, toParam, whitelabelTemplate])
+    return getPairFromWhitelabelTemplate(whitelabelTemplate, processedTokenList)
+  }, [fromParam, toParam, whitelabelTemplate, processedTokenList])
+
+  useEffect(() => {
+    updateURLParams({
+      tokenIn: tokenIn ? { symbol: tokenIn.symbol } : null,
+      tokenOut: tokenOut ? { symbol: tokenOut.symbol } : null,
+      router,
+      searchParams,
+    })
+  }, [tokenIn, tokenOut, router, searchParams])
 
   return { tokenIn, tokenOut }
 }
 
 function getPairFromUrlParams(
   fromParam: string | null,
-  toParam: string | null
+  toParam: string | null,
+  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
 ) {
-  const fromToken = findTokenBySymbol(fromParam, LIST_TOKENS)
-  const toToken = findTokenBySymbol(toParam, LIST_TOKENS)
+  const fromToken = findTokenBySymbol(fromParam, tokenList)
+  const toToken = findTokenBySymbol(toParam, tokenList)
 
   if (fromToken || toToken) {
     return { tokenIn: fromToken, tokenOut: toToken }
@@ -66,12 +79,13 @@ function getPairFromUrlParams(
 }
 
 function getPairFromWhitelabelTemplate(
-  whitelabelTemplate: WhitelabelTemplateValue
+  whitelabelTemplate: WhitelabelTemplateValue,
+  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
 ) {
   const pair = pairs[whitelabelTemplate]
   if (!pair) return { tokenIn: null, tokenOut: null }
 
-  const tokenIn = LIST_TOKENS.find((token) => {
+  const tokenIn = tokenList.find((token) => {
     return isBaseToken(token)
       ? token.defuseAssetId === pair[0]
       : token.groupedTokens.some(
@@ -79,7 +93,7 @@ function getPairFromWhitelabelTemplate(
         )
   })
 
-  const tokenOut = LIST_TOKENS.find((token) => {
+  const tokenOut = tokenList.find((token) => {
     return isBaseToken(token)
       ? token.defuseAssetId === pair[1]
       : token.groupedTokens.some(
@@ -95,17 +109,12 @@ function findTokenBySymbol(
   tokens: (BaseTokenInfo | UnifiedTokenInfo)[]
 ): BaseTokenInfo | UnifiedTokenInfo | null {
   if (!input) return null
-
-  const upper = input.toUpperCase()
-
   return (
     tokens.find(
       (token) =>
-        token.symbol.toUpperCase() === upper ||
+        token.symbol === input ||
         (!isBaseToken(token) &&
-          token.groupedTokens?.some(
-            (t: BaseTokenInfo) => t.symbol.toUpperCase() === upper
-          ))
+          token.groupedTokens?.some((t: BaseTokenInfo) => t.symbol === input))
     ) ?? null
   )
 }
@@ -121,10 +130,6 @@ export function updateURLParams({
   router: ReturnType<typeof useRouter>
   searchParams: ReturnType<typeof useSearchParams>
 }) {
-  const hasFrom = searchParams.has("from")
-  const hasTo = searchParams.has("to")
-  if (!hasFrom && !hasTo) return
-
   const params = new URLSearchParams(searchParams.toString())
   if (tokenIn?.symbol) params.set("from", tokenIn.symbol)
   if (tokenOut?.symbol) params.set("to", tokenOut.symbol)
