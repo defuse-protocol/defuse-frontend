@@ -9,6 +9,7 @@ import {
   availableChainsForToken,
   getDefaultBlockchainOptionValue,
 } from "@src/components/DefuseSDK/utils/blockchain"
+import { isMinAmountNotRequired } from "@src/components/DefuseSDK/utils/tokenUtils"
 import { useSelector } from "@xstate/react"
 import { useEffect, useState } from "react"
 import { Controller, useFormContext } from "react-hook-form"
@@ -152,6 +153,14 @@ export const DepositForm = ({
   }, [formNetwork, token, setValue])
 
   const minDepositAmount = useSelector(poaBridgeInfoRef, (state) => {
+    if (
+      chainType != null &&
+      network != null &&
+      isMinAmountNotRequired(chainType, network)
+    ) {
+      return null
+    }
+
     const tokenOut = token
       ? getBaseTokenInfoWithFallback(token, formNetwork)
       : null

@@ -5,6 +5,9 @@ import type { LatestBlockResponse } from "@src/app/api/integrations/gecko-termin
 import { getLatestBlock } from "../../shared/queries/latestBlock"
 import type { ErrorResponse } from "../../shared/types"
 
+// Disable caching for this route handler - only the inner data processing is cached
+export const dynamic = "force-dynamic"
+
 /**
  * Fetches the latest block available for event data.
  *

@@ -44,3 +44,39 @@ const TON_JETTON_TRANSFER_FEE = 100000000n // 0.1 TON for jetton transfers (incl
 export function estimateTonTransferCost(isJetton = false): bigint {
   return isJetton ? TON_JETTON_TRANSFER_FEE : TON_NATIVE_TRANSFER_FEE
 }
+
+// Stellar gas fees estimation for XLM (Lumens) transfers, including minimum balance buffer
+export async function estimateStellarXLMTransferCost({
+  rpcUrl,
+  userAddress,
+}: {
+  rpcUrl: string
+  userAddress: string
+}): Promise<bigint> {
+  const BASE_RESERVE_STROOPS = 5000000n // 0.5 XLM in stroops
+  const SAFETY_MARGIN_STROOPS = 10000n // 0.001 XLM in stroops
+  const FEE_BUFFER_PERCENT = 115n
+  const FEE_BASE_PERCENT = 100n
+
+  const [accountRes, feeRes] = await Promise.all([
+    fetch(`${rpcUrl}/accounts/${userAddress}`),
+    fetch(`${rpcUrl}/fee_stats`),
+  ])
+
+  const account = await accountRes.json()
+  const feeData = await feeRes.json()
+
+  // Calculate the minimum required balance for the account based on its subentries
+  const subentries: number = account.subentry_count ?? 0
+  const minBalanceStroops =
+    BigInt(2 + subentries) * BASE_RESERVE_STROOPS + SAFETY_MARGIN_STROOPS
+
+  // Calculate transaction fee for a single XLM transfer with buffer
+  const baseFeeStroops = BigInt(feeData.fee_charged?.p10 ?? 100) // p10 fee or defaults to 100 stroops if unavailable
+  const bufferedFeePerOp =
+    (baseFeeStroops * FEE_BUFFER_PERCENT) / FEE_BASE_PERCENT
+  const transactionFeeStroops = bufferedFeePerOp * 1n
+
+  const totalCost = minBalanceStroops + transactionFeeStroops
+  return totalCost
+}
