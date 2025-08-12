@@ -26,7 +26,7 @@ export const settings: Settings = {
    * Ensure these URLs are valid and accessible.
    */
   rpcUrls: {
-    near: "https://nearrpc.aurora.dev",
+    near: "https://relmn.aurora.dev",
     eth: "https://eth-mainnet.public.blastapi.io",
     base: "https://mainnet.base.org",
     arbitrum: "https://arb1.arbitrum.io/rpc",
@@ -39,6 +39,7 @@ export const settings: Settings = {
     optima: "https://rpc-0x4e454161.aurora-cloud.dev",
     easychain: "https://0x4e454218.rpc.aurora-cloud.dev",
     aurora: "https://mainnet.aurora.dev",
+    aurora_devnet: "https://0x4e45426a.rpc.aurora-cloud.dev",
     xrpledger: "https://xrplcluster.com",
     zcash: "https://mainnet.lightwalletd.com",
     gnosis: "https://rpc.gnosischain.com",

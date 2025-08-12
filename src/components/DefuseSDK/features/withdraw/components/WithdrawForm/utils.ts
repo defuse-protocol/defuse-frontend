@@ -32,6 +32,7 @@ export function chainTypeSatisfiesChainName(
     case chainType === AuthMethod.EVM && chainName === "optima":
     case chainType === AuthMethod.EVM && chainName === "easychain":
     case chainType === AuthMethod.EVM && chainName === "aurora":
+    case chainType === AuthMethod.EVM && chainName === "aurora_devnet":
     case chainType === AuthMethod.EVM && chainName === "gnosis":
     case chainType === AuthMethod.EVM && chainName === "berachain":
     case chainType === AuthMethod.EVM && chainName === "polygon":
@@ -39,6 +40,8 @@ export function chainTypeSatisfiesChainName(
     case chainType === AuthMethod.EVM && chainName === "optimism":
     case chainType === AuthMethod.EVM && chainName === "avalanche":
     case chainType === AuthMethod.Solana && chainName === "solana":
+    case chainType === AuthMethod.Stellar && chainName === "stellar":
+    case chainType === AuthMethod.Ton && chainName === "ton":
       return true
   }
 
