@@ -5,6 +5,9 @@ import type { EventsResponse } from "@src/app/api/integrations/dextools/types"
 import { getEvents } from "../../shared/queries/events"
 import type { ErrorResponse } from "../../shared/types"
 
+// Disable caching for this route handler - only the inner data processing is cached
+export const dynamic = "force-dynamic"
+
 /**
  * Returns a list of swap events that occurred between `fromBlock` and `toBlock`,
  * both inclusive, based on the DEXTools API spec
