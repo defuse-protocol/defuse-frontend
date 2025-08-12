@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache"
 import type { NextRequest } from "next/server"
 import { z } from "zod"
 
@@ -200,12 +201,26 @@ export const getEvents = tryCatch(
       return res
     }
 
+    // Call the cached function with the extracted parameters
+    return getEventsCached(res.ok)
+  }
+)
+
+/**
+ * Cached version of events fetching that takes query parameters directly.
+ * This function can be safely cached since it doesn't access dynamic request data.
+ */
+const getEventsCached = unstable_cache(
+  async (params: {
+    fromBlock: number
+    toBlock: number
+  }): ApiResult<EventsResponse> => {
     const rawEvents = await chQuery<
       Omit<RawEvent, "priceNative"> & {
         asset0Decimals: number
         asset1Decimals: number
       }
-    >(EVENTS_QUERY, res.ok)
+    >(EVENTS_QUERY, params)
 
     const events = rawEvents.map((rawEvent): Event => {
       const tokenIn = rawEvent.tokenIn
@@ -278,5 +293,10 @@ export const getEvents = tryCatch(
     })
 
     return ok({ events })
+  },
+  ["events"],
+  {
+    revalidate: 60, // Revalidate every minute
+    tags: ["events"],
   }
 )
