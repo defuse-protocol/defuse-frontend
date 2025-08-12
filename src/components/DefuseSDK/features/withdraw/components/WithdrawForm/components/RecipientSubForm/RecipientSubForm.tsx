@@ -1,4 +1,4 @@
-import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
+import { assert, type BlockchainEnum } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { MagicWandIcon, PersonIcon } from "@radix-ui/react-icons"
 import { Box, Flex, IconButton, Text, TextField } from "@radix-ui/themes"
@@ -44,6 +44,7 @@ type RecipientSubFormProps = {
   form: UseFormReturn<WithdrawFormNearValues>
   chainType: AuthMethod | undefined
   userAddress: string | undefined
+  displayAddress: string | undefined
   tokenInBalance: TokenValue | undefined
 }
 
@@ -58,6 +59,7 @@ export const RecipientSubForm = ({
   },
   chainType,
   userAddress,
+  displayAddress,
   tokenInBalance,
 }: RecipientSubFormProps) => {
   const [isNetworkModalOpen, setIsNetworkModalOpen] = useState(false)
@@ -280,7 +282,11 @@ export const RecipientSubForm = ({
               <IconButton
                 type="button"
                 onClick={() => {
-                  setValue("recipient", userAddress, {
+                  assert(
+                    displayAddress,
+                    "Display address could not be retrieved from the wallet provider"
+                  )
+                  setValue("recipient", displayAddress, {
                     shouldValidate: true,
                   })
                 }}
