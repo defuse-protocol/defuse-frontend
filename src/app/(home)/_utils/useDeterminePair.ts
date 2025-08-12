@@ -5,11 +5,12 @@ import type {
   BaseTokenInfo,
   UnifiedTokenInfo,
 } from "@src/components/DefuseSDK/types"
+import type { WhitelabelTemplateValue } from "@src/config/featureFlags"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { type useRouter, useSearchParams } from "next/navigation"
 
-const pairs: Record<string, [string, string]> = {
+const pairs: Record<WhitelabelTemplateValue, [string, string]> = {
   "near-intents": [
     "nep141:eth-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.omft.near",
     "nep141:wrap.near",
@@ -64,7 +65,9 @@ function getPairFromUrlParams(
   return null
 }
 
-function getPairFromWhitelabelTemplate(whitelabelTemplate: string) {
+function getPairFromWhitelabelTemplate(
+  whitelabelTemplate: WhitelabelTemplateValue
+) {
   const pair = pairs[whitelabelTemplate]
   if (!pair) return { tokenIn: null, tokenOut: null }
 
