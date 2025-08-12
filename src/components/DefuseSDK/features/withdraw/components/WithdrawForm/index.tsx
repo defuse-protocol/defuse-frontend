@@ -72,6 +72,7 @@ type WithdrawFormProps = WithdrawWidgetProps
 
 export const WithdrawForm = ({
   userAddress,
+  displayAddress,
   chainType,
   tokenList,
   presetAmount,
@@ -425,6 +426,7 @@ export const WithdrawForm = ({
             form={form}
             chainType={chainType}
             userAddress={userAddress}
+            displayAddress={displayAddress}
             tokenInBalance={tokenInBalance}
           />
 

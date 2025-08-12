@@ -26,7 +26,7 @@ export const settings: Settings = {
    * Ensure these URLs are valid and accessible.
    */
   rpcUrls: {
-    near: "https://nearrpc.aurora.dev",
+    near: "https://relmn.aurora.dev",
     eth: "https://eth-mainnet.public.blastapi.io",
     base: "https://mainnet.base.org",
     arbitrum: "https://arb1.arbitrum.io/rpc",
