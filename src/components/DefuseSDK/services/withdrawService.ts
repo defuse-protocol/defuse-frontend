@@ -205,10 +205,11 @@ export async function prepareWithdraw(
         getAuroraEngineContractId(formValues.tokenOut.chainName),
         null // TODO: provide the correct value once you know it
       )
-    : formValues.tokenOut.defuseAssetId === "nep141:token.publicailab.near"
-      ? { route: RouteEnum.OmniBridge, chain: Chains.Solana }
-      : formValues.tokenOut.chainName === "near"
-        ? createNearWithdrawalRoute()
+    : formValues.tokenOut.chainName === "near"
+      ? createNearWithdrawalRoute()
+      : formValues.tokenOut.defuseAssetId === "nep141:token.publicailab.near" &&
+          formValues.tokenOut.chainName === "solana"
+        ? { route: RouteEnum.OmniBridge, chain: Chains.Solana }
         : createDefaultRoute()
 
   const baseWithdrawalParams: WithdrawalParams = {
