@@ -1,8 +1,8 @@
 "use client"
 
+import { authIdentity } from "@defuse-protocol/internal-utils"
 import { WithdrawWidget } from "@src/components/DefuseSDK"
-import { useSearchParams } from "next/navigation"
-
+import { useWatchHoldings } from "@src/components/DefuseSDK/features/account/hooks/useWatchHoldings"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
@@ -11,6 +11,8 @@ import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import { renderAppLink } from "@src/utils/renderAppLink"
+import { useSearchParams } from "next/navigation"
+
 export default function Withdraw() {
   const { state } = useConnectWallet()
   const signMessage = useWalletAgnosticSignMessage()
@@ -23,6 +25,15 @@ export default function Withdraw() {
   const network = queryParams.get("network") ?? undefined
   const recipient = queryParams.get("recipient") ?? undefined
 
+  const userAddress = state.isVerified ? state.address : undefined
+  const userChainType = state.chainType
+
+  const userId =
+    userAddress != null && userChainType != null
+      ? authIdentity.authHandleToIntentsUserId(userAddress, userChainType)
+      : null
+  const holdings = useWatchHoldings({ userId, tokenList })
+
   return (
     <Paper>
       <WithdrawWidget
@@ -31,9 +42,9 @@ export default function Withdraw() {
         presetRecipient={recipient}
         presetTokenSymbol={tokenSymbol}
         tokenList={tokenList}
-        userAddress={state.isVerified ? state.address : undefined}
+        userAddress={userAddress}
         displayAddress={state.isVerified ? state.displayAddress : undefined}
-        chainType={state.chainType}
+        chainType={userChainType}
         sendNearTransaction={async (tx) => {
           const result = await signAndSendTransactions({ transactions: [tx] })
 
@@ -51,6 +62,7 @@ export default function Withdraw() {
         signMessage={(params) => signMessage(params)}
         renderHostAppLink={renderAppLink}
         referral={referral}
+        holdings={holdings}
       />
     </Paper>
   )

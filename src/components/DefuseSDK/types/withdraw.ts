@@ -1,4 +1,5 @@
 import type { authHandle, walletMessage } from "@defuse-protocol/internal-utils"
+import type { Holding } from "../features/account/types/sharedTypes"
 import type { SendNearTransaction } from "../features/machines/publicKeyVerifierMachine"
 import type { BaseTokenInfo, UnifiedTokenInfo } from "./base"
 import type { RenderHostAppLink } from "./hostAppLink"
@@ -23,4 +24,5 @@ export type WithdrawWidgetProps = {
    * Prop is not reactive, set it once when the component is created.
    */
   referral?: string
+  holdings: Holding[] | undefined
 }

@@ -80,6 +80,7 @@ export const WithdrawForm = ({
   presetRecipient,
   sendNearTransaction,
   renderHostAppLink,
+  holdings,
 }: WithdrawFormProps) => {
   const isLoggedIn = userAddress != null
   const actorRef = WithdrawUIMachineContext.useActorRef()
@@ -228,6 +229,7 @@ export const WithdrawForm = ({
       fieldName,
       [fieldName]: token,
       balances: depositedBalanceRef?.getSnapshot().context.balances,
+      holdings,
     })
   }
 
