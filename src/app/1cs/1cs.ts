@@ -6,6 +6,7 @@ import {
   type QuoteRequest,
   type QuoteResponse,
 } from "@defuse-protocol/one-click-sdk-typescript"
+import { unstable_cache } from "next/cache"
 
 OpenAPI.BASE = "https://1click.chaindefuser.com"
 
@@ -23,10 +24,21 @@ const unusedTokens = [
 ]
 
 export async function getTokens() {
-  return (await OneClickService.getTokens()).filter(
-    (token) => !unusedTokens.includes(token.assetId)
-  )
+  return await getTokensCached()
 }
+
+const getTokensCached = unstable_cache(
+  async () => {
+    return (await OneClickService.getTokens()).filter(
+      (token) => !unusedTokens.includes(token.assetId)
+    )
+  },
+  ["1click-tokens"],
+  {
+    revalidate: 60, // 1 minute cache
+    tags: ["1click-tokens"],
+  }
+)
 
 export async function getQuote(
   quoteRequest: QuoteRequest
