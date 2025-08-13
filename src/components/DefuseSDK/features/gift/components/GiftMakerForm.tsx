@@ -1,4 +1,4 @@
-import type { AuthMethod } from "@defuse-protocol/internal-utils"
+import type { authHandle } from "@defuse-protocol/internal-utils"
 import { useActorRef, useSelector } from "@xstate/react"
 import clsx from "clsx"
 import { useEffect, useMemo } from "react"
@@ -18,6 +18,7 @@ import type { SwappableToken } from "../../../types/swap"
 import { assert } from "../../../utils/assert"
 import { formatTokenValue, formatUsdAmount } from "../../../utils/format"
 import getTokenUsdPrice from "../../../utils/getTokenUsdPrice"
+import type { Holding } from "../../account/types/sharedTypes"
 import { TokenAmountInputCard } from "../../deposit/components/DepositForm/TokenAmountInputCard"
 import { balanceAllSelector } from "../../machines/depositedBalanceMachine"
 import type { SendNearTransaction } from "../../machines/publicKeyVerifierMachine"
@@ -50,8 +51,8 @@ export type GiftMakerWidgetProps = {
   tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
 
   /** User's wallet address */
-  userAddress: string | null | undefined
-  userChainType: AuthMethod | null | undefined
+  userAddress: authHandle.AuthHandle["identifier"] | undefined
+  chainType: authHandle.AuthHandle["method"] | undefined
 
   /** Initial tokens for pre-filling the form */
   initialToken?: BaseTokenInfo | UnifiedTokenInfo
@@ -75,6 +76,8 @@ export type GiftMakerWidgetProps = {
   referral?: string
 
   renderHostAppLink: RenderHostAppLink
+
+  holdings: Holding[] | undefined
 }
 
 const MAX_MESSAGE_LENGTH = 500
@@ -82,7 +85,7 @@ const MAX_MESSAGE_LENGTH = 500
 export function GiftMakerForm({
   tokenList,
   userAddress,
-  userChainType,
+  chainType,
   initialToken,
   signMessage,
   sendNearTransaction,
@@ -90,16 +93,17 @@ export function GiftMakerForm({
   referral,
   renderHostAppLink,
   createGiftIntent,
+  holdings,
 }: GiftMakerWidgetProps) {
   const signerCredentials: SignerCredentials | null = useMemo(
     () =>
-      userAddress != null && userChainType != null
+      userAddress != null && chainType != null
         ? {
             credential: userAddress,
-            credentialType: userChainType,
+            credentialType: chainType,
           }
         : null,
-    [userAddress, userChainType]
+    [userAddress, chainType]
   )
   const isLoggedIn = signerCredentials != null
 
@@ -159,6 +163,7 @@ export function GiftMakerForm({
       fieldName,
       [fieldName]: token,
       balances: depositedBalanceRef?.getSnapshot().context.balances,
+      holdings,
     })
   }
 

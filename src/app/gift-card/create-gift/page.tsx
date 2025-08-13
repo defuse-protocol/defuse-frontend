@@ -1,7 +1,9 @@
 "use client"
 
+import { authIdentity } from "@defuse-protocol/internal-utils"
 import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
 import { GiftHistoryWidget, GiftMakerWidget } from "@src/components/DefuseSDK"
+import { useWatchHoldings } from "@src/components/DefuseSDK/features/account/hooks/useWatchHoldings"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
@@ -20,13 +22,22 @@ export default function CreateGiftPage() {
   const referral = useIntentsReferral()
   const { signAndSendTransactions } = useNearWalletActions()
 
+  const userAddress = state.isVerified ? state.address : undefined
+  const userChainType = state.chainType
+
+  const userId =
+    userAddress != null && userChainType != null
+      ? authIdentity.authHandleToIntentsUserId(userAddress, userChainType)
+      : null
+  const holdings = useWatchHoldings({ userId, tokenList })
+
   return (
     <Paper>
       <div className="flex flex-col items-center gap-8">
         <GiftMakerWidget
           tokenList={tokenList}
-          userAddress={state.isVerified ? state.address : undefined}
-          userChainType={state.chainType}
+          userAddress={userAddress}
+          chainType={userChainType}
           signMessage={signMessage}
           sendNearTransaction={async (tx) => {
             const result = await signAndSendTransactions({ transactions: [tx] })
@@ -47,6 +58,7 @@ export default function CreateGiftPage() {
           generateLink={(giftLinkData) => createGiftLink(giftLinkData)}
           initialToken={tokenIn}
           renderHostAppLink={renderAppLink}
+          holdings={holdings}
         />
         <GiftHistoryWidget
           tokenList={tokenList}
