@@ -30,7 +30,7 @@ export async function getTokens() {
 
 export async function getQuote(
   quoteRequest: QuoteRequest
-): Promise<QuoteResponse> {
+): Promise<QuoteResponse | { error: string; status: number }> {
   const response = await fetch(`${OpenAPI.BASE}/v0/quote`, {
     method: "POST",
     body: JSON.stringify(quoteRequest),
@@ -42,11 +42,12 @@ export async function getQuote(
 
   const data = await response.json()
 
-  // If the response is not ok (4xx, 5xx), throw an error with the message
+  // If the response is not ok (4xx, 5xx), return error data instead of throwing
   if (!response.ok) {
-    throw new Error(
-      data?.message || `HTTP ${response.status}: ${response.statusText}`
-    )
+    return {
+      error: data?.message || `HTTP ${response.status}: ${response.statusText}`,
+      status: response.status,
+    }
   }
 
   return data

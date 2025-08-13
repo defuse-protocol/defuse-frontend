@@ -232,17 +232,18 @@ function Swap() {
   const data = shouldExecuteSwap ? swapData : quoteData
   const isLoading = shouldExecuteSwap ? isSwapLoading : isQuoteLoading
 
+  // Check if data contains an error response
+  const hasError = data && "error" in data
+  const currentError = hasError ? data : (swapError ?? quoteError)
+
   // Update amountOut when data changes
   useEffect(() => {
-    if (data?.quote?.amountOutFormatted) {
+    if (data && !hasError && data.quote?.amountOutFormatted) {
       setValue("amountOut", data.quote.amountOutFormatted, {
         shouldValidate: true,
       })
     }
-  }, [data, setValue])
-
-  // Determine which error to show (latest error takes precedence)
-  const currentError = swapError ?? quoteError
+  }, [data, hasError, setValue])
 
   if (!tokenList) {
     return <Loading />
@@ -271,7 +272,7 @@ function Swap() {
               required
               errors={errors}
               usdAmount={
-                data?.quote?.amountInUsd
+                data && !hasError && data.quote?.amountInUsd
                   ? `~$${data.quote.amountInUsd}`
                   : undefined
               }
@@ -292,7 +293,7 @@ function Swap() {
               disabled={true}
               isLoading={isLoading}
               usdAmount={
-                data?.quote?.amountOutUsd
+                data && !hasError && data.quote?.amountOutUsd
                   ? `~$${data.quote.amountOutUsd}`
                   : undefined
               }
@@ -319,7 +320,11 @@ function Swap() {
             {currentError && (
               <div className="mb-5 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-700 dark:text-red-300">
                 <p className="font-medium">Error:</p>
-                <p>{currentError.message || "An error occurred"}</p>
+                <p>
+                  {hasError && "error" in currentError
+                    ? currentError.error
+                    : (currentError as Error).message || "An error occurred"}
+                </p>
               </div>
             )}
 
@@ -343,18 +348,18 @@ function Swap() {
             <div className="mt-5">
               <SwapPriceImpact
                 amountIn={
-                  data?.quote?.amountInUsd
+                  data && !hasError && data.quote?.amountInUsd
                     ? Number(data.quote.amountInUsd)
                     : null
                 }
                 amountOut={
-                  data?.quote?.amountOutUsd
+                  data && !hasError && data.quote?.amountOutUsd
                     ? Number(data.quote.amountOutUsd)
                     : null
                 }
               />
             </div>
-            {data && shouldExecuteSwap && <QR data={data} />}
+            {data && !hasError && shouldExecuteSwap && <QR data={data} />}
           </Form>
         </div>
       </Island>
