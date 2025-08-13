@@ -1778,6 +1778,57 @@ const STAGE_TOKENS: TokenWithTags[] = [
     ],
     tags: ["mc:6", "tvol:5"],
   },
+  {
+    unifiedAssetId: "btc",
+    symbol: "BTC",
+    name: "Bitcoin",
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/1.png",
+    groupedTokens: [
+      {
+        defuseAssetId: "nep141:btc.stft.near",
+        type: "native",
+        address: "native",
+        decimals: 8,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/1.png",
+        chainName: "bitcoin",
+        bridge: "poa",
+        symbol: "BTC",
+        name: "Bitcoin",
+      },
+    ],
+    tags: ["mc:1", "tvol:6"],
+  },
+  {
+    unifiedAssetId: "xrp",
+    symbol: "XRP",
+    name: "XRP",
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/52.png",
+    groupedTokens: [
+      {
+        defuseAssetId: "nep141:xrp.stft.near",
+        type: "native",
+        address: "native",
+        decimals: 6,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/52.png",
+        chainName: "xrpledger",
+        bridge: "poa",
+        symbol: "XRP",
+        name: "XRP",
+      },
+    ],
+    tags: ["mc:4", "tvol:11"],
+  },
+  {
+    defuseAssetId: "nep141:sui.stft.near",
+    type: "native",
+    decimals: 9,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/20947.png",
+    chainName: "sui",
+    bridge: "poa",
+    symbol: "SUI",
+    name: "SUI",
+    tags: ["mc:13"],
+  },
 ]
 
 export const LIST_TOKENS: TokenWithTags[] =
