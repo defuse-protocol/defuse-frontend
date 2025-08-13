@@ -69,6 +69,7 @@ export function deduplicateTokens(tokens: BaseTokenInfo[]): BaseTokenInfo[] {
   for (const token of tokens) {
     const existing = tokenMap.get(token.defuseAssetId)
     if (existing) {
+      /* Skip for now, as $PUBLIC on Near and Solana has different decimals, but has the same token ID.
       if (existing.decimals !== token.decimals) {
         throw new DuplicateTokenError(
           token.defuseAssetId,
@@ -76,6 +77,7 @@ export function deduplicateTokens(tokens: BaseTokenInfo[]): BaseTokenInfo[] {
           token.decimals
         )
       }
+       */
       // If decimals match, keep existing token
       continue
     }
