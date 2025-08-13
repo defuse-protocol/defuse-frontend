@@ -75,6 +75,9 @@ export const depositEstimateMaxValueActor = fromPromise(
         return maxTransferableBalance > 0n ? maxTransferableBalance : 0n
       }
       case BlockchainEnum.SOLANA: {
+        if (!isNativeToken(token)) {
+          return 0n
+        }
         const fee = estimateSolanaTransferCost()
         if (balance < fee) {
           return 0n
