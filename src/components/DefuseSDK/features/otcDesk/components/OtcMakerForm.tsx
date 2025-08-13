@@ -1,4 +1,4 @@
-import type { AuthMethod } from "@defuse-protocol/internal-utils"
+import type { authHandle } from "@defuse-protocol/internal-utils"
 import { ArrowsDownUp } from "@phosphor-icons/react"
 import type { ModalSelectAssetsPayload } from "@src/components/DefuseSDK/components/Modal/ModalSelectAssets"
 import { useActorRef, useSelector } from "@xstate/react"
@@ -20,6 +20,7 @@ import type { SwappableToken } from "../../../types/swap"
 import { assert } from "../../../utils/assert"
 import { formatTokenValue, formatUsdAmount } from "../../../utils/format"
 import getTokenUsdPrice from "../../../utils/getTokenUsdPrice"
+import type { Holding } from "../../account/types/sharedTypes"
 import { TokenAmountInputCard } from "../../deposit/components/DepositForm/TokenAmountInputCard"
 import { balanceAllSelector } from "../../machines/depositedBalanceMachine"
 import type { SendNearTransaction } from "../../machines/publicKeyVerifierMachine"
@@ -43,8 +44,8 @@ export type OtcMakerWidgetProps = {
   tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
 
   /** User's wallet address */
-  userAddress: string | null | undefined
-  userChainType: AuthMethod | null | undefined
+  userAddress: authHandle.AuthHandle["identifier"] | undefined
+  chainType: authHandle.AuthHandle["method"] | undefined
 
   /** Initial tokens for pre-filling the form */
   initialTokenIn?: BaseTokenInfo | UnifiedTokenInfo
@@ -70,12 +71,14 @@ export type OtcMakerWidgetProps = {
 
   /** Frontend referral */
   referral?: string
+
+  holdings: Holding[] | undefined
 }
 
 export function OtcMakerForm({
   tokenList,
   userAddress,
-  userChainType,
+  chainType,
   initialTokenIn,
   initialTokenOut,
   signMessage,
@@ -84,16 +87,17 @@ export function OtcMakerForm({
   renderHostAppLink,
   referral,
   createOtcTrade,
+  holdings,
 }: OtcMakerWidgetProps) {
   const signerCredentials: SignerCredentials | null = useMemo(
     () =>
-      userAddress != null && userChainType != null
+      userAddress != null && chainType != null
         ? {
             credential: userAddress,
-            credentialType: userChainType,
+            credentialType: chainType,
           }
         : null,
-    [userAddress, userChainType]
+    [userAddress, chainType]
   )
   const isLoggedIn = signerCredentials != null
 
@@ -210,6 +214,7 @@ export function OtcMakerForm({
           }
         }
       },
+      holdings,
     })
   }
 
