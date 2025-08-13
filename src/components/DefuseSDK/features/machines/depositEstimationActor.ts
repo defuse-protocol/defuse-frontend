@@ -71,8 +71,10 @@ export const depositEstimateMaxValueActor = fromPromise(
           from: userAddress as Address,
           to: generateAddress as Address,
         })
-        const maxTransferableBalance = balance - fee
-        return maxTransferableBalance > 0n ? maxTransferableBalance : 0n
+        if (balance < fee) {
+          return 0n
+        }
+        return balance - fee
       }
       case BlockchainEnum.SOLANA: {
         if (!isNativeToken(token)) {
@@ -94,17 +96,17 @@ export const depositEstimateMaxValueActor = fromPromise(
       }
       case BlockchainEnum.STELLAR: {
         const rpcUrl = getWalletRpcUrl(assetNetworkAdapter[blockchain])
-        if (isNativeToken(token)) {
-          const fee = await estimateStellarXLMTransferCost({
-            rpcUrl,
-            userAddress,
-          })
-          if (balance < fee) {
-            return 0n
-          }
-          return balance - fee
+        if (!isNativeToken(token)) {
+          return 0n
         }
-        return balance
+        const fee = await estimateStellarXLMTransferCost({
+          rpcUrl,
+          userAddress,
+        })
+        if (balance < fee) {
+          return 0n
+        }
+        return balance - fee
       }
       // For next blockchains - active deposits are not supported, so no network fees
       case BlockchainEnum.BITCOIN:
