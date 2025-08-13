@@ -6,7 +6,7 @@ import type { WhitelabelTemplateValue } from "@src/config/featureFlags"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 
-const pairs: Record<WhitelabelTemplateValue, [string, string]> = {
+export const pairs: Record<WhitelabelTemplateValue, [string, string]> = {
   "near-intents": [
     "nep141:eth-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.omft.near",
     "nep141:wrap.near",

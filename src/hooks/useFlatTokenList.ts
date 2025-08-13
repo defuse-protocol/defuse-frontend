@@ -1,14 +1,10 @@
-import type {
-  BaseTokenInfo,
-  UnifiedTokenInfo,
-} from "@src/components/DefuseSDK/types"
+import type {} from "@src/components/DefuseSDK/types"
 import { isBaseToken } from "@src/components/DefuseSDK/utils"
+import type { TokenWithTags } from "@src/constants/tokens"
 import { useSearchParams } from "next/navigation"
 import { useMemo } from "react"
 
-export function useFlatTokenList(
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
-) {
+export function useFlatTokenList(tokenList: TokenWithTags[]) {
   const searchParams = useSearchParams()
   const flatListIsEnabled = !!searchParams.get("flatTokenList")
 

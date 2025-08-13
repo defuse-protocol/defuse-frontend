@@ -1,7 +1,6 @@
 export { AccountWidget } from "./features/account/components/AccountWidget"
 export { DepositWidget } from "./features/deposit/components/DepositWidget"
 export { SwapWidget } from "./features/swap/components/SwapWidget"
-export { SwapWidget as SwapWidget1Click } from "./features/1Click/components/SwapWidget"
 export { WithdrawWidget } from "./features/withdraw/components/WithdrawWidget"
 export { OtcMakerWidget } from "./features/otcDesk/components/OtcMakerWidget"
 export { OtcTakerWidget } from "./features/otcDesk/components/OtcTakerWidget"
