@@ -1,7 +1,7 @@
-import type { AuthMethod } from "@defuse-protocol/internal-utils"
+import type { AuthMethod, authHandle } from "@defuse-protocol/internal-utils"
 import { authIdentity } from "@defuse-protocol/internal-utils"
 import { computeAppFeeBps } from "@src/components/DefuseSDK/utils/appFee"
-import { APP_FEE_BPS } from "@src/utils/environment"
+import { APP_FEE_BPS, APP_FEE_RECIPIENT } from "@src/utils/environment"
 import type { providers } from "near-api-js"
 import {
   type ActorRefFrom,
@@ -44,6 +44,7 @@ import {
 } from "./swapIntentMachine"
 
 export type Context = {
+  user: null | authHandle.AuthHandle
   error: Error | null
   quote: QuoteResult | null
   formValues: {
@@ -124,6 +125,9 @@ export const swapUIMachine = setup({
     intentStatusActor: intentStatusMachine,
   },
   actions: {
+    setUser: assign({
+      user: (_, v: Context["user"]) => v,
+    }),
     setFormValues: assign({
       formValues: (
         { context },
@@ -213,7 +217,9 @@ export const swapUIMachine = setup({
             appFeeBps: computeAppFeeBps(
               APP_FEE_BPS,
               context.formValues.tokenIn,
-              context.formValues.tokenOut
+              context.formValues.tokenOut,
+              APP_FEE_RECIPIENT,
+              context.user
             ),
           },
         }
@@ -290,6 +296,7 @@ export const swapUIMachine = setup({
   id: "swap-ui",
 
   context: ({ input }) => ({
+    user: null,
     error: null,
     quote: null,
     formValues: {
@@ -327,16 +334,28 @@ export const swapUIMachine = setup({
     },
 
     LOGIN: {
-      actions: {
-        type: "relayToDepositedBalanceRef",
-        params: ({ event }) => event,
-      },
+      actions: [
+        {
+          type: "relayToDepositedBalanceRef",
+          params: ({ event }) => event,
+        },
+        {
+          type: "setUser",
+          params: ({ event }) => ({
+            identifier: event.params.userAddress,
+            method: event.params.userChainType,
+          }),
+        },
+      ],
     },
     LOGOUT: {
-      actions: {
-        type: "relayToDepositedBalanceRef",
-        params: ({ event }) => event,
-      },
+      actions: [
+        {
+          type: "relayToDepositedBalanceRef",
+          params: ({ event }) => event,
+        },
+        { type: "setUser", params: null },
+      ],
     },
   },
 
