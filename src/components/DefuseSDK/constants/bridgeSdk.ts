@@ -1,7 +1,7 @@
-import { BridgeSDK, Chains } from "@defuse-protocol/bridge-sdk"
+import { Chains, IntentsSDK } from "@defuse-protocol/intents-sdk"
 import { INTENTS_ENV } from "@src/utils/environment"
 
-export const bridgeSDK = new BridgeSDK({
+export const bridgeSDK = new IntentsSDK({
   env: INTENTS_ENV,
   rpc: {
     // hardcoded for now
