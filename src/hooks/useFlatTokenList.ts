@@ -1,4 +1,3 @@
-import type {} from "@src/components/DefuseSDK/types"
 import { isBaseToken } from "@src/components/DefuseSDK/utils"
 import type { TokenWithTags } from "@src/constants/tokens"
 import { useSearchParams } from "next/navigation"
