@@ -169,7 +169,6 @@ function Swap() {
       recipient: debouncedRecipient ?? "",
       recipientType: QuoteRequest.recipientType.DESTINATION_CHAIN,
       deadline,
-      quoteWaitingTimeMs: 24000,
       referral,
     }
   }, [
