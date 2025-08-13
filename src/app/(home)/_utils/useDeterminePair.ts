@@ -1,5 +1,5 @@
 import { isBaseToken } from "@src/components/DefuseSDK/utils"
-import { useContext, useEffect, useMemo } from "react"
+import { useContext, useMemo } from "react"
 
 import type {
   BaseTokenInfo,
@@ -9,7 +9,7 @@ import type { WhitelabelTemplateValue } from "@src/config/featureFlags"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
-import { useRouter, useSearchParams } from "next/navigation"
+import { type useRouter, useSearchParams } from "next/navigation"
 
 const pairs: Record<WhitelabelTemplateValue, [string, string]> = {
   "near-intents": [
@@ -37,7 +37,6 @@ const pairs: Record<WhitelabelTemplateValue, [string, string]> = {
 export function useDeterminePair() {
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
   const searchParams = useSearchParams()
-  const router = useRouter()
   const processedTokenList = useTokenList(LIST_TOKENS)
 
   const fromParam = searchParams.get("from")
@@ -51,15 +50,6 @@ export function useDeterminePair() {
     // Fallback to whitelabelTemplate pair
     return getPairFromWhitelabelTemplate(whitelabelTemplate, processedTokenList)
   }, [fromParam, toParam, whitelabelTemplate, processedTokenList])
-
-  useEffect(() => {
-    updateURLParams({
-      tokenIn: tokenIn ? { symbol: tokenIn.symbol } : null,
-      tokenOut: tokenOut ? { symbol: tokenOut.symbol } : null,
-      router,
-      searchParams,
-    })
-  }, [tokenIn, tokenOut, router, searchParams])
 
   return { tokenIn, tokenOut }
 }
