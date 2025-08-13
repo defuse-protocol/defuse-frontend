@@ -1,6 +1,13 @@
 import { http, type Address, type Hash, createPublicClient } from "viem"
 
-// Function returns the gas cost in Wei for a transfer
+/**
+ * EVM gas cost estimation
+ */
+const ABSOLUTE_BUFFER_WEI = 50_000_000_000_000n // 0.00005 ETH
+const FLAT_L1_FEE_WEI = 1_000_000_000_000n // 0.000001 ETH everywhere
+const EXTRA_GAS_LIMIT = 1_000n // add ~1k gas headroom
+const PERCENT_MULTIPLIER = 160n // always +60% (no threshold)
+
 export async function estimateEVMTransferCost({
   rpcUrl,
   from,
@@ -13,12 +20,6 @@ export async function estimateEVMTransferCost({
   data?: Hash
   value?: bigint
 }): Promise<bigint> {
-  // Buffers (chain-agnostic)
-  const ABSOLUTE_BUFFER_WEI = 50_000_000_000_000n // 0.00005 ETH
-  const FLAT_L1_FEE_WEI = 1_000_000_000_000n // 0.000001 ETH everywhere
-  const EXTRA_GAS_LIMIT = 1_000n // add ~1k gas headroom
-  const PERCENT_MULTIPLIER = 160n // always +60% (no threshold)
-
   const client = createPublicClient({ transport: http(rpcUrl) })
 
   // 1) Gas limit (value=0) + small pad
@@ -53,15 +54,22 @@ export async function estimateEVMTransferCost({
   return withPercent + ABSOLUTE_BUFFER_WEI
 }
 
-const PRIORITY_RATE = 20000 // MICRO_LAMPORTS_PER_SOL
-// For Solana, the transaction fees are fixed and predictable,
-// allowing us to use a constant value instead of estimating gas costs.
+/**
+ * Solana gas cost estimation
+ * ~0.00203928 SOL ATA creation + base tx fee + small priority
+ */
+const BASE_FEE_LAMPORTS = 5000n
+const PRIORITY_FEE_LAMPORTS = 1000n
+const ATA_CREATION_LAMPORTS = 2_039_280n
+
 export function estimateSolanaTransferCost(): bigint {
-  return BigInt(PRIORITY_RATE)
+  // Covers base transfer and worst case (ATA creation)
+  return BASE_FEE_LAMPORTS + PRIORITY_FEE_LAMPORTS + ATA_CREATION_LAMPORTS
 }
 
-// TON gas fees are typically very low and predictable
-// Conservative estimates based on TON network characteristics
+/**
+ * TON gas cost estimation
+ */
 const TON_NATIVE_TRANSFER_FEE = 50000000n // 0.05 TON for native transfers
 const TON_JETTON_TRANSFER_FEE = 100000000n // 0.1 TON for jetton transfers (includes wallet creation if needed)
 
@@ -69,7 +77,14 @@ export function estimateTonTransferCost(isJetton = false): bigint {
   return isJetton ? TON_JETTON_TRANSFER_FEE : TON_NATIVE_TRANSFER_FEE
 }
 
-// Stellar gas fees estimation for XLM (Lumens) transfers, including minimum balance buffer
+/**
+ * Stellar gas cost estimation
+ */
+const BASE_RESERVE_STROOPS = 5000000n // 0.5 XLM in stroops
+const SAFETY_MARGIN_STROOPS = 10000n // 0.001 XLM in stroops
+const FEE_BUFFER_PERCENT = 115n
+const FEE_BASE_PERCENT = 100n
+
 export async function estimateStellarXLMTransferCost({
   rpcUrl,
   userAddress,
@@ -77,11 +92,6 @@ export async function estimateStellarXLMTransferCost({
   rpcUrl: string
   userAddress: string
 }): Promise<bigint> {
-  const BASE_RESERVE_STROOPS = 5000000n // 0.5 XLM in stroops
-  const SAFETY_MARGIN_STROOPS = 10000n // 0.001 XLM in stroops
-  const FEE_BUFFER_PERCENT = 115n
-  const FEE_BASE_PERCENT = 100n
-
   const [accountRes, feeRes] = await Promise.all([
     fetch(`${rpcUrl}/accounts/${userAddress}`),
     fetch(`${rpcUrl}/fee_stats`),
