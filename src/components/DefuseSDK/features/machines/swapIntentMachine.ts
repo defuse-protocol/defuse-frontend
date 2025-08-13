@@ -729,13 +729,24 @@ export function calcOperationAmountOut(
       )
     }
 
-    case "withdraw":
+    case "withdraw": {
+      // TODO FIX
+      if (
+        operation.tokenOut.defuseAssetId === "nep141:token.publicailab.near" &&
+        operation.tokenOut.chainName === "solana"
+      ) {
+        return {
+          amount: operation.withdrawalParams.amount,
+          decimals: 18,
+        }
+      }
       return calcWithdrawAmount(
         operation.tokenOut,
         quoteToPublish,
         operation.feeEstimation,
         operation.directWithdrawalAmount
       ).withdrawAmount
+    }
 
     default:
       operationType satisfies never
