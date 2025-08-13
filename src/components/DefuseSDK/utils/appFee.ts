@@ -1,3 +1,4 @@
+import { type authHandle, authIdentity } from "@defuse-protocol/internal-utils"
 import type {
   BaseTokenInfo,
   UnifiedTokenInfo,
@@ -6,16 +7,24 @@ import type {
 export function computeAppFeeBps(
   defaultAppFeeBps: number,
   token1: BaseTokenInfo | UnifiedTokenInfo,
-  token2: BaseTokenInfo | UnifiedTokenInfo
+  token2: BaseTokenInfo | UnifiedTokenInfo,
+  appFeeRecipient: string,
+  currentUser: null | authHandle.AuthHandle
 ) {
-  if (
+  const userIsFeeRecipient =
+    currentUser != null &&
+    authIdentity.authHandleToIntentsUserId(currentUser) === appFeeRecipient
+
+  const isStablecoinSwap =
     hasTags(token1) &&
     hasTags(token2) &&
     token1.tags.includes("type:stablecoin") &&
     token2.tags.includes("type:stablecoin")
-  ) {
+
+  if (userIsFeeRecipient || isStablecoinSwap) {
     return 0
   }
+
   return defaultAppFeeBps
 }
 
