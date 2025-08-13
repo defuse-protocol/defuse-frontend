@@ -6,7 +6,6 @@ export async function estimateEVMTransferCost({
   from,
   to,
   data,
-  value,
 }: {
   rpcUrl: string
   from: Address
@@ -14,19 +13,44 @@ export async function estimateEVMTransferCost({
   data?: Hash
   value?: bigint
 }): Promise<bigint> {
-  const client = createPublicClient({
-    transport: http(rpcUrl),
-  })
-  const gasLimit = await client.estimateGas({
-    account: from,
-    to,
-    data: data ?? "0x",
-    value: value ?? 0n,
-  })
-  const gasPrice = await client.getGasPrice()
-  // Add 15% buffer to gas cost estimation to account for potential price fluctuations
-  const costInWei = (gasPrice * gasLimit * 115n) / 100n
-  return costInWei
+  // Buffers (chain-agnostic)
+  const ABSOLUTE_BUFFER_WEI = 50_000_000_000_000n // 0.00005 ETH
+  const FLAT_L1_FEE_WEI = 1_000_000_000_000n // 0.000001 ETH everywhere
+  const EXTRA_GAS_LIMIT = 1_000n // add ~1k gas headroom
+  const PERCENT_MULTIPLIER = 160n // always +60% (no threshold)
+
+  const client = createPublicClient({ transport: http(rpcUrl) })
+
+  // 1) Gas limit (value=0) + small pad
+  const rawLimit =
+    (await client
+      .estimateGas({
+        account: from,
+        to,
+        data: (data ?? "0x") as Hash,
+        value: 0n,
+      })
+      .catch(() => 21_000n)) || 21_000n
+  const gasLimit = rawLimit + EXTRA_GAS_LIMIT
+
+  // 2) Price per gas: prefer EIP-1559 caps; fallback to legacy gasPrice
+  let pricePerGas: bigint
+  try {
+    const fees = await client.estimateFeesPerGas()
+    pricePerGas =
+      fees?.maxFeePerGas ?? fees?.gasPrice ?? (await client.getGasPrice())
+  } catch {
+    pricePerGas = await client.getGasPrice()
+  }
+
+  // 3) Base fee + flat safety
+  const l2Fee = gasLimit * pricePerGas
+  const baseTotal = l2Fee + FLAT_L1_FEE_WEI
+
+  // 4) Fixed percent buffer (no branch)
+  const withPercent = (baseTotal * PERCENT_MULTIPLIER) / 100n
+
+  return withPercent + ABSOLUTE_BUFFER_WEI
 }
 
 const PRIORITY_RATE = 20000 // MICRO_LAMPORTS_PER_SOL
