@@ -88,11 +88,11 @@ function Swap() {
   const [tokenOut, setTokenOut] = useState<TokenResponse | undefined>(undefined)
 
   useEffect(() => {
-    if (tokenList) {
+    if (tokenList && (!tokenIn || !tokenOut)) {
       setTokenIn(tokenList.find((token) => token.assetId === initialTokenIn))
       setTokenOut(tokenList.find((token) => token.assetId === initialTokenOut))
     }
-  }, [tokenList, initialTokenIn, initialTokenOut])
+  }, [tokenList, initialTokenIn, initialTokenOut, tokenIn, tokenOut])
 
   const {
     handleSubmit,
