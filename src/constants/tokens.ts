@@ -782,6 +782,18 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
     tags: ["mc:2", "tvol:7"],
   },
   {
+    defuseAssetId:
+      "nep141:aaaaaa20d9e0e2461697782ef11675f668207961.factory.bridge.near",
+    address: "0xAaAAAA20D9E0e2461697782ef11675f668207961",
+    decimals: 18,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/14803.png",
+    chainName: "eth",
+    bridge: "near_omni",
+    symbol: "AURORA (omni)",
+    name: "Aurora",
+    tags: ["mc:462", "tvol:12", "feature:omni"],
+  },
+  {
     unifiedAssetId: "aurora",
     symbol: "AURORA",
     name: "Aurora",
