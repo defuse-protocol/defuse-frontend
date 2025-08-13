@@ -1,4 +1,4 @@
-import type { AuthMethod, walletMessage } from "@defuse-protocol/internal-utils"
+import type { authHandle, walletMessage } from "@defuse-protocol/internal-utils"
 import type { Holding } from "../features/account/types/sharedTypes"
 import type { SendNearTransaction } from "../features/machines/publicKeyVerifierMachine"
 import type { BaseTokenInfo, UnifiedTokenInfo } from "./base"
@@ -21,8 +21,8 @@ export type SwapWidgetProps = {
    * The address (address for EVM, accountId for NEAR, etc) of the user performing the swap.
    * `null` if the user is not authenticated.
    */
-  userAddress: string | null
-  userChainType: AuthMethod | null
+  userAddress: authHandle.AuthHandle["identifier"] | undefined
+  userChainType: authHandle.AuthHandle["method"] | undefined
 
   sendNearTransaction: SendNearTransaction
 

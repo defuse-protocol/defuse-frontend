@@ -1,4 +1,4 @@
-import type { AuthMethod } from "@defuse-protocol/internal-utils"
+import type { authHandle } from "@defuse-protocol/internal-utils"
 import { type ReactNode, createContext } from "react"
 import { nearClient } from "../../../constants/nearClient"
 import { logger } from "../../../logger"
@@ -16,8 +16,8 @@ export function SwapSubmitterProvider({
   userChainType,
 }: {
   children: ReactNode
-  userAddress: string | null
-  userChainType: AuthMethod | null
+  userAddress: authHandle.AuthHandle["identifier"] | undefined
+  userChainType: authHandle.AuthHandle["method"] | undefined
 }) {
   const actorRef = SwapUIMachineContext.useActorRef()
 

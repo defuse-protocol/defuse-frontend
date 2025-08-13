@@ -22,8 +22,8 @@ export default function Swap() {
   const { tokenIn, tokenOut } = useDeterminePair()
   const referral = useIntentsReferral()
 
-  const userAddress = (state.isVerified ? state.address : undefined) ?? null
-  const userChainType = state.chainType ?? null
+  const userAddress = state.isVerified ? state.address : undefined
+  const userChainType = state.chainType
 
   const userId =
     userAddress != null && userChainType != null
