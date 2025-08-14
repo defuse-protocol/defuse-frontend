@@ -1700,7 +1700,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         name: "PublicAI",
       },
     ],
-    tags: ["feature:public"],
+    tags: [],
   },
 ]
 
