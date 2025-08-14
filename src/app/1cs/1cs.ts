@@ -42,7 +42,7 @@ const getTokensCached = unstable_cache(
 
 export async function getQuote(
   quoteRequest: QuoteRequest
-): Promise<QuoteResponse | { error: string; status: number }> {
+): Promise<QuoteResponse | { error: string }> {
   const response = await fetch(`${OpenAPI.BASE}/v0/quote`, {
     method: "POST",
     body: JSON.stringify(quoteRequest),
@@ -54,13 +54,10 @@ export async function getQuote(
 
   const data = await response.json()
 
-  // If the response is not ok (4xx, 5xx), return error data instead of throwing
-  if (!response.ok) {
-    return {
-      error: data?.message || `HTTP ${response.status}: ${response.statusText}`,
-      status: response.status,
-    }
-  }
-
-  return data
+  return response.ok
+    ? data
+    : {
+        error:
+          data?.message || `HTTP ${response.status}: ${response.statusText}`,
+      }
 }

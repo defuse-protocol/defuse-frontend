@@ -10,7 +10,14 @@ import {
   MagicWandIcon,
   PersonIcon,
 } from "@radix-ui/react-icons"
-import { Button, Flex, IconButton, Spinner, TextField } from "@radix-ui/themes"
+import {
+  Button,
+  Callout,
+  Flex,
+  IconButton,
+  Spinner,
+  TextField,
+} from "@radix-ui/themes"
 import { pairs } from "@src/app/(home)/_utils/useDeterminePair"
 import { getQuote, getTokens } from "@src/app/1cs/1cs"
 import { AuthGate } from "@src/components/DefuseSDK/components/AuthGate"
@@ -30,6 +37,7 @@ import {
   ModalStoreProvider,
   useModalStore,
 } from "@src/components/DefuseSDK/providers/ModalStoreProvider"
+import { HAS_ACTIVE_DEPOSIT } from "@src/components/DefuseSDK/services/depositService"
 import { ModalType } from "@src/components/DefuseSDK/stores/modalStore"
 import { parseUnits } from "@src/components/DefuseSDK/utils/parse"
 import { Loading } from "@src/components/Loading"
@@ -50,6 +58,7 @@ import {
   useFormContext,
 } from "react-hook-form"
 import { FieldComboInput } from "./FieldComboInput"
+import { getBalance } from "./getBalance"
 
 export default function SwapPage() {
   return (
@@ -86,6 +95,11 @@ function Swap() {
 
   const [tokenIn, setTokenIn] = useState<TokenResponse | undefined>(undefined)
   const [tokenOut, setTokenOut] = useState<TokenResponse | undefined>(undefined)
+
+  const activeDeposit =
+    state.chainType && tokenIn?.blockchain
+      ? HAS_ACTIVE_DEPOSIT[state.chainType][tokenIn.blockchain]
+      : false
 
   useEffect(() => {
     if (tokenList && (!tokenIn || !tokenOut)) {
@@ -164,7 +178,7 @@ function Swap() {
       depositType: QuoteRequest.depositType.ORIGIN_CHAIN,
       destinationAsset: tokenOut?.assetId ?? "",
       amount,
-      refundTo: userAddress ?? "",
+      refundTo: (activeDeposit ? userAddress : getValues("refundTo")) ?? "",
       refundType: QuoteRequest.refundType.ORIGIN_CHAIN,
       recipient: debouncedRecipient ?? "",
       recipientType: QuoteRequest.recipientType.DESTINATION_CHAIN,
@@ -178,6 +192,8 @@ function Swap() {
     debouncedRecipient,
     userAddress,
     referral,
+    getValues,
+    activeDeposit,
   ])
 
   const isRequestEnabled = !!(
@@ -231,9 +247,38 @@ function Swap() {
   const data = shouldExecuteSwap ? swapData : quoteData
   const isLoading = shouldExecuteSwap ? isSwapLoading : isQuoteLoading
 
+  // Fetch balance for amountIn field
+  const { data: balanceData } = useQuery({
+    queryKey: ["balance", tokenIn?.assetId, userAddress],
+    queryFn: async () => {
+      if (!tokenIn || !userAddress) return null
+      const balanceAmount = await getBalance(tokenIn, userAddress)
+      if (balanceAmount === null) return null
+      return {
+        amount: balanceAmount,
+        decimals: tokenIn.decimals,
+      }
+    },
+    enabled: !!tokenIn && !!userAddress,
+    staleTime: 30000, // 30 seconds
+    refetchInterval: 30000, // Refetch every 30 seconds
+  })
+
   // Check if data contains an error response
   const hasError = data && "error" in data
   const currentError = hasError ? data : (swapError ?? quoteError)
+
+  // Check if user has insufficient balance
+  const hasInsufficientBalance = useMemo(() => {
+    if (!balanceData || !debouncedAmountIn || !tokenIn?.decimals) return false
+
+    try {
+      const amountInBigInt = parseUnits(debouncedAmountIn, tokenIn.decimals)
+      return balanceData.amount < amountInBigInt
+    } catch {
+      return false
+    }
+  }, [balanceData, debouncedAmountIn, tokenIn?.decimals])
 
   // Update amountOut when data changes
   useEffect(() => {
@@ -270,6 +315,7 @@ function Swap() {
               className="border border-gray-4 rounded-t-xl"
               required
               errors={errors}
+              balance={balanceData ?? undefined}
               usdAmount={
                 data && !hasError && data.quote?.amountInUsd
                   ? `~$${data.quote.amountInUsd}`
@@ -298,14 +344,16 @@ function Swap() {
               }
             />
 
-            <AddressInput
-              register={register}
-              userAddress={userAddress}
-              getValues={getValues}
-              setValue={setValue}
-              fieldName="refundTo"
-              placeholder="Enter from wallet address"
-            />
+            {!activeDeposit && (
+              <AddressInput
+                register={register}
+                userAddress={userAddress}
+                getValues={getValues}
+                setValue={setValue}
+                fieldName="refundTo"
+                placeholder="Enter from wallet address"
+              />
+            )}
 
             <AddressInput
               register={register}
@@ -336,10 +384,14 @@ function Swap() {
                   type="submit"
                   size="lg"
                   fullWidth
-                  disabled={isSwapLoading}
+                  disabled={isSwapLoading || hasInsufficientBalance}
                   isLoading={isSwapLoading}
                 >
-                  {isSwapLoading ? "Creating Swap..." : "Swap"}
+                  {isSwapLoading
+                    ? "Creating Swap..."
+                    : hasInsufficientBalance
+                      ? "Insufficient Balance"
+                      : "Swap"}
                 </ButtonCustom>
               </AuthGate>
             </Flex>
@@ -359,12 +411,16 @@ function Swap() {
               />
             </div>
             {data && !hasError && shouldExecuteSwap && <QR data={data} />}
+            {data && !hasError && shouldExecuteSwap && tokenIn && (
+              <DepositHint token={tokenIn} />
+            )}
           </Form>
         </div>
       </Island>
     </Paper>
   )
 }
+
 function QR({ data }: { data: QuoteResponse }) {
   return (
     <>
@@ -437,6 +493,26 @@ function QR({ data }: { data: QuoteResponse }) {
         </div>
       </div>
     </>
+  )
+}
+
+export function DepositHint({ token }: { token: TokenResponse }) {
+  return (
+    <div className="flex flex-col gap-4">
+      <Callout.Root className="bg-warning px-3 py-2 text-warning-foreground">
+        <Callout.Text className="text-xs">
+          <span className="font-bold">
+            Only deposit {token.symbol}
+            {token.contractAddress ? ` (${token.contractAddress}) ` : ""}
+            from the {token.blockchain} network.
+          </span>{" "}
+          <span>
+            Depositing other assets or using a different network will result in
+            loss of funds.
+          </span>
+        </Callout.Text>
+      </Callout.Root>
+    </div>
   )
 }
 

@@ -221,7 +221,7 @@ export const backgroundBalanceActor = fromPromise(
   }
 )
 
-function normalizeToNearAddress(address: string): string {
+export function normalizeToNearAddress(address: string): string {
   return address.toLowerCase()
 }
 

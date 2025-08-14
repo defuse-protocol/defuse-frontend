@@ -1,5 +1,6 @@
 import { BlockchainEnum, poaBridge } from "@defuse-protocol/internal-utils"
 import { AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
+import type { TokenResponse } from "@defuse-protocol/one-click-sdk-typescript"
 import {
   createAssociatedTokenAccountInstruction,
   createTransferInstruction,
@@ -897,6 +898,152 @@ export function waitEVMTransaction({
   return client.waitForTransactionReceipt({ hash: txHash })
 }
 
+export const HAS_ACTIVE_DEPOSIT: Record<
+  AuthMethod,
+  Record<TokenResponse.blockchain, boolean>
+> = {
+  [AuthMethod.Near]: {
+    /* allowed all */
+    near: true,
+
+    /* allowed passive */
+    eth: false,
+    base: false,
+    arb: false,
+    btc: false,
+    sol: false,
+    doge: false,
+    xrp: false,
+    zec: false,
+    gnosis: false,
+    bera: false,
+    tron: false,
+    pol: false,
+    bsc: false,
+    ton: false,
+    op: false,
+    avax: false,
+    sui: false,
+    cardano: false,
+  },
+  [AuthMethod.EVM]: {
+    /* allowed all */
+    eth: true,
+    base: true,
+    arb: true,
+    gnosis: true,
+    bera: true,
+    pol: true,
+    bsc: true,
+    op: true,
+    avax: true,
+
+    /* allowed passive */
+    near: false,
+    btc: false,
+    sol: false,
+    doge: false,
+    xrp: false,
+    zec: false,
+    tron: false,
+    ton: false,
+    sui: false,
+    cardano: false,
+  },
+  [AuthMethod.Solana]: {
+    /* allowed all */
+    sol: true,
+
+    /* allowed passive */
+    eth: false,
+    base: false,
+    arb: false,
+    btc: false,
+    doge: false,
+    xrp: false,
+    zec: false,
+    gnosis: false,
+    bera: false,
+    tron: false,
+    pol: false,
+    bsc: false,
+    near: false,
+    ton: false,
+    op: false,
+    avax: false,
+    sui: false,
+    cardano: false,
+  },
+  [AuthMethod.WebAuthn]: {
+    /* allowed passive */
+    eth: false,
+    base: false,
+    arb: false,
+    btc: false,
+    doge: false,
+    xrp: false,
+    zec: false,
+    gnosis: false,
+    bera: false,
+    sol: false,
+    tron: false,
+    pol: false,
+    bsc: false,
+    near: false,
+    ton: false,
+    op: false,
+    avax: false,
+    sui: false,
+    cardano: false,
+  },
+  [AuthMethod.Ton]: {
+    /* allowed all */
+    ton: true,
+
+    /* allowed passive */
+    eth: false,
+    base: false,
+    arb: false,
+    btc: false,
+    doge: false,
+    xrp: false,
+    zec: false,
+    gnosis: false,
+    bera: false,
+    sol: false,
+    tron: false,
+    pol: false,
+    bsc: false,
+    near: false,
+    op: false,
+    avax: false,
+    sui: false,
+    cardano: false,
+  },
+  [AuthMethod.Stellar]: {
+    /* allowed passive */
+    eth: false,
+    base: false,
+    arb: false,
+    btc: false,
+    doge: false,
+    xrp: false,
+    zec: false,
+    gnosis: false,
+    bera: false,
+    tron: false,
+    pol: false,
+    bsc: false,
+    near: false,
+    ton: false,
+    op: false,
+    avax: false,
+    sui: false,
+    sol: false,
+    cardano: false,
+  },
+}
+
 /**
  * Get the available deposit routes for a given wallet connection and selected network.
  *
@@ -1296,6 +1443,32 @@ export function getWalletRpcUrl(network: BlockchainEnum): string {
       network satisfies never
       throw new Error("exhaustive check failed")
   }
+}
+
+const WALLET_RPC_URLS: Record<TokenResponse.blockchain, string> = {
+  near: settings.rpcUrls.near,
+  eth: settings.rpcUrls.eth,
+  base: settings.rpcUrls.base,
+  arb: settings.rpcUrls.arbitrum,
+  gnosis: settings.rpcUrls.gnosis,
+  bera: settings.rpcUrls.berachain,
+  pol: settings.rpcUrls.polygon,
+  bsc: settings.rpcUrls.bsc,
+  op: settings.rpcUrls.optimism,
+  avax: settings.rpcUrls.avalanche,
+  btc: settings.rpcUrls.bitcoin,
+  sol: settings.rpcUrls.solana,
+  doge: settings.rpcUrls.dogecoin,
+  xrp: settings.rpcUrls.xrpledger,
+  zec: settings.rpcUrls.zcash,
+  tron: settings.rpcUrls.tron,
+  ton: settings.rpcUrls.ton,
+  sui: settings.rpcUrls.sui,
+  cardano: settings.rpcUrls.cardano,
+}
+
+export function getWalletRpcUrl1cs(network: TokenResponse.blockchain): string {
+  return WALLET_RPC_URLS[network]
 }
 
 export type DepositNetworkMemo = {
