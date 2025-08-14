@@ -1673,6 +1673,35 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
     name: "AVAX",
     tags: ["mc:16"],
   },
+  {
+    unifiedAssetId: "public",
+    symbol: "PUBLIC",
+    name: "PublicAI",
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/37728.png",
+    groupedTokens: [
+      {
+        defuseAssetId: "nep141:token.publicailab.near",
+        address: "token.publicailab.near",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/37728.png",
+        chainName: "near",
+        bridge: "direct",
+        symbol: "PUBLIC",
+        name: "PublicAI",
+      },
+      {
+        defuseAssetId: "sol-1f00bb36e75cfc8e1274c1507cc3054f5b3f3ce1.omft.near",
+        address: "AXCp86262ZPfpcV9bmtmtnzmJSL5sD99mCVJD4GR9vS",
+        decimals: 9,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/37728.png",
+        chainName: "solana",
+        bridge: "poa",
+        symbol: "PUBLIC",
+        name: "PublicAI",
+      },
+    ],
+    tags: ["feature:public"],
+  },
 ]
 
 const STAGE_TOKENS: TokenWithTags[] = [
