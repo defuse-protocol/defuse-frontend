@@ -108,35 +108,24 @@ export function validateQueryParams<T extends z.ZodSchema>(
 export function defuseAssetIdToGeckoId(
   assetId: string
 ): Awaited<ApiResult<string>> {
-  const [type, contractAddress, tokenId] = assetId.split(":")
-
-  if (type === "nep141") {
-    return ok(`NEP-141:${contractAddress}`)
-  }
+  const [type, contractAddress] = assetId.split(":")
 
   if (type === "nep245") {
-    return ok(`NEP-245:${contractAddress}-${tokenId}`)
+    return ok(assetId)
   }
 
-  return err("Internal Server Error", `Invalid asset ID: ${assetId}`)
+  if (type === "nep141") {
+    return ok(contractAddress)
+  }
+
+  return err(
+    "Internal Server Error",
+    `Unsupported token type: ${type} (assetId: ${assetId})`
+  )
 }
 
 export function geckoIdToDefuseAssetId(
   geckoId: string
 ): Awaited<ApiResult<string>> {
-  const [type, contractAddressAndTokenId] = geckoId.split(":")
-
-  if (type === "NEP-141") {
-    return ok(`nep141:${contractAddressAndTokenId}`)
-  }
-
-  if (type === "NEP-245") {
-    const [contractAddress, tokenId] = contractAddressAndTokenId.split("-")
-    return ok(`nep245:${contractAddress}:${tokenId}`)
-  }
-
-  return err(
-    "Bad Request",
-    `Invalid Token ID: ${geckoId}. Expected format: NEP-141:<contract-address> | NEP-245:<contract-address>-<token-id>`
-  )
+  return ok(geckoId.startsWith("nep245:") ? geckoId : `nep141:${geckoId}`)
 }
