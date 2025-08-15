@@ -1,9 +1,7 @@
 import {
-  Chains,
   type FeeEstimation,
   FeeExceedsAmountError,
   type RouteConfig,
-  RouteEnum,
   TrustlineNotFoundError,
   type WithdrawalParams,
   createDefaultRoute,
@@ -188,10 +186,6 @@ export async function prepareWithdraw(
     },
     { signal }
   )
-  // TODO FIX
-  const publicAiOmniWithdrawToNear =
-    formValues.tokenOut.defuseAssetId === "nep141:token.publicailab.near" &&
-    formValues.tokenOut.chainName === "solana"
 
   const { withdrawAmount: totalWithdrawn } = calcWithdrawAmount(
     formValues.tokenOut,
@@ -211,9 +205,7 @@ export async function prepareWithdraw(
       )
     : formValues.tokenOut.chainName === "near"
       ? createNearWithdrawalRoute()
-      : publicAiOmniWithdrawToNear
-        ? { route: RouteEnum.OmniBridge, chain: Chains.Solana }
-        : createDefaultRoute()
+      : createDefaultRoute()
 
   const baseWithdrawalParams: WithdrawalParams = {
     assetId: formValues.tokenOut.defuseAssetId,
@@ -231,15 +223,10 @@ export async function prepareWithdraw(
     return { tag: "err", value: feeEstimation.unwrapErr() }
   }
 
-  const receivedAmount = publicAiOmniWithdrawToNear
-    ? {
-        amount: formValues.parsedAmount.amount - feeEstimation.unwrap().amount,
-        decimals: formValues.parsedAmount.decimals,
-      }
-    : {
-        amount: totalWithdrawn.amount - feeEstimation.unwrap().amount,
-        decimals: formValues.tokenOut.decimals,
-      }
+  const receivedAmount = {
+    amount: totalWithdrawn.amount - feeEstimation.unwrap().amount,
+    decimals: formValues.tokenOut.decimals,
+  }
 
   if (compareAmounts(receivedAmount, minWithdrawal) === -1) {
     return {
