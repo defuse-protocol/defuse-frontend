@@ -34,7 +34,12 @@ export type VirtualChains =
 
 export type MockedChains = "hyperliquid"
 
-export type SupportedBridge = "direct" | "poa" | "aurora_engine" | "hot_omni"
+export type SupportedBridge =
+  | "direct"
+  | "poa"
+  | "aurora_engine"
+  | "hot_omni"
+  | "near_omni"
 
 export interface FungibleTokenInfo {
   defuseAssetId: string

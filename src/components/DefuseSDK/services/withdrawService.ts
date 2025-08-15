@@ -8,7 +8,7 @@ import {
   createInternalTransferRoute,
   createNearWithdrawalRoute,
   createVirtualChainRoute,
-} from "@defuse-protocol/bridge-sdk"
+} from "@defuse-protocol/intents-sdk"
 import { Err, Ok, type Result } from "@thames/monads"
 import { type ActorRefFrom, waitFor } from "xstate"
 import { getAuroraEngineContractId } from "../constants/aurora"

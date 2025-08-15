@@ -1,9 +1,5 @@
 import { BlockchainEnum } from "@defuse-protocol/internal-utils"
-import {
-  createDepositEVMERC20Transaction,
-  getWalletRpcUrl,
-} from "@src/components/DefuseSDK/services/depositService"
-import { getEVMChainId } from "@src/components/DefuseSDK/utils/evmChainId"
+import { getWalletRpcUrl } from "@src/components/DefuseSDK/services/depositService"
 import type { Address } from "viem"
 import { assign, fromPromise, setup } from "xstate"
 import {
@@ -64,40 +60,26 @@ export const depositEstimateMaxValueActor = fromPromise(
       case BlockchainEnum.AVALANCHE: {
         if (
           !validateAddress(userAddress, blockchain) ||
-          generateAddress == null
+          generateAddress == null ||
+          !isNativeToken(token)
         ) {
           return 0n
         }
         const rpcUrl = getWalletRpcUrl(assetNetworkAdapter[blockchain])
-        if (isNativeToken(token)) {
-          const gasCost = await estimateEVMTransferCost({
-            rpcUrl,
-            from: userAddress as Address,
-            to: generateAddress as Address,
-            value: balance,
-          })
-          const maxTransferableBalance = balance - gasCost
-          return maxTransferableBalance > 0n ? maxTransferableBalance : 0n
-        }
-        const chainId = getEVMChainId(blockchain)
-        const gasCost = await estimateEVMTransferCost({
+        const fee = await estimateEVMTransferCost({
           rpcUrl,
           from: userAddress as Address,
-          to: token.address as Address,
-          data: createDepositEVMERC20Transaction(
-            userAddress,
-            token.address,
-            generateAddress,
-            balance,
-            chainId
-          ).data,
+          to: generateAddress as Address,
         })
-        if (balance < gasCost) {
+        if (balance < fee) {
           return 0n
         }
-        return balance
+        return balance - fee
       }
       case BlockchainEnum.SOLANA: {
+        if (!isNativeToken(token)) {
+          return 0n
+        }
         const fee = estimateSolanaTransferCost()
         if (balance < fee) {
           return 0n
@@ -114,17 +96,17 @@ export const depositEstimateMaxValueActor = fromPromise(
       }
       case BlockchainEnum.STELLAR: {
         const rpcUrl = getWalletRpcUrl(assetNetworkAdapter[blockchain])
-        if (isNativeToken(token)) {
-          const fee = await estimateStellarXLMTransferCost({
-            rpcUrl,
-            userAddress,
-          })
-          if (balance < fee) {
-            return 0n
-          }
-          return balance - fee
+        if (!isNativeToken(token)) {
+          return 0n
         }
-        return balance
+        const fee = await estimateStellarXLMTransferCost({
+          rpcUrl,
+          userAddress,
+        })
+        if (balance < fee) {
+          return 0n
+        }
+        return balance - fee
       }
       // For next blockchains - active deposits are not supported, so no network fees
       case BlockchainEnum.BITCOIN:

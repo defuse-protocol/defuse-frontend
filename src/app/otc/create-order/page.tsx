@@ -58,8 +58,8 @@ export default function CreateOrderPage() {
         generateLink={(tradeId, pKey, multiPayload, iv) => {
           return createOtcOrderLink(tradeId, pKey, multiPayload, iv)
         }}
-        initialTokenIn={tokenIn}
-        initialTokenOut={tokenOut}
+        initialTokenIn={tokenIn ?? undefined}
+        initialTokenOut={tokenOut ?? undefined}
         renderHostAppLink={renderAppLink}
         referral={referral}
         holdings={holdings}

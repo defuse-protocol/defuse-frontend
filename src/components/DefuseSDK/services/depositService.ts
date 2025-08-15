@@ -681,14 +681,12 @@ export async function createDepositStellarTransaction({
   depositAddress,
   amount,
   token,
-  trustlineExists,
   memo,
 }: {
   userAddress: string
   depositAddress: string
   amount: bigint
   token: BaseTokenInfo
-  trustlineExists: boolean
   memo?: string | null
 }): Promise<SendTransactionStellarParams> {
   assert(token.chainName === "stellar", "Token must be a Stellar token")
@@ -712,7 +710,6 @@ export async function createDepositStellarTransaction({
     amountToFormat,
     token.address,
     token.symbol,
-    trustlineExists,
     memo
   )
 }
@@ -749,7 +746,6 @@ function createTrustlineTransferStellarTransaction(
   amount: string,
   tokenAddress: string,
   tokenSymbol: string,
-  trustlineExists: boolean,
   memo?: string | null
 ): SendTransactionStellarParams {
   const asset = new Asset(tokenSymbol, tokenAddress)
@@ -757,16 +753,6 @@ function createTrustlineTransferStellarTransaction(
     fee: "100", // TODO: Should be checked
     networkPassphrase: Networks.PUBLIC,
   })
-
-  // TODO: Revisit this once trustlineExists is implemented
-  if (!trustlineExists) {
-    transaction.addOperation(
-      Operation.changeTrust({
-        asset: asset,
-        limit: "922337203685.4775807", // max trustline limit
-      })
-    )
-  }
 
   transaction.addOperation(
     Operation.payment({
