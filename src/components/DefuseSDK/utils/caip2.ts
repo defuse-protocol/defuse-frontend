@@ -1,4 +1,4 @@
-import { type Chain, Chains } from "@defuse-protocol/bridge-sdk"
+import { type Chain, Chains } from "@defuse-protocol/intents-sdk"
 import type {
   MockedChains,
   SupportedChainName,

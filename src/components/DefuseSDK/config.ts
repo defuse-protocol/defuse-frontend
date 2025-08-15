@@ -91,7 +91,6 @@ export function configureSDK({
 
   // This is temporary, `configureSDK` will be removed from `internal-utils` package
   configureSDK_iu({
-    logger,
     env,
     features,
   })

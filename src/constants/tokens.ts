@@ -1673,6 +1673,74 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
     name: "AVAX",
     tags: ["mc:16"],
   },
+  {
+    unifiedAssetId: "public",
+    symbol: "PUBLIC",
+    name: "PublicAI",
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/37728.png",
+    groupedTokens: [
+      {
+        defuseAssetId: "nep141:token.publicailab.near",
+        address: "token.publicailab.near",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/37728.png",
+        chainName: "near",
+        bridge: "direct",
+        symbol: "PUBLIC",
+        name: "PublicAI",
+      },
+      {
+        defuseAssetId:
+          "nep141:sol-1f00bb36e75cfc8e1274c1507cc3054f5b3f3ce1.omft.near",
+        address: "AXCp86262ZPfpcV9bmtmtnzmJSL5sD99mCVJD4GR9vS",
+        decimals: 9,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/37728.png",
+        chainName: "solana",
+        bridge: "poa",
+        symbol: "PUBLIC",
+        name: "PublicAI",
+      },
+    ],
+    tags: [],
+  },
+
+  /** Omni bridgable tokens */
+  {
+    defuseAssetId:
+      "nep141:aaaaaa20d9e0e2461697782ef11675f668207961.factory.bridge.near",
+    address: "0xAaAAAA20D9E0e2461697782ef11675f668207961",
+    decimals: 18,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/14803.png",
+    chainName: "eth",
+    bridge: "near_omni",
+    symbol: "AURORA (omni)",
+    name: "Aurora",
+    tags: ["feature:omni"],
+  },
+  {
+    defuseAssetId:
+      "nep141:a35923162c49cf95e6bf26623385eb431ad920d3.factory.bridge.near",
+    address: "0xA35923162C49cF95e6BF26623385eb431ad920D3",
+    decimals: 18,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/24911.png",
+    chainName: "eth",
+    bridge: "near_omni",
+    symbol: "TURBO (omni)",
+    name: "Turbo",
+    tags: ["feature:omni"],
+  },
+  {
+    defuseAssetId:
+      "nep141:d9c2d319cd7e6177336b0a9c93c21cb48d84fb54.factory.bridge.near",
+    address: "0xD9c2D319Cd7e6177336b0a9c93c21cb48d84Fb54",
+    decimals: 18,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/8567.png",
+    chainName: "eth",
+    bridge: "near_omni",
+    symbol: "HAPI (omni)",
+    name: "HAPI Protocol",
+    tags: ["feature:omni"],
+  },
 ]
 
 const STAGE_TOKENS: TokenWithTags[] = [

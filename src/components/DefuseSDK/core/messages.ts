@@ -32,8 +32,6 @@ export interface IntentMessageConfig {
   memo?: string
 }
 
-export type WithdrawIntentMessageConfig = messageFactory.WithdrawParams
-
 function resolveSignerId(
   signerId: IntentsUserId | SignerCredentials
 ): IntentsUserId {
@@ -58,30 +56,6 @@ export function createSwapIntentMessage(
     memo: options.memo,
     appFee: [],
     appFeeRecipient: "",
-  })
-
-  return messageFactory.makeSwapMessage({
-    innerMessage,
-    nonce: options.nonce,
-  })
-}
-
-/**
- * Creates an intent message for withdrawal operations
- * @param withdrawConfig Withdrawal-specific configuration (target chain, amount, destination)
- * @param options General message options (signer, deadline, etc.)
- * @returns Intent message ready to be signed by a wallet
- */
-export function createWithdrawIntentMessage(
-  withdrawConfig: WithdrawIntentMessageConfig,
-  options: IntentMessageConfig
-): walletMessage.WalletMessage {
-  const innerMessage = messageFactory.makeInnerSwapAndWithdrawMessage({
-    tokenDeltas: [],
-    storageTokenDeltas: [],
-    withdrawParams: withdrawConfig,
-    signerId: resolveSignerId(options.signerId),
-    deadlineTimestamp: options.deadlineTimestamp ?? minutesFromNow(5),
   })
 
   return messageFactory.makeSwapMessage({
