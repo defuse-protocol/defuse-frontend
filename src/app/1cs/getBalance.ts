@@ -95,8 +95,12 @@ async function nearBalanceGetter(
       }),
     ])
 
-    if (nep141Balance === null || nativeBalance === null) {
-      throw new Error("Failed to fetch NEAR balances")
+    if (nep141Balance === null) {
+      throw new Error("Failed to fetch nep141 NEAR balance")
+    }
+
+    if (nativeBalance === null) {
+      throw new Error("Failed to fetch native NEAR balance")
     }
 
     return nep141Balance + nativeBalance
@@ -108,7 +112,7 @@ async function nearBalanceGetter(
   })
 
   if (balance === null) {
-    throw new Error("Failed to fetch NEAR balances")
+    throw new Error("Failed to fetch nep141 NEAR balance")
   }
 
   return balance
