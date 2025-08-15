@@ -1,5 +1,6 @@
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { secp256k1 } from "@noble/curves/secp256k1"
+import { sha256 } from "@noble/hashes/sha256"
 import { base58 } from "@scure/base"
 import { Keypair } from "@stellar/stellar-sdk"
 import { sign } from "tweetnacl"
@@ -77,11 +78,7 @@ export async function verifyWalletSignature(
       ])
 
       // Step 2: Hash the encoded message (SHA256 of signedMessageBase)
-      const messageHashBuffer = await crypto.subtle.digest(
-        "SHA-256",
-        signedMessageBase
-      )
-      const messageHash = new Uint8Array(messageHashBuffer)
+      const messageHash = sha256(signedMessageBase)
 
       return sign.detached.verify(
         messageHash,
