@@ -4,7 +4,6 @@ import {
   createEmptyIntentMessage,
   createSwapIntentMessage,
   createTransferMessage,
-  createWithdrawIntentMessage,
 } from "./messages"
 
 const TEST_TIMESTAMP = 1704110400000 // 2024-01-01T12:00:00.000Z
@@ -32,38 +31,6 @@ describe("createSwapIntentMessage()", () => {
             "token.near": "-100",
             "usdc.near": "50",
           },
-        },
-      ],
-      signer_id: "user.near",
-    })
-  })
-})
-
-describe("createWithdrawIntentMessage()", () => {
-  it("creates a valid withdraw intent message", () => {
-    const message = createWithdrawIntentMessage(
-      {
-        type: "to_near",
-        amount: 100n,
-        tokenAccountId: "token.near",
-        receiverId: "receiver.near",
-        storageDeposit: 0n,
-      },
-      {
-        signerId: TEST_USER,
-        deadlineTimestamp: TEST_TIMESTAMP,
-      }
-    )
-
-    expect(JSON.parse(message.NEP413.message)).toEqual({
-      deadline: "2024-01-01T12:00:00.000Z",
-      intents: [
-        {
-          intent: "ft_withdraw",
-          token: "token.near",
-          receiver_id: "receiver.near",
-          amount: "100",
-          storage_deposit: null,
         },
       ],
       signer_id: "user.near",

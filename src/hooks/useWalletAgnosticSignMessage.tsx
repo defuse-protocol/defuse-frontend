@@ -90,6 +90,7 @@ export function useWalletAgnosticSignMessage() {
           walletMessage.STELLAR.message
         )
         return {
+          // @ts-expect-error
           type: "STELLAR",
           signatureData,
           signedData: walletMessage.STELLAR,
