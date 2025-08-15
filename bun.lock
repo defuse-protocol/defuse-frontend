@@ -5,7 +5,7 @@
       "name": "defuse-frontend",
       "dependencies": {
         "@clickhouse/client": "^1.11.2",
-        "@creit.tech/stellar-wallets-kit": "^1.7.7",
+        "@creit.tech/stellar-wallets-kit": "^1.8.0",
         "@defuse-protocol/intents-sdk": "0.16.2",
         "@defuse-protocol/internal-utils": "0.8.1",
         "@lifeomic/attempt": "^3.1.0",
@@ -510,9 +510,9 @@
 
     "@cosmjs/utils": ["@cosmjs/utils@0.32.4", "", {}, "sha512-D1Yc+Zy8oL/hkUkFUL/bwxvuDBzRGpc4cF7/SkdhxX4iHpSLgdOuTt1mhCh9+kl6NQREy9t7SYZ6xeW5gFe60w=="],
 
-    "@creit.tech/stellar-wallets-kit": ["@creit.tech/stellar-wallets-kit@1.7.7", "", { "dependencies": { "@albedo-link/intent": "0.12.0", "@creit.tech/xbull-wallet-connect": "0.3.0", "@hot-wallet/sdk": "1.0.11", "@ledgerhq/hw-app-str": "7.0.4", "@ledgerhq/hw-transport": "6.31.4", "@ledgerhq/hw-transport-webusb": "6.29.4", "@lobstrco/signer-extension-api": "1.0.0-beta.0", "@ngneat/elf": "2.5.1", "@ngneat/elf-devtools": "1.3.0", "@ngneat/elf-entities": "5.0.2", "@ngneat/elf-persist-state": "1.2.1", "@stellar/freighter-api": "4.0.0", "@trezor/connect-plugin-stellar": "9.0.6", "@trezor/connect-web": "9.5.1", "@walletconnect/modal": "2.6.2", "@walletconnect/sign-client": "2.11.2", "buffer": "6.0.3", "events": "3.3.0", "lit": "3.2.0", "rxjs": "7.8.1" }, "peerDependencies": { "@stellar/stellar-base": "^12.1.1" } }, "sha512-XUyiTDI7v4L6LaQtSW80iIGsnzx3WabZCcCjd7enXaz3N8nXQCs2d3G2ZQNErxF8uM400TwHyDhftL1m6Oec4g=="],
+    "@creit.tech/stellar-wallets-kit": ["@creit.tech/stellar-wallets-kit@1.8.0", "", { "dependencies": { "@albedo-link/intent": "0.12.0", "@creit.tech/xbull-wallet-connect": "^0.4.0", "@hot-wallet/sdk": "1.0.11", "@ledgerhq/hw-app-str": "7.0.4", "@ledgerhq/hw-transport": "6.31.4", "@ledgerhq/hw-transport-webusb": "6.29.4", "@lobstrco/signer-extension-api": "1.0.0-beta.0", "@ngneat/elf": "2.5.1", "@ngneat/elf-devtools": "1.3.0", "@ngneat/elf-entities": "5.0.2", "@ngneat/elf-persist-state": "1.2.1", "@stellar/freighter-api": "4.0.0", "@trezor/connect-plugin-stellar": "9.0.6", "@trezor/connect-web": "9.5.1", "@walletconnect/modal": "2.6.2", "@walletconnect/sign-client": "2.11.2", "buffer": "6.0.3", "events": "3.3.0", "lit": "3.2.0", "rxjs": "7.8.1" }, "peerDependencies": { "@stellar/stellar-base": "^12.1.1" } }, "sha512-RD5rdAs04ykzaRFGiiadNtEtUBId0K/cUdsCzwikPzEElAgZAjP/9uPK22It/hMOaqcKBJ0X/qiudSTOI8cIrQ=="],
 
-    "@creit.tech/xbull-wallet-connect": ["@creit.tech/xbull-wallet-connect@0.3.0", "", { "dependencies": { "rxjs": "^7.5.5", "tweetnacl": "^1.0.3", "tweetnacl-util": "^0.15.1" } }, "sha512-pByi0bTAWd2ZdolVtkXcAU1DYTtz/cJc/IkRUz9x9/1NsFVyrM4UxE8tHgVZ3mwrJ4josoDwYP957ynQw195YQ=="],
+    "@creit.tech/xbull-wallet-connect": ["@creit.tech/xbull-wallet-connect@0.4.0", "", { "dependencies": { "rxjs": "^7.5.5", "tweetnacl": "^1.0.3", "tweetnacl-util": "^0.15.1" } }, "sha512-LrCUIqUz50SkZ4mv2hTqSmwews8CNRYVoZ9+VjLsK/1U8PByzXTxv1vZyenj6avRTG86ifpoeihz7D3D5YIDrQ=="],
 
     "@csstools/color-helpers": ["@csstools/color-helpers@5.0.2", "", {}, "sha512-JqWH1vsgdGcw2RR6VliXXdA0/59LttzlU8UlRT/iUUsEeWfYq8I+K0yhihEUTTHLRm1EXvpsCx3083EU15ecsA=="],
 
