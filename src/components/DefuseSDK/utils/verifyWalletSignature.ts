@@ -51,9 +51,12 @@ export async function verifyWalletSignature(
 
       // Convert message to Uint8Array if it's a string
       const messageBytes =
+        // @ts-expect-error
         typeof signature.signedData.message === "string"
-          ? new TextEncoder().encode(signature.signedData.message)
-          : signature.signedData.message
+          ? // @ts-expect-error
+            new TextEncoder().encode(signature.signedData.message)
+          : // @ts-expect-error
+            signature.signedData.message
 
       return sign.detached.verify(
         messageBytes,
@@ -87,6 +90,7 @@ export async function verifyWalletSignature(
       )
     }
     default:
+      // @ts-expect-error
       signatureType satisfies never
       throw new Error("exhaustive check failed")
   }

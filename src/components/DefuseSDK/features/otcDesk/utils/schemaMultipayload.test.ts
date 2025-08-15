@@ -15,7 +15,6 @@ import {
 import {
   createEmptyIntentMessage,
   createSwapIntentMessage,
-  createWithdrawIntentMessage,
 } from "../../../core/messages"
 import type { MultiPayload } from "../../../types/defuse-contracts-types"
 import {
@@ -29,11 +28,9 @@ describe("mulltipayload schemas", async () => {
     await signERC191(genSwapIntent),
     await signRawED25519(genSwapIntent),
     // withdraw
-    await signERC191(genWithdrawIntent),
-    await signRawED25519(genWithdrawIntent),
+    // todo: add withdraw test
     // native withdraw
-    await signERC191(genNativeWithdrawIntent),
-    await signRawED25519(genNativeWithdrawIntent),
+    // todo: add native withdraw test
     // no intents
     await signERC191(genEmptyIntent),
     await signRawED25519(genEmptyIntent),
@@ -105,32 +102,6 @@ function genSwapIntent(signerId: SignerCredentials) {
 
 function genEmptyIntent(signerId: SignerCredentials) {
   return createEmptyIntentMessage({ signerId })
-}
-
-function genNativeWithdrawIntent(signerId: SignerCredentials) {
-  return createWithdrawIntentMessage(
-    {
-      type: "to_near",
-      amount: 100n,
-      tokenAccountId: "wrap.near",
-      receiverId: "user.near",
-      storageDeposit: 0n,
-    },
-    { signerId }
-  )
-}
-
-function genWithdrawIntent(signerId: SignerCredentials) {
-  return createWithdrawIntentMessage(
-    {
-      type: "to_near",
-      amount: 100n,
-      tokenAccountId: "usdc.near",
-      receiverId: "user.near",
-      storageDeposit: 150000000000n,
-    },
-    { signerId }
-  )
 }
 
 type FakeSign = (

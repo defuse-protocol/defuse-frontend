@@ -1,4 +1,4 @@
-import type { WithdrawalParams } from "@defuse-protocol/bridge-sdk"
+import type { WithdrawalParams } from "@defuse-protocol/intents-sdk"
 import { solverRelay } from "@defuse-protocol/internal-utils"
 import {
   type ActorRef,
