@@ -496,7 +496,7 @@ function QR({ data }: { data: QuoteResponse }) {
   )
 }
 
-export function DepositHint({ token }: { token: TokenResponse }) {
+function DepositHint({ token }: { token: TokenResponse }) {
   return (
     <div className="flex flex-col gap-4">
       <Callout.Root className="bg-warning px-3 py-2 text-warning-foreground">
