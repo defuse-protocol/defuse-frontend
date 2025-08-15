@@ -17,7 +17,7 @@
     "@clickhouse/client": "^1.11.2",
     "@creit.tech/stellar-wallets-kit": "^1.8.0",
     "@defuse-protocol/bridge-sdk": "^0.13.1",
-    "@defuse-protocol/internal-utils": "^0.6.0",
+    "@defuse-protocol/internal-utils": "^0.8.0",
     "@lifeomic/attempt": "^3.1.0",
     "@near-eth/aurora-erc20": "^2.8.0",
     "@near-eth/aurora-ether": "^3.0.0",
