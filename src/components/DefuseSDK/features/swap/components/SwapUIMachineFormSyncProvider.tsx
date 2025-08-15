@@ -1,4 +1,4 @@
-import type { AuthMethod } from "@defuse-protocol/internal-utils"
+import type { authHandle } from "@defuse-protocol/internal-utils"
 import { useSelector } from "@xstate/react"
 import { type PropsWithChildren, useEffect, useRef } from "react"
 import { useFormContext } from "react-hook-form"
@@ -8,8 +8,8 @@ import type { SwapFormValues } from "./SwapForm"
 import { SwapUIMachineContext } from "./SwapUIMachineProvider"
 
 type SwapUIMachineFormSyncProviderProps = PropsWithChildren<{
-  userAddress: string | null
-  userChainType: AuthMethod | null
+  userAddress: authHandle.AuthHandle["identifier"] | undefined
+  userChainType: authHandle.AuthHandle["method"] | undefined
   onSuccessSwap: SwapWidgetProps["onSuccessSwap"]
   sendNearTransaction: SwapWidgetProps["sendNearTransaction"]
 }>

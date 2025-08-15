@@ -1,5 +1,6 @@
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Box, Callout, Flex } from "@radix-ui/themes"
+import type { ModalSelectAssetsPayload } from "@src/components/DefuseSDK/components/Modal/ModalSelectAssets"
 import { TradeNavigationLinks } from "@src/components/DefuseSDK/components/TradeNavigationLinks"
 import { useTokensUsdPrices } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
 import { formatUsdAmount } from "@src/components/DefuseSDK/utils/format"
@@ -21,7 +22,6 @@ import { Form } from "../../../components/Form"
 import { FieldComboInput } from "../../../components/Form/FieldComboInput"
 import { SwapIntentCard } from "../../../components/IntentCard/SwapIntentCard"
 import { Island } from "../../../components/Island"
-import type { ModalSelectTokenPayload } from "../../../components/Modal/ModalSelectToken"
 import { SWAP_TOKEN_FLAGS } from "../../../constants/swap"
 import { useModalStore } from "../../../providers/ModalStoreProvider"
 import { ModalType } from "../../../stores/modalStore"
@@ -93,8 +93,8 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     fieldName: string,
     token: SwappableToken | undefined
   ) => {
-    setModalType(ModalType.MODAL_SELECT_TOKEN, {
-      ...(payload as ModalSelectTokenPayload),
+    setModalType(ModalType.MODAL_SELECT_ASSETS, {
+      ...(payload as ModalSelectAssetsPayload),
       fieldName,
       [fieldName]: token,
       balances: depositedBalanceRef?.getSnapshot().context.balances,
@@ -103,15 +103,15 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
   useEffect(() => {
     if (
-      (payload as ModalSelectTokenPayload)?.modalType !==
-      ModalType.MODAL_SELECT_TOKEN
+      (payload as ModalSelectAssetsPayload)?.modalType !==
+      ModalType.MODAL_SELECT_ASSETS
     ) {
       return
     }
-    const { modalType, fieldName } = payload as ModalSelectTokenPayload
-    const _payload = payload as ModalSelectTokenPayload
+    const { modalType, fieldName } = payload as ModalSelectAssetsPayload
+    const _payload = payload as ModalSelectAssetsPayload
     const token = _payload[fieldName || "token"]
-    if (modalType === ModalType.MODAL_SELECT_TOKEN && fieldName && token) {
+    if (modalType === ModalType.MODAL_SELECT_ASSETS && fieldName && token) {
       const { tokenIn, tokenOut } =
         swapUIActorRef.getSnapshot().context.formValues
 
