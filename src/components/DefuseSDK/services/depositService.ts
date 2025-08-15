@@ -548,6 +548,7 @@ export function createDepositFromSiloTransaction(
     getEVMChainId("vertex"),
     getEVMChainId("optima"),
     getEVMChainId("easychain"),
+    getEVMChainId("aurora_devnet"),
   ]
 
   if (virtualChainIds.includes(chainId)) {
@@ -680,14 +681,12 @@ export async function createDepositStellarTransaction({
   depositAddress,
   amount,
   token,
-  trustlineExists,
   memo,
 }: {
   userAddress: string
   depositAddress: string
   amount: bigint
   token: BaseTokenInfo
-  trustlineExists: boolean
   memo?: string | null
 }): Promise<SendTransactionStellarParams> {
   assert(token.chainName === "stellar", "Token must be a Stellar token")
@@ -711,7 +710,6 @@ export async function createDepositStellarTransaction({
     amountToFormat,
     token.address,
     token.symbol,
-    trustlineExists,
     memo
   )
 }
@@ -748,7 +746,6 @@ function createTrustlineTransferStellarTransaction(
   amount: string,
   tokenAddress: string,
   tokenSymbol: string,
-  trustlineExists: boolean,
   memo?: string | null
 ): SendTransactionStellarParams {
   const asset = new Asset(tokenSymbol, tokenAddress)
@@ -756,16 +753,6 @@ function createTrustlineTransferStellarTransaction(
     fee: "100", // TODO: Should be checked
     networkPassphrase: Networks.PUBLIC,
   })
-
-  // TODO: Revisit this once trustlineExists is implemented
-  if (!trustlineExists) {
-    transaction.addOperation(
-      Operation.changeTrust({
-        asset: asset,
-        limit: "922337203685.4775807", // max trustline limit
-      })
-    )
-  }
 
   transaction.addOperation(
     Operation.payment({
@@ -886,7 +873,10 @@ export function createApproveTransaction(
 export function waitEVMTransaction({
   chainName,
   txHash,
-}: { chainName: SupportedChainName; txHash: Hash }) {
+}: {
+  chainName: SupportedChainName
+  txHash: Hash
+}) {
   const client = createPublicClient({
     transport: http(settings.rpcUrls[chainName]),
   })
@@ -951,6 +941,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.OPTIMA:
         case BlockchainEnum.EASYCHAIN:
         case BlockchainEnum.AURORA:
+        case BlockchainEnum.AURORA_DEVNET:
         case BlockchainEnum.HYPERLIQUID:
           return {
             activeDeposit: false,
@@ -1002,6 +993,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.OPTIMA:
         case BlockchainEnum.EASYCHAIN:
         case BlockchainEnum.AURORA:
+        case BlockchainEnum.AURORA_DEVNET:
           return {
             activeDeposit: true,
             passiveDeposit: false,
@@ -1059,6 +1051,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.OPTIMA:
         case BlockchainEnum.EASYCHAIN:
         case BlockchainEnum.AURORA:
+        case BlockchainEnum.AURORA_DEVNET:
         case BlockchainEnum.HYPERLIQUID:
           return {
             activeDeposit: false,
@@ -1104,6 +1097,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.OPTIMA:
         case BlockchainEnum.EASYCHAIN:
         case BlockchainEnum.AURORA:
+        case BlockchainEnum.AURORA_DEVNET:
         case BlockchainEnum.HYPERLIQUID:
           return {
             activeDeposit: false,
@@ -1155,6 +1149,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.OPTIMA:
         case BlockchainEnum.EASYCHAIN:
         case BlockchainEnum.AURORA:
+        case BlockchainEnum.AURORA_DEVNET:
         case BlockchainEnum.HYPERLIQUID:
           return {
             activeDeposit: false,
@@ -1206,6 +1201,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.OPTIMA:
         case BlockchainEnum.EASYCHAIN:
         case BlockchainEnum.AURORA:
+        case BlockchainEnum.AURORA_DEVNET:
         case BlockchainEnum.HYPERLIQUID:
           return {
             activeDeposit: false,
@@ -1242,6 +1238,8 @@ export function getWalletRpcUrl(network: BlockchainEnum): string {
       return settings.rpcUrls.turbochain
     case BlockchainEnum.AURORA:
       return settings.rpcUrls.aurora
+    case BlockchainEnum.AURORA_DEVNET:
+      return settings.rpcUrls.aurora_devnet
     case BlockchainEnum.XRPLEDGER:
       return settings.rpcUrls.xrpledger
     case BlockchainEnum.ZCASH:

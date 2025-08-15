@@ -5,6 +5,8 @@ import type { BlockResponse } from "@src/app/api/integrations/dextools/types"
 import { getLatestBlock } from "../../shared/queries/latestBlock"
 import type { ErrorResponse } from "../../shared/types"
 
+// Disable caching for this route handler - only the inner data processing is cached
+export const dynamic = "force-dynamic"
 /**
  * Returns the most recent block that contains event data, which can be used
  * as a safe upper bound for `/events` queries.

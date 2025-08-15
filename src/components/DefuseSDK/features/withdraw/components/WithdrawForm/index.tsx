@@ -12,6 +12,7 @@ import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
 import {
   addAmounts,
   getTokenMaxDecimals,
+  isMinAmountNotRequired,
   subtractAmounts,
 } from "@src/components/DefuseSDK/utils/tokenUtils"
 import { useSelector } from "@xstate/react"
@@ -71,6 +72,7 @@ type WithdrawFormProps = WithdrawWidgetProps
 
 export const WithdrawForm = ({
   userAddress,
+  displayAddress,
   chainType,
   tokenList,
   presetAmount,
@@ -196,7 +198,9 @@ export const WithdrawForm = ({
   )
   const minWithdrawalAmount = isNearIntentsNetwork(blockchain)
     ? null
-    : (minWithdrawalHyperliquidAmount ?? minWithdrawalPOABridgeAmount)
+    : chainType != null && isMinAmountNotRequired(chainType, blockchain)
+      ? null
+      : (minWithdrawalHyperliquidAmount ?? minWithdrawalPOABridgeAmount)
 
   const tokenInBalance = useSelector(
     depositedBalanceRef,
@@ -422,6 +426,7 @@ export const WithdrawForm = ({
             form={form}
             chainType={chainType}
             userAddress={userAddress}
+            displayAddress={displayAddress}
             tokenInBalance={tokenInBalance}
           />
 

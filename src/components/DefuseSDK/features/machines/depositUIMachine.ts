@@ -208,9 +208,13 @@ export const depositUIMachine = setup({
     },
     isVirtualChainSelected: ({ context }) => {
       const blockchain = context.depositFormRef.getSnapshot().context.blockchain
-      return ["tuxappchain", "vertex", "optima", "easychain"].includes(
-        blockchain ?? ""
-      )
+      return [
+        "tuxappchain",
+        "vertex",
+        "optima",
+        "easychain",
+        "aurora_devnet",
+      ].includes(blockchain ?? "")
     },
     isChainTonSelected: ({ context }) => {
       return context.depositFormRef.getSnapshot().context.blockchain === "ton"

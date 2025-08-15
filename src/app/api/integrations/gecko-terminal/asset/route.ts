@@ -41,8 +41,11 @@ LIMIT 1`
  * All asset properties aside from `id` may be mutable. The indexer will
  * periodically query assets for their most up-to-date information.
  *
- * test:
- * curl -X GET http://localhost:3000/api/integrations/gecko-terminal/asset?id=NEP-141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1 -H "Authorization: Bearer <JWT_TOKEN>" -H "Content-Type: application/json"
+ * test for nep141:
+ * curl -X GET http://localhost:3000/api/integrations/gecko-terminal/asset?id=17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1 -H "Authorization: Bearer <JWT_TOKEN>" -H "Content-Type: application/json"
+ *
+ * test for nep245:
+ * curl -X GET http://localhost:3000/api/integrations/gecko-terminal/asset?id=nep245:v2_1.omni.hot.tg:10_11111111111111111111 -H "Authorization: Bearer <JWT_TOKEN>" -H "Content-Type: application/json"
  *
  * @param request - The incoming Next.js request, containing the asset ID in the query parameters.
  * @returns A response containing the asset's information.

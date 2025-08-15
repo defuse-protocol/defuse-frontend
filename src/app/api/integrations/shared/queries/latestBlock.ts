@@ -1,4 +1,5 @@
 import { chQueryFirst } from "@src/clickhouse/clickhouse"
+import { unstable_cache } from "next/cache"
 
 import { err, ok, tryCatch } from "../result"
 import type { ApiResult, Block, LatestBlockResponse } from "../types"
@@ -26,6 +27,17 @@ FROM events`
  */
 export const getLatestBlock = tryCatch(
   async (): ApiResult<LatestBlockResponse> => {
+    // Call the cached function with the current state
+    return getLatestBlockCached()
+  }
+)
+
+/**
+ * Cached version of latest block fetching that doesn't access dynamic data.
+ * This function can be safely cached since it doesn't access request data.
+ */
+const getLatestBlockCached = unstable_cache(
+  async (): ApiResult<LatestBlockResponse> => {
     const block = await chQueryFirst<Block>(LATEST_BLOCK_QUERY, {
       fromBlock: latestBlock ?? LATEST_KNOWN_BLOCK,
       toBlock: Number.MAX_SAFE_INTEGER,
@@ -37,5 +49,10 @@ export const getLatestBlock = tryCatch(
 
     latestBlock = block.blockNumber
     return ok({ block })
+  },
+  ["latest-block"],
+  {
+    revalidate: 60, // Revalidate every minute
+    tags: ["latest-block"],
   }
 )

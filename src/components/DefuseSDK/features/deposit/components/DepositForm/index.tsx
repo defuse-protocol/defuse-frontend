@@ -9,6 +9,7 @@ import {
   availableChainsForToken,
   getDefaultBlockchainOptionValue,
 } from "@src/components/DefuseSDK/utils/blockchain"
+import { isMinAmountNotRequired } from "@src/components/DefuseSDK/utils/tokenUtils"
 import { useSelector } from "@xstate/react"
 import { useEffect, useState } from "react"
 import { Controller, useFormContext } from "react-hook-form"
@@ -33,8 +34,8 @@ import type {
 } from "../../../../types/base"
 import type { RenderHostAppLink } from "../../../../types/hostAppLink"
 import type { SwappableToken } from "../../../../types/swap"
-import { isBaseToken } from "../../../../utils/token"
 import { getPOABridgeInfo } from "../../../machines/poaBridgeInfoActor"
+import { getBaseTokenInfoWithFallback } from "../../../machines/withdrawFormReducer"
 import { DepositUIMachineContext } from "../DepositUIMachineProvider"
 import { ActiveDeposit } from "./ActiveDeposit"
 import { DepositMethodSelector } from "./DepositMethodSelector"
@@ -152,11 +153,22 @@ export const DepositForm = ({
   }, [formNetwork, token, setValue])
 
   const minDepositAmount = useSelector(poaBridgeInfoRef, (state) => {
-    if (token == null || !isBaseToken(token)) {
+    if (
+      chainType != null &&
+      network != null &&
+      isMinAmountNotRequired(chainType, network)
+    ) {
       return null
     }
 
-    const bridgedTokenInfo = getPOABridgeInfo(state, token)
+    const tokenOut = token
+      ? getBaseTokenInfoWithFallback(token, formNetwork)
+      : null
+    if (tokenOut == null) {
+      return null
+    }
+
+    const bridgedTokenInfo = getPOABridgeInfo(state, tokenOut)
     return bridgedTokenInfo == null ? null : bridgedTokenInfo.minDeposit
   })
 

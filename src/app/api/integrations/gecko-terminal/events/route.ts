@@ -4,6 +4,9 @@ import { getEvents } from "../../shared/queries/events"
 import type { ErrorResponse } from "../../shared/types"
 import type { EventsResponse } from "../types"
 
+// Disable caching for this route handler - only the inner data processing is cached
+export const dynamic = "force-dynamic"
+
 /**
  * Fetches swap events within a specified block range.
  *
