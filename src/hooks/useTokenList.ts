@@ -8,7 +8,7 @@ import { useFlatTokenList } from "@src/hooks/useFlatTokenList"
 import { useSearchParams } from "next/navigation"
 import { useMemo } from "react"
 
-export function useTokenList(tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]) {
+export function useTokenList(tokenList: TokenWithTags[]) {
   let list = useFlatTokenList(tokenList)
   const searchParams = useSearchParams()
 
@@ -90,12 +90,9 @@ export function useTokenList(tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]) {
   return list
 }
 
-function compareTokens(
-  a: BaseTokenInfo | UnifiedTokenInfo,
-  b: BaseTokenInfo | UnifiedTokenInfo
-): number {
-  const aTags = (a as { tags?: string[] }).tags || []
-  const bTags = (b as { tags?: string[] }).tags || []
+function compareTokens(a: TokenWithTags, b: TokenWithTags): number {
+  const aTags = a.tags ?? []
+  const bTags = b.tags ?? []
 
   // Sort by trade volume first
   const aVolume = getVolumeOrder(aTags)

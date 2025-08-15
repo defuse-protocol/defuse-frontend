@@ -1,6 +1,13 @@
-import { X as CrossIcon } from "@phosphor-icons/react"
+import type { TokenResponse } from "@defuse-protocol/one-click-sdk-typescript"
+import { CheckCircleIcon, XIcon } from "@phosphor-icons/react"
 import { Text } from "@radix-ui/themes"
+import { AssetComboIcon } from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
+import { chainIcons1cs } from "@src/components/DefuseSDK/constants/blockchains"
+import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
+import { TOKEN_ICONS } from "@src/constants/tokens"
+import clsx from "clsx"
 import {
+  type ReactNode,
   useCallback,
   useDeferredValue,
   useEffect,
@@ -9,21 +16,14 @@ import {
 } from "react"
 import type { BalanceMapping } from "../../features/machines/depositedBalanceMachine"
 import { useModalStore } from "../../providers/ModalStoreProvider"
-import { useTokensStore } from "../../providers/TokensStoreProvider"
 import { ModalType } from "../../stores/modalStore"
-import type { BaseTokenInfo, TokenValue } from "../../types/base"
-import { isUnifiedToken } from "../../utils/token"
-import {
-  compareAmounts,
-  computeTotalBalanceDifferentDecimals,
-} from "../../utils/tokenUtils"
-import { AssetList } from "../Asset/AssetList"
+import type { TokenValue } from "../../types/base"
 import { EmptyAssetList } from "../Asset/EmptyAssetList"
 import { SearchBar } from "../SearchBar"
 import { ModalDialog } from "./ModalDialog"
 import { ModalNoResults } from "./ModalNoResults"
 
-export type Token = BaseTokenInfo
+export type Token = TokenResponse
 
 export type ModalSelectTokenPayload = {
   modalType?: ModalType.MODAL_SELECT_TOKEN
@@ -34,6 +34,7 @@ export type ModalSelectTokenPayload = {
   balances?: BalanceMapping
   accountId?: string
   onConfirm?: (payload: ModalSelectTokenPayload) => void
+  tokens?: Token[]
 }
 
 export type SelectItemToken<T = Token> = {
@@ -50,7 +51,6 @@ export const ModalSelectToken = () => {
   const [assetList, setAssetList] = useState<SelectItemToken[]>([])
 
   const { onCloseModal, modalType, payload } = useModalStore((state) => state)
-  const { data, isLoading } = useTokensStore((state) => state)
   const deferredQuery = useDeferredValue(searchValue)
 
   const handleSearchClear = () => setSearchValue("")
@@ -61,93 +61,54 @@ export const ModalSelectToken = () => {
 
       return (
         asset.token.symbol.toLocaleUpperCase().includes(formattedQuery) ||
-        asset.token.name.toLocaleUpperCase().includes(formattedQuery)
+        asset.token.blockchain.toLocaleUpperCase().includes(formattedQuery)
       )
     },
     [deferredQuery]
   )
 
-  const handleSelectToken = (selectedItem: SelectItemToken) => {
-    if (modalType !== ModalType.MODAL_SELECT_TOKEN) {
-      throw new Error("Invalid modal type")
-    }
+  const handleSelectToken = useCallback(
+    (selectedItem: SelectItemToken<Token>) => {
+      if (modalType !== ModalType.MODAL_SELECT_TOKEN) {
+        throw new Error("Invalid modal type")
+      }
 
-    const newPayload: ModalSelectTokenPayload = {
-      ...(payload as ModalSelectTokenPayload),
-      modalType: ModalType.MODAL_SELECT_TOKEN,
-      [(payload as ModalSelectTokenPayload).fieldName || "token"]:
-        selectedItem.token,
-    }
-    onCloseModal(newPayload)
+      const newPayload: ModalSelectTokenPayload = {
+        ...(payload as ModalSelectTokenPayload),
+        modalType: ModalType.MODAL_SELECT_TOKEN,
+        [(payload as ModalSelectTokenPayload).fieldName || "token"]:
+          selectedItem.token,
+      }
+      onCloseModal(newPayload)
 
-    if (newPayload?.onConfirm) {
-      newPayload.onConfirm(newPayload)
-    }
-  }
+      if (newPayload?.onConfirm) {
+        newPayload.onConfirm(newPayload)
+      }
+    },
+    [modalType, payload, onCloseModal]
+  )
 
   useEffect(() => {
-    if (!data.size && !isLoading) {
-      return
-    }
-
     const _payload = payload as ModalSelectTokenPayload
     const fieldName = _payload.fieldName || "token"
     const selectToken = _payload[fieldName]
+    const tokens = _payload.tokens
+    const selectedTokenId = selectToken ? selectToken.assetId : undefined
 
-    // Warning: This is unsafe type casting, payload could be anything
-    const balances = (payload as ModalSelectTokenPayload).balances ?? {}
-
-    const selectedTokenId = selectToken ? selectToken.defuseAssetId : undefined
-
-    const getAssetList: SelectItemToken[] = []
-
-    for (const [tokenId, token] of data) {
-      const balance = computeTotalBalanceDifferentDecimals(token, balances)
-
-      if (isUnifiedToken(token)) {
-        getAssetList.push(
-          ...token.groupedTokens.map((token) => {
-            const disabled =
-              selectedTokenId != null && token.defuseAssetId === selectedTokenId
-
-            return {
-              itemId: `${token.defuseAssetId}-${token.chainName}`,
-              token,
-              disabled,
-              selected: disabled,
-              balance,
-            }
-          })
-        )
-      } else {
-        const disabled = selectedTokenId != null && tokenId === selectedTokenId
-
-        getAssetList.push({
-          itemId: token.defuseAssetId,
+    const getAssetList: SelectItemToken[] =
+      tokens?.map((token) => {
+        const selected = selectedTokenId === token.assetId
+        return {
+          itemId: token.assetId,
           token,
-          disabled,
-          selected: disabled,
-          balance,
-        })
-      }
-    }
-
-    // Put tokens with balance on top
-    getAssetList.sort((a, b) => {
-      if (a.balance == null && b.balance == null) {
-        return 0
-      }
-      if (a.balance == null) {
-        return 1
-      }
-      if (b.balance == null) {
-        return -1
-      }
-      return compareAmounts(b.balance, a.balance)
-    })
+          disabled: selected,
+          selected,
+          balance: undefined,
+        }
+      }) ?? []
 
     setAssetList(getAssetList)
-  }, [data, isLoading, payload])
+  }, [payload])
 
   const filteredAssets = useMemo(
     () => assetList.filter(filterPattern),
@@ -164,7 +125,7 @@ export const ModalSelectToken = () => {
                 Select token
               </Text>
               <button type="button" onClick={onCloseModal} className="p-3">
-                <CrossIcon width={18} height={18} />
+                <XIcon width={18} height={18} />
               </button>
             </div>
             <SearchBar query={searchValue} setQuery={setSearchValue} />
@@ -177,7 +138,6 @@ export const ModalSelectToken = () => {
               className="h-full"
               handleSelectToken={handleSelectToken}
               accountId={(payload as ModalSelectTokenPayload)?.accountId}
-              showChain={true}
             />
           ) : (
             <EmptyAssetList className="h-full" />
@@ -188,5 +148,79 @@ export const ModalSelectToken = () => {
         </div>
       </div>
     </ModalDialog>
+  )
+}
+
+type Props<T> = {
+  assets: SelectItemToken<T>[]
+  emptyState?: ReactNode
+  className?: string
+  accountId?: string
+  handleSelectToken?: (token: SelectItemToken<T>) => void
+}
+
+export const AssetList = <T extends Token>({
+  assets,
+  className,
+  handleSelectToken,
+}: Props<T>) => {
+  return (
+    <div className={clsx("flex flex-col", className && className)}>
+      {assets.map(({ itemId, token, selected, balance }, i) => {
+        return (
+          <button
+            key={itemId}
+            type="button"
+            className={clsx(
+              "flex justify-between items-center gap-3 p-2.5 rounded-md hover:bg-gray-3",
+              { "bg-gray-3": selected }
+            )}
+            // biome-ignore lint/style/noNonNullAssertion: i is always within bounds
+            onClick={() => handleSelectToken?.(assets[i]!)}
+          >
+            <div className="relative">
+              <AssetComboIcon
+                icon={TOKEN_ICONS[token.assetId]}
+                name={token.symbol}
+                showChainIcon={true}
+                chainName={token.blockchain}
+                chainIcon={chainIcons1cs[token.blockchain]}
+              />
+              {selected && (
+                <div className="absolute top-1 -right-1.5 rounded-full">
+                  <CheckCircleIcon width={12} height={12} weight="fill" />
+                </div>
+              )}
+            </div>
+            <div className="grow flex flex-col">
+              <div className="flex justify-between items-center">
+                <Text as="span" size="2" weight="medium">
+                  {token.symbol}
+                </Text>
+                <Balance balance={balance} />
+              </div>
+              <div className="flex justify-between items-center text-gray-11">
+                <Text as="span" size="2">
+                  {token.blockchain.toUpperCase()}
+                </Text>
+              </div>
+            </div>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+function Balance({ balance }: { balance: TokenValue | undefined }) {
+  return (
+    <Text as="span" size="2" weight="medium">
+      {balance != null
+        ? formatTokenValue(balance.amount, balance.decimals, {
+            min: 0.0001,
+            fractionDigits: 4,
+          })
+        : null}
+    </Text>
   )
 }
