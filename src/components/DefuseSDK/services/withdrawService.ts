@@ -1,7 +1,9 @@
 import {
+  Chains,
   type FeeEstimation,
   FeeExceedsAmountError,
   type RouteConfig,
+  RouteEnum,
   TrustlineNotFoundError,
   type WithdrawalParams,
   createDefaultRoute,
@@ -203,9 +205,11 @@ export async function prepareWithdraw(
         getAuroraEngineContractId(formValues.tokenOut.chainName),
         null // TODO: provide the correct value once you know it
       )
-    : formValues.tokenOut.chainName === "near"
-      ? createNearWithdrawalRoute()
-      : createDefaultRoute()
+    : formValues.tokenOut.defuseAssetId === "nep141:token.publicailab.near"
+      ? { route: RouteEnum.OmniBridge, chain: Chains.Solana }
+      : formValues.tokenOut.chainName === "near"
+        ? createNearWithdrawalRoute()
+        : createDefaultRoute()
 
   const baseWithdrawalParams: WithdrawalParams = {
     assetId: formValues.tokenOut.defuseAssetId,
