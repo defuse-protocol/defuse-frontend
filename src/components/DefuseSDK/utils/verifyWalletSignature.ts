@@ -81,7 +81,7 @@ export async function verifyWalletSignature(
         "SHA-256",
         signedMessageBase
       )
-      const messageHash = Buffer.from(messageHashBuffer)
+      const messageHash = new Uint8Array(messageHashBuffer)
 
       return sign.detached.verify(
         messageHash,
