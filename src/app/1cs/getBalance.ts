@@ -84,29 +84,33 @@ async function nearBalanceGetter(
   const address = token.contractAddress
   assert(address !== undefined, "Address is not defined")
 
-  const [nep141Balance, nativeBalance] = await Promise.all([
-    getNearNep141Balance({
-      tokenAddress: address,
-      accountId: normalizeToNearAddress(userWalletAddress),
-    }),
-    getNearNativeBalance({
-      accountId: normalizeToNearAddress(userWalletAddress),
-    }),
-  ])
-  // This is unique case for NEAR, where we need to sum up the native balance and the NEP-141 balance
   if (address === "wrap.near") {
+    const [nep141Balance, nativeBalance] = await Promise.all([
+      getNearNep141Balance({
+        tokenAddress: address,
+        accountId: normalizeToNearAddress(userWalletAddress),
+      }),
+      getNearNativeBalance({
+        accountId: normalizeToNearAddress(userWalletAddress),
+      }),
+    ])
+
     if (nep141Balance === null || nativeBalance === null) {
       throw new Error("Failed to fetch NEAR balances")
     }
+
     return nep141Balance + nativeBalance
   }
+
   const balance = await getNearNep141Balance({
     tokenAddress: address,
     accountId: normalizeToNearAddress(userWalletAddress),
   })
+
   if (balance === null) {
     throw new Error("Failed to fetch NEAR balances")
   }
+
   return balance
 }
 
