@@ -474,8 +474,6 @@ export function DepositUIMachineProvider({
                   depositAddress,
                   amount,
                   token: derivedToken,
-                  // TODO: check if trustline exists
-                  trustlineExists: true,
                   memo,
                 })
 

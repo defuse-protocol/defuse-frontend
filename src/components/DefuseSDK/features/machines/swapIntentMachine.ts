@@ -1,7 +1,7 @@
 import type {
   FeeEstimation,
   WithdrawalParams,
-} from "@defuse-protocol/bridge-sdk"
+} from "@defuse-protocol/intents-sdk"
 import { errors, solverRelay } from "@defuse-protocol/internal-utils"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { messageFactory } from "@defuse-protocol/internal-utils"
@@ -729,13 +729,14 @@ export function calcOperationAmountOut(
       )
     }
 
-    case "withdraw":
+    case "withdraw": {
       return calcWithdrawAmount(
         operation.tokenOut,
         quoteToPublish,
         operation.feeEstimation,
         operation.directWithdrawalAmount
       ).withdrawAmount
+    }
 
     default:
       operationType satisfies never

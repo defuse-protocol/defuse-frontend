@@ -13,12 +13,8 @@ export { GiftHistoryWidget } from "./features/gift/components/GiftHistoryWidget"
 export {
   createEmptyIntentMessage,
   createSwapIntentMessage,
-  createWithdrawIntentMessage,
 } from "./core/messages"
-export type {
-  IntentMessageConfig,
-  WithdrawIntentMessageConfig,
-} from "./core/messages"
+export type { IntentMessageConfig } from "./core/messages"
 
 // Protocol formatters
 export {
