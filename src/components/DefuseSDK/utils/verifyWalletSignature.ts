@@ -43,7 +43,7 @@ export async function verifyWalletSignature(
     case "TON_CONNECT":
       // todo: implement https://github.com/tonkeeper/demo-dapp-with-wallet/blob/master/src/components/SignDataForm/verify.ts
       return true
-    case "STELLAR": {
+    case "STELLAR_RAW": {
       // Convert Stellar address to public key bytes
       const keypair = Keypair.fromPublicKey(userAddress)
       const publicKeyBytes = keypair.rawPublicKey()
@@ -56,6 +56,35 @@ export async function verifyWalletSignature(
 
       return sign.detached.verify(
         messageBytes,
+        signature.signatureData,
+        publicKeyBytes
+      )
+    }
+    case "STELLAR_SEP53": {
+      // Convert Stellar address to public key bytes
+      const keypair = Keypair.fromPublicKey(userAddress)
+      const publicKeyBytes = keypair.rawPublicKey()
+
+      // Step 1: Encode the message with prefix
+      const prefix = "Stellar Signed Message:\n"
+      const prefixBytes = new TextEncoder().encode(prefix)
+      const messageBytes = new TextEncoder().encode(
+        signature.signedData.message
+      )
+      const signedMessageBase = new Uint8Array([
+        ...prefixBytes,
+        ...messageBytes,
+      ])
+
+      // Step 2: Hash the encoded message (SHA256 of signedMessageBase)
+      const messageHashBuffer = await crypto.subtle.digest(
+        "SHA-256",
+        signedMessageBase
+      )
+      const messageHash = Buffer.from(messageHashBuffer)
+
+      return sign.detached.verify(
+        messageHash,
         signature.signatureData,
         publicKeyBytes
       )
