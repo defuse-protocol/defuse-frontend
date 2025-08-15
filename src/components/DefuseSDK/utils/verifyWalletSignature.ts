@@ -1,5 +1,6 @@
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { secp256k1 } from "@noble/curves/secp256k1"
+import { sha256 } from "@noble/hashes/sha256"
 import { base58 } from "@scure/base"
 import { Keypair } from "@stellar/stellar-sdk"
 import { sign } from "tweetnacl"
@@ -43,30 +44,49 @@ export async function verifyWalletSignature(
     case "TON_CONNECT":
       // todo: implement https://github.com/tonkeeper/demo-dapp-with-wallet/blob/master/src/components/SignDataForm/verify.ts
       return true
-    // @ts-expect-error
-    case "STELLAR": {
+    case "STELLAR_RAW": {
       // Convert Stellar address to public key bytes
       const keypair = Keypair.fromPublicKey(userAddress)
       const publicKeyBytes = keypair.rawPublicKey()
 
       // Convert message to Uint8Array if it's a string
       const messageBytes =
-        // @ts-expect-error
         typeof signature.signedData.message === "string"
-          ? // @ts-expect-error
-            new TextEncoder().encode(signature.signedData.message)
-          : // @ts-expect-error
-            signature.signedData.message
+          ? new TextEncoder().encode(signature.signedData.message)
+          : signature.signedData.message
 
       return sign.detached.verify(
         messageBytes,
-        // @ts-expect-error
+        signature.signatureData,
+        publicKeyBytes
+      )
+    }
+    case "STELLAR_SEP53": {
+      // Convert Stellar address to public key bytes
+      const keypair = Keypair.fromPublicKey(userAddress)
+      const publicKeyBytes = keypair.rawPublicKey()
+
+      // Step 1: Encode the message with prefix
+      const prefix = "Stellar Signed Message:\n"
+      const prefixBytes = new TextEncoder().encode(prefix)
+      const messageBytes = new TextEncoder().encode(
+        signature.signedData.message
+      )
+      const signedMessageBase = new Uint8Array([
+        ...prefixBytes,
+        ...messageBytes,
+      ])
+
+      // Step 2: Hash the encoded message (SHA256 of signedMessageBase)
+      const messageHash = sha256(signedMessageBase)
+
+      return sign.detached.verify(
+        messageHash,
         signature.signatureData,
         publicKeyBytes
       )
     }
     default:
-      // @ts-expect-error
       signatureType satisfies never
       throw new Error("exhaustive check failed")
   }

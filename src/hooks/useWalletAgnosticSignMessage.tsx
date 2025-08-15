@@ -86,12 +86,11 @@ export function useWalletAgnosticSignMessage() {
       }
 
       case ChainType.Stellar: {
-        const signatureData = await signMessageStellar(
+        const { signatureData, signatureType } = await signMessageStellar(
           walletMessage.STELLAR.message
         )
         return {
-          // @ts-expect-error
-          type: "STELLAR",
+          type: signatureType,
           signatureData,
           signedData: walletMessage.STELLAR,
         }

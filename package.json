@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@clickhouse/client": "^1.11.2",
-    "@creit.tech/stellar-wallets-kit": "^1.7.7",
+    "@creit.tech/stellar-wallets-kit": "^1.8.0",
     "@defuse-protocol/intents-sdk": "0.16.2",
     "@defuse-protocol/internal-utils": "0.8.1",
     "@defuse-protocol/one-click-sdk-typescript": "^0.1.9",
