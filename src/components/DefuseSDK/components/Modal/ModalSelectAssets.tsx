@@ -148,6 +148,20 @@ export const ModalSelectAssets = () => {
       return compareAmounts(b.balance, a.balance)
     })
 
+    // Put tokens with usdValue on top
+    getAssetList.sort((a, b) => {
+      if (a.usdValue == null && b.usdValue == null) {
+        return 0
+      }
+      if (a.usdValue == null) {
+        return 1
+      }
+      if (b.usdValue == null) {
+        return -1
+      }
+      return b.usdValue - a.usdValue
+    })
+
     setAssetList(getAssetList)
   }, [data, isLoading, payload])
 
