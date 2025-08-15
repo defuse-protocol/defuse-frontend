@@ -69,7 +69,7 @@ export const signMessageStellar = async (
   message: string
 ): Promise<{
   signatureType: "STELLAR_RAW" | "STELLAR_SEP53"
-  signatureData: Uint8Array | string
+  signatureData: Uint8Array
 }> => {
   const k = getKit()
   const walletId = getSelectedWalletId()
