@@ -20,7 +20,6 @@ import type { SwappableToken } from "../../../types/swap"
 import { assert } from "../../../utils/assert"
 import { formatTokenValue, formatUsdAmount } from "../../../utils/format"
 import getTokenUsdPrice from "../../../utils/getTokenUsdPrice"
-import type { Holding } from "../../account/types/sharedTypes"
 import { TokenAmountInputCard } from "../../deposit/components/DepositForm/TokenAmountInputCard"
 import { balanceAllSelector } from "../../machines/depositedBalanceMachine"
 import type { SendNearTransaction } from "../../machines/publicKeyVerifierMachine"
@@ -71,8 +70,6 @@ export type OtcMakerWidgetProps = {
 
   /** Frontend referral */
   referral?: string
-
-  holdings: Holding[] | undefined
 }
 
 export function OtcMakerForm({
@@ -87,7 +84,6 @@ export function OtcMakerForm({
   renderHostAppLink,
   referral,
   createOtcTrade,
-  holdings,
 }: OtcMakerWidgetProps) {
   const signerCredentials: SignerCredentials | null = useMemo(
     () =>
@@ -129,10 +125,6 @@ export function OtcMakerForm({
       tokenInBalance: formValues.tokenIn,
       tokenOutBalance: formValues.tokenOut,
     })
-  )
-  const depositedBalanceRef = useSelector(
-    rootActorRef,
-    (s) => s.context.depositedBalanceRef
   )
 
   const rootSnapshot = useSelector(rootActorRef, (s) => s)
@@ -181,7 +173,6 @@ export function OtcMakerForm({
       ...(payload as ModalSelectAssetsPayload),
       fieldName,
       [fieldName]: token,
-      balances: depositedBalanceRef?.getSnapshot().context.balances,
       onConfirm: (payload: ModalSelectAssetsPayload) => {
         const { fieldName } = payload as ModalSelectAssetsPayload
         const _payload = payload as ModalSelectAssetsPayload
@@ -214,7 +205,7 @@ export function OtcMakerForm({
           }
         }
       },
-      holdings,
+      holdings: true,
     })
   }
 

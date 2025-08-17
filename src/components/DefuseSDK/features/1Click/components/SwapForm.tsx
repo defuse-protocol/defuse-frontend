@@ -97,7 +97,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
       ...(payload as ModalSelectAssetsPayload),
       fieldName,
       [fieldName]: token,
-      balances: depositedBalanceRef?.getSnapshot().context.balances,
+      holdings: true,
     })
   }
 

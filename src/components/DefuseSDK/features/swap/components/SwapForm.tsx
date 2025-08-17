@@ -28,7 +28,6 @@ import { ModalType } from "../../../stores/modalStore"
 import type { RenderHostAppLink } from "../../../types/hostAppLink"
 import type { SwappableToken } from "../../../types/swap"
 import { compareAmounts } from "../../../utils/tokenUtils"
-import type { Holding } from "../../account/types/sharedTypes"
 import {
   balanceSelector,
   transitBalanceSelector,
@@ -48,14 +47,9 @@ export type SwapFormValues = {
 export interface SwapFormProps {
   isLoggedIn: boolean
   renderHostAppLink: RenderHostAppLink
-  holdings: Holding[] | undefined
 }
 
-export const SwapForm = ({
-  isLoggedIn,
-  renderHostAppLink,
-  holdings,
-}: SwapFormProps) => {
+export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const {
     handleSubmit,
     register,
@@ -114,8 +108,7 @@ export const SwapForm = ({
       ...(payload as ModalSelectAssetsPayload),
       fieldName,
       [fieldName]: token,
-      balances: depositedBalanceRef?.getSnapshot().context.balances,
-      holdings,
+      holdings: true,
     })
   }
 

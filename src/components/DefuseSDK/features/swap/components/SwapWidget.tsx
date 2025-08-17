@@ -23,7 +23,6 @@ export const SwapWidget = ({
   initialTokenOut,
   onTokenChange,
   referral,
-  holdings,
 }: SwapWidgetProps) => {
   return (
     <WidgetRoot>
@@ -57,7 +56,6 @@ export const SwapWidget = ({
                 <SwapForm
                   isLoggedIn={userAddress != null}
                   renderHostAppLink={renderHostAppLink}
-                  holdings={holdings}
                 />
               </SwapSubmitterProvider>
             </SwapUIMachineFormSyncProvider>

@@ -1,11 +1,8 @@
 "use client"
 
-import { SwapWidget } from "@src/components/DefuseSDK"
-
-import { authIdentity } from "@defuse-protocol/internal-utils"
 import { updateURLParams } from "@src/app/(home)/_utils/useDeterminePair"
 import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
-import { useWatchHoldings } from "@src/components/DefuseSDK/features/account/hooks/useWatchHoldings"
+import { SwapWidget } from "@src/components/DefuseSDK"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS, type TokenWithTags } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
@@ -28,12 +25,6 @@ export default function Swap() {
 
   const userAddress = state.isVerified ? state.address : undefined
   const userChainType = state.chainType
-
-  const userId =
-    userAddress != null && userChainType != null
-      ? authIdentity.authHandleToIntentsUserId(userAddress, userChainType)
-      : null
-  const holdings = useWatchHoldings({ userId, tokenList })
 
   return (
     <Paper>
@@ -64,7 +55,6 @@ export default function Swap() {
         onTokenChange={(params) =>
           updateURLParams({ ...params, router, searchParams })
         }
-        holdings={holdings}
       />
     </Paper>
   )

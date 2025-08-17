@@ -13,7 +13,7 @@ import type { SelectItemToken } from "../Modal/ModalSelectAssets"
 import { chainIcons } from "@src/components/DefuseSDK/constants/blockchains"
 import { FormattedCurrency } from "../../features/account/components/shared/FormattedCurrency"
 import { formatTokenValue } from "../../utils/format"
-import { isBaseToken } from "../../utils/token"
+import { getTokenId, isBaseToken } from "../../utils/token"
 import { AssetComboIcon } from "./AssetComboIcon"
 
 type Props<T> = {
@@ -35,14 +35,14 @@ export const AssetList = <T extends Token>({
 }: Props<T>) => {
   return (
     <div className={clsx("flex flex-col", className && className)}>
-      {assets.map(({ itemId, token, selected, balance, usdValue }, i) => {
+      {assets.map(({ token, selected, value, usdValue }, i) => {
         const chainIcon = isBaseToken(token)
           ? chainIcons[token.chainName]
           : undefined
 
         return (
           <button
-            key={itemId}
+            key={getTokenId(token)}
             type="button"
             className={clsx(
               "flex justify-between items-center gap-3 p-2.5 rounded-md hover:bg-gray-3",
@@ -70,7 +70,7 @@ export const AssetList = <T extends Token>({
                 <Text as="span" size="2" weight="medium">
                   {token.name}
                 </Text>
-                {renderBalance(balance)}
+                {renderBalance({ value })}
               </div>
               <div className="flex justify-between items-center text-gray-11">
                 <Text as="span" size="2">
@@ -97,15 +97,17 @@ export const AssetList = <T extends Token>({
   )
 }
 
-function renderBalance(balance: TokenValue | undefined) {
+function renderBalance({ value }: { value: TokenValue | undefined }) {
+  const shortFormatted = value
+    ? formatTokenValue(value.amount, value.decimals, {
+        fractionDigits: 4,
+        min: 0.0001,
+      })
+    : undefined
+
   return (
     <Text as="span" size="2" weight="medium">
-      {balance != null
-        ? formatTokenValue(balance.amount, balance.decimals, {
-            min: 0.0001,
-            fractionDigits: 4,
-          })
-        : null}
+      {shortFormatted ?? "0"}
     </Text>
   )
 }

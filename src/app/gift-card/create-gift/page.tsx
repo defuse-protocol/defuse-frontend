@@ -1,9 +1,6 @@
 "use client"
-
-import { authIdentity } from "@defuse-protocol/internal-utils"
 import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
 import { GiftHistoryWidget, GiftMakerWidget } from "@src/components/DefuseSDK"
-import { useWatchHoldings } from "@src/components/DefuseSDK/features/account/hooks/useWatchHoldings"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
@@ -24,12 +21,6 @@ export default function CreateGiftPage() {
 
   const userAddress = state.isVerified ? state.address : undefined
   const userChainType = state.chainType
-
-  const userId =
-    userAddress != null && userChainType != null
-      ? authIdentity.authHandleToIntentsUserId(userAddress, userChainType)
-      : null
-  const holdings = useWatchHoldings({ userId, tokenList })
 
   return (
     <Paper>
@@ -58,7 +49,6 @@ export default function CreateGiftPage() {
           generateLink={(giftLinkData) => createGiftLink(giftLinkData)}
           initialToken={tokenIn ?? undefined}
           renderHostAppLink={renderAppLink}
-          holdings={holdings}
         />
         <GiftHistoryWidget
           tokenList={tokenList}

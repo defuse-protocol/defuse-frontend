@@ -18,7 +18,6 @@ import type { SwappableToken } from "../../../types/swap"
 import { assert } from "../../../utils/assert"
 import { formatTokenValue, formatUsdAmount } from "../../../utils/format"
 import getTokenUsdPrice from "../../../utils/getTokenUsdPrice"
-import type { Holding } from "../../account/types/sharedTypes"
 import { TokenAmountInputCard } from "../../deposit/components/DepositForm/TokenAmountInputCard"
 import { balanceAllSelector } from "../../machines/depositedBalanceMachine"
 import type { SendNearTransaction } from "../../machines/publicKeyVerifierMachine"
@@ -76,8 +75,6 @@ export type GiftMakerWidgetProps = {
   referral?: string
 
   renderHostAppLink: RenderHostAppLink
-
-  holdings: Holding[] | undefined
 }
 
 const MAX_MESSAGE_LENGTH = 500
@@ -93,7 +90,6 @@ export function GiftMakerForm({
   referral,
   renderHostAppLink,
   createGiftIntent,
-  holdings,
 }: GiftMakerWidgetProps) {
   const signerCredentials: SignerCredentials | null = useMemo(
     () =>
@@ -147,11 +143,6 @@ export function GiftMakerForm({
     tokensUsdPriceData
   )
 
-  const depositedBalanceRef = useSelector(
-    rootActorRef,
-    (state) => state.children.depositedBalanceRef
-  )
-
   const { setModalType, payload } = useModalStore((state) => state)
 
   const openModalSelectAssets = (
@@ -162,8 +153,7 @@ export function GiftMakerForm({
       ...(payload as ModalSelectAssetsPayload),
       fieldName,
       [fieldName]: token,
-      balances: depositedBalanceRef?.getSnapshot().context.balances,
-      holdings,
+      holdings: true,
     })
   }
 
