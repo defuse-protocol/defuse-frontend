@@ -47,7 +47,9 @@ export default function Swap() {
         }}
         signMessage={(params) => signMessage(params)}
         onSuccessSwap={() => {}}
-        renderHostAppLink={renderAppLink}
+        renderHostAppLink={(routeName, children, props) =>
+          renderAppLink(routeName, children, props, searchParams)
+        }
         userChainType={userChainType}
         referral={referral}
         initialTokenIn={tokenIn ?? undefined}
