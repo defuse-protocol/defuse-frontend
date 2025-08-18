@@ -17,6 +17,9 @@ export type DepositWidgetProps = {
   sendTransactionTon: (tx: Transaction["TON"]) => Promise<string | null>
   sendTransactionStellar: (tx: Transaction["Stellar"]) => Promise<string | null>
   initialToken?: SwappableToken
+  onTokenChange?: (params: {
+    token: SwappableToken | null
+  }) => void
 }
 
 export type Transaction = {

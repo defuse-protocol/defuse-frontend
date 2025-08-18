@@ -6,12 +6,18 @@ import { LIST_TOKENS } from "@src/constants/tokens"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { renderAppLink } from "@src/utils/renderAppLink"
-import { useDeterminePair } from "../(home)/_utils/useDeterminePair"
+import { useRouter, useSearchParams } from "next/navigation"
+import {
+  updateURLParams,
+  useDeterminePair,
+} from "../(home)/_utils/useDeterminePair"
 
 export default function Deposit() {
   const { state, sendTransaction } = useConnectWallet()
   const tokenList = useTokenList(LIST_TOKENS)
   const { tokenIn } = useDeterminePair()
+  const router = useRouter()
+  const searchParams = useSearchParams()
 
   return (
     <Paper>
@@ -66,6 +72,14 @@ export default function Deposit() {
         }}
         renderHostAppLink={renderAppLink}
         initialToken={tokenIn ?? undefined}
+        onTokenChange={(params) =>
+          updateURLParams({
+            router,
+            searchParams,
+            tokenIn: params.token,
+            tokenOut: null,
+          })
+        }
       />
     </Paper>
   )

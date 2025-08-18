@@ -2,6 +2,7 @@ import { authIdentity } from "@defuse-protocol/internal-utils"
 import { depositMachine } from "@src/components/DefuseSDK/features/machines/depositMachine"
 import { createActorContext } from "@xstate/react"
 import type { PropsWithChildren, ReactElement, ReactNode } from "react"
+import { useRef } from "react"
 import { useFormContext } from "react-hook-form"
 import { type Hash, getAddress } from "viem"
 import {
@@ -37,7 +38,9 @@ import { getEVMChainId } from "../../../utils/evmChainId"
 import { isFungibleToken, isNativeToken } from "../../../utils/token"
 import { depositGenerateAddressMachine } from "../../machines/depositGenerateAddressMachine"
 import { depositUIMachine } from "../../machines/depositUIMachine"
+import { useDepositTokenChangeNotifier } from "../../swap/hooks/useTokenChangeNotifier"
 import type { DepositFormValues } from "./DepositForm"
+
 /**
  * We explicitly define the type of `depositUIMachine` to avoid:
  * ```
@@ -71,6 +74,9 @@ interface DepositUIMachineProviderProps extends PropsWithChildren {
   sendTransactionSolana: (tx: Transaction["Solana"]) => Promise<string | null>
   sendTransactionTon: (tx: Transaction["TON"]) => Promise<string | null>
   sendTransactionStellar: (tx: Transaction["Stellar"]) => Promise<string | null>
+  onTokenChange?: (params: {
+    token: SwappableToken | null
+  }) => void
 }
 
 export function DepositUIMachineProvider({
@@ -82,6 +88,7 @@ export function DepositUIMachineProvider({
   sendTransactionSolana,
   sendTransactionTon,
   sendTransactionStellar,
+  onTokenChange,
 }: DepositUIMachineProviderProps) {
   const { setValue } = useFormContext<DepositFormValues>()
   const token = initialToken ?? tokenList[0]
@@ -506,7 +513,24 @@ export function DepositUIMachineProvider({
         },
       })}
     >
+      <TokenChangeNotifier onTokenChange={onTokenChange} token={token} />
       {children}
     </DepositUIMachineContext.Provider>
   )
+}
+
+function TokenChangeNotifier({
+  onTokenChange,
+  token,
+}: {
+  onTokenChange?: (params: {
+    token: SwappableToken | null
+  }) => void
+  token: SwappableToken
+}) {
+  useDepositTokenChangeNotifier({
+    onTokenChange,
+    prevTokenRef: useRef({ token }),
+  })
+  return null
 }
