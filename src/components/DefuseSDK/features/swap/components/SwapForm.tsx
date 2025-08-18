@@ -108,7 +108,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
       ...(payload as ModalSelectAssetsPayload),
       fieldName,
       [fieldName]: token,
-      holdings: true,
+      isHoldingsEnabled: true,
     })
   }
 

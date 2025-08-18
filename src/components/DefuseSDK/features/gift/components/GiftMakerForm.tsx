@@ -153,7 +153,7 @@ export function GiftMakerForm({
       ...(payload as ModalSelectAssetsPayload),
       fieldName,
       [fieldName]: token,
-      holdings: true,
+      isHoldingsEnabled: true,
     })
   }
 

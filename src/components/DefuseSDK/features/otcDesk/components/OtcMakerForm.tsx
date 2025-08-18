@@ -205,7 +205,7 @@ export function OtcMakerForm({
           }
         }
       },
-      holdings: true,
+      isHoldingsEnabled: true,
     })
   }
 

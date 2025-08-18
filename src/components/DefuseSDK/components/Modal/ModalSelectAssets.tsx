@@ -42,7 +42,7 @@ export type ModalSelectAssetsPayload = {
   balances?: BalanceMapping
   accountId?: string
   onConfirm?: (payload: ModalSelectAssetsPayload) => void
-  holdings?: boolean
+  isHoldingsEnabled?: boolean
 }
 
 export type SelectItemToken<T = Token> = {
@@ -114,7 +114,8 @@ export const ModalSelectAssets = () => {
     const fieldName = payload_.fieldName || "token"
     const selectToken = payload_[fieldName]
 
-    const isHoldingsEnabled = payload_.holdings ?? payload_.balances != null
+    const isHoldingsEnabled =
+      payload_.isHoldingsEnabled ?? payload_.balances != null
 
     // TODO: remove this once we remove the legacy props
     const balances = (payload as ModalSelectAssetsPayload).balances ?? {}
