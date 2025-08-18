@@ -65,6 +65,7 @@ export const DepositUIMachineContext: DepositUIMachineContextInterface =
 
 interface DepositUIMachineProviderProps extends PropsWithChildren {
   tokenList: SwappableToken[]
+  initialToken?: SwappableToken
   sendTransactionNear: (tx: Transaction["NEAR"][]) => Promise<string | null>
   sendTransactionEVM: (tx: Transaction["EVM"]) => Promise<Hash | null>
   sendTransactionSolana: (tx: Transaction["Solana"]) => Promise<string | null>
@@ -75,6 +76,7 @@ interface DepositUIMachineProviderProps extends PropsWithChildren {
 export function DepositUIMachineProvider({
   children,
   tokenList,
+  initialToken,
   sendTransactionNear,
   sendTransactionEVM,
   sendTransactionSolana,
@@ -82,11 +84,15 @@ export function DepositUIMachineProvider({
   sendTransactionStellar,
 }: DepositUIMachineProviderProps) {
   const { setValue } = useFormContext<DepositFormValues>()
+  const token = initialToken ?? tokenList[0]
+  assert(token != null, "Token is not defined")
+
   return (
     <DepositUIMachineContext.Provider
       options={{
         input: {
           tokenList,
+          token,
         },
       }}
       logic={depositUIMachine.provide({

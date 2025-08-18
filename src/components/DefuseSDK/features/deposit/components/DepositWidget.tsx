@@ -20,6 +20,7 @@ export const DepositWidget = ({
   sendTransactionTon,
   sendTransactionStellar,
   renderHostAppLink,
+  initialToken,
 }: DepositWidgetProps) => {
   return (
     <WidgetRoot>
@@ -28,6 +29,7 @@ export const DepositWidget = ({
         <DepositFormProvider>
           <DepositUIMachineProvider
             tokenList={tokenList}
+            initialToken={initialToken}
             sendTransactionNear={sendTransactionNear}
             sendTransactionEVM={sendTransactionEVM}
             sendTransactionSolana={sendTransactionSolana}

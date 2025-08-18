@@ -6,10 +6,12 @@ import { LIST_TOKENS } from "@src/constants/tokens"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { renderAppLink } from "@src/utils/renderAppLink"
+import { useDeterminePair } from "../(home)/_utils/useDeterminePair"
 
 export default function Deposit() {
   const { state, sendTransaction } = useConnectWallet()
   const tokenList = useTokenList(LIST_TOKENS)
+  const { tokenIn } = useDeterminePair()
 
   return (
     <Paper>
@@ -63,6 +65,7 @@ export default function Deposit() {
           return Array.isArray(result) ? result[0].transaction.hash : result
         }}
         renderHostAppLink={renderAppLink}
+        initialToken={tokenIn ?? undefined}
       />
     </Paper>
   )

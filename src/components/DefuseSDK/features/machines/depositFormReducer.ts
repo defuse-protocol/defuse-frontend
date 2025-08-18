@@ -9,6 +9,7 @@ import type {
   SupportedChainName,
   UnifiedTokenInfo,
 } from "../../types/base"
+import type { SwappableToken } from "../../types/swap"
 
 export type Fields = Array<Exclude<keyof State, "parentRef">>
 const fields: Fields = ["token", "blockchain", "parsedAmount", "amount"]
@@ -137,11 +138,12 @@ export const depositFormReducer = fromTransition(
   }: {
     input: {
       parentRef: ParentActor
+      token: SwappableToken
     }
   }): State => {
     return {
       parentRef: input.parentRef,
-      token: null,
+      token: input.token,
       derivedToken: null,
       blockchain: null,
       parsedAmount: null,
