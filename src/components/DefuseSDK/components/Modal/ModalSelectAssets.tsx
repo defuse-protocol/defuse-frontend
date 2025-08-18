@@ -20,7 +20,10 @@ import type {
   UnifiedTokenInfo,
 } from "../../types/base"
 import { getTokenId, isBaseToken } from "../../utils/token"
-import { compareAmounts } from "../../utils/tokenUtils"
+import {
+  compareAmounts,
+  computeTotalBalanceDifferentDecimals,
+} from "../../utils/tokenUtils"
 import { AssetList } from "../Asset/AssetList"
 import { EmptyAssetList } from "../Asset/EmptyAssetList"
 import { SearchBar } from "../SearchBar"
@@ -35,6 +38,7 @@ export type ModalSelectAssetsPayload = {
   tokenIn?: Token
   tokenOut?: Token
   fieldName?: "tokenIn" | "tokenOut" | "token"
+  /** @deprecated legacy props use holdings instead */
   balances?: BalanceMapping
   accountId?: string
   onConfirm?: (payload: ModalSelectAssetsPayload) => void
@@ -46,10 +50,9 @@ export type SelectItemToken<T = Token> = {
   disabled: boolean
   selected: boolean
   defuseAssetId?: string
-  value?: TokenValue
   usdValue?: number
-  transitValue?: TokenValue
-  transitUsdValue?: number
+  value?: TokenValue
+  isHoldingsEnabled: boolean
 }
 
 export const ModalSelectAssets = () => {
@@ -111,7 +114,10 @@ export const ModalSelectAssets = () => {
     const fieldName = payload_.fieldName || "token"
     const selectToken = payload_[fieldName]
 
-    const isHoldingsEnabled = payload_.holdings ?? false
+    const isHoldingsEnabled = payload_.holdings ?? payload_.balances != null
+
+    // TODO: remove this once we remove the legacy props
+    const balances = (payload as ModalSelectAssetsPayload).balances ?? {}
 
     const selectedTokenId = selectToken
       ? isBaseToken(selectToken)
@@ -123,6 +129,10 @@ export const ModalSelectAssets = () => {
 
     for (const [tokenId, token] of data) {
       const disabled = selectedTokenId != null && tokenId === selectedTokenId
+
+      // TODO: remove this once we remove the legacy props
+      const balance = computeTotalBalanceDifferentDecimals(token, balances)
+
       const findHolding = isHoldingsEnabled
         ? holdings?.find((holding) => getTokenId(holding.token) === tokenId)
         : undefined
@@ -131,10 +141,9 @@ export const ModalSelectAssets = () => {
         token,
         disabled,
         selected: disabled,
-        transitUsdValue: findHolding?.transitUsdValue,
-        transitValue: findHolding?.transitValue,
         usdValue: findHolding?.usdValue,
-        value: findHolding?.value,
+        value: findHolding?.value ?? balance,
+        isHoldingsEnabled,
       })
     }
 
