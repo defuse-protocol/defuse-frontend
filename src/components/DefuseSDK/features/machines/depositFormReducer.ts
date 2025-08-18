@@ -10,6 +10,7 @@ import type {
   UnifiedTokenInfo,
 } from "../../types/base"
 import type { SwappableToken } from "../../types/swap"
+import { isBaseToken, isUnifiedToken } from "../../utils"
 
 export type Fields = Array<Exclude<keyof State, "parentRef">>
 const fields: Fields = ["token", "blockchain", "parsedAmount", "amount"]
@@ -141,11 +142,20 @@ export const depositFormReducer = fromTransition(
       token: SwappableToken
     }
   }): State => {
+    let blockchain = null
+    if (!isUnifiedToken(input.token)) {
+      blockchain = isBaseToken(input.token) ? input.token.chainName : null
+    }
+    const derivedToken =
+      input.token && blockchain
+        ? getDerivedToken(input.token, blockchain)
+        : null
+
     return {
       parentRef: input.parentRef,
       token: input.token,
-      derivedToken: null,
-      blockchain: null,
+      derivedToken,
+      blockchain,
       parsedAmount: null,
       amount: "",
     }
