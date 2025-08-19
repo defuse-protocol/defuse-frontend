@@ -1,4 +1,4 @@
-import type { AuthMethod } from "@defuse-protocol/internal-utils"
+import type { authHandle } from "@defuse-protocol/internal-utils"
 import { ArrowsDownUp } from "@phosphor-icons/react"
 import type { ModalSelectAssetsPayload } from "@src/components/DefuseSDK/components/Modal/ModalSelectAssets"
 import { useActorRef, useSelector } from "@xstate/react"
@@ -43,8 +43,8 @@ export type OtcMakerWidgetProps = {
   tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
 
   /** User's wallet address */
-  userAddress: string | null | undefined
-  userChainType: AuthMethod | null | undefined
+  userAddress: authHandle.AuthHandle["identifier"] | undefined
+  chainType: authHandle.AuthHandle["method"] | undefined
 
   /** Initial tokens for pre-filling the form */
   initialTokenIn?: BaseTokenInfo | UnifiedTokenInfo
@@ -75,7 +75,7 @@ export type OtcMakerWidgetProps = {
 export function OtcMakerForm({
   tokenList,
   userAddress,
-  userChainType,
+  chainType,
   initialTokenIn,
   initialTokenOut,
   signMessage,
@@ -87,13 +87,13 @@ export function OtcMakerForm({
 }: OtcMakerWidgetProps) {
   const signerCredentials: SignerCredentials | null = useMemo(
     () =>
-      userAddress != null && userChainType != null
+      userAddress != null && chainType != null
         ? {
             credential: userAddress,
-            credentialType: userChainType,
+            credentialType: chainType,
           }
         : null,
-    [userAddress, userChainType]
+    [userAddress, chainType]
   )
   const isLoggedIn = signerCredentials != null
 
@@ -125,10 +125,6 @@ export function OtcMakerForm({
       tokenInBalance: formValues.tokenIn,
       tokenOutBalance: formValues.tokenOut,
     })
-  )
-  const depositedBalanceRef = useSelector(
-    rootActorRef,
-    (s) => s.context.depositedBalanceRef
   )
 
   const rootSnapshot = useSelector(rootActorRef, (s) => s)
@@ -177,7 +173,6 @@ export function OtcMakerForm({
       ...(payload as ModalSelectAssetsPayload),
       fieldName,
       [fieldName]: token,
-      balances: depositedBalanceRef?.getSnapshot().context.balances,
       onConfirm: (payload: ModalSelectAssetsPayload) => {
         const { fieldName } = payload as ModalSelectAssetsPayload
         const _payload = payload as ModalSelectAssetsPayload
@@ -210,6 +205,7 @@ export function OtcMakerForm({
           }
         }
       },
+      isHoldingsEnabled: true,
     })
   }
 

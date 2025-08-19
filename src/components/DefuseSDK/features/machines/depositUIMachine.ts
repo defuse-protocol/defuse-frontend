@@ -46,6 +46,7 @@ export const depositUIMachine = setup({
   types: {
     input: {} as {
       tokenList: SwappableToken[]
+      token: SwappableToken
     },
     context: {} as Context,
     events: {} as
@@ -247,7 +248,7 @@ export const depositUIMachine = setup({
     }),
     depositFormRef: spawn("depositFormActor", {
       id: "depositFormRef",
-      input: { parentRef: self },
+      input: { parentRef: self, token: input.token },
     }),
     depositGenerateAddressRef: spawn("depositGenerateAddressActor", {
       id: "depositGenerateAddressRef",

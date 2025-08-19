@@ -1,4 +1,4 @@
-import type { AuthMethod } from "@defuse-protocol/internal-utils"
+import type { authHandle } from "@defuse-protocol/internal-utils"
 import { useActorRef, useSelector } from "@xstate/react"
 import clsx from "clsx"
 import { useEffect, useMemo } from "react"
@@ -50,8 +50,8 @@ export type GiftMakerWidgetProps = {
   tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
 
   /** User's wallet address */
-  userAddress: string | null | undefined
-  userChainType: AuthMethod | null | undefined
+  userAddress: authHandle.AuthHandle["identifier"] | undefined
+  chainType: authHandle.AuthHandle["method"] | undefined
 
   /** Initial tokens for pre-filling the form */
   initialToken?: BaseTokenInfo | UnifiedTokenInfo
@@ -82,7 +82,7 @@ const MAX_MESSAGE_LENGTH = 500
 export function GiftMakerForm({
   tokenList,
   userAddress,
-  userChainType,
+  chainType,
   initialToken,
   signMessage,
   sendNearTransaction,
@@ -93,13 +93,13 @@ export function GiftMakerForm({
 }: GiftMakerWidgetProps) {
   const signerCredentials: SignerCredentials | null = useMemo(
     () =>
-      userAddress != null && userChainType != null
+      userAddress != null && chainType != null
         ? {
             credential: userAddress,
-            credentialType: userChainType,
+            credentialType: chainType,
           }
         : null,
-    [userAddress, userChainType]
+    [userAddress, chainType]
   )
   const isLoggedIn = signerCredentials != null
 
@@ -143,11 +143,6 @@ export function GiftMakerForm({
     tokensUsdPriceData
   )
 
-  const depositedBalanceRef = useSelector(
-    rootActorRef,
-    (state) => state.children.depositedBalanceRef
-  )
-
   const { setModalType, payload } = useModalStore((state) => state)
 
   const openModalSelectAssets = (
@@ -158,7 +153,7 @@ export function GiftMakerForm({
       ...(payload as ModalSelectAssetsPayload),
       fieldName,
       [fieldName]: token,
-      balances: depositedBalanceRef?.getSnapshot().context.balances,
+      isHoldingsEnabled: true,
     })
   }
 

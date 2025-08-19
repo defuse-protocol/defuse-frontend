@@ -1,5 +1,4 @@
 "use client"
-
 import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
 import { GiftHistoryWidget, GiftMakerWidget } from "@src/components/DefuseSDK"
 import Paper from "@src/components/Paper"
@@ -20,13 +19,16 @@ export default function CreateGiftPage() {
   const referral = useIntentsReferral()
   const { signAndSendTransactions } = useNearWalletActions()
 
+  const userAddress = state.isVerified ? state.address : undefined
+  const userChainType = state.chainType
+
   return (
     <Paper>
       <div className="flex flex-col items-center gap-8">
         <GiftMakerWidget
           tokenList={tokenList}
-          userAddress={state.isVerified ? state.address : undefined}
-          userChainType={state.chainType}
+          userAddress={userAddress}
+          chainType={userChainType}
           signMessage={signMessage}
           sendNearTransaction={async (tx) => {
             const result = await signAndSendTransactions({ transactions: [tx] })

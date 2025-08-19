@@ -227,7 +227,7 @@ export const WithdrawForm = ({
     setModalType(ModalType.MODAL_SELECT_ASSETS, {
       fieldName,
       [fieldName]: token,
-      balances: depositedBalanceRef?.getSnapshot().context.balances,
+      isHoldingsEnabled: true,
     })
   }
 

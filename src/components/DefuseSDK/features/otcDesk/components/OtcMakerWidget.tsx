@@ -13,13 +13,13 @@ import { OtcMakerTrades } from "./OtcMakerTrades"
 
 export function OtcMakerWidget(props: OtcMakerWidgetProps) {
   const signerCredentials: SignerCredentials | null = useMemo(() => {
-    return props.userAddress != null && props.userChainType != null
+    return props.userAddress != null && props.chainType != null
       ? {
           credential: props.userAddress,
-          credentialType: props.userChainType,
+          credentialType: props.chainType,
         }
       : null
-  }, [props.userChainType, props.userAddress])
+  }, [props.chainType, props.userAddress])
 
   return (
     <WidgetRoot>

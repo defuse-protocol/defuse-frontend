@@ -1,7 +1,7 @@
-import Link from "next/link"
-import type { ReactNode } from "react"
-
 import { useSignInWindowOpenState } from "@src/stores/useSignInWindowOpenState"
+import Link from "next/link"
+import type { ReadonlyURLSearchParams } from "next/navigation"
+import type { ReactNode } from "react"
 
 export function renderAppLink(
   routeName:
@@ -13,15 +13,21 @@ export function renderAppLink(
     | "otc"
     | "account",
   children: ReactNode,
-  props: { className?: string }
+  props: { className?: string },
+  searchParams?: ReadonlyURLSearchParams
 ) {
   switch (routeName) {
-    case "deposit":
+    case "deposit": {
+      const prefilledFrom = searchParams?.get("from")
       return (
-        <Link href="/deposit" {...props}>
+        <Link
+          href={prefilledFrom ? `/deposit?from=${prefilledFrom}` : "/deposit"}
+          {...props}
+        >
           {children}
         </Link>
       )
+    }
     case "withdraw":
       return (
         <Link href="/withdraw" {...props}>
