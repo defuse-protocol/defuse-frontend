@@ -51,6 +51,7 @@ import {
   ReceivedAmountAndFee,
   RecipientSubForm,
 } from "./components"
+import { useMinWithdrawalAmountWithFeeEstimation } from "./hooks/useMinWithdrawalAmountWithFeeEstimation"
 import {
   balancesSelector,
   isLiquidityUnavailableSelector,
@@ -201,6 +202,11 @@ export const WithdrawForm = ({
     : chainType != null && isMinAmountNotRequired(chainType, blockchain)
       ? null
       : (minWithdrawalHyperliquidAmount ?? minWithdrawalPOABridgeAmount)
+
+  const minWithdrawalAmountWithFee = useMinWithdrawalAmountWithFeeEstimation(
+    minWithdrawalAmount,
+    state.context.preparationOutput
+  )
 
   const tokenInBalance = useSelector(
     depositedBalanceRef,
@@ -418,8 +424,12 @@ export const WithdrawForm = ({
           />
 
           <MinWithdrawalAmount
-            minWithdrawalAmount={minWithdrawalAmount}
+            minWithdrawalAmount={minWithdrawalAmountWithFee}
             tokenOut={tokenOut}
+            isLoading={
+              state.matches({ editing: "preparation" }) &&
+              state.context.preparationOutput == null
+            }
           />
 
           <RecipientSubForm
