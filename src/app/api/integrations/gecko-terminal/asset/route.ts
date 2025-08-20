@@ -19,7 +19,7 @@ interface RawAsset {
   symbol: string
   decimals: number
   blockchain: string
-  contract_address: string
+  contract_address: string | null
 }
 
 const ASSET_QUERY = `
@@ -31,7 +31,7 @@ SELECT
   blockchain,
   contract_address
 FROM near_intents_db.defuse_assets
-WHERE defuse_asset_id = {id:String} AND contract_address != ''
+WHERE defuse_asset_id = {id:String}
 ORDER BY price_updated_at DESC
 LIMIT 1`
 
@@ -80,7 +80,9 @@ export const GET = tryCatch(
       decimals: rawAsset.decimals,
       metadata: {
         blockchain: rawAsset.blockchain,
-        contract_address: rawAsset.contract_address,
+        ...(rawAsset.contract_address
+          ? { contract_address: rawAsset.contract_address }
+          : {}),
       },
     }
 
