@@ -579,6 +579,18 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         symbol: "USDT",
         name: "Tether USD",
       },
+      {
+        defuseAssetId:
+          "nep141:aptos-88cb7619440a914fe6400149a12b443c3ac21d59.omft.near",
+        address:
+          "0x357b0b74bc833e95a115ad22604854d6b0fca151cecd94111770e5d6ffc9dc2b",
+        decimals: 6,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+        chainName: "aptos",
+        bridge: "poa",
+        symbol: "USDT",
+        name: "Tether USD",
+      },
     ],
     tags: ["mc:3", "type:stablecoin", "tvol:3"],
   },
@@ -1738,6 +1750,17 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
     symbol: "HAPI (omni)",
     name: "HAPI Protocol",
     tags: ["feature:omni"],
+  },
+  {
+    defuseAssetId: "nep141:aptos.omft.near",
+    type: "native",
+    decimals: 8,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/21794.png",
+    chainName: "aptos",
+    bridge: "poa",
+    symbol: "APT",
+    name: "Aptos",
+    tags: ["mc:34"],
   },
 ]
 
