@@ -245,7 +245,8 @@ export function DepositUIMachineProvider({
 
                 return txHash
               }),
-              // todo: add `validateTransaction` actor
+              // TODO: Implement this
+              validateTransaction: fromPromise(async () => true),
             },
             guards: {
               isDepositParamsValid: ({ context }) => {
@@ -279,6 +280,8 @@ export function DepositUIMachineProvider({
 
                 return txHash
               }),
+              // TODO: Implement this
+              validateTransaction: fromPromise(async () => true),
             },
             guards: {
               isDepositParamsValid: ({ context }) => {
@@ -369,6 +372,8 @@ export function DepositUIMachineProvider({
 
                 return txHash
               }),
+              // TODO: Implement this
+              validateTransaction: fromPromise(async () => true),
             },
             guards: {
               isDepositParamsValid: ({ context }) => {
@@ -425,6 +430,8 @@ export function DepositUIMachineProvider({
 
                 return txHash
               }),
+              // TODO: Implement this
+              validateTransaction: fromPromise(async () => true),
             },
             guards: {
               isDepositParamsValid: ({ context }) => {
@@ -462,6 +469,8 @@ export function DepositUIMachineProvider({
 
                 return txHash
               }),
+              // TODO: Implement this
+              validateTransaction: fromPromise(async () => true),
             },
             guards: {
               isDepositParamsValid: ({ context }) => {
@@ -498,6 +507,8 @@ export function DepositUIMachineProvider({
 
                 return txHash
               }),
+              // TODO: Implement this
+              validateTransaction: fromPromise(async () => true),
             },
             guards: {
               isDepositParamsValid: ({ context }) => {
