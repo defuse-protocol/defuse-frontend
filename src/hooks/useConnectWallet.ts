@@ -143,9 +143,14 @@ export const useConnectWallet = (): ConnectWalletAction => {
     await evmWalletConnect.connectAsync({ connector })
   }
   const handleSignOutViaWagmi = async () => {
-    for (const { connector } of evmWalletConnections) {
-      evmWalletDisconnect?.disconnect({ connector })
-    }
+    const evmWalletDisconnects = evmWalletConnections.map(({ connector }) => {
+      if (evmWalletDisconnect.disconnectAsync) {
+        return evmWalletDisconnect.disconnectAsync({ connector })
+      }
+      // Fallback: wrap the void‐returning call so it can be awaited
+      return Promise.resolve(evmWalletDisconnect.disconnect({ connector }))
+    })
+    await Promise.all(evmWalletDisconnects)
   }
 
   // We check `account.chainId` instead of `account.chain` to determine if
