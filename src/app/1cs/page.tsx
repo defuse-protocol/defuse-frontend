@@ -168,12 +168,12 @@ function Swap() {
         ? parseUnits(debouncedAmountIn, tokenIn.decimals).toString()
         : "0"
 
-    const deadline = dayjs().add(1, "day").toISOString()
+    const deadline = dayjs().add(5, "minutes").toISOString()
 
     return {
       dry: true,
       swapType: QuoteRequest.swapType.EXACT_INPUT,
-      slippageTolerance: 100, // 1%
+      slippageTolerance: 300, // 3%
       originAsset: tokenIn?.assetId ?? "",
       depositType: QuoteRequest.depositType.ORIGIN_CHAIN,
       destinationAsset: tokenOut?.assetId ?? "",
