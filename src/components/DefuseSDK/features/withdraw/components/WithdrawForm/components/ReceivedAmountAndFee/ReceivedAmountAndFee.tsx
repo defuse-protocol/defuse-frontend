@@ -50,11 +50,7 @@ export const ReceivedAmountAndFee = ({
             {` ${symbol}`}
           </Text>
           {receivedAmount !== "-" && totalAmountReceivedUsd && (
-            <FormattedCurrency
-              value={totalAmountReceivedUsd}
-              formatOptions={{ currency: "USD" }}
-              className="text-xs font-medium text-gray-11"
-            />
+            <ApproximateCurrency value={totalAmountReceivedUsd} />
           )}
         </div>
       </Flex>
@@ -83,14 +79,21 @@ export const ReceivedAmountAndFee = ({
             )}
           </Text>
           {fee_ !== "-" && feeUsd != null && feeUsd > 0 && (
-            <FormattedCurrency
-              value={feeUsd}
-              formatOptions={{ currency: "USD" }}
-              className="text-xs font-medium text-gray-11"
-            />
+            <ApproximateCurrency value={feeUsd} />
           )}
         </div>
       </Flex>
     </>
   )
 }
+
+const ApproximateCurrency = ({ value }: { value: number }) => (
+  <span className="flex items-center text-xs font-medium text-gray-11">
+    ~
+    <FormattedCurrency
+      value={value}
+      formatOptions={{ currency: "USD" }}
+      className="text-xs font-medium text-gray-11"
+    />
+  </span>
+)
