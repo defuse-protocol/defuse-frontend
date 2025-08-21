@@ -25,6 +25,7 @@ import {
   useDisconnect,
 } from "wagmi"
 
+import { BaseError } from "@src/components/DefuseSDK/errors/base"
 import type { SendTransactionStellarParams } from "@src/components/DefuseSDK/types/deposit"
 import {
   useWebAuthnActions,
@@ -45,7 +46,6 @@ import type {
   SendTransactionTonParams,
   SignAndSendTransactionsParams,
 } from "@src/types/interfaces"
-import { logger } from "@src/utils/logger"
 import { parseTonAddress } from "@src/utils/parseTonAddress"
 import { useEVMWalletActions } from "./useEVMWalletActions"
 import { useNearWalletActions } from "./useNearWalletActions"
@@ -107,12 +107,8 @@ export const useConnectWallet = (): ConnectWalletAction => {
     nearWallet.modal.show()
   }
   const handleSignOutViaNearWalletSelector = async () => {
-    try {
-      const wallet = await nearWallet.selector.wallet()
-      await wallet.signOut()
-    } catch {
-      logger.warn("Failed to sign out from Near wallet")
-    }
+    const wallet = await nearWallet.selector.wallet()
+    await wallet.signOut()
   }
 
   if (nearWallet.accountId != null) {
@@ -147,9 +143,14 @@ export const useConnectWallet = (): ConnectWalletAction => {
     await evmWalletConnect.connectAsync({ connector })
   }
   const handleSignOutViaWagmi = async () => {
-    for (const { connector } of evmWalletConnections) {
-      evmWalletDisconnect.disconnect({ connector })
-    }
+    const evmWalletDisconnects = evmWalletConnections.map(({ connector }) => {
+      if (evmWalletDisconnect.disconnectAsync) {
+        return evmWalletDisconnect.disconnectAsync({ connector })
+      }
+      // Fallback: wrap the void‐returning call so it can be awaited
+      return Promise.resolve(evmWalletDisconnect.disconnect({ connector }))
+    })
+    await Promise.all(evmWalletDisconnects)
   }
 
   // We check `account.chainId` instead of `account.chain` to determine if
@@ -309,17 +310,24 @@ export const useConnectWallet = (): ConnectWalletAction => {
     },
 
     async signOut(params: { id: ChainType }): Promise<void> {
-      const strategies = {
-        [ChainType.Near]: () => handleSignOutViaNearWalletSelector(),
-        [ChainType.EVM]: () => handleSignOutViaWagmi(),
-        [ChainType.Solana]: () => handleSignOutViaSolanaSelector(),
-        [ChainType.WebAuthn]: () => webAuthnActions.signOut(),
-        [ChainType.Ton]: () => tonConnectUI.disconnect(),
-        [ChainType.Stellar]: () => handleSignOutViaStellar(),
-      }
+      try {
+        const strategies = {
+          [ChainType.Near]: () => handleSignOutViaNearWalletSelector(),
+          [ChainType.EVM]: () => handleSignOutViaWagmi(),
+          [ChainType.Solana]: () => handleSignOutViaSolanaSelector(),
+          [ChainType.WebAuthn]: () => webAuthnActions.signOut(),
+          [ChainType.Ton]: () => tonConnectUI.disconnect(),
+          [ChainType.Stellar]: () => handleSignOutViaStellar(),
+        }
 
-      onSignOut()
-      return strategies[params.id]()
+        onSignOut()
+        return strategies[params.id]()
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error)
+        const originalError = error instanceof Error ? error : undefined
+        throw new WalletDisconnectError(params.id, errorMessage, originalError)
+      }
     },
 
     sendTransaction: async (
@@ -400,5 +408,20 @@ function useImpersonatedUser() {
     address: user.slice(index + 1),
     isVerified: true,
     isFake: true,
+  }
+}
+
+class WalletDisconnectError extends BaseError {
+  chainType: ChainType
+  originalError?: Error
+
+  constructor(chainType: ChainType, message: string, originalError?: Error) {
+    super("Wallet sign out error", {
+      cause: originalError,
+      metaMessages: [`Chain type: ${chainType}`, `Message: ${message}`],
+      name: "WalletDisconnectError",
+    })
+    this.chainType = chainType
+    this.originalError = originalError
   }
 }
