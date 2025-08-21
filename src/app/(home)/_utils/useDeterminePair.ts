@@ -1,10 +1,15 @@
 import { isBaseToken } from "@src/components/DefuseSDK/utils"
-import { useContext } from "react"
+import { useContext, useMemo } from "react"
 
-import type { BaseTokenInfo } from "@src/components/DefuseSDK/types"
+import type {
+  BaseTokenInfo,
+  UnifiedTokenInfo,
+} from "@src/components/DefuseSDK/types"
 import type { WhitelabelTemplateValue } from "@src/config/featureFlags"
 import { LIST_TOKENS } from "@src/constants/tokens"
+import { useTokenList } from "@src/hooks/useTokenList"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
+import { type useRouter, useSearchParams } from "next/navigation"
 
 export const pairs: Record<WhitelabelTemplateValue, [string, string]> = {
   "near-intents": [
@@ -31,28 +36,93 @@ export const pairs: Record<WhitelabelTemplateValue, [string, string]> = {
 
 export function useDeterminePair() {
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
+  const searchParams = useSearchParams()
+  const processedTokenList = useTokenList(LIST_TOKENS)
 
+  const fromParam = searchParams.get("from")
+  const toParam = searchParams.get("to")
+
+  const { tokenIn, tokenOut } = useMemo(() => {
+    // First, try to get pair from URL params
+    const urlPair = getPairFromUrlParams(fromParam, toParam, processedTokenList)
+    if (urlPair) return urlPair
+
+    // Fallback to whitelabelTemplate pair
+    return getPairFromWhitelabelTemplate(whitelabelTemplate, processedTokenList)
+  }, [fromParam, toParam, whitelabelTemplate, processedTokenList])
+
+  return { tokenIn, tokenOut }
+}
+
+function getPairFromUrlParams(
+  fromParam: string | null,
+  toParam: string | null,
+  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
+) {
+  const fromToken = findTokenBySymbol(fromParam, tokenList)
+  const toToken = findTokenBySymbol(toParam, tokenList)
+
+  if (fromToken || toToken) {
+    return { tokenIn: fromToken, tokenOut: toToken }
+  }
+  return null
+}
+
+function getPairFromWhitelabelTemplate(
+  whitelabelTemplate: WhitelabelTemplateValue,
+  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
+) {
   const pair = pairs[whitelabelTemplate]
+  if (!pair) return { tokenIn: null, tokenOut: null }
 
-  const tokenIn = LIST_TOKENS.find((token) => {
-    if (isBaseToken(token)) {
-      return token.defuseAssetId === pair[0]
-    }
-
-    return token.groupedTokens.some(
-      (t: BaseTokenInfo) => t.defuseAssetId === pair[0]
-    )
+  const tokenIn = tokenList.find((token) => {
+    return isBaseToken(token)
+      ? token.defuseAssetId === pair[0]
+      : token.groupedTokens.some(
+          (t: BaseTokenInfo) => t.defuseAssetId === pair[0]
+        )
   })
 
-  const tokenOut = LIST_TOKENS.find((token) => {
-    if (isBaseToken(token)) {
-      return token.defuseAssetId === pair[1]
-    }
-
-    return token.groupedTokens.some(
-      (t: BaseTokenInfo) => t.defuseAssetId === pair[1]
-    )
+  const tokenOut = tokenList.find((token) => {
+    return isBaseToken(token)
+      ? token.defuseAssetId === pair[1]
+      : token.groupedTokens.some(
+          (t: BaseTokenInfo) => t.defuseAssetId === pair[1]
+        )
   })
 
   return { tokenIn, tokenOut }
+}
+
+function findTokenBySymbol(
+  input: string | null,
+  tokens: (BaseTokenInfo | UnifiedTokenInfo)[]
+): BaseTokenInfo | UnifiedTokenInfo | null {
+  if (!input) return null
+  return (
+    tokens.find(
+      (token) =>
+        token.symbol === input ||
+        (!isBaseToken(token) &&
+          token.groupedTokens?.some((t: BaseTokenInfo) => t.symbol === input))
+    ) ?? null
+  )
+}
+
+export function updateURLParams({
+  tokenIn,
+  tokenOut,
+  router,
+  searchParams,
+}: {
+  tokenIn: { symbol: string } | null
+  tokenOut: { symbol: string } | null
+  router: ReturnType<typeof useRouter>
+  searchParams: ReturnType<typeof useSearchParams>
+}) {
+  const params = new URLSearchParams(searchParams.toString())
+  if (tokenIn?.symbol) params.set("from", tokenIn.symbol)
+  if (tokenOut?.symbol) params.set("to", tokenOut.symbol)
+
+  router.replace(`?${params.toString()}`, { scroll: false })
 }

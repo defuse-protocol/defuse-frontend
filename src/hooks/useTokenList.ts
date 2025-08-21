@@ -2,7 +2,6 @@ import type {
   BaseTokenInfo,
   UnifiedTokenInfo,
 } from "@src/components/DefuseSDK/types"
-import { isUnifiedToken } from "@src/components/DefuseSDK/utils"
 import type { TokenWithTags } from "@src/constants/tokens"
 import { useFlatTokenList } from "@src/hooks/useFlatTokenList"
 import { useSearchParams } from "next/navigation"
@@ -43,46 +42,6 @@ export function useTokenList(tokenList: TokenWithTags[]) {
         bridge: "poa",
         symbol: "FMS",
         name: "FOMO SOLVER",
-      },
-    ]
-  }
-  if (searchParams.get("stellar")) {
-    list = [
-      ...list.map((token) => {
-        return isUnifiedToken(token) && token.unifiedAssetId === "usdc"
-          ? ({
-              unifiedAssetId: "usdc",
-              symbol: "USDC",
-              name: "USD Coin",
-              icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
-              groupedTokens: [
-                ...token.groupedTokens,
-                {
-                  defuseAssetId:
-                    "nep245:v2_1.omni.hot.tg:1100_111bzQBB65GxAPAVoxqmMcgYo5oS3txhqs1Uh1cgahKQUeTUq1TJu",
-                  address:
-                    "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
-                  decimals: 7,
-                  icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
-                  chainName: "stellar",
-                  bridge: "hot_omni",
-                  symbol: "USDC",
-                  name: "USD Coin",
-                },
-              ],
-            } as UnifiedTokenInfo)
-          : token
-      }),
-      {
-        defuseAssetId:
-          "nep245:v2_1.omni.hot.tg:1100_111bzQBB5v7AhLyPMDwS8uJgQV24KaAPXtwyVWu2KXbbfQU6NXRCz",
-        type: "native",
-        decimals: 7,
-        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/512.png",
-        chainName: "stellar",
-        bridge: "hot_omni",
-        symbol: "XLM",
-        name: "Stellar Lumens",
       },
     ]
   }

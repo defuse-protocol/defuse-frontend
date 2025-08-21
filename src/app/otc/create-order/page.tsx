@@ -1,5 +1,4 @@
 "use client"
-
 import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
 import { OtcMakerWidget } from "@src/components/DefuseSDK"
 import Paper from "@src/components/Paper"
@@ -20,12 +19,15 @@ export default function CreateOrderPage() {
   const { signAndSendTransactions } = useNearWalletActions()
   const referral = useIntentsReferral()
 
+  const userAddress = state.isVerified ? state.address : undefined
+  const userChainType = state.chainType
+
   return (
     <Paper>
       <OtcMakerWidget
         tokenList={tokenList}
-        userAddress={state.isVerified ? state.address : undefined}
-        userChainType={state.chainType}
+        userAddress={userAddress}
+        chainType={userChainType}
         signMessage={signMessage}
         sendNearTransaction={async (tx) => {
           const result = await signAndSendTransactions({ transactions: [tx] })
@@ -47,8 +49,8 @@ export default function CreateOrderPage() {
         generateLink={(tradeId, pKey, multiPayload, iv) => {
           return createOtcOrderLink(tradeId, pKey, multiPayload, iv)
         }}
-        initialTokenIn={tokenIn}
-        initialTokenOut={tokenOut}
+        initialTokenIn={tokenIn ?? undefined}
+        initialTokenOut={tokenOut ?? undefined}
         renderHostAppLink={renderAppLink}
         referral={referral}
       />

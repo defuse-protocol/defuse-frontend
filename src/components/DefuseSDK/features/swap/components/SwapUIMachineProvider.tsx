@@ -15,7 +15,7 @@ import type { SwappableToken } from "../../../types/swap"
 import { computeTotalDeltaDifferentDecimals } from "../../../utils/tokenUtils"
 import { swapIntentMachine } from "../../machines/swapIntentMachine"
 import { swapUIMachine } from "../../machines/swapUIMachine"
-import { useTokenChangeNotifier } from "../hooks/useTokenChangeNotifier"
+import { useSwapTokenChangeNotifier } from "../hooks/useTokenChangeNotifier"
 import type { SwapFormValues } from "./SwapForm"
 
 /**
@@ -142,7 +142,7 @@ function TokenChangeNotifier({
   tokenIn: SwappableToken
   tokenOut: SwappableToken
 }) {
-  useTokenChangeNotifier({
+  useSwapTokenChangeNotifier({
     onTokenChange,
     prevTokensRef: useRef({ tokenIn, tokenOut }),
   })

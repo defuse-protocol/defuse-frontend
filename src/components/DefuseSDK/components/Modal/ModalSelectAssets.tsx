@@ -1,5 +1,7 @@
+import { authIdentity } from "@defuse-protocol/internal-utils"
 import { X as CrossIcon } from "@phosphor-icons/react"
 import { Text } from "@radix-ui/themes"
+import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import {
   useCallback,
   useDeferredValue,
@@ -7,6 +9,7 @@ import {
   useMemo,
   useState,
 } from "react"
+import { useWatchHoldings } from "../../features/account/hooks/useWatchHoldings"
 import type { BalanceMapping } from "../../features/machines/depositedBalanceMachine"
 import { useModalStore } from "../../providers/ModalStoreProvider"
 import { useTokensStore } from "../../providers/TokensStoreProvider"
@@ -16,7 +19,7 @@ import type {
   TokenValue,
   UnifiedTokenInfo,
 } from "../../types/base"
-import { isBaseToken } from "../../utils/token"
+import { getTokenId, isBaseToken } from "../../utils/token"
 import {
   compareAmounts,
   computeTotalBalanceDifferentDecimals,
@@ -35,18 +38,21 @@ export type ModalSelectAssetsPayload = {
   tokenIn?: Token
   tokenOut?: Token
   fieldName?: "tokenIn" | "tokenOut" | "token"
+  /** @deprecated legacy props use holdings instead */
   balances?: BalanceMapping
   accountId?: string
   onConfirm?: (payload: ModalSelectAssetsPayload) => void
+  isHoldingsEnabled?: boolean
 }
 
 export type SelectItemToken<T = Token> = {
-  itemId: string
   token: T
   disabled: boolean
   selected: boolean
   defuseAssetId?: string
-  balance?: TokenValue
+  usdValue?: number
+  value?: TokenValue
+  isHoldingsEnabled: boolean
 }
 
 export const ModalSelectAssets = () => {
@@ -56,6 +62,16 @@ export const ModalSelectAssets = () => {
   const { onCloseModal, modalType, payload } = useModalStore((state) => state)
   const { data, isLoading } = useTokensStore((state) => state)
   const deferredQuery = useDeferredValue(searchValue)
+
+  const { state } = useConnectWallet()
+  const userId =
+    state.isVerified && state.address && state.chainType
+      ? authIdentity.authHandleToIntentsUserId(state.address, state.chainType)
+      : null
+  const holdings = useWatchHoldings({
+    userId,
+    tokenList: Array.from(data.values()),
+  })
 
   const handleSearchClear = () => setSearchValue("")
 
@@ -94,11 +110,14 @@ export const ModalSelectAssets = () => {
       return
     }
 
-    const _payload = payload as ModalSelectAssetsPayload
-    const fieldName = _payload.fieldName || "token"
-    const selectToken = _payload[fieldName]
+    const payload_ = payload as ModalSelectAssetsPayload
+    const fieldName = payload_.fieldName || "token"
+    const selectToken = payload_[fieldName]
 
-    // Warning: This is unsafe type casting, payload could be anything
+    const isHoldingsEnabled =
+      payload_.isHoldingsEnabled ?? payload_.balances != null
+
+    // TODO: remove this once we remove the legacy props
     const balances = (payload as ModalSelectAssetsPayload).balances ?? {}
 
     const selectedTokenId = selectToken
@@ -111,33 +130,54 @@ export const ModalSelectAssets = () => {
 
     for (const [tokenId, token] of data) {
       const disabled = selectedTokenId != null && tokenId === selectedTokenId
+
+      // TODO: remove this once we remove the legacy props
       const balance = computeTotalBalanceDifferentDecimals(token, balances)
 
+      const findHolding = isHoldingsEnabled
+        ? holdings?.find((holding) => getTokenId(holding.token) === tokenId)
+        : undefined
+
       getAssetList.push({
-        itemId: tokenId,
         token,
         disabled,
         selected: disabled,
-        balance,
+        usdValue: findHolding?.usdValue,
+        value: findHolding?.value ?? balance,
+        isHoldingsEnabled,
       })
     }
 
     // Put tokens with balance on top
     getAssetList.sort((a, b) => {
-      if (a.balance == null && b.balance == null) {
+      if (a.value == null && b.value == null) {
         return 0
       }
-      if (a.balance == null) {
+      if (a.value == null) {
         return 1
       }
-      if (b.balance == null) {
+      if (b.value == null) {
         return -1
       }
-      return compareAmounts(b.balance, a.balance)
+      return compareAmounts(b.value, a.value)
+    })
+
+    // Put tokens with usdValue on top
+    getAssetList.sort((a, b) => {
+      if (a.usdValue == null && b.usdValue == null) {
+        return 0
+      }
+      if (a.usdValue == null) {
+        return 1
+      }
+      if (b.usdValue == null) {
+        return -1
+      }
+      return b.usdValue - a.usdValue
     })
 
     setAssetList(getAssetList)
-  }, [data, isLoading, payload])
+  }, [data, isLoading, payload, holdings])
 
   const filteredAssets = useMemo(
     () => assetList.filter(filterPattern),
