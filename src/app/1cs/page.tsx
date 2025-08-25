@@ -47,7 +47,7 @@ import { useDebounce } from "@src/hooks/useDebounce"
 import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { renderAppLink } from "@src/utils/renderAppLink"
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import dayjs from "dayjs"
 import { QRCodeSVG } from "qrcode.react"
 import { useCallback, useContext, useEffect, useMemo, useState } from "react"
@@ -59,6 +59,7 @@ import {
 } from "react-hook-form"
 import { FieldComboInput } from "./FieldComboInput"
 import { getBalance } from "./getBalance"
+import { getSendTx } from "./sendTx"
 
 export default function SwapPage() {
   return (
@@ -80,7 +81,7 @@ type SwapFormValues = {
 
 function Swap() {
   const referral = useIntentsReferral()
-  const { state } = useConnectWallet()
+  const { state, sendTransaction } = useConnectWallet()
   const userAddress = state.address
 
   const { data: tokenList } = useQuery({
@@ -230,6 +231,14 @@ function Swap() {
     retry: false,
   })
 
+  const sendTx = useMemo(() => {
+    if (tokenIn?.blockchain === undefined) {
+      return null
+    }
+
+    return getSendTx(sendTransaction)[tokenIn.blockchain]
+  }, [sendTransaction, tokenIn?.blockchain])
+
   const {
     data: swapData,
     isLoading: isSwapLoading,
@@ -255,7 +264,8 @@ function Swap() {
       const balanceAmount = await getBalance(tokenIn, userAddress)
       if (balanceAmount === null) return null
       return {
-        amount: balanceAmount,
+        amount: balanceAmount.balance,
+        nearBalance: balanceAmount.nearBalance,
         decimals: tokenIn.decimals,
       }
     },
@@ -288,6 +298,46 @@ function Swap() {
       })
     }
   }, [data, hasError, setValue])
+
+  const isReadyToDeposit =
+    data && !hasError && shouldExecuteSwap && !hasInsufficientBalance
+
+  // Mutation to send transaction when ready to deposit
+  const sendTransactionMutation = useMutation({
+    mutationFn: async () => {
+      if (!sendTx || !data || hasError || !tokenIn || !userAddress) {
+        throw new Error("Transaction data not ready")
+      }
+
+      return sendTx({
+        token: tokenIn,
+        balance: balanceData?.amount ?? 0n,
+        amount: parseUnits(amountIn, tokenIn.decimals),
+        userAddress,
+        depositAddress: data.quote.depositAddress ?? null,
+        nearBalance: balanceData?.nearBalance ?? null,
+      })
+    },
+    onSuccess: () => {
+      // Reset the swap execution state after successful transaction
+      setShouldExecuteSwap(false)
+    },
+    onError: () => {
+      // Reset the swap execution state on error
+      setShouldExecuteSwap(false)
+    },
+  })
+
+  // Execute transaction when ready to deposit
+  useEffect(() => {
+    if (
+      activeDeposit &&
+      isReadyToDeposit &&
+      !sendTransactionMutation.isPending
+    ) {
+      sendTransactionMutation.mutate()
+    }
+  }, [activeDeposit, isReadyToDeposit, sendTransactionMutation])
 
   if (!tokenList) {
     return <Loading />
@@ -364,13 +414,17 @@ function Swap() {
               placeholder="Enter to wallet address"
             />
 
-            {currentError && (
+            {(currentError || sendTransactionMutation.error) && (
               <div className="mb-5 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-700 dark:text-red-300">
                 <p className="font-medium">Error:</p>
                 <p>
-                  {hasError && "error" in currentError
-                    ? currentError.error
-                    : (currentError as Error).message || "An error occurred"}
+                  {sendTransactionMutation.error
+                    ? sendTransactionMutation.error.message ||
+                      "Transaction failed"
+                    : currentError && hasError && "error" in currentError
+                      ? currentError.error
+                      : (currentError && (currentError as Error).message) ||
+                        "An error occurred"}
                 </p>
               </div>
             )}
@@ -384,14 +438,21 @@ function Swap() {
                   type="submit"
                   size="lg"
                   fullWidth
-                  disabled={isSwapLoading || hasInsufficientBalance}
-                  isLoading={isSwapLoading}
+                  disabled={
+                    isSwapLoading ||
+                    hasInsufficientBalance ||
+                    sendTransactionMutation.isPending ||
+                    !isRequestEnabled
+                  }
+                  isLoading={isSwapLoading || sendTransactionMutation.isPending}
                 >
-                  {isSwapLoading
-                    ? "Creating Swap..."
-                    : hasInsufficientBalance
-                      ? "Insufficient Balance"
-                      : "Swap"}
+                  {sendTransactionMutation.isPending
+                    ? "Sending Transaction..."
+                    : isSwapLoading
+                      ? "Creating Swap..."
+                      : hasInsufficientBalance
+                        ? "Insufficient Balance"
+                        : "Swap"}
                 </ButtonCustom>
               </AuthGate>
             </Flex>
@@ -410,9 +471,11 @@ function Swap() {
                 }
               />
             </div>
-            {data && !hasError && shouldExecuteSwap && <QR data={data} />}
-            {data && !hasError && shouldExecuteSwap && tokenIn && (
-              <DepositHint token={tokenIn} />
+            {isReadyToDeposit && (
+              <>
+                <QR data={data} />
+                {tokenIn && <DepositHint token={tokenIn} />}
+              </>
             )}
           </Form>
         </div>

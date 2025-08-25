@@ -32,6 +32,31 @@ export function isBlockchainOption(
   return option.value !== "near_intents"
 }
 
+export const ONE_CS_CHAIN_TO_SUPPORTED_CHAIN_NAME: Record<
+  TokenResponse.blockchain,
+  SupportedChainName
+> = {
+  arb: "arbitrum",
+  avax: "avalanche",
+  base: "base",
+  bera: "berachain",
+  bsc: "bsc",
+  btc: "bitcoin",
+  cardano: "cardano",
+  doge: "dogecoin",
+  eth: "eth",
+  gnosis: "gnosis",
+  near: "near",
+  op: "optimism",
+  pol: "polygon",
+  sol: "solana",
+  sui: "sui",
+  ton: "ton",
+  tron: "tron",
+  xrp: "xrpledger",
+  zec: "zcash",
+}
+
 export const chainIcons: Record<SupportedChainName, string> = {
   eth: "/static/icons/network/ethereum.svg",
   near: "/static/icons/network/near.svg",
