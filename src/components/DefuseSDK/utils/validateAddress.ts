@@ -1,3 +1,4 @@
+import type { TokenResponse } from "@defuse-protocol/one-click-sdk-typescript"
 import { sha256 } from "@noble/hashes/sha256"
 import { base58, bech32m, hex } from "@scure/base"
 import { PublicKey } from "@solana/web3.js"
@@ -33,27 +34,17 @@ export function validateAddress(
     case "hyperliquid":
     case "optimism":
     case "avalanche":
-      // todo: Do we need to check checksum?
-      return /^0x[a-fA-F0-9]{40}$/.test(address)
+      return validateEthAddress(address)
     case "bitcoin":
-      return (
-        /^1[1-9A-HJ-NP-Za-km-z]{25,34}$/.test(address) ||
-        /^3[1-9A-HJ-NP-Za-km-z]{25,34}$/.test(address) ||
-        /^bc1[02-9ac-hj-np-z]{11,87}$/.test(address) ||
-        /^bc1p[02-9ac-hj-np-z]{42,87}$/.test(address)
-      )
+      return validateBtcAddress(address)
     case "solana":
-      try {
-        return PublicKey.isOnCurve(address)
-      } catch {
-        return false
-      }
+      return validateSolAddress(address)
 
     case "dogecoin":
-      return /^[DA][1-9A-HJ-NP-Za-km-z]{25,33}$/.test(address)
+      return validateDogeAddress(address)
 
     case "xrpledger":
-      return xrp_isValidClassicAddress(address) || xrp_isValidXAddress(address)
+      return validateXrpAddress(address)
 
     case "zcash":
       return validateZcashAddress(address)
@@ -62,16 +53,16 @@ export function validateAddress(
       return validateTronAddress(address)
 
     case "ton":
-      return /^[EU]Q[0-9A-Za-z_-]{46}$/.test(address)
+      return validateTonAddress(address)
 
     case "sui":
-      return /^(?:0x)?[a-fA-F0-9]{64}$/.test(address)
+      return validateSuiAddress(address)
 
     case "stellar":
-      return /^G[A-Z0-9]{55}$/.test(address)
+      return validateStellarAddress(address)
 
     case "aptos":
-      return /^0x[a-fA-F0-9]{64}$/.test(address)
+      return validateAptosAddress(address)
 
     case "cardano":
       return validateCardanoAddress(address)
@@ -80,6 +71,70 @@ export function validateAddress(
       blockchain satisfies never
       return false
   }
+}
+
+const validators: Record<
+  TokenResponse.blockchain,
+  (address: string) => boolean
+> = {
+  near: isLegitAccountId,
+
+  eth: validateEthAddress,
+  base: validateEthAddress,
+  arb: validateEthAddress,
+  gnosis: validateEthAddress,
+  bera: validateEthAddress,
+  pol: validateEthAddress,
+  bsc: validateEthAddress,
+  op: validateEthAddress,
+  avax: validateEthAddress,
+
+  btc: validateBtcAddress,
+  sol: validateSolAddress,
+  doge: validateDogeAddress,
+  xrp: validateXrpAddress,
+  zec: validateZcashAddress,
+  tron: validateTronAddress,
+  ton: validateTonAddress,
+  sui: validateSuiAddress,
+  cardano: validateCardanoAddress,
+}
+
+export function validateAddress1cs(
+  address: string,
+  blockchain: TokenResponse.blockchain
+): boolean {
+  return validators[blockchain](address)
+}
+
+// todo: Do we need to check checksum?
+function validateEthAddress(address: string) {
+  return /^0x[a-fA-F0-9]{40}$/.test(address)
+}
+
+function validateBtcAddress(address: string) {
+  return (
+    /^1[1-9A-HJ-NP-Za-km-z]{25,34}$/.test(address) ||
+    /^3[1-9A-HJ-NP-Za-km-z]{25,34}$/.test(address) ||
+    /^bc1[02-9ac-hj-np-z]{11,87}$/.test(address) ||
+    /^bc1p[02-9ac-hj-np-z]{42,87}$/.test(address)
+  )
+}
+
+function validateSolAddress(address: string) {
+  try {
+    return PublicKey.isOnCurve(address)
+  } catch {
+    return false
+  }
+}
+
+function validateDogeAddress(address: string) {
+  return /^[DA][1-9A-HJ-NP-Za-km-z]{25,33}$/.test(address)
+}
+
+function validateXrpAddress(address: string) {
+  return xrp_isValidClassicAddress(address) || xrp_isValidXAddress(address)
 }
 
 /**
@@ -151,4 +206,20 @@ function validateTronHexAddress(address: string): boolean {
   } catch {
     return false
   }
+}
+
+function validateTonAddress(address: string) {
+  return /^[EU]Q[0-9A-Za-z_-]{46}$/.test(address)
+}
+
+function validateSuiAddress(address: string) {
+  return /^(?:0x)?[a-fA-F0-9]{64}$/.test(address)
+}
+
+function validateStellarAddress(address: string) {
+  return /^G[A-Z0-9]{55}$/.test(address)
+}
+
+function validateAptosAddress(address: string) {
+  return /^0x[a-fA-F0-9]{64}$/.test(address)
 }

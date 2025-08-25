@@ -1,3 +1,4 @@
+import type { TokenResponse } from "@defuse-protocol/one-click-sdk-typescript"
 import { Address, TonClient, beginCell } from "@ton/ton"
 import axios from "axios"
 import type { BaseTokenInfo } from "../types/base"
@@ -121,6 +122,36 @@ export async function checkTonJettonWalletRequired(
       client,
       userWalletAddress,
       token.address
+    )
+
+    const walletExists = await checkJettonWalletExists(
+      client,
+      Address.parse(jettonWalletAddress)
+    )
+    return !walletExists
+  } catch {
+    return true
+  }
+}
+
+export async function checkTonJettonWalletRequired1cs(
+  client: TonClient,
+  token: TokenResponse,
+  userWalletAddress: string | null
+): Promise<boolean> {
+  if (
+    token.blockchain !== "ton" ||
+    token.contractAddress === undefined ||
+    userWalletAddress === null
+  ) {
+    return false
+  }
+
+  try {
+    const jettonWalletAddress = await getUserJettonWalletAddress(
+      client,
+      userWalletAddress,
+      token.contractAddress
     )
 
     const walletExists = await checkJettonWalletExists(
