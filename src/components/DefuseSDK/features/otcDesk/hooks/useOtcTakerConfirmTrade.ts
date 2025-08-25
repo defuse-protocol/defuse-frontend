@@ -1,3 +1,4 @@
+import type { MultiPayload } from "@defuse-protocol/contract-types"
 import { solverRelay } from "@defuse-protocol/internal-utils"
 import { authIdentity } from "@defuse-protocol/internal-utils"
 import { useMutation } from "@tanstack/react-query"
@@ -13,7 +14,6 @@ import {
   convertPublishIntentsToLegacyFormat,
 } from "../../../sdk/solverRelay/publishIntents"
 import { emitEvent } from "../../../services/emitter"
-import type { MultiPayload } from "../../../types/defuse-contracts-types"
 import { assert } from "../../../utils/assert"
 import {
   SignIntentContext,

@@ -1,3 +1,4 @@
+import type { MultiPayload } from "@defuse-protocol/contract-types"
 import { solverRelay } from "@defuse-protocol/internal-utils"
 import { assign, fromPromise, setup } from "xstate"
 import { logger } from "../../../logger"
@@ -5,7 +6,6 @@ import {
   type PublishIntentsErr,
   convertPublishIntentsToLegacyFormat,
 } from "../../../sdk/solverRelay/publishIntents"
-import type { MultiPayload } from "../../../types/defuse-contracts-types"
 import { assert } from "../../../utils/assert"
 import type { Errors as SignIntentErrors } from "../../machines/signIntentMachine"
 

@@ -1,6 +1,6 @@
+import type { MultiPayload } from "@defuse-protocol/contract-types"
 import { fromPromise, setup } from "xstate"
 import type { SignerCredentials } from "../../../core/formatters"
-import type { MultiPayload } from "../../../types/defuse-contracts-types"
 import type { CreateOtcTrade } from "../types/sharedTypes"
 
 export type OtcMakerStoreActorInput = {
