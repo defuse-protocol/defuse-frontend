@@ -1,14 +1,16 @@
 import { InfoCircledIcon } from "@radix-ui/react-icons"
-import { Callout, Text } from "@radix-ui/themes"
+import { Callout, Skeleton, Text } from "@radix-ui/themes"
 import type { BaseTokenInfo, TokenValue } from "../../../../../../types/base"
 import { formatTokenValue } from "../../../../../../utils/format"
 
 export const MinWithdrawalAmount = ({
   minWithdrawalAmount,
   tokenOut,
+  isLoading,
 }: {
   minWithdrawalAmount: TokenValue | null
   tokenOut: BaseTokenInfo
+  isLoading: boolean
 }) => {
   return (
     minWithdrawalAmount != null &&
@@ -20,10 +22,13 @@ export const MinWithdrawalAmount = ({
         <Callout.Text>
           Minimal amount to withdraw is ~
           <Text size="1" weight="bold">
-            {formatTokenValue(
-              minWithdrawalAmount.amount,
-              minWithdrawalAmount.decimals
-              // biome-ignore lint/nursery/useConsistentCurlyBraces: space is needed here
+            {isLoading ? (
+              <Skeleton>0.000000</Skeleton>
+            ) : (
+              formatTokenValue(
+                minWithdrawalAmount.amount,
+                minWithdrawalAmount.decimals
+              )
             )}{" "}
             {tokenOut.symbol}
           </Text>
