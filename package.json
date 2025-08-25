@@ -67,6 +67,8 @@
     "@thames/monads": "^0.7.0",
     "@ton/ton": "^15.3.0",
     "@tonconnect/ui-react": "npm:@tonkeeper/tonconnect-react@2.2.0-beta.3",
+    "@tronweb3/tronwallet-adapter-react-hooks": "^1.1.10",
+    "@tronweb3/tronwallet-adapters": "^1.2.12",
     "@vercel/edge-config": "^1.4.0",
     "@vercel/flags": "^3.1.1",
     "@xstate/react": "^4.1.3",
