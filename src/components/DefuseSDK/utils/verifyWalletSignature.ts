@@ -21,7 +21,9 @@ export async function verifyWalletSignature(
         // For NEP-413, it's enough to ensure user didn't switch the account
         signature.signatureData.accountId === userAddress
       )
-    case "ERC191": {
+    case "ERC191":
+    // TRON uses TIP-191, which aligns with Ethereum's ERC-191 signature scheme
+    case "TRON": {
       return verifyMessageViem({
         address: userAddress as "0x${string}",
         message: signature.signedData.message,
