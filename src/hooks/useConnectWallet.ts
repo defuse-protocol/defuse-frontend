@@ -38,6 +38,7 @@ import {
   submitTransactionStellar,
   useStellarWallet,
 } from "@src/providers/StellarWalletProvider"
+import { useTronWallet } from "@src/providers/TronWalletProvider"
 import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
 import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
 import type {
@@ -57,6 +58,7 @@ export enum ChainType {
   WebAuthn = "webauthn",
   Ton = "ton",
   Stellar = "stellar",
+  Tron = "tron",
 }
 
 export type State = {
@@ -268,6 +270,31 @@ export const useConnectWallet = (): ConnectWalletAction => {
     }
   }
 
+  /**
+   * Tron:
+   * Down below are Tron Wallet handlers and actions
+   */
+  const tronWallet = useTronWallet()
+
+  const handleSignInViaTron = async (): Promise<void> => {
+    await tronWallet.connect()
+  }
+
+  const handleSignOutViaTron = async (): Promise<void> => {
+    await tronWallet.disconnect()
+  }
+
+  if (tronWallet.publicKey) {
+    state = {
+      address: tronWallet.publicKey,
+      displayAddress: tronWallet.publicKey,
+      network: "tron:mainnet",
+      chainType: ChainType.Tron,
+      isVerified: false,
+      isFake: false,
+    }
+  }
+
   state.isVerified = useVerifiedWalletsStore(
     useCallback(
       (store) =>
@@ -304,6 +331,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
         [ChainType.WebAuthn]: () => webAuthnUI.open(),
         [ChainType.Ton]: () => tonConnectModal.open(),
         [ChainType.Stellar]: () => handleSignInViaStellar(),
+        [ChainType.Tron]: () => handleSignInViaTron(),
       }
 
       return strategies[params.id]()
@@ -318,6 +346,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
           [ChainType.WebAuthn]: () => webAuthnActions.signOut(),
           [ChainType.Ton]: () => tonConnectUI.disconnect(),
           [ChainType.Stellar]: () => handleSignOutViaStellar(),
+          [ChainType.Tron]: () => handleSignOutViaTron(),
         }
 
         onSignOut()
@@ -378,6 +407,15 @@ export const useConnectWallet = (): ConnectWalletAction => {
           const { signedTxXdr } = await signTransactionStellar(xdrString)
           const txHash = await submitTransactionStellar(signedTxXdr)
           return txHash
+        },
+
+        [ChainType.Tron]: async () => {
+          if (!tronWallet) {
+            // TODO: Implement this
+            throw new Error(
+              "Send transaction in not supported through the Tron wallet"
+            )
+          }
         },
       }
 
