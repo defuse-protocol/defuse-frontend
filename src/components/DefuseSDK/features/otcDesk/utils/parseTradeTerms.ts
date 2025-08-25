@@ -1,9 +1,9 @@
+import type { MultiPayload } from "@defuse-protocol/contract-types"
 import { base64 } from "@scure/base"
 import { Err, Ok, type Result } from "@thames/monads"
 import * as v from "valibot"
 import { logger } from "../../../logger"
 import type { BaseTokenInfo } from "../../../types/base"
-import type { MultiPayload } from "../../../types/defuse-contracts-types"
 import type { IntentTokenDiffSchemaOutput } from "./schemaIntents"
 import {
   MultiPayloadPlainSchema,

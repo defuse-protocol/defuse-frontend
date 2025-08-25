@@ -1,5 +1,5 @@
+import type { MultiPayload } from "@defuse-protocol/contract-types"
 import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
-import type { MultiPayload } from "../../../types/defuse-contracts-types"
 import { assert } from "../../../utils/assert"
 import {
   computeTotalBalanceDifferentDecimals,

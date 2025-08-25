@@ -1,6 +1,6 @@
+import type { MultiPayload } from "@defuse-protocol/contract-types"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import type { SignerCredentials } from "../../../core/formatters"
-import type { MultiPayload } from "../../../types/defuse-contracts-types"
 import type { StorageOperationErr } from "../stores/storageOperations"
 
 export type SignMessage = (

@@ -1,9 +1,9 @@
+import type { MultiPayload } from "@defuse-protocol/contract-types"
 import {
   messageFactory,
   type walletMessage,
 } from "@defuse-protocol/internal-utils"
 import { base64 } from "@scure/base"
-import type { MultiPayload } from "@src/components/DefuseSDK/types/defuse-contracts-types"
 import { type PromiseActorLogic, assertEvent, setup } from "xstate"
 import {
   type SignerCredentials,

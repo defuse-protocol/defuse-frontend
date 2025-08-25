@@ -1,4 +1,8 @@
 import type {
+  Intent,
+  Nep413DefuseMessageFor_DefuseIntents,
+} from "@defuse-protocol/contract-types"
+import type {
   FeeEstimation,
   WithdrawalParams,
 } from "@defuse-protocol/intents-sdk"
@@ -20,10 +24,6 @@ import type {
   SupportedChainName,
   TokenValue,
 } from "../../types/base"
-import type {
-  Intent,
-  Nep413DefuseMessageFor_DefuseIntents,
-} from "../../types/defuse-contracts-types"
 import type { IntentsUserId } from "../../types/intentsUserId"
 import { assert } from "../../utils/assert"
 import { PriorityQueue } from "../../utils/priorityQueue"

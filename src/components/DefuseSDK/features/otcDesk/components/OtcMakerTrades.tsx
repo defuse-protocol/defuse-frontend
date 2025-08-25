@@ -1,3 +1,4 @@
+import type { MultiPayload } from "@defuse-protocol/contract-types"
 import { authIdentity } from "@defuse-protocol/internal-utils"
 import {
   Check as CheckIcon,
@@ -25,7 +26,6 @@ import type { IntentsUserId, SignerCredentials } from "../../../core/formatters"
 import { getDepositedBalances } from "../../../services/defuseBalanceService"
 import { isNonceUsed } from "../../../services/intentsContractService"
 import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
-import type { MultiPayload } from "../../../types/defuse-contracts-types"
 import { assert } from "../../../utils/assert"
 import { formatTokenValue } from "../../../utils/format"
 import { computeTotalBalanceDifferentDecimals } from "../../../utils/tokenUtils"

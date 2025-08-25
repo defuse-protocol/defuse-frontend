@@ -1,3 +1,4 @@
+import type { MultiPayload } from "@defuse-protocol/contract-types"
 import { errors } from "@defuse-protocol/internal-utils"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import {
@@ -12,7 +13,6 @@ import type { SignerCredentials } from "../../../core/formatters"
 import { logger } from "../../../logger"
 import { emitEvent } from "../../../services/emitter"
 import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
-import type { MultiPayload } from "../../../types/defuse-contracts-types"
 import { assert } from "../../../utils/assert"
 import {
   type Events as DepositedBalanceEvents,

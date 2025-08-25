@@ -1,6 +1,6 @@
+import type { MultiPayload } from "@defuse-protocol/contract-types"
 import { create } from "zustand"
 import { createJSONStorage, persist } from "zustand/middleware"
-import type { MultiPayload } from "../../../types/defuse-contracts-types"
 
 type OtcTakerCompletedTrade = {
   tradeId: string

@@ -1,3 +1,4 @@
+import type { MultiPayload } from "@defuse-protocol/contract-types"
 import {
   prepareBroadcastRequest,
   type walletMessage,
@@ -16,7 +17,6 @@ import {
   createEmptyIntentMessage,
   createSwapIntentMessage,
 } from "../../../core/messages"
-import type { MultiPayload } from "../../../types/defuse-contracts-types"
 import {
   GeneralPayloadObjectSchema,
   MultiPayloadDeepSchema,

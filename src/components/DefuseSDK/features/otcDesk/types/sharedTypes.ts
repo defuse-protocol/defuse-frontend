@@ -1,7 +1,7 @@
+import type { MultiPayload } from "@defuse-protocol/contract-types"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import type { Result } from "@thames/monads"
 import type { TokenValue } from "../../../types/base"
-import type { MultiPayload } from "../../../types/defuse-contracts-types"
 
 export type SignMessage = (
   params: walletMessage.WalletMessage

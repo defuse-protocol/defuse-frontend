@@ -1,3 +1,4 @@
+import type { MultiPayload } from "@defuse-protocol/contract-types"
 import { type PromiseActorLogic, assign, setup } from "xstate"
 import type { SignerCredentials } from "../../../core/formatters"
 import { logger } from "../../../logger"
@@ -6,7 +7,6 @@ import type {
   TokenValue,
   UnifiedTokenInfo,
 } from "../../../types/base"
-import type { MultiPayload } from "../../../types/defuse-contracts-types"
 import {
   type OTCMakerOrderCancellationActorInput,
   type OTCMakerOrderCancellationActorOutput,
