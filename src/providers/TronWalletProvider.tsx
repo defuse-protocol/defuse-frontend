@@ -51,7 +51,7 @@ function TronProviderInner({ children }: { children: React.ReactNode }) {
   const installWallet = useCallback(() => {
     // Open TronLink extension store
     window.open(
-      "https://chromewebstore.google.com/detail/tronlink/ibnejdfjmmkpcnlpebklmnkoeoihofec?hl=en-US&utm_source=ext_sidebar",
+      "https://chromewebstore.google.com/detail/tronlink/ibnejdfjmmkpcnlpebklmnkoeoihofec",
       "_blank"
     )
   }, [])
