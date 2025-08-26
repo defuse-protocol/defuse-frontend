@@ -3,7 +3,13 @@
 import { useWallet } from "@tronweb3/tronwallet-adapter-react-hooks"
 import { WalletProvider } from "@tronweb3/tronwallet-adapter-react-hooks"
 import { TronLinkAdapter } from "@tronweb3/tronwallet-adapter-tronlink"
-import { createContext, useCallback, useContext, useState } from "react"
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react"
 
 interface TronContextType {
   publicKey: string | null
@@ -56,14 +62,14 @@ function TronProviderInner({ children }: { children: React.ReactNode }) {
     )
   }, [])
 
-  const handleConnect = async (): Promise<void> => {
+  const handleConnect = useCallback(async (): Promise<void> => {
     try {
       if (typeof window !== "undefined" && window.tronLink) {
         const tronLinkWallet = wallets.find(
           (w) => w.adapter.name === "TronLink"
         )
         if (tronLinkWallet) {
-          await select(tronLinkWallet.adapter.name)
+          select(tronLinkWallet.adapter.name)
           await connect()
         } else {
           setError("TronLink wallet not found. Please install TronLink.")
@@ -75,46 +81,60 @@ function TronProviderInner({ children }: { children: React.ReactNode }) {
     } catch (err) {
       setError(`Failed to initialize TronLink: ${getErrorMessage(err)}`)
     }
-  }
+  }, [connect, installWallet, select, wallets])
 
-  const handleDisconnect = async (): Promise<void> => {
+  const handleDisconnect = useCallback(async (): Promise<void> => {
     setError(null)
-
     try {
       await disconnect()
       setError(null)
     } catch (err) {
       setError(`Disconnection error: ${getErrorMessage(err)}`)
     }
-  }
+  }, [disconnect])
 
-  const handleSignMessage = async (message: string) => {
-    setError(null)
-
-    try {
-      const signature = await signMessage(message)
-      return signature
-    } catch (error) {
-      setError(`Signing error: ${getErrorMessage(error)}`)
-      throw error
-    }
-  }
+  const handleSignMessage = useCallback(
+    async (message: string) => {
+      setError(null)
+      try {
+        const signature = await signMessage(message)
+        return signature
+      } catch (error) {
+        setError(`Signing error: ${getErrorMessage(error)}`)
+        throw error
+      }
+    },
+    [signMessage]
+  )
 
   const clearError = useCallback(() => {
     setError(null)
   }, [])
 
-  const value: TronContextType = {
-    publicKey: address,
-    isConnected: connected,
-    isLoading: connecting || disconnecting,
+  const value = useMemo((): TronContextType => {
+    return {
+      publicKey: address,
+      isConnected: connected,
+      isLoading: connecting || disconnecting,
+      error,
+      connect: handleConnect,
+      disconnect: handleDisconnect,
+      signMessage: handleSignMessage,
+      clearError,
+      installWallet,
+    }
+  }, [
+    address,
+    connected,
+    connecting,
+    disconnecting,
     error,
-    connect: handleConnect,
-    disconnect: handleDisconnect,
-    signMessage: handleSignMessage,
+    handleConnect,
+    handleDisconnect,
+    handleSignMessage,
     clearError,
     installWallet,
-  }
+  ])
 
   return <TronContext.Provider value={value}>{children}</TronContext.Provider>
 }
