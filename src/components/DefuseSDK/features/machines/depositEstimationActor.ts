@@ -7,6 +7,7 @@ import {
   estimateSolanaTransferCost,
   estimateStellarXLMTransferCost,
   estimateTonTransferCost,
+  estimateTronTransferCost,
 } from "../../services/estimateService"
 import type { BaseTokenInfo, SupportedChainName } from "../../types/base"
 import { assetNetworkAdapter } from "../../utils/adapters"
@@ -108,12 +109,26 @@ export const depositEstimateMaxValueActor = fromPromise(
         }
         return balance - fee
       }
+      case BlockchainEnum.TRON: {
+        if (!isNativeToken(token)) {
+          return 0n
+        }
+        const rpcUrl = getWalletRpcUrl(assetNetworkAdapter[blockchain])
+        const fee = await estimateTronTransferCost({
+          rpcUrl,
+          from: userAddress,
+          to: generateAddress ?? null,
+        })
+        if (balance < fee) {
+          return 0n
+        }
+        return balance - fee
+      }
       // For next blockchains - active deposits are not supported, so no network fees
       case BlockchainEnum.BITCOIN:
       case BlockchainEnum.DOGECOIN:
       case BlockchainEnum.XRPLEDGER:
       case BlockchainEnum.ZCASH:
-      case BlockchainEnum.TRON:
       case BlockchainEnum.HYPERLIQUID:
       case BlockchainEnum.SUI:
       case BlockchainEnum.APTOS:
