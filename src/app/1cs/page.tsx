@@ -144,9 +144,9 @@ function Swap() {
   } = useFormContext<SwapFormValues>()
 
   const switchTokens = useCallback(() => {
-    const { amountIn, amountOut } = getValues()
+    const { amountOut } = getValues()
     setValue("amountIn", amountOut)
-    setValue("amountOut", amountIn)
+    setValue("amountOut", "")
     setTokenIn(tokenOut)
     setTokenOut(tokenIn)
   }, [tokenIn, tokenOut, getValues, setValue])
