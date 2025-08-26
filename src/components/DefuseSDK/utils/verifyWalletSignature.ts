@@ -3,8 +3,10 @@ import { secp256k1 } from "@noble/curves/secp256k1"
 import { sha256 } from "@noble/hashes/sha256"
 import { base58 } from "@scure/base"
 import { Keypair } from "@stellar/stellar-sdk"
+import { TronWeb } from "tronweb"
 import { sign } from "tweetnacl"
 import { verifyMessage as verifyMessageViem } from "viem"
+import { settings } from "../constants/settings"
 import { parsePublicKey, verifyAuthenticatorAssertion } from "./webAuthn"
 
 // No-op usage to prevent tree-shaking. sec256k1 is dynamically loaded by viem.
@@ -21,9 +23,7 @@ export async function verifyWalletSignature(
         // For NEP-413, it's enough to ensure user didn't switch the account
         signature.signatureData.accountId === userAddress
       )
-    case "ERC191":
-    // TRON uses TIP-191, which aligns with Ethereum's ERC-191 signature scheme
-    case "TRON": {
+    case "ERC191": {
       return verifyMessageViem({
         address: userAddress as "0x${string}",
         message: signature.signedData.message,
@@ -87,6 +87,16 @@ export async function verifyWalletSignature(
         signature.signatureData,
         publicKeyBytes
       )
+    }
+    case "TRON": {
+      const tronWeb = new TronWeb({
+        fullHost: settings.rpcUrls.tron,
+      })
+      const derivedAddress = await tronWeb.trx.verifyMessageV2(
+        signature.signedData.message,
+        signature.signatureData
+      )
+      return derivedAddress === userAddress
     }
     default:
       signatureType satisfies never
