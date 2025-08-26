@@ -24,6 +24,8 @@ import {
   createDepositSolanaTransaction,
   createDepositStellarTransaction,
   createDepositTonTransaction,
+  createDepositTronERC20Transaction,
+  createDepositTronNativeTransaction,
   createDepositVirtualChainERC20Transaction,
   createExitToNearPrecompileTransaction,
   generateDepositAddress,
@@ -74,6 +76,7 @@ interface DepositUIMachineProviderProps extends PropsWithChildren {
   sendTransactionSolana: (tx: Transaction["Solana"]) => Promise<string | null>
   sendTransactionTon: (tx: Transaction["TON"]) => Promise<string | null>
   sendTransactionStellar: (tx: Transaction["Stellar"]) => Promise<string | null>
+  sendTransactionTron: (tx: Transaction["Tron"]) => Promise<string | null>
   onTokenChange?: (params: {
     token: SwappableToken | null
   }) => void
@@ -88,6 +91,7 @@ export function DepositUIMachineProvider({
   sendTransactionSolana,
   sendTransactionTon,
   sendTransactionStellar,
+  sendTransactionTron,
   onTokenChange,
 }: DepositUIMachineProviderProps) {
   const { setValue } = useFormContext<DepositFormValues>()
@@ -502,6 +506,49 @@ export function DepositUIMachineProvider({
                 const txHash = await sendTransactionStellar(tx)
                 assert(txHash != null, "Tx hash is not defined")
                 logger.verbose("Waiting for deposit Stellar transaction", {
+                  txHash,
+                })
+
+                return txHash
+              }),
+              // TODO: Implement this
+              validateTransaction: fromPromise(async () => true),
+            },
+            guards: {
+              isDepositParamsValid: ({ context }) => {
+                return context.depositAddress !== null
+              },
+            },
+          }),
+          depositTronActor: depositMachine.provide({
+            actors: {
+              signAndSendTransactions: fromPromise(async ({ input }) => {
+                const { derivedToken, amount, depositAddress, userAddress } =
+                  input
+
+                assert(depositAddress != null, "Deposit address is not defined")
+
+                let tx: Transaction["Tron"]
+                if (isNativeToken(derivedToken)) {
+                  tx = await createDepositTronNativeTransaction(
+                    userAddress,
+                    depositAddress,
+                    amount
+                  )
+                } else {
+                  tx = await createDepositTronERC20Transaction(
+                    userAddress,
+                    derivedToken.address,
+                    depositAddress,
+                    amount
+                  )
+                }
+
+                logger.verbose("Sending transfer Tron transaction")
+                const txHash = await sendTransactionTron(tx)
+                assert(txHash != null, "Tx hash is not defined")
+
+                logger.verbose("Waiting for transfer Tron transaction", {
                   txHash,
                 })
 

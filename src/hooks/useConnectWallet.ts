@@ -26,7 +26,10 @@ import {
 } from "wagmi"
 
 import { BaseError } from "@src/components/DefuseSDK/errors/base"
-import type { SendTransactionStellarParams } from "@src/components/DefuseSDK/types/deposit"
+import type {
+  SendTransactionStellarParams,
+  SendTransactionTronParams,
+} from "@src/components/DefuseSDK/types/deposit"
 import {
   useWebAuthnActions,
   useWebAuthnCurrentCredential,
@@ -81,6 +84,7 @@ interface ConnectWalletAction {
       | SendTransactionSolanaParams["transactions"]
       | SendTransactionTonParams["transactions"]
       | SendTransactionStellarParams
+      | SendTransactionTronParams
   }) => Promise<string | FinalExecutionOutcome[] | SendTransactionResponse>
   connectors: Connector[]
   state: State
@@ -411,11 +415,13 @@ export const useConnectWallet = (): ConnectWalletAction => {
 
         [ChainType.Tron]: async () => {
           if (!tronWallet) {
-            // TODO: Implement this
-            throw new Error(
-              "Send transaction in not supported through the Tron wallet"
-            )
+            throw new Error("Tron wallet not connected")
           }
+          const tronParams = params.tx as SendTransactionTronParams
+          const txHash = await tronWallet.sendTransaction({
+            transaction: tronParams,
+          })
+          return txHash
         },
       }
 

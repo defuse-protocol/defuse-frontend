@@ -22,6 +22,8 @@ import {
   Operation,
   TransactionBuilder,
 } from "@stellar/stellar-sdk"
+import type { Transaction as TransactionTron } from "@tronweb3/tronwallet-abstract-adapter"
+import { TronWeb } from "tronweb"
 import {
   http,
   type Address,
@@ -45,6 +47,7 @@ import type { BaseTokenInfo, SupportedChainName } from "../types/base"
 import type {
   SendTransactionEVMParams,
   SendTransactionStellarParams,
+  SendTransactionTronParams,
   Transaction,
 } from "../types/deposit"
 import type { SendTransactionTonParams } from "../types/deposit"
@@ -767,6 +770,63 @@ function createTrustlineTransferStellarTransaction(
   }
 
   return { transaction: transaction.setTimeout(30).build() }
+}
+
+/**
+ * Creates a deposit transaction for Tron
+ */
+export async function createDepositTronNativeTransaction(
+  userAddress: string,
+  depositAddress: string,
+  amount: bigint
+): Promise<SendTransactionTronParams> {
+  const client = new TronWeb({ fullHost: settings.rpcUrls.tron })
+  const transaction = await client.transactionBuilder.sendTrx(
+    depositAddress,
+    Number(amount),
+    userAddress
+  )
+
+  if (!isTransactionTron(transaction)) {
+    throw new Error("Transaction is not a Tron transaction")
+  }
+  return transaction
+}
+
+export async function createDepositTronERC20Transaction(
+  userAddress: string,
+  assetAccountId: string,
+  generatedAddress: string,
+  amount: bigint
+): Promise<SendTransactionTronParams> {
+  const tronWeb = new TronWeb({ fullHost: settings.rpcUrls.tron })
+  // Set default owner for constant calls
+  tronWeb.setAddress(userAddress)
+  const res = await tronWeb.transactionBuilder.triggerSmartContract(
+    assetAccountId,
+    "transfer(address,uint256)",
+    {}, // It might be enhanced in the future with feeLimit
+    [
+      { type: "address", value: generatedAddress },
+      { type: "uint256", value: amount.toString() },
+    ],
+    userAddress
+  )
+
+  const transaction = res?.transaction
+  if (!isTransactionTron(transaction)) {
+    throw new Error("Transaction is not a Tron transaction")
+  }
+  return transaction
+}
+
+function isTransactionTron(x: unknown): x is TransactionTron {
+  return (
+    !!x &&
+    typeof (x as TransactionTron).txID === "string" &&
+    typeof (x as TransactionTron).raw_data_hex === "string" &&
+    Array.isArray((x as TransactionTron).raw_data?.contract)
+  )
 }
 
 /**

@@ -1,5 +1,6 @@
 "use client"
 
+import type { Transaction as TransactionTron } from "@tronweb3/tronwallet-abstract-adapter"
 import { useWallet } from "@tronweb3/tronwallet-adapter-react-hooks"
 import { WalletProvider } from "@tronweb3/tronwallet-adapter-react-hooks"
 import { TronLinkAdapter } from "@tronweb3/tronwallet-adapter-tronlink"
@@ -19,6 +20,9 @@ interface TronContextType {
   connect: () => Promise<void>
   disconnect: () => Promise<void>
   signMessage: (message: string) => Promise<string>
+  sendTransaction: (params: {
+    transaction: TransactionTron
+  }) => Promise<string>
   clearError: () => void
   installWallet: () => void
 }
@@ -46,6 +50,7 @@ function TronProviderInner({ children }: { children: React.ReactNode }) {
     connect,
     disconnect,
     signMessage,
+    signTransaction,
     connected,
     address,
     connecting,
@@ -107,6 +112,22 @@ function TronProviderInner({ children }: { children: React.ReactNode }) {
     [signMessage]
   )
 
+  const handleSendTransaction = useCallback(
+    async (params: {
+      transaction: TransactionTron
+    }) => {
+      setError(null)
+      try {
+        const tx = await signTransaction(params.transaction)
+        return tx.txid
+      } catch (error) {
+        setError(`Transaction error: ${getErrorMessage(error)}`)
+        throw error
+      }
+    },
+    [signTransaction]
+  )
+
   const clearError = useCallback(() => {
     setError(null)
   }, [])
@@ -120,6 +141,7 @@ function TronProviderInner({ children }: { children: React.ReactNode }) {
       connect: handleConnect,
       disconnect: handleDisconnect,
       signMessage: handleSignMessage,
+      sendTransaction: handleSendTransaction,
       clearError,
       installWallet,
     }
@@ -132,6 +154,7 @@ function TronProviderInner({ children }: { children: React.ReactNode }) {
     handleConnect,
     handleDisconnect,
     handleSignMessage,
+    handleSendTransaction,
     clearError,
     installWallet,
   ])
