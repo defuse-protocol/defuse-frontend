@@ -1,5 +1,6 @@
 "use client"
 
+import { settings } from "@src/components/DefuseSDK/constants/settings"
 import type { Transaction as TransactionTron } from "@tronweb3/tronwallet-abstract-adapter"
 import { useWallet } from "@tronweb3/tronwallet-adapter-react-hooks"
 import { WalletProvider } from "@tronweb3/tronwallet-adapter-react-hooks"
@@ -11,6 +12,7 @@ import {
   useMemo,
   useState,
 } from "react"
+import { TronWeb } from "tronweb"
 
 interface TronContextType {
   publicKey: string | null
@@ -119,7 +121,26 @@ function TronProviderInner({ children }: { children: React.ReactNode }) {
       setError(null)
       try {
         const tx = await signTransaction(params.transaction)
-        return tx.txid
+
+        // TODO: Revisit this
+        // Check for both txid and txID (case sensitivity issue)
+        const transactionId = tx?.txid || tx?.txID
+        if (!tx || !transactionId) {
+          throw new Error(
+            `TRON transaction signing failed: no txid returned. Result: ${JSON.stringify(tx)}`
+          )
+        }
+
+        // Broadcast the signed transaction to the network
+        const client = new TronWeb({ fullHost: settings.rpcUrls.tron })
+        const broadcastResult = await client.trx.broadcast(tx)
+        if (broadcastResult.result === true) {
+          return transactionId
+        }
+
+        throw new Error(
+          `TRON transaction broadcast failed: ${broadcastResult.message || "Unknown error"}`
+        )
       } catch (error) {
         setError(`Transaction error: ${getErrorMessage(error)}`)
         throw error

@@ -790,7 +790,14 @@ export async function createDepositTronNativeTransaction(
   if (!isTransactionTron(transaction)) {
     throw new Error("Transaction is not a Tron transaction")
   }
-  return transaction
+
+  // Create an unsigned version of the transaction for the wallet adapter
+  const unsignedTransaction = {
+    ...transaction,
+    signature: undefined, // Remove signature to make it unsigned
+  }
+
+  return unsignedTransaction
 }
 
 export async function createDepositTronERC20Transaction(
@@ -801,7 +808,7 @@ export async function createDepositTronERC20Transaction(
 ): Promise<SendTransactionTronParams> {
   const tronWeb = new TronWeb({ fullHost: settings.rpcUrls.tron })
   // Set default owner for constant calls
-  tronWeb.setAddress(userAddress)
+  tronWeb.setAddress(userAddress) // TODO: It's optional, and might be removed in the future
   const res = await tronWeb.transactionBuilder.triggerSmartContract(
     assetAccountId,
     "transfer(address,uint256)",
@@ -817,7 +824,14 @@ export async function createDepositTronERC20Transaction(
   if (!isTransactionTron(transaction)) {
     throw new Error("Transaction is not a Tron transaction")
   }
-  return transaction
+
+  // Create an unsigned version of the transaction for the wallet adapter
+  const unsignedTransaction = {
+    ...transaction,
+    signature: undefined, // Remove signature to make it unsigned
+  }
+
+  return unsignedTransaction
 }
 
 function isTransactionTron(x: unknown): x is TransactionTron {
