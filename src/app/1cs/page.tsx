@@ -4,7 +4,9 @@ import {
   type QuoteResponse,
   type TokenResponse,
 } from "@defuse-protocol/one-click-sdk-typescript"
+import * as Accordion from "@radix-ui/react-accordion"
 import {
+  CaretDownIcon,
   CheckIcon,
   CopyIcon,
   MagicWandIcon,
@@ -50,7 +52,15 @@ import { renderAppLink } from "@src/utils/renderAppLink"
 import { useQuery } from "@tanstack/react-query"
 import dayjs from "dayjs"
 import { QRCodeSVG } from "qrcode.react"
-import { useCallback, useContext, useEffect, useMemo, useState } from "react"
+import {
+  type Dispatch,
+  type SetStateAction,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react"
 import {
   type UseFormGetValues,
   type UseFormRegister,
@@ -59,6 +69,8 @@ import {
 } from "react-hook-form"
 import { FieldComboInput } from "./FieldComboInput"
 import { getBalance } from "./getBalance"
+
+const SWAP_STRATEGIES = ["BEST", "ATOMIC", "STREAMING", "DCA"] as const
 
 export default function SwapPage() {
   return (
@@ -78,6 +90,8 @@ type SwapFormValues = {
   refundTo: string
 }
 
+const DEBOUNCE_DELAY = 500
+
 function Swap() {
   const referral = useIntentsReferral()
   const { state } = useConnectWallet()
@@ -95,7 +109,14 @@ function Swap() {
 
   const [tokenIn, setTokenIn] = useState<TokenResponse | undefined>(undefined)
   const [tokenOut, setTokenOut] = useState<TokenResponse | undefined>(undefined)
-
+  const [slippageTolerance, setSlippageTolerance] = useState(3)
+  const [quoteWaitingTimeSeconds, setQuoteWaitingTimeSeconds] = useState(3)
+  const [deadline, setDeadline] = useState(() => {
+    // Default to 5 minutes from now
+    return dayjs().add(5, "minutes").format("YYYY-MM-DDTHH:mm")
+  })
+  const [swapStrategy, setSwapStrategy] =
+    useState<(typeof SWAP_STRATEGIES)[number]>("BEST")
   const activeDeposit =
     state.chainType && tokenIn?.blockchain
       ? HAS_ACTIVE_DEPOSIT[state.chainType][tokenIn.blockchain]
@@ -103,8 +124,14 @@ function Swap() {
 
   useEffect(() => {
     if (tokenList && (!tokenIn || !tokenOut)) {
-      setTokenIn(tokenList.find((token) => token.assetId === initialTokenIn))
-      setTokenOut(tokenList.find((token) => token.assetId === initialTokenOut))
+      setTokenIn(
+        tokenList.find((token) => token.assetId === initialTokenIn) ??
+          tokenList[0]
+      )
+      setTokenOut(
+        tokenList.find((token) => token.assetId === initialTokenOut) ??
+          tokenList[1]
+      )
     }
   }, [tokenList, initialTokenIn, initialTokenOut, tokenIn, tokenOut])
 
@@ -159,8 +186,16 @@ function Swap() {
   const amountIn = watch("amountIn")
   const recipient = watch("recipient")
 
-  const debouncedAmountIn = useDebounce(amountIn, 500)
-  const debouncedRecipient = useDebounce(recipient, 500)
+  const debouncedAmountIn = useDebounce(amountIn, DEBOUNCE_DELAY)
+  const debouncedRecipient = useDebounce(recipient, DEBOUNCE_DELAY)
+  const debouncedSlippageTolerance = useDebounce(
+    slippageTolerance,
+    DEBOUNCE_DELAY
+  )
+  const debouncedQuoteWaitingTimeSeconds = useDebounce(
+    quoteWaitingTimeSeconds,
+    DEBOUNCE_DELAY
+  )
 
   const getQuoteArg = useMemo((): QuoteRequest => {
     const amount =
@@ -168,12 +203,15 @@ function Swap() {
         ? parseUnits(debouncedAmountIn, tokenIn.decimals).toString()
         : "0"
 
-    const deadline = dayjs().add(5, "minutes").toISOString()
+    const deadlineISO = dayjs(deadline).toISOString()
 
     return {
+      // @ts-expect-error - TODO: remove ts-expect-error when sdk is updated
+      swapStrategy,
       dry: true,
       swapType: QuoteRequest.swapType.EXACT_INPUT,
-      slippageTolerance: 300, // 3%
+      slippageTolerance: Math.round(debouncedSlippageTolerance * 100),
+      quoteWaitingTimeMs: debouncedQuoteWaitingTimeSeconds * 1000,
       originAsset: tokenIn?.assetId ?? "",
       depositType: QuoteRequest.depositType.ORIGIN_CHAIN,
       destinationAsset: tokenOut?.assetId ?? "",
@@ -182,7 +220,7 @@ function Swap() {
       refundType: QuoteRequest.refundType.ORIGIN_CHAIN,
       recipient: debouncedRecipient ?? "",
       recipientType: QuoteRequest.recipientType.DESTINATION_CHAIN,
-      deadline,
+      deadline: deadlineISO,
       referral,
     }
   }, [
@@ -190,18 +228,58 @@ function Swap() {
     tokenOut,
     debouncedAmountIn,
     debouncedRecipient,
+    debouncedSlippageTolerance,
+    debouncedQuoteWaitingTimeSeconds,
+    swapStrategy,
     userAddress,
     referral,
     getValues,
     activeDeposit,
+    deadline,
   ])
+
+  const quoteTimeError = useMemo(() => {
+    if (quoteWaitingTimeSeconds === 0) {
+      return "Quote waiting time must be greater than 0"
+    }
+    if (quoteWaitingTimeSeconds > 24) {
+      return "Quote waiting time cannot exceed 24 seconds"
+    }
+    if (quoteWaitingTimeSeconds < 0) {
+      return "Quote waiting time must be a positive number"
+    }
+    return null
+  }, [quoteWaitingTimeSeconds])
+
+  const slippageError = useMemo(() => {
+    if (slippageTolerance === 0) {
+      return "Slippage tolerance must be greater than 0"
+    }
+    if (slippageTolerance < 0) {
+      return "Slippage tolerance must be a positive number"
+    }
+    return null
+  }, [slippageTolerance])
+
+  const deadlineError = useMemo(() => {
+    const selectedDeadline = dayjs(deadline)
+    const now = dayjs()
+
+    if (selectedDeadline.isBefore(now) || selectedDeadline.isSame(now)) {
+      return "Deadline must be in the future"
+    }
+    return null
+  }, [deadline])
 
   const isRequestEnabled = !!(
     getQuoteArg.amount !== "0" &&
     getQuoteArg.originAsset &&
     getQuoteArg.destinationAsset &&
     getQuoteArg.refundTo &&
-    getQuoteArg.recipient
+    getQuoteArg.recipient &&
+    !quoteTimeError &&
+    !slippageError &&
+    !deadlineError
   )
 
   const [shouldExecuteSwap, setShouldExecuteSwap] = useState(false)
@@ -226,7 +304,7 @@ function Swap() {
       return getQuote(getQuoteArg)
     },
     enabled: !shouldExecuteSwap && isRequestEnabled,
-    staleTime: 1000, // 1 second
+    staleTime: 1000,
     retry: false,
   })
 
@@ -238,7 +316,7 @@ function Swap() {
     queryKey: ["swap", getQuoteArg, shouldExecuteSwap],
     queryFn: () => getQuote({ ...getQuoteArg, dry: false }),
     enabled: shouldExecuteSwap && isRequestEnabled,
-    staleTime: 1000, // 1 second
+    staleTime: 1000,
     retry: false,
     refetchOnWindowFocus: false,
   })
@@ -364,6 +442,18 @@ function Swap() {
               placeholder="Enter to wallet address"
             />
 
+            <Settings
+              swapStrategy={swapStrategy}
+              setSwapStrategy={setSwapStrategy}
+              slippageError={slippageError}
+              setSlippageTolerance={setSlippageTolerance}
+              quoteTimeError={quoteTimeError}
+              setQuoteWaitingTimeSeconds={setQuoteWaitingTimeSeconds}
+              deadline={deadline}
+              setDeadline={setDeadline}
+              deadlineError={deadlineError}
+            />
+
             {currentError && (
               <div className="mb-5 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-700 dark:text-red-300">
                 <p className="font-medium">Error:</p>
@@ -418,6 +508,182 @@ function Swap() {
         </div>
       </Island>
     </Paper>
+  )
+}
+
+function Settings({
+  swapStrategy,
+  setSwapStrategy,
+  slippageError,
+  setSlippageTolerance,
+  quoteTimeError,
+  setQuoteWaitingTimeSeconds,
+  deadline,
+  setDeadline,
+  deadlineError,
+}: {
+  swapStrategy: string
+  setSwapStrategy: Dispatch<
+    SetStateAction<"BEST" | "ATOMIC" | "STREAMING" | "DCA">
+  >
+  slippageError: string | null
+  setSlippageTolerance: Dispatch<SetStateAction<number>>
+  quoteTimeError: string | null
+  setQuoteWaitingTimeSeconds: Dispatch<SetStateAction<number>>
+  deadline: string
+  setDeadline: Dispatch<SetStateAction<string>>
+  deadlineError: string | null
+}) {
+  return (
+    <Accordion.Root type="single" collapsible className="mb-5">
+      <Accordion.Item
+        value="settings"
+        className="border border-gray-4 rounded-lg"
+      >
+        <Accordion.Trigger className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-gray-11 hover:bg-gray-2 transition-colors rounded-lg data-[state=open]:rounded-b-none">
+          <span>Settings</span>
+          <CaretDownIcon className="h-4 w-4 transition-transform duration-200 data-[state=open]:rotate-180" />
+        </Accordion.Trigger>
+        <Accordion.Content className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+          <div className="px-4 pb-3 pt-2">
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor="swapStrategy"
+                  className="text-xs font-medium text-gray-11"
+                >
+                  Swap Strategy
+                </label>
+                <select
+                  id="swapStrategy"
+                  value={swapStrategy}
+                  onChange={(e) =>
+                    setSwapStrategy(
+                      e.target.value as (typeof SWAP_STRATEGIES)[number]
+                    )
+                  }
+                  className="w-full px-3 py-2 rounded-md bg-gray-1 dark:bg-gray-2 border border-gray-4 dark:border-gray-6 text-gray-12 dark:text-gray-11 text-sm"
+                >
+                  {SWAP_STRATEGIES.map((strategy) => (
+                    <option key={strategy} value={strategy}>
+                      {strategy}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-gray-10">
+                  Choose the strategy for executing your swap.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor="slippageTolerance"
+                  className="text-xs font-medium text-gray-11 mt-2"
+                >
+                  Slippage Tolerance (%)
+                </label>
+                <TextField.Root
+                  id="slippageTolerance"
+                  type="number"
+                  inputMode="decimal"
+                  min="0.1"
+                  step="0.1"
+                  defaultValue="3"
+                  className={`w-full [&>input]:!bg-gray-1 [&>input]:dark:!bg-gray-2 [&>input]:!border [&>input]:!border-gray-4 [&>input]:dark:!border-gray-6 [&>input]:!text-gray-12 [&>input]:dark:!text-gray-11 [&>input]:!rounded-md [&>input]:!px-3 [&>input]:!py-2 ${
+                    slippageError
+                      ? "[&>input]:!border-red-500 [&>input]:dark:!border-red-400"
+                      : ""
+                  }`}
+                  onChange={(e) => {
+                    setSlippageTolerance(Number.parseFloat(e.target.value) || 0)
+                  }}
+                />
+                {slippageError && (
+                  <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                    {slippageError}
+                  </p>
+                )}
+                <p className="text-xs text-gray-10">
+                  Your transaction will revert if the price changes unfavorably
+                  by more than this percentage.
+                </p>
+              </div>
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor="quoteWaitingTimeSeconds"
+                  className="text-xs font-medium text-gray-11 mt-2"
+                >
+                  Quote Waiting Time (seconds)
+                </label>
+                <TextField.Root
+                  id="quoteWaitingTimeSeconds"
+                  type="number"
+                  inputMode="decimal"
+                  min="1"
+                  max="24"
+                  step="1"
+                  defaultValue="3"
+                  className={`w-full [&>input]:!bg-gray-1 [&>input]:dark:!bg-gray-2 [&>input]:!border [&>input]:!border-gray-4 [&>input]:dark:!border-gray-6 [&>input]:!text-gray-12 [&>input]:dark:!text-gray-11 [&>input]:!rounded-md [&>input]:!px-3 [&>input]:!py-2 ${
+                    quoteTimeError
+                      ? "[&>input]:!border-red-500 [&>input]:dark:!border-red-400"
+                      : ""
+                  }`}
+                  onChange={(e) => {
+                    setQuoteWaitingTimeSeconds(
+                      Number.parseFloat(e.target.value) || 0
+                    )
+                  }}
+                />
+                {quoteTimeError && (
+                  <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                    {quoteTimeError}
+                  </p>
+                )}
+                <p className="text-xs text-gray-10">
+                  The maximum time to wait for a quote before considering it
+                  expired.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor="deadline"
+                  className="text-xs font-medium text-gray-11 mt-2"
+                >
+                  Deadline
+                </label>
+                <input
+                  id="deadline"
+                  type="datetime-local"
+                  value={deadline}
+                  onChange={(e) => {
+                    const selectedDate = dayjs(e.target.value)
+                    const now = dayjs()
+
+                    if (selectedDate.isAfter(now)) {
+                      setDeadline(e.target.value)
+                    }
+                  }}
+                  min={dayjs().add(1, "minute").format("YYYY-MM-DDTHH:mm")}
+                  className={`w-full px-3 py-2 rounded-md bg-gray-1 dark:bg-gray-2 border border-gray-4 dark:border-gray-6 text-gray-12 dark:text-gray-11 text-sm ${
+                    deadlineError ? "!border-red-500 dark:!border-red-400" : ""
+                  }`}
+                />
+                {deadlineError && (
+                  <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                    {deadlineError}
+                  </p>
+                )}
+                <p className="text-xs text-gray-10">
+                  The deadline by which your swap must be completed. Only future
+                  dates are allowed.
+                </p>
+              </div>
+            </div>
+          </div>
+        </Accordion.Content>
+      </Accordion.Item>
+    </Accordion.Root>
   )
 }
 

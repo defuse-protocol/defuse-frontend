@@ -8,7 +8,7 @@
         "@creit.tech/stellar-wallets-kit": "^1.8.0",
         "@defuse-protocol/intents-sdk": "0.17.1",
         "@defuse-protocol/internal-utils": "0.8.2",
-        "@defuse-protocol/one-click-sdk-typescript": "^0.1.9",
+        "@defuse-protocol/one-click-sdk-typescript": "^0.1.1-0.2",
         "@lifeomic/attempt": "^3.1.0",
         "@near-eth/aurora-erc20": "^2.8.0",
         "@near-eth/aurora-ether": "^3.0.0",
@@ -531,7 +531,7 @@
 
     "@defuse-protocol/internal-utils": ["@defuse-protocol/internal-utils@0.8.2", "", { "dependencies": { "@defuse-protocol/contract-types": "0.0.3", "@lifeomic/attempt": "^3.0.0", "@noble/hashes": "^1.7.1", "@peculiar/asn1-ecc": "^2.0.0", "@peculiar/asn1-schema": "^2.0.0", "@scure/base": "^1.0.0", "@thames/monads": "^0.7.0", "near-api-js": "^4.0.0 || ^5.0.0", "tweetnacl": "^1.0.0", "valibot": "^1.0.0", "viem": "^2.0.0" } }, "sha512-Q/++nslkO1nDVgQoLXoy6Xb4ECCT23B4CCC6V/PakDR8GrIEWJ54aX9udVl+IC9imiYwFIXzLyHbeUG538BZYg=="],
 
-    "@defuse-protocol/one-click-sdk-typescript": ["@defuse-protocol/one-click-sdk-typescript@0.1.9", "", { "dependencies": { "axios": "^1.6.8", "form-data": "^4.0.0" } }, "sha512-uiqiljXKCTOwvfBryscFtwebpRFwmpiSOq6eEFUGc4itrflCGwa7ZOuQ5HMqV1ECG/oBHmLVEi5+TZHeeNPpew=="],
+    "@defuse-protocol/one-click-sdk-typescript": ["@defuse-protocol/one-click-sdk-typescript@0.1.10", "", { "dependencies": { "axios": "^1.6.8", "form-data": "^4.0.0" } }, "sha512-47BmNDC0THRViW0E8Tnb5jGRAXwZHe/e744IUYnnS4dGpKRKqSQKlkO0+XQThqV5J7aHTCLIUZ0SRxFs4R4Fdw=="],
 
     "@ecies/ciphers": ["@ecies/ciphers@0.2.4", "", { "peerDependencies": { "@noble/ciphers": "^1.0.0" } }, "sha512-t+iX+Wf5nRKyNzk8dviW3Ikb/280+aEJAnw9YXvCp2tYGPSkMki+NRY+8aNLmVFv3eNtMdvViPNOPxS8SZNP+w=="],
 

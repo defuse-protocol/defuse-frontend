@@ -8,7 +8,11 @@ import {
 } from "@defuse-protocol/one-click-sdk-typescript"
 import { unstable_cache } from "next/cache"
 
-OpenAPI.BASE = "https://1click.chaindefuser.com"
+OpenAPI.BASE =
+  process.env.ONE_CLICK_URL ??
+  (() => {
+    throw new Error("ONE_CLICK_URL is not set")
+  })()
 
 OpenAPI.TOKEN =
   process.env.ONE_CLICK_API_KEY ??
