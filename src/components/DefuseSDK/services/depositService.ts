@@ -787,14 +787,14 @@ export async function createDepositTronNativeTransaction(
   )
 }
 
-export async function createDepositTronERC20Transaction(
+export async function createDepositTronTRC20Transaction(
   userAddress: string,
   assetAccountId: string,
   generatedAddress: string,
   amount: bigint
 ): Promise<SendTransactionTronParams> {
   const client = new TronWeb({ fullHost: settings.rpcUrls.tron })
-  return await client.transactionBuilder.triggerSmartContract(
+  const txResult = await client.transactionBuilder.triggerSmartContract(
     assetAccountId,
     "transfer(address,uint256)",
     {}, // It might be enhanced in the future with feeLimit
@@ -804,6 +804,10 @@ export async function createDepositTronERC20Transaction(
     ],
     userAddress
   )
+  if (!txResult?.result) {
+    throw new Error("Failed to create deposit Tron TRC20 transaction")
+  }
+  return txResult.transaction
 }
 
 /**

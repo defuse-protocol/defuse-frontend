@@ -24,8 +24,8 @@ import {
   createDepositSolanaTransaction,
   createDepositStellarTransaction,
   createDepositTonTransaction,
-  createDepositTronERC20Transaction,
   createDepositTronNativeTransaction,
+  createDepositTronTRC20Transaction,
   createDepositVirtualChainERC20Transaction,
   createExitToNearPrecompileTransaction,
   generateDepositAddress,
@@ -536,7 +536,7 @@ export function DepositUIMachineProvider({
                     amount
                   )
                 } else {
-                  tx = await createDepositTronERC20Transaction(
+                  tx = await createDepositTronTRC20Transaction(
                     userAddress,
                     derivedToken.address,
                     depositAddress,
