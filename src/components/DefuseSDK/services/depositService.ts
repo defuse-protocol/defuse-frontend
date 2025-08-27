@@ -34,6 +34,7 @@ import {
   getAddress,
 } from "viem"
 import { type ActorRefFrom, waitFor } from "xstate"
+import { z } from "zod"
 import { config } from "../config"
 import { settings } from "../constants/settings"
 import type { depositEstimationMachine } from "../features/machines/depositEstimationActor"
@@ -790,14 +791,7 @@ export async function createDepositTronNativeTransaction(
   if (!isTransactionTron(transaction)) {
     throw new Error("Transaction is not a Tron transaction")
   }
-
-  // Create an unsigned version of the transaction for the wallet adapter
-  const unsignedTransaction = {
-    ...transaction,
-    signature: undefined, // Remove signature to make it unsigned
-  }
-
-  return unsignedTransaction
+  return transaction
 }
 
 export async function createDepositTronERC20Transaction(
@@ -824,23 +818,21 @@ export async function createDepositTronERC20Transaction(
   if (!isTransactionTron(transaction)) {
     throw new Error("Transaction is not a Tron transaction")
   }
-
-  // Create an unsigned version of the transaction for the wallet adapter
-  const unsignedTransaction = {
-    ...transaction,
-    signature: undefined, // Remove signature to make it unsigned
-  }
-
-  return unsignedTransaction
+  return transaction
 }
 
+const transactionTronSchema = z.object({
+  txID: z.string(),
+  raw_data_hex: z.string(),
+  raw_data: z
+    .object({
+      contract: z.array(z.unknown()),
+    })
+    .optional(),
+})
+
 function isTransactionTron(x: unknown): x is TransactionTron {
-  return (
-    !!x &&
-    typeof (x as TransactionTron).txID === "string" &&
-    typeof (x as TransactionTron).raw_data_hex === "string" &&
-    Array.isArray((x as TransactionTron).raw_data?.contract)
-  )
+  return transactionTronSchema.safeParse(x).success
 }
 
 /**
