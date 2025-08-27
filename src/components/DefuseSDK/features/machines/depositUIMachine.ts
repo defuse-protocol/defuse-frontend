@@ -637,9 +637,8 @@ export const depositUIMachine = setup({
           assert(params.depositAddress, "depositAddress is null")
           return {
             ...params,
-            type: "depositStellar",
+            type: "depositTron",
             depositAddress: params.depositAddress,
-            memo: params.memo,
           }
         },
         onDone: {
