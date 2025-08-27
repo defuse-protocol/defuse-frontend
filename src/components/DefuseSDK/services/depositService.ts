@@ -22,7 +22,6 @@ import {
   Operation,
   TransactionBuilder,
 } from "@stellar/stellar-sdk"
-import type { Transaction as TransactionTron } from "@tronweb3/tronwallet-abstract-adapter"
 import { TronWeb } from "tronweb"
 import {
   http,
@@ -34,7 +33,6 @@ import {
   getAddress,
 } from "viem"
 import { type ActorRefFrom, waitFor } from "xstate"
-import { z } from "zod"
 import { config } from "../config"
 import { settings } from "../constants/settings"
 import type { depositEstimationMachine } from "../features/machines/depositEstimationActor"
@@ -782,16 +780,11 @@ export async function createDepositTronNativeTransaction(
   amount: bigint
 ): Promise<SendTransactionTronParams> {
   const client = new TronWeb({ fullHost: settings.rpcUrls.tron })
-  const transaction = await client.transactionBuilder.sendTrx(
+  return await client.transactionBuilder.sendTrx(
     depositAddress,
     Number(amount),
     userAddress
   )
-
-  if (!isTransactionTron(transaction)) {
-    throw new Error("Transaction is not a Tron transaction")
-  }
-  return transaction
 }
 
 export async function createDepositTronERC20Transaction(
@@ -800,10 +793,8 @@ export async function createDepositTronERC20Transaction(
   generatedAddress: string,
   amount: bigint
 ): Promise<SendTransactionTronParams> {
-  const tronWeb = new TronWeb({ fullHost: settings.rpcUrls.tron })
-  // Set default owner for constant calls
-  tronWeb.setAddress(userAddress) // TODO: It's optional, and might be removed in the future
-  const res = await tronWeb.transactionBuilder.triggerSmartContract(
+  const client = new TronWeb({ fullHost: settings.rpcUrls.tron })
+  return await client.transactionBuilder.triggerSmartContract(
     assetAccountId,
     "transfer(address,uint256)",
     {}, // It might be enhanced in the future with feeLimit
@@ -813,26 +804,6 @@ export async function createDepositTronERC20Transaction(
     ],
     userAddress
   )
-
-  const transaction = res?.transaction
-  if (!isTransactionTron(transaction)) {
-    throw new Error("Transaction is not a Tron transaction")
-  }
-  return transaction
-}
-
-const transactionTronSchema = z.object({
-  txID: z.string(),
-  raw_data_hex: z.string(),
-  raw_data: z
-    .object({
-      contract: z.array(z.unknown()),
-    })
-    .optional(),
-})
-
-function isTransactionTron(x: unknown): x is TransactionTron {
-  return transactionTronSchema.safeParse(x).success
 }
 
 /**
