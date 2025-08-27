@@ -126,26 +126,24 @@ const BANDWIDTH_PRICE_SUN = 1000n // Cost per bandwidth point in sun (0.001 TRX 
 
 export async function estimateTronTransferCost({
   rpcUrl,
+  from,
   to,
 }: {
   rpcUrl: string
+  from: string
   to: string | null
 }): Promise<bigint> {
-  if (!to) {
+  if (!to || !TronWeb.isAddress(from) || !TronWeb.isAddress(to)) {
     return 0n
   }
 
   const client = new TronWeb({ fullHost: rpcUrl })
 
-  // For estimation purposes, we need a valid Tron address as the sender. Since the userAddress may not be Tron-compatible,
-  // we can safely use a dummy address to calculate the bandwidth requirements
-  const dummyFrom = "TJRabPrwbZy45sbavfcjinPJC18kjpRTv8"
-
   // 1) Build unsigned tx and measure size
   const tx = await client.transactionBuilder.sendTrx(
     to,
     Number(TRON_ESTIMATION_AMOUNT),
-    dummyFrom
+    from
   )
   const rawBytes = BigInt(tx.raw_data_hex.length / 2) // hex → bytes
   const sizeBytes = rawBytes + TRON_SIGNATURE_BYTES
@@ -154,7 +152,7 @@ export async function estimateTronTransferCost({
   const bandwidthNeeded = sizeBytes
 
   // 3) Check available Bandwidth on the sender
-  const r = await client.trx.getAccountResources(dummyFrom)
+  const r = await client.trx.getAccountResources(from)
   const freeLeft = BigInt(
     Math.max(0, (r.freeNetLimit ?? 0) - (r.freeNetUsed ?? 0))
   )

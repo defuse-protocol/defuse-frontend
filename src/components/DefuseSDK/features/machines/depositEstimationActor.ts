@@ -116,6 +116,7 @@ export const depositEstimateMaxValueActor = fromPromise(
         const rpcUrl = getWalletRpcUrl(assetNetworkAdapter[blockchain])
         const fee = await estimateTronTransferCost({
           rpcUrl,
+          from: userAddress,
           to: generateAddress ?? null,
         })
         if (balance < fee) {
