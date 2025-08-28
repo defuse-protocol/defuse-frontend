@@ -23,6 +23,7 @@ import {
   Operation,
   TransactionBuilder,
 } from "@stellar/stellar-sdk"
+import { TronWeb } from "tronweb"
 import {
   http,
   type Address,
@@ -46,6 +47,7 @@ import type { BaseTokenInfo, SupportedChainName } from "../types/base"
 import type {
   SendTransactionEVMParams,
   SendTransactionStellarParams,
+  SendTransactionTronParams,
   Transaction,
 } from "../types/deposit"
 import type { SendTransactionTonParams } from "../types/deposit"
@@ -771,6 +773,45 @@ function createTrustlineTransferStellarTransaction(
 }
 
 /**
+ * Creates a deposit transaction for Tron
+ */
+export async function createDepositTronNativeTransaction(
+  userAddress: string,
+  depositAddress: string,
+  amount: bigint
+): Promise<SendTransactionTronParams> {
+  const client = new TronWeb({ fullHost: settings.rpcUrls.tron })
+  return await client.transactionBuilder.sendTrx(
+    depositAddress,
+    Number(amount),
+    userAddress
+  )
+}
+
+export async function createDepositTronTRC20Transaction(
+  userAddress: string,
+  assetAccountId: string,
+  generatedAddress: string,
+  amount: bigint
+): Promise<SendTransactionTronParams> {
+  const client = new TronWeb({ fullHost: settings.rpcUrls.tron })
+  const txResult = await client.transactionBuilder.triggerSmartContract(
+    assetAccountId,
+    "transfer(address,uint256)",
+    {}, // It might be enhanced in the future with feeLimit
+    [
+      { type: "address", value: generatedAddress },
+      { type: "uint256", value: amount.toString() },
+    ],
+    userAddress
+  )
+  if (!txResult?.result) {
+    throw new Error("Failed to create deposit Tron TRC20 transaction")
+  }
+  return txResult.transaction
+}
+
+/**
  * Generate a deposit address for the specified blockchain and asset through the POA bridge API call.
  *
  * @param userAddress - The user address from the wallet
@@ -1326,6 +1367,58 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.GNOSIS:
         case BlockchainEnum.BERACHAIN:
         case BlockchainEnum.TRON:
+        case BlockchainEnum.POLYGON:
+        case BlockchainEnum.BSC:
+        case BlockchainEnum.NEAR:
+        case BlockchainEnum.TON:
+        case BlockchainEnum.OPTIMISM:
+        case BlockchainEnum.AVALANCHE:
+        case BlockchainEnum.SUI:
+        case BlockchainEnum.SOLANA:
+        case BlockchainEnum.APTOS:
+        case BlockchainEnum.CARDANO:
+          return {
+            activeDeposit: false,
+            passiveDeposit: true,
+          }
+
+        /* not-allowed all */
+        case BlockchainEnum.TURBOCHAIN:
+        case BlockchainEnum.TUXAPPCHAIN:
+        case BlockchainEnum.VERTEX:
+        case BlockchainEnum.OPTIMA:
+        case BlockchainEnum.EASYCHAIN:
+        case BlockchainEnum.AURORA:
+        case BlockchainEnum.AURORA_DEVNET:
+        case BlockchainEnum.HYPERLIQUID:
+          return {
+            activeDeposit: false,
+            passiveDeposit: false,
+          }
+        default:
+          network satisfies never
+          throw new Error("exhaustive check failed")
+      }
+    case AuthMethod.Tron:
+      switch (network) {
+        /* allowed all */
+        case BlockchainEnum.TRON:
+          return {
+            activeDeposit: true,
+            passiveDeposit: true,
+          }
+
+        /* allowed passive */
+        case BlockchainEnum.ETHEREUM:
+        case BlockchainEnum.BASE:
+        case BlockchainEnum.ARBITRUM:
+        case BlockchainEnum.BITCOIN:
+        case BlockchainEnum.DOGECOIN:
+        case BlockchainEnum.XRPLEDGER:
+        case BlockchainEnum.ZCASH:
+        case BlockchainEnum.GNOSIS:
+        case BlockchainEnum.BERACHAIN:
+        case BlockchainEnum.STELLAR:
         case BlockchainEnum.POLYGON:
         case BlockchainEnum.BSC:
         case BlockchainEnum.NEAR:

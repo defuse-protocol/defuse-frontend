@@ -70,6 +70,13 @@ export default function Deposit() {
           })
           return Array.isArray(result) ? result[0].transaction.hash : result
         }}
+        sendTransactionTron={async (tx) => {
+          const result = await sendTransaction({
+            id: ChainType.Tron,
+            tx,
+          })
+          return Array.isArray(result) ? result[0].transaction.hash : result
+        }}
         renderHostAppLink={renderAppLink}
         initialToken={tokenIn ?? undefined}
         onTokenChange={(params) =>

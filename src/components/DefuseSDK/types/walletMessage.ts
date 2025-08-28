@@ -1,4 +1,4 @@
-import type { DefusePayloadFor_DefuseIntents } from "./defuse-contracts-types"
+import type { DefusePayloadFor_DefuseIntents } from "@defuse-protocol/contract-types"
 
 // Message for EVM wallets
 export type ERC191Message = {

@@ -84,6 +84,7 @@ export const depositUIMachine = setup({
     depositVirtualChainActor: depositMachine,
     depositTonActor: depositMachine,
     depositStellarActor: depositMachine,
+    depositTronActor: depositMachine,
     prepareDepositActor: prepareDepositActor,
     depositFormActor: depositFormReducer,
     depositGenerateAddressActor: depositGenerateAddressMachine,
@@ -225,6 +226,9 @@ export const depositUIMachine = setup({
         context.depositFormRef.getSnapshot().context.blockchain === "stellar"
       )
     },
+    isChainTronSelected: ({ context }) => {
+      return context.depositFormRef.getSnapshot().context.blockchain === "tron"
+    },
     isOk: (_, a: { tag: "err" | "ok" }) => a.tag === "ok",
     isDepositParamsComplete: and([
       "isTokenValid",
@@ -355,6 +359,12 @@ export const depositUIMachine = setup({
               {
                 target: "#deposit-ui.submittingStellarTx",
                 guard: "isChainStellarSelected",
+                actions: "clearResults",
+                reenter: true,
+              },
+              {
+                target: "#deposit-ui.submittingTronTx",
+                guard: "isChainTronSelected",
                 actions: "clearResults",
                 reenter: true,
               },
@@ -602,6 +612,33 @@ export const depositUIMachine = setup({
             type: "depositStellar",
             depositAddress: params.depositAddress,
             memo: params.memo,
+          }
+        },
+        onDone: {
+          target: "editing.reset_previous_preparation",
+          actions: [
+            {
+              type: "setDepositOutput",
+              params: ({ event }) => event.output,
+            },
+            { type: "clearUIDepositAmount" },
+          ],
+          reenter: true,
+        },
+      },
+    },
+    submittingTronTx: {
+      invoke: {
+        id: "depositTronRef",
+        src: "depositTronActor",
+        input: ({ context, event }) => {
+          assertEvent(event, "SUBMIT")
+          const params = extractDepositParams(context)
+          assert(params.depositAddress, "depositAddress is null")
+          return {
+            ...params,
+            type: "depositTron",
+            depositAddress: params.depositAddress,
           }
         },
         onDone: {

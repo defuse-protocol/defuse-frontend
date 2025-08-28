@@ -19,6 +19,7 @@ export const DepositWidget = ({
   sendTransactionSolana,
   sendTransactionTon,
   sendTransactionStellar,
+  sendTransactionTron,
   renderHostAppLink,
   initialToken,
   onTokenChange,
@@ -36,6 +37,7 @@ export const DepositWidget = ({
             sendTransactionSolana={sendTransactionSolana}
             sendTransactionTon={sendTransactionTon}
             sendTransactionStellar={sendTransactionStellar}
+            sendTransactionTron={sendTransactionTron}
             onTokenChange={onTokenChange}
           >
             <DepositUIMachineFormSyncProvider

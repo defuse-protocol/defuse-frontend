@@ -3,8 +3,10 @@ import { secp256k1 } from "@noble/curves/secp256k1"
 import { sha256 } from "@noble/hashes/sha256"
 import { base58 } from "@scure/base"
 import { Keypair } from "@stellar/stellar-sdk"
+import { TronWeb } from "tronweb"
 import { sign } from "tweetnacl"
 import { verifyMessage as verifyMessageViem } from "viem"
+import { settings } from "../constants/settings"
 import { parsePublicKey, verifyAuthenticatorAssertion } from "./webAuthn"
 
 // No-op usage to prevent tree-shaking. sec256k1 is dynamically loaded by viem.
@@ -85,6 +87,16 @@ export async function verifyWalletSignature(
         signature.signatureData,
         publicKeyBytes
       )
+    }
+    case "TRON": {
+      const tronWeb = new TronWeb({
+        fullHost: settings.rpcUrls.tron,
+      })
+      const derivedAddress = await tronWeb.trx.verifyMessageV2(
+        signature.signedData.message,
+        signature.signatureData
+      )
+      return derivedAddress === userAddress
     }
     default:
       signatureType satisfies never

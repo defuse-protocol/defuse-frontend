@@ -5,4 +5,5 @@ export enum MapsEnum {
   WEBAUTHN = "webauthn",
   TON = "ton",
   STELLAR_MAINNET = "stellar:mainnet",
+  TRON_MAINNET = "tron:mainnet",
 }

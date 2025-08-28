@@ -26,7 +26,10 @@ import {
 } from "wagmi"
 
 import { BaseError } from "@src/components/DefuseSDK/errors/base"
-import type { SendTransactionStellarParams } from "@src/components/DefuseSDK/types/deposit"
+import type {
+  SendTransactionStellarParams,
+  SendTransactionTronParams,
+} from "@src/components/DefuseSDK/types/deposit"
 import {
   useWebAuthnActions,
   useWebAuthnCurrentCredential,
@@ -38,6 +41,7 @@ import {
   submitTransactionStellar,
   useStellarWallet,
 } from "@src/providers/StellarWalletProvider"
+import { useTronWallet } from "@src/providers/TronWalletProvider"
 import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
 import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
 import type {
@@ -57,6 +61,7 @@ export enum ChainType {
   WebAuthn = "webauthn",
   Ton = "ton",
   Stellar = "stellar",
+  Tron = "tron",
 }
 
 export type State = {
@@ -79,6 +84,7 @@ interface ConnectWalletAction {
       | SendTransactionSolanaParams["transactions"]
       | SendTransactionTonParams["transactions"]
       | SendTransactionStellarParams
+      | SendTransactionTronParams
   }) => Promise<string | FinalExecutionOutcome[] | SendTransactionResponse>
   connectors: Connector[]
   state: State
@@ -268,6 +274,31 @@ export const useConnectWallet = (): ConnectWalletAction => {
     }
   }
 
+  /**
+   * Tron:
+   * Down below are Tron Wallet handlers and actions
+   */
+  const tronWallet = useTronWallet()
+
+  const handleSignInViaTron = async (): Promise<void> => {
+    await tronWallet.connect()
+  }
+
+  const handleSignOutViaTron = async (): Promise<void> => {
+    await tronWallet.disconnect()
+  }
+
+  if (tronWallet.publicKey) {
+    state = {
+      address: tronWallet.publicKey,
+      displayAddress: tronWallet.publicKey,
+      network: "tron:mainnet",
+      chainType: ChainType.Tron,
+      isVerified: false,
+      isFake: false,
+    }
+  }
+
   state.isVerified = useVerifiedWalletsStore(
     useCallback(
       (store) =>
@@ -304,6 +335,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
         [ChainType.WebAuthn]: () => webAuthnUI.open(),
         [ChainType.Ton]: () => tonConnectModal.open(),
         [ChainType.Stellar]: () => handleSignInViaStellar(),
+        [ChainType.Tron]: () => handleSignInViaTron(),
       }
 
       return strategies[params.id]()
@@ -318,6 +350,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
           [ChainType.WebAuthn]: () => webAuthnActions.signOut(),
           [ChainType.Ton]: () => tonConnectUI.disconnect(),
           [ChainType.Stellar]: () => handleSignOutViaStellar(),
+          [ChainType.Tron]: () => handleSignOutViaTron(),
         }
 
         onSignOut()
@@ -377,6 +410,17 @@ export const useConnectWallet = (): ConnectWalletAction => {
           const xdrString = stellarParams.transaction.toXDR()
           const { signedTxXdr } = await signTransactionStellar(xdrString)
           const txHash = await submitTransactionStellar(signedTxXdr)
+          return txHash
+        },
+
+        [ChainType.Tron]: async () => {
+          if (!tronWallet) {
+            throw new Error("Tron wallet not connected")
+          }
+          const tronParams = params.tx as SendTransactionTronParams
+          const txHash = await tronWallet.sendTransaction({
+            transaction: tronParams,
+          })
           return txHash
         },
       }

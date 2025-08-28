@@ -1,9 +1,9 @@
+import type { MultiPayload } from "@defuse-protocol/contract-types"
 import { solverRelay } from "@defuse-protocol/internal-utils"
 import {
   type SignerCredentials,
   formatSignedIntent,
 } from "@src/components/DefuseSDK/core/formatters"
-import type { MultiPayload } from "@src/components/DefuseSDK/types/defuse-contracts-types"
 import { assertEvent, assign, fromPromise, setup } from "xstate"
 import { logger } from "../../../../logger"
 import {
