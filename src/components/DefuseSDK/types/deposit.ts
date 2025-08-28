@@ -1,6 +1,7 @@
 import type { authHandle } from "@defuse-protocol/internal-utils"
 import type { Transaction as TransactionSolana } from "@solana/web3.js"
 import type { Transaction as TransactionStellar } from "@stellar/stellar-sdk"
+import type { Transaction as TransactionTron } from "@tronweb3/tronwallet-abstract-adapter"
 import type { Address, Hash } from "viem"
 import type { RenderHostAppLink } from "./hostAppLink"
 import type { SwappableToken } from "./swap"
@@ -16,6 +17,7 @@ export type DepositWidgetProps = {
   sendTransactionSolana: (tx: Transaction["Solana"]) => Promise<string | null>
   sendTransactionTon: (tx: Transaction["TON"]) => Promise<string | null>
   sendTransactionStellar: (tx: Transaction["Stellar"]) => Promise<string | null>
+  sendTransactionTron: (tx: Transaction["Tron"]) => Promise<string | null>
   initialToken?: SwappableToken
   onTokenChange?: (params: {
     token: SwappableToken | null
@@ -28,6 +30,7 @@ export type Transaction = {
   Solana: SendTransactionSolanaParams
   TON: SendTransactionTonParams
   Stellar: SendTransactionStellarParams
+  Tron: SendTransactionTronParams
 }
 
 export type DepositEvent = {
@@ -77,3 +80,5 @@ export interface SendTransactionTonParams {
 export interface SendTransactionStellarParams {
   transaction: TransactionStellar
 }
+
+export interface SendTransactionTronParams extends TransactionTron {}

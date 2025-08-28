@@ -1,7 +1,4 @@
-import type {
-  Intent,
-  MultiPayload,
-} from "@src/components/DefuseSDK/types/defuse-contracts-types"
+import type { Intent, MultiPayload } from "@defuse-protocol/contract-types"
 import { safeParse } from "valibot"
 import { logger } from "../../../logger"
 import { MultiPayloadDeepSchema } from "../../otcDesk/utils/schemaMultipayload"

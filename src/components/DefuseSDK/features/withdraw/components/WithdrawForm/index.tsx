@@ -51,6 +51,7 @@ import {
   ReceivedAmountAndFee,
   RecipientSubForm,
 } from "./components"
+import { useMinWithdrawalAmountWithFeeEstimation } from "./hooks/useMinWithdrawalAmountWithFeeEstimation"
 import {
   balancesSelector,
   isLiquidityUnavailableSelector,
@@ -202,6 +203,11 @@ export const WithdrawForm = ({
       ? null
       : (minWithdrawalHyperliquidAmount ?? minWithdrawalPOABridgeAmount)
 
+  const minWithdrawalAmountWithFee = useMinWithdrawalAmountWithFeeEstimation(
+    minWithdrawalAmount,
+    state.context.preparationOutput
+  )
+
   const tokenInBalance = useSelector(
     depositedBalanceRef,
     balanceSelector(token)
@@ -298,6 +304,23 @@ export const WithdrawForm = ({
     token,
     tokensUsdPriceData
   )
+  const receivedAmountUsd = totalAmountReceived?.amount
+    ? getTokenUsdPrice(
+        formatTokenValue(
+          totalAmountReceived.amount,
+          totalAmountReceived.decimals
+        ),
+        tokenOut,
+        tokensUsdPriceData
+      )
+    : null
+  const feeUsd = withdtrawalFee
+    ? getTokenUsdPrice(
+        formatTokenValue(withdtrawalFee.amount, withdtrawalFee.decimals),
+        tokenOut,
+        tokensUsdPriceData
+      )
+    : null
 
   const increaseAmount = (tokenValue: TokenValue) => {
     if (parsedAmountIn == null) return
@@ -418,8 +441,12 @@ export const WithdrawForm = ({
           />
 
           <MinWithdrawalAmount
-            minWithdrawalAmount={minWithdrawalAmount}
+            minWithdrawalAmount={minWithdrawalAmountWithFee}
             tokenOut={tokenOut}
+            isLoading={
+              state.matches({ editing: "preparation" }) &&
+              state.context.preparationOutput == null
+            }
           />
 
           <RecipientSubForm
@@ -476,6 +503,8 @@ export const WithdrawForm = ({
           <ReceivedAmountAndFee
             fee={withdtrawalFee}
             totalAmountReceived={totalAmountReceived}
+            feeUsd={feeUsd}
+            totalAmountReceivedUsd={receivedAmountUsd}
             symbol={token.symbol}
             isLoading={
               state.matches({ editing: "preparation" }) &&

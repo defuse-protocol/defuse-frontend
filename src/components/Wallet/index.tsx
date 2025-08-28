@@ -13,6 +13,7 @@ import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { useSignInWindowOpenState } from "@src/stores/useSignInWindowOpenState"
 import { mapStringToEmojis } from "@src/utils/emoji"
 import { TURN_OFF_APPS } from "@src/utils/environment"
+import { useSearchParams } from "next/navigation"
 import { TonConnectButton } from "./TonConnectButton"
 
 const ConnectWallet = () => {
@@ -20,6 +21,7 @@ const ConnectWallet = () => {
   const { state, signIn, connectors } = useConnectWallet()
   const { shortAccountId } = useShortAccountId(state.displayAddress ?? "")
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
+  const searchParams = useSearchParams()
 
   const handleNearWalletSelector = () => {
     return signIn({ id: ChainType.Near })
@@ -293,6 +295,31 @@ const ConnectWallet = () => {
                         </Text>
                       </div>
                     </Button>
+
+                    {/* Tron connector */}
+                    {/* TODO: Remove searchParams check once Tron is fully supported */}
+                    {searchParams.get("tron") && (
+                      <Button
+                        onClick={() => signIn({ id: ChainType.Tron })}
+                        size="4"
+                        radius="medium"
+                        variant="soft"
+                        color="gray"
+                        className="px-2.5"
+                      >
+                        <div className="w-full flex items-center justify-start gap-2">
+                          <Image
+                            src="/static/icons/network/tron.svg"
+                            alt="Tron"
+                            width={36}
+                            height={36}
+                          />
+                          <Text size="2" weight="bold">
+                            Tron Wallet
+                          </Text>
+                        </div>
+                      </Button>
+                    )}
 
                     <Text size="1" color="gray">
                       Other options

@@ -1,4 +1,5 @@
 import { Flex, Skeleton, Text } from "@radix-ui/themes"
+import { FormattedCurrency } from "@src/components/DefuseSDK/features/account/components/shared/FormattedCurrency"
 import { clsx } from "clsx"
 import { useMemo } from "react"
 import type { TokenValue } from "../../../../../../types/base"
@@ -7,11 +8,15 @@ import { formatTokenValue } from "../../../../../../utils/format"
 export const ReceivedAmountAndFee = ({
   fee,
   totalAmountReceived,
+  feeUsd,
+  totalAmountReceivedUsd,
   symbol,
   isLoading,
 }: {
   fee: TokenValue
   totalAmountReceived: TokenValue | null
+  feeUsd: number | null
+  totalAmountReceivedUsd: number | null
   symbol: string
   isLoading: boolean
 }) => {
@@ -39,10 +44,15 @@ export const ReceivedAmountAndFee = ({
         <Text size="1" weight="medium" color="gray">
           Received amount
         </Text>
-        <Text size="1" weight="bold">
-          {isLoading ? <Skeleton>100.000000</Skeleton> : receivedAmount}
-          {` ${symbol}`}
-        </Text>
+        <div className="flex flex-col items-end gap-2 justify-end md:flex-row-reverse md:items-center">
+          <Text size="1" weight="bold" className="whitespace-nowrap">
+            {isLoading ? <Skeleton>100.000000</Skeleton> : receivedAmount}
+            {` ${symbol}`}
+          </Text>
+          {receivedAmount !== "-" && totalAmountReceivedUsd && (
+            <ApproximateCurrency value={totalAmountReceivedUsd} />
+          )}
+        </div>
       </Flex>
 
       <Flex
@@ -58,17 +68,32 @@ export const ReceivedAmountAndFee = ({
         >
           Fee
         </Text>
-
-        <Text size="1" weight="bold">
-          {isLoading ? (
-            <Skeleton>100.000</Skeleton>
-          ) : (
-            <>
-              {fee_} {symbol}
-            </>
+        <div className="flex flex-col items-end gap-2 justify-end md:flex-row-reverse md:items-center">
+          <Text size="1" weight="bold">
+            {isLoading ? (
+              <Skeleton>100.000</Skeleton>
+            ) : (
+              <>
+                {fee_} {symbol}
+              </>
+            )}
+          </Text>
+          {fee_ !== "-" && feeUsd != null && feeUsd > 0 && (
+            <ApproximateCurrency value={feeUsd} />
           )}
-        </Text>
+        </div>
       </Flex>
     </>
   )
 }
+
+const ApproximateCurrency = ({ value }: { value: number }) => (
+  <span className="flex items-center text-xs font-medium text-gray-11">
+    ~
+    <FormattedCurrency
+      value={value}
+      formatOptions={{ currency: "USD" }}
+      className="text-xs font-medium text-gray-11"
+    />
+  </span>
+)

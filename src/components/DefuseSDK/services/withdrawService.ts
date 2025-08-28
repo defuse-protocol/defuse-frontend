@@ -1,3 +1,4 @@
+import type { Intent } from "@defuse-protocol/contract-types"
 import {
   type FeeEstimation,
   FeeExceedsAmountError,
@@ -29,7 +30,6 @@ import { isNearIntentsNetwork } from "../features/withdraw/components/WithdrawFo
 import { logger } from "../logger"
 import { calculateSplitAmounts } from "../sdk/aggregatedQuote/calculateSplitAmounts"
 import type { BaseTokenInfo, TokenValue, UnifiedTokenInfo } from "../types/base"
-import type { Intent } from "../types/defuse-contracts-types"
 import { assert } from "../utils/assert"
 import { isAuroraVirtualChain } from "../utils/blockchain"
 import { findError } from "../utils/errors"

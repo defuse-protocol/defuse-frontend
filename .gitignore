@@ -50,6 +50,3 @@ next-env.d.ts
 
 # Vi
 *.swp
-
-# Generated types
-src/components/DefuseSDK/types/defuse-contracts-types.d.ts

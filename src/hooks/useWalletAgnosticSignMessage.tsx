@@ -4,6 +4,7 @@ import { useWebAuthnActions } from "@src/features/webauthn/hooks/useWebAuthnStor
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import { signMessageStellar } from "@src/providers/StellarWalletProvider"
+import { useTronWallet } from "@src/providers/TronWalletProvider"
 import {
   createHotWalletCloseObserver,
   raceFirst,
@@ -18,6 +19,7 @@ export function useWalletAgnosticSignMessage() {
   const solanaWallet = useWalletSolana()
   const { signMessage: signMessageWebAuthn } = useWebAuthnActions()
   const [tonConnectUi] = useTonConnectUI()
+  const { signMessage: signMessageTron } = useTronWallet()
 
   return async (
     walletMessage: walletMessage_.WalletMessage
@@ -94,6 +96,11 @@ export function useWalletAgnosticSignMessage() {
           signatureData,
           signedData: walletMessage.STELLAR,
         }
+      }
+
+      case ChainType.Tron: {
+        const signatureData = await signMessageTron(walletMessage.TRON.message)
+        return { type: "TRON", signatureData, signedData: walletMessage.TRON }
       }
 
       case undefined:

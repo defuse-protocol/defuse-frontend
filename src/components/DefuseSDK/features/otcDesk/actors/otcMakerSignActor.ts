@@ -1,3 +1,4 @@
+import type { MultiPayload } from "@defuse-protocol/contract-types"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { messageFactory } from "@defuse-protocol/internal-utils"
 import { base64 } from "@scure/base"
@@ -15,7 +16,6 @@ import type {
   TokenValue,
   UnifiedTokenInfo,
 } from "../../../types/base"
-import type { MultiPayload } from "../../../types/defuse-contracts-types"
 import { findError } from "../../../utils/errors"
 import {
   adjustDecimals,

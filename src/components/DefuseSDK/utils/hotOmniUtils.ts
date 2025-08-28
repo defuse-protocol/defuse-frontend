@@ -1,5 +1,5 @@
+import type { Intent } from "@defuse-protocol/contract-types"
 import type { SupportedChainName } from "../types/base"
-import type { Intent } from "../types/defuse-contracts-types"
 
 export function buildHotOmniWithdrawIntent(_args: {
   chainName: SupportedChainName

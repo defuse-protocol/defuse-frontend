@@ -17,6 +17,8 @@ import {
   getStellarBalance,
   getTonJettonBalance,
   getTonNativeBalance,
+  getTronNativeBalance,
+  getTronTrc20Balance,
 } from "../../services/blockchainBalanceService"
 import { getWalletRpcUrl } from "../../services/depositService"
 import type { BaseTokenInfo, SupportedChainName } from "../../types/base"
@@ -202,12 +204,34 @@ export const backgroundBalanceActor = fromPromise(
         result.balance = balance
         break
       }
+      case BlockchainEnum.TRON: {
+        if (isNativeToken(derivedToken)) {
+          const balance = await getTronNativeBalance({
+            userAddress: userWalletAddress,
+            rpcUrl: getWalletRpcUrl(networkToSolverFormat),
+          })
+          if (balance === null) {
+            throw new Error("Failed to fetch TRON balances")
+          }
+          result.balance = balance
+          break
+        }
+        const balance = await getTronTrc20Balance({
+          tokenAddress: derivedToken.address,
+          userAddress: userWalletAddress,
+          rpcUrl: getWalletRpcUrl(networkToSolverFormat),
+        })
+        if (balance === null) {
+          throw new Error("Failed to fetch TRON balances")
+        }
+        result.balance = balance
+        break
+      }
       // Active deposits through Bitcoin and other blockchains are not supported, so we don't need to check balances
       case BlockchainEnum.BITCOIN:
       case BlockchainEnum.DOGECOIN:
       case BlockchainEnum.XRPLEDGER:
       case BlockchainEnum.ZCASH:
-      case BlockchainEnum.TRON:
       case BlockchainEnum.HYPERLIQUID:
       case BlockchainEnum.SUI:
       case BlockchainEnum.APTOS:

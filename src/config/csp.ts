@@ -121,6 +121,7 @@ const cspConfig = {
     "https://c1.rpc.fastnear.com",
     "https://rpc.near.org",
     "https://rpc.mainnet.pagoda.co",
+    "https://api.trongrid.io",
     "https://fullnode.mainnet.aptoslabs.com",
   ],
   "object-src": ["'none'"],

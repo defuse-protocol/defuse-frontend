@@ -35,6 +35,7 @@ const connections: MapsEnum[] = [
   MapsEnum.SOLANA_MAINNET,
   MapsEnum.WEBAUTHN,
   MapsEnum.STELLAR_MAINNET,
+  MapsEnum.TRON_MAINNET,
 ]
 
 const WalletConnectionsConnector = ({
@@ -227,6 +228,25 @@ const WalletConnections = () => {
                 onCopy={() => setCopyWalletAddress(MapsEnum.STELLAR_MAINNET)}
                 isCopied={copyWalletAddress === MapsEnum.STELLAR_MAINNET}
                 onDisconnect={() => signOut({ id: ChainType.Stellar })}
+                onConnect={() => {}}
+                key={connector}
+                index={i}
+              />
+            )
+
+          case MapsEnum.TRON_MAINNET:
+            if (state.chainType !== ChainType.Tron) {
+              return null
+            }
+            return (
+              <WalletConnectionsConnector
+                accountId={userAddress}
+                chainLabel="Tron"
+                chainName="tron"
+                chainIcon={"/static/icons/network/tron.svg"}
+                onCopy={() => setCopyWalletAddress(MapsEnum.TRON_MAINNET)}
+                isCopied={copyWalletAddress === MapsEnum.TRON_MAINNET}
+                onDisconnect={() => signOut({ id: ChainType.Tron })}
                 onConnect={() => {}}
                 key={connector}
                 index={i}
