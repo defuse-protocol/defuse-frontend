@@ -374,7 +374,7 @@ async function getDepositEstimation(
 }
 
 const FT_DEPOSIT_GAS = `30${"0".repeat(12)}` // 30 TGAS
-const FT_TRANSFER_GAS = `50${"0".repeat(12)}` // 30 TGAS
+export const FT_TRANSFER_GAS = `50${"0".repeat(12)}` // 30 TGAS
 
 /**
  * Creates a deposit transaction for NEAR.
@@ -622,6 +622,34 @@ export function createDepositSolanaTransaction({
     depositAddress,
     amount,
     token.address,
+    ataExists
+  )
+}
+
+export function createDepositSolanaTransaction1cs({
+  userAddress,
+  depositAddress,
+  amount,
+  token,
+  ataExists,
+}: {
+  userAddress: string
+  depositAddress: string
+  amount: bigint
+  token: TokenResponse
+  ataExists: boolean
+}): TransactionSolana {
+  assert(token.blockchain === "sol", "Token must be a Solana token")
+
+  if (token.contractAddress === undefined) {
+    return createTransferSolanaTransaction(userAddress, depositAddress, amount)
+  }
+
+  return createSPLTransferSolanaTransaction(
+    userAddress,
+    depositAddress,
+    amount,
+    token.contractAddress,
     ataExists
   )
 }
@@ -1634,6 +1662,27 @@ async function checkSolanaATARequired(
   return !ataExists
 }
 
+export async function checkSolanaATARequired1cs(
+  token: TokenResponse,
+  depositAddress: string | null
+): Promise<boolean> {
+  if (
+    token.blockchain !== "sol" ||
+    token.contractAddress === undefined ||
+    depositAddress === null
+  ) {
+    return false
+  }
+
+  const connection = new Connection(settings.rpcUrls.solana)
+  const toPubkey = new PublicKeySolana(depositAddress)
+  const mintPubkey = new PublicKeySolana(token.contractAddress)
+  const toATA = getAssociatedTokenAddressSync(mintPubkey, toPubkey)
+
+  const ataExists = await checkATAExists(connection, toATA)
+  return !ataExists
+}
+
 export async function createDepositTonTransaction(
   userWalletAddress: string,
   depositAddress: string,
@@ -1651,6 +1700,26 @@ export async function createDepositTonTransaction(
     depositAddress,
     amount,
     token.address
+  )
+}
+
+export async function createDepositTonTransaction1cs(
+  userWalletAddress: string,
+  depositAddress: string,
+  amount: bigint,
+  token: TokenResponse
+): Promise<SendTransactionTonParams> {
+  assert(token.blockchain === "ton", "Token chain name is not TON")
+
+  if (token.contractAddress === undefined) {
+    return createDepositTonNativeTransaction(depositAddress, amount)
+  }
+
+  return createDepositTonJettonTransaction(
+    userWalletAddress,
+    depositAddress,
+    amount,
+    token.contractAddress
   )
 }
 

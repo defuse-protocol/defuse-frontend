@@ -24,7 +24,7 @@ import { validateAddress1cs } from "../../components/DefuseSDK/utils/validateAdd
 export async function getBalance(
   token: TokenResponse,
   userWalletAddress: string | null
-): Promise<bigint | null> {
+): Promise<{ balance: bigint; nearBalance?: bigint } | null> {
   const blockchain = token.blockchain
 
   if (
@@ -44,7 +44,10 @@ export async function getBalance(
 
 const balanceGetters: Record<
   TokenResponse.blockchain,
-  (token: TokenResponse, userWalletAddress: string) => Promise<bigint | null>
+  (
+    token: TokenResponse,
+    userWalletAddress: string
+  ) => Promise<{ balance: bigint; nearBalance?: bigint } | null>
 > = {
   near: nearBalanceGetter,
 
@@ -103,7 +106,10 @@ async function nearBalanceGetter(
       throw new Error("Failed to fetch native NEAR balance")
     }
 
-    return nep141Balance + nativeBalance
+    return {
+      balance: nep141Balance + nativeBalance,
+      nearBalance: nativeBalance,
+    }
   }
 
   const balance = await getNearNep141Balance({
@@ -115,7 +121,7 @@ async function nearBalanceGetter(
     throw new Error("Failed to fetch nep141 NEAR balance")
   }
 
-  return balance
+  return { balance }
 }
 
 async function ethBalanceGetter(
@@ -131,7 +137,7 @@ async function ethBalanceGetter(
     if (balance === null) {
       throw new Error("Failed to fetch EVM balances")
     }
-    return balance
+    return { balance }
   }
   const balance = await getEvmErc20Balance({
     tokenAddress: contractAddress as Address,
@@ -142,7 +148,7 @@ async function ethBalanceGetter(
     throw new Error("Failed to fetch EVM balances")
   }
 
-  return balance
+  return { balance }
 }
 
 async function solBalanceGetter(
@@ -158,7 +164,7 @@ async function solBalanceGetter(
     if (balance === null) {
       throw new Error("Failed to fetch SOLANA balances")
     }
-    return balance
+    return { balance }
   }
 
   const balance = await getSolanaSplBalance({
@@ -169,7 +175,7 @@ async function solBalanceGetter(
   if (balance === null) {
     throw new Error("Failed to fetch SOLANA balances")
   }
-  return balance
+  return { balance }
 }
 
 async function tonBalanceGetter(
@@ -185,7 +191,7 @@ async function tonBalanceGetter(
     if (balance === null) {
       throw new Error("Failed to fetch TON balances")
     }
-    return balance
+    return { balance }
   }
 
   const isJettonWalletCreationRequired = await checkTonJettonWalletRequired1cs(
@@ -205,5 +211,5 @@ async function tonBalanceGetter(
   if (balance === null) {
     throw new Error("Failed to fetch TON balances")
   }
-  return balance
+  return { balance }
 }
