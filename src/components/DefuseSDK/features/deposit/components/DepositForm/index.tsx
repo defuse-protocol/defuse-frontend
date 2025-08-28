@@ -4,12 +4,18 @@ import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Callout } from "@radix-ui/themes"
 import { ModalSelectNetwork } from "@src/components/DefuseSDK/components/Network/ModalSelectNetwork"
 import { usePreparedNetworkLists } from "@src/components/DefuseSDK/hooks/useNetworkLists"
-import { assetNetworkAdapter } from "@src/components/DefuseSDK/utils/adapters"
+import {
+  assetNetworkAdapter,
+  reverseAssetNetworkAdapter,
+} from "@src/components/DefuseSDK/utils/adapters"
 import {
   availableChainsForToken,
   getDefaultBlockchainOptionValue,
 } from "@src/components/DefuseSDK/utils/blockchain"
-import { isMinAmountNotRequired } from "@src/components/DefuseSDK/utils/tokenUtils"
+import {
+  getDerivedToken,
+  isMinAmountNotRequired,
+} from "@src/components/DefuseSDK/utils/tokenUtils"
 import { useSelector } from "@xstate/react"
 import { useEffect, useState } from "react"
 import { Controller, useFormContext } from "react-hook-form"
@@ -35,7 +41,6 @@ import type {
 import type { RenderHostAppLink } from "../../../../types/hostAppLink"
 import type { SwappableToken } from "../../../../types/swap"
 import { getPOABridgeInfo } from "../../../machines/poaBridgeInfoActor"
-import { getBaseTokenInfoWithFallback } from "../../../machines/withdrawFormReducer"
 import { DepositUIMachineContext } from "../DepositUIMachineProvider"
 import { ActiveDeposit } from "./ActiveDeposit"
 import { DepositMethodSelector } from "./DepositMethodSelector"
@@ -161,9 +166,10 @@ export const DepositForm = ({
       return null
     }
 
-    const tokenOut = token
-      ? getBaseTokenInfoWithFallback(token, formNetwork)
-      : null
+    const tokenOut =
+      token && formNetwork
+        ? getDerivedToken(token, reverseAssetNetworkAdapter[formNetwork])
+        : null
     if (tokenOut == null) {
       return null
     }
