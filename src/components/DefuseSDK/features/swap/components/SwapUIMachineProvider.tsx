@@ -13,6 +13,7 @@ import {
 } from "xstate"
 import type { SwappableToken } from "../../../types/swap"
 import { computeTotalDeltaDifferentDecimals } from "../../../utils/tokenUtils"
+import { swapIntent1csMachine } from "../../machines/swapIntent1csMachine"
 import { swapIntentMachine } from "../../machines/swapIntentMachine"
 import { swapUIMachine } from "../../machines/swapUIMachine"
 import { useSwapTokenChangeNotifier } from "../hooks/useTokenChangeNotifier"
@@ -49,6 +50,7 @@ export const SwapUIMachineContext: SwapUIMachineContextInterface =
   createActorContext(swapUIMachine)
 
 interface SwapUIMachineProviderProps extends PropsWithChildren {
+  is1cs: boolean
   initialTokenIn?: SwappableToken
   initialTokenOut?: SwappableToken
   tokenList: SwappableToken[]
@@ -64,6 +66,7 @@ interface SwapUIMachineProviderProps extends PropsWithChildren {
 
 export function SwapUIMachineProvider({
   children,
+  is1cs,
   initialTokenIn,
   initialTokenOut,
   tokenList,
@@ -75,7 +78,6 @@ export function SwapUIMachineProvider({
   const tokenIn = initialTokenIn || tokenList[0]
   const tokenOut = initialTokenOut || tokenList[1]
   assert(tokenIn && tokenOut, "TokenIn and TokenOut must be defined")
-
   return (
     <SwapUIMachineContext.Provider
       options={{
@@ -84,6 +86,7 @@ export function SwapUIMachineProvider({
           tokenOut,
           tokenList,
           referral,
+          is1cs,
         },
       }}
       logic={swapUIMachine.provide({
@@ -113,6 +116,11 @@ export function SwapUIMachineProvider({
         },
         actors: {
           swapActor: swapIntentMachine.provide({
+            actors: {
+              signMessage: fromPromise(({ input }) => signMessage(input)),
+            },
+          }),
+          swap1csActor: swapIntent1csMachine.provide({
             actors: {
               signMessage: fromPromise(({ input }) => signMessage(input)),
             },

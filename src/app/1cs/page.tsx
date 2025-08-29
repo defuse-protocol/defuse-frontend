@@ -353,7 +353,7 @@ function Swap() {
   })
 
   // Check if data contains an error response
-  const hasError = data && "error" in data
+  const hasError = data && "err" in data
   const currentError = hasError ? data : (swapError ?? quoteError)
 
   // Check if user has insufficient balance
@@ -370,8 +370,8 @@ function Swap() {
 
   // Update amountOut when data changes
   useEffect(() => {
-    if (data && !hasError && data.quote?.amountOutFormatted) {
-      setValue("amountOut", data.quote.amountOutFormatted, {
+    if (data && !hasError && data.ok.quote?.amountOutFormatted) {
+      setValue("amountOut", data.ok.quote.amountOutFormatted, {
         shouldValidate: true,
       })
     }
@@ -392,7 +392,7 @@ function Swap() {
         balance: balanceData?.amount ?? 0n,
         amount: parseUnits(amountIn, tokenIn.decimals),
         userAddress,
-        depositAddress: data.quote.depositAddress ?? null,
+        depositAddress: data.ok.quote.depositAddress ?? null,
         nearBalance: balanceData?.nearBalance ?? null,
       })
     },
@@ -445,8 +445,8 @@ function Swap() {
               errors={errors}
               balance={balanceData ?? undefined}
               usdAmount={
-                data && !hasError && data.quote?.amountInUsd
-                  ? `~$${data.quote.amountInUsd}`
+                data && !hasError && data.ok.quote?.amountInUsd
+                  ? `~$${data.ok.quote.amountInUsd}`
                   : undefined
               }
             />
@@ -466,8 +466,8 @@ function Swap() {
               disabled={true}
               isLoading={isLoading}
               usdAmount={
-                data && !hasError && data.quote?.amountOutUsd
-                  ? `~$${data.quote.amountOutUsd}`
+                data && !hasError && data.ok.quote?.amountOutUsd
+                  ? `~$${data.ok.quote.amountOutUsd}`
                   : undefined
               }
             />
@@ -511,8 +511,8 @@ function Swap() {
                   {sendTransactionMutation.error
                     ? sendTransactionMutation.error.message ||
                       "Transaction failed"
-                    : currentError && hasError && "error" in currentError
-                      ? currentError.error
+                    : currentError && hasError && "err" in currentError
+                      ? currentError.err
                       : (currentError && (currentError as Error).message) ||
                         "An error occurred"}
                 </p>
@@ -550,20 +550,20 @@ function Swap() {
             <div className="mt-5">
               <SwapPriceImpact
                 amountIn={
-                  data && !hasError && data.quote?.amountInUsd
-                    ? Number(data.quote.amountInUsd)
+                  data && !hasError && data.ok.quote?.amountInUsd
+                    ? Number(data.ok.quote.amountInUsd)
                     : null
                 }
                 amountOut={
-                  data && !hasError && data.quote?.amountOutUsd
-                    ? Number(data.quote.amountOutUsd)
+                  data && !hasError && data.ok.quote?.amountOutUsd
+                    ? Number(data.ok.quote.amountOutUsd)
                     : null
                 }
               />
             </div>
             {isReadyToDeposit && (
               <>
-                <QR data={data} />
+                <QR data={data.ok} />
                 {tokenIn && <DepositHint token={tokenIn} />}
               </>
             )}

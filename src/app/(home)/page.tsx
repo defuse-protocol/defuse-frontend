@@ -25,10 +25,12 @@ export default function Swap() {
 
   const userAddress = state.isVerified ? state.address : undefined
   const userChainType = state.chainType
+  const is1cs = !!searchParams.get("1cs")
 
   return (
     <Paper>
       <SwapWidget
+        is1cs={is1cs}
         tokenList={tokenList}
         userAddress={userAddress}
         sendNearTransaction={async (tx) => {

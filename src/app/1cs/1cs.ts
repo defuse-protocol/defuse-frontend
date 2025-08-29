@@ -45,8 +45,9 @@ const getTokensCached = unstable_cache(
 )
 
 export async function getQuote(
-  quoteRequest: QuoteRequest
-): Promise<QuoteResponse | { error: string }> {
+  quoteRequest: QuoteRequest,
+  signal?: AbortSignal
+): Promise<{ ok: QuoteResponse } | { err: string }> {
   const response = await fetch(`${OpenAPI.BASE}/v0/quote`, {
     method: "POST",
     body: JSON.stringify(quoteRequest),
@@ -54,14 +55,14 @@ export async function getQuote(
       "Content-Type": "application/json",
       Authorization: `Bearer ${OpenAPI.TOKEN}`,
     },
+    signal,
   })
 
   const data = await response.json()
 
   return response.ok
-    ? data
+    ? { ok: data }
     : {
-        error:
-          data?.message || `HTTP ${response.status}: ${response.statusText}`,
+        err: data?.message || `HTTP ${response.status}: ${response.statusText}`,
       }
 }

@@ -1097,6 +1097,28 @@ export const HAS_ACTIVE_DEPOSIT: Record<
     sol: false,
     cardano: false,
   },
+  [AuthMethod.Tron]: {
+    /* allowed passive */
+    eth: false,
+    base: false,
+    arb: false,
+    btc: false,
+    doge: false,
+    xrp: false,
+    zec: false,
+    gnosis: false,
+    bera: false,
+    tron: false,
+    pol: false,
+    bsc: false,
+    near: false,
+    ton: false,
+    op: false,
+    avax: false,
+    sui: false,
+    sol: false,
+    cardano: false,
+  },
 }
 
 /**
