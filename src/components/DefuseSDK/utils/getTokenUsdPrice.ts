@@ -1,10 +1,11 @@
+import type { TokenResponse } from "@defuse-protocol/one-click-sdk-typescript"
 import type { TokenUsdPriceData } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
 import type { SwappableToken } from "@src/components/DefuseSDK/types/swap"
 import { isBaseToken, isUnifiedToken } from "./token"
 
 const getTokenUsdPrice = (
   tokenAmount: string,
-  token: SwappableToken | null,
+  token: SwappableToken | TokenResponse | null,
   tokensUsdPriceData?: TokenUsdPriceData
 ): number | null => {
   try {
@@ -13,16 +14,20 @@ const getTokenUsdPrice = (
     if (Number.isNaN(numberTokenAmount) || !Number.isFinite(numberTokenAmount))
       return null
     let tokenUsdPriceData = null
-    if (isBaseToken(token) && tokensUsdPriceData[token.defuseAssetId]) {
-      tokenUsdPriceData = tokensUsdPriceData[token.defuseAssetId]
-    } else if (isUnifiedToken(token)) {
-      for (const groupedToken of token.groupedTokens) {
-        if (
-          isBaseToken(groupedToken) &&
-          tokensUsdPriceData[groupedToken.defuseAssetId]
-        ) {
-          tokenUsdPriceData = tokensUsdPriceData[groupedToken.defuseAssetId]
-          break
+    if ("assetId" in token) {
+      tokenUsdPriceData = tokensUsdPriceData[token.assetId]
+    } else {
+      if (isBaseToken(token) && tokensUsdPriceData[token.defuseAssetId]) {
+        tokenUsdPriceData = tokensUsdPriceData[token.defuseAssetId]
+      } else if (isUnifiedToken(token)) {
+        for (const groupedToken of token.groupedTokens) {
+          if (
+            isBaseToken(groupedToken) &&
+            tokensUsdPriceData[groupedToken.defuseAssetId]
+          ) {
+            tokenUsdPriceData = tokensUsdPriceData[groupedToken.defuseAssetId]
+            break
+          }
         }
       }
     }

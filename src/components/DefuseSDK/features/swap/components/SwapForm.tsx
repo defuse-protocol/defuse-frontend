@@ -388,6 +388,18 @@ export function renderIntentCreationResult(
       content = null
       break
 
+    case "ERR_1CS_QUOTE_FAILED":
+      content = "Failed to get quote. Please try again."
+      break
+
+    case "ERR_NO_DEPOSIT_ADDRESS":
+      content = "No deposit address in the quote"
+      break
+
+    case "ERR_TRANSFER_MESSAGE_FAILED":
+      content = "Failed to create transfer message. Please try again."
+      break
+
     default:
       status satisfies never
       content = `An error occurred. Please try again. ${status}`
