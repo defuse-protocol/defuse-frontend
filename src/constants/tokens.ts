@@ -1748,7 +1748,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
     bridge: "direct",
     symbol: "JAMBO",
     name: "JAMBO",
-    tags: ["feature:jambo"],
+    tags: [],
   },
   {
     defuseAssetId: "nep141:kat.token0.near",
@@ -1759,7 +1759,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
     bridge: "direct",
     symbol: "KAT",
     name: "NEARKAT",
-    tags: ["feature:kat"],
+    tags: [],
   },
 ]
 
