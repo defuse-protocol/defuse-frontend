@@ -1,5 +1,4 @@
 import { BlockchainEnum } from "@defuse-protocol/internal-utils"
-import type { TokenResponse } from "@defuse-protocol/one-click-sdk-typescript"
 import type { SupportedChainName } from "@src/components/DefuseSDK/types/base"
 import type { ReactNode } from "react"
 import { NetworkIcon } from "../components/Network/NetworkIcon"
@@ -32,31 +31,6 @@ export function isBlockchainOption(
   return option.value !== "near_intents"
 }
 
-export const ONE_CS_CHAIN_TO_SUPPORTED_CHAIN_NAME: Record<
-  TokenResponse.blockchain,
-  SupportedChainName
-> = {
-  arb: "arbitrum",
-  avax: "avalanche",
-  base: "base",
-  bera: "berachain",
-  bsc: "bsc",
-  btc: "bitcoin",
-  cardano: "cardano",
-  doge: "dogecoin",
-  eth: "eth",
-  gnosis: "gnosis",
-  near: "near",
-  op: "optimism",
-  pol: "polygon",
-  sol: "solana",
-  sui: "sui",
-  ton: "ton",
-  tron: "tron",
-  xrp: "xrpledger",
-  zec: "zcash",
-}
-
 export const chainIcons: Record<SupportedChainName, string> = {
   eth: "/static/icons/network/ethereum.svg",
   near: "/static/icons/network/near.svg",
@@ -86,28 +60,6 @@ export const chainIcons: Record<SupportedChainName, string> = {
   sui: "/static/icons/network/sui.svg",
   stellar: "/static/icons/network/stellar.svg",
   aptos: "/static/icons/network/aptos.svg",
-  cardano: "/static/icons/network/cardano.svg",
-}
-
-export const chainIcons1cs: Record<TokenResponse.blockchain, string> = {
-  eth: "/static/icons/network/ethereum.svg",
-  near: "/static/icons/network/near.svg",
-  base: "/static/icons/network/base.svg",
-  arb: "/static/icons/network/arbitrum.svg",
-  btc: "/static/icons/network/btc.svg",
-  sol: "/static/icons/network/solana.svg",
-  doge: "/static/icons/network/dogecoin.svg",
-  xrp: "/static/icons/network/xrpledger.svg",
-  zec: "/static/icons/network/zcash-icon-black.svg",
-  gnosis: "/static/icons/network/gnosis.svg",
-  bera: "/static/icons/network/berachain.svg",
-  tron: "/static/icons/network/tron.svg",
-  pol: "/static/icons/network/polygon.svg",
-  bsc: "/static/icons/network/bsc.svg",
-  ton: "/static/icons/network/ton.svg",
-  op: "/static/icons/network/optimism.svg",
-  avax: "/static/icons/network/avalanche.svg",
-  sui: "/static/icons/network/sui.svg",
   cardano: "/static/icons/network/cardano.svg",
 }
 
