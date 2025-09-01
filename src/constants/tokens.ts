@@ -1740,6 +1740,28 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
     name: "HAPI Protocol",
     tags: ["feature:omni"],
   },
+  {
+    defuseAssetId: "nep141:jambo-1679.meme-cooking.near",
+    address: "jambo-1679.meme-cooking.near",
+    decimals: 18,
+    icon: "data:image/png;base64,UklGRkQBAABXRUJQVlA4IDgBAAAQCwCdASpgAGAAP9Hm7G+/uDGrJXK6a/A6CUAaCoYIhLv0ee1oBKM5x42N42dKobLDTsCYhGUNkfwDk7QAl88U6nWfZL9Hkpc7IvWpxgrLJU+EnNVkjtdJ0YG297yfkBngAP6uEC0f+KHNncCpfEeBQna1Lmy5IgEMdrIk7crLPNuoYsr/1YQNC0PUUqXW2Co1uRyNcwt6n+b1Ebn1H/DYcSwiUdEaGYZESbbXPbsNff2w8CH5nQeZoccZvUg+8+r4kEuBXXr3/NQFKO8dL9mAcys9Gi8Onp0G7LfrIBb2zpz/cS8zXJQiq1GgYlhjE29ixbMEQ/or5FVV6BduaWxGfHVxoCaF46gYWBBmzIfo3AXWkMnNJETVdxe3j1U4aItDFadMunrOpgGCXuabXV5kpEIEJ4RvgAA=",
+    chainName: "near",
+    bridge: "direct",
+    symbol: "JAMBO",
+    name: "JAMBO",
+    tags: ["feature:jambo"],
+  },
+  {
+    defuseAssetId: "nep141:kat.token0.near",
+    address: "kat.token0.near",
+    decimals: 18,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/34150.png",
+    chainName: "near",
+    bridge: "direct",
+    symbol: "KAT",
+    name: "NEARKAT",
+    tags: ["feature:kat"],
+  },
 ]
 
 const STAGE_TOKENS: TokenWithTags[] = [
