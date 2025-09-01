@@ -1700,6 +1700,16 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         name: "PublicAI",
       },
       {
+        defuseAssetId: "nep141:token.publicailab.near",
+        address: "AXCp86262ZPfpcV9bmtmtnzmJSL5sD99mCVJD4GR9vS",
+        decimals: 18,
+        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/37728.png",
+        chainName: "solana",
+        bridge: "near_omni",
+        symbol: "PUBLIC",
+        name: "PublicAI",
+      },
+      {
         defuseAssetId:
           "nep141:sol-1f00bb36e75cfc8e1274c1507cc3054f5b3f3ce1.omft.near",
         address: "AXCp86262ZPfpcV9bmtmtnzmJSL5sD99mCVJD4GR9vS",
