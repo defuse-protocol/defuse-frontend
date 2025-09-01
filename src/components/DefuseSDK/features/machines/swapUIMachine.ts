@@ -79,6 +79,7 @@ export type Context = {
   referral?: string
   slippageBasisPoints: number
   is1cs: boolean
+  is1csFetching: boolean
 }
 
 type PassthroughEvent = {
@@ -391,11 +392,15 @@ export const swapUIMachine = setup({
         const errorQuote: QuoteResult = {
           tag: "err" as const,
           value: {
-            reason: "ERR_NO_QUOTES" as const,
+            reason: "ERR_NO_QUOTES_1CS" as const,
           },
         }
         return errorQuote
       },
+    }),
+
+    set1csFetching: assign({
+      is1csFetching: (_, value: boolean) => value,
     }),
   },
   guards: {
@@ -404,8 +409,11 @@ export const swapUIMachine = setup({
     },
 
     isQuoteValidAnd1cs: ({ context }) => {
+      // For 1CS, we allow submission with valid form even without a quote since we fetch it during submission
       return (
-        context.quote != null && context.quote.tag === "ok" && context.is1cs
+        context.is1cs &&
+        context.parsedFormValues.amountIn != null &&
+        context.parsedFormValues.amountIn.amount > 0n
       )
     },
 
@@ -441,7 +449,7 @@ export const swapUIMachine = setup({
     },
   },
 }).createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5SwO4EMAOBaArgSwGIBJAOQBUBRcgfQGUKyyAZCgEQG0AGAXUVAwD2sPABc8AgHZ8QAD0RYArAoAcAOgCMAdgWcALJ04BOZZoBMCgDQgAnvMO7Nq5ac6b1B07oWfDAX19WqJi4hABCAIJM4SQAwhTUMQAS0QDibFy8SCCCwmKS0nIIAMy6RU6cCuqe+pwAbAqlVrYIWIamtaqGCkW1Pd6GRZpu-oHo2PgEEVGx8Ump6eqZ-EKi4lJZheqVqrWanEXK9prK6obqTfK96k6GZ66aRQq1h8ojIEHjhEwA8imkGdIcqt8htEL0bupdO1SrotEZNBcWvZDKpBuplBijkU6go3h8QgQfilvgBVMgArJAvLrUCFLCmdQdSFGcwM5QKTS1Z6I1q6FFojGHBzY+p4sYhVSQVYSKAEWA4ABGAFtRBTlrk1gVEOotKpNIY9PUzntlEVDIj3JxVHoSqZ2hzTIZnroxcF8JKINLZfLlarFoCVtStQh3KZrZ5Du0tAcHroefprpxTOyDtj9bplF5XZ8PV6CHgJBgcCI1dlA5rQS1zB1arc9FUzYdujySh1lBUXO4zj1OdmJVKxDKCCQKAB1agARRJ30opapFdp8mFnQG3WM+r0+x5tS8GmrO+86JM6j77oHBdlI-H6hitEn09nPADGpBi6r6jKsLN7WTZwa5psS5dyqJ4DzZY9TzwXNBygVQADc0AAGzwCA0Bggg53LV9ZHkIpPE6JNIQxeoDCKQZEVMY4dj5Q5jAzAYzVqSDoIveCkJQtCLww-1KSwmkcJaL8dlMQZa2eFQPwRQCQxUPVsQqJ03DtJMimY88ZTY5DUPQ9hTCWMsX34ulHjDTh2ztEjHlrSxpIUFcnVKWp3BOLR21xAJ3nFM9PRg1R0C9agAEccAEEQwGHMd7xnChMMM4NWlcVQFDadstBEkwDhbbZYVORl9geLZTDUnzWP8mCgpCsKIuvW8osffT52wukdA6fRkvaY5jnMHkXEcLQdQ-ZM9gZJiPPxd0fRVER0IgSQwFUAs4IEABreaPgAJTAAAzWLgSMsE2j1DkBihQxjmS2oerwnZ2VDJztDIx5mMm0QZrmhaJCW1bVA27b2B49U9uDM1rlKYxkx6Eo6naHllA6VdOUqVlHjw57FSm9CwAAJyxgQsdUDBELQra8aVH6xk2nan14uLKy8Pq6idJz2VqCoetuToHgaZx+q8XQXTGryoJe6auKvOqYupwGg0rZw1GTDl2Xotxjm3JMbsUqFPA-My0d9UWZWodQAGNYAIWaJHmxaVrWintpN2Bdplt9njDNx3G5hw3FuRFsTUJNunbCoWVrPWMYvI3TfN97re+36tod-6Gr44GTlRNoGL5J0zSk5pTtUfQTnsJQ4dqO0w9eiOHYIbHcfxwnidJ8nMEpxOpYMoG6eus520GfZ2QNIoLS6PUG2PR0OTMdzRjdYX0crw3q-FqdoqdhcBMzK16O55LdF2AYescdqGU4HW6i5Iq3gkAQIDgaRxrwZ9O7fLBLTKdrUrMGNMukrA3OEp4x03AqD5MVL0T9nYCVaEoJKKVT5fwysoeM7JOg6jaGXMyZ1zDT08rPFiGkUKITABA9edJ6YFzwuyESpxKJnXZlaBkjZzBfn5gMMBvkEJaU4jKEhTV5DokcCUZwjoHi9HMHoHkDQC71BcPUXoUJcqjRnjmdSsEyoR2CqFYhNNn5QOeGUSScMRKlE-oiXY6d+ZbFcJmOGyUK4GygLw-aCBnhWkwbcTMdo4ZFHOL-PmqIThKDtJUNo9jyoOyccGZ4aghEiTiRyU+SDpIDXTtGMuQd4HuX8EAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5SwO4EMAOBaArgSwGIBJAOQBUBRcgfQGUKyyAZCgEQG0AGAXUVAwD2sPABc8AgHZ8QAD0RYArAoAcAOgCMAdgWcALJ04BOZZoBMCgDQgAnvMO7Nq5ac6b1B07oWfDAX19WqJi4hABCAIJM4SQAwhTUMQAS0QDibFy8SCCCwmKS0nIIAMy6RU6cCuqe+pwAbAqlVrYIWIamtaqGCkW1Pd6GRZpu-oHo2PgEEVGx8Ump6eqZ-EKi4lJZheqVqrWanEXK9prK6obqTfK96k6GZ66aRQq1h8ojIEHjhEwA8imkGdIcqt8htEL0bupdO1SrotEZNBcWvZDKpBuplBijkU6go3h8QgQfilvgBVMgArJAvLrUCFLCmdQdSFGcwM5QKTS1Z6I1q6FFojGHBzY+p4sYhVSQVYSKAEWA4ABGAFtRBTlrk1gVEOotKpNIY9PUzntlEVDIj3JxVHoSqZ2hzTIZnroxcF8JKINLZfLlarFoCVtStQh3KZrZ5Du0tAcHroefprpxTOyDtj9bplF5XZ8PV6CHgJBgcCI1dlA5rQS1zB1arc9FUzYdujySh1lBUXO4zj1OdmJVKxDKCCQKAB1agARRJ30opapFdp8mFnQG3WM+r0+x5tS8GmrO+86JM6j77oHBdlI-H6hitEn09nPADGpBi6r6jKsLN7WTZwa5psS5dyqJ4DzZY9TzwXNBygVQADc0AAGzwCA0Bggg53LV9ZHkIpPE6JNIQxeoDCKQZEVMY4dj5Q5jAzAYzVqSDoIveCkJQtCLww-1KSwmkcJaL8dlMQZa2eFQPwRQCQxUPVsQqJ03DtJMimY88ZTY5DUPQ9hTCWMsX34ulHjDTh2ztEjHlrSxpIUFcnVKWp3BOLR21xAJ3nFM9PRg1R0C9agAEccAEEQwGHMd7xnChMMM4NWlcVQFDadstBEkwDhbbZYVORl9geLZTDUnzWP8mCgpCsKIuvW8osffT52wukdA6fRkvaY5jnMHkXEcLQdQ-ZM9gZJiPPxd0fRVER0IgSQwFUAs4IEABreaPgAJTAAAzWLgSMsE2j1DkBihQxjmS2oerwnZ2VDJztDIx5mMm0QZrmhaJCW1bVA27b2B49U9uDM1rlKYxkx6Eo6naHllA6VdOUqVlHjw57FSm9CwAAJyxgQsdUDBELQra8aVH6xk2nan14uLKy8Pq6idJz2VqCoetuToHgaZx+q8XQXTGryoJe6auKvOqYupwGg0rZw1GTDl2Xotxjm3JMbsUqFPA-My0d9UWZWodQAGNYAIWaJHmxaVrWintpN2Bdplt9njDNx3G5hw3FuRFsTUJNunbCoWVrPWMYvI3TfN97re+36tod-6Gr44GTlRNoGL5J0zSk5pTtUfQTnsJQ4dqO0w9eiOHYIbHcfxwnidJ8nMEpxOpYMoG6eus520GfZ2QNIoLS6PUG2PR0OTMdzRjdYX0crw3q-Fm87ynaKnYXASuhRdF+dL1xIRh6SsChVFGSdaF+bw7R-A8iQBAgOBpHGvBn07t8sEtMp2tSswY0y4+pprhlyeKdUSUJNDFS9G-Z2AlWhKCSilTgaV-7KHjOyToOpB4gL9tPTys8WIaRQohMAMDN50npgXPC7IRKnEomddmVoGSNnMF+fmAwoG+QQlpTiMoyFNXkOiRwJRnCOgeL0cwegeQNALvUFw9RehQlyqNGeOZ1KwTKhHYKoVSE03fnA54ZRJJwxEqUX+iJdjp35lsVwmY4bJQrgbKA-D9oIGeFaMytw6J2jhkUc4x8+aohOEoO0lQ2iOPKg7FxwZnhqBESJBJHJkFoOkgNdO0Yy5B2QTfW+QA */
   id: "swap-ui",
 
   context: ({ input }) => ({
@@ -463,6 +471,7 @@ export const swapUIMachine = setup({
     referral: input.referral,
     slippageBasisPoints: 30_000, // 3%
     is1cs: input.is1cs,
+    is1csFetching: false,
   }),
 
   entry: [
@@ -562,7 +571,14 @@ export const swapUIMachine = setup({
         },
 
         NEW_1CS_QUOTE: {
-          actions: ["process1csQuote", "updateUIAmountOut"],
+          actions: [
+            "process1csQuote",
+            "updateUIAmountOut",
+            {
+              type: "set1csFetching",
+              params: false,
+            },
+          ],
         },
       },
 
@@ -600,7 +616,14 @@ export const swapUIMachine = setup({
             },
             NEW_1CS_QUOTE: {
               target: "idle",
-              actions: ["process1csQuote", "updateUIAmountOut"],
+              actions: [
+                "process1csQuote",
+                "updateUIAmountOut",
+                {
+                  type: "set1csFetching",
+                  params: false,
+                },
+              ],
             },
           },
         },
@@ -699,11 +722,18 @@ export const swapUIMachine = setup({
     },
 
     submitting_1cs: {
+      entry: [
+        "clearQuote",
+        {
+          type: "set1csFetching",
+          params: true,
+        },
+      ],
       invoke: {
         id: "swapRef1cs",
         src: "swap1csActor",
 
-        input: ({ context, event }) => {
+        input: ({ context, event, self }) => {
           assertEvent(event, "submit")
 
           assert(
@@ -727,6 +757,15 @@ export const swapUIMachine = setup({
             userAddress: event.params.userAddress,
             userChainType: event.params.userChainType,
             nearClient: event.params.nearClient,
+            parentRef: {
+              send: (event: {
+                type: "NEW_1CS_QUOTE"
+                params?: unknown
+              }) => {
+                // biome-ignore lint/suspicious/noExplicitAny: necessary for dynamic event casting
+                self.send(event as any)
+              },
+            },
           }
         },
 
@@ -762,26 +801,26 @@ export const swapUIMachine = setup({
         onError: {
           target: "editing",
 
-          actions: ({ event }) => {
-            logger.error(event.error)
-          },
+          actions: [
+            ({ event }) => {
+              logger.error(event.error)
+            },
+            {
+              type: "set1csFetching",
+              params: false,
+            },
+          ],
         },
       },
 
       on: {
-        NEW_QUOTE: {
-          guard: {
-            type: "isOk",
-            params: ({ event }) => event.params.quote,
-          },
+        NEW_1CS_QUOTE: {
           actions: [
+            "process1csQuote",
+            "updateUIAmountOut",
             {
-              type: "setQuote",
-              params: ({ event }) => event.params.quote,
-            },
-            {
-              type: "sendToSwapRefNewQuote",
-              params: ({ event }) => event,
+              type: "set1csFetching",
+              params: false,
             },
           ],
         },

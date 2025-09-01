@@ -43,7 +43,10 @@ export type QuoteResult =
       tag: "err"
       value:
         | {
-            reason: "ERR_INSUFFICIENT_AMOUNT" | "ERR_NO_QUOTES"
+            reason:
+              | "ERR_INSUFFICIENT_AMOUNT"
+              | "ERR_NO_QUOTES"
+              | "ERR_NO_QUOTES_1CS"
           }
         | {
             reason: "ERR_UNFULFILLABLE_AMOUNT"

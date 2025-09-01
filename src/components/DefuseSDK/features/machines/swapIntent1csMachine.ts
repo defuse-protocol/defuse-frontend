@@ -30,7 +30,7 @@ function getTokenAssetId(token: BaseTokenInfo | UnifiedTokenInfo) {
 }
 
 type Context = {
-  input: Quote1csInput
+  input: Input
   userAddress: string
   userChainType: AuthMethod
   nearClient: providers.Provider
@@ -78,6 +78,12 @@ type Input = Quote1csInput & {
   userAddress: string
   userChainType: AuthMethod
   nearClient: providers.Provider
+  parentRef?: {
+    send: (event: {
+      type: "NEW_1CS_QUOTE"
+      params?: unknown
+    }) => void
+  }
 }
 
 export type Output =
@@ -121,6 +127,22 @@ export const swapIntent1csMachine = setup({
     setIntentHash: assign({
       intentHash: (_, intentHash: string) => intentHash,
     }),
+
+    notifyQuoteResult: ({ context }) => {
+      if (context.quote1csResult) {
+        const tokenInAssetId = getTokenAssetId(context.input.tokenIn)
+        const tokenOutAssetId = getTokenAssetId(context.input.tokenOut)
+
+        context.input.parentRef?.send({
+          type: "NEW_1CS_QUOTE",
+          params: {
+            result: context.quote1csResult,
+            tokenInAssetId,
+            tokenOutAssetId,
+          },
+        })
+      }
+    },
   },
   actors: {
     fetch1csQuoteActor: fromPromise(
@@ -277,10 +299,13 @@ export const swapIntent1csMachine = setup({
         input: ({ context }) => context.input,
         onDone: {
           target: "ValidatingQuote",
-          actions: {
-            type: "set1csQuoteResult",
-            params: ({ event }) => event.output,
-          },
+          actions: [
+            {
+              type: "set1csQuoteResult",
+              params: ({ event }) => event.output,
+            },
+            "notifyQuoteResult",
+          ],
         },
         onError: {
           target: "Error",
