@@ -1,5 +1,5 @@
 import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
-import { getQuote as get1csQuoteApi } from "@src/app/1cs/1cs"
+import { getQuote as get1csQuoteApi } from "@src/components/DefuseSDK/features/machines/1cs"
 import { type ActorRef, type Snapshot, fromCallback } from "xstate"
 
 import { logger } from "../../logger"
