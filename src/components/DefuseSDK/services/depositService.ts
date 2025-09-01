@@ -1,6 +1,5 @@
 import { BlockchainEnum, poaBridge } from "@defuse-protocol/internal-utils"
 import { AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
-import type { TokenResponse } from "@defuse-protocol/one-click-sdk-typescript"
 import {
   createAssociatedTokenAccountInstruction,
   createTransferInstruction,
@@ -374,7 +373,7 @@ async function getDepositEstimation(
 }
 
 const FT_DEPOSIT_GAS = `30${"0".repeat(12)}` // 30 TGAS
-export const FT_TRANSFER_GAS = `50${"0".repeat(12)}` // 30 TGAS
+const FT_TRANSFER_GAS = `50${"0".repeat(12)}` // 30 TGAS
 
 /**
  * Creates a deposit transaction for NEAR.
@@ -622,34 +621,6 @@ export function createDepositSolanaTransaction({
     depositAddress,
     amount,
     token.address,
-    ataExists
-  )
-}
-
-export function createDepositSolanaTransaction1cs({
-  userAddress,
-  depositAddress,
-  amount,
-  token,
-  ataExists,
-}: {
-  userAddress: string
-  depositAddress: string
-  amount: bigint
-  token: TokenResponse
-  ataExists: boolean
-}): TransactionSolana {
-  assert(token.blockchain === "sol", "Token must be a Solana token")
-
-  if (token.contractAddress === undefined) {
-    return createTransferSolanaTransaction(userAddress, depositAddress, amount)
-  }
-
-  return createSPLTransferSolanaTransaction(
-    userAddress,
-    depositAddress,
-    amount,
-    token.contractAddress,
     ataExists
   )
 }
@@ -951,174 +922,6 @@ export function waitEVMTransaction({
     transport: http(settings.rpcUrls[chainName]),
   })
   return client.waitForTransactionReceipt({ hash: txHash })
-}
-
-export const HAS_ACTIVE_DEPOSIT: Record<
-  AuthMethod,
-  Record<TokenResponse.blockchain, boolean>
-> = {
-  [AuthMethod.Near]: {
-    /* allowed all */
-    near: true,
-
-    /* allowed passive */
-    eth: false,
-    base: false,
-    arb: false,
-    btc: false,
-    sol: false,
-    doge: false,
-    xrp: false,
-    zec: false,
-    gnosis: false,
-    bera: false,
-    tron: false,
-    pol: false,
-    bsc: false,
-    ton: false,
-    op: false,
-    avax: false,
-    sui: false,
-    cardano: false,
-  },
-  [AuthMethod.EVM]: {
-    /* allowed all */
-    eth: true,
-    base: true,
-    arb: true,
-    gnosis: true,
-    bera: true,
-    pol: true,
-    bsc: true,
-    op: true,
-    avax: true,
-
-    /* allowed passive */
-    near: false,
-    btc: false,
-    sol: false,
-    doge: false,
-    xrp: false,
-    zec: false,
-    tron: false,
-    ton: false,
-    sui: false,
-    cardano: false,
-  },
-  [AuthMethod.Solana]: {
-    /* allowed all */
-    sol: true,
-
-    /* allowed passive */
-    eth: false,
-    base: false,
-    arb: false,
-    btc: false,
-    doge: false,
-    xrp: false,
-    zec: false,
-    gnosis: false,
-    bera: false,
-    tron: false,
-    pol: false,
-    bsc: false,
-    near: false,
-    ton: false,
-    op: false,
-    avax: false,
-    sui: false,
-    cardano: false,
-  },
-  [AuthMethod.WebAuthn]: {
-    /* allowed passive */
-    eth: false,
-    base: false,
-    arb: false,
-    btc: false,
-    doge: false,
-    xrp: false,
-    zec: false,
-    gnosis: false,
-    bera: false,
-    sol: false,
-    tron: false,
-    pol: false,
-    bsc: false,
-    near: false,
-    ton: false,
-    op: false,
-    avax: false,
-    sui: false,
-    cardano: false,
-  },
-  [AuthMethod.Ton]: {
-    /* allowed all */
-    ton: true,
-
-    /* allowed passive */
-    eth: false,
-    base: false,
-    arb: false,
-    btc: false,
-    doge: false,
-    xrp: false,
-    zec: false,
-    gnosis: false,
-    bera: false,
-    sol: false,
-    tron: false,
-    pol: false,
-    bsc: false,
-    near: false,
-    op: false,
-    avax: false,
-    sui: false,
-    cardano: false,
-  },
-  [AuthMethod.Stellar]: {
-    /* allowed passive */
-    eth: false,
-    base: false,
-    arb: false,
-    btc: false,
-    doge: false,
-    xrp: false,
-    zec: false,
-    gnosis: false,
-    bera: false,
-    tron: false,
-    pol: false,
-    bsc: false,
-    near: false,
-    ton: false,
-    op: false,
-    avax: false,
-    sui: false,
-    sol: false,
-    cardano: false,
-  },
-  [AuthMethod.Tron]: {
-    /* allowed passive */
-    eth: false,
-    base: false,
-    arb: false,
-    btc: false,
-    doge: false,
-    xrp: false,
-    zec: false,
-    gnosis: false,
-    bera: false,
-    tron: false,
-    pol: false,
-    bsc: false,
-    near: false,
-    ton: false,
-    op: false,
-    avax: false,
-    sui: false,
-    sol: false,
-    cardano: false,
-  },
 }
 
 /**
@@ -1574,32 +1377,6 @@ export function getWalletRpcUrl(network: BlockchainEnum): string {
   }
 }
 
-const WALLET_RPC_URLS: Record<TokenResponse.blockchain, string> = {
-  near: settings.rpcUrls.near,
-  eth: settings.rpcUrls.eth,
-  base: settings.rpcUrls.base,
-  arb: settings.rpcUrls.arbitrum,
-  gnosis: settings.rpcUrls.gnosis,
-  bera: settings.rpcUrls.berachain,
-  pol: settings.rpcUrls.polygon,
-  bsc: settings.rpcUrls.bsc,
-  op: settings.rpcUrls.optimism,
-  avax: settings.rpcUrls.avalanche,
-  btc: settings.rpcUrls.bitcoin,
-  sol: settings.rpcUrls.solana,
-  doge: settings.rpcUrls.dogecoin,
-  xrp: settings.rpcUrls.xrpledger,
-  zec: settings.rpcUrls.zcash,
-  tron: settings.rpcUrls.tron,
-  ton: settings.rpcUrls.ton,
-  sui: settings.rpcUrls.sui,
-  cardano: settings.rpcUrls.cardano,
-}
-
-export function getWalletRpcUrl1cs(network: TokenResponse.blockchain): string {
-  return WALLET_RPC_URLS[network]
-}
-
 export type DepositNetworkMemo = {
   deposit_mode: "MEMO"
 } | null
@@ -1684,27 +1461,6 @@ async function checkSolanaATARequired(
   return !ataExists
 }
 
-export async function checkSolanaATARequired1cs(
-  token: TokenResponse,
-  depositAddress: string | null
-): Promise<boolean> {
-  if (
-    token.blockchain !== "sol" ||
-    token.contractAddress === undefined ||
-    depositAddress === null
-  ) {
-    return false
-  }
-
-  const connection = new Connection(settings.rpcUrls.solana)
-  const toPubkey = new PublicKeySolana(depositAddress)
-  const mintPubkey = new PublicKeySolana(token.contractAddress)
-  const toATA = getAssociatedTokenAddressSync(mintPubkey, toPubkey)
-
-  const ataExists = await checkATAExists(connection, toATA)
-  return !ataExists
-}
-
 export async function createDepositTonTransaction(
   userWalletAddress: string,
   depositAddress: string,
@@ -1722,26 +1478,6 @@ export async function createDepositTonTransaction(
     depositAddress,
     amount,
     token.address
-  )
-}
-
-export async function createDepositTonTransaction1cs(
-  userWalletAddress: string,
-  depositAddress: string,
-  amount: bigint,
-  token: TokenResponse
-): Promise<SendTransactionTonParams> {
-  assert(token.blockchain === "ton", "Token chain name is not TON")
-
-  if (token.contractAddress === undefined) {
-    return createDepositTonNativeTransaction(depositAddress, amount)
-  }
-
-  return createDepositTonJettonTransaction(
-    userWalletAddress,
-    depositAddress,
-    amount,
-    token.contractAddress
   )
 }
 

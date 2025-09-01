@@ -2,7 +2,6 @@ import type {
   BaseTokenInfo,
   UnifiedTokenInfo,
 } from "@src/components/DefuseSDK/types"
-import { isUnifiedToken } from "@src/components/DefuseSDK/utils/token"
 import { INTENTS_ENV } from "@src/utils/environment"
 
 export type TokenWithTags =
@@ -1926,11 +1925,3 @@ export const LIST_TOKENS: TokenWithTags[] =
 export const DEPRECATED_TOKENS: Record<string, boolean> = {
   "nep141:aurora": true,
 }
-
-export const TOKEN_ICONS: Record<string, string> = Object.fromEntries(
-  LIST_TOKENS.flatMap((token) =>
-    isUnifiedToken(token)
-      ? token.groupedTokens.map((token) => [token.defuseAssetId, token.icon])
-      : [[token.defuseAssetId, token.icon]]
-  )
-)

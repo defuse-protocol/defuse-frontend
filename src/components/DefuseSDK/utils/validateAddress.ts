@@ -1,4 +1,3 @@
-import type { TokenResponse } from "@defuse-protocol/one-click-sdk-typescript"
 import { sha256 } from "@noble/hashes/sha256"
 import { base58, bech32m, hex } from "@scure/base"
 import { PublicKey } from "@solana/web3.js"
@@ -71,40 +70,6 @@ export function validateAddress(
       blockchain satisfies never
       return false
   }
-}
-
-const validators: Record<
-  TokenResponse.blockchain,
-  (address: string) => boolean
-> = {
-  near: isLegitAccountId,
-
-  eth: validateEthAddress,
-  base: validateEthAddress,
-  arb: validateEthAddress,
-  gnosis: validateEthAddress,
-  bera: validateEthAddress,
-  pol: validateEthAddress,
-  bsc: validateEthAddress,
-  op: validateEthAddress,
-  avax: validateEthAddress,
-
-  btc: validateBtcAddress,
-  sol: validateSolAddress,
-  doge: validateDogeAddress,
-  xrp: validateXrpAddress,
-  zec: validateZcashAddress,
-  tron: validateTronAddress,
-  ton: validateTonAddress,
-  sui: validateSuiAddress,
-  cardano: validateCardanoAddress,
-}
-
-export function validateAddress1cs(
-  address: string,
-  blockchain: TokenResponse.blockchain
-): boolean {
-  return validators[blockchain](address)
 }
 
 // todo: Do we need to check checksum?
