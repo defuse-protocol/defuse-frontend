@@ -16,7 +16,6 @@ import { SolanaWalletProvider } from "@src/providers/SolanaWalletProvider"
 import { StellarWalletProvider } from "@src/providers/StellarWalletProvider"
 import { ThemeProvider } from "@src/providers/ThemeProvider"
 import { TonConnectUIProvider } from "@src/providers/TonConnectUIProvider"
-import { WalletSelectorProvider } from "@src/providers/WalletSelectorProvider"
 
 import "@radix-ui/themes/styles.css"
 import "@near-wallet-selector/modal-ui/styles.css"
@@ -128,20 +127,18 @@ const RootLayout = async ({
           <WagmiProvider config={config}>
             <QueryClientProvider client={queryClient}>
               <NearWalletProvider>
-                <WalletSelectorProvider>
-                  <SolanaWalletProvider>
-                    <StellarWalletProvider>
-                      <TonConnectUIProvider>
-                        <TronWalletProvider>
-                          <WebAuthnProvider>
-                            <MixpanelProvider>{children}</MixpanelProvider>
-                          </WebAuthnProvider>
-                          <SentryTracer />
-                        </TronWalletProvider>
-                      </TonConnectUIProvider>
-                    </StellarWalletProvider>
-                  </SolanaWalletProvider>
-                </WalletSelectorProvider>
+                <SolanaWalletProvider>
+                  <StellarWalletProvider>
+                    <TonConnectUIProvider>
+                      <TronWalletProvider>
+                        <WebAuthnProvider>
+                          <MixpanelProvider>{children}</MixpanelProvider>
+                        </WebAuthnProvider>
+                        <SentryTracer />
+                      </TronWalletProvider>
+                    </TonConnectUIProvider>
+                  </StellarWalletProvider>
+                </SolanaWalletProvider>
               </NearWalletProvider>
               {DEV_MODE && <ReactQueryDevtools initialIsOpen={false} />}
             </QueryClientProvider>
