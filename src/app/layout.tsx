@@ -23,6 +23,7 @@ import "@near-wallet-selector/modal-ui/styles.css"
 import "../styles/global.scss"
 import Helpscout from "@src/components/Helpscout"
 import { MixpanelProvider } from "@src/providers/MixpanelProvider"
+import { NearWalletProvider } from "@src/providers/NearWalletProvider"
 import { TronWalletProvider } from "@src/providers/TronWalletProvider"
 import {
   DEV_MODE,
@@ -126,20 +127,22 @@ const RootLayout = async ({
         <ThemeProvider>
           <WagmiProvider config={config}>
             <QueryClientProvider client={queryClient}>
-              <WalletSelectorProvider>
-                <SolanaWalletProvider>
-                  <StellarWalletProvider>
-                    <TonConnectUIProvider>
-                      <TronWalletProvider>
-                        <WebAuthnProvider>
-                          <MixpanelProvider>{children}</MixpanelProvider>
-                        </WebAuthnProvider>
-                        <SentryTracer />
-                      </TronWalletProvider>
-                    </TonConnectUIProvider>
-                  </StellarWalletProvider>
-                </SolanaWalletProvider>
-              </WalletSelectorProvider>
+              <NearWalletProvider>
+                <WalletSelectorProvider>
+                  <SolanaWalletProvider>
+                    <StellarWalletProvider>
+                      <TonConnectUIProvider>
+                        <TronWalletProvider>
+                          <WebAuthnProvider>
+                            <MixpanelProvider>{children}</MixpanelProvider>
+                          </WebAuthnProvider>
+                          <SentryTracer />
+                        </TronWalletProvider>
+                      </TonConnectUIProvider>
+                    </StellarWalletProvider>
+                  </SolanaWalletProvider>
+                </WalletSelectorProvider>
+              </NearWalletProvider>
               {DEV_MODE && <ReactQueryDevtools initialIsOpen={false} />}
             </QueryClientProvider>
           </WagmiProvider>

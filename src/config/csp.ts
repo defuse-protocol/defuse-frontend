@@ -86,6 +86,7 @@ const cspConfig = {
 
     /** HOT */
     "http://*.herewallet.app",
+    "https://raw.githubusercontent.com",
 
     /** Stellar Wallets */
     "https://api.web3modal.org",
@@ -95,6 +96,7 @@ const cspConfig = {
     /** RPCs */
     "https://*.aurora-cloud.dev",
     "https://*.aurora.dev",
+    "https://relmn.aurora.dev",
     "https://*.quiknode.pro",
     "https://veriee-t2i7nw-fast-mainnet.helius-rpc.com",
     "https://eth-mainnet.public.blastapi.io",
