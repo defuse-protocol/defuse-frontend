@@ -1,14 +1,13 @@
 import { setUser } from "@sentry/nextjs"
 import { useWallet as useSolanaWallet } from "@solana/wallet-adapter-react"
+import { useNearWallet } from "@src/providers/NearWalletProvider"
 import { EthereumProvider } from "@walletconnect/ethereum-provider"
 import { useEffect } from "react"
 import { useAccount } from "wagmi"
-
-import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
 import { useConnectWallet } from "./useConnectWallet"
 
 export const useSentrySetUser = () => {
-  const { selector } = useWalletSelector()
+  const { connector: nearWallet } = useNearWallet()
   const { connector } = useAccount()
   const { wallet: solanaWallet } = useSolanaWallet()
   const { state: userConnectionState } = useConnectWallet()
@@ -41,15 +40,17 @@ export const useSentrySetUser = () => {
           break
         }
         case "near": {
-          const wallet = await selector.wallet()
-          walletProvider = wallet.type
-          walletAppName = wallet.metadata.name
+          if (!nearWallet) {
+            throw new Error("Near wallet not connected")
+          }
+          const wallet = await nearWallet.wallet()
+          walletProvider = "near"
+          walletAppName = wallet.manifest.name
           break
         }
         case "evm": {
           walletProvider = connector?.type
           walletAppName = connector?.name
-
           if (connector?.name === "WalletConnect") {
             try {
               const provider = await connector.getProvider()
@@ -72,5 +73,5 @@ export const useSentrySetUser = () => {
         walletAppName,
       }
     }
-  }, [selector.wallet, connector, solanaWallet, userConnectionState])
+  }, [nearWallet, connector, solanaWallet, userConnectionState])
 }
