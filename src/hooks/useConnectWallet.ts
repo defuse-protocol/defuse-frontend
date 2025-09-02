@@ -6,7 +6,32 @@ import {
   useWallet as useSolanaWallet,
 } from "@solana/wallet-adapter-react"
 import { useWalletModal } from "@solana/wallet-adapter-react-ui"
-
+import { BaseError } from "@src/components/DefuseSDK/errors/base"
+import type {
+  SendTransactionStellarParams,
+  SendTransactionTronParams,
+} from "@src/components/DefuseSDK/types/deposit"
+import {
+  useWebAuthnActions,
+  useWebAuthnCurrentCredential,
+  useWebAuthnUIStore,
+} from "@src/features/webauthn/hooks/useWebAuthnStore"
+import { useSignInLogger } from "@src/hooks/useSignInLogger"
+import { useNearWallet } from "@src/providers/NearWalletProvider"
+import {
+  signTransactionStellar,
+  submitTransactionStellar,
+  useStellarWallet,
+} from "@src/providers/StellarWalletProvider"
+import { useTronWallet } from "@src/providers/TronWalletProvider"
+import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
+import type {
+  SendTransactionEVMParams,
+  SendTransactionSolanaParams,
+  SendTransactionTonParams,
+  SignAndSendTransactionsParams,
+} from "@src/types/interfaces"
+import { parseTonAddress } from "@src/utils/parseTonAddress"
 import { Cell } from "@ton/ton"
 import {
   useTonConnectModal,
@@ -24,35 +49,7 @@ import {
   useConnections,
   useDisconnect,
 } from "wagmi"
-
-import { BaseError } from "@src/components/DefuseSDK/errors/base"
-import type {
-  SendTransactionStellarParams,
-  SendTransactionTronParams,
-} from "@src/components/DefuseSDK/types/deposit"
-import {
-  useWebAuthnActions,
-  useWebAuthnCurrentCredential,
-  useWebAuthnUIStore,
-} from "@src/features/webauthn/hooks/useWebAuthnStore"
-import { useSignInLogger } from "@src/hooks/useSignInLogger"
-import {
-  signTransactionStellar,
-  submitTransactionStellar,
-  useStellarWallet,
-} from "@src/providers/StellarWalletProvider"
-import { useTronWallet } from "@src/providers/TronWalletProvider"
-import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
-import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
-import type {
-  SendTransactionEVMParams,
-  SendTransactionSolanaParams,
-  SendTransactionTonParams,
-  SignAndSendTransactionsParams,
-} from "@src/types/interfaces"
-import { parseTonAddress } from "@src/utils/parseTonAddress"
 import { useEVMWalletActions } from "./useEVMWalletActions"
-import { useNearWalletActions } from "./useNearWalletActions"
 
 export enum ChainType {
   Near = "near",
@@ -106,16 +103,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
    * NEAR:
    * Down below are Near Wallet handlers and actions
    */
-  const nearWallet = useWalletSelector()
-  const nearWalletConnect = useNearWalletActions()
-
-  const handleSignInViaNearWalletSelector = async (): Promise<void> => {
-    nearWallet.modal.show()
-  }
-  const handleSignOutViaNearWalletSelector = async () => {
-    const wallet = await nearWallet.selector.wallet()
-    await wallet.signOut()
-  }
+  const nearWallet = useNearWallet()
 
   if (nearWallet.accountId != null) {
     state = {
@@ -326,7 +314,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
       connector?: Connector
     }): Promise<void> {
       const strategies = {
-        [ChainType.Near]: () => handleSignInViaNearWalletSelector(),
+        [ChainType.Near]: () => nearWallet.connect(),
         [ChainType.EVM]: () =>
           params.connector
             ? handleSignInViaWagmi({ connector: params.connector })
@@ -344,7 +332,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
     async signOut(params: { id: ChainType }): Promise<void> {
       try {
         const strategies = {
-          [ChainType.Near]: () => handleSignOutViaNearWalletSelector(),
+          [ChainType.Near]: () => nearWallet.disconnect(),
           [ChainType.EVM]: () => handleSignOutViaWagmi(),
           [ChainType.Solana]: () => handleSignOutViaSolanaSelector(),
           [ChainType.WebAuthn]: () => webAuthnActions.signOut(),
@@ -367,11 +355,15 @@ export const useConnectWallet = (): ConnectWalletAction => {
       params
     ): Promise<string | FinalExecutionOutcome[] | SendTransactionResponse> => {
       const strategies = {
-        [ChainType.Near]: async () =>
-          await nearWalletConnect.signAndSendTransactions({
+        [ChainType.Near]: async () => {
+          if (!nearWallet.accountId) {
+            throw new Error("NEAR wallet not connected")
+          }
+          return await nearWallet.signAndSendTransactions({
             transactions:
               params.tx as SignAndSendTransactionsParams["transactions"],
-          }),
+          })
+        },
 
         [ChainType.EVM]: async () =>
           await sendTransactions(params.tx as SendTransactionParameters),
