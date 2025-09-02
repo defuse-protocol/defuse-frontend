@@ -68,6 +68,10 @@ export async function getQuote(
       }
     )
 
+    if (appFeeBps > 0 && !APP_FEE_RECIPIENT) {
+      return { err: "App fee recipient is not configured" }
+    }
+
     return {
       ok: {
         ...(await OneClickService.getQuote({

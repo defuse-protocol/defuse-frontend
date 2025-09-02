@@ -45,6 +45,7 @@ type EmittedEvents = {
               amountOut?: string
               deadline?: string
             }
+            appFee: [string, bigint][]
           }
         }
       | { err: string }

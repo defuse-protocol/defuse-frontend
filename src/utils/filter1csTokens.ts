@@ -12,18 +12,11 @@ export function filter1csTokens(
   tokenList: TokenWithTags[],
   oneClickTokens: TokenResponse[]
 ): TokenWithTags[] {
-  // Create a Set of asset IDs for fast lookup
   const oneClickAssetIds = new Set(oneClickTokens.map((token) => token.assetId))
 
   return tokenList.filter((token) => {
-    if (isBaseToken(token)) {
-      // For base tokens, check if the defuseAssetId matches any 1CS assetId
-      return oneClickAssetIds.has(token.defuseAssetId)
-    }
-
-    // For unified tokens, check if any of the grouped tokens' defuseAssetId matches
-    // Use the first token's defuseAssetId as requested
-    const firstTokenAssetId = token.groupedTokens[0]?.defuseAssetId
-    return firstTokenAssetId && oneClickAssetIds.has(firstTokenAssetId)
+    return isBaseToken(token)
+      ? oneClickAssetIds.has(token.defuseAssetId)
+      : oneClickAssetIds.has(token.groupedTokens[0]?.defuseAssetId)
   })
 }
