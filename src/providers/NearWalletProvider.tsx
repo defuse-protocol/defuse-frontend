@@ -6,8 +6,10 @@ import type {
   SignMessageParams,
   SignedMessage,
 } from "@near-wallet-selector/core/src/lib/wallet/wallet.types"
+import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import type { SignAndSendTransactionsParams } from "@src/types/interfaces"
 import { logger } from "@src/utils/logger"
+import { getDomainMetadataParams } from "@src/utils/whitelabelDomainMetadata"
 import {
   type FC,
   type ReactNode,
@@ -42,18 +44,18 @@ export const NearWalletProvider: FC<{ children: ReactNode }> = ({
 }) => {
   const [connector, setConnector] = useState<NearConnector | null>(null)
   const [accountId, setAccountId] = useState<string | null>(null)
+  const { whitelabelTemplate } = useContext(FeatureFlagsContext)
 
   const init = useCallback(async () => {
     const _connector = new NearConnector({
       network: "mainnet",
       walletConnect: {
-        projectId: "",
-        metadata: {},
+        ...getDomainMetadataParams(whitelabelTemplate),
       },
     })
 
     setConnector(_connector)
-  }, [])
+  }, [whitelabelTemplate])
 
   const checkExistingWallet = useCallback(async () => {
     if (!connector) return
