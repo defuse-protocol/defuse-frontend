@@ -1,9 +1,9 @@
+import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import { getQuote as get1csQuoteApi } from "@src/components/DefuseSDK/features/machines/1cs"
 import { type ActorRef, type Snapshot, fromCallback } from "xstate"
 
 import { logger } from "../../logger"
-
 import type { BaseTokenInfo, UnifiedTokenInfo } from "../../types/base"
 import { isBaseToken } from "../../utils/token"
 
@@ -21,6 +21,7 @@ export type Quote1csInput = {
   defuseUserId: string
   deadline: string
   referral?: string
+  authMethod: AuthMethod
 }
 
 export type Events =
@@ -60,10 +61,10 @@ export type ParentEvents = {
       | {
           ok: {
             quote: {
-              amountIn?: string
-              amountOut?: string
-              deadline?: string
+              amountIn: string
+              amountOut: string
             }
+            appFee: [string, bigint][]
           }
         }
       | { err: string }
@@ -134,10 +135,10 @@ async function get1csQuote(
       | {
           ok: {
             quote: {
-              amountIn?: string
-              amountOut?: string
-              deadline?: string
+              amountIn: string
+              amountOut: string
             }
+            appFee: [string, bigint][]
           }
         }
       | { err: string },
@@ -166,10 +167,15 @@ async function get1csQuote(
         deadline: quoteInput.deadline,
         referral: quoteInput.referral,
       },
-      signal
+      quoteInput.authMethod
     )
+
+    if (signal.aborted) {
+      return
+    }
+
     onResult(result, tokenInAssetId, tokenOutAssetId)
-  } catch (_error) {
+  } catch {
     logger.error("1cs quote request failed")
     onResult({ err: "Quote request failed" }, tokenInAssetId, tokenOutAssetId)
   }

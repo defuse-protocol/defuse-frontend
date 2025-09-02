@@ -69,6 +69,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     noLiquidity,
     insufficientTokenInAmount,
     failedToGetAQuote,
+    quote1csError,
   } = SwapUIMachineContext.useSelector((snapshot) => {
     const tokenIn = snapshot.context.formValues.tokenIn
     const tokenOut = snapshot.context.formValues.tokenOut
@@ -92,6 +93,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
       noLiquidity: Boolean(noLiquidity),
       insufficientTokenInAmount: Boolean(insufficientTokenInAmount),
       failedToGetAQuote: Boolean(failedToGetAQuote),
+      quote1csError: snapshot.context.quote1csError,
     }
   })
 
@@ -263,6 +265,13 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             }
             balance={tokenOutBalance}
           />
+
+          {quote1csError && (
+            <div className="mb-5 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-700 dark:text-red-300">
+              <p className="font-medium">Error:</p>
+              <p>{quote1csError}</p>
+            </div>
+          )}
 
           <Flex align="stretch" direction="column">
             <AuthGate

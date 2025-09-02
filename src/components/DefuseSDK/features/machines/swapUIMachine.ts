@@ -24,6 +24,7 @@ import { assert } from "../../utils/assert"
 import { parseUnits } from "../../utils/parse"
 import {
   getAnyBaseTokenInfo,
+  getTokenMaxDecimals,
   getUnderlyingBaseTokenInfos,
 } from "../../utils/tokenUtils"
 import {
@@ -61,6 +62,7 @@ export type Context = {
   user: null | authHandle.AuthHandle
   error: Error | null
   quote: QuoteResult | null
+  quote1csError: string | null
   formValues: {
     tokenIn: SwappableToken
     tokenOut: SwappableToken
@@ -134,10 +136,11 @@ export const swapUIMachine = setup({
               | {
                   ok: {
                     quote: {
-                      amountIn?: string
-                      amountOut?: string
+                      amountIn: string
+                      amountOut: string
                       deadline?: string
                     }
+                    appFee: [string, bigint][]
                   }
                 }
               | { err: string }
@@ -194,7 +197,9 @@ export const swapUIMachine = setup({
         const tokenOut = getAnyBaseTokenInfo(context.formValues.tokenOut)
 
         try {
-          const decimals = getTokenDecimals(context.formValues.tokenIn)
+          const decimals = context.is1cs
+            ? getTokenDecimals(context.formValues.tokenIn)
+            : getTokenMaxDecimals(context.formValues.tokenIn)
           return {
             tokenOut,
             amountIn: {
@@ -228,6 +233,7 @@ export const swapUIMachine = setup({
     }),
     clearQuote: assign({ quote: null }),
     clearError: assign({ error: null }),
+    clear1csError: assign({ quote1csError: null }),
     setIntentCreationResult: assign({
       intentCreationResult: (
         _,
@@ -299,6 +305,7 @@ export const swapUIMachine = setup({
             ),
             deadline: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
             referral: context.referral,
+            authMethod: context.user.method,
           },
         }
       }
@@ -335,25 +342,18 @@ export const swapUIMachine = setup({
       ) => {
         if (output.tag !== "ok") return context.intentRefs
 
-        // For 1CS, we don't have intentDescription since it's a direct transfer
-        // We only spawn intent status actors for regular swaps that have intentDescription
-        if ("intentDescription" in output.value) {
-          const intentRef = spawn("intentStatusActor", {
-            id: `intent-${output.value.intentHash}`,
-            input: {
-              parentRef: self,
-              intentHash: output.value.intentHash,
-              tokenIn: context.formValues.tokenIn,
-              tokenOut: context.formValues.tokenOut,
-              intentDescription: output.value.intentDescription,
-            },
-          })
+        const intentRef = spawn("intentStatusActor", {
+          id: `intent-${output.value.intentHash}`,
+          input: {
+            parentRef: self,
+            intentHash: output.value.intentHash,
+            tokenIn: context.formValues.tokenIn,
+            tokenOut: context.formValues.tokenOut,
+            intentDescription: output.value.intentDescription,
+          },
+        })
 
-          return [intentRef, ...context.intentRefs]
-        }
-
-        // For 1CS (direct transfer), we don't need to track intent status
-        return context.intentRefs
+        return [intentRef, ...context.intentRefs]
       },
     }),
 
@@ -361,10 +361,8 @@ export const swapUIMachine = setup({
       type: "INTENT_PUBLISHED" as const,
     })),
 
-    // Process 1cs quote result
     process1csQuote: assign({
       quote: ({ event }) => {
-        // Type guard to ensure the event is NEW_1CS_QUOTE
         if (event.type !== "NEW_1CS_QUOTE") {
           return null
         }
@@ -373,29 +371,37 @@ export const swapUIMachine = setup({
 
         if ("ok" in result) {
           const quote: QuoteResult = {
-            tag: "ok" as const,
+            tag: "ok",
             value: {
               quoteHashes: [],
-              expirationTime:
-                result.ok.quote.deadline ??
-                new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+              // dry run doesn't have expiration time
+              expirationTime: new Date(0).toISOString(),
               tokenDeltas: [
-                [tokenInAssetId, -BigInt(result.ok.quote.amountIn ?? "0")],
-                [tokenOutAssetId, BigInt(result.ok.quote.amountOut ?? "0")],
-              ] as [string, bigint][],
-              appFee: [],
+                [tokenInAssetId, -BigInt(result.ok.quote.amountIn)],
+                [tokenOutAssetId, BigInt(result.ok.quote.amountOut)],
+              ],
+              appFee: result.ok.appFee,
             },
           }
+
           return quote
         }
 
         const errorQuote: QuoteResult = {
-          tag: "err" as const,
+          tag: "err",
           value: {
             reason: "ERR_NO_QUOTES_1CS" as const,
           },
         }
         return errorQuote
+      },
+      quote1csError: ({ event }) => {
+        if (event.type !== "NEW_1CS_QUOTE") {
+          return null
+        }
+
+        const { result } = event.params
+        return "ok" in result ? null : result.err
       },
     }),
 
@@ -404,12 +410,12 @@ export const swapUIMachine = setup({
     }),
   },
   guards: {
-    isQuoteValid: ({ context }) => {
-      return context.quote != null && context.quote.tag === "ok"
+    isQuoteValidAndNot1cs: ({ context }) => {
+      return (
+        !context.is1cs && context.quote != null && context.quote.tag === "ok"
+      )
     },
-
     isQuoteValidAnd1cs: ({ context }) => {
-      // For 1CS, we allow submission with valid form even without a quote since we fetch it during submission
       return (
         context.is1cs &&
         context.parsedFormValues.amountIn != null &&
@@ -417,34 +423,20 @@ export const swapUIMachine = setup({
       )
     },
 
-    isQuoteValidAndNot1cs: ({ context }) => {
-      return (
-        context.quote != null && context.quote.tag === "ok" && !context.is1cs
-      )
-    },
-
     isOk: (_, a: { tag: "err" | "ok" }) => a.tag === "ok",
-
-    isFormValid: ({ context }) => {
-      return (
-        context.parsedFormValues.amountIn != null &&
-        context.parsedFormValues.amountIn.amount > 0n
-      )
-    },
-
-    isFormValidAnd1cs: ({ context }) => {
-      return (
-        context.parsedFormValues.amountIn != null &&
-        context.parsedFormValues.amountIn.amount > 0n &&
-        context.is1cs
-      )
-    },
 
     isFormValidAndNot1cs: ({ context }) => {
       return (
         context.parsedFormValues.amountIn != null &&
         context.parsedFormValues.amountIn.amount > 0n &&
         !context.is1cs
+      )
+    },
+    isFormValidAnd1cs: ({ context }) => {
+      return (
+        context.parsedFormValues.amountIn != null &&
+        context.parsedFormValues.amountIn.amount > 0n &&
+        context.is1cs
       )
     },
   },
@@ -456,6 +448,7 @@ export const swapUIMachine = setup({
     user: null,
     error: null,
     quote: null,
+    quote1csError: null,
     formValues: {
       tokenIn: input.tokenIn,
       tokenOut: input.tokenOut,
@@ -469,7 +462,7 @@ export const swapUIMachine = setup({
     intentRefs: [],
     tokenList: input.tokenList,
     referral: input.referral,
-    slippageBasisPoints: 30_000, // 3%
+    slippageBasisPoints: 10_000, // 1%
     is1cs: input.is1cs,
     is1csFetching: false,
   }),
@@ -552,6 +545,7 @@ export const swapUIMachine = setup({
             "sendToBackgroundQuoterRefPause",
             "sendToBackground1csQuoterRefPause",
             "clearError",
+            "clear1csError",
             {
               type: "setFormValues",
               params: ({ event }) => ({ data: event.params }),
@@ -724,6 +718,7 @@ export const swapUIMachine = setup({
     submitting_1cs: {
       entry: [
         "clearQuote",
+        "sendToBackground1csQuoterRefPause",
         {
           type: "set1csFetching",
           params: true,
@@ -754,16 +749,13 @@ export const swapUIMachine = setup({
             ),
             deadline: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
             referral: context.referral,
+            authMethod: context.user.method,
             userAddress: event.params.userAddress,
             userChainType: event.params.userChainType,
             nearClient: event.params.nearClient,
             parentRef: {
-              send: (event: {
-                type: "NEW_1CS_QUOTE"
-                params?: unknown
-              }) => {
-                // biome-ignore lint/suspicious/noExplicitAny: necessary for dynamic event casting
-                self.send(event as any)
+              send: (event: Background1csQuoterParentEvents) => {
+                self.send(event)
               },
             },
           }

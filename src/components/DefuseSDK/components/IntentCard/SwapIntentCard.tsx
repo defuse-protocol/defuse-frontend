@@ -13,6 +13,7 @@ type SwapIntentCardProps = {
 }
 
 const NEAR_EXPLORER = "https://nearblocks.io"
+const EXPLORER_NEAR_INTENTS = "https://explorer.near-intents.org"
 
 export function SwapIntentCard({ intentStatusActorRef }: SwapIntentCardProps) {
   const state = useSelector(intentStatusActorRef, (state) => state)
@@ -23,6 +24,11 @@ export function SwapIntentCard({ intentStatusActorRef }: SwapIntentCardProps) {
   const txUrl =
     state.context.txHash != null
       ? `${NEAR_EXPLORER}/txns/${state.context.txHash}`
+      : null
+
+  const explorerUrl =
+    intentDescription.depositAddress != null
+      ? `${EXPLORER_NEAR_INTENTS}/transactions/${intentDescription.depositAddress}`
       : null
 
   return (
@@ -75,7 +81,6 @@ export function SwapIntentCard({ intentStatusActorRef }: SwapIntentCardProps) {
               {formatTokenValue(totalAmountIn.amount, totalAmountIn.decimals, {
                 min: 0.0001,
                 fractionDigits: 4,
-                // biome-ignore lint/nursery/useConsistentCurlyBraces: space is needed here
               })}{" "}
               {tokenIn.symbol}
             </Text>
@@ -91,7 +96,6 @@ export function SwapIntentCard({ intentStatusActorRef }: SwapIntentCardProps) {
                   min: 0.0001,
                   fractionDigits: 4,
                 }
-                // biome-ignore lint/nursery/useConsistentCurlyBraces: space is needed here
               )}{" "}
               {tokenOut.symbol}
             </Text>
@@ -99,6 +103,22 @@ export function SwapIntentCard({ intentStatusActorRef }: SwapIntentCardProps) {
         </Flex>
 
         <Flex direction="column" gap="1" mt="1">
+          {intentDescription.depositAddress != null && explorerUrl != null && (
+            <Flex align="center" gap="1">
+              <Text size="1" color="gray">
+                Track your swap progress on explorer:{" "}
+                <Link href={explorerUrl} target="_blank" color="blue">
+                  {truncateHash(intentDescription.depositAddress)}
+                </Link>
+              </Text>
+
+              <CopyButton
+                text={intentDescription.depositAddress}
+                ariaLabel="Copy Deposit address"
+              />
+            </Flex>
+          )}
+
           {state.context.intentHash != null && (
             <Flex align="center" gap="1">
               <Text size="1" color="gray">
@@ -115,7 +135,6 @@ export function SwapIntentCard({ intentStatusActorRef }: SwapIntentCardProps) {
           {state.context.txHash != null && txUrl != null && (
             <Flex align="center" gap="1">
               <Text size="1" color="gray">
-                {/* biome-ignore lint/nursery/useConsistentCurlyBraces: space is needed here */}
                 Transaction:{" "}
                 <Link href={txUrl} target="_blank" color="blue">
                   {truncateHash(state.context.txHash)}

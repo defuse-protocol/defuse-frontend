@@ -3,6 +3,7 @@ import type { walletMessage } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import { getQuote as get1csQuoteApi } from "@src/components/DefuseSDK/features/machines/1cs"
+import type { ParentEvents as Background1csQuoterParentEvents } from "@src/components/DefuseSDK/features/machines/background1csQuoterMachine"
 import type { providers } from "near-api-js"
 import { assign, fromPromise, setup } from "xstate"
 import { createTransferMessage } from "../../core/messages"
@@ -22,6 +23,7 @@ import {
   type ErrorCodes as PublicKeyVerifierErrorCodes,
   publicKeyVerifierMachine,
 } from "./publicKeyVerifierMachine"
+import type { IntentDescription } from "./swapIntentMachine"
 
 function getTokenAssetId(token: BaseTokenInfo | UnifiedTokenInfo) {
   return isBaseToken(token)
@@ -38,11 +40,12 @@ type Context = {
     | {
         ok: {
           quote: {
-            amountIn?: string
-            amountOut?: string
+            amountIn: string
+            amountOut: string
             deadline?: string
             depositAddress?: string
           }
+          appFee: [string, bigint][]
         }
       }
     | { err: string }
@@ -79,10 +82,7 @@ type Input = Quote1csInput & {
   userChainType: AuthMethod
   nearClient: providers.Provider
   parentRef?: {
-    send: (event: {
-      type: "NEW_1CS_QUOTE"
-      params?: unknown
-    }) => void
+    send: (event: Background1csQuoterParentEvents) => void
   }
 }
 
@@ -93,6 +93,7 @@ export type Output =
       value: {
         intentHash: string
         depositAddress: string
+        intentDescription: IntentDescription
       }
     }
 
@@ -137,6 +138,7 @@ export const swapIntent1csMachine = setup({
           type: "NEW_1CS_QUOTE",
           params: {
             result: context.quote1csResult,
+            quoteInput: context.input,
             tokenInAssetId,
             tokenOutAssetId,
           },
@@ -146,30 +148,35 @@ export const swapIntent1csMachine = setup({
   },
   actors: {
     fetch1csQuoteActor: fromPromise(
-      async ({ input }: { input: Quote1csInput }) => {
+      async ({
+        input,
+      }: { input: Quote1csInput & { userChainType: AuthMethod } }) => {
         const tokenInAssetId = getTokenAssetId(input.tokenIn)
         const tokenOutAssetId = getTokenAssetId(input.tokenOut)
 
         try {
-          const result = await get1csQuoteApi({
-            dry: false, // This will include depositAddress
-            swapType: QuoteRequest.swapType.EXACT_INPUT,
-            slippageTolerance: Math.round(input.slippageBasisPoints / 100),
-            quoteWaitingTimeMs: 3000,
-            originAsset: tokenInAssetId,
-            depositType: QuoteRequest.depositType.INTENTS,
-            destinationAsset: tokenOutAssetId,
-            amount: input.amountIn.amount.toString(),
-            refundTo: input.defuseUserId,
-            refundType: QuoteRequest.refundType.INTENTS,
-            recipient: input.defuseUserId,
-            recipientType: QuoteRequest.recipientType.INTENTS,
-            deadline: input.deadline,
-            referral: input.referral,
-          })
+          const result = await get1csQuoteApi(
+            {
+              dry: false,
+              swapType: QuoteRequest.swapType.EXACT_INPUT,
+              slippageTolerance: Math.round(input.slippageBasisPoints / 100),
+              quoteWaitingTimeMs: 3000,
+              originAsset: tokenInAssetId,
+              depositType: QuoteRequest.depositType.INTENTS,
+              destinationAsset: tokenOutAssetId,
+              amount: input.amountIn.amount.toString(),
+              refundTo: input.defuseUserId,
+              refundType: QuoteRequest.refundType.INTENTS,
+              recipient: input.defuseUserId,
+              recipientType: QuoteRequest.recipientType.INTENTS,
+              deadline: input.deadline,
+              referral: input.referral,
+            },
+            input.userChainType
+          )
 
           return result
-        } catch (_error) {
+        } catch {
           logger.error("1cs quote request failed")
           return { err: "Quote request failed" }
         }
@@ -281,6 +288,15 @@ export const swapIntent1csMachine = setup({
         value: {
           intentHash: context.intentHash,
           depositAddress: context.quote1csResult.ok.quote.depositAddress,
+          intentDescription: {
+            type: "swap",
+            totalAmountIn: context.input.amountIn,
+            totalAmountOut: {
+              amount: BigInt(context.quote1csResult.ok.quote.amountOut ?? "0"),
+              decimals: context.input.tokenOut.decimals,
+            },
+            depositAddress: context.quote1csResult.ok.quote.depositAddress,
+          },
         },
       }
     }
