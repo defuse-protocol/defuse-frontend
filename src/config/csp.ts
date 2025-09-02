@@ -11,6 +11,7 @@ const cspConfig = {
     "https://widget.solflare.com",
     "https://verify.walletconnect.org",
     "https://connect.solflare.com",
+    "https://*.peersyst.tech",
   ],
   "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
   "font-src": ["'self'", "https://fonts.gstatic.com"],
@@ -34,6 +35,7 @@ const cspConfig = {
     "'self'",
     /** Services */
     "https://*.chaindefuser.com",
+    "wss://*.chaindefuser.com",
     "https://*.google-analytics.com",
     "https://*.near-intents.org",
     "https://api.hyperunit.xyz",
@@ -43,8 +45,14 @@ const cspConfig = {
 
     /** Stage Solver Relay and Bridge Services */
     "https://*.intents-near.org",
+    "wss://*.intents-near.org",
     "https://near-intents.org",
+    "wss://near-intents.org",
     "https://mainnet.api.bridge.nearone.org",
+    "wss://mainnet.api.bridge.nearone.org",
+
+    /** NEAR Mobile Signer Services */
+    "https://*.peersyst.tech",
 
     /** Helpscout */
     "https://beaconapi.helpscout.net",
