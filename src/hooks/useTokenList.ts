@@ -1,7 +1,4 @@
-import type {
-  BaseTokenInfo,
-  UnifiedTokenInfo,
-} from "@src/components/DefuseSDK/types"
+import type {} from "@src/components/DefuseSDK/types"
 import type { TokenWithTags } from "@src/constants/tokens"
 import { useFlatTokenList } from "@src/hooks/useFlatTokenList"
 import { useSearchParams } from "next/navigation"
@@ -22,9 +19,7 @@ export function useTokenList(tokenList: TokenWithTags[]) {
    */
   return useMemo(() => {
     const filteredList = sortedList.filter((token) => {
-      const feature = (token as TokenWithTags).tags?.find((tag) =>
-        tag.startsWith("feature:")
-      )
+      const feature = token.tags?.find((tag) => tag.startsWith("feature:"))
       if (feature == null) {
         return true
       }
@@ -96,8 +91,6 @@ function getVolumeOrder(tags: string[]): number | undefined {
   return Number.parseInt(volTag.split(":")[1])
 }
 
-function sortTokensByMarketCap(
-  tokens: (BaseTokenInfo | UnifiedTokenInfo)[]
-): (BaseTokenInfo | UnifiedTokenInfo)[] {
+function sortTokensByMarketCap(tokens: TokenWithTags[]) {
   return Array.from(tokens).sort(compareTokens)
 }
