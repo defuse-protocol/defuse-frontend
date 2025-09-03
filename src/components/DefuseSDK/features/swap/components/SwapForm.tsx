@@ -111,7 +111,11 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     })
   }, [tokenIn, tokenOut, getValues, setValue, swapUIActorRef.send])
 
-  const { setModalType, payload } = useModalStore((state) => state)
+  const {
+    setModalType,
+    payload,
+    modalType: currentModalType,
+  } = useModalStore((state) => state)
 
   const openModalSelectAssets = (
     fieldName: string,
@@ -127,8 +131,9 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
   useEffect(() => {
     if (
+      currentModalType !== null ||
       (payload as ModalSelectAssetsPayload)?.modalType !==
-      ModalType.MODAL_SELECT_ASSETS
+        ModalType.MODAL_SELECT_ASSETS
     ) {
       return
     }
@@ -164,7 +169,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
           break
       }
     }
-  }, [payload, swapUIActorRef])
+  }, [payload, currentModalType, swapUIActorRef])
 
   const { onSubmit } = useContext(SwapSubmitterContext)
 
