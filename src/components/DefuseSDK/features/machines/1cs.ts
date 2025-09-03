@@ -11,20 +11,18 @@ import { computeAppFeeBps } from "@src/components/DefuseSDK/utils/appFee"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { APP_FEE_BPS, APP_FEE_RECIPIENT } from "@src/utils/environment"
 import { unstable_cache } from "next/cache"
+import * as v from "valibot"
 import z from "zod"
 import { isBaseToken } from "../../utils/token"
 
-OpenAPI.BASE =
-  process.env.ONE_CLICK_URL ??
-  (() => {
-    throw new Error("ONE_CLICK_URL is not set")
-  })()
-
-OpenAPI.TOKEN =
-  process.env.ONE_CLICK_API_KEY ??
-  (() => {
-    throw new Error("ONE_CLICK_API_KEY is not set")
-  })()
+OpenAPI.BASE = v.parse(
+  v.pipe(v.string(), v.nonEmpty()),
+  process.env.ONE_CLICK_URL
+)
+OpenAPI.TOKEN = v.parse(
+  v.pipe(v.string(), v.nonEmpty()),
+  process.env.ONE_CLICK_API_KEY
+)
 
 export async function getTokens() {
   return await getTokensCached()
