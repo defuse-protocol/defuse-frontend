@@ -1,14 +1,16 @@
 "use server"
 
-import type { AuthMethod } from "@defuse-protocol/internal-utils"
+import { type AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
 import {
   OneClickService,
   OpenAPI,
-  type QuoteRequest,
+  QuoteRequest,
   type QuoteResponse,
 } from "@defuse-protocol/one-click-sdk-typescript"
 import { computeAppFeeBps } from "@src/components/DefuseSDK/utils/appFee"
+import { whitelabelTemplateFlag } from "@src/config/featureFlags"
 import { LIST_TOKENS } from "@src/constants/tokens"
+import { referralMap } from "@src/hooks/useIntentsReferral"
 import { APP_FEE_BPS, APP_FEE_RECIPIENT } from "@src/utils/environment"
 import { unstable_cache } from "next/cache"
 import z from "zod"
@@ -32,10 +34,21 @@ const getTokensCached = unstable_cache(
   }
 )
 
-export async function getQuote(
-  quoteRequest: QuoteRequest,
+export async function getQuote({
+  userAddress,
+  authMethod,
+  ...quoteRequest
+}: {
+  dry: boolean
+  slippageTolerance: number
+  quoteWaitingTimeMs: number
+  originAsset: string
+  destinationAsset: string
+  amount: string
+  deadline: string
+  userAddress: string
   authMethod: AuthMethod
-): Promise<
+}): Promise<
   { ok: QuoteResponse & { appFee: [string, bigint][] } } | { err: string }
 > {
   try {
@@ -54,18 +67,27 @@ export async function getQuote(
       tokenIn,
       tokenOut,
       APP_FEE_RECIPIENT,
-      {
-        identifier: quoteRequest.recipient,
-        method: authMethod,
-      }
+      { identifier: userAddress, method: authMethod }
     )
 
     if (appFeeBps > 0 && !APP_FEE_RECIPIENT) {
       return { err: "App fee recipient is not configured" }
     }
 
+    const intentsUserId = authIdentity.authHandleToIntentsUserId(
+      userAddress,
+      authMethod
+    )
+
     const req: QuoteRequest = {
       ...quoteRequest,
+      depositType: QuoteRequest.depositType.INTENTS,
+      refundTo: intentsUserId,
+      refundType: QuoteRequest.refundType.INTENTS,
+      recipient: intentsUserId,
+      recipientType: QuoteRequest.recipientType.INTENTS,
+      swapType: QuoteRequest.swapType.EXACT_INPUT,
+      referral: referralMap[await whitelabelTemplateFlag()],
       ...(appFeeBps > 0
         ? { appFees: [{ recipient: APP_FEE_RECIPIENT, fee: appFeeBps }] }
         : {}),

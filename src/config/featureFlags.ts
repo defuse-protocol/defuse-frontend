@@ -12,7 +12,7 @@ export type WhitelabelTemplateValue =
   | "turboswap"
   | "trumpswap"
 
-export const whitelabelTemplateFlag = flag({
+export const whitelabelTemplateFlag = flag<WhitelabelTemplateValue>({
   key: "whitelabelTemplate",
   defaultValue: "near-intents" as WhitelabelTemplateValue,
   options: [

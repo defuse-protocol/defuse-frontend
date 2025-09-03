@@ -1,5 +1,4 @@
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
-import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import { getQuote as get1csQuoteApi } from "@src/components/DefuseSDK/features/machines/1cs"
 import { type ActorRef, type Snapshot, fromCallback } from "xstate"
 
@@ -20,8 +19,8 @@ export type Quote1csInput = {
   slippageBasisPoints: number
   defuseUserId: string
   deadline: string
-  referral?: string
-  authMethod: AuthMethod
+  userAddress: string
+  userChainType: AuthMethod
 }
 
 export type Events =
@@ -151,25 +150,17 @@ async function get1csQuote(
   const tokenOutAssetId = getTokenAssetId(quoteInput.tokenOut)
 
   try {
-    const result = await get1csQuoteApi(
-      {
-        dry: true,
-        swapType: QuoteRequest.swapType.EXACT_INPUT,
-        slippageTolerance: Math.round(quoteInput.slippageBasisPoints / 100),
-        quoteWaitingTimeMs: 3000,
-        originAsset: tokenInAssetId,
-        depositType: QuoteRequest.depositType.INTENTS,
-        destinationAsset: tokenOutAssetId,
-        amount: quoteInput.amountIn.amount.toString(),
-        refundTo: quoteInput.defuseUserId,
-        refundType: QuoteRequest.refundType.INTENTS,
-        recipient: quoteInput.defuseUserId,
-        recipientType: QuoteRequest.recipientType.INTENTS,
-        deadline: quoteInput.deadline,
-        referral: quoteInput.referral,
-      },
-      quoteInput.authMethod
-    )
+    const result = await get1csQuoteApi({
+      dry: true,
+      slippageTolerance: Math.round(quoteInput.slippageBasisPoints / 100),
+      quoteWaitingTimeMs: 3000,
+      originAsset: tokenInAssetId,
+      destinationAsset: tokenOutAssetId,
+      amount: quoteInput.amountIn.amount.toString(),
+      deadline: quoteInput.deadline,
+      userAddress: quoteInput.userAddress,
+      authMethod: quoteInput.userChainType,
+    })
 
     if (signal.aborted) {
       return

@@ -304,8 +304,8 @@ export const swapUIMachine = setup({
               context.user.method
             ),
             deadline: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
-            referral: context.referral,
-            authMethod: context.user.method,
+            userAddress: context.user.identifier,
+            userChainType: context.user.method,
           },
         }
       }
@@ -749,7 +749,6 @@ export const swapUIMachine = setup({
             ),
             deadline: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
             referral: context.referral,
-            authMethod: context.user.method,
             userAddress: event.params.userAddress,
             userChainType: event.params.userChainType,
             nearClient: event.params.nearClient,

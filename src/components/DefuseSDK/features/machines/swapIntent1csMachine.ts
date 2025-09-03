@@ -1,7 +1,6 @@
 import { errors, solverRelay } from "@defuse-protocol/internal-utils"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
-import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import { getQuote as get1csQuoteApi } from "@src/components/DefuseSDK/features/machines/1cs"
 import type { ParentEvents as Background1csQuoterParentEvents } from "@src/components/DefuseSDK/features/machines/background1csQuoterMachine"
 import type { providers } from "near-api-js"
@@ -155,25 +154,17 @@ export const swapIntent1csMachine = setup({
         const tokenOutAssetId = getTokenAssetId(input.tokenOut)
 
         try {
-          const result = await get1csQuoteApi(
-            {
-              dry: false,
-              swapType: QuoteRequest.swapType.EXACT_INPUT,
-              slippageTolerance: Math.round(input.slippageBasisPoints / 100),
-              quoteWaitingTimeMs: 3000,
-              originAsset: tokenInAssetId,
-              depositType: QuoteRequest.depositType.INTENTS,
-              destinationAsset: tokenOutAssetId,
-              amount: input.amountIn.amount.toString(),
-              refundTo: input.defuseUserId,
-              refundType: QuoteRequest.refundType.INTENTS,
-              recipient: input.defuseUserId,
-              recipientType: QuoteRequest.recipientType.INTENTS,
-              deadline: input.deadline,
-              referral: input.referral,
-            },
-            input.userChainType
-          )
+          const result = await get1csQuoteApi({
+            dry: false,
+            slippageTolerance: Math.round(input.slippageBasisPoints / 100),
+            quoteWaitingTimeMs: 3000,
+            originAsset: tokenInAssetId,
+            destinationAsset: tokenOutAssetId,
+            amount: input.amountIn.amount.toString(),
+            deadline: input.deadline,
+            userAddress: input.userAddress,
+            authMethod: input.userChainType,
+          })
 
           return result
         } catch {
