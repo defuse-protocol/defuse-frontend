@@ -78,6 +78,7 @@ export function SwapUIMachineProvider({
   const tokenIn = initialTokenIn || tokenList[0]
   const tokenOut = initialTokenOut || tokenList[1]
   assert(tokenIn && tokenOut, "TokenIn and TokenOut must be defined")
+
   return (
     <SwapUIMachineContext.Provider
       options={{

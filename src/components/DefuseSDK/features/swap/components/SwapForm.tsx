@@ -80,8 +80,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     const failedToGetAQuote =
       snapshot.context.quote &&
       snapshot.context.quote.tag === "err" &&
-      snapshot.context.quote.value.reason === "ERR_NO_QUOTES_1CS" &&
-      !snapshot.context.is1cs // Don't consider 1CS quote failures as blocking since we'll refetch
+      snapshot.context.quote.value.reason === "ERR_NO_QUOTES_1CS"
     const insufficientTokenInAmount =
       snapshot.context.quote &&
       snapshot.context.quote.tag === "err" &&
@@ -217,7 +216,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
   const isLoading =
     snapshot.matches({ editing: "waiting_quote" }) ||
-    (snapshot.context.is1cs && snapshot.context.is1csFetching)
+    snapshot.context.is1csFetching
 
   return (
     <Island className="widget-container flex flex-col gap-5">
@@ -321,12 +320,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
           <div className="mt-5">
             <SwapPriceImpact
               amountIn={usdAmountIn}
-              amountOut={
-                snapshot.matches({ editing: "waiting_quote" }) ||
-                (snapshot.context.is1cs && snapshot.context.is1csFetching)
-                  ? null
-                  : usdAmountOut
-              }
+              amountOut={isLoading ? null : usdAmountOut}
             />
           </div>
           <SwapRateInfo tokenIn={tokenIn} tokenOut={tokenOut} />
