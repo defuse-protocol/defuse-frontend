@@ -1,18 +1,18 @@
 "use client"
-
 import { updateURLParams } from "@src/app/(home)/_utils/useDeterminePair"
 import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
 import { SwapWidget } from "@src/components/DefuseSDK"
+import { getTokens } from "@src/components/DefuseSDK/features/machines/1cs"
+import { isBaseToken } from "@src/components/DefuseSDK/utils"
 import Paper from "@src/components/Paper"
-import { LIST_TOKENS, type TokenWithTags } from "@src/constants/tokens"
-import { use1csTokens } from "@src/hooks/use1csTokens"
+import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
 import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
-import { filter1csTokens } from "@src/utils/filter1csTokens"
 import { renderAppLink } from "@src/utils/renderAppLink"
+import { useQuery } from "@tanstack/react-query"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useMemo } from "react"
 
@@ -20,29 +20,14 @@ export default function Swap() {
   const { state } = useConnectWallet()
   const signMessage = useWalletAgnosticSignMessage()
   const { signAndSendTransactions } = useNearWalletActions()
-  const baseTokenList = useTokenList(filterOutRefAndBrrrTokens(LIST_TOKENS))
+  const searchParams = useSearchParams()
+  const is1cs = !!searchParams.get("1cs")
+  const tokenList = useTokenList1cs(is1cs)
   const { tokenIn, tokenOut } = useDeterminePair()
   const referral = useIntentsReferral()
   const router = useRouter()
-  const searchParams = useSearchParams()
-
   const userAddress = state.isVerified ? state.address : undefined
   const userChainType = state.chainType
-  const is1cs = !!searchParams.get("1cs")
-
-  const { data: oneClickTokens, isLoading: is1csTokensLoading } = use1csTokens()
-
-  const tokenList = useMemo(() => {
-    if (!is1cs) {
-      return baseTokenList
-    }
-
-    if (!oneClickTokens || is1csTokensLoading) {
-      return []
-    }
-
-    return filter1csTokens(baseTokenList, oneClickTokens)
-  }, [is1cs, baseTokenList, oneClickTokens, is1csTokensLoading])
 
   return (
     <Paper>
@@ -82,8 +67,37 @@ export default function Swap() {
 }
 
 // These tokens no longer tradable and might be removed in future.
-function filterOutRefAndBrrrTokens(LIST_TOKENS: TokenWithTags[]) {
-  return LIST_TOKENS.filter(
-    (token) => token.symbol !== "REF" && token.symbol !== "BRRR"
-  )
+const TOKENS_WITHOUT_REF_AND_BRRR = LIST_TOKENS.filter(
+  (token) => token.symbol !== "REF" && token.symbol !== "BRRR"
+)
+
+function useTokenList1cs(is1cs: boolean) {
+  const tokenList = useTokenList(TOKENS_WITHOUT_REF_AND_BRRR)
+
+  const { data: oneClickTokens, isLoading: is1csTokensLoading } = useQuery({
+    queryKey: ["1cs-tokens"],
+    queryFn: () => getTokens(),
+    staleTime: 60 * 1000, // 1 minute
+    gcTime: 5 * 60 * 1000, // 5 minutes
+  })
+
+  return useMemo(() => {
+    if (!is1cs) {
+      return tokenList
+    }
+
+    if (!oneClickTokens || is1csTokensLoading) {
+      return []
+    }
+
+    const oneClickAssetIds = new Set(
+      oneClickTokens.map((token) => token.assetId)
+    )
+
+    return tokenList.filter((token) => {
+      return isBaseToken(token)
+        ? oneClickAssetIds.has(token.defuseAssetId)
+        : oneClickAssetIds.has(token.groupedTokens[0]?.defuseAssetId)
+    })
+  }, [is1cs, tokenList, oneClickTokens, is1csTokensLoading])
 }
