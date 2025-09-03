@@ -4,7 +4,7 @@ import { Button, Code } from "@radix-ui/themes"
 import React, { useState } from "react"
 import * as v from "valibot"
 
-import { MultiPayloadDeepSchema } from "@src/components/DefuseSDK"
+import { MultiPayloadDeepSchema } from "@src/components/DefuseSDK/features/otcDesk/utils/schemaMultipayload"
 
 import examples from "./_examples/multipayloads.json"
 

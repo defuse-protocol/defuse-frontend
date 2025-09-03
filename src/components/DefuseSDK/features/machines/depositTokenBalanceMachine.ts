@@ -61,7 +61,6 @@ export const backgroundBalanceActor = fromPromise(
         const address = isFungibleToken(derivedToken)
           ? derivedToken.address
           : null
-
         assert(address != null, "Address is not defined")
 
         const [nep141Balance, nativeBalance] = await Promise.all([
@@ -87,7 +86,6 @@ export const backgroundBalanceActor = fromPromise(
           result.nearBalance = nativeBalance
           break
         }
-
         result.balance = nep141Balance
         result.nearBalance = nativeBalance
         break

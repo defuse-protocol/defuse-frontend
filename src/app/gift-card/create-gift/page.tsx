@@ -1,6 +1,7 @@
 "use client"
 import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
-import { GiftHistoryWidget, GiftMakerWidget } from "@src/components/DefuseSDK"
+import { GiftHistoryWidget } from "@src/components/DefuseSDK/features/gift/components/GiftHistoryWidget"
+import { GiftMakerWidget } from "@src/components/DefuseSDK/features/gift/components/GiftMakerWidget"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
