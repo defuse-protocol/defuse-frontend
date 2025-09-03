@@ -29,6 +29,7 @@ export function initSDK() {
         sui: true,
         stellar: true,
         optimism: true,
+        aptos: true,
       },
     })
   } else {
@@ -72,6 +73,7 @@ export function initSDK() {
         optimism: true,
         avalanche: true,
         stellar: true,
+        aptos: true,
       },
     })
   }
