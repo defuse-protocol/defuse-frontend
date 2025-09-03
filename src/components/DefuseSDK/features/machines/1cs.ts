@@ -11,6 +11,7 @@ import { computeAppFeeBps } from "@src/components/DefuseSDK/utils/appFee"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { APP_FEE_BPS, APP_FEE_RECIPIENT } from "@src/utils/environment"
 import { unstable_cache } from "next/cache"
+import z from "zod"
 import { isBaseToken } from "../../utils/token"
 
 OpenAPI.BASE =
@@ -72,20 +73,40 @@ export async function getQuote(
       return { err: "App fee recipient is not configured" }
     }
 
+    const req: QuoteRequest = {
+      ...quoteRequest,
+      ...(appFeeBps > 0
+        ? { appFees: [{ recipient: APP_FEE_RECIPIENT, fee: appFeeBps }] }
+        : {}),
+    }
+
     return {
       ok: {
-        ...(await OneClickService.getQuote({
-          ...quoteRequest,
-          ...(appFeeBps > 0
-            ? { appFees: [{ recipient: APP_FEE_RECIPIENT, fee: appFeeBps }] }
-            : {}),
-        })),
+        ...(await OneClickService.getQuote(req)),
         appFee: appFeeBps > 0 ? [[APP_FEE_RECIPIENT, BigInt(appFeeBps)]] : [],
       },
     }
   } catch (error) {
-    return { err: error instanceof Error ? error.message : String(error) }
+    return {
+      err: isServerError(error)
+        ? error.body.message
+        : error instanceof Error
+          ? error.message
+          : String(error),
+    }
   }
+}
+
+const serverErrorSchema = z.object({
+  body: z.object({
+    message: z.string(),
+  }),
+})
+
+type ServerError = z.infer<typeof serverErrorSchema>
+
+function isServerError(error: unknown): error is ServerError {
+  return serverErrorSchema.safeParse(error).success
 }
 
 function getTokenByAssetId(assetId: string) {

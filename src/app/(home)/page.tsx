@@ -82,12 +82,8 @@ function useTokenList1cs(is1cs: boolean) {
   })
 
   return useMemo(() => {
-    if (!is1cs) {
+    if (!is1cs || !oneClickTokens || is1csTokensLoading) {
       return tokenList
-    }
-
-    if (!oneClickTokens || is1csTokensLoading) {
-      return []
     }
 
     const oneClickAssetIds = new Set(
