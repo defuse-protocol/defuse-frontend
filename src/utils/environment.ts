@@ -53,3 +53,15 @@ export const APP_FEE_RECIPIENT = v.parse(
   v.optional(v.string(), ""),
   process.env.NEXT_PUBLIC_APP_FEE_RECIPIENT
 )
+
+export const ONE_CLICK_SWAP_FRACTION =
+  v.parse(
+    v.pipe(
+      v.optional(v.string(), "0"),
+      v.transform(Number),
+      v.number("ONE_CLICK_SWAP_PERCENTAGE must be a valid number"),
+      v.minValue(0, "ONE_CLICK_SWAP_PERCENTAGE must be at least 0"),
+      v.maxValue(100, "ONE_CLICK_SWAP_PERCENTAGE must be at most 100")
+    ),
+    process.env.NEXT_PUBLIC_ONE_CLICK_SWAP_PERCENTAGE
+  ) / 100

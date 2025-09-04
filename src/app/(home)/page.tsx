@@ -11,9 +11,15 @@ import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
 import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
+import { ONE_CLICK_SWAP_FRACTION } from "@src/utils/environment"
+import { isFeatureEnabled } from "@src/utils/isFeatureEnabled"
 import { renderAppLink } from "@src/utils/renderAppLink"
 import { useQuery } from "@tanstack/react-query"
-import { useRouter, useSearchParams } from "next/navigation"
+import {
+  type ReadonlyURLSearchParams,
+  useRouter,
+  useSearchParams,
+} from "next/navigation"
 import { useMemo } from "react"
 
 export default function Swap() {
@@ -21,13 +27,13 @@ export default function Swap() {
   const signMessage = useWalletAgnosticSignMessage()
   const { signAndSendTransactions } = useNearWalletActions()
   const searchParams = useSearchParams()
-  const is1cs = !!searchParams.get("1cs")
+  const userAddress = state.isVerified ? state.address : undefined
+  const userChainType = state.chainType
+  const is1cs = useIs1CsEnabled(searchParams, userAddress, userChainType)
   const tokenList = useTokenList1cs(is1cs)
   const { tokenIn, tokenOut } = useDeterminePair()
   const referral = useIntentsReferral()
   const router = useRouter()
-  const userAddress = state.isVerified ? state.address : undefined
-  const userChainType = state.chainType
 
   return (
     <Paper>
@@ -64,6 +70,27 @@ export default function Swap() {
       />
     </Paper>
   )
+}
+
+function useIs1CsEnabled(
+  searchParams: ReadonlyURLSearchParams,
+  userAddress: string | undefined,
+  userChainType: string | undefined
+) {
+  return useMemo(() => {
+    if (searchParams.get("1cs")) {
+      return true
+    }
+
+    if (searchParams.get("not1cs") || !userAddress || !userChainType) {
+      return false
+    }
+
+    return isFeatureEnabled(
+      `${userAddress}${userChainType}`,
+      ONE_CLICK_SWAP_FRACTION
+    )
+  }, [searchParams, userAddress, userChainType])
 }
 
 // These tokens no longer tradable and might be removed in future.

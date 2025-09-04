@@ -81,6 +81,8 @@ export function SwapUIMachineProvider({
 
   return (
     <SwapUIMachineContext.Provider
+      // re-initialize the provider when the is1cs prop changes
+      key={is1cs ? "1cs" : "not1cs"}
       options={{
         input: {
           tokenIn,
