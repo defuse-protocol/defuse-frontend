@@ -1,7 +1,10 @@
 import { errors, solverRelay } from "@defuse-protocol/internal-utils"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
-import { getQuote as get1csQuoteApi } from "@src/components/DefuseSDK/features/machines/1cs"
+import {
+  type GetQuoteResult,
+  getQuote as get1csQuoteApi,
+} from "@src/components/DefuseSDK/features/machines/1cs"
 import type { ParentEvents as Background1csQuoterParentEvents } from "@src/components/DefuseSDK/features/machines/background1csQuoterMachine"
 import type { providers } from "near-api-js"
 import { assign, fromPromise, setup } from "xstate"
@@ -17,6 +20,7 @@ import {
   type WalletErrorCode,
   extractWalletErrorCode,
 } from "../../utils/walletErrorExtractor"
+import { isOk } from "./1csResult"
 import type { Quote1csInput } from "./background1csQuoterMachine"
 import {
   type ErrorCodes as PublicKeyVerifierErrorCodes,
@@ -35,20 +39,7 @@ type Context = {
   userAddress: string
   userChainType: AuthMethod
   nearClient: providers.Provider
-  quote1csResult:
-    | {
-        ok: {
-          quote: {
-            amountIn: string
-            amountOut: string
-            deadline?: string
-            depositAddress?: string
-          }
-          appFee: [string, bigint][]
-        }
-      }
-    | { err: string }
-    | null
+  quote1csResult: GetQuoteResult | null
   walletMessage: walletMessage.WalletMessage | null
   signature: walletMessage.WalletSignatureResult | null
   intentHash: string | null
@@ -242,13 +233,13 @@ export const swapIntent1csMachine = setup({
     isQuoteSuccess: ({ context }) => {
       return (
         context.quote1csResult != null &&
-        "ok" in context.quote1csResult &&
+        isOk(context.quote1csResult) &&
         context.quote1csResult.ok.quote.depositAddress != null
       )
     },
   },
 }).createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5SwO4EMAOBaAlgOwBcxCsBGAY1gDoAxMA8gC3ygtgEUBXAeyIGII3PGCr4AbtwDWI1JlyFiBMpVr0mLNl15gE47uTQEcQgNoAGALrmLiUBm6wcRobZAAPRACYAnAFYqvmZBngAcvgAsvr6eAMy+ADQgAJ5ePlSk4TE+vn5mPmakAOwAvsWJstj4RCRsqgzMeKyUWvxgAE5t3G1UGAA2hgBmXQC2VBXy1Uq1dPUazTxEungSBs541tau9o5rrh4I2QFBeWGR0XGJKQghpEdBAGxm4Z7hpN6FITGl5eiVCjUqABqaF6OAghhYLTAfE2SBA2ycxjwe0Q928ISoQQ+6JChV8MXCZgSyUQzwxIRC2VIZnu91I90+3xA4yqimU1GBoPBRkaUJhpBscIRuzh+zRGKxIRxeIJRMuXhi9yohTMMSKRU8qs1Zm8TJZ-ymKgAwm0wBDGgAVNpoPCwAbtACycFgaBgAiEIj00jGvwmbNqJrNPKgVptdsdztdOj0qyRG0sWwciJcosQpE1-lpz18p3RhXT8oQvkeVEe3kyhRVeIyXzKzN9rIB1ED5pD1tt9raTtgLrd7U63T6gxGPrkjcNzdNrdDHYjPajSxWENMllhdiTItA+3TRNL92zudxBZJCBilao3h8hWepDilPT4T1DYN7KoAGUcFA8Cx3cJRMspBkT88G7XswDXeENyRFEEFIEIgkxD43nzbx908OlCxVbxlWpbxb3ufEohKOt9UmV8Py-H9+y6Hp+gIIY2lGRwv1AqMIOFaDU1g+CzEQm53jeNCMJPfEYnSLJ3iyUhfHTWInzHF9akBdocAGJIWAovBDE4U1f09ADvVI-0gRUtSNOA7TTUXfRl3WVcEyFKCUy3VIc2VVVnhxYtL2JK5cWw+kbyJPJAmk+S-jIpTTPUxpNMs6FBD-L0ZGfSKTLaVSYqgOKCB06MANjFcrAFRMdk4lyDk8NyVQJHwKW8qrCwZDEYkVMwQkiUgH3Ce5wr9JsqGUjKzNiizct06jBzohimNS4yOWi8yv3i6zCrsqwHPXMrnPcVyMRqzz6rRRqTwyBlSwKEJ7hiDqet8QpepIuaBqGzKWAABU4AAjUFyAAaTAJJ3tNWBiHIBKPX-CRvQwb7foBpJXoGHB2gAJTAAZ2Kc5EuJiApwgCe5snCKVrvxQtqTSOlCjPST2qJvrx1fJGss+n6cH+wHgbgMGIaSgyRFh9nOcR0yUbadHMZKxztpxiq8YyQnidJuIYkLT5eLVdCikJdFfEZxT0rexo2fhrmQd5vhJto4dGJ6OGOYRpHxclrHZZghWCeLZXUNVim1TEmI82iCIwjiR6fgUtLqAAIU6NAIAMWBgwASQNPSocA0cIvmqg4+4BOk9Tg1Vts+NBS25M5d20991udCrpkl4pROq4urCdISaiDqbna1CDejvP48TtBk5YNPJgz5Ls-6ich4Lkex8aCfFFLtYNmlyvNxrxUXioHqPiJ+66XuimaTEomup8-F7hVR8nqj3P88L0fi8n62h3okcjIG5-F7f1eMYy72QrpBd2uMu771arEVqOQKQ03VmkF4hJ0L3WpOEXUTI8DcAgHAVwP8JylSrjBLA9xCykIHrnGY6hGiaAWGAIh299jPDPoUKgmo1Q5FQjeTwVVKEvRBGCVsUJGHlRrtEJU7wsxVU8CqYsZCTzoQJjqOubwzpB34XPFswYZzhi7JGGAoidr7ClP4MIfgihSnRETTwhZCQX1ak8W8GQD70k0eRYCLAjHV23BgsS4RIiZAwTSPCCirjdyoJ8R4hRZFRHwiEdxUVhpZRynlbxME3jeF4gRfcBRLxZBPphMwbDvBnlpD3TIOYI71kfi9RaJsHYi25qDPA4N0lcXQu1JWnwHrIL8OEdWkR0hoRyJwzUnhEkqD-kXceBp2ny0VLcKJJNWpojyASM+u4urXiyD1Xh+5MGRxzgNI03Bhh9HoJAeZNdCR5HYbIvIJM3gBIiBTDM6QZEfDiJeapBDXwAFEOhdGucw4I9yVTN2eYEzC1ILweUPuWHM99ShAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5SwO4EMAOBaAlgOwBcxCsBGAY1gDoAxMA8gC3ygtgEUBXAeyIGII3PGCr4AbtwDWI1JlyFiBMpVr0mLNl15gE47uTQEcQgNoAGALrmLiUBm6wcRobZAAPRACYAnAFYqvmZmpAAsvgDspOHh3qQAHCEANCAAnl4+VKEAzJ5ZWQBsCd4hwXEAvmXJstj4RCRsqgzMeKyUWvxgAE6d3J1UGAA2hgBmvQC2VNXydUoNdE0abTxEungSBs541tau9o6brh4IPv6BwWGR0bEJyWkIcaQBQcFmEX6+viH5FVXoNQr1FQANTQAxwEEMLHaYD4OyQID2TmMeEOiHy3jiVCCcTM4TiWW84U8vk8cVuiBCpKocTipNIpAxxPyIVCPxAU1qimU1BBYIhRha0NhpBs8MRB3hR3RmOxuPxhOJpPJxwKVHCZiypDyhPRuQ1bI5ANmKgAwp0wJCWgAVTpoPCwYZdACycFgaBgAiEIj00kmf2mXIaZotAqgNrtDudrvdOj0G2R20suwcSJcksQpE8ryo+WZBTx+QJsXyyt8+TMObM3gJMRJxXKlXZ-s5gOowctYdt9sdnRdsDdHq6PT6gxG4z9chbxrb5o74e7Uf7MdW60hpkscLsKYloCOmezuZC+bihe8xeVWWiVG8PnRuJiISPIQNzaN3KoAGUcFA8CxPcJRDWKQZG-PA+wHMBNwRbdkVRBB4iCLE8RZLJcRCaItWVB8AlIMt0WZOJwnLb5G0NGZ3y-H8-yHXp+iGAhRk6CZHB-cCYyg8VYPTeCcQrOUULQjCslLPJMhyWlM08IkFRfSc3waIEuhwYYUhYSi8EMThzX-b0gN9MjA2BJSVLU0DNPNFd9DXLYNyTMUYLTXd0hCTF1SyEpCg+R98nCZUtS1AJPgeGINXcolZP+ciFOM1SWnU8yYUEACfRkV8oqMzplNiqB4oILTYyA+N1ysEVk32LinOOTwXLVDUPLiLyvl81I0RpKg8l8PxSB83xcKrCKA1bKhFMyky4rMvLtJokd6MY5i0sMnkYtMn8EssoqbKsOyt3Kxz3Gc1y6rMTzPiarCHioUlvFxDVPCk8I8gGqd3xGrKWAABU4AAjMFyAAaTAFJ3vNWBiHIRKvUAiRfQwb7foBlJXuGHAugAJTAYYOIclFuJ8YoAkLMxckJBJ7z8uUc2JMx8RJHFqqe+SMrelpPp+nB-sB4G4DBiHkr0kRYbZjnEeMlHOnRzHSvs3accqvGQgJ1DieQsmWvgnwK1pWlquqgoiayBn0qW0bstZ+HOZBnm+GmuixyY-o4fZhGkbFiWsZluD5cV-WSZKaI-KyfE1QedyrsklzDcWqgACEejQCADFgUMAEkjR0qHgInSKo9j7h48TlOjXW6zE1FHbU1l-aECyTrHkzXxA9eItLySNX6RqhruuZWJCWLSOhtz-O0CTlhU5mdOUqzwbpxjuOE+HwuZmLzZtil8udyrmvYkyYlG4bs8W-Jj5qQxT58ikzxutifuZ8H+eR5aMfFGt7paNHBjxwMge54L0ei7jEutky7QQ9txLeddd44n3tWcIrc7jVnyFQEIN47pxAVBEBkN8KLfTGE4UMVo3AAAlh6MAnvzKez0GgfhwXglgBDiGwEYMvBMQCyoVzgpSZkl13LFl8Gg2kwk253XCIFdCREQpEkfFgqhNCCD4KISQl+w5bYf3tl-Ge1Cvq4LkXQhRjDmHFXduw7inCFa5GQd1PhjJBF3HpO5SsljSBVk8PkXCDZGx4G4BAOArh1HcjYRvI4WASxqywP4M8ESiaX2urEcKpEFpDXmOoFomhlhgACRVKulJyYiKzJqHIUQjyfDib8OSRthqgnBB2aEGS9pHBJIgnUD1cy9WeL4ZULiFZVkLHwqIl5QjhGkaaWc+CuyRl7NGGAtTK5HDQf4Bq3hyw5D8PiTMyoShZBzOJUktIG4YSGdQdSLBplwVCNWJBYQIhEXQmWE8pY+HUi3iUdCDJQ4HOGstcaq1JrpOlsYyqDJro5jLEeOUoRXHNTuDETwapKTEkfOqQ8nh3lI1No7YWXNQZ4HBic3GnVMRllvDkT4xIHp+Skt4UR4Q+E5DxJ1ZF8Syk5x-gvP+MxcWVTyCyR5hZkF3UKLmGxGZXgK3rv5KsfspLvM0do+RDDGAcqycEGF-KzyX2iPidCfkBlIQeNWPIeIm7vJNNwMYgx6CQEVUcR8+NomknPlEO63htXn1hS5BIOJurHXeQAUVfp0K1FJ1QiPpFJY6RNgjFBde1F4GJLy4mKIMioZQgA */
   id: "swap-intent-1cs",
 
   context: ({ input }) => ({
@@ -269,7 +260,7 @@ export const swapIntent1csMachine = setup({
     if (context.intentHash != null) {
       assert(
         context.quote1csResult != null &&
-          "ok" in context.quote1csResult &&
+          isOk(context.quote1csResult) &&
           context.quote1csResult.ok.quote.depositAddress != null,
         "Deposit address must be set when intent hash is available"
       )
@@ -377,9 +368,7 @@ export const swapIntent1csMachine = setup({
       invoke: {
         src: "createTransferMessageActor",
         input: ({ context }) => {
-          assert(
-            context.quote1csResult != null && "ok" in context.quote1csResult
-          )
+          assert(context.quote1csResult != null && isOk(context.quote1csResult))
           assert(context.quote1csResult.ok.quote.depositAddress != null)
 
           return {

@@ -13,6 +13,8 @@ import { bridgeSDK } from "../../constants/bridgeSdk"
 import { logger } from "../../logger"
 import type { BaseTokenInfo, UnifiedTokenInfo } from "../../types/base"
 import { assert } from "../../utils/assert"
+import { submitTxHash } from "./1cs"
+import { isOk } from "./1csResult"
 import type { IntentDescription } from "./swapIntentMachine"
 
 type ChildEvent = {
@@ -100,6 +102,35 @@ export const intentStatusMachine = setup({
           })
       }
     ),
+    submitTxHashActor: fromPromise(
+      async ({
+        input,
+      }: {
+        input: {
+          txHash: string
+          depositAddress: string
+        }
+      }) => {
+        try {
+          const result = await submitTxHash({
+            txHash: input.txHash,
+            depositAddress: input.depositAddress,
+          })
+
+          if (isOk(result)) {
+            return
+          }
+
+          logger.error("Failed to submit tx hash to 1CS:", {
+            error: result.err,
+          })
+        } catch (error) {
+          logger.error("Failed to submit tx hash to 1CS:", {
+            error: error instanceof Error ? error.message : String(error),
+          })
+        }
+      }
+    ),
   },
   guards: {
     isSettled: (
@@ -109,9 +140,15 @@ export const intentStatusMachine = setup({
     isWithdraw: ({ context }) => {
       return context.intentDescription.type === "withdraw"
     },
+    isSwapWith1csDepositAddress: ({ context }) => {
+      return (
+        context.intentDescription.type === "swap" &&
+        !!context.intentDescription.depositAddress
+      )
+    },
   },
 }).createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QEsB2AXMGDK6CG6ArrAHQAOWEaUAxANoAMAuoqGQPazLrLuqsgAHogCMAFgBsJCQCYZDGQFYGigMwiJAdgCcEgDQgAnqIbaSikQ01WJFzQA5tMiQF8XBtJhz4ipAMYAFmB+ANbUNBB8YCRoAG7sIdGeWOi4BMQkgcFhqFAIcex+BLyojExlAhxcPHwCwgiKMvYk9oqKYqqOipoiMmIiBsYI9iIkqnLa4lr2qroybh4YKWm+mUGh4ZGoSajxiTFL3un+6zl5BUU1pcx0IixIIFXcJXWIjaMy6gwikx3WmoNRLoxt11DpGvYmmJ5u4QMkjqsshtcjQwAAnNHsNHkAA2BAAZliALYHLypHwZJFnfK7QrFPhlCoPJ5XV4IGSTEgMMHfEQ9bTctSA9nOEiaSSNVSKCQSSQSESKBZww7k44kdGYtE0ABKAFEACragCaTLYnGetQe9TEimkYgF9hmMk06jaimFqjEzU0zu6KgYDC9srcsNQ7AgcAE8NVvkq5tZVsQAFomiQnNzZo7OpoZbZhUnmo1nfYFPYOmIbfaldGVhkKKgqLk49UXomED8uToZbz5Z9VFLhZYZCQZOJIZ6bdMbdWVbWTtlqM2Lfw286pMpVD1VAwZpDdMKHC0A71xAwJLodNoZ2S5yRYIQ-H44PBmfHW6B6toRiQvWIrNpNxLBV9CMEwGDTCQSzLJx+ilL1r2WClSDDdAAH1YjwHFkAgJcEw-RBtB0H9pX9ewdHsWwxEHACR00Bw6P6SES0UewEIRDINSxXD3yERApVUcwVBlaFRw5ERPQ9L0xm0NpxE9TMfhDFwgA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QEsB2AXMGDK6CG6ArrAHQAOWEaUAxANoAMAuoqGQPazLrLuqsgAHogCMANgCcJBjIYiGAdgAsDCUrFKANCACeiJQoUkxqpQA4ArLPUMlAXzva0mHPiKkAxgAswHgNbUNBB8YCRoAG7sfqHOWOi4BMQk3r4BqFAIEeweBLyojEwFAhxcPHwCwghWRhYSAMwKtRYijQBMdSIW2noI7XUkrVYMdQxWLWaGYg5OGHEJ7sk+-oHBqDGokdFhs66JnktpGVk5ZfnMdCIsSCAl3HkViNUktQ1NLRbtnd36hsamGkoJB8JCJWlNHCBYrsFillukaGAAE6I9iI8gAGwIADNUQBbbYueJuJKww6ZDbZXJ8ApFa63U4PKqKZ71RpA96fLq6R6NEh1MytMyAkQSZRCurTSE7Il7EiwMDodDoyD0ZjFTh3crXSryGQkEFKXViKwaZTfXoWMQkBRgkx1ExqQbgmaE+ZJeWK5UQeiXdWle7a0SyfUiQ0yY0MU1abkIMwiZ6yVT8sStEFqSVQmULD1KlV0VpXNgahmBhC6hghsORk0GaM9JRKVrGOqCxpmO0CiwZ6Vu0iwQgAI1x3B46QAKoIABJ4WBeIIhbabdau4l9wfDxXUCfT2fkyInPI0tV04sB0A6iz2-UKMQp2ptsSWc2tPWJ1rmdSW9pmbsr2X9ocRy3KcZznJEUTRMhMXQHFEXxTNezldcgPHEDd2OKkzkKY8i39LVz1ES8rVFW9BlFCx2yfGN3xqWRU35MwgRtVpfzmVcSAAdzwO50gAMVRAAhRFkGgMB5zWRcomXNjZS4nioH4xEhJEmA90pU4j0LG5T3woRCKvEi73IyiuR6OoVBIJRL3ECxmgbOoLAUVjoSSOTRwUwThNEhFkVRDFsTxAkZIWNzqEU5TRLUg9qXOHDtLw-hS06AybyMh8qPrOp+hUMQRnEOoJANFiIQQ9jwNRGgACUAFEx0qgBNWlcM1RKCLLW8lEsiR2lvdsxBtc0FH5Z520jSNurMLKJAcCFUHYCA4AEUq9j9FrGQAWjEc1NukRM9sTJySp7diKFQKh0lWks2sbQasoTVohrMOMwQUIVnKzEkDmoS6zz03oNGkSw1GGQrDXfc0rP6eQ1AK8zmNvd7EJzL0ft0ypKOMDQGCFEQGlaGjnwsTqSNqEVceYhhipdYL3WQzdUJ3LxUdav7QSFfVHzjCRcoekEtuojpLNSuQJGGORLER9jQr4zyVLAZnGTZ4nOZFHmFD5iGWj5AUJkNS9yPsI6-2zQgPA8OB4BPBLFfVq0WhFONbMvV6RHNEYpGBZR+sBAqhsl2U5vQAB9cI8HRESFdLIUmwNSNHxFW3XZjAwLD5WoU7Bd9OmUf2FnKxFI7alpuZIe2JEd2yGjjQawQ5+R8scpNDYcIA */
   id: "intentStatus",
   initial: "pending",
   context: ({ input }) => {
@@ -162,6 +199,10 @@ export const intentStatusMachine = setup({
     settled: {
       always: [
         {
+          target: "submittingTxHash",
+          guard: "isSwapWith1csDepositAddress",
+        },
+        {
           target: "success",
           guard: not("isWithdraw"),
         },
@@ -169,6 +210,36 @@ export const intentStatusMachine = setup({
           target: "waitingForBridge",
         },
       ],
+    },
+    submittingTxHash: {
+      invoke: {
+        src: "submitTxHashActor",
+        input: ({ context }) => {
+          assert(context.txHash != null, "txHash is null")
+          assert(
+            context.intentDescription.type === "swap" &&
+              context.intentDescription.depositAddress != null,
+            "depositAddress is null for swap intent"
+          )
+
+          return {
+            txHash: context.txHash,
+            depositAddress: context.intentDescription.depositAddress,
+          }
+        },
+        onDone: {
+          target: "success",
+          // Always proceed to success regardless of submitTxHash result
+        },
+        onError: {
+          target: "success",
+          // Proceed to success even on error - we don't want to block the user
+          actions: {
+            type: "logError",
+            params: ({ event }) => event,
+          },
+        },
+      },
     },
     waitingForBridge: {
       invoke: {

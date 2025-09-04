@@ -5,7 +5,7 @@ import {
   OneClickService,
   OpenAPI,
   QuoteRequest,
-  type QuoteResponse,
+  type SubmitDepositTxRequest,
 } from "@defuse-protocol/one-click-sdk-typescript"
 import { computeAppFeeBps } from "@src/components/DefuseSDK/utils/appFee"
 import { whitelabelTemplateFlag } from "@src/config/featureFlags"
@@ -15,6 +15,7 @@ import { APP_FEE_BPS, APP_FEE_RECIPIENT } from "@src/utils/environment"
 import { unstable_cache } from "next/cache"
 import z from "zod"
 import { isBaseToken } from "../../utils/token"
+import { type Result, err, ok } from "./1csResult"
 
 OpenAPI.BASE = z.string().parse(process.env.ONE_CLICK_URL)
 OpenAPI.TOKEN = z.string().parse(process.env.ONE_CLICK_API_KEY)
@@ -65,26 +66,19 @@ const getQuoteArgsSchema = z.object({
   authMethod: authMethodSchema,
 })
 
-export async function getQuote(
-  args: unknown
-): Promise<
-  { ok: QuoteResponse & { appFee: [string, bigint][] } } | { err: string }
-> {
-  const parseResult = getQuoteArgsSchema.safeParse(args)
-  if (!parseResult.success) {
-    return { err: `Invalid arguments: ${parseResult.error.message}` }
-  }
+export type GetQuoteResult = Awaited<ReturnType<typeof getQuote>>
 
-  const { userAddress, authMethod, ...quoteRequest } = parseResult.data
-  try {
+export const getQuote = safeRequest(
+  getQuoteArgsSchema,
+  async ({ userAddress, authMethod, ...quoteRequest }) => {
     const tokenIn = getTokenByAssetId(quoteRequest.originAsset)
     if (!tokenIn) {
-      return { err: `Token in ${quoteRequest.originAsset} not found` }
+      return err(`Token in ${quoteRequest.originAsset} not found`)
     }
 
     const tokenOut = getTokenByAssetId(quoteRequest.destinationAsset)
     if (!tokenOut) {
-      return { err: `Token out ${quoteRequest.destinationAsset} not found` }
+      return err(`Token out ${quoteRequest.destinationAsset} not found`)
     }
 
     const appFeeBps = computeAppFeeBps(
@@ -96,7 +90,7 @@ export async function getQuote(
     )
 
     if (appFeeBps > 0 && !APP_FEE_RECIPIENT) {
-      return { err: "App fee recipient is not configured" }
+      return err("App fee recipient is not configured")
     }
 
     const intentsUserId = authIdentity.authHandleToIntentsUserId(
@@ -118,19 +112,56 @@ export async function getQuote(
         : {}),
     }
 
-    return {
-      ok: {
-        ...(await OneClickService.getQuote(req)),
-        appFee: appFeeBps > 0 ? [[APP_FEE_RECIPIENT, BigInt(appFeeBps)]] : [],
-      },
+    const appFee: [string, bigint][] =
+      appFeeBps > 0 ? [[APP_FEE_RECIPIENT, BigInt(appFeeBps)]] : []
+
+    return ok({ ...(await OneClickService.getQuote(req)), appFee })
+  }
+)
+
+const submitTxHashArgsSchema = z.object({
+  txHash: z.string(),
+  depositAddress: z.string(),
+})
+
+// Ensure the zod schema inferred type exactly matches SubmitDepositTxRequest
+type SubmitTxHashArgs = z.infer<typeof submitTxHashArgsSchema>
+// This will cause a compile error if the types don't match exactly
+const __: SubmitTxHashArgs extends SubmitDepositTxRequest
+  ? AuthMethod extends AuthMethodSchema
+    ? true
+    : never
+  : never = true
+
+export const submitTxHash = safeRequest(
+  submitTxHashArgsSchema,
+  async (args) => {
+    const res = await OneClickService.submitDepositTx(args)
+    return ok(res)
+  }
+)
+
+function safeRequest<T, U>(
+  schema: z.ZodSchema<T>,
+  request: (args: T) => Promise<Result<U>>
+) {
+  return async (args: unknown) => {
+    const parseResult = schema.safeParse(args)
+
+    if (!parseResult.success) {
+      return err(`Invalid arguments: ${parseResult.error.message}`)
     }
-  } catch (error) {
-    return {
-      err: isServerError(error)
-        ? error.body.message
-        : error instanceof Error
-          ? error.message
-          : String(error),
+
+    try {
+      return await request(parseResult.data)
+    } catch (error) {
+      return err(
+        isServerError(error)
+          ? error.body.message
+          : error instanceof Error
+            ? error.message
+            : String(error)
+      )
     }
   }
 }

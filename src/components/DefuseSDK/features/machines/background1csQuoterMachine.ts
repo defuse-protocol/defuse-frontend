@@ -1,5 +1,8 @@
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
-import { getQuote as get1csQuoteApi } from "@src/components/DefuseSDK/features/machines/1cs"
+import {
+  type GetQuoteResult,
+  getQuote as get1csQuoteApi,
+} from "@src/components/DefuseSDK/features/machines/1cs"
 import { type ActorRef, type Snapshot, fromCallback } from "xstate"
 
 import { logger } from "../../logger"
@@ -36,18 +39,7 @@ type EmittedEvents = {
   type: "NEW_1CS_QUOTE"
   params: {
     quoteInput: Quote1csInput
-    result:
-      | {
-          ok: {
-            quote: {
-              amountIn?: string
-              amountOut?: string
-              deadline?: string
-            }
-            appFee: [string, bigint][]
-          }
-        }
-      | { err: string }
+    result: GetQuoteResult
     tokenInAssetId: string
     tokenOutAssetId: string
   }
@@ -57,17 +49,7 @@ export type ParentEvents = {
   type: "NEW_1CS_QUOTE"
   params: {
     quoteInput: Quote1csInput
-    result:
-      | {
-          ok: {
-            quote: {
-              amountIn: string
-              amountOut: string
-            }
-            appFee: [string, bigint][]
-          }
-        }
-      | { err: string }
+    result: GetQuoteResult
     tokenInAssetId: string
     tokenOutAssetId: string
   }
@@ -131,17 +113,7 @@ async function get1csQuote(
   signal: AbortSignal,
   quoteInput: Quote1csInput,
   onResult: (
-    result:
-      | {
-          ok: {
-            quote: {
-              amountIn: string
-              amountOut: string
-            }
-            appFee: [string, bigint][]
-          }
-        }
-      | { err: string },
+    result: GetQuoteResult,
     tokenInAssetId: string,
     tokenOutAssetId: string
   ) => void
