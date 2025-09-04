@@ -1,6 +1,6 @@
 "use client"
 
-import { OtcTakerWidget } from "@src/components/DefuseSDK"
+import { OtcTakerWidget } from "@src/components/DefuseSDK/features/otcDesk/components/OtcTakerWidget"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"

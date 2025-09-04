@@ -72,23 +72,21 @@ export const backgroundBalanceActor = fromPromise(
             accountId: normalizeToNearAddress(userWalletAddress),
           }),
         ])
+
+        if (nep141Balance === null) {
+          throw new Error("Failed to fetch nep141 NEAR balance")
+        }
+
         // This is unique case for NEAR, where we need to sum up the native balance and the NEP-141 balance
         if (address === "wrap.near") {
-          if (nep141Balance === null || nativeBalance === null) {
-            throw new Error("Failed to fetch NEAR balances")
+          if (nativeBalance === null) {
+            throw new Error("Failed to fetch native NEAR balance")
           }
           result.balance = nep141Balance + nativeBalance
           result.nearBalance = nativeBalance
           break
         }
-        const balance = await getNearNep141Balance({
-          tokenAddress: address,
-          accountId: normalizeToNearAddress(userWalletAddress),
-        })
-        if (balance === null) {
-          throw new Error("Failed to fetch NEAR balances")
-        }
-        result.balance = balance
+        result.balance = nep141Balance
         result.nearBalance = nativeBalance
         break
       }

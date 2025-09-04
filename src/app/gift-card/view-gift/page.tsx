@@ -1,6 +1,6 @@
 "use client"
 
-import { GiftTakerWidget } from "@src/components/DefuseSDK"
+import { GiftTakerWidget } from "@src/components/DefuseSDK/features/gift/components/GiftTakerWidget"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"

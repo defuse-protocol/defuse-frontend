@@ -14,11 +14,9 @@ export function renderDepositHint(
       <Callout.Root className="bg-warning px-3 py-2 text-warning-foreground">
         <Callout.Text className="text-xs">
           <span className="font-bold">
-            {/* biome-ignore lint/nursery/useConsistentCurlyBraces: <explanation> */}
             Only deposit {token.symbol}
             {formatShortenedContractAddress(token)} from the{" "}
             {reverseAssetNetworkAdapter[network]} network.
-            {/* biome-ignore lint/nursery/useConsistentCurlyBraces: <explanation> */}
           </span>{" "}
           <span>
             Depositing other assets or using a different network will result in

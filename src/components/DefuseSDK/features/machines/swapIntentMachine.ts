@@ -74,6 +74,7 @@ export type IntentDescription =
       type: "swap"
       totalAmountIn: TokenValue
       totalAmountOut: TokenValue
+      depositAddress?: string
     }
   | {
       type: "withdraw"

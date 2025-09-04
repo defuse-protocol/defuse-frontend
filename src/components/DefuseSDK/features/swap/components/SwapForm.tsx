@@ -63,26 +63,38 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const intentCreationResult = snapshot.context.intentCreationResult
   const { data: tokensUsdPriceData } = useTokensUsdPrices()
 
-  const { tokenIn, tokenOut, noLiquidity, insufficientTokenInAmount } =
-    SwapUIMachineContext.useSelector((snapshot) => {
-      const tokenIn = snapshot.context.formValues.tokenIn
-      const tokenOut = snapshot.context.formValues.tokenOut
-      const noLiquidity =
-        snapshot.context.quote &&
-        snapshot.context.quote.tag === "err" &&
-        snapshot.context.quote.value.reason === "ERR_NO_QUOTES"
-      const insufficientTokenInAmount =
-        snapshot.context.quote &&
-        snapshot.context.quote.tag === "err" &&
-        snapshot.context.quote.value.reason === "ERR_INSUFFICIENT_AMOUNT"
+  const {
+    tokenIn,
+    tokenOut,
+    noLiquidity,
+    insufficientTokenInAmount,
+    failedToGetAQuote,
+    quote1csError,
+  } = SwapUIMachineContext.useSelector((snapshot) => {
+    const tokenIn = snapshot.context.formValues.tokenIn
+    const tokenOut = snapshot.context.formValues.tokenOut
+    const noLiquidity =
+      snapshot.context.quote &&
+      snapshot.context.quote.tag === "err" &&
+      snapshot.context.quote.value.reason === "ERR_NO_QUOTES"
+    const failedToGetAQuote =
+      snapshot.context.quote &&
+      snapshot.context.quote.tag === "err" &&
+      snapshot.context.quote.value.reason === "ERR_NO_QUOTES_1CS"
+    const insufficientTokenInAmount =
+      snapshot.context.quote &&
+      snapshot.context.quote.tag === "err" &&
+      snapshot.context.quote.value.reason === "ERR_INSUFFICIENT_AMOUNT"
 
-      return {
-        tokenIn,
-        tokenOut,
-        noLiquidity: Boolean(noLiquidity),
-        insufficientTokenInAmount: Boolean(insufficientTokenInAmount),
-      }
-    })
+    return {
+      tokenIn,
+      tokenOut,
+      noLiquidity: Boolean(noLiquidity),
+      insufficientTokenInAmount: Boolean(insufficientTokenInAmount),
+      failedToGetAQuote: Boolean(failedToGetAQuote),
+      quote1csError: snapshot.context.quote1csError,
+    }
+  })
 
   // we need stable references to allow passing to useEffect
   const switchTokens = useCallback(() => {
@@ -98,7 +110,11 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     })
   }, [tokenIn, tokenOut, getValues, setValue, swapUIActorRef.send])
 
-  const { setModalType, payload } = useModalStore((state) => state)
+  const {
+    setModalType,
+    payload,
+    modalType: currentModalType,
+  } = useModalStore((state) => state)
 
   const openModalSelectAssets = (
     fieldName: string,
@@ -114,8 +130,9 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
   useEffect(() => {
     if (
+      currentModalType !== null ||
       (payload as ModalSelectAssetsPayload)?.modalType !==
-      ModalType.MODAL_SELECT_ASSETS
+        ModalType.MODAL_SELECT_ASSETS
     ) {
       return
     }
@@ -151,7 +168,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
           break
       }
     }
-  }, [payload, swapUIActorRef])
+  }, [payload, currentModalType, swapUIActorRef])
 
   const { onSubmit } = useContext(SwapSubmitterContext)
 
@@ -197,6 +214,10 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     tokensUsdPriceData
   )
 
+  const isLoading =
+    snapshot.matches({ editing: "waiting_quote" }) ||
+    snapshot.context.is1csFetching
+
   return (
     <Island className="widget-container flex flex-col gap-5">
       <TradeNavigationLinks
@@ -240,14 +261,21 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             className="border border-gray-4 rounded-b-xl mb-5"
             errors={errors}
             disabled={true}
-            isLoading={snapshot.matches({ editing: "waiting_quote" })}
+            isLoading={isLoading}
             usdAmount={
-              usdAmountOut !== null && usdAmountOut > 0
+              usdAmountOut !== null && usdAmountOut > 0 && !isLoading
                 ? `~${formatUsdAmount(usdAmountOut)}`
                 : null
             }
             balance={tokenOutBalance}
           />
+
+          {quote1csError && (
+            <div className="mb-5 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-700 dark:text-red-300">
+              <p className="font-medium">Error:</p>
+              <p>{quote1csError}</p>
+            </div>
+          )}
 
           <Flex align="stretch" direction="column">
             <AuthGate
@@ -267,17 +295,22 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                   type="submit"
                   size="lg"
                   fullWidth
-                  isLoading={snapshot.matches("submitting")}
+                  isLoading={
+                    snapshot.matches("submitting") ||
+                    snapshot.matches("submitting_1cs")
+                  }
                   disabled={
                     balanceInsufficient ||
                     noLiquidity ||
-                    insufficientTokenInAmount
+                    insufficientTokenInAmount ||
+                    failedToGetAQuote
                   }
                 >
                   {renderSwapButtonText(
                     noLiquidity,
                     balanceInsufficient,
-                    insufficientTokenInAmount
+                    insufficientTokenInAmount,
+                    failedToGetAQuote
                   )}
                 </ButtonCustom>
               )}
@@ -285,7 +318,10 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
           </Flex>
 
           <div className="mt-5">
-            <SwapPriceImpact amountIn={usdAmountIn} amountOut={usdAmountOut} />
+            <SwapPriceImpact
+              amountIn={usdAmountIn}
+              amountOut={isLoading ? null : usdAmountOut}
+            />
           </div>
           <SwapRateInfo tokenIn={tokenIn} tokenOut={tokenOut} />
         </Form>
@@ -319,11 +355,13 @@ function Intents({
 function renderSwapButtonText(
   noLiquidity: boolean,
   balanceInsufficient: boolean,
-  insufficientTokenInAmount: boolean
+  insufficientTokenInAmount: boolean,
+  failedToGetAQuote: boolean
 ) {
   if (noLiquidity) return "No liquidity providers"
   if (balanceInsufficient) return "Insufficient Balance"
   if (insufficientTokenInAmount) return "Insufficient amount"
+  if (failedToGetAQuote) return "Failed to get a quote"
   return "Swap"
 }
 
@@ -386,6 +424,18 @@ export function renderIntentCreationResult(
 
     case "ERR_WALLET_CANCEL_ACTION":
       content = null
+      break
+
+    case "ERR_1CS_QUOTE_FAILED":
+      content = "Failed to get quote. Please try again."
+      break
+
+    case "ERR_NO_DEPOSIT_ADDRESS":
+      content = "No deposit address in the quote"
+      break
+
+    case "ERR_TRANSFER_MESSAGE_FAILED":
+      content = "Failed to create transfer message. Please try again."
       break
 
     default:

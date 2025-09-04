@@ -12,6 +12,7 @@ import { SwapUIMachineFormSyncProvider } from "./SwapUIMachineFormSyncProvider"
 import { SwapUIMachineProvider } from "./SwapUIMachineProvider"
 
 export const SwapWidget = ({
+  is1cs,
   tokenList,
   userAddress,
   userChainType,
@@ -36,6 +37,7 @@ export const SwapWidget = ({
         <TokenListUpdater tokenList={tokenList} />
         <SwapFormProvider>
           <SwapUIMachineProvider
+            is1cs={is1cs}
             initialTokenIn={initialTokenIn}
             initialTokenOut={initialTokenOut}
             tokenList={tokenList}
