@@ -59,9 +59,12 @@ export const ONE_CLICK_SWAP_FRACTION =
     v.pipe(
       v.optional(v.string(), "0"),
       v.transform(Number),
-      v.number("ONE_CLICK_SWAP_PERCENTAGE must be a valid number"),
-      v.minValue(0, "ONE_CLICK_SWAP_PERCENTAGE must be at least 0"),
-      v.maxValue(100, "ONE_CLICK_SWAP_PERCENTAGE must be at most 100")
+      v.number("NEXT_PUBLIC_ONE_CLICK_SWAP_PERCENTAGE must be a valid number"),
+      v.minValue(0, "NEXT_PUBLIC_ONE_CLICK_SWAP_PERCENTAGE must be at least 0"),
+      v.maxValue(
+        100,
+        "NEXT_PUBLIC_ONE_CLICK_SWAP_PERCENTAGE must be at most 100"
+      )
     ),
     process.env.NEXT_PUBLIC_ONE_CLICK_SWAP_PERCENTAGE
   ) / 100
