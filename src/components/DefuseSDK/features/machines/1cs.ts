@@ -34,23 +34,48 @@ const getTokensCached = unstable_cache(
   }
 )
 
-export async function getQuote({
-  userAddress,
-  authMethod,
-  ...quoteRequest
-}: {
-  dry: boolean
-  slippageTolerance: number
-  quoteWaitingTimeMs: number
-  originAsset: string
-  destinationAsset: string
-  amount: string
-  deadline: string
-  userAddress: string
-  authMethod: AuthMethod
-}): Promise<
+const authMethodSchema = z.enum([
+  "near",
+  "evm",
+  "solana",
+  "webauthn",
+  "ton",
+  "stellar",
+  "tron",
+])
+
+// Ensure the zod schema inferred type exactly matches AuthMethod
+type AuthMethodSchema = z.infer<typeof authMethodSchema>
+// This will cause a compile error if the types don't match exactly
+const _: AuthMethodSchema extends AuthMethod
+  ? AuthMethod extends AuthMethodSchema
+    ? true
+    : never
+  : never = true
+
+const getQuoteArgsSchema = z.object({
+  dry: z.boolean(),
+  slippageTolerance: z.number(),
+  quoteWaitingTimeMs: z.number(),
+  originAsset: z.string(),
+  destinationAsset: z.string(),
+  amount: z.string(),
+  deadline: z.string(),
+  userAddress: z.string(),
+  authMethod: authMethodSchema,
+})
+
+export async function getQuote(
+  args: unknown
+): Promise<
   { ok: QuoteResponse & { appFee: [string, bigint][] } } | { err: string }
 > {
+  const parseResult = getQuoteArgsSchema.safeParse(args)
+  if (!parseResult.success) {
+    return { err: `Invalid arguments: ${parseResult.error.message}` }
+  }
+
+  const { userAddress, authMethod, ...quoteRequest } = parseResult.data
   try {
     const tokenIn = getTokenByAssetId(quoteRequest.originAsset)
     if (!tokenIn) {
