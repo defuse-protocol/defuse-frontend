@@ -12,6 +12,7 @@ const cspConfig = {
     "https://verify.walletconnect.org",
     "https://connect.solflare.com",
     "https://*.peersyst.tech",
+    "https://wallet.intear.tech",
   ],
   "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
   "font-src": ["'self'", "https://fonts.gstatic.com"],
@@ -95,6 +96,7 @@ const cspConfig = {
     /** HOT */
     "http://*.herewallet.app",
     "https://raw.githubusercontent.com",
+    "https://wallet.intear.tech/near-selector.js",
 
     /** Stellar Wallets */
     "https://api.web3modal.org",
