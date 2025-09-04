@@ -10,6 +10,6 @@ export function isFeatureEnabled(userId: string, fraction: number) {
   for (let i = 0; i < userId.length; i++) {
     hash = (hash * 31 + userId.charCodeAt(i)) >>> 0 // 32-bit unsigned
   }
-  const val = hash / 0xffffffff // normalize [0,1)
+  const val = hash / 0x100000000 // normalize [0,1)
   return val < fraction
 }

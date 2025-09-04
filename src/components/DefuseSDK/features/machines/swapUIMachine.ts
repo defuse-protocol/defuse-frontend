@@ -38,7 +38,9 @@ import {
   backgroundQuoterMachine,
 } from "./backgroundQuoterMachine"
 
+import type { GetQuoteResult } from "@src/components/DefuseSDK/features/machines/1cs"
 import { isBaseToken } from "@src/components/DefuseSDK/utils/token"
+import { isOk } from "./1csResult"
 import {
   type BalanceMapping,
   type Events as DepositedBalanceEvents,
@@ -132,18 +134,7 @@ export const swapUIMachine = setup({
       | {
           type: "NEW_1CS_QUOTE"
           params: {
-            result:
-              | {
-                  ok: {
-                    quote: {
-                      amountIn: string
-                      amountOut: string
-                      deadline?: string
-                    }
-                    appFee: [string, bigint][]
-                  }
-                }
-              | { err: string }
+            result: GetQuoteResult
             tokenInAssetId: string
             tokenOutAssetId: string
           }
@@ -369,7 +360,7 @@ export const swapUIMachine = setup({
 
         const { result, tokenInAssetId, tokenOutAssetId } = event.params
 
-        if ("ok" in result) {
+        if (isOk(result)) {
           const quote: QuoteResult = {
             tag: "ok",
             value: {
