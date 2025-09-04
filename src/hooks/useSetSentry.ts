@@ -41,7 +41,9 @@ export const useSentrySetUser = () => {
         }
         case "near": {
           if (!nearWallet) {
-            throw new Error("Near wallet not connected")
+            // Connector not initialized yet; report minimal info
+            walletProvider = "near"
+            break
           }
           const wallet = await nearWallet.wallet()
           walletProvider = "near"

@@ -1,7 +1,6 @@
 "use client"
 
 import { NearConnector } from "@hot-labs/near-connect"
-import type { FinalExecutionOutcome } from "@near-wallet-selector/core"
 import type {
   SignMessageParams,
   SignedMessage,
@@ -10,6 +9,7 @@ import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import type { SignAndSendTransactionsParams } from "@src/types/interfaces"
 import { logger } from "@src/utils/logger"
 import { getDomainMetadataParams } from "@src/utils/whitelabelDomainMetadata"
+import type { providers } from "near-api-js"
 import {
   type FC,
   type ReactNode,
@@ -32,7 +32,7 @@ interface NearWalletContextValue {
   }>
   signAndSendTransactions: (
     params: SignAndSendTransactionsParams
-  ) => Promise<FinalExecutionOutcome[]>
+  ) => Promise<providers.FinalExecutionOutcome[]>
 }
 
 export const NearWalletContext = createContext<NearWalletContextValue | null>(
@@ -47,14 +47,12 @@ export const NearWalletProvider: FC<{ children: ReactNode }> = ({
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
 
   const init = useCallback(async () => {
-    const _connector = new NearConnector({
+    const connector = new NearConnector({
       network: "mainnet",
-      walletConnect: {
-        ...getDomainMetadataParams(whitelabelTemplate),
-      },
+      walletConnect: getDomainMetadataParams(whitelabelTemplate),
     })
 
-    setConnector(_connector)
+    setConnector(connector)
   }, [whitelabelTemplate])
 
   const checkExistingWallet = useCallback(async () => {
@@ -71,7 +69,7 @@ export const NearWalletProvider: FC<{ children: ReactNode }> = ({
   useEffect(() => {
     init().catch((err) => {
       logger.error(err)
-      alert("Failed to initialise wallet selector")
+      alert("Failed to initialize NEAR wallet")
     })
   }, [init])
 
@@ -81,14 +79,18 @@ export const NearWalletProvider: FC<{ children: ReactNode }> = ({
     }
   }, [connector, checkExistingWallet])
 
-  connector?.on("wallet:signOut", async () => {
-    setAccountId(null)
-  })
-
-  connector?.on("wallet:signIn", async (t) => {
-    const address = t.accounts[0].accountId
-    setAccountId(address)
-  })
+  useEffect(() => {
+    if (!connector) return
+    const onSignOut = () => setAccountId(null)
+    const onSignIn = (t: { accounts: { accountId: string }[] }) =>
+      setAccountId(t.accounts?.[0]?.accountId ?? null)
+    connector.on("wallet:signOut", onSignOut)
+    connector.on("wallet:signIn", onSignIn)
+    return () => {
+      connector.off("wallet:signOut", onSignOut)
+      connector.off("wallet:signIn", onSignIn)
+    }
+  }, [connector])
 
   const connect = useCallback(async () => {
     if (!connector) return
