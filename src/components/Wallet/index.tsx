@@ -56,6 +56,7 @@ const ConnectWallet = () => {
         <Popover.Content
           maxWidth={{ initial: "90vw", xs: "480px" }}
           minWidth={{ initial: "300px", xs: "330px" }}
+          maxHeight="90vh"
           className="md:mr-[48px] dark:bg-black-800 rounded-2xl"
         >
           <Text size="1">How do you want to sign in?</Text>
