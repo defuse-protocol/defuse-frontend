@@ -7,6 +7,7 @@ const cspConfig = {
   "default-src": ["'self'"],
   "frame-src": [
     "'self'",
+    "data:",
     "https://hot-labs.org",
     "https://widget.solflare.com",
     "https://verify.walletconnect.org",
@@ -23,6 +24,7 @@ const cspConfig = {
     "'unsafe-eval'",
     "https://www.googletagmanager.com",
     "https://beacon-v2.helpscout.net",
+    "https://vercel.live",
   ],
   "worker-src": [
     "'self'",
