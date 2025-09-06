@@ -1771,7 +1771,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
     bridge: "direct",
     symbol: "KAT",
     name: "NEARKAT",
-    tags: [],
+    tags: ["feature:kat"],
   },
   {
     defuseAssetId: "nep141:aptos.omft.near",
