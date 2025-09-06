@@ -111,17 +111,6 @@ export const NearWalletProvider: FC<{ children: ReactNode }> = ({
       const wallet = await connector.wallet()
       const signatureData = await wallet.signMessage(message)
 
-      // TODO: This is a temporary workaround until Intear Wallet updates are included in @hot-labs/near-connect package to follow the standard signature format
-      // Intear Wallet returns base58 encoded signatures with `ed25519:` prefix, but we expect base64 encoded signatures
-      if (wallet.manifest.id === "intear-wallet") {
-        const rawSignature = base58.decode(
-          signatureData.signature.replace("ed25519:", "")
-        )
-        Object.assign(signatureData, {
-          signature: base64.encode(new Uint8Array(rawSignature)),
-        })
-      }
-
       return {
         signatureData,
         signedData: message,
