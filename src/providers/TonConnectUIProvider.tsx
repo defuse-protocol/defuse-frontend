@@ -8,7 +8,7 @@ function TonConnectUIProviderWrapper({ children }: { children: ReactNode }) {
   return (
     <TonConnectUIProvider
       manifestUrl={
-        APP_ENV
+        APP_ENV === "development"
           ? // TON Keeper extension does not load manifest from http://localhost, so we fallback to the demo app
             "https://ton-connect.github.io/demo-dapp-with-wallet/tonconnect-manifest.json"
           : `${window.location.origin}/tonconnect-manifest.json`
