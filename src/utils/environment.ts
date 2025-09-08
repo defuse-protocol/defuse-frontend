@@ -28,6 +28,9 @@ export const INTENTS_ENV = v.parse(
 
 export const CLICKHOUSE_SERVICE_URL = process.env.CLICKHOUSE_SERVICE_URL
 export const CLICKHOUSE_API_KEY = process.env.CLICKHOUSE_API_KEY
+export const CLICK_HOUSE_URL = process.env.CLICK_HOUSE_URL
+export const CLICK_HOUSE_USERNAME = process.env.CLICK_HOUSE_USERNAME
+export const CLICK_HOUSE_PASSWORD = process.env.CLICK_HOUSE_PASSWORD
 
 export const MIXPANEL_TOKEN = process.env.NEXT_PUBLIC_MIXPANEL_TOKEN
 export const HELPSCOUT_BEACON_ID = process.env.NEXT_PUBLIC_HELPSCOUT_BEACON_ID
@@ -55,3 +58,11 @@ export const ONE_CLICK_SWAP_FRACTION =
     ),
     process.env.NEXT_PUBLIC_ONE_CLICK_SWAP_PERCENTAGE
   ) / 100
+
+export const ONE_CLICK_URL = process.env.ONE_CLICK_URL
+export const ONE_CLICK_API_KEY = process.env.ONE_CLICK_API_KEY
+
+export const JWT_PUBLIC_KEY = process.env.JWT_PUBLIC_KEY
+export const TEMP_API_PASS = process.env.TEMP_API_PASS
+
+export const CRON_SECRET = process.env.CRON_SECRET
