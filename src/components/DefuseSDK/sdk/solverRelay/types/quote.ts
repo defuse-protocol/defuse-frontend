@@ -1,12 +1,12 @@
+import type { solverRelay } from "@defuse-protocol/internal-utils"
 import type { QuoteError } from "../errors/quote"
-import type { GetQuoteParams } from "../getQuote"
 
 export type AggregatedQuote = {
   quoteHashes: string[]
   /** Earliest expiration time in ISO-8601 format */
   expirationTime: string
   tokenDeltas: [string, bigint][]
-  quoteParams: GetQuoteParams["quoteParams"][]
+  quoteParams: solverRelay.GetQuoteParams["quoteParams"][]
   isSimulation: boolean
 } & (
   | { fillStatus: "FULL" }
