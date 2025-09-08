@@ -7,14 +7,9 @@ import { useContext } from "react"
 
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import Themes from "@src/types/themes"
-import {
-  NEXT_PUBLIC_LINK_DOCS,
-  NEXT_PUBLIC_PUBLIC_MAIL,
-  NEXT_PUBLIC_PUBLIC_TG,
-} from "@src/utils/environment"
+import { LINK_DOCS, LINK_TG, MAIL } from "@src/utils/environment"
 
 import AddTurboChainButton from "./AddTurboChainButton"
-import ComingSoon from "./ComingSoon"
 
 const Settings = () => {
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
@@ -47,7 +42,7 @@ const Settings = () => {
 
             <div className="flex flex-col justify-between items-center gap-1.5">
               <a
-                href={NEXT_PUBLIC_LINK_DOCS}
+                href={LINK_DOCS}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex justify-between items-center gap-2"
@@ -59,7 +54,7 @@ const Settings = () => {
               </a>
 
               <a
-                href={NEXT_PUBLIC_PUBLIC_TG}
+                href={LINK_TG}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex justify-between items-center gap-2"
@@ -71,7 +66,7 @@ const Settings = () => {
               </a>
 
               <a
-                href={`mailto:${NEXT_PUBLIC_PUBLIC_MAIL}`}
+                href={`mailto:${MAIL}`}
                 className="w-full flex justify-between items-center gap-2"
               >
                 <Text size="2" weight="medium">
@@ -119,7 +114,7 @@ const Settings = () => {
 }
 
 const DarkMode = () => {
-  const { theme, setTheme, resolvedTheme } = useTheme()
+  const { setTheme, resolvedTheme } = useTheme()
 
   // This accounts for system preference when theme is set to "system"
   const isDarkMode = resolvedTheme === Themes.DARK

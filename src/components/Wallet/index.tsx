@@ -12,7 +12,6 @@ import useShortAccountId from "@src/hooks/useShortAccountId"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { useSignInWindowOpenState } from "@src/stores/useSignInWindowOpenState"
 import { mapStringToEmojis } from "@src/utils/emoji"
-import { TURN_OFF_APPS } from "@src/utils/environment"
 import { TonConnectButton } from "./TonConnectButton"
 
 const ConnectWallet = () => {
@@ -37,17 +36,11 @@ const ConnectWallet = () => {
     return signIn({ id: ChainType.WebAuthn })
   }
 
-  if (!state.address || TURN_OFF_APPS) {
+  if (!state.address) {
     return (
       <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
         <Popover.Trigger>
-          <Button
-            type={"button"}
-            variant={"solid"}
-            size={"2"}
-            radius={"full"}
-            disabled={TURN_OFF_APPS}
-          >
+          <Button type={"button"} variant={"solid"} size={"2"} radius={"full"}>
             <Text weight="bold" wrap="nowrap">
               Sign in
             </Text>
@@ -361,7 +354,6 @@ const ConnectWallet = () => {
             color={"gray"}
             size={"2"}
             radius={"full"}
-            disabled={TURN_OFF_APPS}
             className="font-bold text-gray-12"
           >
             {state.chainType !== "webauthn" ? (

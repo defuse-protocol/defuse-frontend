@@ -3,7 +3,7 @@
 import { Button } from "@radix-ui/themes"
 
 import { settings } from "@src/config/settings"
-import { APP_URL } from "@src/utils/environment"
+import { BASE_URL } from "@src/utils/environment"
 
 const TryDefuse = () => {
   return (
@@ -15,7 +15,7 @@ const TryDefuse = () => {
         Multichain DeFi Hub
       </p>
       <Button
-        onClick={() => window.open(APP_URL)}
+        onClick={() => window.open(BASE_URL)}
         size="4"
         variant="solid"
         color="orange"

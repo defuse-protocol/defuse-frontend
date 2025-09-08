@@ -3,7 +3,7 @@
 import { Button, Text } from "@radix-ui/themes"
 
 import { settings } from "@src/config/settings"
-import { NEXT_PUBLIC_PUBLIC_MAIL, SOCIAL_LINK_X } from "@src/utils/environment"
+import { LINK_X, MAIL } from "@src/utils/environment"
 
 const Interested = () => {
   return (
@@ -23,7 +23,7 @@ const Interested = () => {
         <div className="flex-1 md:min-w-[170px] w-full">
           <Button
             className="w-full cursor-pointer"
-            onClick={() => window.open(`mailto:${NEXT_PUBLIC_PUBLIC_MAIL}`)}
+            onClick={() => window.open(`mailto:${MAIL}`)}
             variant="solid"
             color="orange"
             size="4"
@@ -35,7 +35,7 @@ const Interested = () => {
         </div>
         <div className="flex-1 md:min-w-[170px] w-full">
           <Button
-            onClick={() => window.open(SOCIAL_LINK_X)}
+            onClick={() => window.open(LINK_X)}
             color="orange"
             size="4"
             variant="outline"
