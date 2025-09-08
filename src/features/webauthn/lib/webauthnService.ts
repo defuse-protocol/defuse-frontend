@@ -231,9 +231,13 @@ function formatPublicKey(rawPublicKey: Uint8Array, algorithm: number): string {
 }
 
 export function isSupportedByBrowser(): boolean {
+  if (typeof window !== "undefined" && typeof navigator !== "undefined") {
+    return false
+  }
+
   return (
-    typeof window !== "undefined" &&
-    window?.PublicKeyCredential !== undefined &&
-    typeof window.PublicKeyCredential === "function"
+    typeof window.PublicKeyCredential === "function" &&
+    typeof navigator.credentials?.create === "function" &&
+    typeof navigator.credentials?.get === "function"
   )
 }
