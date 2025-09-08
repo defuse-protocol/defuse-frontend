@@ -71,34 +71,6 @@ const nextConfig = {
 
     return config
   },
-  env: {
-    nearChainId: process.env.NEAR_CAHIN_ID,
-    nearNodeUrl: process.env.NEAR_NODE_URL,
-    ethChainId: process.env.ETH_CHAIN_ID,
-    baseChainId: process.env.BASE_CHAIN_ID,
-    environment: process.env.ENVIRONMENT,
-    turnOffApps: process.env.NEXT_PUBLIC_TURN_OFF_APPS,
-    turnOffLanding: process.env.NEXT_PUBLIC_TURN_OFF_LANDING,
-    solverRelay: process.env.NEXT_PUBLIC_SOLVER_RELAY_API,
-    coingeckoApiKey: process.env.COINGECKO_API_KEY,
-    walletConnectProjectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID,
-    appUrl: process.env.NEXT_PUBLIC_APP_URL,
-    nearExplorer: process.env.NEXT_PUBLIC_NEAR_EXPLORER,
-    baseExplorer: process.env.NEXT_PUBLIC_BASE_EXPLORER,
-    bitcoinExplorer: process.env.NEXT_PUBLIC_BITCOIN_EXPLORER,
-    publicMail: process.env.NEXT_PUBLIC_PUBLIC_MAIL,
-    socialX: process.env.NEXT_PUBLIC_LINK_X,
-    socialDiscord: process.env.NEXT_PUBLIC_LINK_DISCORD,
-    socialDocs: process.env.NEXT_PUBLIC_LINK_DOCS,
-    // Specific [Keys] has to be below.
-    NEAR_ENV: process.env.NEAR_ENV,
-    SOLVER_RELAY_0_URL: process.env.SOLVER_RELAY_0_URL,
-    REFERRAL_ACCOUNT: process.env.REFERRAL_ACCOUNT,
-    BASE_RPC: process.env.BASE_QUICKNODE_URL,
-    BITCOIN_INFO_URL: process.env.BITCOIN_INFO_URL,
-    COINGECKO_API_URL: process.env.COINGECKO_API_URL,
-    SOLANA_RPC_URL: process.env.SOLANA_RPC_URL,
-  },
   images: {
     remotePatterns: [
       {
