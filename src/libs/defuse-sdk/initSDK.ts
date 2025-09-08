@@ -11,7 +11,7 @@ export function initSDK() {
   }
   hasInitialized = true
 
-  if (APP_ENV) {
+  if (APP_ENV === "development") {
     configureSDK({
       env: INTENTS_ENV,
       logger: {

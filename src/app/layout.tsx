@@ -139,7 +139,9 @@ const RootLayout = async ({
                   </StellarWalletProvider>
                 </SolanaWalletProvider>
               </NearWalletProvider>
-              {APP_ENV && <ReactQueryDevtools initialIsOpen={false} />}
+              {APP_ENV === "development" && (
+                <ReactQueryDevtools initialIsOpen={false} />
+              )}
             </QueryClientProvider>
           </WagmiProvider>
         </ThemeProvider>

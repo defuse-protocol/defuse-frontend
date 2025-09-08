@@ -1,6 +1,6 @@
 import * as v from "valibot"
 
-export const APP_ENV = process.env.NEXT_PUBLIC_APP_ENV === "development"
+export const APP_ENV = process.env.NEXT_PUBLIC_APP_ENV
 export const RUNTIME_NODE_JS = process.env.NEXT_RUNTIME === "nodejs"
 export const RUNTIME_EDGE = process.env.NEXT_RUNTIME === "edge"
 
