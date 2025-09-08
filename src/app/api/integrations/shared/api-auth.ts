@@ -1,6 +1,6 @@
+import { JWT_PUBLIC_KEY, TEMP_API_PASS } from "@src/utils/environment"
 import type { JWTPayload } from "jose"
 import type { NextRequest } from "next/server"
-
 import { type Result, err, ok } from "./result"
 import type { ApiResult, ErrorWithStatus } from "./types"
 
@@ -40,14 +40,12 @@ export async function verifyApiKey(
       return tokenResult
     }
 
-    const publicKey = process.env.JWT_PUBLIC_KEY
-
-    if (!publicKey) {
+    if (!JWT_PUBLIC_KEY) {
       return err("Internal Server Error", "Missing JWT public key")
     }
 
     // temporary allow only with one password
-    if (tokenResult.ok !== process.env.TEMP_API_PASS) {
+    if (tokenResult.ok !== TEMP_API_PASS) {
       return err("Bad Request", "Invalid API key")
     }
 

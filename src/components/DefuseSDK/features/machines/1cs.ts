@@ -11,13 +11,18 @@ import { computeAppFeeBps } from "@src/components/DefuseSDK/utils/appFee"
 import { whitelabelTemplateFlag } from "@src/config/featureFlags"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { referralMap } from "@src/hooks/useIntentsReferral"
-import { APP_FEE_BPS, APP_FEE_RECIPIENT } from "@src/utils/environment"
+import {
+  APP_FEE_BPS,
+  APP_FEE_RECIPIENT,
+  ONE_CLICK_API_KEY,
+  ONE_CLICK_URL,
+} from "@src/utils/environment"
 import { unstable_cache } from "next/cache"
 import z from "zod"
 import { isBaseToken } from "../../utils/token"
 
-OpenAPI.BASE = z.string().parse(process.env.ONE_CLICK_URL)
-OpenAPI.TOKEN = z.string().parse(process.env.ONE_CLICK_API_KEY)
+OpenAPI.BASE = z.string().parse(ONE_CLICK_URL)
+OpenAPI.TOKEN = z.string().parse(ONE_CLICK_API_KEY)
 
 export async function getTokens() {
   return await getTokensCached()

@@ -11,6 +11,7 @@ import type {
   LastLiquidityCheckStatus,
   MaxLiquidity,
 } from "@src/types/interfaces"
+import { CRON_SECRET } from "@src/utils/environment"
 import { logger } from "@src/utils/logger"
 import { joinAddresses } from "@src/utils/tokenUtils"
 
@@ -26,7 +27,7 @@ export async function GET(req: NextRequest) {
     )
   }
 
-  if (secret !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (secret !== `Bearer ${CRON_SECRET}`) {
     logger.error("Found incorrect secret")
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }

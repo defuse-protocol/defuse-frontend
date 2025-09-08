@@ -1,9 +1,14 @@
 import { createClient } from "@clickhouse/client"
+import {
+  CLICK_HOUSE_PASSWORD,
+  CLICK_HOUSE_URL,
+  CLICK_HOUSE_USERNAME,
+} from "@src/utils/environment"
 
 export const clickHouseClient = createClient({
-  url: process.env.CLICK_HOUSE_URL,
-  username: process.env.CLICK_HOUSE_USERNAME,
-  password: process.env.CLICK_HOUSE_PASSWORD,
+  url: CLICK_HOUSE_URL,
+  username: CLICK_HOUSE_USERNAME,
+  password: CLICK_HOUSE_PASSWORD,
 })
 
 /**
