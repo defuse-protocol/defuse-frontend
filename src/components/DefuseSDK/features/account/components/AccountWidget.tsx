@@ -1,12 +1,13 @@
 "use client"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { authIdentity } from "@defuse-protocol/internal-utils"
+import { getTokenId } from "@src/components/DefuseSDK/utils/token"
+import { useMemo } from "react"
 import { WidgetRoot } from "../../../components/WidgetRoot"
 import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
 import type { RenderHostAppLink } from "../../../types/hostAppLink"
 import { useWatchHoldings } from "../hooks/useWatchHoldings"
 import { computeTotalUsdValue } from "../utils/holdingsUtils"
-
 import { HoldingsIsland } from "./HoldingsIsland"
 import { SummaryIsland } from "./SummaryIsland"
 
@@ -29,6 +30,19 @@ export function AccountWidget({
     userAddress != null && userChainType != null
       ? authIdentity.authHandleToIntentsUserId(userAddress, userChainType)
       : null
+
+  // This case for `flatTokenList=1`, where we combine all tokens into one list.
+  // So there might be tokens with the same `defuseAssetId`, so we need to remove them.
+  // Otherwise, we'll end up showing the same token multiple times.
+  tokenList = useMemo(() => {
+    const map = new Map()
+    for (const t of tokenList) {
+      if (!map.has(getTokenId(t))) {
+        map.set(getTokenId(t), t)
+      }
+    }
+    return Array.from(map.values())
+  }, [tokenList])
 
   const holdings = useWatchHoldings({ userId, tokenList })
   const totalValueUsd = holdings ? computeTotalUsdValue(holdings) : undefined
