@@ -14,7 +14,6 @@
     "update-types": "supabase gen types --lang=typescript --local > src/types/database-generated.ts"
   },
   "dependencies": {
-    "@clickhouse/client": "^1.11.2",
     "@creit.tech/stellar-wallets-kit": "^1.8.0",
     "@defuse-protocol/contract-types": "0.1.0",
     "@defuse-protocol/intents-sdk": "0.19.3",
@@ -81,7 +80,6 @@
     "ethers": "^6.13.2",
     "events": "^3.3.0",
     "framer-motion": "^11.15.0",
-    "jose": "^6.0.12",
     "mixpanel-browser": "^2.65.0",
     "msw": "^2.7.0",
     "near-api-js": "^5.1.1",
