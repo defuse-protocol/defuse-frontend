@@ -88,11 +88,11 @@ export function useWalletAgnosticSignMessage() {
       }
 
       case ChainType.Stellar: {
-        const { signatureData, signatureType } = await signMessageStellar(
+        const signatureData = await signMessageStellar(
           walletMessage.STELLAR.message
         )
         return {
-          type: signatureType,
+          type: "STELLAR_SEP53",
           signatureData,
           signedData: walletMessage.STELLAR,
         }
