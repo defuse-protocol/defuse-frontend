@@ -232,7 +232,7 @@ function formatPublicKey(rawPublicKey: Uint8Array, algorithm: number): string {
 
 export function isSupportedByBrowser(): boolean {
   return (
-    window?.PublicKeyCredential !== undefined &&
+    typeof window !== "undefined" &&
     typeof window.PublicKeyCredential === "function"
   )
 }
