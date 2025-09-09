@@ -62,7 +62,4 @@ export const ONE_CLICK_SWAP_FRACTION =
 export const ONE_CLICK_URL = process.env.ONE_CLICK_URL
 export const ONE_CLICK_API_KEY = process.env.ONE_CLICK_API_KEY
 
-export const JWT_PUBLIC_KEY = process.env.JWT_PUBLIC_KEY
-export const TEMP_API_PASS = process.env.TEMP_API_PASS
-
 export const CRON_SECRET = process.env.CRON_SECRET
