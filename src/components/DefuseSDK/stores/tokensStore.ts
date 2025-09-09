@@ -1,3 +1,4 @@
+import { getTokenId } from "@src/components/DefuseSDK/utils/token"
 import { createStore } from "zustand/vanilla"
 import type { BaseTokenInfo, UnifiedTokenInfo } from "../types/base"
 
@@ -38,13 +39,12 @@ export const createTokensStore = (
       set((state) => {
         const updatedData = new Map(state.data)
         for (const item of data) {
-          const defuseAssetId =
-            "defuseAssetId" in item ? item.defuseAssetId : item.unifiedAssetId
+          const tokenId = getTokenId(item)
 
           // Unified tokens may contain multiple tokens with the same defuseAssetId,
           // we take only the first one.
-          if (!updatedData.has(defuseAssetId)) {
-            updatedData.set(defuseAssetId, item)
+          if (!updatedData.has(tokenId)) {
+            updatedData.set(tokenId, item)
           }
         }
         return { data: updatedData, isFetched: true, isLoading: false }
