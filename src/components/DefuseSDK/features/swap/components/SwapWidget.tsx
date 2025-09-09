@@ -58,6 +58,7 @@ export const SwapWidget = ({
                 <SwapForm
                   isLoggedIn={userAddress != null}
                   renderHostAppLink={renderHostAppLink}
+                  is1cs={is1cs}
                 />
               </SwapSubmitterProvider>
             </SwapUIMachineFormSyncProvider>

@@ -98,7 +98,6 @@ export function SwapRateInfo({ tokenIn, tokenOut }: SwapRateInfoProps) {
                             minAmountOut.amount,
                             minAmountOut.decimals,
                             { fractionDigits: 5 }
-                            // biome-ignore lint/nursery/useConsistentCurlyBraces: space is intentional
                           )}{" "}
                           {tokenOut.symbol}
                         </div>
