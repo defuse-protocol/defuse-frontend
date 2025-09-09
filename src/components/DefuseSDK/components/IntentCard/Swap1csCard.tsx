@@ -1,29 +1,56 @@
 import { Box, Button, Flex, Link, Spinner, Text } from "@radix-ui/themes"
 import { useSelector } from "@xstate/react"
 import type { ActorRefFrom } from "xstate"
-import type { intentStatusMachine } from "../../features/machines/intentStatusMachine"
-import { assert } from "../../utils/assert"
+import {
+  type oneClickStatusMachine,
+  oneClickStatuses,
+  statusesToTrack,
+} from "../../features/machines/oneClickStatusMachine"
 import { formatTokenValue } from "../../utils/format"
 import { AssetComboIcon } from "../Asset/AssetComboIcon"
 import { CopyButton } from "./CopyButton"
-import { renderStatusLabel } from "./WithdrawIntentCard"
 
-type SwapIntentCardProps = {
-  intentStatusActorRef: ActorRefFrom<typeof intentStatusMachine>
+type Swap1csCardProps = {
+  oneClickStatusActorRef: ActorRefFrom<typeof oneClickStatusMachine>
 }
 
-const NEAR_EXPLORER = "https://nearblocks.io"
+const EXPLORER_NEAR_INTENTS = "https://explorer.near-intents.org"
 
-export function SwapIntentCard({ intentStatusActorRef }: SwapIntentCardProps) {
-  const state = useSelector(intentStatusActorRef, (state) => state)
-  const { tokenIn, tokenOut, intentDescription } = state.context
-  assert(intentDescription.type === "swap", "Type must be swap")
-  const { totalAmountIn, totalAmountOut } = intentDescription
+function getStatusDisplayInfo(status: string | null) {
+  if (!status) return { label: "Checking...", color: undefined }
 
-  const txUrl =
-    state.context.txHash != null
-      ? `${NEAR_EXPLORER}/txns/${state.context.txHash}`
-      : null
+  const displayStatus =
+    status in oneClickStatuses
+      ? oneClickStatuses[status as keyof typeof oneClickStatuses]
+      : status
+
+  const isTracking = status && (statusesToTrack as Set<string>).has(status)
+  const isSuccess = status === "SUCCESS"
+  const isFailed = status === "FAILED" || status === "REFUNDED"
+
+  return {
+    label: displayStatus,
+    color: isFailed ? "red" : isSuccess ? "green" : undefined,
+    showSpinner: isTracking,
+  }
+}
+
+export function Swap1csCard({ oneClickStatusActorRef }: Swap1csCardProps) {
+  const state = useSelector(oneClickStatusActorRef, (state) => state)
+  const {
+    tokenIn,
+    tokenOut,
+    depositAddress,
+    status,
+    totalAmountIn,
+    totalAmountOut,
+  } = state.context
+
+  const statusInfo = getStatusDisplayInfo(status)
+
+  const explorerUrl = depositAddress
+    ? `${EXPLORER_NEAR_INTENTS}/transactions/${depositAddress}`
+    : null
 
   return (
     <Flex p="2" gap="3">
@@ -40,27 +67,23 @@ export function SwapIntentCard({ intentStatusActorRef }: SwapIntentCardProps) {
           </Box>
 
           <Flex gap="1" align="center">
-            {(state.matches("pending") || state.matches("checking")) && (
+            {(statusInfo.showSpinner || state.matches("checking")) && (
               <Spinner size="1" />
             )}
 
             <Text
               size="1"
               weight="medium"
-              color={
-                state.matches("error") || state.matches("not_valid")
-                  ? "red"
-                  : undefined
-              }
+              color={statusInfo.color as "red" | "green" | undefined}
             >
-              {renderStatusLabel(state.value)}
+              {statusInfo.label}
             </Text>
 
             {state.can({ type: "RETRY" }) && (
               <Button
                 size="1"
                 variant="outline"
-                onClick={() => intentStatusActorRef.send({ type: "RETRY" })}
+                onClick={() => oneClickStatusActorRef.send({ type: "RETRY" })}
               >
                 retry
               </Button>
@@ -97,31 +120,18 @@ export function SwapIntentCard({ intentStatusActorRef }: SwapIntentCardProps) {
         </Flex>
 
         <Flex direction="column" gap="1" mt="1">
-          {state.context.intentHash != null && (
+          {depositAddress && explorerUrl && (
             <Flex align="center" gap="1">
               <Text size="1" color="gray">
-                Intent: {truncateHash(state.context.intentHash)}
-              </Text>
-
-              <CopyButton
-                text={state.context.intentHash}
-                ariaLabel="Copy Intent hash"
-              />
-            </Flex>
-          )}
-
-          {state.context.txHash != null && txUrl != null && (
-            <Flex align="center" gap="1">
-              <Text size="1" color="gray">
-                Transaction:{" "}
-                <Link href={txUrl} target="_blank" color="blue">
-                  {truncateHash(state.context.txHash)}
+                Track your swap progress on explorer:{" "}
+                <Link href={explorerUrl} target="_blank" color="blue">
+                  {truncateHash(depositAddress)}
                 </Link>
               </Text>
 
               <CopyButton
-                text={state.context.txHash}
-                ariaLabel="Copy Transaction hash"
+                text={depositAddress}
+                ariaLabel="Copy Deposit address"
               />
             </Flex>
           )}

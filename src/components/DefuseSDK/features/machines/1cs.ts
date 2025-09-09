@@ -159,3 +159,22 @@ function getTokenByAssetId(assetId: string) {
       : token.groupedTokens.some((token) => token.defuseAssetId === assetId)
   )
 }
+
+export async function getTxStatus(arg: unknown) {
+  const depositAddress = z.string().safeParse(arg)
+  if (!depositAddress.success) {
+    return { err: `Invalid argument: ${depositAddress.error.message}` }
+  }
+
+  try {
+    return { ok: await OneClickService.getExecutionStatus(depositAddress.data) }
+  } catch (error) {
+    return {
+      err: isServerError(error)
+        ? error.body.message
+        : error instanceof Error
+          ? error.message
+          : String(error),
+    }
+  }
+}

@@ -19,6 +19,7 @@ import { ButtonCustom } from "../../../components/Button/ButtonCustom"
 import { ButtonSwitch } from "../../../components/Button/ButtonSwitch"
 import { Form } from "../../../components/Form"
 import { FieldComboInput } from "../../../components/Form/FieldComboInput"
+import { Swap1csCard } from "../../../components/IntentCard/Swap1csCard"
 import { SwapIntentCard } from "../../../components/IntentCard/SwapIntentCard"
 import { Island } from "../../../components/Island"
 import type { ModalSelectAssetsPayload } from "../../../components/Modal/ModalSelectAssets"
@@ -33,7 +34,8 @@ import {
   transitBalanceSelector,
 } from "../../machines/depositedBalanceMachine"
 import type { intentStatusMachine } from "../../machines/intentStatusMachine"
-import type { Context } from "../../machines/swapUIMachine"
+import type { oneClickStatusMachine } from "../../machines/oneClickStatusMachine"
+import { type Context, ONE_CLICK_PREFIX } from "../../machines/swapUIMachine"
 import { SwapPriceImpact } from "./SwapPriceImpact"
 import { SwapRateInfo } from "./SwapRateInfo"
 import { SwapSubmitterContext } from "./SwapSubmitter"
@@ -338,13 +340,32 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
 function Intents({
   intentRefs,
-}: { intentRefs: ActorRefFrom<typeof intentStatusMachine>[] }) {
+}: {
+  intentRefs: (
+    | ActorRefFrom<typeof intentStatusMachine>
+    | ActorRefFrom<typeof oneClickStatusMachine>
+  )[]
+}) {
   return (
     <div>
       {intentRefs.map((intentRef) => {
+        const isOneClick = intentRef.id?.startsWith(ONE_CLICK_PREFIX)
+
         return (
           <Fragment key={intentRef.id}>
-            <SwapIntentCard intentStatusActorRef={intentRef} />
+            {isOneClick ? (
+              <Swap1csCard
+                oneClickStatusActorRef={
+                  intentRef as ActorRefFrom<typeof oneClickStatusMachine>
+                }
+              />
+            ) : (
+              <SwapIntentCard
+                intentStatusActorRef={
+                  intentRef as ActorRefFrom<typeof intentStatusMachine>
+                }
+              />
+            )}
           </Fragment>
         )
       })}
