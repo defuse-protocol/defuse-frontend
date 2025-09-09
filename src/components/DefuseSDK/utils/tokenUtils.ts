@@ -69,13 +69,6 @@ export function deduplicateTokens(tokens: BaseTokenInfo[]): BaseTokenInfo[] {
   for (const token of tokens) {
     const existing = tokenMap.get(token.defuseAssetId)
     if (existing) {
-      if (existing.decimals !== token.decimals) {
-        throw new DuplicateTokenError(
-          token.defuseAssetId,
-          existing.decimals,
-          token.decimals
-        )
-      }
       // If decimals match, keep existing token
       continue
     }
@@ -399,14 +392,14 @@ export function getTokenAccountId(assetId: string): string {
 
 export type ParseDefuseAssetIdReturnType =
   | {
-      standard: "nep141"
-      contractId: string
-    }
+    standard: "nep141"
+    contractId: string
+  }
   | {
-      standard: "nep245"
-      contractId: string
-      tokenId: string
-    }
+    standard: "nep245"
+    contractId: string
+    tokenId: string
+  }
 
 export type ParseDefuseAssetIdErrorType = AssertErrorType
 

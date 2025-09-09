@@ -35,7 +35,7 @@ import { assert } from "../utils/assert"
 import { isAuroraVirtualChain } from "../utils/blockchain"
 import { getCAIP2 } from "../utils/caip2"
 import { findError } from "../utils/errors"
-import { isBaseToken } from "../utils/token"
+import { isBaseToken, isUnifiedToken } from "../utils/token"
 import {
   adjustDecimalsTokenValue,
   compareAmounts,
@@ -55,26 +55,26 @@ interface SwapRequirement {
 export type PrepareWithdrawErrorType =
   | Extract<QuoteResult, { tag: "err" }>["value"]
   | {
-      reason:
-        | "ERR_BALANCE_FETCH"
-        | "ERR_BALANCE_MISSING"
-        | "ERR_BALANCE_INSUFFICIENT"
-        | "ERR_CANNOT_FETCH_POA_BRIDGE_INFO"
-        | "ERR_CANNOT_FETCH_QUOTE"
-        | "ERR_WITHDRAWAL_FEE_FETCH"
-        | "ERR_CANNOT_MAKE_WITHDRAWAL_INTENT"
-    }
+    reason:
+    | "ERR_BALANCE_FETCH"
+    | "ERR_BALANCE_MISSING"
+    | "ERR_BALANCE_INSUFFICIENT"
+    | "ERR_CANNOT_FETCH_POA_BRIDGE_INFO"
+    | "ERR_CANNOT_FETCH_QUOTE"
+    | "ERR_WITHDRAWAL_FEE_FETCH"
+    | "ERR_CANNOT_MAKE_WITHDRAWAL_INTENT"
+  }
   | {
-      reason: "ERR_AMOUNT_TOO_LOW"
-      shortfall: TokenValue
-      receivedAmount: bigint
-      minWithdrawalAmount: bigint
-      token: BaseTokenInfo
-    }
+    reason: "ERR_AMOUNT_TOO_LOW"
+    shortfall: TokenValue
+    receivedAmount: bigint
+    minWithdrawalAmount: bigint
+    token: BaseTokenInfo
+  }
   | {
-      reason: "ERR_STELLAR_NO_TRUSTLINE"
-      token: BaseTokenInfo
-    }
+    reason: "ERR_STELLAR_NO_TRUSTLINE"
+    token: BaseTokenInfo
+  }
 
 export type PreparedWithdrawReturnType = {
   directWithdrawAvailable: TokenValue
@@ -105,7 +105,21 @@ export async function prepareWithdraw(
 ): Promise<PreparationOutput> {
   assert(formValues.parsedAmount != null, "parsedAmount is null")
   assert(formValues.parsedRecipient != null, "parsedRecipient is null")
-
+  const isOmniBridge = formValues.tokenOut.bridge === "near_omni"
+  if (isOmniBridge) {
+    let nearDecimals = null
+    if (isUnifiedToken(formValues.tokenIn)) {
+      for (let i = 0; i < formValues.tokenIn.groupedTokens.length; i++) {
+        if (formValues.tokenIn.groupedTokens[i].chainName === 'near') {
+          nearDecimals = formValues.tokenIn.groupedTokens[i].decimals
+        }
+      }
+    } else if (isBaseToken(formValues.tokenIn) && formValues.tokenIn.chainName === 'near') {
+      nearDecimals = formValues.tokenIn.decimals
+    }
+    assert(nearDecimals != null, "Near native deployment not found for omni transfer")
+    formValues.tokenOut.decimals = nearDecimals
+  }
   let balances: Exclude<
     Awaited<ReturnType<typeof getBalances>>,
     { tag: "err" }
@@ -207,7 +221,7 @@ export async function prepareWithdraw(
     )
   } else if (formValues.tokenOut.chainName === "near") {
     routeConfig = createNearWithdrawalRoute()
-  } else if (formValues.tokenOut.bridge === "near_omni") {
+  } else if (isOmniBridge) {
     routeConfig = createOmniBridgeRoute(getCAIP2(formValues.tokenOut.chainName))
   } else {
     routeConfig = createDefaultRoute()
@@ -350,9 +364,9 @@ function checkBalanceSufficiency({
 }):
   | { tag: "ok" }
   | {
-      tag: "err"
-      value: { reason: "ERR_BALANCE_INSUFFICIENT" | "ERR_BALANCE_MISSING" }
-    } {
+    tag: "err"
+    value: { reason: "ERR_BALANCE_INSUFFICIENT" | "ERR_BALANCE_MISSING" }
+  } {
   assert(formValues.parsedAmount != null, "parsedAmount is null")
 
   const totalBalance = computeTotalBalanceDifferentDecimals(
@@ -428,15 +442,15 @@ function getWithdrawBreakdown({
   balances: BalanceMapping
 }):
   | {
-      tag: "ok"
-      value: {
-        directWithdrawAvailable: TokenValue
-        swapNeeded: {
-          tokens: BaseTokenInfo[]
-          amount: TokenValue
-        }
+    tag: "ok"
+    value: {
+      directWithdrawAvailable: TokenValue
+      swapNeeded: {
+        tokens: BaseTokenInfo[]
+        amount: TokenValue
       }
     }
+  }
   | { tag: "err"; value: { reason: "ERR_BALANCE_MISSING" } } {
   assert(formValues.parsedAmount != null, "parsedAmount is null")
 
@@ -485,9 +499,9 @@ export function getRequiredSwapAmount(
   const underlyingTokensIn = isBaseToken(tokenIn)
     ? [tokenIn]
     : // Deduplicate tokens by defuseAssetId
-      Array.from(
-        new Map(tokenIn.groupedTokens.map((t) => [t.defuseAssetId, t])).values()
-      )
+    Array.from(
+      new Map(tokenIn.groupedTokens.map((t) => [t.defuseAssetId, t])).values()
+    )
 
   /**
    * It is crucial to know balances of involved tokens, otherwise we can't

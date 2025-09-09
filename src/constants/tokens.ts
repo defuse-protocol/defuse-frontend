@@ -1702,7 +1702,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
       {
         defuseAssetId: "nep141:token.publicailab.near",
         address: "AXCp86262ZPfpcV9bmtmtnzmJSL5sD99mCVJD4GR9vS",
-        decimals: 18,
+        decimals: 9,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/37728.png",
         chainName: "solana",
         bridge: "near_omni",
