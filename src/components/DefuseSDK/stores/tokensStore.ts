@@ -38,10 +38,14 @@ export const createTokensStore = (
       set((state) => {
         const updatedData = new Map(state.data)
         for (const item of data) {
-          updatedData.set(
-            "defuseAssetId" in item ? item.defuseAssetId : item.unifiedAssetId,
-            item
-          )
+          const defuseAssetId =
+            "defuseAssetId" in item ? item.defuseAssetId : item.unifiedAssetId
+
+          // Unified tokens may contain multiple tokens with the same defuseAssetId,
+          // we take only the first one.
+          if (!updatedData.has(defuseAssetId)) {
+            updatedData.set(defuseAssetId, item)
+          }
         }
         return { data: updatedData, isFetched: true, isLoading: false }
       }),
