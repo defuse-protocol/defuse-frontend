@@ -82,6 +82,7 @@ export type Context = {
   slippageBasisPoints: number
   is1cs: boolean
   is1csFetching: boolean
+  swapStrategy: SwapStrategy
 }
 
 type PassthroughEvent = {
@@ -96,6 +97,15 @@ type PassthroughEvent = {
 
 type EmittedEvents = PassthroughEvent | { type: "INTENT_PUBLISHED" }
 
+export const SWAP_STRATEGIES = {
+  BEST: "Best",
+  DCA: "DCA (Dollar Cost Average)",
+} as const
+export const SWAP_STRATEGIES_ARRAY = Object.keys(SWAP_STRATEGIES) as Array<
+  keyof typeof SWAP_STRATEGIES
+>
+export type SwapStrategy = keyof typeof SWAP_STRATEGIES
+
 export const swapUIMachine = setup({
   types: {
     input: {} as {
@@ -104,6 +114,7 @@ export const swapUIMachine = setup({
       tokenList: SwappableToken[]
       referral?: string
       is1cs: boolean
+      swapStrategy: SwapStrategy
     },
     context: {} as Context,
     events: {} as
@@ -113,6 +124,8 @@ export const swapUIMachine = setup({
             tokenIn: SwappableToken
             tokenOut: SwappableToken
             amountIn: string
+            swapStrategy: SwapStrategy
+            slippageBasisPoints: number
           }>
         }
       | {
@@ -191,6 +204,9 @@ export const swapUIMachine = setup({
         ...context.formValues,
         ...data,
       }),
+    }),
+    setSlippageBasisPoints: assign({
+      slippageBasisPoints: (_, value: number) => value,
     }),
     parseFormValues: assign({
       parsedFormValues: ({ context }) => {
@@ -306,6 +322,7 @@ export const swapUIMachine = setup({
             deadline: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
             userAddress: context.user.identifier,
             userChainType: context.user.method,
+            swapStrategy: context.swapStrategy,
           },
         }
       }
@@ -465,6 +482,7 @@ export const swapUIMachine = setup({
     slippageBasisPoints: 10_000, // 1%
     is1cs: input.is1cs,
     is1csFetching: false,
+    swapStrategy: input.swapStrategy,
   }),
 
   entry: [
@@ -549,6 +567,11 @@ export const swapUIMachine = setup({
             {
               type: "setFormValues",
               params: ({ event }) => ({ data: event.params }),
+            },
+            {
+              type: "setSlippageBasisPoints",
+              params: ({ event, context }) =>
+                event.params.slippageBasisPoints ?? context.slippageBasisPoints,
             },
             "parseFormValues",
           ],
@@ -757,6 +780,7 @@ export const swapUIMachine = setup({
                 self.send(event)
               },
             },
+            swapStrategy: context.swapStrategy,
           }
         },
 

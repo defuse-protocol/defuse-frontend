@@ -1,6 +1,11 @@
 import type { walletMessage } from "@defuse-protocol/internal-utils"
+import {
+  SWAP_STRATEGIES_ARRAY,
+  type SwapStrategy,
+} from "@src/components/DefuseSDK/features/machines/swapUIMachine"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { createActorContext } from "@xstate/react"
+import { useSearchParams } from "next/navigation"
 import type { PropsWithChildren, ReactElement, ReactNode } from "react"
 import { useRef } from "react"
 import { useFormContext } from "react-hook-form"
@@ -74,10 +79,18 @@ export function SwapUIMachineProvider({
   referral,
   onTokenChange,
 }: SwapUIMachineProviderProps) {
+  const searchParams = useSearchParams()
   const { setValue, resetField } = useFormContext<SwapFormValues>()
   const tokenIn = initialTokenIn || tokenList[0]
   const tokenOut = initialTokenOut || tokenList[1]
   assert(tokenIn && tokenOut, "TokenIn and TokenOut must be defined")
+
+  const swapStrategyParam = searchParams.get("swapStrategy")
+  const swapStrategy =
+    swapStrategyParam &&
+    SWAP_STRATEGIES_ARRAY.includes(swapStrategyParam as SwapStrategy)
+      ? (swapStrategyParam as SwapStrategy)
+      : SWAP_STRATEGIES_ARRAY[0]
 
   return (
     <SwapUIMachineContext.Provider
@@ -90,6 +103,7 @@ export function SwapUIMachineProvider({
           tokenList,
           referral,
           is1cs,
+          swapStrategy,
         },
       }}
       logic={swapUIMachine.provide({
