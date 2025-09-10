@@ -1,9 +1,7 @@
 "use client"
 
 import { Button, Text } from "@radix-ui/themes"
-
 import { settings } from "@src/config/settings"
-import { LINK_X, MAIL } from "@src/utils/environment"
 
 const Interested = () => {
   return (
@@ -23,7 +21,7 @@ const Interested = () => {
         <div className="flex-1 md:min-w-[170px] w-full">
           <Button
             className="w-full cursor-pointer"
-            onClick={() => window.open(`mailto:${MAIL}`)}
+            onClick={() => window.open("mailto:defuse@defuse.org")}
             variant="solid"
             color="orange"
             size="4"
@@ -35,7 +33,7 @@ const Interested = () => {
         </div>
         <div className="flex-1 md:min-w-[170px] w-full">
           <Button
-            onClick={() => window.open(LINK_X)}
+            onClick={() => window.open("https://x.com/DefuseProtocol")}
             color="orange"
             size="4"
             variant="outline"
