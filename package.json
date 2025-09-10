@@ -16,8 +16,8 @@
   "dependencies": {
     "@creit.tech/stellar-wallets-kit": "1.9.5",
     "@defuse-protocol/contract-types": "0.1.0",
-    "@defuse-protocol/intents-sdk": "0.19.3",
-    "@defuse-protocol/internal-utils": "0.9.1",
+    "@defuse-protocol/intents-sdk": "0.20.0",
+    "@defuse-protocol/internal-utils": "0.10.0",
     "@defuse-protocol/one-click-sdk-typescript": "^0.1.1-0.2",
     "@hot-labs/near-connect": "0.5.5",
     "@near-wallet-selector/core": "^9.1.0",
