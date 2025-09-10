@@ -14,7 +14,7 @@
     "update-types": "supabase gen types --lang=typescript --local > src/types/database-generated.ts"
   },
   "dependencies": {
-    "@creit.tech/stellar-wallets-kit": "^1.8.0",
+    "@creit.tech/stellar-wallets-kit": "1.9.5",
     "@defuse-protocol/contract-types": "0.1.0",
     "@defuse-protocol/intents-sdk": "0.19.3",
     "@defuse-protocol/internal-utils": "0.9.1",
