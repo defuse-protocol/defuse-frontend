@@ -40,7 +40,7 @@
         "@tanstack/react-query": "^5.59.16",
         "@thames/monads": "^0.7.0",
         "@ton/ton": "^15.3.0",
-        "@tonconnect/ui-react": "npm:@tonkeeper/tonconnect-react@2.2.0-beta.3",
+        "@tonconnect/ui-react": "2.3.0",
         "@tronweb3/tronwallet-adapter-react-hooks": "1.1.10",
         "@vercel/edge-config": "^1.4.0",
         "@vercel/flags": "^3.1.1",
@@ -1688,13 +1688,13 @@
 
     "@tonconnect/isomorphic-fetch": ["@tonconnect/isomorphic-fetch@0.0.3", "", { "dependencies": { "node-fetch": "^2.6.9" } }, "sha512-jIg5nTrDwnite4fXao3dD83eCpTvInTjZon/rZZrIftIegh4XxyVb5G2mpMqXrVGk1e8SVXm3Kj5OtfMplQs0w=="],
 
-    "@tonconnect/protocol": ["@tonkeeper/tonconnect-protocol@2.3.0-beta.3", "", { "dependencies": { "tweetnacl": "^1.0.3", "tweetnacl-util": "^0.15.1" } }, "sha512-vzwAIj29dUVY0F9gVsISooVERwS9+tpKoesnp1xz2458Z6afJzU+agh1yL9OcufFMKML9E5wI9O+Ei1f4UWw4g=="],
+    "@tonconnect/protocol": ["@tonconnect/protocol@2.3.0", "", { "dependencies": { "tweetnacl": "^1.0.3", "tweetnacl-util": "^0.15.1" } }, "sha512-OxrmcXF/EsSdGeASP9VpTRojuMtTV87DKYFLRq4ZJvF/Hirfm2cgcxzzj2uksEGm5IIR010UWo6b38RuokNwFQ=="],
 
-    "@tonconnect/sdk": ["@tonkeeper/tonconnect-sdk@3.2.0-beta.3", "", { "dependencies": { "@tonconnect/isomorphic-eventsource": "^0.0.2", "@tonconnect/isomorphic-fetch": "^0.0.3", "@tonconnect/protocol": "npm:@tonkeeper/tonconnect-protocol@2.3.0-beta.3" } }, "sha512-/mmPLMMfPDb2CKLMBMBSlnSjSBTp1ZCCL6833vamov5dZj3HMPmoxoCRnm4JU3T0hvTuXjitBi52I2A69cVVTA=="],
+    "@tonconnect/sdk": ["@tonconnect/sdk@3.3.0", "", { "dependencies": { "@tonconnect/isomorphic-eventsource": "0.0.2", "@tonconnect/isomorphic-fetch": "0.0.3", "@tonconnect/protocol": "2.3.0" } }, "sha512-jwO23Uwy13Wht96Xp4euSG3I5fk9rd+3MFk/eXIzI68aznZUiXlDKBHP5l+/w5PJQhULyCkaHB9/UIXZL3DNTg=="],
 
-    "@tonconnect/ui": ["@tonkeeper/tonconnect-ui@2.2.0-beta.3", "", { "dependencies": { "@tonconnect/sdk": "npm:@tonkeeper/tonconnect-sdk@3.2.0-beta.3", "classnames": "^2.3.2", "csstype": "^3.1.1", "deepmerge": "^4.2.2", "ua-parser-js": "^1.0.35" } }, "sha512-TkLqoMbEVmx+WtPDtV4S9uJZdV9LK3bb4eX3vnCjKzzFBPI2GXlOLKE8eD5sBF92fFqowWdXOyyN159a4FIdJw=="],
+    "@tonconnect/ui": ["@tonconnect/ui@2.3.0", "", { "dependencies": { "@tonconnect/sdk": "3.3.0", "classnames": "^2.5.1", "csstype": "^3.1.3", "deepmerge": "^4.3.1", "ua-parser-js": "^1.0.35" } }, "sha512-oRcfZHTt5WLXCpXMz0JWWg50Bkx0GiT9JodzT94XuqQdsuLHTUKc0pPqOgvCii98kMRmxhbVu5OiKJIJmdr/6A=="],
 
-    "@tonconnect/ui-react": ["@tonkeeper/tonconnect-react@2.2.0-beta.3", "", { "dependencies": { "@tonconnect/ui": "npm:@tonkeeper/tonconnect-ui@2.2.0-beta.3" }, "peerDependencies": { "react": ">=17.0.0", "react-dom": ">=17.0.0" } }, "sha512-pvn8w7Z3bea/d17wMZBGM6X3xosqwnfhWjLRnvWjvVmu84HzOVhGLa26XYqL8WVh/4ItfdKP9SBouAx14bpbiQ=="],
+    "@tonconnect/ui-react": ["@tonconnect/ui-react@2.3.0", "", { "dependencies": { "@tonconnect/ui": "2.3.0" }, "peerDependencies": { "react": ">=17.0.0", "react-dom": ">=17.0.0" } }, "sha512-Gh25xASc2nmexmCEWWiJKmccgk5MvAym215f/nevB/KMGh7t9COaKZs3dnOs3r3AE4l18asN0kuVAQG4Fcyfaw=="],
 
     "@toruslabs/base-controllers": ["@toruslabs/base-controllers@5.11.0", "", { "dependencies": { "@ethereumjs/util": "^9.0.3", "@toruslabs/broadcast-channel": "^10.0.2", "@toruslabs/http-helpers": "^6.1.1", "@toruslabs/openlogin-jrpc": "^8.3.0", "@toruslabs/openlogin-utils": "^8.2.1", "async-mutex": "^0.5.0", "bignumber.js": "^9.1.2", "bowser": "^2.11.0", "jwt-decode": "^4.0.0", "loglevel": "^1.9.1" }, "peerDependencies": { "@babel/runtime": "7.x" } }, "sha512-5AsGOlpf3DRIsd6PzEemBoRq+o2OhgSFXj5LZD6gXcBlfe0OpF+ydJb7Q8rIt5wwpQLNJCs8psBUbqIv7ukD2w=="],
 
