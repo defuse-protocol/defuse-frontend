@@ -23,23 +23,23 @@ type ParentActor = ActorRef<Snapshot<unknown>, ParentEvents>
 
 export type Events =
   | {
-      type: "DEPOSIT_FORM.UPDATE_TOKEN"
-      params: {
-        token: BaseTokenInfo | UnifiedTokenInfo
-      }
+    type: "DEPOSIT_FORM.UPDATE_TOKEN"
+    params: {
+      token: BaseTokenInfo | UnifiedTokenInfo
     }
+  }
   | {
-      type: "DEPOSIT_FORM.UPDATE_BLOCKCHAIN"
-      params: {
-        network: BlockchainEnum | null
-      }
+    type: "DEPOSIT_FORM.UPDATE_BLOCKCHAIN"
+    params: {
+      network: BlockchainEnum | null
     }
+  }
   | {
-      type: "DEPOSIT_FORM.UPDATE_AMOUNT"
-      params: {
-        amount: string
-      }
+    type: "DEPOSIT_FORM.UPDATE_AMOUNT"
+    params: {
+      amount: string
     }
+  }
 
 export type State = {
   parentRef: ParentActor
@@ -98,7 +98,7 @@ export const depositFormReducer = fromTransition(
           const amount = event.params.amount
 
           const parsedAmount = amount
-            ? parseUnits(amount, token.decimals)
+            ? parseUnits(amount, token.chainDecimals)
             : null
           newState = {
             ...state,

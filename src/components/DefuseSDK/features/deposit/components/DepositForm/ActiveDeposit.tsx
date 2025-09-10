@@ -86,7 +86,7 @@ export function ActiveDeposit({
     if (token == null || balance == null) return
     const amountToFormat = formatTokenValue(
       maxDepositValue || balance,
-      token.decimals
+      token.chainDecimals
     )
     setValue("amount", amountToFormat)
   }
@@ -95,7 +95,7 @@ export function ActiveDeposit({
     if (token == null || balance == null) return
     const amountToFormat = formatTokenValue(
       (maxDepositValue || balance) / 2n,
-      token.decimals
+      token.chainDecimals
     )
     setValue("amount", amountToFormat)
   }
