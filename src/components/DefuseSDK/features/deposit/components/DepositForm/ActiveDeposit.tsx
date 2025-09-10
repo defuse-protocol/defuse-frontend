@@ -199,7 +199,7 @@ function Balance({
     <div className="flex items-center gap-1">
       <BlockMultiBalances
         balance={balanceAmount}
-        decimals={token.decimals}
+        decimals={token.chainDecimals}
         className={clsx("!static", balance == null && "invisible")}
         maxButtonSlot={
           <BlockMultiBalances.DisplayMaxButton
@@ -232,7 +232,7 @@ function Balance({
           <br />
           <br />
           Note that to cover network fees, we reserve
-          {` ${formatTokenValue(RESERVED_NEAR_BALANCE, token.decimals)} NEAR `}
+          {` ${formatTokenValue(RESERVED_NEAR_BALANCE, token.chainDecimals)} NEAR `}
           in your wallet.
         </TooltipInfo>
       )}
@@ -256,7 +256,7 @@ function renderDepositButtonText(
     return "Enter amount"
   }
   if (!isDepositAmountHighEnough && minDepositAmount != null && token != null) {
-    return `Minimal amount to deposit is ${formatTokenValue(minDepositAmount, token.decimals)} ${token.symbol}`
+    return `Minimal amount to deposit is ${formatTokenValue(minDepositAmount, token.chainDecimals)} ${token.symbol}`
   }
   if (isBalanceInsufficient) {
     return "Insufficient balance"
@@ -277,6 +277,6 @@ function isInsufficientBalance(
     return null
   }
 
-  const balanceToFormat = formatTokenValue(balance, derivedToken.decimals)
+  const balanceToFormat = formatTokenValue(balance, derivedToken.chainDecimals)
   return Number.parseFloat(formAmount) > Number.parseFloat(balanceToFormat)
 }

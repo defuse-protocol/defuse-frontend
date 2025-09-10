@@ -47,6 +47,7 @@ export interface FungibleTokenInfo {
   symbol: string
   name: string
   decimals: number
+  chainDecimals: number
   icon: string
   chainName: SupportedChainName
   bridge: SupportedBridge
@@ -58,6 +59,7 @@ export interface NativeTokenInfo {
   symbol: string
   name: string
   decimals: number
+  chainDecimals: number
   icon: string
   chainName: SupportedChainName
   bridge: SupportedBridge
