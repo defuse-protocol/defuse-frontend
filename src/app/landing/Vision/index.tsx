@@ -5,7 +5,6 @@ import { Button, Text } from "@radix-ui/themes"
 import CardVision from "@src/app/landing/Card/CardVision"
 import Section from "@src/app/landing/Section"
 import { settings } from "@src/config/settings"
-import { MAIL } from "@src/utils/environment"
 
 const Vision = () => {
   return (
@@ -68,7 +67,7 @@ const Vision = () => {
                     color="orange"
                     size="4"
                     className="w-full cursor-pointer"
-                    onClick={() => window.open(`mailto:${MAIL}`)}
+                    onClick={() => window.open("mailto:defuse@defuse.org")}
                   >
                     <Text size="4" weight="medium">
                       Contact us
