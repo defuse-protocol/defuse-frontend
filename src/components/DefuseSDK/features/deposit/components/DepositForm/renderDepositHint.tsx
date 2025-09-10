@@ -37,7 +37,7 @@ export function renderMinDepositAmountHint(
       <div className="flex justify-between">
         <div>Minimum deposit</div>
         <div className="text-label">
-          {formatTokenValue(minDepositAmount, token.decimals)} {token.symbol}
+          {formatTokenValue(minDepositAmount, token.chainDecimals)} {token.symbol}
         </div>
       </div>
     </div>

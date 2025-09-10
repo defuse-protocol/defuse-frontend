@@ -61,7 +61,7 @@ export const DepositResult = ({
               +
               {formatTokenValue(
                 depositResult.value.depositDescription.amount,
-                depositResult.value.depositDescription.derivedToken.decimals,
+                depositResult.value.depositDescription.derivedToken.chainDecimals,
                 {
                   min: 0.0001,
                   fractionDigits: 4,
