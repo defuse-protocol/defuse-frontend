@@ -7,7 +7,6 @@ import { useContext } from "react"
 
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import Themes from "@src/types/themes"
-import { LINK_DOCS, LINK_TG, MAIL } from "@src/utils/environment"
 
 import AddTurboChainButton from "./AddTurboChainButton"
 
@@ -42,7 +41,7 @@ const Settings = () => {
 
             <div className="flex flex-col justify-between items-center gap-1.5">
               <a
-                href={LINK_DOCS}
+                href="https://docs.near-intents.org"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex justify-between items-center gap-2"
@@ -54,7 +53,7 @@ const Settings = () => {
               </a>
 
               <a
-                href={LINK_TG}
+                href="https://t.me/near_intents"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex justify-between items-center gap-2"
@@ -66,7 +65,7 @@ const Settings = () => {
               </a>
 
               <a
-                href={`mailto:${MAIL}`}
+                href="mailto:defuse@defuse.org"
                 className="w-full flex justify-between items-center gap-2"
               >
                 <Text size="2" weight="medium">
