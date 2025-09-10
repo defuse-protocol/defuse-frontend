@@ -45,6 +45,7 @@ import {
   depositedBalanceMachine,
 } from "./depositedBalanceMachine"
 import { intentStatusMachine } from "./intentStatusMachine"
+import { oneClickStatusMachine } from "./oneClickStatusMachine"
 import {
   type Output as SwapIntent1csMachineOutput,
   swapIntent1csMachine,
@@ -76,7 +77,10 @@ export type Context = {
     | SwapIntentMachineOutput
     | SwapIntent1csMachineOutput
     | null
-  intentRefs: ActorRefFrom<typeof intentStatusMachine>[]
+  intentRefs: (
+    | ActorRefFrom<typeof intentStatusMachine>
+    | ActorRefFrom<typeof oneClickStatusMachine>
+  )[]
   tokenList: SwappableToken[]
   referral?: string
   slippageBasisPoints: number
@@ -84,17 +88,29 @@ export type Context = {
   is1csFetching: boolean
 }
 
-type PassthroughEvent = {
-  type: "INTENT_SETTLED"
-  data: {
-    intentHash: string
-    txHash: string
-    tokenIn: BaseTokenInfo | UnifiedTokenInfo
-    tokenOut: BaseTokenInfo | UnifiedTokenInfo
-  }
-}
+type PassthroughEvent =
+  | {
+      type: "INTENT_SETTLED"
+      data: {
+        intentHash: string
+        txHash: string
+        tokenIn: BaseTokenInfo | UnifiedTokenInfo
+        tokenOut: BaseTokenInfo | UnifiedTokenInfo
+      }
+    }
+  | {
+      type: "ONE_CLICK_SETTLED"
+      data: {
+        depositAddress: string
+        status: string
+        tokenIn: BaseTokenInfo | UnifiedTokenInfo
+        tokenOut: BaseTokenInfo | UnifiedTokenInfo
+      }
+    }
 
 type EmittedEvents = PassthroughEvent | { type: "INTENT_PUBLISHED" }
+
+export const ONE_CLICK_PREFIX = "oneclick-"
 
 export const swapUIMachine = setup({
   types: {
@@ -170,6 +186,7 @@ export const swapUIMachine = setup({
     swapActor: swapIntentMachine,
     swap1csActor: swapIntent1csMachine,
     intentStatusActor: intentStatusMachine,
+    oneClickStatusActor: oneClickStatusMachine,
   },
   actions: {
     setUser: assign({
@@ -342,6 +359,26 @@ export const swapUIMachine = setup({
       ) => {
         if (output.tag !== "ok") return context.intentRefs
 
+        if (context.is1cs && "depositAddress" in output.value) {
+          const swapDescription = output.value.intentDescription as Extract<
+            typeof output.value.intentDescription,
+            { type: "swap" }
+          >
+          const oneClickRef = spawn("oneClickStatusActor", {
+            id: `${ONE_CLICK_PREFIX}${output.value.depositAddress}`,
+            input: {
+              parentRef: self,
+              depositAddress: output.value.depositAddress,
+              tokenIn: context.formValues.tokenIn,
+              tokenOut: context.formValues.tokenOut,
+              totalAmountIn: swapDescription.totalAmountIn,
+              totalAmountOut: swapDescription.totalAmountOut,
+            },
+          })
+
+          return [oneClickRef, ...context.intentRefs]
+        }
+
         const intentRef = spawn("intentStatusActor", {
           id: `intent-${output.value.intentHash}`,
           input: {
@@ -475,6 +512,16 @@ export const swapUIMachine = setup({
 
   on: {
     INTENT_SETTLED: {
+      actions: [
+        {
+          type: "passthroughEvent",
+          params: ({ event }) => event,
+        },
+        "sendToDepositedBalanceRefRefresh",
+      ],
+    },
+
+    ONE_CLICK_SETTLED: {
       actions: [
         {
           type: "passthroughEvent",
