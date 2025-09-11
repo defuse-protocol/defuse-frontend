@@ -11,7 +11,6 @@ import TryDefuse from "@src/app/landing/TryDefuse"
 // import InvestorLogo from "@src/app/landing/InvestorLogo"
 import Vision from "@src/app/landing/Vision"
 import { settings } from "@src/config/settings"
-import { LINK_DISCORD, LINK_DOCS, LINK_X } from "@src/utils/environment"
 
 export default function Home() {
   return (
@@ -37,17 +36,17 @@ export default function Home() {
           <CardSocial
             name="Follow on X"
             icon="/static/icons/X.svg"
-            link={LINK_X}
+            link="https://x.com/DefuseProtocol"
           />
           <CardSocial
             name="Join Discord"
             icon="/static/icons/discord.svg"
-            link={LINK_DISCORD}
+            link="https://discord.gg/rdGAgDRs"
           />
           <CardSocial
             name="Documentation"
             icon="/static/icons/Docs.svg"
-            link={LINK_DOCS}
+            link="https://docs.near-intents.org"
           />
         </div>
       </div>
