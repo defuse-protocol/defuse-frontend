@@ -39,7 +39,7 @@ const HoverPopover = ({
   align = "center",
   sideOffset = 4,
 }: {
-  trigger: React.ReactNode
+  trigger: React.ReactElement
   children: React.ReactNode
   className?: string
   align?: "start" | "center" | "end"
@@ -52,6 +52,7 @@ const HoverPopover = ({
       <PopoverTrigger
         onMouseEnter={() => setOpen(true)}
         onMouseLeave={() => setOpen(false)}
+        asChild
       >
         {trigger}
       </PopoverTrigger>
