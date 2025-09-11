@@ -8,6 +8,17 @@ export type TokenWithTags =
   | (BaseTokenInfo & { tags?: string[] })
   | (UnifiedTokenInfo & { tags?: string[] })
 
+export const NATIVE_NEAR: TokenWithTags = {
+  defuseAssetId: "nep141:wrap.near",
+  address: "wrap.near",
+  decimals: 24,
+  icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/6535.png",
+  chainName: "near",
+  bridge: "direct",
+  symbol: "NEAR",
+  name: "Near",
+}
+
 export const PRODUCTION_TOKENS: TokenWithTags[] = [
   {
     unifiedAssetId: "usdc",
@@ -298,16 +309,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
     name: "Near",
     icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/6535.png",
     groupedTokens: [
-      {
-        defuseAssetId: "nep141:wrap.near",
-        address: "wrap.near",
-        decimals: 24,
-        icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/6535.png",
-        chainName: "near",
-        bridge: "direct",
-        symbol: "NEAR",
-        name: "Near",
-      },
+      NATIVE_NEAR,
       {
         defuseAssetId: "nep141:wrap.near",
         address: "0xC42C30aC6Cc15faC9bD938618BcaA1a1FaE8501d",

@@ -1,5 +1,9 @@
 "use client"
-import { TokenListUpdater } from "../../../components/TokenListUpdater"
+import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
+import {
+  TokenListUpdater,
+  TokenListUpdater1cs,
+} from "../../../components/TokenListUpdater"
 import { WidgetRoot } from "../../../components/WidgetRoot"
 import { SwapWidgetProvider } from "../../../providers/SwapWidgetProvider"
 import type { SwapWidgetProps } from "../../../types/swap"
@@ -12,7 +16,6 @@ import { SwapUIMachineFormSyncProvider } from "./SwapUIMachineFormSyncProvider"
 import { SwapUIMachineProvider } from "./SwapUIMachineProvider"
 
 export const SwapWidget = ({
-  is1cs,
   tokenList,
   userAddress,
   userChainType,
@@ -25,6 +28,7 @@ export const SwapWidget = ({
   onTokenChange,
   referral,
 }: SwapWidgetProps) => {
+  const is1cs = useIs1CsEnabled()
   return (
     <WidgetRoot>
       <SwapWidgetProvider>
@@ -34,10 +38,8 @@ export const SwapWidget = ({
           signMessage={signMessage}
         />
 
-        <TokenListUpdater tokenList={tokenList} />
         <SwapFormProvider>
           <SwapUIMachineProvider
-            is1cs={is1cs}
             initialTokenIn={initialTokenIn}
             initialTokenOut={initialTokenOut}
             tokenList={tokenList}
@@ -45,6 +47,12 @@ export const SwapWidget = ({
             referral={referral}
             onTokenChange={onTokenChange}
           >
+            {is1cs ? (
+              <TokenListUpdater1cs tokenList={tokenList} />
+            ) : (
+              <TokenListUpdater tokenList={tokenList} />
+            )}
+
             <SwapUIMachineFormSyncProvider
               userAddress={userAddress}
               userChainType={userChainType}
