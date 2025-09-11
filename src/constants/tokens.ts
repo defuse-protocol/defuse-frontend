@@ -4,9 +4,7 @@ import type {
 } from "@src/components/DefuseSDK/types"
 import { INTENTS_ENV } from "@src/utils/environment"
 
-export type TokenWithTags =
-  | (BaseTokenInfo & { tags?: string[] })
-  | (UnifiedTokenInfo & { tags?: string[] })
+export type TokenWithTags = BaseTokenInfo | UnifiedTokenInfo
 
 export const NATIVE_NEAR: TokenWithTags = {
   defuseAssetId: "nep141:wrap.near",

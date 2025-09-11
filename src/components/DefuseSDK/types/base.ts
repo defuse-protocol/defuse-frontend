@@ -50,6 +50,7 @@ export interface FungibleTokenInfo {
   icon: string
   chainName: SupportedChainName
   bridge: SupportedBridge
+  tags?: string[]
 }
 
 export interface NativeTokenInfo {
@@ -61,6 +62,7 @@ export interface NativeTokenInfo {
   icon: string
   chainName: SupportedChainName
   bridge: SupportedBridge
+  tags?: string[]
 }
 
 export type BaseTokenInfo = FungibleTokenInfo | NativeTokenInfo
@@ -79,6 +81,7 @@ export interface UnifiedTokenInfo {
   name: string
   icon: string
   groupedTokens: BaseTokenInfo[]
+  tags?: string[]
 }
 
 export interface TokenValue {
