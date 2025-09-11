@@ -12,7 +12,6 @@ import { EmptyIcon } from "../../../../../../components/EmptyIcon"
 import { ModalSelectNetwork } from "../../../../../../components/Network/ModalSelectNetwork"
 import { Select } from "../../../../../../components/Select/Select"
 import { SelectTriggerLike } from "../../../../../../components/Select/SelectTriggerLike"
-import { config } from "../../../../../../config"
 import {
   getBlockchainsOptions,
   getNearIntentsOption,
@@ -105,7 +104,7 @@ export const RecipientSubForm = ({
   const { availableNetworks, disabledNetworks } = usePreparedNetworkLists({
     networks: getBlockchainsOptions(),
     token,
-    near_intents: config.features.near_intents,
+    near_intents: true,
   })
 
   const showHotBalances = Object.keys(maxWithdrawals).length > 0
@@ -194,21 +193,10 @@ export const RecipientSubForm = ({
               onClick={() => setIsNetworkModalOpen(true)}
               hint={
                 <Select.Hint>
-                  {determineBlockchainControllerHint(
-                    field.value,
-                    blockchainSelectItems
-                  )}
+                  {determineBlockchainControllerHint(field.value)}
                 </Select.Hint>
               }
-              disabled={
-                !config.features.near_intents
-                  ? Object.keys(blockchainSelectItems).length === 1 &&
-                    isFirstBlockchainSelected(
-                      field.value,
-                      blockchainSelectItems
-                    )
-                  : false
-              }
+              disabled={false}
             />
 
             <ModalSelectNetwork
@@ -390,16 +378,10 @@ function determineBlockchainControllerIcon(
 }
 
 function determineBlockchainControllerHint(
-  blockchain: SupportedChainName | "near_intents",
-  blockchainSelectItems: Record<string, { value: BlockchainEnum }>
+  blockchain: SupportedChainName | "near_intents"
 ) {
   if (isNearIntentsNetwork(blockchain)) {
     return "Internal network"
   }
-  if (config.features.near_intents) {
-    return "Network"
-  }
-  return Object.keys(blockchainSelectItems).length === 1
-    ? "This network only"
-    : "Network"
+  return "Network"
 }
