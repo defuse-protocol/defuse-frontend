@@ -20,7 +20,7 @@ const Interested = () => {
       <div className="w-full md:max-w-[558px] flex flex-wrap justify-center items-center gap-2.5 md:gap-5 px-[24px] md:px-[51px]">
         <div className="flex-1 md:min-w-[170px] w-full">
           <Button
-            className="w-full cursor-pointer"
+            className="w-full"
             onClick={() => window.open("mailto:defuse@defuse.org")}
             variant="solid"
             color="orange"
@@ -37,7 +37,7 @@ const Interested = () => {
             color="orange"
             size="4"
             variant="outline"
-            className="w-full cursor-pointer"
+            className="w-full"
           >
             <Text size="4" weight="medium" className="text-nowrap">
               Subscribe to updates

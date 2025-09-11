@@ -144,7 +144,6 @@ const DarkMode = () => {
         Dark Mode
       </Text>
       <Switch
-        className="cursor-pointer"
         size="1"
         onCheckedChange={(checked: boolean) => {
           setTheme(checked ? Themes.DARK : Themes.LIGHT)

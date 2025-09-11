@@ -19,7 +19,6 @@ const TryDefuse = () => {
         size="4"
         variant="solid"
         color="orange"
-        className="cursor-pointer"
       >
         Try now
       </Button>

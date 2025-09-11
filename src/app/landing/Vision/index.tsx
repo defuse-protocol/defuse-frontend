@@ -66,7 +66,7 @@ const Vision = () => {
                     variant="solid"
                     color="orange"
                     size="4"
-                    className="w-full cursor-pointer"
+                    className="w-full"
                     onClick={() => window.open("mailto:defuse@defuse.org")}
                   >
                     <Text size="4" weight="medium">
