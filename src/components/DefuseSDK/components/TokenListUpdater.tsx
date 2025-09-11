@@ -32,9 +32,11 @@ export function TokenListUpdater1cs<
   },
 >(props: { tokenList: T["tokenList"] }) {
   const tokenList = useMemo(() => {
-    const filteredList = props.tokenList.filter((token) => {
-      return isBaseToken(token)
-    })
+    const filteredList: BaseTokenInfo[] = props.tokenList.filter(
+      (token): token is BaseTokenInfo => {
+        return isBaseToken(token)
+      }
+    )
 
     if (filteredList.length < props.tokenList.length) {
       throw new Error("Flat token list is expected for 1cs")
