@@ -22,6 +22,7 @@ import {
   Operation,
   TransactionBuilder,
 } from "@stellar/stellar-sdk"
+import { TronWeb } from "tronweb"
 import {
   http,
   type Address,
@@ -45,6 +46,7 @@ import type { BaseTokenInfo, SupportedChainName } from "../types/base"
 import type {
   SendTransactionEVMParams,
   SendTransactionStellarParams,
+  SendTransactionTronParams,
   Transaction,
 } from "../types/deposit"
 import type { SendTransactionTonParams } from "../types/deposit"
@@ -770,6 +772,45 @@ function createTrustlineTransferStellarTransaction(
 }
 
 /**
+ * Creates a deposit transaction for Tron
+ */
+export async function createDepositTronNativeTransaction(
+  userAddress: string,
+  depositAddress: string,
+  amount: bigint
+): Promise<SendTransactionTronParams> {
+  const client = new TronWeb({ fullHost: settings.rpcUrls.tron })
+  return await client.transactionBuilder.sendTrx(
+    depositAddress,
+    Number(amount),
+    userAddress
+  )
+}
+
+export async function createDepositTronTRC20Transaction(
+  userAddress: string,
+  assetAccountId: string,
+  generatedAddress: string,
+  amount: bigint
+): Promise<SendTransactionTronParams> {
+  const client = new TronWeb({ fullHost: settings.rpcUrls.tron })
+  const txResult = await client.transactionBuilder.triggerSmartContract(
+    assetAccountId,
+    "transfer(address,uint256)",
+    {}, // It might be enhanced in the future with feeLimit
+    [
+      { type: "address", value: generatedAddress },
+      { type: "uint256", value: amount.toString() },
+    ],
+    userAddress
+  )
+  if (!txResult?.result) {
+    throw new Error("Failed to create deposit Tron TRC20 transaction")
+  }
+  return txResult.transaction
+}
+
+/**
  * Generate a deposit address for the specified blockchain and asset through the POA bridge API call.
  *
  * @param userAddress - The user address from the wallet
@@ -1387,6 +1428,14 @@ const siloToSiloABI = [
   },
 ]
 
+// Cache for ATA existence checks to prevent RPC spam
+// Key format: "token:depositAddress"
+const ataExistenceCache = new Map<
+  string,
+  { exists: boolean; timestamp: number }
+>()
+const ATA_CACHE_TTL = 60000 // 1 minute TTL
+
 async function checkATAExists(
   connection: Connection,
   ataAddress: PublicKeySolana
@@ -1397,6 +1446,14 @@ async function checkATAExists(
   } catch {
     return false
   }
+}
+
+function clearATACacheForToken(token: BaseTokenInfo, depositAddress: string) {
+  if (token.chainName !== "solana" || isNativeToken(token)) {
+    return
+  }
+  const cacheKey = `${token.address}:${depositAddress}`
+  ataExistenceCache.delete(cacheKey)
 }
 
 async function checkSolanaATARequired(
@@ -1411,13 +1468,36 @@ async function checkSolanaATARequired(
     return false
   }
 
+  const cacheKey = `${token.address}:${depositAddress}`
+  const now = Date.now()
+
+  // Check cache first
+  const cached = ataExistenceCache.get(cacheKey)
+  if (cached && now - cached.timestamp < ATA_CACHE_TTL) {
+    return !cached.exists
+  }
+
   const connection = new Connection(settings.rpcUrls.solana)
   const toPubkey = new PublicKeySolana(depositAddress)
   const mintPubkey = new PublicKeySolana(token.address)
   const toATA = getAssociatedTokenAddressSync(mintPubkey, toPubkey)
 
   const ataExists = await checkATAExists(connection, toATA)
+
+  // Update cache
+  ataExistenceCache.set(cacheKey, {
+    exists: ataExists,
+    timestamp: now,
+  })
+
   return !ataExists
+}
+
+export function clearSolanaATACache(
+  token: BaseTokenInfo,
+  depositAddress: string
+) {
+  clearATACacheForToken(token, depositAddress)
 }
 
 export async function createDepositTonTransaction(

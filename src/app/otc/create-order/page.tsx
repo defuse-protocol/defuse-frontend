@@ -1,13 +1,13 @@
 "use client"
 import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
-import { OtcMakerWidget } from "@src/components/DefuseSDK"
+import { OtcMakerWidget } from "@src/components/DefuseSDK/features/otcDesk/components/OtcMakerWidget"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
-import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
+import { useNearWallet } from "@src/providers/NearWalletProvider"
 import { renderAppLink } from "@src/utils/renderAppLink"
 import { createOtcOrder, createOtcOrderLink } from "../_utils/link"
 
@@ -16,7 +16,7 @@ export default function CreateOrderPage() {
   const tokenList = useTokenList(LIST_TOKENS)
   const signMessage = useWalletAgnosticSignMessage()
   const { tokenIn, tokenOut } = useDeterminePair()
-  const { signAndSendTransactions } = useNearWalletActions()
+  const { signAndSendTransactions } = useNearWallet()
   const referral = useIntentsReferral()
 
   const userAddress = state.isVerified ? state.address : undefined

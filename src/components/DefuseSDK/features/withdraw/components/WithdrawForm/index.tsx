@@ -204,6 +204,7 @@ export const WithdrawForm = ({
       : (minWithdrawalHyperliquidAmount ?? minWithdrawalPOABridgeAmount)
 
   const minWithdrawalAmountWithFee = useMinWithdrawalAmountWithFeeEstimation(
+    parsedAmountIn,
     minWithdrawalAmount,
     state.context.preparationOutput
   )

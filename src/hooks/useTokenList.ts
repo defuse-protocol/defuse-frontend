@@ -1,38 +1,33 @@
-import type {
-  BaseTokenInfo,
-  UnifiedTokenInfo,
-} from "@src/components/DefuseSDK/types"
+import type {} from "@src/components/DefuseSDK/types"
 import type { TokenWithTags } from "@src/constants/tokens"
 import { useFlatTokenList } from "@src/hooks/useFlatTokenList"
 import { useSearchParams } from "next/navigation"
 import { useMemo } from "react"
 
-export function useTokenList(tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]) {
-  let list = useFlatTokenList(tokenList)
+export function useTokenList(tokenList: TokenWithTags[]) {
+  const flatTokenList = useFlatTokenList(tokenList)
   const searchParams = useSearchParams()
 
-  list = useMemo(() => sortTokensByMarketCap(list), [list])
+  const sortedList = useMemo(
+    () => sortTokensByMarketCap(flatTokenList),
+    [flatTokenList]
+  )
 
   /**
    * Enable tokens with `feature:${string}` tag depended on URL search params.
    * E.g. /?ada=1 will enable tokens with a tag "feature:ada"
    */
-  list = useMemo(() => {
-    return list.filter((token) => {
-      const feature = (token as TokenWithTags).tags?.find((tag) =>
-        tag.startsWith("feature:")
-      )
+  return useMemo(() => {
+    const filteredList = sortedList.filter((token) => {
+      const feature = token.tags?.find((tag) => tag.startsWith("feature:"))
       if (feature == null) {
         return true
       }
       return searchParams.has(feature.split(":")[1])
     })
-  }, [searchParams, list])
 
-  if (searchParams.get("fms")) {
-    list = [
-      ...list,
-      {
+    if (searchParams.get("fms")) {
+      filteredList.push({
         defuseAssetId:
           "nep141:base-0xa5c67d8d37b88c2d88647814da5578128e2c93b2.omft.near",
         address: "0xa5c67d8d37b88c2d88647814da5578128e2c93b2",
@@ -42,19 +37,16 @@ export function useTokenList(tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]) {
         bridge: "poa",
         symbol: "FMS",
         name: "FOMO SOLVER",
-      },
-    ]
-  }
+      })
+    }
 
-  return list
+    return filteredList
+  }, [searchParams, sortedList])
 }
 
-function compareTokens(
-  a: BaseTokenInfo | UnifiedTokenInfo,
-  b: BaseTokenInfo | UnifiedTokenInfo
-): number {
-  const aTags = (a as { tags?: string[] }).tags || []
-  const bTags = (b as { tags?: string[] }).tags || []
+function compareTokens(a: TokenWithTags, b: TokenWithTags): number {
+  const aTags = a.tags ?? []
+  const bTags = b.tags ?? []
 
   // Sort by trade volume first
   const aVolume = getVolumeOrder(aTags)
@@ -99,8 +91,6 @@ function getVolumeOrder(tags: string[]): number | undefined {
   return Number.parseInt(volTag.split(":")[1])
 }
 
-function sortTokensByMarketCap(
-  tokens: (BaseTokenInfo | UnifiedTokenInfo)[]
-): (BaseTokenInfo | UnifiedTokenInfo)[] {
+function sortTokensByMarketCap(tokens: TokenWithTags[]) {
   return Array.from(tokens).sort(compareTokens)
 }

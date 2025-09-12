@@ -28,25 +28,42 @@ import {
   getUnderlyingBaseTokenInfos,
 } from "../../utils/tokenUtils"
 import {
+  type Events as Background1csQuoterEvents,
+  type ParentEvents as Background1csQuoterParentEvents,
+  background1csQuoterMachine,
+} from "./background1csQuoterMachine"
+import {
   type Events as BackgroundQuoterEvents,
   type ParentEvents as BackgroundQuoterParentEvents,
   backgroundQuoterMachine,
 } from "./backgroundQuoterMachine"
+
+import { isBaseToken } from "@src/components/DefuseSDK/utils/token"
 import {
   type BalanceMapping,
   type Events as DepositedBalanceEvents,
   depositedBalanceMachine,
 } from "./depositedBalanceMachine"
 import { intentStatusMachine } from "./intentStatusMachine"
+import { oneClickStatusMachine } from "./oneClickStatusMachine"
+import {
+  type Output as SwapIntent1csMachineOutput,
+  swapIntent1csMachine,
+} from "./swapIntent1csMachine"
 import {
   type Output as SwapIntentMachineOutput,
   swapIntentMachine,
 } from "./swapIntentMachine"
 
+function getTokenDecimals(token: BaseTokenInfo | UnifiedTokenInfo) {
+  return isBaseToken(token) ? token.decimals : token.groupedTokens[0].decimals
+}
+
 export type Context = {
   user: null | authHandle.AuthHandle
   error: Error | null
   quote: QuoteResult | null
+  quote1csError: string | null
   formValues: {
     tokenIn: SwappableToken
     tokenOut: SwappableToken
@@ -56,24 +73,44 @@ export type Context = {
     tokenOut: BaseTokenInfo
     amountIn: TokenValue | null
   }
-  intentCreationResult: SwapIntentMachineOutput | null
-  intentRefs: ActorRefFrom<typeof intentStatusMachine>[]
+  intentCreationResult:
+    | SwapIntentMachineOutput
+    | SwapIntent1csMachineOutput
+    | null
+  intentRefs: (
+    | ActorRefFrom<typeof intentStatusMachine>
+    | ActorRefFrom<typeof oneClickStatusMachine>
+  )[]
   tokenList: SwappableToken[]
   referral?: string
   slippageBasisPoints: number
+  is1cs: boolean
+  is1csFetching: boolean
 }
 
-type PassthroughEvent = {
-  type: "INTENT_SETTLED"
-  data: {
-    intentHash: string
-    txHash: string
-    tokenIn: BaseTokenInfo | UnifiedTokenInfo
-    tokenOut: BaseTokenInfo | UnifiedTokenInfo
-  }
-}
+type PassthroughEvent =
+  | {
+      type: "INTENT_SETTLED"
+      data: {
+        intentHash: string
+        txHash: string
+        tokenIn: BaseTokenInfo | UnifiedTokenInfo
+        tokenOut: BaseTokenInfo | UnifiedTokenInfo
+      }
+    }
+  | {
+      type: "ONE_CLICK_SETTLED"
+      data: {
+        depositAddress: string
+        status: string
+        tokenIn: BaseTokenInfo | UnifiedTokenInfo
+        tokenOut: BaseTokenInfo | UnifiedTokenInfo
+      }
+    }
 
 type EmittedEvents = PassthroughEvent | { type: "INTENT_PUBLISHED" }
+
+export const ONE_CLICK_PREFIX = "oneclick-"
 
 export const swapUIMachine = setup({
   types: {
@@ -82,6 +119,7 @@ export const swapUIMachine = setup({
       tokenOut: SwappableToken
       tokenList: SwappableToken[]
       referral?: string
+      is1cs: boolean
     },
     context: {} as Context,
     events: {} as
@@ -107,7 +145,27 @@ export const swapUIMachine = setup({
             changedBalanceMapping: BalanceMapping
           }
         }
+      | {
+          type: "NEW_1CS_QUOTE"
+          params: {
+            result:
+              | {
+                  ok: {
+                    quote: {
+                      amountIn: string
+                      amountOut: string
+                      deadline?: string
+                    }
+                    appFee: [string, bigint][]
+                  }
+                }
+              | { err: string }
+            tokenInAssetId: string
+            tokenOutAssetId: string
+          }
+        }
       | BackgroundQuoterParentEvents
+      | Background1csQuoterParentEvents
       | DepositedBalanceEvents
       | PassthroughEvent,
 
@@ -115,14 +173,20 @@ export const swapUIMachine = setup({
 
     children: {} as {
       depositedBalanceRef: "depositedBalanceActor"
+      backgroundQuoterRef: "backgroundQuoterActor"
+      background1csQuoterRef: "background1csQuoterActor"
       swapRef: "swapActor"
+      swapRef1cs: "swap1csActor"
     },
   },
   actors: {
     backgroundQuoterActor: backgroundQuoterMachine,
+    background1csQuoterActor: background1csQuoterMachine,
     depositedBalanceActor: depositedBalanceMachine,
     swapActor: swapIntentMachine,
+    swap1csActor: swapIntent1csMachine,
     intentStatusActor: intentStatusMachine,
+    oneClickStatusActor: oneClickStatusMachine,
   },
   actions: {
     setUser: assign({
@@ -150,7 +214,9 @@ export const swapUIMachine = setup({
         const tokenOut = getAnyBaseTokenInfo(context.formValues.tokenOut)
 
         try {
-          const decimals = getTokenMaxDecimals(context.formValues.tokenIn)
+          const decimals = context.is1cs
+            ? getTokenDecimals(context.formValues.tokenIn)
+            : getTokenMaxDecimals(context.formValues.tokenIn)
           return {
             tokenOut,
             amountIn: {
@@ -184,13 +250,21 @@ export const swapUIMachine = setup({
     }),
     clearQuote: assign({ quote: null }),
     clearError: assign({ error: null }),
+    clear1csError: assign({ quote1csError: null }),
     setIntentCreationResult: assign({
-      intentCreationResult: (_, value: SwapIntentMachineOutput) => value,
+      intentCreationResult: (
+        _,
+        value: SwapIntentMachineOutput | SwapIntent1csMachineOutput
+      ) => value,
     }),
     clearIntentCreationResult: assign({ intentCreationResult: null }),
     passthroughEvent: emit((_, event: PassthroughEvent) => event),
     spawnBackgroundQuoterRef: spawnChild("backgroundQuoterActor", {
       id: "backgroundQuoterRef",
+      input: ({ self }) => ({ parentRef: self }),
+    }),
+    spawnBackground1csQuoterRef: spawnChild("background1csQuoterActor", {
+      id: "background1csQuoterRef",
       input: ({ self }) => ({ parentRef: self }),
     }),
     // Warning: This cannot be properly typed, so you can send an incorrect event
@@ -229,6 +303,33 @@ export const swapUIMachine = setup({
     sendToBackgroundQuoterRefPause: sendTo("backgroundQuoterRef", {
       type: "PAUSE",
     }),
+    sendToBackground1csQuoterRefNewQuoteInput: sendTo(
+      "background1csQuoterRef",
+      ({ context }): Background1csQuoterEvents => {
+        assert(context.parsedFormValues.amountIn != null, "amountIn is not set")
+        assert(context.user?.identifier != null, "user address is not set")
+        assert(context.user?.method != null, "user chain type is not set")
+        return {
+          type: "NEW_QUOTE_INPUT",
+          params: {
+            tokenIn: context.formValues.tokenIn,
+            tokenOut: context.parsedFormValues.tokenOut,
+            amountIn: context.parsedFormValues.amountIn,
+            slippageBasisPoints: context.slippageBasisPoints,
+            defuseUserId: authIdentity.authHandleToIntentsUserId(
+              context.user.identifier,
+              context.user.method
+            ),
+            deadline: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+            userAddress: context.user.identifier,
+            userChainType: context.user.method,
+          },
+        }
+      }
+    ),
+    sendToBackground1csQuoterRefPause: sendTo("background1csQuoterRef", {
+      type: "PAUSE",
+    }),
 
     spawnDepositedBalanceRef: spawnChild("depositedBalanceActor", {
       id: "depositedBalanceRef",
@@ -254,9 +355,29 @@ export const swapUIMachine = setup({
     spawnIntentStatusActor: assign({
       intentRefs: (
         { context, spawn, self },
-        output: SwapIntentMachineOutput
+        output: SwapIntentMachineOutput | SwapIntent1csMachineOutput
       ) => {
         if (output.tag !== "ok") return context.intentRefs
+
+        if (context.is1cs && "depositAddress" in output.value) {
+          const swapDescription = output.value.intentDescription as Extract<
+            typeof output.value.intentDescription,
+            { type: "swap" }
+          >
+          const oneClickRef = spawn("oneClickStatusActor", {
+            id: `${ONE_CLICK_PREFIX}${output.value.depositAddress}`,
+            input: {
+              parentRef: self,
+              depositAddress: output.value.depositAddress,
+              tokenIn: context.formValues.tokenIn,
+              tokenOut: context.formValues.tokenOut,
+              totalAmountIn: swapDescription.totalAmountIn,
+              totalAmountOut: swapDescription.totalAmountOut,
+            },
+          })
+
+          return [oneClickRef, ...context.intentRefs]
+        }
 
         const intentRef = spawn("intentStatusActor", {
           id: `intent-${output.value.intentHash}`,
@@ -276,29 +397,95 @@ export const swapUIMachine = setup({
     emitEventIntentPublished: emit(() => ({
       type: "INTENT_PUBLISHED" as const,
     })),
+
+    process1csQuote: assign({
+      quote: ({ event }) => {
+        if (event.type !== "NEW_1CS_QUOTE") {
+          return null
+        }
+
+        const { result, tokenInAssetId, tokenOutAssetId } = event.params
+
+        if ("ok" in result) {
+          const quote: QuoteResult = {
+            tag: "ok",
+            value: {
+              quoteHashes: [],
+              // dry run doesn't have expiration time
+              expirationTime: new Date(0).toISOString(),
+              tokenDeltas: [
+                [tokenInAssetId, -BigInt(result.ok.quote.amountIn)],
+                [tokenOutAssetId, BigInt(result.ok.quote.amountOut)],
+              ],
+              appFee: result.ok.appFee,
+            },
+          }
+
+          return quote
+        }
+
+        const errorQuote: QuoteResult = {
+          tag: "err",
+          value: {
+            reason: "ERR_NO_QUOTES_1CS" as const,
+          },
+        }
+        return errorQuote
+      },
+      quote1csError: ({ event }) => {
+        if (event.type !== "NEW_1CS_QUOTE") {
+          return null
+        }
+
+        const { result } = event.params
+        return "ok" in result ? null : result.err
+      },
+    }),
+
+    set1csFetching: assign({
+      is1csFetching: (_, value: boolean) => value,
+    }),
   },
   guards: {
-    isQuoteValid: ({ context }) => {
-      return context.quote != null && context.quote.tag === "ok"
-    },
-
-    isOk: (_, a: { tag: "err" | "ok" }) => a.tag === "ok",
-
-    isFormValid: ({ context }) => {
+    isQuoteValidAndNot1cs: ({ context }) => {
       return (
+        !context.is1cs && context.quote != null && context.quote.tag === "ok"
+      )
+    },
+    isQuoteValidAnd1cs: ({ context }) => {
+      return (
+        context.is1cs &&
         context.parsedFormValues.amountIn != null &&
         context.parsedFormValues.amountIn.amount > 0n
       )
     },
+
+    isOk: (_, a: { tag: "err" | "ok" }) => a.tag === "ok",
+
+    isFormValidAndNot1cs: ({ context }) => {
+      return (
+        context.parsedFormValues.amountIn != null &&
+        context.parsedFormValues.amountIn.amount > 0n &&
+        !context.is1cs
+      )
+    },
+    isFormValidAnd1cs: ({ context }) => {
+      return (
+        context.parsedFormValues.amountIn != null &&
+        context.parsedFormValues.amountIn.amount > 0n &&
+        context.is1cs
+      )
+    },
   },
 }).createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5SwO4EMAOBaArgSwGIBJAOQBUBRcgfQGUKyyAZCgEQG0AGAXUVAwD2sPABc8AgHZ8QAD0RYArAoAcAOgCMAdgWcALJ04BOZZoBMCgDQgAnvMO7Nq5ac6b1B07oWfDAX19WqJi4hABCAIJM4SQAwhTUMQAS0QDibFy8SCCCwmKS0nIIAMxFCk5GygBsmpqGnJUKlZVWtghYhpWmqtWG6lWuupWcRer+gejY+ARMAPIppBnSOaLiUlmFlUVOvbqmlbpFulpGmi12uoaqRW7Kt-aaRfUKYyBBk4SzKTMAqmSLWcs8mtQIUsKZ1JUNPpDOZwcoFJomsozm17Jdrn07g5Hg0Xm8QqpICsJFACLAcAAjAC2on+-CEK3y60Q6i0qlq7lMhz6Sm0KKwRUMl06HSFpmURiafgCrwmBKJYhJBDwEgwOBEdOyDKBBXkezK4PUOgUEKM4uu-Oul3UB046iKm3tQsqeLl+EJEGJpJIFAA6tQAIrfGaUTWA1a6trY1RC0qCkx1fRFfn7MrqcxNLxwkyjGX490KlVQVQANzQABs8BA0IrSRBJGBVCqSwIANaN-N4D1e0sVqs1osIZsCADGA8kGTD2ojzLaKi2pkMCl0yncVWUu2aNnk2iuCKM6nsnCUxiKruCBc9td7lertYI9YkjeH7dUne717Lt4HJKHEhbY5ApO6iZPSuQziC8gqGUwzHnaK4SoM-I2l0drKEUhq6IMaEunmbpdoWJKqOgXrUAAjjgAgiGABA+v6QYhhQU7gUykGoq4qgKDCEpaFyJhFMi25tKU6iqEch6mtcIzeOe7xvpSNIiPej7Pv+bYdhMABKYAAGbMYywKyIg4mqIuq5YVh66sqcQkCpwXSDBu66HA6RyaLJBLktSoj3mAABOfkCH5qgYOWNY6UFVJvlpun6Tqs4HJchoKCMDRVPYpTIfs7K7PYJq7Hsmi7B57peYp950YGwahjwSzTqxRkIAcMG9Ky4p6Mcli2cujgOouDroZU9idP4MoSAIEBwNInZ1Sxhmgu4wycdxdpmAJDyCa0WASgaRWuJoG5JiMJUEVeRazQZkbtEoy3tbx60CfyJoLkuVpHEMiKmCdH5Fk2EDlmAF3xWxWBeI4Bzit4IwwrUNlbYunCmU6zjLvaWGGGeeEXqdPZfv2tZAxBjVgoKVxmC4CLrkKtz8jUTi1BjpgHXx9qY+M2M-URJG1uRlHUYTDWgoiiO3Me+7wrsEJPboYkNC4DSbJLvS4ezcllT550AvV82IAJZTvfZzistUCL8kcMGmOY6Zco8aO4f4QA */
+  /** @xstate-layout N4IgpgJg5mDOIC5SwO4EMAOBaArgSwGIBJAOQBUBRcgfQGUKyyAZCgEQG0AGAXUVAwD2sPABc8AgHZ8QAD0RYArAoAcAOgCMAdgWcALJ04BOZZoBMCgDQgAnvMO7Nq5ac6b1B07oWfDAX19WqJi4hABCAIJM4SQAwhTUMQAS0QDibFy8SCCCwmKS0nIIAMy6RU6cCuqe+pwAbAqlVrYIWIamtaqGCkW1Pd6GRZpu-oHo2PgEEVGx8Ump6eqZ-EKi4lJZheqVqrWanEXK9prK6obqTfK96k6GZ66aRQq1h8ojIEHjhEwA8imkGdIcqt8htEL0bupdO1SrotEZNBcWvZDKpBuplBijkU6go3h8QgQfilvgBVMgArJAvLrUCFLCmdQdSFGcwM5QKTS1Z6I1q6FFojGHBzY+p4sYhVSQVYSKAEWA4ABGAFtRBTlrk1gVEOotKpNIY9PUzntlEVDIj3JxVHoSqZ2hzTIZnroxcF8JKINLZfLlarFoCVtStQh3KZrZ5Du0tAcHroefprpxTOyDtj9bplF5XZ8PV6CHgJBgcCI1dlA5rQS1zB1arc9FUzYdujySh1lBUXO4zj1OdmJVKxDKCCQKAB1agARRJ30opapFdp8mFnQG3WM+r0+x5tS8GmrO+86JM6j77oHBdlI-H6hitEn09nPADGpBi6r6jKsLN7WTZwa5psS5dyqJ4DzZY9TzwXNBygVQADc0AAGzwCA0Bggg53LV9ZHkIpPE6JNIQxeoDCKQZEVMY4dj5Q5jAzAYzVqSDoIveCkJQtCLww-1KSwmkcJaL8dlMQZa2eFQPwRQCQxUPVsQqJ03DtJMimY88ZTY5DUPQ9hTCWMsX34ulHjDTh2ztEjHlrSxpIUFcnVKWp3BOLR21xAJ3nFM9PRg1R0C9agAEccAEEQwGHMd7xnChMMM4NWlcVQFDadstBEkwDhbbZYVORl9geLZTDUnzWP8mCgpCsKIuvW8osffT52wukdA6fRkvaY5jnMHkXEcLQdQ-ZM9gZJiPPxd0fRVER0IgSQwFUAs4IEABreaPgAJTAAAzWLgSMsE2j1DkBihQxjmS2oerwnZ2VDJztDIx5mMm0QZrmhaJCW1bVA27b2B49U9uDM1rlKYxkx6Eo6naHllA6VdOUqVlHjw57FSm9CwAAJyxgQsdUDBELQra8aVH6xk2nan14uLKy8Pq6idJz2VqCoetuToHgaZx+q8XQXTGryoJe6auKvOqYupwGg0rZw1GTDl2Xotxjm3JMbsUqFPA-My0d9UWZWodQAGNYAIWaJHmxaVrWintpN2Bdplt9njDNx3G5hw3FuRFsTUJNunbCoWVrPWMYvI3TfN97re+36tod-6Gr44GTlRNoGL5J0zSk5pTtUfQTnsJQ4dqO0w9eiOHYIbHcfxwnidJ8nMEpxOpYMoG6eus520GfZ2QNIoLS6PUG2PR0OTMdzRjdYX0crw3q-Fm87ynaKnYXASuhRdF+dL1xIRh6SsChVFGSdaF+bw7R-A8iQBAgOBpHGvBn07t8sEtMp2tSswY0y4+pprhlyeKdUSUJNDFS9G-Z2AlWhKCSilTgaV-7KHjOyToOpB4gL9tPTys8WIaRQohMAMDN50npgXPC7IRKnEomddmVoGSNnMF+fmAwoG+QQlpTiMoyFNXkOiRwJRnCOgeL0cwegeQNALvUFw9RehQlyqNGeOZ1KwTKhHYKoVSE03fnA54ZRJJwxEqUX+iJdjp35lsVwmY4bJQrgbKA-D9oIGeFaMytw6J2jhkUc4x8+aohOEoO0lQ2iOPKg7FxwZnhqBESJBJHJkFoOkgNdO0Yy5B2QTfW+QA */
   id: "swap-ui",
 
   context: ({ input }) => ({
     user: null,
     error: null,
     quote: null,
+    quote1csError: null,
     formValues: {
       tokenIn: input.tokenIn,
       tokenOut: input.tokenOut,
@@ -313,9 +500,15 @@ export const swapUIMachine = setup({
     tokenList: input.tokenList,
     referral: input.referral,
     slippageBasisPoints: 10_000, // 1%
+    is1cs: input.is1cs,
+    is1csFetching: false,
   }),
 
-  entry: ["spawnBackgroundQuoterRef", "spawnDepositedBalanceRef"],
+  entry: [
+    "spawnBackgroundQuoterRef",
+    "spawnBackground1csQuoterRef",
+    "spawnDepositedBalanceRef",
+  ],
 
   on: {
     INTENT_SETTLED: {
@@ -328,10 +521,26 @@ export const swapUIMachine = setup({
       ],
     },
 
-    BALANCE_CHANGED: {
-      guard: "isFormValid",
-      actions: "sendToBackgroundQuoterRefNewQuoteInput",
+    ONE_CLICK_SETTLED: {
+      actions: [
+        {
+          type: "passthroughEvent",
+          params: ({ event }) => event,
+        },
+        "sendToDepositedBalanceRefRefresh",
+      ],
     },
+
+    BALANCE_CHANGED: [
+      {
+        guard: "isFormValidAndNot1cs",
+        actions: "sendToBackgroundQuoterRefNewQuoteInput",
+      },
+      {
+        guard: "isFormValidAnd1cs",
+        actions: "sendToBackground1csQuoterRefNewQuoteInput",
+      },
+    ],
 
     LOGIN: {
       actions: [
@@ -362,11 +571,18 @@ export const swapUIMachine = setup({
   states: {
     editing: {
       on: {
-        submit: {
-          target: "submitting",
-          guard: "isQuoteValid",
-          actions: "clearIntentCreationResult",
-        },
+        submit: [
+          {
+            target: "submitting_1cs",
+            guard: "isQuoteValidAnd1cs",
+            actions: "clearIntentCreationResult",
+          },
+          {
+            target: "submitting",
+            guard: "isQuoteValidAndNot1cs",
+            actions: "clearIntentCreationResult",
+          },
+        ],
 
         input: {
           target: ".validating",
@@ -374,7 +590,9 @@ export const swapUIMachine = setup({
             "clearQuote",
             "updateUIAmountOut",
             "sendToBackgroundQuoterRefPause",
+            "sendToBackground1csQuoterRefPause",
             "clearError",
+            "clear1csError",
             {
               type: "setFormValues",
               params: ({ event }) => ({ data: event.params }),
@@ -392,6 +610,17 @@ export const swapUIMachine = setup({
             "updateUIAmountOut",
           ],
         },
+
+        NEW_1CS_QUOTE: {
+          actions: [
+            "process1csQuote",
+            "updateUIAmountOut",
+            {
+              type: "set1csFetching",
+              params: false,
+            },
+          ],
+        },
       },
 
       states: {
@@ -401,8 +630,13 @@ export const swapUIMachine = setup({
           always: [
             {
               target: "waiting_quote",
-              guard: "isFormValid",
+              guard: "isFormValidAndNot1cs",
               actions: "sendToBackgroundQuoterRefNewQuoteInput",
+            },
+            {
+              target: "waiting_quote",
+              guard: "isFormValidAnd1cs",
+              actions: "sendToBackground1csQuoterRefNewQuoteInput",
             },
             "idle",
           ],
@@ -420,6 +654,17 @@ export const swapUIMachine = setup({
                 "updateUIAmountOut",
               ],
               description: `should do the same as NEW_QUOTE on "editing" itself`,
+            },
+            NEW_1CS_QUOTE: {
+              target: "idle",
+              actions: [
+                "process1csQuote",
+                "updateUIAmountOut",
+                {
+                  type: "set1csFetching",
+                  params: false,
+                },
+              ],
             },
           },
         },
@@ -511,6 +756,109 @@ export const swapUIMachine = setup({
             {
               type: "sendToSwapRefNewQuote",
               params: ({ event }) => event,
+            },
+          ],
+        },
+      },
+    },
+
+    submitting_1cs: {
+      entry: [
+        "clearQuote",
+        "sendToBackground1csQuoterRefPause",
+        {
+          type: "set1csFetching",
+          params: true,
+        },
+      ],
+      invoke: {
+        id: "swapRef1cs",
+        src: "swap1csActor",
+
+        input: ({ context, event, self }) => {
+          assertEvent(event, "submit")
+
+          assert(
+            context.parsedFormValues.amountIn != null,
+            "amountIn is not set"
+          )
+          assert(context.user?.identifier != null, "user address is not set")
+          assert(context.user?.method != null, "user chain type is not set")
+
+          return {
+            tokenIn: context.formValues.tokenIn,
+            tokenOut: context.parsedFormValues.tokenOut,
+            amountIn: context.parsedFormValues.amountIn,
+            slippageBasisPoints: context.slippageBasisPoints,
+            defuseUserId: authIdentity.authHandleToIntentsUserId(
+              context.user.identifier,
+              context.user.method
+            ),
+            deadline: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+            referral: context.referral,
+            userAddress: event.params.userAddress,
+            userChainType: event.params.userChainType,
+            nearClient: event.params.nearClient,
+            parentRef: {
+              send: (event: Background1csQuoterParentEvents) => {
+                self.send(event)
+              },
+            },
+          }
+        },
+
+        onDone: [
+          {
+            target: "editing",
+            guard: { type: "isOk", params: ({ event }) => event.output },
+
+            actions: [
+              {
+                type: "spawnIntentStatusActor",
+                params: ({ event }) => event.output,
+              },
+              {
+                type: "setIntentCreationResult",
+                params: ({ event }) => event.output,
+              },
+              "emitEventIntentPublished",
+            ],
+          },
+          {
+            target: "editing",
+
+            actions: [
+              {
+                type: "setIntentCreationResult",
+                params: ({ event }) => event.output,
+              },
+            ],
+          },
+        ],
+
+        onError: {
+          target: "editing",
+
+          actions: [
+            ({ event }) => {
+              logger.error(event.error)
+            },
+            {
+              type: "set1csFetching",
+              params: false,
+            },
+          ],
+        },
+      },
+
+      on: {
+        NEW_1CS_QUOTE: {
+          actions: [
+            "process1csQuote",
+            "updateUIAmountOut",
+            {
+              type: "set1csFetching",
+              params: false,
             },
           ],
         },

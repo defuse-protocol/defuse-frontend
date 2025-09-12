@@ -16,16 +16,15 @@ import { SolanaWalletProvider } from "@src/providers/SolanaWalletProvider"
 import { StellarWalletProvider } from "@src/providers/StellarWalletProvider"
 import { ThemeProvider } from "@src/providers/ThemeProvider"
 import { TonConnectUIProvider } from "@src/providers/TonConnectUIProvider"
-import { WalletSelectorProvider } from "@src/providers/WalletSelectorProvider"
 
 import "@radix-ui/themes/styles.css"
-import "@near-wallet-selector/modal-ui/styles.css"
 import "../styles/global.scss"
 import Helpscout from "@src/components/Helpscout"
 import { MixpanelProvider } from "@src/providers/MixpanelProvider"
+import { NearWalletProvider } from "@src/providers/NearWalletProvider"
 import { TronWalletProvider } from "@src/providers/TronWalletProvider"
 import {
-  DEV_MODE,
+  APP_ENV,
   HELPSCOUT_BEACON_ID,
   VERCEL_PROJECT_PRODUCTION_URL,
 } from "@src/utils/environment"
@@ -126,7 +125,7 @@ const RootLayout = async ({
         <ThemeProvider>
           <WagmiProvider config={config}>
             <QueryClientProvider client={queryClient}>
-              <WalletSelectorProvider>
+              <NearWalletProvider>
                 <SolanaWalletProvider>
                   <StellarWalletProvider>
                     <TonConnectUIProvider>
@@ -139,8 +138,10 @@ const RootLayout = async ({
                     </TonConnectUIProvider>
                   </StellarWalletProvider>
                 </SolanaWalletProvider>
-              </WalletSelectorProvider>
-              {DEV_MODE && <ReactQueryDevtools initialIsOpen={false} />}
+              </NearWalletProvider>
+              {APP_ENV === "development" && (
+                <ReactQueryDevtools initialIsOpen={false} />
+              )}
             </QueryClientProvider>
           </WagmiProvider>
         </ThemeProvider>

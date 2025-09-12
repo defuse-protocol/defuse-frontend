@@ -59,43 +59,12 @@ export const submitTransactionStellar = async (signedTxXdr: string) => {
   return response.hash
 }
 
-/**
- * Caution: Wallet modules use different signature conversion formats.
- * For example, Freighter expects the message to be signed in base64 format.
- * This is implemented as per:
- * https://github.com/Creit-Tech/Stellar-Wallets-Kit/blob/main/src/modules/freighter.module.ts#L117
- */
 export const signMessageStellar = async (
   message: string
-): Promise<{
-  signatureType: "STELLAR_RAW" | "STELLAR_SEP53"
-  signatureData: Uint8Array
-}> => {
+): Promise<Uint8Array> => {
   const k = getKit()
-  const walletId = getSelectedWalletId()
-
-  // TODO: Once all wallets support SEP-0053 standard, messageToSign should be revisited
-  const base64Payload = base64.encode(new TextEncoder().encode(message))
-  const messageToSign = walletId === FREIGHTER_ID ? base64Payload : message
-
-  const { signedMessage } = await k.signMessage(messageToSign)
-
-  let signatureData: Uint8Array
-  if (walletId === FREIGHTER_ID) {
-    // ED25519 signature
-    const raw = new TextDecoder().decode(base64.decode(signedMessage))
-    signatureData = base64.decode(raw)
-  } else {
-    // SEP-0053 signature
-    signatureData = base64.decode(signedMessage)
-  }
-
-  // TODO: Freighter uses raw ED25519 signatures while other wallets use SEP-0053 format.
-  // Keep using raw ED25519 for Freighter until all wallets support SEP-0053 standard.
-  return {
-    signatureType: walletId === FREIGHTER_ID ? "STELLAR_RAW" : "STELLAR_SEP53",
-    signatureData,
-  }
+  const { signedMessage } = await k.signMessage(message)
+  return base64.decode(signedMessage)
 }
 
 export async function getPublicKeyStellar() {

@@ -1,14 +1,15 @@
 "use client"
 import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
-import { GiftHistoryWidget, GiftMakerWidget } from "@src/components/DefuseSDK"
+import { GiftHistoryWidget } from "@src/components/DefuseSDK/features/gift/components/GiftHistoryWidget"
+import { GiftMakerWidget } from "@src/components/DefuseSDK/features/gift/components/GiftMakerWidget"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
+import { useNearWallet } from "@src/providers/NearWalletProvider"
 import { renderAppLink } from "@src/utils/renderAppLink"
-import { useNearWalletActions } from "../../../hooks/useNearWalletActions"
 import { createGiftIntent, createGiftLink } from "../_utils/link"
 
 export default function CreateGiftPage() {
@@ -17,7 +18,7 @@ export default function CreateGiftPage() {
   const signMessage = useWalletAgnosticSignMessage()
   const { tokenIn } = useDeterminePair()
   const referral = useIntentsReferral()
-  const { signAndSendTransactions } = useNearWalletActions()
+  const { signAndSendTransactions } = useNearWallet()
 
   const userAddress = state.isVerified ? state.address : undefined
   const userChainType = state.chainType

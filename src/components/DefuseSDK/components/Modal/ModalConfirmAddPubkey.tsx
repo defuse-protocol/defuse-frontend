@@ -25,7 +25,6 @@ export const ModalConfirmAddPubkey = () => {
         </Flex>
 
         <Text>
-          {/* biome-ignore lint/nursery/useConsistentCurlyBraces: space is needed here */}
           To verify your account (NEAR ID:{" "}
           <Text weight="bold">{accountId}</Text>), please send a one-time
           transaction.

@@ -1,4 +1,4 @@
-import { getQuote } from "@src/components/DefuseSDK/utils"
+import { solverRelay } from "@defuse-protocol/internal-utils"
 import { type NextRequest, NextResponse } from "next/server"
 
 import {
@@ -11,6 +11,7 @@ import type {
   LastLiquidityCheckStatus,
   MaxLiquidity,
 } from "@src/types/interfaces"
+import { CRON_SECRET } from "@src/utils/environment"
 import { logger } from "@src/utils/logger"
 import { joinAddresses } from "@src/utils/tokenUtils"
 
@@ -26,7 +27,7 @@ export async function GET(req: NextRequest) {
     )
   }
 
-  if (secret !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (secret !== `Bearer ${CRON_SECRET}`) {
     logger.error("Found incorrect secret")
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
@@ -60,17 +61,18 @@ export async function GET(req: NextRequest) {
       continue
     }
 
-    getQuote({
-      quoteParams: {
-        defuse_asset_identifier_in: token.in.defuseAssetId,
-        defuse_asset_identifier_out: token.out.defuseAssetId,
-        exact_amount_in: maxLiquidity.amount,
-        wait_ms: 2888, // hot fix for filtering out such failed quotes from stats
-      },
-      config: {
-        logBalanceSufficient: false,
-      },
-    })
+    solverRelay
+      .getQuote({
+        quoteParams: {
+          defuse_asset_identifier_in: token.in.defuseAssetId,
+          defuse_asset_identifier_out: token.out.defuseAssetId,
+          exact_amount_in: maxLiquidity.amount,
+          wait_ms: 2888, // hot fix for filtering out such failed quotes from stats
+        },
+        config: {
+          logBalanceSufficient: false,
+        },
+      })
       .then(() => {
         const updatedData = prepareUpdatedLiquidity(maxLiquidity, true)
         tokenPairsLiquidity[joinedAddressesKey] = updatedData

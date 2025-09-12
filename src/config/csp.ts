@@ -7,10 +7,13 @@ const cspConfig = {
   "default-src": ["'self'"],
   "frame-src": [
     "'self'",
+    "data:",
     "https://hot-labs.org",
     "https://widget.solflare.com",
     "https://verify.walletconnect.org",
     "https://connect.solflare.com",
+    "https://*.peersyst.tech",
+    "https://wallet.intear.tech",
   ],
   "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
   "font-src": ["'self'", "https://fonts.gstatic.com"],
@@ -21,6 +24,7 @@ const cspConfig = {
     "'unsafe-eval'",
     "https://www.googletagmanager.com",
     "https://beacon-v2.helpscout.net",
+    "https://vercel.live",
   ],
   "worker-src": [
     "'self'",
@@ -34,6 +38,7 @@ const cspConfig = {
     "'self'",
     /** Services */
     "https://*.chaindefuser.com",
+    "wss://*.chaindefuser.com",
     "https://*.google-analytics.com",
     "https://*.near-intents.org",
     "https://api.hyperunit.xyz",
@@ -43,8 +48,14 @@ const cspConfig = {
 
     /** Stage Solver Relay and Bridge Services */
     "https://*.intents-near.org",
+    "wss://*.intents-near.org",
     "https://near-intents.org",
+    "wss://near-intents.org",
     "https://mainnet.api.bridge.nearone.org",
+    "wss://mainnet.api.bridge.nearone.org",
+
+    /** NEAR Mobile Signer Services */
+    "https://*.peersyst.tech",
 
     /** Helpscout */
     "https://beaconapi.helpscout.net",
@@ -86,6 +97,8 @@ const cspConfig = {
 
     /** HOT */
     "http://*.herewallet.app",
+    "https://raw.githubusercontent.com",
+    "https://wallet.intear.tech/near-selector.js",
 
     /** Stellar Wallets */
     "https://api.web3modal.org",
@@ -96,6 +109,8 @@ const cspConfig = {
     "https://*.aurora-cloud.dev",
     "https://*.aurora.dev",
     "https://*.quiknode.pro",
+    "https://*.solana.com",
+    "https://relmn.aurora.dev",
     "https://veriee-t2i7nw-fast-mainnet.helius-rpc.com",
     "https://eth-mainnet.public.blastapi.io",
     "https://mainnet.base.org",
@@ -121,6 +136,8 @@ const cspConfig = {
     "https://c1.rpc.fastnear.com",
     "https://rpc.near.org",
     "https://rpc.mainnet.pagoda.co",
+    "https://api.trongrid.io",
+    "https://fullnode.mainnet.aptoslabs.com",
   ],
   "object-src": ["'none'"],
   "base-uri": ["'self'"],

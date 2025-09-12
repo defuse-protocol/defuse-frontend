@@ -2,7 +2,7 @@ import type { walletMessage as walletMessage_ } from "@defuse-protocol/internal-
 import { useWallet as useWalletSolana } from "@solana/wallet-adapter-react"
 import { useWebAuthnActions } from "@src/features/webauthn/hooks/useWebAuthnStore"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
-import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
+import { useNearWallet } from "@src/providers/NearWalletProvider"
 import { signMessageStellar } from "@src/providers/StellarWalletProvider"
 import { useTronWallet } from "@src/providers/TronWalletProvider"
 import {
@@ -14,7 +14,7 @@ import { useSignMessage } from "wagmi"
 
 export function useWalletAgnosticSignMessage() {
   const { state } = useConnectWallet()
-  const { signMessage: signMessageNear } = useNearWalletActions()
+  const { signMessage: signMessageNear } = useNearWallet()
   const { signMessageAsync: signMessageAsyncWagmi } = useSignMessage()
   const solanaWallet = useWalletSolana()
   const { signMessage: signMessageWebAuthn } = useWebAuthnActions()
@@ -88,11 +88,11 @@ export function useWalletAgnosticSignMessage() {
       }
 
       case ChainType.Stellar: {
-        const { signatureData, signatureType } = await signMessageStellar(
+        const signatureData = await signMessageStellar(
           walletMessage.STELLAR.message
         )
         return {
-          type: signatureType,
+          type: "STELLAR_SEP53",
           signatureData,
           signedData: walletMessage.STELLAR,
         }

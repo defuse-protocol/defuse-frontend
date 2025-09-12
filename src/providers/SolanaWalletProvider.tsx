@@ -16,7 +16,8 @@ import { type FC, type ReactNode, useMemo } from "react"
 
 // Default styles that can be overridden by your app
 import "@solana/wallet-adapter-react-ui/styles.css"
-import { PROJECT_ID, SOLANA_RPC_URL } from "@src/utils/environment"
+import { settings } from "@src/components/DefuseSDK/constants/settings"
+import { PROJECT_ID } from "@src/utils/environment"
 
 export const SolanaWalletProvider: FC<{ children: ReactNode }> = ({
   children,
@@ -26,7 +27,7 @@ export const SolanaWalletProvider: FC<{ children: ReactNode }> = ({
 
   // You can also provide a custom RPC endpoint.
   const endpoint = useMemo(
-    () => SOLANA_RPC_URL || clusterApiUrl(network),
+    () => settings.rpcUrls.solana || clusterApiUrl(network),
     [network]
   )
 

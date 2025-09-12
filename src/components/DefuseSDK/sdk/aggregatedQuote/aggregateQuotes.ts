@@ -1,20 +1,17 @@
+import type { solverRelay } from "@defuse-protocol/internal-utils"
 import { assert } from "../../utils/assert"
 import { QuoteError } from "../solverRelay/errors/quote"
-import type {
-  GetQuoteParams,
-  GetQuoteReturnType,
-} from "../solverRelay/getQuote"
 import type { AggregatedQuote } from "../solverRelay/types/quote"
 import { AggregatedQuoteError } from "./errors/aggregatedQuoteError"
 
 export function aggregateQuotes(
-  quotes: PromiseSettledResult<GetQuoteReturnType>[],
-  quoteParams: GetQuoteParams["quoteParams"][]
+  quotes: PromiseSettledResult<solverRelay.GetQuoteReturnType>[],
+  quoteParams: solverRelay.GetQuoteParams["quoteParams"][]
 ): AggregatedQuote {
   const quoteHashes: string[] = []
   let expirationTime = Number.POSITIVE_INFINITY
   const tokenDeltas: [string, bigint][] = []
-  const validQuoteParams: GetQuoteParams["quoteParams"][] = []
+  const validQuoteParams: solverRelay.GetQuoteParams["quoteParams"][] = []
   const quoteErrors: QuoteError[] = []
 
   for (const [i, quoteResult] of quotes.entries()) {

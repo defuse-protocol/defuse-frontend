@@ -2,6 +2,7 @@ import { AccountLayout } from "@solana/spl-token"
 import { Connection, PublicKey } from "@solana/web3.js"
 import { type AssetType, Horizon } from "@stellar/stellar-sdk"
 import { Address as TonAddress, beginCell } from "@ton/ton"
+import { TronWeb } from "tronweb"
 import * as v from "valibot"
 import { http, type Address, createPublicClient, erc20Abi } from "viem"
 import { nearClient } from "../constants/nearClient"
@@ -280,4 +281,43 @@ function isStellarNativeToken(assetType: AssetType): boolean {
 }
 function isStellarTrustlineToken(assetType: AssetType): boolean {
   return assetType === "credit_alphanum4" || assetType === "credit_alphanum12"
+}
+
+export const getTronNativeBalance = async ({
+  userAddress,
+  rpcUrl,
+}: {
+  userAddress: string
+  rpcUrl: string
+}): Promise<bigint | null> => {
+  try {
+    const client = new TronWeb({ fullHost: rpcUrl })
+    const balance = await client.trx.getBalance(userAddress)
+    return BigInt(balance)
+  } catch (err: unknown) {
+    logger.error(
+      new Error("error fetching TRON native balance", { cause: err })
+    )
+    return null
+  }
+}
+
+export const getTronTrc20Balance = async ({
+  tokenAddress,
+  userAddress,
+  rpcUrl,
+}: {
+  tokenAddress: string
+  userAddress: string
+  rpcUrl: string
+}): Promise<bigint | null> => {
+  try {
+    const client = new TronWeb({ fullHost: rpcUrl })
+    const contract = await client.contract().at(tokenAddress)
+    client.setAddress(userAddress)
+    return await contract.balanceOf(userAddress).call()
+  } catch (err: unknown) {
+    logger.error(new Error("error fetching TRON TRC20 balance", { cause: err }))
+    return null
+  }
 }

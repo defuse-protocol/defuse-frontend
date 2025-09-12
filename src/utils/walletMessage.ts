@@ -1,9 +1,7 @@
-import {
-  createEmptyIntentMessage,
-  formatSignedIntent,
-} from "@src/components/DefuseSDK"
 import { config } from "@src/components/DefuseSDK/config"
 import { nearClient } from "@src/components/DefuseSDK/constants/nearClient"
+import { formatSignedIntent } from "@src/components/DefuseSDK/core/formatters"
+import { createEmptyIntentMessage } from "@src/components/DefuseSDK/core/messages"
 import type { ChainType } from "@src/hooks/useConnectWallet"
 import { hasMessage } from "@src/utils/errors"
 import type { CodeResult } from "near-api-js/lib/providers/provider"

@@ -12,8 +12,6 @@ import useShortAccountId from "@src/hooks/useShortAccountId"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { useSignInWindowOpenState } from "@src/stores/useSignInWindowOpenState"
 import { mapStringToEmojis } from "@src/utils/emoji"
-import { TURN_OFF_APPS } from "@src/utils/environment"
-import { useSearchParams } from "next/navigation"
 import { TonConnectButton } from "./TonConnectButton"
 
 const ConnectWallet = () => {
@@ -21,7 +19,6 @@ const ConnectWallet = () => {
   const { state, signIn, connectors } = useConnectWallet()
   const { shortAccountId } = useShortAccountId(state.displayAddress ?? "")
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
-  const searchParams = useSearchParams()
 
   const handleNearWalletSelector = () => {
     return signIn({ id: ChainType.Near })
@@ -39,17 +36,11 @@ const ConnectWallet = () => {
     return signIn({ id: ChainType.WebAuthn })
   }
 
-  if (!state.address || TURN_OFF_APPS) {
+  if (!state.address) {
     return (
       <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
         <Popover.Trigger>
-          <Button
-            type={"button"}
-            variant={"solid"}
-            size={"2"}
-            radius={"full"}
-            disabled={TURN_OFF_APPS}
-          >
+          <Button type={"button"} variant={"solid"} size={"2"} radius={"full"}>
             <Text weight="bold" wrap="nowrap">
               Sign in
             </Text>
@@ -58,6 +49,7 @@ const ConnectWallet = () => {
         <Popover.Content
           maxWidth={{ initial: "90vw", xs: "480px" }}
           minWidth={{ initial: "300px", xs: "330px" }}
+          maxHeight="90vh"
           className="md:mr-[48px] dark:bg-black-800 rounded-2xl"
         >
           <Text size="1">How do you want to sign in?</Text>
@@ -297,29 +289,26 @@ const ConnectWallet = () => {
                     </Button>
 
                     {/* Tron connector */}
-                    {/* TODO: Remove searchParams check once Tron is fully supported */}
-                    {searchParams.get("tron") && (
-                      <Button
-                        onClick={() => signIn({ id: ChainType.Tron })}
-                        size="4"
-                        radius="medium"
-                        variant="soft"
-                        color="gray"
-                        className="px-2.5"
-                      >
-                        <div className="w-full flex items-center justify-start gap-2">
-                          <Image
-                            src="/static/icons/network/tron.svg"
-                            alt="Tron"
-                            width={36}
-                            height={36}
-                          />
-                          <Text size="2" weight="bold">
-                            Tron Wallet
-                          </Text>
-                        </div>
-                      </Button>
-                    )}
+                    <Button
+                      onClick={() => signIn({ id: ChainType.Tron })}
+                      size="4"
+                      radius="medium"
+                      variant="soft"
+                      color="gray"
+                      className="px-2.5"
+                    >
+                      <div className="w-full flex items-center justify-start gap-2">
+                        <Image
+                          src="/static/icons/network/tron.svg"
+                          alt="Tron"
+                          width={36}
+                          height={36}
+                        />
+                        <Text size="2" weight="bold">
+                          Tron Wallet
+                        </Text>
+                      </div>
+                    </Button>
 
                     <Text size="1" color="gray">
                       Other options
@@ -365,7 +354,6 @@ const ConnectWallet = () => {
             color={"gray"}
             size={"2"}
             radius={"full"}
-            disabled={TURN_OFF_APPS}
             className="font-bold text-gray-12"
           >
             {state.chainType !== "webauthn" ? (

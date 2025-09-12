@@ -1,3 +1,4 @@
+import { TronWeb } from "tronweb"
 import { http, type Address, type Hash, createPublicClient } from "viem"
 
 /**
@@ -113,4 +114,54 @@ export async function estimateStellarXLMTransferCost({
 
   const totalCost = minBalanceStroops + transactionFeeStroops
   return totalCost
+}
+
+/**
+ * Tron gas cost estimation
+ * TRX transfers use Bandwidth (tx size in bytes). Without free/staked Bandwidth, costs 0.001 TRX per bandwidth point. ~600 free Bandwidth/day.
+ */
+const TRON_ESTIMATION_AMOUNT = 1000000n // 1 TRX in sun for estimation purposes
+const TRON_SIGNATURE_BYTES = 65n // one ECDSA signature
+const BANDWIDTH_PRICE_SUN = 1000n // Cost per bandwidth point in sun (0.001 TRX = 1000 sun) Reference: https://developers.tron.network/docs/account
+const TRON_MEMO_COST_SUN = 200000n // 0.2 TRX cost for adding a memo (overestimated)
+
+export async function estimateTronTransferCost({
+  rpcUrl,
+  from,
+  to,
+}: {
+  rpcUrl: string
+  from: string
+  to: string | null
+}): Promise<bigint> {
+  if (!to || !TronWeb.isAddress(from) || !TronWeb.isAddress(to)) {
+    return 0n
+  }
+
+  const client = new TronWeb({ fullHost: rpcUrl })
+
+  // 1) Build unsigned tx and measure size
+  const tx = await client.transactionBuilder.sendTrx(
+    to,
+    Number(TRON_ESTIMATION_AMOUNT),
+    from
+  )
+  const rawBytes = BigInt(tx.raw_data_hex.length) / 2n // hex → bytes
+  const bandwidthNeeded = rawBytes + TRON_SIGNATURE_BYTES // 1 byte == 1 bandwidth point
+
+  // 2) Check available Bandwidth on the sender
+  const r = await client.trx.getAccountResources(from)
+  const freeLeft = BigInt(r.freeNetLimit ?? 0) - BigInt(r.freeNetUsed ?? 0)
+  const stakedLeft = BigInt(r.NetLimit ?? 0) - BigInt(r.NetUsed ?? 0)
+  const available =
+    (freeLeft > 0n ? freeLeft : 0n) + (stakedLeft > 0n ? stakedLeft : 0n)
+
+  // 3) Calculate bandwidth deficit and cost
+  const deficit = bandwidthNeeded > available ? bandwidthNeeded - available : 0n
+  const sunToBurn = deficit * BANDWIDTH_PRICE_SUN
+
+  // 4) Add memo cost buffer
+  const withMemoBuffer = sunToBurn + TRON_MEMO_COST_SUN
+
+  return withMemoBuffer
 }

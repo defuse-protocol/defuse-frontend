@@ -4,8 +4,9 @@ import {
   checkTonJettonWalletRequired,
   createTonClient,
 } from "@src/components/DefuseSDK/services/tonJettonService"
+import { shallowEqualObjects } from "@src/utils/object"
 import type { Address } from "viem"
-import { assign, fromPromise, setup } from "xstate"
+import { assign, enqueueActions, fromPromise, setup } from "xstate"
 import { logger } from "../../logger"
 import {
   getEvmErc20Balance,
@@ -17,6 +18,8 @@ import {
   getStellarBalance,
   getTonJettonBalance,
   getTonNativeBalance,
+  getTronNativeBalance,
+  getTronTrc20Balance,
 } from "../../services/blockchainBalanceService"
 import { getWalletRpcUrl } from "../../services/depositService"
 import type { BaseTokenInfo, SupportedChainName } from "../../types/base"
@@ -70,23 +73,21 @@ export const backgroundBalanceActor = fromPromise(
             accountId: normalizeToNearAddress(userWalletAddress),
           }),
         ])
+
+        if (nep141Balance === null) {
+          throw new Error("Failed to fetch nep141 NEAR balance")
+        }
+
         // This is unique case for NEAR, where we need to sum up the native balance and the NEP-141 balance
         if (address === "wrap.near") {
-          if (nep141Balance === null || nativeBalance === null) {
-            throw new Error("Failed to fetch NEAR balances")
+          if (nativeBalance === null) {
+            throw new Error("Failed to fetch native NEAR balance")
           }
           result.balance = nep141Balance + nativeBalance
           result.nearBalance = nativeBalance
           break
         }
-        const balance = await getNearNep141Balance({
-          tokenAddress: address,
-          accountId: normalizeToNearAddress(userWalletAddress),
-        })
-        if (balance === null) {
-          throw new Error("Failed to fetch NEAR balances")
-        }
-        result.balance = balance
+        result.balance = nep141Balance
         result.nearBalance = nativeBalance
         break
       }
@@ -202,12 +203,34 @@ export const backgroundBalanceActor = fromPromise(
         result.balance = balance
         break
       }
+      case BlockchainEnum.TRON: {
+        if (isNativeToken(derivedToken)) {
+          const balance = await getTronNativeBalance({
+            userAddress: userWalletAddress,
+            rpcUrl: getWalletRpcUrl(networkToSolverFormat),
+          })
+          if (balance === null) {
+            throw new Error("Failed to fetch TRON balances")
+          }
+          result.balance = balance
+          break
+        }
+        const balance = await getTronTrc20Balance({
+          tokenAddress: derivedToken.address,
+          userAddress: userWalletAddress,
+          rpcUrl: getWalletRpcUrl(networkToSolverFormat),
+        })
+        if (balance === null) {
+          throw new Error("Failed to fetch TRON balances")
+        }
+        result.balance = balance
+        break
+      }
       // Active deposits through Bitcoin and other blockchains are not supported, so we don't need to check balances
       case BlockchainEnum.BITCOIN:
       case BlockchainEnum.DOGECOIN:
       case BlockchainEnum.XRPLEDGER:
       case BlockchainEnum.ZCASH:
-      case BlockchainEnum.TRON:
       case BlockchainEnum.HYPERLIQUID:
       case BlockchainEnum.SUI:
       case BlockchainEnum.APTOS:
@@ -226,6 +249,12 @@ function normalizeToNearAddress(address: string): string {
 }
 
 export interface Context {
+  lastBalanceRequestParams: null | {
+    derivedToken: BaseTokenInfo
+    userAddress: string
+    userWalletAddress: string | null
+    blockchain: SupportedChainName
+  }
   preparationOutput:
     | {
         tag: "ok"
@@ -261,6 +290,16 @@ export const depositTokenBalanceMachine = setup({
     clearBalance: assign({
       preparationOutput: null,
     }),
+    setLastBalanceRequestParams: assign({
+      lastBalanceRequestParams: ({ event }) => {
+        return {
+          derivedToken: event.params.derivedToken,
+          userAddress: event.params.userAddress,
+          userWalletAddress: event.params.userWalletAddress,
+          blockchain: event.params.blockchain,
+        }
+      },
+    }),
   },
   guards: {},
 }).createMachine({
@@ -268,6 +307,7 @@ export const depositTokenBalanceMachine = setup({
   id: "depositedBalance",
 
   context: {
+    lastBalanceRequestParams: null,
     preparationOutput: null,
   },
 
@@ -327,6 +367,22 @@ export const depositTokenBalanceMachine = setup({
   },
 
   on: {
-    REQUEST_BALANCE_REFRESH: ".fetching",
+    REQUEST_BALANCE_REFRESH: {
+      target: ".fetching",
+      actions: [
+        /**
+         * Clear balance only if input changed, to not accidentally display an incorrect number.
+         */
+        enqueueActions(({ enqueue, context, event }) => {
+          if (
+            context.lastBalanceRequestParams != null &&
+            !shallowEqualObjects(event.params, context.lastBalanceRequestParams)
+          ) {
+            enqueue("clearBalance")
+          }
+        }),
+        "setLastBalanceRequestParams",
+      ],
+    },
   },
 })

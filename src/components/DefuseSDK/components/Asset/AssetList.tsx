@@ -1,4 +1,4 @@
-import { CheckCircle } from "@phosphor-icons/react"
+import { CheckCircleIcon } from "@phosphor-icons/react"
 import { Text } from "@radix-ui/themes"
 import clsx from "clsx"
 import type { ReactNode } from "react"
@@ -62,7 +62,7 @@ export const AssetList = <T extends Token>({
                 />
                 {selected && (
                   <div className="absolute top-1 -right-1.5 rounded-full">
-                    <CheckCircle width={12} height={12} weight="fill" />
+                    <CheckCircleIcon width={12} height={12} weight="fill" />
                   </div>
                 )}
               </div>
@@ -75,10 +75,7 @@ export const AssetList = <T extends Token>({
                 </div>
                 <div className="flex justify-between items-center text-gray-11">
                   <Text as="span" size="2">
-                    {token.symbol}{" "}
-                    {showChain && isBaseToken(token)
-                      ? token.chainName.toUpperCase()
-                      : ""}
+                    {token.symbol}
                   </Text>
                   {usdValue != null ? (
                     <FormattedCurrency

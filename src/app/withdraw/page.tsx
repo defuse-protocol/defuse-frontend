@@ -1,19 +1,19 @@
 "use client"
-import { WithdrawWidget } from "@src/components/DefuseSDK"
+import { WithdrawWidget } from "@src/components/DefuseSDK/features/withdraw/components/WithdrawWidget"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
-import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
+import { useNearWallet } from "@src/providers/NearWalletProvider"
 import { renderAppLink } from "@src/utils/renderAppLink"
 import { useSearchParams } from "next/navigation"
 
 export default function Withdraw() {
   const { state } = useConnectWallet()
   const signMessage = useWalletAgnosticSignMessage()
-  const { signAndSendTransactions } = useNearWalletActions()
+  const { signAndSendTransactions } = useNearWallet()
   const tokenList = useTokenList(LIST_TOKENS)
   const referral = useIntentsReferral()
   const queryParams = useSearchParams()

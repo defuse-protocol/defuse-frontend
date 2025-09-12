@@ -1,4 +1,5 @@
 import type { authHandle } from "@defuse-protocol/internal-utils"
+import { useDebounce } from "@src/hooks/useDebounce"
 import { useSelector } from "@xstate/react"
 import { type PropsWithChildren, useEffect, useRef } from "react"
 import { useFormContext } from "react-hook-form"
@@ -28,19 +29,17 @@ export function SwapUIMachineFormSyncProvider({
   const onSuccessSwapRef = useRef(onSuccessSwap)
   onSuccessSwapRef.current = onSuccessSwap
 
+  const amountIn = watch("amountIn")
+  const debouncedAmountIn = useDebounce(amountIn, 500)
+
   useEffect(() => {
-    const sub = watch(async (value, { name }) => {
-      if (name != null && name === "amountIn") {
-        actorRef.send({
-          type: "input",
-          params: { [name]: value[name] },
-        })
-      }
-    })
-    return () => {
-      sub.unsubscribe()
+    if (debouncedAmountIn !== undefined) {
+      actorRef.send({
+        type: "input",
+        params: { amountIn: debouncedAmountIn },
+      })
     }
-  }, [watch, actorRef])
+  }, [debouncedAmountIn, actorRef])
 
   useEffect(() => {
     if (userAddress == null || userChainType == null) {

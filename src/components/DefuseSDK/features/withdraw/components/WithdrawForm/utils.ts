@@ -42,6 +42,7 @@ export function chainTypeSatisfiesChainName(
     case chainType === AuthMethod.Solana && chainName === "solana":
     case chainType === AuthMethod.Stellar && chainName === "stellar":
     case chainType === AuthMethod.Ton && chainName === "ton":
+    case chainType === AuthMethod.Tron && chainName === "tron":
       return true
   }
 

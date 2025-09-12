@@ -1,13 +1,13 @@
 "use client"
 
-import { OtcTakerWidget } from "@src/components/DefuseSDK"
+import { OtcTakerWidget } from "@src/components/DefuseSDK/features/otcDesk/components/OtcTakerWidget"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
-import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
+import { useNearWallet } from "@src/providers/NearWalletProvider"
 import { renderAppLink } from "@src/utils/renderAppLink"
 import { useOtcOrder } from "../_utils/link"
 
@@ -16,7 +16,7 @@ export default function CreateOrderPage() {
   const tokenList = useTokenList(LIST_TOKENS)
   const signMessage = useWalletAgnosticSignMessage()
   const { multiPayload, tradeId } = useOtcOrder()
-  const { signAndSendTransactions } = useNearWalletActions()
+  const { signAndSendTransactions } = useNearWallet()
   const referral = useIntentsReferral()
 
   return (
