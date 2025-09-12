@@ -131,7 +131,10 @@ export function TokenListUpdater1cs<
       // if user doesn't have this token use first from the list by default
       if (nonZeroBalanceTokensDeduped.length === 0) {
         addToken(token.groupedTokens[0])
-        // if user has one or more kinds of this token - show them all with network name
+        // if user has this token use it
+      } else if (nonZeroBalanceTokensDeduped.length === 1) {
+        addToken(nonZeroBalanceTokensDeduped[0])
+        // if user has multiple kinds of this token - show them all
       } else {
         for (const t of nonZeroBalanceTokensDeduped) {
           addToken({ ...t, symbol: `${t.symbol} (${t.chainName})` })
@@ -145,6 +148,7 @@ export function TokenListUpdater1cs<
       },
     } = swapUIActorRef.getSnapshot()
 
+    // set near if it happens that tokenIn and tokenOut are the same
     if (newTokenIn === newTokenOut) {
       swapUIActorRef.send({ type: "input", params: { tokenOut: NATIVE_NEAR } })
     }
