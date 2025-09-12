@@ -9,6 +9,7 @@ import {
   setup,
 } from "xstate"
 import { config } from "../../config"
+import { clearSolanaATACache } from "../../services/depositService"
 import type { BaseTokenInfo, SupportedChainName } from "../../types/base"
 import type { SwappableToken } from "../../types/swap"
 import { depositEstimationMachine } from "./depositEstimationActor"
@@ -109,6 +110,17 @@ export const depositUIMachine = setup({
     }),
     clearUIDepositAmount: () => {
       throw new Error("not implemented")
+    },
+    clearSolanaATACache: ({ context }) => {
+      const { derivedToken } = context.depositFormRef.getSnapshot().context
+      const depositAddress =
+        context.preparationOutput?.tag === "ok"
+          ? context.preparationOutput.value.generateDepositAddress
+          : null
+
+      if (derivedToken != null && depositAddress != null) {
+        clearSolanaATACache(derivedToken, depositAddress)
+      }
     },
     clearPreparationOutput: assign({
       preparationOutput: ({ context }): Context["preparationOutput"] => {
@@ -525,6 +537,7 @@ export const depositUIMachine = setup({
               params: ({ event }) => event.output,
             },
             { type: "clearUIDepositAmount" },
+            { type: "clearSolanaATACache" },
           ],
           reenter: true,
         },
