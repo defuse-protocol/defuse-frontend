@@ -93,23 +93,21 @@ export function TokenListUpdater1cs<
         continue
       }
 
-      const isTokenIn = isBaseToken(tokenIn)
-        ? tokenIn.defuseAssetId === originalToken.defuseAssetId
-        : tokenIn.unifiedAssetId === token.unifiedAssetId
+      function addToken(token: BaseTokenInfo) {
+        newList.push(token)
 
-      const isTokenOut = isBaseToken(tokenOut)
-        ? tokenOut.defuseAssetId === originalToken.defuseAssetId
-        : tokenOut.unifiedAssetId === token.unifiedAssetId
-
-      function setTokenIn(tokenIn: BaseTokenInfo) {
-        if (isTokenIn) {
-          swapUIActorRef.send({ type: "input", params: { tokenIn } })
+        if (
+          isBaseToken(tokenIn) &&
+          tokenIn.defuseAssetId === token.defuseAssetId
+        ) {
+          swapUIActorRef.send({ type: "input", params: { tokenIn: token } })
         }
-      }
 
-      function setTokenOut(tokenOut: BaseTokenInfo) {
-        if (isTokenOut) {
-          swapUIActorRef.send({ type: "input", params: { tokenOut } })
+        if (
+          isBaseToken(tokenOut) &&
+          tokenOut.defuseAssetId === token.defuseAssetId
+        ) {
+          swapUIActorRef.send({ type: "input", params: { tokenOut: token } })
         }
       }
 
@@ -132,43 +130,17 @@ export function TokenListUpdater1cs<
 
       // if user doesn't have this token use first from the list by default
       if (nonZeroBalanceTokensDeduped.length === 0) {
-        const t = token.groupedTokens[0]
-        newList.push(t)
-        setTokenIn(t)
-        setTokenOut(t)
+        addToken(token.groupedTokens[0])
         // if user has this token use it
       } else if (nonZeroBalanceTokensDeduped.length === 1) {
-        const t = nonZeroBalanceTokensDeduped[0]
-        newList.push(t)
-        setTokenIn(t)
-        setTokenOut(t)
+        addToken(nonZeroBalanceTokensDeduped[0])
         // if user has multiple kinds of this token - show them all
       } else {
-        const tokensWithChain = nonZeroBalanceTokensDeduped.map((t) => ({
-          ...t,
-          symbol: `${token.symbol} (${t.chainName})`,
-        }))
-
-        let isTokenInSet = false
-        let isTokenOutSet = false
-
-        for (const t of tokensWithChain) {
-          newList.push(t)
-          if (t.symbol === tokenIn.symbol) {
-            isTokenInSet = true
-            setTokenIn(t)
-          } else if (t.symbol === tokenOut.symbol) {
-            isTokenOutSet = true
-            setTokenOut(t)
-          }
-        }
-
-        if (!isTokenInSet) {
-          setTokenIn(tokensWithChain[0])
-        }
-
-        if (!isTokenOutSet) {
-          setTokenOut(tokensWithChain[0])
+        for (const t of nonZeroBalanceTokensDeduped) {
+          addToken({
+            ...t,
+            symbol: `${token.symbol} (${t.chainName})`,
+          })
         }
       }
     }
