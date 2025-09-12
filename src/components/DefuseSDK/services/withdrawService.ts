@@ -8,6 +8,7 @@ import {
   createDefaultRoute,
   createInternalTransferRoute,
   createNearWithdrawalRoute,
+  createOmniBridgeRoute,
   createVirtualChainRoute,
 } from "@defuse-protocol/intents-sdk"
 import { Err, Ok, type Result } from "@thames/monads"
@@ -32,6 +33,7 @@ import { calculateSplitAmounts } from "../sdk/aggregatedQuote/calculateSplitAmou
 import type { BaseTokenInfo, TokenValue, UnifiedTokenInfo } from "../types/base"
 import { assert } from "../utils/assert"
 import { isAuroraVirtualChain } from "../utils/blockchain"
+import { getCAIP2 } from "../utils/caip2"
 import { findError } from "../utils/errors"
 import { isBaseToken } from "../utils/token"
 import {
@@ -196,16 +198,20 @@ export async function prepareWithdraw(
     directWithdrawAvailable
   )
 
-  const routeConfig: RouteConfig | undefined = isAuroraVirtualChain(
-    formValues.tokenOut.chainName
-  )
-    ? createVirtualChainRoute(
-        getAuroraEngineContractId(formValues.tokenOut.chainName),
-        null // TODO: provide the correct value once you know it
-      )
-    : formValues.tokenOut.chainName === "near"
-      ? createNearWithdrawalRoute()
-      : createDefaultRoute()
+  let routeConfig: RouteConfig | undefined
+
+  if (isAuroraVirtualChain(formValues.tokenOut.chainName)) {
+    routeConfig = createVirtualChainRoute(
+      getAuroraEngineContractId(formValues.tokenOut.chainName),
+      null // TODO: provide the correct value once you know it
+    )
+  } else if (formValues.tokenOut.chainName === "near") {
+    routeConfig = createNearWithdrawalRoute()
+  } else if (formValues.tokenOut.bridge === "near_omni") {
+    routeConfig = createOmniBridgeRoute(getCAIP2(formValues.tokenOut.chainName))
+  } else {
+    routeConfig = createDefaultRoute()
+  }
 
   const baseWithdrawalParams: WithdrawalParams = {
     assetId: formValues.tokenOut.defuseAssetId,
