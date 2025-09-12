@@ -308,6 +308,15 @@ export const depositUIMachine = setup({
       initial: "idle",
 
       on: {
+        "DEPOSIT_FORM.UPDATE_BLOCKCHAIN": {
+          actions: [
+            {
+              type: "relayToDepositFormRef",
+              params: ({ event }) => event,
+            },
+            "requestBalanceRefresh",
+          ],
+        },
         "DEPOSIT_FORM.*": {
           target: "editing",
           actions: [
@@ -391,11 +400,7 @@ export const depositUIMachine = setup({
         },
 
         preparation: {
-          entry: [
-            "requestGenerateAddress",
-            "requestStorageDepositAmount",
-            "requestBalanceRefresh",
-          ],
+          entry: ["requestGenerateAddress", "requestStorageDepositAmount"],
           invoke: {
             src: "prepareDepositActor",
 
