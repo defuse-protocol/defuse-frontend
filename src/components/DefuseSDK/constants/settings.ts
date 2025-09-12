@@ -31,7 +31,10 @@ export const settings: Settings = {
     base: "https://mainnet.base.org",
     arbitrum: "https://arb1.arbitrum.io/rpc",
     bitcoin: "https://mainnet.bitcoin.org",
-    solana: "https://veriee-t2i7nw-fast-mainnet.helius-rpc.com",
+    // solana: "https://veriee-t2i7nw-fast-mainnet.helius-rpc.com",
+    // emil: That's mine RPC while our is short for quote
+    solana:
+      "https://late-rough-theorem.solana-mainnet.quiknode.pro/a7ffe435877dff999f702b21ec72d1f3815e3c7a",
     dogecoin: "https://go.getblock.io/5f7f5fba970e4f7a907fcd2c5f4c38a2",
     turbochain: "https://rpc-0x4e45415f.aurora-cloud.dev",
     tuxappchain: "https://rpc-0x4e454165.aurora-cloud.dev",
