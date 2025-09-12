@@ -100,6 +100,10 @@ export const depositUIMachine = setup({
       preparationOutput: (_, val: Context["preparationOutput"]) => val,
     }),
 
+    resetPreparationOutput: assign({
+      preparationOutput: null,
+    }),
+
     clearResults: assign({
       depositOutput: null,
     }),
@@ -380,6 +384,7 @@ export const depositUIMachine = setup({
             },
             {
               target: "idle",
+              actions: "resetPreparationOutput",
             },
           ],
           entry: ["clearPreparationOutput"],
