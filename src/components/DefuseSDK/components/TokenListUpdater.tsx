@@ -131,16 +131,10 @@ export function TokenListUpdater1cs<
       // if user doesn't have this token use first from the list by default
       if (nonZeroBalanceTokensDeduped.length === 0) {
         addToken(token.groupedTokens[0])
-        // if user has this token use it
-      } else if (nonZeroBalanceTokensDeduped.length === 1) {
-        addToken(nonZeroBalanceTokensDeduped[0])
-        // if user has multiple kinds of this token - show them all
+        // if user has one or more kinds of this token - show them all with network name
       } else {
         for (const t of nonZeroBalanceTokensDeduped) {
-          addToken({
-            ...t,
-            symbol: `${token.symbol} (${t.chainName})`,
-          })
+          addToken({ ...t, symbol: `${t.symbol} (${t.chainName})` })
         }
       }
     }
