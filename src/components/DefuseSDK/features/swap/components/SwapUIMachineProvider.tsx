@@ -1,5 +1,6 @@
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
+import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { createActorContext } from "@xstate/react"
 import type { PropsWithChildren, ReactElement, ReactNode } from "react"
 import { useRef } from "react"
@@ -50,7 +51,6 @@ export const SwapUIMachineContext: SwapUIMachineContextInterface =
   createActorContext(swapUIMachine)
 
 interface SwapUIMachineProviderProps extends PropsWithChildren {
-  is1cs: boolean
   initialTokenIn?: SwappableToken
   initialTokenOut?: SwappableToken
   tokenList: SwappableToken[]
@@ -66,7 +66,6 @@ interface SwapUIMachineProviderProps extends PropsWithChildren {
 
 export function SwapUIMachineProvider({
   children,
-  is1cs,
   initialTokenIn,
   initialTokenOut,
   tokenList,
@@ -77,6 +76,7 @@ export function SwapUIMachineProvider({
   const { setValue, resetField } = useFormContext<SwapFormValues>()
   const tokenIn = initialTokenIn || tokenList[0]
   const tokenOut = initialTokenOut || tokenList[1]
+  const is1cs = useIs1CsEnabled()
   assert(tokenIn && tokenOut, "TokenIn and TokenOut must be defined")
 
   return (

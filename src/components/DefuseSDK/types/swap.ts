@@ -12,7 +12,6 @@ export type SwapEvent = {
 export type SwappableToken = BaseTokenInfo | UnifiedTokenInfo
 
 export type SwapWidgetProps = {
-  is1cs: boolean
   theme?: "dark" | "light"
   tokenList: SwappableToken[]
   onEmit?: (event: SwapEvent) => void

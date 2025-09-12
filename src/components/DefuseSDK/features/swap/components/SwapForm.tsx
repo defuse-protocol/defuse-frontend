@@ -4,6 +4,7 @@ import { TradeNavigationLinks } from "@src/components/DefuseSDK/components/Trade
 import { useTokensUsdPrices } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
 import { formatUsdAmount } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
+import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useSelector } from "@xstate/react"
 import {
   Fragment,
@@ -59,6 +60,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     getValues,
     formState: { errors },
   } = useFormContext<SwapFormValues>()
+  const is1cs = useIs1CsEnabled()
 
   const swapUIActorRef = SwapUIMachineContext.useActorRef()
   const snapshot = SwapUIMachineContext.useSelector((snapshot) => snapshot)
@@ -147,7 +149,10 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
       switch (fieldName) {
         case SWAP_TOKEN_FLAGS.IN:
-          if (tokenOut === token) {
+          if (
+            tokenOut === token ||
+            (is1cs && tokenOut.symbol === token.symbol)
+          ) {
             // Don't need to switch amounts, when token selected from dialog
             swapUIActorRef.send({
               type: "input",
@@ -158,7 +163,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
           }
           break
         case SWAP_TOKEN_FLAGS.OUT:
-          if (tokenIn === token) {
+          if (tokenIn === token || (is1cs && tokenIn.symbol === token.symbol)) {
             // Don't need to switch amounts, when token selected from dialog
             swapUIActorRef.send({
               type: "input",
@@ -170,7 +175,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
           break
       }
     }
-  }, [payload, currentModalType, swapUIActorRef])
+  }, [payload, currentModalType, swapUIActorRef, is1cs])
 
   const { onSubmit } = useContext(SwapSubmitterContext)
 
