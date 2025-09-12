@@ -55,7 +55,11 @@ export function useDeterminePair() {
     if (urlPair) return urlPair
 
     // Fallback to whitelabelTemplate pair
-    return getPairFromWhitelabelTemplate(whitelabelTemplate, processedTokenList)
+    return getPairFromWhitelabelTemplate(
+      whitelabelTemplate,
+      processedTokenList,
+      is1cs
+    )
   }, [fromParam, toParam, whitelabelTemplate, processedTokenList, is1cs])
 
   return { tokenIn, tokenOut }
@@ -78,12 +82,13 @@ function getPairFromUrlParams(
 
 function getPairFromWhitelabelTemplate(
   whitelabelTemplate: WhitelabelTemplateValue,
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
+  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[],
+  is1cs: boolean
 ) {
   const pair = pairs[whitelabelTemplate]
   if (!pair) return { tokenIn: null, tokenOut: null }
 
-  const tokenIn = tokenList.find((token) => {
+  const tokenIn = (is1cs ? LIST_TOKENS : tokenList).find((token) => {
     return isBaseToken(token)
       ? token.defuseAssetId === pair[0]
       : token.groupedTokens.some(
@@ -91,7 +96,7 @@ function getPairFromWhitelabelTemplate(
         )
   })
 
-  const tokenOut = tokenList.find((token) => {
+  const tokenOut = (is1cs ? LIST_TOKENS : tokenList).find((token) => {
     return isBaseToken(token)
       ? token.defuseAssetId === pair[1]
       : token.groupedTokens.some(
@@ -107,20 +112,38 @@ function findTokenBySymbol(
   tokens: (BaseTokenInfo | UnifiedTokenInfo)[],
   is1cs: boolean
 ): BaseTokenInfo | UnifiedTokenInfo | null {
-  if (!input) return null
-  return (
-    tokens.find((token) => {
-      if (is1cs) {
-        // Find exact token with network or take first token without network
-        return token.symbol === input || token.symbol.split(" ")[0] === input
-      }
+  if (!input) {
+    return null
+  }
 
-      return (
+  const token =
+    tokens.find(
+      (token) =>
         token.symbol === input ||
         (!isBaseToken(token) &&
           token.groupedTokens?.some((t: BaseTokenInfo) => t.symbol === input))
-      )
-    }) ?? null
+    ) ?? null
+
+  if (!is1cs || token) {
+    return token
+  }
+
+  const tokenWithNetwork = tokens.find((token): token is BaseTokenInfo => {
+    return token.symbol.split(" ")[0] === input
+  })
+
+  if (!tokenWithNetwork) {
+    return null
+  }
+
+  return (
+    LIST_TOKENS.find((t) =>
+      isBaseToken(t)
+        ? t.defuseAssetId === tokenWithNetwork.defuseAssetId
+        : t.groupedTokens.some(
+            (t) => t.defuseAssetId === tokenWithNetwork.defuseAssetId
+          )
+    ) ?? null
   )
 }
 

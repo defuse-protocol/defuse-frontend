@@ -10,7 +10,7 @@ import { useSelector } from "@xstate/react"
 import { useSearchParams } from "next/navigation"
 import { useEffect, useMemo } from "react"
 import { useTokensStore } from "../providers/TokensStoreProvider"
-import { isBaseToken } from "../utils"
+import { isBaseToken, isUnifiedToken } from "../utils"
 
 export function TokenListUpdater<
   T extends {
@@ -93,19 +93,29 @@ export function TokenListUpdater1cs<
         continue
       }
 
-      function addToken(token: BaseTokenInfo) {
-        newList.push(token)
+      function addToken(token: BaseTokenInfo | UnifiedTokenInfo) {
+        newList.push(isBaseToken(token) ? token : token.groupedTokens[0])
+
+        if (isUnifiedToken(token)) {
+          return
+        }
 
         if (
-          isBaseToken(tokenIn) &&
-          tokenIn.defuseAssetId === token.defuseAssetId
+          isBaseToken(tokenIn)
+            ? tokenIn.defuseAssetId === token.defuseAssetId
+            : tokenIn.groupedTokens.some(
+                (t) => t.defuseAssetId === token.defuseAssetId
+              )
         ) {
           swapUIActorRef.send({ type: "input", params: { tokenIn: token } })
         }
 
         if (
-          isBaseToken(tokenOut) &&
-          tokenOut.defuseAssetId === token.defuseAssetId
+          isBaseToken(tokenOut)
+            ? tokenOut.defuseAssetId === token.defuseAssetId
+            : tokenOut.groupedTokens.some(
+                (t) => t.defuseAssetId === token.defuseAssetId
+              )
         ) {
           swapUIActorRef.send({ type: "input", params: { tokenOut: token } })
         }
@@ -128,15 +138,15 @@ export function TokenListUpdater1cs<
         return false
       })
 
-      // if user doesn't have this token use first from the list by default
       if (nonZeroBalanceTokensDeduped.length === 0) {
-        addToken(token.groupedTokens[0])
-        // if user has this token use it
+        // if user doesn't have this token use first from the list by default
+        addToken(token)
       } else if (nonZeroBalanceTokensDeduped.length === 1) {
+        // if user has this token use it
         addToken(nonZeroBalanceTokensDeduped[0])
-        // if user has multiple kinds of this token - show them all
       } else {
-        for (const t of nonZeroBalanceTokensDeduped) {
+        // if user has multiple kinds of this token - show them all
+        for (const t of [...nonZeroBalanceTokensDeduped].reverse()) {
           addToken({ ...t, symbol: `${t.symbol} (${t.chainName})` })
         }
       }
@@ -148,9 +158,37 @@ export function TokenListUpdater1cs<
       },
     } = swapUIActorRef.getSnapshot()
 
+    const [tokenInSymbol] = newTokenIn.symbol.split(" ")
+    const [tokenOutSymbol] = newTokenOut.symbol.split(" ")
+
     // set near if it happens that tokenIn and tokenOut are the same
     if (newTokenIn === newTokenOut) {
       swapUIActorRef.send({ type: "input", params: { tokenOut: NATIVE_NEAR } })
+    } else if (tokenInSymbol === tokenOutSymbol) {
+      // make sure network is displayed if it's the same symbol
+      if (tokenInSymbol.length === newTokenIn.symbol.length) {
+        swapUIActorRef.send({
+          type: "input",
+          params: {
+            tokenIn: {
+              ...newTokenIn,
+              symbol: `${newTokenIn.symbol} (${isBaseToken(newTokenIn) ? newTokenIn.chainName : newTokenIn.groupedTokens[0].chainName})`,
+            },
+          },
+        })
+      }
+
+      if (tokenOutSymbol.length === newTokenOut.symbol.length) {
+        swapUIActorRef.send({
+          type: "input",
+          params: {
+            tokenOut: {
+              ...newTokenOut,
+              symbol: `${newTokenOut.symbol} (${isBaseToken(newTokenOut) ? newTokenOut.chainName : newTokenOut.groupedTokens[0].chainName})`,
+            },
+          },
+        })
+      }
     }
 
     updateTokens(newList, true)
