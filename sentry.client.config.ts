@@ -10,7 +10,7 @@ import { isBaseToken } from "@src/components/DefuseSDK/utils"
 import { LIST_TOKENS } from "@src/constants/tokens"
 
 Sentry.init({
-  dsn: "https://12f8f38e9e78e2900f386bec2549c9d7@o4504157766942720.ingest.us.sentry.io/4507589484544000",
+  dsn: "https://68e98c6f1b314199f93ab8470623556c@o4510000873668621.ingest.us.sentry.io/4510000882778112",
   enabled: process.env.NEXT_PUBLIC_SENTRY_ENABLED === "true",
   tracesSampleRate: 1.0,
   replaysSessionSampleRate: 0.1,
