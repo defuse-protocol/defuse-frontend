@@ -5,7 +5,6 @@ import type {
   SignMessageParams,
   SignedMessage,
 } from "@near-wallet-selector/core/src/lib/wallet/wallet.types"
-import { base58, base64 } from "@scure/base"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import type { SignAndSendTransactionsParams } from "@src/types/interfaces"
 import { logger } from "@src/utils/logger"
@@ -125,7 +124,10 @@ export const NearWalletProvider: FC<{ children: ReactNode }> = ({
         throw new Error("Connector not initialized")
       }
       const wallet = await connector.wallet()
-      return await wallet.signAndSendTransactions(params)
+      const result = await wallet.signAndSendTransactions(params)
+      //@ts-ignore
+      if (Array.isArray(result.transactions)) return result.transactions
+      return result
     },
     [connector]
   )
