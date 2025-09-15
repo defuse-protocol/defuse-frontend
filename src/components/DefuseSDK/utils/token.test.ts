@@ -1,8 +1,5 @@
-import type {
-  BaseTokenInfo,
-  UnifiedTokenInfo,
-} from "@src/components/DefuseSDK/types/base"
 import { describe, expect, it } from "vitest"
+import type { BaseTokenInfo, UnifiedTokenInfo } from "../types/base"
 import { flattenTokenList, getTokenAid } from "./token"
 
 describe("flattenTokenList()", () => {
