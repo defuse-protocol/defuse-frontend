@@ -127,9 +127,7 @@ function findTokenBySymbol(
   if (
     !is1cs ||
     // For 1cs a flat token list is expected
-    !tokens.every((token) => {
-      return isBaseToken(token)
-    }) ||
+    !tokens.every(isBaseToken) ||
     token
   ) {
     return token
