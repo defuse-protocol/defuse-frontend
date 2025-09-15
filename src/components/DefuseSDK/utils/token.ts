@@ -41,6 +41,24 @@ export function getTokenId(token: BaseTokenInfo | UnifiedTokenInfo) {
 }
 
 /**
+ * Converts unified tokens to regular tokens, preserving tags.
+ */
+export function flattenTokenList(
+  list: (BaseTokenInfo | UnifiedTokenInfo)[]
+): BaseTokenInfo[] {
+  return list.flatMap((t): BaseTokenInfo[] => {
+    if (isBaseToken(t)) {
+      return [t]
+    }
+    return t.groupedTokens.map((tt) => ({
+      ...tt,
+      symbol: `${tt.symbol} (${tt.chainName})`,
+      tags: t.tags,
+    }))
+  })
+}
+
+/**
  * Extracts the AID from a token.
  */
 export function getTokenAid<T extends { tags?: string[] }>(
