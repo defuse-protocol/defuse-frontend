@@ -10,7 +10,7 @@ import { useSelector } from "@xstate/react"
 import { useSearchParams } from "next/navigation"
 import { useEffect, useMemo } from "react"
 import { useTokensStore } from "../providers/TokensStoreProvider"
-import { isBaseToken, isUnifiedToken } from "../utils"
+import { isBaseToken } from "../utils"
 
 export function TokenListUpdater<
   T extends {
@@ -93,13 +93,7 @@ export function TokenListUpdater1cs<
         continue
       }
 
-      function addToken(token: BaseTokenInfo | UnifiedTokenInfo) {
-        newList.push(isBaseToken(token) ? token : token.groupedTokens[0])
-
-        if (isUnifiedToken(token)) {
-          return
-        }
-
+      function setAsTokenInOrOut(token: BaseTokenInfo) {
         if (
           isBaseToken(tokenIn)
             ? tokenIn.defuseAssetId === token.defuseAssetId
@@ -139,16 +133,23 @@ export function TokenListUpdater1cs<
       })
 
       if (nonZeroBalanceTokensDeduped.length === 0) {
-        // if user doesn't have this token use first from the list by default
-        addToken(token)
+        // if user doesn't have this token add the first from the list by default
+        newList.push(token.groupedTokens[0])
       } else if (nonZeroBalanceTokensDeduped.length === 1) {
         // if user has this token use it
-        addToken(nonZeroBalanceTokensDeduped[0])
+        const onlyToken = nonZeroBalanceTokensDeduped[0]
+        newList.push(onlyToken)
+        setAsTokenInOrOut(onlyToken)
       } else {
         // if user has multiple kinds of this token - show them all
-        for (const t of [...nonZeroBalanceTokensDeduped].reverse()) {
-          addToken({ ...t, symbol: `${t.symbol} (${t.chainName})` })
+        const tokens = nonZeroBalanceTokensDeduped.map((t) => ({
+          ...t,
+          symbol: `${t.symbol} (${t.chainName})`,
+        }))
+        for (const token of tokens) {
+          newList.push(token)
         }
+        setAsTokenInOrOut(tokens[0])
       }
     }
 

@@ -124,11 +124,18 @@ function findTokenBySymbol(
           token.groupedTokens?.some((t: BaseTokenInfo) => t.symbol === input))
     ) ?? null
 
-  if (!is1cs || token) {
+  if (
+    !is1cs ||
+    // For 1cs a flat token list is expected
+    !tokens.every((token) => {
+      return isBaseToken(token)
+    }) ||
+    token
+  ) {
     return token
   }
 
-  const tokenWithNetwork = tokens.find((token): token is BaseTokenInfo => {
+  const tokenWithNetwork = tokens.find((token) => {
     return token.symbol.split(" ")[0] === input
   })
 
