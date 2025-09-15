@@ -1,5 +1,5 @@
 import { authIdentity } from "@defuse-protocol/internal-utils"
-import { X as CrossIcon } from "@phosphor-icons/react"
+import { XIcon } from "@phosphor-icons/react"
 import { Text } from "@radix-ui/themes"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import {
@@ -194,7 +194,7 @@ export const ModalSelectAssets = () => {
                 Select asset
               </Text>
               <button type="button" onClick={onCloseModal} className="p-3">
-                <CrossIcon width={18} height={18} />
+                <XIcon width={18} height={18} />
               </button>
             </div>
             <SearchBar query={searchValue} setQuery={setSearchValue} />

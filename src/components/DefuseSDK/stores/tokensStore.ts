@@ -10,7 +10,10 @@ export type TokensState = {
 
 export type TokensActions = {
   onLoad: () => void
-  updateTokens: (data: (BaseTokenInfo | UnifiedTokenInfo)[]) => void
+  updateTokens: (
+    data: (BaseTokenInfo | UnifiedTokenInfo)[],
+    is1cs?: boolean
+  ) => void
 }
 
 export type TokensStore = TokensState & TokensActions
@@ -35,9 +38,9 @@ export const createTokensStore = (
   return createStore<TokensStore>()((set) => ({
     ...initState,
     onLoad: () => set({ isLoading: true }),
-    updateTokens: (data: (BaseTokenInfo | UnifiedTokenInfo)[]) =>
+    updateTokens: (data: (BaseTokenInfo | UnifiedTokenInfo)[], is1cs = false) =>
       set((state) => {
-        const updatedData = new Map(state.data)
+        const updatedData = is1cs ? new Map() : new Map(state.data)
         for (const item of data) {
           const tokenId = getTokenId(item)
 

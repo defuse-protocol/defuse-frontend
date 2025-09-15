@@ -7,6 +7,7 @@ import type {
 } from "@src/components/DefuseSDK/types"
 import type { WhitelabelTemplateValue } from "@src/config/featureFlags"
 import { LIST_TOKENS } from "@src/constants/tokens"
+import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { type useRouter, useSearchParams } from "next/navigation"
@@ -38,18 +39,28 @@ export function useDeterminePair() {
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
   const searchParams = useSearchParams()
   const processedTokenList = useTokenList(LIST_TOKENS)
+  const is1cs = useIs1CsEnabled()
 
   const fromParam = searchParams.get("from")
   const toParam = searchParams.get("to")
 
   const { tokenIn, tokenOut } = useMemo(() => {
     // First, try to get pair from URL params
-    const urlPair = getPairFromUrlParams(fromParam, toParam, processedTokenList)
+    const urlPair = getPairFromUrlParams(
+      fromParam,
+      toParam,
+      processedTokenList,
+      is1cs
+    )
     if (urlPair) return urlPair
 
     // Fallback to whitelabelTemplate pair
-    return getPairFromWhitelabelTemplate(whitelabelTemplate, processedTokenList)
-  }, [fromParam, toParam, whitelabelTemplate, processedTokenList])
+    return getPairFromWhitelabelTemplate(
+      whitelabelTemplate,
+      processedTokenList,
+      is1cs
+    )
+  }, [fromParam, toParam, whitelabelTemplate, processedTokenList, is1cs])
 
   return { tokenIn, tokenOut }
 }
@@ -57,10 +68,11 @@ export function useDeterminePair() {
 function getPairFromUrlParams(
   fromParam: string | null,
   toParam: string | null,
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
+  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[],
+  is1cs: boolean
 ) {
-  const fromToken = findTokenBySymbol(fromParam, tokenList)
-  const toToken = findTokenBySymbol(toParam, tokenList)
+  const fromToken = findTokenBySymbol(fromParam, tokenList, is1cs)
+  const toToken = findTokenBySymbol(toParam, tokenList, is1cs)
 
   if (fromToken || toToken) {
     return { tokenIn: fromToken, tokenOut: toToken }
@@ -70,12 +82,13 @@ function getPairFromUrlParams(
 
 function getPairFromWhitelabelTemplate(
   whitelabelTemplate: WhitelabelTemplateValue,
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
+  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[],
+  is1cs: boolean
 ) {
   const pair = pairs[whitelabelTemplate]
   if (!pair) return { tokenIn: null, tokenOut: null }
 
-  const tokenIn = tokenList.find((token) => {
+  const tokenIn = (is1cs ? LIST_TOKENS : tokenList).find((token) => {
     return isBaseToken(token)
       ? token.defuseAssetId === pair[0]
       : token.groupedTokens.some(
@@ -83,7 +96,7 @@ function getPairFromWhitelabelTemplate(
         )
   })
 
-  const tokenOut = tokenList.find((token) => {
+  const tokenOut = (is1cs ? LIST_TOKENS : tokenList).find((token) => {
     return isBaseToken(token)
       ? token.defuseAssetId === pair[1]
       : token.groupedTokens.some(
@@ -96,15 +109,45 @@ function getPairFromWhitelabelTemplate(
 
 function findTokenBySymbol(
   input: string | null,
-  tokens: (BaseTokenInfo | UnifiedTokenInfo)[]
+  tokens: (BaseTokenInfo | UnifiedTokenInfo)[],
+  is1cs: boolean
 ): BaseTokenInfo | UnifiedTokenInfo | null {
-  if (!input) return null
-  return (
+  if (!input) {
+    return null
+  }
+
+  const token =
     tokens.find(
       (token) =>
         token.symbol === input ||
         (!isBaseToken(token) &&
           token.groupedTokens?.some((t: BaseTokenInfo) => t.symbol === input))
+    ) ?? null
+
+  if (
+    !is1cs ||
+    // For 1cs a flat token list is expected
+    !tokens.every(isBaseToken) ||
+    token
+  ) {
+    return token
+  }
+
+  const tokenWithNetwork = tokens.find((token) => {
+    return token.symbol.split(" ")[0] === input
+  })
+
+  if (!tokenWithNetwork) {
+    return null
+  }
+
+  return (
+    LIST_TOKENS.find((t) =>
+      isBaseToken(t)
+        ? t.defuseAssetId === tokenWithNetwork.defuseAssetId
+        : t.groupedTokens.some(
+            (t) => t.defuseAssetId === tokenWithNetwork.defuseAssetId
+          )
     ) ?? null
   )
 }
