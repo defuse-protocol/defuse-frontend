@@ -17,14 +17,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Secrets
-        uses: ./.github/actions/secrets
-        with:
-          coingecko_api_key: ${{ secrets.COINGECKO_API_KEY }}
-          near_node_url: ${{ secrets.NEAR_NODE_URL }}
-          wallet_connect_project_id: ${{ secrets.WALLET_CONNECT_PROJECT_ID }}
-          sentry_auth_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
-
       - name: Test
         uses: ./.github/actions/test
         with:

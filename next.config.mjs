@@ -97,8 +97,8 @@ const nextConfig = {
 
 /** @type {import('@sentry/nextjs').SentryBuildOptions} */
 const sentryConfig = {
-  org: "aurora-k2",
-  project: "defuse",
+  org: "defuse-labs-ltd",
+  project: "frontend",
   silent: true,
   widenClientFileUpload: true,
   hideSourceMaps: false,

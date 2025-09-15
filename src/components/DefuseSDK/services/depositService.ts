@@ -1428,6 +1428,14 @@ const siloToSiloABI = [
   },
 ]
 
+// Cache for ATA existence checks to prevent RPC spam
+// Key format: "token:depositAddress"
+const ataExistenceCache = new Map<
+  string,
+  { exists: boolean; timestamp: number }
+>()
+const ATA_CACHE_TTL = 60000 // 1 minute TTL
+
 async function checkATAExists(
   connection: Connection,
   ataAddress: PublicKeySolana
@@ -1438,6 +1446,14 @@ async function checkATAExists(
   } catch {
     return false
   }
+}
+
+function clearATACacheForToken(token: BaseTokenInfo, depositAddress: string) {
+  if (token.chainName !== "solana" || isNativeToken(token)) {
+    return
+  }
+  const cacheKey = `${token.address}:${depositAddress}`
+  ataExistenceCache.delete(cacheKey)
 }
 
 async function checkSolanaATARequired(
@@ -1452,13 +1468,36 @@ async function checkSolanaATARequired(
     return false
   }
 
+  const cacheKey = `${token.address}:${depositAddress}`
+  const now = Date.now()
+
+  // Check cache first
+  const cached = ataExistenceCache.get(cacheKey)
+  if (cached && now - cached.timestamp < ATA_CACHE_TTL) {
+    return !cached.exists
+  }
+
   const connection = new Connection(settings.rpcUrls.solana)
   const toPubkey = new PublicKeySolana(depositAddress)
   const mintPubkey = new PublicKeySolana(token.address)
   const toATA = getAssociatedTokenAddressSync(mintPubkey, toPubkey)
 
   const ataExists = await checkATAExists(connection, toATA)
+
+  // Update cache
+  ataExistenceCache.set(cacheKey, {
+    exists: ataExists,
+    timestamp: now,
+  })
+
   return !ataExists
+}
+
+export function clearSolanaATACache(
+  token: BaseTokenInfo,
+  depositAddress: string
+) {
+  clearATACacheForToken(token, depositAddress)
 }
 
 export async function createDepositTonTransaction(

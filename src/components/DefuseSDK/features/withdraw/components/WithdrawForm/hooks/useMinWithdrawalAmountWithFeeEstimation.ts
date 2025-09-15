@@ -3,6 +3,7 @@ import type { TokenValue } from "@src/components/DefuseSDK/types/base"
 import { useMemo } from "react"
 
 export function useMinWithdrawalAmountWithFeeEstimation(
+  parsedAmountIn: TokenValue | null,
   minWithdrawalAmount: TokenValue | null,
   preparationOutput: PreparationOutput | null
 ): TokenValue | null {
@@ -25,15 +26,17 @@ export function useMinWithdrawalAmountWithFeeEstimation(
       preparationOutput.tag === "err" &&
       preparationOutput.value.reason === "ERR_AMOUNT_TOO_LOW"
     ) {
-      const need = preparationOutput.value.shortfall.amount
+      const shortfallAmount = preparationOutput.value.shortfall.amount
       return {
-        amount: need,
+        amount: parsedAmountIn
+          ? parsedAmountIn.amount + shortfallAmount
+          : shortfallAmount,
         decimals: base.decimals,
       }
     }
 
     return base
-  }, [minWithdrawalAmount, preparationOutput])
+  }, [minWithdrawalAmount, preparationOutput, parsedAmountIn])
 
   return minWithdrawalAmountWithFee
 }

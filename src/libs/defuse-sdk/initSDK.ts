@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/core"
-import type { Context, Contexts } from "@sentry/types"
+import type { Context, Contexts } from "@sentry/core"
 import { configureSDK } from "@src/components/DefuseSDK/config"
 import { APP_ENV, INTENTS_ENV } from "@src/utils/environment"
 
