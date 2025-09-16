@@ -46,18 +46,18 @@ export function getMinWithdrawalHiperliquidAmount(
   tokenOut: BaseTokenInfo
 ) {
   if (blockchain !== "hyperliquid") return null
-  switch (tokenOut.symbol) {
-    case "BTC":
+  switch (tokenOut.chainName) {
+    case "bitcoin":
       return {
         amount: 2000000n, // 0.02 BTC
         decimals: 8,
       }
-    case "ETH":
+    case "eth":
       return {
         amount: 50000000000000000n, // 0.05 ETH
         decimals: 18,
       }
-    case "SOL":
+    case "solana":
       return {
         amount: 200000000n, // 0.2 SOL
         decimals: 9,
