@@ -391,7 +391,6 @@ describe("getBlockchainSelectItems()", () => {
           {
             defuseAssetId: "nep141:xrp.omft.near",
             type: "native",
-            address: "native",
             decimals: 6,
             icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/52.png",
             chainName: "xrpledger",
@@ -423,7 +422,6 @@ describe("getBlockchainSelectItems()", () => {
       {
         defuseAssetId: "nep141:xrp.omft.near",
         type: "native",
-        address: "native",
         decimals: 6,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/52.png",
         chainName: "xrpledger",
