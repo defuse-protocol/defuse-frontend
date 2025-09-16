@@ -50,11 +50,17 @@ export function flattenTokenList(
     if (isBaseToken(t)) {
       return [t]
     }
-    return t.groupedTokens.map((tt) => ({
-      ...tt,
-      symbol: `${tt.symbol} (${tt.chainName})`,
-      tags: t.tags,
-    }))
+
+    return t.groupedTokens.map((tt) => {
+      const mergedTags = Array.from(
+        new Set([...(t.tags ?? []), ...(tt.tags ?? [])])
+      )
+      return {
+        ...tt,
+        symbol: `${tt.symbol} (${tt.chainName})`,
+        ...(mergedTags.length > 0 ? { tags: mergedTags } : {}),
+      }
+    })
   })
 }
 

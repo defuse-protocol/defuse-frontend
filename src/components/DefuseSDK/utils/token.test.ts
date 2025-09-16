@@ -19,6 +19,7 @@ describe("flattenTokenList()", () => {
           bridge: "direct",
           symbol: "PUBLIC",
           name: "PublicAI",
+          tags: ["aid:public"],
         },
         {
           defuseAssetId:
@@ -30,6 +31,7 @@ describe("flattenTokenList()", () => {
           bridge: "poa",
           symbol: "PUBLIC",
           name: "PublicAI",
+          tags: ["foo"],
         },
       ],
       tags: ["aid:public"],
@@ -64,7 +66,7 @@ describe("flattenTokenList()", () => {
     ])
   })
 
-  it("preserves tags", () => {
+  it("preserves tags and deduplicates them", () => {
     const result = flattenTokenList(tokenList)
 
     expect(result).toEqual([
@@ -75,7 +77,7 @@ describe("flattenTokenList()", () => {
       expect.objectContaining({
         defuseAssetId:
           "nep141:sol-1f00bb36e75cfc8e1274c1507cc3054f5b3f3ce1.omft.near",
-        tags: ["aid:public"],
+        tags: ["aid:public", "foo"],
       }),
       expect.objectContaining({
         defuseAssetId: "nep141:aptos.omft.near",
