@@ -52,11 +52,11 @@ export function extractTokenFamilyList(
 
     for (const tt of tokens) {
       const did = getTokenDid(tt)
-      if (!map.has(aid)) {
-        map.set(aid, { aid, deployments: [did] })
+      const family = map.get(aid)
+      if (family) {
+        family.deployments.push(did)
       } else {
-        // biome-ignore lint/style/noNonNullAssertion: item exists, we checked for null above
-        map.get(aid)!.deployments.push(did)
+        map.set(aid, { aid, deployments: [did] })
       }
     }
   }
