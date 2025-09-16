@@ -19,7 +19,7 @@
     "@defuse-protocol/intents-sdk": "0.20.0",
     "@defuse-protocol/internal-utils": "0.10.0",
     "@defuse-protocol/one-click-sdk-typescript": "^0.1.1-0.2",
-    "@hot-labs/near-connect": "0.5.5",
+    "@hot-labs/near-connect": "0.6.2",
     "@near-wallet-selector/core": "^9.1.0",
     "@next/third-parties": "^15.2.4",
     "@noble/curves": "1.4.0",

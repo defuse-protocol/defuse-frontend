@@ -124,10 +124,7 @@ export const NearWalletProvider: FC<{ children: ReactNode }> = ({
         throw new Error("Connector not initialized")
       }
       const wallet = await connector.wallet()
-      const result = await wallet.signAndSendTransactions(params)
-      //@ts-ignore
-      if (Array.isArray(result.transactions)) return result.transactions
-      return result
+      return await wallet.signAndSendTransactions(params)
     },
     [connector]
   )
