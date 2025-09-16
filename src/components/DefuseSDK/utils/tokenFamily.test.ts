@@ -88,6 +88,7 @@ describe("resolveTokenFamily()", () => {
       deployments: [
         ["near", "token.publicailab.near"],
         ["solana", "AXCp86262ZPfpcV9bmtmtnzmJSL5sD99mCVJD4GR9vS"],
+        ["bsc", "0x1f00bb36e75cfc8e1274c1507cc3054f5b3f3ce1"],
       ],
     })
   })
