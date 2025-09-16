@@ -1,5 +1,6 @@
 import type {
   BaseTokenInfo,
+  TokenAbstractId,
   TokenFamily,
   UnifiedTokenInfo,
 } from "../types/base"
@@ -33,19 +34,32 @@ export function resolveTokenFamily(
 export function extractTokenFamilyList(
   list: (BaseTokenInfo | UnifiedTokenInfo)[]
 ): TokenFamily[] {
-  return list
-    .map((t) => {
-      if (isBaseToken(t)) {
-        return {
-          aid: getTokenAid(t),
-          deployments: [getTokenDid(t)],
-        }
-      }
+  const map = new Map<TokenAbstractId, TokenFamily>()
 
-      return {
-        aid: getTokenAid(t),
-        deployments: t.groupedTokens.map(getTokenDid),
+  for (const t of list) {
+    const aid = getTokenAid(t)
+    if (aid == null) {
+      continue
+    }
+
+    let tokens: BaseTokenInfo[]
+
+    if (isBaseToken(t)) {
+      tokens = [t]
+    } else {
+      tokens = t.groupedTokens
+    }
+
+    for (const tt of tokens) {
+      const did = getTokenDid(tt)
+      if (!map.has(aid)) {
+        map.set(aid, { aid, deployments: [did] })
+      } else {
+        // biome-ignore lint/style/noNonNullAssertion: item exists, we checked for null above
+        map.get(aid)!.deployments.push(did)
       }
-    })
-    .filter((f): f is TokenFamily => f.aid != null)
+    }
+  }
+
+  return Array.from(map.values())
 }
