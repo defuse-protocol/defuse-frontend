@@ -3,6 +3,12 @@ import type React from "react"
 
 import type { BaseTokenInfo, UnifiedTokenInfo } from "../types/base"
 
+import {
+  hasChainNameInSymbol,
+  removeChainNameFromSymbol,
+} from "@src/constants/tokens"
+import { chainIcons } from "../constants/blockchains"
+import { isBaseToken } from "../utils"
 import { AssetComboIcon } from "./Asset/AssetComboIcon"
 
 type Props = {
@@ -21,6 +27,7 @@ export const SelectAssets = ({ selected, handleSelect }: Props) => {
     e.preventDefault()
     handleSelect?.()
   }
+
   return (
     <button
       type="button"
@@ -31,15 +38,19 @@ export const SelectAssets = ({ selected, handleSelect }: Props) => {
         <AssetComboIcon
           icon={selected.icon as string}
           name={selected.name as string}
-          chainName={
-            "defuseAssetId" in selected ? selected.chainName : undefined
+          chainName={isBaseToken(selected) ? selected.chainName : undefined}
+          chainIcon={
+            isBaseToken(selected) ? chainIcons[selected.chainName] : undefined
           }
+          showChainIcon={hasChainNameInSymbol(selected)}
         />
       ) : (
         <EmptyIcon />
       )}
       <span className="text-sm uppercase truncate">
-        {selected?.symbol || "select token"}
+        {selected?.symbol
+          ? removeChainNameFromSymbol(selected.symbol)
+          : "select token"}
       </span>
       <CaretDownIcon width={25} height={25} />
     </button>

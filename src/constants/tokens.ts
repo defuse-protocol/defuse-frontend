@@ -2,6 +2,7 @@ import type {
   BaseTokenInfo,
   UnifiedTokenInfo,
 } from "@src/components/DefuseSDK/types"
+import { isBaseToken } from "@src/components/DefuseSDK/utils"
 import { INTENTS_ENV } from "@src/utils/environment"
 
 export type TokenWithTags =
@@ -1949,4 +1950,21 @@ export const LIST_TOKENS: TokenWithTags[] =
 
 export const DEPRECATED_TOKENS: Record<string, boolean> = {
   "nep141:aurora": true,
+}
+
+export function addChainToTokenSymbol<T extends TokenWithTags>(token: T): T {
+  return {
+    ...token,
+    symbol: isBaseToken(token)
+      ? `${token.symbol} (${token.chainName})`
+      : `${token.symbol} (${token.groupedTokens[0].chainName})`,
+  }
+}
+
+export function hasChainNameInSymbol(token: TokenWithTags): boolean {
+  return !!token.symbol.split(" ")[1]
+}
+
+export function removeChainNameFromSymbol(symbol: string): string {
+  return symbol.split(" ")[0]
 }

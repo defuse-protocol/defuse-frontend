@@ -1,5 +1,8 @@
 import { isBaseToken } from "@src/components/DefuseSDK/utils"
-import type { TokenWithTags } from "@src/constants/tokens"
+import {
+  type TokenWithTags,
+  addChainToTokenSymbol,
+} from "@src/constants/tokens"
 import { useSearchParams } from "next/navigation"
 import { useMemo } from "react"
 import { useIs1CsEnabled } from "./useIs1CsEnabled"
@@ -15,10 +18,7 @@ export function useFlatTokenList(tokenList: TokenWithTags[]) {
         .flatMap((token) =>
           isBaseToken(token) ? [token] : token.groupedTokens
         )
-        .map((token) => ({
-          ...token,
-          symbol: `${token.symbol} (${token.chainName})`,
-        }))
+        .map((token) => addChainToTokenSymbol(token))
     }
     return tokenList
   }, [flatListIsEnabled, is1cs, tokenList])

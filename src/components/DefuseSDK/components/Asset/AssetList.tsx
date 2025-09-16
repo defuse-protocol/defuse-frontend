@@ -11,6 +11,10 @@ import type {
 import type { SelectItemToken } from "../Modal/ModalSelectAssets"
 
 import { chainIcons } from "@src/components/DefuseSDK/constants/blockchains"
+import {
+  hasChainNameInSymbol,
+  removeChainNameFromSymbol,
+} from "@src/constants/tokens"
 import { FormattedCurrency } from "../../features/account/components/shared/FormattedCurrency"
 import { formatTokenValue } from "../../utils/format"
 import { getTokenId, isBaseToken } from "../../utils/token"
@@ -56,13 +60,17 @@ export const AssetList = <T extends Token>({
                 <AssetComboIcon
                   icon={token.icon}
                   name={token.name}
-                  showChainIcon={showChain && chainIcon !== undefined}
+                  showChainIcon={
+                    showChain &&
+                    chainIcon !== undefined &&
+                    hasChainNameInSymbol(token)
+                  }
                   chainName={isBaseToken(token) ? token.chainName : undefined}
                   chainIcon={chainIcon}
                 />
                 {selected && (
-                  <div className="absolute top-1 -right-1.5 rounded-full">
-                    <CheckCircleIcon width={12} height={12} weight="fill" />
+                  <div className="absolute -top-[7px] -left-[4px] rounded-full">
+                    <CheckCircleIcon width={16} height={16} weight="fill" />
                   </div>
                 )}
               </div>
@@ -75,7 +83,7 @@ export const AssetList = <T extends Token>({
                 </div>
                 <div className="flex justify-between items-center text-gray-11">
                   <Text as="span" size="2">
-                    {token.symbol}
+                    {removeChainNameFromSymbol(token.symbol)}
                   </Text>
                   {usdValue != null ? (
                     <FormattedCurrency

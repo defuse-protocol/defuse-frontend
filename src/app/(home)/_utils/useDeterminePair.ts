@@ -6,7 +6,7 @@ import type {
   UnifiedTokenInfo,
 } from "@src/components/DefuseSDK/types"
 import type { WhitelabelTemplateValue } from "@src/config/featureFlags"
-import { LIST_TOKENS } from "@src/constants/tokens"
+import { LIST_TOKENS, removeChainNameFromSymbol } from "@src/constants/tokens"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
@@ -134,7 +134,7 @@ function findTokenBySymbol(
   }
 
   const tokenWithNetwork = tokens.find((token) => {
-    return token.symbol.split(" ")[0] === input
+    return removeChainNameFromSymbol(token.symbol) === input
   })
 
   if (!tokenWithNetwork) {

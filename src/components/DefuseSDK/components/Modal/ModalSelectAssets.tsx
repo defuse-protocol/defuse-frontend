@@ -2,6 +2,7 @@ import { authIdentity } from "@defuse-protocol/internal-utils"
 import { XIcon } from "@phosphor-icons/react"
 import { Text } from "@radix-ui/themes"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
+import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import {
   useCallback,
   useDeferredValue,
@@ -184,6 +185,8 @@ export const ModalSelectAssets = () => {
     [assetList, filterPattern]
   )
 
+  const is1cs = useIs1CsEnabled()
+
   return (
     <ModalDialog>
       <div className="flex flex-col min-h-[680px] md:max-h-[680px] h-full">
@@ -207,6 +210,7 @@ export const ModalSelectAssets = () => {
               className="h-full"
               handleSelectToken={handleSelectToken}
               accountId={(payload as ModalSelectAssetsPayload)?.accountId}
+              showChain={is1cs}
             />
           ) : (
             <EmptyAssetList className="h-full" />

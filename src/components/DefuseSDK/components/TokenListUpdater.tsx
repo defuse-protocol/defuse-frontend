@@ -5,7 +5,11 @@ import type {
   UnifiedTokenInfo,
 } from "@src/components/DefuseSDK/types/base"
 import type { SwappableToken } from "@src/components/DefuseSDK/types/swap"
-import { LIST_TOKENS, NATIVE_NEAR } from "@src/constants/tokens"
+import {
+  LIST_TOKENS,
+  NATIVE_NEAR,
+  addChainToTokenSymbol,
+} from "@src/constants/tokens"
 import { useSelector } from "@xstate/react"
 import { useSearchParams } from "next/navigation"
 import { useEffect, useMemo } from "react"
@@ -142,10 +146,9 @@ export function TokenListUpdater1cs<
         setAsTokenInOrOut(onlyToken)
       } else {
         // if user has multiple kinds of this token - show them all
-        const tokens = nonZeroBalanceTokensDeduped.map((t) => ({
-          ...t,
-          symbol: `${t.symbol} (${t.chainName})`,
-        }))
+        const tokens = nonZeroBalanceTokensDeduped.map((t) =>
+          addChainToTokenSymbol(t)
+        )
         for (const token of tokens) {
           newList.push(token)
         }
@@ -171,10 +174,7 @@ export function TokenListUpdater1cs<
         swapUIActorRef.send({
           type: "input",
           params: {
-            tokenIn: {
-              ...newTokenIn,
-              symbol: `${newTokenIn.symbol} (${isBaseToken(newTokenIn) ? newTokenIn.chainName : newTokenIn.groupedTokens[0].chainName})`,
-            },
+            tokenIn: addChainToTokenSymbol(newTokenIn),
           },
         })
       }
@@ -183,10 +183,7 @@ export function TokenListUpdater1cs<
         swapUIActorRef.send({
           type: "input",
           params: {
-            tokenOut: {
-              ...newTokenOut,
-              symbol: `${newTokenOut.symbol} (${isBaseToken(newTokenOut) ? newTokenOut.chainName : newTokenOut.groupedTokens[0].chainName})`,
-            },
+            tokenOut: addChainToTokenSymbol(newTokenOut),
           },
         })
       }
