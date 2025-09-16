@@ -1,3 +1,13 @@
+import {
+  getChainFromDid,
+  resolveTokenByDid,
+} from "@src/components/DefuseSDK/utils/tokenDeployment"
+import {
+  type TokenFamilyList,
+  resolveTokenFamily,
+} from "@src/components/DefuseSDK/utils/tokenFamily"
+import { getAnyBaseTokenInfo } from "@src/components/DefuseSDK/utils/tokenUtils"
+import { LIST_TOKENS_FLATTEN, tokenFamilies } from "@src/constants/tokens"
 import { type ActorRef, type Snapshot, fromTransition } from "xstate"
 import type {
   BaseTokenInfo,
@@ -7,7 +17,6 @@ import type {
 } from "../../types/base"
 import { assert } from "../../utils/assert"
 import { isBaseToken } from "../../utils/token"
-import { getAnyBaseTokenInfo } from "../../utils/tokenUtils"
 import { validateAddress } from "../../utils/validateAddress"
 import { isNearIntentsNetwork } from "../withdraw/components/WithdrawForm/utils"
 import { isCexIncompatible } from "../withdraw/utils/cexCompatibility"
@@ -139,15 +148,13 @@ export const withdrawFormReducer = fromTransition(
       }
       case "WITHDRAW_FORM.UPDATE_BLOCKCHAIN": {
         const blockchain = event.params.blockchain
-        const determinedBlockchain = isHyperliquid(blockchain)
-          ? getHyperliquidSrcChain(state.tokenOut)
-          : isNearIntentsNetwork(blockchain)
-            ? getAnyBaseTokenInfo(state.tokenIn).chainName
-            : blockchain
 
-        const tokenOut = isNearIntentsNetwork(blockchain)
-          ? getAnyBaseTokenInfo(state.tokenIn)
-          : getBaseTokenInfoWithFallback(state.tokenIn, determinedBlockchain)
+        const tokenOut = resolveTokenOut(
+          blockchain,
+          state.tokenIn,
+          tokenFamilies,
+          LIST_TOKENS_FLATTEN
+        )
 
         const cexFundsLooseConfirmation = isNearIntentsNetwork(blockchain)
           ? "not_required"
@@ -243,7 +250,10 @@ export const withdrawFormReducer = fromTransition(
   ({
     input,
   }: {
-    input: { parentRef: ParentActor; tokenIn: BaseTokenInfo | UnifiedTokenInfo }
+    input: {
+      parentRef: ParentActor
+      tokenIn: BaseTokenInfo | UnifiedTokenInfo
+    }
   }): State => {
     const tokenOut = getBaseTokenInfoWithFallback(input.tokenIn, null)
 
@@ -329,4 +339,40 @@ function cexFundsLooseConfirmationStatusDefault(
   tokenOut: BaseTokenInfo
 ): CexFundsLooseConfirmationStatus {
   return isCexIncompatible(tokenOut) ? "not_confirmed" : "not_required"
+}
+
+export function resolveTokenOut(
+  blockchain: SupportedChainName | "near_intents",
+  tokenIn: BaseTokenInfo | UnifiedTokenInfo,
+  tokenFamilies: TokenFamilyList,
+  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
+): BaseTokenInfo {
+  if (isNearIntentsNetwork(blockchain)) {
+    // Doesn't matter we use, because we won't use it anyway for internal transfers
+    return getAnyBaseTokenInfo(tokenIn)
+  }
+
+  if (isHyperliquid(blockchain)) {
+    // biome-ignore lint/style/noParameterAssign: we substitute "hyperliquid" with the actual chain, where we will be doing transfers to.
+    blockchain = (
+      {
+        bitcoin: "bitcoin",
+        solana: "solana",
+        ethereum: "eth",
+      } as const
+    )[getHyperliquidSrcChain(getAnyBaseTokenInfo(tokenIn))]
+  }
+
+  const tf = resolveTokenFamily(tokenFamilies, tokenIn)
+  assert(tf != null, "Token family not found")
+
+  const tokenDid = tf.deployments.find(
+    (did) => getChainFromDid(did) === blockchain
+  )
+  assert(tokenDid != null, "Token deployment not found")
+
+  const tokenOut = resolveTokenByDid(tokenList, tokenDid)
+  assert(tokenOut != null, "Token out not found")
+
+  return tokenOut
 }

@@ -4,6 +4,7 @@ import { MagicWandIcon, PersonIcon } from "@radix-ui/react-icons"
 import { Box, Flex, IconButton, Text, TextField } from "@radix-ui/themes"
 import { getMinWithdrawalHiperliquidAmount } from "@src/components/DefuseSDK/features/withdraw/utils/hyperliquid"
 import { usePreparedNetworkLists } from "@src/components/DefuseSDK/hooks/useNetworkLists"
+import { isSupportedChainName } from "@src/components/DefuseSDK/utils/blockchain"
 import { useSelector } from "@xstate/react"
 import { type ReactNode, useEffect, useState } from "react"
 import type { UseFormReturn } from "react-hook-form"
@@ -75,10 +76,7 @@ export const RecipientSubForm = ({
   const { token, tokenOut, parsedAmountIn, recipient } = useSelector(
     formRef,
     (state) => {
-      const { tokenOut } = state.context
-
       return {
-        blockchain: tokenOut.chainName,
         token: state.context.tokenIn,
         tokenOut: state.context.tokenOut,
         parsedAmountIn: state.context.parsedAmount,
@@ -184,11 +182,15 @@ export const RecipientSubForm = ({
             <SelectTriggerLike
               label={determineBlockchainControllerLabel(
                 field.value,
-                blockchainSelectItems[field.value]?.label
+                isSupportedChainName(field.value) // filter out virtual "near_intents" chain
+                  ? blockchainSelectItems[field.value]?.label
+                  : undefined
               )}
               icon={determineBlockchainControllerIcon(
                 field.value,
-                blockchainSelectItems[field.value]?.icon
+                isSupportedChainName(field.value) // filter out virtual "near_intents" chain
+                  ? blockchainSelectItems[field.value]?.icon
+                  : undefined
               )}
               onClick={() => setIsNetworkModalOpen(true)}
               hint={

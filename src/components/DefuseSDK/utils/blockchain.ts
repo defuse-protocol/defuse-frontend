@@ -1,4 +1,7 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
+import { getChainFromDid } from "@src/components/DefuseSDK/utils/tokenDeployment"
+import { resolveTokenFamily } from "@src/components/DefuseSDK/utils/tokenFamily"
+import { tokenFamilies } from "@src/constants/tokens"
 import { config } from "../config"
 import { getBlockchainsOptions } from "../constants/blockchains"
 import type { NetworkOption } from "../constants/blockchains"
@@ -74,8 +77,13 @@ function filterChainsByFeatureFlags<T extends string>(chains: T[]): T[] {
 export function availableChainsForToken(
   token: BaseTokenInfo | UnifiedTokenInfo
 ): Record<string, NetworkOption> {
+  const tokenFamily = resolveTokenFamily(tokenFamilies, token)
+
   const tokens = isUnifiedToken(token) ? token.groupedTokens : [token]
-  let chains = tokens.map((token) => token.chainName)
+
+  let chains = tokenFamily
+    ? tokenFamily.deployments.map(getChainFromDid)
+    : tokens.map((t) => t.chainName)
 
   chains = filterChainsByFeatureFlags(chains)
   const options = getBlockchainsOptions()

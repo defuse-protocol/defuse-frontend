@@ -2,6 +2,8 @@ import type {
   BaseTokenInfo,
   UnifiedTokenInfo,
 } from "@src/components/DefuseSDK/types"
+import { flattenTokenList } from "@src/components/DefuseSDK/utils/token"
+import { extractTokenFamilyList } from "@src/components/DefuseSDK/utils/tokenFamily"
 import { INTENTS_ENV } from "@src/utils/environment"
 
 export type TokenWithTags = BaseTokenInfo | UnifiedTokenInfo
@@ -1948,3 +1950,6 @@ export const LIST_TOKENS: TokenWithTags[] =
 export const DEPRECATED_TOKENS: Record<string, boolean> = {
   "nep141:aurora": true,
 }
+
+export const LIST_TOKENS_FLATTEN = flattenTokenList(LIST_TOKENS)
+export const tokenFamilies = extractTokenFamilyList(LIST_TOKENS)
