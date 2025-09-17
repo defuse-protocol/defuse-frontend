@@ -2,11 +2,11 @@ import type {
   BaseTokenInfo,
   UnifiedTokenInfo,
 } from "@src/components/DefuseSDK/types"
+import { flattenTokenList } from "@src/components/DefuseSDK/utils/token"
+import { extractTokenFamilyList } from "@src/components/DefuseSDK/utils/tokenFamily"
 import { INTENTS_ENV } from "@src/utils/environment"
 
-export type TokenWithTags =
-  | (BaseTokenInfo & { tags?: string[] })
-  | (UnifiedTokenInfo & { tags?: string[] })
+export type TokenWithTags = BaseTokenInfo | UnifiedTokenInfo
 
 export const NATIVE_NEAR: TokenWithTags = {
   defuseAssetId: "nep141:wrap.near",
@@ -19,7 +19,7 @@ export const NATIVE_NEAR: TokenWithTags = {
   name: "Near",
 }
 
-export const PRODUCTION_TOKENS: TokenWithTags[] = [
+const PRODUCTION_TOKENS: TokenWithTags[] = [
   {
     unifiedAssetId: "usdc",
     symbol: "USDC",
@@ -237,7 +237,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         name: "USD Coin",
       },
     ],
-    tags: ["mc:7", "type:stablecoin", "tvol:4"],
+    tags: ["mc:7", "type:stablecoin", "tvol:4", "aid:usdc"],
   },
   {
     defuseAssetId:
@@ -301,7 +301,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         name: "Zcash",
       },
     ],
-    tags: ["mc:120", "tvol:1"],
+    tags: ["mc:120", "tvol:1", "aid:zec"],
   },
   {
     unifiedAssetId: "near",
@@ -381,7 +381,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         name: "Near",
       },
     ],
-    tags: ["mc:31", "tvol:2"],
+    tags: ["mc:31", "tvol:2", "aid:near"],
   },
   {
     unifiedAssetId: "usdt",
@@ -594,7 +594,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         name: "Tether USD",
       },
     ],
-    tags: ["mc:3", "type:stablecoin", "tvol:3"],
+    tags: ["mc:3", "type:stablecoin", "tvol:3", "aid:usdt"],
   },
 
   {
@@ -625,7 +625,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         name: "xDAI",
       },
     ],
-    tags: ["mc:25", "type:stablecoin"],
+    tags: ["mc:25", "type:stablecoin", "aid:dai"],
   },
   {
     unifiedAssetId: "eth",
@@ -792,7 +792,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         name: "ETH",
       },
     ],
-    tags: ["mc:2", "tvol:7"],
+    tags: ["mc:2", "tvol:7", "aid:eth"],
   },
   {
     unifiedAssetId: "aurora",
@@ -889,7 +889,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         name: "Aurora",
       },
     ],
-    tags: ["mc:462", "tvol:12"],
+    tags: ["mc:462", "tvol:12", "aid:aurora"],
   },
   {
     unifiedAssetId: "btc",
@@ -929,7 +929,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         name: "Bitcoin",
       },
     ],
-    tags: ["mc:1", "tvol:6"],
+    tags: ["mc:1", "tvol:6", "aid:btc"],
   },
   {
     defuseAssetId:
@@ -1100,7 +1100,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         name: "Sweat Economy",
       },
     ],
-    tags: ["mc:571"],
+    tags: ["mc:571", "aid:sweat"],
   },
   {
     unifiedAssetId: "sol",
@@ -1130,7 +1130,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         name: "Solana",
       },
     ],
-    tags: ["mc:6", "tvol:5"],
+    tags: ["mc:6", "tvol:5", "aid:sol"],
   },
   {
     defuseAssetId: "nep141:doge.omft.near",
@@ -1207,7 +1207,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         name: "Turbo",
       },
     ],
-    tags: ["mc:183", "type:meme"],
+    tags: ["mc:183", "type:meme", "aid:turbo"],
   },
   {
     unifiedAssetId: "xrp",
@@ -1237,7 +1237,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         name: "XRP",
       },
     ],
-    tags: ["mc:4", "tvol:11"],
+    tags: ["mc:4", "tvol:11", "aid:xrp"],
   },
   {
     defuseAssetId:
@@ -1427,7 +1427,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         name: "HAPI Protocol",
       },
     ],
-    tags: ["mc:1539"],
+    tags: ["mc:1539", "aid:hapi"],
   },
   {
     defuseAssetId: "nep141:score.aidols.near",
@@ -1492,7 +1492,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         name: "Coinbase Wrapped BTC",
       },
     ],
-    tags: ["mc:10"],
+    tags: ["mc:10", "aid:cbbtc"],
   },
   {
     defuseAssetId:
@@ -1650,7 +1650,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         name: "Rhea",
       },
     ],
-    tags: ["mc:1452"],
+    tags: ["mc:1452", "aid:rhea"],
   },
   {
     defuseAssetId: "nep141:cardano.omft.near",
@@ -1713,7 +1713,7 @@ export const PRODUCTION_TOKENS: TokenWithTags[] = [
         name: "PublicAI",
       },
     ],
-    tags: [],
+    tags: ["aid:public"],
   },
 
   /** Omni bridgable tokens */
@@ -1950,3 +1950,6 @@ export const LIST_TOKENS: TokenWithTags[] =
 export const DEPRECATED_TOKENS: Record<string, boolean> = {
   "nep141:aurora": true,
 }
+
+export const LIST_TOKENS_FLATTEN = flattenTokenList(LIST_TOKENS)
+export const tokenFamilies = extractTokenFamilyList(LIST_TOKENS)

@@ -50,6 +50,7 @@ export interface FungibleTokenInfo {
   icon: string
   chainName: SupportedChainName
   bridge: SupportedBridge
+  tags?: string[]
 }
 
 export interface NativeTokenInfo {
@@ -61,6 +62,7 @@ export interface NativeTokenInfo {
   icon: string
   chainName: SupportedChainName
   bridge: SupportedBridge
+  tags?: string[]
 }
 
 export type BaseTokenInfo = FungibleTokenInfo | NativeTokenInfo
@@ -79,9 +81,34 @@ export interface UnifiedTokenInfo {
   name: string
   icon: string
   groupedTokens: BaseTokenInfo[]
+  tags?: string[]
 }
 
 export interface TokenValue {
   amount: bigint
   decimals: number
+}
+
+/**
+ * AID (Abstract Identifier Datum) is a brand/class across chains.
+ * One AID maps to many token deployments (native + wrapped + bridged).
+ * If a token is not a part of related assets, it might not have an AID.
+ * Examples: "usdc", "eth".
+ */
+export type TokenAbstractId = string
+
+/**
+ * DID (Deployment Identifier Datum) represents a single token deployment on a specific chain.
+ * Example:
+ *   - ["near", "native"] - $NEAR on Near
+ *   - ["eth", "0xdAC17F958D2ee523a2206206994597C13D831ec7"] - $USDT on Ethereum
+ */
+export type TokenDeploymentId = [SupportedChainName, string | "native"]
+
+/**
+ * Represents a group of tokens that share the same AID.
+ */
+export interface TokenFamily {
+  aid: TokenAbstractId
+  deployments: TokenDeploymentId[]
 }
