@@ -291,7 +291,7 @@ export const depositUIMachine = setup({
           userChainType: ({ event }) => event.params.userChainType,
         }),
       ],
-      target: ".editing",
+      target: ".editing.tryToRestoreState",
       reenter: true,
     },
 
@@ -348,6 +348,17 @@ export const depositUIMachine = setup({
       },
 
       states: {
+        tryToRestoreState: {
+          always: [
+            {
+              target: "preparation",
+              guard: "isDepositParamsComplete",
+            },
+            {
+              target: "idle",
+            },
+          ],
+        },
         idle: {
           on: {
             SUBMIT: [
