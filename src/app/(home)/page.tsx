@@ -1,5 +1,4 @@
 "use client"
-import { updateURLParams } from "@src/app/(home)/_utils/useDeterminePair"
 import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
 import { getTokens } from "@src/components/DefuseSDK/features/machines/1cs"
 import { SwapWidget } from "@src/components/DefuseSDK/features/swap/components/SwapWidget"
@@ -57,9 +56,7 @@ export default function Swap() {
         referral={referral}
         initialTokenIn={tokenIn ?? undefined}
         initialTokenOut={tokenOut ?? undefined}
-        onTokenChange={(params) =>
-          updateURLParams({ ...params, router, searchParams })
-        }
+        router={router}
       />
     </Paper>
   )

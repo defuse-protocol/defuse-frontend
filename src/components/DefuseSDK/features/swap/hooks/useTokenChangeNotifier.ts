@@ -1,21 +1,25 @@
+import { updateURLParamsSwap } from "@src/app/(home)/_utils/useDeterminePair"
+import { useTokensStore } from "@src/components/DefuseSDK/providers/TokensStoreProvider"
+import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
+import { useSearchParams } from "next/navigation"
 import { useEffect } from "react"
 import type { SwappableToken } from "../../../types/swap"
 import { DepositUIMachineContext } from "../../deposit/components/DepositUIMachineProvider"
 import { SwapUIMachineContext } from "../components/SwapUIMachineProvider"
 
 export function useSwapTokenChangeNotifier({
-  onTokenChange,
+  router,
   prevTokensRef,
 }: {
-  onTokenChange?: (params: {
-    tokenIn: SwappableToken | null
-    tokenOut: SwappableToken | null
-  }) => void
-  prevTokensRef: React.MutableRefObject<{
+  router: AppRouterInstance
+  prevTokensRef: React.RefObject<{
     tokenIn: SwappableToken | null
     tokenOut: SwappableToken | null
   }>
 }) {
+  const searchParams = useSearchParams()
+  const tokens = useTokensStore((state) => state.tokens)
+
   const { tokenIn, tokenOut } = SwapUIMachineContext.useSelector(
     (snapshot) => ({
       tokenIn: snapshot.context.formValues.tokenIn,
@@ -24,14 +28,12 @@ export function useSwapTokenChangeNotifier({
   )
 
   useEffect(() => {
-    if (!onTokenChange) return
-
     const prev = prevTokensRef.current
     if (tokenIn !== prev.tokenIn || tokenOut !== prev.tokenOut) {
-      onTokenChange({ tokenIn, tokenOut })
+      updateURLParamsSwap({ tokenIn, tokenOut, tokens, router, searchParams })
       prevTokensRef.current = { tokenIn, tokenOut }
     }
-  }, [tokenIn, tokenOut, onTokenChange, prevTokensRef])
+  }, [tokenIn, tokenOut, prevTokensRef, tokens, router, searchParams])
 }
 
 export function useDepositTokenChangeNotifier({

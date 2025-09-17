@@ -1,4 +1,5 @@
 import { Skeleton } from "@radix-ui/themes"
+import { useTokensStore } from "@src/components/DefuseSDK/providers/TokensStoreProvider"
 import clsx from "clsx"
 import { useEffect, useRef, useState } from "react"
 import type {
@@ -16,6 +17,7 @@ import type {
   TokenValue,
   UnifiedTokenInfo,
 } from "../../types/base"
+import type { SwappableToken } from "../../types/swap"
 import {
   BlockMultiBalances,
   type BlockMultiBalancesProps,
@@ -25,6 +27,8 @@ import { SelectAssets } from "../SelectAssets"
 interface Props<T extends FieldValues>
   extends Omit<BlockMultiBalancesProps, "decimals" | "balance"> {
   fieldName: Path<T>
+  tokenOut: SwappableToken
+  tokenIn?: SwappableToken
   register?: UseFormRegister<T>
   required?: boolean
   min?: RegisterOptions["min"]
@@ -45,6 +49,8 @@ export const FieldComboInputRegistryName = "FieldComboInput"
 
 export const FieldComboInput = <T extends FieldValues>({
   fieldName,
+  tokenOut,
+  tokenIn,
   register,
   required,
   min,
@@ -118,6 +124,8 @@ export const FieldComboInput = <T extends FieldValues>({
     isLoading ? LONG_LOADING_THRESHOLD_MS : 0
   )
 
+  const tokens = useTokensStore((state) => state.tokens)
+
   return (
     <div
       className={clsx(
@@ -149,7 +157,13 @@ export const FieldComboInput = <T extends FieldValues>({
         </div>
 
         {selected && (
-          <SelectAssets selected={selected} handleSelect={handleSelect} />
+          <SelectAssets
+            selected={selected}
+            handleSelect={handleSelect}
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            tokens={tokens}
+          />
         )}
       </div>
 

@@ -1,19 +1,19 @@
 import { CaretDownIcon } from "@radix-ui/react-icons"
 import type React from "react"
 
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../types/base"
-
-import {
-  hasChainNameInSymbol,
-  removeChainNameFromSymbol,
-} from "@src/constants/tokens"
+import { hasChainIcon } from "@src/app/(home)/_utils/useDeterminePair"
+import type { TokenWithTags } from "@src/constants/tokens"
+import { useMemo } from "react"
 import { chainIcons } from "../constants/blockchains"
 import { isBaseToken } from "../utils"
 import { AssetComboIcon } from "./Asset/AssetComboIcon"
 
 type Props = {
-  selected?: BaseTokenInfo | UnifiedTokenInfo
+  selected?: TokenWithTags
   handleSelect?: () => void
+  tokens?: TokenWithTags[]
+  tokenIn?: TokenWithTags
+  tokenOut?: TokenWithTags
 }
 
 const EmptyIcon = () => {
@@ -22,11 +22,45 @@ const EmptyIcon = () => {
   )
 }
 
-export const SelectAssets = ({ selected, handleSelect }: Props) => {
+export const SelectAssets = ({
+  selected,
+  handleSelect,
+  tokens,
+  tokenIn,
+  tokenOut,
+}: Props) => {
   const handleAssetsSelect = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     handleSelect?.()
   }
+
+  const chainIcon = useMemo(() => {
+    return selected !== undefined && isBaseToken(selected)
+      ? chainIcons[selected.chainName]
+      : undefined
+  }, [selected])
+
+  const showChainIcon = useMemo(() => {
+    if (
+      chainIcon === undefined ||
+      tokens === undefined ||
+      selected === undefined
+    ) {
+      return false
+    }
+
+    const allTokens = [...tokens]
+
+    if (tokenIn !== undefined) {
+      allTokens.push(tokenIn)
+    }
+
+    if (tokenOut !== undefined) {
+      allTokens.push(tokenOut)
+    }
+
+    return hasChainIcon(selected, allTokens)
+  }, [tokens, tokenIn, tokenOut, selected, chainIcon])
 
   return (
     <button
@@ -39,18 +73,14 @@ export const SelectAssets = ({ selected, handleSelect }: Props) => {
           icon={selected.icon as string}
           name={selected.name as string}
           chainName={isBaseToken(selected) ? selected.chainName : undefined}
-          chainIcon={
-            isBaseToken(selected) ? chainIcons[selected.chainName] : undefined
-          }
-          showChainIcon={hasChainNameInSymbol(selected)}
+          chainIcon={chainIcon}
+          showChainIcon={showChainIcon}
         />
       ) : (
         <EmptyIcon />
       )}
       <span className="text-sm uppercase truncate">
-        {selected?.symbol
-          ? removeChainNameFromSymbol(selected.symbol)
-          : "select token"}
+        {selected?.symbol ?? "select token"}
       </span>
       <CaretDownIcon width={25} height={25} />
     </button>

@@ -1,20 +1,15 @@
 import { CheckCircleIcon } from "@phosphor-icons/react"
 import { Text } from "@radix-ui/themes"
 import clsx from "clsx"
-import type { ReactNode } from "react"
+import { type ReactNode, useCallback } from "react"
 
-import type {
-  BaseTokenInfo,
-  TokenValue,
-  UnifiedTokenInfo,
-} from "../../types/base"
+import type { TokenValue } from "../../types/base"
 import type { SelectItemToken } from "../Modal/ModalSelectAssets"
 
+import { hasChainIcon } from "@src/app/(home)/_utils/useDeterminePair"
 import { chainIcons } from "@src/components/DefuseSDK/constants/blockchains"
-import {
-  hasChainNameInSymbol,
-  removeChainNameFromSymbol,
-} from "@src/constants/tokens"
+import { useTokensStore } from "@src/components/DefuseSDK/providers/TokensStoreProvider"
+import type { TokenWithTags } from "@src/constants/tokens"
 import { FormattedCurrency } from "../../features/account/components/shared/FormattedCurrency"
 import { formatTokenValue } from "../../utils/format"
 import { getTokenId, isBaseToken } from "../../utils/token"
@@ -29,14 +24,24 @@ type Props<T> = {
   showChain?: boolean
 }
 
-type Token = BaseTokenInfo | UnifiedTokenInfo
-
-export const AssetList = <T extends Token>({
+export function AssetList<T extends TokenWithTags>({
   assets,
   className,
   handleSelectToken,
   showChain = false,
-}: Props<T>) => {
+}: Props<T>) {
+  const tokens = useTokensStore((state) => state.tokens)
+
+  const showChainIcon = useCallback(
+    (
+      token: TokenWithTags,
+      chainIcon: { dark: string; light: string } | undefined
+    ) => {
+      return showChain && chainIcon !== undefined && hasChainIcon(token, tokens)
+    },
+    [tokens, showChain]
+  )
+
   return (
     <div className={clsx("flex flex-col", className && className)}>
       {assets.map(
@@ -60,11 +65,7 @@ export const AssetList = <T extends Token>({
                 <AssetComboIcon
                   icon={token.icon}
                   name={token.name}
-                  showChainIcon={
-                    showChain &&
-                    chainIcon !== undefined &&
-                    hasChainNameInSymbol(token)
-                  }
+                  showChainIcon={showChainIcon(token, chainIcon)}
                   chainName={isBaseToken(token) ? token.chainName : undefined}
                   chainIcon={chainIcon}
                 />
@@ -83,7 +84,7 @@ export const AssetList = <T extends Token>({
                 </div>
                 <div className="flex justify-between items-center text-gray-11">
                   <Text as="span" size="2">
-                    {removeChainNameFromSymbol(token.symbol)}
+                    {token.symbol}
                   </Text>
                   {usdValue != null ? (
                     <FormattedCurrency

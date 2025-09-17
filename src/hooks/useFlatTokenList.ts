@@ -1,8 +1,5 @@
 import { flattenTokenList } from "@src/components/DefuseSDK/utils/token"
-import {
-  type TokenWithTags,
-  addChainToTokenSymbol,
-} from "@src/constants/tokens"
+import type { TokenWithTags } from "@src/constants/tokens"
 import { useSearchParams } from "next/navigation"
 import { useMemo } from "react"
 import { useIs1CsEnabled } from "./useIs1CsEnabled"
@@ -14,9 +11,7 @@ export function useFlatTokenList(tokenList: TokenWithTags[]) {
 
   return useMemo(() => {
     if (flatListIsEnabled || is1cs) {
-      return flattenTokenList(tokenList).map((t) => {
-        return addChainToTokenSymbol(t)
-      })
+      return flattenTokenList(tokenList)
     }
     return tokenList
   }, [flatListIsEnabled, is1cs, tokenList])

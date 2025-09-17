@@ -56,12 +56,12 @@ export type SelectItemToken<T = Token> = {
   isHoldingsEnabled: boolean
 }
 
-export const ModalSelectAssets = () => {
+export function ModalSelectAssets() {
   const [searchValue, setSearchValue] = useState("")
   const [assetList, setAssetList] = useState<SelectItemToken[]>([])
 
   const { onCloseModal, modalType, payload } = useModalStore((state) => state)
-  const { data, isLoading } = useTokensStore((state) => state)
+  const tokens = useTokensStore((state) => state.tokens)
   const deferredQuery = useDeferredValue(searchValue)
 
   const { state } = useConnectWallet()
@@ -69,10 +69,7 @@ export const ModalSelectAssets = () => {
     state.isVerified && state.address && state.chainType
       ? authIdentity.authHandleToIntentsUserId(state.address, state.chainType)
       : null
-  const holdings = useWatchHoldings({
-    userId,
-    tokenList: Array.from(data.values()),
-  })
+  const holdings = useWatchHoldings({ userId, tokenList: tokens })
 
   const handleSearchClear = () => setSearchValue("")
 
@@ -107,7 +104,7 @@ export const ModalSelectAssets = () => {
   }
 
   useEffect(() => {
-    if (!data.size && !isLoading) {
+    if (tokens.length === 0) {
       return
     }
 
@@ -129,7 +126,8 @@ export const ModalSelectAssets = () => {
 
     const getAssetList: SelectItemToken[] = []
 
-    for (const [tokenId, token] of data) {
+    for (const token of tokens) {
+      const tokenId = getTokenId(token)
       const disabled = selectedTokenId != null && tokenId === selectedTokenId
 
       // TODO: remove this once we remove the legacy props
@@ -178,7 +176,7 @@ export const ModalSelectAssets = () => {
     })
 
     setAssetList(getAssetList)
-  }, [data, isLoading, payload, holdings])
+  }, [tokens, payload, holdings])
 
   const filteredAssets = useMemo(
     () => assetList.filter(filterPattern),

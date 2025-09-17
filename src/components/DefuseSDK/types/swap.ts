@@ -1,4 +1,5 @@
 import type { authHandle, walletMessage } from "@defuse-protocol/internal-utils"
+import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
 import type { SendNearTransaction } from "../features/machines/publicKeyVerifierMachine"
 import type { BaseTokenInfo, UnifiedTokenInfo } from "./base"
 import type { RenderHostAppLink } from "./hostAppLink"
@@ -46,14 +47,7 @@ export type SwapWidgetProps = {
    * Prop is not reactive, set it once when the component is created.
    */
   referral?: string
-
-  /**
-   * Callback function called when tokens change (tokenIn or tokenOut)
-   */
-  onTokenChange?: (params: {
-    tokenIn: SwappableToken | null
-    tokenOut: SwappableToken | null
-  }) => void
+  router: AppRouterInstance
 }
 
 export type SwapWidget1ClickProps = SwapWidgetProps

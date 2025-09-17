@@ -2,6 +2,7 @@ import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { createActorContext } from "@xstate/react"
+import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
 import type { PropsWithChildren, ReactElement, ReactNode } from "react"
 import { useRef } from "react"
 import { useFormContext } from "react-hook-form"
@@ -58,10 +59,7 @@ interface SwapUIMachineProviderProps extends PropsWithChildren {
     params: walletMessage.WalletMessage
   ) => Promise<walletMessage.WalletSignatureResult | null>
   referral?: string
-  onTokenChange?: (params: {
-    tokenIn: SwappableToken | null
-    tokenOut: SwappableToken | null
-  }) => void
+  router: AppRouterInstance
 }
 
 export function SwapUIMachineProvider({
@@ -71,7 +69,7 @@ export function SwapUIMachineProvider({
   tokenList,
   signMessage,
   referral,
-  onTokenChange,
+  router,
 }: SwapUIMachineProviderProps) {
   const { setValue, resetField } = useFormContext<SwapFormValues>()
   const tokenIn = initialTokenIn || tokenList[0]
@@ -132,7 +130,7 @@ export function SwapUIMachineProvider({
       })}
     >
       <TokenChangeNotifier
-        onTokenChange={onTokenChange}
+        router={router}
         tokenIn={tokenIn}
         tokenOut={tokenOut}
       />
@@ -142,19 +140,16 @@ export function SwapUIMachineProvider({
 }
 
 function TokenChangeNotifier({
-  onTokenChange,
+  router,
   tokenIn,
   tokenOut,
 }: {
-  onTokenChange?: (params: {
-    tokenIn: SwappableToken | null
-    tokenOut: SwappableToken | null
-  }) => void
+  router: AppRouterInstance
   tokenIn: SwappableToken
   tokenOut: SwappableToken
 }) {
   useSwapTokenChangeNotifier({
-    onTokenChange,
+    router,
     prevTokensRef: useRef({ tokenIn, tokenOut }),
   })
   return null
