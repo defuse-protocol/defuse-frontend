@@ -55,11 +55,11 @@ export function flattenTokenList(
       const mergedTags = Array.from(
         new Set([...(t.tags ?? []), ...(tt.tags ?? [])])
       )
-      return {
-        ...tt,
-        symbol: `${tt.symbol} (${tt.chainName})`,
-        ...(mergedTags.length > 0 ? { tags: mergedTags } : {}),
-      }
+      return Object.assign(
+        {},
+        tt,
+        mergedTags.length > 0 ? { tags: mergedTags } : {}
+      )
     })
   })
 }
