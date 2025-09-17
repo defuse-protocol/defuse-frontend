@@ -27,7 +27,7 @@ export function getHyperliquidSrcChain(
 }
 
 export function getHyperliquidAsset(
-  token: BaseTokenInfo
+  token: BaseTokenInfo | UnifiedTokenInfo
 ): GeneratHLAddressParams["asset"] {
   const tokenAid = getTokenAid(token)
   switch (tokenAid) {
