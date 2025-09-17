@@ -15,7 +15,7 @@ describe("resolveTokenOut()", () => {
       name: "",
       symbol: "",
       address: "",
-      tags: ["aid:foo"],
+      tags: ["aid:eth"],
     },
     {
       bridge: "poa",
@@ -26,7 +26,7 @@ describe("resolveTokenOut()", () => {
       name: "",
       symbol: "",
       address: "",
-      tags: ["aid:foo"],
+      tags: ["aid:eth"],
     },
     {
       bridge: "poa",
@@ -37,7 +37,7 @@ describe("resolveTokenOut()", () => {
       name: "",
       symbol: "",
       address: "",
-      tags: ["aid:foo"],
+      tags: ["aid:eth"],
     },
     {
       bridge: "poa",
@@ -46,9 +46,9 @@ describe("resolveTokenOut()", () => {
       defuseAssetId: "",
       icon: "",
       name: "",
-      symbol: "ETH", // important to pass symbol
+      symbol: "",
       address: "",
-      tags: ["aid:foo"],
+      tags: ["aid:eth"],
     },
   ]
 
@@ -57,7 +57,7 @@ describe("resolveTokenOut()", () => {
   it("returns a token from the same family", () => {
     const t = tokenList[0]
     const result = resolveTokenOut("arbitrum", t, tokenFamilies, tokenList)
-    expect(getTokenAid(result)).toEqual("foo")
+    expect(getTokenAid(result)).toEqual("eth")
   })
 
   it("returns a token with given chain", () => {

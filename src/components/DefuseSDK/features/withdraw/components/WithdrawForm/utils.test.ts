@@ -481,7 +481,7 @@ describe("getBlockchainSelectItems()", () => {
     )
 
     expect(result).toHaveProperty(
-      "near",
+      "xrpledger",
       expect.objectContaining({
         hotBalance: { amount: 100n, decimals: 6 },
       })

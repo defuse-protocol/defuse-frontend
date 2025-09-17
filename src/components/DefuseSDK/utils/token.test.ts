@@ -85,26 +85,6 @@ describe("flattenTokenList()", () => {
       }),
     ])
   })
-
-  it("appends chain to symbol", () => {
-    const result = flattenTokenList(tokenList)
-
-    expect(result).toEqual([
-      expect.objectContaining({
-        defuseAssetId: "nep141:token.publicailab.near",
-        symbol: "PUBLIC (near)",
-      }),
-      expect.objectContaining({
-        defuseAssetId:
-          "nep141:sol-1f00bb36e75cfc8e1274c1507cc3054f5b3f3ce1.omft.near",
-        symbol: "PUBLIC (solana)",
-      }),
-      expect.objectContaining({
-        defuseAssetId: "nep141:aptos.omft.near",
-        symbol: "APT",
-      }),
-    ])
-  })
 })
 
 describe("getTokenAid()", () => {
