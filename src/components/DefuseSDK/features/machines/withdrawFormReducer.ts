@@ -360,7 +360,7 @@ export function resolveTokenOut(
         solana: "solana",
         ethereum: "eth",
       } as const
-    )[getHyperliquidSrcChain(getAnyBaseTokenInfo(tokenIn))]
+    )[getHyperliquidSrcChain(tokenIn)]
   }
 
   const tf = resolveTokenFamily(tokenFamilies, tokenIn)

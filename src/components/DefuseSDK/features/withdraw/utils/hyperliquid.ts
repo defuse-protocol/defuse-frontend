@@ -1,21 +1,25 @@
 import type { GeneratHLAddressParams } from "@src/components/DefuseSDK/sdk/hyperunit/types"
-import type { BaseTokenInfo } from "@src/components/DefuseSDK/types"
+import type {
+  BaseTokenInfo,
+  UnifiedTokenInfo,
+} from "@src/components/DefuseSDK/types"
 import type { SupportedChainName } from "@src/components/DefuseSDK/types/base"
+import { getTokenAid } from "@src/components/DefuseSDK/utils/token"
 
 /**
  * Resolves the destination network for token withdrawals when Hyperliquid is selected by
  * substituting the network with the token's native blockchain.
  */
 export function getHyperliquidSrcChain(
-  tokenIn: BaseTokenInfo
+  token: BaseTokenInfo | UnifiedTokenInfo
 ): GeneratHLAddressParams["srcChain"] {
-  const symbol = tokenIn.symbol
-  switch (symbol) {
-    case "BTC":
+  const tokenAid = getTokenAid(token)
+  switch (tokenAid) {
+    case "btc":
       return "bitcoin"
-    case "SOL":
+    case "sol":
       return "solana"
-    case "ETH":
+    case "eth":
       return "ethereum"
     default:
       throw new Error("Error getting src chain for Hyperliquid")
@@ -25,12 +29,13 @@ export function getHyperliquidSrcChain(
 export function getHyperliquidAsset(
   token: BaseTokenInfo
 ): GeneratHLAddressParams["asset"] {
-  switch (token.symbol) {
-    case "BTC":
+  const tokenAid = getTokenAid(token)
+  switch (tokenAid) {
+    case "btc":
       return "btc"
-    case "SOL":
+    case "sol":
       return "sol"
-    case "ETH":
+    case "eth":
       return "eth"
     default:
       throw new Error("Error getting asset for Hyperliquid")
@@ -41,13 +46,14 @@ export function getHyperliquidAsset(
  * Warning: I found mismatch between the docs and the actual minimum withdrawal amount for SOL.
  * @see https://docs.hyperunit.xyz/developers/api/generate-address#request-parameters
  */
-export function getMinWithdrawalHiperliquidAmount(
+export function getMinWithdrawalHyperliquidAmount(
   blockchain: SupportedChainName | "near_intents",
-  tokenOut: BaseTokenInfo
+  token: BaseTokenInfo | UnifiedTokenInfo
 ) {
   if (blockchain !== "hyperliquid") return null
-  switch (tokenOut.chainName) {
-    case "bitcoin":
+  const tokenAid = getTokenAid(token)
+  switch (tokenAid) {
+    case "btc":
       return {
         amount: 2000000n, // 0.02 BTC
         decimals: 8,
@@ -57,7 +63,7 @@ export function getMinWithdrawalHiperliquidAmount(
         amount: 50000000000000000n, // 0.05 ETH
         decimals: 18,
       }
-    case "solana":
+    case "sol":
       return {
         amount: 200000000n, // 0.2 SOL
         decimals: 9,

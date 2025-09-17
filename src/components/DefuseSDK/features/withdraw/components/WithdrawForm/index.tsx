@@ -43,7 +43,7 @@ import { renderIntentCreationResult } from "../../../swap/components/SwapForm"
 import { usePublicKeyModalOpener } from "../../../swap/hooks/usePublicKeyModalOpener"
 import { WithdrawUIMachineContext } from "../../WithdrawUIMachineContext"
 import { isCexIncompatible } from "../../utils/cexCompatibility"
-import { getMinWithdrawalHiperliquidAmount } from "../../utils/hyperliquid"
+import { getMinWithdrawalHyperliquidAmount } from "../../utils/hyperliquid"
 import {
   Intents,
   MinWithdrawalAmount,
@@ -193,9 +193,9 @@ export const WithdrawForm = ({
           }
     }
   )
-  const minWithdrawalHyperliquidAmount = getMinWithdrawalHiperliquidAmount(
+  const minWithdrawalHyperliquidAmount = getMinWithdrawalHyperliquidAmount(
     blockchain,
-    tokenOut
+    token
   )
   const minWithdrawalAmount = isNearIntentsNetwork(blockchain)
     ? null

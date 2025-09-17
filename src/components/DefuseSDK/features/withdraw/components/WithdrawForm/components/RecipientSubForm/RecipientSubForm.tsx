@@ -2,7 +2,7 @@ import { assert, type BlockchainEnum } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { MagicWandIcon, PersonIcon } from "@radix-ui/react-icons"
 import { Box, Flex, IconButton, Text, TextField } from "@radix-ui/themes"
-import { getMinWithdrawalHiperliquidAmount } from "@src/components/DefuseSDK/features/withdraw/utils/hyperliquid"
+import { getMinWithdrawalHyperliquidAmount } from "@src/components/DefuseSDK/features/withdraw/utils/hyperliquid"
 import { usePreparedNetworkLists } from "@src/components/DefuseSDK/hooks/useNetworkLists"
 import { isSupportedChainName } from "@src/components/DefuseSDK/utils/blockchain"
 import { useSelector } from "@xstate/react"
@@ -114,7 +114,7 @@ export const RecipientSubForm = ({
     actorRef.send({
       type: "WITHDRAW_FORM.UPDATE_MIN_RECEIVED_AMOUNT",
       params: {
-        minReceivedAmount: getMinWithdrawalHiperliquidAmount(network, tokenOut),
+        minReceivedAmount: getMinWithdrawalHyperliquidAmount(network, token),
       },
     })
     onCloseNetworkModal()
@@ -126,7 +126,7 @@ export const RecipientSubForm = ({
   }
 
   const { data: hyperliquidDepositAddress } = useCreateHLDepositAddress(
-    tokenOut,
+    token,
     watch("blockchain"),
     watch("recipient")
   )
