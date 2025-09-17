@@ -1,4 +1,4 @@
-import { isBaseToken } from "@src/components/DefuseSDK/utils"
+import { flattenTokenList } from "@src/components/DefuseSDK/utils/token"
 import {
   type TokenWithTags,
   addChainToTokenSymbol,
@@ -14,11 +14,9 @@ export function useFlatTokenList(tokenList: TokenWithTags[]) {
 
   return useMemo(() => {
     if (flatListIsEnabled || is1cs) {
-      return tokenList
-        .flatMap((token) =>
-          isBaseToken(token) ? [token] : token.groupedTokens
-        )
-        .map((token) => addChainToTokenSymbol(token))
+      return flattenTokenList(tokenList).map((t) => {
+        return addChainToTokenSymbol(t)
+      })
     }
     return tokenList
   }, [flatListIsEnabled, is1cs, tokenList])

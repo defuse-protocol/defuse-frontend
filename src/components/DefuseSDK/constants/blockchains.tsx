@@ -3,7 +3,7 @@ import type { SupportedChainName } from "@src/components/DefuseSDK/types/base"
 import type { ReactNode } from "react"
 import { NetworkIcon } from "../components/Network/NetworkIcon"
 
-type BlockchainOption = {
+export type BlockchainOption = {
   label: string
   icon: ReactNode
   value: BlockchainEnum

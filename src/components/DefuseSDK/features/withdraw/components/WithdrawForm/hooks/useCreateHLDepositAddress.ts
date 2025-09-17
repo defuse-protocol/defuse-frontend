@@ -4,6 +4,7 @@ import { generateHLAddress } from "../../../../../sdk/hyperunit/apis"
 import type {
   BaseTokenInfo,
   SupportedChainName,
+  UnifiedTokenInfo,
 } from "../../../../../types/base"
 import {
   getHyperliquidAsset,
@@ -19,7 +20,7 @@ export type HLDepositAddressResult =
   | { tag: "err"; value: { reason: "ERR_HYPERLIQUID_ADDRESS_GENERATION" } }
 
 export const useCreateHLDepositAddress = (
-  token: BaseTokenInfo,
+  token: BaseTokenInfo | UnifiedTokenInfo,
   blockchain: SupportedChainName | "near_intents",
   dstAddr: string
 ) => {
