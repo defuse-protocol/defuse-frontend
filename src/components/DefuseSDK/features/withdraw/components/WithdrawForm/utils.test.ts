@@ -1,6 +1,10 @@
-import { type Mock, afterAll, describe, expect, it, vi } from "vitest"
+import { type Mock, describe, expect, it } from "vitest"
 import type { TokenBalances as TokenBalancesRecord } from "../../../../services/defuseBalanceService"
-import type { BaseTokenInfo, TokenValue } from "../../../../types/base"
+import type {
+  BaseTokenInfo,
+  TokenValue,
+  UnifiedTokenInfo,
+} from "../../../../types/base"
 import type { SwappableToken } from "../../../../types/swap"
 import * as tokenUtils from "../../../../utils/token"
 import {
@@ -67,15 +71,6 @@ describe("adjustToScale", () => {
 })
 
 describe("cleanUpDuplicateTokens", () => {
-  vi.mock("../../../../utils/token", () => ({
-    isBaseToken: vi.fn(),
-  }))
-
-  afterAll(async () => {
-    vi.unmock("../../../../utils/token")
-    await import("../../../../utils/token")
-  })
-
   const mockBaseToken = (
     overrides: Partial<BaseTokenInfo> = {}
   ): BaseTokenInfo => ({
@@ -90,13 +85,9 @@ describe("cleanUpDuplicateTokens", () => {
     ...overrides,
   })
 
-  const mockedIsBaseToken = tokenUtils.isBaseToken as unknown as Mock
-
   it("returns a single base token wrapped in an array", () => {
     const token = mockBaseToken()
-    mockedIsBaseToken.mockReturnValue(true)
-
-    const result = cleanUpDuplicateTokens(token as SwappableToken)
+    const result = cleanUpDuplicateTokens(token)
     expect(result).toEqual([token])
   })
 
@@ -104,8 +95,13 @@ describe("cleanUpDuplicateTokens", () => {
     const token1 = mockBaseToken({ chainName: "eth", defuseAssetId: "ETH" })
     const token2 = mockBaseToken({ chainName: "eth", defuseAssetId: "ETH2" }) // same chainName
 
-    const grouped = { groupedTokens: [token1, token2] } as SwappableToken
-    mockedIsBaseToken.mockReturnValue(false)
+    const grouped: UnifiedTokenInfo = {
+      unifiedAssetId: "foo",
+      symbol: "",
+      name: "",
+      icon: "",
+      groupedTokens: [token1, token2],
+    }
 
     const result = cleanUpDuplicateTokens(grouped)
     expect(result).toEqual([token1])
@@ -115,8 +111,13 @@ describe("cleanUpDuplicateTokens", () => {
     const token1 = mockBaseToken({ chainName: "eth", defuseAssetId: "ETH" })
     const token2 = mockBaseToken({ chainName: "base", defuseAssetId: "ETH" }) // same defuseAssetId
 
-    const grouped = { groupedTokens: [token1, token2] } as SwappableToken
-    mockedIsBaseToken.mockReturnValue(false)
+    const grouped: UnifiedTokenInfo = {
+      unifiedAssetId: "foo",
+      symbol: "",
+      name: "",
+      icon: "",
+      groupedTokens: [token1, token2],
+    }
 
     const result = cleanUpDuplicateTokens(grouped)
     expect(result).toEqual([token1])
@@ -127,10 +128,13 @@ describe("cleanUpDuplicateTokens", () => {
     const token2 = mockBaseToken({ chainName: "base", defuseAssetId: "MATIC" })
     const token3 = mockBaseToken({ chainName: "base", defuseAssetId: "MATIC" }) // duplicate
 
-    const grouped = {
+    const grouped: UnifiedTokenInfo = {
+      unifiedAssetId: "foo",
+      symbol: "",
+      name: "",
+      icon: "",
       groupedTokens: [token1, token2, token3],
-    } as SwappableToken
-    mockedIsBaseToken.mockReturnValue(false)
+    }
 
     const result = cleanUpDuplicateTokens(grouped)
     expect(result).toEqual([token1, token2])

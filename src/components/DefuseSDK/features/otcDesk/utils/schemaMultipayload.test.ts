@@ -141,7 +141,8 @@ const signRawED25519: FakeSign = async (walletMessageFactory) => {
   const walletMessage = walletMessageFactory(signerCreds)
 
   const signature = nacl.sign.detached(
-    walletMessage.SOLANA.message,
+    // For an unknown reason in tests it's not Uint8Array (?!), so let's convert it
+    Uint8Array.from(walletMessage.SOLANA.message),
     keypair.secretKey
   )
 
