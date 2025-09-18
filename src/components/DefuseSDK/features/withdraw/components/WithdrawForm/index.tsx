@@ -400,7 +400,7 @@ export const WithdrawForm = ({
           <FieldComboInput<WithdrawFormNearValues>
             fieldName="amountIn"
             selected={token}
-            tokenOut={token}
+            tokenIn={token}
             handleSelect={handleSelect}
             className="border border-gray-4 rounded-xl"
             required

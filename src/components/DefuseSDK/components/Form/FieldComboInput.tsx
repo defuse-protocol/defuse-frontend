@@ -27,8 +27,8 @@ import { SelectAssets } from "../SelectAssets"
 interface Props<T extends FieldValues>
   extends Omit<BlockMultiBalancesProps, "decimals" | "balance"> {
   fieldName: Path<T>
-  tokenOut: SwappableToken
-  tokenIn?: SwappableToken
+  tokenIn: SwappableToken
+  tokenOut?: SwappableToken
   register?: UseFormRegister<T>
   required?: boolean
   min?: RegisterOptions["min"]
@@ -49,8 +49,8 @@ export const FieldComboInputRegistryName = "FieldComboInput"
 
 export const FieldComboInput = <T extends FieldValues>({
   fieldName,
-  tokenOut,
   tokenIn,
+  tokenOut,
   register,
   required,
   min,

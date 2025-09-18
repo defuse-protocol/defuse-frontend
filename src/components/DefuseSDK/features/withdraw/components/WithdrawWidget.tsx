@@ -120,15 +120,25 @@ function TokenListUpdaterWithdraw({
   tokenList,
 }: { tokenList: TokenWithTags[] }) {
   const withdrawUIActorRef = WithdrawUIMachineContext.useActorRef()
-  const { tokenOut } = withdrawUIActorRef
-    .getSnapshot()
-    .context.withdrawFormRef.getSnapshot().context
-  const depositedBalanceRef = useSelector(
+  const { withdrawFormRef, depositedBalanceRef } = useSelector(
     withdrawUIActorRef,
-    (state) => state.context.depositedBalanceRef
+    (state) => {
+      return {
+        withdrawFormRef: state.context.withdrawFormRef,
+        depositedBalanceRef: state.context.depositedBalanceRef,
+      }
+    }
   )
+
+  const { tokenIn, tokenOut } = useSelector(withdrawFormRef, (state) => {
+    return {
+      tokenIn: state.context.tokenIn,
+      tokenOut: state.context.tokenOut,
+    }
+  })
+
   const sendTokenUpdate = useCallback(
-    ({ tokenOut: token }: { tokenOut?: TokenWithTags }) => {
+    ({ tokenIn: token }: { tokenIn?: TokenWithTags }) => {
       if (token) {
         withdrawUIActorRef.send({
           type: "WITHDRAW_FORM.UPDATE_TOKEN",
@@ -143,7 +153,7 @@ function TokenListUpdaterWithdraw({
     <TokenListUpdater1cs
       tokenList={tokenList}
       depositedBalanceRef={depositedBalanceRef}
-      tokenIn={tokenOut}
+      tokenIn={tokenIn}
       tokenOut={tokenOut}
       sendTokenInOrOut={sendTokenUpdate}
     />

@@ -1,22 +1,17 @@
 import { updateURLParamsSwap } from "@src/app/(home)/_utils/useDeterminePair"
 import { useTokensStore } from "@src/components/DefuseSDK/providers/TokensStoreProvider"
-import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
-import { useSearchParams } from "next/navigation"
-import { useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useEffect, useRef } from "react"
 import type { SwappableToken } from "../../../types/swap"
 import { DepositUIMachineContext } from "../../deposit/components/DepositUIMachineProvider"
 import { SwapUIMachineContext } from "../components/SwapUIMachineProvider"
 
-export function useSwapTokenChangeNotifier({
-  router,
-  prevTokensRef,
-}: {
-  router: AppRouterInstance
-  prevTokensRef: React.RefObject<{
-    tokenIn: SwappableToken | null
-    tokenOut: SwappableToken | null
-  }>
+export function useSwapTokenChangeNotifier(tokenInAndOut: {
+  tokenIn: SwappableToken | null
+  tokenOut: SwappableToken | null
 }) {
+  const router = useRouter()
+  const prevTokensRef = useRef(tokenInAndOut)
   const searchParams = useSearchParams()
   const tokens = useTokensStore((state) => state.tokens)
 
@@ -33,20 +28,19 @@ export function useSwapTokenChangeNotifier({
       updateURLParamsSwap({ tokenIn, tokenOut, tokens, router, searchParams })
       prevTokensRef.current = { tokenIn, tokenOut }
     }
-  }, [tokenIn, tokenOut, prevTokensRef, tokens, router, searchParams])
+  }, [tokenIn, tokenOut, tokens, router, searchParams])
 }
 
 export function useDepositTokenChangeNotifier({
   onTokenChange,
-  prevTokenRef,
+  ...tokenFromProps
 }: {
   onTokenChange?: (params: {
     token: SwappableToken | null
   }) => void
-  prevTokenRef: React.MutableRefObject<{
-    token: SwappableToken | null
-  }>
+  token: SwappableToken | null
 }) {
+  const prevTokenRef = useRef(tokenFromProps)
   const { token } = DepositUIMachineContext.useSelector((snapshot) => ({
     token: snapshot.context.depositFormRef.getSnapshot().context.token,
   }))
@@ -59,5 +53,5 @@ export function useDepositTokenChangeNotifier({
       onTokenChange({ token })
       prevTokenRef.current = { token }
     }
-  }, [token, onTokenChange, prevTokenRef])
+  }, [token, onTokenChange])
 }

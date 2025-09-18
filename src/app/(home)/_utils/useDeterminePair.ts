@@ -14,8 +14,11 @@ import {
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
-import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
-import { type useRouter, useSearchParams } from "next/navigation"
+import {
+  type ReadonlyURLSearchParams,
+  type useRouter,
+  useSearchParams,
+} from "next/navigation"
 
 const pairs: Record<WhitelabelTemplateValue, [string, string]> = {
   "near-intents": [
@@ -164,8 +167,8 @@ export function updateURLParamsSwap({
   tokenIn: TokenWithTags | null
   tokenOut: TokenWithTags | null
   tokens: TokenWithTags[]
-  router: AppRouterInstance
-  searchParams: URLSearchParams
+  router: ReturnType<typeof useRouter>
+  searchParams: ReadonlyURLSearchParams
 }) {
   const params = new URLSearchParams(searchParams.toString())
   const tokensWithTokenInAndOut = [...tokens]
@@ -185,7 +188,9 @@ export function updateURLParamsSwap({
     params.set("to", tokenToSymbol(tokenOut, tokensWithTokenInAndOut))
   }
 
-  router.replace(`?${params.toString()}`)
+  if (params.toString() !== searchParams.toString()) {
+    router.replace(`?${params.toString()}`)
+  }
 }
 
 function tokenToSymbol(

@@ -83,11 +83,15 @@ export const SwapWidget = ({
 
 function TokenListUpdaterSwap({ tokenList }: { tokenList: TokenWithTags[] }) {
   const swapUIActorRef = SwapUIMachineContext.useActorRef()
-  const { tokenIn, tokenOut } = swapUIActorRef.getSnapshot().context.formValues
-  const depositedBalanceRef = useSelector(
+  const { tokenIn, tokenOut, depositedBalanceRef } = useSelector(
     swapUIActorRef,
-    (state) => state.children.depositedBalanceRef
+    (snapshot) => ({
+      tokenIn: snapshot.context.formValues.tokenIn,
+      tokenOut: snapshot.context.formValues.tokenOut,
+      depositedBalanceRef: snapshot.children.depositedBalanceRef,
+    })
   )
+
   const sendTokenInOrOut = useCallback(
     (params: {
       tokenIn?: TokenWithTags

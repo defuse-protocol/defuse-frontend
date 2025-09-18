@@ -2,7 +2,6 @@ import { authIdentity } from "@defuse-protocol/internal-utils"
 import { depositMachine } from "@src/components/DefuseSDK/features/machines/depositMachine"
 import { createActorContext } from "@xstate/react"
 import type { PropsWithChildren, ReactElement, ReactNode } from "react"
-import { useRef } from "react"
 import { useFormContext } from "react-hook-form"
 import { type Hash, getAddress } from "viem"
 import {
@@ -586,9 +585,6 @@ function TokenChangeNotifier({
   }) => void
   token: SwappableToken
 }) {
-  useDepositTokenChangeNotifier({
-    onTokenChange,
-    prevTokenRef: useRef({ token }),
-  })
+  useDepositTokenChangeNotifier({ onTokenChange, token })
   return null
 }
