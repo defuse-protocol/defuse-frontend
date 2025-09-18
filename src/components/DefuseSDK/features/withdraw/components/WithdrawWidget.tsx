@@ -1,7 +1,6 @@
 "use client"
 import { messageFactory } from "@defuse-protocol/internal-utils"
 import { useSelector } from "@xstate/react"
-import { useCallback } from "react"
 import { assign, fromPromise } from "xstate"
 import {
   TokenListUpdater,
@@ -137,25 +136,12 @@ function TokenListUpdaterWithdraw({
     }
   })
 
-  const sendTokenUpdate = useCallback(
-    ({ tokenIn: token }: { tokenIn?: TokenWithTags }) => {
-      if (token) {
-        withdrawUIActorRef.send({
-          type: "WITHDRAW_FORM.UPDATE_TOKEN",
-          params: { token, parsedAmount: null },
-        })
-      }
-    },
-    [withdrawUIActorRef]
-  )
-
   return (
     <TokenListUpdater1cs
       tokenList={tokenList}
       depositedBalanceRef={depositedBalanceRef}
       tokenIn={tokenIn}
       tokenOut={tokenOut}
-      sendTokenInOrOut={sendTokenUpdate}
     />
   )
 }

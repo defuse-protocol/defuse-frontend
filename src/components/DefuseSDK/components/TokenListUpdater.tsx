@@ -42,7 +42,7 @@ export function TokenListUpdater1cs({
     | undefined
   tokenIn: SwappableToken
   tokenOut: SwappableToken
-  sendTokenInOrOut: ({
+  sendTokenInOrOut?: ({
     tokenIn,
     tokenOut,
   }: { tokenIn?: SwappableToken; tokenOut?: SwappableToken }) => void
@@ -130,7 +130,7 @@ export function TokenListUpdater1cs({
                 (t) => t.defuseAssetId === firstToken.defuseAssetId
               )
         ) {
-          sendTokenInOrOut({ tokenIn: firstToken })
+          sendTokenInOrOut?.({ tokenIn: firstToken })
         }
 
         if (
@@ -140,7 +140,7 @@ export function TokenListUpdater1cs({
                 (t) => t.defuseAssetId === firstToken.defuseAssetId
               )
         ) {
-          sendTokenInOrOut({ tokenOut: firstToken })
+          sendTokenInOrOut?.({ tokenOut: firstToken })
         }
       }
     }
