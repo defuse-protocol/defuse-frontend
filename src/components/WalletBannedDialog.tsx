@@ -26,7 +26,7 @@ export function WalletBannedDialog({
 }
 
 function FailureContent({
-  open,
+  open: _open,
   onCancel,
 }: {
   open: boolean
