@@ -30,7 +30,6 @@ export const SwapWidget = ({
   renderHostAppLink,
   initialTokenIn,
   initialTokenOut,
-  router,
   referral,
 }: SwapWidgetProps) => {
   const is1cs = useIs1CsEnabled()
@@ -50,7 +49,6 @@ export const SwapWidget = ({
             tokenList={tokenList}
             signMessage={signMessage}
             referral={referral}
-            router={router}
           >
             {is1cs ? (
               <TokenListUpdaterSwap tokenList={tokenList} />
