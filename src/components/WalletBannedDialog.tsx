@@ -2,7 +2,6 @@ import * as AlertDialog from "@radix-ui/react-alert-dialog"
 import {
   ExclamationTriangleIcon,
   MagnifyingGlassIcon,
-  MinusCircledIcon,
 } from "@radix-ui/react-icons"
 import {
   Button,

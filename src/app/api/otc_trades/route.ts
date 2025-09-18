@@ -24,7 +24,7 @@ const otcTradesSchema = z
         const decoded = base64.decode(val)
         // AES-GCM produces variable length output, but should be at least 16 bytes
         return decoded.length >= 16
-      } catch (err) {
+      } catch (_err) {
         return false
       }
     }, "Invalid encrypted_payload format"),
@@ -37,7 +37,7 @@ const otcTradesSchema = z
             const decoded = base64.decode(val)
             // IV should be exactly 12 bytes for AES-GCM
             return decoded.length === 12
-          } catch (err) {
+          } catch (_err) {
             return false
           }
         }, "Invalid IV format"),

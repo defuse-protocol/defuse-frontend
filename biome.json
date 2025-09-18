@@ -3,7 +3,8 @@
   "vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
   "files": {
     "ignoreUnknown": false,
-    "ignore": ["dist/*", "artifacts/*", "package.json"]
+    "include": ["src/*"],
+    "ignore": ["src/types/database-generated.ts"]
   },
   "formatter": {
     "enabled": true,
@@ -42,6 +43,11 @@
       "quoteStyle": "double",
       "attributePosition": "auto",
       "bracketSpacing": true
+    }
+  },
+  "css": {
+    "parser": {
+      "cssModules": true
     }
   }
 }

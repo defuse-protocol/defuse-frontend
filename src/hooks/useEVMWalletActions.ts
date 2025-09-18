@@ -1,3 +1,4 @@
+import { logger } from "@src/utils/logger"
 import type { SendTransactionParameters } from "@wagmi/core"
 import { stringify, withTimeout } from "viem"
 import { useAccount, useSendTransaction, useSwitchChain } from "wagmi"
@@ -9,7 +10,8 @@ export function useEVMWalletActions() {
 
   return {
     sendTransactions: async (tx: SendTransactionParameters) => {
-      console.log("Sending transaction", stringify({ tx }))
+      // biome-ignore lint/style/useTemplate: <explanation>
+      logger.info("Sending transaction " + stringify({ tx }))
 
       const chainId = tx.chainId
 
@@ -18,7 +20,8 @@ export function useEVMWalletActions() {
       const currentChainId = await connector?.getChainId()
 
       if (chainId != null && currentChainId !== chainId) {
-        console.log("Switching chain", stringify({ currentChainId, chainId }))
+        // biome-ignore lint/style/useTemplate: <explanation>
+        logger.info("Switching chain " + stringify({ currentChainId, chainId }))
         await withTimeout(() => switchChainAsync({ connector, chainId }), {
           errorInstance: new Error(`Chain switch timeout chainId=${chainId}`),
           // WalletConnect issue: when network switching is not possible, it'll hang forever, so we need to set a timeout
