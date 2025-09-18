@@ -45,40 +45,35 @@ export async function decodeAES256Order(
 ): Promise<string> {
   validateKey(pKey)
 
-  try {
-    const decoded = base64.decode(encodedOrder)
-    const iv_ = base64urlnopad.decode(iv)
+  const decoded = base64.decode(encodedOrder)
+  const iv_ = base64urlnopad.decode(iv)
 
-    // Convert the key to a CryptoKey object
-    const keyBytes = base64urlnopad.decode(pKey)
-    const cryptoKey = await crypto.subtle.importKey(
-      "raw",
-      keyBytes,
-      { name: "AES-GCM" },
-      false,
-      ["decrypt"]
-    )
+  // Convert the key to a CryptoKey object
+  const keyBytes = base64urlnopad.decode(pKey)
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw",
+    keyBytes,
+    { name: "AES-GCM" },
+    false,
+    ["decrypt"]
+  )
 
-    const decrypted = await crypto.subtle.decrypt(
-      {
-        name: "AES-GCM",
-        iv: iv_,
-      },
-      cryptoKey,
-      decoded
-    )
+  const decrypted = await crypto.subtle.decrypt(
+    {
+      name: "AES-GCM",
+      iv: iv_,
+    },
+    cryptoKey,
+    decoded
+  )
 
-    const json = new TextDecoder().decode(decrypted)
-    const parsed = JSON.parse(json)
+  const json = new TextDecoder().decode(decrypted)
+  const parsed = JSON.parse(json)
 
-    if (!parsed || typeof parsed.payload !== "string") {
-      throw new Error("Invalid payload format")
-    }
-    return JSON.parse(parsed.payload)
-  } catch (error) {
-    console.error("Decryption error:", error)
-    throw error
+  if (!parsed || typeof parsed.payload !== "string") {
+    throw new Error("Invalid payload format")
   }
+  return JSON.parse(parsed.payload)
 }
 
 async function createEncryptedPayload(
