@@ -2,6 +2,7 @@ import { CaretDownIcon } from "@radix-ui/react-icons"
 import type React from "react"
 
 import { hasChainIcon } from "@src/app/(home)/_utils/useDeterminePair"
+import { useIsFlatTokenListEnabled } from "@src/hooks/useIsFlatTokenListEnabled"
 import { useMemo } from "react"
 import { chainIcons } from "../constants/blockchains"
 import type { TokenInfo } from "../types/base"
@@ -40,7 +41,13 @@ export const SelectAssets = ({
       : undefined
   }, [selected])
 
+  const isFlatTokenListEnabled = useIsFlatTokenListEnabled()
+
   const showChainIcon = useMemo(() => {
+    if (isFlatTokenListEnabled && chainIcon !== undefined) {
+      return true
+    }
+
     if (
       chainIcon === undefined ||
       tokens === undefined ||
@@ -60,7 +67,7 @@ export const SelectAssets = ({
     }
 
     return hasChainIcon(selected, allTokens)
-  }, [tokens, tokenIn, tokenOut, selected, chainIcon])
+  }, [tokens, tokenIn, tokenOut, selected, chainIcon, isFlatTokenListEnabled])
 
   return (
     <button

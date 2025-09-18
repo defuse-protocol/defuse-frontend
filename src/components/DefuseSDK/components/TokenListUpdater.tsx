@@ -5,8 +5,8 @@ import {
 } from "@src/components/DefuseSDK/features/machines/depositedBalanceMachine"
 import type { BaseTokenInfo } from "@src/components/DefuseSDK/types/base"
 import { LIST_TOKENS } from "@src/constants/tokens"
+import { useIsFlatTokenListEnabled } from "@src/hooks/useIsFlatTokenListEnabled"
 import { useSelector } from "@xstate/react"
-import { useSearchParams } from "next/navigation"
 import { useEffect, useMemo } from "react"
 import type { ActorRefFromLogic } from "xstate"
 import { useTokensStore } from "../providers/TokensStoreProvider"
@@ -68,11 +68,10 @@ export function TokenListUpdater1cs({
   }, [tokens])
 
   const allBalances = useSelector(depositedBalanceRef, balancesSelector)
-  const searchParams = useSearchParams()
-  const flatListIsEnabled = !!searchParams.get("flatTokenList")
+  const isFlatTokenListEnabled = useIsFlatTokenListEnabled()
 
   useEffect(() => {
-    if (flatListIsEnabled || allBalances === undefined) {
+    if (isFlatTokenListEnabled || allBalances === undefined) {
       updateTokens(tokens)
       return
     }
@@ -150,7 +149,7 @@ export function TokenListUpdater1cs({
     updateTokens,
     tokenIn,
     tokenOut,
-    flatListIsEnabled,
+    isFlatTokenListEnabled,
     sendTokenInOrOut,
   ])
 

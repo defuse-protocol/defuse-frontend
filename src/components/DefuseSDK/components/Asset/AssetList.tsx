@@ -9,6 +9,7 @@ import type { SelectItemToken } from "../Modal/ModalSelectAssets"
 import { hasChainIcon } from "@src/app/(home)/_utils/useDeterminePair"
 import { chainIcons } from "@src/components/DefuseSDK/constants/blockchains"
 import { useTokensStore } from "@src/components/DefuseSDK/providers/TokensStoreProvider"
+import { useIsFlatTokenListEnabled } from "@src/hooks/useIsFlatTokenListEnabled"
 import { FormattedCurrency } from "../../features/account/components/shared/FormattedCurrency"
 import type { TokenInfo } from "../../types/base"
 import { formatTokenValue } from "../../utils/format"
@@ -31,15 +32,19 @@ export function AssetList<T extends TokenInfo>({
   showChain = false,
 }: Props<T>) {
   const tokens = useTokensStore((state) => state.tokens)
+  const isFlatTokenListEnabled = useIsFlatTokenListEnabled()
 
   const showChainIcon = useCallback(
     (
       token: TokenInfo,
       chainIcon: { dark: string; light: string } | undefined
     ) => {
-      return showChain && chainIcon !== undefined && hasChainIcon(token, tokens)
+      return (
+        (isFlatTokenListEnabled && chainIcon !== undefined) ||
+        (showChain && chainIcon !== undefined && hasChainIcon(token, tokens))
+      )
     },
-    [tokens, showChain]
+    [tokens, showChain, isFlatTokenListEnabled]
   )
 
   return (
