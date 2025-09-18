@@ -34,8 +34,8 @@ type EmittedEvents = {
       | {
           ok: {
             quote: {
-              amountIn?: string
-              amountOut?: string
+              amountIn: string
+              amountOut: string
               deadline?: string
             }
             appFee: [string, bigint][]
@@ -47,25 +47,7 @@ type EmittedEvents = {
   }
 }
 
-export type ParentEvents = {
-  type: "NEW_1CS_QUOTE"
-  params: {
-    quoteInput: Quote1csInput
-    result:
-      | {
-          ok: {
-            quote: {
-              amountIn: string
-              amountOut: string
-            }
-            appFee: [string, bigint][]
-          }
-        }
-      | { err: string }
-    tokenInAssetId: string
-    tokenOutAssetId: string
-  }
-}
+export type ParentEvents = EmittedEvents
 type ParentActor = ActorRef<Snapshot<unknown>, ParentEvents>
 
 type Input = {
