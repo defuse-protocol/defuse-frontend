@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "test": "vitest",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "check": "biome check",
     "prepare": "husky && ./scripts/gen-banned-near-address.sh",
     "update-types": "supabase gen types --lang=typescript --local > src/types/database-generated.ts"
