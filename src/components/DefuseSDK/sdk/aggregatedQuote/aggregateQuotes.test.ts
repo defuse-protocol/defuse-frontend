@@ -1,6 +1,5 @@
-import type { solverRelay } from "@defuse-protocol/internal-utils"
+import { QuoteError, type solverRelay } from "@defuse-protocol/internal-utils"
 import { describe, expect, it } from "vitest"
-import { QuoteError } from "../solverRelay/errors/quote"
 import { aggregateQuotes } from "./aggregateQuotes"
 import { AggregatedQuoteError } from "./errors/aggregatedQuoteError"
 

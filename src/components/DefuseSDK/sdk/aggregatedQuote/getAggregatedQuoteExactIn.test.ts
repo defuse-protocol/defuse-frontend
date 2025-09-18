@@ -1,8 +1,7 @@
-import { solverRelay } from "@defuse-protocol/internal-utils"
+import { QuoteError, solverRelay } from "@defuse-protocol/internal-utils"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import type { BaseTokenInfo } from "../../types/base"
 import { adjustDecimals } from "../../utils/tokenUtils"
-import { QuoteError } from "../solverRelay/errors/quote"
 import { AggregatedQuoteError } from "./errors/aggregatedQuoteError"
 import { getAggregatedQuoteExactIn } from "./getAggregatedQuoteExactIn"
 
