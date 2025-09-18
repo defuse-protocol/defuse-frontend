@@ -1,5 +1,6 @@
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { getQuote as get1csQuoteApi } from "@src/components/DefuseSDK/features/machines/1cs"
+import { throttle } from "lodash-es"
 import { type ActorRef, type Snapshot, fromCallback } from "xstate"
 
 import { logger } from "../../logger"
@@ -76,37 +77,36 @@ export const background1csQuoterMachine = fromCallback<
   Input,
   EmittedEvents
 >(({ receive, input, emit }) => {
-  let abortController = new AbortController()
+  function executeQuote(quoteInput: Quote1csInput) {
+    get1csQuote(quoteInput, (result, tokenInAssetId, tokenOutAssetId) => {
+      const eventPayload = {
+        type: "NEW_1CS_QUOTE" as const,
+        params: {
+          quoteInput,
+          result,
+          tokenInAssetId,
+          tokenOutAssetId,
+        },
+      }
+
+      input.parentRef.send(eventPayload)
+      emit(eventPayload)
+    })
+  }
+
+  const throttledGetQuote = throttle(executeQuote, 500, {
+    leading: true, // Execute immediately on first call
+    trailing: true, // Execute after delay if there were calls during the wait
+  })
 
   receive((event) => {
-    abortController.abort()
-    abortController = new AbortController()
-
     const eventType = event.type
     switch (eventType) {
       case "PAUSE":
+        throttledGetQuote.cancel()
         return
       case "NEW_QUOTE_INPUT": {
-        const quoteInput = event.params
-
-        get1csQuote(
-          abortController.signal,
-          quoteInput,
-          (result, tokenInAssetId, tokenOutAssetId) => {
-            const eventPayload = {
-              type: "NEW_1CS_QUOTE" as const,
-              params: {
-                quoteInput,
-                result,
-                tokenInAssetId,
-                tokenOutAssetId,
-              },
-            }
-
-            input.parentRef.send(eventPayload)
-            emit(eventPayload)
-          }
-        )
+        throttledGetQuote(event.params)
         break
       }
       default:
@@ -114,14 +114,9 @@ export const background1csQuoterMachine = fromCallback<
         logger.warn("Unhandled event type", { eventType })
     }
   })
-
-  return () => {
-    abortController.abort()
-  }
 })
 
 async function get1csQuote(
-  signal: AbortSignal,
   quoteInput: Quote1csInput,
   onResult: (
     result:
@@ -154,10 +149,6 @@ async function get1csQuote(
       userAddress: quoteInput.userAddress,
       authMethod: quoteInput.userChainType,
     })
-
-    if (signal.aborted) {
-      return
-    }
 
     onResult(result, tokenInAssetId, tokenOutAssetId)
   } catch {
