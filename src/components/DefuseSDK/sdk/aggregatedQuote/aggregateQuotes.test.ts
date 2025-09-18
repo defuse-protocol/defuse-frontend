@@ -57,6 +57,7 @@ describe("aggregateQuotes()", () => {
             type: "INSUFFICIENT_AMOUNT",
             min_amount: "1000000",
           },
+          // @ts-expect-error - `QuoteError` type compiled incorrectly
           quoteParams: defaultQuoteParams,
         })
       ),
@@ -91,6 +92,7 @@ describe("aggregateQuotes()", () => {
             type: "INSUFFICIENT_AMOUNT",
             min_amount: "1000000",
           },
+          // @ts-expect-error - `QuoteError` type compiled incorrectly
           quoteParams: defaultQuoteParams,
         }),
       ],
@@ -105,12 +107,14 @@ describe("aggregateQuotes()", () => {
             type: "INSUFFICIENT_AMOUNT" as const,
             min_amount: "1000000",
           },
+          // @ts-expect-error - `QuoteError` type compiled incorrectly
           quoteParams: defaultQuoteParams,
         })
       ),
       Promise.reject<solverRelay.Quote>(
         new QuoteError({
           quote: null,
+          // @ts-expect-error - `QuoteError` type compiled incorrectly
           quoteParams: defaultQuoteParams,
         })
       ),
@@ -127,10 +131,12 @@ describe("aggregateQuotes()", () => {
     expect(err).toHaveProperty("errors", [
       new QuoteError({
         quote: { type: "INSUFFICIENT_AMOUNT", min_amount: "1000000" },
+        // @ts-expect-error - `QuoteError` type compiled incorrectly
         quoteParams: defaultQuoteParams,
       }),
       new QuoteError({
         quote: null,
+        // @ts-expect-error - `QuoteError` type compiled incorrectly
         quoteParams: defaultQuoteParams,
       }),
     ])
