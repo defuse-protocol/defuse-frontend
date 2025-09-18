@@ -1,6 +1,6 @@
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { getQuote as get1csQuoteApi } from "@src/components/DefuseSDK/features/machines/1cs"
-import { throttle } from "lodash-es"
+import throttle from "lodash-es/throttle"
 import { type ActorRef, type Snapshot, fromCallback } from "xstate"
 
 import { logger } from "../../logger"
