@@ -201,7 +201,11 @@ export function hasChainIcon(
 ): token is BaseTokenInfo {
   return isUnifiedToken(token)
     ? false
-    : tokens.filter((t) => token !== t && t.symbol === token.symbol).length > 0
+    : tokens.filter(
+        (t) =>
+          (isBaseToken(t) ? token.defuseAssetId !== t.defuseAssetId : false) &&
+          t.symbol === token.symbol
+      ).length > 0
 }
 
 const SEPARATOR = ":"

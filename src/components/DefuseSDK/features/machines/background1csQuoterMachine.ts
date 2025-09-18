@@ -3,17 +3,10 @@ import { getQuote as get1csQuoteApi } from "@src/components/DefuseSDK/features/m
 import { type ActorRef, type Snapshot, fromCallback } from "xstate"
 
 import { logger } from "../../logger"
-import type { BaseTokenInfo, TokenInfo } from "../../types/base"
-import { isBaseToken } from "../../utils/token"
-
-function getTokenAssetId(token: TokenInfo) {
-  return isBaseToken(token)
-    ? token.defuseAssetId
-    : token.groupedTokens[0].defuseAssetId
-}
+import type { BaseTokenInfo } from "../../types/base"
 
 export type Quote1csInput = {
-  tokenIn: TokenInfo
+  tokenIn: BaseTokenInfo
   tokenOut: BaseTokenInfo
   amountIn: { amount: bigint; decimals: number }
   slippageBasisPoints: number
@@ -146,8 +139,8 @@ async function get1csQuote(
     tokenOutAssetId: string
   ) => void
 ): Promise<void> {
-  const tokenInAssetId = getTokenAssetId(quoteInput.tokenIn)
-  const tokenOutAssetId = getTokenAssetId(quoteInput.tokenOut)
+  const tokenInAssetId = quoteInput.tokenIn.defuseAssetId
+  const tokenOutAssetId = quoteInput.tokenOut.defuseAssetId
 
   try {
     const result = await get1csQuoteApi({
