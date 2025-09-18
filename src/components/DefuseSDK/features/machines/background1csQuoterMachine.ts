@@ -59,8 +59,10 @@ export const background1csQuoterMachine = fromCallback<
   Input,
   EmittedEvents
 >(({ receive, input, emit }) => {
+  let paused = false
   function executeQuote(quoteInput: Quote1csInput) {
     get1csQuote(quoteInput, (result, tokenInAssetId, tokenOutAssetId) => {
+      if (paused) return
       const eventPayload = {
         type: "NEW_1CS_QUOTE" as const,
         params: {
@@ -85,9 +87,11 @@ export const background1csQuoterMachine = fromCallback<
     const eventType = event.type
     switch (eventType) {
       case "PAUSE":
+        paused = true
         throttledGetQuote.cancel()
         return
       case "NEW_QUOTE_INPUT": {
+        paused = false
         throttledGetQuote(event.params)
         break
       }
