@@ -1,7 +1,5 @@
 "use client"
 
-import React from "react"
-
 export default function TermsAndConditions() {
   return (
     <div className="flex justify-center items-center w-full">

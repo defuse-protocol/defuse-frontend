@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "test": "vitest",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "check": "biome check",
     "prepare": "husky && ./scripts/gen-banned-near-address.sh",
     "update-types": "supabase gen types --lang=typescript --local > src/types/database-generated.ts"
@@ -16,7 +16,7 @@
   "dependencies": {
     "@creit.tech/stellar-wallets-kit": "1.9.5",
     "@defuse-protocol/contract-types": "0.1.0",
-    "@defuse-protocol/intents-sdk": "0.20.0",
+    "@defuse-protocol/intents-sdk": "0.20.1",
     "@defuse-protocol/internal-utils": "0.10.0",
     "@defuse-protocol/one-click-sdk-typescript": "^0.1.1-0.2",
     "@hot-labs/near-connect": "0.6.2",
@@ -65,7 +65,7 @@
     "framer-motion": "^11.15.0",
     "mixpanel-browser": "^2.65.0",
     "near-api-js": "^5.1.1",
-    "next": "15.4.5",
+    "next": "15.5.3",
     "next-themes": "^0.3.0",
     "qrcode.react": "^4.0.1",
     "react": "19.1.0",

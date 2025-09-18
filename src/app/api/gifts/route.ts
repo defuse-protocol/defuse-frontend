@@ -23,7 +23,7 @@ const giftsSchema = z.object({
       const decoded = base64.decode(val)
       // AES-GCM produces variable length output, but should be at least 16 bytes
       return decoded.length >= 16
-    } catch (err) {
+    } catch (_err) {
       return false
     }
   }, "Invalid encrypted_payload format"),

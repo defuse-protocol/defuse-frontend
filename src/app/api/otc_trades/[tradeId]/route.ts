@@ -6,7 +6,7 @@ import { z } from "zod"
 import { tradeIdSchema } from "../_utils/validation"
 
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ tradeId: string }> }
 ) {
   try {

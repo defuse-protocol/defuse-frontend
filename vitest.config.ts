@@ -8,4 +8,7 @@ export default defineConfig({
       "@src": "/src",
     },
   },
+  esbuild: {
+    jsx: "automatic", // use react-jsx transform
+  },
 })

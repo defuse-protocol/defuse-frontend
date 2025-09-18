@@ -2,6 +2,7 @@ import {
   CLICKHOUSE_API_KEY,
   CLICKHOUSE_SERVICE_URL,
 } from "@src/utils/environment"
+import { logger } from "@src/utils/logger"
 import { NextResponse } from "next/server"
 import * as v from "valibot"
 
@@ -13,9 +14,7 @@ export async function GET() {
     typeof CLICKHOUSE_SERVICE_URL !== "string" ||
     typeof CLICKHOUSE_API_KEY !== "string"
   ) {
-    console.error(
-      "CLICKHOUSE_SERVICE_URL or CLICKHOUSE_API_KEY are not defined"
-    )
+    logger.error("CLICKHOUSE_SERVICE_URL or CLICKHOUSE_API_KEY are not defined")
     return NextResponse.error()
   }
 
@@ -49,7 +48,7 @@ export async function GET() {
     const { data } = v.parse(tradingVolumeSchema, await res.json())
     return NextResponse.json(data)
   } catch (err) {
-    console.error(err)
+    logger.error(err)
     return NextResponse.error()
   }
 }

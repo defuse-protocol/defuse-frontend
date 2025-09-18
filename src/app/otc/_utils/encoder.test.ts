@@ -44,7 +44,7 @@ describe("encoder", () => {
     mockCrypto.subtle.importKey.mockResolvedValue("mock-key")
 
     // Mock encrypt to simulate actual encryption
-    mockCrypto.subtle.encrypt.mockImplementation(async (_, key, data) => {
+    mockCrypto.subtle.encrypt.mockImplementation(async (_, _key, data) => {
       // Create a mock encrypted result that includes just the ciphertext
       const encoder = new TextEncoder()
       const originalData = new TextDecoder().decode(data)
@@ -57,7 +57,7 @@ describe("encoder", () => {
     })
 
     // Mock decrypt to simulate actual decryption
-    mockCrypto.subtle.decrypt.mockImplementation(async (_, key, data) => {
+    mockCrypto.subtle.decrypt.mockImplementation(async (_, _key, data) => {
       // Extract the original data from our mock encrypted format
       const decoder = new TextDecoder()
       const encryptedData = decoder.decode(data)
@@ -117,7 +117,7 @@ describe("encoder", () => {
       })
 
       // Mock encrypt to include a random component in the output
-      mockCrypto.subtle.encrypt.mockImplementation(async (_, key, data) => {
+      mockCrypto.subtle.encrypt.mockImplementation(async (_, _key, data) => {
         const encoder = new TextEncoder()
         const originalData = new TextDecoder().decode(data)
         const format = {
