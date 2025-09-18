@@ -1,7 +1,7 @@
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { type Mock, afterAll, describe, expect, it, vi } from "vitest"
 import type { TokenBalances as TokenBalancesRecord } from "../../../../services/defuseBalanceService"
 import type { BaseTokenInfo, TokenValue } from "../../../../types/base"
-import type { SwappableToken } from "../../../../types/swap"
 import * as tokenUtils from "../../../../utils/token"
 import {
   adjustToScale,
@@ -96,7 +96,7 @@ describe("cleanUpDuplicateTokens", () => {
     const token = mockBaseToken()
     mockedIsBaseToken.mockReturnValue(true)
 
-    const result = cleanUpDuplicateTokens(token as SwappableToken)
+    const result = cleanUpDuplicateTokens(token as TokenInfo)
     expect(result).toEqual([token])
   })
 
@@ -104,7 +104,7 @@ describe("cleanUpDuplicateTokens", () => {
     const token1 = mockBaseToken({ chainName: "eth", defuseAssetId: "ETH" })
     const token2 = mockBaseToken({ chainName: "eth", defuseAssetId: "ETH2" }) // same chainName
 
-    const grouped = { groupedTokens: [token1, token2] } as SwappableToken
+    const grouped = { groupedTokens: [token1, token2] } as TokenInfo
     mockedIsBaseToken.mockReturnValue(false)
 
     const result = cleanUpDuplicateTokens(grouped)
@@ -115,7 +115,7 @@ describe("cleanUpDuplicateTokens", () => {
     const token1 = mockBaseToken({ chainName: "eth", defuseAssetId: "ETH" })
     const token2 = mockBaseToken({ chainName: "base", defuseAssetId: "ETH" }) // same defuseAssetId
 
-    const grouped = { groupedTokens: [token1, token2] } as SwappableToken
+    const grouped = { groupedTokens: [token1, token2] } as TokenInfo
     mockedIsBaseToken.mockReturnValue(false)
 
     const result = cleanUpDuplicateTokens(grouped)
@@ -129,7 +129,7 @@ describe("cleanUpDuplicateTokens", () => {
 
     const grouped = {
       groupedTokens: [token1, token2, token3],
-    } as SwappableToken
+    } as TokenInfo
     mockedIsBaseToken.mockReturnValue(false)
 
     const result = cleanUpDuplicateTokens(grouped)
@@ -320,7 +320,7 @@ describe.skip("mapDepositBalancesToDecimals", () => {
   const items: {
     name: string
     balances: TokenBalancesRecord | undefined
-    token: SwappableToken
+    token: TokenInfo
     isBase: boolean
     expected: Record<BaseTokenInfo["defuseAssetId"], TokenValue>
   }[] = [

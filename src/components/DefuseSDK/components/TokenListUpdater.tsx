@@ -2,24 +2,19 @@ import {
   balanceAllSelector,
   type depositedBalanceMachine,
 } from "@src/components/DefuseSDK/features/machines/depositedBalanceMachine"
-import type {
-  BaseTokenInfo,
-  UnifiedTokenInfo,
-} from "@src/components/DefuseSDK/types/base"
-import type { SwappableToken } from "@src/components/DefuseSDK/types/swap"
+import type { BaseTokenInfo } from "@src/components/DefuseSDK/types/base"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useSelector } from "@xstate/react"
 import { useSearchParams } from "next/navigation"
 import { useEffect, useMemo } from "react"
 import type { ActorRefFromLogic } from "xstate"
 import { useTokensStore } from "../providers/TokensStoreProvider"
+import type { TokenInfo } from "../types/base"
 import { isBaseToken } from "../utils"
 
-export function TokenListUpdater<
-  T extends {
-    tokenList: (BaseTokenInfo | UnifiedTokenInfo | SwappableToken)[]
-  },
->({ tokenList }: { tokenList: T["tokenList"] }) {
+export function TokenListUpdater<T extends { tokenList: TokenInfo[] }>({
+  tokenList,
+}: { tokenList: T["tokenList"] }) {
   const updateTokens = useTokensStore((state) => state.updateTokens)
 
   useEffect(() => {
@@ -36,16 +31,16 @@ export function TokenListUpdater1cs({
   tokenOut,
   sendTokenInOrOut,
 }: {
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo | SwappableToken)[]
+  tokenList: TokenInfo[]
   depositedBalanceRef:
     | ActorRefFromLogic<typeof depositedBalanceMachine>
     | undefined
-  tokenIn: SwappableToken
-  tokenOut: SwappableToken
+  tokenIn: TokenInfo
+  tokenOut: TokenInfo
   sendTokenInOrOut?: ({
     tokenIn,
     tokenOut,
-  }: { tokenIn?: SwappableToken; tokenOut?: SwappableToken }) => void
+  }: { tokenIn?: TokenInfo; tokenOut?: TokenInfo }) => void
 }) {
   const tokens = useMemo(() => {
     const filteredList: BaseTokenInfo[] = tokenList.filter(

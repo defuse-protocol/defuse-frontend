@@ -8,7 +8,7 @@ import { assign, fromPromise, setup } from "xstate"
 import { createTransferMessage } from "../../core/messages"
 import { logger } from "../../logger"
 import { convertPublishIntentToLegacyFormat } from "../../sdk/solverRelay/utils/parseFailedPublishError"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../types/base"
+import type { TokenInfo } from "../../types/base"
 import type { IntentsUserId } from "../../types/intentsUserId"
 import { assert } from "../../utils/assert"
 import { isBaseToken } from "../../utils/token"
@@ -24,7 +24,7 @@ import {
 } from "./publicKeyVerifierMachine"
 import type { IntentDescription } from "./swapIntentMachine"
 
-function getTokenAssetId(token: BaseTokenInfo | UnifiedTokenInfo) {
+function getTokenAssetId(token: TokenInfo) {
   return isBaseToken(token)
     ? token.defuseAssetId
     : token.groupedTokens[0].defuseAssetId
@@ -178,7 +178,7 @@ export const swapIntent1csMachine = setup({
         input,
       }: {
         input: {
-          tokenIn: BaseTokenInfo | UnifiedTokenInfo
+          tokenIn: TokenInfo
           amountIn: { amount: bigint; decimals: number }
           depositAddress: string
           defuseUserId: string

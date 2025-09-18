@@ -1,13 +1,13 @@
 import { getTokenId } from "@src/components/DefuseSDK/utils/token"
-import type { TokenWithTags } from "@src/constants/tokens"
 import { createStore } from "zustand/vanilla"
+import type { TokenInfo } from "../types/base"
 
 export type TokensState = {
-  tokens: TokenWithTags[]
+  tokens: TokenInfo[]
 }
 
 export type TokensActions = {
-  updateTokens: (tokens: TokenWithTags[]) => void
+  updateTokens: (tokens: TokenInfo[]) => void
 }
 
 export type TokensStore = TokensState & TokensActions
@@ -23,9 +23,9 @@ export const createTokensStore = (
 ) => {
   return createStore<TokensStore>()((set) => ({
     ...initState,
-    updateTokens: (tokens: TokenWithTags[]) =>
+    updateTokens: (tokens: TokenInfo[]) =>
       set(() => {
-        const updatedTokens = new Map<string, TokenWithTags>()
+        const updatedTokens = new Map<string, TokenInfo>()
         for (const item of tokens) {
           const tokenId = getTokenId(item)
 

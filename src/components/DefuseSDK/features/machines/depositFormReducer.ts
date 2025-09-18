@@ -4,12 +4,8 @@ import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { parseUnits } from "@src/components/DefuseSDK/utils/parse"
 import { getDerivedToken } from "@src/components/DefuseSDK/utils/tokenUtils"
 import { type ActorRef, type Snapshot, fromTransition } from "xstate"
-import type {
-  BaseTokenInfo,
-  SupportedChainName,
-  UnifiedTokenInfo,
-} from "../../types/base"
-import type { SwappableToken } from "../../types/swap"
+import type { BaseTokenInfo, SupportedChainName } from "../../types/base"
+import type { TokenInfo } from "../../types/base"
 import { isBaseToken, isUnifiedToken } from "../../utils"
 
 export type Fields = Array<Exclude<keyof State, "parentRef">>
@@ -25,7 +21,7 @@ export type Events =
   | {
       type: "DEPOSIT_FORM.UPDATE_TOKEN"
       params: {
-        token: BaseTokenInfo | UnifiedTokenInfo
+        token: TokenInfo
       }
     }
   | {
@@ -43,7 +39,7 @@ export type Events =
 
 export type State = {
   parentRef: ParentActor
-  token: BaseTokenInfo | UnifiedTokenInfo | null
+  token: TokenInfo | null
   derivedToken: BaseTokenInfo | null
   blockchain: SupportedChainName | null
   parsedAmount: bigint | null
@@ -137,10 +133,7 @@ export const depositFormReducer = fromTransition(
   ({
     input,
   }: {
-    input: {
-      parentRef: ParentActor
-      token: SwappableToken
-    }
+    input: { parentRef: ParentActor; token: TokenInfo }
   }): State => {
     let blockchain = null
     if (!isUnifiedToken(input.token)) {

@@ -1,10 +1,9 @@
-import type {} from "@src/components/DefuseSDK/types"
-import type { TokenWithTags } from "@src/constants/tokens"
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { useFlatTokenList } from "@src/hooks/useFlatTokenList"
 import { useSearchParams } from "next/navigation"
 import { useMemo } from "react"
 
-export function useTokenList(tokenList: TokenWithTags[]) {
+export function useTokenList(tokenList: TokenInfo[]) {
   const flatTokenList = useFlatTokenList(tokenList)
   const searchParams = useSearchParams()
 
@@ -44,7 +43,7 @@ export function useTokenList(tokenList: TokenWithTags[]) {
   }, [searchParams, sortedList])
 }
 
-function compareTokens(a: TokenWithTags, b: TokenWithTags): number {
+function compareTokens(a: TokenInfo, b: TokenInfo): number {
   const aTags = a.tags ?? []
   const bTags = b.tags ?? []
 
@@ -91,6 +90,6 @@ function getVolumeOrder(tags: string[]): number | undefined {
   return Number.parseInt(volTag.split(":")[1])
 }
 
-function sortTokensByMarketCap(tokens: TokenWithTags[]) {
+function sortTokensByMarketCap(tokens: TokenInfo[]) {
   return Array.from(tokens).sort(compareTokens)
 }

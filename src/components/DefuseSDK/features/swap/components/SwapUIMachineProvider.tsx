@@ -1,4 +1,5 @@
 import type { walletMessage } from "@defuse-protocol/internal-utils"
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { createActorContext } from "@xstate/react"
@@ -11,7 +12,6 @@ import {
   type SnapshotFrom,
   fromPromise,
 } from "xstate"
-import type { SwappableToken } from "../../../types/swap"
 import { computeTotalDeltaDifferentDecimals } from "../../../utils/tokenUtils"
 import { swapIntent1csMachine } from "../../machines/swapIntent1csMachine"
 import { swapIntentMachine } from "../../machines/swapIntentMachine"
@@ -50,9 +50,9 @@ export const SwapUIMachineContext: SwapUIMachineContextInterface =
   createActorContext(swapUIMachine)
 
 interface SwapUIMachineProviderProps extends PropsWithChildren {
-  initialTokenIn?: SwappableToken
-  initialTokenOut?: SwappableToken
-  tokenList: SwappableToken[]
+  initialTokenIn?: TokenInfo
+  initialTokenOut?: TokenInfo
+  tokenList: TokenInfo[]
   signMessage: (
     params: walletMessage.WalletMessage
   ) => Promise<walletMessage.WalletSignatureResult | null>
@@ -135,8 +135,8 @@ function TokenChangeNotifier({
   tokenIn,
   tokenOut,
 }: {
-  tokenIn: SwappableToken
-  tokenOut: SwappableToken
+  tokenIn: TokenInfo
+  tokenOut: TokenInfo
 }) {
   useSwapTokenChangeNotifier({ tokenIn, tokenOut })
   return null

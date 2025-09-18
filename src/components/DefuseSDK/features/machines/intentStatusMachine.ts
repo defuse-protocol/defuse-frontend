@@ -11,7 +11,7 @@ import {
 } from "xstate"
 import { bridgeSDK } from "../../constants/bridgeSdk"
 import { logger } from "../../logger"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../types/base"
+import type { TokenInfo } from "../../types/base"
 import { assert } from "../../utils/assert"
 import type { IntentDescription } from "./swapIntentMachine"
 
@@ -20,8 +20,8 @@ type ChildEvent = {
   data: {
     intentHash: string
     txHash: string
-    tokenIn: BaseTokenInfo | UnifiedTokenInfo
-    tokenOut: BaseTokenInfo | UnifiedTokenInfo
+    tokenIn: TokenInfo
+    tokenOut: TokenInfo
   }
 }
 type ParentActor = ActorRef<Snapshot<unknown>, ChildEvent>
@@ -31,15 +31,15 @@ export const intentStatusMachine = setup({
     input: {} as {
       parentRef: ParentActor
       intentHash: string
-      tokenIn: BaseTokenInfo | UnifiedTokenInfo
-      tokenOut: BaseTokenInfo | UnifiedTokenInfo
+      tokenIn: TokenInfo
+      tokenOut: TokenInfo
       intentDescription: IntentDescription
     },
     context: {} as {
       parentRef: ParentActor
       intentHash: string
-      tokenIn: BaseTokenInfo | UnifiedTokenInfo
-      tokenOut: BaseTokenInfo | UnifiedTokenInfo
+      tokenIn: TokenInfo
+      tokenOut: TokenInfo
       txHash: string | null
       intentDescription: IntentDescription
       bridgeTransactionResult: null | { destinationTxHash: string | null }

@@ -1,6 +1,6 @@
 import type { UseQueryResult } from "@tanstack/react-query"
 import type { TokenUsdPriceData } from "../../../hooks/useTokensUsdPrices"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
+import type { TokenInfo } from "../../../types/base"
 import { formatTokenValue } from "../../../utils/format"
 import getTokenUsdPrice from "../../../utils/getTokenUsdPrice"
 import { computeTotalBalanceDifferentDecimals } from "../../../utils/tokenUtils"
@@ -14,7 +14,7 @@ export function computeTotalUsdValue(holdings: Holding[]) {
 }
 
 export function combineBalances(
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[],
+  tokenList: TokenInfo[],
   [depositedBalanceQuery, transitBalanceQuery, tokensUsdPricesQuery]: [
     UseQueryResult<BalanceMapping, Error>,
     UseQueryResult<BalanceMapping, Error>,

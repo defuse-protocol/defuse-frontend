@@ -3,17 +3,17 @@ import { getQuote as get1csQuoteApi } from "@src/components/DefuseSDK/features/m
 import { type ActorRef, type Snapshot, fromCallback } from "xstate"
 
 import { logger } from "../../logger"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../types/base"
+import type { BaseTokenInfo, TokenInfo } from "../../types/base"
 import { isBaseToken } from "../../utils/token"
 
-function getTokenAssetId(token: BaseTokenInfo | UnifiedTokenInfo) {
+function getTokenAssetId(token: TokenInfo) {
   return isBaseToken(token)
     ? token.defuseAssetId
     : token.groupedTokens[0].defuseAssetId
 }
 
 export type Quote1csInput = {
-  tokenIn: BaseTokenInfo | UnifiedTokenInfo
+  tokenIn: TokenInfo
   tokenOut: BaseTokenInfo
   amountIn: { amount: bigint; decimals: number }
   slippageBasisPoints: number

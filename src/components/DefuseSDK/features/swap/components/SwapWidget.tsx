@@ -1,6 +1,6 @@
 "use client"
 import { SwapWidgetProvider } from "@src/components/DefuseSDK/providers/SwapWidgetProvider"
-import type { TokenWithTags } from "@src/constants/tokens"
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useSelector } from "@xstate/react"
 import { useCallback } from "react"
@@ -79,7 +79,7 @@ export const SwapWidget = ({
   )
 }
 
-function TokenListUpdaterSwap({ tokenList }: { tokenList: TokenWithTags[] }) {
+function TokenListUpdaterSwap({ tokenList }: { tokenList: TokenInfo[] }) {
   const swapUIActorRef = SwapUIMachineContext.useActorRef()
   const { tokenIn, tokenOut, depositedBalanceRef } = useSelector(
     swapUIActorRef,
@@ -92,8 +92,8 @@ function TokenListUpdaterSwap({ tokenList }: { tokenList: TokenWithTags[] }) {
 
   const sendTokenInOrOut = useCallback(
     (params: {
-      tokenIn?: TokenWithTags
-      tokenOut?: TokenWithTags
+      tokenIn?: TokenInfo
+      tokenOut?: TokenInfo
     }) => {
       swapUIActorRef.send({
         type: "input",

@@ -14,12 +14,8 @@ import {
 } from "xstate"
 import { logger } from "../../logger"
 import type { QuoteResult } from "../../services/quoteService"
-import type {
-  BaseTokenInfo,
-  TokenValue,
-  UnifiedTokenInfo,
-} from "../../types/base"
-import type { SwappableToken } from "../../types/swap"
+import type { BaseTokenInfo, TokenValue } from "../../types/base"
+import type { TokenInfo } from "../../types/base"
 import { assert } from "../../utils/assert"
 import { parseUnits } from "../../utils/parse"
 import {
@@ -55,7 +51,7 @@ import {
   swapIntentMachine,
 } from "./swapIntentMachine"
 
-function getTokenDecimals(token: BaseTokenInfo | UnifiedTokenInfo) {
+function getTokenDecimals(token: TokenInfo) {
   return isBaseToken(token) ? token.decimals : token.groupedTokens[0].decimals
 }
 
@@ -65,8 +61,8 @@ export type Context = {
   quote: QuoteResult | null
   quote1csError: string | null
   formValues: {
-    tokenIn: SwappableToken
-    tokenOut: SwappableToken
+    tokenIn: TokenInfo
+    tokenOut: TokenInfo
     amountIn: string
   }
   parsedFormValues: {
@@ -81,7 +77,7 @@ export type Context = {
     | ActorRefFrom<typeof intentStatusMachine>
     | ActorRefFrom<typeof oneClickStatusMachine>
   )[]
-  tokenList: SwappableToken[]
+  tokenList: TokenInfo[]
   referral?: string
   slippageBasisPoints: number
   is1cs: boolean
@@ -94,8 +90,8 @@ type PassthroughEvent =
       data: {
         intentHash: string
         txHash: string
-        tokenIn: BaseTokenInfo | UnifiedTokenInfo
-        tokenOut: BaseTokenInfo | UnifiedTokenInfo
+        tokenIn: TokenInfo
+        tokenOut: TokenInfo
       }
     }
   | {
@@ -103,8 +99,8 @@ type PassthroughEvent =
       data: {
         depositAddress: string
         status: string
-        tokenIn: BaseTokenInfo | UnifiedTokenInfo
-        tokenOut: BaseTokenInfo | UnifiedTokenInfo
+        tokenIn: TokenInfo
+        tokenOut: TokenInfo
       }
     }
 
@@ -115,9 +111,9 @@ export const ONE_CLICK_PREFIX = "oneclick-"
 export const swapUIMachine = setup({
   types: {
     input: {} as {
-      tokenIn: SwappableToken
-      tokenOut: SwappableToken
-      tokenList: SwappableToken[]
+      tokenIn: TokenInfo
+      tokenOut: TokenInfo
+      tokenList: TokenInfo[]
       referral?: string
       is1cs: boolean
     },
@@ -126,8 +122,8 @@ export const swapUIMachine = setup({
       | {
           type: "input"
           params: Partial<{
-            tokenIn: SwappableToken
-            tokenOut: SwappableToken
+            tokenIn: TokenInfo
+            tokenOut: TokenInfo
             amountIn: string
           }>
         }
@@ -199,8 +195,8 @@ export const swapUIMachine = setup({
           data,
         }: {
           data: Partial<{
-            tokenIn: SwappableToken
-            tokenOut: SwappableToken
+            tokenIn: TokenInfo
+            tokenOut: TokenInfo
             amountIn: string
           }>
         }

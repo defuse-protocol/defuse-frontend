@@ -1,15 +1,11 @@
 import { type SnapshotFromStore, createStore } from "@xstate/store"
-import type {
-  BaseTokenInfo,
-  TokenValue,
-  UnifiedTokenInfo,
-} from "../../../types/base"
+import type { TokenInfo, TokenValue } from "../../../types/base"
 import { parseUnits } from "../../../utils/parse"
 import { getTokenMaxDecimals } from "../../../utils/tokenUtils"
 import type { GiftMakerFormValuesState } from "./giftMakerFormValuesStore"
 
 type State = {
-  token: null | BaseTokenInfo | UnifiedTokenInfo
+  token: null | TokenInfo
   amount: null | TokenValue
   message: string
 }
@@ -43,7 +39,7 @@ export const createGiftMakerFormParsedValuesStore = () =>
   })
 
 function parseTokenValue(
-  token: null | BaseTokenInfo | UnifiedTokenInfo,
+  token: null | TokenInfo,
   value: string
 ): TokenValue | null {
   if (token == null) return null

@@ -9,8 +9,8 @@ import type { SelectItemToken } from "../Modal/ModalSelectAssets"
 import { hasChainIcon } from "@src/app/(home)/_utils/useDeterminePair"
 import { chainIcons } from "@src/components/DefuseSDK/constants/blockchains"
 import { useTokensStore } from "@src/components/DefuseSDK/providers/TokensStoreProvider"
-import type { TokenWithTags } from "@src/constants/tokens"
 import { FormattedCurrency } from "../../features/account/components/shared/FormattedCurrency"
+import type { TokenInfo } from "../../types/base"
 import { formatTokenValue } from "../../utils/format"
 import { getTokenId, isBaseToken } from "../../utils/token"
 import { AssetComboIcon } from "./AssetComboIcon"
@@ -24,7 +24,7 @@ type Props<T> = {
   showChain?: boolean
 }
 
-export function AssetList<T extends TokenWithTags>({
+export function AssetList<T extends TokenInfo>({
   assets,
   className,
   handleSelectToken,
@@ -34,7 +34,7 @@ export function AssetList<T extends TokenWithTags>({
 
   const showChainIcon = useCallback(
     (
-      token: TokenWithTags,
+      token: TokenInfo,
       chainIcon: { dark: string; light: string } | undefined
     ) => {
       return showChain && chainIcon !== undefined && hasChainIcon(token, tokens)

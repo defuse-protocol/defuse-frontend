@@ -15,11 +15,7 @@ import type { BalanceMapping } from "../../features/machines/depositedBalanceMac
 import { useModalStore } from "../../providers/ModalStoreProvider"
 import { useTokensStore } from "../../providers/TokensStoreProvider"
 import { ModalType } from "../../stores/modalStore"
-import type {
-  BaseTokenInfo,
-  TokenValue,
-  UnifiedTokenInfo,
-} from "../../types/base"
+import type { TokenInfo, TokenValue } from "../../types/base"
 import { getTokenId, isBaseToken } from "../../utils/token"
 import {
   compareAmounts,
@@ -31,13 +27,11 @@ import { SearchBar } from "../SearchBar"
 import { ModalDialog } from "./ModalDialog"
 import { ModalNoResults } from "./ModalNoResults"
 
-export type Token = BaseTokenInfo | UnifiedTokenInfo
-
 export type ModalSelectAssetsPayload = {
   modalType?: ModalType.MODAL_SELECT_ASSETS
-  token?: Token
-  tokenIn?: Token
-  tokenOut?: Token
+  token?: TokenInfo
+  tokenIn?: TokenInfo
+  tokenOut?: TokenInfo
   fieldName?: "tokenIn" | "tokenOut" | "token"
   /** @deprecated legacy props use holdings instead */
   balances?: BalanceMapping
@@ -46,7 +40,7 @@ export type ModalSelectAssetsPayload = {
   isHoldingsEnabled?: boolean
 }
 
-export type SelectItemToken<T = Token> = {
+export type SelectItemToken<T = TokenInfo> = {
   token: T
   disabled: boolean
   selected: boolean

@@ -11,7 +11,7 @@ import { nearClient } from "../../../constants/nearClient"
 import type { SignerCredentials } from "../../../core/formatters"
 import { useTokensUsdPrices } from "../../../hooks/useTokensUsdPrices"
 import { getDepositedBalances } from "../../../services/defuseBalanceService"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
+import type { TokenInfo } from "../../../types/base"
 import type { RenderHostAppLink } from "../../../types/hostAppLink"
 import { assert } from "../../../utils/assert"
 import { formatTokenValue, formatUsdAmount } from "../../../utils/format"
@@ -32,8 +32,8 @@ export type OtcTakerFormProps = {
   tradeId: string
   makerMultiPayload: MultiPayload
   tradeTerms: TradeTerms
-  tokenIn: BaseTokenInfo | UnifiedTokenInfo
-  tokenOut: BaseTokenInfo | UnifiedTokenInfo
+  tokenIn: TokenInfo
+  tokenOut: TokenInfo
   signerCredentials: SignerCredentials | null
   signMessage: SignMessage
   protocolFee: number

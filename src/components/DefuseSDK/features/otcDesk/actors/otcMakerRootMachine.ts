@@ -12,7 +12,7 @@ import {
 import type { SignerCredentials } from "../../../core/formatters"
 import { logger } from "../../../logger"
 import { emitEvent } from "../../../services/emitter"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
+import type { TokenInfo } from "../../../types/base"
 import { assert } from "../../../utils/assert"
 import {
   type Events as DepositedBalanceEvents,
@@ -57,9 +57,9 @@ type CompleteStoringEvent = {
 }
 
 type InputType = {
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
-  initialTokenIn: BaseTokenInfo | UnifiedTokenInfo
-  initialTokenOut: BaseTokenInfo | UnifiedTokenInfo
+  tokenList: TokenInfo[]
+  initialTokenIn: TokenInfo
+  initialTokenOut: TokenInfo
   referral: string | undefined
   createOtcTrade: CreateOtcTrade
 }

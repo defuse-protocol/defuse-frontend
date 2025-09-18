@@ -3,14 +3,10 @@ import { useContext, useMemo } from "react"
 
 import type {
   BaseTokenInfo,
-  UnifiedTokenInfo,
-} from "@src/components/DefuseSDK/types"
+  TokenInfo,
+} from "@src/components/DefuseSDK/types/base"
 import type { WhitelabelTemplateValue } from "@src/config/featureFlags"
-import {
-  LIST_TOKENS,
-  LIST_TOKENS_FLATTEN,
-  type TokenWithTags,
-} from "@src/constants/tokens"
+import { LIST_TOKENS, LIST_TOKENS_FLATTEN } from "@src/constants/tokens"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
@@ -76,7 +72,7 @@ export function useDeterminePair() {
 function getPairFromUrlParams(
   fromParam: string | null,
   toParam: string | null,
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[],
+  tokenList: TokenInfo[],
   is1cs: boolean
 ) {
   const fromToken = findTokenBySymbol(fromParam, tokenList, is1cs)
@@ -90,7 +86,7 @@ function getPairFromUrlParams(
 
 function getPairFromWhitelabelTemplate(
   whitelabelTemplate: WhitelabelTemplateValue,
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[],
+  tokenList: TokenInfo[],
   is1cs: boolean
 ) {
   const pair = pairs[whitelabelTemplate]
@@ -117,9 +113,9 @@ function getPairFromWhitelabelTemplate(
 
 function findTokenBySymbol(
   input: string | null,
-  tokens: (BaseTokenInfo | UnifiedTokenInfo)[],
+  tokens: TokenInfo[],
   is1cs: boolean
-): BaseTokenInfo | UnifiedTokenInfo | null {
+): TokenInfo | null {
   if (!input) {
     return null
   }
@@ -164,9 +160,9 @@ export function updateURLParamsSwap({
   router,
   searchParams,
 }: {
-  tokenIn: TokenWithTags | null
-  tokenOut: TokenWithTags | null
-  tokens: TokenWithTags[]
+  tokenIn: TokenInfo | null
+  tokenOut: TokenInfo | null
+  tokens: TokenInfo[]
   router: ReturnType<typeof useRouter>
   searchParams: ReadonlyURLSearchParams
 }) {
@@ -193,18 +189,15 @@ export function updateURLParamsSwap({
   }
 }
 
-function tokenToSymbol(
-  token: TokenWithTags,
-  tokensWithTokenInAndOut: TokenWithTags[]
-) {
+function tokenToSymbol(token: TokenInfo, tokensWithTokenInAndOut: TokenInfo[]) {
   return hasChainIcon(token, tokensWithTokenInAndOut)
     ? tokenToSymbolWithChainName(token)
     : token.symbol
 }
 
 export function hasChainIcon(
-  token: TokenWithTags,
-  tokens: TokenWithTags[]
+  token: TokenInfo,
+  tokens: TokenInfo[]
 ): token is BaseTokenInfo {
   return isUnifiedToken(token)
     ? false

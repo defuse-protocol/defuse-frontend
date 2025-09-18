@@ -26,10 +26,9 @@ import { IslandHeader } from "../../../../components/IslandHeader"
 import { nearClient } from "../../../../constants/nearClient"
 import { logger } from "../../../../logger"
 import type {
-  BaseTokenInfo,
   SupportedChainName,
+  TokenInfo,
   TokenValue,
-  UnifiedTokenInfo,
 } from "../../../../types/base"
 import type { WithdrawWidgetProps } from "../../../../types/withdraw"
 import { parseUnits } from "../../../../utils/parse"
@@ -221,7 +220,7 @@ export const WithdrawForm = ({
 
   const { setModalType, data: modalSelectAssetsData } = useModalController<{
     modalType: ModalType
-    token: BaseTokenInfo | UnifiedTokenInfo | undefined
+    token: TokenInfo | undefined
   }>(ModalType.MODAL_SELECT_ASSETS)
 
   const handleSelect = useCallback(() => {

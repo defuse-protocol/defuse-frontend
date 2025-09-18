@@ -1,5 +1,6 @@
 import { authIdentity } from "@defuse-protocol/internal-utils"
 import { depositMachine } from "@src/components/DefuseSDK/features/machines/depositMachine"
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { createActorContext } from "@xstate/react"
 import type { PropsWithChildren, ReactElement, ReactNode } from "react"
 import { useFormContext } from "react-hook-form"
@@ -32,7 +33,6 @@ import {
   waitEVMTransaction,
 } from "../../../services/depositService"
 import type { Transaction } from "../../../types/deposit"
-import type { SwappableToken } from "../../../types/swap"
 import { assetNetworkAdapter } from "../../../utils/adapters"
 import { assert } from "../../../utils/assert"
 import { getEVMChainId } from "../../../utils/evmChainId"
@@ -68,8 +68,8 @@ export const DepositUIMachineContext: DepositUIMachineContextInterface =
   createActorContext(depositUIMachine)
 
 interface DepositUIMachineProviderProps extends PropsWithChildren {
-  tokenList: SwappableToken[]
-  initialToken?: SwappableToken
+  tokenList: TokenInfo[]
+  initialToken?: TokenInfo
   sendTransactionNear: (tx: Transaction["NEAR"][]) => Promise<string | null>
   sendTransactionEVM: (tx: Transaction["EVM"]) => Promise<Hash | null>
   sendTransactionSolana: (tx: Transaction["Solana"]) => Promise<string | null>
@@ -77,7 +77,7 @@ interface DepositUIMachineProviderProps extends PropsWithChildren {
   sendTransactionStellar: (tx: Transaction["Stellar"]) => Promise<string | null>
   sendTransactionTron: (tx: Transaction["Tron"]) => Promise<string | null>
   onTokenChange?: (params: {
-    token: SwappableToken | null
+    token: TokenInfo | null
   }) => void
 }
 
@@ -580,10 +580,8 @@ function TokenChangeNotifier({
   onTokenChange,
   token,
 }: {
-  onTokenChange?: (params: {
-    token: SwappableToken | null
-  }) => void
-  token: SwappableToken
+  onTokenChange?: (params: { token: TokenInfo | null }) => void
+  token: TokenInfo
 }) {
   useDepositTokenChangeNotifier({ onTokenChange, token })
   return null

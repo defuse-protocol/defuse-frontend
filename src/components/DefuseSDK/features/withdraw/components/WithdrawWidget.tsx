@@ -9,7 +9,6 @@ import {
 import { WidgetRoot } from "../../../components/WidgetRoot"
 import { settings } from "../../../constants/settings"
 import { WithdrawWidgetProvider } from "../../../providers/WithdrawWidgetProvider"
-import type {} from "../../../types/base"
 import type { WithdrawWidgetProps } from "../../../types/withdraw"
 import { assert } from "../../../utils/assert"
 import { isBaseToken } from "../../../utils/token"
@@ -17,7 +16,7 @@ import { swapIntentMachine } from "../../machines/swapIntentMachine"
 import { withdrawUIMachine } from "../../machines/withdrawUIMachine"
 import { WithdrawUIMachineContext } from "../WithdrawUIMachineContext"
 
-import type { TokenWithTags } from "@src/constants/tokens"
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { APP_FEE_RECIPIENT } from "@src/utils/environment"
 import { WithdrawForm } from "./WithdrawForm"
@@ -115,9 +114,7 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
   )
 }
 
-function TokenListUpdaterWithdraw({
-  tokenList,
-}: { tokenList: TokenWithTags[] }) {
+function TokenListUpdaterWithdraw({ tokenList }: { tokenList: TokenInfo[] }) {
   const withdrawUIActorRef = WithdrawUIMachineContext.useActorRef()
   const { withdrawFormRef, depositedBalanceRef } = useSelector(
     withdrawUIActorRef,

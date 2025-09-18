@@ -1,14 +1,14 @@
 import { updateURLParamsSwap } from "@src/app/(home)/_utils/useDeterminePair"
 import { useTokensStore } from "@src/components/DefuseSDK/providers/TokensStoreProvider"
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useRef } from "react"
-import type { SwappableToken } from "../../../types/swap"
 import { DepositUIMachineContext } from "../../deposit/components/DepositUIMachineProvider"
 import { SwapUIMachineContext } from "../components/SwapUIMachineProvider"
 
 export function useSwapTokenChangeNotifier(tokenInAndOut: {
-  tokenIn: SwappableToken | null
-  tokenOut: SwappableToken | null
+  tokenIn: TokenInfo | null
+  tokenOut: TokenInfo | null
 }) {
   const router = useRouter()
   const prevTokensRef = useRef(tokenInAndOut)
@@ -36,9 +36,9 @@ export function useDepositTokenChangeNotifier({
   ...tokenFromProps
 }: {
   onTokenChange?: (params: {
-    token: SwappableToken | null
+    token: TokenInfo | null
   }) => void
-  token: SwappableToken | null
+  token: TokenInfo | null
 }) {
   const prevTokenRef = useRef(tokenFromProps)
   const { token } = DepositUIMachineContext.useSelector((snapshot) => ({

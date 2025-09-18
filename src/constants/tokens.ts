@@ -1,14 +1,9 @@
-import type {
-  BaseTokenInfo,
-  UnifiedTokenInfo,
-} from "@src/components/DefuseSDK/types"
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { flattenTokenList } from "@src/components/DefuseSDK/utils/token"
 import { extractTokenFamilyList } from "@src/components/DefuseSDK/utils/tokenFamily"
 import { INTENTS_ENV } from "@src/utils/environment"
 
-export type TokenWithTags = BaseTokenInfo | UnifiedTokenInfo
-
-export const NATIVE_NEAR: TokenWithTags = {
+export const NATIVE_NEAR: TokenInfo = {
   defuseAssetId: "nep141:wrap.near",
   address: "wrap.near",
   decimals: 24,
@@ -19,7 +14,7 @@ export const NATIVE_NEAR: TokenWithTags = {
   name: "Near",
 }
 
-const PRODUCTION_TOKENS: TokenWithTags[] = [
+const PRODUCTION_TOKENS: TokenInfo[] = [
   {
     unifiedAssetId: "usdc",
     symbol: "USDC",
@@ -1788,7 +1783,7 @@ const PRODUCTION_TOKENS: TokenWithTags[] = [
   },
 ]
 
-const STAGE_TOKENS: TokenWithTags[] = [
+const STAGE_TOKENS: TokenInfo[] = [
   {
     unifiedAssetId: "usdc",
     symbol: "USDC",
@@ -1944,7 +1939,7 @@ const STAGE_TOKENS: TokenWithTags[] = [
   },
 ]
 
-export const LIST_TOKENS: TokenWithTags[] =
+export const LIST_TOKENS: TokenInfo[] =
   INTENTS_ENV === "production" ? PRODUCTION_TOKENS : STAGE_TOKENS
 
 export const DEPRECATED_TOKENS: Record<string, boolean> = {

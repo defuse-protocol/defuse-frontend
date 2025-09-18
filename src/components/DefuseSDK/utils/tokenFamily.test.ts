@@ -1,11 +1,8 @@
-import type {
-  BaseTokenInfo,
-  UnifiedTokenInfo,
-} from "@src/components/DefuseSDK/types/base"
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { describe, expect, it } from "vitest"
 import { extractTokenFamilyList, resolveTokenFamily } from "./tokenFamily"
 
-const tokenList: (BaseTokenInfo | UnifiedTokenInfo)[] = [
+const tokenList: TokenInfo[] = [
   {
     unifiedAssetId: "public",
     symbol: "PUBLIC",

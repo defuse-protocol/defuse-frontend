@@ -1,6 +1,6 @@
 import type { authHandle, walletMessage } from "@defuse-protocol/internal-utils"
 import type { SendNearTransaction } from "../features/machines/publicKeyVerifierMachine"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "./base"
+import type { TokenInfo } from "./base"
 import type { RenderHostAppLink } from "./hostAppLink"
 
 export type SwapEvent = {
@@ -9,11 +9,9 @@ export type SwapEvent = {
   error?: string
 }
 
-export type SwappableToken = BaseTokenInfo | UnifiedTokenInfo
-
 export type SwapWidgetProps = {
   theme?: "dark" | "light"
-  tokenList: SwappableToken[]
+  tokenList: TokenInfo[]
   onEmit?: (event: SwapEvent) => void
 
   /**
@@ -31,15 +29,15 @@ export type SwapWidgetProps = {
   onSuccessSwap: (params: {
     amountIn: bigint
     amountOut: bigint
-    tokenIn: SwappableToken
-    tokenOut: SwappableToken
+    tokenIn: TokenInfo
+    tokenOut: TokenInfo
     txHash: string
     intentHash: string
   }) => void
 
   renderHostAppLink: RenderHostAppLink
-  initialTokenIn?: SwappableToken
-  initialTokenOut?: SwappableToken
+  initialTokenIn?: TokenInfo
+  initialTokenOut?: TokenInfo
 
   /**
    * Optional referral code, used for tracking purposes.

@@ -2,18 +2,18 @@ import { CaretDownIcon } from "@radix-ui/react-icons"
 import type React from "react"
 
 import { hasChainIcon } from "@src/app/(home)/_utils/useDeterminePair"
-import type { TokenWithTags } from "@src/constants/tokens"
 import { useMemo } from "react"
 import { chainIcons } from "../constants/blockchains"
+import type { TokenInfo } from "../types/base"
 import { isBaseToken } from "../utils"
 import { AssetComboIcon } from "./Asset/AssetComboIcon"
 
 type Props = {
-  selected?: TokenWithTags
+  selected?: TokenInfo
   handleSelect?: () => void
-  tokens?: TokenWithTags[]
-  tokenIn?: TokenWithTags
-  tokenOut?: TokenWithTags
+  tokens?: TokenInfo[]
+  tokenIn?: TokenInfo
+  tokenOut?: TokenInfo
 }
 
 const EmptyIcon = () => {

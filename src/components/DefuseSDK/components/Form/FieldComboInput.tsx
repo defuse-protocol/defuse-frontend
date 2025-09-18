@@ -12,12 +12,7 @@ import type {
 } from "react-hook-form"
 import { formatUnits } from "viem"
 import useMergedRef from "../../hooks/useMergedRef"
-import type {
-  BaseTokenInfo,
-  TokenValue,
-  UnifiedTokenInfo,
-} from "../../types/base"
-import type { SwappableToken } from "../../types/swap"
+import type { TokenInfo, TokenValue } from "../../types/base"
 import {
   BlockMultiBalances,
   type BlockMultiBalancesProps,
@@ -27,8 +22,8 @@ import { SelectAssets } from "../SelectAssets"
 interface Props<T extends FieldValues>
   extends Omit<BlockMultiBalancesProps, "decimals" | "balance"> {
   fieldName: Path<T>
-  tokenIn: SwappableToken
-  tokenOut?: SwappableToken
+  tokenIn: TokenInfo
+  tokenOut?: TokenInfo
   register?: UseFormRegister<T>
   required?: boolean
   min?: RegisterOptions["min"]
@@ -36,7 +31,7 @@ interface Props<T extends FieldValues>
   placeholder?: string
   balance?: TokenValue
   transitBalance?: TokenValue
-  selected?: BaseTokenInfo | UnifiedTokenInfo
+  selected?: TokenInfo
   handleSelect?: () => void
   className?: string
   errors?: FieldErrors
