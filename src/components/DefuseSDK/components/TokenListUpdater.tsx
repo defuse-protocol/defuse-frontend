@@ -124,23 +124,25 @@ export function TokenListUpdater1cs({
         const firstToken = nonZeroBalanceTokens[0]
 
         if (
-          isBaseToken(tokenIn)
+          sendTokenInOrOut &&
+          (isBaseToken(tokenIn)
             ? tokenIn.defuseAssetId === firstToken.defuseAssetId
             : tokenIn.groupedTokens.some(
                 (t) => t.defuseAssetId === firstToken.defuseAssetId
-              )
+              ))
         ) {
-          sendTokenInOrOut?.({ tokenIn: firstToken })
+          sendTokenInOrOut({ tokenIn: firstToken })
         }
 
         if (
-          isBaseToken(tokenOut)
+          sendTokenInOrOut &&
+          (isBaseToken(tokenOut)
             ? tokenOut.defuseAssetId === firstToken.defuseAssetId
             : tokenOut.groupedTokens.some(
                 (t) => t.defuseAssetId === firstToken.defuseAssetId
-              )
+              ))
         ) {
-          sendTokenInOrOut?.({ tokenOut: firstToken })
+          sendTokenInOrOut({ tokenOut: firstToken })
         }
       }
     }
