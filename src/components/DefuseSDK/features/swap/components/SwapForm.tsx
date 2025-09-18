@@ -5,6 +5,7 @@ import { useTokensUsdPrices } from "@src/components/DefuseSDK/hooks/useTokensUsd
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { formatUsdAmount } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
+import { getTokenId } from "@src/components/DefuseSDK/utils/token"
 import { useSelector } from "@xstate/react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
@@ -150,7 +151,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
       switch (fieldName) {
         case SWAP_TOKEN_FLAGS.IN:
-          if (tokenOut === token) {
+          if (getTokenId(tokenOut) === getTokenId(token)) {
             // Don't need to switch amounts, when token selected from dialog
             swapUIActorRef.send({
               type: "input",
@@ -161,7 +162,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
           }
           break
         case SWAP_TOKEN_FLAGS.OUT:
-          if (tokenIn === token) {
+          if (getTokenId(tokenIn) === getTokenId(token)) {
             // Don't need to switch amounts, when token selected from dialog
             swapUIActorRef.send({
               type: "input",
