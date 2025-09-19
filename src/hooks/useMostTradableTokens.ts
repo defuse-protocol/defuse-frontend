@@ -1,4 +1,3 @@
-import type {} from "@src/components/DefuseSDK/types/base"
 import { type UseQueryResult, useQuery } from "@tanstack/react-query"
 
 export type MostTradableTokenEntity = {
