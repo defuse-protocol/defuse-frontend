@@ -1,3 +1,5 @@
+"use server"
+
 import { createClient } from "@clickhouse/client"
 import {
   CLICK_HOUSE_PASSWORD,
@@ -5,7 +7,8 @@ import {
   CLICK_HOUSE_USERNAME,
 } from "@src/utils/environment"
 
-export const clickHouseClient = createClient({
+// Keep the client internal to prevent exposure to client side
+const clickHouseClient = createClient({
   url: CLICK_HOUSE_URL,
   username: CLICK_HOUSE_USERNAME,
   password: CLICK_HOUSE_PASSWORD,

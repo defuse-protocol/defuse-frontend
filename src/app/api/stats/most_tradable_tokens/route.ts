@@ -1,3 +1,5 @@
+"use server"
+
 import { chQuery } from "@src/utils/clickhouse"
 import { logger } from "@src/utils/logger"
 import { NextResponse } from "next/server"
