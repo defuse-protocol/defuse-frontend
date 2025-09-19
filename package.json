@@ -14,6 +14,7 @@
     "update-types": "supabase gen types --lang=typescript --local > src/types/database-generated.ts"
   },
   "dependencies": {
+    "@clickhouse/client": "^1.12.1",
     "@creit.tech/stellar-wallets-kit": "1.9.5",
     "@defuse-protocol/contract-types": "0.1.0",
     "@defuse-protocol/intents-sdk": "0.20.0",
