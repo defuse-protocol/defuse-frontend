@@ -1,9 +1,8 @@
 import type { GeneratHLAddressParams } from "@src/components/DefuseSDK/sdk/hyperunit/types"
 import type {
-  BaseTokenInfo,
-  UnifiedTokenInfo,
-} from "@src/components/DefuseSDK/types"
-import type { SupportedChainName } from "@src/components/DefuseSDK/types/base"
+  SupportedChainName,
+  TokenInfo,
+} from "@src/components/DefuseSDK/types/base"
 import { getTokenAid } from "@src/components/DefuseSDK/utils/token"
 
 /**
@@ -11,7 +10,7 @@ import { getTokenAid } from "@src/components/DefuseSDK/utils/token"
  * substituting the network with the token's native blockchain.
  */
 export function getHyperliquidSrcChain(
-  token: BaseTokenInfo | UnifiedTokenInfo
+  token: TokenInfo
 ): GeneratHLAddressParams["srcChain"] {
   const tokenAid = getTokenAid(token)
   switch (tokenAid) {
@@ -27,7 +26,7 @@ export function getHyperliquidSrcChain(
 }
 
 export function getHyperliquidAsset(
-  token: BaseTokenInfo | UnifiedTokenInfo
+  token: TokenInfo
 ): GeneratHLAddressParams["asset"] {
   const tokenAid = getTokenAid(token)
   switch (tokenAid) {
@@ -48,7 +47,7 @@ export function getHyperliquidAsset(
  */
 export function getMinWithdrawalHyperliquidAmount(
   blockchain: SupportedChainName | "near_intents",
-  token: BaseTokenInfo | UnifiedTokenInfo
+  token: TokenInfo
 ) {
   if (blockchain !== "hyperliquid") return null
   const tokenAid = getTokenAid(token)

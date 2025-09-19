@@ -1,5 +1,4 @@
 "use client"
-import { updateURLParams } from "@src/app/(home)/_utils/useDeterminePair"
 import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
 import { getTokens } from "@src/components/DefuseSDK/features/machines/1cs"
 import { SwapWidget } from "@src/components/DefuseSDK/features/swap/components/SwapWidget"
@@ -14,7 +13,7 @@ import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMe
 import { useNearWallet } from "@src/providers/NearWalletProvider"
 import { renderAppLink } from "@src/utils/renderAppLink"
 import { useQuery } from "@tanstack/react-query"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { useMemo } from "react"
 
 export default function Swap() {
@@ -27,7 +26,6 @@ export default function Swap() {
   const tokenList = useTokenList1cs()
   const { tokenIn, tokenOut } = useDeterminePair()
   const referral = useIntentsReferral()
-  const router = useRouter()
 
   return (
     <Paper>
@@ -57,9 +55,6 @@ export default function Swap() {
         referral={referral}
         initialTokenIn={tokenIn ?? undefined}
         initialTokenOut={tokenOut ?? undefined}
-        onTokenChange={(params) =>
-          updateURLParams({ ...params, router, searchParams })
-        }
       />
     </Paper>
   )

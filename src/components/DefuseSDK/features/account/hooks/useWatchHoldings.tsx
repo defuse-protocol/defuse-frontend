@@ -2,7 +2,7 @@ import { useQueries } from "@tanstack/react-query"
 import { useMemo } from "react"
 import { createTokenUsdPricesQueryOptions } from "../../../hooks/useTokensUsdPrices"
 import { createDepositedBalanceQueryOptions } from "../../../queries/balanceQueries"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
+import type { TokenInfo } from "../../../types/base"
 import type { IntentsUserId } from "../../../types/intentsUserId"
 import { getTokenId } from "../../../utils/token"
 import { getUnderlyingBaseTokenInfos } from "../../../utils/tokenUtils"
@@ -14,7 +14,7 @@ export function useWatchHoldings({
   tokenList,
 }: {
   userId: IntentsUserId | null
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
+  tokenList: TokenInfo[]
 }) {
   const tokenIds = useMemo(
     () => tokenList.flatMap(getUnderlyingBaseTokenInfos).map(getTokenId),

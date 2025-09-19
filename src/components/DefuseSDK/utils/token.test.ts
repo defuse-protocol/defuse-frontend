@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../types/base"
+import type { TokenInfo } from "../types/base"
 import { flattenTokenList, getTokenAid } from "./token"
 
 describe("flattenTokenList()", () => {
-  const tokenList: (BaseTokenInfo | UnifiedTokenInfo)[] = [
+  const tokenList: TokenInfo[] = [
     {
       unifiedAssetId: "public",
       symbol: "PUBLIC",

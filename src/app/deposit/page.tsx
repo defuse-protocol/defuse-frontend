@@ -8,7 +8,7 @@ import { useTokenList } from "@src/hooks/useTokenList"
 import { renderAppLink } from "@src/utils/renderAppLink"
 import { useRouter, useSearchParams } from "next/navigation"
 import {
-  updateURLParams,
+  updateURLParamsDeposit,
   useDeterminePair,
 } from "../(home)/_utils/useDeterminePair"
 
@@ -80,7 +80,7 @@ export default function Deposit() {
         renderHostAppLink={renderAppLink}
         initialToken={tokenIn ?? undefined}
         onTokenChange={(params) =>
-          updateURLParams({
+          updateURLParamsDeposit({
             router,
             searchParams,
             tokenIn: params.token,

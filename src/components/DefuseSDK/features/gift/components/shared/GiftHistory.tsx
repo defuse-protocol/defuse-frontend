@@ -1,7 +1,7 @@
 import { ButtonCustom } from "../../../../components/Button/ButtonCustom"
 import { Island } from "../../../../components/Island"
 import type { SignerCredentials } from "../../../../core/formatters"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../../types/base"
+import type { TokenInfo } from "../../../../types/base"
 import { useGiftInfos } from "../../hooks/useGiftInfos"
 import { useGiftPagination } from "../../hooks/useGiftPagination"
 import { GiftClaimActorProvider } from "../../providers/GiftClaimActorProvider"
@@ -13,7 +13,7 @@ import { GiftMakerHistoryItem } from "./GiftMakerHistoryItem"
 
 export type GiftHistoryProps = {
   signerCredentials: SignerCredentials | null
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
+  tokenList: TokenInfo[]
   generateLink: GenerateLink
   gifts: GiftMakerHistory[] | undefined
 }

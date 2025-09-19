@@ -1,21 +1,20 @@
-import { useEffect } from "react"
-import type { SwappableToken } from "../../../types/swap"
+import { updateURLParamsSwap } from "@src/app/(home)/_utils/useDeterminePair"
+import { useTokensStore } from "@src/components/DefuseSDK/providers/TokensStoreProvider"
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useEffect, useRef } from "react"
 import { DepositUIMachineContext } from "../../deposit/components/DepositUIMachineProvider"
 import { SwapUIMachineContext } from "../components/SwapUIMachineProvider"
 
-export function useSwapTokenChangeNotifier({
-  onTokenChange,
-  prevTokensRef,
-}: {
-  onTokenChange?: (params: {
-    tokenIn: SwappableToken | null
-    tokenOut: SwappableToken | null
-  }) => void
-  prevTokensRef: React.MutableRefObject<{
-    tokenIn: SwappableToken | null
-    tokenOut: SwappableToken | null
-  }>
+export function useSwapTokenChangeNotifier(tokenInAndOut: {
+  tokenIn: TokenInfo | null
+  tokenOut: TokenInfo | null
 }) {
+  const router = useRouter()
+  const prevTokensRef = useRef(tokenInAndOut)
+  const searchParams = useSearchParams()
+  const tokens = useTokensStore((state) => state.tokens)
+
   const { tokenIn, tokenOut } = SwapUIMachineContext.useSelector(
     (snapshot) => ({
       tokenIn: snapshot.context.formValues.tokenIn,
@@ -24,27 +23,24 @@ export function useSwapTokenChangeNotifier({
   )
 
   useEffect(() => {
-    if (!onTokenChange) return
-
     const prev = prevTokensRef.current
     if (tokenIn !== prev.tokenIn || tokenOut !== prev.tokenOut) {
-      onTokenChange({ tokenIn, tokenOut })
+      updateURLParamsSwap({ tokenIn, tokenOut, tokens, router, searchParams })
       prevTokensRef.current = { tokenIn, tokenOut }
     }
-  }, [tokenIn, tokenOut, onTokenChange, prevTokensRef])
+  }, [tokenIn, tokenOut, tokens, router, searchParams])
 }
 
 export function useDepositTokenChangeNotifier({
   onTokenChange,
-  prevTokenRef,
+  ...tokenFromProps
 }: {
   onTokenChange?: (params: {
-    token: SwappableToken | null
+    token: TokenInfo | null
   }) => void
-  prevTokenRef: React.MutableRefObject<{
-    token: SwappableToken | null
-  }>
+  token: TokenInfo | null
 }) {
+  const prevTokenRef = useRef(tokenFromProps)
   const { token } = DepositUIMachineContext.useSelector((snapshot) => ({
     token: snapshot.context.depositFormRef.getSnapshot().context.token,
   }))
@@ -57,5 +53,5 @@ export function useDepositTokenChangeNotifier({
       onTokenChange({ token })
       prevTokenRef.current = { token }
     }
-  }, [token, onTokenChange, prevTokenRef])
+  }, [token, onTokenChange])
 }

@@ -7,12 +7,12 @@ import {
   type QuoteResult,
   queryQuote,
 } from "../../services/quoteService"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../types/base"
+import type { BaseTokenInfo, TokenInfo } from "../../types/base"
 import { getUnderlyingBaseTokenInfos } from "../../utils/tokenUtils"
 
 export type QuoteInput =
   | {
-      tokenIn: BaseTokenInfo | UnifiedTokenInfo
+      tokenIn: TokenInfo
       tokenOut: BaseTokenInfo
       amountIn: { amount: bigint; decimals: number }
       balances: Record<BaseTokenInfo["defuseAssetId"], bigint>

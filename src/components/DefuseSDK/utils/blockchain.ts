@@ -6,12 +6,8 @@ import { config } from "../config"
 import { getBlockchainsOptions } from "../constants/blockchains"
 import type { NetworkOption } from "../constants/blockchains"
 import { CHAIN_IDS } from "../constants/evm"
-import type {
-  BaseTokenInfo,
-  SupportedChainName,
-  UnifiedTokenInfo,
-} from "../types/base"
-import type { SwappableToken } from "../types/swap"
+import type { SupportedChainName } from "../types/base"
+import type { TokenInfo } from "../types/base"
 import { assetNetworkAdapter, reverseAssetNetworkAdapter } from "./adapters"
 import { isBaseToken, isNativeToken, isUnifiedToken } from "./token"
 
@@ -75,7 +71,7 @@ function filterChainsByFeatureFlags<T extends string>(chains: T[]): T[] {
 }
 
 export function availableChainsForToken(
-  token: BaseTokenInfo | UnifiedTokenInfo
+  token: TokenInfo
 ): Record<string, NetworkOption> {
   const tokenFamily = resolveTokenFamily(tokenFamilies, token)
 
@@ -115,7 +111,7 @@ export function availableDisabledChainsForToken(
 }
 
 export function getDefaultBlockchainOptionValue(
-  token: SwappableToken
+  token: TokenInfo
 ): BlockchainEnum | null {
   if (isBaseToken(token)) {
     const key = assetNetworkAdapter[token.chainName]

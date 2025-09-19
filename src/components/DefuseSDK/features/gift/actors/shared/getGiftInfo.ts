@@ -1,6 +1,6 @@
 import type { KeyPairString } from "near-api-js/lib/utils"
 import { fromPromise } from "xstate"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../../types/base"
+import type { BaseTokenInfo, TokenInfo } from "../../../../types/base"
 import { determineGiftToken } from "../../utils/determineGiftToken"
 import {
   type GiftSecretError,
@@ -9,7 +9,7 @@ import {
 
 export type GiftOpenSecretActorInput = {
   payload: string
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
+  tokenList: TokenInfo[]
 }
 
 export type GiftOpenSecretActorOutput =
@@ -26,7 +26,7 @@ export type GiftOpenSecretActorOutput =
 
 export type GiftInfo = {
   tokenDiff: Record<BaseTokenInfo["defuseAssetId"], bigint>
-  token: BaseTokenInfo | UnifiedTokenInfo
+  token: TokenInfo
   secretKey: KeyPairString
   accountId: string
   message: string

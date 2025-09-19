@@ -1,9 +1,9 @@
 import type { walletMessage } from "@defuse-protocol/internal-utils"
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { createActorContext } from "@xstate/react"
 import type { PropsWithChildren, ReactElement, ReactNode } from "react"
-import { useRef } from "react"
 import { useFormContext } from "react-hook-form"
 import { formatUnits } from "viem"
 import {
@@ -12,7 +12,6 @@ import {
   type SnapshotFrom,
   fromPromise,
 } from "xstate"
-import type { SwappableToken } from "../../../types/swap"
 import { computeTotalDeltaDifferentDecimals } from "../../../utils/tokenUtils"
 import { swapIntent1csMachine } from "../../machines/swapIntent1csMachine"
 import { swapIntentMachine } from "../../machines/swapIntentMachine"
@@ -51,17 +50,13 @@ export const SwapUIMachineContext: SwapUIMachineContextInterface =
   createActorContext(swapUIMachine)
 
 interface SwapUIMachineProviderProps extends PropsWithChildren {
-  initialTokenIn?: SwappableToken
-  initialTokenOut?: SwappableToken
-  tokenList: SwappableToken[]
+  initialTokenIn?: TokenInfo
+  initialTokenOut?: TokenInfo
+  tokenList: TokenInfo[]
   signMessage: (
     params: walletMessage.WalletMessage
   ) => Promise<walletMessage.WalletSignatureResult | null>
   referral?: string
-  onTokenChange?: (params: {
-    tokenIn: SwappableToken | null
-    tokenOut: SwappableToken | null
-  }) => void
 }
 
 export function SwapUIMachineProvider({
@@ -71,7 +66,6 @@ export function SwapUIMachineProvider({
   tokenList,
   signMessage,
   referral,
-  onTokenChange,
 }: SwapUIMachineProviderProps) {
   const { setValue, resetField } = useFormContext<SwapFormValues>()
   const tokenIn = initialTokenIn || tokenList[0]
@@ -131,31 +125,19 @@ export function SwapUIMachineProvider({
         },
       })}
     >
-      <TokenChangeNotifier
-        onTokenChange={onTokenChange}
-        tokenIn={tokenIn}
-        tokenOut={tokenOut}
-      />
+      <TokenChangeNotifier tokenIn={tokenIn} tokenOut={tokenOut} />
       {children}
     </SwapUIMachineContext.Provider>
   )
 }
 
 function TokenChangeNotifier({
-  onTokenChange,
   tokenIn,
   tokenOut,
 }: {
-  onTokenChange?: (params: {
-    tokenIn: SwappableToken | null
-    tokenOut: SwappableToken | null
-  }) => void
-  tokenIn: SwappableToken
-  tokenOut: SwappableToken
+  tokenIn: TokenInfo
+  tokenOut: TokenInfo
 }) {
-  useSwapTokenChangeNotifier({
-    onTokenChange,
-    prevTokensRef: useRef({ tokenIn, tokenOut }),
-  })
+  useSwapTokenChangeNotifier({ tokenIn, tokenOut })
   return null
 }

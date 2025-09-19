@@ -1,9 +1,5 @@
 import { type SnapshotFromStore, createStore } from "@xstate/store"
-import type {
-  BaseTokenInfo,
-  TokenValue,
-  UnifiedTokenInfo,
-} from "../../../types/base"
+import type { BaseTokenInfo, TokenInfo, TokenValue } from "../../../types/base"
 import { parseUnits } from "../../../utils/parse"
 import {
   getAnyBaseTokenInfo,
@@ -13,7 +9,7 @@ import { type Expiry, parseExpiry } from "../utils/expiryUtils"
 import type { OTCMarkerFormValuesState } from "./otcMakerFormValuesStore"
 
 type State = {
-  tokenIn: null | BaseTokenInfo | UnifiedTokenInfo
+  tokenIn: null | TokenInfo
   tokenOut: null | BaseTokenInfo
   amountIn: null | TokenValue
   amountOut: null | TokenValue
@@ -58,7 +54,7 @@ export const createOTCMakerFormParsedValuesStore = () =>
   })
 
 function parseTokenValue(
-  token: null | BaseTokenInfo | UnifiedTokenInfo,
+  token: null | TokenInfo,
   value: string
 ): TokenValue | null {
   if (token == null) return null

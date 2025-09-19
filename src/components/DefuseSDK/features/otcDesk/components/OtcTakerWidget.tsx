@@ -14,7 +14,7 @@ import {
   getProtocolFee,
   isNonceUsed,
 } from "../../../services/intentsContractService"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
+import type { TokenInfo } from "../../../types/base"
 import type { RenderHostAppLink } from "../../../types/hostAppLink"
 import type { SendNearTransaction } from "../../machines/publicKeyVerifierMachine"
 import { SignIntentActorProvider } from "../providers/SignIntentActorProvider"
@@ -37,7 +37,7 @@ export type OtcTakerWidgetProps = {
   multiPayload: string | null
 
   /** List of available tokens for trading */
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
+  tokenList: TokenInfo[]
 
   /** User's wallet address */
   userAddress: string | null | undefined
@@ -185,8 +185,8 @@ function OtcTakerValidationOrder({
   children,
 }: {
   tradeTerms: TradeTerms
-  tokenIn: BaseTokenInfo | UnifiedTokenInfo
-  tokenOut: BaseTokenInfo | UnifiedTokenInfo
+  tokenIn: TokenInfo
+  tokenOut: TokenInfo
   fallback: ReactNode
   children: ReactNode
 }) {

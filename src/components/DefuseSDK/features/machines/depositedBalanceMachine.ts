@@ -14,11 +14,7 @@ import {
 import { queryClient } from "../../providers/QueryClientProvider"
 import { getDepositedBalances } from "../../services/defuseBalanceService"
 import { getTransitBalance } from "../../services/getTransitBalance"
-import type {
-  BaseTokenInfo,
-  TokenValue,
-  UnifiedTokenInfo,
-} from "../../types/base"
+import type { BaseTokenInfo, TokenInfo, TokenValue } from "../../types/base"
 import type { IntentsUserId } from "../../types/intentsUserId"
 import {
   computeTotalBalanceDifferentDecimals,
@@ -27,7 +23,7 @@ import {
 
 export interface Input {
   parentRef?: ParentActor
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
+  tokenList: TokenInfo[]
 }
 
 export type BalanceMapping = Record<BaseTokenInfo["defuseAssetId"], bigint>
@@ -275,9 +271,7 @@ export const depositedBalanceMachine = setup({
   },
 })
 
-export function balanceSelector(
-  token: BaseTokenInfo | UnifiedTokenInfo | null | undefined
-) {
+export function balanceSelector(token: TokenInfo | null | undefined) {
   return (state: undefined | SnapshotFrom<typeof depositedBalanceMachine>) => {
     if (!state || !token) return
     return computeTotalBalanceDifferentDecimals(token, state.context.balances)
@@ -303,8 +297,8 @@ export function balanceSelector(
  */
 export function balanceAllSelector<
   const T extends
-    | Record<PropertyKey, BaseTokenInfo | UnifiedTokenInfo | null>
-    | Array<BaseTokenInfo | UnifiedTokenInfo | null>,
+    | Record<PropertyKey, TokenInfo | null>
+    | Array<TokenInfo | null>,
 >(arg: T) {
   return <S extends undefined | SnapshotFrom<typeof depositedBalanceMachine>>(
     state: S
@@ -344,9 +338,7 @@ export function balanceAllSelector<
   }
 }
 
-export function transitBalanceSelector(
-  token: BaseTokenInfo | UnifiedTokenInfo | null | undefined
-) {
+export function transitBalanceSelector(token: TokenInfo | null | undefined) {
   return (state: undefined | SnapshotFrom<typeof depositedBalanceMachine>) => {
     if (!state || !token) return
 

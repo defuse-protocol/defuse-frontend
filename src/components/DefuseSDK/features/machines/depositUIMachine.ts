@@ -12,7 +12,7 @@ import {
 import { config } from "../../config"
 import { clearSolanaATACache } from "../../services/depositService"
 import type { BaseTokenInfo, SupportedChainName } from "../../types/base"
-import type { SwappableToken } from "../../types/swap"
+import type { TokenInfo } from "../../types/base"
 import { depositEstimationMachine } from "./depositEstimationActor"
 import {
   type Events as DepositFormEvents,
@@ -33,7 +33,7 @@ import { storageDepositAmountMachine } from "./storageDepositAmountMachine"
 export type Context = {
   depositGenerateAddressRef: ActorRefFrom<typeof depositGenerateAddressMachine>
   poaBridgeInfoRef: ActorRefFrom<typeof poaBridgeInfoActor>
-  tokenList: SwappableToken[]
+  tokenList: TokenInfo[]
   userAddress: string | null
   userWalletAddress: string | null
   userChainType: AuthMethod | null
@@ -48,8 +48,8 @@ export type Context = {
 export const depositUIMachine = setup({
   types: {
     input: {} as {
-      tokenList: SwappableToken[]
-      token: SwappableToken
+      tokenList: TokenInfo[]
+      token: TokenInfo
     },
     context: {} as Context,
     events: {} as

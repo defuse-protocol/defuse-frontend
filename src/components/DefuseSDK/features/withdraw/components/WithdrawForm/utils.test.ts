@@ -2,10 +2,10 @@ import { type Mock, describe, expect, it } from "vitest"
 import type { TokenBalances as TokenBalancesRecord } from "../../../../services/defuseBalanceService"
 import type {
   BaseTokenInfo,
+  TokenInfo,
   TokenValue,
   UnifiedTokenInfo,
 } from "../../../../types/base"
-import type { SwappableToken } from "../../../../types/swap"
 import * as tokenUtils from "../../../../utils/token"
 import {
   adjustToScale,
@@ -324,7 +324,7 @@ describe.skip("mapDepositBalancesToDecimals", () => {
   const items: {
     name: string
     balances: TokenBalancesRecord | undefined
-    token: SwappableToken
+    token: TokenInfo
     isBase: boolean
     expected: Record<BaseTokenInfo["defuseAssetId"], TokenValue>
   }[] = [
