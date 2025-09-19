@@ -3,7 +3,6 @@ import { Spinner } from "@radix-ui/themes"
 import { chainIcons } from "@src/components/DefuseSDK/constants/blockchains"
 import { useMostTradableTokens } from "@src/hooks/useMostTradableTokens"
 import { useMemo } from "react"
-import type {} from "../../types"
 import { isBaseToken } from "../../utils"
 import { AssetComboIcon } from "../Asset/AssetComboIcon"
 import type { SelectItemToken } from "../Modal/ModalSelectAssets"
@@ -19,7 +18,7 @@ export function MostTradableTokens({
   onTokenSelect,
   tokenList,
 }: MostTradableTokensProps) {
-  const { data, isLoading } = useMostTradableTokens(tokenList)
+  const { data, isLoading, isError, refetch } = useMostTradableTokens(tokenList)
   const tradableTokenList = useMemo(() => {
     if (!data?.tokens || !tokenList.length) return []
 
@@ -88,6 +87,22 @@ export function MostTradableTokens({
           onTokenSelect={onTokenSelect}
         />
       </div>
+
+      {isError && (
+        <div className="flex gap-1 items-center">
+          <span className="text-xs font-medium text-red-500">
+            Failed to load tokens
+          </span>
+
+          <button
+            type="button"
+            className="px-2 py-1 my-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            onClick={() => refetch()}
+          >
+            retry
+          </button>
+        </div>
+      )}
     </div>
   )
 }
