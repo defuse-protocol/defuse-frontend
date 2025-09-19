@@ -26,6 +26,7 @@ import {
 } from "../../utils/tokenUtils"
 import { AssetList } from "../Asset/AssetList"
 import { EmptyAssetList } from "../Asset/EmptyAssetList"
+import { MostTradableTokens } from "../MostTradableTokens/MostTradableTokens"
 import { SearchBar } from "../SearchBar"
 import { ModalDialog } from "./ModalDialog"
 import { ModalNoResults } from "./ModalNoResults"
@@ -58,6 +59,9 @@ export type SelectItemToken<T = Token> = {
 export const ModalSelectAssets = () => {
   const [searchValue, setSearchValue] = useState("")
   const [assetList, setAssetList] = useState<SelectItemToken[]>([])
+  const [notFilteredAssetList, setNotFilteredAssetList] = useState<
+    SelectItemToken[]
+  >([])
 
   const { onCloseModal, modalType, payload } = useModalStore((state) => state)
   const { data, isLoading } = useTokensStore((state) => state)
@@ -147,6 +151,7 @@ export const ModalSelectAssets = () => {
         isHoldingsEnabled,
       })
     }
+    setNotFilteredAssetList(getAssetList)
 
     // Put tokens with balance on top
     getAssetList.sort((a, b) => {
@@ -198,6 +203,12 @@ export const ModalSelectAssets = () => {
               </button>
             </div>
             <SearchBar query={searchValue} setQuery={setSearchValue} />
+            {!searchValue ? (
+              <MostTradableTokens
+                tokenList={notFilteredAssetList}
+                onTokenSelect={handleSelectToken}
+              />
+            ) : null}
           </div>
         </div>
         <div className="z-10 flex-1 overflow-y-auto border-b border-gray-1 dark:border-black-950 -mr-[var(--inset-padding-right)] pr-[var(--inset-padding-right)]">
