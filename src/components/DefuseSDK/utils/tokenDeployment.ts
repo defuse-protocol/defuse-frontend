@@ -2,7 +2,7 @@ import type {
   BaseTokenInfo,
   SupportedChainName,
   TokenDeploymentId,
-  UnifiedTokenInfo,
+  TokenInfo,
 } from "../types/base"
 import { isBaseToken, isNativeToken, isUnifiedToken } from "./token"
 
@@ -30,7 +30,7 @@ export function getChainFromDid(
  * Returns the first token that matches the given deployment identifier.
  */
 export function resolveTokenByDid(
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[],
+  tokenList: TokenInfo[],
   tokenDid: TokenDeploymentId
 ): BaseTokenInfo | null {
   for (const t of tokenList) {

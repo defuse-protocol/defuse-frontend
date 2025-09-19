@@ -1,4 +1,3 @@
-import { mapStringToEmojis } from "@src/utils/emoji"
 import { describe, expect, it } from "vitest"
 import { deriveIdFromIV } from "./deriveIdFromIV"
 

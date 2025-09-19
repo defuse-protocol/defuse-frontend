@@ -21,6 +21,7 @@ export interface ILogger {
 
 const noopLogger: ILogger = {
   verbose: (msg, data) => {
+    // biome-ignore lint/suspicious/noConsole: that's fine for development
     console.log(msg, data)
     Sentry.addBreadcrumb({
       message: msg,
@@ -29,14 +30,17 @@ const noopLogger: ILogger = {
     })
   },
   info: (msg, contexts) => {
+    // biome-ignore lint/suspicious/noConsole: that's fine for development
     console.log(msg, contexts)
     Sentry.captureMessage(msg, { contexts, level: "info" })
   },
   warn: (msg, contexts) => {
+    // biome-ignore lint/suspicious/noConsole: that's fine for development
     console.warn(msg, contexts)
     Sentry.captureMessage(msg, { contexts, level: "warning" })
   },
   error: (err, contexts) => {
+    // biome-ignore lint/suspicious/noConsole: that's fine for development
     console.error(err, contexts)
     Sentry.captureException(err, { contexts })
   },

@@ -1,4 +1,5 @@
 import { assert, AuthMethod } from "@defuse-protocol/internal-utils"
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { reverseAssetNetworkAdapter } from "@src/components/DefuseSDK/utils/adapters"
 import {
   getChainFromDid,
@@ -18,7 +19,6 @@ import type {
   SupportedChainName,
   TokenValue,
 } from "../../../../types/base"
-import type { SwappableToken } from "../../../../types/swap"
 import { isBaseToken } from "../../../../utils/token"
 import { compareAmounts, minAmounts } from "../../../../utils/tokenUtils"
 import type { BalanceMapping } from "../../../machines/depositedBalanceMachine"
@@ -100,7 +100,7 @@ export const adjustToScale = (
   }
 }
 
-export const getAvailableBlockchains = (token: SwappableToken) => {
+export const getAvailableBlockchains = (token: TokenInfo) => {
   return isBaseToken(token)
     ? {
         [token.chainName]: {
@@ -155,7 +155,7 @@ export const getMinAmountToken = (
 }
 
 export function getBlockchainSelectItems(
-  token: SwappableToken,
+  token: TokenInfo,
   maxPossibleBalances: Record<string, TokenValue>
 ): {
   [K in SupportedChainName]?: BlockchainOption & {
@@ -231,7 +231,7 @@ export function getBlockchainSelectItems(
 
 export const mapDepositBalancesToDecimals = (
   balances: TokenBalancesRecord | undefined,
-  token: SwappableToken
+  token: TokenInfo
 ): Record<BaseTokenInfo["defuseAssetId"], TokenValue> => {
   const tokenValueWithPrice: Record<
     BaseTokenInfo["defuseAssetId"],
@@ -281,9 +281,7 @@ export const getWithdrawButtonText = (
  * Duplicate detection is done by checking if the combination of
  * chain name and defuseAssetId has already been encountered.
  */
-export const cleanUpDuplicateTokens = (
-  token: SwappableToken
-): BaseTokenInfo[] => {
+export const cleanUpDuplicateTokens = (token: TokenInfo): BaseTokenInfo[] => {
   const tokens = isBaseToken(token) ? [token] : token.groupedTokens
 
   const seenChains = new Set<string>()
@@ -359,7 +357,7 @@ function getPossibleMinimums(possibleMins: TokenValue[]): bigint {
  *
  */
 export const getFastWithdrawals = (
-  token: SwappableToken,
+  token: TokenInfo,
   balancesData: BalanceMapping,
   poaBridgeBalances: Record<string, TokenValue>,
   liquidityData?: Record<string, bigint> | null

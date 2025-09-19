@@ -1,4 +1,3 @@
-"use client"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { ONE_CLICK_SWAP_FRACTION } from "@src/utils/environment"
 import { isFeatureEnabled } from "@src/utils/isFeatureEnabled"

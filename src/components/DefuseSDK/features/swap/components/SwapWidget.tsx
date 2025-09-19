@@ -1,19 +1,24 @@
 "use client"
+import { SwapWidgetProvider } from "@src/components/DefuseSDK/providers/SwapWidgetProvider"
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
+import { useSelector } from "@xstate/react"
+import { useCallback } from "react"
 import {
   TokenListUpdater,
   TokenListUpdater1cs,
 } from "../../../components/TokenListUpdater"
 import { WidgetRoot } from "../../../components/WidgetRoot"
-import { SwapWidgetProvider } from "../../../providers/SwapWidgetProvider"
 import type { SwapWidgetProps } from "../../../types/swap"
 import { TokenMigration } from "../../tokenMigration/components/TokenMigration"
-
 import { SwapForm } from "./SwapForm"
 import { SwapFormProvider } from "./SwapFormProvider"
 import { SwapSubmitterProvider } from "./SwapSubmitter"
 import { SwapUIMachineFormSyncProvider } from "./SwapUIMachineFormSyncProvider"
-import { SwapUIMachineProvider } from "./SwapUIMachineProvider"
+import {
+  SwapUIMachineContext,
+  SwapUIMachineProvider,
+} from "./SwapUIMachineProvider"
 
 export const SwapWidget = ({
   tokenList,
@@ -25,7 +30,6 @@ export const SwapWidget = ({
   renderHostAppLink,
   initialTokenIn,
   initialTokenOut,
-  onTokenChange,
   referral,
 }: SwapWidgetProps) => {
   const is1cs = useIs1CsEnabled()
@@ -45,10 +49,9 @@ export const SwapWidget = ({
             tokenList={tokenList}
             signMessage={signMessage}
             referral={referral}
-            onTokenChange={onTokenChange}
           >
             {is1cs ? (
-              <TokenListUpdater1cs tokenList={tokenList} />
+              <TokenListUpdaterSwap tokenList={tokenList} />
             ) : (
               <TokenListUpdater tokenList={tokenList} />
             )}
@@ -73,5 +76,40 @@ export const SwapWidget = ({
         </SwapFormProvider>
       </SwapWidgetProvider>
     </WidgetRoot>
+  )
+}
+
+function TokenListUpdaterSwap({ tokenList }: { tokenList: TokenInfo[] }) {
+  const swapUIActorRef = SwapUIMachineContext.useActorRef()
+  const { tokenIn, tokenOut, depositedBalanceRef } = useSelector(
+    swapUIActorRef,
+    (snapshot) => ({
+      tokenIn: snapshot.context.formValues.tokenIn,
+      tokenOut: snapshot.context.formValues.tokenOut,
+      depositedBalanceRef: snapshot.children.depositedBalanceRef,
+    })
+  )
+
+  const sendTokenInOrOut = useCallback(
+    (params: {
+      tokenIn?: TokenInfo
+      tokenOut?: TokenInfo
+    }) => {
+      swapUIActorRef.send({
+        type: "input",
+        params: params,
+      })
+    },
+    [swapUIActorRef]
+  )
+
+  return (
+    <TokenListUpdater1cs
+      tokenList={tokenList}
+      depositedBalanceRef={depositedBalanceRef}
+      tokenIn={tokenIn}
+      tokenOut={tokenOut}
+      sendTokenInOrOut={sendTokenInOrOut}
+    />
   )
 }

@@ -1,8 +1,5 @@
 import { type authHandle, authIdentity } from "@defuse-protocol/internal-utils"
-import type {
-  BaseTokenInfo,
-  UnifiedTokenInfo,
-} from "@src/components/DefuseSDK/types/base"
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 
 const WHITELISTED_FEE_FREE_USERS = [
   authIdentity.authHandleToIntentsUserId(
@@ -37,8 +34,8 @@ const WHITELISTED_FEE_FREE_USERS = [
 
 export function computeAppFeeBps(
   defaultAppFeeBps: number,
-  token1: BaseTokenInfo | UnifiedTokenInfo,
-  token2: BaseTokenInfo | UnifiedTokenInfo,
+  token1: TokenInfo,
+  token2: TokenInfo,
   appFeeRecipient: string,
   currentUser: null | authHandle.AuthHandle
 ) {

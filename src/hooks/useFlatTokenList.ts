@@ -1,10 +1,10 @@
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { flattenTokenList } from "@src/components/DefuseSDK/utils/token"
-import type { TokenWithTags } from "@src/constants/tokens"
 import { useSearchParams } from "next/navigation"
 import { useMemo } from "react"
 import { useIs1CsEnabled } from "./useIs1CsEnabled"
 
-export function useFlatTokenList(tokenList: TokenWithTags[]) {
+export function useFlatTokenList(tokenList: TokenInfo[]) {
   const searchParams = useSearchParams()
   const flatListIsEnabled = !!searchParams.get("flatTokenList")
   const is1cs = useIs1CsEnabled()

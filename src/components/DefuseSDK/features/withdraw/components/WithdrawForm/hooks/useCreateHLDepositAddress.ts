@@ -1,11 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { logger } from "../../../../../logger"
 import { generateHLAddress } from "../../../../../sdk/hyperunit/apis"
-import type {
-  BaseTokenInfo,
-  SupportedChainName,
-  UnifiedTokenInfo,
-} from "../../../../../types/base"
+import type { SupportedChainName, TokenInfo } from "../../../../../types/base"
 import {
   getHyperliquidAsset,
   getHyperliquidSrcChain,
@@ -20,7 +16,7 @@ export type HLDepositAddressResult =
   | { tag: "err"; value: { reason: "ERR_HYPERLIQUID_ADDRESS_GENERATION" } }
 
 export const useCreateHLDepositAddress = (
-  token: BaseTokenInfo | UnifiedTokenInfo,
+  token: TokenInfo,
   blockchain: SupportedChainName | "near_intents",
   dstAddr: string
 ) => {

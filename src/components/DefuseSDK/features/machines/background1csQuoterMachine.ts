@@ -1,19 +1,13 @@
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { getQuote as get1csQuoteApi } from "@src/components/DefuseSDK/features/machines/1cs"
+import throttle from "lodash-es/throttle"
 import { type ActorRef, type Snapshot, fromCallback } from "xstate"
 
 import { logger } from "../../logger"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../types/base"
-import { isBaseToken } from "../../utils/token"
-
-function getTokenAssetId(token: BaseTokenInfo | UnifiedTokenInfo) {
-  return isBaseToken(token)
-    ? token.defuseAssetId
-    : token.groupedTokens[0].defuseAssetId
-}
+import type { BaseTokenInfo } from "../../types/base"
 
 export type Quote1csInput = {
-  tokenIn: BaseTokenInfo | UnifiedTokenInfo
+  tokenIn: BaseTokenInfo
   tokenOut: BaseTokenInfo
   amountIn: { amount: bigint; decimals: number }
   slippageBasisPoints: number
@@ -40,8 +34,8 @@ type EmittedEvents = {
       | {
           ok: {
             quote: {
-              amountIn?: string
-              amountOut?: string
+              amountIn: string
+              amountOut: string
               deadline?: string
             }
             appFee: [string, bigint][]
@@ -53,25 +47,7 @@ type EmittedEvents = {
   }
 }
 
-export type ParentEvents = {
-  type: "NEW_1CS_QUOTE"
-  params: {
-    quoteInput: Quote1csInput
-    result:
-      | {
-          ok: {
-            quote: {
-              amountIn: string
-              amountOut: string
-            }
-            appFee: [string, bigint][]
-          }
-        }
-      | { err: string }
-    tokenInAssetId: string
-    tokenOutAssetId: string
-  }
-}
+export type ParentEvents = EmittedEvents
 type ParentActor = ActorRef<Snapshot<unknown>, ParentEvents>
 
 type Input = {
@@ -83,37 +59,40 @@ export const background1csQuoterMachine = fromCallback<
   Input,
   EmittedEvents
 >(({ receive, input, emit }) => {
-  let abortController = new AbortController()
+  let paused = false
+  function executeQuote(quoteInput: Quote1csInput) {
+    get1csQuote(quoteInput, (result, tokenInAssetId, tokenOutAssetId) => {
+      if (paused) return
+      const eventPayload = {
+        type: "NEW_1CS_QUOTE" as const,
+        params: {
+          quoteInput,
+          result,
+          tokenInAssetId,
+          tokenOutAssetId,
+        },
+      }
+
+      input.parentRef.send(eventPayload)
+      emit(eventPayload)
+    })
+  }
+
+  const throttledGetQuote = throttle(executeQuote, 500, {
+    leading: true, // Execute immediately on first call
+    trailing: true, // Execute after delay if there were calls during the wait
+  })
 
   receive((event) => {
-    abortController.abort()
-    abortController = new AbortController()
-
     const eventType = event.type
     switch (eventType) {
       case "PAUSE":
+        paused = true
+        throttledGetQuote.cancel()
         return
       case "NEW_QUOTE_INPUT": {
-        const quoteInput = event.params
-
-        get1csQuote(
-          abortController.signal,
-          quoteInput,
-          (result, tokenInAssetId, tokenOutAssetId) => {
-            const eventPayload = {
-              type: "NEW_1CS_QUOTE" as const,
-              params: {
-                quoteInput,
-                result,
-                tokenInAssetId,
-                tokenOutAssetId,
-              },
-            }
-
-            input.parentRef.send(eventPayload)
-            emit(eventPayload)
-          }
-        )
+        paused = false
+        throttledGetQuote(event.params)
         break
       }
       default:
@@ -121,14 +100,9 @@ export const background1csQuoterMachine = fromCallback<
         logger.warn("Unhandled event type", { eventType })
     }
   })
-
-  return () => {
-    abortController.abort()
-  }
 })
 
 async function get1csQuote(
-  signal: AbortSignal,
   quoteInput: Quote1csInput,
   onResult: (
     result:
@@ -146,8 +120,8 @@ async function get1csQuote(
     tokenOutAssetId: string
   ) => void
 ): Promise<void> {
-  const tokenInAssetId = getTokenAssetId(quoteInput.tokenIn)
-  const tokenOutAssetId = getTokenAssetId(quoteInput.tokenOut)
+  const tokenInAssetId = quoteInput.tokenIn.defuseAssetId
+  const tokenOutAssetId = quoteInput.tokenOut.defuseAssetId
 
   try {
     const result = await get1csQuoteApi({
@@ -161,10 +135,6 @@ async function get1csQuote(
       userAddress: quoteInput.userAddress,
       authMethod: quoteInput.userChainType,
     })
-
-    if (signal.aborted) {
-      return
-    }
 
     onResult(result, tokenInAssetId, tokenOutAssetId)
   } catch {

@@ -1,10 +1,10 @@
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { useTokenBalancesQuery } from "../../../../../queries/poaBridgeQueries"
 import type { TokenValue } from "../../../../../types/base"
-import type { SwappableToken } from "../../../../../types/swap"
 import { tokenAccountIdToDefuseAssetId } from "../../../../../utils/tokenUtils"
 
 export const useTokenBalances = (
-  token: SwappableToken,
+  token: TokenInfo,
   hasAnyBalance: boolean
 ): Record<string, TokenValue> => {
   const { data } = useTokenBalancesQuery(token, hasAnyBalance)

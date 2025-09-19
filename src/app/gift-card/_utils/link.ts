@@ -62,7 +62,7 @@ export async function createGiftIntent(payload: GiftLinkData): Promise<{
       iv: encodedIv,
       giftId,
     }
-  } catch (e) {
+  } catch (_e) {
     throw new Error("Failed to create order")
   }
 }
@@ -88,7 +88,7 @@ export function useGiftIntent() {
               giftId: deriveIdFromIV(iv),
             }
           }
-        } catch (error) {
+        } catch (_error) {
           logger.error("Failed to decrypt order")
         }
       }
@@ -99,7 +99,7 @@ export function useGiftIntent() {
         return {
           payload: decoded,
         }
-      } catch (error) {
+      } catch (_error) {
         logger.error("Failed to decode legacy order")
       }
 

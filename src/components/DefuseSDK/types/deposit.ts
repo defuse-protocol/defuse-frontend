@@ -3,24 +3,24 @@ import type { Transaction as TransactionSolana } from "@solana/web3.js"
 import type { Transaction as TransactionStellar } from "@stellar/stellar-sdk"
 import type { Transaction as TransactionTron } from "@tronweb3/tronwallet-abstract-adapter"
 import type { Address, Hash } from "viem"
+import type { TokenInfo } from "./base"
 import type { RenderHostAppLink } from "./hostAppLink"
-import type { SwappableToken } from "./swap"
 
 export type DepositWidgetProps = {
   userAddress: authHandle.AuthHandle["identifier"] | undefined
   chainType: authHandle.AuthHandle["method"] | undefined
   userWalletAddress: string | null
   renderHostAppLink: RenderHostAppLink
-  tokenList: SwappableToken[]
+  tokenList: TokenInfo[]
   sendTransactionNear: (tx: Transaction["NEAR"][]) => Promise<string | null>
   sendTransactionEVM: (tx: Transaction["EVM"]) => Promise<Hash | null>
   sendTransactionSolana: (tx: Transaction["Solana"]) => Promise<string | null>
   sendTransactionTon: (tx: Transaction["TON"]) => Promise<string | null>
   sendTransactionStellar: (tx: Transaction["Stellar"]) => Promise<string | null>
   sendTransactionTron: (tx: Transaction["Tron"]) => Promise<string | null>
-  initialToken?: SwappableToken
+  initialToken?: TokenInfo
   onTokenChange?: (params: {
-    token: SwappableToken | null
+    token: TokenInfo | null
   }) => void
 }
 

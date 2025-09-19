@@ -13,7 +13,7 @@ const giftIdSchema = z
   }, "Invalid gift_id format") as z.ZodType<string>
 
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ giftId: string }> }
 ) {
   try {

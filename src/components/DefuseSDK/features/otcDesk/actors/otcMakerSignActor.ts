@@ -11,11 +11,7 @@ import { createSwapIntentMessage } from "../../../core/messages"
 import { logger } from "../../../logger"
 import { calculateSplitAmounts } from "../../../sdk/aggregatedQuote/calculateSplitAmounts"
 import { AmountMismatchError } from "../../../sdk/aggregatedQuote/errors/amountMismatchError"
-import type {
-  BaseTokenInfo,
-  TokenValue,
-  UnifiedTokenInfo,
-} from "../../../types/base"
+import type { BaseTokenInfo, TokenInfo, TokenValue } from "../../../types/base"
 import { findError } from "../../../utils/errors"
 import {
   adjustDecimals,
@@ -32,7 +28,7 @@ import { type Expiry, expiryToSeconds } from "../utils/expiryUtils"
 
 export type OTCMakerSignActorInput = {
   parsed: {
-    tokenIn: BaseTokenInfo | UnifiedTokenInfo
+    tokenIn: TokenInfo
     tokenOut: BaseTokenInfo
     amountIn: TokenValue
     amountOut: TokenValue

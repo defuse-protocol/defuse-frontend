@@ -2,7 +2,7 @@ import type {
   BaseTokenInfo,
   TokenAbstractId,
   TokenFamily,
-  UnifiedTokenInfo,
+  TokenInfo,
 } from "../types/base"
 import { getTokenAid, isBaseToken } from "./token"
 import { getTokenDid } from "./tokenDeployment"
@@ -18,7 +18,7 @@ export type TokenFamilyList = TokenFamily[]
  */
 export function resolveTokenFamily(
   tokenFamilies: TokenFamilyList,
-  t: BaseTokenInfo | UnifiedTokenInfo
+  t: TokenInfo
 ): TokenFamily | null {
   const tokenAid = getTokenAid(t)
   if (tokenAid == null) {
@@ -31,9 +31,7 @@ export function resolveTokenFamily(
 /**
  * Extracts token families from a list of tokens.
  */
-export function extractTokenFamilyList(
-  list: (BaseTokenInfo | UnifiedTokenInfo)[]
-): TokenFamily[] {
+export function extractTokenFamilyList(list: TokenInfo[]): TokenFamily[] {
   const map = new Map<TokenAbstractId, TokenFamily>()
 
   for (const t of list) {

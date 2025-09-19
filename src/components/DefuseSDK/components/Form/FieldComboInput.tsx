@@ -1,4 +1,5 @@
 import { Skeleton } from "@radix-ui/themes"
+import { useTokensStore } from "@src/components/DefuseSDK/providers/TokensStoreProvider"
 import clsx from "clsx"
 import { useEffect, useRef, useState } from "react"
 import type {
@@ -11,11 +12,7 @@ import type {
 } from "react-hook-form"
 import { formatUnits } from "viem"
 import useMergedRef from "../../hooks/useMergedRef"
-import type {
-  BaseTokenInfo,
-  TokenValue,
-  UnifiedTokenInfo,
-} from "../../types/base"
+import type { TokenInfo, TokenValue } from "../../types/base"
 import {
   BlockMultiBalances,
   type BlockMultiBalancesProps,
@@ -25,6 +22,8 @@ import { SelectAssets } from "../SelectAssets"
 interface Props<T extends FieldValues>
   extends Omit<BlockMultiBalancesProps, "decimals" | "balance"> {
   fieldName: Path<T>
+  tokenIn: TokenInfo
+  tokenOut?: TokenInfo
   register?: UseFormRegister<T>
   required?: boolean
   min?: RegisterOptions["min"]
@@ -32,7 +31,7 @@ interface Props<T extends FieldValues>
   placeholder?: string
   balance?: TokenValue
   transitBalance?: TokenValue
-  selected?: BaseTokenInfo | UnifiedTokenInfo
+  selected?: TokenInfo
   handleSelect?: () => void
   className?: string
   errors?: FieldErrors
@@ -45,6 +44,8 @@ export const FieldComboInputRegistryName = "FieldComboInput"
 
 export const FieldComboInput = <T extends FieldValues>({
   fieldName,
+  tokenIn,
+  tokenOut,
   register,
   required,
   min,
@@ -118,6 +119,8 @@ export const FieldComboInput = <T extends FieldValues>({
     isLoading ? LONG_LOADING_THRESHOLD_MS : 0
   )
 
+  const tokens = useTokensStore((state) => state.tokens)
+
   return (
     <div
       className={clsx(
@@ -149,7 +152,13 @@ export const FieldComboInput = <T extends FieldValues>({
         </div>
 
         {selected && (
-          <SelectAssets selected={selected} handleSelect={handleSelect} />
+          <SelectAssets
+            selected={selected}
+            handleSelect={handleSelect}
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            tokens={tokens}
+          />
         )}
       </div>
 

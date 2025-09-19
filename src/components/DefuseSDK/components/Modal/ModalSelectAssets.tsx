@@ -2,6 +2,7 @@ import { authIdentity } from "@defuse-protocol/internal-utils"
 import { XIcon } from "@phosphor-icons/react"
 import { Text } from "@radix-ui/themes"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
+import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import {
   useCallback,
   useDeferredValue,
@@ -14,11 +15,7 @@ import type { BalanceMapping } from "../../features/machines/depositedBalanceMac
 import { useModalStore } from "../../providers/ModalStoreProvider"
 import { useTokensStore } from "../../providers/TokensStoreProvider"
 import { ModalType } from "../../stores/modalStore"
-import type {
-  BaseTokenInfo,
-  TokenValue,
-  UnifiedTokenInfo,
-} from "../../types/base"
+import type { TokenInfo, TokenValue } from "../../types/base"
 import { getTokenId, isBaseToken } from "../../utils/token"
 import {
   compareAmounts,
@@ -31,13 +28,11 @@ import { SearchBar } from "../SearchBar"
 import { ModalDialog } from "./ModalDialog"
 import { ModalNoResults } from "./ModalNoResults"
 
-export type Token = BaseTokenInfo | UnifiedTokenInfo
-
 export type ModalSelectAssetsPayload = {
   modalType?: ModalType.MODAL_SELECT_ASSETS
-  token?: Token
-  tokenIn?: Token
-  tokenOut?: Token
+  token?: TokenInfo
+  tokenIn?: TokenInfo
+  tokenOut?: TokenInfo
   fieldName?: "tokenIn" | "tokenOut" | "token"
   /** @deprecated legacy props use holdings instead */
   balances?: BalanceMapping
@@ -46,7 +41,7 @@ export type ModalSelectAssetsPayload = {
   isHoldingsEnabled?: boolean
 }
 
-export type SelectItemToken<T = Token> = {
+export type SelectItemToken<T = TokenInfo> = {
   token: T
   disabled: boolean
   selected: boolean
@@ -56,7 +51,7 @@ export type SelectItemToken<T = Token> = {
   isHoldingsEnabled: boolean
 }
 
-export const ModalSelectAssets = () => {
+export function ModalSelectAssets() {
   const [searchValue, setSearchValue] = useState("")
   const [assetList, setAssetList] = useState<SelectItemToken[]>([])
   const [notFilteredAssetList, setNotFilteredAssetList] = useState<
@@ -64,7 +59,7 @@ export const ModalSelectAssets = () => {
   >([])
 
   const { onCloseModal, modalType, payload } = useModalStore((state) => state)
-  const { data, isLoading } = useTokensStore((state) => state)
+  const tokens = useTokensStore((state) => state.tokens)
   const deferredQuery = useDeferredValue(searchValue)
 
   const { state } = useConnectWallet()
@@ -72,10 +67,7 @@ export const ModalSelectAssets = () => {
     state.isVerified && state.address && state.chainType
       ? authIdentity.authHandleToIntentsUserId(state.address, state.chainType)
       : null
-  const holdings = useWatchHoldings({
-    userId,
-    tokenList: Array.from(data.values()),
-  })
+  const holdings = useWatchHoldings({ userId, tokenList: tokens })
 
   const handleSearchClear = () => setSearchValue("")
 
@@ -110,7 +102,7 @@ export const ModalSelectAssets = () => {
   }
 
   useEffect(() => {
-    if (!data.size && !isLoading) {
+    if (tokens.length === 0) {
       return
     }
 
@@ -132,7 +124,8 @@ export const ModalSelectAssets = () => {
 
     const getAssetList: SelectItemToken[] = []
 
-    for (const [tokenId, token] of data) {
+    for (const token of tokens) {
+      const tokenId = getTokenId(token)
       const disabled = selectedTokenId != null && tokenId === selectedTokenId
 
       // TODO: remove this once we remove the legacy props
@@ -182,12 +175,14 @@ export const ModalSelectAssets = () => {
     })
 
     setAssetList(getAssetList)
-  }, [data, isLoading, payload, holdings])
+  }, [tokens, payload, holdings])
 
   const filteredAssets = useMemo(
     () => assetList.filter(filterPattern),
     [assetList, filterPattern]
   )
+
+  const is1cs = useIs1CsEnabled()
 
   return (
     <ModalDialog>
@@ -218,6 +213,7 @@ export const ModalSelectAssets = () => {
               className="h-full"
               handleSelectToken={handleSelectToken}
               accountId={(payload as ModalSelectAssetsPayload)?.accountId}
+              showChain={is1cs}
             />
           ) : (
             <EmptyAssetList className="h-full" />

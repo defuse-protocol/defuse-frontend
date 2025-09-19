@@ -12,8 +12,8 @@ import { type ActorRef, type Snapshot, fromTransition } from "xstate"
 import type {
   BaseTokenInfo,
   SupportedChainName,
+  TokenInfo,
   TokenValue,
-  UnifiedTokenInfo,
 } from "../../types/base"
 import { assert } from "../../utils/assert"
 import { isBaseToken } from "../../utils/token"
@@ -51,7 +51,7 @@ export type Events =
   | {
       type: "WITHDRAW_FORM.UPDATE_TOKEN"
       params: {
-        token: BaseTokenInfo | UnifiedTokenInfo
+        token: TokenInfo
         /**
          * It's important to provide `parsedAmount` here, because the actual amount is
          * different because of the decimals. We cannot parse it here, because we don't
@@ -107,7 +107,7 @@ export type Events =
 
 export type State = {
   parentRef: ParentActor
-  tokenIn: BaseTokenInfo | UnifiedTokenInfo
+  tokenIn: TokenInfo
   tokenOut: BaseTokenInfo
   amount: string
   parsedAmount: TokenValue | null
@@ -252,7 +252,7 @@ export const withdrawFormReducer = fromTransition(
   }: {
     input: {
       parentRef: ParentActor
-      tokenIn: BaseTokenInfo | UnifiedTokenInfo
+      tokenIn: TokenInfo
     }
   }): State => {
     const tokenOut = getBaseTokenInfoWithFallback(input.tokenIn, null)
@@ -276,7 +276,7 @@ export const withdrawFormReducer = fromTransition(
 )
 
 export function getBaseTokenInfoWithFallback(
-  tokenIn: BaseTokenInfo | UnifiedTokenInfo,
+  tokenIn: TokenInfo,
   chainName: string | null
 ): BaseTokenInfo {
   if (isBaseToken(tokenIn)) {
@@ -343,9 +343,9 @@ function cexFundsLooseConfirmationStatusDefault(
 
 export function resolveTokenOut(
   blockchain: SupportedChainName | "near_intents",
-  tokenIn: BaseTokenInfo | UnifiedTokenInfo,
+  tokenIn: TokenInfo,
   tokenFamilies: TokenFamilyList,
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
+  tokenList: TokenInfo[]
 ): BaseTokenInfo {
   if (isNearIntentsNetwork(blockchain)) {
     // Doesn't matter we use, because we won't use it anyway for internal transfers

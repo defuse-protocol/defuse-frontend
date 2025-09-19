@@ -29,7 +29,7 @@ import type { State as WithdrawFormContext } from "../features/machines/withdraw
 import { isNearIntentsNetwork } from "../features/withdraw/components/WithdrawForm/utils"
 import { logger } from "../logger"
 import { calculateSplitAmounts } from "../sdk/aggregatedQuote/calculateSplitAmounts"
-import type { BaseTokenInfo, TokenValue, UnifiedTokenInfo } from "../types/base"
+import type { BaseTokenInfo, TokenInfo, TokenValue } from "../types/base"
 import { assert } from "../utils/assert"
 import { isAuroraVirtualChain } from "../utils/blockchain"
 import { findError } from "../utils/errors"
@@ -471,7 +471,7 @@ function getWithdrawBreakdown({
 }
 
 export function getRequiredSwapAmount(
-  tokenIn: UnifiedTokenInfo | BaseTokenInfo,
+  tokenIn: TokenInfo,
   tokenOut: BaseTokenInfo,
   totalAmountIn: TokenValue,
   balances: Record<BaseTokenInfo["defuseAssetId"], bigint>

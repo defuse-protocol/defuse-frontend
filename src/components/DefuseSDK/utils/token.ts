@@ -3,34 +3,27 @@ import type {
   FungibleTokenInfo,
   NativeTokenInfo,
   TokenAbstractId,
+  TokenInfo,
   UnifiedTokenInfo,
 } from "../types/base"
 
-export function isBaseToken(
-  token: BaseTokenInfo | UnifiedTokenInfo
-): token is BaseTokenInfo {
+export function isBaseToken(token: TokenInfo): token is BaseTokenInfo {
   return "defuseAssetId" in token
 }
 
-export function isUnifiedToken(
-  token: BaseTokenInfo | UnifiedTokenInfo
-): token is UnifiedTokenInfo {
+export function isUnifiedToken(token: TokenInfo): token is UnifiedTokenInfo {
   return "unifiedAssetId" in token
 }
 
-export function isFungibleToken(
-  token: BaseTokenInfo | UnifiedTokenInfo
-): token is FungibleTokenInfo {
+export function isFungibleToken(token: TokenInfo): token is FungibleTokenInfo {
   return isBaseToken(token) && "address" in token && token.address !== "native"
 }
 
-export function isNativeToken(
-  token: BaseTokenInfo | UnifiedTokenInfo
-): token is NativeTokenInfo {
+export function isNativeToken(token: TokenInfo): token is NativeTokenInfo {
   return isBaseToken(token) && "type" in token && token.type === "native"
 }
 
-export function getTokenId(token: BaseTokenInfo | UnifiedTokenInfo) {
+export function getTokenId(token: TokenInfo) {
   if (isBaseToken(token)) {
     return token.defuseAssetId
   }
@@ -43,9 +36,7 @@ export function getTokenId(token: BaseTokenInfo | UnifiedTokenInfo) {
 /**
  * Converts unified tokens to regular tokens, preserving tags.
  */
-export function flattenTokenList(
-  list: (BaseTokenInfo | UnifiedTokenInfo)[]
-): BaseTokenInfo[] {
+export function flattenTokenList(list: TokenInfo[]): BaseTokenInfo[] {
   return list.flatMap((t): BaseTokenInfo[] => {
     if (isBaseToken(t)) {
       return [t]
