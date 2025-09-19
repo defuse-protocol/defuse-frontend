@@ -22,31 +22,28 @@ export function MostTradableTokens({
   const tradableTokenList = useMemo(() => {
     if (!data?.tokens || !tokenList.length) return []
 
-    const tradableSet = new Set(
-      data.tokens.map(
-        ({ symbol_out, blockchain_out }) =>
-          `${wrapNearAdapter(symbol_out)}-${blockchain_out}`
-      )
-    )
+    const toKey = (symbol: string, chain: string) =>
+      `${wrapNearAdapter(symbol)}-${chain.toLowerCase()}`
+    const rankMap = new Map<string, number>()
+    data.tokens.forEach(({ symbol_out, blockchain_out }, idx) => {
+      rankMap.set(toKey(symbol_out, blockchain_out), idx)
+    })
 
     const filtered = tokenList.filter((token) => {
       if (isBaseToken(token.token)) {
-        const key = `${wrapNearAdapter(token.token.symbol)}-${token.token.chainName}`
-        return tradableSet.has(key)
+        return rankMap.has(toKey(token.token.symbol, token.token.chainName))
       }
-      return token.token.groupedTokens.some((t) => {
-        const key = `${wrapNearAdapter(t.symbol)}-${t.chainName}`
-        return tradableSet.has(key)
-      })
+      return token.token.groupedTokens.some((t) =>
+        rankMap.has(toKey(t.symbol, t.chainName))
+      )
     })
 
-    // Deduplicate by token symbol and chainName
+    // Deduplicate by normalized key
     const seen = new Set<string>()
     return filtered.filter((token) => {
       const key = isBaseToken(token.token)
-        ? `${token.token.symbol}-${token.token.chainName}`
+        ? toKey(token.token.symbol, token.token.chainName)
         : `${token.token.symbol}-unified`
-
       if (seen.has(key)) return false
       seen.add(key)
       return true
