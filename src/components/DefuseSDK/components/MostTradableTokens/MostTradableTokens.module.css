@@ -1,0 +1,36 @@
+@keyframes distort {
+  0% { 
+    transform: scale(1) skew(0deg, 0deg);
+    filter: hue-rotate(0deg);
+  }
+  25% { 
+    transform: scale(1.05) skew(1deg, 0deg);
+    filter: hue-rotate(10deg);
+  }
+  50% { 
+    transform: scale(0.95) skew(-1deg, 1deg);
+    filter: hue-rotate(-5deg);
+  }
+  75% { 
+    transform: scale(1.02) skew(0.5deg, -0.5deg);
+    filter: hue-rotate(5deg);
+  }
+  100% { 
+    transform: scale(1) skew(0deg, 0deg);
+    filter: hue-rotate(0deg);
+  }
+}
+
+.fireIcon {
+  animation: distort 1.2s ease-in-out infinite alternate;
+}
+
+.hideScrollbar {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.hideScrollbar::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
