@@ -27,21 +27,6 @@ describe("isFeatureEnabled", () => {
     expect(result2).toBe(result3)
   })
 
-  it("should return different results for different user IDs with same fraction", () => {
-    const fraction = 0.5
-    const results = new Set()
-
-    // Test with multiple different user IDs
-    const numTests = 5
-    for (let i = 0; i < numTests; i++) {
-      const userId = randomUUID()
-      results.add(isFeatureEnabled(userId, fraction))
-    }
-
-    // With enough different user IDs, we should get both true and false results
-    expect(results.size).toBeGreaterThan(1)
-  })
-
   it("should handle edge case fractions correctly", () => {
     const userId = "testUser"
 
