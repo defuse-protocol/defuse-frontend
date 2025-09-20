@@ -17,9 +17,9 @@ import {
   ONE_CLICK_API_KEY,
   ONE_CLICK_URL,
 } from "@src/utils/environment"
+import { logger } from "@src/utils/logger"
 import { unstable_cache } from "next/cache"
 import z from "zod"
-import { logger } from "../../logger"
 import { isBaseToken } from "../../utils/token"
 
 OpenAPI.BASE = z.string().parse(ONE_CLICK_URL)
