@@ -50,7 +50,6 @@ export const DepositResult = ({
         <Flex align="center">
           <Box flexGrow="1">
             <Text size="1" weight="medium" color="gray">
-              {/* biome-ignore lint/nursery/useConsistentCurlyBraces: space is needed here */}
               From{" "}
               {shortenText(depositResult.value.depositDescription.userAddress)}
             </Text>
@@ -66,7 +65,6 @@ export const DepositResult = ({
                   min: 0.0001,
                   fractionDigits: 4,
                 }
-                // biome-ignore lint/nursery/useConsistentCurlyBraces: space is needed here
               )}{" "}
               {depositResult.value.depositDescription.derivedToken.symbol}
             </Text>
@@ -77,7 +75,6 @@ export const DepositResult = ({
           <Box>
             <Text size="1" color="gray">
               Transaction:
-              {/* biome-ignore lint/nursery/useConsistentCurlyBraces: space is needed here */}
             </Text>{" "}
             <Text size="1">
               <Link href={txUrl} target="_blank">
