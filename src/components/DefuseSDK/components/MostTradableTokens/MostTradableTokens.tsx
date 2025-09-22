@@ -72,7 +72,7 @@ export function MostTradableTokens({
             </button>
           }
         >
-          This is the top-performing tokens based on their 24-hour trading
+          These are the top-performing tokens based on their 24-hour trading
           volume.
         </TooltipInfo>
       </span>
