@@ -1,6 +1,7 @@
 "use client"
 
 import { MIXPANEL_TOKEN } from "@src/utils/environment"
+import { APP_ENV } from "@src/utils/environment"
 import mixpanel, { type Mixpanel } from "mixpanel-browser"
 import {
   type ReactNode,
@@ -16,25 +17,26 @@ export function MixpanelProvider({ children }: { children: ReactNode }) {
   const [mixpanelInstance, setMixpanelInstance] = useState<Mixpanel | null>(
     null
   )
-  const token = MIXPANEL_TOKEN
 
   useEffect(() => {
-    if (!token) {
+    if (!MIXPANEL_TOKEN) {
+      // biome-ignore lint/suspicious/noConsole: <explanation>
       console.warn("Mixpanel token is not configured")
       return
     }
 
     try {
-      mixpanel.init(token, {
-        debug: process.env.NODE_ENV === "development",
+      mixpanel.init(MIXPANEL_TOKEN, {
+        debug: APP_ENV === "development",
         track_pageview: true,
         persistence: "localStorage",
       })
       setMixpanelInstance(mixpanel)
     } catch (error) {
+      // biome-ignore lint/suspicious/noConsole: <explanation>
       console.error("Failed to initialize Mixpanel:", error)
     }
-  }, [token])
+  }, [])
 
   return (
     <MixpanelContext.Provider value={mixpanelInstance}>
@@ -46,12 +48,8 @@ export function MixpanelProvider({ children }: { children: ReactNode }) {
 export function useMixpanel() {
   const mixpanel = useContext(MixpanelContext)
 
-  if (!mixpanel) {
-    console.warn(
-      "Mixpanel is not initialized. Make sure NEXT_PUBLIC_MIXPANEL_TOKEN is set in your environment variables."
-    )
-    return null
-  }
+  // Return null if mixpanel is not initialized (no token, init failed, or still loading)
+  if (!mixpanel) return null
 
   return mixpanel
 }

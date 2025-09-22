@@ -2,7 +2,6 @@ import { Text } from "@radix-ui/themes"
 import clsx from "clsx"
 import Image from "next/image"
 import Link from "next/link"
-import React from "react"
 
 import type { JobsDetails } from "@src/types/interfaces"
 

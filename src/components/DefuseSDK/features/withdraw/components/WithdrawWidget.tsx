@@ -1,6 +1,11 @@
 "use client"
 import { messageFactory } from "@defuse-protocol/internal-utils"
+import { useSelector } from "@xstate/react"
 import { assign, fromPromise } from "xstate"
+import {
+  TokenListUpdater,
+  TokenListUpdater1cs,
+} from "../../../components/TokenListUpdater"
 import { WidgetRoot } from "../../../components/WidgetRoot"
 import { settings } from "../../../constants/settings"
 import { WithdrawWidgetProvider } from "../../../providers/WithdrawWidgetProvider"
@@ -11,10 +16,13 @@ import { swapIntentMachine } from "../../machines/swapIntentMachine"
 import { withdrawUIMachine } from "../../machines/withdrawUIMachine"
 import { WithdrawUIMachineContext } from "../WithdrawUIMachineContext"
 
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
+import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { APP_FEE_RECIPIENT } from "@src/utils/environment"
 import { WithdrawForm } from "./WithdrawForm"
 
 export const WithdrawWidget = (props: WithdrawWidgetProps) => {
+  const is1cs = useIs1CsEnabled()
   const initialTokenIn =
     props.presetTokenSymbol !== undefined
       ? (props.tokenList.find(
@@ -94,9 +102,43 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
             },
           })}
         >
+          {is1cs ? (
+            <TokenListUpdaterWithdraw tokenList={props.tokenList} />
+          ) : (
+            <TokenListUpdater tokenList={props.tokenList} />
+          )}
           <WithdrawForm {...props} />
         </WithdrawUIMachineContext.Provider>
       </WithdrawWidgetProvider>
     </WidgetRoot>
+  )
+}
+
+function TokenListUpdaterWithdraw({ tokenList }: { tokenList: TokenInfo[] }) {
+  const withdrawUIActorRef = WithdrawUIMachineContext.useActorRef()
+  const { withdrawFormRef, depositedBalanceRef } = useSelector(
+    withdrawUIActorRef,
+    (state) => {
+      return {
+        withdrawFormRef: state.context.withdrawFormRef,
+        depositedBalanceRef: state.context.depositedBalanceRef,
+      }
+    }
+  )
+
+  const { tokenIn, tokenOut } = useSelector(withdrawFormRef, (state) => {
+    return {
+      tokenIn: state.context.tokenIn,
+      tokenOut: state.context.tokenOut,
+    }
+  })
+
+  return (
+    <TokenListUpdater1cs
+      tokenList={tokenList}
+      depositedBalanceRef={depositedBalanceRef}
+      tokenIn={tokenIn}
+      tokenOut={tokenOut}
+    />
   )
 }

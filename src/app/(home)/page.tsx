@@ -1,5 +1,4 @@
 "use client"
-import { updateURLParams } from "@src/app/(home)/_utils/useDeterminePair"
 import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
 import { getTokens } from "@src/components/DefuseSDK/features/machines/1cs"
 import { SwapWidget } from "@src/components/DefuseSDK/features/swap/components/SwapWidget"
@@ -8,18 +7,13 @@ import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
+import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import { useNearWallet } from "@src/providers/NearWalletProvider"
-import { ONE_CLICK_SWAP_FRACTION } from "@src/utils/environment"
-import { isFeatureEnabled } from "@src/utils/isFeatureEnabled"
 import { renderAppLink } from "@src/utils/renderAppLink"
 import { useQuery } from "@tanstack/react-query"
-import {
-  type ReadonlyURLSearchParams,
-  useRouter,
-  useSearchParams,
-} from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { useMemo } from "react"
 
 export default function Swap() {
@@ -29,16 +23,13 @@ export default function Swap() {
   const searchParams = useSearchParams()
   const userAddress = state.isVerified ? state.address : undefined
   const userChainType = state.chainType
-  const is1cs = useIs1CsEnabled(searchParams, userAddress, userChainType)
-  const tokenList = useTokenList1cs(is1cs)
+  const tokenList = useTokenList1cs()
   const { tokenIn, tokenOut } = useDeterminePair()
   const referral = useIntentsReferral()
-  const router = useRouter()
 
   return (
     <Paper>
       <SwapWidget
-        is1cs={is1cs}
         tokenList={tokenList}
         userAddress={userAddress}
         sendNearTransaction={async (tx) => {
@@ -64,33 +55,9 @@ export default function Swap() {
         referral={referral}
         initialTokenIn={tokenIn ?? undefined}
         initialTokenOut={tokenOut ?? undefined}
-        onTokenChange={(params) =>
-          updateURLParams({ ...params, router, searchParams })
-        }
       />
     </Paper>
   )
-}
-
-function useIs1CsEnabled(
-  searchParams: ReadonlyURLSearchParams,
-  userAddress: string | undefined,
-  userChainType: string | undefined
-) {
-  return useMemo(() => {
-    if (searchParams.get("1cs")) {
-      return true
-    }
-
-    if (searchParams.get("not1cs") || !userAddress || !userChainType) {
-      return false
-    }
-
-    return isFeatureEnabled(
-      `${userAddress}${userChainType}`,
-      ONE_CLICK_SWAP_FRACTION
-    )
-  }, [searchParams, userAddress, userChainType])
 }
 
 // These tokens no longer tradable and might be removed in future.
@@ -98,7 +65,7 @@ const TOKENS_WITHOUT_REF_AND_BRRR = LIST_TOKENS.filter(
   (token) => token.symbol !== "REF" && token.symbol !== "BRRR"
 )
 
-function useTokenList1cs(is1cs: boolean) {
+function useTokenList1cs() {
   const tokenList = useTokenList(TOKENS_WITHOUT_REF_AND_BRRR)
 
   const { data: oneClickTokens, isLoading: is1csTokensLoading } = useQuery({
@@ -107,6 +74,8 @@ function useTokenList1cs(is1cs: boolean) {
     staleTime: 60 * 1000, // 1 minute
     gcTime: 5 * 60 * 1000, // 5 minutes
   })
+
+  const is1cs = useIs1CsEnabled()
 
   return useMemo(() => {
     if (!is1cs || !oneClickTokens || is1csTokensLoading) {

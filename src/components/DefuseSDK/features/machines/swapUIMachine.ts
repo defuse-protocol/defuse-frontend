@@ -1,4 +1,4 @@
-import type { AuthMethod, authHandle } from "@defuse-protocol/internal-utils"
+import { AuthMethod, type authHandle } from "@defuse-protocol/internal-utils"
 import { authIdentity } from "@defuse-protocol/internal-utils"
 import { computeAppFeeBps } from "@src/components/DefuseSDK/utils/appFee"
 import { APP_FEE_BPS, APP_FEE_RECIPIENT } from "@src/utils/environment"
@@ -14,12 +14,8 @@ import {
 } from "xstate"
 import { logger } from "../../logger"
 import type { QuoteResult } from "../../services/quoteService"
-import type {
-  BaseTokenInfo,
-  TokenValue,
-  UnifiedTokenInfo,
-} from "../../types/base"
-import type { SwappableToken } from "../../types/swap"
+import type { BaseTokenInfo, TokenValue } from "../../types/base"
+import type { TokenInfo } from "../../types/base"
 import { assert } from "../../utils/assert"
 import { parseUnits } from "../../utils/parse"
 import {
@@ -45,6 +41,7 @@ import {
   depositedBalanceMachine,
 } from "./depositedBalanceMachine"
 import { intentStatusMachine } from "./intentStatusMachine"
+import { oneClickStatusMachine } from "./oneClickStatusMachine"
 import {
   type Output as SwapIntent1csMachineOutput,
   swapIntent1csMachine,
@@ -54,7 +51,7 @@ import {
   swapIntentMachine,
 } from "./swapIntentMachine"
 
-function getTokenDecimals(token: BaseTokenInfo | UnifiedTokenInfo) {
+function getTokenDecimals(token: TokenInfo) {
   return isBaseToken(token) ? token.decimals : token.groupedTokens[0].decimals
 }
 
@@ -64,11 +61,12 @@ export type Context = {
   quote: QuoteResult | null
   quote1csError: string | null
   formValues: {
-    tokenIn: SwappableToken
-    tokenOut: SwappableToken
+    tokenIn: TokenInfo
+    tokenOut: TokenInfo
     amountIn: string
   }
   parsedFormValues: {
+    tokenIn: BaseTokenInfo
     tokenOut: BaseTokenInfo
     amountIn: TokenValue | null
   }
@@ -76,8 +74,11 @@ export type Context = {
     | SwapIntentMachineOutput
     | SwapIntent1csMachineOutput
     | null
-  intentRefs: ActorRefFrom<typeof intentStatusMachine>[]
-  tokenList: SwappableToken[]
+  intentRefs: (
+    | ActorRefFrom<typeof intentStatusMachine>
+    | ActorRefFrom<typeof oneClickStatusMachine>
+  )[]
+  tokenList: TokenInfo[]
   referral?: string
   slippageBasisPoints: number
   is1cs: boolean
@@ -85,15 +86,25 @@ export type Context = {
   swapStrategy: SwapStrategy
 }
 
-type PassthroughEvent = {
-  type: "INTENT_SETTLED"
-  data: {
-    intentHash: string
-    txHash: string
-    tokenIn: BaseTokenInfo | UnifiedTokenInfo
-    tokenOut: BaseTokenInfo | UnifiedTokenInfo
-  }
-}
+type PassthroughEvent =
+  | {
+      type: "INTENT_SETTLED"
+      data: {
+        intentHash: string
+        txHash: string
+        tokenIn: TokenInfo
+        tokenOut: TokenInfo
+      }
+    }
+  | {
+      type: "ONE_CLICK_SETTLED"
+      data: {
+        depositAddress: string
+        status: string
+        tokenIn: TokenInfo
+        tokenOut: TokenInfo
+      }
+    }
 
 type EmittedEvents = PassthroughEvent | { type: "INTENT_PUBLISHED" }
 
@@ -105,13 +116,14 @@ export const SWAP_STRATEGIES_ARRAY = Object.keys(SWAP_STRATEGIES) as Array<
   keyof typeof SWAP_STRATEGIES
 >
 export type SwapStrategy = keyof typeof SWAP_STRATEGIES
+export const ONE_CLICK_PREFIX = "oneclick-"
 
 export const swapUIMachine = setup({
   types: {
     input: {} as {
-      tokenIn: SwappableToken
-      tokenOut: SwappableToken
-      tokenList: SwappableToken[]
+      tokenIn: TokenInfo
+      tokenOut: TokenInfo
+      tokenList: TokenInfo[]
       referral?: string
       is1cs: boolean
       swapStrategy: SwapStrategy
@@ -121,8 +133,8 @@ export const swapUIMachine = setup({
       | {
           type: "input"
           params: Partial<{
-            tokenIn: SwappableToken
-            tokenOut: SwappableToken
+            tokenIn: TokenInfo
+            tokenOut: TokenInfo
             amountIn: string
             swapStrategy: SwapStrategy
             slippageBasisPoints: number
@@ -183,6 +195,7 @@ export const swapUIMachine = setup({
     swapActor: swapIntentMachine,
     swap1csActor: swapIntent1csMachine,
     intentStatusActor: intentStatusMachine,
+    oneClickStatusActor: oneClickStatusMachine,
   },
   actions: {
     setUser: assign({
@@ -195,8 +208,8 @@ export const swapUIMachine = setup({
           data,
         }: {
           data: Partial<{
-            tokenIn: SwappableToken
-            tokenOut: SwappableToken
+            tokenIn: TokenInfo
+            tokenOut: TokenInfo
             amountIn: string
           }>
         }
@@ -210,6 +223,7 @@ export const swapUIMachine = setup({
     }),
     parseFormValues: assign({
       parsedFormValues: ({ context }) => {
+        const tokenIn = getAnyBaseTokenInfo(context.formValues.tokenIn)
         const tokenOut = getAnyBaseTokenInfo(context.formValues.tokenOut)
 
         try {
@@ -217,6 +231,7 @@ export const swapUIMachine = setup({
             ? getTokenDecimals(context.formValues.tokenIn)
             : getTokenMaxDecimals(context.formValues.tokenIn)
           return {
+            tokenIn,
             tokenOut,
             amountIn: {
               amount: parseUnits(context.formValues.amountIn, decimals),
@@ -225,6 +240,7 @@ export const swapUIMachine = setup({
           }
         } catch {
           return {
+            tokenIn,
             tokenOut,
             amountIn: null,
           }
@@ -306,22 +322,25 @@ export const swapUIMachine = setup({
       "background1csQuoterRef",
       ({ context }): Background1csQuoterEvents => {
         assert(context.parsedFormValues.amountIn != null, "amountIn is not set")
-        assert(context.user?.identifier != null, "user address is not set")
-        assert(context.user?.method != null, "user chain type is not set")
+
+        const user =
+          context.user ??
+          ({ identifier: "check-price", method: AuthMethod.Near } as const)
+
         return {
           type: "NEW_QUOTE_INPUT",
           params: {
-            tokenIn: context.formValues.tokenIn,
+            tokenIn: context.parsedFormValues.tokenIn,
             tokenOut: context.parsedFormValues.tokenOut,
             amountIn: context.parsedFormValues.amountIn,
             slippageBasisPoints: context.slippageBasisPoints,
             defuseUserId: authIdentity.authHandleToIntentsUserId(
-              context.user.identifier,
-              context.user.method
+              user.identifier,
+              user.method
             ),
             deadline: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
-            userAddress: context.user.identifier,
-            userChainType: context.user.method,
+            userAddress: user.identifier,
+            userChainType: user.method,
             swapStrategy: context.swapStrategy,
           },
         }
@@ -358,6 +377,26 @@ export const swapUIMachine = setup({
         output: SwapIntentMachineOutput | SwapIntent1csMachineOutput
       ) => {
         if (output.tag !== "ok") return context.intentRefs
+
+        if (context.is1cs && "depositAddress" in output.value) {
+          const swapDescription = output.value.intentDescription as Extract<
+            typeof output.value.intentDescription,
+            { type: "swap" }
+          >
+          const oneClickRef = spawn("oneClickStatusActor", {
+            id: `${ONE_CLICK_PREFIX}${output.value.depositAddress}`,
+            input: {
+              parentRef: self,
+              depositAddress: output.value.depositAddress,
+              tokenIn: context.formValues.tokenIn,
+              tokenOut: context.formValues.tokenOut,
+              totalAmountIn: swapDescription.totalAmountIn,
+              totalAmountOut: swapDescription.totalAmountOut,
+            },
+          })
+
+          return [oneClickRef, ...context.intentRefs]
+        }
 
         const intentRef = spawn("intentStatusActor", {
           id: `intent-${output.value.intentHash}`,
@@ -458,7 +497,7 @@ export const swapUIMachine = setup({
     },
   },
 }).createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5SwO4EMAOBaArgSwGIBJAOQBUBRcgfQGUKyyAZCgEQG0AGAXUVAwD2sPABc8AgHZ8QAD0RYArAoAcAOgCMAdgWcALJ04BOZZoBMCgDQgAnvMO7Nq5ac6b1B07oWfDAX19WqJi4hABCAIJM4SQAwhTUMQAS0QDibFy8SCCCwmKS0nIIAMy6RU6cCuqe+pwAbAqlVrYIWIamtaqGCkW1Pd6GRZpu-oHo2PgEEVGx8Ump6eqZ-EKi4lJZheqVqrWanEXK9prK6obqTfK96k6GZ66aRQq1h8ojIEHjhEwA8imkGdIcqt8htEL0bupdO1SrotEZNBcWvZDKpBuplBijkU6go3h8QgQfilvgBVMgArJAvLrUCFLCmdQdSFGcwM5QKTS1Z6I1q6FFojGHBzY+p4sYhVSQVYSKAEWA4ABGAFtRBTlrk1gVEOotKpNIY9PUzntlEVDIj3JxVHoSqZ2hzTIZnroxcF8JKINLZfLlarFoCVtStQh3KZrZ5Du0tAcHroefprpxTOyDtj9bplF5XZ8PV6CHgJBgcCI1dlA5rQS1zB1arc9FUzYdujySh1lBUXO4zj1OdmJVKxDKCCQKAB1agARRJ30opapFdp8mFnQG3WM+r0+x5tS8GmrO+86JM6j77oHBdlI-H6hitEn09nPADGpBi6r6jKsLN7WTZwa5psS5dyqJ4DzZY9TzwXNBygVQADc0AAGzwCA0Bggg53LV9ZHkIpPE6JNIQxeoDCKQZEVMY4dj5Q5jAzAYzVqSDoIveCkJQtCLww-1KSwmkcJaL8dlMQZa2eFQPwRQCQxUPVsQqJ03DtJMimY88ZTY5DUPQ9hTCWMsX34ulHjDTh2ztEjHlrSxpIUFcnVKWp3BOLR21xAJ3nFM9PRg1R0C9agAEccAEEQwGHMd7xnChMMM4NWlcVQFDadstBEkwDhbbZYVORl9geLZTDUnzWP8mCgpCsKIuvW8osffT52wukdA6fRkvaY5jnMHkXEcLQdQ-ZM9gZJiPPxd0fRVER0IgSQwFUAs4IEABreaPgAJTAAAzWLgSMsE2j1DkBihQxjmS2oerwnZ2VDJztDIx5mMm0QZrmhaJCW1bVA27b2B49U9uDM1rlKYxkx6Eo6naHllA6VdOUqVlHjw57FSm9CwAAJyxgQsdUDBELQra8aVH6xk2nan14uLKy8Pq6idJz2VqCoetuToHgaZx+q8XQXTGryoJe6auKvOqYupwGg0rZw1GTDl2Xotxjm3JMbsUqFPA-My0d9UWZWodQAGNYAIWaJHmxaVrWintpN2Bdplt9njDNx3G5hw3FuRFsTUJNunbCoWVrPWMYvI3TfN97re+36tod-6Gr44GTlRNoGL5J0zSk5pTtUfQTnsJQ4dqO0w9eiOHYIbHcfxwnidJ8nMEpxOpYMoG6eus520GfZ2QNIoLS6PUG2PR0OTMdzRjdYX0crw3q-Fm87ynaKnYXASuhRdF+dL1xIRh6SsChVFGSdaF+bw7R-A8iQBAgOBpHGvBn07t8sEtMp2tSswY0y4+pprhlyeKdUSUJNDFS9G-Z2AlWhKCSilTgaV-7KHjOyToOpB4gL9tPTys8WIaRQohMAMDN50npgXPC7IRKnEomddmVoGSNnMF+fmAwoG+QQlpTiMoyFNXkOiRwJRnCOgeL0cwegeQNALvUFw9RehQlyqNGeOZ1KwTKhHYKoVSE03fnA54ZRJJwxEqUX+iJdjp35lsVwmY4bJQrgbKA-D9oIGeFaMytw6J2jhkUc4x8+aohOEoO0lQ2iOPKg7FxwZnhqBESJBJHJkFoOkgNdO0Yy5B2QTfW+QA */
+  /** @xstate-layout N4IgpgJg5mDOIC5SwO4EMAOBaArgSwGIBJAOQBUBRcgfQGUKyyAZCgEQG0AGAXUVAwD2sPABc8AgHZ8QAD0RYArAoAcAOgCMAdgWcALJ04BOZZoBMCgDQgAnvMO7Nq5ac6b1B07oWfDAX19WqJi4hADyJBTUAMJMRFEA0nQMzGxcvEgggsJiktJyCOrqymqmyl4KhgDMAGwu2la2CFj2nBrKnEWVup7Vxbr+gejY+AQAQgCCTOMkUZFRABLTAOKpPNJZouJSGfldlU6cCuqe+pzVCrqVDXam1aqGCjU13lWabgMgQcOEE1Mzc4sSCsOOp0vwhJtcjtEOojqpqppOJVlPZNMp1IZ1NcmtVKuonIZMa5NJUFL1jB8viECExQktSGl1hCcttQPlcQT1N1qpddFojJpsc1dIZVJU3MUUQ5KmcFJShtTaUtQgBVMiMjIbFl5eSmdR3LlGcx65QKTTVXpC+yi8VFYqomXneXBfCqSCbCRQAiwHAAIwAtqINeDslsdQUtKpNIY9OdMYjlJVDNj3K09F1TLczaZDL1+gFPgrXe6xJ7vX7AyJ2KCmaGoWyYZxTKom7oUbctMiSbohfp8U3TciZdG215nd83RAPV68BIMDgq2tNcyw9CmuY7tVCXpjkmUY8hV07u1vB0jOoaubxyFJ9OCBEAOrUACKKtClGDmRX9dk8ml9yqR5jGjPQkSFHkFA0DcIJNEx1GvYsp1LL1H2odQoloF83w-JcQ0hVlf3XC9VD5JNblKTELmTGx5AgqCyRgu13gLKlEOnVQADc0AAGzwCA0GQghPy1VcGyaSpPHuJsuWKc4DEqcVsVMNF4RFFFjDbKok2qBC8FvZDOJ4viBNnL1qzBL86wI-IsFI+FTHFLdehUC9BRogoVCjGVDlzNxMybSpdP00zDN4-jBPYUwLJEn8bNJZtOHaTM5NJLdLHcyDCVzS5qncdEtBPIKSxC9Bp2oABHHABBEMB7woJ9X3fChhO-ay7FcVQKlKDozC7ZFDzhPkMX1JESVhUwiqQkq0DKyrqtq1D0MwxqcOi1rw0UM4SJ8240TRcwhTqDQ3EKCSTGknSWKLPSfQDURBIgSQwFUWcOIEABrZ6vgAJTAAAzFqrPDLdm20aMM0MNEKmqQ6JPhU13A7bQFNJILbsrB6npeiQ3s+1Qfv+8za3w8Mk3xS5jFKJ59FqGH3KwZQ7kA80jmNUkJLRit7tMggwAAJz5gQ+dUDBuIEv6hf9fGhl+gHcMskm1y8Rx3Cc3LTWqQ5DsJe4SQuZwtC5C580GF0bq5kRBNQlbmvlmK2oQZwSlNKHNLcNFwKbeHfO6TwL0Szm7st0y0IAY1gAhHokZ7Xo+r6Zf+9Rw8BxWxN6UHCkOUc3gxajGhlNQm0edpDiNLdA4xkOk4jqOY5xuPpcwWXq6J5cgbXZF8TIrSRVzJM3MabpRX0dF7CURnagmq6zfxi3kLDiP+cF4XRfFyXG4wZvk7t9albhzF2nFJFTRjK53IxSC-K7Y4HjecwK+5z0F7qp8lqwpqU+1NcHlFIpdDbC0rguS3F7M2PETlbj-0uMpOUHwJACAgHAaQrE8DEy-mJLAqZ9hdXaFoByJh+r00TPiWoZojBkT1EoSa040GiUIs0JQnVDDdTwX1ZQvZTT3EKDGDoFpSLKGoQZPi3EwC0Nin+M0JEzreDxMw6MA9dQxlUHqPc5hSL-yqIIkKXEwomU9GIh2mCTBijbJmSGTxzB6CFBcEi5wXDnFxN0Yal1TYTmKp6VQpV55zRqgYjavR9iuUZg5S4uCFEIARGKewfIdBogARUB+wd9Ft1ToRXoaZ1IaUzIzPEvYbGdyUJmI4zDEnz2rn4tcvQ1BdGcBJCSZCigpkKFEzstQS49Vgf4IAA */
   id: "swap-ui",
 
   context: ({ input }) => ({
@@ -472,6 +511,7 @@ export const swapUIMachine = setup({
       amountIn: "",
     },
     parsedFormValues: {
+      tokenIn: getAnyBaseTokenInfo(input.tokenIn),
       tokenOut: getAnyBaseTokenInfo(input.tokenOut),
       amountIn: null,
     },
@@ -493,6 +533,16 @@ export const swapUIMachine = setup({
 
   on: {
     INTENT_SETTLED: {
+      actions: [
+        {
+          type: "passthroughEvent",
+          params: ({ event }) => event,
+        },
+        "sendToDepositedBalanceRefRefresh",
+      ],
+    },
+
+    ONE_CLICK_SETTLED: {
       actions: [
         {
           type: "passthroughEvent",
@@ -739,14 +789,7 @@ export const swapUIMachine = setup({
     },
 
     submitting_1cs: {
-      entry: [
-        "clearQuote",
-        "sendToBackground1csQuoterRefPause",
-        {
-          type: "set1csFetching",
-          params: true,
-        },
-      ],
+      entry: ["sendToBackground1csQuoterRefPause"],
       invoke: {
         id: "swapRef1cs",
         src: "swap1csActor",
@@ -762,7 +805,7 @@ export const swapUIMachine = setup({
           assert(context.user?.method != null, "user chain type is not set")
 
           return {
-            tokenIn: context.formValues.tokenIn,
+            tokenIn: context.parsedFormValues.tokenIn,
             tokenOut: context.parsedFormValues.tokenOut,
             amountIn: context.parsedFormValues.amountIn,
             slippageBasisPoints: context.slippageBasisPoints,
@@ -820,24 +863,13 @@ export const swapUIMachine = setup({
             ({ event }) => {
               logger.error(event.error)
             },
-            {
-              type: "set1csFetching",
-              params: false,
-            },
           ],
         },
       },
 
       on: {
         NEW_1CS_QUOTE: {
-          actions: [
-            "process1csQuote",
-            "updateUIAmountOut",
-            {
-              type: "set1csFetching",
-              params: false,
-            },
-          ],
+          actions: ["process1csQuote", "updateUIAmountOut"],
         },
       },
     },

@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/core"
-import type { Context, Contexts } from "@sentry/types"
+import type { Context, Contexts } from "@sentry/core"
 import { configureSDK } from "@src/components/DefuseSDK/config"
-import { INTENTS_ENV, NODE_IS_DEVELOPMENT } from "@src/utils/environment"
+import { APP_ENV, INTENTS_ENV } from "@src/utils/environment"
 
 let hasInitialized = false
 
@@ -11,7 +11,7 @@ export function initSDK() {
   }
   hasInitialized = true
 
-  if (NODE_IS_DEVELOPMENT) {
+  if (APP_ENV === "development") {
     configureSDK({
       env: INTENTS_ENV,
       logger: {
@@ -24,7 +24,6 @@ export function initSDK() {
       features: {
         hyperliquid: true,
         ton: true,
-        near_intents: true,
         avalanche: true,
         sui: true,
         stellar: true,
@@ -68,7 +67,6 @@ export function initSDK() {
       features: {
         hyperliquid: true,
         ton: true,
-        near_intents: true,
         sui: true,
         optimism: true,
         avalanche: true,

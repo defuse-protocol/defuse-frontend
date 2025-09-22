@@ -2,11 +2,7 @@ import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { type PromiseActorLogic, assign, fromPromise, setup } from "xstate"
 import type { SignerCredentials } from "../../../core/formatters"
 import { logger } from "../../../logger"
-import type {
-  BaseTokenInfo,
-  TokenValue,
-  UnifiedTokenInfo,
-} from "../../../types/base"
+import type { TokenInfo, TokenValue } from "../../../types/base"
 import { giftMakerHistoryStore } from "../stores/giftMakerHistory"
 import type {
   StorageOperationErr,
@@ -22,7 +18,7 @@ export type GiftMakerReadyActorInput = {
   giftInfo: GiftInfo
   signerCredentials: SignerCredentials
   parsed: {
-    token: BaseTokenInfo | UnifiedTokenInfo
+    token: TokenInfo
     amount: TokenValue
     message: string
   }

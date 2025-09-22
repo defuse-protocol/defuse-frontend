@@ -5,16 +5,19 @@ import {
   and,
   assertEvent,
   assign,
+  enqueueActions,
   sendTo,
   setup,
 } from "xstate"
 import { config } from "../../config"
+import { clearSolanaATACache } from "../../services/depositService"
 import type { BaseTokenInfo, SupportedChainName } from "../../types/base"
-import type { SwappableToken } from "../../types/swap"
+import type { TokenInfo } from "../../types/base"
 import { depositEstimationMachine } from "./depositEstimationActor"
 import {
   type Events as DepositFormEvents,
   type ParentEvents as DepositFormParentEvents,
+  type Fields,
   depositFormReducer,
 } from "./depositFormReducer"
 import { depositGenerateAddressMachine } from "./depositGenerateAddressMachine"
@@ -30,7 +33,7 @@ import { storageDepositAmountMachine } from "./storageDepositAmountMachine"
 export type Context = {
   depositGenerateAddressRef: ActorRefFrom<typeof depositGenerateAddressMachine>
   poaBridgeInfoRef: ActorRefFrom<typeof poaBridgeInfoActor>
-  tokenList: SwappableToken[]
+  tokenList: TokenInfo[]
   userAddress: string | null
   userWalletAddress: string | null
   userChainType: AuthMethod | null
@@ -45,8 +48,8 @@ export type Context = {
 export const depositUIMachine = setup({
   types: {
     input: {} as {
-      tokenList: SwappableToken[]
-      token: SwappableToken
+      tokenList: TokenInfo[]
+      token: TokenInfo
     },
     context: {} as Context,
     events: {} as
@@ -99,6 +102,9 @@ export const depositUIMachine = setup({
     setPreparationOutput: assign({
       preparationOutput: (_, val: Context["preparationOutput"]) => val,
     }),
+    resetPreparationOutput: assign({
+      preparationOutput: null,
+    }),
 
     clearResults: assign({
       depositOutput: null,
@@ -106,23 +112,17 @@ export const depositUIMachine = setup({
     clearUIDepositAmount: () => {
       throw new Error("not implemented")
     },
-    clearPreparationOutput: assign({
-      preparationOutput: ({ context }): Context["preparationOutput"] => {
-        if (context.preparationOutput?.tag === "ok") {
-          return {
-            tag: "ok",
-            value: {
-              ...context.preparationOutput.value,
-              generateDepositAddress: null,
-              // We don't need to clear the balances, instead we'll update them on the next balance refresh
-              balance: context.preparationOutput.value.balance,
-              nearBalance: context.preparationOutput.value.nearBalance,
-            },
-          }
-        }
-        return null
-      },
-    }),
+    clearSolanaATACache: ({ context }) => {
+      const { derivedToken } = context.depositFormRef.getSnapshot().context
+      const depositAddress =
+        context.preparationOutput?.tag === "ok"
+          ? context.preparationOutput.value.generateDepositAddress
+          : null
+
+      if (derivedToken != null && depositAddress != null) {
+        clearSolanaATACache(derivedToken, depositAddress)
+      }
+    },
 
     fetchPOABridgeInfo: sendTo("poaBridgeInfoRef", { type: "FETCH" }),
 
@@ -171,6 +171,14 @@ export const depositUIMachine = setup({
         },
       }
     }),
+    // @ts-expect-error Weird xstate type error, which should not be thrown
+    refreshBalanceIfNeeded: enqueueActions(
+      ({ enqueue }, { fields }: { fields: Fields }) => {
+        if (fields.includes("token") || fields.includes("blockchain")) {
+          enqueue("requestBalanceRefresh")
+        }
+      }
+    ),
   },
   guards: {
     isTokenValid: ({ context }) => {
@@ -283,13 +291,14 @@ export const depositUIMachine = setup({
           userChainType: ({ event }) => event.params.userChainType,
         }),
       ],
-      target: ".editing.reset_previous_preparation",
+      target: ".editing.tryToRestoreState",
+      reenter: true,
     },
 
     LOGOUT: {
       actions: [
         "clearResults",
-        "clearPreparationOutput",
+        "resetPreparationOutput",
         assign({
           userAddress: () => "",
           userWalletAddress: () => "",
@@ -313,10 +322,43 @@ export const depositUIMachine = setup({
             },
           ],
         },
-        DEPOSIT_FORM_FIELDS_CHANGED: ".reset_previous_preparation",
+        DEPOSIT_FORM_FIELDS_CHANGED: [
+          {
+            target: ".preparation",
+            guard: "isDepositParamsComplete",
+            actions: [
+              {
+                type: "refreshBalanceIfNeeded",
+                params: ({ event }) => event,
+              },
+              "resetPreparationOutput",
+            ],
+          },
+          {
+            target: ".idle",
+            actions: [
+              {
+                type: "refreshBalanceIfNeeded",
+                params: ({ event }) => event,
+              },
+              "resetPreparationOutput",
+            ],
+          },
+        ],
       },
 
       states: {
+        tryToRestoreState: {
+          always: [
+            {
+              target: "preparation",
+              guard: "isDepositParamsComplete",
+            },
+            {
+              target: "idle",
+            },
+          ],
+        },
         idle: {
           on: {
             SUBMIT: [
@@ -372,25 +414,8 @@ export const depositUIMachine = setup({
           },
         },
 
-        reset_previous_preparation: {
-          always: [
-            {
-              target: "preparation",
-              guard: "isDepositParamsComplete",
-            },
-            {
-              target: "idle",
-            },
-          ],
-          entry: ["clearPreparationOutput"],
-        },
-
         preparation: {
-          entry: [
-            "requestGenerateAddress",
-            "requestStorageDepositAmount",
-            "requestBalanceRefresh",
-          ],
+          entry: ["requestGenerateAddress", "requestStorageDepositAmount"],
           invoke: {
             src: "prepareDepositActor",
 
@@ -454,13 +479,15 @@ export const depositUIMachine = setup({
           }
         },
         onDone: {
-          target: "editing.reset_previous_preparation",
+          target: "editing",
           actions: [
             {
               type: "setDepositOutput",
               params: ({ event }) => event.output,
             },
-            { type: "clearUIDepositAmount" },
+            "clearUIDepositAmount",
+            "requestBalanceRefresh",
+            "resetPreparationOutput",
           ],
           reenter: true,
         },
@@ -481,13 +508,15 @@ export const depositUIMachine = setup({
           }
         },
         onDone: {
-          target: "editing.reset_previous_preparation",
+          target: "editing",
           actions: [
             {
               type: "setDepositOutput",
               params: ({ event }) => event.output,
             },
-            { type: "clearUIDepositAmount" },
+            "clearUIDepositAmount",
+            "requestBalanceRefresh",
+            "resetPreparationOutput",
           ],
           reenter: true,
         },
@@ -508,13 +537,16 @@ export const depositUIMachine = setup({
           }
         },
         onDone: {
-          target: "editing.reset_previous_preparation",
+          target: "editing",
           actions: [
             {
               type: "setDepositOutput",
               params: ({ event }) => event.output,
             },
-            { type: "clearUIDepositAmount" },
+            "clearUIDepositAmount",
+            "requestBalanceRefresh",
+            "resetPreparationOutput",
+            { type: "clearSolanaATACache" },
           ],
           reenter: true,
         },
@@ -534,13 +566,15 @@ export const depositUIMachine = setup({
           }
         },
         onDone: {
-          target: "editing.reset_previous_preparation",
+          target: "editing",
           actions: [
             {
               type: "setDepositOutput",
               params: ({ event }) => event.output,
             },
-            { type: "clearUIDepositAmount" },
+            "clearUIDepositAmount",
+            "requestBalanceRefresh",
+            "resetPreparationOutput",
           ],
           reenter: true,
         },
@@ -560,13 +594,15 @@ export const depositUIMachine = setup({
           }
         },
         onDone: {
-          target: "editing.reset_previous_preparation",
+          target: "editing",
           actions: [
             {
               type: "setDepositOutput",
               params: ({ event }) => event.output,
             },
-            { type: "clearUIDepositAmount" },
+            "clearUIDepositAmount",
+            "requestBalanceRefresh",
+            "resetPreparationOutput",
           ],
           reenter: true,
         },
@@ -587,13 +623,15 @@ export const depositUIMachine = setup({
           }
         },
         onDone: {
-          target: "editing.reset_previous_preparation",
+          target: "editing",
           actions: [
             {
               type: "setDepositOutput",
               params: ({ event }) => event.output,
             },
-            { type: "clearUIDepositAmount" },
+            "clearUIDepositAmount",
+            "requestBalanceRefresh",
+            "resetPreparationOutput",
           ],
           reenter: true,
         },
@@ -615,13 +653,15 @@ export const depositUIMachine = setup({
           }
         },
         onDone: {
-          target: "editing.reset_previous_preparation",
+          target: "editing",
           actions: [
             {
               type: "setDepositOutput",
               params: ({ event }) => event.output,
             },
-            { type: "clearUIDepositAmount" },
+            "clearUIDepositAmount",
+            "requestBalanceRefresh",
+            "resetPreparationOutput",
           ],
           reenter: true,
         },
@@ -642,13 +682,15 @@ export const depositUIMachine = setup({
           }
         },
         onDone: {
-          target: "editing.reset_previous_preparation",
+          target: "editing",
           actions: [
             {
               type: "setDepositOutput",
               params: ({ event }) => event.output,
             },
-            { type: "clearUIDepositAmount" },
+            "clearUIDepositAmount",
+            "requestBalanceRefresh",
+            "resetPreparationOutput",
           ],
           reenter: true,
         },

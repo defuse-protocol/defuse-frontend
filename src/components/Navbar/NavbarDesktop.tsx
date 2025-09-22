@@ -45,7 +45,7 @@ function NavItem({
         highContrast
         variant={isActive ? "solid" : "soft"}
         className={cn(
-          "relative text-sm cursor-pointer",
+          "relative text-sm",
           isActive ? "text-gray-1" : "bg-transparent"
         )}
         asChild
@@ -64,7 +64,7 @@ export function NavbarDeposit() {
         color="gray"
         highContrast
         variant="soft"
-        className="flex items-center gap-2 text-sm cursor-pointer"
+        className="flex items-center gap-2 text-sm"
       >
         <Plus className="size-3 text-gray-12" weight="bold" />
         <span className="text-sm font-bold whitespace-nowrap">Deposit</span>

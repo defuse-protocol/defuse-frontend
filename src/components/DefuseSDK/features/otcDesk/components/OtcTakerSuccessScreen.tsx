@@ -1,9 +1,9 @@
 import { solverRelay } from "@defuse-protocol/internal-utils"
-import { Check as CheckIcon } from "@phosphor-icons/react"
+import { CheckIcon } from "@phosphor-icons/react"
 import { Button } from "@radix-ui/themes"
 import { CopyButton } from "@src/components/DefuseSDK/components/IntentCard/CopyButton"
 import { useQuery } from "@tanstack/react-query"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
+import type { TokenInfo } from "../../../types/base"
 import type { RenderHostAppLink } from "../../../types/hostAppLink"
 import { assert } from "../../../utils/assert"
 import {
@@ -25,8 +25,8 @@ export function OtcTakerSuccessScreen({
 }: {
   tradeTerms: TradeTerms
   intentHashes: string[]
-  tokenIn: BaseTokenInfo | UnifiedTokenInfo
-  tokenOut: BaseTokenInfo | UnifiedTokenInfo
+  tokenIn: TokenInfo
+  tokenOut: TokenInfo
   renderHostAppLink: RenderHostAppLink
 }) {
   const amountIn = computeTotalBalanceDifferentDecimals(

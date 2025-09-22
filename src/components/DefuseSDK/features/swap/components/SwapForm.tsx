@@ -3,9 +3,12 @@ import { CaretDownIcon, ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Box, Button, Callout, Flex } from "@radix-ui/themes"
 import { TradeNavigationLinks } from "@src/components/DefuseSDK/components/TradeNavigationLinks"
 import { useTokensUsdPrices } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { formatUsdAmount } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
+import { getTokenId } from "@src/components/DefuseSDK/utils/token"
 import { useSelector } from "@xstate/react"
+import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import {
   Fragment,
@@ -13,6 +16,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
 } from "react"
 import { useFormContext } from "react-hook-form"
 import type { ActorRefFrom } from "xstate"
@@ -21,6 +25,7 @@ import { ButtonCustom } from "../../../components/Button/ButtonCustom"
 import { ButtonSwitch } from "../../../components/Button/ButtonSwitch"
 import { Form } from "../../../components/Form"
 import { FieldComboInput } from "../../../components/Form/FieldComboInput"
+import { Swap1csCard } from "../../../components/IntentCard/Swap1csCard"
 import { SwapIntentCard } from "../../../components/IntentCard/SwapIntentCard"
 import { Island } from "../../../components/Island"
 import type { ModalSelectAssetsPayload } from "../../../components/Modal/ModalSelectAssets"
@@ -28,15 +33,16 @@ import { SWAP_TOKEN_FLAGS } from "../../../constants/swap"
 import { useModalStore } from "../../../providers/ModalStoreProvider"
 import { ModalType } from "../../../stores/modalStore"
 import type { RenderHostAppLink } from "../../../types/hostAppLink"
-import type { SwappableToken } from "../../../types/swap"
 import { compareAmounts } from "../../../utils/tokenUtils"
 import {
   balanceSelector,
   transitBalanceSelector,
 } from "../../machines/depositedBalanceMachine"
 import type { intentStatusMachine } from "../../machines/intentStatusMachine"
+import type { oneClickStatusMachine } from "../../machines/oneClickStatusMachine"
 import {
   type Context,
+  ONE_CLICK_PREFIX,
   SWAP_STRATEGIES,
   SWAP_STRATEGIES_ARRAY,
   type SwapStrategy,
@@ -168,7 +174,7 @@ export const SwapForm = ({
 
   const openModalSelectAssets = (
     fieldName: string,
-    token: SwappableToken | undefined
+    token: TokenInfo | undefined
   ) => {
     setModalType(ModalType.MODAL_SELECT_ASSETS, {
       ...(payload as ModalSelectAssetsPayload),
@@ -195,7 +201,7 @@ export const SwapForm = ({
 
       switch (fieldName) {
         case SWAP_TOKEN_FLAGS.IN:
-          if (tokenOut === token) {
+          if (getTokenId(tokenOut) === getTokenId(token)) {
             // Don't need to switch amounts, when token selected from dialog
             swapUIActorRef.send({
               type: "input",
@@ -206,7 +212,7 @@ export const SwapForm = ({
           }
           break
         case SWAP_TOKEN_FLAGS.OUT:
-          if (tokenIn === token) {
+          if (getTokenId(tokenIn) === getTokenId(token)) {
             // Don't need to switch amounts, when token selected from dialog
             swapUIActorRef.send({
               type: "input",
@@ -282,6 +288,8 @@ export const SwapForm = ({
         >
           <FieldComboInput<SwapFormValues>
             fieldName="amountIn"
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
             selected={tokenIn}
             handleSelect={() => {
               openModalSelectAssets(SWAP_TOKEN_FLAGS.IN, tokenIn)
@@ -304,6 +312,8 @@ export const SwapForm = ({
 
           <FieldComboInput<SwapFormValues>
             fieldName="amountOut"
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
             selected={tokenOut}
             handleSelect={() => {
               openModalSelectAssets(SWAP_TOKEN_FLAGS.OUT, tokenOut)
@@ -329,12 +339,7 @@ export const SwapForm = ({
             />
           )}
 
-          {quote1csError && (
-            <div className="mb-5 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-700 dark:text-red-300">
-              <p className="font-medium">Error:</p>
-              <p>{quote1csError}</p>
-            </div>
-          )}
+          {quote1csError && <Quote1csError quote1csError={quote1csError} />}
 
           <Flex align="stretch" direction="column">
             <AuthGate
@@ -395,15 +400,64 @@ export const SwapForm = ({
   )
 }
 
+function Quote1csError({ quote1csError }: { quote1csError: string }) {
+  const searchParams = useSearchParams()
+
+  const newSearchParams = useMemo(() => {
+    const newSearchParams = new URLSearchParams(searchParams)
+    newSearchParams.set("not1cs", "true")
+    newSearchParams.delete("1cs")
+    return newSearchParams
+  }, [searchParams])
+
+  return (
+    <>
+      <div className="mb-5 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-700 dark:text-red-300">
+        <p className="font-medium">Error:</p>
+        <p>{quote1csError}</p>
+      </div>
+      <div className="text-center mb-5">
+        Try{" "}
+        <Link
+          href={`/?${newSearchParams.toString()}`}
+          className="underline text-blue-c11"
+        >
+          switching to legacy swap
+        </Link>{" "}
+        if the problem persists
+      </div>
+    </>
+  )
+}
+
 function Intents({
   intentRefs,
-}: { intentRefs: ActorRefFrom<typeof intentStatusMachine>[] }) {
+}: {
+  intentRefs: (
+    | ActorRefFrom<typeof intentStatusMachine>
+    | ActorRefFrom<typeof oneClickStatusMachine>
+  )[]
+}) {
   return (
     <div>
       {intentRefs.map((intentRef) => {
+        const isOneClick = intentRef.id?.startsWith(ONE_CLICK_PREFIX)
+
         return (
           <Fragment key={intentRef.id}>
-            <SwapIntentCard intentStatusActorRef={intentRef} />
+            {isOneClick ? (
+              <Swap1csCard
+                oneClickStatusActorRef={
+                  intentRef as ActorRefFrom<typeof oneClickStatusMachine>
+                }
+              />
+            ) : (
+              <SwapIntentCard
+                intentStatusActorRef={
+                  intentRef as ActorRefFrom<typeof intentStatusMachine>
+                }
+              />
+            )}
           </Fragment>
         )
       })}

@@ -1,12 +1,12 @@
 import { poaBridge } from "@defuse-protocol/internal-utils"
 import { useQuery } from "@tanstack/react-query"
-import type { SwappableToken } from "../types/swap"
+import type { TokenInfo } from "../types/base"
 import {
   filterOutPoaBridgeTokens,
   getTokenAccountIds,
 } from "../utils/tokenUtils"
 
-export function useTokenBalancesQuery(token: SwappableToken, enabled = true) {
+export function useTokenBalancesQuery(token: TokenInfo, enabled = true) {
   const onlyPoaTokens = filterOutPoaBridgeTokens(token)
   const addresses = getTokenAccountIds(onlyPoaTokens)
 

@@ -2,11 +2,7 @@ import type { MultiPayload } from "@defuse-protocol/contract-types"
 import { type PromiseActorLogic, assign, setup } from "xstate"
 import type { SignerCredentials } from "../../../core/formatters"
 import { logger } from "../../../logger"
-import type {
-  BaseTokenInfo,
-  TokenValue,
-  UnifiedTokenInfo,
-} from "../../../types/base"
+import type { BaseTokenInfo, TokenInfo, TokenValue } from "../../../types/base"
 import {
   type OTCMakerOrderCancellationActorInput,
   type OTCMakerOrderCancellationActorOutput,
@@ -15,14 +11,14 @@ import {
 
 export type OTCMakerReadyOrderActorInput = {
   parsed: {
-    tokenIn: BaseTokenInfo | UnifiedTokenInfo
+    tokenIn: TokenInfo
     tokenOut: BaseTokenInfo
     amountIn: TokenValue
     amountOut: TokenValue
   }
   raw: {
-    tokenIn: BaseTokenInfo | UnifiedTokenInfo
-    tokenOut: BaseTokenInfo | UnifiedTokenInfo
+    tokenIn: TokenInfo
+    tokenOut: TokenInfo
     amountIn: string
     amountOut: string
   }

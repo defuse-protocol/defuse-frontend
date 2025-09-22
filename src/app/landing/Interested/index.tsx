@@ -1,9 +1,7 @@
 "use client"
 
 import { Button, Text } from "@radix-ui/themes"
-
 import { settings } from "@src/config/settings"
-import { NEXT_PUBLIC_PUBLIC_MAIL, SOCIAL_LINK_X } from "@src/utils/environment"
 
 const Interested = () => {
   return (
@@ -22,8 +20,8 @@ const Interested = () => {
       <div className="w-full md:max-w-[558px] flex flex-wrap justify-center items-center gap-2.5 md:gap-5 px-[24px] md:px-[51px]">
         <div className="flex-1 md:min-w-[170px] w-full">
           <Button
-            className="w-full cursor-pointer"
-            onClick={() => window.open(`mailto:${NEXT_PUBLIC_PUBLIC_MAIL}`)}
+            className="w-full"
+            onClick={() => window.open("mailto:defuse@defuse.org")}
             variant="solid"
             color="orange"
             size="4"
@@ -35,11 +33,11 @@ const Interested = () => {
         </div>
         <div className="flex-1 md:min-w-[170px] w-full">
           <Button
-            onClick={() => window.open(SOCIAL_LINK_X)}
+            onClick={() => window.open("https://x.com/DefuseProtocol")}
             color="orange"
             size="4"
             variant="outline"
-            className="w-full cursor-pointer"
+            className="w-full"
           >
             <Text size="4" weight="medium" className="text-nowrap">
               Subscribe to updates

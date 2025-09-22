@@ -1,7 +1,4 @@
-import type {
-  BaseTokenInfo,
-  UnifiedTokenInfo,
-} from "@src/components/DefuseSDK/types"
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { isBaseToken } from "@src/components/DefuseSDK/utils"
 import { DEPRECATED_TOKENS } from "@src/constants/tokens"
 import type { PairItem, Pairs } from "@src/types/interfaces"
@@ -37,7 +34,7 @@ const generatePairs = (arr: PairItem[]): NonNullable<Pairs> => {
 }
 
 export const getPairsPerToken = (
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
+  tokenList: TokenInfo[]
 ): NonNullable<Pairs> => {
   const getPairsPerToken: NonNullable<Pairs>[] = []
 

@@ -45,6 +45,7 @@ const cspConfig = {
     "https://region1.google-analytics.com",
     "https://as.coinbase.com/metrics",
     "https://api-js.mixpanel.com",
+    "https://*.sentry.io",
 
     /** Stage Solver Relay and Bridge Services */
     "https://*.intents-near.org",
@@ -108,8 +109,9 @@ const cspConfig = {
     /** RPCs */
     "https://*.aurora-cloud.dev",
     "https://*.aurora.dev",
-    "https://relmn.aurora.dev",
     "https://*.quiknode.pro",
+    "https://*.solana.com",
+    "https://relmn.aurora.dev",
     "https://veriee-t2i7nw-fast-mainnet.helius-rpc.com",
     "https://eth-mainnet.public.blastapi.io",
     "https://mainnet.base.org",

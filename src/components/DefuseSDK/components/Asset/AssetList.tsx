@@ -1,17 +1,17 @@
 import { CheckCircleIcon } from "@phosphor-icons/react"
 import { Text } from "@radix-ui/themes"
 import clsx from "clsx"
-import type { ReactNode } from "react"
+import { type ReactNode, useCallback } from "react"
 
-import type {
-  BaseTokenInfo,
-  TokenValue,
-  UnifiedTokenInfo,
-} from "../../types/base"
+import type { TokenValue } from "../../types/base"
 import type { SelectItemToken } from "../Modal/ModalSelectAssets"
 
+import { hasChainIcon } from "@src/app/(home)/_utils/useDeterminePair"
 import { chainIcons } from "@src/components/DefuseSDK/constants/blockchains"
+import { useTokensStore } from "@src/components/DefuseSDK/providers/TokensStoreProvider"
+import { useIsFlatTokenListEnabled } from "@src/hooks/useIsFlatTokenListEnabled"
 import { FormattedCurrency } from "../../features/account/components/shared/FormattedCurrency"
+import type { TokenInfo } from "../../types/base"
 import { formatTokenValue } from "../../utils/format"
 import { getTokenId, isBaseToken } from "../../utils/token"
 import { AssetComboIcon } from "./AssetComboIcon"
@@ -25,14 +25,28 @@ type Props<T> = {
   showChain?: boolean
 }
 
-type Token = BaseTokenInfo | UnifiedTokenInfo
-
-export const AssetList = <T extends Token>({
+export function AssetList<T extends TokenInfo>({
   assets,
   className,
   handleSelectToken,
   showChain = false,
-}: Props<T>) => {
+}: Props<T>) {
+  const tokens = useTokensStore((state) => state.tokens)
+  const isFlatTokenListEnabled = useIsFlatTokenListEnabled()
+
+  const showChainIcon = useCallback(
+    (
+      token: TokenInfo,
+      chainIcon: { dark: string; light: string } | undefined
+    ) => {
+      return (
+        (isFlatTokenListEnabled && chainIcon !== undefined) ||
+        (showChain && chainIcon !== undefined && hasChainIcon(token, tokens))
+      )
+    },
+    [tokens, showChain, isFlatTokenListEnabled]
+  )
+
   return (
     <div className={clsx("flex flex-col", className && className)}>
       {assets.map(
@@ -56,13 +70,13 @@ export const AssetList = <T extends Token>({
                 <AssetComboIcon
                   icon={token.icon}
                   name={token.name}
-                  showChainIcon={showChain && chainIcon !== undefined}
+                  showChainIcon={showChainIcon(token, chainIcon)}
                   chainName={isBaseToken(token) ? token.chainName : undefined}
                   chainIcon={chainIcon}
                 />
                 {selected && (
-                  <div className="absolute top-1 -right-1.5 rounded-full">
-                    <CheckCircleIcon width={12} height={12} weight="fill" />
+                  <div className="absolute -top-[7px] -left-[4px] rounded-full">
+                    <CheckCircleIcon width={16} height={16} weight="fill" />
                   </div>
                 )}
               </div>

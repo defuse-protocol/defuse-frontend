@@ -1,5 +1,7 @@
 {
   "url": "https://near-intents.org",
   "name": "Near Intents",
-  "iconUrl": "https://near-intents.org/favicons/near-intents/apple-touch-icon.png"
+  "iconUrl": "https://near-intents.org/favicons/near-intents/apple-touch-icon.png",
+  "termsOfUseUrl": "https://near-intents.org/terms-of-service",
+  "privacyPolicyUrl": "https://near-intents.org/privacy-policy"
 }

@@ -11,13 +11,19 @@ import { computeAppFeeBps } from "@src/components/DefuseSDK/utils/appFee"
 import { whitelabelTemplateFlag } from "@src/config/featureFlags"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { referralMap } from "@src/hooks/useIntentsReferral"
-import { APP_FEE_BPS, APP_FEE_RECIPIENT } from "@src/utils/environment"
+import {
+  APP_FEE_BPS,
+  APP_FEE_RECIPIENT,
+  ONE_CLICK_API_KEY,
+  ONE_CLICK_URL,
+} from "@src/utils/environment"
+import { logger } from "@src/utils/logger"
 import { unstable_cache } from "next/cache"
 import z from "zod"
 import { isBaseToken } from "../../utils/token"
 
-OpenAPI.BASE = z.string().parse(process.env.ONE_CLICK_URL)
-OpenAPI.TOKEN = z.string().parse(process.env.ONE_CLICK_API_KEY)
+OpenAPI.BASE = z.string().parse(ONE_CLICK_URL)
+OpenAPI.TOKEN = z.string().parse(ONE_CLICK_API_KEY)
 
 export async function getTokens() {
   return await getTokensCached()
@@ -126,13 +132,9 @@ export async function getQuote(
       },
     }
   } catch (error) {
-    return {
-      err: isServerError(error)
-        ? error.body.message
-        : error instanceof Error
-          ? error.message
-          : String(error),
-    }
+    const err = unknownServerErrorToString(error)
+    logger.error(`1cs: getQuote error: ${err}`)
+    return { err }
   }
 }
 
@@ -154,4 +156,27 @@ function getTokenByAssetId(assetId: string) {
       ? token.defuseAssetId === assetId
       : token.groupedTokens.some((token) => token.defuseAssetId === assetId)
   )
+}
+
+export async function getTxStatus(arg: unknown) {
+  const depositAddress = z.string().safeParse(arg)
+  if (!depositAddress.success) {
+    return { err: `Invalid argument: ${depositAddress.error.message}` }
+  }
+
+  try {
+    return { ok: await OneClickService.getExecutionStatus(depositAddress.data) }
+  } catch (error) {
+    const err = unknownServerErrorToString(error)
+    logger.error(`1cs: getTxStatus error: ${err}`)
+    return { err }
+  }
+}
+
+function unknownServerErrorToString(error: unknown): string {
+  return isServerError(error)
+    ? error.body.message
+    : error instanceof Error
+      ? error.message
+      : String(error)
 }

@@ -2,8 +2,9 @@ import { assert, type BlockchainEnum } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { MagicWandIcon, PersonIcon } from "@radix-ui/react-icons"
 import { Box, Flex, IconButton, Text, TextField } from "@radix-ui/themes"
-import { getMinWithdrawalHiperliquidAmount } from "@src/components/DefuseSDK/features/withdraw/utils/hyperliquid"
+import { getMinWithdrawalHyperliquidAmount } from "@src/components/DefuseSDK/features/withdraw/utils/hyperliquid"
 import { usePreparedNetworkLists } from "@src/components/DefuseSDK/hooks/useNetworkLists"
+import { isSupportedChainName } from "@src/components/DefuseSDK/utils/blockchain"
 import { useSelector } from "@xstate/react"
 import { type ReactNode, useEffect, useState } from "react"
 import type { UseFormReturn } from "react-hook-form"
@@ -12,7 +13,6 @@ import { EmptyIcon } from "../../../../../../components/EmptyIcon"
 import { ModalSelectNetwork } from "../../../../../../components/Network/ModalSelectNetwork"
 import { Select } from "../../../../../../components/Select/Select"
 import { SelectTriggerLike } from "../../../../../../components/Select/SelectTriggerLike"
-import { config } from "../../../../../../config"
 import {
   getBlockchainsOptions,
   getNearIntentsOption,
@@ -76,10 +76,7 @@ export const RecipientSubForm = ({
   const { token, tokenOut, parsedAmountIn, recipient } = useSelector(
     formRef,
     (state) => {
-      const { tokenOut } = state.context
-
       return {
-        blockchain: tokenOut.chainName,
         token: state.context.tokenIn,
         tokenOut: state.context.tokenOut,
         parsedAmountIn: state.context.parsedAmount,
@@ -105,7 +102,7 @@ export const RecipientSubForm = ({
   const { availableNetworks, disabledNetworks } = usePreparedNetworkLists({
     networks: getBlockchainsOptions(),
     token,
-    near_intents: config.features.near_intents,
+    near_intents: true,
   })
 
   const showHotBalances = Object.keys(maxWithdrawals).length > 0
@@ -117,7 +114,7 @@ export const RecipientSubForm = ({
     actorRef.send({
       type: "WITHDRAW_FORM.UPDATE_MIN_RECEIVED_AMOUNT",
       params: {
-        minReceivedAmount: getMinWithdrawalHiperliquidAmount(network, tokenOut),
+        minReceivedAmount: getMinWithdrawalHyperliquidAmount(network, token),
       },
     })
     onCloseNetworkModal()
@@ -129,7 +126,7 @@ export const RecipientSubForm = ({
   }
 
   const { data: hyperliquidDepositAddress } = useCreateHLDepositAddress(
-    tokenOut,
+    token,
     watch("blockchain"),
     watch("recipient")
   )
@@ -185,30 +182,23 @@ export const RecipientSubForm = ({
             <SelectTriggerLike
               label={determineBlockchainControllerLabel(
                 field.value,
-                blockchainSelectItems[field.value]?.label
+                isSupportedChainName(field.value) // filter out virtual "near_intents" chain
+                  ? blockchainSelectItems[field.value]?.label
+                  : undefined
               )}
               icon={determineBlockchainControllerIcon(
                 field.value,
-                blockchainSelectItems[field.value]?.icon
+                isSupportedChainName(field.value) // filter out virtual "near_intents" chain
+                  ? blockchainSelectItems[field.value]?.icon
+                  : undefined
               )}
               onClick={() => setIsNetworkModalOpen(true)}
               hint={
                 <Select.Hint>
-                  {determineBlockchainControllerHint(
-                    field.value,
-                    blockchainSelectItems
-                  )}
+                  {determineBlockchainControllerHint(field.value)}
                 </Select.Hint>
               }
-              disabled={
-                !config.features.near_intents
-                  ? Object.keys(blockchainSelectItems).length === 1 &&
-                    isFirstBlockchainSelected(
-                      field.value,
-                      blockchainSelectItems
-                    )
-                  : false
-              }
+              disabled={false}
             />
 
             <ModalSelectNetwork
@@ -390,16 +380,10 @@ function determineBlockchainControllerIcon(
 }
 
 function determineBlockchainControllerHint(
-  blockchain: SupportedChainName | "near_intents",
-  blockchainSelectItems: Record<string, { value: BlockchainEnum }>
+  blockchain: SupportedChainName | "near_intents"
 ) {
   if (isNearIntentsNetwork(blockchain)) {
     return "Internal network"
   }
-  if (config.features.near_intents) {
-    return "Network"
-  }
-  return Object.keys(blockchainSelectItems).length === 1
-    ? "This network only"
-    : "Network"
+  return "Network"
 }

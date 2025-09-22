@@ -67,7 +67,7 @@ export async function createOtcOrder(payload: unknown): Promise<{
       pKey,
       iv: encodedIv,
     }
-  } catch (e) {
+  } catch (_e) {
     throw new Error("Failed to create order")
   }
 }
@@ -98,7 +98,7 @@ export function useOtcOrder() {
               multiPayload: decrypted,
             }
           }
-        } catch (error) {
+        } catch (_error) {
           logger.error("Failed to decrypt order")
         }
       }
@@ -111,7 +111,7 @@ export function useOtcOrder() {
             tradeId: genLocalTradeId(decoded),
             multiPayload: decoded,
           }
-        } catch (error) {
+        } catch (_error) {
           logger.error("Failed to decode legacy order")
         }
       }

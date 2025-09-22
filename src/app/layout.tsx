@@ -24,7 +24,7 @@ import { MixpanelProvider } from "@src/providers/MixpanelProvider"
 import { NearWalletProvider } from "@src/providers/NearWalletProvider"
 import { TronWalletProvider } from "@src/providers/TronWalletProvider"
 import {
-  DEV_MODE,
+  APP_ENV,
   HELPSCOUT_BEACON_ID,
   VERCEL_PROJECT_PRODUCTION_URL,
 } from "@src/utils/environment"
@@ -139,7 +139,9 @@ const RootLayout = async ({
                   </StellarWalletProvider>
                 </SolanaWalletProvider>
               </NearWalletProvider>
-              {DEV_MODE && <ReactQueryDevtools initialIsOpen={false} />}
+              {APP_ENV === "development" && (
+                <ReactQueryDevtools initialIsOpen={false} />
+              )}
             </QueryClientProvider>
           </WagmiProvider>
         </ThemeProvider>

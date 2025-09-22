@@ -1,12 +1,15 @@
 import { solverRelay } from "@defuse-protocol/internal-utils"
+import { server } from "@src/tests/setup"
+import { http, HttpResponse } from "msw"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import type { BaseTokenInfo } from "../types/base"
 import { adjustDecimals } from "../utils/tokenUtils"
 import { queryQuote } from "./quoteService"
 
-vi.mock("@defuse-protocol/internal-utils", () => ({
+vi.mock("@defuse-protocol/internal-utils", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@defuse-protocol/internal-utils")>()),
   solverRelay: {
-    quote: vi.fn(),
+    getQuote: vi.fn(),
   },
 }))
 
@@ -56,29 +59,28 @@ describe("queryQuote()", () => {
       appFeeBps: 0,
     }
 
-    vi.mocked(solverRelay.quote).mockImplementationOnce(async () => [
-      {
-        quote_hash: "q1",
-        defuse_asset_identifier_in: "token1",
-        defuse_asset_identifier_out: "tokenOut",
-        amount_in: "150000000",
-        amount_out: "200",
-        expiration_time: "2024-01-15T12:02:00.000Z",
-      },
-    ])
+    vi.mocked(solverRelay.getQuote).mockImplementationOnce(async () => ({
+      quote_hash: "q1",
+      defuse_asset_identifier_in: "token1",
+      defuse_asset_identifier_out: "tokenOut",
+      amount_in: "150000000",
+      amount_out: "200",
+      expiration_time: "2024-01-15T12:02:00.000Z",
+    }))
 
     const result = await queryQuote(input)
 
-    expect(solverRelay.quote).toHaveBeenCalledTimes(1)
-    expect(solverRelay.quote).toHaveBeenCalledWith(
-      {
-        defuse_asset_identifier_in: "token1",
-        defuse_asset_identifier_out: "tokenOut",
-        exact_amount_in: "150000000",
-        min_deadline_ms: 60_000,
-        wait_ms: 0,
-      },
-      expect.any(Object)
+    expect(solverRelay.getQuote).toHaveBeenCalledTimes(1)
+    expect(solverRelay.getQuote).toHaveBeenCalledWith(
+      expect.objectContaining({
+        quoteParams: {
+          defuse_asset_identifier_in: "token1",
+          defuse_asset_identifier_out: "tokenOut",
+          exact_amount_in: "150000000",
+          min_deadline_ms: 60_000,
+          wait_ms: 0,
+        },
+      })
     )
     expect(result).toEqual({
       tag: "ok",
@@ -108,50 +110,48 @@ describe("queryQuote()", () => {
       appFeeBps: 0,
     }
 
-    vi.mocked(solverRelay.quote)
-      .mockImplementationOnce(async () => [
-        {
-          quote_hash: "q1",
-          defuse_asset_identifier_in: "token1",
-          defuse_asset_identifier_out: "tokenOut",
-          amount_in: "100000000",
-          amount_out: "20",
-          expiration_time: "2024-01-15T12:02:00.000Z",
-        },
-      ])
-      .mockImplementationOnce(async () => [
-        {
-          quote_hash: "q2",
-          defuse_asset_identifier_in: "token2",
-          defuse_asset_identifier_out: "tokenOut",
-          amount_in: "5000000000",
-          amount_out: "10",
-          expiration_time: "2024-01-15T12:01:30.000Z",
-        },
-      ])
+    vi.mocked(solverRelay.getQuote)
+      .mockImplementationOnce(async () => ({
+        quote_hash: "q1",
+        defuse_asset_identifier_in: "token1",
+        defuse_asset_identifier_out: "tokenOut",
+        amount_in: "100000000",
+        amount_out: "20",
+        expiration_time: "2024-01-15T12:02:00.000Z",
+      }))
+      .mockImplementationOnce(async () => ({
+        quote_hash: "q2",
+        defuse_asset_identifier_in: "token2",
+        defuse_asset_identifier_out: "tokenOut",
+        amount_in: "5000000000",
+        amount_out: "10",
+        expiration_time: "2024-01-15T12:01:30.000Z",
+      }))
 
     const result = await queryQuote(input)
 
-    expect(solverRelay.quote).toHaveBeenCalledTimes(2)
-    expect(solverRelay.quote).toHaveBeenCalledWith(
-      {
-        defuse_asset_identifier_in: "token1",
-        defuse_asset_identifier_out: "tokenOut",
-        exact_amount_in: "100000000",
-        min_deadline_ms: 60_000,
-        wait_ms: 0,
-      },
-      expect.any(Object)
+    expect(solverRelay.getQuote).toHaveBeenCalledTimes(2)
+    expect(solverRelay.getQuote).toHaveBeenCalledWith(
+      expect.objectContaining({
+        quoteParams: {
+          defuse_asset_identifier_in: "token1",
+          defuse_asset_identifier_out: "tokenOut",
+          exact_amount_in: "100000000",
+          min_deadline_ms: 60_000,
+          wait_ms: 0,
+        },
+      })
     )
-    expect(solverRelay.quote).toHaveBeenCalledWith(
-      {
-        defuse_asset_identifier_in: "token2",
-        defuse_asset_identifier_out: "tokenOut",
-        exact_amount_in: "5000000000",
-        min_deadline_ms: 60_000,
-        wait_ms: 0,
-      },
-      expect.any(Object)
+    expect(solverRelay.getQuote).toHaveBeenCalledWith(
+      expect.objectContaining({
+        quoteParams: {
+          defuse_asset_identifier_in: "token2",
+          defuse_asset_identifier_out: "tokenOut",
+          exact_amount_in: "5000000000",
+          min_deadline_ms: 60_000,
+          wait_ms: 0,
+        },
+      })
     )
     expect(result).toEqual({
       tag: "ok",
@@ -179,32 +179,48 @@ describe("queryQuote()", () => {
       appFeeBps: 0,
     }
 
-    vi.mocked(solverRelay.quote).mockImplementationOnce(async () => [
-      {
-        quote_hash: "q1",
-        defuse_asset_identifier_in: "token1",
-        defuse_asset_identifier_out: "tokenOut",
-        amount_in: "150",
-        amount_out: "180",
-        expiration_time: "2024-01-15T12:00:00.000Z",
-      },
-      {
-        quote_hash: "q2",
-        defuse_asset_identifier_in: "token1",
-        defuse_asset_identifier_out: "tokenOut",
-        amount_in: "150",
-        amount_out: "200",
-        expiration_time: "2024-01-15T12:02:00.000Z",
-      },
-      {
-        quote_hash: "q3",
-        defuse_asset_identifier_in: "token1",
-        defuse_asset_identifier_out: "tokenOut",
-        amount_in: "150",
-        amount_out: "100",
-        expiration_time: "2024-01-15T12:01:30.000Z",
-      },
-    ])
+    // Use the original function for this test case
+    vi.mocked(solverRelay.getQuote).mockImplementationOnce(async (...args) => {
+      const actual = await vi.importActual<
+        typeof import("@defuse-protocol/internal-utils")
+      >("@defuse-protocol/internal-utils")
+      return actual.solverRelay.getQuote(...args)
+    })
+
+    server.use(
+      http.post("https://solver-relay-v2.chaindefuser.com/rpc", async () => {
+        return HttpResponse.json({
+          id: "dontcare",
+          jsonrpc: "2.0",
+          result: [
+            {
+              quote_hash: "q1",
+              defuse_asset_identifier_in: "token1",
+              defuse_asset_identifier_out: "tokenOut",
+              amount_in: "150",
+              amount_out: "180",
+              expiration_time: "2024-01-15T12:00:00.000Z",
+            },
+            {
+              quote_hash: "q2",
+              defuse_asset_identifier_in: "token1",
+              defuse_asset_identifier_out: "tokenOut",
+              amount_in: "150",
+              amount_out: "200",
+              expiration_time: "2024-01-15T12:02:00.000Z",
+            },
+            {
+              quote_hash: "q3",
+              defuse_asset_identifier_in: "token1",
+              defuse_asset_identifier_out: "tokenOut",
+              amount_in: "150",
+              amount_out: "100",
+              expiration_time: "2024-01-15T12:01:30.000Z",
+            },
+          ],
+        })
+      })
+    )
 
     const result = await queryQuote(input)
 
@@ -232,9 +248,36 @@ describe("queryQuote()", () => {
       appFeeBps: 0,
     }
 
-    vi.mocked(solverRelay.quote)
-      .mockImplementationOnce(async () => null)
-      .mockImplementationOnce(async () => [])
+    // Use the original function for this test case
+    vi.mocked(solverRelay.getQuote)
+      .mockImplementationOnce(async (...args) => {
+        const actual = await vi.importActual<
+          typeof import("@defuse-protocol/internal-utils")
+        >("@defuse-protocol/internal-utils")
+        return actual.solverRelay.getQuote(...args)
+      })
+      .mockImplementationOnce(async (...args) => {
+        const actual = await vi.importActual<
+          typeof import("@defuse-protocol/internal-utils")
+        >("@defuse-protocol/internal-utils")
+        return actual.solverRelay.getQuote(...args)
+      })
+
+    server.use(
+      http.post("https://solver-relay-v2.chaindefuser.com/rpc", function* () {
+        yield HttpResponse.json({
+          id: "dontcare",
+          jsonrpc: "2.0",
+          result: [],
+        })
+
+        return HttpResponse.json({
+          id: "dontcare",
+          jsonrpc: "2.0",
+          result: null,
+        })
+      })
+    )
 
     await expect(queryQuote(input)).resolves.toEqual({
       tag: "err",
@@ -264,18 +307,50 @@ describe("queryQuote()", () => {
       appFeeBps: 0,
     }
 
-    vi.mocked(solverRelay.quote)
-      .mockImplementationOnce(async () => [
-        {
-          quote_hash: "q1",
-          defuse_asset_identifier_in: "token1",
-          defuse_asset_identifier_out: "tokenOut",
-          amount_in: "100",
-          amount_out: "20",
-          expiration_time: "2024-01-15T12:02:00.000Z",
-        },
-      ])
-      .mockImplementationOnce(async () => null)
+    // Use the original function for this test case
+    vi.mocked(solverRelay.getQuote)
+      .mockImplementationOnce(async (...args) => {
+        const actual = await vi.importActual<
+          typeof import("@defuse-protocol/internal-utils")
+        >("@defuse-protocol/internal-utils")
+        return actual.solverRelay.getQuote(...args)
+      })
+      .mockImplementationOnce(async (...args) => {
+        const actual = await vi.importActual<
+          typeof import("@defuse-protocol/internal-utils")
+        >("@defuse-protocol/internal-utils")
+        return actual.solverRelay.getQuote(...args)
+      })
+
+    const queue = [
+      {
+        id: "dontcare",
+        jsonrpc: "2.0",
+        result: [
+          {
+            quote_hash: "q1",
+            defuse_asset_identifier_in: "token1",
+            defuse_asset_identifier_out: "tokenOut",
+            amount_in: "100",
+            amount_out: "20",
+            expiration_time: "2024-01-15T12:02:00.000Z",
+          },
+        ],
+      },
+      {
+        id: "dontcare",
+        jsonrpc: "2.0",
+        result: null,
+      },
+    ]
+    server.use(
+      http.post("https://solver-relay-v2.chaindefuser.com/rpc", function* () {
+        while (queue.length > 0) {
+          yield HttpResponse.json(queue.shift())
+        }
+        throw "out of responses"
+      })
+    )
 
     await expect(queryQuote(input)).resolves.toEqual({
       tag: "ok",
@@ -301,20 +376,18 @@ describe("queryQuote()", () => {
       appFeeBps: 0,
     }
 
-    vi.mocked(solverRelay.quote).mockImplementationOnce(async () => [
-      {
-        quote_hash: "q1",
-        defuse_asset_identifier_in: "token1",
-        defuse_asset_identifier_out: "tokenOut",
-        amount_in: "150",
-        amount_out: "200",
-        expiration_time: "2024-01-15T12:02:00.000Z",
-      },
-    ])
+    vi.mocked(solverRelay.getQuote).mockImplementationOnce(async () => ({
+      quote_hash: "q1",
+      defuse_asset_identifier_in: "token1",
+      defuse_asset_identifier_out: "tokenOut",
+      amount_in: "150",
+      amount_out: "200",
+      expiration_time: "2024-01-15T12:02:00.000Z",
+    }))
 
     const result = await queryQuote(input)
 
-    expect(solverRelay.quote).toHaveBeenCalledTimes(1)
+    expect(solverRelay.getQuote).toHaveBeenCalledTimes(1)
     expect(result).toEqual({
       tag: "ok",
       value: {

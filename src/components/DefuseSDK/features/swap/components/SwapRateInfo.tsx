@@ -1,6 +1,7 @@
 import * as Accordion from "@radix-ui/react-accordion"
 import { CaretDownIcon } from "@radix-ui/react-icons"
 import { InfoCircledIcon } from "@radix-ui/react-icons"
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { useReducer } from "react"
 import {
   Popover,
@@ -12,15 +13,14 @@ import {
   useTokensUsdPrices,
 } from "../../../hooks/useTokensUsdPrices"
 import type { TokenValue } from "../../../types/base"
-import type { SwappableToken } from "../../../types/swap"
 import { formatTokenValue, formatUsdAmount } from "../../../utils/format"
 import getTokenUsdPrice from "../../../utils/getTokenUsdPrice"
 import { BASIS_POINTS_DENOMINATOR } from "../../../utils/tokenUtils"
 import { useSwapRateData } from "../hooks/useSwapRateData"
 
 interface SwapRateInfoProps {
-  tokenIn: SwappableToken
-  tokenOut: SwappableToken
+  tokenIn: TokenInfo
+  tokenOut: TokenInfo
 }
 
 export function SwapRateInfo({ tokenIn, tokenOut }: SwapRateInfoProps) {
@@ -135,8 +135,8 @@ function renderExchangeRate({
   tokensUsdPriceData,
 }: {
   rate: TokenValue
-  baseToken: SwappableToken
-  quoteToken: SwappableToken
+  baseToken: TokenInfo
+  quoteToken: TokenInfo
   tokensUsdPriceData: TokenUsdPriceData | undefined
 }) {
   return (
@@ -156,7 +156,7 @@ function renderExchangeRate({
 
 function renderTokenUsdPrice(
   amount: string,
-  token: SwappableToken,
+  token: TokenInfo,
   tokensUsdPriceData: TokenUsdPriceData | undefined
 ) {
   const price = getTokenUsdPrice(amount, token, tokensUsdPriceData)

@@ -1,16 +1,12 @@
 import type { ReactNode } from "react"
 import { AssetComboIcon } from "../../../components/Asset/AssetComboIcon"
-import type {
-  BaseTokenInfo,
-  TokenValue,
-  UnifiedTokenInfo,
-} from "../../../types/base"
+import type { TokenInfo, TokenValue } from "../../../types/base"
 import { cn } from "../../../utils/cn"
 import { formatTokenValue } from "../../../utils/format"
 import { formatGiftDate } from "../utils/formattedDate"
 
 type GiftStripProps = {
-  token: BaseTokenInfo | UnifiedTokenInfo
+  token: TokenInfo
   amountSlot?: ReactNode
   dateSlot?: ReactNode
 }
@@ -43,7 +39,7 @@ GiftStrip.Amount = function DisplayAmount({
   amount,
   className,
 }: {
-  token: BaseTokenInfo | UnifiedTokenInfo
+  token: TokenInfo
   amount: TokenValue
   className?: string
 }) {

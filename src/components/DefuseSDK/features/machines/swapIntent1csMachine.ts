@@ -8,10 +8,9 @@ import { assign, fromPromise, setup } from "xstate"
 import { createTransferMessage } from "../../core/messages"
 import { logger } from "../../logger"
 import { convertPublishIntentToLegacyFormat } from "../../sdk/solverRelay/utils/parseFailedPublishError"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../types/base"
+import type { BaseTokenInfo } from "../../types/base"
 import type { IntentsUserId } from "../../types/intentsUserId"
 import { assert } from "../../utils/assert"
-import { isBaseToken } from "../../utils/token"
 import { verifyWalletSignature } from "../../utils/verifyWalletSignature"
 import {
   type WalletErrorCode,
@@ -23,12 +22,6 @@ import {
   publicKeyVerifierMachine,
 } from "./publicKeyVerifierMachine"
 import type { IntentDescription } from "./swapIntentMachine"
-
-function getTokenAssetId(token: BaseTokenInfo | UnifiedTokenInfo) {
-  return isBaseToken(token)
-    ? token.defuseAssetId
-    : token.groupedTokens[0].defuseAssetId
-}
 
 type Context = {
   input: Input
@@ -130,8 +123,8 @@ export const swapIntent1csMachine = setup({
 
     notifyQuoteResult: ({ context }) => {
       if (context.quote1csResult) {
-        const tokenInAssetId = getTokenAssetId(context.input.tokenIn)
-        const tokenOutAssetId = getTokenAssetId(context.input.tokenOut)
+        const tokenInAssetId = context.input.tokenIn.defuseAssetId
+        const tokenOutAssetId = context.input.tokenOut.defuseAssetId
 
         context.input.parentRef?.send({
           type: "NEW_1CS_QUOTE",
@@ -150,8 +143,8 @@ export const swapIntent1csMachine = setup({
       async ({
         input,
       }: { input: Quote1csInput & { userChainType: AuthMethod } }) => {
-        const tokenInAssetId = getTokenAssetId(input.tokenIn)
-        const tokenOutAssetId = getTokenAssetId(input.tokenOut)
+        const tokenInAssetId = input.tokenIn.defuseAssetId
+        const tokenOutAssetId = input.tokenOut.defuseAssetId
 
         try {
           const result = await get1csQuoteApi({
@@ -179,7 +172,7 @@ export const swapIntent1csMachine = setup({
         input,
       }: {
         input: {
-          tokenIn: BaseTokenInfo | UnifiedTokenInfo
+          tokenIn: BaseTokenInfo
           amountIn: { amount: bigint; decimals: number }
           depositAddress: string
           defuseUserId: string
@@ -187,7 +180,7 @@ export const swapIntent1csMachine = setup({
         }
       }): Promise<walletMessage.WalletMessage> => {
         // Create the transfer message using createTransferMessage
-        const tokenInAssetId = getTokenAssetId(input.tokenIn)
+        const tokenInAssetId = input.tokenIn.defuseAssetId
 
         const walletMessage = createTransferMessage(
           [[tokenInAssetId, input.amountIn.amount]], // tokenDeltas

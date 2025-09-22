@@ -1,6 +1,7 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import { InfoCircledIcon } from "@radix-ui/react-icons"
 import { Text, useThemeContext } from "@radix-ui/themes"
+import { useSelector } from "@xstate/react"
 import clsx from "clsx"
 import { useId } from "react"
 import { useFormContext } from "react-hook-form"
@@ -42,22 +43,18 @@ export function ActiveDeposit({
     parsedAmount,
     depositOutput,
     preparationOutput,
-    balance,
+    depositTokenBalanceRef,
     isLoading,
   } = DepositUIMachineContext.useSelector((snapshot) => {
     const amount = snapshot.context.depositFormRef.getSnapshot().context.amount
     const parsedAmount =
       snapshot.context.depositFormRef.getSnapshot().context.parsedAmount
-    const preparationOutput = snapshot.context.preparationOutput
     return {
       amount,
       parsedAmount,
       depositOutput: snapshot.context.depositOutput,
       preparationOutput: snapshot.context.preparationOutput,
-      balance:
-        preparationOutput?.tag === "ok"
-          ? preparationOutput.value.balance
-          : null,
+      depositTokenBalanceRef: snapshot.context.depositTokenBalanceRef,
       isLoading:
         snapshot.matches("submittingNearTx") ||
         snapshot.matches("submittingEVMTx") ||
@@ -66,6 +63,13 @@ export function ActiveDeposit({
         snapshot.matches("submittingStellarTx"),
     }
   })
+
+  const { balance } = useSelector(depositTokenBalanceRef, (state) => ({
+    balance:
+      state.context.preparationOutput?.tag === "ok"
+        ? state.context.preparationOutput.value.balance
+        : null,
+  }))
 
   const balanceInsufficient =
     balance != null

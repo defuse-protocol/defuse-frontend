@@ -3,7 +3,7 @@ import type { SupportedChainName } from "@src/components/DefuseSDK/types/base"
 import type { ReactNode } from "react"
 import { NetworkIcon } from "../components/Network/NetworkIcon"
 
-type BlockchainOption = {
+export type BlockchainOption = {
   label: string
   icon: ReactNode
   value: BlockchainEnum
@@ -31,36 +31,126 @@ export function isBlockchainOption(
   return option.value !== "near_intents"
 }
 
-export const chainIcons: Record<SupportedChainName, string> = {
-  eth: "/static/icons/network/ethereum.svg",
-  near: "/static/icons/network/near.svg",
-  base: "/static/icons/network/base.svg",
-  arbitrum: "/static/icons/network/arbitrum.svg",
-  bitcoin: "/static/icons/network/btc.svg",
-  solana: "/static/icons/network/solana.svg",
-  dogecoin: "/static/icons/network/dogecoin.svg",
-  turbochain: "/static/icons/network/turbochain.png",
-  tuxappchain: "/static/icons/network/tuxappchain.svg",
-  vertex: "/static/icons/network/vertex.svg",
-  optima: "/static/icons/network/optima.svg",
-  easychain: "/static/icons/network/easychain.svg",
-  aurora: "/static/icons/network/aurora.svg",
-  aurora_devnet: "/static/icons/network/aurora_devnet.svg",
-  xrpledger: "/static/icons/network/xrpledger.svg",
-  zcash: "/static/icons/network/zcash-icon-black.svg",
-  gnosis: "/static/icons/network/gnosis.svg",
-  berachain: "/static/icons/network/berachain.svg",
-  tron: "/static/icons/network/tron.svg",
-  polygon: "/static/icons/network/polygon.svg",
-  bsc: "/static/icons/network/bsc.svg",
-  hyperliquid: "/static/icons/network/hyperliquid.svg",
-  ton: "/static/icons/network/ton.svg",
-  optimism: "/static/icons/network/optimism.svg",
-  avalanche: "/static/icons/network/avalanche.svg",
-  sui: "/static/icons/network/sui.svg",
-  stellar: "/static/icons/network/stellar.svg",
-  aptos: "/static/icons/network/aptos.svg",
-  cardano: "/static/icons/network/cardano.svg",
+export const chainIcons: Record<
+  SupportedChainName,
+  { dark: string; light: string }
+> = {
+  eth: {
+    dark: "/static/icons/network/ethereum_white.svg",
+    light: "/static/icons/network/ethereum.svg",
+  },
+  near: {
+    dark: "/static/icons/network/near.svg",
+    light: "/static/icons/network/near_dark.svg",
+  },
+  base: {
+    dark: "/static/icons/network/base.svg",
+    light: "/static/icons/network/base.svg",
+  },
+  arbitrum: {
+    dark: "/static/icons/network/arbitrum.svg",
+    light: "/static/icons/network/arbitrum.svg",
+  },
+  bitcoin: {
+    dark: "/static/icons/network/btc.svg",
+    light: "/static/icons/network/btc.svg",
+  },
+  solana: {
+    dark: "/static/icons/network/solana.svg",
+    light: "/static/icons/network/solana.svg",
+  },
+  dogecoin: {
+    dark: "/static/icons/network/dogecoin.svg",
+    light: "/static/icons/network/dogecoin.svg",
+  },
+  turbochain: {
+    dark: "/static/icons/network/turbochain.png",
+    light: "/static/icons/network/turbochain.png",
+  },
+  tuxappchain: {
+    dark: "/static/icons/network/tuxappchain.svg",
+    light: "/static/icons/network/tuxappchain.svg",
+  },
+  vertex: {
+    dark: "/static/icons/network/vertex.svg",
+    light: "/static/icons/network/vertex.svg",
+  },
+  optima: {
+    dark: "/static/icons/network/optima.svg",
+    light: "/static/icons/network/optima.svg",
+  },
+  easychain: {
+    dark: "/static/icons/network/easychain.svg",
+    light: "/static/icons/network/easychain.svg",
+  },
+  aurora: {
+    dark: "/static/icons/network/aurora.svg",
+    light: "/static/icons/network/aurora.svg",
+  },
+  aurora_devnet: {
+    dark: "/static/icons/network/aurora_devnet.svg",
+    light: "/static/icons/network/aurora_devnet.svg",
+  },
+  xrpledger: {
+    dark: "/static/icons/network/xrpledger_white.svg",
+    light: "/static/icons/network/xrpledger.svg",
+  },
+  zcash: {
+    dark: "/static/icons/network/zcash.svg",
+    light: "/static/icons/network/zcash-icon-black.svg",
+  },
+  gnosis: {
+    dark: "/static/icons/network/gnosis_white.svg",
+    light: "/static/icons/network/gnosis.svg",
+  },
+  berachain: {
+    dark: "/static/icons/network/berachain.svg",
+    light: "/static/icons/network/berachain.svg",
+  },
+  tron: {
+    dark: "/static/icons/network/tron.svg",
+    light: "/static/icons/network/tron.svg",
+  },
+  polygon: {
+    dark: "/static/icons/network/polygon.svg",
+    light: "/static/icons/network/polygon.svg",
+  },
+  bsc: {
+    dark: "/static/icons/network/bsc.svg",
+    light: "/static/icons/network/bsc.svg",
+  },
+  hyperliquid: {
+    dark: "/static/icons/network/hyperliquid.svg",
+    light: "/static/icons/network/hyperliquid.svg",
+  },
+  ton: {
+    dark: "/static/icons/network/ton.svg",
+    light: "/static/icons/network/ton.svg",
+  },
+  optimism: {
+    dark: "/static/icons/network/optimism.svg",
+    light: "/static/icons/network/optimism_dark.svg",
+  },
+  avalanche: {
+    dark: "/static/icons/network/avalanche.svg",
+    light: "/static/icons/network/avalanche.svg",
+  },
+  sui: {
+    dark: "/static/icons/network/sui.svg",
+    light: "/static/icons/network/sui_dark.svg",
+  },
+  stellar: {
+    dark: "/static/icons/network/stellar_white.svg",
+    light: "/static/icons/network/stellar.svg",
+  },
+  aptos: {
+    dark: "/static/icons/network/aptos_white.svg",
+    light: "/static/icons/network/aptos.svg",
+  },
+  cardano: {
+    dark: "/static/icons/network/cardano.svg",
+    light: "/static/icons/network/cardano.svg",
+  },
 }
 
 export function getBlockchainsOptions(): Record<
@@ -294,16 +384,16 @@ function sortBlockchainOptionsByVolume(
   >
 }
 
+const intentsChainIcon = {
+  dark: "/static/icons/network/intents_white.svg",
+  light: "/static/icons/network/intents.svg",
+}
+
 export function getNearIntentsOption(): Record<"intents", IntentsOption> {
   return {
     intents: {
       label: "Near Intents",
-      icon: (
-        <NetworkIcon
-          chainIcon="/static/icons/network/intents.svg"
-          chainName="Intents"
-        />
-      ),
+      icon: <NetworkIcon chainIcon={intentsChainIcon} chainName="Intents" />,
       value: "near_intents",
       tags: [],
     },
