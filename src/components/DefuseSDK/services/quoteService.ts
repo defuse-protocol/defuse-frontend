@@ -1,9 +1,7 @@
 import type { solverRelay } from "@defuse-protocol/internal-utils"
-import { settings } from "../constants/settings"
 import { AggregatedQuoteError } from "../sdk/aggregatedQuote/errors/aggregatedQuoteError"
 import { AmountMismatchError } from "../sdk/aggregatedQuote/errors/amountMismatchError"
 import { getAggregatedQuoteExactIn } from "../sdk/aggregatedQuote/getAggregatedQuoteExactIn"
-import { quoteWithLog } from "../sdk/solverRelay/utils/quoteWithLog"
 import type { BaseTokenInfo, TokenValue } from "../types/base"
 
 export function isFailedQuote(
@@ -117,95 +115,5 @@ export async function queryQuote(
     }
 
     throw err
-  }
-}
-
-// TODO: Remove if we don't need it
-export async function queryQuoteExactOut(
-  input: {
-    tokenIn: BaseTokenInfo["defuseAssetId"]
-    tokenOut: BaseTokenInfo["defuseAssetId"]
-    exactAmountOut: bigint
-    minDeadlineMs?: number
-  },
-  {
-    logBalanceSufficient,
-    signal,
-  }: {
-    logBalanceSufficient: boolean
-    signal?: AbortSignal
-  }
-): Promise<QuoteResult> {
-  const quotes = await quoteWithLog(
-    {
-      defuse_asset_identifier_in: input.tokenIn,
-      defuse_asset_identifier_out: input.tokenOut,
-      exact_amount_out: input.exactAmountOut.toString(),
-      min_deadline_ms: input.minDeadlineMs ?? settings.quoteMinDeadlineMs,
-    },
-
-    {
-      fetchOptions: { signal },
-      logBalanceSufficient: logBalanceSufficient,
-    }
-  )
-
-  if (quotes == null) {
-    return {
-      tag: "err",
-      value: {
-        reason: "ERR_NO_QUOTES",
-      },
-    }
-  }
-
-  const failedQuotes: solverRelay.FailedQuote[] = []
-  const validQuotes = []
-  for (const q of quotes) {
-    if (isFailedQuote(q)) {
-      failedQuotes.push(q)
-    } else {
-      validQuotes.push(q)
-    }
-  }
-
-  validQuotes.sort((a, b) => {
-    // Sort by `amount_in` in ascending order, because backend does not sort
-    if (BigInt(a.amount_in) < BigInt(b.amount_in)) return -1
-    if (BigInt(a.amount_in) > BigInt(b.amount_in)) return 1
-    return 0
-  })
-
-  const bestQuote = validQuotes[0]
-
-  if (bestQuote) {
-    return {
-      tag: "ok",
-      value: {
-        quoteHashes: [bestQuote.quote_hash],
-        expirationTime: bestQuote.expiration_time,
-        tokenDeltas: [
-          [input.tokenIn, -BigInt(bestQuote.amount_in)],
-          [input.tokenOut, BigInt(bestQuote.amount_out)],
-        ],
-        appFee: [],
-      },
-    }
-  }
-
-  if (failedQuotes[0]) {
-    return {
-      tag: "err",
-      value: {
-        reason: `ERR_${failedQuotes[0].type}`,
-      },
-    }
-  }
-
-  return {
-    tag: "err",
-    value: {
-      reason: "ERR_NO_QUOTES",
-    },
   }
 }
