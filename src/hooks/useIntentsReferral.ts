@@ -1,6 +1,7 @@
 import type { WhitelabelTemplateValue } from "@src/config/featureFlags"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { useContext } from "react"
+import { useIs1CsEnabled } from "./useIs1CsEnabled"
 
 export const referralMap: Record<WhitelabelTemplateValue, string> = {
   "near-intents": "near-intents.intents-referral.near",
@@ -12,5 +13,7 @@ export const referralMap: Record<WhitelabelTemplateValue, string> = {
 
 export function useIntentsReferral() {
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
-  return referralMap[whitelabelTemplate]
+  const is1cs = useIs1CsEnabled()
+  const referral = referralMap[whitelabelTemplate]
+  return is1cs ? `1click-${referral}` : referral
 }
