@@ -29,6 +29,10 @@
   /* Hide scrollbar for Chrome, Safari and Opera */
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
+  
+  /* Prevent vertical scrolling on mobile while allowing horizontal scrolling */
+  overscroll-behavior-y: contain;
+  touch-action: pan-x;
 }
 
 .hideScrollbar::-webkit-scrollbar {
