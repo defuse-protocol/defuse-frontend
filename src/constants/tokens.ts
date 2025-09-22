@@ -1781,6 +1781,17 @@ const PRODUCTION_TOKENS: TokenInfo[] = [
     name: "Aptos",
     tags: ["mc:34"],
   },
+  {
+    defuseAssetId: "nep245:v2_1.omni.hot.tg:56_12zbnsg6xndDVj25QyL82YMPudb",
+    address: "0x000Ae314E2A2172a039B26378814C252734f556A",
+    decimals: 18,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/36341.png",
+    chainName: "bsc",
+    bridge: "hot_omni",
+    symbol: "ASTER",
+    name: "Aster",
+    tags: ["mc:44"],
+  },
 ]
 
 const STAGE_TOKENS: TokenInfo[] = [
