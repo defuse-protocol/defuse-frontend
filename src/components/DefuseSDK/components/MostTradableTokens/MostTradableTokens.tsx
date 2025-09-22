@@ -19,7 +19,7 @@ export function MostTradableTokens({
   onTokenSelect,
   tokenList,
 }: MostTradableTokensProps) {
-  const { data, isLoading, isError, refetch } = useMostTradableTokens(tokenList)
+  const { data, isLoading, isError, refetch } = useMostTradableTokens()
   const tradableTokenList = useMemo(() => {
     if (!data?.tokens || !tokenList.length) return []
 
