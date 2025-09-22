@@ -1,12 +1,13 @@
-import { FireSimpleIcon } from "@phosphor-icons/react"
-import { Spinner } from "@radix-ui/themes"
-import { chainIcons } from "@src/components/DefuseSDK/constants/blockchains"
+import { Spinner, Tooltip } from "@radix-ui/themes"
+import { hasChainIcon } from "@src/app/(home)/_utils/useDeterminePair"
+import { useIsFlatTokenListEnabled } from "@src/hooks/useIsFlatTokenListEnabled"
 import { useMostTradableTokens } from "@src/hooks/useMostTradableTokens"
-import { useMemo } from "react"
+import { useCallback, useMemo } from "react"
+import { chainIcons } from "../../constants/blockchains"
+import type { TokenInfo } from "../../types/base"
 import { isBaseToken } from "../../utils"
 import { AssetComboIcon } from "../Asset/AssetComboIcon"
 import type { SelectItemToken } from "../Modal/ModalSelectAssets"
-import { TooltipInfo } from "../TooltipInfo"
 import styles from "./MostTradableTokens.module.css"
 
 interface MostTradableTokensProps {
@@ -53,37 +54,23 @@ export function MostTradableTokens({
   if (!tradableTokenList && !isLoading) return null
 
   return (
-    <div className="flex items-center gap-3 min-h-12 w-full min-w-0 overflow-hidden bg-gray-50 dark:bg-gray-900/50 rounded-xl px-4 py-2 border border-gray-200 dark:border-gray-700">
-      <span className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 whitespace-nowrap shrink-0">
-        <TooltipInfo
-          icon={
-            <button
-              type="button"
-              className="flex items-center gap-2 focus:outline-none transition-colors hover:text-gray-900 dark:hover:text-gray-100"
-              aria-label="Information about most tradable tokens"
-            >
-              <FireSimpleIcon
-                className={`w-4 h-4 text-orange-500 transition-all duration-300 ${styles.fireIcon}`}
-                aria-hidden="true"
-                width={16}
-                height={16}
-              />
-              Most tradable
-            </button>
-          }
-        >
-          These are the top-performing tokens based on their 24-hour trading
-          volume.
-        </TooltipInfo>
-      </span>
+    <div className="flex items-center gap-3 min-h-12 w-full  bg-gray-50 dark:bg-gray-900/50 rounded-xl px-4 py-2 border border-gray-200 dark:border-gray-700">
+      <Tooltip
+        className="z-50"
+        side="left"
+        content="These are the top-performing tokens based on their 24-hour trading
+          volume."
+      >
+        <div className="cursor-pointer flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 whitespace-nowrap shrink-0">
+          Most tradable
+        </div>
+      </Tooltip>
 
-      <div className="flex-1 min-w-0 basis-0">
-        <TokenList
-          tradableTokenList={tradableTokenList}
-          isLoading={isLoading}
-          onTokenSelect={onTokenSelect}
-        />
-      </div>
+      <TokenList
+        tradableTokenList={tradableTokenList}
+        isLoading={isLoading}
+        onTokenSelect={onTokenSelect}
+      />
 
       {isError && (
         <div className="flex gap-1 items-center">
@@ -113,9 +100,27 @@ function TokenList({
   isLoading: boolean
   onTokenSelect: (t: SelectItemToken) => void
 }) {
+  const isFlatTokenListEnabled = useIsFlatTokenListEnabled()
+  const showChainIcon = useCallback(
+    (
+      token: TokenInfo,
+      chainIcon: { dark: string; light: string } | undefined
+    ) => {
+      return (
+        (isFlatTokenListEnabled && chainIcon !== undefined) ||
+        (chainIcon !== undefined &&
+          hasChainIcon(
+            token,
+            tradableTokenList.map((t) => t.token)
+          ))
+      )
+    },
+    [tradableTokenList, isFlatTokenListEnabled]
+  )
+
   return (
     <div
-      className={`flex gap-2 overflow-x-auto min-w-0 ${styles.hideScrollbar}`}
+      className={`flex flex-nowrap overflow-x-auto overflow-y-hidden no-scrollbar min-w-0 max-w-full gap-2 whitespace-nowrap ${styles.hideScrollbar}`}
     >
       {isLoading ? (
         <div className="flex justify-center items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 w-full shadow-sm">
@@ -129,19 +134,22 @@ function TokenList({
           const chainIcon = isBaseToken(selectItemToken.token)
             ? chainIcons[selectItemToken.token.chainName]
             : undefined
-
           return (
             <button
               key={`${selectItemToken.token.symbol}-${isBaseToken(selectItemToken.token) ? selectItemToken.token.chainName : "unified"}`}
               type="button"
               onClick={() => onTokenSelect(selectItemToken)}
-              className="group relative shrink-0 flex items-center justify-center p-1 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-700 transition-all duration-200 touch-manipulation w-10 h-10"
-              title={`${selectItemToken.token.name}${isBaseToken(selectItemToken.token) ? ` (${selectItemToken.token.chainName})` : ""}`}
+              className="group relative shrink-0 flex flex-none items-center justify-center p-1 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-700 transition-all duration-200 touch-manipulation w-10 h-10"
             >
               <AssetComboIcon
                 icon={selectItemToken.token.icon}
                 name={selectItemToken.token.name}
-                showChainIcon={chainIcon !== undefined}
+                showChainIcon={showChainIcon(selectItemToken.token, chainIcon)}
+                chainName={
+                  isBaseToken(selectItemToken.token)
+                    ? selectItemToken.token.chainName
+                    : undefined
+                }
                 chainIcon={chainIcon}
               />
             </button>
