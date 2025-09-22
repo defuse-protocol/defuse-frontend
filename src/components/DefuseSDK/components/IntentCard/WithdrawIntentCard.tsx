@@ -99,7 +99,6 @@ export function WithdrawIntentCard({
             {sourceTxHash != null && (
               <Flex align="center" gap="1">
                 <Text size="1" color="gray">
-                  {/* biome-ignore lint/nursery/useConsistentCurlyBraces: space is needed here */}
                   Source Tx:{" "}
                   <Link href={sourceTxUrl} target="_blank" color="blue">
                     {truncateHash(sourceTxHash)}
@@ -116,7 +115,6 @@ export function WithdrawIntentCard({
             {destTxHash != null && (
               <Flex align="center" gap="1">
                 <Text size="1" color="gray">
-                  {/* biome-ignore lint/nursery/useConsistentCurlyBraces: space is needed here */}
                   Destination Tx:{" "}
                   <Link href={destTxUrl} target="_blank" color="blue">
                     {truncateHash(destTxHash)}
@@ -149,7 +147,6 @@ export function WithdrawIntentCard({
                 min: 0.0001,
                 fractionDigits: 4,
               }
-              // biome-ignore lint/nursery/useConsistentCurlyBraces: space is needed here
             )}{" "}
             {tokenOut.symbol}
           </Text>

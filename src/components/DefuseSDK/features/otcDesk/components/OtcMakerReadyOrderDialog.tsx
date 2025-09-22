@@ -128,17 +128,14 @@ function OrderDialog({
               breakdown.makerSends.amount,
               breakdown.makerSends.decimals,
               { fractionDigits: 4 }
-              // biome-ignore lint/nursery/useConsistentCurlyBraces: <explanation>
             )}{" "}
             {context.parsed.tokenIn.symbol}
-            {/* biome-ignore lint/nursery/useConsistentCurlyBraces: <explanation> */}
             {" → "}
             <span className="font-bold">
               {formatTokenValue(
                 breakdown.makerReceives.amount,
                 breakdown.makerReceives.decimals,
                 { fractionDigits: 4 }
-                // biome-ignore lint/nursery/useConsistentCurlyBraces: <explanation>
               )}{" "}
               {context.parsed.tokenOut.symbol}
             </span>
@@ -155,7 +152,6 @@ function OrderDialog({
                 breakdown.makerSends.amount,
                 breakdown.makerSends.decimals,
                 { fractionDigits: 4 }
-                // biome-ignore lint/nursery/useConsistentCurlyBraces: <explanation>
               )}{" "}
               {context.parsed.tokenIn.symbol}
             </div>
@@ -168,7 +164,6 @@ function OrderDialog({
                 breakdown.makerPaysFee.amount,
                 breakdown.makerPaysFee.decimals,
                 { fractionDigits: 4 }
-                // biome-ignore lint/nursery/useConsistentCurlyBraces: <explanation>
               )}{" "}
               {context.parsed.tokenIn.symbol}
             </div>
@@ -181,7 +176,6 @@ function OrderDialog({
                 breakdown.takerReceives.amount,
                 breakdown.takerReceives.decimals,
                 { fractionDigits: 4 }
-                // biome-ignore lint/nursery/useConsistentCurlyBraces: <explanation>
               )}{" "}
               {context.parsed.tokenIn.symbol}
             </div>

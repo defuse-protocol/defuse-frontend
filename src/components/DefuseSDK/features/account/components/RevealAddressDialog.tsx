@@ -89,7 +89,6 @@ export function RevealAddressDialog({
         <Callout.Text className="text-xs">
           <span className="font-bold">
             This is your internal Near Intents address.
-            {/* biome-ignore lint/nursery/useConsistentCurlyBraces: <explanation> */}
           </span>{" "}
           <span>
             Funds will be deposited into your account, not your connected
