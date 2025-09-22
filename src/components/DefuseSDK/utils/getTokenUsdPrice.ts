@@ -1,10 +1,10 @@
 import type { TokenUsdPriceData } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
-import type { SwappableToken } from "@src/components/DefuseSDK/types/swap"
+import type { TokenInfo } from "../types/base"
 import { isBaseToken, isUnifiedToken } from "./token"
 
 const getTokenUsdPrice = (
   tokenAmount: string,
-  token: SwappableToken | null,
+  token: TokenInfo | null,
   tokensUsdPriceData?: TokenUsdPriceData
 ): number | null => {
   try {

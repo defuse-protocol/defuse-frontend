@@ -17,6 +17,7 @@ import {
   ONE_CLICK_API_KEY,
   ONE_CLICK_URL,
 } from "@src/utils/environment"
+import { logger } from "@src/utils/logger"
 import { unstable_cache } from "next/cache"
 import z from "zod"
 import { isBaseToken } from "../../utils/token"
@@ -130,13 +131,9 @@ export async function getQuote(
       },
     }
   } catch (error) {
-    return {
-      err: isServerError(error)
-        ? error.body.message
-        : error instanceof Error
-          ? error.message
-          : String(error),
-    }
+    const err = unknownServerErrorToString(error)
+    logger.error(`1cs: getQuote error: ${err}`)
+    return { err }
   }
 }
 
@@ -169,12 +166,16 @@ export async function getTxStatus(arg: unknown) {
   try {
     return { ok: await OneClickService.getExecutionStatus(depositAddress.data) }
   } catch (error) {
-    return {
-      err: isServerError(error)
-        ? error.body.message
-        : error instanceof Error
-          ? error.message
-          : String(error),
-    }
+    const err = unknownServerErrorToString(error)
+    logger.error(`1cs: getTxStatus error: ${err}`)
+    return { err }
   }
+}
+
+function unknownServerErrorToString(error: unknown): string {
+  return isServerError(error)
+    ? error.body.message
+    : error instanceof Error
+      ? error.message
+      : String(error)
 }

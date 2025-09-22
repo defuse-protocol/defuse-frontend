@@ -1,5 +1,5 @@
 import { type SnapshotFrom, assign, setup, spawnChild } from "xstate"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
+import type { TokenInfo } from "../../../types/base"
 import {
   allSetSelector,
   createGiftMakerFormParsedValuesStore,
@@ -10,7 +10,7 @@ import { createGiftMakerFormValuesStore } from "./giftMakerFormValuesStore"
 export const giftMakerFormMachine = setup({
   types: {
     input: {} as {
-      initialToken: BaseTokenInfo | UnifiedTokenInfo
+      initialToken: TokenInfo
     },
     context: {} as {
       isValid: boolean

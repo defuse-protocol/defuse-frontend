@@ -51,7 +51,7 @@ export function WalletVerificationDialog({
 }
 
 function DefaultContent({
-  open,
+  open: _open,
   onConfirm,
   onCancel,
   isVerifying,
@@ -134,7 +134,7 @@ function DefaultContent({
 }
 
 function FailureContent({
-  open,
+  open: _open,
   onConfirm,
   onCancel,
   isVerifying,

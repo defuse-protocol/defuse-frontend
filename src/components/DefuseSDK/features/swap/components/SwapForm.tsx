@@ -2,16 +2,20 @@ import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Box, Button, Callout, Flex } from "@radix-ui/themes"
 import { TradeNavigationLinks } from "@src/components/DefuseSDK/components/TradeNavigationLinks"
 import { useTokensUsdPrices } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { formatUsdAmount } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
-import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
+import { getTokenId } from "@src/components/DefuseSDK/utils/token"
 import { useSelector } from "@xstate/react"
+import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import {
   Fragment,
   type ReactNode,
   useCallback,
   useContext,
   useEffect,
+  useMemo,
 } from "react"
 import { useFormContext } from "react-hook-form"
 import type { ActorRefFrom } from "xstate"
@@ -28,7 +32,6 @@ import { SWAP_TOKEN_FLAGS } from "../../../constants/swap"
 import { useModalStore } from "../../../providers/ModalStoreProvider"
 import { ModalType } from "../../../stores/modalStore"
 import type { RenderHostAppLink } from "../../../types/hostAppLink"
-import type { SwappableToken } from "../../../types/swap"
 import { compareAmounts } from "../../../utils/tokenUtils"
 import {
   balanceSelector,
@@ -60,7 +63,6 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     getValues,
     formState: { errors },
   } = useFormContext<SwapFormValues>()
-  const is1cs = useIs1CsEnabled()
 
   const swapUIActorRef = SwapUIMachineContext.useActorRef()
   const snapshot = SwapUIMachineContext.useSelector((snapshot) => snapshot)
@@ -122,7 +124,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
   const openModalSelectAssets = (
     fieldName: string,
-    token: SwappableToken | undefined
+    token: TokenInfo | undefined
   ) => {
     setModalType(ModalType.MODAL_SELECT_ASSETS, {
       ...(payload as ModalSelectAssetsPayload),
@@ -149,10 +151,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
       switch (fieldName) {
         case SWAP_TOKEN_FLAGS.IN:
-          if (
-            tokenOut === token ||
-            (is1cs && tokenOut.symbol === token.symbol)
-          ) {
+          if (getTokenId(tokenOut) === getTokenId(token)) {
             // Don't need to switch amounts, when token selected from dialog
             swapUIActorRef.send({
               type: "input",
@@ -163,7 +162,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
           }
           break
         case SWAP_TOKEN_FLAGS.OUT:
-          if (tokenIn === token || (is1cs && tokenIn.symbol === token.symbol)) {
+          if (getTokenId(tokenIn) === getTokenId(token)) {
             // Don't need to switch amounts, when token selected from dialog
             swapUIActorRef.send({
               type: "input",
@@ -175,7 +174,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
           break
       }
     }
-  }, [payload, currentModalType, swapUIActorRef, is1cs])
+  }, [payload, currentModalType, swapUIActorRef])
 
   const { onSubmit } = useContext(SwapSubmitterContext)
 
@@ -239,6 +238,8 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
         >
           <FieldComboInput<SwapFormValues>
             fieldName="amountIn"
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
             selected={tokenIn}
             handleSelect={() => {
               openModalSelectAssets(SWAP_TOKEN_FLAGS.IN, tokenIn)
@@ -261,6 +262,8 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
           <FieldComboInput<SwapFormValues>
             fieldName="amountOut"
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
             selected={tokenOut}
             handleSelect={() => {
               openModalSelectAssets(SWAP_TOKEN_FLAGS.OUT, tokenOut)
@@ -277,12 +280,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             balance={tokenOutBalance}
           />
 
-          {quote1csError && (
-            <div className="mb-5 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-700 dark:text-red-300">
-              <p className="font-medium">Error:</p>
-              <p>{quote1csError}</p>
-            </div>
-          )}
+          {quote1csError && <Quote1csError quote1csError={quote1csError} />}
 
           <Flex align="stretch" direction="column">
             <AuthGate
@@ -340,6 +338,36 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
         )}
       </div>
     </Island>
+  )
+}
+
+function Quote1csError({ quote1csError }: { quote1csError: string }) {
+  const searchParams = useSearchParams()
+
+  const newSearchParams = useMemo(() => {
+    const newSearchParams = new URLSearchParams(searchParams)
+    newSearchParams.set("not1cs", "true")
+    newSearchParams.delete("1cs")
+    return newSearchParams
+  }, [searchParams])
+
+  return (
+    <>
+      <div className="mb-5 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-700 dark:text-red-300">
+        <p className="font-medium">Error:</p>
+        <p>{quote1csError}</p>
+      </div>
+      <div className="text-center mb-5">
+        Try{" "}
+        <Link
+          href={`/?${newSearchParams.toString()}`}
+          className="underline text-blue-c11"
+        >
+          switching to legacy swap
+        </Link>{" "}
+        if the problem persists
+      </div>
+    </>
   )
 }
 

@@ -1,23 +1,22 @@
-import { balanceAllSelector } from "@src/components/DefuseSDK/features/machines/depositedBalanceMachine"
-import { SwapUIMachineContext } from "@src/components/DefuseSDK/features/swap/components/SwapUIMachineProvider"
-import type {
-  BaseTokenInfo,
-  UnifiedTokenInfo,
-} from "@src/components/DefuseSDK/types/base"
-import type { SwappableToken } from "@src/components/DefuseSDK/types/swap"
-import { LIST_TOKENS, NATIVE_NEAR } from "@src/constants/tokens"
+"use client"
+import {
+  balanceAllSelector,
+  type depositedBalanceMachine,
+} from "@src/components/DefuseSDK/features/machines/depositedBalanceMachine"
+import type { BaseTokenInfo } from "@src/components/DefuseSDK/types/base"
+import { LIST_TOKENS } from "@src/constants/tokens"
+import { useIsFlatTokenListEnabled } from "@src/hooks/useIsFlatTokenListEnabled"
 import { useSelector } from "@xstate/react"
-import { useSearchParams } from "next/navigation"
 import { useEffect, useMemo } from "react"
+import type { ActorRefFromLogic } from "xstate"
 import { useTokensStore } from "../providers/TokensStoreProvider"
+import type { TokenInfo } from "../types/base"
 import { isBaseToken } from "../utils"
 
-export function TokenListUpdater<
-  T extends {
-    tokenList: (BaseTokenInfo | UnifiedTokenInfo | SwappableToken)[]
-  },
->({ tokenList }: { tokenList: T["tokenList"] }) {
-  const { updateTokens } = useTokensStore((state) => state)
+export function TokenListUpdater<T extends { tokenList: TokenInfo[] }>({
+  tokenList,
+}: { tokenList: T["tokenList"] }) {
+  const updateTokens = useTokensStore((state) => state.updateTokens)
 
   useEffect(() => {
     updateTokens(tokenList)
@@ -26,56 +25,60 @@ export function TokenListUpdater<
   return null
 }
 
-export function TokenListUpdater1cs<
-  T extends {
-    tokenList: (BaseTokenInfo | UnifiedTokenInfo | SwappableToken)[]
-  },
->(props: { tokenList: T["tokenList"] }) {
-  const tokenList = useMemo(() => {
-    const filteredList: BaseTokenInfo[] = props.tokenList.filter(
+export function TokenListUpdater1cs({
+  tokenList,
+  depositedBalanceRef,
+  tokenIn,
+  tokenOut,
+  sendTokenInOrOut,
+}: {
+  tokenList: TokenInfo[]
+  depositedBalanceRef:
+    | ActorRefFromLogic<typeof depositedBalanceMachine>
+    | undefined
+  tokenIn: TokenInfo
+  tokenOut: TokenInfo
+  sendTokenInOrOut?: ({
+    tokenIn,
+    tokenOut,
+  }: { tokenIn?: TokenInfo; tokenOut?: TokenInfo }) => void
+}) {
+  const tokens = useMemo(() => {
+    const filteredList: BaseTokenInfo[] = tokenList.filter(
       (token): token is BaseTokenInfo => {
         return isBaseToken(token)
       }
     )
 
-    if (filteredList.length < props.tokenList.length) {
+    if (filteredList.length < tokenList.length) {
       throw new Error("Flat token list is expected for 1cs")
     }
 
     return filteredList
-  }, [props.tokenList])
+  }, [tokenList])
 
-  const swapUIActorRef = SwapUIMachineContext.useActorRef()
-  const depositedBalanceRef = useSelector(
-    swapUIActorRef,
-    (state) => state.children.depositedBalanceRef
-  )
-
-  const { updateTokens } = useTokensStore((state) => state)
+  const updateTokens = useTokensStore((state) => state.updateTokens)
 
   const balancesSelector = useMemo(() => {
     return balanceAllSelector(
       Object.fromEntries(
-        tokenList.flatMap((token) => [[token.defuseAssetId, token] as const])
+        tokens.flatMap((token) => [[token.defuseAssetId, token] as const])
       )
     )
-  }, [tokenList])
+  }, [tokens])
 
   const allBalances = useSelector(depositedBalanceRef, balancesSelector)
-  const searchParams = useSearchParams()
-  const flatListIsEnabled = !!searchParams.get("flatTokenList")
+  const isFlatTokenListEnabled = useIsFlatTokenListEnabled()
 
   useEffect(() => {
-    if (flatListIsEnabled || allBalances === undefined) {
-      updateTokens(tokenList)
+    if (isFlatTokenListEnabled || allBalances === undefined) {
+      updateTokens(tokens)
       return
     }
 
     const newList: BaseTokenInfo[] = []
-    const { tokenIn, tokenOut } =
-      swapUIActorRef.getSnapshot().context.formValues
 
-    for (const originalToken of tokenList) {
+    for (const originalToken of tokens) {
       const token = LIST_TOKENS.find((t) =>
         isBaseToken(t)
           ? t.defuseAssetId === originalToken.defuseAssetId
@@ -93,107 +96,62 @@ export function TokenListUpdater1cs<
         continue
       }
 
-      function setAsTokenInOrOut(token: BaseTokenInfo) {
-        if (
-          isBaseToken(tokenIn)
-            ? tokenIn.defuseAssetId === token.defuseAssetId
-            : tokenIn.groupedTokens.some(
-                (t) => t.defuseAssetId === token.defuseAssetId
-              )
-        ) {
-          swapUIActorRef.send({ type: "input", params: { tokenIn: token } })
-        }
+      const nonZeroBalanceTokens = Object.values(
+        token.groupedTokens.reduce<Record<string, BaseTokenInfo>>((acc, t) => {
+          if (t.defuseAssetId in acc) {
+            return acc
+          }
 
-        if (
-          isBaseToken(tokenOut)
-            ? tokenOut.defuseAssetId === token.defuseAssetId
-            : tokenOut.groupedTokens.some(
-                (t) => t.defuseAssetId === token.defuseAssetId
-              )
-        ) {
-          swapUIActorRef.send({ type: "input", params: { tokenOut: token } })
-        }
-      }
+          if ((allBalances[t.defuseAssetId]?.amount ?? 0n) !== 0n) {
+            acc[t.defuseAssetId] = t
+          }
 
-      const nonZeroBalanceTokens = token.groupedTokens.filter(
-        (groupedToken) =>
-          (allBalances[groupedToken.defuseAssetId]?.amount ?? 0n) !== 0n
+          return acc
+        }, {})
       )
 
-      const defuseAssetIds = new Set(
-        nonZeroBalanceTokens.map((t) => t.defuseAssetId)
-      )
-
-      const nonZeroBalanceTokensDeduped = nonZeroBalanceTokens.filter((t) => {
-        if (defuseAssetIds.has(t.defuseAssetId)) {
-          defuseAssetIds.delete(t.defuseAssetId)
-          return true
-        }
-        return false
-      })
-
-      if (nonZeroBalanceTokensDeduped.length === 0) {
+      if (nonZeroBalanceTokens.length === 0) {
         // if user doesn't have this token add the first from the list by default
         newList.push(token.groupedTokens[0])
-      } else if (nonZeroBalanceTokensDeduped.length === 1) {
-        // if user has this token use it
-        const onlyToken = nonZeroBalanceTokensDeduped[0]
-        newList.push(onlyToken)
-        setAsTokenInOrOut(onlyToken)
       } else {
         // if user has multiple kinds of this token - show them all
-        const tokens = nonZeroBalanceTokensDeduped.map((t) => ({
-          ...t,
-          symbol: `${t.symbol} (${t.chainName})`,
-        }))
-        for (const token of tokens) {
-          newList.push(token)
+        newList.push(...nonZeroBalanceTokens)
+        const firstToken = nonZeroBalanceTokens[0]
+
+        if (
+          sendTokenInOrOut &&
+          (isBaseToken(tokenIn)
+            ? tokenIn.defuseAssetId === firstToken.defuseAssetId
+            : tokenIn.groupedTokens.some(
+                (t) => t.defuseAssetId === firstToken.defuseAssetId
+              ))
+        ) {
+          sendTokenInOrOut({ tokenIn: firstToken })
         }
-        setAsTokenInOrOut(tokens[0])
+
+        if (
+          sendTokenInOrOut &&
+          (isBaseToken(tokenOut)
+            ? tokenOut.defuseAssetId === firstToken.defuseAssetId
+            : tokenOut.groupedTokens.some(
+                (t) => t.defuseAssetId === firstToken.defuseAssetId
+              ))
+        ) {
+          sendTokenInOrOut({ tokenOut: firstToken })
+        }
       }
     }
 
-    const {
-      context: {
-        formValues: { tokenIn: newTokenIn, tokenOut: newTokenOut },
-      },
-    } = swapUIActorRef.getSnapshot()
-
-    const [tokenInSymbol] = newTokenIn.symbol.split(" ")
-    const [tokenOutSymbol] = newTokenOut.symbol.split(" ")
-
-    // set near if it happens that tokenIn and tokenOut are the same
-    if (newTokenIn === newTokenOut) {
-      swapUIActorRef.send({ type: "input", params: { tokenOut: NATIVE_NEAR } })
-    } else if (tokenInSymbol === tokenOutSymbol) {
-      // make sure network is displayed if it's the same symbol
-      if (tokenInSymbol.length === newTokenIn.symbol.length) {
-        swapUIActorRef.send({
-          type: "input",
-          params: {
-            tokenIn: {
-              ...newTokenIn,
-              symbol: `${newTokenIn.symbol} (${isBaseToken(newTokenIn) ? newTokenIn.chainName : newTokenIn.groupedTokens[0].chainName})`,
-            },
-          },
-        })
-      }
-
-      if (tokenOutSymbol.length === newTokenOut.symbol.length) {
-        swapUIActorRef.send({
-          type: "input",
-          params: {
-            tokenOut: {
-              ...newTokenOut,
-              symbol: `${newTokenOut.symbol} (${isBaseToken(newTokenOut) ? newTokenOut.chainName : newTokenOut.groupedTokens[0].chainName})`,
-            },
-          },
-        })
-      }
-    }
-
-    updateTokens(newList, true)
-  }, [tokenList, allBalances, updateTokens, swapUIActorRef, flatListIsEnabled])
+    updateTokens(newList)
+  }, [
+    tokens,
+    allBalances,
+    updateTokens,
+    tokenIn,
+    tokenOut,
+    isFlatTokenListEnabled,
+    sendTokenInOrOut,
+  ])
 
   return null
 }

@@ -19,7 +19,7 @@ type Actions = {
   clearError: () => void
 }
 
-export const useWebAuthnUIStore = create<State & Actions>()((set, get) => ({
+export const useWebAuthnUIStore = create<State & Actions>()((set, _get) => ({
   isOpen: false,
   isCreating: false,
   isSigningIn: false,

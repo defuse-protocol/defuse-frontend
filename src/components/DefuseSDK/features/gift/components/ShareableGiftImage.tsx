@@ -6,15 +6,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "../../../components/Popover"
-import type {
-  BaseTokenInfo,
-  TokenValue,
-  UnifiedTokenInfo,
-} from "../../../types/base"
+import type { TokenInfo, TokenValue } from "../../../types/base"
 import { GiftStrip } from "./GiftStrip"
 
 type ShareableGiftImageProps = {
-  token: BaseTokenInfo | UnifiedTokenInfo
+  token: TokenInfo
   amount: TokenValue
   message: string
   link?: string

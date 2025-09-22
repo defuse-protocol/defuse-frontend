@@ -25,6 +25,11 @@ Sentry.init({
   beforeSend: (event) => {
     return processNoLiquidityEvent(event)
   },
+  // Navigation breadcrumbs may include sensitive user data (e.g., hashes), so we block them.
+  // Otherwise, history URLs should be sanitized before being sent to Sentry.
+  beforeBreadcrumb(breadcrumb) {
+    return breadcrumb.category === "navigation" ? null : breadcrumb
+  },
 })
 
 function processNoLiquidityEvent(event: Sentry.ErrorEvent) {

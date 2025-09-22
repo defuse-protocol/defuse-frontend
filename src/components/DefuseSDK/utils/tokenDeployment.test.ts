@@ -1,7 +1,4 @@
-import type {
-  BaseTokenInfo,
-  UnifiedTokenInfo,
-} from "@src/components/DefuseSDK/types/base"
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { describe, expect, it } from "vitest"
 import { getChainFromDid, resolveTokenByDid } from "./tokenDeployment"
 
@@ -12,7 +9,7 @@ describe("getChainFromDid()", () => {
 })
 
 describe("resolveTokenByDid()", () => {
-  const tokenList: (BaseTokenInfo | UnifiedTokenInfo)[] = [
+  const tokenList: TokenInfo[] = [
     {
       unifiedAssetId: "public",
       symbol: "PUBLIC",

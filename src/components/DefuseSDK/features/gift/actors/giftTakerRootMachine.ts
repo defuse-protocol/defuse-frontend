@@ -5,7 +5,7 @@ import type { SignerCredentials } from "../../../core/formatters"
 import { logger } from "../../../logger"
 import type { PublishIntentsErr } from "../../../sdk/solverRelay/publishIntents"
 import { emitEvent } from "../../../services/emitter"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
+import type { TokenInfo } from "../../../types/base"
 import {
   type GiftInfo,
   type GiftInfoErr,
@@ -28,7 +28,7 @@ type GiftTakerClaimingActorErrors =
 type GiftTakerRootMachineInput = {
   giftId: string | null
   payload: string | null
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
+  tokenList: TokenInfo[]
 }
 
 type GiftTakerRootMachineContext = {
@@ -38,7 +38,7 @@ type GiftTakerRootMachineContext = {
   intentHashes: null | string[]
   payload: string | null
   giftId: string | null
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
+  tokenList: TokenInfo[]
   signerCredentials: null | SignerCredentials
 }
 

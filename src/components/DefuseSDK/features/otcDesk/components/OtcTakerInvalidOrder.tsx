@@ -1,11 +1,7 @@
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Cross2Icon } from "@radix-ui/react-icons"
 import { Callout } from "@radix-ui/themes"
-import type {
-  BaseTokenInfo,
-  TokenValue,
-  UnifiedTokenInfo,
-} from "../../../types/base"
+import type { TokenInfo, TokenValue } from "../../../types/base"
 import { assert } from "../../../utils/assert"
 import {
   computeTotalBalanceDifferentDecimals,
@@ -23,8 +19,8 @@ export function OtcTakerInvalidOrder({
 }: {
   error?: string
   tradeTerms?: TradeTerms
-  tokenIn?: BaseTokenInfo | UnifiedTokenInfo
-  tokenOut?: BaseTokenInfo | UnifiedTokenInfo
+  tokenIn?: TokenInfo
+  tokenOut?: TokenInfo
 }) {
   let amountIn: TokenValue | undefined
   let amountOut: TokenValue | undefined

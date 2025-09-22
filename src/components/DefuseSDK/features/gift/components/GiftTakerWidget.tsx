@@ -6,7 +6,7 @@ import type { ActorRefFrom } from "xstate"
 import { WidgetRoot } from "../../../components/WidgetRoot"
 import type { SignerCredentials } from "../../../core/formatters"
 import { SwapWidgetProvider } from "../../../providers/SwapWidgetProvider"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
+import type { TokenInfo } from "../../../types/base"
 import type { RenderHostAppLink } from "../../../types/hostAppLink"
 import { giftTakerRootMachine } from "../actors/giftTakerRootMachine"
 import type { giftClaimActor } from "../actors/shared/giftClaimActor"
@@ -19,7 +19,7 @@ export type GiftTakerWidgetProps = {
   payload: string | null
 
   /** List of available tokens for trading */
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
+  tokenList: TokenInfo[]
 
   /** User's wallet address */
   userAddress: string | null | undefined

@@ -1,5 +1,5 @@
 import { type SnapshotFrom, assign, setup, spawnChild } from "xstate"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
+import type { TokenInfo } from "../../../types/base"
 import {
   allSetSelector,
   createOTCMakerFormParsedValuesStore,
@@ -10,8 +10,8 @@ import { createOTCMakerFormValuesStore } from "./otcMakerFormValuesStore"
 export const otcMakerFormMachine = setup({
   types: {
     input: {} as {
-      initialTokenIn: BaseTokenInfo | UnifiedTokenInfo
-      initialTokenOut: BaseTokenInfo | UnifiedTokenInfo
+      initialTokenIn: TokenInfo
+      initialTokenOut: TokenInfo
     },
     context: {} as {
       isValid: boolean

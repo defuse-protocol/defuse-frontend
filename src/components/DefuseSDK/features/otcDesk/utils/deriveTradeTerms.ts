@@ -1,7 +1,7 @@
 import type { MultiPayload } from "@defuse-protocol/contract-types"
 import { Err, Ok, type Result } from "@thames/monads"
 import { logger } from "../../../logger"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
+import type { BaseTokenInfo, TokenInfo } from "../../../types/base"
 import { isBaseToken } from "../../../utils/token"
 import { grossUpAmount, netDownAmount } from "../../../utils/tokenUtils"
 import { type ParseTradeTermsErr, parseTradeTerms } from "./parseTradeTerms"
@@ -43,7 +43,7 @@ export function deriveTradeTerms(
 export type DetermineInvolvedTokensErr = DetermineTokenInAndOutErr
 
 export function determineInvolvedTokens(
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[],
+  tokenList: TokenInfo[],
   tokenDiff: Record<BaseTokenInfo["defuseAssetId"], bigint>
 ) {
   const { tokenIdsIn, tokenIdsOut } = getTokenIds(tokenDiff)
@@ -87,9 +87,9 @@ function getTokenIds(
 }
 
 function findTokens(
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[],
+  tokenList: TokenInfo[],
   tokenIds: BaseTokenInfo["defuseAssetId"][]
-): (BaseTokenInfo | UnifiedTokenInfo | null)[] {
+): (TokenInfo | null)[] {
   const tokens = tokenIds.map((tokenId) => {
     const found = tokenList.find((token) => {
       if (isBaseToken(token)) {
@@ -112,13 +112,13 @@ type DetermineTokenInAndOutErr =
   | "TOKEN_NOT_FOUND_IN_LIST"
 
 function determineTokenInAndOut(
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[],
+  tokenList: TokenInfo[],
   tokenIdsIn: BaseTokenInfo["defuseAssetId"][],
   tokenIdsOut: BaseTokenInfo["defuseAssetId"][]
 ): Result<
   {
-    tokenIn: BaseTokenInfo | UnifiedTokenInfo
-    tokenOut: BaseTokenInfo | UnifiedTokenInfo
+    tokenIn: TokenInfo
+    tokenOut: TokenInfo
   },
   DetermineTokenInAndOutErr
 > {

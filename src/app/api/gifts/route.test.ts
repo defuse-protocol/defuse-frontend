@@ -1,4 +1,3 @@
-import { base64urlnopad } from "@scure/base"
 import { supabase } from "@src/libs/supabase"
 import { TEST_BASE_URL } from "@src/tests/setup"
 import { logger } from "@src/utils/logger"

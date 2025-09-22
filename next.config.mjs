@@ -99,6 +99,7 @@ const nextConfig = {
 const sentryConfig = {
   org: "defuse-labs-ltd",
   project: "frontend",
+  authToken: process.env.SENTRY_AUTH_TOKEN,
   silent: true,
   widenClientFileUpload: true,
   hideSourceMaps: false,

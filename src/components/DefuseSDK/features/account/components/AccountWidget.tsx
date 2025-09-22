@@ -4,7 +4,7 @@ import { authIdentity } from "@defuse-protocol/internal-utils"
 import { getTokenId } from "@src/components/DefuseSDK/utils/token"
 import { useMemo } from "react"
 import { WidgetRoot } from "../../../components/WidgetRoot"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
+import type { TokenInfo } from "../../../types/base"
 import type { RenderHostAppLink } from "../../../types/hostAppLink"
 import { useWatchHoldings } from "../hooks/useWatchHoldings"
 import { computeTotalUsdValue } from "../utils/holdingsUtils"
@@ -12,7 +12,7 @@ import { HoldingsIsland } from "./HoldingsIsland"
 import { SummaryIsland } from "./SummaryIsland"
 
 export interface AccountWidgetProps {
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
+  tokenList: TokenInfo[]
 
   userAddress: string | null | undefined
   userChainType: AuthMethod | null | undefined

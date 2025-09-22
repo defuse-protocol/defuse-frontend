@@ -1,7 +1,6 @@
 import { Checkbox, Flex, Text, Tooltip } from "@radix-ui/themes"
 import { useModalController } from "@src/components/DefuseSDK/hooks/useModalController"
 import { useTokensUsdPrices } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
-import { useTokensStore } from "@src/components/DefuseSDK/providers/TokensStoreProvider"
 import { ModalType } from "@src/components/DefuseSDK/stores/modalStore"
 import { isSupportedChainName } from "@src/components/DefuseSDK/utils/blockchain"
 import {
@@ -16,7 +15,7 @@ import {
   subtractAmounts,
 } from "@src/components/DefuseSDK/utils/tokenUtils"
 import { useSelector } from "@xstate/react"
-import { useEffect } from "react"
+import { useCallback, useEffect } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { AuthGate } from "../../../../components/AuthGate"
 import { ButtonCustom } from "../../../../components/Button/ButtonCustom"
@@ -27,10 +26,9 @@ import { IslandHeader } from "../../../../components/IslandHeader"
 import { nearClient } from "../../../../constants/nearClient"
 import { logger } from "../../../../logger"
 import type {
-  BaseTokenInfo,
   SupportedChainName,
+  TokenInfo,
   TokenValue,
-  UnifiedTokenInfo,
 } from "../../../../types/base"
 import type { WithdrawWidgetProps } from "../../../../types/withdraw"
 import { parseUnits } from "../../../../utils/parse"
@@ -75,7 +73,6 @@ export const WithdrawForm = ({
   userAddress,
   displayAddress,
   chainType,
-  tokenList,
   presetAmount,
   presetNetwork,
   presetRecipient,
@@ -223,20 +220,17 @@ export const WithdrawForm = ({
 
   const { setModalType, data: modalSelectAssetsData } = useModalController<{
     modalType: ModalType
-    token: BaseTokenInfo | UnifiedTokenInfo | undefined
+    token: TokenInfo | undefined
   }>(ModalType.MODAL_SELECT_ASSETS)
 
-  const updateTokens = useTokensStore((state) => state.updateTokens)
-
-  const handleSelect = () => {
-    updateTokens(tokenList)
+  const handleSelect = useCallback(() => {
     const fieldName = "token"
     setModalType(ModalType.MODAL_SELECT_ASSETS, {
       fieldName,
       [fieldName]: token,
       isHoldingsEnabled: true,
     })
-  }
+  }, [token, setModalType])
 
   useEffect(() => {
     const sub = watch(async (value, { name }) => {
@@ -405,6 +399,7 @@ export const WithdrawForm = ({
           <FieldComboInput<WithdrawFormNearValues>
             fieldName="amountIn"
             selected={token}
+            tokenIn={token}
             handleSelect={handleSelect}
             className="border border-gray-4 rounded-xl"
             required

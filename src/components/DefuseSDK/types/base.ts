@@ -84,6 +84,8 @@ export interface UnifiedTokenInfo {
   tags?: string[]
 }
 
+export type TokenInfo = BaseTokenInfo | UnifiedTokenInfo
+
 export interface TokenValue {
   amount: bigint
   decimals: number

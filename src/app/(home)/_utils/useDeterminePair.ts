@@ -1,16 +1,20 @@
-import { isBaseToken } from "@src/components/DefuseSDK/utils"
+import { isBaseToken, isUnifiedToken } from "@src/components/DefuseSDK/utils"
 import { useContext, useMemo } from "react"
 
 import type {
   BaseTokenInfo,
-  UnifiedTokenInfo,
-} from "@src/components/DefuseSDK/types"
+  TokenInfo,
+} from "@src/components/DefuseSDK/types/base"
 import type { WhitelabelTemplateValue } from "@src/config/featureFlags"
-import { LIST_TOKENS } from "@src/constants/tokens"
+import { LIST_TOKENS, LIST_TOKENS_FLATTEN } from "@src/constants/tokens"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
-import { type useRouter, useSearchParams } from "next/navigation"
+import {
+  type ReadonlyURLSearchParams,
+  type useRouter,
+  useSearchParams,
+} from "next/navigation"
 
 const pairs: Record<WhitelabelTemplateValue, [string, string]> = {
   "near-intents": [
@@ -68,7 +72,7 @@ export function useDeterminePair() {
 function getPairFromUrlParams(
   fromParam: string | null,
   toParam: string | null,
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[],
+  tokenList: TokenInfo[],
   is1cs: boolean
 ) {
   const fromToken = findTokenBySymbol(fromParam, tokenList, is1cs)
@@ -82,7 +86,7 @@ function getPairFromUrlParams(
 
 function getPairFromWhitelabelTemplate(
   whitelabelTemplate: WhitelabelTemplateValue,
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[],
+  tokenList: TokenInfo[],
   is1cs: boolean
 ) {
   const pair = pairs[whitelabelTemplate]
@@ -109,9 +113,9 @@ function getPairFromWhitelabelTemplate(
 
 function findTokenBySymbol(
   input: string | null,
-  tokens: (BaseTokenInfo | UnifiedTokenInfo)[],
+  tokens: TokenInfo[],
   is1cs: boolean
-): BaseTokenInfo | UnifiedTokenInfo | null {
+): TokenInfo | null {
   if (!input) {
     return null
   }
@@ -124,35 +128,14 @@ function findTokenBySymbol(
           token.groupedTokens?.some((t: BaseTokenInfo) => t.symbol === input))
     ) ?? null
 
-  if (
-    !is1cs ||
-    // For 1cs a flat token list is expected
-    !tokens.every(isBaseToken) ||
-    token
-  ) {
+  if (!is1cs || token) {
     return token
   }
 
-  const tokenWithNetwork = tokens.find((token) => {
-    return token.symbol.split(" ")[0] === input
-  })
-
-  if (!tokenWithNetwork) {
-    return null
-  }
-
-  return (
-    LIST_TOKENS.find((t) =>
-      isBaseToken(t)
-        ? t.defuseAssetId === tokenWithNetwork.defuseAssetId
-        : t.groupedTokens.some(
-            (t) => t.defuseAssetId === tokenWithNetwork.defuseAssetId
-          )
-    ) ?? null
-  )
+  return tokenFromSymbolWithChainName(input)
 }
 
-export function updateURLParams({
+export function updateURLParamsDeposit({
   tokenIn,
   tokenOut,
   router,
@@ -168,4 +151,80 @@ export function updateURLParams({
   if (tokenOut?.symbol) params.set("to", tokenOut.symbol)
 
   router.replace(`?${params.toString()}`, { scroll: false })
+}
+
+export function updateURLParamsSwap({
+  tokenIn,
+  tokenOut,
+  tokens,
+  router,
+  searchParams,
+}: {
+  tokenIn: TokenInfo | null
+  tokenOut: TokenInfo | null
+  tokens: TokenInfo[]
+  router: ReturnType<typeof useRouter>
+  searchParams: ReadonlyURLSearchParams
+}) {
+  const params = new URLSearchParams(searchParams.toString())
+  const tokensWithTokenInAndOut = [...tokens]
+
+  if (tokenIn !== null) {
+    tokensWithTokenInAndOut.push(tokenIn)
+  }
+  if (tokenOut !== null) {
+    tokensWithTokenInAndOut.push(tokenOut)
+  }
+
+  if (tokenIn?.symbol) {
+    params.set("from", tokenToSymbol(tokenIn, tokensWithTokenInAndOut))
+  }
+
+  if (tokenOut?.symbol) {
+    params.set("to", tokenToSymbol(tokenOut, tokensWithTokenInAndOut))
+  }
+
+  if (params.toString() !== searchParams.toString()) {
+    router.replace(`?${params.toString()}`)
+  }
+}
+
+function tokenToSymbol(token: TokenInfo, tokensWithTokenInAndOut: TokenInfo[]) {
+  return hasChainIcon(token, tokensWithTokenInAndOut)
+    ? tokenToSymbolWithChainName(token)
+    : token.symbol
+}
+
+export function hasChainIcon(
+  token: TokenInfo,
+  tokens: TokenInfo[]
+): token is BaseTokenInfo {
+  return isUnifiedToken(token)
+    ? false
+    : tokens.filter(
+        (t) =>
+          (isBaseToken(t) ? token.defuseAssetId !== t.defuseAssetId : false) &&
+          t.symbol === token.symbol
+      ).length > 0
+}
+
+const SEPARATOR = ":"
+
+function tokenToSymbolWithChainName(token: BaseTokenInfo) {
+  return `${token.symbol}${SEPARATOR}${token.chainName}`
+}
+
+export function tokenFromSymbolWithChainName(symbolWithChainName: string) {
+  const [symbolWithoutChainName, chainName] = symbolWithChainName.split(
+    SEPARATOR
+  ) as [string, string | undefined]
+
+  return (
+    (chainName === undefined
+      ? LIST_TOKENS.find((t) => t.symbol === symbolWithoutChainName)
+      : LIST_TOKENS_FLATTEN.find(
+          (t) =>
+            t.symbol === symbolWithoutChainName && t.chainName === chainName
+        )) ?? null
+  )
 }

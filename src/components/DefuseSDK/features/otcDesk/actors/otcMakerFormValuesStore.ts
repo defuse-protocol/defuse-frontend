@@ -1,11 +1,11 @@
 import { createStore } from "@xstate/store"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
+import type { TokenInfo } from "../../../types/base"
 
 export type OTCMarkerFormValuesState = {
   amountIn: string
   amountOut: string
-  tokenIn: null | BaseTokenInfo | UnifiedTokenInfo
-  tokenOut: null | BaseTokenInfo | UnifiedTokenInfo
+  tokenIn: null | TokenInfo
+  tokenOut: null | TokenInfo
   expiry: string
 }
 
@@ -13,8 +13,8 @@ export const createOTCMakerFormValuesStore = ({
   initialTokenIn,
   initialTokenOut,
 }: {
-  initialTokenIn: BaseTokenInfo | UnifiedTokenInfo
-  initialTokenOut: BaseTokenInfo | UnifiedTokenInfo
+  initialTokenIn: TokenInfo
+  initialTokenOut: TokenInfo
 }) =>
   createStore({
     context: {
@@ -44,11 +44,7 @@ export const createOTCMakerFormValuesStore = ({
         enqueue.emit.changed({ context: newContext })
         return newContext
       },
-      updateTokenIn: (
-        context,
-        event: { value: BaseTokenInfo | UnifiedTokenInfo },
-        enqueue
-      ) => {
+      updateTokenIn: (context, event: { value: TokenInfo }, enqueue) => {
         const newContext = {
           ...context,
           tokenIn: event.value,
@@ -56,11 +52,7 @@ export const createOTCMakerFormValuesStore = ({
         enqueue.emit.changed({ context: newContext })
         return newContext
       },
-      updateTokenOut: (
-        context,
-        event: { value: BaseTokenInfo | UnifiedTokenInfo },
-        enqueue
-      ) => {
+      updateTokenOut: (context, event: { value: TokenInfo }, enqueue) => {
         const newContext = {
           ...context,
           tokenOut: event.value,
