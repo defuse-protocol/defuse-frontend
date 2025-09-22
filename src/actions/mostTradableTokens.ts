@@ -2,16 +2,15 @@
 
 import { chQuery } from "@src/utils/clickhouse"
 import { logger } from "@src/utils/logger"
-import { NextResponse } from "next/server"
 
-interface MostTradableToken {
+export type MostTradableTokenEntity = {
   symbol_out: string
   blockchain_out: string
   volume: number
 }
 
-interface MostTradableTokensResponse {
-  tokens: MostTradableToken[]
+export type MostTradableTokensResponse = {
+  tokens: Array<MostTradableTokenEntity>
 }
 
 const MOST_TRADABLE_TOKENS_QUERY = `
@@ -30,17 +29,19 @@ const MOST_TRADABLE_TOKENS_QUERY = `
 `
 
 /**
- * Fetches the most tradable tokens by volume in the last 24 hours.
+ * Server action to fetch the most tradable tokens by volume in the last 24 hours.
  */
-export async function GET() {
+export async function getMostTradableTokens(): Promise<MostTradableTokensResponse> {
   try {
-    const tokens = await chQuery<MostTradableToken>(MOST_TRADABLE_TOKENS_QUERY)
+    const tokens = await chQuery<MostTradableTokenEntity>(
+      MOST_TRADABLE_TOKENS_QUERY
+    )
 
-    return NextResponse.json({
+    return {
       tokens,
-    } satisfies MostTradableTokensResponse)
+    }
   } catch (error) {
     logger.error(error)
-    return NextResponse.error()
+    throw new Error("Failed to fetch most tradable tokens")
   }
 }
