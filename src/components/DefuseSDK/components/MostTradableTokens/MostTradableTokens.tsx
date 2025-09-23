@@ -1,3 +1,4 @@
+import { FireSimpleIcon } from "@phosphor-icons/react"
 import { hasChainIcon } from "@src/app/(home)/_utils/useDeterminePair"
 import { useIsFlatTokenListEnabled } from "@src/hooks/useIsFlatTokenListEnabled"
 import { useMostTradableTokens } from "@src/hooks/useMostTradableTokens"
@@ -6,13 +7,12 @@ import { chainIcons } from "../../constants/blockchains"
 import type { TokenInfo } from "../../types/base"
 import { isBaseToken } from "../../utils"
 import { AssetComboIcon } from "../Asset/AssetComboIcon"
-import type { SelectItemToken } from "../Modal/ModalSelectAssets"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip"
 import styles from "./MostTradableTokens.module.css"
 
 interface MostTradableTokensProps {
-  onTokenSelect: (selectItemToken: SelectItemToken) => void
-  tokenList: SelectItemToken[]
+  onTokenSelect: (selectItemToken: TokenInfo) => void
+  tokenList: TokenInfo[]
 }
 
 export function MostTradableTokens({
@@ -32,10 +32,10 @@ export function MostTradableTokens({
     })
 
     const filtered = tokenList.filter((token) => {
-      if (isBaseToken(token.token)) {
-        return rankMap.has(toKey(token.token.symbol, token.token.chainName))
+      if (isBaseToken(token)) {
+        return rankMap.has(toKey(token.symbol, token.chainName))
       }
-      return token.token.groupedTokens.some((t) =>
+      return token.groupedTokens.some((t) =>
         rankMap.has(toKey(t.symbol, t.chainName))
       )
     })
@@ -43,9 +43,9 @@ export function MostTradableTokens({
     // Deduplicate by normalized key
     const seen = new Set<string>()
     return filtered.filter((token) => {
-      const key = isBaseToken(token.token)
-        ? toKey(token.token.symbol, token.token.chainName)
-        : `${token.token.symbol}-unified`
+      const key = isBaseToken(token)
+        ? toKey(token.symbol, token.chainName)
+        : `${token.symbol}-unified`
       if (seen.has(key)) return false
       seen.add(key)
       return true
@@ -59,6 +59,12 @@ export function MostTradableTokens({
       <Tooltip>
         <TooltipTrigger asChild>
           <div className="cursor-pointer flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 whitespace-nowrap shrink-0">
+            <FireSimpleIcon
+              className={`w-4 h-4 text-orange-500 transition-all duration-300 ${styles.fireIcon}`}
+              aria-hidden="true"
+              width={16}
+              height={16}
+            />
             Most tradable
           </div>
         </TooltipTrigger>
@@ -96,8 +102,8 @@ function TokenList({
   tradableTokenList,
   onTokenSelect,
 }: {
-  tradableTokenList: SelectItemToken[]
-  onTokenSelect: (t: SelectItemToken) => void
+  tradableTokenList: TokenInfo[]
+  onTokenSelect: (t: TokenInfo) => void
 }) {
   const isFlatTokenListEnabled = useIsFlatTokenListEnabled()
   const showChainIcon = useCallback(
@@ -107,11 +113,7 @@ function TokenList({
     ) => {
       return (
         (isFlatTokenListEnabled && chainIcon !== undefined) ||
-        (chainIcon !== undefined &&
-          hasChainIcon(
-            token,
-            tradableTokenList.map((t) => t.token)
-          ))
+        (chainIcon !== undefined && hasChainIcon(token, tradableTokenList))
       )
     },
     [tradableTokenList, isFlatTokenListEnabled]
@@ -122,23 +124,23 @@ function TokenList({
       className={`flex flex-nowrap overflow-x-auto overflow-y-hidden no-scrollbar min-w-0 max-w-full gap-2 whitespace-nowrap ${styles.hideScrollbar}`}
     >
       {tradableTokenList.map((selectItemToken) => {
-        const chainIcon = isBaseToken(selectItemToken.token)
-          ? chainIcons[selectItemToken.token.chainName]
+        const chainIcon = isBaseToken(selectItemToken)
+          ? chainIcons[selectItemToken.chainName]
           : undefined
         return (
           <button
-            key={`${selectItemToken.token.symbol}-${isBaseToken(selectItemToken.token) ? selectItemToken.token.chainName : "unified"}`}
+            key={`${selectItemToken.symbol}-${isBaseToken(selectItemToken) ? selectItemToken.chainName : "unified"}`}
             type="button"
             onClick={() => onTokenSelect(selectItemToken)}
             className="group relative shrink-0 flex flex-none items-center justify-center p-1 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-700 transition-all duration-200 touch-manipulation w-10 h-10"
           >
             <AssetComboIcon
-              icon={selectItemToken.token.icon}
-              name={selectItemToken.token.name}
-              showChainIcon={showChainIcon(selectItemToken.token, chainIcon)}
+              icon={selectItemToken.icon}
+              name={selectItemToken.name}
+              showChainIcon={showChainIcon(selectItemToken, chainIcon)}
               chainName={
-                isBaseToken(selectItemToken.token)
-                  ? selectItemToken.token.chainName
+                isBaseToken(selectItemToken)
+                  ? selectItemToken.chainName
                   : undefined
               }
               chainIcon={chainIcon}

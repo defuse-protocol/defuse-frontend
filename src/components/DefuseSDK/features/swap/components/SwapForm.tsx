@@ -1,5 +1,6 @@
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Box, Button, Callout, Flex } from "@radix-ui/themes"
+import { MostTradableTokens } from "@src/components/DefuseSDK/components/MostTradableTokens/MostTradableTokens"
 import { TradeNavigationLinks } from "@src/components/DefuseSDK/components/TradeNavigationLinks"
 import { useTokensUsdPrices } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
@@ -76,6 +77,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     insufficientTokenInAmount,
     failedToGetAQuote,
     quote1csError,
+    tokenList,
   } = SwapUIMachineContext.useSelector((snapshot) => {
     const tokenIn = snapshot.context.formValues.tokenIn
     const tokenOut = snapshot.context.formValues.tokenOut
@@ -99,6 +101,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
       insufficientTokenInAmount: Boolean(insufficientTokenInAmount),
       failedToGetAQuote: Boolean(failedToGetAQuote),
       quote1csError: snapshot.context.quote1csError,
+      tokenList: snapshot.context.tokenList,
     }
   })
 
@@ -230,6 +233,24 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
         currentRoute="swap"
         renderHostAppLink={renderHostAppLink}
       />
+      {tokenList.length > 0 ? (
+        <MostTradableTokens
+          tokenList={tokenList}
+          onTokenSelect={(t) => {
+            if (getTokenId(tokenIn) === getTokenId(t)) {
+              swapUIActorRef.send({
+                type: "input",
+                params: { tokenIn: tokenOut, tokenOut: tokenIn },
+              })
+            } else {
+              swapUIActorRef.send({
+                type: "input",
+                params: { tokenOut: t },
+              })
+            }
+          }}
+        />
+      ) : null}
 
       <div className="flex flex-col">
         <Form<SwapFormValues>
