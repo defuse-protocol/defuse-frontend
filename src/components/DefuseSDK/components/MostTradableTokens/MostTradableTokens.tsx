@@ -68,12 +68,10 @@ export function MostTradableTokens({
         </TooltipContent>
       </Tooltip>
 
-      {tradableTokenList && (
-        <TokenList
-          tradableTokenList={tradableTokenList}
-          onTokenSelect={onTokenSelect}
-        />
-      )}
+      <TokenList
+        tradableTokenList={tradableTokenList}
+        onTokenSelect={onTokenSelect}
+      />
 
       {isError && (
         <div className="flex gap-1 items-center">
