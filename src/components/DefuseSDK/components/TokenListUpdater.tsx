@@ -13,6 +13,7 @@ import type { ActorRefFromLogic } from "xstate"
 import { useTokensStore } from "../providers/TokensStoreProvider"
 import type { TokenInfo } from "../types/base"
 import { isBaseToken } from "../utils"
+import { getTokenId } from "../utils/token"
 
 export function TokenListUpdater<T extends { tokenList: TokenInfo[] }>({
   tokenList,
@@ -127,7 +128,8 @@ export function TokenListUpdater1cs({
             ? tokenIn.defuseAssetId === firstToken.defuseAssetId
             : tokenIn.groupedTokens.some(
                 (t) => t.defuseAssetId === firstToken.defuseAssetId
-              ))
+              )) &&
+          getTokenId(tokenIn) !== firstToken.defuseAssetId
         ) {
           sendTokenInOrOut({ tokenIn: firstToken })
         }
@@ -138,7 +140,8 @@ export function TokenListUpdater1cs({
             ? tokenOut.defuseAssetId === firstToken.defuseAssetId
             : tokenOut.groupedTokens.some(
                 (t) => t.defuseAssetId === firstToken.defuseAssetId
-              ))
+              )) &&
+          getTokenId(tokenOut) !== firstToken.defuseAssetId
         ) {
           sendTokenInOrOut({ tokenOut: firstToken })
         }

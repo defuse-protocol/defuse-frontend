@@ -1,6 +1,5 @@
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { getQuote as get1csQuoteApi } from "@src/components/DefuseSDK/features/machines/1cs"
-import throttle from "lodash-es/throttle"
 import { type ActorRef, type Snapshot, fromCallback } from "xstate"
 
 import { logger } from "../../logger"
@@ -78,21 +77,15 @@ export const background1csQuoterMachine = fromCallback<
     })
   }
 
-  const throttledGetQuote = throttle(executeQuote, 500, {
-    leading: true, // Execute immediately on first call
-    trailing: true, // Execute after delay if there were calls during the wait
-  })
-
   receive((event) => {
     const eventType = event.type
     switch (eventType) {
       case "PAUSE":
         paused = true
-        throttledGetQuote.cancel()
         return
       case "NEW_QUOTE_INPUT": {
         paused = false
-        throttledGetQuote(event.params)
+        executeQuote(event.params)
         break
       }
       default:
@@ -127,7 +120,6 @@ async function get1csQuote(
     const result = await get1csQuoteApi({
       dry: true,
       slippageTolerance: Math.round(quoteInput.slippageBasisPoints / 100),
-      quoteWaitingTimeMs: 3000,
       originAsset: tokenInAssetId,
       destinationAsset: tokenOutAssetId,
       amount: quoteInput.amountIn.amount.toString(),
