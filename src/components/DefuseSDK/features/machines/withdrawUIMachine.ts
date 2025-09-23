@@ -24,6 +24,7 @@ import {
 import {
   type BalanceMapping,
   type Events as DepositedBalanceEvents,
+  balancesSelector,
   depositedBalanceMachine,
 } from "./depositedBalanceMachine"
 import { intentStatusMachine } from "./intentStatusMachine"
@@ -237,8 +238,9 @@ export const withdrawUIMachine = setup({
           type: "NEW_QUOTE_INPUT",
           params: {
             ...preparationOutput.value.swap.swapParams,
-            balances:
-              context.depositedBalanceRef.getSnapshot().context.balances,
+            balances: balancesSelector(
+              context.depositedBalanceRef.getSnapshot()
+            ),
             appFeeBps: 0, // no app fee for withdrawals
           },
         }
@@ -451,8 +453,9 @@ export const withdrawUIMachine = setup({
             guard: {
               type: "isBalanceSufficientForQuote",
               params: ({ context }) => {
-                const balances =
-                  context.depositedBalanceRef.getSnapshot().context.balances
+                const balances = balancesSelector(
+                  context.depositedBalanceRef.getSnapshot()
+                )
 
                 if (
                   context.preparationOutput == null ||

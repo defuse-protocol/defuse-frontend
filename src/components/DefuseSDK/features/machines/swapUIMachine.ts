@@ -38,6 +38,7 @@ import { isBaseToken } from "@src/components/DefuseSDK/utils/token"
 import {
   type BalanceMapping,
   type Events as DepositedBalanceEvents,
+  balancesSelector,
   depositedBalanceMachine,
 } from "./depositedBalanceMachine"
 import { intentStatusMachine } from "./intentStatusMachine"
@@ -277,7 +278,7 @@ export const swapUIMachine = setup({
         const depositedBalanceRef:
           | ActorRefFrom<typeof depositedBalanceMachine>
           | undefined = snapshot.children.depositedBalanceRef
-        const balances = depositedBalanceRef?.getSnapshot().context.balances
+        const balances = balancesSelector(depositedBalanceRef?.getSnapshot())
 
         assert(context.parsedFormValues.amountIn != null, "amountIn is not set")
 

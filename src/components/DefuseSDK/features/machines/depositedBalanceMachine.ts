@@ -271,6 +271,19 @@ export const depositedBalanceMachine = setup({
   },
 })
 
+type BalancesSelectorReturn<T> = T extends undefined
+  ? undefined
+  : BalanceMapping
+
+export function balancesSelector<
+  T extends SnapshotFrom<typeof depositedBalanceMachine> | undefined,
+>(state: T): BalancesSelectorReturn<T> {
+  if (state === undefined) {
+    return undefined as BalancesSelectorReturn<T>
+  }
+  return state.context.balances as BalancesSelectorReturn<T>
+}
+
 export function balanceSelector(token: TokenInfo | null | undefined) {
   return (state: undefined | SnapshotFrom<typeof depositedBalanceMachine>) => {
     if (!state || !token) return
