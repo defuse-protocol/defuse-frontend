@@ -191,7 +191,7 @@ export const depositedBalanceMachine = setup({
 
   context: ({ input }) => {
     const tokenIds = input.tokenList
-      .flatMap(getUnderlyingBaseTokenInfos)
+      .flatMap((t) => getUnderlyingBaseTokenInfos(t))
       .map((t) => t.defuseAssetId)
 
     return {

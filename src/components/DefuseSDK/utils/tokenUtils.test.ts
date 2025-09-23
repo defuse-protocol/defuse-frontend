@@ -798,6 +798,7 @@ describe("getUnderlyingBaseTokenInfos", () => {
         bridge: "poa",
       },
     ],
+    tags: ["foo"],
   }
 
   it("should return array with single token for base token input", () => {
@@ -834,6 +835,13 @@ describe("getUnderlyingBaseTokenInfos", () => {
     expect(() => getUnderlyingBaseTokenInfos(tokensWithConflict)).toThrow(
       DuplicateTokenError
     )
+  })
+
+  it("adds tags from unified token", () => {
+    expect(getUnderlyingBaseTokenInfos(unifiedToken, true)).toEqual([
+      { ...unifiedToken.groupedTokens[0], tags: ["foo"] },
+      { ...unifiedToken.groupedTokens[1], tags: ["foo"] },
+    ])
   })
 })
 
