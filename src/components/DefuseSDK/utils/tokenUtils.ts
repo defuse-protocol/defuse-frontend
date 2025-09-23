@@ -162,13 +162,29 @@ export function getAnyBaseTokenInfo(token: TokenInfo): BaseTokenInfo {
 }
 
 export function getUnderlyingBaseTokenInfos(
-  token: TokenInfo | BaseTokenInfo[]
+  token: TokenInfo | BaseTokenInfo[],
+  preserveTags = false
 ): BaseTokenInfo[] {
   let tokens: BaseTokenInfo[]
   if (Array.isArray(token)) {
     tokens = token
   } else {
-    tokens = isBaseToken(token) ? [token] : token.groupedTokens
+    tokens = isBaseToken(token)
+      ? [token]
+      : token.groupedTokens.map((t) => {
+          if (!preserveTags) {
+            return t
+          }
+
+          const mergedTags = Array.from(
+            new Set([...(token.tags ?? []), ...(t.tags ?? [])])
+          )
+          return Object.assign(
+            {},
+            t,
+            mergedTags.length > 0 ? { tags: mergedTags } : {}
+          )
+        })
   }
 
   return deduplicateTokens(tokens)
