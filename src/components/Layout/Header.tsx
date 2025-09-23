@@ -1,59 +1,46 @@
 "use client"
 
-import { Text } from "@radix-ui/themes"
-import clsx from "clsx"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import React from "react"
-
+import AddTurboChainButton from "@src/components/AddTurboChainButton"
 import Logo from "@src/components/Logo"
-import Navbar from "@src/components/Navbar"
 import Settings from "@src/components/Settings"
 import ConnectWallet from "@src/components/Wallet"
-import { Navigation } from "@src/constants/routes"
+import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
+import { type ReactNode, useContext } from "react"
+import styles from "./Header.module.css"
 
-const NEXT_PUBLIC_APP_URL = process?.env?.appUrl ?? ""
-
-const Header = () => {
-  const pathname = usePathname()
-  const isMarketPage = pathname === Navigation.JOBS
+export function Header({
+  navbarSlot,
+  depositSlot,
+}: {
+  navbarSlot?: ReactNode
+  depositSlot?: ReactNode
+}) {
+  const { whitelabelTemplate } = useContext(FeatureFlagsContext)
 
   return (
     <>
-      <header className="h-[56px] fixed top-0 left-0 w-full md:relative border-b-[1px] border-white-200 z-50 bg-transparent dark:border-black-600">
+      <header
+        className={`${styles.header} h-[56px] fixed top-0 left-0 w-full md:relative border-b-[1px] z-50 border-gray-a3`}
+      >
         <div className="h-full flex justify-between items-center px-3">
-          <Logo />
-          <div className="hidden md:flex justify-center w-full max-w-5xl pl-3">
-            {!isMarketPage && <Navbar />}
+          <div className="flex-shrink-0">
+            <Logo />
           </div>
-          <div className="flex justify-between items-center gap-4">
-            {!isMarketPage && (
-              <>
-                <ConnectWallet />
-                <Settings />
-              </>
+
+          {/* Navbar */}
+          <div className="flex-grow flex justify-between items-center pl-8 pr-4">
+            <div className="flex-shrink-0">{navbarSlot}</div>
+            <div className="flex-shrink-0">{depositSlot}</div>
+          </div>
+
+          <div className="flex justify-end items-center gap-4 flex-shrink-0">
+            {whitelabelTemplate === "turboswap" && (
+              <div className="hidden md:block">
+                <AddTurboChainButton />
+              </div>
             )}
-            {isMarketPage && (
-              <>
-                <Link
-                  href={Navigation.JOBS}
-                  className="hidden md:block relative px-3 py-1.5 rounded-full text-sm"
-                >
-                  Jobs
-                </Link>
-                <Link
-                  href={NEXT_PUBLIC_APP_URL}
-                  className={clsx(
-                    "rounded-full text-white px-4 py-2.5 text-sm bg-primary hover:bg-primary-200"
-                  )}
-                  target="_blank"
-                >
-                  <Text size="2" weight="medium" wrap="nowrap">
-                    Launch App
-                  </Text>
-                </Link>
-              </>
-            )}
+            <ConnectWallet />
+            <Settings />
           </div>
         </div>
       </header>
@@ -62,4 +49,23 @@ const Header = () => {
   )
 }
 
-export default Header
+Header.DisplayNavbar = function DisplayNavbar({
+  children,
+}: {
+  children: ReactNode
+}) {
+  return <div className="hidden md:flex flex-1 justify-center">{children}</div>
+}
+
+Header.DepositSlot = function DepositSlot({
+  children,
+}: {
+  children: ReactNode
+}) {
+  return (
+    <div className="hidden md:flex items-center justify-between">
+      {children}
+      <div className="h-[20px] w-[1px] bg-gray-5 ml-4" />
+    </div>
+  )
+}

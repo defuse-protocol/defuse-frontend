@@ -1,24 +1,37 @@
 "use client"
-
-import { SwapWidget } from "@defuse-protocol/defuse-sdk"
-
+import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
+import { getTokens } from "@src/components/DefuseSDK/features/machines/1cs"
+import { SwapWidget } from "@src/components/DefuseSDK/features/swap/components/SwapWidget"
+import { isBaseToken } from "@src/components/DefuseSDK/utils"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
-import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
-import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
+import { useConnectWallet } from "@src/hooks/useConnectWallet"
+import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
+import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
+import { useTokenList } from "@src/hooks/useTokenList"
+import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
+import { useNearWallet } from "@src/providers/NearWalletProvider"
+import { renderAppLink } from "@src/utils/renderAppLink"
+import { useQuery } from "@tanstack/react-query"
+import { useSearchParams } from "next/navigation"
+import { useMemo } from "react"
 
 export default function Swap() {
-  const { accountId } = useWalletSelector()
-  const { signMessage, signAndSendTransactions } = useNearWalletActions()
+  const { state } = useConnectWallet()
+  const signMessage = useWalletAgnosticSignMessage()
+  const { signAndSendTransactions } = useNearWallet()
+  const searchParams = useSearchParams()
+  const userAddress = state.isVerified ? state.address : undefined
+  const userChainType = state.chainType
+  const tokenList = useTokenList1cs()
+  const { tokenIn, tokenOut } = useDeterminePair()
+  const referral = useIntentsReferral()
 
   return (
-    <Paper
-      title="Swap"
-      description="Cross-chain swap across any network, any token."
-    >
+    <Paper>
       <SwapWidget
-        tokenList={LIST_TOKENS}
-        userAddress={accountId}
+        tokenList={tokenList}
+        userAddress={userAddress}
         sendNearTransaction={async (tx) => {
           const result = await signAndSendTransactions({ transactions: [tx] })
 
@@ -33,16 +46,50 @@ export default function Swap() {
 
           return { txHash: outcome.transaction.hash }
         }}
-        signMessage={async (params) => {
-          const { signatureData, signedData } = await signMessage({
-            ...params.NEP413,
-            nonce: Buffer.from(params.NEP413.nonce),
-          })
-
-          return { type: "NEP413", signatureData, signedData }
-        }}
+        signMessage={(params) => signMessage(params)}
         onSuccessSwap={() => {}}
+        renderHostAppLink={(routeName, children, props) =>
+          renderAppLink(routeName, children, props, searchParams)
+        }
+        userChainType={userChainType}
+        referral={referral}
+        initialTokenIn={tokenIn ?? undefined}
+        initialTokenOut={tokenOut ?? undefined}
       />
     </Paper>
   )
+}
+
+// These tokens no longer tradable and might be removed in future.
+const TOKENS_WITHOUT_REF_AND_BRRR = LIST_TOKENS.filter(
+  (token) => token.symbol !== "REF" && token.symbol !== "BRRR"
+)
+
+function useTokenList1cs() {
+  const tokenList = useTokenList(TOKENS_WITHOUT_REF_AND_BRRR)
+
+  const { data: oneClickTokens, isLoading: is1csTokensLoading } = useQuery({
+    queryKey: ["1cs-tokens"],
+    queryFn: () => getTokens(),
+    staleTime: 60 * 1000, // 1 minute
+    gcTime: 5 * 60 * 1000, // 5 minutes
+  })
+
+  const is1cs = useIs1CsEnabled()
+
+  return useMemo(() => {
+    if (!is1cs || !oneClickTokens || is1csTokensLoading) {
+      return tokenList
+    }
+
+    const oneClickAssetIds = new Set(
+      oneClickTokens.map((token) => token.assetId)
+    )
+
+    return tokenList.filter((token) => {
+      return isBaseToken(token)
+        ? oneClickAssetIds.has(token.defuseAssetId)
+        : oneClickAssetIds.has(token.groupedTokens[0]?.defuseAssetId)
+    })
+  }, [is1cs, tokenList, oneClickTokens, is1csTokensLoading])
 }

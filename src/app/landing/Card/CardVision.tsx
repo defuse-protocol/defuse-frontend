@@ -40,7 +40,7 @@ const CardVision = ({
           {title}
         </Text>
         {description && (
-          <Text className="text-[14px] md:text-[18px] font-bold text-gray-600">
+          <Text className="text-[14px] md:text-[18px] font-bold text-gray-11">
             {description}
           </Text>
         )}

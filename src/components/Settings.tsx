@@ -1,36 +1,16 @@
 "use client"
 
+import { ShieldCheckIcon } from "@phosphor-icons/react"
 import { ExternalLinkIcon } from "@radix-ui/react-icons"
-import { Popover, Separator, Spinner, Switch, Text } from "@radix-ui/themes"
-import { useTheme } from "next-themes"
-import React, { useState, useEffect } from "react"
-
-import { THEME_MODE_KEY } from "@src/constants/contracts"
+import { Popover, Separator, Switch, Text } from "@radix-ui/themes"
+import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import Themes from "@src/types/themes"
-import ComingSoon from "./ComingSoon"
-
-const NEXT_PUBLIC_LINK_DOCS = process.env.NEXT_PUBLIC_LINK_DOCS ?? ""
-const NEXT_PUBLIC_PUBLIC_MAIL = process?.env?.NEXT_PUBLIC_PUBLIC_MAIL ?? ""
+import { useTheme } from "next-themes"
+import { useContext } from "react"
+import AddTurboChainButton from "./AddTurboChainButton"
 
 const Settings = () => {
-  const { theme, setTheme } = useTheme()
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <reason>
-  useEffect(() => {
-    const getThemeFromLocal = localStorage.getItem(THEME_MODE_KEY)
-    if (!getThemeFromLocal) {
-      setTheme(Themes.LIGHT)
-      return
-    }
-    if (getThemeFromLocal === "light" || getThemeFromLocal === "dark") {
-      setTheme(getThemeFromLocal)
-    }
-  }, [])
-
-  const onChangeTheme = () => {
-    setTheme(theme === Themes.DARK ? Themes.LIGHT : Themes.DARK)
-  }
-
+  const { whitelabelTemplate } = useContext(FeatureFlagsContext)
   const elementCircleStyle =
     "bg-black w-[3px] h-[3px] rounded-full dark:bg-gray-100"
   return (
@@ -39,7 +19,7 @@ const Settings = () => {
         <Popover.Trigger>
           <button
             type={"button"}
-            className="w-[32px] h-[32px] flex justify-center items-center bg-gray-200 rounded-full gap-1 dark:bg-gray-1000"
+            className="w-[32px] h-[32px] flex justify-center items-center rounded-full gap-1 bg-gray-a3"
           >
             <span className={elementCircleStyle} />
             <span className={elementCircleStyle} />
@@ -48,48 +28,132 @@ const Settings = () => {
         </Popover.Trigger>
         <Popover.Content className="min-w-[180px] mt-1 dark:bg-black-800 rounded-2xl">
           <div className="flex flex-col gap-4">
-            <ComingSoon>
-              <div className="flex justify-between items-center gap-4">
-                <Text size="2" weight="medium">
-                  Dark Mode
-                </Text>
-                <Switch
-                  className="cursor-pointer"
-                  size="1"
-                  onClick={onChangeTheme}
-                  color="orange"
-                  defaultChecked={theme === Themes.DARK}
-                />
+            {whitelabelTemplate === "turboswap" && (
+              <div className="md:hidden">
+                <AddTurboChainButton />
+                <Separator orientation="horizontal" size="4" className="mt-4" />
               </div>
-            </ComingSoon>
+            )}
+
+            <DarkMode />
             <Separator orientation="horizontal" size="4" />
+
             <div className="flex flex-col justify-between items-center gap-1.5">
-              <button
-                type={"button"}
-                onClick={() => window.open(NEXT_PUBLIC_LINK_DOCS)}
+              <a
+                href="https://docs.near-intents.org"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex justify-between items-center gap-2"
+              >
+                <Text size="2" weight="medium">
+                  Docs
+                </Text>
+                <ExternalLinkIcon width={16} height={16} />
+              </a>
+
+              <a
+                href="https://t.me/near_intents"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-full flex justify-between items-center gap-2"
               >
                 <Text size="2" weight="medium">
                   Help center
                 </Text>
                 <ExternalLinkIcon width={16} height={16} />
-              </button>
-              <button
-                type={"button"}
-                onClick={() => window.open(`mailto:${NEXT_PUBLIC_PUBLIC_MAIL}`)}
+              </a>
+
+              <a
+                href="mailto:defuse@defuse.org"
                 className="w-full flex justify-between items-center gap-2"
               >
                 <Text size="2" weight="medium">
                   Request feature
                 </Text>
                 <ExternalLinkIcon width={16} height={16} />
-              </button>
+              </a>
+
+              <a
+                href="/privacy-policy"
+                className="w-full flex justify-between items-center gap-2"
+              >
+                <Text size="2" weight="medium">
+                  Privacy Policy
+                </Text>
+              </a>
+
+              <a
+                href="/terms-of-service"
+                className="w-full flex justify-between items-center gap-2"
+              >
+                <Text size="2" weight="medium">
+                  Terms of Service
+                </Text>
+              </a>
+              {whitelabelTemplate === "near-intents" && (
+                <a
+                  href="/jobs"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex justify-between items-center gap-2"
+                >
+                  <Text size="2" weight="medium">
+                    Jobs
+                  </Text>
+                  <ExternalLinkIcon width={16} height={16} />
+                </a>
+              )}
+            </div>
+
+            <Separator orientation="horizontal" size="4" />
+            <div className="flex flex-col justify-between items-center gap-1.5">
+              <a
+                href="https://hackenproof.com/programs/near-intents"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex justify-between items-center gap-2"
+              >
+                <span className="flex items-center gap-2">
+                  <ShieldCheckIcon
+                    className="w-4 h-4 text-muted-foreground"
+                    aria-hidden="true"
+                  />
+                  <Text size="2" weight="medium">
+                    Bug Bounty
+                  </Text>
+                </span>
+                <ExternalLinkIcon width={16} height={16} />
+              </a>
             </div>
           </div>
         </Popover.Content>
       </Popover.Root>
     </div>
   )
+}
+
+const DarkMode = () => {
+  const { setTheme, resolvedTheme } = useTheme()
+
+  // This accounts for system preference when theme is set to "system"
+  const isDarkMode = resolvedTheme === Themes.DARK
+
+  const darkModeSwitch = (
+    <div className="flex justify-between items-center gap-4">
+      <Text size="2" weight="medium">
+        Dark Mode
+      </Text>
+      <Switch
+        size="1"
+        onCheckedChange={(checked: boolean) => {
+          setTheme(checked ? Themes.DARK : Themes.LIGHT)
+        }}
+        checked={isDarkMode}
+      />
+    </div>
+  )
+
+  return darkModeSwitch
 }
 
 export default Settings

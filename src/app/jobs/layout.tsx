@@ -3,12 +3,9 @@ import type React from "react"
 import type { PropsWithChildren } from "react"
 
 import Layout from "@src/components/Layout"
+import { settings } from "@src/config/settings"
 
-export const metadata: Metadata = {
-  title: "Careers - Join Our Team",
-  description:
-    "Join for exciting careers in blockchain and cross-chain technology. Apply today and start shaping the future of decentralized finance!",
-}
+export const metadata: Metadata = settings.metadata.jobs
 
 const JobsLayout: React.FC<PropsWithChildren> = ({ children }) => {
   return <Layout>{children}</Layout>

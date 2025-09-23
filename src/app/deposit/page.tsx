@@ -1,48 +1,92 @@
 "use client"
 
-import React from "react"
-
-import { DepositWidget } from "@defuse-protocol/defuse-sdk"
+import { DepositWidget } from "@src/components/DefuseSDK/features/deposit/components/DepositWidget"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
-import { SignInType, useConnectWallet } from "@src/hooks/useConnectWallet"
-import { useNotificationStore } from "@src/providers/NotificationProvider"
-import { NotificationType } from "@src/stores/notificationStore"
+import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
+import { useTokenList } from "@src/hooks/useTokenList"
+import { renderAppLink } from "@src/utils/renderAppLink"
+import { useRouter, useSearchParams } from "next/navigation"
+import {
+  updateURLParamsDeposit,
+  useDeterminePair,
+} from "../(home)/_utils/useDeterminePair"
 
 export default function Deposit() {
   const { state, sendTransaction } = useConnectWallet()
-  const setNotification = useNotificationStore((state) => state.setNotification)
+  const tokenList = useTokenList(LIST_TOKENS)
+  const { tokenIn } = useDeterminePair()
+  const router = useRouter()
+  const searchParams = useSearchParams()
 
   return (
-    <Paper title="Deposit">
+    <Paper>
       <DepositWidget
-        tokenList={LIST_TOKENS}
-        userAddress={state.address ?? null}
-        sendTransactionNear={async (transactions) => {
+        tokenList={tokenList}
+        userAddress={state.isVerified ? state.address : undefined}
+        userWalletAddress={
+          state.isVerified &&
+          state.chainType !== ChainType.WebAuthn &&
+          state.displayAddress
+            ? state.displayAddress
+            : null
+        }
+        chainType={state.chainType}
+        sendTransactionNear={async (tx) => {
           const result = await sendTransaction({
-            id: SignInType.NearWalletSelector,
-            transactions,
+            id: ChainType.Near,
+            tx,
           })
-
-          // For batch transactions, the result is an array with the transaction hash as the second element
-          return Array.isArray(result) ? result[1].transaction.hash : result
+          return Array.isArray(result) ? result[0].transaction.hash : result
         }}
-        onEmit={(event) => {
-          if (event.type === "SUCCESSFUL_DEPOSIT") {
-            setNotification({
-              id: crypto.randomUUID(),
-              message: "Deposit successful",
-              type: NotificationType.SUCCESS,
-            })
-          }
-          if (event.type === "FAILED_DEPOSIT") {
-            setNotification({
-              id: crypto.randomUUID(),
-              message: "Deposit failed",
-              type: NotificationType.ERROR,
-            })
-          }
+        sendTransactionEVM={async ({ from, ...tx }) => {
+          const result = await sendTransaction({
+            id: ChainType.EVM,
+            tx: {
+              ...tx,
+              account: from,
+            },
+          })
+          return Array.isArray(result) ? result[0].transaction.hash : result
         }}
+        sendTransactionSolana={async (tx) => {
+          const result = await sendTransaction({
+            id: ChainType.Solana,
+            tx,
+          })
+          return Array.isArray(result) ? result[0].transaction.hash : result
+        }}
+        sendTransactionTon={async (tx) => {
+          const result = await sendTransaction({
+            id: ChainType.Ton,
+            tx,
+          })
+          return Array.isArray(result) ? result[0].transaction.hash : result
+        }}
+        sendTransactionStellar={async (tx) => {
+          const result = await sendTransaction({
+            id: ChainType.Stellar,
+            tx,
+          })
+          return Array.isArray(result) ? result[0].transaction.hash : result
+        }}
+        sendTransactionTron={async (tx) => {
+          const result = await sendTransaction({
+            id: ChainType.Tron,
+            tx,
+          })
+          return Array.isArray(result) ? result[0].transaction.hash : result
+        }}
+        renderHostAppLink={renderAppLink}
+        initialToken={tokenIn ?? undefined}
+        onTokenChange={(params) =>
+          updateURLParamsDeposit({
+            router,
+            searchParams,
+            tokenIn: params.token,
+            tokenOut: null,
+          })
+        }
       />
     </Paper>
   )

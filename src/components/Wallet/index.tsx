@@ -1,98 +1,342 @@
 "use client"
 
-import { CountdownTimerIcon } from "@radix-ui/react-icons"
 import { Button, Popover, Text } from "@radix-ui/themes"
-import clsx from "clsx"
 import Image from "next/image"
-import React from "react"
-
-import WalletConnections from "@src/components/Wallet/WalletConnections"
-import WalletTabs from "@src/components/Wallet/WalletTabs"
-import { SignInType, useConnectWallet } from "@src/hooks/useConnectWallet"
-import useShortAccountId from "@src/hooks/useShortAccountId"
-import { useHistoryStore } from "@src/providers/HistoryStoreProvider"
-import { useModalStore } from "@src/providers/ModalStoreProvider"
-import { ModalType } from "@src/stores/modalStore"
+import { useContext } from "react"
 import type { Connector } from "wagmi"
 
-const TURN_OFF_APPS = process?.env?.turnOffApps === "true" ?? true
-const TURN_OFF_EVM_WALLETS = process?.env?.turnOffEvmWallets === "true" ?? true
+import WalletConnections from "@src/components/Wallet/WalletConnections"
+import { isSupportedByBrowser } from "@src/features/webauthn/lib/webauthnService"
+import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
+import useShortAccountId from "@src/hooks/useShortAccountId"
+import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
+import { useSignInWindowOpenState } from "@src/stores/useSignInWindowOpenState"
+import { mapStringToEmojis } from "@src/utils/emoji"
+import { TonConnectButton } from "./TonConnectButton"
 
 const ConnectWallet = () => {
-  const { state } = useConnectWallet()
-  const { shortAccountId } = useShortAccountId(state.address ?? "")
-  const { openWidget } = useHistoryStore((state) => state)
-  const { signIn, connectors } = useConnectWallet()
+  const { isOpen, setIsOpen } = useSignInWindowOpenState()
+  const { state, signIn, connectors } = useConnectWallet()
+  const { shortAccountId } = useShortAccountId(state.displayAddress ?? "")
+  const { whitelabelTemplate } = useContext(FeatureFlagsContext)
 
   const handleNearWalletSelector = () => {
-    signIn({ id: SignInType.NearWalletSelector })
+    return signIn({ id: ChainType.Near })
   }
 
   const handleWalletConnect = (connector: Connector) => {
-    signIn({ id: SignInType.Wagmi, connector })
+    return signIn({ id: ChainType.EVM, connector })
   }
 
-  const handleTradeHistory = () => openWidget()
+  const handleSolanaWalletSelector = () => {
+    return signIn({ id: ChainType.Solana })
+  }
 
-  if (!state.address || TURN_OFF_APPS) {
+  const handlePasskey = () => {
+    return signIn({ id: ChainType.WebAuthn })
+  }
+
+  if (!state.address) {
     return (
-      <Popover.Root>
+      <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
         <Popover.Trigger>
-          <button
-            type={"button"}
-            className={clsx(
-              "rounded-full text-white px-4 py-2.5 text-sm",
-              TURN_OFF_APPS ? "bg-gray-500" : "bg-primary"
-            )}
-            disabled={TURN_OFF_APPS}
-          >
-            <Text size="2" weight="medium" wrap="nowrap">
-              Connect wallet
+          <Button type={"button"} variant={"solid"} size={"2"} radius={"full"}>
+            <Text weight="bold" wrap="nowrap">
+              Sign in
             </Text>
-          </button>
+          </Button>
         </Popover.Trigger>
-        <Popover.Content className="min-w-[330px] md:mr-[48px] dark:bg-black-800 rounded-2xl">
-          <Text size="1">How do you want to connect?</Text>
+        <Popover.Content
+          maxWidth={{ initial: "90vw", xs: "480px" }}
+          minWidth={{ initial: "300px", xs: "330px" }}
+          maxHeight={{ initial: "70vh", sm: "90vh" }}
+          className="md:mr-[48px] dark:bg-black-800 rounded-2xl"
+        >
+          <Text size="1">How do you want to sign in?</Text>
           <div className="w-full grid grid-cols-1 gap-4 mt-4">
-            <Button
-              onClick={handleNearWalletSelector}
-              size="4"
-              radius="medium"
-              variant="soft"
-              color="gray"
-              className="px-2.5"
-            >
-              <div className="w-full flex items-center justify-start gap-2">
-                <Image
-                  src="/static/icons/wallets/near-wallet-selector.svg"
-                  alt="Near Wallet Selector"
-                  width={36}
-                  height={36}
-                />
-                <Text size="2" weight="bold">
-                  NEAR wallet Selector
-                </Text>
-              </div>
-            </Button>
-            {!TURN_OFF_EVM_WALLETS && (
+            <Text size="1" color="gray">
+              Popular options
+            </Text>
+
+            {isSupportedByBrowser() && (
               <Button
-                key={connectors[0].id}
-                onClick={() => handleWalletConnect(connectors[0])}
+                onClick={() => handlePasskey()}
                 size="4"
                 radius="medium"
                 variant="soft"
                 color="gray"
+                className="px-2.5"
               >
-                <Image
-                  src="/static/icons/logo-meta-mask.svg"
-                  alt="Wallet Connect"
-                  width={24}
-                  height={24}
-                />
-                <Text size="2" weight="bold">
-                  MetaMask
-                </Text>
+                <div className="w-full flex items-center justify-start gap-2">
+                  <Image
+                    src="/static/icons/wallets/webauthn.svg"
+                    alt=""
+                    width={36}
+                    height={36}
+                  />
+                  <Text size="2" weight="bold">
+                    Passkey
+                  </Text>
+                </div>
               </Button>
+            )}
+
+            {whitelabelTemplate === "turboswap" ? (
+              <>
+                {/* WalletConnect */}
+                {connectors
+                  .filter((c) => c.id === "walletConnect")
+                  .map((connector) => (
+                    <Button
+                      key={connector.uid}
+                      onClick={() => handleWalletConnect(connector)}
+                      size="4"
+                      radius="medium"
+                      variant="soft"
+                      color="gray"
+                      className="px-2.5"
+                    >
+                      <div className="w-full flex items-center justify-start gap-2">
+                        <WalletIcon connector={connector} />
+                        <Text size="2" weight="bold">
+                          {renderWalletName(connector)}
+                        </Text>
+                      </div>
+                    </Button>
+                  ))}
+
+                {/* EIP-6963 detected wallets */}
+                {connectors
+                  .filter((c) => c.type === "injected" && c.id !== "injected")
+                  .map((connector) => (
+                    <Button
+                      key={connector.uid}
+                      onClick={() => handleWalletConnect(connector)}
+                      size="4"
+                      radius="medium"
+                      variant="soft"
+                      color="gray"
+                      className="px-2.5"
+                    >
+                      <div className="w-full flex items-center justify-start gap-2">
+                        <WalletIcon connector={connector} />
+                        <Text size="2" weight="bold">
+                          {renderWalletName(connector)}
+                        </Text>
+                      </div>
+                    </Button>
+                  ))}
+
+                <TonConnectButton />
+
+                <Text size="1" color="gray">
+                  Other options
+                </Text>
+
+                <Button
+                  onClick={handleNearWalletSelector}
+                  size="4"
+                  radius="medium"
+                  variant="soft"
+                  color="gray"
+                  className="px-2.5"
+                >
+                  <div className="w-full flex items-center justify-start gap-2">
+                    <Image
+                      src="/static/icons/wallets/near-wallet-selector.svg"
+                      alt="Near Wallet Selector"
+                      width={36}
+                      height={36}
+                    />
+                    <Text size="2" weight="bold">
+                      NEAR Wallet
+                    </Text>
+                  </div>
+                </Button>
+
+                <Button
+                  onClick={handleSolanaWalletSelector}
+                  size="4"
+                  radius="medium"
+                  variant="soft"
+                  color="gray"
+                  className="px-2.5"
+                >
+                  <div className="w-full flex items-center justify-start gap-2">
+                    <Image
+                      src="/static/icons/wallets/solana-logo-mark.svg"
+                      alt="Solana Wallet Selector"
+                      width={36}
+                      height={36}
+                    />
+                    <Text size="2" weight="bold">
+                      Solana Wallet
+                    </Text>
+                  </div>
+                </Button>
+
+                {/* Other non-EIP-6963 connectors */}
+                {connectors
+                  .filter(
+                    (c) => c.id !== "walletConnect" && c.type !== "injected"
+                  )
+                  .map((connector) => (
+                    <Button
+                      key={connector.uid}
+                      onClick={() => handleWalletConnect(connector)}
+                      size="4"
+                      radius="medium"
+                      variant="soft"
+                      color="gray"
+                      className="px-2.5"
+                    >
+                      <div className="w-full flex items-center justify-start gap-2">
+                        <WalletIcon connector={connector} />
+                        <Text size="2" weight="bold">
+                          {renderWalletName(connector)}
+                        </Text>
+                      </div>
+                    </Button>
+                  ))}
+              </>
+            ) : (
+              // Original order for other templates
+              <>
+                <Button
+                  onClick={handleSolanaWalletSelector}
+                  size="4"
+                  radius="medium"
+                  variant="soft"
+                  color="gray"
+                  className="px-2.5"
+                >
+                  <div className="w-full flex items-center justify-start gap-2">
+                    <Image
+                      src="/static/icons/wallets/solana-logo-mark.svg"
+                      alt="Solana Wallet Selector"
+                      width={36}
+                      height={36}
+                    />
+                    <Text size="2" weight="bold">
+                      Solana Wallet
+                    </Text>
+                  </div>
+                </Button>
+
+                {whitelabelTemplate !== "solswap" && (
+                  <>
+                    <Button
+                      onClick={handleNearWalletSelector}
+                      size="4"
+                      radius="medium"
+                      variant="soft"
+                      color="gray"
+                      className="px-2.5"
+                    >
+                      <div className="w-full flex items-center justify-start gap-2">
+                        <Image
+                          src="/static/icons/wallets/near-wallet-selector.svg"
+                          alt="Near Wallet Selector"
+                          width={36}
+                          height={36}
+                        />
+                        <Text size="2" weight="bold">
+                          NEAR Wallet
+                        </Text>
+                      </div>
+                    </Button>
+                    {connectors.slice(0, 1).map((connector) => (
+                      <Button
+                        key={connector.uid}
+                        onClick={() => handleWalletConnect(connector)}
+                        size="4"
+                        radius="medium"
+                        variant="soft"
+                        color="gray"
+                        className="px-2.5"
+                      >
+                        <div className="w-full flex items-center justify-start gap-2">
+                          <WalletIcon connector={connector} />
+                          <Text size="2" weight="bold">
+                            {renderWalletName(connector)}
+                          </Text>
+                        </div>
+                      </Button>
+                    ))}
+
+                    <TonConnectButton />
+
+                    {/* Stellar connector */}
+                    <Button
+                      onClick={() => signIn({ id: ChainType.Stellar })}
+                      size="4"
+                      radius="medium"
+                      variant="soft"
+                      color="gray"
+                      className="px-2.5"
+                    >
+                      <div className="w-full flex items-center justify-start gap-2">
+                        <Image
+                          src="/static/icons/network/stellar.svg"
+                          alt="Stellar"
+                          width={36}
+                          height={36}
+                        />
+                        <Text size="2" weight="bold">
+                          Stellar Wallet
+                        </Text>
+                      </div>
+                    </Button>
+
+                    {/* Tron connector */}
+                    <Button
+                      onClick={() => signIn({ id: ChainType.Tron })}
+                      size="4"
+                      radius="medium"
+                      variant="soft"
+                      color="gray"
+                      className="px-2.5"
+                    >
+                      <div className="w-full flex items-center justify-start gap-2">
+                        <Image
+                          src="/static/icons/network/tron.svg"
+                          alt="Tron"
+                          width={36}
+                          height={36}
+                        />
+                        <Text size="2" weight="bold">
+                          Tron Wallet
+                        </Text>
+                      </div>
+                    </Button>
+
+                    <Text size="1" color="gray">
+                      Other options
+                    </Text>
+                    {connectors
+                      .slice(1)
+                      .filter((connector) => connector.id !== "injected")
+                      .map((connector) => (
+                        <Button
+                          key={connector.uid}
+                          onClick={() => handleWalletConnect(connector)}
+                          size="4"
+                          radius="medium"
+                          variant="soft"
+                          color="gray"
+                          className="px-2.5"
+                        >
+                          <div className="w-full flex items-center justify-start gap-2">
+                            <WalletIcon connector={connector} />
+                            <Text size="2" weight="bold">
+                              {renderWalletName(connector)}
+                            </Text>
+                          </div>
+                        </Button>
+                      ))}
+                  </>
+                )}
+              </>
             )}
           </div>
         </Popover.Content>
@@ -104,36 +348,97 @@ const ConnectWallet = () => {
     <div className="flex gap-2">
       <Popover.Root>
         <Popover.Trigger>
-          <button
+          <Button
             type={"button"}
-            className="rounded-full bg-gray-200 text-black-400 text-sm px-3 py-1.5 dark:bg-gray-1000 dark:text-gray-100"
-            disabled={TURN_OFF_APPS}
+            variant={"soft"}
+            color={"gray"}
+            size={"2"}
+            radius={"full"}
+            className="font-bold text-gray-12"
           >
-            {shortAccountId}
-          </button>
+            {state.chainType !== "webauthn" ? (
+              shortAccountId
+            ) : (
+              <div className="flex items-center gap-2">
+                <div className="flex">
+                  <Image
+                    src="/static/icons/wallets/webauthn.svg"
+                    alt=""
+                    width={24}
+                    height={24}
+                    className="rounded-full size-6 bg-[#000]"
+                    style={{
+                      mask: "radial-gradient(13px at 31px 50%, transparent 99%, rgb(255, 255, 255) 100%)",
+                    }}
+                  />
+                  <div className="-ml-1 rounded-full size-6 bg-white text-black text-base flex items-center justify-center">
+                    {mapStringToEmojis(state.address, { count: 1 }).join("")}
+                  </div>
+                </div>
+
+                <div className="font-bold text-gray-12">passkey</div>
+              </div>
+            )}
+          </Button>
         </Popover.Trigger>
-        <Popover.Content className="min-w-[330px] mt-1 md:mr-[48px] dark:bg-black-800 rounded-2xl">
+        <Popover.Content
+          minWidth={{ initial: "300px", xs: "330px" }}
+          className="mt-1 md:mr-[48px] max-w-xs dark:bg-black-800 rounded-2xl"
+        >
           <div className="flex flex-col gap-5">
-            <WalletTabs />
             <WalletConnections />
-            <Button
-              onClick={handleTradeHistory}
-              size="2"
-              variant="soft"
-              radius="full"
-              color="gray"
-              className="w-full text-black dark:text-white cursor-pointer"
-            >
-              <CountdownTimerIcon width={16} height={16} />
-              <Text size="2" weight="medium">
-                Transactions
-              </Text>
-            </Button>
           </div>
         </Popover.Content>
       </Popover.Root>
     </div>
   )
+}
+
+function WalletIcon({ connector }: { connector: Connector }) {
+  switch (connector.id) {
+    case "walletConnect":
+      return (
+        <Image
+          src="/static/icons/wallets/wallet-connect.svg"
+          alt="Wallet Connect"
+          width={36}
+          height={36}
+        />
+      )
+    case "coinbaseWalletSDK":
+      return (
+        <Image
+          src="/static/icons/wallets/coinbase-wallet.svg"
+          alt="Coinbase Wallet"
+          width={36}
+          height={36}
+        />
+      )
+    case "metaMaskSDK":
+      return (
+        <Image
+          src="/static/icons/wallets/meta-mask.svg"
+          alt="MetaMask"
+          width={36}
+          height={36}
+        />
+      )
+  }
+
+  if (connector.icon != null) {
+    return (
+      <Image
+        src={connector.icon.trim()}
+        alt={connector.name}
+        width={36}
+        height={36}
+      />
+    )
+  }
+}
+
+function renderWalletName(connector: Connector) {
+  return connector.name
 }
 
 export default ConnectWallet

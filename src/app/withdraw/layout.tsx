@@ -3,15 +3,26 @@ import type React from "react"
 import type { PropsWithChildren } from "react"
 
 import Layout from "@src/components/Layout"
+import { PreloadFeatureFlags } from "@src/components/PreloadFeatureFlags"
+import { whitelabelTemplateFlag } from "@src/config/featureFlags"
+import { settings } from "@src/config/settings"
 
-export const metadata: Metadata = {
-  title: "Withdraw - Your Trusted Financial Partner",
-  description:
-    "Easily manage your withdrawals with our secure and user-friendly platform. Experience seamless transactions and exceptional support.",
+export async function generateMetadata(): Promise<Metadata> {
+  const templ = await whitelabelTemplateFlag()
+
+  if (templ !== "dogecoinswap") {
+    return settings.metadata.withdraw
+  }
+
+  return {}
 }
 
 const WithdrawLayout: React.FC<PropsWithChildren> = ({ children }) => {
-  return <Layout>{children}</Layout>
+  return (
+    <PreloadFeatureFlags>
+      <Layout>{children}</Layout>
+    </PreloadFeatureFlags>
+  )
 }
 
 export default WithdrawLayout

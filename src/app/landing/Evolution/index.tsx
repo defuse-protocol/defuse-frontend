@@ -1,16 +1,15 @@
 "use client"
 
 import { Text } from "@radix-ui/themes"
-import { useEffect, useRef, useState } from "react"
-
 import Section from "@src/app/landing/Section"
 import TableInfrastructure from "@src/app/landing/Table/TableInfrastructure"
 import { infrastructureData } from "@src/app/landing/mocks"
-import useResize from "@src/hooks/useResize"
+import { useEffect, useRef, useState } from "react"
+
+import { settings } from "@src/config/settings"
 
 const Evolution = () => {
   const divRef = useRef<HTMLDivElement>(null)
-  const { width } = useResize(divRef)
   const [containerWidth, setContainerWidth] = useState<number>(0)
 
   useEffect(() => {
@@ -23,10 +22,10 @@ const Evolution = () => {
         className="flex flex-col justify-center mb-[40px] md:mb-[96px]"
         ref={divRef}
       >
-        <p className="text-center text-[20px] md:text-[32px] font-black text-gray-600">
+        <p className="text-center text-[20px] md:text-[32px] font-black text-gray-11">
           <Text as="span">
-            Defuse unifies the best of CEXs and DEXs with a scalable,
-            multi-chain infrastructure. Our goal is to&nbsp;
+            {settings.appName} unifies the best of CEXs and DEXs with a
+            scalable, multi-chain infrastructure. Our goal is to&nbsp;
           </Text>
           <Text as="span" className="text-primary">
             minimize centralization risks, unify liquidity, and unlock

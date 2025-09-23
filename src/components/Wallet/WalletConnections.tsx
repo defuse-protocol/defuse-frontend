@@ -1,24 +1,17 @@
 "use client"
 
 import { CopyIcon, EnterIcon } from "@radix-ui/react-icons"
-import { Button, Separator, Text } from "@radix-ui/themes"
+import { Callout, Separator, Text } from "@radix-ui/themes"
 import clsx from "clsx"
-import React, { useEffect, useState } from "react"
+import Image from "next/image"
+import { useEffect, useState } from "react"
 import { CopyToClipboard } from "react-copy-to-clipboard"
 
 import NetworkIcon from "@src/components/Network/NetworkIcon"
-import {
-  CONNECTOR_BTC_MAINNET,
-  CONNECTOR_ETH_BASE,
-} from "@src/constants/contracts"
-import { SignInType, useConnectWallet } from "@src/hooks/useConnectWallet"
+import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import useShortAccountId from "@src/hooks/useShortAccountId"
 import { getChainIconFromId } from "@src/hooks/useTokensListAdapter"
 import { MapsEnum } from "@src/libs/de-sdk/utils/maps"
-import { useModalStore } from "@src/providers/ModalStoreProvider"
-import { useTokensStore } from "@src/providers/TokensStoreProvider"
-import { useWalletSelector } from "@src/providers/WalletSelectorProvider"
-import { ModalType } from "@src/stores/modalStore"
 
 type WalletConnectionState = {
   chainIcon: string
@@ -38,7 +31,11 @@ type WalletConnectionActions = {
 const connections: MapsEnum[] = [
   MapsEnum.NEAR_MAINNET,
   MapsEnum.EVM_ETHEREUM,
-  MapsEnum.BTC_MAINNET,
+  MapsEnum.TON,
+  MapsEnum.SOLANA_MAINNET,
+  MapsEnum.WEBAUTHN,
+  MapsEnum.STELLAR_MAINNET,
+  MapsEnum.TRON_MAINNET,
 ]
 
 const WalletConnectionsConnector = ({
@@ -49,13 +46,10 @@ const WalletConnectionsConnector = ({
   onCopy,
   isCopied,
   onDisconnect,
-  onConnect,
-  index,
 }: WalletConnectionState & WalletConnectionActions) => {
   const { shortAccountId } = useShortAccountId(accountId ?? "")
   return (
     <div className="flex flex-col justify-between items-center gap-2.5">
-      {!index ? <Separator orientation="horizontal" size="4" /> : <div />}
       <div className="w-full flex justify-between items-center">
         <div className="flex justify-center items-center gap-4">
           <NetworkIcon
@@ -63,6 +57,7 @@ const WalletConnectionsConnector = ({
             chainName={chainName}
             isConnect={!!accountId}
           />
+
           <div className="flex flex-col">
             <Text size="2" weight="medium">
               {shortAccountId}
@@ -72,41 +67,30 @@ const WalletConnectionsConnector = ({
             </Text>
           </div>
         </div>
-        {accountId ? (
-          <div className="flex justify-center items-center gap-2.5">
-            <CopyToClipboard onCopy={onCopy} text={accountId ?? ""}>
-              <button
-                type={"button"}
-                className={clsx(
-                  "w-[32px] h-[32px] flex justify-center items-center rounded-full border border-gray-500 dark:border-white",
-                  isCopied && "bg-primary border-0 text-white"
-                )}
-              >
-                <CopyIcon width={16} height={16} />
-              </button>
-            </CopyToClipboard>
+
+        <div className="flex justify-center items-center gap-2.5">
+          {/* @ts-ignore this is a valid use case */}
+          <CopyToClipboard onCopy={onCopy} text={accountId ?? ""}>
             <button
-              type={"button"}
-              onClick={onDisconnect}
-              className="w-[32px] h-[32px] flex justify-center items-center rounded-full bg-white-200 dark:border dark:border-white"
+              type="button"
+              className={clsx(
+                "w-[32px] h-[32px] flex justify-center items-center rounded-full border border-gray-a7",
+                isCopied && "bg-primary border-primary text-white"
+              )}
             >
-              <EnterIcon width={16} height={16} />
+              <CopyIcon width={16} height={16} />
             </button>
-          </div>
-        ) : (
-          <Button
-            radius="full"
-            variant="solid"
-            color="orange"
-            className="cursor-pointer"
-            onClick={onConnect}
+          </CopyToClipboard>
+          <button
+            type="button"
+            onClick={onDisconnect}
+            className="w-[32px] h-[32px] flex justify-center items-center rounded-full bg-gray-a3"
           >
-            <Text size="2" weight="medium" wrap="nowrap">
-              Connect wallet
-            </Text>
-          </Button>
-        )}
+            <EnterIcon width={16} height={16} />
+          </button>
+        </div>
       </div>
+
       <Separator orientation="horizontal" size="4" />
     </div>
   )
@@ -114,86 +98,163 @@ const WalletConnectionsConnector = ({
 
 const WalletConnections = () => {
   const { state, signOut } = useConnectWallet()
-  const { accountId } = useWalletSelector()
   const [copyWalletAddress, setCopyWalletAddress] = useState<MapsEnum>()
-  const { setModalType } = useModalStore((state) => state)
-  const { triggerTokenUpdate } = useTokensStore((state) => state)
   const [isProcessing, setIsProcessing] = useState(false)
-
-  const handleGetConnector = (connectorKey: string): string => {
-    const getWalletFromLocal = localStorage.getItem(connectorKey)
-    if (!getWalletFromLocal) return ""
-    return getWalletFromLocal
-  }
-
-  const handleDisconnectSideWallet = (connectorKey: string) => {
-    localStorage.removeItem(connectorKey)
-    triggerTokenUpdate()
-    // To force a rerender the component we update the state
-    setIsProcessing(true)
-  }
 
   useEffect(() => {
     // Finalize state update after forced re-render
     if (isProcessing) setIsProcessing(false)
   }, [isProcessing])
 
+  const userAddress = state.displayAddress
+  if (userAddress == null) {
+    return null
+  }
+
   return (
     <div className="flex flex-col">
       <Text
         size="1"
         weight="medium"
-        className="text-gray-600 dark:text-gray-500 pb-2"
+        className="text-gray-a11 dark:text-gray-a11 pb-2"
       >
-        Connections
+        Connected with
       </Text>
+
       {connections.map((connector, i) => {
-        const defuse_asset_id = ""
         let chainIcon = ""
-        const chainName = ""
-        const accountIdFromLocal = ""
-        const storeKey = ""
         switch (connector) {
           case MapsEnum.NEAR_MAINNET:
-            if (state.signInType !== SignInType.NearWalletSelector) {
+            if (state.chainType !== ChainType.Near) {
               return null
             }
             return (
               <WalletConnectionsConnector
-                accountId={accountId}
+                accountId={userAddress}
                 chainLabel="NEAR Protocol"
                 chainName="near"
                 chainIcon={getChainIconFromId(`${MapsEnum.NEAR_MAINNET}:0`)}
                 onCopy={() => setCopyWalletAddress(MapsEnum.NEAR_MAINNET)}
                 isCopied={copyWalletAddress === MapsEnum.NEAR_MAINNET}
                 onDisconnect={() => {
-                  signOut({ id: SignInType.NearWalletSelector })
-                  triggerTokenUpdate()
+                  signOut({ id: ChainType.Near })
                 }}
                 key={connector}
                 index={i}
               />
             )
           case MapsEnum.EVM_ETHEREUM:
-            if (state.signInType !== SignInType.Wagmi) {
+            if (state.chainType !== ChainType.EVM) {
               return null
             }
             chainIcon = getChainIconFromId("eth")
             return (
               <WalletConnectionsConnector
-                accountId={(state?.address as string) ?? null}
+                accountId={userAddress}
                 chainLabel={state?.network ?? ""}
                 chainName="eth"
                 chainIcon={chainIcon}
                 onCopy={() => setCopyWalletAddress(MapsEnum.EVM_ETHEREUM)}
                 isCopied={copyWalletAddress === MapsEnum.EVM_ETHEREUM}
-                onDisconnect={() => signOut({ id: SignInType.Wagmi })}
+                onDisconnect={() => signOut({ id: ChainType.EVM })}
                 onConnect={() => {}}
                 key={connector}
                 index={i}
               />
             )
+          case MapsEnum.SOLANA_MAINNET:
+            if (state.chainType !== ChainType.Solana) {
+              return null
+            }
+            chainIcon = getChainIconFromId("sol")
+            return (
+              <WalletConnectionsConnector
+                accountId={userAddress}
+                chainLabel={state?.network ?? ""}
+                chainName="sol"
+                chainIcon={chainIcon}
+                onCopy={() => setCopyWalletAddress(MapsEnum.SOLANA_MAINNET)}
+                isCopied={copyWalletAddress === MapsEnum.SOLANA_MAINNET}
+                onDisconnect={() => signOut({ id: ChainType.Solana })}
+                onConnect={() => {}}
+                key={connector}
+                index={i}
+              />
+            )
+
+          case MapsEnum.WEBAUTHN: {
+            if (state.chainType !== ChainType.WebAuthn) {
+              return null
+            }
+            return (
+              <PasskeyConnectionInfo
+                // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                key={i}
+                credential={userAddress}
+                onSignOut={() => signOut({ id: ChainType.WebAuthn })}
+              />
+            )
+          }
+
+          case MapsEnum.TON:
+            if (state.chainType !== ChainType.Ton) {
+              return null
+            }
+            return (
+              <WalletConnectionsConnector
+                accountId={userAddress}
+                chainLabel={state.network ?? ""}
+                chainName="TON"
+                chainIcon={"/static/icons/wallets/ton.svg"}
+                onCopy={() => setCopyWalletAddress(MapsEnum.TON)}
+                isCopied={copyWalletAddress === MapsEnum.TON}
+                onDisconnect={() => signOut({ id: ChainType.Ton })}
+                onConnect={() => {}}
+                key={connector}
+                index={i}
+              />
+            )
+
+          case MapsEnum.STELLAR_MAINNET:
+            if (state.chainType !== ChainType.Stellar) {
+              return null
+            }
+            return (
+              <WalletConnectionsConnector
+                accountId={userAddress}
+                chainLabel="Stellar"
+                chainName="stellar"
+                chainIcon={"/static/icons/network/stellar.svg"}
+                onCopy={() => setCopyWalletAddress(MapsEnum.STELLAR_MAINNET)}
+                isCopied={copyWalletAddress === MapsEnum.STELLAR_MAINNET}
+                onDisconnect={() => signOut({ id: ChainType.Stellar })}
+                onConnect={() => {}}
+                key={connector}
+                index={i}
+              />
+            )
+
+          case MapsEnum.TRON_MAINNET:
+            if (state.chainType !== ChainType.Tron) {
+              return null
+            }
+            return (
+              <WalletConnectionsConnector
+                accountId={userAddress}
+                chainLabel="Tron"
+                chainName="tron"
+                chainIcon={"/static/icons/network/tron.svg"}
+                onCopy={() => setCopyWalletAddress(MapsEnum.TRON_MAINNET)}
+                isCopied={copyWalletAddress === MapsEnum.TRON_MAINNET}
+                onDisconnect={() => signOut({ id: ChainType.Tron })}
+                onConnect={() => {}}
+                key={connector}
+                index={i}
+              />
+            )
+
           default:
+            connector satisfies never
             return null
         }
       })}
@@ -202,3 +263,44 @@ const WalletConnections = () => {
 }
 
 export default WalletConnections
+
+function PasskeyConnectionInfo({
+  credential,
+  onSignOut,
+}: { credential: string; onSignOut: () => void }) {
+  return (
+    <div className="flex flex-col justify-between gap-2.5">
+      <div className="flex items-center gap-3">
+        <Image
+          src="/static/icons/wallets/webauthn.svg"
+          alt=""
+          width={36}
+          height={36}
+        />
+
+        <div className="flex-1">
+          <div className="text-sm font-medium text-gray-12">passkey</div>
+          <div className="text-xs font-medium text-gray-11">{`${credential.slice(0, 6)}...${credential.slice(-6)}`}</div>
+        </div>
+
+        <button
+          type="button"
+          onClick={onSignOut}
+          className="w-[32px] h-[32px] flex justify-center items-center rounded-full bg-gray-a3"
+        >
+          <EnterIcon width={16} height={16} />
+        </button>
+      </div>
+
+      <Separator orientation="horizontal" size="4" />
+
+      <Callout.Root className="bg-warning px-3 py-2 text-warning-foreground">
+        <Callout.Text className="text-xs font-medium">
+          <span className="font-bold">Store your passkeys securely.</span>{" "}
+          Losing your passkey means losing access to your account and any
+          associated funds permanently.
+        </Callout.Text>
+      </Callout.Root>
+    </div>
+  )
+}

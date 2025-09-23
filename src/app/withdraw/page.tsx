@@ -1,20 +1,41 @@
 "use client"
-
-import { WithdrawWidget } from "@defuse-protocol/defuse-sdk"
+import { WithdrawWidget } from "@src/components/DefuseSDK/features/withdraw/components/WithdrawWidget"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
-import { useNearWalletActions } from "@src/hooks/useNearWalletActions"
+import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
+import { useTokenList } from "@src/hooks/useTokenList"
+import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
+import { useNearWallet } from "@src/providers/NearWalletProvider"
+import { renderAppLink } from "@src/utils/renderAppLink"
+import { useSearchParams } from "next/navigation"
 
 export default function Withdraw() {
   const { state } = useConnectWallet()
-  const { signMessage, signAndSendTransactions } = useNearWalletActions()
+  const signMessage = useWalletAgnosticSignMessage()
+  const { signAndSendTransactions } = useNearWallet()
+  const tokenList = useTokenList(LIST_TOKENS)
+  const referral = useIntentsReferral()
+  const queryParams = useSearchParams()
+  const amount = queryParams.get("amount") ?? undefined
+  const tokenSymbol = queryParams.get("token") ?? undefined
+  const network = queryParams.get("network") ?? undefined
+  const recipient = queryParams.get("recipient") ?? undefined
+
+  const userAddress = state.isVerified ? state.address : undefined
+  const userChainType = state.chainType
 
   return (
-    <Paper title="Withdraw">
+    <Paper>
       <WithdrawWidget
-        tokenList={LIST_TOKENS}
-        accountId={state.address}
+        presetAmount={amount}
+        presetNetwork={network}
+        presetRecipient={recipient}
+        presetTokenSymbol={tokenSymbol}
+        tokenList={tokenList}
+        userAddress={userAddress}
+        displayAddress={state.isVerified ? state.displayAddress : undefined}
+        chainType={userChainType}
         sendNearTransaction={async (tx) => {
           const result = await signAndSendTransactions({ transactions: [tx] })
 
@@ -29,14 +50,9 @@ export default function Withdraw() {
 
           return { txHash: outcome.transaction.hash }
         }}
-        signMessage={async (params) => {
-          const { signatureData, signedData } = await signMessage({
-            ...params.NEP413,
-            nonce: Buffer.from(params.NEP413.nonce),
-          })
-
-          return { type: "NEP413", signatureData, signedData }
-        }}
+        signMessage={(params) => signMessage(params)}
+        renderHostAppLink={renderAppLink}
+        referral={referral}
       />
     </Paper>
   )

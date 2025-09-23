@@ -1,7 +1,8 @@
 import { Text } from "@radix-ui/themes"
+import { settings } from "@src/config/settings"
 import clsx from "clsx"
 import Image from "next/image"
-import React, { type PropsWithChildren } from "react"
+import type { PropsWithChildren } from "react"
 
 export enum ColumnGroupType {
   MAIN = "main",
@@ -29,7 +30,7 @@ const ComponentHead = ({
     <th className="w-[197px] md:w-[260px] pr-0 xl:pr-5">
       <div
         className={clsx(
-          "w-full py-5 px-8 rounded-t-2xl bg-gray-950 font-black",
+          "w-full py-5 px-8 rounded-t-2xl bg-gray-a3 font-black",
           group === ColumnGroupType.PRIMARY && "bg-primary-100 text-white"
         )}
       >
@@ -55,10 +56,8 @@ const ComponentBody = ({
     <td className={clsx(group === ColumnGroupType.PRIMARY && "pr-0 xl:pr-5")}>
       <div
         className={clsx(
-          "flex items-center gap-3 w-full h-[112px] py-5 px-8 border-white-200",
-          group === ColumnGroupType.MAIN
-            ? "font-black text-black-400"
-            : "font-medium text-gray-600",
+          "flex items-center gap-3 w-full h-[112px] py-5 px-8 border-white-200 text-gray-11",
+          group === ColumnGroupType.MAIN ? "font-black" : "font-medium",
           group === ColumnGroupType.PRIMARY && "bg-primary text-white",
           isLastRow ? "border-b-0" : "border-b-2",
           group === ColumnGroupType.PRIMARY &&
@@ -96,7 +95,7 @@ const TableInfrastructure = ({ data, maxWidth }: Props) => {
               <ComponentHead>CEX</ComponentHead>
               <ComponentHead>DEX</ComponentHead>
               <ComponentHead group={ColumnGroupType.PRIMARY}>
-                Defuse
+                {settings.appName}
               </ComponentHead>
             </tr>
           </thead>

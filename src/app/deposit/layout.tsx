@@ -3,15 +3,26 @@ import type React from "react"
 import type { PropsWithChildren } from "react"
 
 import Layout from "@src/components/Layout"
+import { PreloadFeatureFlags } from "@src/components/PreloadFeatureFlags"
+import { whitelabelTemplateFlag } from "@src/config/featureFlags"
+import { settings } from "@src/config/settings"
 
-export const metadata: Metadata = {
-  title: "Deposit | Your Multichain DeFi Hub",
-  description:
-    "Seamlessly manage your cross-chain deposits with our efficient DeFi hub. Join us to experience unparalleled ease and security.",
+export async function generateMetadata(): Promise<Metadata> {
+  const templ = await whitelabelTemplateFlag()
+
+  if (templ !== "dogecoinswap") {
+    return settings.metadata.deposit
+  }
+
+  return {}
 }
 
 const DepositLayout: React.FC<PropsWithChildren> = ({ children }) => {
-  return <Layout>{children}</Layout>
+  return (
+    <PreloadFeatureFlags>
+      <Layout>{children}</Layout>
+    </PreloadFeatureFlags>
+  )
 }
 
 export default DepositLayout

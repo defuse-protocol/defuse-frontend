@@ -4,15 +4,16 @@ import { Button, Text } from "@radix-ui/themes"
 
 import CardVision from "@src/app/landing/Card/CardVision"
 import Section from "@src/app/landing/Section"
-
-const NEXT_PUBLIC_PUBLIC_MAIL = process?.env?.NEXT_PUBLIC_PUBLIC_MAIL ?? ""
+import { settings } from "@src/config/settings"
 
 const Vision = () => {
   return (
     <Section title="Our vision">
       <div className="flex flex-col justify-center">
-        <p className="text-center text-[20px] md:text-[32px] font-black text-gray-600 mb-4 md:mb-5">
-          <Text as="span">Defuse is the first platform that&nbsp;</Text>
+        <p className="text-center text-[20px] md:text-[32px] font-black text-gray-11 mb-4 md:mb-5">
+          <Text as="span">
+            {settings.appName} is the first platform that&nbsp;
+          </Text>
           <Text as="span" className="text-primary">
             bridges the gap between centralized and decentralized exchanges
           </Text>
@@ -21,9 +22,9 @@ const Vision = () => {
             ecosystem.
           </Text>
         </p>
-        <p className="text-center text-[20px] md:text-[32px] font-black text-gray-600 mb-[40px] md:mb-[56px]">
+        <p className="text-center text-[20px] md:text-[32px] font-black text-gray-11 mb-[40px] md:mb-[56px]">
           <Text as="span">
-            With Defuse, you can create, trade, and innovate without
+            With {settings.appName}, you can create, trade, and innovate without
             limitations, enjoying unified liquidity.
           </Text>
         </p>
@@ -41,7 +42,7 @@ const Vision = () => {
                 Multi-Chain
               </p>
             }
-            description="Defuse is built on a decentralized, multi-chain infrastructure with sharded contracts, supporting any load and unifying liquidity across the crypto ecosystem. It's fully non-custodial and it eliminates the need for bridges."
+            description={`${settings.appName} is built on a decentralized, multi-chain infrastructure with sharded contracts, supporting any load and unifying liquidity across the crypto ecosystem. It's fully non-custodial and it eliminates the need for bridges.`}
             isReverse
             background="bg-card-vision-multi-cover--mobile md:bg-card-vision-multi-cover bg-cover md:bg-fit lg:-my-5 lg:h-[calc(100%+40px)]"
             cover="/static/images/group-account-multi.svg"
@@ -54,21 +55,19 @@ const Vision = () => {
             description={
               <div className="flex flex-col gap-4 md:w-[calc(100%+220px)] lg:w-[calc(100%+180px)]">
                 <p>
-                  Defuse fosters collaboration among protocol developers,
-                  distribution channels, Solvers/MMs, ecosystems, and token
-                  founders. It promotes transparency, simplifies relationships,
-                  and encourages active contributions from all market
-                  participants.
+                  {settings.appName} fosters collaboration among protocol
+                  developers, distribution channels, Solvers/MMs, ecosystems,
+                  and token founders. It promotes transparency, simplifies
+                  relationships, and encourages active contributions from all
+                  market participants.
                 </p>
                 <div className="w-[170px] mx-auto md:mx-0">
                   <Button
                     variant="solid"
                     color="orange"
                     size="4"
-                    className="w-full cursor-pointer"
-                    onClick={() =>
-                      window.open(`mailto:${NEXT_PUBLIC_PUBLIC_MAIL}`)
-                    }
+                    className="w-full"
+                    onClick={() => window.open("mailto:defuse@defuse.org")}
                   >
                     <Text size="4" weight="medium">
                       Contact us

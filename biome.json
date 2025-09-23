@@ -1,7 +1,11 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.9.3/schema.json",
   "vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
-  "files": { "ignoreUnknown": false, "ignore": ["package.json"] },
+  "files": {
+    "ignoreUnknown": false,
+    "include": ["src/**/*"],
+    "ignore": ["src/types/database-generated.ts"]
+  },
   "formatter": {
     "enabled": true,
     "useEditorconfig": false,
@@ -15,7 +19,19 @@
     "ignore": [".github/*"]
   },
   "organizeImports": { "enabled": true },
-  "linter": { "enabled": true, "rules": { "recommended": true } },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "correctness": {
+        "noUnusedImports": "error",
+        "noUnusedVariables": "error"
+      },
+      "suspicious": {
+        "noConsole": "error"
+      }
+    }
+  },
   "javascript": {
     "formatter": {
       "jsxQuoteStyle": "double",
@@ -27,6 +43,11 @@
       "quoteStyle": "double",
       "attributePosition": "auto",
       "bracketSpacing": true
+    }
+  },
+  "css": {
+    "parser": {
+      "cssModules": true
     }
   }
 }

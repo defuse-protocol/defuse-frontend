@@ -1,7 +1,7 @@
 import forms from "@tailwindcss/forms"
-import lineClamp from "@tailwindcss/line-clamp"
 import typography from "@tailwindcss/typography"
 import type { Config } from "tailwindcss"
+import animate from "tailwindcss-animate"
 import colors from "tailwindcss/colors"
 import defaultTheme from "tailwindcss/defaultTheme"
 import plugin from "tailwindcss/plugin"
@@ -11,7 +11,7 @@ const config: Config = {
   content: [
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/**/components/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
@@ -64,20 +64,35 @@ const config: Config = {
           100: "rgba(232, 232, 232, 1)",
         },
         gray: {
-          ...colors.gray,
-          DEFAULT: "rgba(249, 249, 248, 1)",
-          1000: "rgba(251, 251, 235, 0.14)",
-          950: "rgba(241, 240, 239, 1)",
-          900: "rgba(141, 141, 141, 1)",
-          800: "rgba(249, 249, 249, 1)",
-          700: "rgba(100, 100, 100, 1)",
-          600: "rgba(99, 99, 94, 1)",
-          500: "rgba(181, 179, 173, 1)",
-          400: "rgba(217, 217, 217, 1)",
-          300: "rgba(228, 228, 228, 1)",
-          200: "rgba(241, 241, 241, 1)",
-          100: "rgba(233, 232, 230, 1)",
-          50: "rgba(249, 249, 248, 1)",
+          // Figma design uses Sand palette from Radix colors.
+          // "Stone" is the closest match in Tailwind colors.
+          ...colors.stone,
+
+          1: "var(--sand-1)",
+          2: "var(--sand-2)",
+          3: "var(--sand-3)",
+          4: "var(--sand-4)",
+          5: "var(--sand-5)",
+          6: "var(--sand-6)",
+          7: "var(--sand-7)",
+          8: "var(--sand-8)",
+          9: "var(--sand-9)",
+          10: "var(--sand-10)",
+          11: "var(--sand-11)",
+          12: "var(--sand-12)",
+          // Alpha variants
+          a1: "var(--sand-a1)",
+          a2: "var(--sand-a2)",
+          a3: "var(--sand-a3)",
+          a4: "var(--sand-a4)",
+          a5: "var(--sand-a5)",
+          a6: "var(--sand-a6)",
+          a7: "var(--sand-a7)",
+          a8: "var(--sand-a8)",
+          a9: "var(--sand-a9)",
+          a10: "var(--sand-a10)",
+          a11: "var(--sand-a11)",
+          a12: "var(--sand-a12)",
         },
         silver: {
           300: "rgba(246, 246, 245, 0.07)",
@@ -85,24 +100,81 @@ const config: Config = {
           100: "rgba(31, 24, 0, 0.13)",
         },
         blue: {
-          600: "rgba(98, 126, 234, 1)",
-          300: "#101d46",
+          ...colors.blue,
+          // Cyan variants
+          c11: "var(--cyan-11)",
         },
+        amber: colors.amber,
         red: {
+          ...colors.red,
           600: "rgba(206, 44, 49, 1)",
           500: "rgba(229, 72, 77, 1)",
           400: "rgba(204, 78, 0, 0.77)",
           200: "rgba(251, 106, 0, 0.15)",
           100: "rgba(255, 156, 0, 0.16)",
+          // defuse sdk:
+          1: "var(--red-1)",
+          2: "var(--red-2)",
+          3: "var(--red-3)",
+          4: "var(--red-4)",
+          5: "var(--red-5)",
+          6: "var(--red-6)",
+          7: "var(--red-7)",
+          8: "var(--red-8)",
+          9: "var(--red-9)",
+          10: "var(--red-10)",
+          11: "var(--red-11)",
+          12: "var(--red-12)",
+          // Alpha variants
+          a1: "var(--red-a1)",
+          a2: "var(--red-a2)",
+          a3: "var(--red-a3)",
+          a4: "var(--red-a4)",
+          a5: "var(--red-a5)",
+          a6: "var(--red-a6)",
+          a7: "var(--red-a7)",
+          a8: "var(--red-a8)",
+          a9: "var(--red-a9)",
+          a10: "var(--red-a10)",
+          a11: "var(--red-a11)",
+          a12: "var(--red-a12)",
         },
         pink: {
           DEFAULT: "rgba(214, 64, 159, 1)",
         },
         green: {
+          ...colors.green,
           800: "rgba(134, 234, 212, 1)",
           400: "rgba(33, 131, 88, 1)",
           100: "rgba(0, 164, 51, 0.1)",
           DEFAULT: "rgba(0, 113, 63, 0.87)",
+
+          // defuse sdk:
+          1: "var(--green-1)",
+          2: "var(--green-2)",
+          3: "var(--green-3)",
+          4: "var(--green-4)",
+          5: "var(--green-5)",
+          6: "var(--green-6)",
+          7: "var(--green-7)",
+          8: "var(--green-8)",
+          9: "var(--green-9)",
+          10: "var(--green-10)",
+          11: "var(--green-11)",
+          12: "var(--green-12)",
+          // Alpha variants
+          a1: "var(--green-a1)",
+          a2: "var(--green-a2)",
+          a3: "var(--green-a3)",
+          a4: "var(--green-a4)",
+          a5: "var(--green-a5)",
+          a6: "var(--green-a6)",
+          a7: "var(--green-a7)",
+          a8: "var(--green-a8)",
+          a9: "var(--green-a9)",
+          a10: "var(--green-a10)",
+          a11: "var(--green-a11)",
+          a12: "var(--green-a12)",
         },
         primary: {
           DEFAULT: "rgba(247, 107, 21, 1)",
@@ -111,7 +183,73 @@ const config: Config = {
           200: "rgba(219, 95, 0, 1)",
           100: "rgba(239, 95, 0, 1)",
         },
-        secondary: "rgba(128, 128, 128, 1)",
+        secondary: "#82827c",
+        border: "var(--color-border)",
+        warning: "var(--color-warning)",
+        "warning-foreground": "var(--color-warning-foreground)",
+
+        accent: {
+          DEFAULT: "var(--accent-9)",
+          50: "var(--accent-1)",
+          100: "var(--accent-2)",
+          200: "var(--accent-3)",
+          300: "var(--accent-4)",
+          400: "var(--accent-5)",
+          500: "var(--accent-6)",
+          600: "var(--accent-7)",
+          700: "var(--accent-8)",
+          800: "var(--accent-10)",
+          900: "var(--accent-11)",
+          950: "var(--accent-12)",
+          // Alpha variants
+          a50: "var(--accent-a1)",
+          a100: "var(--accent-a2)",
+          a200: "var(--accent-a3)",
+          a300: "var(--accent-a4)",
+          a400: "var(--accent-a5)",
+          a500: "var(--accent-a6)",
+          a600: "var(--accent-a7)",
+          a700: "var(--accent-a8)",
+          a800: "var(--accent-a10)",
+          a900: "var(--accent-a11)",
+          a950: "var(--accent-a12)",
+
+          1: "var(--accent-1)",
+          2: "var(--accent-2)",
+          3: "var(--accent-3)",
+          4: "var(--accent-4)",
+          5: "var(--accent-5)",
+          6: "var(--accent-6)",
+          7: "var(--accent-7)",
+          8: "var(--accent-8)",
+          9: "var(--accent-9)",
+          10: "var(--accent-10)",
+          11: "var(--accent-11)",
+          12: "var(--accent-12)",
+          // Alpha variants
+          a1: "var(--accent-a1)",
+          a2: "var(--accent-a2)",
+          a3: "var(--accent-a3)",
+          a4: "var(--accent-a4)",
+          a5: "var(--accent-a5)",
+          a6: "var(--accent-a6)",
+          a7: "var(--accent-a7)",
+          a8: "var(--accent-a8)",
+          a9: "var(--accent-a9)",
+          a10: "var(--accent-a10)",
+          a11: "var(--accent-a11)",
+          a12: "var(--accent-a12)",
+        },
+
+        yellow: {
+          DEFAULT: "var(--yellow-9)",
+          50: "var(--yellow-1)",
+          100: "var(--yellow-2)",
+          200: "var(--yellow-3)",
+          300: "var(--yellow-4)",
+        },
+
+        label: "var(--color-label)",
       },
       boxShadow: {
         paper:
@@ -140,6 +278,51 @@ const config: Config = {
       borderRadius: {
         "4xl": "1.875rem",
       },
+      keyframes: {
+        "slide-up": {
+          "0%": { transform: "translateY(100%)" },
+          "100%": { transform: "translateY(0)" },
+        },
+        "slide-down": {
+          "0%": { transform: "translateY(0)" },
+          "100%": { transform: "translateY(100%)" },
+        },
+        contentShow: {
+          from: {
+            opacity: "0",
+            transform: "translate(-50%, -48%) scale(0.96)",
+          },
+          to: {
+            opacity: "1",
+            transform: "translate(-50%, -50%) scale(1)",
+          },
+        },
+        slideUpAndFade: {
+          from: {
+            opacity: "0",
+            transform: "translateY(100%)",
+          },
+          to: {
+            opacity: "1",
+            transform: "translateY(0)",
+          },
+        },
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+      },
+      animation: {
+        "slide-up": "slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+        "slide-down": "slide-down 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+        "content-show": "contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
+      },
       backgroundImage: {
         "page-light": "url(/static/images/bg-light.svg)",
         "page-dark": "url(/static/images/bg-dark.svg)",
@@ -157,12 +340,11 @@ const config: Config = {
           "url(/static/images/group-account-bringing--mobile.svg)",
       },
     },
-    display: ["group-hover"],
   },
   plugins: [
     forms,
     typography,
-    lineClamp,
+    animate,
     plugin(({ addUtilities }) => {
       const newUtilities = {
         ".hide-scrollbar": {

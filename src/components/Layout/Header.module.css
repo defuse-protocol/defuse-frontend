@@ -1,0 +1,11 @@
+.header {
+  background-color: var(--gray-2);
+}
+
+:global(.tmpl-solswap) .header {
+  background-color: var(--purple-2);
+}
+
+:global(.tmpl-dogecoinswap) .header {
+  background-color: var(--gray-2);
+}

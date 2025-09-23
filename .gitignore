@@ -4,7 +4,6 @@
 /node_modules
 /.pnp
 .pnp.js
-.yarn/install-state.gz
 
 # testing
 /coverage
@@ -20,15 +19,15 @@
 .DS_Store
 *.pem
 .idea
+/tmp
 
 # debug
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
 # local env files, except .env.local.example
 .env*.local
 !.env.local.example
+.envrc
 
 # vercel
 .vercel
@@ -39,3 +38,15 @@ next-env.d.ts
 
 # sentry
 .env.sentry-build-plugin
+
+# generated files
+/src/gen
+
+# nix
+.direnv
+
+# Logs
+*.log
+
+# Vi
+*.swp

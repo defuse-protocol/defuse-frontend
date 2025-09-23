@@ -1,50 +1,74 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
-const allowedOrigins = [
-  process.env.SOLVER_RELAY_0_URL ?? "https://solver-relay.chaindefuser.com/rpc",
-]
+import { csp } from "@src/config/csp"
+import { maintenanceModeFlag } from "@src/config/featureFlags"
+import { logger } from "@src/utils/logger"
 
-const corsOptions = {
-  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+export const config = {
+  matcher:
+    "/((?!api|.well-known/vercel|_next/static|_next/image|favicon.ico|favicons|static|maintenance).*)",
 }
 
-export function middleware(request: NextRequest) {
-  const origin = request.headers.get("origin") ?? ""
-
-  const isAllowedOrigin = allowedOrigins.includes(origin)
-
-  const isPreflight = request.method === "OPTIONS"
-
-  if (isPreflight) {
-    const preflightHeaders = {
-      ...(isAllowedOrigin && { "Access-Control-Allow-Origin": origin }),
-      ...corsOptions,
+export async function middleware(request: NextRequest) {
+  try {
+    // Check for legacy redirects first
+    const legacyRedirect = handleLegacyRedirects(request)
+    if (legacyRedirect) {
+      return legacyRedirect
     }
-    return NextResponse.json({}, { headers: preflightHeaders })
+
+    const isMaintenanceMode = await maintenanceModeFlag()
+
+    if (isMaintenanceMode) {
+      return NextResponse.rewrite(new URL("/maintenance", request.url))
+    }
+  } catch (error) {
+    // If feature flag evaluation fails, continue normally
+    logger.error(error)
   }
 
-  const response = NextResponse.next()
+  const { nonce, contentSecurityPolicyHeaderValue } = csp()
 
-  if (isAllowedOrigin) {
-    response.headers.set("Access-Control-Allow-Origin", origin)
-  }
+  /** Request headers */
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set("x-nonce", nonce)
+  requestHeaders.set(
+    "Content-Security-Policy",
+    contentSecurityPolicyHeaderValue
+  )
 
-  for (const [key, value] of Object.entries(corsOptions)) {
-    response.headers.set(key, value)
-  }
+  /**  Response headers */
+  const response = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  })
+  response.headers.set(
+    "Content-Security-Policy",
+    contentSecurityPolicyHeaderValue
+  )
 
   return response
 }
 
-export const config = {
-  matcher: [
-    "/",
-    "/swap/:path*",
-    "/deposit/:path*",
-    "/withdraw/:path*",
-    "/wallet/:path*",
-    "/jobs/:path*",
-  ],
+function handleLegacyRedirects(request: NextRequest): NextResponse | null {
+  const url = new URL(request.url)
+
+  if (url.pathname === "/otc-desk/create-order") {
+    return NextResponse.redirect(new URL("/otc/create-order", request.url))
+  }
+
+  if (url.pathname === "/otc-desk/view-order") {
+    const newUrl = new URL("/otc/order", request.url)
+
+    const orderParam = url.searchParams.get("order")
+    if (orderParam) {
+      newUrl.searchParams.set("order", orderParam)
+    }
+
+    return NextResponse.redirect(newUrl)
+  }
+
+  return null
 }

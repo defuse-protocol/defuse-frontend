@@ -1,0 +1,19 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: intents-frontend
+  description: frontend for intents
+  tags:
+    - website
+  links:
+    - url: https://near-intents.org
+  annotations:
+    aurora.dev/security-tier: "2"
+spec:
+  owner: intents-team
+  system: intents-protocol
+  type: website
+  lifecycle: production
+  dependsOn:
+    - component:intents-contract

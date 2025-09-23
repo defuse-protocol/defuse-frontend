@@ -22,7 +22,7 @@ const CardInvestorLogo = ({ src, title }: CardInvestorLogoProps) => {
           <Text
             size="4"
             weight="bold"
-            className="text-gray-600 whitespace-nowrap"
+            className="text-gray-11 whitespace-nowrap"
           >
             {title}
           </Text>
