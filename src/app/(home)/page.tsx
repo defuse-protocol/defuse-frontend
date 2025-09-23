@@ -8,6 +8,7 @@ import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
+import { prefetchMostTradableTokens } from "@src/hooks/useMostTradableTokens"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import { useNearWallet } from "@src/providers/NearWalletProvider"
@@ -26,6 +27,7 @@ export default function Swap() {
   const tokenList = useTokenList1cs()
   const { tokenIn, tokenOut } = useDeterminePair()
   const referral = useIntentsReferral()
+  prefetchMostTradableTokens()
 
   return (
     <Paper>

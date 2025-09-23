@@ -32,6 +32,7 @@
   /* Prevent vertical scrolling on mobile while allowing horizontal scrolling */
   overscroll-behavior-y: contain;
   touch-action: pan-x;
+  overflow-y: hidden;
 }
 
 .hideScrollbar::-webkit-scrollbar {
