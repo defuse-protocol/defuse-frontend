@@ -1,6 +1,9 @@
 import type { ReactNode } from "react"
 import { Popover, PopoverContent, PopoverTrigger } from "../Popover"
 
+/**
+ * @deprecated Use Tooltip instead
+ */
 export const TooltipInfo = ({
   children,
   icon,
