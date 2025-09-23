@@ -838,8 +838,9 @@ describe("getUnderlyingBaseTokenInfos", () => {
   })
 
   it("adds tags from unified token", () => {
-    expect(getUnderlyingBaseTokenInfos(unifiedToken)).toEqual([
-      { ...baseToken, tags: ["foo"] },
+    expect(getUnderlyingBaseTokenInfos(unifiedToken, true)).toEqual([
+      { ...unifiedToken.groupedTokens[0], tags: ["foo"] },
+      { ...unifiedToken.groupedTokens[1], tags: ["foo"] },
     ])
   })
 })
