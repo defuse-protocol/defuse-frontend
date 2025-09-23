@@ -796,11 +796,7 @@ export const swapUIMachine = setup({
             userAddress: event.params.userAddress,
             userChainType: event.params.userChainType,
             nearClient: event.params.nearClient,
-            parentRef: {
-              send: (event: Background1csQuoterParentEvents) => {
-                self.send(event)
-              },
-            },
+            parentRef: self,
           }
         },
 
