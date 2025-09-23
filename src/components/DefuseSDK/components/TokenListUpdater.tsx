@@ -97,7 +97,7 @@ export function TokenListUpdater1cs({
         continue
       }
 
-      const baseTokenInfos = getUnderlyingBaseTokenInfos(token, true)
+      const baseTokenInfos = getUnderlyingBaseTokenInfos(token)
 
       const nonZeroBalanceTokens = Object.values(
         baseTokenInfos.reduce<Record<string, BaseTokenInfo>>((acc, t) => {

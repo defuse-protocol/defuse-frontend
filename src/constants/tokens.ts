@@ -1,5 +1,8 @@
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
-import { flattenTokenList } from "@src/components/DefuseSDK/utils/token"
+import {
+  flattenTokenList,
+  inheritTokenTags,
+} from "@src/components/DefuseSDK/utils/token"
 import { extractTokenFamilyList } from "@src/components/DefuseSDK/utils/tokenFamily"
 import { INTENTS_ENV } from "@src/utils/environment"
 
@@ -14,7 +17,7 @@ export const NATIVE_NEAR: TokenInfo = {
   name: "Near",
 }
 
-const PRODUCTION_TOKENS: TokenInfo[] = [
+const PRODUCTION_TOKENS_: TokenInfo[] = [
   {
     unifiedAssetId: "usdc",
     symbol: "USDC",
@@ -1783,7 +1786,9 @@ const PRODUCTION_TOKENS: TokenInfo[] = [
   },
 ]
 
-const STAGE_TOKENS: TokenInfo[] = [
+const PRODUCTION_TOKENS = inheritTokenTags(PRODUCTION_TOKENS_)
+
+const STAGE_TOKENS_: TokenInfo[] = [
   {
     unifiedAssetId: "usdc",
     symbol: "USDC",
@@ -1938,6 +1943,8 @@ const STAGE_TOKENS: TokenInfo[] = [
     tags: ["mc:13"],
   },
 ]
+
+const STAGE_TOKENS = inheritTokenTags(STAGE_TOKENS_)
 
 export const LIST_TOKENS: TokenInfo[] =
   INTENTS_ENV === "production" ? PRODUCTION_TOKENS : STAGE_TOKENS
