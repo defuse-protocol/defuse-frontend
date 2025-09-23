@@ -17,7 +17,8 @@ export function useWatchHoldings({
   tokenList: TokenInfo[]
 }) {
   const tokenIds = useMemo(
-    () => tokenList.flatMap(getUnderlyingBaseTokenInfos).map(getTokenId),
+    () =>
+      tokenList.flatMap((t) => getUnderlyingBaseTokenInfos(t)).map(getTokenId),
     [tokenList]
   )
 
