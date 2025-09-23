@@ -4,7 +4,6 @@ import {
   type depositedBalanceMachine,
 } from "@src/components/DefuseSDK/features/machines/depositedBalanceMachine"
 import type { BaseTokenInfo } from "@src/components/DefuseSDK/types/base"
-import { getUnderlyingBaseTokenInfos } from "@src/components/DefuseSDK/utils/tokenUtils"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useIsFlatTokenListEnabled } from "@src/hooks/useIsFlatTokenListEnabled"
 import { useSelector } from "@xstate/react"
@@ -97,10 +96,8 @@ export function TokenListUpdater1cs({
         continue
       }
 
-      const baseTokenInfos = getUnderlyingBaseTokenInfos(token)
-
       const nonZeroBalanceTokens = Object.values(
-        baseTokenInfos.reduce<Record<string, BaseTokenInfo>>((acc, t) => {
+        token.groupedTokens.reduce<Record<string, BaseTokenInfo>>((acc, t) => {
           if (t.defuseAssetId in acc) {
             return acc
           }
@@ -115,7 +112,7 @@ export function TokenListUpdater1cs({
 
       if (nonZeroBalanceTokens.length === 0) {
         // if user doesn't have this token add the first from the list by default
-        newList.push(baseTokenInfos[0])
+        newList.push(token.groupedTokens[0])
       } else {
         // if user has multiple kinds of this token - show them all
         newList.push(...nonZeroBalanceTokens)
