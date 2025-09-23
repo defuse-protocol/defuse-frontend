@@ -77,14 +77,14 @@ export function BaseModalDialog({
               }
             }}
           >
-            <div className="flex absolute bottom-0 left-0 right-0 md:inset-0 overflow-auto">
+            <div className="flex absolute bottom-0 left-0 right-0 md:inset-0 overflow-y-auto overflow-x-hidden">
               <div className="flex-grow md:m-auto md:py-8 md:px-4">
                 <Dialog.Content
                   className={clsx(
-                    "relative overflow-auto m-auto",
+                    "relative m-auto w-full max-w-[100vw] md:w-[90vw] md:max-w-[472px] overflow-x-hidden min-w-0",
                     "bg-gray-1 shadow-lg focus:outline-none",
                     "rounded-t-2xl md:rounded-2xl",
-                    "max-w-full md:w-[90vw] md:max-w-[472px] max-md:max-h-[70vh]",
+                    "max-md:max-h-[70vh]",
                     "[--inset-padding-top:theme(spacing.5)]",
                     "[--inset-padding-right:theme(spacing.5)]",
                     "[--inset-padding-bottom:max(env(safe-area-inset-bottom,0px),theme(spacing.5))]",

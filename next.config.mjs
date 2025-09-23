@@ -102,7 +102,7 @@ const sentryConfig = {
   authToken: process.env.SENTRY_AUTH_TOKEN,
   silent: true,
   widenClientFileUpload: true,
-  hideSourceMaps: false,
+  hideSourceMaps: true,
   disableLogger: true,
   reactComponentAnnotation: {
     enabled: true,
