@@ -17,7 +17,7 @@ export const NATIVE_NEAR: TokenInfo = {
   name: "Near",
 }
 
-const PRODUCTION_TOKENS_: TokenInfo[] = [
+const PRODUCTION_TOKENS: TokenInfo[] = [
   {
     unifiedAssetId: "usdc",
     symbol: "USDC",
@@ -1786,9 +1786,7 @@ const PRODUCTION_TOKENS_: TokenInfo[] = [
   },
 ]
 
-const PRODUCTION_TOKENS = inheritTokenTags(PRODUCTION_TOKENS_)
-
-const STAGE_TOKENS_: TokenInfo[] = [
+const STAGE_TOKENS: TokenInfo[] = [
   {
     unifiedAssetId: "usdc",
     symbol: "USDC",
@@ -1944,10 +1942,9 @@ const STAGE_TOKENS_: TokenInfo[] = [
   },
 ]
 
-const STAGE_TOKENS = inheritTokenTags(STAGE_TOKENS_)
-
-export const LIST_TOKENS: TokenInfo[] =
+export const LIST_TOKENS: TokenInfo[] = inheritTokenTags(
   INTENTS_ENV === "production" ? PRODUCTION_TOKENS : STAGE_TOKENS
+)
 
 export const DEPRECATED_TOKENS: Record<string, boolean> = {
   "nep141:aurora": true,
