@@ -65,12 +65,11 @@ export function MostTradableTokens({
             return volumeMap.get(key) || 0
           }
           // For grouped tokens, find the highest volume among grouped tokens
-          return Math.max(
-            ...token.token.groupedTokens.map((t) => {
-              const key = toKey(t.symbol, t.chainName)
-              return volumeMap.get(key) || 0
-            })
-          )
+          const vols = token.token.groupedTokens.map((t) => {
+            const key = toKey(t.symbol, t.chainName)
+            return volumeMap.get(key) ?? 0
+          })
+          return vols.length ? Math.max(...vols) : 0
         }
 
         return getVolume(b) - getVolume(a)
