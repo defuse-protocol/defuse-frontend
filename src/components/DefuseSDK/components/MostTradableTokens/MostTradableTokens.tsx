@@ -207,6 +207,10 @@ function clickhouseChainToChainName(chain: string) {
       return "avalanche"
     case "doge":
       return "dogecoin"
+    case "bera":
+      return "berachain"
+    case "arb":
+      return "arbitrum"
     default:
       return chain
   }
