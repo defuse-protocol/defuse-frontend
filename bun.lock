@@ -54,7 +54,6 @@
         "clsx": "^2.1.1",
         "events": "^3.3.0",
         "framer-motion": "^11.15.0",
-        "lodash-es": "^4.17.21",
         "mixpanel-browser": "^2.65.0",
         "near-api-js": "^5.1.1",
         "next": "15.5.3",
@@ -97,7 +96,6 @@
         "@testing-library/react": "^16.3.0",
         "@tinkoff/webpack-dedupe-plugin": "^3.0.3",
         "@types/bn.js": "^5.1.5",
-        "@types/lodash-es": "^4.17.12",
         "@types/mixpanel-browser": "^2.60.0",
         "@types/node": "^20",
         "@types/react": "^19",
@@ -1815,8 +1813,6 @@
     "@types/keyv": ["@types/keyv@3.1.4", "", { "dependencies": { "@types/node": "*" } }, "sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg=="],
 
     "@types/lodash": ["@types/lodash@4.17.20", "", {}, "sha512-H3MHACvFUEiujabxhaI/ImO6gUrd8oOurg7LQtS7mbwIXA/cUqWrvBsaeJ23aZEPk1TAYkurjfMbSELfoCXlGA=="],
-
-    "@types/lodash-es": ["@types/lodash-es@4.17.12", "", { "dependencies": { "@types/lodash": "*" } }, "sha512-0NgftHUcV4v34VhXm8QBSftKVXtbkBG3ViCjs6+eJ5a6y6Mi/jiFGPc1sC7QK+9BFhWrURE3EOggmWaSxL9OzQ=="],
 
     "@types/long": ["@types/long@4.0.2", "", {}, "sha512-MqTGEo5bj5t157U6fA/BiDynNkn0YknVdh48CMPkTSpFTVmvao5UQmm7uEF6xBEo7qIMAlY/JSleYaE6VOdpaA=="],
 

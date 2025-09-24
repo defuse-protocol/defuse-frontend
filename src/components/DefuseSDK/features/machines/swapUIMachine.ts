@@ -83,7 +83,10 @@ export type Context = {
   referral?: string
   slippageBasisPoints: number
   is1cs: boolean
-  is1csFetching: boolean
+  priceChangeDialog: null | {
+    pendingNewAmountOut: { amount: bigint; decimals: number }
+    previousAmountOut?: { amount: bigint; decimals: number }
+  }
 }
 
 type PassthroughEvent =
@@ -165,6 +168,15 @@ export const swapUIMachine = setup({
       | BackgroundQuoterParentEvents
       | Background1csQuoterParentEvents
       | DepositedBalanceEvents
+      | {
+          type: "PRICE_CHANGE_CONFIRMATION_REQUEST"
+          params: {
+            newAmountOut: { amount: bigint; decimals: number }
+            previousAmountOut?: { amount: bigint; decimals: number }
+          }
+        }
+      | { type: "PRICE_CHANGE_CONFIRMED" }
+      | { type: "PRICE_CHANGE_CANCELLED" }
       | PassthroughEvent,
 
     emitted: {} as EmittedEvents,
@@ -259,6 +271,25 @@ export const swapUIMachine = setup({
       ) => value,
     }),
     clearIntentCreationResult: assign({ intentCreationResult: null }),
+    openPriceChangeDialog: assign({
+      priceChangeDialog: (
+        _,
+        params: {
+          newAmountOut: { amount: bigint; decimals: number }
+          previousAmountOut?: { amount: bigint; decimals: number }
+        }
+      ) => ({
+        pendingNewAmountOut: params.newAmountOut,
+        previousAmountOut: params.previousAmountOut,
+      }),
+    }),
+    closePriceChangeDialog: assign({ priceChangeDialog: null }),
+    sendToSwapRef1csConfirm: sendTo("swapRef1cs", () => ({
+      type: "PRICE_CHANGE_CONFIRMED",
+    })),
+    sendToSwapRef1csCancel: sendTo("swapRef1cs", () => ({
+      type: "PRICE_CHANGE_CANCELLED",
+    })),
     passthroughEvent: emit((_, event: PassthroughEvent) => event),
     spawnBackgroundQuoterRef: spawnChild("backgroundQuoterActor", {
       id: "backgroundQuoterRef",
@@ -458,10 +489,6 @@ export const swapUIMachine = setup({
         return "ok" in result ? null : result.err
       },
     }),
-
-    set1csFetching: assign({
-      is1csFetching: (_, value: boolean) => value,
-    }),
   },
   guards: {
     isQuoteValidAndNot1cs: ({ context }) => {
@@ -495,7 +522,7 @@ export const swapUIMachine = setup({
     },
   },
 }).createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5SwO4EMAOBaArgSwGIBJAOQBUBRcgfQGUKyyAZCgEQG0AGAXUVAwD2sPABc8AgHZ8QAD0RYArAoAcAOgCMAdgWcALJ04BOZZoBMCgDQgAnvMO7Nq5ac6b1B07oWfDAX19WqJi4hADyJBTUAMJMRFEA0nQMzGxcvEgggsJiktJyCOrqymqmyl4KhgDMAGwu2la2CFj2nBrKnEWVup7Vxbr+gejY+AQAQgCCTOMkUZFRABLTAOKpPNJZouJSGfldlU6cCuqe+pzVCrqVDXam1aqGCjU13lWabgMgQcOEE1Mzc4sSCsOOp0vwhJtcjtEOojqpqppOJVlPZNMp1IZ1NcmtVKuonIZMa5NJUFL1jB8viECExQktSGl1hCcttQPlcQT1N1qpddFojJpsc1dIZVJU3MUUQ5KmcFJShtTaUtQgBVMiMjIbFl5eSmdR3LlGcx65QKTTVXpC+yi8VFYqomXneXBfCqSCbCRQAiwHAAIwAtqINeDslsdQUtKpNIY9OdMYjlJVDNj3K09F1TLczaZDL1+gFPgrXe6xJ7vX7AyJ2KCmaGoWyYZxTKom7oUbctMiSbohfp8U3TciZdG215nd83RAPV68BIMDgq2tNcyw9CmuY7tVCXpjkmUY8hV07u1vB0jOoaubxyFJ9OCBEAOrUACKKtClGDmRX9dk8ml9yqR5jGjPQkSFHkFA0DcIJNEx1GvYsp1LL1H2odQoloF83w-JcQ0hVlf3XC9VD5JNblKTELmTGx5AgqCyRgu13gLKlEOnVQADc0AAGzwCA0GQghPy1VcGyaSpPHuJsuWKc4DEqcVsVMNF4RFFFjDbKok2qBC8FvZDOJ4viBNnL1qzBL86wI-IsFI+FTHFLdehUC9BRogoVCjGVDlzNxMybSpdP00zDN4-jBPYUwLJEn8bNJZtOHaTM5NJLdLHcyDCVzS5qncdEtBPIKSxC9Bp2oABHHABBEMB7woJ9X3fChhO-ay7FcVQKlKDozC7ZFDzhPkMX1JESVhUwiqQkq0DKyrqtq1D0MwxqcOi1rw0UM4SJ8240TRcwhTqDQ3EKCSTGknSWKLPSfQDURBIgSQwFUWcOIEABrZ6vgAJTAAAzFqrPDLdm20aMM0MNEKmqQ6JPhU13A7bQFNJILbsrB6npeiQ3s+1Qfv+8za3w8Mk3xS5jFKJ59FqGH3KwZQ7kA80jmNUkJLRit7tMggwAAJz5gQ+dUDBuIEv6hf9fGhl+gHcMskm1y8Rx3Cc3LTWqQ5DsJe4SQuZwtC5C580GF0bq5kRBNQlbmvlmK2oQZwSlNKHNLcNFwKbeHfO6TwL0Szm7st0y0IAY1gAhHokZ7Xo+r6Zf+9Rw8BxWxN6UHCkOUc3gxajGhlNQm0edpDiNLdA4xkOk4jqOY5xuPpcwWXq6J5cgbXZF8TIrSRVzJM3MabpRX0dF7CURnagmq6zfxi3kLDiP+cF4XRfFyXG4wZvk7t9albhzF2nFJFTRjK53IxSC-K7Y4HjecwK+5z0F7qp8lqwpqU+1NcHlFIpdDbC0rguS3F7M2PETlbj-0uMpOUHwJACAgHAaQrE8DEy-mJLAqZ9hdXaFoByJh+r00TPiWoZojBkT1EoSa040GiUIs0JQnVDDdTwX1ZQvZTT3EKDGDoFpSLKGoQZPi3EwC0Nin+M0JEzreDxMw6MA9dQxlUHqPc5hSL-yqIIkKXEwomU9GIh2mCTBijbJmSGTxzB6CFBcEi5wXDnFxN0Yal1TYTmKp6VQpV55zRqgYjavR9iuUZg5S4uCFEIARGKewfIdBogARUB+wd9Ft1ToRXoaZ1IaUzIzPEvYbGdyUJmI4zDEnz2rn4tcvQ1BdGcBJCSZCigpkKFEzstQS49Vgf4IAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5SwO4EMAOBaArgSwGIBJAOQBUBRcgfQGUKyyAZCgEQG0AGAXUVAwD2sPABc8AgHZ8QAD0RYArAoAcAOgCMAdgWcALJ04BOZZoBMCgDQgAnvMO7Nq5ac6b1B07oWfDAX19WqJi4hADyJBTUAMJMRFEA0nQMzGxcvEgggsJiktJyCOqmhgDMGsXlxQBs9pqGhuq6VrYIWIaaapWemsXenJXq9er+gejY+AQAQgCCTFMkUZFRABJzAOKpPNJZouJSGfnFuqXKnAqFuvp9CkdNdqaVqoYKVVXeJZpuwyBBY4TTs-NFisSOsOOp0vwhDtcvtEOozqpKppOMVlDVlAN1LcWpViuonHV3B8epU0covj8QgQmKFVqQ0lsoTk9qB8riCQ17kddFojJpsa1dIZVMU3MpxTVilcKaMqTTVqEAKpkBkZbbMvLyUzqB4NIzmbXKBSaSqkgX2YWi9TitEOKWVBQy4LjAAKACU4kC1otwgAxIhugCyUzIRHC1DdFAAioqKLQVZs1UzdpqCpUDIj6uV2uodcbGjZ5OpSm1jKLOLmvEp4U7fgR3Z7osD1tE-QHAxsIZlkzDWXDrqZVNX0-0kbpTGjsUVhUjCrjvJ5XKZirWqQ2Fk3vdE5gsmCwOInIdkU7CCgpSUOjmYLoc+j1scX8ZxTC5lDzlEjyqv8KpIDsJFABCwDgABGAC2oiqke0IsrIcJaKotR6A69TIsoxSGA+GZ6IcL4OmYhikro354L+ED-oBwHgZB4KMsevZwQUz6qM+uhovcWiot0BbNFg+hPhOzzoa49hvo6ATfLKP5-mIAEEHgEgYDgIhQd29GwfkWDmA81SGHohQYWizwCocDwnL07hZkilQkWRFEEBEADq1AxqElCqeqJ59i0dqPCUzzGEh+jFAKlReBo2lhd41omEMEmUtJ5GyYBTnUOoUS0C5ipuRQHk9hpWrFqoPIYfcE71NcmGFji4WFOeUWGrFtkyQpUCqAAbmgAA2eAQGgyUEHl6mplgxSeI8z4NOKDoGNmU7tIiQposYbElBhNnxVJpEtQBHXdb1-WtYNtFJsNp58UVnSitUpIqMW-LVfCajdAYCiEW4L7Pium3OttSWtXtPV9QN7CmF2nkMZpPSDpwJx4ToJJPNiCh+YRRz9LDubtKczX-bt6AUdQACOOACCIYAORQzmue5h5qTBI16Y4b0ThWZhcaiJkIjymLpqKeLeLjFGqATyXE6T5OU856WZTTuV0xDBUtDoDz6CzSImM4ljVVprgaG4uZjSYk0bSMv2qFREEiANECSGAqgKe1AgANb2z8bpgAAZkNDOntUg7aLUuFtEahECsug63e4HHaBU4lm78FugVbNt2w7EhO67FujB73sndBGqnhh+JHMYE4vPonSVAKH6PD0JpnAaPRjbZluiANYAAE6dwIneqBgXX9Z7vdgdnmC5z7hfeV4jjuDd-RGum2u8dOjzdNczhaA01zET9idt9bR2pXLk9eYxzhqIJ7Qb20WjKKFzGku946eMWsOt8n7etWlADGsAELbCQ9tHYuzdjnL26g-6n0hogZEOlKyaF0P0dot9sT6EcLiI4RhRT1HMMaD+1FD4AV-v-QBwCM6gLHhgXOkDYDsHzvTKejFUT4lKsYISz5xRaGRhWIcpxrT6HLsiUUBCU7f1oQQLuPc+4DyHiPKhNCoEK3yqmI4g56gnHLKiN6KIHxPEQgZWKRRjRmHjpJc2B8xYSNSjLLKOVoFKyeMKARbFTSuE5NXHW44RQ6kIlyG8phtCiK-sQiR64vQgh9CQf0QZOx0V9t5XMtdxRmEXpWF899HonEeEaD8Oh4TImMMEohUASH1g9BuZYW4og7goHuOJp0EmMRqD460iDPCuIGNiKUugnAfHnEoIUbhCL+AkhIAQEA4DSASngeJTDNLuBREOQwrMtDLhMJzHW6F8SdHquOJQTU94hDsslOZZ9NJPBRizE4ayOaZN4mxFGgx7CFCxmxckRzErC16l1MAZyYE+WNMVI23g8QrNqA9FeelVDakMuYEqFwShC2SoDA6pzGnzKLCYEUbEXxtBeOYPQAprjFQdC4B0mDtT1FNuYxOO02qi2-iTMmfyMXnPkKSUo90PzLiODcyFiAkQinsDyHQ7RXFvWKeigu7KECkk4CxZaK0Mm4ixF4klLClAvjOCsqV4i-7-KVqSNQhxnBjTGsaCs9z4KsNQlUVmBgtDiX8EAA */
   id: "swap-ui",
 
   context: ({ input }) => ({
@@ -519,7 +546,7 @@ export const swapUIMachine = setup({
     referral: input.referral,
     slippageBasisPoints: 10_000, // 1%
     is1cs: input.is1cs,
-    is1csFetching: false,
+    priceChangeDialog: null,
   }),
 
   entry: [
@@ -590,6 +617,28 @@ export const swapUIMachine = setup({
         { type: "setUser", params: null },
       ],
     },
+
+    PRICE_CHANGE_CONFIRMATION_REQUEST: {
+      actions: {
+        type: "openPriceChangeDialog",
+        params: ({ event }) => ({
+          newAmountOut: event.params.newAmountOut,
+          previousAmountOut: event.params.previousAmountOut,
+        }),
+      },
+    },
+    PRICE_CHANGE_CONFIRMED: {
+      actions: [
+        { type: "closePriceChangeDialog" },
+        { type: "sendToSwapRef1csConfirm" },
+      ],
+    },
+    PRICE_CHANGE_CANCELLED: {
+      actions: [
+        { type: "closePriceChangeDialog" },
+        { type: "sendToSwapRef1csCancel" },
+      ],
+    },
   },
 
   states: {
@@ -599,7 +648,10 @@ export const swapUIMachine = setup({
           {
             target: "submitting_1cs",
             guard: "isQuoteValidAnd1cs",
-            actions: "clearIntentCreationResult",
+            actions: [
+              "clearIntentCreationResult",
+              "sendToBackground1csQuoterRefPause",
+            ],
           },
           {
             target: "submitting",
@@ -636,14 +688,7 @@ export const swapUIMachine = setup({
         },
 
         NEW_1CS_QUOTE: {
-          actions: [
-            "process1csQuote",
-            "updateUIAmountOut",
-            {
-              type: "set1csFetching",
-              params: false,
-            },
-          ],
+          actions: ["process1csQuote", "updateUIAmountOut"],
         },
       },
 
@@ -681,14 +726,7 @@ export const swapUIMachine = setup({
             },
             NEW_1CS_QUOTE: {
               target: "idle",
-              actions: [
-                "process1csQuote",
-                "updateUIAmountOut",
-                {
-                  type: "set1csFetching",
-                  params: false,
-                },
-              ],
+              actions: ["process1csQuote", "updateUIAmountOut"],
             },
           },
         },
@@ -787,7 +825,6 @@ export const swapUIMachine = setup({
     },
 
     submitting_1cs: {
-      entry: ["sendToBackground1csQuoterRefPause"],
       invoke: {
         id: "swapRef1cs",
         src: "swap1csActor",
@@ -816,6 +853,16 @@ export const swapUIMachine = setup({
             userAddress: event.params.userAddress,
             userChainType: event.params.userChainType,
             nearClient: event.params.nearClient,
+            previousAmountOut:
+              context.quote && context.quote.tag === "ok"
+                ? {
+                    amount:
+                      context.quote.value.tokenDeltas.find(
+                        ([, delta]) => delta > 0n
+                      )?.[1] ?? 0n,
+                    decimals: context.parsedFormValues.tokenOut.decimals,
+                  }
+                : undefined,
             parentRef: self,
           }
         },
