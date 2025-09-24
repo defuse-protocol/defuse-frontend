@@ -7,8 +7,8 @@
         "@clickhouse/client": "^1.12.1",
         "@creit.tech/stellar-wallets-kit": "1.9.5",
         "@defuse-protocol/contract-types": "0.1.0",
-        "@defuse-protocol/intents-sdk": "0.20.1",
-        "@defuse-protocol/internal-utils": "0.10.0",
+        "@defuse-protocol/intents-sdk": "0.22.1",
+        "@defuse-protocol/internal-utils": "0.11.0",
         "@defuse-protocol/one-click-sdk-typescript": "^0.1.1-0.2",
         "@hot-labs/near-connect": "0.6.2",
         "@near-wallet-selector/core": "^9.1.0",
@@ -504,9 +504,9 @@
 
     "@defuse-protocol/contract-types": ["@defuse-protocol/contract-types@0.1.0", "", {}, "sha512-jY1MCwtnQkfdTdsCaz5wtazagn5rwj+U/Pm6AftkvStRsmD4nmwwS7D4CXCkWp3Pjpu5i0qj3Za4IQDPoQyrZw=="],
 
-    "@defuse-protocol/intents-sdk": ["@defuse-protocol/intents-sdk@0.20.1", "", { "dependencies": { "@defuse-protocol/contract-types": "0.1.0", "@defuse-protocol/internal-utils": "0.10.0", "@hot-labs/omni-sdk": "2.20.2", "@isaacs/ttlcache": "^1.0.0", "@lifeomic/attempt": "^3.0.0", "@near-js/accounts": "^2.0.1", "@near-js/client": "^2.0.1", "@near-js/keystores": "^2.0.1", "@scure/base": "^1.0.0", "borsher": "^4.0.0", "near-api-js": "^4.0.0 || ^5.0.0", "omni-bridge-sdk": "0.17.5", "viem": "^2.0.0" }, "peerDependencies": { "typescript": "^5" } }, "sha512-bJ6PT0nCI9AWVOJCwZ9px668a1ccyVdF3ogL6AF39ssbmbyXU1lTamzcr0JtZFaOj7bicmd5u5E3yBFT4KXCew=="],
+    "@defuse-protocol/intents-sdk": ["@defuse-protocol/intents-sdk@0.22.1", "", { "dependencies": { "@defuse-protocol/contract-types": "0.1.0", "@defuse-protocol/internal-utils": "0.11.0", "@hot-labs/omni-sdk": "2.20.2", "@isaacs/ttlcache": "^1.0.0", "@lifeomic/attempt": "^3.0.0", "@near-js/accounts": "^2.0.1", "@near-js/client": "^2.0.1", "@near-js/keystores": "^2.0.1", "@scure/base": "^1.0.0", "borsher": "^4.0.0", "near-api-js": "^4.0.0 || ^5.0.0", "omni-bridge-sdk": "0.17.5", "viem": "^2.0.0" }, "peerDependencies": { "typescript": "^5" } }, "sha512-zHWtzn+XloO5v2aVcdm1moSJyGxdIrw4V/DhEvxO8/sIDKxWuXLQuO9YISrzUo9ys8Tus7ASNmj2oukfkCosNw=="],
 
-    "@defuse-protocol/internal-utils": ["@defuse-protocol/internal-utils@0.10.0", "", { "dependencies": { "@defuse-protocol/contract-types": "0.1.0", "@lifeomic/attempt": "^3.0.0", "@noble/hashes": "^1.7.1", "@peculiar/asn1-ecc": "^2.0.0", "@peculiar/asn1-schema": "^2.0.0", "@scure/base": "^1.0.0", "@thames/monads": "^0.7.0", "near-api-js": "^4.0.0 || ^5.0.0", "tweetnacl": "^1.0.0", "valibot": "^1.0.0", "viem": "^2.0.0" } }, "sha512-YB2+xWl0coLa+m6kUPCZg+OIiu/1YaCQ8DLbB6lYVqJTvVfDto/YGJVBv7QgBumv6LGQ3Pxo6Orw3O9drgQ2yw=="],
+    "@defuse-protocol/internal-utils": ["@defuse-protocol/internal-utils@0.11.0", "", { "dependencies": { "@defuse-protocol/contract-types": "0.1.0", "@lifeomic/attempt": "^3.0.0", "@noble/hashes": "^1.7.1", "@peculiar/asn1-ecc": "^2.0.0", "@peculiar/asn1-schema": "^2.0.0", "@scure/base": "^1.0.0", "@thames/monads": "^0.7.0", "near-api-js": "^4.0.0 || ^5.0.0", "tweetnacl": "^1.0.0", "valibot": "^1.0.0", "viem": "^2.0.0" } }, "sha512-mlt8jvlONN3yy1DjmJ44f3Z1Hx1hCuo3JRbhBGzsuTNhRZrdC62Slx0hx+byyxEjSMnPfUBGkQRjRzwJKxCPdw=="],
 
     "@defuse-protocol/one-click-sdk-typescript": ["@defuse-protocol/one-click-sdk-typescript@0.1.10", "", { "dependencies": { "axios": "^1.6.8", "form-data": "^4.0.0" } }, "sha512-47BmNDC0THRViW0E8Tnb5jGRAXwZHe/e744IUYnnS4dGpKRKqSQKlkO0+XQThqV5J7aHTCLIUZ0SRxFs4R4Fdw=="],
 
