@@ -1,4 +1,5 @@
 import { configureSDK as configureSDK_iu } from "@defuse-protocol/internal-utils"
+import { BASE_URL } from "@src/utils/environment"
 import { type ILogger, setLogger } from "./logger"
 
 interface SDKConfig {
@@ -31,7 +32,7 @@ const configsByEnvironment: Record<NearIntentsEnv, EnvConfig> = {
     contractID: "intents.near",
     poaTokenFactoryContractID: "omft.near",
     poaBridgeBaseURL: "https://bridge.chaindefuser.com",
-    solverRelayBaseURL: "https://solver-relay-v2.chaindefuser.com",
+    solverRelayBaseURL: getSolverRelayURL(),
     managerConsoleBaseURL: "https://api-mng-console.chaindefuser.com/api/",
     nearIntentsBaseURL: "https://near-intents.org/api/",
   },
@@ -39,7 +40,7 @@ const configsByEnvironment: Record<NearIntentsEnv, EnvConfig> = {
     contractID: "staging-intents.near",
     poaTokenFactoryContractID: "stft.near",
     poaBridgeBaseURL: "https://poa-stage.intents-near.org",
-    solverRelayBaseURL: "https://solver-relay-stage.intents-near.org",
+    solverRelayBaseURL: getSolverRelayURL(),
     managerConsoleBaseURL: "https://mng-console-stage.intents-near.org/api/",
     nearIntentsBaseURL: "https://stage.near-intents.org/api/",
   },
@@ -91,5 +92,19 @@ export function configureSDK({
   configureSDK_iu({
     env,
     features,
+    environments: {
+      production: {
+        solverRelayBaseURL: getSolverRelayURL(),
+      },
+      stage: {
+        solverRelayBaseURL: getSolverRelayURL(),
+      },
+    },
   })
+}
+
+function getSolverRelayURL(): string {
+  return process.env.VERCEL_URL
+    ? process.env.VERCEL_URL
+    : `${BASE_URL}/api/solver_relay/`
 }
