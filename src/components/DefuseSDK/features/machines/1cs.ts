@@ -62,7 +62,6 @@ const _: AuthMethodSchema extends AuthMethod
 const getQuoteArgsSchema = z.object({
   dry: z.boolean(),
   slippageTolerance: z.number(),
-  quoteWaitingTimeMs: z.number(),
   originAsset: z.string(),
   destinationAsset: z.string(),
   amount: z.string(),
