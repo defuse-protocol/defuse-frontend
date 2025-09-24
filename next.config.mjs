@@ -113,5 +113,4 @@ const sentryConfig = {
     deleteSourcemapsAfterUpload: true, 
   },
 }
-
-export default withSentryConfig(nextConfig, sentryConfig)
+export default process.env.VERCEL_ENV === 'production' ? withSentryConfig(nextConfig, sentryConfig) : nextConfig
