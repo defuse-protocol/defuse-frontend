@@ -101,29 +101,33 @@ const balancePollerActor = fromCallback<
   })
 
   async function fetchBalanceAndEmit() {
-    const status = await nearClient.status()
-    const blockHeight = status.sync_info.latest_block_height
+    try {
+      const status = await nearClient.status()
+      const blockHeight = status.sync_info.latest_block_height
 
-    const balances = await Promise.all(
-      Array.from(accounts).map((accountId) => {
-        return getDepositedBalances(
-          accountId,
-          input.tokenIds,
-          nearClient,
-          blockHeight
-        )
+      const balances = await Promise.all(
+        Array.from(accounts).map((accountId) => {
+          return getDepositedBalances(
+            accountId,
+            input.tokenIds,
+            nearClient,
+            blockHeight
+          )
+        })
+      )
+
+      const mergedBalance = mergeBalance(balances)
+
+      input.parentRef.send({
+        type: "UPDATE_BALANCE_SLICE",
+        params: {
+          balanceSlice: mergedBalance,
+          transitBalanceSlice: {},
+        },
       })
-    )
-
-    const mergedBalance = mergeBalance(balances)
-
-    input.parentRef.send({
-      type: "UPDATE_BALANCE_SLICE",
-      params: {
-        balanceSlice: mergedBalance,
-        transitBalanceSlice: {},
-      },
-    })
+    } catch (err: unknown) {
+      logger.error(err)
+    }
   }
 
   function dispose() {
@@ -136,7 +140,9 @@ const balancePollerActor = fromCallback<
   function restartInterval() {
     dispose()
     void fetchBalanceAndEmit()
-    timer = setInterval(fetchBalanceAndEmit, 10000)
+    timer = setInterval(() => {
+      void fetchBalanceAndEmit()
+    }, 10000)
   }
 
   restartInterval()
