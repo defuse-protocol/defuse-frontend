@@ -37,7 +37,7 @@ function swapRateDataSelector(state: SnapshotFrom<typeof swapUIMachine>) {
 
   const amountIn = state.context.parsedFormValues.amountIn
   const exchangeRate =
-    amountIn != null && amountOut.amount !== 0n // hotfix incorrect calculation when amountOut is 0
+    amountIn != null && amountIn.amount !== 0n // hotfix incorrect calculation when amountOut is 0
       ? {
           amount:
             (amountOut.amount * 10n ** BigInt(amountIn.decimals)) /

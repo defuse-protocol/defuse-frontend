@@ -6,6 +6,7 @@ import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { formatUsdAmount } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
 import { getTokenId } from "@src/components/DefuseSDK/utils/token"
+import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useSelector } from "@xstate/react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
@@ -221,7 +222,17 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     tokensUsdPriceData
   )
 
-  const isLoading = snapshot.matches({ editing: "waiting_quote" })
+  const is1cs = useIs1CsEnabled()
+  const isLoading =
+    snapshot.matches({ editing: "waiting_quote" }) ||
+    (is1cs &&
+      snapshot.matches("submitting_1cs") &&
+      !(
+        snapshot.context.quote?.tag === "ok" &&
+        snapshot.context.quote.value.tokenDeltas.find(
+          ([, delta]) => delta > 0n
+        )?.[1]
+      ))
 
   return (
     <Island className="widget-container flex flex-col gap-5">

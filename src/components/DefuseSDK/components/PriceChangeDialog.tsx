@@ -1,6 +1,8 @@
 "use client"
 import * as AlertDialog from "@radix-ui/react-alert-dialog"
+import { ArrowDownIcon } from "@radix-ui/react-icons"
 import { Button, AlertDialog as themes_AlertDialog } from "@radix-ui/themes"
+import { cn } from "@src/utils/cn"
 import type { TokenInfo } from "../types/base"
 import { isBaseToken } from "../utils"
 import { formatTokenValue } from "../utils/format"
@@ -37,20 +39,26 @@ export function PriceChangeDialog({
           Please confirm new price in order to continue
         </AlertDialog.Description>
 
-        <div className="mt-5 space-y-3">
-          <Row
-            token={tokenIn}
-            label="You pay"
-            amount={amountIn.amount}
-            decimals={amountIn.decimals}
-          />
-          <Row
-            token={tokenOut}
-            label="You receive"
-            amount={newAmountOut.amount}
-            previousAmount={previousAmountOut?.amount}
-            decimals={newAmountOut.decimals}
-          />
+        <div className="relative mt-5">
+          <div className="grid grid-rows-2">
+            <Row
+              token={tokenIn}
+              amount={amountIn.amount}
+              decimals={amountIn.decimals}
+              isTop
+            />
+            <Row
+              token={tokenOut}
+              amount={newAmountOut.amount}
+              previousAmount={previousAmountOut?.amount}
+              decimals={newAmountOut.decimals}
+            />
+          </div>
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10">
+            <div className="flex justify-center items-center w-[40px] h-[40px] rounded-md bg-gray-1 shadow-switch-token dark:shadow-switch-token-dark">
+              <ArrowDownIcon width={18} height={18} />
+            </div>
+          </div>
         </div>
 
         <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
@@ -78,51 +86,53 @@ export function PriceChangeDialog({
 
 function Row({
   token,
-  label,
   amount,
   previousAmount,
   decimals,
+  isTop = false,
 }: {
   token: TokenInfo
-  label: string
   amount: bigint
   previousAmount?: bigint
   decimals: number
+  isTop?: boolean
 }) {
   const symbol = token.symbol
   const icon = token.icon as string | undefined
   const name = token.name as string | undefined
   const chainName = isBaseToken(token) ? token.chainName : undefined
   return (
-    <div className="flex items-center justify-between rounded-lg border border-gray-4 p-3">
+    <div
+      className={cn(
+        "flex items-center justify-between border border-gray-4 p-6",
+        isTop
+          ? "rounded-tl-lg rounded-tr-lg"
+          : "rounded-b-lg rounded-br-lg border-t-0"
+      )}
+    >
+      <div className="flex flex-col items-end gap-0.5">
+        {previousAmount ? (
+          <div className="text-right text-sm text-gray-10 line-through opacity-70">
+            {formatTokenValue(previousAmount, decimals, {
+              fractionDigits: decimals,
+            })}{" "}
+          </div>
+        ) : null}
+        <div className="text-sm font-medium">
+          {formatTokenValue(amount, decimals, {
+            fractionDigits: decimals,
+          })}{" "}
+        </div>
+      </div>
       <div className="flex items-center gap-2">
-        {icon ? (
+        {symbol}
+        {icon && (
           <AssetComboIcon
             icon={icon}
             name={name ?? symbol}
             chainName={chainName}
           />
-        ) : (
-          <span className="relative min-w-[28px] min-h-[28px] bg-gray-200 rounded-full" />
         )}
-        <div className="text-sm text-gray-11">{label}</div>
-      </div>
-      <div className="text-right">
-        <div className="flex flex-col items-end gap-0.5">
-          {previousAmount ? (
-            <div className="text-right text-xs text-gray-10 line-through opacity-70">
-              {formatTokenValue(previousAmount, decimals, {
-                fractionDigits: decimals,
-              })}
-            </div>
-          ) : null}
-          <div className="text-sm font-medium">
-            {formatTokenValue(amount, decimals, {
-              fractionDigits: decimals,
-            })}
-          </div>
-        </div>
-        <div className="text-xs text-gray-10">{symbol}</div>
       </div>
     </div>
   )
