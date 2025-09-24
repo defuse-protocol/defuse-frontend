@@ -350,6 +350,19 @@ export const swapUIMachine = setup({
       type: "REQUEST_BALANCE_REFRESH",
     })),
 
+    sendToDepositedBalanceRefRemoveAccount: sendTo(
+      "depositedBalanceRef",
+      (_, params: { depositAddress: string }) => ({
+        type: "REMOVE_ACCOUNT",
+        params: {
+          accountId: authIdentity.authHandleToIntentsUserId(
+            params.depositAddress,
+            "near"
+          ),
+        },
+      })
+    ),
+
     // Warning: This cannot be properly typed, so you can send an incorrect event
     sendToSwapRefNewQuote: sendTo(
       "swapRef",
@@ -533,6 +546,12 @@ export const swapUIMachine = setup({
           params: ({ event }) => event,
         },
         "sendToDepositedBalanceRefRefresh",
+        {
+          type: "sendToDepositedBalanceRefRemoveAccount",
+          params: ({ event }) => ({
+            depositAddress: event.data.depositAddress,
+          }),
+        },
       ],
     },
 
@@ -815,6 +834,20 @@ export const swapUIMachine = setup({
                 type: "setIntentCreationResult",
                 params: ({ event }) => event.output,
               },
+              sendTo("depositedBalanceRef", ({ event }) => {
+                assert(event.output.tag === "ok")
+                if (event.output.value.depositAddress != null) {
+                  return {
+                    type: "ADD_ACCOUNT",
+                    params: {
+                      accountId: authIdentity.authHandleToIntentsUserId(
+                        event.output.value.depositAddress,
+                        "near"
+                      ),
+                    },
+                  }
+                }
+              }),
               "emitEventIntentPublished",
             ],
           },
