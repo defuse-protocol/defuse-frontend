@@ -110,7 +110,7 @@ const sentryConfig = {
   tunnelRoute: "/monitoring",
   automaticVercelMonitors: true,
   sourcemaps: {
-    disable: true,
+    deleteSourcemapsAfterUpload: true, 
   },
 }
 
