@@ -114,4 +114,5 @@ const sentryConfig = {
   },
 }
 
-export default withSentryConfig(nextConfig, sentryConfig)
+export default process.env.NEXT_PUBLIC_SENTRY_ENABLED === 'true' ? withSentryConfig(nextConfig, sentryConfig) : nextConfig
+
