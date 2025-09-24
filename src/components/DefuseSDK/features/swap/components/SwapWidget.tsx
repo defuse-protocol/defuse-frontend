@@ -95,10 +95,7 @@ function TokenListUpdaterSwap({ tokenList }: { tokenList: TokenInfo[] }) {
       tokenIn?: TokenInfo
       tokenOut?: TokenInfo
     }) => {
-      swapUIActorRef.send({
-        type: "input",
-        params: params,
-      })
+      swapUIActorRef.send({ type: "input", params })
     },
     [swapUIActorRef]
   )
