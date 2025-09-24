@@ -663,10 +663,10 @@ export const swapUIMachine = setup({
         input: {
           target: ".validating",
           actions: [
-            "clearQuote",
-            "updateUIAmountOut",
             "sendToBackgroundQuoterRefPause",
             "sendToBackground1csQuoterRefPause",
+            "clearQuote",
+            "updateUIAmountOut",
             "clearError",
             "clear1csError",
             {
