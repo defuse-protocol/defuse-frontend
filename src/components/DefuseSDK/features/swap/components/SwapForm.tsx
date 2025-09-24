@@ -6,6 +6,7 @@ import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { formatUsdAmount } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
 import { getTokenId } from "@src/components/DefuseSDK/utils/token"
+import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useSelector } from "@xstate/react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
@@ -28,6 +29,7 @@ import { Swap1csCard } from "../../../components/IntentCard/Swap1csCard"
 import { SwapIntentCard } from "../../../components/IntentCard/SwapIntentCard"
 import { Island } from "../../../components/Island"
 import type { ModalSelectAssetsPayload } from "../../../components/Modal/ModalSelectAssets"
+import { PriceChangeDialog } from "../../../components/PriceChangeDialog"
 import { SWAP_TOKEN_FLAGS } from "../../../constants/swap"
 import { useModalStore } from "../../../providers/ModalStoreProvider"
 import { ModalType } from "../../../stores/modalStore"
@@ -220,9 +222,17 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     tokensUsdPriceData
   )
 
+  const is1cs = useIs1CsEnabled()
   const isLoading =
     snapshot.matches({ editing: "waiting_quote" }) ||
-    snapshot.context.is1csFetching
+    (is1cs &&
+      snapshot.matches("submitting_1cs") &&
+      !(
+        snapshot.context.quote?.tag === "ok" &&
+        snapshot.context.quote.value.tokenDeltas.find(
+          ([, delta]) => delta > 0n
+        )?.[1]
+      ))
 
   return (
     <Island className="widget-container flex flex-col gap-5">
@@ -337,6 +347,28 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
           </Box>
         )}
       </div>
+
+      {snapshot.context.priceChangeDialog && (
+        <PriceChangeDialog
+          open={true}
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
+          amountIn={{
+            amount: snapshot.context.parsedFormValues.amountIn?.amount ?? 0n,
+            decimals: snapshot.context.parsedFormValues.amountIn?.decimals ?? 0,
+          }}
+          newAmountOut={snapshot.context.priceChangeDialog.pendingNewAmountOut}
+          previousAmountOut={
+            snapshot.context.priceChangeDialog.previousAmountOut
+          }
+          onConfirm={() =>
+            swapUIActorRef.send({ type: "PRICE_CHANGE_CONFIRMED" })
+          }
+          onCancel={() =>
+            swapUIActorRef.send({ type: "PRICE_CHANGE_CANCELLED" })
+          }
+        />
+      )}
     </Island>
   )
 }

@@ -16,6 +16,7 @@ import type { TokenInfo } from "../../../types/base"
 import { assert } from "../../../utils/assert"
 import {
   type Events as DepositedBalanceEvents,
+  balancesSelector,
   depositedBalanceMachine,
 } from "../../machines/depositedBalanceMachine"
 import { otcMakerTradesStore } from "../stores/otcMakerTrades"
@@ -281,8 +282,9 @@ export const otcMakerRootMachine = setup({
                 (typeof parsed.context)[K]
               >
             },
-            balances:
-              context.depositedBalanceRef.getSnapshot().context.balances,
+            balances: balancesSelector(
+              context.depositedBalanceRef.getSnapshot()
+            ),
             referral: context.referral,
           }
         },

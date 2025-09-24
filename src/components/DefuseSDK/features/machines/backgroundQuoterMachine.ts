@@ -145,24 +145,13 @@ function pollQuote(
         onResult(result)
       }
     },
-    onError: (error, waitMs) => {
+    onError: (error) => {
       // Ignore the error if the quote was cancelled
       if (
         error instanceof BaseError &&
         !error.walk((err) => err instanceof TimeoutError)
       ) {
         logger.error(error)
-      }
-      // If the quote failed after waiting for a long time (MPC solvers),
-      // treat it as "no quotes" to trigger the fallback behavior
-      if (
-        waitMs != null &&
-        waitMs >= INITIAL_QUOTE_WAIT_MS[INITIAL_QUOTE_WAIT_MS.length - 1]
-      ) {
-        onResult({
-          tag: "err",
-          value: { reason: "ERR_NO_QUOTES" },
-        })
       }
     },
   })
@@ -177,20 +166,18 @@ function getQuotes({
   signal: AbortSignal
   quoteParams: Omit<AggregatedQuoteParams, "waitMs">
   onResult: (arg: { result: QuoteResult; requestId: number }) => void
-  onError: (error: unknown, waitMs?: number) => void
+  onError: (error: unknown) => void
 }) {
   const queryQuote = queryQuoteWithRequestId()
 
   for (const waitMs of INITIAL_QUOTE_WAIT_MS) {
-    queryQuote({ ...quoteParams, waitMs }, { signal }).then(onResult, (error) =>
-      onError(error, waitMs)
-    )
+    queryQuote({ ...quoteParams, waitMs }, { signal }).then(onResult, onError)
   }
 
   const timer = setInterval(() => {
     queryQuote({ ...quoteParams, waitMs: SLOW_QUOTE_WAIT_MS }, { signal }).then(
       onResult,
-      (error) => onError(error, SLOW_QUOTE_WAIT_MS)
+      onError
     )
   }, QUOTE_POLLING_INTERVAL_MS)
 
