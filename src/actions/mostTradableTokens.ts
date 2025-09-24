@@ -21,11 +21,12 @@ const MOST_TRADABLE_TOKENS_QUERY = `
   FROM near_intents_metrics.intents_swaps
   WHERE intents_swaps.block_timestamp >= now() - INTERVAL 24 HOUR 
   AND is_swap = 'yes'
+  AND symbol_out NOT IN ('USDT', 'USDC', 'DAI')
   GROUP BY 
     symbol_out,
     blockchain_out
   ORDER BY volume DESC
-  LIMIT 10
+  LIMIT 15
 `
 
 /**
