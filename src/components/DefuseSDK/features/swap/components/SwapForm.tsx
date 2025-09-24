@@ -133,6 +133,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
       fieldName,
       [fieldName]: token,
       isHoldingsEnabled: true,
+      isMostTradableTokensEnabled: true,
     })
   }
 
