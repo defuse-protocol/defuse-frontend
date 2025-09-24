@@ -58,10 +58,15 @@ export const background1csQuoterMachine = fromCallback<
   Input,
   EmittedEvents
 >(({ receive, input, emit }) => {
-  let paused = false
+  let lastSetRequestId = 0
+
   function executeQuote(quoteInput: Quote1csInput) {
+    const requestId = ++lastSetRequestId
+
     get1csQuote(quoteInput, (result, tokenInAssetId, tokenOutAssetId) => {
-      if (paused) return
+      // Only process results from the current request
+      if (requestId !== lastSetRequestId) return
+
       const eventPayload = {
         type: "NEW_1CS_QUOTE" as const,
         params: {
@@ -81,10 +86,9 @@ export const background1csQuoterMachine = fromCallback<
     const eventType = event.type
     switch (eventType) {
       case "PAUSE":
-        paused = true
+        lastSetRequestId++
         return
       case "NEW_QUOTE_INPUT": {
-        paused = false
         executeQuote(event.params)
         break
       }
@@ -93,6 +97,9 @@ export const background1csQuoterMachine = fromCallback<
         logger.warn("Unhandled event type", { eventType })
     }
   })
+
+  // Cleanup on machine stop
+  return () => lastSetRequestId++
 })
 
 async function get1csQuote(
