@@ -66,14 +66,14 @@ export function PriceChangeDialog({
 
             <div className="flex items-center justify-between border border-gray-4 p-6 rounded-b-lg rounded-br-lg border-t-0">
               <div className="flex flex-col gap-1 font-medium">
-                {previousAmountOut?.amount ? (
+                {previousAmountOut ? (
                   <div className="text-gray-10">
                     <span className="line-through">
                       {formatTokenValue(
                         previousAmountOut.amount,
-                        newAmountOut.decimals,
+                        previousAmountOut.decimals,
                         {
-                          fractionDigits: newAmountOut.decimals,
+                          fractionDigits: previousAmountOut.decimals,
                         }
                       )}
                     </span>{" "}
