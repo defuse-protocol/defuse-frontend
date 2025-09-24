@@ -18,6 +18,7 @@ import type { TokenInfo } from "../../../types/base"
 import { assert } from "../../../utils/assert"
 import {
   type Events as DepositedBalanceEvents,
+  balancesSelector,
   depositedBalanceMachine,
 } from "../../machines/depositedBalanceMachine"
 import { giftMakerHistoryStore } from "../stores/giftMakerHistory"
@@ -354,8 +355,9 @@ export const giftMakerRootMachine = setup({
                 (typeof parsed.context)[K]
               >
             },
-            balances:
-              context.depositedBalanceRef.getSnapshot().context.balances,
+            balances: balancesSelector(
+              context.depositedBalanceRef.getSnapshot()
+            ),
             referral: context.referral,
             escrowCredentials: context.escrowCredentials,
           }

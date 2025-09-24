@@ -38,6 +38,7 @@ import { isBaseToken } from "@src/components/DefuseSDK/utils/token"
 import {
   type BalanceMapping,
   type Events as DepositedBalanceEvents,
+  balancesSelector,
   depositedBalanceMachine,
 } from "./depositedBalanceMachine"
 import { intentStatusMachine } from "./intentStatusMachine"
@@ -308,7 +309,7 @@ export const swapUIMachine = setup({
         const depositedBalanceRef:
           | ActorRefFrom<typeof depositedBalanceMachine>
           | undefined = snapshot.children.depositedBalanceRef
-        const balances = depositedBalanceRef?.getSnapshot().context.balances
+        const balances = balancesSelector(depositedBalanceRef?.getSnapshot())
 
         assert(context.parsedFormValues.amountIn != null, "amountIn is not set")
 
@@ -379,6 +380,19 @@ export const swapUIMachine = setup({
     sendToDepositedBalanceRefRefresh: sendTo("depositedBalanceRef", (_) => ({
       type: "REQUEST_BALANCE_REFRESH",
     })),
+
+    sendToDepositedBalanceRefRemoveAccount: sendTo(
+      "depositedBalanceRef",
+      (_, params: { depositAddress: string }) => ({
+        type: "REMOVE_ACCOUNT",
+        params: {
+          accountId: authIdentity.authHandleToIntentsUserId(
+            params.depositAddress,
+            "near"
+          ),
+        },
+      })
+    ),
 
     // Warning: This cannot be properly typed, so you can send an incorrect event
     sendToSwapRefNewQuote: sendTo(
@@ -559,6 +573,12 @@ export const swapUIMachine = setup({
           params: ({ event }) => event,
         },
         "sendToDepositedBalanceRefRefresh",
+        {
+          type: "sendToDepositedBalanceRefRemoveAccount",
+          params: ({ event }) => ({
+            depositAddress: event.data.depositAddress,
+          }),
+        },
       ],
     },
 
@@ -843,22 +863,7 @@ export const swapUIMachine = setup({
                     decimals: context.parsedFormValues.tokenOut.decimals,
                   }
                 : undefined,
-            parentRef: {
-              send: (
-                event:
-                  | Background1csQuoterParentEvents
-                  | {
-                      type: "PRICE_CHANGE_CONFIRMATION_REQUEST"
-                      params: {
-                        newAmountOut: { amount: bigint; decimals: number }
-                      }
-                    }
-                  | { type: "PRICE_CHANGE_CONFIRMED" }
-                  | { type: "PRICE_CHANGE_CANCELLED" }
-              ) => {
-                self.send(event)
-              },
-            },
+            parentRef: self,
           }
         },
 
@@ -876,6 +881,20 @@ export const swapUIMachine = setup({
                 type: "setIntentCreationResult",
                 params: ({ event }) => event.output,
               },
+              sendTo("depositedBalanceRef", ({ event }) => {
+                assert(event.output.tag === "ok")
+                if (event.output.value.depositAddress != null) {
+                  return {
+                    type: "ADD_ACCOUNT",
+                    params: {
+                      accountId: authIdentity.authHandleToIntentsUserId(
+                        event.output.value.depositAddress,
+                        "near"
+                      ),
+                    },
+                  }
+                }
+              }),
               "emitEventIntentPublished",
             ],
           },
