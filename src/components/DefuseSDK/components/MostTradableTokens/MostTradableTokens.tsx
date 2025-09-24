@@ -211,6 +211,32 @@ function clickhouseChainToChainName(chain: string) {
       return "berachain"
     case "arb":
       return "arbitrum"
+    case "aptos":
+      return "aptos"
+    case "base":
+      return "base"
+    case "bsc":
+      return "bsc"
+    case "cardano":
+      return "cardano"
+    case "eth":
+      return "eth"
+    case "gnosis":
+      return "gnosis"
+    case "near":
+      return "near"
+    case "op":
+      return "optimism"
+    case "pol":
+      return "polygon"
+    case "stellar":
+      return "stellar"
+    case "sui":
+      return "sui"
+    case "ton":
+      return "ton"
+    case "tron":
+      return "tron"
     default:
       return chain
   }
