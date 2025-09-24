@@ -106,5 +106,7 @@ export function configureSDK({
 function getSolverRelayURL(): string {
   return process.env.VERCEL_URL
     ? process.env.VERCEL_URL
-    : `${BASE_URL}/api/solver_relay/`
+    : typeof window !== "undefined"
+      ? `${window.origin}/api/solver_relay/`
+      : `${BASE_URL}/api/solver_relay/`
 }
