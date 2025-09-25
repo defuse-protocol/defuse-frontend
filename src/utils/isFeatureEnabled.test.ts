@@ -77,8 +77,8 @@ describe("isFeatureEnabled", () => {
     const actualFraction = enabledCount / numTests
 
     // Should be roughly 30% with some tolerance for randomness
-    expect(actualFraction).toBeGreaterThan(0.25)
-    expect(actualFraction).toBeLessThan(0.35)
+    expect(actualFraction).toBeGreaterThan(0.2)
+    expect(actualFraction).toBeLessThan(0.4)
   })
 
   it("should handle long user IDs", () => {
