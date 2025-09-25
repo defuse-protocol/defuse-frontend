@@ -1,6 +1,6 @@
 import type { authHandle, walletMessage } from "@defuse-protocol/internal-utils"
 import type { SendNearTransaction } from "../features/machines/publicKeyVerifierMachine"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "./base"
+import type { TokenInfo } from "./base"
 import type { RenderHostAppLink } from "./hostAppLink"
 
 export type WithdrawWidgetProps = {
@@ -13,7 +13,7 @@ export type WithdrawWidgetProps = {
   presetRecipient: string | undefined
   presetNetwork: string | undefined
   renderHostAppLink: RenderHostAppLink
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
+  tokenList: TokenInfo[]
   signMessage: (
     params: walletMessage.WalletMessage
   ) => Promise<walletMessage.WalletSignatureResult | null>

@@ -1,13 +1,21 @@
+"use client"
 import { CaretDownIcon } from "@radix-ui/react-icons"
 import type React from "react"
 
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../types/base"
-
+import { hasChainIcon } from "@src/app/(home)/_utils/useDeterminePair"
+import { useIsFlatTokenListEnabled } from "@src/hooks/useIsFlatTokenListEnabled"
+import { useMemo } from "react"
+import { chainIcons } from "../constants/blockchains"
+import type { TokenInfo } from "../types/base"
+import { isBaseToken } from "../utils"
 import { AssetComboIcon } from "./Asset/AssetComboIcon"
 
 type Props = {
-  selected?: BaseTokenInfo | UnifiedTokenInfo
+  selected?: TokenInfo
   handleSelect?: () => void
+  tokens?: TokenInfo[]
+  tokenIn?: TokenInfo
+  tokenOut?: TokenInfo
 }
 
 const EmptyIcon = () => {
@@ -16,11 +24,52 @@ const EmptyIcon = () => {
   )
 }
 
-export const SelectAssets = ({ selected, handleSelect }: Props) => {
+export const SelectAssets = ({
+  selected,
+  handleSelect,
+  tokens,
+  tokenIn,
+  tokenOut,
+}: Props) => {
   const handleAssetsSelect = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     handleSelect?.()
   }
+
+  const chainIcon = useMemo(() => {
+    return selected !== undefined && isBaseToken(selected)
+      ? chainIcons[selected.chainName]
+      : undefined
+  }, [selected])
+
+  const isFlatTokenListEnabled = useIsFlatTokenListEnabled()
+
+  const showChainIcon = useMemo(() => {
+    if (isFlatTokenListEnabled && chainIcon !== undefined) {
+      return true
+    }
+
+    if (
+      chainIcon === undefined ||
+      tokens === undefined ||
+      selected === undefined
+    ) {
+      return false
+    }
+
+    const allTokens = [...tokens]
+
+    if (tokenIn !== undefined) {
+      allTokens.push(tokenIn)
+    }
+
+    if (tokenOut !== undefined) {
+      allTokens.push(tokenOut)
+    }
+
+    return hasChainIcon(selected, allTokens)
+  }, [tokens, tokenIn, tokenOut, selected, chainIcon, isFlatTokenListEnabled])
+
   return (
     <button
       type="button"
@@ -31,15 +80,15 @@ export const SelectAssets = ({ selected, handleSelect }: Props) => {
         <AssetComboIcon
           icon={selected.icon as string}
           name={selected.name as string}
-          chainName={
-            "defuseAssetId" in selected ? selected.chainName : undefined
-          }
+          chainName={isBaseToken(selected) ? selected.chainName : undefined}
+          chainIcon={chainIcon}
+          showChainIcon={showChainIcon}
         />
       ) : (
         <EmptyIcon />
       )}
       <span className="text-sm uppercase truncate">
-        {selected?.symbol || "select token"}
+        {selected?.symbol ?? "select token"}
       </span>
       <CaretDownIcon width={25} height={25} />
     </button>

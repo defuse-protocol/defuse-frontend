@@ -13,7 +13,7 @@ import {
 import { logger } from "../../logger"
 import { emitEvent } from "../../services/emitter"
 import type { QuoteResult } from "../../services/quoteService"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../types/base"
+import type { BaseTokenInfo, TokenInfo } from "../../types/base"
 import { assert } from "../../utils/assert"
 import { isNearIntentsNetwork } from "../withdraw/components/WithdrawForm/utils"
 import {
@@ -24,6 +24,7 @@ import {
 import {
   type BalanceMapping,
   type Events as DepositedBalanceEvents,
+  balancesSelector,
   depositedBalanceMachine,
 } from "./depositedBalanceMachine"
 import { intentStatusMachine } from "./intentStatusMachine"
@@ -49,7 +50,7 @@ export type Context = {
   error: Error | null
   intentCreationResult: SwapIntentMachineOutput | null
   intentRefs: ActorRefFrom<typeof intentStatusMachine>[]
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
+  tokenList: TokenInfo[]
   depositedBalanceRef: ActorRefFrom<typeof depositedBalanceMachine>
   withdrawFormRef: ActorRefFrom<typeof withdrawFormReducer>
   poaBridgeInfoRef: ActorRefFrom<typeof poaBridgeInfoActor>
@@ -68,12 +69,12 @@ type PassthroughEvent = {
   data: {
     intentHash: string
     txHash: string
-    tokenIn: BaseTokenInfo | UnifiedTokenInfo
+    tokenIn: TokenInfo
     /**
      * This is not true, because tokenOut should be `BaseTokenInfo`.
-     * It left `BaseTokenInfo | UnifiedTokenInfo` for compatibility with `intentStatusActor`.
+     * It left `TokenInfo` for compatibility with `intentStatusActor`.
      */
-    tokenOut: BaseTokenInfo | UnifiedTokenInfo
+    tokenOut: TokenInfo
   }
 }
 
@@ -82,9 +83,9 @@ type EmittedEvents = PassthroughEvent | { type: "INTENT_PUBLISHED" }
 export const withdrawUIMachine = setup({
   types: {
     input: {} as {
-      tokenIn: BaseTokenInfo | UnifiedTokenInfo
+      tokenIn: TokenInfo
       tokenOut: BaseTokenInfo
-      tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
+      tokenList: TokenInfo[]
       referral?: string
     },
     context: {} as Context,
@@ -237,8 +238,9 @@ export const withdrawUIMachine = setup({
           type: "NEW_QUOTE_INPUT",
           params: {
             ...preparationOutput.value.swap.swapParams,
-            balances:
-              context.depositedBalanceRef.getSnapshot().context.balances,
+            balances: balancesSelector(
+              context.depositedBalanceRef.getSnapshot()
+            ),
             appFeeBps: 0, // no app fee for withdrawals
           },
         }
@@ -451,8 +453,9 @@ export const withdrawUIMachine = setup({
             guard: {
               type: "isBalanceSufficientForQuote",
               params: ({ context }) => {
-                const balances =
-                  context.depositedBalanceRef.getSnapshot().context.balances
+                const balances = balancesSelector(
+                  context.depositedBalanceRef.getSnapshot()
+                )
 
                 if (
                   context.preparationOutput == null ||

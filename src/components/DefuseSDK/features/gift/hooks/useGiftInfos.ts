@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
+import type { TokenInfo } from "../../../types/base"
 import type { GiftMakerHistory } from "../stores/giftMakerHistory"
 import { type GiftInfo, parseGiftInfos } from "../utils/parseGiftInfos"
 
@@ -10,7 +10,7 @@ type UseGiftInfosReturn = {
 
 export function useGiftInfos(
   gifts: GiftMakerHistory[] | undefined,
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
+  tokenList: TokenInfo[]
 ): UseGiftInfosReturn {
   const [giftInfos, setGiftInfos] = useState<GiftInfo[]>([])
   const [loading, setLoading] = useState(true)

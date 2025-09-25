@@ -4,7 +4,7 @@ import { Err, type Result } from "@thames/monads"
 import { logger } from "../../../logger"
 import { getDepositedBalances } from "../../../services/defuseBalanceService"
 import type { AggregatedQuote } from "../../../services/quoteService"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
+import type { TokenInfo } from "../../../types/base"
 import type { IntentsUserId } from "../../../types/intentsUserId"
 import { assert } from "../../../utils/assert"
 import { isBaseToken } from "../../../utils/token"
@@ -38,7 +38,7 @@ export function useOtcTakerPreparation({
   protocolFee,
   takerId,
 }: {
-  tokenIn: BaseTokenInfo | UnifiedTokenInfo
+  tokenIn: TokenInfo
   takerTokenDiff: Record<string, bigint>
   protocolFee: number
   takerId: IntentsUserId | null

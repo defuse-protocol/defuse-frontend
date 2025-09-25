@@ -13,11 +13,7 @@ import { createTransferMessage } from "../../../core/messages"
 import { logger } from "../../../logger"
 import { calculateSplitAmounts } from "../../../sdk/aggregatedQuote/calculateSplitAmounts"
 import { AmountMismatchError } from "../../../sdk/aggregatedQuote/errors/amountMismatchError"
-import type {
-  BaseTokenInfo,
-  TokenValue,
-  UnifiedTokenInfo,
-} from "../../../types/base"
+import type { BaseTokenInfo, TokenInfo, TokenValue } from "../../../types/base"
 import { findError } from "../../../utils/errors"
 import {
   adjustDecimals,
@@ -36,7 +32,7 @@ import type { EscrowCredentials } from "../utils/generateEscrowCredentials"
 
 export type GiftMakerSignActorInput = {
   parsed: {
-    token: BaseTokenInfo | UnifiedTokenInfo
+    token: TokenInfo
     amount: TokenValue
     message: string
   }

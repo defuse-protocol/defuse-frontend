@@ -1,5 +1,5 @@
 import type { MultiPayload } from "@defuse-protocol/contract-types"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
+import type { TokenInfo } from "../../../types/base"
 import { assert } from "../../../utils/assert"
 import {
   computeTotalBalanceDifferentDecimals,
@@ -11,8 +11,8 @@ import { deriveTradeTerms } from "./deriveTradeTerms"
 
 export function computeTradeBreakdown(params: {
   multiPayload: MultiPayload
-  tokenIn: BaseTokenInfo | UnifiedTokenInfo
-  tokenOut: BaseTokenInfo | UnifiedTokenInfo
+  tokenIn: TokenInfo
+  tokenOut: TokenInfo
   protocolFee: number
 }): TradeBreakdown {
   const tradeTerms = deriveTradeTerms(

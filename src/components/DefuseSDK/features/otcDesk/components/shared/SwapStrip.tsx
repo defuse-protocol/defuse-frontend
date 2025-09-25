@@ -1,14 +1,10 @@
 import { AssetComboIcon } from "../../../../components/Asset/AssetComboIcon"
-import type {
-  BaseTokenInfo,
-  TokenValue,
-  UnifiedTokenInfo,
-} from "../../../../types/base"
+import type { TokenInfo, TokenValue } from "../../../../types/base"
 import { formatTokenValue } from "../../../../utils/format"
 
 type SwapStripProps = {
-  tokenIn: BaseTokenInfo | UnifiedTokenInfo
-  tokenOut: BaseTokenInfo | UnifiedTokenInfo
+  tokenIn: TokenInfo
+  tokenOut: TokenInfo
   amountIn: TokenValue
   amountOut: TokenValue
 }
@@ -31,22 +27,15 @@ export function SwapStrip({
         <div className="text-sm text-a12 font-bold">Swap</div>
       </div>
       <div className="text-xs text-a12">
-        {formatTokenValue(
-          amountIn.amount,
-          amountIn.decimals,
-          { fractionDigits: 4 }
-          // biome-ignore lint/nursery/useConsistentCurlyBraces: <explanation>
-        )}{" "}
+        {formatTokenValue(amountIn.amount, amountIn.decimals, {
+          fractionDigits: 4,
+        })}{" "}
         {tokenIn.symbol}
-        {/* biome-ignore lint/nursery/useConsistentCurlyBraces: <explanation> */}
         {" → "}
         <span className="font-bold">
-          {formatTokenValue(
-            amountOut.amount,
-            amountOut.decimals,
-            { fractionDigits: 4 }
-            // biome-ignore lint/nursery/useConsistentCurlyBraces: <explanation>
-          )}{" "}
+          {formatTokenValue(amountOut.amount, amountOut.decimals, {
+            fractionDigits: 4,
+          })}{" "}
           {tokenOut.symbol}
         </span>
       </div>

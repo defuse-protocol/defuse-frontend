@@ -1,11 +1,7 @@
-import type {
-  BaseTokenInfo,
-  TokenValue,
-  UnifiedTokenInfo,
-} from "../../../types/base"
+import type { TokenInfo, TokenValue } from "../../../types/base"
 
 export interface Holding {
-  token: BaseTokenInfo | UnifiedTokenInfo
+  token: TokenInfo
   value: TokenValue | undefined
   usdValue: number | undefined
   transitValue: TokenValue | undefined

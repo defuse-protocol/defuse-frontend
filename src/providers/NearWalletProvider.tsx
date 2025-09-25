@@ -5,7 +5,6 @@ import type {
   SignMessageParams,
   SignedMessage,
 } from "@near-wallet-selector/core/src/lib/wallet/wallet.types"
-import { base58, base64 } from "@scure/base"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import type { SignAndSendTransactionsParams } from "@src/types/interfaces"
 import { logger } from "@src/utils/logger"

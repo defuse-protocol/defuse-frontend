@@ -1,5 +1,4 @@
-import type { solverRelay } from "@defuse-protocol/internal-utils"
-import type { QuoteError } from "../errors/quote"
+import type { QuoteError, solverRelay } from "@defuse-protocol/internal-utils"
 
 export type AggregatedQuote = {
   quoteHashes: string[]

@@ -25,7 +25,7 @@ import { Copy } from "../../../components/IntentCard/CopyButton"
 import type { IntentsUserId, SignerCredentials } from "../../../core/formatters"
 import { getDepositedBalances } from "../../../services/defuseBalanceService"
 import { isNonceUsed } from "../../../services/intentsContractService"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
+import type { TokenInfo } from "../../../types/base"
 import { assert } from "../../../utils/assert"
 import { formatTokenValue } from "../../../utils/format"
 import { computeTotalBalanceDifferentDecimals } from "../../../utils/tokenUtils"
@@ -54,7 +54,7 @@ import {
 import { CancellationDialog } from "./shared/CancellationDialog"
 
 interface OtcMakerTradesProps {
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
+  tokenList: TokenInfo[]
   generateLink: GenerateLink
   signerCredentials: SignerCredentials
   signMessage: SignMessage
@@ -115,7 +115,7 @@ interface OtcMakerTradeItemProps {
   iv: string
   multiPayload: MultiPayload
   updatedAt: number
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
+  tokenList: TokenInfo[]
   generateLink: GenerateLink
   signerCredentials: SignerCredentials
 }
@@ -199,16 +199,13 @@ function OtcMakerTradeItem({
           <div className="font-medium text-xs text-gray-11">
             {formatTokenValue(-totalAmountIn.amount, totalAmountIn.decimals, {
               fractionDigits: 4,
-              // biome-ignore lint/nursery/useConsistentCurlyBraces: <explanation>
             })}{" "}
-            {/* biome-ignore lint/nursery/useConsistentCurlyBraces: <explanation> */}
             {tokenIn.symbol} →{" "}
             <span className="font-bold text-gray-12">
               {formatTokenValue(
                 totalAmountOut.amount,
                 totalAmountOut.decimals,
                 { fractionDigits: 4 }
-                // biome-ignore lint/nursery/useConsistentCurlyBraces: <explanation>
               )}{" "}
               {tokenOut.symbol}
             </span>
@@ -287,7 +284,6 @@ function OtcMakerTradeItem({
 
               {err === "MAKER_INSUFFICIENT_FUNDS" && (
                 <div>
-                  {/* biome-ignore lint/nursery/useConsistentCurlyBraces: <explanation> */}
                   <span className="font-bold">The order cannot be filled.</span>{" "}
                   Your balance is incorrect. Please cancel the order and create
                   new another one.

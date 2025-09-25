@@ -1,6 +1,6 @@
 import { type InputHTMLAttributes, type ReactNode, forwardRef } from "react"
 import { AssetComboIcon } from "../../../../components/Asset/AssetComboIcon"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../../types/base"
+import type { TokenInfo } from "../../../../types/base"
 import { cn } from "../../../../utils/cn"
 import { isBaseToken } from "../../../../utils/token"
 export function TokenAmountInputCard({
@@ -76,7 +76,7 @@ TokenAmountInputCard.Input = forwardRef<
 
 TokenAmountInputCard.DisplayToken = function DisplayToken({
   token,
-}: { token: BaseTokenInfo | UnifiedTokenInfo }) {
+}: { token: TokenInfo }) {
   return (
     <div className="flex items-center gap-2">
       <AssetComboIcon

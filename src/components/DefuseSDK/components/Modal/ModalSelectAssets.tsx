@@ -1,7 +1,8 @@
 import { authIdentity } from "@defuse-protocol/internal-utils"
-import { X as CrossIcon } from "@phosphor-icons/react"
+import { XIcon } from "@phosphor-icons/react"
 import { Text } from "@radix-ui/themes"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
+import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import {
   useCallback,
   useDeferredValue,
@@ -14,11 +15,7 @@ import type { BalanceMapping } from "../../features/machines/depositedBalanceMac
 import { useModalStore } from "../../providers/ModalStoreProvider"
 import { useTokensStore } from "../../providers/TokensStoreProvider"
 import { ModalType } from "../../stores/modalStore"
-import type {
-  BaseTokenInfo,
-  TokenValue,
-  UnifiedTokenInfo,
-} from "../../types/base"
+import type { TokenInfo, TokenValue } from "../../types/base"
 import { getTokenId, isBaseToken } from "../../utils/token"
 import {
   compareAmounts,
@@ -26,26 +23,26 @@ import {
 } from "../../utils/tokenUtils"
 import { AssetList } from "../Asset/AssetList"
 import { EmptyAssetList } from "../Asset/EmptyAssetList"
+import { MostTradableTokens } from "../MostTradableTokens/MostTradableTokens"
 import { SearchBar } from "../SearchBar"
 import { ModalDialog } from "./ModalDialog"
 import { ModalNoResults } from "./ModalNoResults"
 
-export type Token = BaseTokenInfo | UnifiedTokenInfo
-
 export type ModalSelectAssetsPayload = {
   modalType?: ModalType.MODAL_SELECT_ASSETS
-  token?: Token
-  tokenIn?: Token
-  tokenOut?: Token
+  token?: TokenInfo
+  tokenIn?: TokenInfo
+  tokenOut?: TokenInfo
   fieldName?: "tokenIn" | "tokenOut" | "token"
   /** @deprecated legacy props use holdings instead */
   balances?: BalanceMapping
   accountId?: string
   onConfirm?: (payload: ModalSelectAssetsPayload) => void
   isHoldingsEnabled?: boolean
+  isMostTradableTokensEnabled?: boolean
 }
 
-export type SelectItemToken<T = Token> = {
+export type SelectItemToken<T = TokenInfo> = {
   token: T
   disabled: boolean
   selected: boolean
@@ -55,23 +52,25 @@ export type SelectItemToken<T = Token> = {
   isHoldingsEnabled: boolean
 }
 
-export const ModalSelectAssets = () => {
+export function ModalSelectAssets() {
   const [searchValue, setSearchValue] = useState("")
   const [assetList, setAssetList] = useState<SelectItemToken[]>([])
+  const [notFilteredAssetList, setNotFilteredAssetList] = useState<
+    SelectItemToken[]
+  >([])
 
   const { onCloseModal, modalType, payload } = useModalStore((state) => state)
-  const { data, isLoading } = useTokensStore((state) => state)
+  const tokens = useTokensStore((state) => state.tokens)
   const deferredQuery = useDeferredValue(searchValue)
+  // TODO: how we can avoid this cast?
+  const modalPayload = payload as ModalSelectAssetsPayload
 
   const { state } = useConnectWallet()
   const userId =
     state.isVerified && state.address && state.chainType
       ? authIdentity.authHandleToIntentsUserId(state.address, state.chainType)
       : null
-  const holdings = useWatchHoldings({
-    userId,
-    tokenList: Array.from(data.values()),
-  })
+  const holdings = useWatchHoldings({ userId, tokenList: tokens })
 
   const handleSearchClear = () => setSearchValue("")
 
@@ -93,10 +92,9 @@ export const ModalSelectAssets = () => {
     }
 
     const newPayload: ModalSelectAssetsPayload = {
-      ...(payload as ModalSelectAssetsPayload),
+      ...modalPayload,
       modalType: ModalType.MODAL_SELECT_ASSETS,
-      [(payload as ModalSelectAssetsPayload).fieldName || "token"]:
-        selectedItem.token,
+      [modalPayload.fieldName || "token"]: selectedItem.token,
     }
     onCloseModal(newPayload)
 
@@ -106,19 +104,18 @@ export const ModalSelectAssets = () => {
   }
 
   useEffect(() => {
-    if (!data.size && !isLoading) {
+    if (tokens.length === 0) {
       return
     }
 
-    const payload_ = payload as ModalSelectAssetsPayload
-    const fieldName = payload_.fieldName || "token"
-    const selectToken = payload_[fieldName]
+    const fieldName = modalPayload.fieldName || "token"
+    const selectToken = modalPayload[fieldName]
 
     const isHoldingsEnabled =
-      payload_.isHoldingsEnabled ?? payload_.balances != null
+      modalPayload.isHoldingsEnabled ?? modalPayload.balances != null
 
     // TODO: remove this once we remove the legacy props
-    const balances = (payload as ModalSelectAssetsPayload).balances ?? {}
+    const balances = modalPayload.balances ?? {}
 
     const selectedTokenId = selectToken
       ? isBaseToken(selectToken)
@@ -128,7 +125,8 @@ export const ModalSelectAssets = () => {
 
     const getAssetList: SelectItemToken[] = []
 
-    for (const [tokenId, token] of data) {
+    for (const token of tokens) {
+      const tokenId = getTokenId(token)
       const disabled = selectedTokenId != null && tokenId === selectedTokenId
 
       // TODO: remove this once we remove the legacy props
@@ -147,6 +145,7 @@ export const ModalSelectAssets = () => {
         isHoldingsEnabled,
       })
     }
+    setNotFilteredAssetList(getAssetList)
 
     // Put tokens with balance on top
     getAssetList.sort((a, b) => {
@@ -177,12 +176,14 @@ export const ModalSelectAssets = () => {
     })
 
     setAssetList(getAssetList)
-  }, [data, isLoading, payload, holdings])
+  }, [tokens, modalPayload, holdings])
 
   const filteredAssets = useMemo(
     () => assetList.filter(filterPattern),
     [assetList, filterPattern]
   )
+
+  const is1cs = useIs1CsEnabled()
 
   return (
     <ModalDialog>
@@ -194,10 +195,16 @@ export const ModalSelectAssets = () => {
                 Select asset
               </Text>
               <button type="button" onClick={onCloseModal} className="p-3">
-                <CrossIcon width={18} height={18} />
+                <XIcon width={18} height={18} />
               </button>
             </div>
             <SearchBar query={searchValue} setQuery={setSearchValue} />
+            {modalPayload?.isMostTradableTokensEnabled && !searchValue ? (
+              <MostTradableTokens
+                tokenList={notFilteredAssetList}
+                onTokenSelect={handleSelectToken}
+              />
+            ) : null}
           </div>
         </div>
         <div className="z-10 flex-1 overflow-y-auto border-b border-gray-1 dark:border-black-950 -mr-[var(--inset-padding-right)] pr-[var(--inset-padding-right)]">
@@ -206,7 +213,8 @@ export const ModalSelectAssets = () => {
               assets={deferredQuery ? filteredAssets : assetList}
               className="h-full"
               handleSelectToken={handleSelectToken}
-              accountId={(payload as ModalSelectAssetsPayload)?.accountId}
+              accountId={modalPayload?.accountId}
+              showChain={is1cs}
             />
           ) : (
             <EmptyAssetList className="h-full" />

@@ -105,7 +105,7 @@ export const getMaxLiquidityData = async (): Promise<Record<
       }
       return acc
     }, {})
-  } catch (error) {
+  } catch (_error) {
     return null
   }
 }

@@ -3,17 +3,10 @@ import { getQuote as get1csQuoteApi } from "@src/components/DefuseSDK/features/m
 import { type ActorRef, type Snapshot, fromCallback } from "xstate"
 
 import { logger } from "../../logger"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../types/base"
-import { isBaseToken } from "../../utils/token"
-
-function getTokenAssetId(token: BaseTokenInfo | UnifiedTokenInfo) {
-  return isBaseToken(token)
-    ? token.defuseAssetId
-    : token.groupedTokens[0].defuseAssetId
-}
+import type { BaseTokenInfo } from "../../types/base"
 
 export type Quote1csInput = {
-  tokenIn: BaseTokenInfo | UnifiedTokenInfo
+  tokenIn: BaseTokenInfo
   tokenOut: BaseTokenInfo
   amountIn: { amount: bigint; decimals: number }
   slippageBasisPoints: number
@@ -40,8 +33,8 @@ type EmittedEvents = {
       | {
           ok: {
             quote: {
-              amountIn?: string
-              amountOut?: string
+              amountIn: string
+              amountOut: string
               deadline?: string
             }
             appFee: [string, bigint][]
@@ -53,25 +46,7 @@ type EmittedEvents = {
   }
 }
 
-export type ParentEvents = {
-  type: "NEW_1CS_QUOTE"
-  params: {
-    quoteInput: Quote1csInput
-    result:
-      | {
-          ok: {
-            quote: {
-              amountIn: string
-              amountOut: string
-            }
-            appFee: [string, bigint][]
-          }
-        }
-      | { err: string }
-    tokenInAssetId: string
-    tokenOutAssetId: string
-  }
-}
+export type ParentEvents = EmittedEvents
 type ParentActor = ActorRef<Snapshot<unknown>, ParentEvents>
 
 type Input = {
@@ -83,37 +58,38 @@ export const background1csQuoterMachine = fromCallback<
   Input,
   EmittedEvents
 >(({ receive, input, emit }) => {
-  let abortController = new AbortController()
+  let lastSetRequestId = 0
+
+  function executeQuote(quoteInput: Quote1csInput) {
+    const requestId = ++lastSetRequestId
+
+    get1csQuote(quoteInput, (result, tokenInAssetId, tokenOutAssetId) => {
+      // Only process results from the current request
+      if (requestId !== lastSetRequestId) return
+
+      const eventPayload = {
+        type: "NEW_1CS_QUOTE" as const,
+        params: {
+          quoteInput,
+          result,
+          tokenInAssetId,
+          tokenOutAssetId,
+        },
+      }
+
+      input.parentRef.send(eventPayload)
+      emit(eventPayload)
+    })
+  }
 
   receive((event) => {
-    abortController.abort()
-    abortController = new AbortController()
-
     const eventType = event.type
     switch (eventType) {
       case "PAUSE":
+        lastSetRequestId++
         return
       case "NEW_QUOTE_INPUT": {
-        const quoteInput = event.params
-
-        get1csQuote(
-          abortController.signal,
-          quoteInput,
-          (result, tokenInAssetId, tokenOutAssetId) => {
-            const eventPayload = {
-              type: "NEW_1CS_QUOTE" as const,
-              params: {
-                quoteInput,
-                result,
-                tokenInAssetId,
-                tokenOutAssetId,
-              },
-            }
-
-            input.parentRef.send(eventPayload)
-            emit(eventPayload)
-          }
-        )
+        executeQuote(event.params)
         break
       }
       default:
@@ -122,13 +98,11 @@ export const background1csQuoterMachine = fromCallback<
     }
   })
 
-  return () => {
-    abortController.abort()
-  }
+  // Cleanup on machine stop
+  return () => lastSetRequestId++
 })
 
 async function get1csQuote(
-  signal: AbortSignal,
   quoteInput: Quote1csInput,
   onResult: (
     result:
@@ -146,14 +120,13 @@ async function get1csQuote(
     tokenOutAssetId: string
   ) => void
 ): Promise<void> {
-  const tokenInAssetId = getTokenAssetId(quoteInput.tokenIn)
-  const tokenOutAssetId = getTokenAssetId(quoteInput.tokenOut)
+  const tokenInAssetId = quoteInput.tokenIn.defuseAssetId
+  const tokenOutAssetId = quoteInput.tokenOut.defuseAssetId
 
   try {
     const result = await get1csQuoteApi({
       dry: true,
       slippageTolerance: Math.round(quoteInput.slippageBasisPoints / 100),
-      quoteWaitingTimeMs: 3000,
       originAsset: tokenInAssetId,
       destinationAsset: tokenOutAssetId,
       amount: quoteInput.amountIn.amount.toString(),
@@ -161,10 +134,6 @@ async function get1csQuote(
       userAddress: quoteInput.userAddress,
       authMethod: quoteInput.userChainType,
     })
-
-    if (signal.aborted) {
-      return
-    }
 
     onResult(result, tokenInAssetId, tokenOutAssetId)
   } catch {

@@ -1,7 +1,7 @@
 import type { ActorRef, Snapshot } from "xstate"
 import { assign, fromPromise, not, setup } from "xstate"
 import { logger } from "../../logger"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../types/base"
+import type { TokenInfo } from "../../types/base"
 import { getTxStatus } from "./1cs"
 
 type ChildEvent = {
@@ -9,8 +9,8 @@ type ChildEvent = {
   data: {
     depositAddress: string
     status: string
-    tokenIn: BaseTokenInfo | UnifiedTokenInfo
-    tokenOut: BaseTokenInfo | UnifiedTokenInfo
+    tokenIn: TokenInfo
+    tokenOut: TokenInfo
   }
 }
 type ParentActor = ActorRef<Snapshot<unknown>, ChildEvent>
@@ -20,16 +20,16 @@ export const oneClickStatusMachine = setup({
     input: {} as {
       parentRef: ParentActor
       depositAddress: string
-      tokenIn: BaseTokenInfo | UnifiedTokenInfo
-      tokenOut: BaseTokenInfo | UnifiedTokenInfo
+      tokenIn: TokenInfo
+      tokenOut: TokenInfo
       totalAmountIn: { amount: bigint; decimals: number }
       totalAmountOut: { amount: bigint; decimals: number }
     },
     context: {} as {
       parentRef: ParentActor
       depositAddress: string
-      tokenIn: BaseTokenInfo | UnifiedTokenInfo
-      tokenOut: BaseTokenInfo | UnifiedTokenInfo
+      tokenIn: TokenInfo
+      tokenOut: TokenInfo
       totalAmountIn: { amount: bigint; decimals: number }
       totalAmountOut: { amount: bigint; decimals: number }
       status: string | null

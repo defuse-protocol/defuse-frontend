@@ -45,6 +45,7 @@ const cspConfig = {
     "https://region1.google-analytics.com",
     "https://as.coinbase.com/metrics",
     "https://api-js.mixpanel.com",
+    "https://*.sentry.io",
 
     /** Stage Solver Relay and Bridge Services */
     "https://*.intents-near.org",

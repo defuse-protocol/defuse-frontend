@@ -1,7 +1,4 @@
-import type {
-  BaseTokenInfo,
-  UnifiedTokenInfo,
-} from "@src/components/DefuseSDK/types/base"
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import {
   availableChainsForToken,
   availableDisabledChainsForToken,
@@ -16,7 +13,7 @@ export type NetworkOptions = Record<string, NetworkOption>
 
 type UsePreparedNetworkLists = (params: {
   networks: NetworkOptions
-  token: BaseTokenInfo | UnifiedTokenInfo | null
+  token: TokenInfo | null
   near_intents?: boolean
 }) => {
   availableNetworks: NetworkOptions

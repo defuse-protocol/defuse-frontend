@@ -1,4 +1,5 @@
 import type { authHandle } from "@defuse-protocol/internal-utils"
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { useActorRef, useSelector } from "@xstate/react"
 import clsx from "clsx"
 import { useEffect, useMemo } from "react"
@@ -12,9 +13,7 @@ import type { SignerCredentials } from "../../../core/formatters"
 import { useTokensUsdPrices } from "../../../hooks/useTokensUsdPrices"
 import { useModalStore } from "../../../providers/ModalStoreProvider"
 import { ModalType } from "../../../stores/modalStore"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
 import type { RenderHostAppLink } from "../../../types/hostAppLink"
-import type { SwappableToken } from "../../../types/swap"
 import { assert } from "../../../utils/assert"
 import { formatTokenValue, formatUsdAmount } from "../../../utils/format"
 import getTokenUsdPrice from "../../../utils/getTokenUsdPrice"
@@ -47,14 +46,14 @@ import { GiftHeader } from "./shared/GiftHeader"
 
 export type GiftMakerWidgetProps = {
   /** List of available tokens for trading */
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
+  tokenList: TokenInfo[]
 
   /** User's wallet address */
   userAddress: authHandle.AuthHandle["identifier"] | undefined
   chainType: authHandle.AuthHandle["method"] | undefined
 
   /** Initial tokens for pre-filling the form */
-  initialToken?: BaseTokenInfo | UnifiedTokenInfo
+  initialToken?: TokenInfo
 
   /** Sign message callback */
   signMessage: SignMessage
@@ -147,7 +146,7 @@ export function GiftMakerForm({
 
   const openModalSelectAssets = (
     fieldName: string,
-    token: SwappableToken | undefined
+    token: TokenInfo | undefined
   ) => {
     setModalType(ModalType.MODAL_SELECT_ASSETS, {
       ...(payload as ModalSelectAssetsPayload),

@@ -1,12 +1,12 @@
 import type {
   BaseTokenInfo,
-  UnifiedTokenInfo,
+  TokenInfo,
 } from "@src/components/DefuseSDK/types/base"
 import { isUnifiedToken } from "../../../utils/token"
 
 export function findTokenFromDiff(
   tokenDiff: Record<BaseTokenInfo["defuseAssetId"], bigint>,
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
+  tokenList: TokenInfo[]
 ) {
   const defuseAssetId = Object.keys(tokenDiff)[0]
   const result = tokenList.find((t) => {

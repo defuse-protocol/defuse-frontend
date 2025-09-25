@@ -4,6 +4,7 @@ import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Callout } from "@radix-ui/themes"
 import { ModalSelectNetwork } from "@src/components/DefuseSDK/components/Network/ModalSelectNetwork"
 import { usePreparedNetworkLists } from "@src/components/DefuseSDK/hooks/useNetworkLists"
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import {
   assetNetworkAdapter,
   reverseAssetNetworkAdapter,
@@ -33,13 +34,8 @@ import { getBlockchainsOptions } from "../../../../constants/blockchains"
 import { useModalStore } from "../../../../providers/ModalStoreProvider"
 import { getAvailableDepositRoutes } from "../../../../services/depositService"
 import { ModalType } from "../../../../stores/modalStore"
-import type {
-  BaseTokenInfo,
-  SupportedChainName,
-  UnifiedTokenInfo,
-} from "../../../../types/base"
+import type { SupportedChainName } from "../../../../types/base"
 import type { RenderHostAppLink } from "../../../../types/hostAppLink"
-import type { SwappableToken } from "../../../../types/swap"
 import { getPOABridgeInfo } from "../../../machines/poaBridgeInfoActor"
 import { DepositUIMachineContext } from "../DepositUIMachineProvider"
 import { ActiveDeposit } from "./ActiveDeposit"
@@ -49,7 +45,7 @@ import { PassiveDeposit } from "./PassiveDeposit"
 export type DepositFormValues = {
   network: BlockchainEnum | null
   amount: string
-  token: BaseTokenInfo | UnifiedTokenInfo | null
+  token: TokenInfo | null
   userAddress: string | null
   rpcUrl: string | undefined
   renderHostAppLink: RenderHostAppLink
@@ -112,7 +108,7 @@ export const DepositForm = ({
 
   const openModalSelectAssets = (
     fieldName: string,
-    selectToken: SwappableToken | undefined
+    selectToken: TokenInfo | undefined
   ) => {
     setModalType(ModalType.MODAL_SELECT_ASSETS, {
       fieldName,

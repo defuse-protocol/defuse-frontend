@@ -3,15 +3,15 @@ import type { BalanceMapping } from "../features/machines/depositedBalanceMachin
 import type {
   BaseTokenInfo,
   SupportedChainName,
+  TokenInfo,
   TokenValue,
-  UnifiedTokenInfo,
 } from "../types/base"
 import { assert, type AssertErrorType } from "./assert"
 import { isLegitAccountId } from "./near"
 import { isBaseToken } from "./token"
 
 export function computeTotalBalance(
-  token: BaseTokenInfo["defuseAssetId"][] | BaseTokenInfo | UnifiedTokenInfo,
+  token: BaseTokenInfo["defuseAssetId"][] | TokenInfo,
   balances: BalanceMapping
 ): bigint | undefined {
   // Case 1: Array of token IDs
@@ -92,7 +92,7 @@ export function deduplicateTokens(tokens: BaseTokenInfo[]): BaseTokenInfo[] {
  * @param config.strict - Ensures all tokens have a balance if `true`, otherwise returns `undefined`.
  */
 export function computeTotalBalanceDifferentDecimals(
-  token: BaseTokenInfo[] | BaseTokenInfo | UnifiedTokenInfo,
+  token: BaseTokenInfo[] | TokenInfo,
   balances: BalanceMapping,
   config: { strict: boolean } = { strict: true }
 ): TokenValue | undefined {
@@ -155,16 +155,14 @@ export function computeTotalDeltaDifferentDecimals(
  * Convert a unified token to a base token, by getting the first token in the group.
  * It should be used when you need to get *ANY* single token from a unified token.
  */
-export function getAnyBaseTokenInfo(
-  token: BaseTokenInfo | UnifiedTokenInfo
-): BaseTokenInfo {
+export function getAnyBaseTokenInfo(token: TokenInfo): BaseTokenInfo {
   const t = getUnderlyingBaseTokenInfos(token)[0]
   assert(t != null, "Token is undefined")
   return t
 }
 
 export function getUnderlyingBaseTokenInfos(
-  token: BaseTokenInfo | UnifiedTokenInfo | BaseTokenInfo[]
+  token: TokenInfo | BaseTokenInfo[]
 ): BaseTokenInfo[] {
   let tokens: BaseTokenInfo[]
   if (Array.isArray(token)) {
@@ -177,7 +175,7 @@ export function getUnderlyingBaseTokenInfos(
 }
 
 export function getDerivedToken(
-  tokenIn: BaseTokenInfo | UnifiedTokenInfo,
+  tokenIn: TokenInfo,
   chainName: string | null
 ): BaseTokenInfo | null {
   if (isBaseToken(tokenIn)) {
@@ -196,9 +194,7 @@ export function getDerivedToken(
   return null
 }
 
-export function getTokenMaxDecimals(
-  token: BaseTokenInfo | UnifiedTokenInfo
-): number {
+export function getTokenMaxDecimals(token: TokenInfo): number {
   const tokens = getUnderlyingBaseTokenInfos(token)
   return Math.max(...tokens.map((t) => t.decimals))
 }
@@ -373,9 +369,7 @@ export function accountSlippageExactIn(
   })
 }
 
-export function filterOutPoaBridgeTokens(
-  token: BaseTokenInfo | UnifiedTokenInfo
-): BaseTokenInfo[] {
+export function filterOutPoaBridgeTokens(token: TokenInfo): BaseTokenInfo[] {
   if (isBaseToken(token)) {
     return token.bridge === "poa" ? [token] : []
   }

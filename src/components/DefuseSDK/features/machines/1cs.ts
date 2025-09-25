@@ -17,6 +17,7 @@ import {
   ONE_CLICK_API_KEY,
   ONE_CLICK_URL,
 } from "@src/utils/environment"
+import { logger } from "@src/utils/logger"
 import { unstable_cache } from "next/cache"
 import z from "zod"
 import { isBaseToken } from "../../utils/token"
@@ -61,7 +62,6 @@ const _: AuthMethodSchema extends AuthMethod
 const getQuoteArgsSchema = z.object({
   dry: z.boolean(),
   slippageTolerance: z.number(),
-  quoteWaitingTimeMs: z.number(),
   originAsset: z.string(),
   destinationAsset: z.string(),
   amount: z.string(),
@@ -70,8 +70,10 @@ const getQuoteArgsSchema = z.object({
   authMethod: authMethodSchema,
 })
 
+type GetQuoteArgs = z.infer<typeof getQuoteArgsSchema>
+
 export async function getQuote(
-  args: unknown
+  args: GetQuoteArgs
 ): Promise<
   { ok: QuoteResponse & { appFee: [string, bigint][] } } | { err: string }
 > {
@@ -130,13 +132,9 @@ export async function getQuote(
       },
     }
   } catch (error) {
-    return {
-      err: isServerError(error)
-        ? error.body.message
-        : error instanceof Error
-          ? error.message
-          : String(error),
-    }
+    const err = unknownServerErrorToString(error)
+    logger.error(`1cs: getQuote error: ${err}`)
+    return { err }
   }
 }
 
@@ -160,8 +158,11 @@ function getTokenByAssetId(assetId: string) {
   )
 }
 
-export async function getTxStatus(arg: unknown) {
-  const depositAddress = z.string().safeParse(arg)
+const getTxStatusArgSchema = z.string()
+type GetTxStatusArg = z.infer<typeof getTxStatusArgSchema>
+
+export async function getTxStatus(arg: GetTxStatusArg) {
+  const depositAddress = getTxStatusArgSchema.safeParse(arg)
   if (!depositAddress.success) {
     return { err: `Invalid argument: ${depositAddress.error.message}` }
   }
@@ -169,12 +170,38 @@ export async function getTxStatus(arg: unknown) {
   try {
     return { ok: await OneClickService.getExecutionStatus(depositAddress.data) }
   } catch (error) {
-    return {
-      err: isServerError(error)
-        ? error.body.message
-        : error instanceof Error
-          ? error.message
-          : String(error),
-    }
+    const err = unknownServerErrorToString(error)
+    logger.error(`1cs: getTxStatus error: ${err}`)
+    return { err }
   }
+}
+
+const submitTxHashArgSchema = z.object({
+  depositAddress: z.string(),
+  txHash: z.string(),
+})
+
+type SubmitTxHashArg = z.infer<typeof submitTxHashArgSchema>
+
+export async function submitTxHash(args: SubmitTxHashArg) {
+  const body = submitTxHashArgSchema.safeParse(args)
+  if (!body.success) {
+    return { err: `Invalid argument: ${body.error.message}` }
+  }
+
+  try {
+    return { ok: await OneClickService.submitDepositTx(body.data) }
+  } catch (error) {
+    const err = unknownServerErrorToString(error)
+    logger.error(`1cs: submitTxHash error: ${err}`)
+    return { err }
+  }
+}
+
+function unknownServerErrorToString(error: unknown): string {
+  return isServerError(error)
+    ? error.body.message
+    : error instanceof Error
+      ? error.message
+      : String(error)
 }

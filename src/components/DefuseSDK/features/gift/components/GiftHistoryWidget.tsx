@@ -5,7 +5,7 @@ import { useMemo } from "react"
 import { WidgetRoot } from "../../../components/WidgetRoot"
 import type { SignerCredentials } from "../../../core/formatters"
 import { SwapWidgetProvider } from "../../../providers/SwapWidgetProvider"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
+import type { TokenInfo } from "../../../types/base"
 import { useGiftMakerHistory } from "../stores/giftMakerHistory"
 import type { GenerateLink } from "../types/sharedTypes"
 
@@ -15,7 +15,7 @@ export type GiftHistoryWidgetProps = {
   userAddress: string | null | undefined
   userChainType: AuthMethod | null | undefined
   generateLink: GenerateLink
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
+  tokenList: TokenInfo[]
 }
 
 export function GiftHistoryWidget({

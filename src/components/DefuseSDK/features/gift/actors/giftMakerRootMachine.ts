@@ -14,10 +14,11 @@ import {
 import type { SignerCredentials } from "../../../core/formatters"
 import { logger } from "../../../logger"
 import { emitEvent } from "../../../services/emitter"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../../../types/base"
+import type { TokenInfo } from "../../../types/base"
 import { assert } from "../../../utils/assert"
 import {
   type Events as DepositedBalanceEvents,
+  balancesSelector,
   depositedBalanceMachine,
 } from "../../machines/depositedBalanceMachine"
 import { giftMakerHistoryStore } from "../stores/giftMakerHistory"
@@ -76,8 +77,8 @@ export type GiftMakerRootMachineContext = {
 export const giftMakerRootMachine = setup({
   types: {
     input: {} as {
-      tokenList: (BaseTokenInfo | UnifiedTokenInfo)[]
-      initialToken: BaseTokenInfo | UnifiedTokenInfo
+      tokenList: TokenInfo[]
+      initialToken: TokenInfo
       referral: string | undefined
       createGiftIntent: CreateGiftIntent
     },
@@ -354,8 +355,9 @@ export const giftMakerRootMachine = setup({
                 (typeof parsed.context)[K]
               >
             },
-            balances:
-              context.depositedBalanceRef.getSnapshot().context.balances,
+            balances: balancesSelector(
+              context.depositedBalanceRef.getSnapshot()
+            ),
             referral: context.referral,
             escrowCredentials: context.escrowCredentials,
           }

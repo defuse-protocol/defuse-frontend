@@ -2,7 +2,6 @@ import * as AlertDialog from "@radix-ui/react-alert-dialog"
 import {
   ExclamationTriangleIcon,
   MagnifyingGlassIcon,
-  MinusCircledIcon,
 } from "@radix-ui/react-icons"
 import {
   Button,
@@ -27,7 +26,7 @@ export function WalletBannedDialog({
 }
 
 function FailureContent({
-  open,
+  open: _open,
   onCancel,
 }: {
   open: boolean

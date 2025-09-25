@@ -1,9 +1,13 @@
+import Themes from "@src/types/themes"
+import { useTheme } from "next-themes"
+import Image from "next/image"
 import type React from "react"
+import { Tooltip, TooltipContent, TooltipTrigger } from "../../Tooltip"
 
 type AssetComboIconProps = {
   icon?: string
   name?: string
-  chainIcon?: string
+  chainIcon?: { dark: string; light: string }
   chainName?: string
   showChainIcon?: boolean
   className?: React.HTMLAttributes<"div">["className"]
@@ -19,6 +23,8 @@ export const AssetComboIcon = ({
   className = "",
   style,
 }: AssetComboIconProps) => {
+  const { resolvedTheme } = useTheme()
+
   return (
     <div className={`relative inline-block ${className}`} style={style}>
       <div className="relative overflow-hidden size-7 flex justify-center items-center rounded-full">
@@ -32,18 +38,23 @@ export const AssetComboIcon = ({
           <EmptyAssetComboIcon />
         )}
       </div>
-      {showChainIcon && (
-        <div className="absolute -right-[7px] -bottom-[7px] flex justify-center items-center p-1 bg-gray-1 rounded-full border-2 border-gray-1">
-          {chainIcon ? (
-            <img
-              src={chainIcon}
+      {showChainIcon && chainIcon && resolvedTheme && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Image
+              className="absolute -right-[7px] -bottom-[7px] bg-gray-1 rounded-[6px] p-0.5 shadow-sm h-4 w-4"
+              width={16}
+              height={16}
+              src={
+                resolvedTheme === Themes.DARK ? chainIcon.dark : chainIcon.light
+              }
               alt={chainName || "Network Logo"}
-              className="w-[6px] h-[6px]"
             />
-          ) : (
-            <EmptyChainIcon />
-          )}
-        </div>
+          </TooltipTrigger>
+          <TooltipContent side="left" className="z-50">
+            {chainName?.toUpperCase()}
+          </TooltipContent>
+        </Tooltip>
       )}
     </div>
   )
@@ -52,11 +63,5 @@ export const AssetComboIcon = ({
 const EmptyAssetComboIcon = () => {
   return (
     <div className="relative overflow-hidden size-7 flex justify-center items-center border border-silver-100 rounded-full" />
-  )
-}
-
-const EmptyChainIcon = () => {
-  return (
-    <div className="w-[6px] h-[6px] flex justify-center items-center bg-black-300 rounded-full border-2 border-gray-1" />
   )
 }

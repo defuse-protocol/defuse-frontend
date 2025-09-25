@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import type { BaseTokenInfo, UnifiedTokenInfo } from "../types/base"
+import type { BaseTokenInfo, TokenInfo, UnifiedTokenInfo } from "../types/base"
 import {
   DuplicateTokenError,
   accountSlippageExactIn,
@@ -482,7 +482,7 @@ describe("computeTotalBalanceDifferentDecimals", () => {
 })
 
 describe("getDerivedToken", () => {
-  const tokenList: Array<BaseTokenInfo | UnifiedTokenInfo> = [
+  const tokenList: Array<TokenInfo> = [
     {
       unifiedAssetId: "unified1",
       symbol: "UTKN",
@@ -798,6 +798,7 @@ describe("getUnderlyingBaseTokenInfos", () => {
         bridge: "poa",
       },
     ],
+    tags: ["foo"],
   }
 
   it("should return array with single token for base token input", () => {

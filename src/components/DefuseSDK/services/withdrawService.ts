@@ -18,9 +18,10 @@ import type {
   QuoteInput,
   backgroundQuoterMachine,
 } from "../features/machines/backgroundQuoterMachine"
-import type {
-  BalanceMapping,
-  depositedBalanceMachine,
+import {
+  type BalanceMapping,
+  balancesSelector,
+  type depositedBalanceMachine,
 } from "../features/machines/depositedBalanceMachine"
 import type { poaBridgeInfoActor } from "../features/machines/poaBridgeInfoActor"
 import { getPOABridgeInfo } from "../features/machines/poaBridgeInfoActor"
@@ -29,7 +30,7 @@ import type { State as WithdrawFormContext } from "../features/machines/withdraw
 import { isNearIntentsNetwork } from "../features/withdraw/components/WithdrawForm/utils"
 import { logger } from "../logger"
 import { calculateSplitAmounts } from "../sdk/aggregatedQuote/calculateSplitAmounts"
-import type { BaseTokenInfo, TokenValue, UnifiedTokenInfo } from "../types/base"
+import type { BaseTokenInfo, TokenInfo, TokenValue } from "../types/base"
 import { assert } from "../utils/assert"
 import { isAuroraVirtualChain } from "../utils/blockchain"
 import { findError } from "../utils/errors"
@@ -376,7 +377,7 @@ async function getBalances(
   | { tag: "ok"; value: BalanceMapping }
   | { tag: "err"; value: { reason: "ERR_BALANCE_FETCH" } }
 > {
-  let balances = depositedBalanceRef.getSnapshot().context.balances
+  let balances = balancesSelector(depositedBalanceRef.getSnapshot())
   if (Object.keys(balances).length === 0) {
     depositedBalanceRef.send({ type: "REQUEST_BALANCE_REFRESH" })
     const state = await waitFor(
@@ -384,7 +385,7 @@ async function getBalances(
       (state) => state.matches("authenticated"),
       { signal } // todo: add timeout and error handling
     )
-    balances = state.context.balances
+    balances = balancesSelector(state)
   }
 
   return {
@@ -471,7 +472,7 @@ function getWithdrawBreakdown({
 }
 
 export function getRequiredSwapAmount(
-  tokenIn: UnifiedTokenInfo | BaseTokenInfo,
+  tokenIn: TokenInfo,
   tokenOut: BaseTokenInfo,
   totalAmountIn: TokenValue,
   balances: Record<BaseTokenInfo["defuseAssetId"], bigint>

@@ -1,7 +1,4 @@
-import type {
-  BaseTokenInfo,
-  UnifiedTokenInfo,
-} from "@src/components/DefuseSDK/types/base"
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { Ok, type Result } from "@thames/monads"
 import { logger } from "../../../logger"
 import { assert } from "../../../utils/assert"
@@ -13,11 +10,11 @@ import { parseEscrowCredentials } from "./generateEscrowCredentials"
 export type GiftInfo = GiftMakerHistory & {
   status: FilterStatus
   accountId: string
-  token: BaseTokenInfo | UnifiedTokenInfo
+  token: TokenInfo
 }
 
 export async function parseGiftInfos(
-  tokenList: (BaseTokenInfo | UnifiedTokenInfo)[],
+  tokenList: TokenInfo[],
   gifts: GiftMakerHistory[]
 ): Promise<Result<GiftInfo[], Error>> {
   const giftInfos = await Promise.all(
@@ -50,7 +47,7 @@ export async function parseGiftInfos(
 function createTaggedGift(
   status: FilterStatus,
   gift: GiftMakerHistory,
-  token: BaseTokenInfo | UnifiedTokenInfo,
+  token: TokenInfo,
   accountId: string
 ): GiftInfo {
   return { ...gift, status, token, accountId }
