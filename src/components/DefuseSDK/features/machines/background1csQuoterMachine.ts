@@ -15,7 +15,7 @@ export type Quote1csInput = {
   deadline: string
   userAddress: string
   userChainType: AuthMethod
-  swapStrategy: SwapStrategy
+  swapStrategy?: SwapStrategy
 }
 
 export type Events =

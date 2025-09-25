@@ -84,6 +84,7 @@ export type Context = {
   slippageBasisPoints: number
   is1cs: boolean
   swapStrategy: SwapStrategy
+  isDCA: boolean
   priceChangeDialog: null | {
     pendingNewAmountOut: { amount: bigint; decimals: number }
     previousAmountOut?: { amount: bigint; decimals: number }
@@ -131,6 +132,7 @@ export const swapUIMachine = setup({
       referral?: string
       is1cs: boolean
       swapStrategy: SwapStrategy
+      isDCA: boolean
     },
     context: {} as Context,
     events: {} as
@@ -142,6 +144,7 @@ export const swapUIMachine = setup({
             amountIn: string
             swapStrategy: SwapStrategy
             slippageBasisPoints: number
+            isDCA: boolean
           }>
         }
       | {
@@ -563,6 +566,7 @@ export const swapUIMachine = setup({
     slippageBasisPoints: 10_000, // 1%
     is1cs: input.is1cs,
     swapStrategy: input.swapStrategy,
+    isDCA: input.isDCA,
     priceChangeDialog: null,
   }),
 
@@ -875,7 +879,7 @@ export const swapUIMachine = setup({
             userAddress: event.params.userAddress,
             userChainType: event.params.userChainType,
             nearClient: event.params.nearClient,
-            swapStrategy: context.swapStrategy,
+            ...(context.isDCA ? { swapStrategy: context.swapStrategy } : {}),
             previousAmountOut:
               context.quote && context.quote.tag === "ok"
                 ? {

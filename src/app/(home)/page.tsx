@@ -17,7 +17,11 @@ import { useQuery } from "@tanstack/react-query"
 import { useSearchParams } from "next/navigation"
 import { useMemo } from "react"
 
-export default function Swap() {
+interface SwapProps {
+  isDCA?: boolean
+}
+
+export default function Swap({ isDCA = false }: SwapProps) {
   const { state } = useConnectWallet()
   const signMessage = useWalletAgnosticSignMessage()
   const { signAndSendTransactions } = useNearWallet()
@@ -57,6 +61,7 @@ export default function Swap() {
         referral={referral}
         initialTokenIn={tokenIn ?? undefined}
         initialTokenOut={tokenOut ?? undefined}
+        isDCA={isDCA}
       />
     </Paper>
   )

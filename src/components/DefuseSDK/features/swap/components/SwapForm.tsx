@@ -62,9 +62,14 @@ export type SwapFormValues = {
 export interface SwapFormProps {
   isLoggedIn: boolean
   renderHostAppLink: RenderHostAppLink
+  isDCA: boolean
 }
 
-export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
+export const SwapForm = ({
+  isLoggedIn,
+  renderHostAppLink,
+  isDCA,
+}: SwapFormProps) => {
   const searchParams = useSearchParams()
   const router = useRouter()
 
@@ -147,10 +152,10 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
       router.replace(`?${params.toString()}`, { scroll: false })
       swapUIActorRef.send({
         type: "input",
-        params: { swapStrategy: newStrategy },
+        params: { swapStrategy: newStrategy, isDCA },
       })
     },
-    [searchParams, router, swapUIActorRef.send]
+    [searchParams, router, swapUIActorRef.send, isDCA]
   )
 
   const setSlippageBasisPoints = useCallback(
@@ -336,7 +341,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             balance={tokenOutBalance}
           />
 
-          {is1cs && (
+          {is1cs && isDCA && (
             <Settings
               swapStrategy={swapStrategy}
               setSwapStrategy={setSwapStrategy}

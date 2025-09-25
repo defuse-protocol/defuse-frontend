@@ -68,7 +68,7 @@ const getQuoteArgsSchema = z.object({
   deadline: z.string(),
   userAddress: z.string(),
   authMethod: authMethodSchema,
-  swapStrategy: z.enum(["BEST", "DCA"]),
+  swapStrategy: z.enum(["BEST", "DCA"]).optional(),
 })
 
 export async function getQuote(

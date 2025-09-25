@@ -62,6 +62,7 @@ interface SwapUIMachineProviderProps extends PropsWithChildren {
     params: walletMessage.WalletMessage
   ) => Promise<walletMessage.WalletSignatureResult | null>
   referral?: string
+  isDCA: boolean
 }
 
 export function SwapUIMachineProvider({
@@ -71,6 +72,7 @@ export function SwapUIMachineProvider({
   tokenList,
   signMessage,
   referral,
+  isDCA,
 }: SwapUIMachineProviderProps) {
   const searchParams = useSearchParams()
   const { setValue, resetField } = useFormContext<SwapFormValues>()
@@ -98,6 +100,7 @@ export function SwapUIMachineProvider({
           referral,
           is1cs,
           swapStrategy,
+          isDCA,
         },
       }}
       logic={swapUIMachine.provide({
