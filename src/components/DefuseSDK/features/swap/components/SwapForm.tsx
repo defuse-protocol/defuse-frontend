@@ -524,10 +524,6 @@ export function renderIntentCreationResult(
       content = "Failed to create transfer message. Please try again."
       break
 
-    case "ERR_CANNOT_SUBMIT_TX_HASH":
-      content = "We couldn’t submit your transaction. Please try again."
-      break
-
     default:
       status satisfies never
       content = `An error occurred. Please try again. ${status}`

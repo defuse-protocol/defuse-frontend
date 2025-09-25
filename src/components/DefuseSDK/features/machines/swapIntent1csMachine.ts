@@ -59,7 +59,6 @@ type Context = {
             | "ERR_SIGNED_DIFFERENT_ACCOUNT"
             | "ERR_PUBKEY_EXCEPTION"
             | "ERR_CANNOT_PUBLISH_INTENT"
-            | "ERR_CANNOT_SUBMIT_TX_HASH"
             | WalletErrorCode
             | PublicKeyVerifierErrorCodes
           error: Error | null
@@ -715,16 +714,6 @@ export const swapIntent1csMachine = setup({
             {
               type: "logError",
               params: ({ event }) => event,
-            },
-            {
-              type: "setError",
-              params: ({ event }) => ({
-                reason: "ERR_CANNOT_SUBMIT_TX_HASH",
-                error:
-                  event.error instanceof Error
-                    ? event.error
-                    : new Error(String(event.error)),
-              }),
             },
           ],
         },
