@@ -9,8 +9,8 @@ export function useMostTradableTokens(): UseQueryResult<MostTradableTokensRespon
   return useQuery<MostTradableTokensResponse>({
     queryKey: ["most-tradable-tokens"],
     queryFn: getMostTradableTokens,
-    staleTime: 10 * 60 * 1000, // 10 minutes
-    gcTime: 30 * 60 * 1000, // 30 minutes
+    staleTime: 60 * 60 * 1000, // 1 hour
+    gcTime: 4 * 60 * 60 * 1000, // 4 hours
     retry: 2,
   })
 }
@@ -19,6 +19,6 @@ export const prefetchMostTradableTokens = async () => {
   await queryClient.prefetchQuery({
     queryKey: ["most-tradable-tokens"],
     queryFn: getMostTradableTokens,
-    staleTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 60 * 60 * 1000, // 1 hour
   })
 }
