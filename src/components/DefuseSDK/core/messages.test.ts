@@ -1,5 +1,4 @@
 import { authIdentity } from "@defuse-protocol/internal-utils"
-import { ChainType } from "@src/hooks/useConnectWallet"
 import { describe, expect, it } from "vitest"
 import {
   createSwapIntentMessage,
@@ -70,7 +69,7 @@ describe("createWalletVerificationMessage()", () => {
         signerId: TEST_USER,
         deadlineTimestamp: TEST_TIMESTAMP,
       },
-      ChainType.Tron
+      "tron"
     )
 
     const tronMessageBytes = new TextEncoder().encode(

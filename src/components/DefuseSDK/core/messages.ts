@@ -2,7 +2,6 @@ import {
   messageFactory,
   type walletMessage,
 } from "@defuse-protocol/internal-utils"
-import { ChainType } from "@src/hooks/useConnectWallet"
 import type { IntentsUserId } from "../types/intentsUserId"
 import type { SignerCredentials } from "./formatters"
 import { formatUserIdentity } from "./formatters"
@@ -83,7 +82,8 @@ export function createWalletVerificationMessage(
 
   // For Tron wallets, we need to add a field to ensure message size compatibility
   // with Tron Ledger app requirements (>225 bytes to avoid signing bugs)
-  if (chainType === ChainType.Tron) {
+  // @note: We can't use ChainType.Tron here because because of circular dependency
+  if (chainType === "tron") {
     const tronMessage = JSON.parse(baseMessage.TRON.message)
     const extendedMessage = {
       ...tronMessage,
