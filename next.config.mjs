@@ -1,3 +1,4 @@
+import withBundleAnalyzer from "@next/bundle-analyzer"
 import { withSentryConfig } from "@sentry/nextjs"
 import { DedupePlugin } from "@tinkoff/webpack-dedupe-plugin"
 
@@ -110,9 +111,10 @@ const sentryConfig = {
   tunnelRoute: "/monitoring",
   automaticVercelMonitors: true,
   sourcemaps: {
-    deleteSourcemapsAfterUpload: true, 
+    deleteSourcemapsAfterUpload: true,
   },
 }
 
-export default process.env.NEXT_PUBLIC_SENTRY_ENABLED === 'true' ? withSentryConfig(nextConfig, sentryConfig) : nextConfig
-
+export default withBundleAnalyzer({ enabled: process.env.ANALYZE === "true" })(
+  process.env.NEXT_PUBLIC_SENTRY_ENABLED === 'true' ? withSentryConfig(nextConfig, sentryConfig) : nextConfig
+)
