@@ -1,5 +1,4 @@
 import type { authHandle } from "@defuse-protocol/internal-utils"
-import { useDebounce } from "@src/hooks/useDebounce"
 import { useSelector } from "@xstate/react"
 import { type PropsWithChildren, useEffect, useRef } from "react"
 import { useFormContext } from "react-hook-form"
@@ -30,16 +29,15 @@ export function SwapUIMachineFormSyncProvider({
   onSuccessSwapRef.current = onSuccessSwap
 
   const amountIn = watch("amountIn")
-  const debouncedAmountIn = useDebounce(amountIn, 500)
 
   useEffect(() => {
-    if (debouncedAmountIn !== undefined) {
+    if (amountIn !== undefined) {
       actorRef.send({
         type: "input",
-        params: { amountIn: debouncedAmountIn },
+        params: { amountIn },
       })
     }
-  }, [debouncedAmountIn, actorRef])
+  }, [amountIn, actorRef])
 
   useEffect(() => {
     if (userAddress == null || userChainType == null) {
