@@ -415,7 +415,11 @@ export const depositUIMachine = setup({
         },
 
         preparation: {
-          entry: ["requestGenerateAddress", "requestStorageDepositAmount"],
+          entry: [
+            "requestGenerateAddress",
+            "requestBalanceRefresh",
+            "requestStorageDepositAmount",
+          ],
           invoke: {
             src: "prepareDepositActor",
 
