@@ -102,7 +102,7 @@ const sentryConfig = {
   authToken: process.env.SENTRY_AUTH_TOKEN,
   silent: true,
   widenClientFileUpload: true,
-  hideSourceMaps: false,
+  hideSourceMaps: true,
   disableLogger: true,
   reactComponentAnnotation: {
     enabled: true,
@@ -110,8 +110,9 @@ const sentryConfig = {
   tunnelRoute: "/monitoring",
   automaticVercelMonitors: true,
   sourcemaps: {
-    disable: true,
+    deleteSourcemapsAfterUpload: true, 
   },
 }
 
-export default withSentryConfig(nextConfig, sentryConfig)
+export default process.env.NEXT_PUBLIC_SENTRY_ENABLED === 'true' ? withSentryConfig(nextConfig, sentryConfig) : nextConfig
+

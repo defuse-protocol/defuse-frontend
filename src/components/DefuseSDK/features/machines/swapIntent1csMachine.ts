@@ -73,8 +73,19 @@ type Input = Quote1csInput & {
   userAddress: string
   userChainType: AuthMethod
   nearClient: providers.Provider
+  previousAmountOut?: { amount: bigint; decimals: number }
   parentRef?: {
-    send: (event: Background1csQuoterParentEvents) => void
+    send: (
+      event:
+        | Background1csQuoterParentEvents
+        | {
+            type: "PRICE_CHANGE_CONFIRMATION_REQUEST"
+            params: {
+              newAmountOut: { amount: bigint; decimals: number }
+              previousAmountOut?: { amount: bigint; decimals: number }
+            }
+          }
+    ) => void
   }
 }
 
@@ -150,7 +161,6 @@ export const swapIntent1csMachine = setup({
           const result = await get1csQuoteApi({
             dry: false,
             slippageTolerance: Math.round(input.slippageBasisPoints / 100),
-            quoteWaitingTimeMs: 3000,
             originAsset: tokenInAssetId,
             destinationAsset: tokenOutAssetId,
             amount: input.amountIn.amount.toString(),
@@ -239,6 +249,19 @@ export const swapIntent1csMachine = setup({
         "ok" in context.quote1csResult &&
         context.quote1csResult.ok.quote.depositAddress != null
       )
+    },
+    isWorseThanPrevious: ({ context }) => {
+      const prev = context.input.previousAmountOut
+      if (
+        context.quote1csResult == null ||
+        !("ok" in context.quote1csResult) ||
+        context.quote1csResult.ok.quote.amountOut == null ||
+        prev == null
+      ) {
+        return false
+      }
+
+      return BigInt(context.quote1csResult.ok.quote.amountOut) < prev.amount
     },
   },
 }).createMachine({
@@ -335,6 +358,12 @@ export const swapIntent1csMachine = setup({
     ValidatingQuote: {
       always: [
         {
+          target: "AwaitingPriceChangeConfirmation",
+          guard: {
+            type: "isWorseThanPrevious",
+          },
+        },
+        {
           target: "CreatingTransferMessage",
           guard: {
             type: "isQuoteSuccess",
@@ -365,6 +394,39 @@ export const swapIntent1csMachine = setup({
           },
         },
       ],
+    },
+
+    AwaitingPriceChangeConfirmation: {
+      entry: ({ context }) => {
+        if (context.quote1csResult && "ok" in context.quote1csResult) {
+          const amountOut = BigInt(context.quote1csResult.ok.quote.amountOut)
+          context.input.parentRef?.send({
+            type: "PRICE_CHANGE_CONFIRMATION_REQUEST",
+            params: {
+              newAmountOut: {
+                amount: amountOut,
+                decimals: context.input.tokenOut.decimals,
+              },
+              previousAmountOut: context.input.previousAmountOut,
+            },
+          })
+        }
+      },
+      on: {
+        PRICE_CHANGE_CONFIRMED: {
+          target: "CreatingTransferMessage",
+        },
+        PRICE_CHANGE_CANCELLED: {
+          target: "Error",
+          actions: {
+            type: "setError",
+            params: {
+              reason: "ERR_WALLET_CANCEL_ACTION",
+              error: null,
+            },
+          },
+        },
+      },
     },
 
     CreatingTransferMessage: {

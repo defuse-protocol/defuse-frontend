@@ -69,7 +69,6 @@ export const SwapWidget = ({
                 <SwapForm
                   isLoggedIn={userAddress != null}
                   renderHostAppLink={renderHostAppLink}
-                  is1cs={is1cs}
                 />
               </SwapSubmitterProvider>
             </SwapUIMachineFormSyncProvider>
@@ -96,10 +95,7 @@ function TokenListUpdaterSwap({ tokenList }: { tokenList: TokenInfo[] }) {
       tokenIn?: TokenInfo
       tokenOut?: TokenInfo
     }) => {
-      swapUIActorRef.send({
-        type: "input",
-        params: params,
-      })
+      swapUIActorRef.send({ type: "input", params })
     },
     [swapUIActorRef]
   )

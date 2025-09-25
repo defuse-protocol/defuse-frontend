@@ -1,5 +1,8 @@
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
-import { flattenTokenList } from "@src/components/DefuseSDK/utils/token"
+import {
+  flattenTokenList,
+  inheritTokenTags,
+} from "@src/components/DefuseSDK/utils/token"
 import { extractTokenFamilyList } from "@src/components/DefuseSDK/utils/tokenFamily"
 import { INTENTS_ENV } from "@src/utils/environment"
 
@@ -1781,6 +1784,17 @@ const PRODUCTION_TOKENS: TokenInfo[] = [
     name: "Aptos",
     tags: ["mc:34"],
   },
+  {
+    defuseAssetId: "nep245:v2_1.omni.hot.tg:56_12zbnsg6xndDVj25QyL82YMPudb",
+    address: "0x000Ae314E2A2172a039B26378814C252734f556A",
+    decimals: 18,
+    icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/36341.png",
+    chainName: "bsc",
+    bridge: "hot_omni",
+    symbol: "ASTER",
+    name: "Aster",
+    tags: ["mc:44"],
+  },
 ]
 
 const STAGE_TOKENS: TokenInfo[] = [
@@ -1939,8 +1953,9 @@ const STAGE_TOKENS: TokenInfo[] = [
   },
 ]
 
-export const LIST_TOKENS: TokenInfo[] =
+export const LIST_TOKENS: TokenInfo[] = inheritTokenTags(
   INTENTS_ENV === "production" ? PRODUCTION_TOKENS : STAGE_TOKENS
+)
 
 export const DEPRECATED_TOKENS: Record<string, boolean> = {
   "nep141:aurora": true,

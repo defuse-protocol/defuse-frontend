@@ -56,6 +56,28 @@ export function flattenTokenList(list: TokenInfo[]): BaseTokenInfo[] {
 }
 
 /**
+ * Attaches tags from UnifiedTokenInfo to BaseTokenInfo.
+ */
+export function inheritTokenTags(list: TokenInfo[]): TokenInfo[] {
+  return list.map((token): TokenInfo => {
+    if (isBaseToken(token)) {
+      return token
+    }
+
+    const newT = structuredClone(token)
+    for (const t of newT.groupedTokens) {
+      const mergedTags = Array.from(
+        new Set([...(token.tags ?? []), ...(t.tags ?? [])])
+      )
+      if (mergedTags.length > 0) {
+        t.tags = mergedTags
+      }
+    }
+    return newT
+  })
+}
+
+/**
  * Extracts the AID from a token.
  */
 export function getTokenAid<T extends { tags?: string[] }>(

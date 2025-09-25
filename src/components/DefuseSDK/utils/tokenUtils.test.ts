@@ -798,6 +798,7 @@ describe("getUnderlyingBaseTokenInfos", () => {
         bridge: "poa",
       },
     ],
+    tags: ["foo"],
   }
 
   it("should return array with single token for base token input", () => {

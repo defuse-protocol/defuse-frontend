@@ -1,6 +1,9 @@
 import type { SnapshotFrom } from "xstate"
 import type { TokenValue } from "../../../../types/base"
-import type { BalanceMapping } from "../../../machines/depositedBalanceMachine"
+import {
+  type BalanceMapping,
+  balancesSelector,
+} from "../../../machines/depositedBalanceMachine"
 import type { withdrawUIMachine } from "../../../machines/withdrawUIMachine"
 
 export function isLiquidityUnavailableSelector(
@@ -58,8 +61,10 @@ export function withdtrawalFeeSelector(
   }
 }
 
-export function balancesSelector(
+function balancesSelector_(
   state: SnapshotFrom<typeof withdrawUIMachine>
 ): BalanceMapping {
-  return state.context.depositedBalanceRef?.getSnapshot().context.balances
+  return balancesSelector(state.context.depositedBalanceRef?.getSnapshot())
 }
+
+export { balancesSelector_ as balancesSelector }
