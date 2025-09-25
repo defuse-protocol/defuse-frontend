@@ -2,6 +2,7 @@ import {
   messageFactory,
   type walletMessage,
 } from "@defuse-protocol/internal-utils"
+import { ChainType } from "@src/hooks/useConnectWallet"
 import type { IntentsUserId } from "../types/intentsUserId"
 import type { SignerCredentials } from "./formatters"
 import { formatUserIdentity } from "./formatters"
@@ -65,18 +66,41 @@ export function createSwapIntentMessage(
 }
 
 /**
- * Creates an empty intent message that can be used for testing connections
+ * Creates a wallet verification message with chain-specific optimizations
  * @param options Message configuration options
- * @returns Intent message ready to be signed by a wallet
+ * @param chainType Optional chain type for chain-specific message formatting
+ * @returns Intent message ready to be signed by a wallet for verification
  */
-export function createEmptyIntentMessage(
-  options: IntentMessageConfig
+export function createWalletVerificationMessage(
+  options: IntentMessageConfig,
+  chainType?: string
 ): walletMessage.WalletMessage {
-  return messageFactory.makeEmptyMessage({
+  const baseMessage = messageFactory.makeEmptyMessage({
     signerId: resolveSignerId(options.signerId),
     deadlineTimestamp: options.deadlineTimestamp ?? minutesFromNow(5),
     nonce: options.nonce,
   })
+
+  // For Tron wallets, we need to add a field to ensure message size compatibility
+  // with Tron Ledger app requirements (>225 bytes to avoid signing bugs)
+  if (chainType === ChainType.Tron) {
+    const tronMessage = JSON.parse(baseMessage.TRON.message)
+    const extendedMessage = {
+      ...tronMessage,
+      message_size_validation:
+        "Validates message size compatibility with wallet signing requirements. This field ensures the message exceeds the 226-byte threshold required for proper Tron app signing functionality.",
+    }
+
+    return {
+      ...baseMessage,
+      TRON: {
+        ...baseMessage.TRON,
+        message: JSON.stringify(extendedMessage, null, 2),
+      },
+    }
+  }
+
+  return baseMessage
 }
 
 function minutesFromNow(minutes: number): number {

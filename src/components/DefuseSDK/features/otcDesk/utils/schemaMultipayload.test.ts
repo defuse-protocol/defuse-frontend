@@ -14,8 +14,8 @@ import {
   formatSignedIntent,
 } from "../../../core/formatters"
 import {
-  createEmptyIntentMessage,
   createSwapIntentMessage,
+  createWalletVerificationMessage,
 } from "../../../core/messages"
 import {
   GeneralPayloadObjectSchema,
@@ -101,7 +101,7 @@ function genSwapIntent(signerId: SignerCredentials) {
 }
 
 function genEmptyIntent(signerId: SignerCredentials) {
-  return createEmptyIntentMessage({ signerId })
+  return createWalletVerificationMessage({ signerId })
 }
 
 type FakeSign = (

@@ -6,8 +6,8 @@ import {
   formatSignedIntent,
 } from "../../../core/formatters"
 import {
-  createEmptyIntentMessage,
   createSwapIntentMessage,
+  createWalletVerificationMessage,
 } from "../../../core/messages"
 import { logger } from "../../../logger"
 import { parseTradeTerms } from "./parseTradeTerms"
@@ -87,7 +87,7 @@ describe("parseTradeTerms", () => {
   )
 
   it("returns null if multipayload does not contain any diffs", async () => {
-    const walletMessage = createEmptyIntentMessage({
+    const walletMessage = createWalletVerificationMessage({
       signerId: trade1Id,
       deadlineTimestamp: date1,
     })

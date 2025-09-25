@@ -1,9 +1,10 @@
 import { authIdentity } from "@defuse-protocol/internal-utils"
+import { ChainType } from "@src/hooks/useConnectWallet"
 import { describe, expect, it } from "vitest"
 import {
-  createEmptyIntentMessage,
   createSwapIntentMessage,
   createTransferMessage,
+  createWalletVerificationMessage,
 } from "./messages"
 
 const TEST_TIMESTAMP = 1704110400000 // 2024-01-01T12:00:00.000Z
@@ -38,9 +39,9 @@ describe("createSwapIntentMessage()", () => {
   })
 })
 
-describe("createEmptyIntentMessage()", () => {
+describe("createWalletVerificationMessage()", () => {
   it("creates a valid empty intent message", () => {
-    const message = createEmptyIntentMessage({
+    const message = createWalletVerificationMessage({
       signerId: TEST_USER,
       deadlineTimestamp: TEST_TIMESTAMP,
     })
@@ -53,13 +54,35 @@ describe("createEmptyIntentMessage()", () => {
   })
 
   it("uses default deadline when not provided", () => {
-    const message = createEmptyIntentMessage({
+    const message = createWalletVerificationMessage({
       signerId: TEST_USER,
     })
 
     const parsed = JSON.parse(message.NEP413.message)
     expect(Date.parse(parsed.deadline)).toBeGreaterThan(Date.now())
     expect(parsed.intents).toEqual([])
+  })
+
+  it("creates long message that exceeds the 226 byte threshold", () => {
+    const THRESHOLD = 226
+    const message = createWalletVerificationMessage(
+      {
+        signerId: TEST_USER,
+        deadlineTimestamp: TEST_TIMESTAMP,
+      },
+      ChainType.Tron
+    )
+
+    const tronMessageBytes = new TextEncoder().encode(
+      message.TRON.message
+    ).length
+    expect(tronMessageBytes).toBeGreaterThan(THRESHOLD)
+
+    const tronMessage = JSON.parse(message.TRON.message)
+    expect(tronMessage.message_size_validation).toBeDefined()
+    expect(tronMessage.message_size_validation).toBe(
+      "Validates message size compatibility with wallet signing requirements. This field ensures the message exceeds the 226-byte threshold required for proper Tron app signing functionality."
+    )
   })
 })
 

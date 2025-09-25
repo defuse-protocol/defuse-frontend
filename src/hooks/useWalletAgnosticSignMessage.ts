@@ -99,24 +99,6 @@ export function useWalletAgnosticSignMessage() {
       }
 
       case ChainType.Tron: {
-        // TODO: Remove this workaround once Tron Ledger app fixes the message signing bug.
-        // Tron Ledger incorrectly signs messages >225 bytes causing signature verification issues,
-        // so we need to increase message size for unverified wallets to prevent signIn if issue persists.
-        if (!state.isVerified) {
-          const extendedMessage = {
-            ...JSON.parse(walletMessage.TRON.message),
-            message_size_validation:
-              "Validates message size compatibility with wallet signing requirements.",
-          }
-          const signatureData = await signMessageTron(
-            JSON.stringify(extendedMessage, null, 2)
-          )
-          return {
-            type: "TRON",
-            signatureData,
-            signedData: { message: JSON.stringify(extendedMessage, null, 2) },
-          }
-        }
         const signatureData = await signMessageTron(walletMessage.TRON.message)
         return { type: "TRON", signatureData, signedData: walletMessage.TRON }
       }
