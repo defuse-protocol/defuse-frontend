@@ -1,7 +1,6 @@
 import { Cross2Icon, ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Button, Callout, Dialog, Separator, Spinner } from "@radix-ui/themes"
 import Image from "next/image"
-import React from "react"
 
 import { useWebAuthnUIStore } from "@src/features/webauthn/hooks/useWebAuthnUiStore"
 

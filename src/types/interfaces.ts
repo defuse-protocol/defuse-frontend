@@ -1,5 +1,6 @@
 import type { Transaction } from "@near-wallet-selector/core/src/lib/wallet/transactions.types"
 import type { Transaction as TransactionSolana } from "@solana/web3.js"
+import type { SendTransactionRequest } from "@tonconnect/ui-react"
 import type { SendTransactionParameters } from "viem"
 
 export type JobsDetails = {
@@ -46,4 +47,30 @@ export type Settings = {
       }
     }
   }
+}
+
+export type LastLiquidityCheckStatus = "passed" | "failed"
+
+export type PairItem = {
+  defuseAssetId: string
+  decimals: number
+}
+
+export type MaxLiquidity = {
+  amount: string
+  validated_amount: string
+  last_step_size?: string | null
+  last_liquidity_check?: LastLiquidityCheckStatus | null
+}
+
+export type Pair = {
+  in: PairItem
+  out: PairItem
+  maxLiquidity: MaxLiquidity
+}
+
+export type Pairs = Pair[] | null
+
+export type SendTransactionTonParams = {
+  transactions: SendTransactionRequest
 }

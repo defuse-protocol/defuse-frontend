@@ -1,19 +1,24 @@
+@use "sass:meta";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 @tailwind variants;
 
 /* Core imports - ordered by dependency */
-@import "fonts";
-@import "loading";
-@import "modal";
-@import "accordion";
-@import "toast";
+@include meta.load-css("fonts");
+@include meta.load-css("loading");
+@include meta.load-css("modal");
+@include meta.load-css("accordion");
+@include meta.load-css("toast");
 
 /* Utilities */
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  .widget-container {
+    @apply w-full max-w-[min(472px,100%)];
   }
 }
 
@@ -37,20 +42,22 @@
   }
 
   /* Theme colors */
-	:root {
-		--color-border: var(--sand-4);
-		--color-warning: var(--amber-a2);
-		--color-warning-foreground: var(--amber-a11);
-	}
-	.dark {
-		/**
+  :root {
+    --color-border: var(--sand-4);
+    --color-label: var(--sand-12);
+    --color-warning: var(--amber-a2);
+    --color-warning-foreground: var(--amber-a11);
+  }
+  .dark {
+    /**
 		 * It's not a mistake, duplicating the same color values here.
 		 * They are Radix UI colors palette, and they're switched based on the theme.
 		 */
-		--color-border: var(--sand-4);
-		--color-warning: var(--amber-a2);
-		--color-warning-foreground: var(--amber-a11);
-	}
+    --color-border: var(--sand-4);
+    --color-label: var(--sand-12);
+    --color-warning: var(--amber-a2);
+    --color-warning-foreground: var(--amber-a11);
+  }
 }
 
 /* Template-specific styles */
@@ -62,4 +69,9 @@ html.tmpl-solswap,
 html.tmpl-dogecoinswap,
 .tmpl-dogecoinswap body {
   background: var(--gray-2);
+}
+
+.radix-themes {
+	--cursor-button: pointer;
+  --cursor-switch: pointer;
 }

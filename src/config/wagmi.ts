@@ -3,7 +3,16 @@
 import { injected } from "@wagmi/core"
 import type { Chain } from "viem"
 import { http, createConfig } from "wagmi"
-import { arbitrum, aurora, base, mainnet } from "wagmi/chains"
+import {
+  arbitrum,
+  aurora,
+  avalanche,
+  base,
+  bsc,
+  mainnet,
+  optimism,
+  polygon,
+} from "wagmi/chains"
 import { coinbaseWallet, walletConnect } from "wagmi/connectors"
 
 import { PROJECT_ID } from "@src/utils/environment"
@@ -84,6 +93,10 @@ export const config = createConfig({
     arbitrum,
     turbo,
     aurora,
+    polygon,
+    bsc,
+    optimism,
+    avalanche,
     tuxappchain,
     vertex,
     optima,
@@ -94,6 +107,7 @@ export const config = createConfig({
       walletConnect({
         projectId: PROJECT_ID,
         showQrModal: true,
+        customStoragePrefix: "near-intents",
       }),
     coinbaseWallet({ appName: "Near Intents" }),
     injected(),
@@ -104,6 +118,10 @@ export const config = createConfig({
     [arbitrum.id]: http(),
     [turbo.id]: http(),
     [aurora.id]: http(),
+    [polygon.id]: http(),
+    [bsc.id]: http(),
+    [optimism.id]: http(),
+    [avalanche.id]: http(),
     [tuxappchain.id]: http(),
     [vertex.id]: http(),
     [optima.id]: http(),

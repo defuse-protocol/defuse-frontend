@@ -1,20 +1,13 @@
 "use client"
 
+import { ShieldCheckIcon } from "@phosphor-icons/react"
 import { ExternalLinkIcon } from "@radix-ui/react-icons"
 import { Popover, Separator, Switch, Text } from "@radix-ui/themes"
-import { useTheme } from "next-themes"
-import { useContext } from "react"
-
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import Themes from "@src/types/themes"
-import {
-  NEXT_PUBLIC_LINK_DOCS,
-  NEXT_PUBLIC_PUBLIC_MAIL,
-  NEXT_PUBLIC_PUBLIC_TG,
-} from "@src/utils/environment"
-
+import { useTheme } from "next-themes"
+import { useContext } from "react"
 import AddTurboChainButton from "./AddTurboChainButton"
-import ComingSoon from "./ComingSoon"
 
 const Settings = () => {
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
@@ -47,7 +40,7 @@ const Settings = () => {
 
             <div className="flex flex-col justify-between items-center gap-1.5">
               <a
-                href={NEXT_PUBLIC_LINK_DOCS}
+                href="https://docs.near-intents.org"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex justify-between items-center gap-2"
@@ -59,7 +52,7 @@ const Settings = () => {
               </a>
 
               <a
-                href={NEXT_PUBLIC_PUBLIC_TG}
+                href="https://t.me/near_intents"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex justify-between items-center gap-2"
@@ -71,7 +64,7 @@ const Settings = () => {
               </a>
 
               <a
-                href={`mailto:${NEXT_PUBLIC_PUBLIC_MAIL}`}
+                href="mailto:defuse@defuse.org"
                 className="w-full flex justify-between items-center gap-2"
               >
                 <Text size="2" weight="medium">
@@ -111,6 +104,27 @@ const Settings = () => {
                 </a>
               )}
             </div>
+
+            <Separator orientation="horizontal" size="4" />
+            <div className="flex flex-col justify-between items-center gap-1.5">
+              <a
+                href="https://hackenproof.com/programs/near-intents"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex justify-between items-center gap-2"
+              >
+                <span className="flex items-center gap-2">
+                  <ShieldCheckIcon
+                    className="w-4 h-4 text-muted-foreground"
+                    aria-hidden="true"
+                  />
+                  <Text size="2" weight="medium">
+                    Bug Bounty
+                  </Text>
+                </span>
+                <ExternalLinkIcon width={16} height={16} />
+              </a>
+            </div>
           </div>
         </Popover.Content>
       </Popover.Root>
@@ -119,7 +133,7 @@ const Settings = () => {
 }
 
 const DarkMode = () => {
-  const { theme, setTheme, resolvedTheme } = useTheme()
+  const { setTheme, resolvedTheme } = useTheme()
 
   // This accounts for system preference when theme is set to "system"
   const isDarkMode = resolvedTheme === Themes.DARK
@@ -130,7 +144,6 @@ const DarkMode = () => {
         Dark Mode
       </Text>
       <Switch
-        className="cursor-pointer"
         size="1"
         onCheckedChange={(checked: boolean) => {
           setTheme(checked ? Themes.DARK : Themes.LIGHT)

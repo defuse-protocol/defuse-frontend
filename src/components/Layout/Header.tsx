@@ -5,7 +5,6 @@ import Logo from "@src/components/Logo"
 import Settings from "@src/components/Settings"
 import ConnectWallet from "@src/components/Wallet"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
-import type React from "react"
 import { type ReactNode, useContext } from "react"
 import styles from "./Header.module.css"
 

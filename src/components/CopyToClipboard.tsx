@@ -15,6 +15,7 @@ const Copy = ({ children, value }: Props) => {
   const animationStyle = "transition ease-in-out duration-150"
   return (
     <div className="relative cursor-pointer">
+      {/* @ts-ignore this is a valid use case */}
       <CopyToClipboard onCopy={() => setIsCopied(true)} text={value}>
         {children}
       </CopyToClipboard>
@@ -38,10 +39,10 @@ export function CopyIconButton({ copyValue }: { copyValue: string }) {
 
   return (
     <IconButton
-      size={"3"}
-      radius={"full"}
-      variant={"soft"}
-      color={"gray"}
+      size="3"
+      radius="full"
+      variant="soft"
+      color="gray"
       highContrast
       onClick={() => {
         startTransition(async () => {
@@ -53,9 +54,9 @@ export function CopyIconButton({ copyValue }: { copyValue: string }) {
       }}
     >
       {isCopied ? (
-        <CheckIcon width={"18"} height={"18"} />
+        <CheckIcon width="18" height="18" />
       ) : (
-        <CopyIcon width={"18"} height={"18"} />
+        <CopyIcon width="18" height="18" />
       )}
     </IconButton>
   )

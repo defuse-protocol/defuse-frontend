@@ -2,20 +2,20 @@
 // The config you add here will be used whenever a users loads a page in their browser.
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
-import { isBaseToken } from "@defuse-protocol/defuse-sdk"
 import * as Sentry from "@sentry/nextjs"
-import { LIST_TOKENS } from "@src/constants/tokens"
 import * as v from "valibot"
 import { formatUnits } from "viem"
 
+import { isBaseToken } from "@src/components/DefuseSDK/utils"
+import { LIST_TOKENS } from "@src/constants/tokens"
+
 Sentry.init({
-  dsn: "https://12f8f38e9e78e2900f386bec2549c9d7@o4504157766942720.ingest.us.sentry.io/4507589484544000",
+  dsn: "https://68e98c6f1b314199f93ab8470623556c@o4510000873668621.ingest.us.sentry.io/4510000882778112",
   enabled: process.env.NEXT_PUBLIC_SENTRY_ENABLED === "true",
   tracesSampleRate: 1.0,
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0,
   integrations: [
-    // eslint-disable-next-line import/namespace
     Sentry.replayIntegration({
       maskAllInputs: false,
       maskAllText: false,
@@ -24,6 +24,11 @@ Sentry.init({
   ],
   beforeSend: (event) => {
     return processNoLiquidityEvent(event)
+  },
+  // Navigation breadcrumbs may include sensitive user data (e.g., hashes), so we block them.
+  // Otherwise, history URLs should be sanitized before being sent to Sentry.
+  beforeBreadcrumb(breadcrumb) {
+    return breadcrumb.category === "navigation" ? null : breadcrumb
   },
 })
 

@@ -31,9 +31,11 @@ type WalletConnectionActions = {
 const connections: MapsEnum[] = [
   MapsEnum.NEAR_MAINNET,
   MapsEnum.EVM_ETHEREUM,
-  MapsEnum.BTC_MAINNET,
+  MapsEnum.TON,
   MapsEnum.SOLANA_MAINNET,
   MapsEnum.WEBAUTHN,
+  MapsEnum.STELLAR_MAINNET,
+  MapsEnum.TRON_MAINNET,
 ]
 
 const WalletConnectionsConnector = ({
@@ -67,6 +69,7 @@ const WalletConnectionsConnector = ({
         </div>
 
         <div className="flex justify-center items-center gap-2.5">
+          {/* @ts-ignore this is a valid use case */}
           <CopyToClipboard onCopy={onCopy} text={accountId ?? ""}>
             <button
               type="button"
@@ -103,7 +106,7 @@ const WalletConnections = () => {
     if (isProcessing) setIsProcessing(false)
   }, [isProcessing])
 
-  const userAddress = state.address
+  const userAddress = state.displayAddress
   if (userAddress == null) {
     return null
   }
@@ -117,6 +120,7 @@ const WalletConnections = () => {
       >
         Connected with
       </Text>
+
       {connections.map((connector, i) => {
         let chainIcon = ""
         switch (connector) {
@@ -191,7 +195,66 @@ const WalletConnections = () => {
               />
             )
           }
+
+          case MapsEnum.TON:
+            if (state.chainType !== ChainType.Ton) {
+              return null
+            }
+            return (
+              <WalletConnectionsConnector
+                accountId={userAddress}
+                chainLabel={state.network ?? ""}
+                chainName="TON"
+                chainIcon={"/static/icons/wallets/ton.svg"}
+                onCopy={() => setCopyWalletAddress(MapsEnum.TON)}
+                isCopied={copyWalletAddress === MapsEnum.TON}
+                onDisconnect={() => signOut({ id: ChainType.Ton })}
+                onConnect={() => {}}
+                key={connector}
+                index={i}
+              />
+            )
+
+          case MapsEnum.STELLAR_MAINNET:
+            if (state.chainType !== ChainType.Stellar) {
+              return null
+            }
+            return (
+              <WalletConnectionsConnector
+                accountId={userAddress}
+                chainLabel="Stellar"
+                chainName="stellar"
+                chainIcon={"/static/icons/network/stellar.svg"}
+                onCopy={() => setCopyWalletAddress(MapsEnum.STELLAR_MAINNET)}
+                isCopied={copyWalletAddress === MapsEnum.STELLAR_MAINNET}
+                onDisconnect={() => signOut({ id: ChainType.Stellar })}
+                onConnect={() => {}}
+                key={connector}
+                index={i}
+              />
+            )
+
+          case MapsEnum.TRON_MAINNET:
+            if (state.chainType !== ChainType.Tron) {
+              return null
+            }
+            return (
+              <WalletConnectionsConnector
+                accountId={userAddress}
+                chainLabel="Tron"
+                chainName="tron"
+                chainIcon={"/static/icons/network/tron.svg"}
+                onCopy={() => setCopyWalletAddress(MapsEnum.TRON_MAINNET)}
+                isCopied={copyWalletAddress === MapsEnum.TRON_MAINNET}
+                onDisconnect={() => signOut({ id: ChainType.Tron })}
+                onConnect={() => {}}
+                key={connector}
+                index={i}
+              />
+            )
+
           default:
+            connector satisfies never
             return null
         }
       })}

@@ -1,6 +1,6 @@
 "use client"
 
-import { AccountWidget } from "@defuse-protocol/defuse-sdk"
+import { AccountWidget } from "@src/components/DefuseSDK/features/account/components/AccountWidget"
 
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
