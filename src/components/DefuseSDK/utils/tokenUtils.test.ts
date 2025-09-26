@@ -53,13 +53,19 @@ describe("computeTotalBalance", () => {
   describe("with base token", () => {
     const baseToken: BaseTokenInfo = {
       defuseAssetId: "token1",
-      address: "0x123",
       symbol: "TKN",
       name: "Token",
       decimals: 18,
       icon: "icon.png",
       chainName: "eth",
-      bridge: "poa",
+      deployments: [
+        {
+          chainName: "eth",
+          bridge: "poa",
+          decimals: 18,
+          address: "0x123",
+        },
+      ],
     }
 
     it("should return balance for base token", () => {
@@ -81,23 +87,35 @@ describe("computeTotalBalance", () => {
       groupedTokens: [
         {
           defuseAssetId: "token1",
-          address: "0x123",
           symbol: "TKN1",
           name: "Token1",
           decimals: 18,
           icon: "icon1.png",
           chainName: "eth",
-          bridge: "poa",
+          deployments: [
+            {
+              chainName: "eth",
+              bridge: "poa",
+              decimals: 18,
+              address: "0x123",
+            },
+          ],
         },
         {
           defuseAssetId: "token2",
-          address: "0x456",
           symbol: "TKN2",
           name: "Token2",
           decimals: 18,
           icon: "icon2.png",
           chainName: "base",
-          bridge: "poa",
+          deployments: [
+            {
+              chainName: "base",
+              bridge: "poa",
+              decimals: 18,
+              address: "0x256",
+            },
+          ],
         },
       ],
     }
@@ -177,23 +195,35 @@ describe("computeTotalBalanceDifferentDecimals", () => {
     const tokens: BaseTokenInfo[] = [
       {
         defuseAssetId: "token1",
-        address: "0x123",
         symbol: "TKN1",
         name: "Token1",
         decimals: 18,
         icon: "icon1.png",
         chainName: "eth",
-        bridge: "poa",
+        deployments: [
+          {
+            chainName: "eth",
+            bridge: "poa",
+            decimals: 18,
+            address: "0x123",
+          },
+        ],
       },
       {
         defuseAssetId: "missing",
-        address: "0x456",
         symbol: "TKN2",
         name: "Token2",
         decimals: 18,
         icon: "icon2.png",
         chainName: "eth",
-        bridge: "poa",
+        deployments: [
+          {
+            chainName: "eth",
+            bridge: "poa",
+            decimals: 18,
+            address: "0x256",
+          },
+        ],
       },
     ]
 
@@ -209,23 +239,35 @@ describe("computeTotalBalanceDifferentDecimals", () => {
     const tokens: BaseTokenInfo[] = [
       {
         defuseAssetId: "missing1",
-        address: "0x123",
         symbol: "TKN1",
         name: "Token1",
         decimals: 18,
         icon: "icon1.png",
         chainName: "eth",
-        bridge: "poa",
+        deployments: [
+          {
+            chainName: "eth",
+            bridge: "poa",
+            decimals: 18,
+            address: "0x123",
+          },
+        ],
       },
       {
         defuseAssetId: "missing2",
-        address: "0x456",
         symbol: "TKN2",
         name: "Token2",
         decimals: 18,
         icon: "icon2.png",
         chainName: "eth",
-        bridge: "poa",
+        deployments: [
+          {
+            chainName: "eth",
+            bridge: "poa",
+            decimals: 18,
+            address: "0x256",
+          },
+        ],
       },
     ]
 
@@ -237,13 +279,19 @@ describe("computeTotalBalanceDifferentDecimals", () => {
   describe("with base token", () => {
     const baseToken: BaseTokenInfo = {
       defuseAssetId: "token1",
-      address: "0x123",
       symbol: "TKN",
       name: "Token",
       decimals: 18,
       icon: "icon.png",
       chainName: "eth",
-      bridge: "poa",
+      deployments: [
+        {
+          chainName: "eth",
+          bridge: "poa",
+          decimals: 18,
+          address: "0x123",
+        },
+      ],
     }
 
     it("should return balance and decimals for base token", () => {
@@ -272,23 +320,35 @@ describe("computeTotalBalanceDifferentDecimals", () => {
       groupedTokens: [
         {
           defuseAssetId: "token1",
-          address: "0x123",
           symbol: "TKN1",
           name: "Token1",
           decimals: 18,
           icon: "icon1.png",
           chainName: "eth",
-          bridge: "poa",
+          deployments: [
+            {
+              chainName: "eth",
+              bridge: "poa",
+              decimals: 18,
+              address: "0x123",
+            },
+          ],
         },
         {
           defuseAssetId: "token2",
-          address: "0x456",
           symbol: "TKN2",
           name: "Token2",
           decimals: 18,
           icon: "icon2.png",
           chainName: "base",
-          bridge: "poa",
+          deployments: [
+            {
+              chainName: "base",
+              bridge: "poa",
+              decimals: 18,
+              address: "0x456",
+            },
+          ],
         },
       ],
     }
@@ -351,23 +411,35 @@ describe("computeTotalBalanceDifferentDecimals", () => {
       groupedTokens: [
         {
           defuseAssetId: "token1",
-          address: "0x123",
           symbol: "TKN1",
           name: "Token1",
           decimals: 6,
           icon: "icon1.png",
           chainName: "eth",
-          bridge: "poa",
+          deployments: [
+            {
+              chainName: "eth",
+              bridge: "poa",
+              decimals: 18,
+              address: "0x123",
+            },
+          ],
         },
         {
           defuseAssetId: "token2",
-          address: "0x456",
           symbol: "TKN2",
           name: "Token2",
           decimals: 18,
           icon: "icon2.png",
           chainName: "base",
-          bridge: "poa",
+          deployments: [
+            {
+              chainName: "base",
+              bridge: "poa",
+              decimals: 18,
+              address: "0x456",
+            },
+          ],
         },
       ],
     }
@@ -398,33 +470,51 @@ describe("computeTotalBalanceDifferentDecimals", () => {
       groupedTokens: [
         {
           defuseAssetId: "token1",
-          address: "0x123",
           symbol: "TKN1",
           name: "Token1",
           decimals: 6,
           icon: "icon1.png",
           chainName: "eth",
-          bridge: "poa",
+          deployments: [
+            {
+              chainName: "eth",
+              bridge: "poa",
+              decimals: 6,
+              address: "0x123",
+            },
+          ],
         },
         {
           defuseAssetId: "token1", // Duplicate with different decimals
-          address: "0x124",
           symbol: "TKN1",
           name: "Token1",
           decimals: 18,
           icon: "icon1.png",
           chainName: "eth",
-          bridge: "poa",
+          deployments: [
+            {
+              chainName: "eth",
+              bridge: "poa",
+              decimals: 18,
+              address: "0x124",
+            },
+          ],
         },
         {
           defuseAssetId: "token2",
-          address: "0x456",
           symbol: "TKN2",
           name: "Token2",
           decimals: 18,
           icon: "icon2.png",
           chainName: "base",
-          bridge: "poa",
+          deployments: [
+            {
+              chainName: "base",
+              bridge: "poa",
+              decimals: 18,
+              address: "0x456",
+            },
+          ],
         },
       ],
     }
@@ -441,33 +531,51 @@ describe("computeTotalBalanceDifferentDecimals", () => {
         groupedTokens: [
           {
             defuseAssetId: "token1",
-            address: "0x123",
             symbol: "TKN1",
             name: "Token1",
             decimals: 6,
             icon: "icon1.png",
             chainName: "eth",
-            bridge: "poa",
+            deployments: [
+              {
+                chainName: "eth",
+                bridge: "poa",
+                decimals: 6,
+                address: "0x123",
+              },
+            ],
           },
           {
             defuseAssetId: "token1",
-            address: "0x124",
             symbol: "TKN1",
             name: "Token1",
             decimals: 6,
             icon: "icon1.png",
             chainName: "eth",
-            bridge: "poa",
+            deployments: [
+              {
+                chainName: "eth",
+                bridge: "poa",
+                decimals: 6,
+                address: "0x124",
+              },
+            ],
           },
           {
             defuseAssetId: "token2",
-            address: "0x456",
             symbol: "TKN2",
             name: "Token2",
             decimals: 18,
             icon: "icon2.png",
             chainName: "base",
-            bridge: "poa",
+            deployments: [
+              {
+                chainName: "base",
+                bridge: "poa",
+                decimals: 18,
+                address: "0x456",
+              },
+            ],
           },
         ],
       }
@@ -492,35 +600,53 @@ describe("getDerivedToken", () => {
       groupedTokens: [
         {
           defuseAssetId: "token1",
-          address: "0x123",
           symbol: "TKN1",
           name: "Token1",
           decimals: 18,
           icon: "icon1.png",
           chainName: "eth",
-          bridge: "poa",
+          deployments: [
+            {
+              chainName: "eth",
+              bridge: "poa",
+              decimals: 18,
+              address: "0x123",
+            },
+          ],
         },
         {
           defuseAssetId: "token2",
-          address: "0x456",
           symbol: "TKN2",
           name: "Token2",
           decimals: 18,
           icon: "icon2.png",
           chainName: "base",
-          bridge: "poa",
+          deployments: [
+            {
+              chainName: "base",
+              bridge: "poa",
+              decimals: 18,
+              address: "0x456",
+            },
+          ],
         },
       ],
     },
     {
       defuseAssetId: "token3",
-      address: "0x789",
       symbol: "TKN3",
       name: "Token3",
       decimals: 18,
       icon: "icon3.png",
       chainName: "eth",
-      bridge: "poa",
+      deployments: [
+        {
+          chainName: "eth",
+          bridge: "poa",
+          decimals: 18,
+          address: "0x789",
+        },
+      ],
     },
   ]
   it("should derive token from unified token list", () => {
@@ -528,13 +654,19 @@ describe("getDerivedToken", () => {
     const unifiedToken = tokenList[0]!
     expect(getDerivedToken(unifiedToken, "eth")).toEqual({
       defuseAssetId: "token1",
-      address: "0x123",
       symbol: "TKN1",
       name: "Token1",
       decimals: 18,
       icon: "icon1.png",
       chainName: "eth",
-      bridge: "poa",
+      deployments: [
+        {
+          chainName: "eth",
+          bridge: "poa",
+          decimals: 18,
+          address: "0x123",
+        },
+      ],
     })
   })
 
@@ -543,13 +675,19 @@ describe("getDerivedToken", () => {
     const baseToken = tokenList[1]!
     expect(getDerivedToken(baseToken, "eth")).toEqual({
       defuseAssetId: "token3",
-      address: "0x789",
       symbol: "TKN3",
       name: "Token3",
       decimals: 18,
       icon: "icon3.png",
       chainName: "eth",
-      bridge: "poa",
+      deployments: [
+        {
+          address: "0x789",
+          bridge: "poa",
+          chainName: "eth",
+          decimals: 18,
+        },
+      ],
     })
   })
 
@@ -702,23 +840,35 @@ describe("computeTotalDeltaDifferentDecimals", () => {
   const tokens: BaseTokenInfo[] = [
     {
       defuseAssetId: "token1",
-      address: "0x123",
       symbol: "TKN1",
       name: "Token1",
       decimals: 6,
       icon: "icon1.png",
       chainName: "eth",
-      bridge: "poa",
+      deployments: [
+        {
+          chainName: "eth",
+          bridge: "poa",
+          decimals: 6,
+          address: "0x123",
+        },
+      ],
     },
     {
       defuseAssetId: "token2",
-      address: "0x456",
       symbol: "TKN2",
       name: "Token2",
       decimals: 18,
       icon: "icon2.png",
       chainName: "eth",
-      bridge: "poa",
+      deployments: [
+        {
+          chainName: "eth",
+          bridge: "poa",
+          decimals: 18,
+          address: "0x456",
+        },
+      ],
     },
   ]
 
@@ -771,13 +921,19 @@ describe("computeTotalDeltaDifferentDecimals", () => {
 describe("getUnderlyingBaseTokenInfos", () => {
   const baseToken: BaseTokenInfo = {
     defuseAssetId: "token1",
-    address: "0x123",
     symbol: "TKN1",
     name: "Token1",
     decimals: 6,
     icon: "icon1.png",
     chainName: "eth",
-    bridge: "poa",
+    deployments: [
+      {
+        chainName: "eth",
+        bridge: "poa",
+        decimals: 6,
+        address: "0x123",
+      },
+    ],
   }
 
   const unifiedToken: UnifiedTokenInfo = {
@@ -789,13 +945,19 @@ describe("getUnderlyingBaseTokenInfos", () => {
       baseToken,
       {
         defuseAssetId: "token2",
-        address: "0x456",
         symbol: "TKN2",
         name: "Token2",
         decimals: 18,
         icon: "icon2.png",
         chainName: "base",
-        bridge: "poa",
+        deployments: [
+          {
+            chainName: "base",
+            bridge: "poa",
+            decimals: 18,
+            address: "0x456",
+          },
+        ],
       },
     ],
     tags: ["foo"],
@@ -953,31 +1115,43 @@ describe("accountSlippageExactIn", () => {
 describe("filterOutPoaBridgeTokens", () => {
   it('returns token if it is BaseTokenInfo with bridge "poa"', () => {
     const baseToken: BaseTokenInfo = {
-      defuseAssetId: "token1",
-      address: "0x123",
+      defuseAssetId: "nep141:token1.omft.near",
       symbol: "TKN",
       name: "Token",
       decimals: 18,
       icon: "icon.png",
       chainName: "eth",
-      bridge: "poa",
+      deployments: [
+        {
+          chainName: "eth",
+          bridge: "poa",
+          decimals: 18,
+          address: "0x123",
+        },
+      ],
     }
 
     const result = filterOutPoaBridgeTokens(baseToken)
 
-    expect(result).toEqual([baseToken])
+    expect(result).toEqual(["token1.omft.near"])
   })
 
   it('returns null if it is BaseTokenInfo without bridge "poa"', () => {
     const notBaseToken: BaseTokenInfo = {
       defuseAssetId: "token1",
-      address: "0x123",
       symbol: "TKN",
       name: "Token",
       decimals: 18,
       icon: "icon.png",
       chainName: "eth",
-      bridge: "aurora_engine",
+      deployments: [
+        {
+          chainName: "eth",
+          bridge: "aurora_engine",
+          decimals: 18,
+          address: "0x123",
+        },
+      ],
     }
 
     const result = filterOutPoaBridgeTokens(notBaseToken)
@@ -987,24 +1161,36 @@ describe("filterOutPoaBridgeTokens", () => {
 
   it("filters groupedTokens when token is UnifiedTokenInfo", () => {
     const poaToken: BaseTokenInfo = {
-      defuseAssetId: "token1",
-      address: "0x123",
+      defuseAssetId: "nep141:token1.omft.near",
       symbol: "TKN1",
       name: "Token1",
       decimals: 18,
       icon: "icon1.png",
       chainName: "eth",
-      bridge: "poa",
+      deployments: [
+        {
+          chainName: "eth",
+          bridge: "poa",
+          decimals: 18,
+          address: "0x123",
+        },
+      ],
     }
     const notPoaToken: BaseTokenInfo = {
-      defuseAssetId: "token2",
-      address: "0x456",
+      defuseAssetId: "nep141:token2.near",
       symbol: "TKN2",
       name: "Token2",
       decimals: 18,
       icon: "icon2.png",
       chainName: "base",
-      bridge: "aurora_engine",
+      deployments: [
+        {
+          chainName: "base",
+          bridge: "aurora_engine",
+          decimals: 18,
+          address: "0x456",
+        },
+      ],
     }
     const unifiedToken: UnifiedTokenInfo = {
       unifiedAssetId: "unified1",
@@ -1016,29 +1202,41 @@ describe("filterOutPoaBridgeTokens", () => {
 
     const result = filterOutPoaBridgeTokens(unifiedToken)
 
-    expect(result).toEqual([poaToken])
+    expect(result).toEqual(["token1.omft.near"])
   })
 
   it('returns UnifiedTokenInfo with empty groupedTokens if none match "poa"', () => {
     const notPoaToken1: BaseTokenInfo = {
       defuseAssetId: "token2",
-      address: "0x456",
       symbol: "TKN2",
       name: "Token2",
       decimals: 18,
       icon: "icon2.png",
       chainName: "base",
-      bridge: "direct",
+      deployments: [
+        {
+          chainName: "base",
+          bridge: "direct",
+          decimals: 18,
+          address: "0x456",
+        },
+      ],
     }
     const notPoaToken2: BaseTokenInfo = {
       defuseAssetId: "token2",
-      address: "0x456",
       symbol: "TKN2",
       name: "Token2",
       decimals: 18,
       icon: "icon2.png",
       chainName: "base",
-      bridge: "aurora_engine",
+      deployments: [
+        {
+          chainName: "base",
+          bridge: "aurora_engine",
+          decimals: 18,
+          address: "0x456",
+        },
+      ],
     }
     const token: UnifiedTokenInfo = {
       unifiedAssetId: "unified1",
@@ -1059,13 +1257,19 @@ describe("getTokenAccountIds", () => {
     const tokens: BaseTokenInfo[] = [
       {
         defuseAssetId: "nep141:token1",
-        address: "0x123",
         symbol: "TKN",
         name: "Token",
         decimals: 18,
         icon: "icon.png",
         chainName: "eth",
-        bridge: "poa",
+        deployments: [
+          {
+            chainName: "eth",
+            bridge: "poa",
+            decimals: 18,
+            address: "0x123",
+          },
+        ],
       },
     ]
 
@@ -1078,13 +1282,19 @@ describe("getTokenAccountIds", () => {
     const tokens: BaseTokenInfo[] = [
       {
         defuseAssetId: "token2",
-        address: "0x123",
         symbol: "TKN",
         name: "Token",
         decimals: 18,
         icon: "icon.png",
         chainName: "eth",
-        bridge: "poa",
+        deployments: [
+          {
+            chainName: "eth",
+            bridge: "poa",
+            decimals: 18,
+            address: "0x123",
+          },
+        ],
       },
     ]
 
@@ -1095,23 +1305,35 @@ describe("getTokenAccountIds", () => {
     const tokens: BaseTokenInfo[] = [
       {
         defuseAssetId: "nep141:token3",
-        address: "0x456",
         symbol: "TKN2",
         name: "Token2",
         decimals: 18,
         icon: "icon2.png",
         chainName: "base",
-        bridge: "direct",
+        deployments: [
+          {
+            chainName: "base",
+            bridge: "direct",
+            decimals: 18,
+            address: "0x456",
+          },
+        ],
       },
       {
         defuseAssetId: "nep141:token4",
-        address: "0x456",
         symbol: "TKN2",
         name: "Token2",
         decimals: 18,
         icon: "icon2.png",
         chainName: "base",
-        bridge: "aurora_engine",
+        deployments: [
+          {
+            chainName: "base",
+            bridge: "aurora_engine",
+            decimals: 18,
+            address: "0x456",
+          },
+        ],
       },
     ]
 
@@ -1124,23 +1346,35 @@ describe("getTokenAccountIds", () => {
     const tokens: BaseTokenInfo[] = [
       {
         defuseAssetId: "token5",
-        address: "0x456",
         symbol: "TKN2",
         name: "Token2",
         decimals: 18,
         icon: "icon2.png",
         chainName: "base",
-        bridge: "direct",
+        deployments: [
+          {
+            chainName: "base",
+            bridge: "direct",
+            decimals: 18,
+            address: "0x456",
+          },
+        ],
       },
       {
         defuseAssetId: "token6",
-        address: "0x456",
         symbol: "TKN2",
         name: "Token2",
         decimals: 18,
         icon: "icon2.png",
         chainName: "base",
-        bridge: "aurora_engine",
+        deployments: [
+          {
+            chainName: "base",
+            bridge: "aurora_engine",
+            decimals: 18,
+            address: "0x456",
+          },
+        ],
       },
     ]
 
@@ -1151,23 +1385,35 @@ describe("getTokenAccountIds", () => {
     const tokens: BaseTokenInfo[] = [
       {
         defuseAssetId: "nep141:token7",
-        address: "0x456",
         symbol: "TKN2",
         name: "Token2",
         decimals: 18,
         icon: "icon2.png",
         chainName: "base",
-        bridge: "direct",
+        deployments: [
+          {
+            chainName: "base",
+            bridge: "direct",
+            decimals: 18,
+            address: "0x456",
+          },
+        ],
       },
       {
         defuseAssetId: "token8",
-        address: "0x456",
         symbol: "TKN2",
         name: "Token2",
         decimals: 18,
         icon: "icon2.png",
         chainName: "base",
-        bridge: "aurora_engine",
+        deployments: [
+          {
+            chainName: "base",
+            bridge: "aurora_engine",
+            decimals: 18,
+            address: "0x456",
+          },
+        ],
       },
     ]
 

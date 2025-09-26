@@ -11,49 +11,73 @@ const tokenList: TokenInfo[] = [
     groupedTokens: [
       {
         defuseAssetId: "nep141:token.publicailab.near",
-        address: "token.publicailab.near",
         decimals: 18,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/37728.png",
         chainName: "near",
-        bridge: "direct",
         symbol: "PUBLIC",
         name: "PublicAI",
+        deployments: [
+          {
+            chainName: "near",
+            bridge: "direct",
+            decimals: 18,
+            address: "token.publicailab.near",
+          },
+        ],
       },
       {
         defuseAssetId:
           "nep141:sol-1f00bb36e75cfc8e1274c1507cc3054f5b3f3ce1.omft.near",
-        address: "AXCp86262ZPfpcV9bmtmtnzmJSL5sD99mCVJD4GR9vS",
         decimals: 9,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/37728.png",
         chainName: "solana",
-        bridge: "poa",
         symbol: "PUBLIC",
         name: "PublicAI",
+        deployments: [
+          {
+            chainName: "solana",
+            bridge: "poa",
+            decimals: 9,
+            address: "AXCp86262ZPfpcV9bmtmtnzmJSL5sD99mCVJD4GR9vS",
+          },
+        ],
       },
     ],
     tags: ["aid:public"],
   },
   {
     defuseAssetId: "nep141:aptos.omft.near",
-    type: "native",
     decimals: 8,
     icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/21794.png",
     chainName: "aptos",
-    bridge: "poa",
     symbol: "APT",
     name: "Aptos",
     tags: ["mc:34"],
+    deployments: [
+      {
+        chainName: "aptos",
+        bridge: "poa",
+        decimals: 8,
+        type: "native",
+      },
+    ],
   },
   {
     defuseAssetId: "nep141:token.publicailab.near",
-    address: "0x1f00bb36e75cfc8e1274c1507cc3054f5b3f3ce1",
     decimals: 18,
     icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/37728.png",
     chainName: "bsc",
-    bridge: "near_omni",
     symbol: "PUBLIC",
     name: "PublicAI",
     tags: ["aid:public"],
+    deployments: [
+      {
+        chainName: "bsc",
+        bridge: "near_omni",
+        decimals: 18,
+        address: "0x1f00bb36e75cfc8e1274c1507cc3054f5b3f3ce1",
+      },
+    ],
   },
 ]
 
@@ -64,10 +88,10 @@ describe("extractTokenFamilyList()", () => {
     expect(familyList).toEqual([
       {
         aid: "public",
-        deployments: [
-          ["near", "token.publicailab.near"],
-          ["solana", "AXCp86262ZPfpcV9bmtmtnzmJSL5sD99mCVJD4GR9vS"],
-          ["bsc", "0x1f00bb36e75cfc8e1274c1507cc3054f5b3f3ce1"],
+        tokenIds: [
+          "nep141:token.publicailab.near",
+          "nep141:sol-1f00bb36e75cfc8e1274c1507cc3054f5b3f3ce1.omft.near",
+          "nep141:token.publicailab.near",
         ],
       },
     ])
@@ -82,10 +106,10 @@ describe("resolveTokenFamily()", () => {
     const family = resolveTokenFamily(familyList, token)
     expect(family).toEqual({
       aid: "public",
-      deployments: [
-        ["near", "token.publicailab.near"],
-        ["solana", "AXCp86262ZPfpcV9bmtmtnzmJSL5sD99mCVJD4GR9vS"],
-        ["bsc", "0x1f00bb36e75cfc8e1274c1507cc3054f5b3f3ce1"],
+      tokenIds: [
+        "nep141:token.publicailab.near",
+        "nep141:sol-1f00bb36e75cfc8e1274c1507cc3054f5b3f3ce1.omft.near",
+        "nep141:token.publicailab.near",
       ],
     })
   })

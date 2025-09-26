@@ -75,13 +75,14 @@ describe("cleanUpDuplicateTokens", () => {
     overrides: Partial<BaseTokenInfo> = {}
   ): BaseTokenInfo => ({
     chainName: "eth",
-    address: "address",
     symbol: "symbol",
     name: "name",
     decimals: 6,
     icon: "icon",
-    bridge: "poa",
     defuseAssetId: "ETH",
+    deployments: [
+      { chainName: "eth", address: "address", decimals: 6, bridge: "poa" },
+    ],
     ...overrides,
   })
 
@@ -150,10 +151,11 @@ describe("prepareAddressToUserBalance", () => {
     decimals,
     symbol: defuseAssetId,
     name: `${defuseAssetId} Token`,
-    address: "0x0",
     icon: "",
     chainName: "eth",
-    bridge: "direct",
+    deployments: [
+      { chainName: "eth", bridge: "direct", address: "0x0", decimals },
+    ],
   })
 
   it("returns correct mapping for tokens with matching balances", () => {
@@ -305,13 +307,14 @@ describe.skip("mapDepositBalancesToDecimals", () => {
   const mockedIsBaseToken = tokenUtils.isBaseToken as unknown as Mock
   const baseToken: BaseTokenInfo = {
     defuseAssetId: "defuseAssetId",
-    address: "address",
     symbol: "symbol",
     name: "name",
     decimals: 6,
     icon: "icon",
     chainName: "eth",
-    bridge: "poa",
+    deployments: [
+      { chainName: "eth", bridge: "poa", decimals: 6, address: "address" },
+    ],
   }
 
   const unifiedToken = {
@@ -394,23 +397,35 @@ describe("getBlockchainSelectItems()", () => {
         groupedTokens: [
           {
             defuseAssetId: "nep141:xrp.omft.near",
-            type: "native",
             decimals: 6,
             icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/52.png",
             chainName: "xrpledger",
-            bridge: "poa",
             symbol: "XRP",
             name: "XRP",
+            deployments: [
+              {
+                chainName: "xrpledger",
+                bridge: "poa",
+                decimals: 6,
+                type: "native",
+              },
+            ],
           },
           {
             defuseAssetId: "nep141:xrp.omft.near",
-            address: "xrp.omft.near",
             decimals: 6,
             icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/52.png",
             chainName: "near",
-            bridge: "direct",
             symbol: "XRP",
             name: "XRP",
+            deployments: [
+              {
+                chainName: "near",
+                bridge: "direct",
+                decimals: 6,
+                address: "xrp.omft.near",
+              },
+            ],
           },
         ],
         tags: ["aid:xrp"],
@@ -425,14 +440,20 @@ describe("getBlockchainSelectItems()", () => {
     const result = getBlockchainSelectItems(
       {
         defuseAssetId: "nep141:xrp.omft.near",
-        type: "native",
         decimals: 6,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/52.png",
         chainName: "xrpledger",
-        bridge: "poa",
         symbol: "XRP",
         name: "XRP",
         tags: [], // no aid tag
+        deployments: [
+          {
+            chainName: "xrpledger",
+            bridge: "poa",
+            decimals: 6,
+            type: "native",
+          },
+        ],
       },
       {}
     )
@@ -444,14 +465,20 @@ describe("getBlockchainSelectItems()", () => {
     const result = getBlockchainSelectItems(
       {
         defuseAssetId: "nep141:xrp.omft.near",
-        type: "native",
         decimals: 6,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/52.png",
         chainName: "xrpledger",
-        bridge: "poa",
         symbol: "XRP",
         name: "XRP",
         tags: ["aid:xrp"],
+        deployments: [
+          {
+            chainName: "xrpledger",
+            bridge: "poa",
+            decimals: 6,
+            type: "native",
+          },
+        ],
       },
       {
         "nep141:xrp.omft.near": { amount: 100n, decimals: 6 },
@@ -470,14 +497,20 @@ describe("getBlockchainSelectItems()", () => {
     const result = getBlockchainSelectItems(
       {
         defuseAssetId: "nep141:xrp.omft.near",
-        type: "native",
         decimals: 6,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/52.png",
         chainName: "xrpledger",
-        bridge: "poa",
         symbol: "XRP",
         name: "XRP",
         tags: [], // no aid
+        deployments: [
+          {
+            chainName: "xrpledger",
+            bridge: "poa",
+            decimals: 6,
+            type: "native",
+          },
+        ],
       },
       {
         "nep141:xrp.omft.near": { amount: 100n, decimals: 6 },

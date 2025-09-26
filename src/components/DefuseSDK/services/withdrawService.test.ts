@@ -5,24 +5,36 @@ import { getRequiredSwapAmount } from "./withdrawService"
 
 const usdcSolana: BaseTokenInfo = {
   defuseAssetId: "usdc-solana",
-  address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
   symbol: "USDC",
   name: "USD Coin",
   decimals: 6,
   icon: "usdc.svg",
   chainName: "solana",
-  bridge: "poa",
+  deployments: [
+    {
+      chainName: "solana",
+      bridge: "poa",
+      decimals: 6,
+      address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    },
+  ],
 }
 
 const usdcNear: BaseTokenInfo = {
   defuseAssetId: "usdc-near",
-  address: "usdc.near",
   symbol: "USDC",
   name: "USD Coin",
   decimals: 6,
   icon: "usdc.svg",
   chainName: "near",
-  bridge: "direct",
+  deployments: [
+    {
+      chainName: "near",
+      bridge: "direct",
+      decimals: 6,
+      address: "usdc.near",
+    },
+  ],
 }
 
 const unifiedUsdc: UnifiedTokenInfo = {
@@ -35,24 +47,36 @@ const unifiedUsdc: UnifiedTokenInfo = {
 
 const turboSolana: BaseTokenInfo = {
   defuseAssetId: "turbo-solana",
-  address: "turboXYZ123",
   symbol: "TURBO",
   name: "Turbo Token",
   decimals: 8,
   icon: "turbo.svg",
   chainName: "solana",
-  bridge: "poa",
+  deployments: [
+    {
+      chainName: "solana",
+      bridge: "poa",
+      decimals: 8,
+      address: "turboXYZ123",
+    },
+  ],
 }
 
 const turboEth: BaseTokenInfo = {
   defuseAssetId: "turbo-eth",
-  address: "0xturbo456",
   symbol: "TURBO",
   name: "Turbo Token",
   decimals: 18,
   icon: "turbo.svg",
   chainName: "eth",
-  bridge: "poa",
+  deployments: [
+    {
+      chainName: "eth",
+      bridge: "poa",
+      decimals: 18,
+      address: "0xturbo456",
+    },
+  ],
 }
 
 const unifiedTurbo: UnifiedTokenInfo = {

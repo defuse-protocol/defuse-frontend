@@ -15,13 +15,19 @@ vi.mock("@defuse-protocol/internal-utils", async (importOriginal) => ({
 
 const tokenInfo: BaseTokenInfo = {
   defuseAssetId: "",
-  address: "",
   symbol: "",
   name: "",
   decimals: 0,
   icon: "",
   chainName: "eth",
-  bridge: "poa",
+  deployments: [
+    {
+      chainName: "eth",
+      bridge: "poa",
+      decimals: 0,
+      address: "",
+    },
+  ],
 }
 
 const token1 = {
