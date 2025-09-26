@@ -5,6 +5,7 @@ import {
 import {
   eachBaseTokenInfo,
   getAnyBaseTokenInfo,
+  getUnderlyingBaseTokenInfos,
 } from "@src/components/DefuseSDK/utils/tokenUtils"
 import { LIST_TOKENS_FLATTEN, tokenFamilies } from "@src/constants/tokens"
 import { type ActorRef, type Snapshot, fromTransition } from "xstate"
@@ -372,10 +373,13 @@ export function resolveTokenOut(
   }
 
   const tf = resolveTokenFamily(tokenFamilies, tokenIn)
-  assert(tf != null, "Token family not found")
+
+  const relatedTokenIds =
+    tf?.tokenIds ??
+    getUnderlyingBaseTokenInfos(tokenIn).map((t) => t.defuseAssetId)
 
   for (const token of eachBaseTokenInfo(tokenList)) {
-    if (!tf.tokenIds.includes(token.defuseAssetId)) {
+    if (!relatedTokenIds.includes(token.defuseAssetId)) {
       continue
     }
 
