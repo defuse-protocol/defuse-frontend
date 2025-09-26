@@ -1,5 +1,4 @@
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
-import { eachBaseTokenInfo } from "@src/components/DefuseSDK/features/machines/withdrawFormReducer"
 import type { BalanceMapping } from "../features/machines/depositedBalanceMachine"
 import type {
   BaseTokenInfo,
@@ -183,7 +182,7 @@ export function getDerivedToken(
     return null
   }
 
-  for (const token of eachBaseTokenInfo([tokenIn])) {
+  for (const token of getUnderlyingBaseTokenInfos(tokenIn)) {
     if (token.deployments.some((depl) => depl.chainName === chainName)) {
       return token
     }
