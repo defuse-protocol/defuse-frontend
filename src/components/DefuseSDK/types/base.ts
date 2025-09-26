@@ -41,7 +41,29 @@ export type SupportedBridge =
   | "hot_omni"
   | "near_omni"
 
-export interface FungibleTokenInfo {
+export type FT = FungibleTokenInfo | NativeTokenInfo
+
+export interface BaseTokenInfo {
+  defuseAssetId: string
+  symbol: string
+  name: string
+  decimals: number
+  icon: string
+  /**
+   * Origin of the token. Most tokens are bridged from other chains.
+   * But some are canonical to NEAR, like wNEAR or usdt.tether-token.near.
+   * It's mostly used for showing a chain icon for the token.
+   * @deprecated
+   */
+  chainName: SupportedChainName
+  deployments: [FT, ...FT[]]
+  tags?: string[]
+}
+
+/**
+ * @deprecated
+ */
+export interface FungibleTokenInfo_old {
   defuseAssetId: string
   address: string
   symbol: string
@@ -53,7 +75,18 @@ export interface FungibleTokenInfo {
   tags?: string[]
 }
 
-export interface NativeTokenInfo {
+export interface FungibleTokenInfo {
+  address: string
+  decimals: number
+  chainName: SupportedChainName
+  stellarCode?: string
+  bridge: SupportedBridge
+}
+
+/**
+ * @deprecated
+ */
+export interface NativeTokenInfo_old {
   defuseAssetId: string
   type: "native"
   symbol: string
@@ -65,7 +98,17 @@ export interface NativeTokenInfo {
   tags?: string[]
 }
 
-export type BaseTokenInfo = FungibleTokenInfo | NativeTokenInfo
+export interface NativeTokenInfo {
+  type: "native"
+  decimals: number
+  chainName: SupportedChainName
+  bridge: SupportedBridge
+}
+
+/**
+ * @deprecated
+ */
+export type BaseTokenInfo_old = FungibleTokenInfo_old | NativeTokenInfo_old
 
 /**
  * A virtual aggregation of the same token across multiple blockchains.
@@ -84,6 +127,13 @@ export interface UnifiedTokenInfo {
   tags?: string[]
 }
 
+/**
+ * @deprecated
+ */
+export type UnifiedTokenInfo_old = Omit<UnifiedTokenInfo, "groupedTokens"> & {
+  groupedTokens: BaseTokenInfo_old[]
+}
+
 export type TokenInfo = BaseTokenInfo | UnifiedTokenInfo
 
 export interface TokenValue {
@@ -100,17 +150,9 @@ export interface TokenValue {
 export type TokenAbstractId = string
 
 /**
- * DID (Deployment Identifier Datum) represents a single token deployment on a specific chain.
- * Example:
- *   - ["near", "native"] - $NEAR on Near
- *   - ["eth", "0xdAC17F958D2ee523a2206206994597C13D831ec7"] - $USDT on Ethereum
- */
-export type TokenDeploymentId = [SupportedChainName, string | "native"]
-
-/**
  * Represents a group of tokens that share the same AID.
  */
 export interface TokenFamily {
   aid: TokenAbstractId
-  deployments: TokenDeploymentId[]
+  tokenIds: BaseTokenInfo["defuseAssetId"][]
 }
