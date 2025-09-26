@@ -64,7 +64,7 @@ describe("createEmptyIntentMessage()", () => {
   })
 })
 
-describe("createEmptyIntentMessage()", () => {
+describe("createWalletVerificationMessage()", () => {
   it("creates long message that exceeds the 256 symbols threshold", () => {
     const THRESHOLD = 226
     const message = createWalletVerificationMessage(
