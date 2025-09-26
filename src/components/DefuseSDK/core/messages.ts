@@ -79,6 +79,36 @@ export function createEmptyIntentMessage(
   })
 }
 
+export function createWalletVerificationMessage(
+  options: IntentMessageConfig,
+  chainType?: string
+): walletMessage.WalletMessage {
+  const baseMessage = messageFactory.makeEmptyMessage({
+    signerId: resolveSignerId(options.signerId),
+    deadlineTimestamp: options.deadlineTimestamp ?? minutesFromNow(5),
+    nonce: options.nonce,
+  })
+
+  // For Tron wallets, we need to add a field to ensure message size compatibility
+  // with Tron Ledger app requirements (>225 bytes to avoid signing bugs)
+  if (chainType === "tron") {
+    const tronMessage = JSON.parse(baseMessage.TRON.message)
+    const extendedMessage = {
+      ...tronMessage,
+      message_size_validation:
+        "Validates message size compatibility with wallet signing requirements.",
+    }
+    return {
+      ...baseMessage,
+      TRON: {
+        ...baseMessage.TRON,
+        message: JSON.stringify(extendedMessage, null, 2),
+      },
+    }
+  }
+  return baseMessage
+}
+
 function minutesFromNow(minutes: number): number {
   return Date.now() + minutes * 60 * 1000
 }
