@@ -4,10 +4,10 @@ import { useSearchParams } from "next/navigation"
 import { useMemo } from "react"
 import { useIs1CsEnabled } from "./useIs1CsEnabled"
 
-export function useFlatTokenList(tokenList: TokenInfo[]) {
+export function useFlatTokenList(tokenList: TokenInfo[], supports1cs = false) {
   const searchParams = useSearchParams()
   const flatListIsEnabled = !!searchParams.get("flatTokenList")
-  const is1cs = useIs1CsEnabled()
+  const is1cs = useIs1CsEnabled() && supports1cs
 
   return useMemo(() => {
     if (flatListIsEnabled || is1cs) {

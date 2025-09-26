@@ -39,11 +39,11 @@ const pairs: Record<WhitelabelTemplateValue, [string, string]> = {
   ],
 }
 
-export function useDeterminePair() {
+export function useDeterminePair(supports1cs = false) {
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
   const searchParams = useSearchParams()
-  const processedTokenList = useTokenList(LIST_TOKENS)
-  const is1cs = useIs1CsEnabled()
+  const processedTokenList = useTokenList(LIST_TOKENS, supports1cs)
+  const is1cs = useIs1CsEnabled() && supports1cs
 
   const fromParam = searchParams.get("from")
   const toParam = searchParams.get("to")
