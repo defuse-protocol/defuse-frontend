@@ -4,12 +4,11 @@ import { Text } from "@radix-ui/themes"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import {
-  useCallback,
-  useDeferredValue,
-  useEffect,
-  useMemo,
-  useState,
-} from "react"
+  type SearchableItem,
+  createSearchData,
+  performSearch,
+} from "@src/utils/smartSearch"
+import { useDeferredValue, useEffect, useMemo, useState } from "react"
 import { useWatchHoldings } from "../../features/account/hooks/useWatchHoldings"
 import type { BalanceMapping } from "../../features/machines/depositedBalanceMachine"
 import { useModalStore } from "../../providers/ModalStoreProvider"
@@ -42,7 +41,7 @@ export type ModalSelectAssetsPayload = {
   isMostTradableTokensEnabled?: boolean
 }
 
-export type SelectItemToken<T = TokenInfo> = {
+export type SelectItemToken<T = TokenInfo> = SearchableItem & {
   token: T
   disabled: boolean
   selected: boolean
@@ -73,18 +72,6 @@ export function ModalSelectAssets() {
   const holdings = useWatchHoldings({ userId, tokenList: tokens })
 
   const handleSearchClear = () => setSearchValue("")
-
-  const filterPattern = useCallback(
-    (asset: SelectItemToken) => {
-      const formattedQuery = deferredQuery.toLocaleUpperCase()
-
-      return (
-        asset.token.symbol.toLocaleUpperCase().includes(formattedQuery) ||
-        asset.token.name.toLocaleUpperCase().includes(formattedQuery)
-      )
-    },
-    [deferredQuery]
-  )
 
   const handleSelectToken = (selectedItem: SelectItemToken) => {
     if (modalType !== ModalType.MODAL_SELECT_ASSETS) {
@@ -143,6 +130,7 @@ export function ModalSelectAssets() {
         usdValue: findHolding?.usdValue,
         value: findHolding?.value ?? balance,
         isHoldingsEnabled,
+        searchData: createSearchData(token), // Preprocess search data for performance
       })
     }
     setNotFilteredAssetList(getAssetList)
@@ -178,10 +166,9 @@ export function ModalSelectAssets() {
     setAssetList(getAssetList)
   }, [tokens, modalPayload, holdings])
 
-  const filteredAssets = useMemo(
-    () => assetList.filter(filterPattern),
-    [assetList, filterPattern]
-  )
+  const filteredAssets = useMemo(() => {
+    return performSearch(assetList, deferredQuery)
+  }, [assetList, deferredQuery])
 
   const is1cs = useIs1CsEnabled()
 
