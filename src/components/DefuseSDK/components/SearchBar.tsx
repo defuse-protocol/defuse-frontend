@@ -1,4 +1,4 @@
-import { XCircle } from "@phosphor-icons/react"
+import { XCircleIcon } from "@phosphor-icons/react"
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons"
 
 type Props = {
@@ -10,7 +10,7 @@ type Props = {
 export const SearchBar = ({
   query,
   setQuery,
-  placeholder = "Search name or paste address",
+  placeholder = "Search coin",
 }: Props) => {
   return (
     <div className="flex justify-between items-center gap-2.5 py-2.5 px-4 bg-gray-3 rounded-lg">
@@ -25,7 +25,7 @@ export const SearchBar = ({
       />
       {query.length > 0 && (
         <button type="button" className="p-1" onClick={() => setQuery("")}>
-          <XCircle width={16} height={16} weight="fill" />
+          <XCircleIcon width={16} height={16} weight="fill" />
         </button>
       )}
     </div>
