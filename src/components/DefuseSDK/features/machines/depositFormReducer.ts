@@ -1,12 +1,13 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
+import { resolveTokenOut } from "@src/components/DefuseSDK/features/machines/withdrawFormReducer"
 import { reverseAssetNetworkAdapter } from "@src/components/DefuseSDK/utils/adapters"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { parseUnits } from "@src/components/DefuseSDK/utils/parse"
-import { getDerivedToken } from "@src/components/DefuseSDK/utils/tokenUtils"
+import { LIST_TOKENS_FLATTEN, tokenFamilies } from "@src/constants/tokens"
 import { type ActorRef, type Snapshot, fromTransition } from "xstate"
-import type { BaseTokenInfo, SupportedChainName } from "../../types/base"
+import type { BaseTokenInfo, FT, SupportedChainName } from "../../types/base"
 import type { TokenInfo } from "../../types/base"
-import { isBaseToken, isUnifiedToken } from "../../utils"
+import { isBaseToken } from "../../utils"
 
 export type Fields = Array<Exclude<keyof State, "parentRef">>
 const fields: Fields = ["token", "blockchain", "parsedAmount", "amount"]
@@ -41,6 +42,7 @@ export type State = {
   parentRef: ParentActor
   token: TokenInfo | null
   derivedToken: BaseTokenInfo | null
+  tokenDeployment: FT | null
   blockchain: SupportedChainName | null
   parsedAmount: bigint | null
   amount: string
@@ -56,6 +58,7 @@ export const depositFormReducer = fromTransition(
           ...state,
           token: event.params.token,
           derivedToken: null,
+          tokenDeployment: null,
           blockchain: null,
           parsedAmount: null,
           amount: "",
@@ -68,26 +71,37 @@ export const depositFormReducer = fromTransition(
             ...state,
             blockchain: null,
             derivedToken: null,
+            tokenDeployment: null,
             parsedAmount: null,
             amount: "",
           }
           break
         }
         const blockchain = reverseAssetNetworkAdapter[event.params.network]
-        const derivedToken = getDerivedToken(state.token, blockchain)
+
+        // const derivedToken = getDerivedToken(state.token, blockchain)
+
+        const [derivedToken, tokenDeployment] = resolveTokenOut(
+          blockchain,
+          state.token,
+          tokenFamilies,
+          LIST_TOKENS_FLATTEN
+        )
+
         // This isn't possible assertion, if this happens then we need to check the token list
         assert(derivedToken != null, "Token not found")
         newState = {
           ...state,
           blockchain,
           derivedToken,
+          tokenDeployment,
           parsedAmount: null,
           amount: "",
         }
         break
       }
       case "DEPOSIT_FORM.UPDATE_AMOUNT": {
-        const token = state.derivedToken
+        const token = state.tokenDeployment
         // Use catch to prevent invalid amount as not numberish string from stopping the deposit UI machine
         try {
           assert(token != null, "Token not found")
@@ -135,19 +149,21 @@ export const depositFormReducer = fromTransition(
   }: {
     input: { parentRef: ParentActor; token: TokenInfo }
   }): State => {
-    let blockchain = null
-    if (!isUnifiedToken(input.token)) {
-      blockchain = isBaseToken(input.token) ? input.token.chainName : null
+    let blockchain: SupportedChainName | null = null
+    let tokenDeployment: FT | null = null
+    let derivedToken: BaseTokenInfo | null = null
+
+    if (isBaseToken(input.token)) {
+      derivedToken = input.token
+      tokenDeployment = input.token.deployments[0]
+      blockchain = tokenDeployment.chainName
     }
-    const derivedToken =
-      input.token && blockchain
-        ? getDerivedToken(input.token, blockchain)
-        : null
 
     return {
       parentRef: input.parentRef,
       token: input.token,
       derivedToken,
+      tokenDeployment,
       blockchain,
       parsedAmount: null,
       amount: "",

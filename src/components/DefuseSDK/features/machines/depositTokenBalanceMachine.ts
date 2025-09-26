@@ -22,7 +22,7 @@ import {
   getTronTrc20Balance,
 } from "../../services/blockchainBalanceService"
 import { getWalletRpcUrl } from "../../services/depositService"
-import type { BaseTokenInfo, SupportedChainName } from "../../types/base"
+import type { FT, SupportedChainName } from "../../types/base"
 import { assetNetworkAdapter } from "../../utils/adapters"
 import { assert } from "../../utils/assert"
 import { isFungibleToken, isNativeToken } from "../../utils/token"
@@ -30,10 +30,10 @@ import { validateAddress } from "../../utils/validateAddress"
 
 export const backgroundBalanceActor = fromPromise(
   async ({
-    input: { derivedToken, userWalletAddress, blockchain },
+    input: { tokenDeployment, userWalletAddress, blockchain },
   }: {
     input: {
-      derivedToken: BaseTokenInfo
+      tokenDeployment: FT
       userWalletAddress: string | null
       blockchain: SupportedChainName
     }
@@ -59,8 +59,8 @@ export const backgroundBalanceActor = fromPromise(
     const networkToSolverFormat = assetNetworkAdapter[blockchain]
     switch (networkToSolverFormat) {
       case BlockchainEnum.NEAR: {
-        const address = isFungibleToken(derivedToken)
-          ? derivedToken.address
+        const address = isFungibleToken(tokenDeployment)
+          ? tokenDeployment.address
           : null
         assert(address != null, "Address is not defined")
 
@@ -107,7 +107,7 @@ export const backgroundBalanceActor = fromPromise(
       case BlockchainEnum.BSC:
       case BlockchainEnum.OPTIMISM:
       case BlockchainEnum.AVALANCHE: {
-        if (isNativeToken(derivedToken)) {
+        if (isNativeToken(tokenDeployment)) {
           const balance = await getEvmNativeBalance({
             userAddress: userWalletAddress as Address,
             rpcUrl: getWalletRpcUrl(networkToSolverFormat),
@@ -119,7 +119,7 @@ export const backgroundBalanceActor = fromPromise(
           break
         }
         const balance = await getEvmErc20Balance({
-          tokenAddress: derivedToken.address as Address,
+          tokenAddress: tokenDeployment.address as Address,
           userAddress: userWalletAddress as Address,
           rpcUrl: getWalletRpcUrl(networkToSolverFormat),
         })
@@ -130,7 +130,7 @@ export const backgroundBalanceActor = fromPromise(
         break
       }
       case BlockchainEnum.SOLANA: {
-        if (isNativeToken(derivedToken)) {
+        if (isNativeToken(tokenDeployment)) {
           const balance = await getSolanaNativeBalance({
             userAddress: userWalletAddress,
             rpcUrl: getWalletRpcUrl(networkToSolverFormat),
@@ -144,7 +144,7 @@ export const backgroundBalanceActor = fromPromise(
 
         const balance = await getSolanaSplBalance({
           userAddress: userWalletAddress,
-          tokenAddress: derivedToken.address,
+          tokenAddress: tokenDeployment.address,
           rpcUrl: getWalletRpcUrl(networkToSolverFormat),
         })
         if (balance === null) {
@@ -154,7 +154,7 @@ export const backgroundBalanceActor = fromPromise(
         break
       }
       case BlockchainEnum.TON: {
-        if (isNativeToken(derivedToken)) {
+        if (isNativeToken(tokenDeployment)) {
           const balance = await getTonNativeBalance({
             userAddress: userWalletAddress,
             rpcUrl: getWalletRpcUrl(networkToSolverFormat),
@@ -169,7 +169,7 @@ export const backgroundBalanceActor = fromPromise(
         const isJettonWalletCreationRequired =
           await checkTonJettonWalletRequired(
             createTonClient(settings.rpcUrls.ton),
-            derivedToken,
+            tokenDeployment,
             userWalletAddress
           )
         if (isJettonWalletCreationRequired) {
@@ -178,7 +178,7 @@ export const backgroundBalanceActor = fromPromise(
         }
 
         const balance = await getTonJettonBalance({
-          tokenAddress: derivedToken.address,
+          tokenAddress: tokenDeployment.address,
           userAddress: userWalletAddress,
           rpcUrl: getWalletRpcUrl(networkToSolverFormat),
         })
@@ -190,10 +190,10 @@ export const backgroundBalanceActor = fromPromise(
       }
       case BlockchainEnum.STELLAR: {
         const balance = await getStellarBalance({
-          tokenAddress: !isNativeToken(derivedToken)
-            ? derivedToken.address
+          tokenAddress: !isNativeToken(tokenDeployment)
+            ? tokenDeployment.address
             : null,
-          tokenDecimals: derivedToken.decimals,
+          tokenDecimals: tokenDeployment.decimals,
           userAddress: userWalletAddress,
           rpcUrl: getWalletRpcUrl(networkToSolverFormat),
         })
@@ -204,7 +204,7 @@ export const backgroundBalanceActor = fromPromise(
         break
       }
       case BlockchainEnum.TRON: {
-        if (isNativeToken(derivedToken)) {
+        if (isNativeToken(tokenDeployment)) {
           const balance = await getTronNativeBalance({
             userAddress: userWalletAddress,
             rpcUrl: getWalletRpcUrl(networkToSolverFormat),
@@ -216,7 +216,7 @@ export const backgroundBalanceActor = fromPromise(
           break
         }
         const balance = await getTronTrc20Balance({
-          tokenAddress: derivedToken.address,
+          tokenAddress: tokenDeployment.address,
           userAddress: userWalletAddress,
           rpcUrl: getWalletRpcUrl(networkToSolverFormat),
         })
@@ -250,7 +250,7 @@ function normalizeToNearAddress(address: string): string {
 
 export interface Context {
   lastBalanceRequestParams: null | {
-    derivedToken: BaseTokenInfo
+    tokenDeployment: FT
     userAddress: string
     userWalletAddress: string | null
     blockchain: SupportedChainName
@@ -276,7 +276,7 @@ export const depositTokenBalanceMachine = setup({
     events: {} as {
       type: "REQUEST_BALANCE_REFRESH"
       params: {
-        derivedToken: BaseTokenInfo
+        tokenDeployment: FT
         userAddress: string
         userWalletAddress: string | null
         blockchain: SupportedChainName
@@ -293,7 +293,7 @@ export const depositTokenBalanceMachine = setup({
     setLastBalanceRequestParams: assign({
       lastBalanceRequestParams: ({ event }) => {
         return {
-          derivedToken: event.params.derivedToken,
+          tokenDeployment: event.params.tokenDeployment,
           userAddress: event.params.userAddress,
           userWalletAddress: event.params.userWalletAddress,
           blockchain: event.params.blockchain,
@@ -321,7 +321,7 @@ export const depositTokenBalanceMachine = setup({
         src: "fetchBalanceActor",
 
         input: ({ event }) => ({
-          derivedToken: event.params.derivedToken,
+          tokenDeployment: event.params.tokenDeployment,
           userWalletAddress: event.params.userWalletAddress,
           blockchain: event.params.blockchain,
         }),

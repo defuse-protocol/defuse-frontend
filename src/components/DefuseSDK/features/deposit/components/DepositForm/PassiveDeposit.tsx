@@ -4,7 +4,7 @@ import { Button, Spinner } from "@radix-ui/themes"
 import { QRCodeSVG } from "qrcode.react"
 import { Copy } from "../../../../components/IntentCard/CopyButton"
 import { Separator } from "../../../../components/Separator"
-import type { BaseTokenInfo } from "../../../../types/base"
+import type { BaseTokenInfo, FT } from "../../../../types/base"
 import {
   renderDepositHint,
   renderMinDepositAmountHint,
@@ -15,6 +15,7 @@ export type PassiveDepositProps = {
   depositAddress: string | null
   minDepositAmount: bigint | null
   token: BaseTokenInfo
+  tokenDeployment: FT
   memo: string | null
 }
 
@@ -23,6 +24,7 @@ export function PassiveDeposit({
   depositAddress,
   minDepositAmount,
   token,
+  tokenDeployment,
   memo,
 }: PassiveDepositProps) {
   const truncatedAddress = truncateAddress(depositAddress ?? "")
@@ -81,7 +83,7 @@ export function PassiveDeposit({
 
       <div className="mb-4 px-3">
         {minDepositAmount != null &&
-          renderMinDepositAmountHint(minDepositAmount, token)}
+          renderMinDepositAmountHint(minDepositAmount, token, tokenDeployment)}
       </div>
 
       <div className="mb-4 flex items-center rounded-lg bg-gray-3 px-4 py-2">
@@ -127,7 +129,7 @@ export function PassiveDeposit({
           </Copy>
         </div>
       </div>
-      {renderDepositHint(network, token)}
+      {renderDepositHint(network, token, tokenDeployment)}
     </div>
   )
 }

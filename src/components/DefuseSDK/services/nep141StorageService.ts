@@ -4,7 +4,7 @@ import {
 } from "@defuse-protocol/internal-utils"
 import { nearClient } from "../constants/nearClient"
 import { logger } from "../logger"
-import type { BaseTokenInfo } from "../types/base"
+import type { FT } from "../types/base"
 import { isFungibleToken } from "../utils/token"
 
 export type Output =
@@ -27,7 +27,7 @@ export async function getNEP141StorageRequired({
   token,
   userAccountId,
 }: {
-  token: BaseTokenInfo
+  token: FT
   userAccountId: string
 }): Promise<Output> {
   if (!isFungibleToken(token) || token.chainName !== "near") {
