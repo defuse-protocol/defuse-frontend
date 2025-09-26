@@ -83,6 +83,8 @@ export type Context = {
   referral?: string
   slippageBasisPoints: number
   is1cs: boolean
+  swapStrategy: SwapStrategy
+  isDCA: boolean
   priceChangeDialog: null | {
     pendingNewAmountOut: { amount: bigint; decimals: number }
     previousAmountOut?: { amount: bigint; decimals: number }
@@ -111,6 +113,14 @@ type PassthroughEvent =
 
 type EmittedEvents = PassthroughEvent | { type: "INTENT_PUBLISHED" }
 
+export const SWAP_STRATEGIES = {
+  BEST: "Best",
+  DCA: "DCA (Dollar Cost Average)",
+} as const
+export const SWAP_STRATEGIES_ARRAY = Object.keys(SWAP_STRATEGIES) as Array<
+  keyof typeof SWAP_STRATEGIES
+>
+export type SwapStrategy = keyof typeof SWAP_STRATEGIES
 export const ONE_CLICK_PREFIX = "oneclick-"
 
 export const swapUIMachine = setup({
@@ -121,6 +131,8 @@ export const swapUIMachine = setup({
       tokenList: TokenInfo[]
       referral?: string
       is1cs: boolean
+      swapStrategy: SwapStrategy
+      isDCA: boolean
     },
     context: {} as Context,
     events: {} as
@@ -130,6 +142,9 @@ export const swapUIMachine = setup({
             tokenIn: TokenInfo
             tokenOut: TokenInfo
             amountIn: string
+            swapStrategy: SwapStrategy
+            slippageBasisPoints: number
+            isDCA: boolean
           }>
         }
       | {
@@ -218,6 +233,9 @@ export const swapUIMachine = setup({
         ...context.formValues,
         ...data,
       }),
+    }),
+    setSlippageBasisPoints: assign({
+      slippageBasisPoints: (_, value: number) => value,
     }),
     parseFormValues: assign({
       parsedFormValues: ({ context }) => {
@@ -358,6 +376,7 @@ export const swapUIMachine = setup({
             deadline: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
             userAddress: user.identifier,
             userChainType: user.method,
+            swapStrategy: context.swapStrategy,
           },
         }
       }
@@ -546,6 +565,8 @@ export const swapUIMachine = setup({
     referral: input.referral,
     slippageBasisPoints: 10_000, // 1%
     is1cs: input.is1cs,
+    swapStrategy: input.swapStrategy,
+    isDCA: input.isDCA,
     priceChangeDialog: null,
   }),
 
@@ -672,6 +693,11 @@ export const swapUIMachine = setup({
             {
               type: "setFormValues",
               params: ({ event }) => ({ data: event.params }),
+            },
+            {
+              type: "setSlippageBasisPoints",
+              params: ({ event, context }) =>
+                event.params.slippageBasisPoints ?? context.slippageBasisPoints,
             },
             "parseFormValues",
           ],
@@ -853,6 +879,7 @@ export const swapUIMachine = setup({
             userAddress: event.params.userAddress,
             userChainType: event.params.userChainType,
             nearClient: event.params.nearClient,
+            ...(context.isDCA ? { swapStrategy: context.swapStrategy } : {}),
             previousAmountOut:
               context.quote && context.quote.tag === "ok"
                 ? {

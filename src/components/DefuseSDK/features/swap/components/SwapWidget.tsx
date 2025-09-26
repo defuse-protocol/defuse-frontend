@@ -31,6 +31,7 @@ export const SwapWidget = ({
   initialTokenIn,
   initialTokenOut,
   referral,
+  isDCA,
 }: SwapWidgetProps) => {
   const is1cs = useIs1CsEnabled()
   return (
@@ -49,6 +50,7 @@ export const SwapWidget = ({
             tokenList={tokenList}
             signMessage={signMessage}
             referral={referral}
+            isDCA={isDCA}
           >
             {is1cs ? (
               <TokenListUpdaterSwap tokenList={tokenList} />
@@ -69,6 +71,7 @@ export const SwapWidget = ({
                 <SwapForm
                   isLoggedIn={userAddress != null}
                   renderHostAppLink={renderHostAppLink}
+                  isDCA={isDCA}
                 />
               </SwapSubmitterProvider>
             </SwapUIMachineFormSyncProvider>
