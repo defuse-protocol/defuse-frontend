@@ -15,17 +15,17 @@ export function fromOldBaseTokenInfoToNew(t: BaseTokenInfo_old): BaseTokenInfo {
     chainName: t.chainName,
     tags: t.tags,
     deployments: [
-      "address" in t
+      "type" in t
         ? {
-            // fungible token
-            address: t.address,
+            // native token
+            type: "native",
             decimals: t.decimals,
             chainName: t.chainName,
             bridge: t.bridge,
           }
         : {
-            // native token
-            type: "native",
+            // fungible token
+            address: t.address,
             decimals: t.decimals,
             chainName: t.chainName,
             bridge: t.bridge,
