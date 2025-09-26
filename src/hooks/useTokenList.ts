@@ -3,8 +3,8 @@ import { useFlatTokenList } from "@src/hooks/useFlatTokenList"
 import { useSearchParams } from "next/navigation"
 import { useMemo } from "react"
 
-export function useTokenList(tokenList: TokenInfo[]) {
-  const flatTokenList = useFlatTokenList(tokenList)
+export function useTokenList(tokenList: TokenInfo[], supports1cs = false) {
+  const flatTokenList = useFlatTokenList(tokenList, supports1cs)
   const searchParams = useSearchParams()
 
   const sortedList = useMemo(

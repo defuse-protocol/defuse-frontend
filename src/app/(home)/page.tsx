@@ -15,7 +15,7 @@ import { useNearWallet } from "@src/providers/NearWalletProvider"
 import { renderAppLink } from "@src/utils/renderAppLink"
 import { useQuery } from "@tanstack/react-query"
 import { useSearchParams } from "next/navigation"
-import { useMemo } from "react"
+import { useEffect, useMemo } from "react"
 
 export default function Swap() {
   const { state } = useConnectWallet()
@@ -25,9 +25,18 @@ export default function Swap() {
   const userAddress = state.isVerified ? state.address : undefined
   const userChainType = state.chainType
   const tokenList = useTokenList1cs()
-  const { tokenIn, tokenOut } = useDeterminePair()
+  const { tokenIn, tokenOut } = useDeterminePair(true)
   const referral = useIntentsReferral()
-  prefetchMostTradableTokens()
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      void prefetchMostTradableTokens()
+    }, 3000)
+
+    return () => {
+      clearTimeout(timer)
+    }
+  }, [])
 
   return (
     <Paper>
@@ -68,7 +77,7 @@ const TOKENS_WITHOUT_REF_AND_BRRR = LIST_TOKENS.filter(
 )
 
 function useTokenList1cs() {
-  const tokenList = useTokenList(TOKENS_WITHOUT_REF_AND_BRRR)
+  const tokenList = useTokenList(TOKENS_WITHOUT_REF_AND_BRRR, true)
 
   const { data: oneClickTokens, isLoading: is1csTokensLoading } = useQuery({
     queryKey: ["1cs-tokens"],
