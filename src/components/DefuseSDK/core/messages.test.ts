@@ -1,6 +1,7 @@
 import { authIdentity } from "@defuse-protocol/internal-utils"
 import { describe, expect, it } from "vitest"
 import {
+  createEmptyIntentMessage,
   createSwapIntentMessage,
   createTransferMessage,
   createWalletVerificationMessage,
@@ -38,9 +39,9 @@ describe("createSwapIntentMessage()", () => {
   })
 })
 
-describe("createWalletVerificationMessage()", () => {
+describe("createEmptyIntentMessage()", () => {
   it("creates a valid empty intent message", () => {
-    const message = createWalletVerificationMessage({
+    const message = createEmptyIntentMessage({
       signerId: TEST_USER,
       deadlineTimestamp: TEST_TIMESTAMP,
     })
@@ -53,7 +54,7 @@ describe("createWalletVerificationMessage()", () => {
   })
 
   it("uses default deadline when not provided", () => {
-    const message = createWalletVerificationMessage({
+    const message = createEmptyIntentMessage({
       signerId: TEST_USER,
     })
 
@@ -61,8 +62,10 @@ describe("createWalletVerificationMessage()", () => {
     expect(Date.parse(parsed.deadline)).toBeGreaterThan(Date.now())
     expect(parsed.intents).toEqual([])
   })
+})
 
-  it("creates long message that exceeds the 226 byte threshold", () => {
+describe("createEmptyIntentMessage()", () => {
+  it("creates long message that exceeds the 256 symbols threshold", () => {
     const THRESHOLD = 226
     const message = createWalletVerificationMessage(
       {
@@ -71,16 +74,12 @@ describe("createWalletVerificationMessage()", () => {
       },
       "tron"
     )
-
-    const tronMessageBytes = new TextEncoder().encode(
-      message.TRON.message
-    ).length
-    expect(tronMessageBytes).toBeGreaterThan(THRESHOLD)
+    expect(message.TRON.message.length).toBeGreaterThan(THRESHOLD)
 
     const tronMessage = JSON.parse(message.TRON.message)
     expect(tronMessage.message_size_validation).toBeDefined()
     expect(tronMessage.message_size_validation).toBe(
-      "Validates message size compatibility with wallet signing requirements. This field ensures the message exceeds the 226-byte threshold required for proper Tron app signing functionality."
+      "Validates message size compatibility with wallet signing requirements."
     )
   })
 })

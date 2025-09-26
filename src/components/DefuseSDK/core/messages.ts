@@ -65,11 +65,20 @@ export function createSwapIntentMessage(
 }
 
 /**
- * Creates a wallet verification message with chain-specific optimizations
+ * Creates an empty intent message that can be used for testing connections
  * @param options Message configuration options
- * @param chainType Optional chain type for chain-specific message formatting
- * @returns Intent message ready to be signed by a wallet for verification
+ * @returns Intent message ready to be signed by a wallet
  */
+export function createEmptyIntentMessage(
+  options: IntentMessageConfig
+): walletMessage.WalletMessage {
+  return messageFactory.makeEmptyMessage({
+    signerId: resolveSignerId(options.signerId),
+    deadlineTimestamp: options.deadlineTimestamp ?? minutesFromNow(5),
+    nonce: options.nonce,
+  })
+}
+
 export function createWalletVerificationMessage(
   options: IntentMessageConfig,
   chainType?: string
@@ -82,15 +91,13 @@ export function createWalletVerificationMessage(
 
   // For Tron wallets, we need to add a field to ensure message size compatibility
   // with Tron Ledger app requirements (>225 bytes to avoid signing bugs)
-  // @note: We can't use ChainType.Tron here because because of circular dependency
   if (chainType === "tron") {
     const tronMessage = JSON.parse(baseMessage.TRON.message)
     const extendedMessage = {
       ...tronMessage,
       message_size_validation:
-        "Validates message size compatibility with wallet signing requirements. This field ensures the message exceeds the 226-byte threshold required for proper Tron app signing functionality.",
+        "Validates message size compatibility with wallet signing requirements.",
     }
-
     return {
       ...baseMessage,
       TRON: {
@@ -99,7 +106,6 @@ export function createWalletVerificationMessage(
       },
     }
   }
-
   return baseMessage
 }
 

@@ -2,7 +2,7 @@ import type { MultiPayload } from "@defuse-protocol/contract-types"
 import { solverRelay } from "@defuse-protocol/internal-utils"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { base64 } from "@scure/base"
-import { createWalletVerificationMessage } from "@src/components/DefuseSDK/core/messages"
+import { createEmptyIntentMessage } from "@src/components/DefuseSDK/core/messages"
 import { assertEvent, assign, fromPromise, setup } from "xstate"
 import type { SignerCredentials } from "../../../core/formatters"
 import { logger } from "../../../logger"
@@ -159,7 +159,7 @@ export const otcMakerOrderCancellationActor = setup({
               assertEvent(event, "CONFIRM_CANCELLATION")
 
               return {
-                walletMessage: createWalletVerificationMessage({
+                walletMessage: createEmptyIntentMessage({
                   signerId: event.signerCredentials,
                   nonce: base64.decode(context.nonceBas64),
                 }),
