@@ -10,8 +10,8 @@ import { LIST_TOKENS_FLATTEN, tokenFamilies } from "@src/constants/tokens"
 import { type ActorRef, type Snapshot, fromTransition } from "xstate"
 import type {
   BaseTokenInfo,
-  FT,
   SupportedChainName,
+  TokenDeployment,
   TokenInfo,
   TokenValue,
 } from "../../types/base"
@@ -109,7 +109,7 @@ export type State = {
   parentRef: ParentActor
   tokenIn: TokenInfo
   tokenOut: BaseTokenInfo
-  tokenOutDeployment: FT
+  tokenOutDeployment: TokenDeployment
   amount: string
   parsedAmount: TokenValue | null
   recipient: string
@@ -309,7 +309,7 @@ export function getBaseTokenInfoWithFallback(
  */
 function getParsedRecipient(
   recipient: string,
-  tokenOut: FT,
+  tokenOut: TokenDeployment,
   isNearIntentsNetwork: boolean
 ): string | null {
   if (isNearIntentsNetwork) {
@@ -343,7 +343,7 @@ export function parseDestinationMemo(
 }
 
 function cexFundsLooseConfirmationStatusDefault(
-  depl: FT
+  depl: TokenDeployment
 ): CexFundsLooseConfirmationStatus {
   return isCexIncompatible(depl) ? "not_confirmed" : "not_required"
 }
@@ -353,7 +353,7 @@ export function resolveTokenOut(
   tokenIn: TokenInfo,
   tokenFamilies: TokenFamilyList,
   tokenList: TokenInfo[]
-): [BaseTokenInfo, FT] {
+): [BaseTokenInfo, TokenDeployment] {
   if (isNearIntentsNetwork(blockchain)) {
     // Doesn't matter we use, because we won't use it anyway for internal transfers
     const token = getAnyBaseTokenInfo(tokenIn)

@@ -42,7 +42,7 @@ import type { depositTokenBalanceMachine } from "../features/machines/depositTok
 import { getNearTxSuccessValue } from "../features/machines/getTxMachine"
 import type { storageDepositAmountMachine } from "../features/machines/storageDepositAmountMachine"
 import { logger } from "../logger"
-import type { FT, SupportedChainName } from "../types/base"
+import type { SupportedChainName, TokenDeployment } from "../types/base"
 import type {
   SendTransactionEVMParams,
   SendTransactionStellarParams,
@@ -608,7 +608,7 @@ export function createDepositSolanaTransaction({
   userAddress: string
   depositAddress: string
   amount: bigint
-  token: FT
+  token: TokenDeployment
   ataExists: boolean
 }): TransactionSolana {
   assert(token.chainName === "solana", "Token must be a Solana token")
@@ -689,7 +689,7 @@ export async function createDepositStellarTransaction({
   userAddress: string
   depositAddress: string
   amount: bigint
-  token: FT
+  token: TokenDeployment
   memo?: string | null
 }): Promise<SendTransactionStellarParams> {
   assert(token.chainName === "stellar", "Token must be a Stellar token")
@@ -1451,7 +1451,7 @@ async function checkATAExists(
   }
 }
 
-function clearATACacheForToken(token: FT, depositAddress: string) {
+function clearATACacheForToken(token: TokenDeployment, depositAddress: string) {
   if (token.chainName !== "solana" || isNativeToken(token)) {
     return
   }
@@ -1460,7 +1460,7 @@ function clearATACacheForToken(token: FT, depositAddress: string) {
 }
 
 async function checkSolanaATARequired(
-  token: FT,
+  token: TokenDeployment,
   depositAddress: string | null
 ): Promise<boolean> {
   if (
@@ -1496,7 +1496,10 @@ async function checkSolanaATARequired(
   return !ataExists
 }
 
-export function clearSolanaATACache(token: FT, depositAddress: string) {
+export function clearSolanaATACache(
+  token: TokenDeployment,
+  depositAddress: string
+) {
   clearATACacheForToken(token, depositAddress)
 }
 
@@ -1504,7 +1507,7 @@ export async function createDepositTonTransaction(
   userWalletAddress: string,
   depositAddress: string,
   amount: bigint,
-  token: FT
+  token: TokenDeployment
 ): Promise<SendTransactionTonParams> {
   assert(token.chainName === "ton", "Token chain name is not TON")
 

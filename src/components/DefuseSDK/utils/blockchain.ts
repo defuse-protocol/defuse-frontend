@@ -6,7 +6,7 @@ import { config } from "../config"
 import { getBlockchainsOptions } from "../constants/blockchains"
 import type { NetworkOption } from "../constants/blockchains"
 import { CHAIN_IDS } from "../constants/evm"
-import type { FT, SupportedChainName } from "../types/base"
+import type { SupportedChainName, TokenDeployment } from "../types/base"
 import type { TokenInfo } from "../types/base"
 import { assetNetworkAdapter, reverseAssetNetworkAdapter } from "./adapters"
 import { isBaseToken, isNativeToken } from "./token"
@@ -76,7 +76,7 @@ export function availableChainsForToken(
 ): Record<string, NetworkOption> {
   const tokenFamily = resolveTokenFamily(tokenFamilies, token)
 
-  const allDeployments: FT[] = []
+  const allDeployments: TokenDeployment[] = []
   if (tokenFamily) {
     for (const t of eachBaseTokenInfo(tokenList)) {
       if (tokenFamily.tokenIds.includes(t.defuseAssetId)) {
@@ -122,7 +122,7 @@ export function availableDisabledChainsForToken(
 export function getDefaultBlockchainOptionValue(
   token: TokenInfo
 ): BlockchainEnum | null {
-  let deployments: FT[]
+  let deployments: TokenDeployment[]
   if (isBaseToken(token)) {
     deployments = token.deployments
   } else {

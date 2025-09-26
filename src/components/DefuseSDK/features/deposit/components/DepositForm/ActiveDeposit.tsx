@@ -10,7 +10,7 @@ import { ButtonCustom } from "../../../../components/Button/ButtonCustom"
 import { TooltipInfo } from "../../../../components/TooltipInfo"
 import { useTokensUsdPrices } from "../../../../hooks/useTokensUsdPrices"
 import { RESERVED_NEAR_BALANCE } from "../../../../services/blockchainBalanceService"
-import type { BaseTokenInfo, FT } from "../../../../types/base"
+import type { BaseTokenInfo, TokenDeployment } from "../../../../types/base"
 import { reverseAssetNetworkAdapter } from "../../../../utils/adapters"
 import { formatTokenValue, formatUsdAmount } from "../../../../utils/format"
 import getTokenUsdPrice from "../../../../utils/getTokenUsdPrice"
@@ -28,7 +28,7 @@ import {
 export type ActiveDepositProps = {
   network: BlockchainEnum
   token: BaseTokenInfo
-  tokenDeployment: FT
+  tokenDeployment: TokenDeployment
   minDepositAmount: bigint | null
 }
 
@@ -194,7 +194,7 @@ function Balance({
   handleSetHalfValue,
 }: {
   balance: bigint | null
-  token: FT
+  token: TokenDeployment
   handleSetMaxValue: () => void
   handleSetHalfValue: () => void
 }) {
@@ -252,7 +252,7 @@ function renderDepositButtonText(
   isBalanceInsufficient: boolean,
   network: BlockchainEnum | null,
   token: BaseTokenInfo,
-  tokenDeployment: FT,
+  tokenDeployment: TokenDeployment,
   minDepositAmount: bigint | null,
   isDepositAmountHighEnough: boolean,
   isLoading: boolean
@@ -278,7 +278,7 @@ function renderDepositButtonText(
 function isInsufficientBalance(
   formAmount: string,
   balance: bigint,
-  token: FT,
+  token: TokenDeployment,
   network: BlockchainEnum | null
 ): boolean | null {
   if (!network) {

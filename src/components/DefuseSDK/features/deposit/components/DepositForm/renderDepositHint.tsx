@@ -2,13 +2,13 @@ import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import { Callout } from "@radix-ui/themes"
 import { reverseAssetNetworkAdapter } from "@src/components/DefuseSDK/utils/adapters"
 import { isFungibleToken } from "@src/components/DefuseSDK/utils/token"
-import type { BaseTokenInfo, FT } from "../../../../types/base"
+import type { BaseTokenInfo, TokenDeployment } from "../../../../types/base"
 import { formatTokenValue } from "../../../../utils/format"
 
 export function renderDepositHint(
   network: BlockchainEnum,
   token: BaseTokenInfo,
-  tokenDeployment: FT
+  tokenDeployment: TokenDeployment
 ) {
   return (
     <div className="flex flex-col gap-4">
@@ -32,7 +32,7 @@ export function renderDepositHint(
 export function renderMinDepositAmountHint(
   minDepositAmount: bigint,
   token: BaseTokenInfo,
-  tokenDeployment: FT
+  tokenDeployment: TokenDeployment
 ) {
   return (
     <div className="flex flex-col gap-3.5 font-medium text-gray-11 text-xs">
@@ -47,5 +47,5 @@ export function renderMinDepositAmountHint(
   )
 }
 
-const formatShortenedContractAddress = (token: FT): string =>
+const formatShortenedContractAddress = (token: TokenDeployment): string =>
   isFungibleToken(token) ? `(...${token.address.slice(-7)})` : ""

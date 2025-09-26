@@ -2,7 +2,11 @@ import { errors } from "@defuse-protocol/internal-utils"
 import { assign, fromPromise, setup } from "xstate"
 import { logger } from "../../logger"
 import { emitEvent } from "../../services/emitter"
-import type { BaseTokenInfo, FT, SupportedChainName } from "../../types/base"
+import type {
+  BaseTokenInfo,
+  SupportedChainName,
+  TokenDeployment,
+} from "../../types/base"
 import { assert } from "../../utils/assert"
 
 export type Context = Input & {
@@ -13,7 +17,7 @@ export type Context = Input & {
 export type Input = {
   chainName: SupportedChainName
   derivedToken: BaseTokenInfo
-  tokenDeployment: FT
+  tokenDeployment: TokenDeployment
   balance: bigint
   amount: bigint
   userAddress: string
@@ -33,7 +37,7 @@ export type DepositDescription = {
   userAddress: string
   userWalletAddress: string | null
   derivedToken: BaseTokenInfo
-  tokenDeployment: FT
+  tokenDeployment: TokenDeployment
 }
 
 export type Output =

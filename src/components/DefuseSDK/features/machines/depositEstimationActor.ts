@@ -9,7 +9,7 @@ import {
   estimateTonTransferCost,
   estimateTronTransferCost,
 } from "../../services/estimateService"
-import type { FT, SupportedChainName } from "../../types/base"
+import type { SupportedChainName, TokenDeployment } from "../../types/base"
 import { assetNetworkAdapter } from "../../utils/adapters"
 import { isFungibleToken, isNativeToken } from "../../utils/token"
 import { validateAddress } from "../../utils/validateAddress"
@@ -30,7 +30,7 @@ export const depositEstimateMaxValueActor = fromPromise(
       userAddress: string
       balance: bigint
       nearBalance: bigint | null
-      token: FT
+      token: TokenDeployment
       generateAddress: string | null
     }
   }): Promise<bigint> => {
@@ -166,7 +166,7 @@ export const depositEstimationMachine = setup({
         userAddress: string
         balance: bigint
         nearBalance: bigint | null
-        token: FT
+        token: TokenDeployment
         generateAddress: string | null
       }
     },

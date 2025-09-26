@@ -12,7 +12,11 @@ import {
 } from "xstate"
 import { config } from "../../config"
 import { clearSolanaATACache } from "../../services/depositService"
-import type { BaseTokenInfo, FT, SupportedChainName } from "../../types/base"
+import type {
+  BaseTokenInfo,
+  SupportedChainName,
+  TokenDeployment,
+} from "../../types/base"
 import type { TokenInfo } from "../../types/base"
 import { depositEstimationMachine } from "./depositEstimationActor"
 import {
@@ -721,7 +725,7 @@ export const depositUIMachine = setup({
 type DepositParams = {
   chainName: SupportedChainName
   derivedToken: BaseTokenInfo
-  tokenDeployment: FT
+  tokenDeployment: TokenDeployment
   balance: bigint
   amount: bigint
   nearBalance: bigint | null

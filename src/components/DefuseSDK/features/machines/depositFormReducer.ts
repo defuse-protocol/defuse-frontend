@@ -5,7 +5,11 @@ import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { parseUnits } from "@src/components/DefuseSDK/utils/parse"
 import { LIST_TOKENS_FLATTEN, tokenFamilies } from "@src/constants/tokens"
 import { type ActorRef, type Snapshot, fromTransition } from "xstate"
-import type { BaseTokenInfo, FT, SupportedChainName } from "../../types/base"
+import type {
+  BaseTokenInfo,
+  SupportedChainName,
+  TokenDeployment,
+} from "../../types/base"
 import type { TokenInfo } from "../../types/base"
 import { isBaseToken } from "../../utils"
 
@@ -42,7 +46,7 @@ export type State = {
   parentRef: ParentActor
   token: TokenInfo | null
   derivedToken: BaseTokenInfo | null
-  tokenDeployment: FT | null
+  tokenDeployment: TokenDeployment | null
   blockchain: SupportedChainName | null
   parsedAmount: bigint | null
   amount: string
@@ -150,7 +154,7 @@ export const depositFormReducer = fromTransition(
     input: { parentRef: ParentActor; token: TokenInfo }
   }): State => {
     let blockchain: SupportedChainName | null = null
-    let tokenDeployment: FT | null = null
+    let tokenDeployment: TokenDeployment | null = null
     let derivedToken: BaseTokenInfo | null = null
 
     if (isBaseToken(input.token)) {

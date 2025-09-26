@@ -41,7 +41,7 @@ export type SupportedBridge =
   | "hot_omni"
   | "near_omni"
 
-export type FT = FungibleTokenInfo | NativeTokenInfo
+export type TokenDeployment = FungibleTokenInfo | NativeTokenInfo
 
 export interface BaseTokenInfo {
   defuseAssetId: string
@@ -56,7 +56,7 @@ export interface BaseTokenInfo {
    * @deprecated
    */
   chainName: SupportedChainName
-  deployments: [FT, ...FT[]]
+  deployments: [TokenDeployment, ...TokenDeployment[]]
   tags?: string[]
 }
 

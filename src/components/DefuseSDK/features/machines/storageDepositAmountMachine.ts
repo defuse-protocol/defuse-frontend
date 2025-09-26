@@ -3,14 +3,14 @@ import {
   type Output,
   getNEP141StorageRequired,
 } from "../../services/nep141StorageService"
-import type { FT } from "../../types/base"
+import type { TokenDeployment } from "../../types/base"
 
 const storageDepositAmountActor = fromPromise(
   async ({
     input,
   }: {
     input: {
-      token: FT
+      token: TokenDeployment
       userAccountId: string
     }
   }): Promise<Output> => {
@@ -41,7 +41,7 @@ export const storageDepositAmountMachine = setup({
     events: {} as {
       type: "REQUEST_STORAGE_DEPOSIT"
       params: {
-        token: FT
+        token: TokenDeployment
         userAccountId: string
       }
     },

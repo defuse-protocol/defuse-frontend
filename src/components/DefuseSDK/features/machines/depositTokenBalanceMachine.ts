@@ -22,7 +22,7 @@ import {
   getTronTrc20Balance,
 } from "../../services/blockchainBalanceService"
 import { getWalletRpcUrl } from "../../services/depositService"
-import type { FT, SupportedChainName } from "../../types/base"
+import type { SupportedChainName, TokenDeployment } from "../../types/base"
 import { assetNetworkAdapter } from "../../utils/adapters"
 import { assert } from "../../utils/assert"
 import { isFungibleToken, isNativeToken } from "../../utils/token"
@@ -33,7 +33,7 @@ export const backgroundBalanceActor = fromPromise(
     input: { tokenDeployment, userWalletAddress, blockchain },
   }: {
     input: {
-      tokenDeployment: FT
+      tokenDeployment: TokenDeployment
       userWalletAddress: string | null
       blockchain: SupportedChainName
     }
@@ -250,7 +250,7 @@ function normalizeToNearAddress(address: string): string {
 
 export interface Context {
   lastBalanceRequestParams: null | {
-    tokenDeployment: FT
+    tokenDeployment: TokenDeployment
     userAddress: string
     userWalletAddress: string | null
     blockchain: SupportedChainName
@@ -276,7 +276,7 @@ export const depositTokenBalanceMachine = setup({
     events: {} as {
       type: "REQUEST_BALANCE_REFRESH"
       params: {
-        tokenDeployment: FT
+        tokenDeployment: TokenDeployment
         userAddress: string
         userWalletAddress: string | null
         blockchain: SupportedChainName
