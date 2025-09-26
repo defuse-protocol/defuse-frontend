@@ -1136,7 +1136,7 @@ describe("filterOutPoaBridgeTokens", () => {
     expect(result).toEqual(["token1.omft.near"])
   })
 
-  it('returns null if it is BaseTokenInfo without bridge "poa"', () => {
+  it('returns empty array if BaseTokenInfo has no "poa" deployment', () => {
     const notBaseToken: BaseTokenInfo = {
       defuseAssetId: "token1",
       symbol: "TKN",
@@ -1205,7 +1205,7 @@ describe("filterOutPoaBridgeTokens", () => {
     expect(result).toEqual(["token1.omft.near"])
   })
 
-  it('returns UnifiedTokenInfo with empty groupedTokens if none match "poa"', () => {
+  it('returns empty array when UnifiedTokenInfo has no "poa" deployments', () => {
     const notPoaToken1: BaseTokenInfo = {
       defuseAssetId: "token2",
       symbol: "TKN2",
@@ -1342,7 +1342,7 @@ describe("getTokenAccountIds", () => {
     expect(result).toEqual(["token3", "token4"])
   })
 
-  it('throws when groupedTokens without "nep141:" prefix in UnifiedTokenInfo', () => {
+  it('throws for BaseTokenInfos without "nep141:" prefix', () => {
     const tokens: BaseTokenInfo[] = [
       {
         defuseAssetId: "token5",
@@ -1381,7 +1381,7 @@ describe("getTokenAccountIds", () => {
     expect(() => getTokenAccountIds(tokens)).toThrow()
   })
 
-  it("throws when mixed groupedTokens (some with prefix, some without)", () => {
+  it('throws when mixed BaseTokenInfos (some with "nep141:" prefix, some without)', () => {
     const tokens: BaseTokenInfo[] = [
       {
         defuseAssetId: "nep141:token7",
