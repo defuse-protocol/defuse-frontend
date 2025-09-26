@@ -164,30 +164,32 @@ export const depositUIMachine = setup({
         }
       }
     ),
-    requestBalanceRefresh: sendTo(
-      "depositTokenBalanceRef",
-      ({
-        context,
-      }): EventFrom<typeof depositTokenBalanceMachine> | undefined => {
-        const { blockchain, tokenDeployment } =
-          context.depositFormRef.getSnapshot().context
-        if (
-          context.userAddress != null &&
-          blockchain != null &&
-          tokenDeployment != null
-        ) {
-          return {
-            type: "REQUEST_BALANCE_REFRESH",
-            params: {
-              tokenDeployment,
-              blockchain,
-              userAddress: context.userAddress,
-              userWalletAddress: context.userWalletAddress,
-            },
+    requestBalanceRefresh: enqueueActions(({ enqueue, context }) => {
+      const { blockchain, tokenDeployment } =
+        context.depositFormRef.getSnapshot().context
+      const { userAddress, userWalletAddress } = context
+
+      if (
+        userAddress != null &&
+        blockchain != null &&
+        tokenDeployment != null
+      ) {
+        enqueue.sendTo(
+          "depositTokenBalanceRef",
+          (): EventFrom<typeof depositTokenBalanceMachine> => {
+            return {
+              type: "REQUEST_BALANCE_REFRESH",
+              params: {
+                tokenDeployment,
+                blockchain,
+                userAddress,
+                userWalletAddress,
+              },
+            }
           }
-        }
+        )
       }
-    ),
+    }),
     // @ts-expect-error Weird xstate type error, which should not be thrown
     refreshBalanceIfNeeded: enqueueActions(
       ({ enqueue }, { fields }: { fields: Fields }) => {
