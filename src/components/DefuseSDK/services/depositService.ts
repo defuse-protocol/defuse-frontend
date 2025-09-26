@@ -341,7 +341,6 @@ async function getDepositEstimation(
   | { tag: "ok"; value: { maxDepositValue: bigint | null } }
   | { tag: "err"; value: { reason: "ERR_ESTIMATE_MAX_DEPOSIT_VALUE" } }
 > {
-  assert(formValues.derivedToken, "Token is required")
   assert(formValues.tokenDeployment, "Token is required")
   assert(formValues.blockchain, "Blockchain is required")
   depositEstimationRef.send({
