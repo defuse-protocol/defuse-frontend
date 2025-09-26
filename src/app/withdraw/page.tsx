@@ -14,7 +14,7 @@ export default function Withdraw() {
   const { state } = useConnectWallet()
   const signMessage = useWalletAgnosticSignMessage()
   const { signAndSendTransactions } = useNearWallet()
-  const tokenList = useTokenList(LIST_TOKENS)
+  const tokenList = useTokenList(LIST_TOKENS, true)
   const referral = useIntentsReferral()
   const queryParams = useSearchParams()
   const amount = queryParams.get("amount") ?? undefined
