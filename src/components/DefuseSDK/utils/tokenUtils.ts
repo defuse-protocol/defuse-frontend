@@ -438,3 +438,11 @@ export function parseDefuseAssetId(
 export function tokenAccountIdToDefuseAssetId(address: string): string {
   return `nep141:${address}`
 }
+
+export function* eachBaseTokenInfo(tokenList: TokenInfo[]) {
+  for (const t of tokenList) {
+    for (const tt of getUnderlyingBaseTokenInfos(t)) {
+      yield tt
+    }
+  }
+}

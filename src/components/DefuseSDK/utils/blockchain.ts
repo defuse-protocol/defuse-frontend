@@ -1,6 +1,6 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
-import { eachBaseTokenInfo } from "@src/components/DefuseSDK/features/machines/withdrawFormReducer"
 import { resolveTokenFamily } from "@src/components/DefuseSDK/utils/tokenFamily"
+import { eachBaseTokenInfo } from "@src/components/DefuseSDK/utils/tokenUtils"
 import { LIST_TOKENS_FLATTEN, tokenFamilies } from "@src/constants/tokens"
 import { config } from "../config"
 import { getBlockchainsOptions } from "../constants/blockchains"

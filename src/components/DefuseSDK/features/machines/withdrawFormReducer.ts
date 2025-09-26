@@ -3,8 +3,8 @@ import {
   resolveTokenFamily,
 } from "@src/components/DefuseSDK/utils/tokenFamily"
 import {
+  eachBaseTokenInfo,
   getAnyBaseTokenInfo,
-  getUnderlyingBaseTokenInfos,
 } from "@src/components/DefuseSDK/utils/tokenUtils"
 import { LIST_TOKENS_FLATTEN, tokenFamilies } from "@src/constants/tokens"
 import { type ActorRef, type Snapshot, fromTransition } from "xstate"
@@ -386,12 +386,4 @@ export function resolveTokenOut(
   }
 
   throw new Error("No corresponded token found")
-}
-
-export function* eachBaseTokenInfo(tokenList: TokenInfo[]) {
-  for (const t of tokenList) {
-    for (const tt of getUnderlyingBaseTokenInfos(t)) {
-      yield tt
-    }
-  }
 }
