@@ -119,6 +119,7 @@ export async function getQuote(
       recipient: intentsUserId,
       recipientType: QuoteRequest.recipientType.INTENTS,
       swapType: QuoteRequest.swapType.EXACT_INPUT,
+      quoteWaitingTimeMs: 0, // means the fastest quote
       referral: referralMap[await whitelabelTemplateFlag()],
       ...(appFeeBps > 0
         ? { appFees: [{ recipient: APP_FEE_RECIPIENT, fee: appFeeBps }] }
