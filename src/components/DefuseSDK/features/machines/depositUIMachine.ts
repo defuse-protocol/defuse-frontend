@@ -164,6 +164,7 @@ export const depositUIMachine = setup({
         }
       }
     ),
+    // @ts-expect-error Weird xstate type error, which should not be thrown
     requestBalanceRefresh: enqueueActions(({ enqueue, context }) => {
       const { blockchain, tokenDeployment } =
         context.depositFormRef.getSnapshot().context
