@@ -1,13 +1,11 @@
 import { assert, AuthMethod } from "@defuse-protocol/internal-utils"
-import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
+import type {
+  SupportedBridge,
+  TokenInfo,
+} from "@src/components/DefuseSDK/types/base"
 import { reverseAssetNetworkAdapter } from "@src/components/DefuseSDK/utils/adapters"
-import {
-  getChainFromDid,
-  resolveTokenByDid,
-} from "@src/components/DefuseSDK/utils/tokenDeployment"
 import { resolveTokenFamily } from "@src/components/DefuseSDK/utils/tokenFamily"
 import { LIST_TOKENS_FLATTEN, tokenFamilies } from "@src/constants/tokens"
-import { logger } from "@src/utils/logger"
 import { formatUnits } from "viem"
 import {
   type BlockchainOption,
@@ -20,7 +18,11 @@ import type {
   TokenValue,
 } from "../../../../types/base"
 import { isBaseToken } from "../../../../utils/token"
-import { compareAmounts, minAmounts } from "../../../../utils/tokenUtils"
+import {
+  compareAmounts,
+  getUnderlyingBaseTokenInfos,
+  minAmounts,
+} from "../../../../utils/tokenUtils"
 import type { BalanceMapping } from "../../../machines/depositedBalanceMachine"
 
 export function chainTypeSatisfiesChainName(
@@ -100,36 +102,28 @@ export const adjustToScale = (
   }
 }
 
-export const getAvailableBlockchains = (token: TokenInfo) => {
-  return isBaseToken(token)
-    ? {
-        [token.chainName]: {
+function getAvailableBlockchains(tokens: BaseTokenInfo[]) {
+  const list: {
+    [K in SupportedChainName]?: {
+      defuseAssetId: string
+      bridge: SupportedBridge
+      chainName: SupportedChainName
+    }
+  } = {}
+
+  for (const token of tokens) {
+    for (const d of token.deployments) {
+      if (!list[d.chainName]) {
+        list[d.chainName] = {
           defuseAssetId: token.defuseAssetId,
-          bridge: token.bridge,
-        },
+          bridge: d.bridge,
+          chainName: d.chainName,
+        }
       }
-    : token.groupedTokens.reduce(
-        (
-          acc: {
-            [key: string]: {
-              defuseAssetId: string
-              bridge: string
-            }
-          },
-          curr
-        ) => {
-          // as if already set, means higher order defuseAssetId as higher priority
-          if (acc[curr.chainName]) {
-            return acc
-          }
-          acc[curr.chainName] = {
-            defuseAssetId: curr.defuseAssetId,
-            bridge: curr.bridge,
-          }
-          return acc
-        },
-        {}
-      )
+    }
+  }
+
+  return list
 }
 
 export const getMinAmountToken = (
@@ -163,21 +157,17 @@ export function getBlockchainSelectItems(
   }
 } {
   const tf = resolveTokenFamily(tokenFamilies, token)
+  const relatedTokens = tf
+    ? LIST_TOKENS_FLATTEN.filter((t) => tf.tokenIds.includes(t.defuseAssetId))
+    : getUnderlyingBaseTokenInfos(token)
 
   const allBlockchains = Object.values(getBlockchainsOptions())
-  const availableBlockchains = getAvailableBlockchains(token)
+  const availableBlockchains = getAvailableBlockchains(relatedTokens)
 
   return Object.fromEntries(
     allBlockchains
       .filter((blockchain) => {
         const parsedBlockchain = reverseAssetNetworkAdapter[blockchain.value]
-
-        if (tf != null) {
-          return tf.deployments.some(
-            (d) => parsedBlockchain === getChainFromDid(d)
-          )
-        }
-
         return !!availableBlockchains[parsedBlockchain]
       })
       .map(
@@ -189,32 +179,13 @@ export function getBlockchainSelectItems(
         ] => {
           const parsedBlockchain = reverseAssetNetworkAdapter[blockchain.value]
 
-          let defuseAssetId: string | null = null
-          if (tf != null) {
-            const tokenDid = tf.deployments.find(
-              (d) => getChainFromDid(d) === parsedBlockchain
-            )
-            assert(tokenDid != null, "No token deployment on given blockchain")
-            // todo: pass token list as a parameter
-            const token = resolveTokenByDid(LIST_TOKENS_FLATTEN, tokenDid)
-            if (token == null) {
-              logger.warn("No token found for deployment", {
-                data: { tokenDid },
-              })
-            } else {
-              defuseAssetId = token.defuseAssetId
-            }
-          } else {
-            const addressData = availableBlockchains[parsedBlockchain]
-            assert(addressData != null)
-            defuseAssetId = addressData.defuseAssetId
-          }
+          const blockchainTokenInfo = availableBlockchains[parsedBlockchain]
+          assert(blockchainTokenInfo, "Token not found")
+
+          const defuseAssetId = blockchainTokenInfo.defuseAssetId
 
           let hotBalance: TokenValue | null = null
-          const balance =
-            defuseAssetId != null
-              ? maxPossibleBalances[defuseAssetId]
-              : undefined
+          const balance = maxPossibleBalances[defuseAssetId]
 
           if (balance != null) {
             hotBalance = {

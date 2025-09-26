@@ -1,4 +1,5 @@
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
+import { eachBaseTokenInfo } from "@src/components/DefuseSDK/features/machines/withdrawFormReducer"
 import type { BalanceMapping } from "../features/machines/depositedBalanceMachine"
 import type {
   BaseTokenInfo,
@@ -178,16 +179,13 @@ export function getDerivedToken(
   tokenIn: TokenInfo,
   chainName: string | null
 ): BaseTokenInfo | null {
-  if (isBaseToken(tokenIn)) {
-    return chainName === tokenIn.chainName ? tokenIn : null
+  if (chainName == null) {
+    return null
   }
 
-  if (chainName != null) {
-    const tokenOut = tokenIn.groupedTokens.find(
-      (token) => token.chainName === chainName
-    )
-    if (tokenOut != null) {
-      return tokenOut
+  for (const token of eachBaseTokenInfo([tokenIn])) {
+    if (token.deployments.some((depl) => depl.chainName === chainName)) {
+      return token
     }
   }
 
@@ -369,12 +367,12 @@ export function accountSlippageExactIn(
   })
 }
 
-export function filterOutPoaBridgeTokens(token: TokenInfo): BaseTokenInfo[] {
-  if (isBaseToken(token)) {
-    return token.bridge === "poa" ? [token] : []
-  }
+export function filterOutPoaBridgeTokens(token: TokenInfo): string[] {
+  const defuseAssetIds = getUnderlyingBaseTokenInfos(token).filter((t) =>
+    t.deployments.some((d) => d.bridge === "poa")
+  )
 
-  return token.groupedTokens.filter((t) => t.bridge === "poa")
+  return getTokenAccountIds(defuseAssetIds)
 }
 
 export function getTokenAccountIds(tokens: BaseTokenInfo[]): string[] {

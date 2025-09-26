@@ -1,15 +1,15 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
-import { getChainFromDid } from "@src/components/DefuseSDK/utils/tokenDeployment"
+import { eachBaseTokenInfo } from "@src/components/DefuseSDK/features/machines/withdrawFormReducer"
 import { resolveTokenFamily } from "@src/components/DefuseSDK/utils/tokenFamily"
-import { tokenFamilies } from "@src/constants/tokens"
+import { LIST_TOKENS_FLATTEN, tokenFamilies } from "@src/constants/tokens"
 import { config } from "../config"
 import { getBlockchainsOptions } from "../constants/blockchains"
 import type { NetworkOption } from "../constants/blockchains"
 import { CHAIN_IDS } from "../constants/evm"
-import type { SupportedChainName } from "../types/base"
+import type { FT, SupportedChainName } from "../types/base"
 import type { TokenInfo } from "../types/base"
 import { assetNetworkAdapter, reverseAssetNetworkAdapter } from "./adapters"
-import { isBaseToken, isNativeToken, isUnifiedToken } from "./token"
+import { isBaseToken, isNativeToken } from "./token"
 
 export function isAuroraVirtualChain(network: SupportedChainName): boolean {
   const virtualChains = [
@@ -71,15 +71,24 @@ function filterChainsByFeatureFlags<T extends string>(chains: T[]): T[] {
 }
 
 export function availableChainsForToken(
-  token: TokenInfo
+  token: TokenInfo,
+  tokenList: TokenInfo[] = LIST_TOKENS_FLATTEN
 ): Record<string, NetworkOption> {
   const tokenFamily = resolveTokenFamily(tokenFamilies, token)
 
-  const tokens = isUnifiedToken(token) ? token.groupedTokens : [token]
-
-  let chains = tokenFamily
-    ? tokenFamily.deployments.map(getChainFromDid)
-    : tokens.map((t) => t.chainName)
+  const allDeployments: FT[] = []
+  if (tokenFamily) {
+    for (const t of eachBaseTokenInfo(tokenList)) {
+      if (tokenFamily.tokenIds.includes(t.defuseAssetId)) {
+        allDeployments.push(...t.deployments)
+      }
+    }
+  } else {
+    for (const t of eachBaseTokenInfo([token])) {
+      allDeployments.push(...t.deployments)
+    }
+  }
+  let chains = Array.from(new Set(allDeployments.map((depl) => depl.chainName)))
 
   chains = filterChainsByFeatureFlags(chains)
   const options = getBlockchainsOptions()
@@ -113,22 +122,21 @@ export function availableDisabledChainsForToken(
 export function getDefaultBlockchainOptionValue(
   token: TokenInfo
 ): BlockchainEnum | null {
+  let deployments: FT[]
   if (isBaseToken(token)) {
-    const key = assetNetworkAdapter[token.chainName]
-    return key
-      ? (getBlockchainsOptions()[key]?.value as BlockchainEnum | null)
-      : null
+    deployments = token.deployments
+  } else {
+    deployments = token.groupedTokens.flatMap((t) => t.deployments)
   }
-  // For unified tokens, default to the native token's network
-  if (isUnifiedToken(token)) {
-    const nativeToken = token.groupedTokens.find((t) => isNativeToken(t))
-    if (nativeToken == null) {
-      return null
+
+  if (deployments.length === 1) {
+    return assetNetworkAdapter[deployments[0].chainName]
+  }
+
+  for (const deployment of deployments) {
+    if (isNativeToken(deployment)) {
+      return assetNetworkAdapter[deployment.chainName]
     }
-    const key = assetNetworkAdapter[nativeToken.chainName]
-    return key
-      ? (getBlockchainsOptions()[key]?.value as BlockchainEnum | null)
-      : null
   }
   return null
 }

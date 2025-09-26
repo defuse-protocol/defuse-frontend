@@ -1,16 +1,16 @@
 import {
-  getChainFromDid,
-  resolveTokenByDid,
-} from "@src/components/DefuseSDK/utils/tokenDeployment"
-import {
   type TokenFamilyList,
   resolveTokenFamily,
 } from "@src/components/DefuseSDK/utils/tokenFamily"
-import { getAnyBaseTokenInfo } from "@src/components/DefuseSDK/utils/tokenUtils"
+import {
+  getAnyBaseTokenInfo,
+  getUnderlyingBaseTokenInfos,
+} from "@src/components/DefuseSDK/utils/tokenUtils"
 import { LIST_TOKENS_FLATTEN, tokenFamilies } from "@src/constants/tokens"
 import { type ActorRef, type Snapshot, fromTransition } from "xstate"
 import type {
   BaseTokenInfo,
+  FT,
   SupportedChainName,
   TokenInfo,
   TokenValue,
@@ -109,6 +109,7 @@ export type State = {
   parentRef: ParentActor
   tokenIn: TokenInfo
   tokenOut: BaseTokenInfo
+  tokenOutDeployment: FT
   amount: string
   parsedAmount: TokenValue | null
   recipient: string
@@ -128,28 +129,31 @@ export const withdrawFormReducer = fromTransition(
       case "WITHDRAW_FORM.UPDATE_TOKEN": {
         const tokenOut = getBaseTokenInfoWithFallback(
           event.params.token,
-          state.tokenOut.chainName
+          state.tokenOutDeployment.chainName // preserve the previous selected blockchain if possible
         )
+        const tokenOutDeployment = tokenOut.deployments[0]
+
         newState = {
           ...state,
           parsedAmount: event.params.parsedAmount,
           tokenIn: event.params.token,
           tokenOut,
+          tokenOutDeployment,
           recipient: "",
           parsedRecipient: null,
           destinationMemo: "",
           parsedDestinationMemo: null,
           cexFundsLooseConfirmation:
-            cexFundsLooseConfirmationStatusDefault(tokenOut),
+            cexFundsLooseConfirmationStatusDefault(tokenOutDeployment),
           minReceivedAmount: null,
-          blockchain: tokenOut.chainName,
+          blockchain: tokenOutDeployment.chainName,
         }
         break
       }
       case "WITHDRAW_FORM.UPDATE_BLOCKCHAIN": {
         const blockchain = event.params.blockchain
 
-        const tokenOut = resolveTokenOut(
+        const [tokenOut, tokenOutDeployment] = resolveTokenOut(
           blockchain,
           state.tokenIn,
           tokenFamilies,
@@ -158,11 +162,12 @@ export const withdrawFormReducer = fromTransition(
 
         const cexFundsLooseConfirmation = isNearIntentsNetwork(blockchain)
           ? "not_required"
-          : cexFundsLooseConfirmationStatusDefault(tokenOut)
+          : cexFundsLooseConfirmationStatusDefault(tokenOutDeployment)
 
         newState = {
           ...state,
           tokenOut,
+          tokenOutDeployment,
           recipient: "",
           parsedRecipient: null,
           destinationMemo: "",
@@ -190,7 +195,7 @@ export const withdrawFormReducer = fromTransition(
         assert(determinedRecipient, "Recipient is required")
         const parsedRecipient = getParsedRecipient(
           determinedRecipient,
-          state.tokenOut,
+          state.tokenOutDeployment,
           isNearIntentsNetwork(state.blockchain)
         )
 
@@ -207,7 +212,7 @@ export const withdrawFormReducer = fromTransition(
           destinationMemo: event.params.destinationMemo,
           parsedDestinationMemo: parseDestinationMemo(
             event.params.destinationMemo,
-            state.tokenOut.chainName
+            state.tokenOutDeployment.chainName
           ),
         }
         break
@@ -256,11 +261,13 @@ export const withdrawFormReducer = fromTransition(
     }
   }): State => {
     const tokenOut = getBaseTokenInfoWithFallback(input.tokenIn, null)
+    const tokenOutDeployment = tokenOut.deployments[0]
 
     return {
       parentRef: input.parentRef,
       tokenIn: input.tokenIn,
       tokenOut,
+      tokenOutDeployment,
       amount: "",
       parsedAmount: null,
       recipient: "",
@@ -268,9 +275,9 @@ export const withdrawFormReducer = fromTransition(
       destinationMemo: "",
       parsedDestinationMemo: null,
       cexFundsLooseConfirmation:
-        cexFundsLooseConfirmationStatusDefault(tokenOut),
+        cexFundsLooseConfirmationStatusDefault(tokenOutDeployment),
       minReceivedAmount: null,
-      blockchain: tokenOut.chainName,
+      blockchain: tokenOutDeployment.chainName,
     }
   }
 )
@@ -302,7 +309,7 @@ export function getBaseTokenInfoWithFallback(
  */
 function getParsedRecipient(
   recipient: string,
-  tokenOut: BaseTokenInfo,
+  tokenOut: FT,
   isNearIntentsNetwork: boolean
 ): string | null {
   if (isNearIntentsNetwork) {
@@ -336,9 +343,9 @@ export function parseDestinationMemo(
 }
 
 function cexFundsLooseConfirmationStatusDefault(
-  tokenOut: BaseTokenInfo
+  depl: FT
 ): CexFundsLooseConfirmationStatus {
-  return isCexIncompatible(tokenOut) ? "not_confirmed" : "not_required"
+  return isCexIncompatible(depl) ? "not_confirmed" : "not_required"
 }
 
 export function resolveTokenOut(
@@ -346,10 +353,11 @@ export function resolveTokenOut(
   tokenIn: TokenInfo,
   tokenFamilies: TokenFamilyList,
   tokenList: TokenInfo[]
-): BaseTokenInfo {
+): [BaseTokenInfo, FT] {
   if (isNearIntentsNetwork(blockchain)) {
     // Doesn't matter we use, because we won't use it anyway for internal transfers
-    return getAnyBaseTokenInfo(tokenIn)
+    const token = getAnyBaseTokenInfo(tokenIn)
+    return [token, token.deployments[0]]
   }
 
   if (isHyperliquid(blockchain)) {
@@ -366,13 +374,24 @@ export function resolveTokenOut(
   const tf = resolveTokenFamily(tokenFamilies, tokenIn)
   assert(tf != null, "Token family not found")
 
-  const tokenDid = tf.deployments.find(
-    (did) => getChainFromDid(did) === blockchain
-  )
-  assert(tokenDid != null, "Token deployment not found")
+  for (const token of eachBaseTokenInfo(tokenList)) {
+    if (!tf.tokenIds.includes(token.defuseAssetId)) {
+      continue
+    }
 
-  const tokenOut = resolveTokenByDid(tokenList, tokenDid)
-  assert(tokenOut != null, "Token out not found")
+    const depl = token.deployments.find((depl) => depl.chainName === blockchain)
+    if (depl != null) {
+      return [token, depl]
+    }
+  }
 
-  return tokenOut
+  throw new Error("No corresponded token found")
+}
+
+export function* eachBaseTokenInfo(tokenList: TokenInfo[]) {
+  for (const t of tokenList) {
+    for (const tt of getUnderlyingBaseTokenInfos(t)) {
+      yield tt
+    }
+  }
 }
