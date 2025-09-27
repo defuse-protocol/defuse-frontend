@@ -79,8 +79,12 @@ export interface FungibleTokenInfo {
   address: string
   decimals: number
   chainName: SupportedChainName
-  stellarCode?: string
   bridge: SupportedBridge
+  // In Stellar, a token identified by `issuer` and `code`.
+  // It's similar to multi-token contracts on other chains.
+  // `stellarCode` is a temporary solution, the interface will be migrated to 1cs asset object format. (probably?)
+  // https://github.com/defuse-protocol/sdk-monorepo/tree/main/packages/crosschain-assetid#object-form
+  stellarCode?: string
 }
 
 /**

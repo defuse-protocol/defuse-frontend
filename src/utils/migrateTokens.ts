@@ -29,6 +29,8 @@ export function fromOldBaseTokenInfoToNew(t: BaseTokenInfo_old): BaseTokenInfo {
             decimals: t.decimals,
             chainName: t.chainName,
             bridge: t.bridge,
+            // In Stellar token identified by issuer and code
+            ...(t.chainName === "stellar" ? { stellarCode: t.symbol } : null),
           },
     ],
   }
