@@ -1,42 +1,47 @@
 @font-face {
-  font-family: "CircularXXSub";
+  font-family: 'CircularXXSub';
   font-weight: 500;
+  font-display: swap;
   src:
-    url("../../public/static/fonts/CircularXXSub-Medium.woff2") format("woff2"),
-    url("../../public/static/fonts/CircularXXSub-Medium.woff") format("woff");
+    url('../../public/static/fonts/CircularXXSub-Medium.woff2') format('woff2'),
+    url('../../public/static/fonts/CircularXXSub-Medium.woff') format('woff');
 }
 
 @font-face {
-  font-family: "CircularXXSub";
+  font-family: 'CircularXXSub';
   font-weight: 400;
+  font-display: swap;
   src:
-    url("../../public/static/fonts/CircularXXSub-Book.woff2") format("woff2"),
-    url("../../public/static/fonts/CircularXXSub-Book.woff") format("woff");
+    url('../../public/static/fonts/CircularXXSub-Book.woff2') format('woff2'),
+    url('../../public/static/fonts/CircularXXSub-Book.woff') format('woff');
 }
 
 @font-face {
-  font-family: "CircularXXSub";
+  font-family: 'CircularXXSub';
   font-weight: 700;
+  font-display: swap;
   src:
-    url("../../public/static/fonts/CircularXXSub-Bold.woff2") format("woff2"),
-    url("../../public/static/fonts/CircularXXSub-Bold.woff") format("woff");
+    url('../../public/static/fonts/CircularXXSub-Bold.woff2') format('woff2'),
+    url('../../public/static/fonts/CircularXXSub-Bold.woff') format('woff');
 }
 
 @font-face {
-  font-family: "CircularXXSub";
+  font-family: 'CircularXXSub';
   font-weight: 400;
   font-style: italic;
+  font-display: swap;
   src:
-    url("../../public/static/fonts/CircularXXSub-BookItalic.woff2")
-      format("woff2"),
-    url("../../public/static/fonts/CircularXXSub-BookItalic.woff")
-      format("woff");
+    url('../../public/static/fonts/CircularXXSub-BookItalic.woff2')
+      format('woff2'),
+    url('../../public/static/fonts/CircularXXSub-BookItalic.woff')
+      format('woff');
 }
 
 @font-face {
-  font-family: "CircularXXSub";
+  font-family: 'CircularXXSub';
   font-weight: 900;
+  font-display: swap;
   src:
-    url("../../public/static/fonts/CircularXXSub-Black.woff2") format("woff2"),
-    url("../../public/static/fonts/CircularXXSub-Black.woff") format("woff");
+    url('../../public/static/fonts/CircularXXSub-Black.woff2') format('woff2'),
+    url('../../public/static/fonts/CircularXXSub-Black.woff') format('woff');
 }
