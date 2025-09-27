@@ -50,12 +50,13 @@ export interface BaseTokenInfo {
   decimals: number
   icon: string
   /**
-   * Origin of the token. Most tokens are bridged from other chains.
-   * But some are canonical to NEAR, like wNEAR or usdt.tether-token.near.
-   * It's mostly used for showing a chain icon for the token.
-   * @deprecated
+   * Origin of the token. Most tokens are bridged from other chains,
+   * but some are canonical to NEAR (e.g., wNEAR, usdt.tether-token.near).
+   *
+   * Used mainly for displaying a chain icon for the token.
+   * SHOULD NOT be used for domain logic.
    */
-  chainName: SupportedChainName
+  originChainName: SupportedChainName
   deployments: [TokenDeployment, ...TokenDeployment[]]
   tags?: string[]
 }

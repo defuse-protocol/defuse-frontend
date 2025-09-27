@@ -19,7 +19,7 @@ const tokenInfo: BaseTokenInfo = {
   name: "",
   decimals: 0,
   icon: "",
-  chainName: "eth",
+  originChainName: "eth",
   deployments: [
     {
       chainName: "eth",

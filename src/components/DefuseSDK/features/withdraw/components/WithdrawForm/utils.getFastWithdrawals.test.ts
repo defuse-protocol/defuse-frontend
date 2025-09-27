@@ -8,7 +8,7 @@ describe("getFastWithdrawals", () => {
     symbol: "ETH",
     name: "Ethereum",
     decimals: 18,
-    chainName: "eth",
+    originChainName: "eth",
     icon: "",
     deployments: [
       { address: "0x0", decimals: 18, bridge: "direct", chainName: "eth" },

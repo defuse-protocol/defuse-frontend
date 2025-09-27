@@ -38,10 +38,12 @@ export function MostTradableTokens({
     // Filter tokens that are in the rankMap
     const filtered = tokenList.filter((token) => {
       if (isBaseToken(token.token)) {
-        return rankMap.has(toKey(token.token.symbol, token.token.chainName))
+        return rankMap.has(
+          toKey(token.token.symbol, token.token.originChainName)
+        )
       }
       return token.token.groupedTokens.some((t) =>
-        rankMap.has(toKey(t.symbol, t.chainName))
+        rankMap.has(toKey(t.symbol, t.originChainName))
       )
     })
 
@@ -49,7 +51,7 @@ export function MostTradableTokens({
     const seen = new Set<string>()
     const deduplicated = filtered.filter((token) => {
       const key = isBaseToken(token.token)
-        ? toKey(token.token.symbol, token.token.chainName)
+        ? toKey(token.token.symbol, token.token.originChainName)
         : `${token.token.symbol}-unified`
       if (seen.has(key)) return false
       seen.add(key)
@@ -61,12 +63,12 @@ export function MostTradableTokens({
       .sort((a, b) => {
         const getVolume = (token: SelectItemToken) => {
           if (isBaseToken(token.token)) {
-            const key = toKey(token.token.symbol, token.token.chainName)
+            const key = toKey(token.token.symbol, token.token.originChainName)
             return volumeMap.get(key) || 0
           }
           // For grouped tokens, find the highest volume among grouped tokens
           const vols = token.token.groupedTokens.map((t) => {
-            const key = toKey(t.symbol, t.chainName)
+            const key = toKey(t.symbol, t.originChainName)
             return volumeMap.get(key) ?? 0
           })
           return vols.length ? Math.max(...vols) : 0
@@ -155,11 +157,11 @@ function TokenList({
     >
       {tradableTokenList.map((selectItemToken) => {
         const chainIcon = isBaseToken(selectItemToken.token)
-          ? chainIcons[selectItemToken.token.chainName]
+          ? chainIcons[selectItemToken.token.originChainName]
           : undefined
         return (
           <button
-            key={`${selectItemToken.token.symbol}-${isBaseToken(selectItemToken.token) ? selectItemToken.token.chainName : "unified"}`}
+            key={`${selectItemToken.token.symbol}-${isBaseToken(selectItemToken.token) ? selectItemToken.token.originChainName : "unified"}`}
             type="button"
             onClick={() => onTokenSelect(selectItemToken)}
             className="group relative shrink-0 flex flex-none items-center justify-center p-1 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-700 transition-all duration-200 touch-manipulation w-10 h-10"
@@ -170,7 +172,7 @@ function TokenList({
               showChainIcon={showChainIcon(selectItemToken.token, chainIcon)}
               chainName={
                 isBaseToken(selectItemToken.token)
-                  ? selectItemToken.token.chainName
+                  ? selectItemToken.token.originChainName
                   : undefined
               }
               chainIcon={chainIcon}

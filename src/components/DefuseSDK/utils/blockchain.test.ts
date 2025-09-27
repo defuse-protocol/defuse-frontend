@@ -6,7 +6,7 @@ describe("availableChainsForToken()", () => {
   it("returns a single chain if given token is not part of a family", () => {
     const chains = availableChainsForToken({
       name: "ETH",
-      chainName: "eth",
+      originChainName: "eth",
       defuseAssetId: "eth",
       symbol: "ETH",
       decimals: 18,
@@ -28,7 +28,7 @@ describe("availableChainsForToken()", () => {
   it("returns all related chains if given token is a part of a family", () => {
     const chains = availableChainsForToken({
       name: "XRP",
-      chainName: "xrpledger",
+      originChainName: "xrpledger",
       defuseAssetId: "xrp",
       symbol: "XRP",
       decimals: 6,

@@ -74,7 +74,7 @@ describe("cleanUpDuplicateTokens", () => {
   const mockBaseToken = (
     overrides: Partial<BaseTokenInfo> = {}
   ): BaseTokenInfo => ({
-    chainName: "eth",
+    originChainName: "eth",
     symbol: "symbol",
     name: "name",
     decimals: 6,
@@ -93,8 +93,14 @@ describe("cleanUpDuplicateTokens", () => {
   })
 
   it("filters out tokens with duplicate chainName", () => {
-    const token1 = mockBaseToken({ chainName: "eth", defuseAssetId: "ETH" })
-    const token2 = mockBaseToken({ chainName: "eth", defuseAssetId: "ETH2" }) // same chainName
+    const token1 = mockBaseToken({
+      originChainName: "eth",
+      defuseAssetId: "ETH",
+    })
+    const token2 = mockBaseToken({
+      originChainName: "eth",
+      defuseAssetId: "ETH2",
+    }) // same chainName
 
     const grouped: UnifiedTokenInfo = {
       unifiedAssetId: "foo",
@@ -109,8 +115,14 @@ describe("cleanUpDuplicateTokens", () => {
   })
 
   it("filters out tokens with duplicate defuseAssetId", () => {
-    const token1 = mockBaseToken({ chainName: "eth", defuseAssetId: "ETH" })
-    const token2 = mockBaseToken({ chainName: "base", defuseAssetId: "ETH" }) // same defuseAssetId
+    const token1 = mockBaseToken({
+      originChainName: "eth",
+      defuseAssetId: "ETH",
+    })
+    const token2 = mockBaseToken({
+      originChainName: "base",
+      defuseAssetId: "ETH",
+    }) // same defuseAssetId
 
     const grouped: UnifiedTokenInfo = {
       unifiedAssetId: "foo",
@@ -125,9 +137,18 @@ describe("cleanUpDuplicateTokens", () => {
   })
 
   it("includes only the first unique token by chain and asset ID", () => {
-    const token1 = mockBaseToken({ chainName: "eth", defuseAssetId: "ETH" })
-    const token2 = mockBaseToken({ chainName: "base", defuseAssetId: "MATIC" })
-    const token3 = mockBaseToken({ chainName: "base", defuseAssetId: "MATIC" }) // duplicate
+    const token1 = mockBaseToken({
+      originChainName: "eth",
+      defuseAssetId: "ETH",
+    })
+    const token2 = mockBaseToken({
+      originChainName: "base",
+      defuseAssetId: "MATIC",
+    })
+    const token3 = mockBaseToken({
+      originChainName: "base",
+      defuseAssetId: "MATIC",
+    }) // duplicate
 
     const grouped: UnifiedTokenInfo = {
       unifiedAssetId: "foo",
@@ -152,7 +173,7 @@ describe("prepareAddressToUserBalance", () => {
     symbol: defuseAssetId,
     name: `${defuseAssetId} Token`,
     icon: "",
-    chainName: "eth",
+    originChainName: "eth",
     deployments: [
       { chainName: "eth", bridge: "direct", address: "0x0", decimals },
     ],
@@ -311,7 +332,7 @@ describe.skip("mapDepositBalancesToDecimals", () => {
     name: "name",
     decimals: 6,
     icon: "icon",
-    chainName: "eth",
+    originChainName: "eth",
     deployments: [
       { chainName: "eth", bridge: "poa", decimals: 6, address: "address" },
     ],
@@ -399,7 +420,7 @@ describe("getBlockchainSelectItems()", () => {
             defuseAssetId: "nep141:xrp.omft.near",
             decimals: 6,
             icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/52.png",
-            chainName: "xrpledger",
+            originChainName: "xrpledger",
             symbol: "XRP",
             name: "XRP",
             deployments: [
@@ -415,7 +436,7 @@ describe("getBlockchainSelectItems()", () => {
             defuseAssetId: "nep141:xrp.omft.near",
             decimals: 6,
             icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/52.png",
-            chainName: "near",
+            originChainName: "near",
             symbol: "XRP",
             name: "XRP",
             deployments: [
@@ -442,7 +463,7 @@ describe("getBlockchainSelectItems()", () => {
         defuseAssetId: "nep141:xrp.omft.near",
         decimals: 6,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/52.png",
-        chainName: "xrpledger",
+        originChainName: "xrpledger",
         symbol: "XRP",
         name: "XRP",
         tags: [], // no aid tag
@@ -467,7 +488,7 @@ describe("getBlockchainSelectItems()", () => {
         defuseAssetId: "nep141:xrp.omft.near",
         decimals: 6,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/52.png",
-        chainName: "xrpledger",
+        originChainName: "xrpledger",
         symbol: "XRP",
         name: "XRP",
         tags: ["aid:xrp"],
@@ -499,7 +520,7 @@ describe("getBlockchainSelectItems()", () => {
         defuseAssetId: "nep141:xrp.omft.near",
         decimals: 6,
         icon: "https://s2.coinmarketcap.com/static/img/coins/128x128/52.png",
-        chainName: "xrpledger",
+        originChainName: "xrpledger",
         symbol: "XRP",
         name: "XRP",
         tags: [], // no aid

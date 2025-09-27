@@ -57,7 +57,7 @@ describe("computeTotalBalance", () => {
       name: "Token",
       decimals: 18,
       icon: "icon.png",
-      chainName: "eth",
+      originChainName: "eth",
       deployments: [
         {
           chainName: "eth",
@@ -91,7 +91,7 @@ describe("computeTotalBalance", () => {
           name: "Token1",
           decimals: 18,
           icon: "icon1.png",
-          chainName: "eth",
+          originChainName: "eth",
           deployments: [
             {
               chainName: "eth",
@@ -107,7 +107,7 @@ describe("computeTotalBalance", () => {
           name: "Token2",
           decimals: 18,
           icon: "icon2.png",
-          chainName: "base",
+          originChainName: "base",
           deployments: [
             {
               chainName: "base",
@@ -199,7 +199,7 @@ describe("computeTotalBalanceDifferentDecimals", () => {
         name: "Token1",
         decimals: 18,
         icon: "icon1.png",
-        chainName: "eth",
+        originChainName: "eth",
         deployments: [
           {
             chainName: "eth",
@@ -215,7 +215,7 @@ describe("computeTotalBalanceDifferentDecimals", () => {
         name: "Token2",
         decimals: 18,
         icon: "icon2.png",
-        chainName: "eth",
+        originChainName: "eth",
         deployments: [
           {
             chainName: "eth",
@@ -243,7 +243,7 @@ describe("computeTotalBalanceDifferentDecimals", () => {
         name: "Token1",
         decimals: 18,
         icon: "icon1.png",
-        chainName: "eth",
+        originChainName: "eth",
         deployments: [
           {
             chainName: "eth",
@@ -259,7 +259,7 @@ describe("computeTotalBalanceDifferentDecimals", () => {
         name: "Token2",
         decimals: 18,
         icon: "icon2.png",
-        chainName: "eth",
+        originChainName: "eth",
         deployments: [
           {
             chainName: "eth",
@@ -283,7 +283,7 @@ describe("computeTotalBalanceDifferentDecimals", () => {
       name: "Token",
       decimals: 18,
       icon: "icon.png",
-      chainName: "eth",
+      originChainName: "eth",
       deployments: [
         {
           chainName: "eth",
@@ -324,7 +324,7 @@ describe("computeTotalBalanceDifferentDecimals", () => {
           name: "Token1",
           decimals: 18,
           icon: "icon1.png",
-          chainName: "eth",
+          originChainName: "eth",
           deployments: [
             {
               chainName: "eth",
@@ -340,7 +340,7 @@ describe("computeTotalBalanceDifferentDecimals", () => {
           name: "Token2",
           decimals: 18,
           icon: "icon2.png",
-          chainName: "base",
+          originChainName: "base",
           deployments: [
             {
               chainName: "base",
@@ -415,7 +415,7 @@ describe("computeTotalBalanceDifferentDecimals", () => {
           name: "Token1",
           decimals: 6,
           icon: "icon1.png",
-          chainName: "eth",
+          originChainName: "eth",
           deployments: [
             {
               chainName: "eth",
@@ -431,7 +431,7 @@ describe("computeTotalBalanceDifferentDecimals", () => {
           name: "Token2",
           decimals: 18,
           icon: "icon2.png",
-          chainName: "base",
+          originChainName: "base",
           deployments: [
             {
               chainName: "base",
@@ -474,7 +474,7 @@ describe("computeTotalBalanceDifferentDecimals", () => {
           name: "Token1",
           decimals: 6,
           icon: "icon1.png",
-          chainName: "eth",
+          originChainName: "eth",
           deployments: [
             {
               chainName: "eth",
@@ -490,7 +490,7 @@ describe("computeTotalBalanceDifferentDecimals", () => {
           name: "Token1",
           decimals: 18,
           icon: "icon1.png",
-          chainName: "eth",
+          originChainName: "eth",
           deployments: [
             {
               chainName: "eth",
@@ -506,7 +506,7 @@ describe("computeTotalBalanceDifferentDecimals", () => {
           name: "Token2",
           decimals: 18,
           icon: "icon2.png",
-          chainName: "base",
+          originChainName: "base",
           deployments: [
             {
               chainName: "base",
@@ -535,7 +535,7 @@ describe("computeTotalBalanceDifferentDecimals", () => {
             name: "Token1",
             decimals: 6,
             icon: "icon1.png",
-            chainName: "eth",
+            originChainName: "eth",
             deployments: [
               {
                 chainName: "eth",
@@ -551,7 +551,7 @@ describe("computeTotalBalanceDifferentDecimals", () => {
             name: "Token1",
             decimals: 6,
             icon: "icon1.png",
-            chainName: "eth",
+            originChainName: "eth",
             deployments: [
               {
                 chainName: "eth",
@@ -567,7 +567,7 @@ describe("computeTotalBalanceDifferentDecimals", () => {
             name: "Token2",
             decimals: 18,
             icon: "icon2.png",
-            chainName: "base",
+            originChainName: "base",
             deployments: [
               {
                 chainName: "base",
@@ -604,7 +604,7 @@ describe("getDerivedToken", () => {
           name: "Token1",
           decimals: 18,
           icon: "icon1.png",
-          chainName: "eth",
+          originChainName: "eth",
           deployments: [
             {
               chainName: "eth",
@@ -620,7 +620,7 @@ describe("getDerivedToken", () => {
           name: "Token2",
           decimals: 18,
           icon: "icon2.png",
-          chainName: "base",
+          originChainName: "base",
           deployments: [
             {
               chainName: "base",
@@ -638,7 +638,7 @@ describe("getDerivedToken", () => {
       name: "Token3",
       decimals: 18,
       icon: "icon3.png",
-      chainName: "eth",
+      originChainName: "eth",
       deployments: [
         {
           chainName: "eth",
@@ -844,7 +844,7 @@ describe("computeTotalDeltaDifferentDecimals", () => {
       name: "Token1",
       decimals: 6,
       icon: "icon1.png",
-      chainName: "eth",
+      originChainName: "eth",
       deployments: [
         {
           chainName: "eth",
@@ -860,7 +860,7 @@ describe("computeTotalDeltaDifferentDecimals", () => {
       name: "Token2",
       decimals: 18,
       icon: "icon2.png",
-      chainName: "eth",
+      originChainName: "eth",
       deployments: [
         {
           chainName: "eth",
@@ -925,7 +925,7 @@ describe("getUnderlyingBaseTokenInfos", () => {
     name: "Token1",
     decimals: 6,
     icon: "icon1.png",
-    chainName: "eth",
+    originChainName: "eth",
     deployments: [
       {
         chainName: "eth",
@@ -949,7 +949,7 @@ describe("getUnderlyingBaseTokenInfos", () => {
         name: "Token2",
         decimals: 18,
         icon: "icon2.png",
-        chainName: "base",
+        originChainName: "base",
         deployments: [
           {
             chainName: "base",
@@ -1120,7 +1120,7 @@ describe("filterOutPoaBridgeTokens", () => {
       name: "Token",
       decimals: 18,
       icon: "icon.png",
-      chainName: "eth",
+      originChainName: "eth",
       deployments: [
         {
           chainName: "eth",
@@ -1143,7 +1143,7 @@ describe("filterOutPoaBridgeTokens", () => {
       name: "Token",
       decimals: 18,
       icon: "icon.png",
-      chainName: "eth",
+      originChainName: "eth",
       deployments: [
         {
           chainName: "eth",
@@ -1166,7 +1166,7 @@ describe("filterOutPoaBridgeTokens", () => {
       name: "Token1",
       decimals: 18,
       icon: "icon1.png",
-      chainName: "eth",
+      originChainName: "eth",
       deployments: [
         {
           chainName: "eth",
@@ -1182,7 +1182,7 @@ describe("filterOutPoaBridgeTokens", () => {
       name: "Token2",
       decimals: 18,
       icon: "icon2.png",
-      chainName: "base",
+      originChainName: "base",
       deployments: [
         {
           chainName: "base",
@@ -1212,7 +1212,7 @@ describe("filterOutPoaBridgeTokens", () => {
       name: "Token2",
       decimals: 18,
       icon: "icon2.png",
-      chainName: "base",
+      originChainName: "base",
       deployments: [
         {
           chainName: "base",
@@ -1228,7 +1228,7 @@ describe("filterOutPoaBridgeTokens", () => {
       name: "Token2",
       decimals: 18,
       icon: "icon2.png",
-      chainName: "base",
+      originChainName: "base",
       deployments: [
         {
           chainName: "base",
@@ -1261,7 +1261,7 @@ describe("getTokenAccountIds", () => {
         name: "Token",
         decimals: 18,
         icon: "icon.png",
-        chainName: "eth",
+        originChainName: "eth",
         deployments: [
           {
             chainName: "eth",
@@ -1286,7 +1286,7 @@ describe("getTokenAccountIds", () => {
         name: "Token",
         decimals: 18,
         icon: "icon.png",
-        chainName: "eth",
+        originChainName: "eth",
         deployments: [
           {
             chainName: "eth",
@@ -1309,7 +1309,7 @@ describe("getTokenAccountIds", () => {
         name: "Token2",
         decimals: 18,
         icon: "icon2.png",
-        chainName: "base",
+        originChainName: "base",
         deployments: [
           {
             chainName: "base",
@@ -1325,7 +1325,7 @@ describe("getTokenAccountIds", () => {
         name: "Token2",
         decimals: 18,
         icon: "icon2.png",
-        chainName: "base",
+        originChainName: "base",
         deployments: [
           {
             chainName: "base",
@@ -1350,7 +1350,7 @@ describe("getTokenAccountIds", () => {
         name: "Token2",
         decimals: 18,
         icon: "icon2.png",
-        chainName: "base",
+        originChainName: "base",
         deployments: [
           {
             chainName: "base",
@@ -1366,7 +1366,7 @@ describe("getTokenAccountIds", () => {
         name: "Token2",
         decimals: 18,
         icon: "icon2.png",
-        chainName: "base",
+        originChainName: "base",
         deployments: [
           {
             chainName: "base",
@@ -1389,7 +1389,7 @@ describe("getTokenAccountIds", () => {
         name: "Token2",
         decimals: 18,
         icon: "icon2.png",
-        chainName: "base",
+        originChainName: "base",
         deployments: [
           {
             chainName: "base",
@@ -1405,7 +1405,7 @@ describe("getTokenAccountIds", () => {
         name: "Token2",
         decimals: 18,
         icon: "icon2.png",
-        chainName: "base",
+        originChainName: "base",
         deployments: [
           {
             chainName: "base",

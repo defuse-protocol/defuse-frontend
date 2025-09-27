@@ -12,7 +12,7 @@ export function fromOldBaseTokenInfoToNew(t: BaseTokenInfo_old): BaseTokenInfo {
     name: t.name,
     decimals: t.decimals,
     icon: t.icon,
-    chainName: t.chainName,
+    originChainName: t.chainName,
     tags: t.tags,
     deployments: [
       "type" in t

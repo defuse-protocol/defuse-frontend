@@ -262,11 +262,11 @@ export const cleanUpDuplicateTokens = (token: TokenInfo): BaseTokenInfo[] => {
 
   for (const t of tokens) {
     const alreadySeen =
-      seenChains.has(t.chainName) || seenAssetIds.has(t.defuseAssetId)
+      seenChains.has(t.originChainName) || seenAssetIds.has(t.defuseAssetId)
 
     if (alreadySeen) continue
 
-    seenChains.add(t.chainName)
+    seenChains.add(t.originChainName)
     seenAssetIds.add(t.defuseAssetId)
     uniqueTokens.push(t)
   }

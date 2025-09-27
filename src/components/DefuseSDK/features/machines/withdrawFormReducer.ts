@@ -293,7 +293,7 @@ export function getBaseTokenInfoWithFallback(
 
   if (chainName != null) {
     const tokenOut = tokenIn.groupedTokens.find(
-      (token) => token.chainName === chainName
+      (token) => token.originChainName === chainName
     )
     if (tokenOut != null) {
       return tokenOut

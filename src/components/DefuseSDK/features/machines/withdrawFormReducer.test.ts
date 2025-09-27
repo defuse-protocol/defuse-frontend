@@ -7,7 +7,7 @@ import { resolveTokenOut } from "./withdrawFormReducer"
 describe("resolveTokenOut()", () => {
   const tokenList: BaseTokenInfo[] = [
     {
-      chainName: "solana",
+      originChainName: "solana",
       decimals: 0,
       defuseAssetId: "",
       icon: "",
@@ -19,7 +19,7 @@ describe("resolveTokenOut()", () => {
       ],
     },
     {
-      chainName: "arbitrum",
+      originChainName: "arbitrum",
       decimals: 0,
       defuseAssetId: "",
       icon: "",
@@ -31,7 +31,7 @@ describe("resolveTokenOut()", () => {
       ],
     },
     {
-      chainName: "eth",
+      originChainName: "eth",
       decimals: 0,
       defuseAssetId: "",
       icon: "",
@@ -43,7 +43,7 @@ describe("resolveTokenOut()", () => {
       ],
     },
     {
-      chainName: "hyperliquid",
+      originChainName: "hyperliquid",
       decimals: 0,
       defuseAssetId: "",
       icon: "",

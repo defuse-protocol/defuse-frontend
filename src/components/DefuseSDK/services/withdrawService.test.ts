@@ -9,7 +9,7 @@ const usdcSolana: BaseTokenInfo = {
   name: "USD Coin",
   decimals: 6,
   icon: "usdc.svg",
-  chainName: "solana",
+  originChainName: "solana",
   deployments: [
     {
       chainName: "solana",
@@ -26,7 +26,7 @@ const usdcNear: BaseTokenInfo = {
   name: "USD Coin",
   decimals: 6,
   icon: "usdc.svg",
-  chainName: "near",
+  originChainName: "near",
   deployments: [
     {
       chainName: "near",
@@ -51,7 +51,7 @@ const turboSolana: BaseTokenInfo = {
   name: "Turbo Token",
   decimals: 8,
   icon: "turbo.svg",
-  chainName: "solana",
+  originChainName: "solana",
   deployments: [
     {
       chainName: "solana",
@@ -68,7 +68,7 @@ const turboEth: BaseTokenInfo = {
   name: "Turbo Token",
   decimals: 18,
   icon: "turbo.svg",
-  chainName: "eth",
+  originChainName: "eth",
   deployments: [
     {
       chainName: "eth",
