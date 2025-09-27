@@ -33,7 +33,9 @@ export function WithdrawIntentCard({
   const destTxUrl =
     destTxHash != null
       ? blockExplorerTxLinkFactory(
-          intentDescription.nearIntentsNetwork ? "near" : tokenOut.chainName,
+          intentDescription.nearIntentsNetwork
+            ? "near"
+            : tokenOut.originChainName,
           destTxHash
         )
       : undefined

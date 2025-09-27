@@ -25,20 +25,6 @@ export function useTokenList(tokenList: TokenInfo[], supports1cs = false) {
       return searchParams.has(feature.split(":")[1])
     })
 
-    if (searchParams.get("fms")) {
-      filteredList.push({
-        defuseAssetId:
-          "nep141:base-0xa5c67d8d37b88c2d88647814da5578128e2c93b2.omft.near",
-        address: "0xa5c67d8d37b88c2d88647814da5578128e2c93b2",
-        decimals: 18,
-        icon: "/static/icons/icon-fms.svg",
-        chainName: "base",
-        bridge: "poa",
-        symbol: "FMS",
-        name: "FOMO SOLVER",
-      })
-    }
-
     return filteredList
   }, [searchParams, sortedList])
 }

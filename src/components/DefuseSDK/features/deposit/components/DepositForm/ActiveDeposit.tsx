@@ -10,7 +10,7 @@ import { ButtonCustom } from "../../../../components/Button/ButtonCustom"
 import { TooltipInfo } from "../../../../components/TooltipInfo"
 import { useTokensUsdPrices } from "../../../../hooks/useTokensUsdPrices"
 import { RESERVED_NEAR_BALANCE } from "../../../../services/blockchainBalanceService"
-import type { BaseTokenInfo } from "../../../../types/base"
+import type { BaseTokenInfo, TokenDeployment } from "../../../../types/base"
 import { reverseAssetNetworkAdapter } from "../../../../utils/adapters"
 import { formatTokenValue, formatUsdAmount } from "../../../../utils/format"
 import getTokenUsdPrice from "../../../../utils/getTokenUsdPrice"
@@ -28,12 +28,14 @@ import {
 export type ActiveDepositProps = {
   network: BlockchainEnum
   token: BaseTokenInfo
+  tokenDeployment: TokenDeployment
   minDepositAmount: bigint | null
 }
 
 export function ActiveDeposit({
   network,
   token,
+  tokenDeployment,
   minDepositAmount,
 }: ActiveDepositProps) {
   const { setValue, watch } = useFormContext<DepositFormValues>()
@@ -73,7 +75,7 @@ export function ActiveDeposit({
 
   const balanceInsufficient =
     balance != null
-      ? isInsufficientBalance(amount, balance, token, network)
+      ? isInsufficientBalance(amount, balance, tokenDeployment, network)
       : null
 
   const isDepositAmountHighEnough =
@@ -87,19 +89,19 @@ export function ActiveDeposit({
       : null
 
   const handleSetMaxValue = async () => {
-    if (token == null || balance == null) return
+    if (balance == null) return
     const amountToFormat = formatTokenValue(
       maxDepositValue || balance,
-      token.decimals
+      tokenDeployment.decimals
     )
     setValue("amount", amountToFormat)
   }
 
   const handleSetHalfValue = async () => {
-    if (token == null || balance == null) return
+    if (balance == null) return
     const amountToFormat = formatTokenValue(
       (maxDepositValue || balance) / 2n,
-      token.decimals
+      tokenDeployment.decimals
     )
     setValue("amount", amountToFormat)
   }
@@ -130,7 +132,7 @@ export function ActiveDeposit({
           balanceSlot={
             <Balance
               balance={balance}
-              token={token}
+              token={tokenDeployment}
               handleSetMaxValue={handleSetMaxValue}
               handleSetHalfValue={handleSetHalfValue}
             />
@@ -147,7 +149,7 @@ export function ActiveDeposit({
 
       {minDepositAmount != null && (
         <div className="px-3">
-          {renderMinDepositAmountHint(minDepositAmount, token)}
+          {renderMinDepositAmountHint(minDepositAmount, token, tokenDeployment)}
         </div>
       )}
 
@@ -168,13 +170,14 @@ export function ActiveDeposit({
             (balanceInsufficient !== null ? balanceInsufficient : false),
           network,
           token,
+          tokenDeployment,
           minDepositAmount,
           isDepositAmountHighEnough,
           isLoading
         )}
       </ButtonCustom>
 
-      {renderDepositHint(network, token)}
+      {renderDepositHint(network, token, tokenDeployment)}
 
       <DepositResult
         chainName={reverseAssetNetworkAdapter[network]}
@@ -191,7 +194,7 @@ function Balance({
   handleSetHalfValue,
 }: {
   balance: bigint | null
-  token: BaseTokenInfo
+  token: TokenDeployment
   handleSetMaxValue: () => void
   handleSetHalfValue: () => void
 }) {
@@ -248,7 +251,8 @@ function renderDepositButtonText(
   isAmountEmpty: boolean,
   isBalanceInsufficient: boolean,
   network: BlockchainEnum | null,
-  token: BaseTokenInfo | null,
+  token: BaseTokenInfo,
+  tokenDeployment: TokenDeployment,
   minDepositAmount: bigint | null,
   isDepositAmountHighEnough: boolean,
   isLoading: boolean
@@ -259,8 +263,8 @@ function renderDepositButtonText(
   if (isAmountEmpty) {
     return "Enter amount"
   }
-  if (!isDepositAmountHighEnough && minDepositAmount != null && token != null) {
-    return `Minimal amount to deposit is ${formatTokenValue(minDepositAmount, token.decimals)} ${token.symbol}`
+  if (!isDepositAmountHighEnough && minDepositAmount != null) {
+    return `Minimal amount to deposit is ${formatTokenValue(minDepositAmount, tokenDeployment.decimals)} ${token.symbol}`
   }
   if (isBalanceInsufficient) {
     return "Insufficient balance"
@@ -274,13 +278,13 @@ function renderDepositButtonText(
 function isInsufficientBalance(
   formAmount: string,
   balance: bigint,
-  derivedToken: BaseTokenInfo,
+  token: TokenDeployment,
   network: BlockchainEnum | null
 ): boolean | null {
   if (!network) {
     return null
   }
 
-  const balanceToFormat = formatTokenValue(balance, derivedToken.decimals)
+  const balanceToFormat = formatTokenValue(balance, token.decimals)
   return Number.parseFloat(formAmount) > Number.parseFloat(balanceToFormat)
 }

@@ -360,7 +360,8 @@ export const swapIntentMachine = setup({
                   context.quoteToPublish
                 ),
                 accountId: context.defuseUserId,
-                chainName: context.intentOperationParams.tokenOut.chainName,
+                chainName:
+                  context.intentOperationParams.tokenOut.originChainName,
                 recipient: context.intentOperationParams.recipient,
                 nearIntentsNetwork:
                   context.intentOperationParams.nearIntentsNetwork,

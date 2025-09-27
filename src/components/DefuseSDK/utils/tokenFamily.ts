@@ -5,7 +5,6 @@ import type {
   TokenInfo,
 } from "../types/base"
 import { getTokenAid, isBaseToken } from "./token"
-import { getTokenDid } from "./tokenDeployment"
 
 /**
  * For now, it is just an array. In the future, it could be a map or
@@ -49,12 +48,11 @@ export function extractTokenFamilyList(list: TokenInfo[]): TokenFamily[] {
     }
 
     for (const tt of tokens) {
-      const did = getTokenDid(tt)
       const family = map.get(aid)
       if (family) {
-        family.deployments.push(did)
+        family.tokenIds.push(tt.defuseAssetId)
       } else {
-        map.set(aid, { aid, deployments: [did] })
+        map.set(aid, { aid, tokenIds: [tt.defuseAssetId] })
       }
     }
   }

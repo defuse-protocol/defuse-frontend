@@ -8,10 +8,11 @@ describe("getFastWithdrawals", () => {
     symbol: "ETH",
     name: "Ethereum",
     decimals: 18,
-    address: "0x0",
-    chainName: "eth",
+    originChainName: "eth",
     icon: "",
-    bridge: "direct",
+    deployments: [
+      { address: "0x0", decimals: 18, bridge: "direct", chainName: "eth" },
+    ],
   }
 
   it("returns empty object when shouldShowHotBalance is false", () => {

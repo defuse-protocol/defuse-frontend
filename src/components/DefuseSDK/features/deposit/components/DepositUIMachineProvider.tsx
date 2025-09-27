@@ -132,14 +132,14 @@ export function DepositUIMachineProvider({
             actors: {
               signAndSendTransactions: fromPromise(async ({ input }) => {
                 const {
-                  derivedToken,
+                  tokenDeployment,
                   balance,
                   amount,
                   nearBalance,
                   storageDepositRequired,
                 } = input
-                const address = isFungibleToken(derivedToken)
-                  ? derivedToken.address
+                const address = isFungibleToken(tokenDeployment)
+                  ? tokenDeployment.address
                   : null
 
                 assert(address != null, "Address is not defined")
@@ -206,7 +206,7 @@ export function DepositUIMachineProvider({
             actors: {
               signAndSendTransactions: fromPromise(async ({ input }) => {
                 const {
-                  derivedToken,
+                  tokenDeployment,
                   amount,
                   depositAddress,
                   userAddress,
@@ -217,7 +217,7 @@ export function DepositUIMachineProvider({
                 assert(depositAddress != null, "Deposit address is not defined")
 
                 let tx: Transaction["EVM"]
-                if (isNativeToken(derivedToken)) {
+                if (isNativeToken(tokenDeployment)) {
                   tx = createDepositEVMNativeTransaction(
                     userAddress,
                     depositAddress,
@@ -227,7 +227,7 @@ export function DepositUIMachineProvider({
                 } else {
                   tx = createDepositEVMERC20Transaction(
                     userAddress,
-                    derivedToken.address,
+                    tokenDeployment.address,
                     depositAddress,
                     amount,
                     chainId
@@ -264,7 +264,7 @@ export function DepositUIMachineProvider({
                   amount,
                   depositAddress,
                   userAddress,
-                  derivedToken,
+                  tokenDeployment,
                   solanaATACreationRequired,
                 } = input
 
@@ -274,7 +274,7 @@ export function DepositUIMachineProvider({
                   userAddress,
                   depositAddress,
                   amount,
-                  token: derivedToken,
+                  token: tokenDeployment,
                   ataExists: !solanaATACreationRequired,
                 })
 
@@ -298,7 +298,7 @@ export function DepositUIMachineProvider({
                 const {
                   amount,
                   userAddress,
-                  derivedToken,
+                  tokenDeployment,
                   depositAddress,
                   chainName,
                 } = input
@@ -315,9 +315,9 @@ export function DepositUIMachineProvider({
 
                 assert(siloToSiloAddress_ != null, "chainType should be EVM")
 
-                if (!isNativeToken(derivedToken)) {
+                if (!isNativeToken(tokenDeployment)) {
                   const allowance = await getAllowance(
-                    derivedToken.address,
+                    tokenDeployment.address,
                     userAddress,
                     siloToSiloAddress_,
                     assetNetworkAdapter[chainName]
@@ -326,7 +326,7 @@ export function DepositUIMachineProvider({
 
                   if (allowance < amount) {
                     const approveTx = createApproveTransaction(
-                      derivedToken.address,
+                      tokenDeployment.address,
                       siloToSiloAddress_,
                       amount,
                       getAddress(userAddress),
@@ -350,14 +350,14 @@ export function DepositUIMachineProvider({
                 }
 
                 const tx = createDepositFromSiloTransaction(
-                  isNativeToken(derivedToken)
+                  isNativeToken(tokenDeployment)
                     ? "0x0000000000000000000000000000000000000000"
-                    : derivedToken.address,
+                    : tokenDeployment.address,
                   userAddress,
                   amount,
                   depositAddress,
                   siloToSiloAddress_,
-                  isNativeToken(derivedToken) ? amount : 0n,
+                  isNativeToken(tokenDeployment) ? amount : 0n,
                   chainId
                 )
                 logger.verbose("Sending deposit from Silo EVM transaction")
@@ -390,7 +390,7 @@ export function DepositUIMachineProvider({
                 const {
                   amount,
                   userAddress,
-                  derivedToken,
+                  tokenDeployment,
                   depositAddress,
                   chainName,
                 } = input
@@ -401,7 +401,7 @@ export function DepositUIMachineProvider({
                   `${depositAddress}:${userAddress}`.toLowerCase()
 
                 let tx: Transaction["EVM"]
-                if (isNativeToken(derivedToken)) {
+                if (isNativeToken(tokenDeployment)) {
                   logger.verbose(
                     "Sending deposit through exitToNearPrecompile contract"
                   )
@@ -415,7 +415,7 @@ export function DepositUIMachineProvider({
                   logger.verbose("Sending deposit through auroraErc20 contract")
                   tx = createDepositVirtualChainERC20Transaction(
                     userAddress,
-                    derivedToken.address,
+                    tokenDeployment.address,
                     precompileDepositAddress,
                     amount,
                     chainId
@@ -447,7 +447,7 @@ export function DepositUIMachineProvider({
               signAndSendTransactions: fromPromise(async ({ input }) => {
                 const {
                   amount,
-                  derivedToken,
+                  tokenDeployment,
                   depositAddress,
                   userWalletAddress,
                 } = input
@@ -461,7 +461,7 @@ export function DepositUIMachineProvider({
                   userWalletAddress,
                   depositAddress,
                   amount,
-                  derivedToken
+                  tokenDeployment
                 )
 
                 const txHash = await sendTransactionTon(tx)
@@ -488,7 +488,7 @@ export function DepositUIMachineProvider({
                   amount,
                   depositAddress,
                   userAddress,
-                  derivedToken,
+                  tokenDeployment,
                   memo,
                 } = input
 
@@ -498,7 +498,7 @@ export function DepositUIMachineProvider({
                   userAddress,
                   depositAddress,
                   amount,
-                  token: derivedToken,
+                  token: tokenDeployment,
                   memo,
                 })
 
@@ -522,13 +522,13 @@ export function DepositUIMachineProvider({
           depositTronActor: depositMachine.provide({
             actors: {
               signAndSendTransactions: fromPromise(async ({ input }) => {
-                const { derivedToken, amount, depositAddress, userAddress } =
+                const { tokenDeployment, amount, depositAddress, userAddress } =
                   input
 
                 assert(depositAddress != null, "Deposit address is not defined")
 
                 let tx: Transaction["Tron"]
-                if (isNativeToken(derivedToken)) {
+                if (isNativeToken(tokenDeployment)) {
                   tx = await createDepositTronNativeTransaction(
                     userAddress,
                     depositAddress,
@@ -537,7 +537,7 @@ export function DepositUIMachineProvider({
                 } else {
                   tx = await createDepositTronTRC20Transaction(
                     userAddress,
-                    derivedToken.address,
+                    tokenDeployment.address,
                     depositAddress,
                     amount
                   )

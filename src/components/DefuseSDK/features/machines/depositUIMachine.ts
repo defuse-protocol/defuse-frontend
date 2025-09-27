@@ -2,6 +2,7 @@ import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import {
   type ActorRefFrom,
+  type EventFrom,
   and,
   assertEvent,
   assign,
@@ -11,7 +12,11 @@ import {
 } from "xstate"
 import { config } from "../../config"
 import { clearSolanaATACache } from "../../services/depositService"
-import type { BaseTokenInfo, SupportedChainName } from "../../types/base"
+import type {
+  BaseTokenInfo,
+  SupportedChainName,
+  TokenDeployment,
+} from "../../types/base"
 import type { TokenInfo } from "../../types/base"
 import { depositEstimationMachine } from "./depositEstimationActor"
 import {
@@ -113,14 +118,14 @@ export const depositUIMachine = setup({
       throw new Error("not implemented")
     },
     clearSolanaATACache: ({ context }) => {
-      const { derivedToken } = context.depositFormRef.getSnapshot().context
+      const { tokenDeployment } = context.depositFormRef.getSnapshot().context
       const depositAddress =
         context.preparationOutput?.tag === "ok"
           ? context.preparationOutput.value.generateDepositAddress
           : null
 
-      if (derivedToken != null && depositAddress != null) {
-        clearSolanaATACache(derivedToken, depositAddress)
+      if (tokenDeployment != null && depositAddress != null) {
+        clearSolanaATACache(tokenDeployment, depositAddress)
       }
     },
 
@@ -159,16 +164,31 @@ export const depositUIMachine = setup({
         }
       }
     ),
-    requestBalanceRefresh: sendTo("depositTokenBalanceRef", ({ context }) => {
-      return {
-        type: "REQUEST_BALANCE_REFRESH",
-        params: {
-          derivedToken:
-            context.depositFormRef.getSnapshot().context.derivedToken,
-          userAddress: context.userAddress,
-          userWalletAddress: context.userWalletAddress,
-          blockchain: context.depositFormRef.getSnapshot().context.blockchain,
-        },
+    // @ts-expect-error Weird xstate type error, which should not be thrown
+    requestBalanceRefresh: enqueueActions(({ enqueue, context }) => {
+      const { blockchain, tokenDeployment } =
+        context.depositFormRef.getSnapshot().context
+      const { userAddress, userWalletAddress } = context
+
+      if (
+        userAddress != null &&
+        blockchain != null &&
+        tokenDeployment != null
+      ) {
+        enqueue.sendTo(
+          "depositTokenBalanceRef",
+          (): EventFrom<typeof depositTokenBalanceMachine> => {
+            return {
+              type: "REQUEST_BALANCE_REFRESH",
+              params: {
+                tokenDeployment,
+                blockchain,
+                userAddress,
+                userWalletAddress,
+              },
+            }
+          }
+        )
       }
     }),
     // @ts-expect-error Weird xstate type error, which should not be thrown
@@ -708,6 +728,7 @@ export const depositUIMachine = setup({
 type DepositParams = {
   chainName: SupportedChainName
   derivedToken: BaseTokenInfo
+  tokenDeployment: TokenDeployment
   balance: bigint
   amount: bigint
   nearBalance: bigint | null
@@ -726,12 +747,13 @@ function extractDepositParams(context: Context): DepositParams {
       ? context.preparationOutput
       : { value: null }
 
-  const { token, derivedToken, blockchain, parsedAmount } =
+  const { token, derivedToken, tokenDeployment, blockchain, parsedAmount } =
     context.depositFormRef.getSnapshot().context
 
   // Validate all required fields
   assert(token, "token is null")
   assert(derivedToken, "derivedToken is null")
+  assert(tokenDeployment, "tokenDeployment is null")
   assert(blockchain !== null, "blockchain is null")
   assert(context.userAddress, "userAddress is null")
   assert(context.userWalletAddress, "userWalletAddress is null")
@@ -741,6 +763,7 @@ function extractDepositParams(context: Context): DepositParams {
   return {
     chainName: blockchain,
     derivedToken,
+    tokenDeployment,
     balance: prepOutput.balance,
     nearBalance: prepOutput.nearBalance,
     amount: parsedAmount,

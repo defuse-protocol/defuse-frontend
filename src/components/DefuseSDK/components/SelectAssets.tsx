@@ -38,7 +38,7 @@ export const SelectAssets = ({
 
   const chainIcon = useMemo(() => {
     return selected !== undefined && isBaseToken(selected)
-      ? chainIcons[selected.chainName]
+      ? chainIcons[selected.originChainName]
       : undefined
   }, [selected])
 
@@ -80,7 +80,9 @@ export const SelectAssets = ({
         <AssetComboIcon
           icon={selected.icon as string}
           name={selected.name as string}
-          chainName={isBaseToken(selected) ? selected.chainName : undefined}
+          chainName={
+            isBaseToken(selected) ? selected.originChainName : undefined
+          }
           chainIcon={chainIcon}
           showChainIcon={showChainIcon}
         />

@@ -73,21 +73,20 @@ export const RecipientSubForm = ({
       }
     })
 
-  const { token, tokenOut, parsedAmountIn, recipient } = useSelector(
-    formRef,
-    (state) => {
+  const { token, tokenOut, tokenOutDeployment, parsedAmountIn, recipient } =
+    useSelector(formRef, (state) => {
       return {
         token: state.context.tokenIn,
         tokenOut: state.context.tokenOut,
+        tokenOutDeployment: state.context.tokenOutDeployment,
         parsedAmountIn: state.context.parsedAmount,
         recipient: state.context.recipient,
       }
-    }
-  )
+    })
 
   const isChainTypeSatisfiesChainName = chainTypeSatisfiesChainName(
     chainType,
-    tokenOut.chainName
+    tokenOutDeployment.chainName
   )
 
   const hasAnyBalance = tokenInBalance != null && tokenInBalance?.amount > 0
@@ -230,11 +229,13 @@ export const RecipientSubForm = ({
         )}
       />
 
-      {tokenOut.bridge === "poa" && showHotBalances && (
+      {tokenOutDeployment.bridge === "poa" && showHotBalances && (
         <LongWithdrawWarning
           amountIn={parsedAmountIn}
           symbol={tokenOut.symbol}
-          hotBalance={blockchainSelectItems[tokenOut.chainName]?.hotBalance}
+          hotBalance={
+            blockchainSelectItems[tokenOutDeployment.chainName]?.hotBalance
+          }
         />
       )}
 
@@ -322,7 +323,10 @@ export const RecipientSubForm = ({
                       if (value == null || value === "") return
 
                       if (
-                        parseDestinationMemo(value, tokenOut.chainName) == null
+                        parseDestinationMemo(
+                          value,
+                          tokenOutDeployment.chainName
+                        ) == null
                       ) {
                         return "Should be a number"
                       }

@@ -57,7 +57,7 @@ export function PriceChangeDialog({
                       (tokenIn.name as string | undefined) ?? tokenIn.symbol
                     }
                     chainName={
-                      isBaseToken(tokenIn) ? tokenIn.chainName : undefined
+                      isBaseToken(tokenIn) ? tokenIn.originChainName : undefined
                     }
                   />
                 )}
@@ -100,7 +100,9 @@ export function PriceChangeDialog({
                       (tokenOut.name as string | undefined) ?? tokenOut.symbol
                     }
                     chainName={
-                      isBaseToken(tokenOut) ? tokenOut.chainName : undefined
+                      isBaseToken(tokenOut)
+                        ? tokenOut.originChainName
+                        : undefined
                     }
                   />
                 )}

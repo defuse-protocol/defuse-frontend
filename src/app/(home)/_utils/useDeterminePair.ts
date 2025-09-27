@@ -211,7 +211,7 @@ export function hasChainIcon(
 const SEPARATOR = ":"
 
 function tokenToSymbolWithChainName(token: BaseTokenInfo) {
-  return `${token.symbol}${SEPARATOR}${token.chainName}`
+  return `${token.symbol}${SEPARATOR}${token.originChainName}`
 }
 
 export function tokenFromSymbolWithChainName(symbolWithChainName: string) {
@@ -224,7 +224,8 @@ export function tokenFromSymbolWithChainName(symbolWithChainName: string) {
       ? LIST_TOKENS.find((t) => t.symbol === symbolWithoutChainName)
       : LIST_TOKENS_FLATTEN.find(
           (t) =>
-            t.symbol === symbolWithoutChainName && t.chainName === chainName
+            t.symbol === symbolWithoutChainName &&
+            t.originChainName === chainName
         )) ?? null
   )
 }
