@@ -1,4 +1,5 @@
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
+import * as Accordion from "@radix-ui/react-accordion"
+import { CaretDownIcon, ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Box, Button, Callout, Flex } from "@radix-ui/themes"
 import { TradeNavigationLinks } from "@src/components/DefuseSDK/components/TradeNavigationLinks"
 import { useTokensUsdPrices } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
@@ -9,7 +10,7 @@ import { getTokenId } from "@src/components/DefuseSDK/utils/token"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useSelector } from "@xstate/react"
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import {
   Fragment,
   type ReactNode,
@@ -41,7 +42,13 @@ import {
 } from "../../machines/depositedBalanceMachine"
 import type { intentStatusMachine } from "../../machines/intentStatusMachine"
 import type { oneClickStatusMachine } from "../../machines/oneClickStatusMachine"
-import { type Context, ONE_CLICK_PREFIX } from "../../machines/swapUIMachine"
+import {
+  type Context,
+  ONE_CLICK_PREFIX,
+  SWAP_STRATEGIES,
+  SWAP_STRATEGIES_ARRAY,
+  type SwapStrategy,
+} from "../../machines/swapUIMachine"
 import { SwapPriceImpact } from "./SwapPriceImpact"
 import { SwapRateInfo } from "./SwapRateInfo"
 import { SwapSubmitterContext } from "./SwapSubmitter"
@@ -55,9 +62,17 @@ export type SwapFormValues = {
 export interface SwapFormProps {
   isLoggedIn: boolean
   renderHostAppLink: RenderHostAppLink
+  isDCA: boolean
 }
 
-export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
+export const SwapForm = ({
+  isLoggedIn,
+  renderHostAppLink,
+  isDCA,
+}: SwapFormProps) => {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+
   const {
     handleSubmit,
     register,
@@ -69,6 +84,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const swapUIActorRef = SwapUIMachineContext.useActorRef()
   const snapshot = SwapUIMachineContext.useSelector((snapshot) => snapshot)
   const intentCreationResult = snapshot.context.intentCreationResult
+  const slippageBasisPoints = snapshot.context.slippageBasisPoints
   const { data: tokensUsdPriceData } = useTokensUsdPrices()
 
   const {
@@ -117,6 +133,40 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
       },
     })
   }, [tokenIn, tokenOut, getValues, setValue, swapUIActorRef.send])
+
+  const swapStrategyParam = searchParams.get("swapStrategy")
+  const swapStrategy =
+    swapStrategyParam &&
+    SWAP_STRATEGIES_ARRAY.includes(swapStrategyParam as SwapStrategy)
+      ? (swapStrategyParam as SwapStrategy)
+      : SWAP_STRATEGIES_ARRAY[0]
+
+  const setSwapStrategy = useCallback(
+    (newStrategy: SwapStrategy) => {
+      const params = new URLSearchParams(searchParams.toString())
+      if (newStrategy === "BEST") {
+        params.delete("swapStrategy")
+      } else {
+        params.set("swapStrategy", newStrategy)
+      }
+      router.replace(`?${params.toString()}`, { scroll: false })
+      swapUIActorRef.send({
+        type: "input",
+        params: { swapStrategy: newStrategy, isDCA },
+      })
+    },
+    [searchParams, router, swapUIActorRef.send, isDCA]
+  )
+
+  const setSlippageBasisPoints = useCallback(
+    (newSlippageBasisPoints: number) => {
+      swapUIActorRef.send({
+        type: "input",
+        params: { slippageBasisPoints: newSlippageBasisPoints },
+      })
+    },
+    [swapUIActorRef.send]
+  )
 
   const {
     setModalType,
@@ -290,6 +340,15 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             }
             balance={tokenOutBalance}
           />
+
+          {is1cs && isDCA && (
+            <Settings
+              swapStrategy={swapStrategy}
+              setSwapStrategy={setSwapStrategy}
+              slippageBasisPoints={slippageBasisPoints}
+              setSlippageBasisPoints={setSlippageBasisPoints}
+            />
+          )}
 
           {quote1csError && <Quote1csError quote1csError={quote1csError} />}
 
@@ -541,5 +600,98 @@ export function renderIntentCreationResult(
       </Callout.Icon>
       <Callout.Text>{content}</Callout.Text>
     </Callout.Root>
+  )
+}
+
+function Settings({
+  swapStrategy,
+  setSwapStrategy,
+  slippageBasisPoints,
+  setSlippageBasisPoints,
+}: {
+  swapStrategy: SwapStrategy
+  setSwapStrategy: (swapStrategy: SwapStrategy) => void
+  slippageBasisPoints: number
+  setSlippageBasisPoints: (slippageBasisPoints: number) => void
+}) {
+  const slippagePercentage = slippageBasisPoints / 10000
+  const slippagePercentageValue = (100 - slippagePercentage).toFixed(1)
+
+  const handleSlippageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const percentage = Number.parseFloat(event.target.value)
+    const basisPoints = Math.round((100 - percentage) * 10000)
+    setSlippageBasisPoints(basisPoints)
+  }
+
+  return (
+    <Accordion.Root type="single" collapsible className="mb-5">
+      <Accordion.Item
+        value="settings"
+        className="border border-gray-4 rounded-lg"
+      >
+        <Accordion.Trigger className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-gray-11 hover:bg-gray-2 transition-colors rounded-lg data-[state=open]:rounded-b-none">
+          <span>Swap Settings</span>
+          <CaretDownIcon className="h-4 w-4 transition-transform duration-200 data-[state=open]:rotate-180" />
+        </Accordion.Trigger>
+        <Accordion.Content className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+          <div className="flex flex-col gap-4 p-4">
+            <div className="flex flex-col gap-2">
+              <label
+                htmlFor="slippage"
+                className="text-xs font-medium text-gray-11"
+              >
+                Price Protection: {slippagePercentage}% slippage
+              </label>
+              <input
+                id="slippage"
+                type="range"
+                min="0"
+                max="99.5"
+                step="0.1"
+                value={slippagePercentageValue}
+                onChange={handleSlippageChange}
+                className="w-full h-2 bg-gray-3 dark:bg-gray-5 rounded-lg appearance-none cursor-pointer slider"
+                style={{
+                  background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${slippagePercentageValue}%, #ef4444 ${slippagePercentageValue}%, #ef4444 100%)`,
+                }}
+              />
+              <div className="flex justify-between text-xs text-gray-10">
+                <span>100%</span>
+                <span>0.5%</span>
+              </div>
+              <p className="text-xs text-gray-10">
+                Your transaction will revert if the price changes unfavorably by
+                more than this slippage percentage.
+              </p>
+            </div>
+            <div className="flex flex-col gap-2">
+              <label
+                htmlFor="swapStrategy"
+                className="text-xs font-medium text-gray-11"
+              >
+                Swap Strategy
+              </label>
+              <select
+                id="swapStrategy"
+                value={swapStrategy}
+                onChange={(e) =>
+                  setSwapStrategy(e.target.value as SwapStrategy)
+                }
+                className="w-full px-3 py-2 rounded-md bg-gray-1 dark:bg-gray-2 border border-gray-4 dark:border-gray-6 text-gray-12 dark:text-gray-11 text-sm"
+              >
+                {Object.entries(SWAP_STRATEGIES).map(([key, label]) => (
+                  <option key={key} value={key}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-10">
+                Choose the strategy for executing your swap.
+              </p>
+            </div>
+          </div>
+        </Accordion.Content>
+      </Accordion.Item>
+    </Accordion.Root>
   )
 }

@@ -4,6 +4,7 @@ import { type ActorRef, type Snapshot, fromCallback } from "xstate"
 
 import { logger } from "../../logger"
 import type { BaseTokenInfo } from "../../types/base"
+import type { SwapStrategy } from "./swapUIMachine"
 
 export type Quote1csInput = {
   tokenIn: BaseTokenInfo
@@ -14,6 +15,7 @@ export type Quote1csInput = {
   deadline: string
   userAddress: string
   userChainType: AuthMethod
+  swapStrategy?: SwapStrategy
 }
 
 export type Events =
@@ -133,6 +135,7 @@ async function get1csQuote(
       deadline: quoteInput.deadline,
       userAddress: quoteInput.userAddress,
       authMethod: quoteInput.userChainType,
+      swapStrategy: quoteInput.swapStrategy,
     })
 
     onResult(result, tokenInAssetId, tokenOutAssetId)

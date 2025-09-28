@@ -168,6 +168,7 @@ export const swapIntent1csMachine = setup({
             deadline: input.deadline,
             userAddress: input.userAddress,
             authMethod: input.userChainType,
+            swapStrategy: input.swapStrategy,
           })
 
           return result

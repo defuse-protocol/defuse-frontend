@@ -1,8 +1,13 @@
 import type { walletMessage } from "@defuse-protocol/internal-utils"
+import {
+  SWAP_STRATEGIES_ARRAY,
+  type SwapStrategy,
+} from "@src/components/DefuseSDK/features/machines/swapUIMachine"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { createActorContext } from "@xstate/react"
+import { useSearchParams } from "next/navigation"
 import type { PropsWithChildren, ReactElement, ReactNode } from "react"
 import { useFormContext } from "react-hook-form"
 import { formatUnits } from "viem"
@@ -57,6 +62,7 @@ interface SwapUIMachineProviderProps extends PropsWithChildren {
     params: walletMessage.WalletMessage
   ) => Promise<walletMessage.WalletSignatureResult | null>
   referral?: string
+  isDCA: boolean
 }
 
 export function SwapUIMachineProvider({
@@ -66,12 +72,21 @@ export function SwapUIMachineProvider({
   tokenList,
   signMessage,
   referral,
+  isDCA,
 }: SwapUIMachineProviderProps) {
+  const searchParams = useSearchParams()
   const { setValue, resetField } = useFormContext<SwapFormValues>()
   const tokenIn = initialTokenIn || tokenList[0]
   const tokenOut = initialTokenOut || tokenList[1]
   const is1cs = useIs1CsEnabled()
   assert(tokenIn && tokenOut, "TokenIn and TokenOut must be defined")
+
+  const swapStrategyParam = searchParams.get("swapStrategy")
+  const swapStrategy =
+    swapStrategyParam &&
+    SWAP_STRATEGIES_ARRAY.includes(swapStrategyParam as SwapStrategy)
+      ? (swapStrategyParam as SwapStrategy)
+      : SWAP_STRATEGIES_ARRAY[0]
 
   return (
     <SwapUIMachineContext.Provider
@@ -84,6 +99,8 @@ export function SwapUIMachineProvider({
           tokenList,
           referral,
           is1cs,
+          swapStrategy,
+          isDCA,
         },
       }}
       logic={swapUIMachine.provide({

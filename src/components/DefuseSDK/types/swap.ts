@@ -36,6 +36,7 @@ export type SwapWidgetProps = {
   }) => void
 
   renderHostAppLink: RenderHostAppLink
+  isDCA: boolean
   initialTokenIn?: TokenInfo
   initialTokenOut?: TokenInfo
 
