@@ -1,4 +1,5 @@
 import { errors, poaBridge } from "@defuse-protocol/internal-utils"
+import { logger } from "@src/utils/logger"
 import {
   type ActorRefFrom,
   type SnapshotFrom,
@@ -8,7 +9,6 @@ import {
   setup,
   waitFor,
 } from "xstate"
-import { logger } from "../../logger"
 import type { BaseTokenInfo } from "../../types/base"
 
 export interface Context {

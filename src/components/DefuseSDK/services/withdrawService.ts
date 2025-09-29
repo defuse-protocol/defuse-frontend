@@ -10,6 +10,7 @@ import {
   createNearWithdrawalRoute,
   createVirtualChainRoute,
 } from "@defuse-protocol/intents-sdk"
+import { logger } from "@src/utils/logger"
 import { Err, Ok, type Result } from "@thames/monads"
 import { type ActorRefFrom, waitFor } from "xstate"
 import { getAuroraEngineContractId } from "../constants/aurora"
@@ -28,7 +29,6 @@ import { getPOABridgeInfo } from "../features/machines/poaBridgeInfoActor"
 import { calcWithdrawAmount } from "../features/machines/swapIntentMachine"
 import type { State as WithdrawFormContext } from "../features/machines/withdrawFormReducer"
 import { isNearIntentsNetwork } from "../features/withdraw/components/WithdrawForm/utils"
-import { logger } from "../logger"
 import { calculateSplitAmounts } from "../sdk/aggregatedQuote/calculateSplitAmounts"
 import type { BaseTokenInfo, TokenInfo, TokenValue } from "../types/base"
 import { assert } from "../utils/assert"

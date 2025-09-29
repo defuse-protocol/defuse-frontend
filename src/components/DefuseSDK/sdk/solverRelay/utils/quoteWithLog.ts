@@ -1,5 +1,5 @@
 import { solverRelay } from "@defuse-protocol/internal-utils"
-import { logger } from "../../../logger"
+import { logger } from "@src/utils/logger"
 
 export async function quoteWithLog(
   params: Parameters<typeof solverRelay.quote>[0],

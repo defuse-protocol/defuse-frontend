@@ -1,7 +1,7 @@
+import { logger } from "@src/utils/logger"
 import type { providers } from "near-api-js"
 import { assertEvent, assign, fromPromise, setup } from "xstate"
 import { config } from "../../config"
-import { logger } from "../../logger"
 import { hasPublicKey } from "../../services/intentsContractService"
 import type { Transaction } from "../../types/deposit"
 import {

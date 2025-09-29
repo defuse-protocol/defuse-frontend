@@ -1,7 +1,7 @@
 import type { authHandle } from "@defuse-protocol/internal-utils"
+import { logger } from "@src/utils/logger"
 import { type ReactNode, createContext } from "react"
 import { nearClient } from "../../../constants/nearClient"
-import { logger } from "../../../logger"
 import { SwapUIMachineContext } from "./SwapUIMachineProvider"
 
 export const SwapSubmitterContext = createContext<{

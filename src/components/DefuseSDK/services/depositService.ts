@@ -13,6 +13,7 @@ import {
   Transaction as TransactionSolana,
 } from "@solana/web3.js"
 import { auroraErc20ABI } from "@src/components/DefuseSDK/utils/blockchain"
+import { logger } from "@src/utils/logger"
 import {
   type Account,
   Asset,
@@ -41,7 +42,6 @@ import type { depositGenerateAddressMachine } from "../features/machines/deposit
 import type { depositTokenBalanceMachine } from "../features/machines/depositTokenBalanceMachine"
 import { getNearTxSuccessValue } from "../features/machines/getTxMachine"
 import type { storageDepositAmountMachine } from "../features/machines/storageDepositAmountMachine"
-import { logger } from "../logger"
 import type { BaseTokenInfo, SupportedChainName } from "../types/base"
 import type {
   SendTransactionEVMParams,

@@ -1,7 +1,7 @@
 import type { MultiPayload } from "@defuse-protocol/contract-types"
 import { solverRelay } from "@defuse-protocol/internal-utils"
+import { logger } from "@src/utils/logger"
 import { assign, fromPromise, setup } from "xstate"
-import { logger } from "../../../logger"
 import {
   type PublishIntentsErr,
   convertPublishIntentsToLegacyFormat,

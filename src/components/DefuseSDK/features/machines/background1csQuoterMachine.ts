@@ -2,7 +2,7 @@ import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { getQuote as get1csQuoteApi } from "@src/components/DefuseSDK/features/machines/1cs"
 import { type ActorRef, type Snapshot, fromCallback } from "xstate"
 
-import { logger } from "../../logger"
+import { logger } from "@src/utils/logger"
 import type { BaseTokenInfo } from "../../types/base"
 
 export type Quote1csInput = {

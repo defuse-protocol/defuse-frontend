@@ -1,7 +1,7 @@
 import { nearClient } from "@src/components/DefuseSDK/constants/nearClient"
+import { logger } from "@src/utils/logger"
 import { useQuery } from "@tanstack/react-query"
 import { Err, type Result } from "@thames/monads"
-import { logger } from "../../../logger"
 import { getDepositedBalances } from "../../../services/defuseBalanceService"
 import type { AggregatedQuote } from "../../../services/quoteService"
 import type { TokenInfo } from "../../../types/base"
@@ -83,7 +83,7 @@ export function useOtcTakerPreparation({
         {} as TokenValues
       )
 
-      logger.verbose("balances", { balances })
+      logger.trace("balances", { balances })
 
       const tokensToReceive: Record<string, bigint> = {}
       const tokensToSend: Record<string, bigint> = {}
@@ -96,7 +96,7 @@ export function useOtcTakerPreparation({
         }
       }
 
-      logger.verbose("tokens breakdown", { tokensToReceive, tokensToSend })
+      logger.trace("tokens breakdown", { tokensToReceive, tokensToSend })
 
       const fillResult = fillWithMinimalExchanges(
         balancesWithTokenInfo,
@@ -104,7 +104,7 @@ export function useOtcTakerPreparation({
         BigInt(protocolFee)
       )
 
-      logger.verbose("fillResult", { fillResult })
+      logger.trace("fillResult", { fillResult })
 
       if (!fillResult.success) {
         return Err({
@@ -132,7 +132,7 @@ export function useOtcTakerPreparation({
       })
 
       return quotesResult.map((quotes) => {
-        logger.verbose("return", { quotes, quoteParams, tokenDelta })
+        logger.trace("return", { quotes, quoteParams, tokenDelta })
         return { quotes, quoteParams, tokenDelta }
       })
     },
