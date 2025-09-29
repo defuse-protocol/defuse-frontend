@@ -366,7 +366,7 @@ export function accountSlippageExactIn(
   })
 }
 
-export function filterOutPoaBridgeTokens(token: TokenInfo): string[] {
+export function getPoaBridgeTokenContractIds(token: TokenInfo): string[] {
   const defuseAssetIds = getUnderlyingBaseTokenInfos(token).filter((t) =>
     t.deployments.some((d) => d.bridge === "poa")
   )

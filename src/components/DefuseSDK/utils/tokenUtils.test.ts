@@ -9,8 +9,8 @@ import {
   computeTotalBalance,
   computeTotalBalanceDifferentDecimals,
   computeTotalDeltaDifferentDecimals,
-  filterOutPoaBridgeTokens,
   getDerivedToken,
+  getPoaBridgeTokenContractIds,
   getTokenAccountId,
   getTokenAccountIds,
   getUnderlyingBaseTokenInfos,
@@ -1131,7 +1131,7 @@ describe("filterOutPoaBridgeTokens", () => {
       ],
     }
 
-    const result = filterOutPoaBridgeTokens(baseToken)
+    const result = getPoaBridgeTokenContractIds(baseToken)
 
     expect(result).toEqual(["token1.omft.near"])
   })
@@ -1154,7 +1154,7 @@ describe("filterOutPoaBridgeTokens", () => {
       ],
     }
 
-    const result = filterOutPoaBridgeTokens(notBaseToken)
+    const result = getPoaBridgeTokenContractIds(notBaseToken)
 
     expect(result).toEqual([])
   })
@@ -1200,7 +1200,7 @@ describe("filterOutPoaBridgeTokens", () => {
       groupedTokens: [poaToken, notPoaToken],
     }
 
-    const result = filterOutPoaBridgeTokens(unifiedToken)
+    const result = getPoaBridgeTokenContractIds(unifiedToken)
 
     expect(result).toEqual(["token1.omft.near"])
   })
@@ -1246,7 +1246,7 @@ describe("filterOutPoaBridgeTokens", () => {
       groupedTokens: [notPoaToken1, notPoaToken2],
     }
 
-    const result = filterOutPoaBridgeTokens(token)
+    const result = getPoaBridgeTokenContractIds(token)
 
     expect(result).toEqual([])
   })

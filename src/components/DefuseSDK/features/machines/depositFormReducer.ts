@@ -83,8 +83,6 @@ export const depositFormReducer = fromTransition(
         }
         const blockchain = reverseAssetNetworkAdapter[event.params.network]
 
-        // const derivedToken = getDerivedToken(state.token, blockchain)
-
         const [derivedToken, tokenDeployment] = resolveTokenOut(
           blockchain,
           state.token,

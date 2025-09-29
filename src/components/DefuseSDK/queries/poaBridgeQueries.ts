@@ -1,10 +1,10 @@
 import { poaBridge } from "@defuse-protocol/internal-utils"
 import { useQuery } from "@tanstack/react-query"
 import type { TokenInfo } from "../types/base"
-import { filterOutPoaBridgeTokens } from "../utils/tokenUtils"
+import { getPoaBridgeTokenContractIds } from "../utils/tokenUtils"
 
 export function useTokenBalancesQuery(token: TokenInfo, enabled = true) {
-  const addresses = filterOutPoaBridgeTokens(token)
+  const addresses = getPoaBridgeTokenContractIds(token)
 
   return useQuery({
     queryKey: ["intents_sdk.token_balances", addresses.slice().sort()],
