@@ -163,10 +163,12 @@ export function ModalSelectAssets() {
       return b.usdValue - a.usdValue
     })
 
+    console.debug("setAssetList")
     setAssetList(getAssetList)
   }, [tokens, modalPayload, holdings])
 
   const filteredAssets = useMemo(() => {
+    console.log("filteredAssets")
     return performSearch(assetList, deferredQuery)
   }, [assetList, deferredQuery])
 
