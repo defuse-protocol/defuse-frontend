@@ -1659,7 +1659,7 @@ const PRODUCTION_TOKENS: TokenInfo[] = [
     bridge: "poa",
     symbol: "ADA",
     name: "ADA",
-    tags: ["mc:10", "feature:ada"],
+    tags: ["mc:10"],
   },
   {
     defuseAssetId: "nep245:v2_1.omni.hot.tg:10_vLAiSt9KfUGKpw5cD3vsSyNYBo7",
