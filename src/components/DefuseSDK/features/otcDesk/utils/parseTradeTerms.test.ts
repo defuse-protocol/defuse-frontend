@@ -12,8 +12,8 @@ import {
 } from "../../../core/messages"
 import { parseTradeTerms } from "./parseTradeTerms"
 
-vi.mock("../../../logger", () => ({
-  logger: { error: vi.fn(), verbose: vi.fn() },
+vi.mock("@src/utils/logger", () => ({
+  logger: { error: vi.fn(), trace: vi.fn() },
 }))
 
 describe("parseTradeTerms", () => {
