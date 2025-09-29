@@ -4,8 +4,8 @@ import {
   type SignerCredentials,
   formatSignedIntent,
 } from "@src/components/DefuseSDK/core/formatters"
+import { logger } from "@src/utils/logger"
 import { assertEvent, assign, fromPromise, setup } from "xstate"
-import { logger } from "../../../../logger"
 import {
   type PublishIntentsErr,
   convertPublishIntentsToLegacyFormat,

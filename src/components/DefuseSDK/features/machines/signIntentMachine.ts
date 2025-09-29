@@ -1,13 +1,13 @@
 import type { MultiPayload } from "@defuse-protocol/contract-types"
 import { errors } from "@defuse-protocol/internal-utils"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
+import { logger } from "@src/utils/logger"
 import { assertEvent, assign, fromPromise, setup } from "xstate"
 import { nearClient } from "../../constants/nearClient"
 import {
   type SignerCredentials,
   formatSignedIntent,
 } from "../../core/formatters"
-import { logger } from "../../logger"
 import { assert } from "../../utils/assert"
 import { verifyWalletSignature } from "../../utils/verifyWalletSignature"
 import {

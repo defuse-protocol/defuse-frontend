@@ -7,10 +7,10 @@ import {
 } from "@phosphor-icons/react"
 import { IconButton } from "@radix-ui/themes"
 import type { SignerCredentials } from "@src/components/DefuseSDK/core/formatters"
+import { logger } from "@src/utils/logger"
 import { useCallback, useContext, useState } from "react"
 import { createActor } from "xstate"
 import { Copy } from "../../../../components/IntentCard/CopyButton"
-import { logger } from "../../../../logger"
 import type { TokenValue } from "../../../../types/base"
 import { assert } from "../../../../utils/assert"
 import {
