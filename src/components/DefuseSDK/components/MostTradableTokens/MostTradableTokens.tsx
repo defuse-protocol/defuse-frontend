@@ -36,23 +36,21 @@ export function MostTradableTokens({
     })
 
     // Filter tokens that are in the rankMap
-    const filtered = tokenList.filter((token) => {
-      if (isBaseToken(token.token)) {
-        return rankMap.has(
-          toKey(token.token.symbol, token.token.originChainName)
-        )
+    const filtered = tokenList.filter(({ token }) => {
+      if (isBaseToken(token)) {
+        return rankMap.has(toKey(token.symbol, token.originChainName))
       }
-      return token.token.groupedTokens.some((t) =>
+      return token.groupedTokens.some((t) =>
         rankMap.has(toKey(t.symbol, t.originChainName))
       )
     })
 
     // Deduplicate by normalized key
     const seen = new Set<string>()
-    const deduplicated = filtered.filter((token) => {
-      const key = isBaseToken(token.token)
-        ? toKey(token.token.symbol, token.token.originChainName)
-        : `${token.token.symbol}-unified`
+    const deduplicated = filtered.filter(({ token }) => {
+      const key = isBaseToken(token)
+        ? toKey(token.symbol, token.originChainName)
+        : `${token.symbol}-unified`
       if (seen.has(key)) return false
       seen.add(key)
       return true
@@ -61,13 +59,13 @@ export function MostTradableTokens({
     // Sort by volume (descending) and limit to top 5
     return deduplicated
       .sort((a, b) => {
-        const getVolume = (token: SelectItemToken) => {
-          if (isBaseToken(token.token)) {
-            const key = toKey(token.token.symbol, token.token.originChainName)
+        const getVolume = ({ token }: SelectItemToken) => {
+          if (isBaseToken(token)) {
+            const key = toKey(token.symbol, token.originChainName)
             return volumeMap.get(key) || 0
           }
           // For grouped tokens, find the highest volume among grouped tokens
-          const vols = token.token.groupedTokens.map((t) => {
+          const vols = token.groupedTokens.map((t) => {
             const key = toKey(t.symbol, t.originChainName)
             return volumeMap.get(key) ?? 0
           })
