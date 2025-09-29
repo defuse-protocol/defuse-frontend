@@ -1,6 +1,6 @@
 import { errors } from "@defuse-protocol/internal-utils"
+import { logger } from "@src/utils/logger"
 import { assign, fromPromise, setup } from "xstate"
-import { logger } from "../../logger"
 import { emitEvent } from "../../services/emitter"
 import type {
   BaseTokenInfo,

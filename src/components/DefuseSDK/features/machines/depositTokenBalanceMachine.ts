@@ -4,10 +4,10 @@ import {
   checkTonJettonWalletRequired,
   createTonClient,
 } from "@src/components/DefuseSDK/services/tonJettonService"
+import { logger } from "@src/utils/logger"
 import { shallowEqualObjects } from "@src/utils/object"
 import type { Address } from "viem"
 import { assign, enqueueActions, fromPromise, setup } from "xstate"
-import { logger } from "../../logger"
 import {
   getEvmErc20Balance,
   getEvmNativeBalance,

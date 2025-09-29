@@ -1,8 +1,8 @@
 import type { SignerCredentials } from "@src/components/DefuseSDK/core/formatters"
+import { logger } from "@src/utils/logger"
 import { Err, Ok, type Result } from "@thames/monads"
 import { type ReactNode, createContext, useEffect, useState } from "react"
 import { type ActorRefFrom, createActor, toPromise } from "xstate"
-import { logger } from "../../../logger"
 import { assert } from "../../../utils/assert"
 import type { GiftInfo } from "../actors/shared/getGiftInfo"
 import {

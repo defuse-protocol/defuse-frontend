@@ -1,7 +1,7 @@
+import { logger } from "@src/utils/logger"
 import { type ActorRef, type Snapshot, fromCallback } from "xstate"
 import { BaseError } from "../../errors/base"
 import { TimeoutError } from "../../errors/request"
-import { logger } from "../../logger"
 import {
   type AggregatedQuoteParams,
   type QuoteResult,

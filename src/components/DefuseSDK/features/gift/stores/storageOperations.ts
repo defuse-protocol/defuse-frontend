@@ -1,6 +1,6 @@
 import { authIdentity } from "@defuse-protocol/internal-utils"
+import { logger } from "@src/utils/logger"
 import type { IntentsUserId, SignerCredentials } from "../../../core/formatters"
-import { logger } from "../../../logger"
 import { deserialize } from "../../../utils/deserialize"
 import { serialize } from "../../../utils/serialize"
 import type { GiftStorageState, State } from "./giftMakerHistory"
