@@ -1,6 +1,6 @@
 import type { MultiPayload } from "@defuse-protocol/contract-types"
+import { logger } from "@src/utils/logger"
 import { Err, Ok, type Result } from "@thames/monads"
-import { logger } from "../../../logger"
 import type { BaseTokenInfo, TokenInfo } from "../../../types/base"
 import { isBaseToken } from "../../../utils/token"
 import { grossUpAmount, netDownAmount } from "../../../utils/tokenUtils"

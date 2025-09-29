@@ -1,9 +1,7 @@
 import { configureSDK as configureSDK_iu } from "@defuse-protocol/internal-utils"
 import { BASE_URL } from "@src/utils/environment"
-import { type ILogger, setLogger } from "./logger"
 
 interface SDKConfig {
-  logger?: ILogger
   env: EnvConfig
   features: {
     hyperliquid: boolean
@@ -60,20 +58,11 @@ export let config: SDKConfig = {
 }
 
 export interface ConfigureSDKArgs {
-  logger?: ILogger
   env?: EnvConfig | NearIntentsEnv
   features?: { [K in keyof SDKConfig["features"]]?: boolean }
 }
 
-export function configureSDK({
-  logger,
-  env,
-  features,
-}: ConfigureSDKArgs): void {
-  if (logger) {
-    setLogger(logger)
-  }
-
+export function configureSDK({ env, features }: ConfigureSDKArgs): void {
   if (typeof env === "string") {
     config = { ...config, env: configsByEnvironment[env] }
   } else if (env) {

@@ -1,7 +1,7 @@
 import { assert } from "@src/components/DefuseSDK/utils/assert"
+import { logger } from "@src/utils/logger"
 import { type PromiseActorLogic, assign, fromPromise, setup } from "xstate"
 import type { SignerCredentials } from "../../../core/formatters"
-import { logger } from "../../../logger"
 import type { TokenInfo, TokenValue } from "../../../types/base"
 import { giftMakerHistoryStore } from "../stores/giftMakerHistory"
 import type {

@@ -2,8 +2,8 @@ import {
   getNearNep141MinStorageBalance,
   getNearNep141StorageBalance,
 } from "@defuse-protocol/internal-utils"
+import { logger } from "@src/utils/logger"
 import { nearClient } from "../constants/nearClient"
-import { logger } from "../logger"
 import type { BaseTokenInfo } from "../types/base"
 import { isFungibleToken } from "../utils/token"
 

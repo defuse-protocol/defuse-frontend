@@ -1,6 +1,6 @@
+import { logger } from "@src/utils/logger"
 import type { ActorRef, Snapshot } from "xstate"
 import { assign, fromPromise, not, setup } from "xstate"
-import { logger } from "../../logger"
 import type { TokenInfo } from "../../types/base"
 import { getTxStatus } from "./1cs"
 

@@ -14,6 +14,7 @@ import {
   isMinAmountNotRequired,
   subtractAmounts,
 } from "@src/components/DefuseSDK/utils/tokenUtils"
+import { logger } from "@src/utils/logger"
 import { useSelector } from "@xstate/react"
 import { useCallback, useEffect } from "react"
 import { Controller, useForm } from "react-hook-form"
@@ -24,7 +25,6 @@ import { FieldComboInput } from "../../../../components/Form/FieldComboInput"
 import { Island } from "../../../../components/Island"
 import { IslandHeader } from "../../../../components/IslandHeader"
 import { nearClient } from "../../../../constants/nearClient"
-import { logger } from "../../../../logger"
 import type {
   SupportedChainName,
   TokenInfo,

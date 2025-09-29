@@ -16,6 +16,9 @@ Sentry.init({
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0,
   integrations: [
+    Sentry.captureConsoleIntegration({
+      levels: ["info", "warn", "error", "assert"],
+    }),
     Sentry.replayIntegration({
       maskAllInputs: false,
       maskAllText: false,

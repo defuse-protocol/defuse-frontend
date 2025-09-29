@@ -1,5 +1,5 @@
+import { logger } from "@src/utils/logger"
 import * as v from "valibot"
-import { logger } from "../../../logger"
 import {
   GiftStorageSchemaV0,
   GiftStorageSchemaV1,

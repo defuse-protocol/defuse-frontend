@@ -1,8 +1,8 @@
 import type { MultiPayload } from "@defuse-protocol/contract-types"
 import { base64 } from "@scure/base"
+import { logger } from "@src/utils/logger"
 import { Err, Ok, type Result } from "@thames/monads"
 import * as v from "valibot"
-import { logger } from "../../../logger"
 import type { BaseTokenInfo } from "../../../types/base"
 import type { IntentTokenDiffSchemaOutput } from "./schemaIntents"
 import {
@@ -31,7 +31,7 @@ export function parseTradeTerms(
 ): Result<TradeTerms, ParseTradeTermsErr> {
   const parseResult = v.safeParse(MultiPayloadPlainSchema, multiPayloadPlain)
   if (!parseResult.success) {
-    logger.verbose("Couldn't parse multipayload", {
+    logger.trace("Couldn't parse multipayload", {
       multiPayloadPlain,
       issues: parseResult.issues,
     })
@@ -50,7 +50,7 @@ export function parseTradeTerms(
     .andThen<TradeTerms>((payloadPlain) => {
       const payloadParseResult = v.safeParse(PayloadStringSchema, payloadPlain)
       if (!payloadParseResult.success) {
-        logger.verbose("Couldn't parse payload", {
+        logger.trace("Couldn't parse payload", {
           payloadPlain,
           issues: payloadParseResult,
         })

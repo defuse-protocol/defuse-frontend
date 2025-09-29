@@ -1,6 +1,6 @@
 import type { Intent, MultiPayload } from "@defuse-protocol/contract-types"
+import { logger } from "@src/utils/logger"
 import { safeParse } from "valibot"
-import { logger } from "../../../logger"
 import { MultiPayloadDeepSchema } from "../../otcDesk/utils/schemaMultipayload"
 
 type TransferIntentSubset = {

@@ -1,4 +1,5 @@
 import { authIdentity } from "@defuse-protocol/internal-utils"
+import { logger } from "@src/utils/logger"
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import {
@@ -9,11 +10,10 @@ import {
   createEmptyIntentMessage,
   createSwapIntentMessage,
 } from "../../../core/messages"
-import { logger } from "../../../logger"
 import { parseTradeTerms } from "./parseTradeTerms"
 
-vi.mock("../../../logger", () => ({
-  logger: { error: vi.fn(), verbose: vi.fn() },
+vi.mock("@src/utils/logger", () => ({
+  logger: { error: vi.fn(), trace: vi.fn() },
 }))
 
 describe("parseTradeTerms", () => {
@@ -110,6 +110,6 @@ describe("parseTradeTerms", () => {
 
   it("returns null if multipayload is malformed", () => {
     expect(parseTradeTerms("").unwrapErr()).toEqual("CANNOT_PARSE_MULTIPAYLOAD")
-    expect(logger.verbose).toHaveBeenCalledOnce()
+    expect(logger.trace).toHaveBeenCalledOnce()
   })
 })

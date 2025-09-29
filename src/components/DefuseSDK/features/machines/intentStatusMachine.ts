@@ -1,5 +1,6 @@
 import type { WithdrawalParams } from "@defuse-protocol/intents-sdk"
 import { solverRelay } from "@defuse-protocol/internal-utils"
+import { logger } from "@src/utils/logger"
 import {
   type ActorRef,
   type Snapshot,
@@ -10,7 +11,6 @@ import {
   setup,
 } from "xstate"
 import { bridgeSDK } from "../../constants/bridgeSdk"
-import { logger } from "../../logger"
 import type { TokenInfo } from "../../types/base"
 import { assert } from "../../utils/assert"
 import type { IntentDescription } from "./swapIntentMachine"
