@@ -77,7 +77,7 @@ describe("resolveTokenOut()", () => {
       tokenFamilies,
       tokenList
     )
-    expect(token).toHaveProperty("chainName", "arbitrum")
+    expect(token).toHaveProperty("originChainName", "arbitrum")
     expect(depl).toHaveProperty("chainName", "arbitrum")
   })
 
@@ -100,7 +100,7 @@ describe("resolveTokenOut()", () => {
       tokenFamilies,
       tokenList
     )
-    expect(token).toHaveProperty("chainName", "eth")
+    expect(token).toHaveProperty("originChainName", "eth")
     expect(depl).toHaveProperty("chainName", "eth")
   })
 })

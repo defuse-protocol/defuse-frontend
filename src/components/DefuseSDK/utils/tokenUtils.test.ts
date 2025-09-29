@@ -658,7 +658,7 @@ describe("getDerivedToken", () => {
       name: "Token1",
       decimals: 18,
       icon: "icon1.png",
-      chainName: "eth",
+      originChainName: "eth",
       deployments: [
         {
           chainName: "eth",
@@ -679,7 +679,7 @@ describe("getDerivedToken", () => {
       name: "Token3",
       decimals: 18,
       icon: "icon3.png",
-      chainName: "eth",
+      originChainName: "eth",
       deployments: [
         {
           address: "0x789",
