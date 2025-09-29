@@ -1,6 +1,11 @@
-import { errors, solverRelay } from "@defuse-protocol/internal-utils"
+import {
+  errors,
+  solverRelay,
+  withTimeout,
+} from "@defuse-protocol/internal-utils"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
+import { retry } from "@lifeomic/attempt"
 import { getQuote as get1csQuoteApi } from "@src/components/DefuseSDK/features/machines/1cs"
 import { submitTxHash } from "@src/components/DefuseSDK/features/machines/1cs"
 import type { ParentEvents as Background1csQuoterParentEvents } from "@src/components/DefuseSDK/features/machines/background1csQuoterMachine"
@@ -158,23 +163,16 @@ export const swapIntent1csMachine = setup({
         const tokenInAssetId = input.tokenIn.defuseAssetId
         const tokenOutAssetId = input.tokenOut.defuseAssetId
 
-        try {
-          const result = await get1csQuoteApi({
-            dry: false,
-            slippageTolerance: Math.round(input.slippageBasisPoints / 100),
-            originAsset: tokenInAssetId,
-            destinationAsset: tokenOutAssetId,
-            amount: input.amountIn.amount.toString(),
-            deadline: input.deadline,
-            userAddress: input.userAddress,
-            authMethod: input.userChainType,
-          })
-
-          return result
-        } catch {
-          logger.error("1cs quote request failed")
-          return { err: "Quote request failed" }
-        }
+        return get1csQuoteApiWithRetry({
+          dry: false,
+          slippageTolerance: Math.round(input.slippageBasisPoints / 100),
+          originAsset: tokenInAssetId,
+          destinationAsset: tokenOutAssetId,
+          amount: input.amountIn.amount.toString(),
+          deadline: input.deadline,
+          userAddress: input.userAddress,
+          authMethod: input.userChainType,
+        })
       }
     ),
     createTransferMessageActor: fromPromise(
@@ -729,3 +727,14 @@ export const swapIntent1csMachine = setup({
     },
   },
 })
+
+const get1csQuoteApiWithRetry: typeof get1csQuoteApi = (...args) => {
+  return retry(
+    () =>
+      withTimeout(
+        () => get1csQuoteApi(...args),
+        { timeout: 15000 } // Quote takes 10s in the worst scenario
+      ),
+    { maxAttempts: 3, delay: 500 }
+  )
+}
