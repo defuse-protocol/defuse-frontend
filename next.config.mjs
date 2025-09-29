@@ -3,7 +3,7 @@ import { DedupePlugin } from "@tinkoff/webpack-dedupe-plugin"
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  productionBrowserSourceMaps: true,
+  productionBrowserSourceMaps: process.env.VERCEL_ENV === 'production',
   turbopack: {
     rules: {
       "*.svg": {
