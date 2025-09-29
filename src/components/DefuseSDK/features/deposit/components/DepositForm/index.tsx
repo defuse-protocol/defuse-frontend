@@ -74,13 +74,9 @@ export const DepositForm = ({
     userAddress,
     poaBridgeInfoRef,
   } = DepositUIMachineContext.useSelector((snapshot) => {
-    const token = snapshot.context.depositFormRef.getSnapshot().context.token
-    const { derivedToken, tokenDeployment } =
+    const { userAddress, poaBridgeInfoRef } = snapshot.context
+    const { token, derivedToken, tokenDeployment, blockchain } =
       snapshot.context.depositFormRef.getSnapshot().context
-    const blockchain =
-      snapshot.context.depositFormRef.getSnapshot().context.blockchain
-    const userAddress = snapshot.context.userAddress
-    const poaBridgeInfoRef = snapshot.context.poaBridgeInfoRef
 
     return {
       token,
