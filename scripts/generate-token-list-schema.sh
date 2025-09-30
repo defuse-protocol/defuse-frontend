@@ -9,6 +9,8 @@ bunx ts-json-schema-generator@2.4.0 \
   --type "TokenList" \
   --out "$output_file"
 
+bun biome check "$output_file" --write
+
 echo "✅ TokenList JSON Schema generated successfully in $output_file"
 
 bunx ajv-cli validate \

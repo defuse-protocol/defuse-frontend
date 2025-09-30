@@ -40,13 +40,7 @@
         },
         "tags": {
           "description": "Tags are arbitrary strings that can be used to categorize tokens. Common patterns:   - \"aid:<family-id>\" - Groups related tokens into families   - \"mc:<rank>\" - Orders by MarketCap ranking (lower = higher cap)   - \"type:stablecoin\" - No app fee for swaps between stables",
-          "examples": [
-            [
-              "aid:usdc",
-              "mc:25",
-              "type:stablecoin"
-            ]
-          ],
+          "examples": [["aid:usdc", "mc:25", "type:stablecoin"]],
           "items": {
             "type": "string"
           },
@@ -83,12 +77,7 @@
           "type": "string"
         }
       },
-      "required": [
-        "address",
-        "decimals",
-        "chainName",
-        "bridge"
-      ],
+      "required": ["address", "decimals", "chainName", "bridge"],
       "type": "object"
     },
     "MockedChains": {
@@ -112,22 +101,11 @@
           "type": "string"
         }
       },
-      "required": [
-        "type",
-        "decimals",
-        "chainName",
-        "bridge"
-      ],
+      "required": ["type", "decimals", "chainName", "bridge"],
       "type": "object"
     },
     "SupportedBridge": {
-      "enum": [
-        "direct",
-        "poa",
-        "aurora_engine",
-        "hot_omni",
-        "near_omni"
-      ],
+      "enum": ["direct", "poa", "aurora_engine", "hot_omni", "near_omni"],
       "type": "string"
     },
     "SupportedChainName": {
@@ -258,9 +236,7 @@
           "type": "array"
         }
       },
-      "required": [
-        "tokens"
-      ],
+      "required": ["tokens"],
       "type": "object"
     },
     "UnifiedTokenInfo": {
@@ -292,13 +268,7 @@
           "type": "string"
         }
       },
-      "required": [
-        "unifiedAssetId",
-        "symbol",
-        "name",
-        "icon",
-        "groupedTokens"
-      ],
+      "required": ["unifiedAssetId", "symbol", "name", "icon", "groupedTokens"],
       "type": "object"
     },
     "VirtualChains": {
