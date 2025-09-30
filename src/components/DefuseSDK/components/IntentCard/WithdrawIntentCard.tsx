@@ -19,9 +19,7 @@ export function WithdrawIntentCard({
   const { intentDescription, bridgeTransactionResult } = state.context
 
   assert(intentDescription.type === "withdraw", "Type must be withdraw")
-  const amountWithdrawn = intentDescription.amountWithdrawn
-
-  const tokenOut = intentDescription.tokenOut
+  const { amountWithdrawn, tokenOut, tokenOutDeployment } = intentDescription
 
   const sourceTxHash = state.context.txHash
   const sourceTxUrl =
@@ -35,7 +33,7 @@ export function WithdrawIntentCard({
       ? blockExplorerTxLinkFactory(
           intentDescription.nearIntentsNetwork
             ? "near"
-            : tokenOut.originChainName,
+            : tokenOutDeployment.chainName,
           destTxHash
         )
       : undefined
@@ -43,7 +41,10 @@ export function WithdrawIntentCard({
   return (
     <Flex p="2" gap="3">
       <Box pt="2">
-        <AssetComboIcon {...tokenOut} />
+        <AssetComboIcon
+          {...tokenOut}
+          chainName={tokenOutDeployment.chainName}
+        />
       </Box>
 
       <Flex direction="column" gap="1" flexGrow="1">
