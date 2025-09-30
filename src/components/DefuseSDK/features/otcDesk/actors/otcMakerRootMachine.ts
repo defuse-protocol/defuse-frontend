@@ -1,6 +1,7 @@
 import type { MultiPayload } from "@defuse-protocol/contract-types"
 import { errors } from "@defuse-protocol/internal-utils"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
+import { logger } from "@src/utils/logger"
 import {
   type ActorRefFrom,
   type PromiseActorLogic,
@@ -10,7 +11,6 @@ import {
   setup,
 } from "xstate"
 import type { SignerCredentials } from "../../../core/formatters"
-import { logger } from "../../../logger"
 import { emitEvent } from "../../../services/emitter"
 import type { TokenInfo } from "../../../types/base"
 import { assert } from "../../../utils/assert"

@@ -2,13 +2,13 @@ import type { MultiPayload } from "@defuse-protocol/contract-types"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { messageFactory } from "@defuse-protocol/internal-utils"
 import { base64 } from "@scure/base"
+import { logger } from "@src/utils/logger"
 import { assertEvent, setup } from "xstate"
 import {
   type SignerCredentials,
   formatSignedIntent,
 } from "../../../core/formatters"
 import { createSwapIntentMessage } from "../../../core/messages"
-import { logger } from "../../../logger"
 import { calculateSplitAmounts } from "../../../sdk/aggregatedQuote/calculateSplitAmounts"
 import { AmountMismatchError } from "../../../sdk/aggregatedQuote/errors/amountMismatchError"
 import type { BaseTokenInfo, TokenInfo, TokenValue } from "../../../types/base"

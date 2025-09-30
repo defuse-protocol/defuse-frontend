@@ -14,6 +14,7 @@ import {
   isMinAmountNotRequired,
   subtractAmounts,
 } from "@src/components/DefuseSDK/utils/tokenUtils"
+import { logger } from "@src/utils/logger"
 import { useSelector } from "@xstate/react"
 import { useCallback, useEffect } from "react"
 import { Controller, useForm } from "react-hook-form"
@@ -24,7 +25,6 @@ import { FieldComboInput } from "../../../../components/Form/FieldComboInput"
 import { Island } from "../../../../components/Island"
 import { IslandHeader } from "../../../../components/IslandHeader"
 import { nearClient } from "../../../../constants/nearClient"
-import { logger } from "../../../../logger"
 import type {
   SupportedChainName,
   TokenInfo,
@@ -134,6 +134,7 @@ export const WithdrawForm = ({
   const {
     token,
     tokenOut,
+    tokenOutDeployment,
     parsedAmountIn,
     amountIn,
     recipient,
@@ -143,6 +144,7 @@ export const WithdrawForm = ({
     return {
       token: state.context.tokenIn,
       tokenOut: state.context.tokenOut,
+      tokenOutDeployment: state.context.tokenOutDeployment,
       parsedAmountIn: state.context.parsedAmount,
       amountIn: state.context.amount,
       recipient: state.context.recipient,
@@ -453,48 +455,49 @@ export const WithdrawForm = ({
             tokenInBalance={tokenInBalance}
           />
 
-          {!isNearIntentsNetwork(blockchain) && isCexIncompatible(tokenOut) && (
-            <Text
-              as="label"
-              size="1"
-              weight="medium"
-              color={errors.isFundsLooseConfirmed ? "red" : "gray"}
-            >
-              <Flex as="span" gap="2">
-                <Controller
-                  control={control}
-                  name="isFundsLooseConfirmed"
-                  rules={{ required: true }}
-                  render={({ field }) => (
-                    <Checkbox
-                      size="3"
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  )}
-                />
-                I understand CEX addresses may cause fund loss or issues.
-                <Tooltip
-                  side="bottom"
-                  align="center"
-                  maxWidth="300px"
-                  content="Many centralized exchanges (CEXs) don’t support third-party protocol withdrawals. Using a CEX address may result in lost or delayed funds. Use a self-custodial wallet instead."
-                >
-                  <Text
-                    size="1"
-                    color="gray"
-                    as="span"
-                    style={{
-                      textDecoration: "underline",
-                      textDecorationStyle: "dotted",
-                    }}
+          {!isNearIntentsNetwork(blockchain) &&
+            isCexIncompatible(tokenOutDeployment) && (
+              <Text
+                as="label"
+                size="1"
+                weight="medium"
+                color={errors.isFundsLooseConfirmed ? "red" : "gray"}
+              >
+                <Flex as="span" gap="2">
+                  <Controller
+                    control={control}
+                    name="isFundsLooseConfirmed"
+                    rules={{ required: true }}
+                    render={({ field }) => (
+                      <Checkbox
+                        size="3"
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    )}
+                  />
+                  I understand CEX addresses may cause fund loss or issues.
+                  <Tooltip
+                    side="bottom"
+                    align="center"
+                    maxWidth="300px"
+                    content="Many centralized exchanges (CEXs) don’t support third-party protocol withdrawals. Using a CEX address may result in lost or delayed funds. Use a self-custodial wallet instead."
                   >
-                    Why?
-                  </Text>
-                </Tooltip>
-              </Flex>
-            </Text>
-          )}
+                    <Text
+                      size="1"
+                      color="gray"
+                      as="span"
+                      style={{
+                        textDecoration: "underline",
+                        textDecorationStyle: "dotted",
+                      }}
+                    >
+                      Why?
+                    </Text>
+                  </Tooltip>
+                </Flex>
+              </Text>
+            )}
 
           <ReceivedAmountAndFee
             fee={withdtrawalFee}

@@ -178,16 +178,13 @@ export function getDerivedToken(
   tokenIn: TokenInfo,
   chainName: string | null
 ): BaseTokenInfo | null {
-  if (isBaseToken(tokenIn)) {
-    return chainName === tokenIn.chainName ? tokenIn : null
+  if (chainName == null) {
+    return null
   }
 
-  if (chainName != null) {
-    const tokenOut = tokenIn.groupedTokens.find(
-      (token) => token.chainName === chainName
-    )
-    if (tokenOut != null) {
-      return tokenOut
+  for (const token of getUnderlyingBaseTokenInfos(tokenIn)) {
+    if (token.deployments.some((depl) => depl.chainName === chainName)) {
+      return token
     }
   }
 
@@ -369,12 +366,12 @@ export function accountSlippageExactIn(
   })
 }
 
-export function filterOutPoaBridgeTokens(token: TokenInfo): BaseTokenInfo[] {
-  if (isBaseToken(token)) {
-    return token.bridge === "poa" ? [token] : []
-  }
+export function getPoaBridgeTokenContractIds(token: TokenInfo): string[] {
+  const defuseAssetIds = getUnderlyingBaseTokenInfos(token).filter((t) =>
+    t.deployments.some((d) => d.bridge === "poa")
+  )
 
-  return token.groupedTokens.filter((t) => t.bridge === "poa")
+  return getTokenAccountIds(defuseAssetIds)
 }
 
 export function getTokenAccountIds(tokens: BaseTokenInfo[]): string[] {
@@ -440,4 +437,12 @@ export function parseDefuseAssetId(
 
 export function tokenAccountIdToDefuseAssetId(address: string): string {
   return `nep141:${address}`
+}
+
+export function* eachBaseTokenInfo(tokenList: TokenInfo[]) {
+  for (const t of tokenList) {
+    for (const tt of getUnderlyingBaseTokenInfos(t)) {
+      yield tt
+    }
+  }
 }

@@ -2,6 +2,7 @@ import { AuthMethod, type authHandle } from "@defuse-protocol/internal-utils"
 import { authIdentity } from "@defuse-protocol/internal-utils"
 import { computeAppFeeBps } from "@src/components/DefuseSDK/utils/appFee"
 import { APP_FEE_BPS, APP_FEE_RECIPIENT } from "@src/utils/environment"
+import { logger } from "@src/utils/logger"
 import type { providers } from "near-api-js"
 import {
   type ActorRefFrom,
@@ -12,7 +13,6 @@ import {
   setup,
   spawnChild,
 } from "xstate"
-import { logger } from "../../logger"
 import type { QuoteResult } from "../../services/quoteService"
 import type { BaseTokenInfo, TokenValue } from "../../types/base"
 import type { TokenInfo } from "../../types/base"

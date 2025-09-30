@@ -1,8 +1,12 @@
 import { errors } from "@defuse-protocol/internal-utils"
+import { logger } from "@src/utils/logger"
 import { assign, fromPromise, setup } from "xstate"
-import { logger } from "../../logger"
 import { emitEvent } from "../../services/emitter"
-import type { BaseTokenInfo, SupportedChainName } from "../../types/base"
+import type {
+  BaseTokenInfo,
+  SupportedChainName,
+  TokenDeployment,
+} from "../../types/base"
 import { assert } from "../../utils/assert"
 
 export type Context = Input & {
@@ -13,6 +17,7 @@ export type Context = Input & {
 export type Input = {
   chainName: SupportedChainName
   derivedToken: BaseTokenInfo
+  tokenDeployment: TokenDeployment
   balance: bigint
   amount: bigint
   userAddress: string
@@ -32,6 +37,7 @@ export type DepositDescription = {
   userAddress: string
   userWalletAddress: string | null
   derivedToken: BaseTokenInfo
+  tokenDeployment: TokenDeployment
 }
 
 export type Output =
@@ -97,9 +103,9 @@ export const depositMachine = setup({
         token: context.derivedToken.symbol,
         amount: {
           amount: context.amount,
-          decimals: context.derivedToken.decimals,
+          decimals: context.tokenDeployment.decimals,
         },
-        wallet_type: context.derivedToken.chainName,
+        wallet_type: context.tokenDeployment.chainName,
       })
     },
     emitDepositSuccess: ({ context }) => {
@@ -108,9 +114,9 @@ export const depositMachine = setup({
         token: context.derivedToken.symbol,
         amount: {
           amount: context.amount,
-          decimals: context.derivedToken.decimals,
+          decimals: context.tokenDeployment.decimals,
         },
-        network: context.derivedToken.chainName,
+        network: context.tokenDeployment.chainName,
       })
     },
   },
@@ -143,6 +149,7 @@ export const depositMachine = setup({
             userWalletAddress: context.userWalletAddress,
             amount: context.amount,
             derivedToken: context.derivedToken,
+            tokenDeployment: context.tokenDeployment,
           },
         },
       }

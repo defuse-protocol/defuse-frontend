@@ -1,6 +1,7 @@
 import { authIdentity } from "@defuse-protocol/internal-utils"
 import { depositMachine } from "@src/components/DefuseSDK/features/machines/depositMachine"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
+import { logger } from "@src/utils/logger"
 import { createActorContext } from "@xstate/react"
 import type { PropsWithChildren, ReactElement, ReactNode } from "react"
 import { useFormContext } from "react-hook-form"
@@ -12,7 +13,6 @@ import {
   fromPromise,
 } from "xstate"
 import { siloToSiloAddress } from "../../../constants/aurora"
-import { logger } from "../../../logger"
 import {
   checkNearTransactionValidity,
   createApproveTransaction,
@@ -132,14 +132,14 @@ export function DepositUIMachineProvider({
             actors: {
               signAndSendTransactions: fromPromise(async ({ input }) => {
                 const {
-                  derivedToken,
+                  tokenDeployment,
                   balance,
                   amount,
                   nearBalance,
                   storageDepositRequired,
                 } = input
-                const address = isFungibleToken(derivedToken)
-                  ? derivedToken.address
+                const address = isFungibleToken(tokenDeployment)
+                  ? tokenDeployment.address
                   : null
 
                 assert(address != null, "Address is not defined")
@@ -206,7 +206,7 @@ export function DepositUIMachineProvider({
             actors: {
               signAndSendTransactions: fromPromise(async ({ input }) => {
                 const {
-                  derivedToken,
+                  tokenDeployment,
                   amount,
                   depositAddress,
                   userAddress,
@@ -217,7 +217,7 @@ export function DepositUIMachineProvider({
                 assert(depositAddress != null, "Deposit address is not defined")
 
                 let tx: Transaction["EVM"]
-                if (isNativeToken(derivedToken)) {
+                if (isNativeToken(tokenDeployment)) {
                   tx = createDepositEVMNativeTransaction(
                     userAddress,
                     depositAddress,
@@ -227,18 +227,18 @@ export function DepositUIMachineProvider({
                 } else {
                   tx = createDepositEVMERC20Transaction(
                     userAddress,
-                    derivedToken.address,
+                    tokenDeployment.address,
                     depositAddress,
                     amount,
                     chainId
                   )
                 }
 
-                logger.verbose("Sending transfer EVM transaction")
+                logger.trace("Sending transfer EVM transaction")
                 const txHash = await sendTransactionEVM(tx)
                 assert(txHash != null, "Tx hash is not defined")
 
-                logger.verbose("Waiting for transfer EVM transaction", {
+                logger.trace("Waiting for transfer EVM transaction", {
                   txHash,
                 })
                 const receipt = await waitEVMTransaction({ txHash, chainName })
@@ -264,7 +264,7 @@ export function DepositUIMachineProvider({
                   amount,
                   depositAddress,
                   userAddress,
-                  derivedToken,
+                  tokenDeployment,
                   solanaATACreationRequired,
                 } = input
 
@@ -274,7 +274,7 @@ export function DepositUIMachineProvider({
                   userAddress,
                   depositAddress,
                   amount,
-                  token: derivedToken,
+                  token: tokenDeployment,
                   ataExists: !solanaATACreationRequired,
                 })
 
@@ -298,7 +298,7 @@ export function DepositUIMachineProvider({
                 const {
                   amount,
                   userAddress,
-                  derivedToken,
+                  tokenDeployment,
                   depositAddress,
                   chainName,
                 } = input
@@ -315,9 +315,9 @@ export function DepositUIMachineProvider({
 
                 assert(siloToSiloAddress_ != null, "chainType should be EVM")
 
-                if (!isNativeToken(derivedToken)) {
+                if (!isNativeToken(tokenDeployment)) {
                   const allowance = await getAllowance(
-                    derivedToken.address,
+                    tokenDeployment.address,
                     userAddress,
                     siloToSiloAddress_,
                     assetNetworkAdapter[chainName]
@@ -326,17 +326,17 @@ export function DepositUIMachineProvider({
 
                   if (allowance < amount) {
                     const approveTx = createApproveTransaction(
-                      derivedToken.address,
+                      tokenDeployment.address,
                       siloToSiloAddress_,
                       amount,
                       getAddress(userAddress),
                       chainId
                     )
-                    logger.verbose("Sending approve EVM transaction")
+                    logger.trace("Sending approve EVM transaction")
                     const approveTxHash = await sendTransactionEVM(approveTx)
                     assert(approveTxHash != null, "Transaction failed")
 
-                    logger.verbose("Waiting for approve EVM transaction", {
+                    logger.trace("Waiting for approve EVM transaction", {
                       txHash: approveTxHash,
                     })
                     const receipt = await waitEVMTransaction({
@@ -350,24 +350,23 @@ export function DepositUIMachineProvider({
                 }
 
                 const tx = createDepositFromSiloTransaction(
-                  isNativeToken(derivedToken)
+                  isNativeToken(tokenDeployment)
                     ? "0x0000000000000000000000000000000000000000"
-                    : derivedToken.address,
+                    : tokenDeployment.address,
                   userAddress,
                   amount,
                   depositAddress,
                   siloToSiloAddress_,
-                  isNativeToken(derivedToken) ? amount : 0n,
+                  isNativeToken(tokenDeployment) ? amount : 0n,
                   chainId
                 )
-                logger.verbose("Sending deposit from Silo EVM transaction")
+                logger.trace("Sending deposit from Silo EVM transaction")
                 const txHash = await sendTransactionEVM(tx)
                 assert(txHash != null, "Transaction failed")
 
-                logger.verbose(
-                  "Waiting for deposit from Silo EVM transaction",
-                  { txHash }
-                )
+                logger.trace("Waiting for deposit from Silo EVM transaction", {
+                  txHash,
+                })
                 const receipt = await waitEVMTransaction({ txHash, chainName })
                 if (receipt.status === "reverted") {
                   throw new Error("Deposit from Silo transaction reverted")
@@ -390,7 +389,7 @@ export function DepositUIMachineProvider({
                 const {
                   amount,
                   userAddress,
-                  derivedToken,
+                  tokenDeployment,
                   depositAddress,
                   chainName,
                 } = input
@@ -401,8 +400,8 @@ export function DepositUIMachineProvider({
                   `${depositAddress}:${userAddress}`.toLowerCase()
 
                 let tx: Transaction["EVM"]
-                if (isNativeToken(derivedToken)) {
-                  logger.verbose(
+                if (isNativeToken(tokenDeployment)) {
+                  logger.trace(
                     "Sending deposit through exitToNearPrecompile contract"
                   )
                   tx = createExitToNearPrecompileTransaction(
@@ -412,10 +411,10 @@ export function DepositUIMachineProvider({
                     chainId
                   )
                 } else {
-                  logger.verbose("Sending deposit through auroraErc20 contract")
+                  logger.trace("Sending deposit through auroraErc20 contract")
                   tx = createDepositVirtualChainERC20Transaction(
                     userAddress,
-                    derivedToken.address,
+                    tokenDeployment.address,
                     precompileDepositAddress,
                     amount,
                     chainId
@@ -425,7 +424,7 @@ export function DepositUIMachineProvider({
 
                 assert(txHash != null, "Transaction failed")
 
-                logger.verbose("Waiting for deposit transaction", { txHash })
+                logger.trace("Waiting for deposit transaction", { txHash })
                 const receipt = await waitEVMTransaction({ txHash, chainName })
                 if (receipt.status === "reverted") {
                   throw new Error("Deposit transaction reverted")
@@ -447,7 +446,7 @@ export function DepositUIMachineProvider({
               signAndSendTransactions: fromPromise(async ({ input }) => {
                 const {
                   amount,
-                  derivedToken,
+                  tokenDeployment,
                   depositAddress,
                   userWalletAddress,
                 } = input
@@ -461,12 +460,12 @@ export function DepositUIMachineProvider({
                   userWalletAddress,
                   depositAddress,
                   amount,
-                  derivedToken
+                  tokenDeployment
                 )
 
                 const txHash = await sendTransactionTon(tx)
                 assert(txHash != null, "Transaction failed")
-                logger.verbose("Waiting for deposit TON transaction", {
+                logger.trace("Waiting for deposit TON transaction", {
                   txHash,
                 })
 
@@ -488,7 +487,7 @@ export function DepositUIMachineProvider({
                   amount,
                   depositAddress,
                   userAddress,
-                  derivedToken,
+                  tokenDeployment,
                   memo,
                 } = input
 
@@ -498,13 +497,13 @@ export function DepositUIMachineProvider({
                   userAddress,
                   depositAddress,
                   amount,
-                  token: derivedToken,
+                  token: tokenDeployment,
                   memo,
                 })
 
                 const txHash = await sendTransactionStellar(tx)
                 assert(txHash != null, "Tx hash is not defined")
-                logger.verbose("Waiting for deposit Stellar transaction", {
+                logger.trace("Waiting for deposit Stellar transaction", {
                   txHash,
                 })
 
@@ -522,13 +521,13 @@ export function DepositUIMachineProvider({
           depositTronActor: depositMachine.provide({
             actors: {
               signAndSendTransactions: fromPromise(async ({ input }) => {
-                const { derivedToken, amount, depositAddress, userAddress } =
+                const { tokenDeployment, amount, depositAddress, userAddress } =
                   input
 
                 assert(depositAddress != null, "Deposit address is not defined")
 
                 let tx: Transaction["Tron"]
-                if (isNativeToken(derivedToken)) {
+                if (isNativeToken(tokenDeployment)) {
                   tx = await createDepositTronNativeTransaction(
                     userAddress,
                     depositAddress,
@@ -537,17 +536,17 @@ export function DepositUIMachineProvider({
                 } else {
                   tx = await createDepositTronTRC20Transaction(
                     userAddress,
-                    derivedToken.address,
+                    tokenDeployment.address,
                     depositAddress,
                     amount
                   )
                 }
 
-                logger.verbose("Sending transfer Tron transaction")
+                logger.trace("Sending transfer Tron transaction")
                 const txHash = await sendTransactionTron(tx)
                 assert(txHash != null, "Tx hash is not defined")
 
-                logger.verbose("Waiting for transfer Tron transaction", {
+                logger.trace("Waiting for transfer Tron transaction", {
                   txHash,
                 })
 

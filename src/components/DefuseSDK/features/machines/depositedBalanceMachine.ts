@@ -83,13 +83,13 @@ const balancePollerActor = fromCallback<
   receive((event) => {
     switch (event.type) {
       case "ADD_ACCOUNT":
-        logger.verbose("Add account to balance polling actor", {
+        logger.trace("Add account to balance polling actor", {
           accountId: event.params.accountId,
         })
         accounts.add(event.params.accountId)
         break
       case "REMOVE_ACCOUNT":
-        logger.verbose("Remove account from balance polling actor", {
+        logger.trace("Remove account from balance polling actor", {
           accountId: event.params.accountId,
         })
         accounts.delete(event.params.accountId)
