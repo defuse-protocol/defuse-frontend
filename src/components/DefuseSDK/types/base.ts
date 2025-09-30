@@ -207,6 +207,14 @@ export type UnifiedTokenInfo_old = Omit<UnifiedTokenInfo, "groupedTokens"> & {
 
 export type TokenInfo = BaseTokenInfo | UnifiedTokenInfo
 
+/**
+ * Used for generating JSON schema for a token list.
+ */
+export interface TokenList {
+  $schema?: string
+  tokens: TokenInfo[]
+}
+
 export interface TokenValue {
   amount: bigint
   decimals: number
