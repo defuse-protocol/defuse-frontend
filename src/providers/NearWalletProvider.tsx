@@ -1,10 +1,11 @@
 "use client"
 
-import { NearConnector } from "@hot-labs/near-connect"
+import type { NearConnector } from "@hot-labs/near-connect"
 import type {
   SignMessageParams,
   SignedMessage,
 } from "@near-wallet-selector/core/src/lib/wallet/wallet.types"
+import { ChainType } from "@src/hooks/useConnectWallet"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import type { SignAndSendTransactionsParams } from "@src/types/interfaces"
 import { logger } from "@src/utils/logger"
@@ -35,9 +36,7 @@ interface NearWalletContextValue {
   ) => Promise<providers.FinalExecutionOutcome[]>
 }
 
-export const NearWalletContext = createContext<NearWalletContextValue | null>(
-  null
-)
+const NearWalletContext = createContext<NearWalletContextValue | null>(null)
 
 export const NearWalletProvider: FC<{ children: ReactNode }> = ({
   children,
@@ -47,55 +46,58 @@ export const NearWalletProvider: FC<{ children: ReactNode }> = ({
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
 
   const init = useCallback(async () => {
-    const connector = new NearConnector({
-      network: "mainnet",
-      walletConnect: getDomainMetadataParams(whitelabelTemplate),
+    if (connector) {
+      return connector
+    }
+
+    const { NearConnector } = await import(
+      "@hot-labs/near-connect/build/NearConnector"
+    )
+
+    let newConnector: NearConnector | null = null
+
+    try {
+      newConnector = new NearConnector({
+        network: "mainnet",
+        walletConnect: getDomainMetadataParams(whitelabelTemplate),
+      })
+    } catch (err) {
+      logger.error(err)
+      return
+    }
+
+    newConnector.on("wallet:signOut", () => setAccountId(null))
+    newConnector.on("wallet:signIn", (t) => {
+      setAccountId(t.accounts?.[0]?.accountId ?? null)
     })
 
-    setConnector(connector)
-  }, [whitelabelTemplate])
+    setConnector(newConnector)
 
-  const checkExistingWallet = useCallback(async () => {
-    if (!connector) return
     try {
-      const wallet = await connector.wallet()
+      const wallet = await newConnector.wallet()
       const accountId = await wallet.getAddress()
       if (accountId) {
-        setAccountId(accountId as string)
+        setAccountId(accountId)
       }
     } catch {} // No existing wallet connection found
-  }, [connector])
+
+    return newConnector
+  }, [connector, whitelabelTemplate])
 
   useEffect(() => {
-    init().catch((err) => {
-      logger.error(err)
-      alert("Failed to initialize NEAR wallet")
-    })
+    const prevChainType = localStorage.getItem("chainType")
+    if (prevChainType === ChainType.Near) {
+      init()
+    }
   }, [init])
 
-  useEffect(() => {
-    if (connector) {
-      checkExistingWallet()
-    }
-  }, [connector, checkExistingWallet])
-
-  useEffect(() => {
-    if (!connector) return
-    const onSignOut = () => setAccountId(null)
-    const onSignIn = (t: { accounts: { accountId: string }[] }) =>
-      setAccountId(t.accounts?.[0]?.accountId ?? null)
-    connector.on("wallet:signOut", onSignOut)
-    connector.on("wallet:signIn", onSignIn)
-    return () => {
-      connector.off("wallet:signOut", onSignOut)
-      connector.off("wallet:signIn", onSignIn)
-    }
-  }, [connector])
-
   const connect = useCallback(async () => {
-    if (!connector) return
-    await connector.connect()
-  }, [connector])
+    const newConnector = connector ?? (await init())
+    if (newConnector) {
+      await newConnector.connect()
+      localStorage.setItem("chainType", ChainType.Near)
+    }
+  }, [connector, init])
 
   const disconnect = useCallback(async () => {
     if (!connector) return
@@ -109,11 +111,7 @@ export const NearWalletProvider: FC<{ children: ReactNode }> = ({
       }
       const wallet = await connector.wallet()
       const signatureData = await wallet.signMessage(message)
-
-      return {
-        signatureData,
-        signedData: message,
-      }
+      return { signatureData, signedData: message }
     },
     [connector]
   )
@@ -124,7 +122,7 @@ export const NearWalletProvider: FC<{ children: ReactNode }> = ({
         throw new Error("Connector not initialized")
       }
       const wallet = await connector.wallet()
-      return await wallet.signAndSendTransactions(params)
+      return wallet.signAndSendTransactions(params)
     },
     [connector]
   )
