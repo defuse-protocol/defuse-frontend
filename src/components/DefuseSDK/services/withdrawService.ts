@@ -322,7 +322,7 @@ async function getMinWithdrawalAmount(
   // Check minimum withdrawal amount
   const poaBridgeInfo = getPOABridgeInfo(
     poaBridgeInfoState,
-    formValues.tokenOut
+    formValues.tokenOut.defuseAssetId
   )
   assert(poaBridgeInfo != null, "poaBridgeInfo is null")
 

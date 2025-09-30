@@ -173,7 +173,7 @@ export const DepositForm = ({
       return null
     }
 
-    const bridgedTokenInfo = getPOABridgeInfo(state, tokenOut)
+    const bridgedTokenInfo = getPOABridgeInfo(state, tokenOut.defuseAssetId)
     return bridgedTokenInfo == null ? null : bridgedTokenInfo.minDeposit
   })
 
