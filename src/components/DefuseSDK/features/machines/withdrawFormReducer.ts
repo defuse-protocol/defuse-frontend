@@ -1,17 +1,18 @@
 import {
-  getChainFromDid,
-  resolveTokenByDid,
-} from "@src/components/DefuseSDK/utils/tokenDeployment"
-import {
   type TokenFamilyList,
   resolveTokenFamily,
 } from "@src/components/DefuseSDK/utils/tokenFamily"
-import { getAnyBaseTokenInfo } from "@src/components/DefuseSDK/utils/tokenUtils"
+import {
+  eachBaseTokenInfo,
+  getAnyBaseTokenInfo,
+  getUnderlyingBaseTokenInfos,
+} from "@src/components/DefuseSDK/utils/tokenUtils"
 import { LIST_TOKENS_FLATTEN, tokenFamilies } from "@src/constants/tokens"
 import { type ActorRef, type Snapshot, fromTransition } from "xstate"
 import type {
   BaseTokenInfo,
   SupportedChainName,
+  TokenDeployment,
   TokenInfo,
   TokenValue,
 } from "../../types/base"
@@ -109,6 +110,7 @@ export type State = {
   parentRef: ParentActor
   tokenIn: TokenInfo
   tokenOut: BaseTokenInfo
+  tokenOutDeployment: TokenDeployment
   amount: string
   parsedAmount: TokenValue | null
   recipient: string
@@ -128,28 +130,31 @@ export const withdrawFormReducer = fromTransition(
       case "WITHDRAW_FORM.UPDATE_TOKEN": {
         const tokenOut = getBaseTokenInfoWithFallback(
           event.params.token,
-          state.tokenOut.chainName
+          state.tokenOutDeployment.chainName // preserve the previous selected blockchain if possible
         )
+        const tokenOutDeployment = tokenOut.deployments[0]
+
         newState = {
           ...state,
           parsedAmount: event.params.parsedAmount,
           tokenIn: event.params.token,
           tokenOut,
+          tokenOutDeployment,
           recipient: "",
           parsedRecipient: null,
           destinationMemo: "",
           parsedDestinationMemo: null,
           cexFundsLooseConfirmation:
-            cexFundsLooseConfirmationStatusDefault(tokenOut),
+            cexFundsLooseConfirmationStatusDefault(tokenOutDeployment),
           minReceivedAmount: null,
-          blockchain: tokenOut.chainName,
+          blockchain: tokenOutDeployment.chainName,
         }
         break
       }
       case "WITHDRAW_FORM.UPDATE_BLOCKCHAIN": {
         const blockchain = event.params.blockchain
 
-        const tokenOut = resolveTokenOut(
+        const [tokenOut, tokenOutDeployment] = resolveTokenOut(
           blockchain,
           state.tokenIn,
           tokenFamilies,
@@ -158,11 +163,12 @@ export const withdrawFormReducer = fromTransition(
 
         const cexFundsLooseConfirmation = isNearIntentsNetwork(blockchain)
           ? "not_required"
-          : cexFundsLooseConfirmationStatusDefault(tokenOut)
+          : cexFundsLooseConfirmationStatusDefault(tokenOutDeployment)
 
         newState = {
           ...state,
           tokenOut,
+          tokenOutDeployment,
           recipient: "",
           parsedRecipient: null,
           destinationMemo: "",
@@ -190,7 +196,7 @@ export const withdrawFormReducer = fromTransition(
         assert(determinedRecipient, "Recipient is required")
         const parsedRecipient = getParsedRecipient(
           determinedRecipient,
-          state.tokenOut,
+          state.tokenOutDeployment,
           isNearIntentsNetwork(state.blockchain)
         )
 
@@ -207,7 +213,7 @@ export const withdrawFormReducer = fromTransition(
           destinationMemo: event.params.destinationMemo,
           parsedDestinationMemo: parseDestinationMemo(
             event.params.destinationMemo,
-            state.tokenOut.chainName
+            state.tokenOutDeployment.chainName
           ),
         }
         break
@@ -256,11 +262,13 @@ export const withdrawFormReducer = fromTransition(
     }
   }): State => {
     const tokenOut = getBaseTokenInfoWithFallback(input.tokenIn, null)
+    const tokenOutDeployment = tokenOut.deployments[0]
 
     return {
       parentRef: input.parentRef,
       tokenIn: input.tokenIn,
       tokenOut,
+      tokenOutDeployment,
       amount: "",
       parsedAmount: null,
       recipient: "",
@@ -268,9 +276,9 @@ export const withdrawFormReducer = fromTransition(
       destinationMemo: "",
       parsedDestinationMemo: null,
       cexFundsLooseConfirmation:
-        cexFundsLooseConfirmationStatusDefault(tokenOut),
+        cexFundsLooseConfirmationStatusDefault(tokenOutDeployment),
       minReceivedAmount: null,
-      blockchain: tokenOut.chainName,
+      blockchain: tokenOutDeployment.chainName,
     }
   }
 )
@@ -285,7 +293,7 @@ export function getBaseTokenInfoWithFallback(
 
   if (chainName != null) {
     const tokenOut = tokenIn.groupedTokens.find(
-      (token) => token.chainName === chainName
+      (token) => token.originChainName === chainName
     )
     if (tokenOut != null) {
       return tokenOut
@@ -302,7 +310,7 @@ export function getBaseTokenInfoWithFallback(
  */
 function getParsedRecipient(
   recipient: string,
-  tokenOut: BaseTokenInfo,
+  tokenOut: TokenDeployment,
   isNearIntentsNetwork: boolean
 ): string | null {
   if (isNearIntentsNetwork) {
@@ -336,9 +344,9 @@ export function parseDestinationMemo(
 }
 
 function cexFundsLooseConfirmationStatusDefault(
-  tokenOut: BaseTokenInfo
+  depl: TokenDeployment
 ): CexFundsLooseConfirmationStatus {
-  return isCexIncompatible(tokenOut) ? "not_confirmed" : "not_required"
+  return isCexIncompatible(depl) ? "not_confirmed" : "not_required"
 }
 
 export function resolveTokenOut(
@@ -346,10 +354,11 @@ export function resolveTokenOut(
   tokenIn: TokenInfo,
   tokenFamilies: TokenFamilyList,
   tokenList: TokenInfo[]
-): BaseTokenInfo {
+): [BaseTokenInfo, TokenDeployment] {
   if (isNearIntentsNetwork(blockchain)) {
     // Doesn't matter we use, because we won't use it anyway for internal transfers
-    return getAnyBaseTokenInfo(tokenIn)
+    const token = getAnyBaseTokenInfo(tokenIn)
+    return [token, token.deployments[0]]
   }
 
   if (isHyperliquid(blockchain)) {
@@ -364,15 +373,21 @@ export function resolveTokenOut(
   }
 
   const tf = resolveTokenFamily(tokenFamilies, tokenIn)
-  assert(tf != null, "Token family not found")
 
-  const tokenDid = tf.deployments.find(
-    (did) => getChainFromDid(did) === blockchain
-  )
-  assert(tokenDid != null, "Token deployment not found")
+  const relatedTokenIds =
+    tf?.tokenIds ??
+    getUnderlyingBaseTokenInfos(tokenIn).map((t) => t.defuseAssetId)
 
-  const tokenOut = resolveTokenByDid(tokenList, tokenDid)
-  assert(tokenOut != null, "Token out not found")
+  for (const token of eachBaseTokenInfo(tokenList)) {
+    if (!relatedTokenIds.includes(token.defuseAssetId)) {
+      continue
+    }
 
-  return tokenOut
+    const depl = token.deployments.find((depl) => depl.chainName === blockchain)
+    if (depl != null) {
+      return [token, depl]
+    }
+  }
+
+  throw new Error("No corresponded token found")
 }

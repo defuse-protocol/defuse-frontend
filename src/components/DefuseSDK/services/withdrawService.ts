@@ -198,13 +198,13 @@ export async function prepareWithdraw(
   )
 
   const routeConfig: RouteConfig | undefined = isAuroraVirtualChain(
-    formValues.tokenOut.chainName
+    formValues.tokenOutDeployment.chainName
   )
     ? createVirtualChainRoute(
-        getAuroraEngineContractId(formValues.tokenOut.chainName),
+        getAuroraEngineContractId(formValues.tokenOutDeployment.chainName),
         null // TODO: provide the correct value once you know it
       )
-    : formValues.tokenOut.chainName === "near"
+    : formValues.tokenOutDeployment.chainName === "near"
       ? createNearWithdrawalRoute()
       : createDefaultRoute()
 
@@ -302,9 +302,9 @@ async function getMinWithdrawalAmount(
 ): Promise<TokenValue> {
   if (
     // all other bridges have no minimal amount
-    formValues.tokenOut.bridge !== "poa"
+    formValues.tokenOutDeployment.bridge !== "poa"
   ) {
-    return { amount: 1n, decimals: formValues.tokenOut.decimals }
+    return { amount: 1n, decimals: formValues.tokenOutDeployment.decimals }
   }
 
   const poaBridgeInfoState = await waitFor(

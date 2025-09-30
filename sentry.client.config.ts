@@ -54,7 +54,7 @@ function processNoLiquidityEvent(event: Sentry.ErrorEvent) {
     tokenIn?.decimals ?? 0
   )
   event_.tags["rpc-request-id"] = event.contexts.quoteRequestInfo.requestId
-  event_.message = `No liquidity available for $${tokenIn?.symbol} (${tokenIn?.chainName}) to $${tokenOut?.symbol} (${tokenOut?.chainName})`
+  event_.message = `No liquidity available for $${tokenIn?.symbol} (${tokenIn?.originChainName}) to $${tokenOut?.symbol} (${tokenOut?.originChainName})`
   return event_
 }
 

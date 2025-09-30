@@ -7,48 +7,52 @@ import { resolveTokenOut } from "./withdrawFormReducer"
 describe("resolveTokenOut()", () => {
   const tokenList: BaseTokenInfo[] = [
     {
-      bridge: "poa",
-      chainName: "solana",
+      originChainName: "solana",
       decimals: 0,
       defuseAssetId: "",
       icon: "",
       name: "",
       symbol: "",
-      address: "",
       tags: ["aid:eth"],
+      deployments: [
+        { decimals: 0, address: "", bridge: "poa", chainName: "solana" },
+      ],
     },
     {
-      bridge: "poa",
-      chainName: "arbitrum",
+      originChainName: "arbitrum",
       decimals: 0,
       defuseAssetId: "",
       icon: "",
       name: "",
       symbol: "",
-      address: "",
       tags: ["aid:eth"],
+      deployments: [
+        { decimals: 0, address: "", bridge: "poa", chainName: "arbitrum" },
+      ],
     },
     {
-      bridge: "poa",
-      chainName: "eth",
+      originChainName: "eth",
       decimals: 0,
       defuseAssetId: "",
       icon: "",
       name: "",
       symbol: "",
-      address: "",
       tags: ["aid:eth"],
+      deployments: [
+        { decimals: 0, address: "", bridge: "poa", chainName: "eth" },
+      ],
     },
     {
-      bridge: "poa",
-      chainName: "hyperliquid",
+      originChainName: "hyperliquid",
       decimals: 0,
       defuseAssetId: "",
       icon: "",
       name: "",
       symbol: "",
-      address: "",
       tags: ["aid:eth"],
+      deployments: [
+        { decimals: 0, address: "", bridge: "poa", chainName: "hyperliquid" },
+      ],
     },
   ]
 
@@ -56,25 +60,47 @@ describe("resolveTokenOut()", () => {
 
   it("returns a token from the same family", () => {
     const t = tokenList[0]
-    const result = resolveTokenOut("arbitrum", t, tokenFamilies, tokenList)
-    expect(getTokenAid(result)).toEqual("eth")
+    const [token, _depl] = resolveTokenOut(
+      "arbitrum",
+      t,
+      tokenFamilies,
+      tokenList
+    )
+    expect(getTokenAid(token)).toEqual("eth")
   })
 
   it("returns a token with given chain", () => {
     const t = tokenList[0]
-    const result = resolveTokenOut("arbitrum", t, tokenFamilies, tokenList)
-    expect(result).toHaveProperty("chainName", "arbitrum")
+    const [token, depl] = resolveTokenOut(
+      "arbitrum",
+      t,
+      tokenFamilies,
+      tokenList
+    )
+    expect(token).toHaveProperty("originChainName", "arbitrum")
+    expect(depl).toHaveProperty("chainName", "arbitrum")
   })
 
   it("returns given token if chain is near_intents", () => {
     const t = tokenList[0]
-    const result = resolveTokenOut("near_intents", t, tokenFamilies, tokenList)
-    expect(result).toBe(t)
+    const [token, _depl] = resolveTokenOut(
+      "near_intents",
+      t,
+      tokenFamilies,
+      tokenList
+    )
+    expect(token).toBe(t)
   })
 
   it("returns corresponded chain for hyperliquid token", () => {
     const t = tokenList[3]
-    const result = resolveTokenOut("hyperliquid", t, tokenFamilies, tokenList)
-    expect(result).toHaveProperty("chainName", "eth")
+    const [token, depl] = resolveTokenOut(
+      "hyperliquid",
+      t,
+      tokenFamilies,
+      tokenList
+    )
+    expect(token).toHaveProperty("originChainName", "eth")
+    expect(depl).toHaveProperty("chainName", "eth")
   })
 })

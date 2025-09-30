@@ -52,7 +52,7 @@ export function AssetList<T extends TokenInfo>({
       {assets.map(
         ({ token, selected, isHoldingsEnabled, value, usdValue }, i) => {
           const chainIcon = isBaseToken(token)
-            ? chainIcons[token.chainName]
+            ? chainIcons[token.originChainName]
             : undefined
 
           return (
@@ -71,7 +71,9 @@ export function AssetList<T extends TokenInfo>({
                   icon={token.icon}
                   name={token.name}
                   showChainIcon={showChainIcon(token, chainIcon)}
-                  chainName={isBaseToken(token) ? token.chainName : undefined}
+                  chainName={
+                    isBaseToken(token) ? token.originChainName : undefined
+                  }
                   chainIcon={chainIcon}
                 />
                 {selected && (

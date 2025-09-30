@@ -3,6 +3,7 @@ import type {
   FungibleTokenInfo,
   NativeTokenInfo,
   TokenAbstractId,
+  TokenDeployment,
   TokenInfo,
   UnifiedTokenInfo,
 } from "../types/base"
@@ -15,12 +16,16 @@ export function isUnifiedToken(token: TokenInfo): token is UnifiedTokenInfo {
   return "unifiedAssetId" in token
 }
 
-export function isFungibleToken(token: TokenInfo): token is FungibleTokenInfo {
-  return isBaseToken(token) && "address" in token && token.address !== "native"
+export function isFungibleToken(
+  token: TokenDeployment
+): token is FungibleTokenInfo {
+  return "address" in token && token.address !== "native"
 }
 
-export function isNativeToken(token: TokenInfo): token is NativeTokenInfo {
-  return isBaseToken(token) && "type" in token && token.type === "native"
+export function isNativeToken(
+  token: TokenDeployment
+): token is NativeTokenInfo {
+  return "type" in token && token.type === "native"
 }
 
 export function getTokenId(token: TokenInfo) {

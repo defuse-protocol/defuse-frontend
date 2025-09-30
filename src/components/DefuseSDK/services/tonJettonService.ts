@@ -1,6 +1,6 @@
 import { Address, TonClient, beginCell } from "@ton/ton"
 import axios from "axios"
-import type { BaseTokenInfo } from "../types/base"
+import type { TokenDeployment } from "../types/base"
 import { isNativeToken } from "../utils/token"
 
 export interface JettonInfo {
@@ -105,7 +105,7 @@ export async function checkJettonWalletExists(
 
 export async function checkTonJettonWalletRequired(
   client: TonClient,
-  token: BaseTokenInfo,
+  token: TokenDeployment,
   userWalletAddress: string | null
 ): Promise<boolean> {
   if (
