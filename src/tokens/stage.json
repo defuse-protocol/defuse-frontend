@@ -1,0 +1,212 @@
+{
+  "$schema": "schema/tokenlist.schema.json",
+  "tokens": [
+    {
+      "unifiedAssetId": "usdc",
+      "symbol": "USDC",
+      "name": "USD Coin",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+      "groupedTokens": [
+        {
+          "defuseAssetId": "nep141:base-0x833589fcd6edb6e08f4c7c32d4f71b54bda02913.stft.near",
+          "symbol": "USDC",
+          "name": "USD Coin",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+          "originChainName": "base",
+          "deployments": [
+            {
+              "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+              "decimals": 6,
+              "chainName": "base",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:7", "type:stablecoin", "tvol:4"]
+        },
+        {
+          "defuseAssetId": "nep141:sol-5ce3bf3a31af18be40ba30f721101b4341690186.stft.near",
+          "symbol": "USDC",
+          "name": "USD Coin",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+          "originChainName": "solana",
+          "deployments": [
+            {
+              "address": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+              "decimals": 6,
+              "chainName": "solana",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:7", "type:stablecoin", "tvol:4"]
+        }
+      ],
+      "tags": ["mc:7", "type:stablecoin", "tvol:4"]
+    },
+    {
+      "unifiedAssetId": "usdt",
+      "symbol": "USDT",
+      "name": "Tether USD",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+      "groupedTokens": [
+        {
+          "defuseAssetId": "nep141:sol-c800a4bd850783ccb82c2b2c7e84175443606352.stft.near",
+          "symbol": "USDT",
+          "name": "Tether USD",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+          "originChainName": "solana",
+          "deployments": [
+            {
+              "address": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+              "decimals": 6,
+              "chainName": "solana",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:3", "type:stablecoin", "tvol:3"]
+        }
+      ],
+      "tags": ["mc:3", "type:stablecoin", "tvol:3"]
+    },
+    {
+      "unifiedAssetId": "eth",
+      "symbol": "ETH",
+      "name": "ETH",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1027.png",
+      "groupedTokens": [
+        {
+          "defuseAssetId": "nep141:eth.stft.near",
+          "symbol": "ETH",
+          "name": "ETH",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1027.png",
+          "originChainName": "eth",
+          "deployments": [
+            {
+              "type": "native",
+              "decimals": 18,
+              "chainName": "eth",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:2", "tvol:7"]
+        },
+        {
+          "defuseAssetId": "nep141:base.stft.near",
+          "symbol": "ETH",
+          "name": "ETH",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1027.png",
+          "originChainName": "base",
+          "deployments": [
+            {
+              "type": "native",
+              "decimals": 18,
+              "chainName": "base",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:2", "tvol:7"]
+        }
+      ],
+      "tags": ["mc:2", "tvol:7"]
+    },
+    {
+      "unifiedAssetId": "sol",
+      "symbol": "SOL",
+      "name": "Solana",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/5426.png",
+      "groupedTokens": [
+        {
+          "defuseAssetId": "nep141:sol.stft.near",
+          "symbol": "SOL",
+          "name": "Solana",
+          "decimals": 9,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/5426.png",
+          "originChainName": "solana",
+          "deployments": [
+            {
+              "type": "native",
+              "decimals": 9,
+              "chainName": "solana",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:6", "tvol:5"]
+        }
+      ],
+      "tags": ["mc:6", "tvol:5"]
+    },
+    {
+      "unifiedAssetId": "btc",
+      "symbol": "BTC",
+      "name": "Bitcoin",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1.png",
+      "groupedTokens": [
+        {
+          "defuseAssetId": "nep141:btc.stft.near",
+          "symbol": "BTC",
+          "name": "Bitcoin",
+          "decimals": 8,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1.png",
+          "originChainName": "bitcoin",
+          "deployments": [
+            {
+              "type": "native",
+              "decimals": 8,
+              "chainName": "bitcoin",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:1", "tvol:6"]
+        }
+      ],
+      "tags": ["mc:1", "tvol:6"]
+    },
+    {
+      "unifiedAssetId": "xrp",
+      "symbol": "XRP",
+      "name": "XRP",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/52.png",
+      "groupedTokens": [
+        {
+          "defuseAssetId": "nep141:xrp.stft.near",
+          "symbol": "XRP",
+          "name": "XRP",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/52.png",
+          "originChainName": "xrpledger",
+          "deployments": [
+            {
+              "type": "native",
+              "decimals": 6,
+              "chainName": "xrpledger",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:4", "tvol:11"]
+        }
+      ],
+      "tags": ["mc:4", "tvol:11"]
+    },
+    {
+      "defuseAssetId": "nep141:sui.stft.near",
+      "symbol": "SUI",
+      "name": "SUI",
+      "decimals": 9,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/20947.png",
+      "originChainName": "sui",
+      "deployments": [
+        {
+          "type": "native",
+          "decimals": 9,
+          "chainName": "sui",
+          "bridge": "poa"
+        }
+      ],
+      "tags": ["mc:13"]
+    }
+  ]
+}
