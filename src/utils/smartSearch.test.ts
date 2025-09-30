@@ -11,11 +11,17 @@ import {
 
 const createMockToken = (symbol: string, name: string): TokenInfo => ({
   defuseAssetId: `mock-${symbol.toLowerCase()}`,
-  address: `0x${symbol.toLowerCase()}`,
   decimals: 18,
   icon: `https://example.com/${symbol.toLowerCase()}.png`,
-  chainName: "eth",
-  bridge: "direct",
+  originChainName: "eth",
+  deployments: [
+    {
+      chainName: "eth",
+      bridge: "direct",
+      decimals: 18,
+      address: `0x${symbol.toLowerCase()}`,
+    },
+  ],
   symbol,
   name,
 })

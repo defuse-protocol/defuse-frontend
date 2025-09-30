@@ -99,18 +99,22 @@ export function performSearch<T extends SearchableItem>(
 
   const { maxFuzzyDistance = 1, maxResults } = options
 
-  // Calculate scores for all items and filter out non-matches
-  const scoredItems = items
-    .map((item) => ({
-      item,
-      score: calculateSearchScore(item, query, maxFuzzyDistance),
-    }))
-    .filter(({ score }) => score > 0)
-    .sort((a, b) => b.score - a.score) // Sort by score descending
+  // Calculate scores for all items and filter out non-matches using a single loop
+  const scoredItems: Array<{ item: T; score: number }> = []
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i]
+    const score = calculateSearchScore(item, query, maxFuzzyDistance)
+
+    if (score > 0) {
+      scoredItems.push({ item, score })
+    }
+  }
+  const result = scoredItems
+    .sort((a, b) => b.score - a.score)
     .map(({ item }) => item)
 
   // Apply max results limit if specified
-  return maxResults ? scoredItems.slice(0, maxResults) : scoredItems
+  return maxResults ? result.slice(0, maxResults) : result
 }
 
 export function createSearchData(token: TokenInfo) {
