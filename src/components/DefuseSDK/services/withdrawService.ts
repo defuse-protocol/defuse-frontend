@@ -8,8 +8,10 @@ import {
   createDefaultRoute,
   createInternalTransferRoute,
   createNearWithdrawalRoute,
+  createOmniBridgeRoute,
   createVirtualChainRoute,
 } from "@defuse-protocol/intents-sdk"
+import { getCAIP2 } from "@src/components/DefuseSDK/utils/caip2"
 import { logger } from "@src/utils/logger"
 import { Err, Ok, type Result } from "@thames/monads"
 import { type ActorRefFrom, waitFor } from "xstate"
@@ -206,7 +208,11 @@ export async function prepareWithdraw(
       )
     : formValues.tokenOutDeployment.chainName === "near"
       ? createNearWithdrawalRoute()
-      : createDefaultRoute()
+      : formValues.tokenOutDeployment.bridge === "near_omni"
+        ? createOmniBridgeRoute(
+            getCAIP2(formValues.tokenOutDeployment.chainName)
+          )
+        : createDefaultRoute()
 
   const baseWithdrawalParams: WithdrawalParams = {
     assetId: formValues.tokenOut.defuseAssetId,
