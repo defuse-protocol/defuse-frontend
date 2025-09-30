@@ -42,6 +42,7 @@ import {
   compareAmounts,
   computeTotalBalanceDifferentDecimals,
   getUnderlyingBaseTokenInfos,
+  maxAmounts,
   minAmounts,
   subtractAmounts,
   truncateTokenValue,
@@ -230,20 +231,19 @@ export async function prepareWithdraw(
     return { tag: "err", value: feeEstimation.unwrapErr() }
   }
 
-  const receivedAmount = {
-    amount: totalWithdrawn.amount - feeEstimation.unwrap().amount,
+  const receivedAmount = subtractAmounts(totalWithdrawn, {
+    amount: feeEstimation.unwrap().amount,
+    // Fee estimations are always in the decimals of the token on NEAR chain,
+    // even if on the destination chain the token has different decimals.
     decimals: formValues.tokenOut.decimals,
-  }
+  })
 
   if (compareAmounts(receivedAmount, minWithdrawal) === -1) {
     return {
       tag: "err",
       value: {
         reason: "ERR_AMOUNT_TOO_LOW",
-        shortfall: {
-          amount: minWithdrawal.amount - receivedAmount.amount,
-          decimals: receivedAmount.decimals,
-        },
+        shortfall: subtractAmounts(minWithdrawal, receivedAmount),
         // todo: provide decimals too
         receivedAmount: receivedAmount.amount,
         // todo: provide decimals too
@@ -306,40 +306,41 @@ async function getMinWithdrawalAmount(
   },
   { signal }: { signal: AbortSignal }
 ): Promise<TokenValue> {
-  if (
-    // all other bridges have no minimal amount
-    formValues.tokenOutDeployment.bridge !== "poa"
-  ) {
-    return { amount: 1n, decimals: formValues.tokenOutDeployment.decimals }
-  }
+  let minWithdrawal: TokenValue
 
-  const poaBridgeInfoState = await waitFor(
-    poaBridgeInfoRef,
-    (state) => state.matches("success"),
-    { signal } // todo: add timeout and error handling
-  )
+  if (formValues.tokenOutDeployment.bridge !== "poa") {
+    // All other bridges have no minimum amount
+    minWithdrawal = {
+      amount: 1n,
+      decimals: formValues.tokenOutDeployment.decimals,
+    }
+  } else {
+    const poaBridgeInfoState = await waitFor(
+      poaBridgeInfoRef,
+      (state) => state.matches("success"),
+      { signal } // todo: add timeout and error handling
+    )
 
-  // Check minimum withdrawal amount
-  const poaBridgeInfo = getPOABridgeInfo(
-    poaBridgeInfoState,
-    formValues.tokenOut.defuseAssetId
-  )
-  assert(poaBridgeInfo != null, "poaBridgeInfo is null")
+    // Check minimum withdrawal amount
+    const poaBridgeInfo = getPOABridgeInfo(
+      poaBridgeInfoState,
+      formValues.tokenOut.defuseAssetId
+    )
+    assert(poaBridgeInfo != null, "poaBridgeInfo is null")
 
-  if (formValues.minReceivedAmount != null) {
-    return {
-      amount:
-        formValues.minReceivedAmount.amount > poaBridgeInfo.minWithdrawal
-          ? formValues.minReceivedAmount.amount
-          : poaBridgeInfo.minWithdrawal,
-      decimals: formValues.tokenOut.decimals,
+    minWithdrawal = {
+      amount: poaBridgeInfo.minWithdrawal,
+      // note: PoA-bridged tokens on NEAR have the exact same decimals as on an origin chain
+      decimals: formValues.tokenOutDeployment.decimals,
     }
   }
 
-  return {
-    amount: poaBridgeInfo.minWithdrawal,
-    decimals: formValues.tokenOut.decimals,
+  // This is a special case for withdrawals to Hyperliquid chain
+  if (formValues.minReceivedAmount != null) {
+    return maxAmounts(formValues.minReceivedAmount, minWithdrawal)
   }
+
+  return minWithdrawal
 }
 
 function checkBalanceSufficiency({

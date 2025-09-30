@@ -221,6 +221,10 @@ export function minAmounts(value1: TokenValue, value2: TokenValue): TokenValue {
   return compareAmounts(value1, value2) <= 0 ? value1 : value2
 }
 
+export function maxAmounts(value1: TokenValue, value2: TokenValue): TokenValue {
+  return compareAmounts(value1, value2) > 0 ? value1 : value2
+}
+
 export function addAmounts(
   ...values: [TokenValue, TokenValue, ...TokenValue[]]
 ): TokenValue {
