@@ -17,7 +17,7 @@ export interface Context {
     {
       minDeposit: bigint
       minWithdrawal: bigint
-      withdrawalFee: number
+      withdrawalFee: bigint
     }
   >
 }
@@ -49,7 +49,7 @@ export const poaBridgeInfoActor = setup({
               {
                 minDeposit: BigInt(bridgedTokenInfo.min_deposit_amount),
                 minWithdrawal: BigInt(bridgedTokenInfo.min_withdrawal_amount),
-                withdrawalFee: Number(bridgedTokenInfo.withdrawal_fee),
+                withdrawalFee: BigInt(bridgedTokenInfo.withdrawal_fee),
               },
             ]
           }
@@ -130,7 +130,7 @@ export const getPOABridgeInfo = (
     ] ?? {
       minDeposit: 1n,
       minWithdrawal: 1n,
-      withdrawalFee: 0,
+      withdrawalFee: 0n,
     }
   )
 }
