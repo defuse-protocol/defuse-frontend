@@ -342,7 +342,6 @@ describe.skip("getAggregatedQuoteExactIn()", () => {
       quoteErrors: [
         new QuoteError({
           quote: null,
-          // @ts-expect-error - `QuoteError` type compiled incorrectly
           // biome-ignore lint/style/noNonNullAssertion: <explanation>
           quoteParams: quoteParams[1]!,
         }),
