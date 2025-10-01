@@ -482,9 +482,8 @@ export const WithdrawForm = ({
                     htmlFor="cex-funds-loose-checkbox"
                     className="cursor-pointer leading-relaxed break-words"
                   >
-                    I understand that withdrawing directly to an exchange
-                    address (e.g., ByBit, Bitget, MEXC) may result in lost or
-                    delayed funds.
+                    I understand that withdrawing directly to certain exchanges
+                    (e.g., ByBit, Bitget, MEXC) may cause fund loss or issues.
                   </Text>
                   <Flex align="center" gap="2">
                     <CexTooltip />
