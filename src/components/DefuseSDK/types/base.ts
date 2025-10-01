@@ -127,21 +127,6 @@ export interface BaseTokenInfo {
   tags?: string[]
 }
 
-/**
- * @deprecated
- */
-export interface FungibleTokenInfo_old {
-  defuseAssetId: string
-  address: string
-  symbol: string
-  name: string
-  decimals: number
-  icon: string
-  chainName: SupportedChainName
-  bridge: SupportedBridge
-  tags?: string[]
-}
-
 export interface FungibleTokenInfo {
   address: string
   decimals: number
@@ -154,32 +139,12 @@ export interface FungibleTokenInfo {
   stellarCode?: string
 }
 
-/**
- * @deprecated
- */
-export interface NativeTokenInfo_old {
-  defuseAssetId: string
-  type: "native"
-  symbol: string
-  name: string
-  decimals: number
-  icon: string
-  chainName: SupportedChainName
-  bridge: SupportedBridge
-  tags?: string[]
-}
-
 export interface NativeTokenInfo {
   type: "native"
   decimals: number
   chainName: SupportedChainName
   bridge: SupportedBridge
 }
-
-/**
- * @deprecated
- */
-export type BaseTokenInfo_old = FungibleTokenInfo_old | NativeTokenInfo_old
 
 /**
  * A virtual aggregation of the same token across multiple blockchains.
@@ -198,14 +163,15 @@ export interface UnifiedTokenInfo {
   tags?: string[]
 }
 
-/**
- * @deprecated
- */
-export type UnifiedTokenInfo_old = Omit<UnifiedTokenInfo, "groupedTokens"> & {
-  groupedTokens: BaseTokenInfo_old[]
-}
-
 export type TokenInfo = BaseTokenInfo | UnifiedTokenInfo
+
+/**
+ * Used for generating JSON schema for a token list.
+ */
+export interface TokenList {
+  $schema?: string
+  tokens: TokenInfo[]
+}
 
 export interface TokenValue {
   amount: bigint

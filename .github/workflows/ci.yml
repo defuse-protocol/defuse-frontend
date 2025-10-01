@@ -28,6 +28,9 @@ jobs:
       - name: Run tests
         run: bun run test
 
+      - name: Token list check
+        run: ./scripts/generate-token-list-schema.sh
+
       - uses: supabase/setup-cli@v1
         with:
           version: latest
