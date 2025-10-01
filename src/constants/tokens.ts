@@ -1661,7 +1661,7 @@ export const PRODUCTION_TOKENS: (UnifiedTokenInfo_old | BaseTokenInfo_old)[] = [
     chainName: "cardano",
     bridge: "poa",
     symbol: "ADA",
-    name: "ADA",
+    name: "Cardano",
     tags: ["mc:10"],
   },
   {
