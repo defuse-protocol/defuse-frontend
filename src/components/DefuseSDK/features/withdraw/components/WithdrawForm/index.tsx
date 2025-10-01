@@ -482,8 +482,8 @@ export const WithdrawForm = ({
                     htmlFor="cex-funds-loose-checkbox"
                     className="cursor-pointer leading-relaxed break-words"
                   >
-                    I acknowledge that withdrawing to a CEX address may cause
-                    loss of funds.
+                    I acknowledge that withdrawing to any exchanges address may
+                    cause loss of funds.
                   </Text>
                   <Flex align="center" gap="2">
                     <CexTooltip />

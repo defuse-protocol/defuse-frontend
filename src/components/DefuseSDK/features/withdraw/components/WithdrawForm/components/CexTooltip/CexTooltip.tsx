@@ -36,8 +36,8 @@ export const CexTooltip = () => {
 
           <div className="pt-1 border-t border-amber-700/30">
             <Text size="1" weight="medium" className="leading-relaxed">
-              💡 Tip: If this is your first time withdrawing to a CEX address,
-              always make a small test withdrawal (STW) first.
+              💡 Tip: If this is your first time withdrawing to your exchange
+              address, always make a small test withdrawal (STW) first.
             </Text>
           </div>
 
