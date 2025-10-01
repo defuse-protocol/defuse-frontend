@@ -15,6 +15,8 @@ import {
   getTokenAccountIds,
   getUnderlyingBaseTokenInfos,
   grossUpAmount,
+  maxAmounts,
+  minAmounts,
   netDownAmount,
   subtractAmounts,
   tokenAccountIdToDefuseAssetId,
@@ -1439,5 +1441,57 @@ describe("tokenAccountIdToDefuseAssetId", () => {
     const result = tokenAccountIdToDefuseAssetId(address)
 
     expect(result).toBe("nep141:newAddress")
+  })
+})
+
+describe("minAmounts()", () => {
+  it("returns min value when same decimals", () => {
+    const result = minAmounts(
+      { amount: 1n, decimals: 0 },
+      { amount: 2n, decimals: 0 }
+    )
+    expect(result).toEqual({ amount: 1n, decimals: 0 })
+  })
+
+  it("returns min value when larger decimals", () => {
+    const result = minAmounts(
+      { amount: 10n, decimals: 1 },
+      { amount: 2n, decimals: 0 }
+    )
+    expect(result).toEqual({ amount: 10n, decimals: 1 })
+  })
+
+  it("returns min value when smaller decimals", () => {
+    const result = minAmounts(
+      { amount: 1n, decimals: 0 },
+      { amount: 20n, decimals: 1 }
+    )
+    expect(result).toEqual({ amount: 1n, decimals: 0 })
+  })
+})
+
+describe("maxAmounts()", () => {
+  it("returns max value when same decimals", () => {
+    const result = maxAmounts(
+      { amount: 1n, decimals: 0 },
+      { amount: 2n, decimals: 0 }
+    )
+    expect(result).toEqual({ amount: 2n, decimals: 0 })
+  })
+
+  it("returns max value when larger decimals", () => {
+    const result = maxAmounts(
+      { amount: 1n, decimals: 0 },
+      { amount: 20n, decimals: 1 }
+    )
+    expect(result).toEqual({ amount: 20n, decimals: 1 })
+  })
+
+  it("returns max value when smaller decimals", () => {
+    const result = maxAmounts(
+      { amount: 10n, decimals: 1 },
+      { amount: 2n, decimals: 0 }
+    )
+    expect(result).toEqual({ amount: 2n, decimals: 0 })
   })
 })

@@ -183,7 +183,7 @@ export const WithdrawForm = ({
   const minWithdrawalPOABridgeAmount = useSelector(
     poaBridgeInfoRef,
     (state) => {
-      const bridgedTokenInfo = getPOABridgeInfo(state, tokenOut)
+      const bridgedTokenInfo = getPOABridgeInfo(state, tokenOut.defuseAssetId)
       return bridgedTokenInfo == null
         ? null
         : {

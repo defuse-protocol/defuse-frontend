@@ -612,6 +612,7 @@ export const withdrawUIMachine = setup({
             intentOperationParams: {
               type: "withdraw",
               tokenOut: formValues.tokenOut,
+              tokenOutDeployment: formValues.tokenOutDeployment,
               quote,
               feeEstimation: context.preparationOutput.value.feeEstimation,
               directWithdrawalAmount:
