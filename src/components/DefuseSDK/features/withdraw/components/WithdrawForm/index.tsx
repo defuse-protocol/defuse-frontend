@@ -1,4 +1,4 @@
-import { Checkbox, Flex, Text, Tooltip } from "@radix-ui/themes"
+import { Checkbox, Flex, Text } from "@radix-ui/themes"
 import { useModalController } from "@src/components/DefuseSDK/hooks/useModalController"
 import { useTokensUsdPrices } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
 import { ModalType } from "@src/components/DefuseSDK/stores/modalStore"
@@ -49,6 +49,7 @@ import {
   ReceivedAmountAndFee,
   RecipientSubForm,
 } from "./components"
+import { CexTooltip } from "./components/CexTooltip/CexTooltip"
 import { useMinWithdrawalAmountWithFeeEstimation } from "./hooks/useMinWithdrawalAmountWithFeeEstimation"
 import {
   balancesSelector,
@@ -457,46 +458,38 @@ export const WithdrawForm = ({
 
           {!isNearIntentsNetwork(blockchain) &&
             isCexIncompatible(tokenOutDeployment) && (
-              <Text
-                as="label"
-                size="1"
-                weight="medium"
-                color={errors.isFundsLooseConfirmed ? "red" : "gray"}
-              >
-                <Flex as="span" gap="2">
-                  <Controller
-                    control={control}
-                    name="isFundsLooseConfirmed"
-                    rules={{ required: true }}
-                    render={({ field }) => (
-                      <Checkbox
-                        size="3"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    )}
-                  />
-                  I understand CEX addresses may cause fund loss or issues.
-                  <Tooltip
-                    side="bottom"
-                    align="center"
-                    maxWidth="300px"
-                    content="Many centralized exchanges (CEXs) don’t support third-party protocol withdrawals. Using a CEX address may result in lost or delayed funds. Use a self-custodial wallet instead."
+              <Flex gap="3" align="start">
+                <Controller
+                  control={control}
+                  name="isFundsLooseConfirmed"
+                  rules={{ required: true }}
+                  render={({ field }) => (
+                    <Checkbox
+                      id="cex-funds-loose-checkbox"
+                      size="3"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      className="mt-0.5"
+                    />
+                  )}
+                />
+                <Flex direction="column" gap="2" className="flex-1">
+                  <Text
+                    as="label"
+                    size="1"
+                    weight="medium"
+                    color={errors.isFundsLooseConfirmed ? "red" : "gray"}
+                    htmlFor="cex-funds-loose-checkbox"
+                    className="cursor-pointer leading-relaxed break-words"
                   >
-                    <Text
-                      size="1"
-                      color="gray"
-                      as="span"
-                      style={{
-                        textDecoration: "underline",
-                        textDecorationStyle: "dotted",
-                      }}
-                    >
-                      Why?
-                    </Text>
-                  </Tooltip>
+                    I acknowledge that withdrawing to a CEX address may cause
+                    loss of funds.
+                  </Text>
+                  <Flex align="center" gap="2">
+                    <CexTooltip />
+                  </Flex>
                 </Flex>
-              </Text>
+              </Flex>
             )}
 
           <ReceivedAmountAndFee
