@@ -19,7 +19,11 @@ import { settings } from "../../constants/settings"
 import { convertPublishIntentToLegacyFormat } from "../../sdk/solverRelay/utils/parseFailedPublishError"
 import { emitEvent } from "../../services/emitter"
 import type { AggregatedQuote } from "../../services/quoteService"
-import type { BaseTokenInfo, TokenValue } from "../../types/base"
+import type {
+  BaseTokenInfo,
+  TokenDeployment,
+  TokenValue,
+} from "../../types/base"
 import type { IntentsUserId } from "../../types/intentsUserId"
 import { assert } from "../../utils/assert"
 import { PriorityQueue } from "../../utils/priorityQueue"
@@ -55,6 +59,7 @@ type IntentOperationParams =
   | {
       type: "withdraw"
       tokenOut: BaseTokenInfo
+      tokenOutDeployment: TokenDeployment
       quote: AggregatedQuote | null
       feeEstimation: FeeEstimation
       directWithdrawalAmount: TokenValue
@@ -75,6 +80,7 @@ export type IntentDescription =
   | {
       type: "withdraw"
       tokenOut: BaseTokenInfo
+      tokenOutDeployment: TokenDeployment
       amountWithdrawn: TokenValue
       accountId: IntentsUserId
       recipient: string
@@ -350,6 +356,8 @@ export const swapIntentMachine = setup({
               intentDescription: {
                 type: "withdraw",
                 tokenOut: context.intentOperationParams.tokenOut,
+                tokenOutDeployment:
+                  context.intentOperationParams.tokenOutDeployment,
                 amountWithdrawn: calcOperationAmountOut(
                   context.intentOperationParams,
                   context.quoteToPublish
