@@ -25,7 +25,7 @@ if [ "$CI" = "true" ] || [ "$CI" = "1" ]; then
     echo "❌ ERROR: Schema file has uncommitted changes!"
     echo "The generated schema doesn't match the committed version."
     echo ""
-    echo "Please run './scripts/generate-schema.sh' locally and commit the changes."
+    echo "Please run './scripts/generate-token-list-schema.sh' locally and commit the changes."
     echo ""
     echo "Detected changes:"
     git --no-pager diff "$output_file"
