@@ -75,7 +75,7 @@ export function ModalSelectAssets() {
     {
       maxResults: 100,
       maxFuzzyDistance: 1,
-      debounceMs: 250,
+      debounceMs: 350,
     }
   )
 
