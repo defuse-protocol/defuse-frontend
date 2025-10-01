@@ -2050,7 +2050,7 @@
     {
       "defuseAssetId": "nep141:cardano.omft.near",
       "symbol": "ADA",
-      "name": "ADA",
+      "name": "Cardano",
       "decimals": 6,
       "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/2010.png",
       "originChainName": "cardano",
