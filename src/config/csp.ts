@@ -95,6 +95,11 @@ const cspConfig = {
     "https://tc.architecton.su",
     "https://ton-connect.mytokenpocket.vip",
     "https://bridge.uxuy.me",
+    "https://tc.nicegram.app",
+    "https://connect.token.im",
+    "https://web3-bridge.kolo.in",
+    "https://ton-connect-bridge.echooo.link",
+    "https://blitzwallet.cfd",
 
     /** HOT */
     "http://*.herewallet.app",
