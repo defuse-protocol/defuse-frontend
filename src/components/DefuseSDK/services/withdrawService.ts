@@ -312,7 +312,16 @@ async function getMinWithdrawalAmount(
     // All other bridges have no minimum amount
     minWithdrawal = {
       amount: 1n,
-      decimals: formValues.tokenOutDeployment.decimals,
+      // Use the minimum decimals between NEAR and destination chains to ensure
+      // we never require fractional atomic units (which are impossible).
+      //
+      // Example: NEAR (18 decimals) → Solana (9 decimals)
+      //   min(18, 9) = 9 ✓ Valid on both chains
+      //   max(18, 9) = 18 ✗ Requires fractional Solana units
+      decimals: Math.min(
+        formValues.tokenOut.decimals,
+        formValues.tokenOutDeployment.decimals
+      ),
     }
   } else {
     const poaBridgeInfoState = await waitFor(
