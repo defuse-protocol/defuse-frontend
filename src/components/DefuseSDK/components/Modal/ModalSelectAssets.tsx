@@ -3,12 +3,9 @@ import { XIcon } from "@phosphor-icons/react"
 import { Text } from "@radix-ui/themes"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
-import {
-  type SearchableItem,
-  createSearchData,
-  performSearch,
-} from "@src/utils/smartSearch"
-import { useDeferredValue, useEffect, useMemo, useState } from "react"
+import { useSmartSearch } from "@src/hooks/useSmartSearch"
+import { type SearchableItem, createSearchData } from "@src/utils/smartSearch"
+import { useEffect, useState } from "react"
 import { useWatchHoldings } from "../../features/account/hooks/useWatchHoldings"
 import type { BalanceMapping } from "../../features/machines/depositedBalanceMachine"
 import { useModalStore } from "../../providers/ModalStoreProvider"
@@ -26,6 +23,7 @@ import { MostTradableTokens } from "../MostTradableTokens/MostTradableTokens"
 import { SearchBar } from "../SearchBar"
 import { ModalDialog } from "./ModalDialog"
 import { ModalNoResults } from "./ModalNoResults"
+import { ModalSearchLoading } from "./ModalSearchLoading"
 
 export type ModalSelectAssetsPayload = {
   modalType?: ModalType.MODAL_SELECT_ASSETS
@@ -57,10 +55,8 @@ export function ModalSelectAssets() {
   const [notFilteredAssetList, setNotFilteredAssetList] = useState<
     SelectItemToken[]
   >([])
-
   const { onCloseModal, modalType, payload } = useModalStore((state) => state)
   const tokens = useTokensStore((state) => state.tokens)
-  const deferredQuery = useDeferredValue(searchValue)
   // TODO: how we can avoid this cast?
   const modalPayload = payload as ModalSelectAssetsPayload
 
@@ -72,6 +68,16 @@ export function ModalSelectAssets() {
   const holdings = useWatchHoldings({ userId, tokenList: tokens })
 
   const handleSearchClear = () => setSearchValue("")
+
+  const { results: searchResults, isLoading } = useSmartSearch(
+    assetList,
+    searchValue,
+    {
+      maxResults: 100,
+      maxFuzzyDistance: 1,
+      debounceMs: 250,
+    }
+  )
 
   const handleSelectToken = (selectedItem: SelectItemToken) => {
     if (modalType !== ModalType.MODAL_SELECT_ASSETS) {
@@ -166,9 +172,7 @@ export function ModalSelectAssets() {
     setAssetList(getAssetList)
   }, [tokens, modalPayload, holdings])
 
-  const filteredAssets = useMemo(() => {
-    return performSearch(assetList, deferredQuery)
-  }, [assetList, deferredQuery])
+  const displayAssets = searchValue.trim() ? searchResults : assetList
 
   const is1cs = useIs1CsEnabled()
 
@@ -195,9 +199,11 @@ export function ModalSelectAssets() {
           </div>
         </div>
         <div className="z-10 flex-1 overflow-y-auto border-b border-gray-1 dark:border-black-950 -mr-[var(--inset-padding-right)] pr-[var(--inset-padding-right)]">
-          {assetList.length ? (
+          {isLoading ? (
+            <ModalSearchLoading />
+          ) : assetList.length ? (
             <AssetList
-              assets={deferredQuery ? filteredAssets : assetList}
+              assets={displayAssets}
               className="h-full"
               handleSelectToken={handleSelectToken}
               accountId={modalPayload?.accountId}
@@ -206,7 +212,7 @@ export function ModalSelectAssets() {
           ) : (
             <EmptyAssetList className="h-full" />
           )}
-          {deferredQuery && filteredAssets.length === 0 && (
+          {searchValue.trim() && !isLoading && searchResults.length === 0 && (
             <ModalNoResults handleSearchClear={handleSearchClear} />
           )}
         </div>

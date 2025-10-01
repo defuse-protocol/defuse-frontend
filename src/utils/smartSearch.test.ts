@@ -114,20 +114,20 @@ describe("searchUtils", () => {
 
   describe("performSearch", () => {
     it("should return all items when query is empty", () => {
-      const results = performSearch(mockSearchableItems, "")
+      const { results } = performSearch(mockSearchableItems, "")
 
       expect(results).toEqual(mockSearchableItems)
     })
 
     it("should return all items when query is only whitespace", () => {
-      const results = performSearch(mockSearchableItems, "   ")
+      const { results } = performSearch(mockSearchableItems, "   ")
 
       expect(results).toEqual(mockSearchableItems)
     })
 
     describe("searching for 'eth'", () => {
       it("should return ETH token with highest score", () => {
-        const results = performSearch(mockSearchableItems, "eth")
+        const { results } = performSearch(mockSearchableItems, "eth")
 
         // Should include ETH, USDT
         expect(results.length).toBe(2)
@@ -141,7 +141,7 @@ describe("searchUtils", () => {
 
     describe("searching for 'b'", () => {
       it("should return tokens that start with 'b'", () => {
-        const results = performSearch(mockSearchableItems, "b")
+        const { results } = performSearch(mockSearchableItems, "b")
 
         // Should include BTC, BNB, but not others
         const symbols = results.map((item) => item.token.symbol)
@@ -159,7 +159,7 @@ describe("searchUtils", () => {
         const closeItem = createMockSearchableItem(closeToken)
         const itemsWithClose = [...mockSearchableItems, closeItem]
 
-        const results = performSearch(itemsWithClose, "eth")
+        const { results } = performSearch(itemsWithClose, "eth")
 
         // Should find both ETH and ETC
         const symbols = results.map((item) => item.token.symbol)
@@ -170,7 +170,7 @@ describe("searchUtils", () => {
 
     describe("options", () => {
       it("should respect maxResults option", () => {
-        const results = performSearch(mockSearchableItems, "u", {
+        const { results } = performSearch(mockSearchableItems, "u", {
           maxResults: 2,
         })
 
@@ -178,7 +178,7 @@ describe("searchUtils", () => {
       })
 
       it("should respect maxFuzzyDistance option", () => {
-        const results = performSearch(mockSearchableItems, "eth", {
+        const { results } = performSearch(mockSearchableItems, "eth", {
           maxFuzzyDistance: 0,
         })
 
@@ -190,7 +190,7 @@ describe("searchUtils", () => {
 
     describe("scoring and ordering", () => {
       it("should order results by score (highest first)", () => {
-        const results = performSearch(mockSearchableItems, "usd")
+        const { results } = performSearch(mockSearchableItems, "usd")
 
         // ETH should come before Tether USD (exact symbol match vs contains)
         const ethIndex = results.findIndex(
@@ -204,10 +204,22 @@ describe("searchUtils", () => {
       })
 
       it("should prioritize symbol matches over name matches", () => {
-        const results = performSearch(mockSearchableItems, "usd")
+        const { results } = performSearch(mockSearchableItems, "usd")
 
         // USDC should come first (symbol starts with "USD")
         expect(results[0].token.symbol).toBe("USDC")
+      })
+    })
+
+    describe("computation state", () => {
+      it("should return isComputing as false for all queries", () => {
+        const { results, isComputing } = performSearch(
+          mockSearchableItems,
+          "eth"
+        )
+
+        expect(isComputing).toBe(false)
+        expect(results.length).toBeGreaterThan(0)
       })
     })
   })
