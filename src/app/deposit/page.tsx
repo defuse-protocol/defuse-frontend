@@ -2,9 +2,8 @@
 
 import { DepositWidget } from "@src/components/DefuseSDK/features/deposit/components/DepositWidget"
 import Paper from "@src/components/Paper"
-import { LIST_TOKENS } from "@src/constants/tokens"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
-import { useTokenList } from "@src/hooks/useTokenList"
+import { useTokenList1cs } from "@src/hooks/useTokenList1cs"
 import { renderAppLink } from "@src/utils/renderAppLink"
 import { useRouter, useSearchParams } from "next/navigation"
 import {
@@ -14,7 +13,7 @@ import {
 
 export default function Deposit() {
   const { state, sendTransaction } = useConnectWallet()
-  const tokenList = useTokenList(LIST_TOKENS)
+  const tokenList = useTokenList1cs()
   const { tokenIn } = useDeterminePair()
   const router = useRouter()
   const searchParams = useSearchParams()
