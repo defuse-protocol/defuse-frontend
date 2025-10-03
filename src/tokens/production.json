@@ -292,7 +292,7 @@
     {
       "unifiedAssetId": "near",
       "symbol": "NEAR",
-      "name": "Near",
+      "name": "NEAR Protocol",
       "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/6535.png",
       "groupedTokens": [
         {
@@ -641,7 +641,7 @@
     {
       "unifiedAssetId": "eth",
       "symbol": "ETH",
-      "name": "ETH",
+      "name": "Ethereum",
       "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1027.png",
       "groupedTokens": [
         {
@@ -1261,7 +1261,7 @@
     {
       "unifiedAssetId": "rhea",
       "symbol": "RHEA",
-      "name": "Rhea",
+      "name": "RHEA Finance",
       "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/37529.png",
       "groupedTokens": [
         {
@@ -1387,7 +1387,7 @@
     {
       "defuseAssetId": "nep141:bera.omft.near",
       "symbol": "BERA",
-      "name": "BERA",
+      "name": "Berachain",
       "decimals": 18,
       "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/24647.png",
       "originChainName": "berachain",
@@ -1846,7 +1846,7 @@
     {
       "defuseAssetId": "nep141:tron.omft.near",
       "symbol": "TRX",
-      "name": "TRX",
+      "name": "TRON",
       "decimals": 6,
       "icon": "https://s2.coinmarketcap.com/static/img/coins/64x64/1958.png",
       "originChainName": "tron",
@@ -1914,7 +1914,7 @@
     {
       "defuseAssetId": "nep245:v2_1.omni.hot.tg:137_11111111111111111111",
       "symbol": "POL",
-      "name": "POL",
+      "name": "Polygon Ecosystem Token",
       "decimals": 18,
       "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/28321.png",
       "originChainName": "polygon",
@@ -1931,7 +1931,7 @@
     {
       "defuseAssetId": "nep245:v2_1.omni.hot.tg:56_11111111111111111111",
       "symbol": "BNB",
-      "name": "BNB",
+      "name": "Binance Coin",
       "decimals": 18,
       "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1839.png",
       "originChainName": "bsc",
@@ -1982,7 +1982,7 @@
     {
       "defuseAssetId": "nep245:v2_1.omni.hot.tg:1117_",
       "symbol": "TON",
-      "name": "TON",
+      "name": "Toncoin",
       "decimals": 9,
       "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/11419.png",
       "originChainName": "ton",
@@ -2067,7 +2067,7 @@
     {
       "defuseAssetId": "nep245:v2_1.omni.hot.tg:10_vLAiSt9KfUGKpw5cD3vsSyNYBo7",
       "symbol": "OP",
-      "name": "OP",
+      "name": "Optimism",
       "decimals": 18,
       "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/11840.png",
       "originChainName": "optimism",
@@ -2084,7 +2084,7 @@
     {
       "defuseAssetId": "nep245:v2_1.omni.hot.tg:43114_11111111111111111111",
       "symbol": "AVAX",
-      "name": "AVAX",
+      "name": "Avalanche",
       "decimals": 18,
       "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/5805.png",
       "originChainName": "avalanche",
