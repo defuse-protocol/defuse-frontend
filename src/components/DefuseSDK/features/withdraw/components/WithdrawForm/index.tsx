@@ -1,4 +1,4 @@
-import { Checkbox, Flex, Text } from "@radix-ui/themes"
+import { Flex } from "@radix-ui/themes"
 import { useModalController } from "@src/components/DefuseSDK/hooks/useModalController"
 import { useTokensUsdPrices } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
 import { ModalType } from "@src/components/DefuseSDK/stores/modalStore"
@@ -17,7 +17,7 @@ import {
 import { logger } from "@src/utils/logger"
 import { useSelector } from "@xstate/react"
 import { useCallback, useEffect } from "react"
-import { Controller, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { AuthGate } from "../../../../components/AuthGate"
 import { ButtonCustom } from "../../../../components/Button/ButtonCustom"
 import { Form } from "../../../../components/Form"
@@ -49,7 +49,7 @@ import {
   ReceivedAmountAndFee,
   RecipientSubForm,
 } from "./components"
-import { CexTooltip } from "./components/CexTooltip/CexTooltip"
+import { AcknowledgementCheckbox } from "./components/AcknowledgementCheckbox/AcknowledgementCheckbox"
 import { useMinWithdrawalAmountWithFeeEstimation } from "./hooks/useMinWithdrawalAmountWithFeeEstimation"
 import {
   balancesSelector,
@@ -458,38 +458,11 @@ export const WithdrawForm = ({
 
           {!isNearIntentsNetwork(blockchain) &&
             isCexIncompatible(tokenOutDeployment) && (
-              <Flex gap="3" align="start">
-                <Controller
-                  control={control}
-                  name="isFundsLooseConfirmed"
-                  rules={{ required: true }}
-                  render={({ field }) => (
-                    <Checkbox
-                      id="cex-funds-loose-checkbox"
-                      size="3"
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      className="mt-0.5"
-                    />
-                  )}
-                />
-                <Flex direction="column" gap="2" className="flex-1">
-                  <Text
-                    as="label"
-                    size="1"
-                    weight="medium"
-                    color={errors.isFundsLooseConfirmed ? "red" : "gray"}
-                    htmlFor="cex-funds-loose-checkbox"
-                    className="cursor-pointer leading-relaxed break-words"
-                  >
-                    I understand that withdrawing directly to certain exchanges
-                    (e.g., ByBit, Bitget, MEXC) may cause fund loss or issues.
-                  </Text>
-                  <Flex align="center" gap="2">
-                    <CexTooltip />
-                  </Flex>
-                </Flex>
-              </Flex>
+              <AcknowledgementCheckbox
+                control={control}
+                errors={errors}
+                tokenOut={tokenOut}
+              />
             )}
 
           <ReceivedAmountAndFee
