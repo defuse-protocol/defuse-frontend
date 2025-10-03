@@ -260,14 +260,20 @@ export const getStellarBalance = async ({
       response
     )
 
-    const findTokenBalance = account.balances.find(
-      (balance) =>
-        (!tokenAddress && isStellarNativeToken(balance.asset_type)) ||
-        (tokenAddress &&
-          isStellarTrustlineToken(balance.asset_type) &&
-          "asset_issuer" in balance &&
-          balance.asset_issuer === tokenAddress)
-    )
+    const findTokenBalance = account.balances.find((balance) => {
+      if (!tokenAddress && isStellarNativeToken(balance.asset_type)) {
+        return true
+      }
+      if (
+        tokenAddress &&
+        isStellarTrustlineToken(balance.asset_type) &&
+        "asset_issuer" in balance &&
+        balance.asset_issuer === tokenAddress
+      ) {
+        return true
+      }
+      return false
+    })
     if (!findTokenBalance) {
       return 0n
     }
@@ -283,11 +289,7 @@ function isStellarNativeToken(assetType: AssetType): boolean {
   return assetType === "native"
 }
 function isStellarTrustlineToken(assetType: AssetType): boolean {
-  return (
-    assetType === "credit_alphanum4" ||
-    assetType === "credit_alphanum12" ||
-    assetType === "liquidity_pool_shares"
-  )
+  return assetType === "credit_alphanum4" || assetType === "credit_alphanum12"
 }
 
 export const getTronNativeBalance = async ({
