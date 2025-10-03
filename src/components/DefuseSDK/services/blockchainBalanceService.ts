@@ -235,20 +235,23 @@ export const getStellarBalance = async ({
       v.object({
         balances: v.array(
           v.union([
+            // Native XLM asset
             v.object({
               asset_type: v.literal("native"),
               balance: v.string(),
             }),
-            // This schema describes *issued tokens* (non-native assets),
-            // which can be either credit_alphanum4 or credit_alphanum12.
-            // See: https://stellar.org/developers/guides/concepts/assets#asset-types
+            // Liquidity pool shares
+            v.object({
+              asset_type: v.literal("liquidity_pool_shares"),
+              balance: v.string(),
+            }),
+            // Credit alphanum4 and alphanum12 tokens
             v.object({
               asset_type: v.union([
                 v.literal("credit_alphanum4"),
                 v.literal("credit_alphanum12"),
               ]),
               asset_issuer: v.string(),
-              asset_code: v.string(),
               balance: v.string(),
             }),
           ])
@@ -257,14 +260,20 @@ export const getStellarBalance = async ({
       response
     )
 
-    const findTokenBalance = account.balances.find(
-      (balance) =>
-        (!tokenAddress && isStellarNativeToken(balance.asset_type)) ||
-        (tokenAddress &&
-          isStellarTrustlineToken(balance.asset_type) &&
-          "asset_issuer" in balance &&
-          balance.asset_issuer === tokenAddress)
-    )
+    const findTokenBalance = account.balances.find((balance) => {
+      if (!tokenAddress && isStellarNativeToken(balance.asset_type)) {
+        return true
+      }
+      if (
+        tokenAddress &&
+        isStellarTrustlineToken(balance.asset_type) &&
+        "asset_issuer" in balance &&
+        balance.asset_issuer === tokenAddress
+      ) {
+        return true
+      }
+      return false
+    })
     if (!findTokenBalance) {
       return 0n
     }
