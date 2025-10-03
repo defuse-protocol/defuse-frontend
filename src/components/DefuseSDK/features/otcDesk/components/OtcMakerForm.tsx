@@ -491,7 +491,6 @@ export function OtcMakerForm({
             </select>
           </div>
         </div>
-
         <AuthGate
           renderHostAppLink={renderHostAppLink}
           shouldRender={isLoggedIn}
