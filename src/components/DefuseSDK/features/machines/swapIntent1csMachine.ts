@@ -7,11 +7,10 @@ import type { walletMessage } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { retry } from "@lifeomic/attempt"
 import { getQuote as get1csQuoteApi } from "@src/components/DefuseSDK/features/machines/1cs"
-import { submitTxHash } from "@src/components/DefuseSDK/features/machines/1cs"
 import type { ParentEvents as Background1csQuoterParentEvents } from "@src/components/DefuseSDK/features/machines/background1csQuoterMachine"
 import { logger } from "@src/utils/logger"
 import type { providers } from "near-api-js"
-import { assign, fromPromise, setup } from "xstate"
+import { assign, fromPromise, log, setup } from "xstate"
 import { createTransferMessage } from "../../core/messages"
 import { convertPublishIntentToLegacyFormat } from "../../sdk/solverRelay/utils/parseFailedPublishError"
 import type { BaseTokenInfo } from "../../types/base"
@@ -234,18 +233,6 @@ export const swapIntent1csMachine = setup({
         solverRelay
           .publishIntent(input.signatureData, input.userInfo, [])
           .then(convertPublishIntentToLegacyFormat)
-    ),
-    submitTxHashActor: fromPromise(
-      async ({
-        input,
-      }: {
-        input: { depositAddress: string; txHash: string }
-      }) => {
-        return await submitTxHash({
-          depositAddress: input.depositAddress,
-          txHash: input.txHash,
-        })
-      }
     ),
   },
   guards: {
@@ -642,18 +629,21 @@ export const swapIntent1csMachine = setup({
         },
         onDone: [
           {
-            target: "SubmittingTxHash",
+            target: "Completed",
             guard: {
               type: "isOk",
               params: ({ event }) => event.output,
             },
-            actions: {
-              type: "setIntentHash",
-              params: ({ event }) => {
-                assert(event.output.tag === "ok")
-                return event.output.value
+            actions: [
+              log("Intent published"),
+              {
+                type: "setIntentHash",
+                params: ({ event }) => {
+                  assert(event.output.tag === "ok")
+                  return event.output.value
+                },
               },
-            },
+            ],
           },
           {
             target: "Error",
@@ -682,36 +672,6 @@ export const swapIntent1csMachine = setup({
                 reason: "ERR_CANNOT_PUBLISH_INTENT",
                 error: errors.toError(event.error),
               }),
-            },
-          ],
-        },
-      },
-    },
-
-    SubmittingTxHash: {
-      invoke: {
-        src: "submitTxHashActor",
-        input: ({ context }) => {
-          assert(
-            context.quote1csResult != null && "ok" in context.quote1csResult
-          )
-          assert(context.quote1csResult.ok.quote.depositAddress != null)
-          assert(context.intentHash != null)
-
-          return {
-            depositAddress: context.quote1csResult.ok.quote.depositAddress,
-            txHash: context.intentHash,
-          }
-        },
-        onDone: {
-          target: "Completed",
-        },
-        onError: {
-          target: "Completed",
-          actions: [
-            {
-              type: "logError",
-              params: ({ event }) => event,
             },
           ],
         },

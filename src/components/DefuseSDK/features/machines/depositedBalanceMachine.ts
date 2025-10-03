@@ -83,15 +83,15 @@ const balancePollerActor = fromCallback<
   receive((event) => {
     switch (event.type) {
       case "ADD_ACCOUNT":
-        logger.trace("Add account to balance polling actor", {
-          accountId: event.params.accountId,
-        })
+        // logger.info("Add account to balance polling actor", {
+        //   accountId: event.params.accountId,
+        // })
         accounts.add(event.params.accountId)
         break
       case "REMOVE_ACCOUNT":
-        logger.trace("Remove account from balance polling actor", {
-          accountId: event.params.accountId,
-        })
+        // logger.info("Remove account from balance polling actor", {
+        //   accountId: event.params.accountId,
+        // })
         accounts.delete(event.params.accountId)
         break
       case "REFETCH":
