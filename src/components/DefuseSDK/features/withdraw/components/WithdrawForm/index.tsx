@@ -1,4 +1,4 @@
-import { Checkbox, Flex, Text, Tooltip } from "@radix-ui/themes"
+import { Flex } from "@radix-ui/themes"
 import { useModalController } from "@src/components/DefuseSDK/hooks/useModalController"
 import { useTokensUsdPrices } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
 import { ModalType } from "@src/components/DefuseSDK/stores/modalStore"
@@ -17,7 +17,7 @@ import {
 import { logger } from "@src/utils/logger"
 import { useSelector } from "@xstate/react"
 import { useCallback, useEffect } from "react"
-import { Controller, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { AuthGate } from "../../../../components/AuthGate"
 import { ButtonCustom } from "../../../../components/Button/ButtonCustom"
 import { Form } from "../../../../components/Form"
@@ -49,6 +49,7 @@ import {
   ReceivedAmountAndFee,
   RecipientSubForm,
 } from "./components"
+import { AcknowledgementCheckbox } from "./components/AcknowledgementCheckbox/AcknowledgementCheckbox"
 import { useMinWithdrawalAmountWithFeeEstimation } from "./hooks/useMinWithdrawalAmountWithFeeEstimation"
 import {
   balancesSelector,
@@ -457,46 +458,11 @@ export const WithdrawForm = ({
 
           {!isNearIntentsNetwork(blockchain) &&
             isCexIncompatible(tokenOutDeployment) && (
-              <Text
-                as="label"
-                size="1"
-                weight="medium"
-                color={errors.isFundsLooseConfirmed ? "red" : "gray"}
-              >
-                <Flex as="span" gap="2">
-                  <Controller
-                    control={control}
-                    name="isFundsLooseConfirmed"
-                    rules={{ required: true }}
-                    render={({ field }) => (
-                      <Checkbox
-                        size="3"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    )}
-                  />
-                  I understand CEX addresses may cause fund loss or issues.
-                  <Tooltip
-                    side="bottom"
-                    align="center"
-                    maxWidth="300px"
-                    content="Many centralized exchanges (CEXs) don’t support third-party protocol withdrawals. Using a CEX address may result in lost or delayed funds. Use a self-custodial wallet instead."
-                  >
-                    <Text
-                      size="1"
-                      color="gray"
-                      as="span"
-                      style={{
-                        textDecoration: "underline",
-                        textDecorationStyle: "dotted",
-                      }}
-                    >
-                      Why?
-                    </Text>
-                  </Tooltip>
-                </Flex>
-              </Text>
+              <AcknowledgementCheckbox
+                control={control}
+                errors={errors}
+                tokenOut={tokenOut}
+              />
             )}
 
           <ReceivedAmountAndFee
