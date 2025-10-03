@@ -416,6 +416,7 @@ export const swapUIMachine = setup({
             id: `${ONE_CLICK_PREFIX}${output.value.depositAddress}`,
             input: {
               parentRef: self,
+              intentHash: output.value.intentHash,
               depositAddress: output.value.depositAddress,
               tokenIn: context.formValues.tokenIn,
               tokenOut: context.formValues.tokenOut,
