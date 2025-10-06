@@ -1,8 +1,9 @@
+import { solverRelay } from "@defuse-protocol/internal-utils"
 import { logger } from "@src/utils/logger"
-import type { ActorRef, Snapshot } from "xstate"
+import { type ActorRef, type Snapshot, log } from "xstate"
 import { assign, fromPromise, not, setup } from "xstate"
 import type { TokenInfo } from "../../types/base"
-import { getTxStatus } from "./1cs"
+import { getTxStatus, submitTxHash } from "./1cs"
 
 type ChildEvent = {
   type: "ONE_CLICK_SETTLED"
@@ -19,6 +20,7 @@ export const oneClickStatusMachine = setup({
   types: {
     input: {} as {
       parentRef: ParentActor
+      intentHash: string
       depositAddress: string
       tokenIn: TokenInfo
       tokenOut: TokenInfo
@@ -27,7 +29,9 @@ export const oneClickStatusMachine = setup({
     },
     context: {} as {
       parentRef: ParentActor
+      intentHash: string
       depositAddress: string
+      txHash: string | null
       tokenIn: TokenInfo
       tokenOut: TokenInfo
       totalAmountIn: { amount: bigint; decimals: number }
@@ -40,6 +44,9 @@ export const oneClickStatusMachine = setup({
     logError: (_, params: { error: unknown }) => {
       logger.error(params.error)
     },
+    setTxHash: assign({
+      txHash: (_, txHash: string) => txHash,
+    }),
     setStatus: assign({
       status: (_, status: string) => status,
     }),
@@ -64,6 +71,46 @@ export const oneClickStatusMachine = setup({
     },
   },
   actors: {
+    waitIntentTxHash: fromPromise(
+      ({
+        input,
+        signal,
+      }: {
+        input: { intentHash: string }
+        signal: AbortSignal
+      }): Promise<string> => {
+        return new Promise<string>((resolve, reject) => {
+          return solverRelay
+            .waitForIntentSettlement({
+              signal,
+              intentHash: input.intentHash,
+              retryOptions: {
+                delay: 100,
+                maxAttempts: 50,
+              },
+              onTxHashKnown: (txHash) => {
+                resolve(txHash)
+              },
+            })
+            .then((result) => {
+              // Fallback in case `onTxHashKnown` is not called (but it should never happen)
+              resolve(result.txHash)
+            }, reject)
+        })
+      }
+    ),
+    submitTxHashActor: fromPromise(
+      async ({
+        input,
+      }: {
+        input: { depositAddress: string; txHash: string }
+      }) => {
+        return submitTxHash({
+          depositAddress: input.depositAddress,
+          txHash: input.txHash,
+        })
+      }
+    ),
     checkTxStatus: fromPromise(
       async ({
         input,
@@ -92,7 +139,9 @@ export const oneClickStatusMachine = setup({
   initial: "pending",
   context: ({ input }) => ({
     parentRef: input.parentRef,
+    intentHash: input.intentHash,
     depositAddress: input.depositAddress,
+    txHash: null,
     tokenIn: input.tokenIn,
     tokenOut: input.tokenOut,
     totalAmountIn: input.totalAmountIn,
@@ -102,7 +151,55 @@ export const oneClickStatusMachine = setup({
   }),
   states: {
     pending: {
-      always: "checking",
+      always: "intent_settling",
+    },
+    intent_settling: {
+      invoke: {
+        src: "waitIntentTxHash",
+        input: ({ context }) => ({ intentHash: context.intentHash }),
+        onDone: {
+          target: "SubmittingTxHash",
+          actions: [
+            log("Intent tx known"),
+            { type: "setTxHash", params: ({ event }) => event.output },
+          ],
+        },
+        onError: {
+          target: "error",
+          actions: [
+            {
+              type: "setError",
+              params: ({ event }) => new Error(String(event.error)),
+            },
+            {
+              type: "logError",
+              params: ({ event }) => event,
+            },
+          ],
+        },
+      },
+    },
+    SubmittingTxHash: {
+      invoke: {
+        src: "submitTxHashActor",
+        input: ({ context }) => ({
+          depositAddress: context.depositAddress,
+          txHash: context.txHash ?? "", // don't care if we submit bullshit
+        }),
+        onDone: {
+          target: "checking",
+          actions: log("Intent tx submitted"),
+        },
+        onError: {
+          target: "checking",
+          actions: [
+            {
+              type: "logError",
+              params: ({ event }) => event,
+            },
+          ],
+        },
+      },
     },
     checking: {
       invoke: {
@@ -139,6 +236,7 @@ export const oneClickStatusMachine = setup({
         {
           target: "success",
           guard: not("shouldContinueTracking"),
+          actions: log("Swap completed"),
         },
         {
           target: "polling",
@@ -167,7 +265,7 @@ export const oneClickStatuses = {
   SUCCESS: "Success",
   REFUNDED: "Refunded",
   FAILED: "Failed",
-  PENDING_DEPOSIT: "Pending Deposit",
+  PENDING_DEPOSIT: "Pending...",
   INCOMPLETE_DEPOSIT: "Incomplete Deposit",
 }
 
