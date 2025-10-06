@@ -5,6 +5,7 @@ import { Box, Flex, IconButton, Text, TextField } from "@radix-ui/themes"
 import { getMinWithdrawalHyperliquidAmount } from "@src/components/DefuseSDK/features/withdraw/utils/hyperliquid"
 import { usePreparedNetworkLists } from "@src/components/DefuseSDK/hooks/useNetworkLists"
 import { isSupportedChainName } from "@src/components/DefuseSDK/utils/blockchain"
+import { isImplicitAccount } from "@src/components/DefuseSDK/utils/near"
 import { useSelector } from "@xstate/react"
 import { type ReactNode, useEffect, useState } from "react"
 import type { UseFormReturn } from "react-hook-form"
@@ -259,7 +260,10 @@ export const RecipientSubForm = ({
                       chainType
                     )
 
-                    if (formValues.blockchain === "near") {
+                    if (
+                      formValues.blockchain === "near" &&
+                      !isImplicitAccount(value)
+                    ) {
                       const explicitAccountExist =
                         await validateNearExplicitAccount(value)
                       if (explicitAccountExist.isErr()) {
