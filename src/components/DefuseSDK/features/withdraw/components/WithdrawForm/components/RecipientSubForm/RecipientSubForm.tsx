@@ -5,7 +5,6 @@ import { Box, Flex, IconButton, Text, TextField } from "@radix-ui/themes"
 import { getMinWithdrawalHyperliquidAmount } from "@src/components/DefuseSDK/features/withdraw/utils/hyperliquid"
 import { usePreparedNetworkLists } from "@src/components/DefuseSDK/hooks/useNetworkLists"
 import { isSupportedChainName } from "@src/components/DefuseSDK/utils/blockchain"
-import { isImplicitAccount } from "@src/components/DefuseSDK/utils/near"
 import { useSelector } from "@xstate/react"
 import { type ReactNode, useEffect, useState } from "react"
 import type { UseFormReturn } from "react-hook-form"
@@ -42,6 +41,7 @@ import { LongWithdrawWarning } from "../LongWithdrawWarning"
 import {
   type ValidateAddressSoftErrorType,
   type ValidateNearExplicitAccountErrorType,
+  isNearAndExplicitAccount,
   validateAddressSoft,
   validateNearExplicitAccount,
 } from "./validation"
@@ -264,8 +264,10 @@ export const RecipientSubForm = ({
                     }
 
                     if (
-                      formValues.blockchain === "near" &&
-                      !isImplicitAccount(value)
+                      isNearAndExplicitAccount(
+                        formValues.blockchain as SupportedChainName,
+                        value
+                      )
                     ) {
                       const explicitAccountExist =
                         await validateNearExplicitAccount(value)
@@ -418,7 +420,7 @@ function determineBlockchainControllerHint(
 function renderRecipientAddressError(
   error: ValidateAddressSoftErrorType | ValidateNearExplicitAccountErrorType
 ) {
-  switch (error.name) {
+  switch (error) {
     case "SELF_WITHDRAWAL":
       return "You cannot withdraw to your own address. Please enter a different recipient address."
     case "ADDRESS_INVALID":

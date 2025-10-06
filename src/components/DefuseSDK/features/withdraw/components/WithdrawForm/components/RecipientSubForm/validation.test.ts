@@ -11,7 +11,7 @@ describe("validateAddressSoft", () => {
         "valid-recipient.near",
         AuthMethod.Near
       )
-      expect(result).toBeNull()
+      expect(result.isOk()).toBe(true)
     })
     it("should reject invalid NEAR address", () => {
       const result = validateAddressSoft(
@@ -20,9 +20,8 @@ describe("validateAddressSoft", () => {
         "valid-recipient.near",
         AuthMethod.Near
       )
-      expect(result).toBe(
-        "Please enter a valid address for the selected blockchain."
-      )
+      expect(result.isErr()).toBe(true)
+      expect(result.unwrapErr()).toBe("ADDRESS_INVALID")
     })
     it("should reject self NEAR address", () => {
       const result = validateAddressSoft(
@@ -31,9 +30,8 @@ describe("validateAddressSoft", () => {
         "valid-recipient.near",
         AuthMethod.Near
       )
-      expect(result).toBe(
-        "You cannot withdraw to your own address. Please enter a different recipient address."
-      )
+      expect(result.isErr()).toBe(true)
+      expect(result.unwrapErr()).toBe("SELF_WITHDRAWAL")
     })
 
     it("should accept valid WebAuthn address", () => {
@@ -48,7 +46,7 @@ describe("validateAddressSoft", () => {
         ),
         AuthMethod.Near
       )
-      expect(result).toBeNull()
+      expect(result.isOk()).toBe(true)
     })
     it("should reject self WebAuthn address", () => {
       const webAuthnPublicKey =
@@ -63,9 +61,8 @@ describe("validateAddressSoft", () => {
         userAddress,
         AuthMethod.Near
       )
-      expect(result).toBe(
-        "You cannot withdraw to your own address. Please enter a different recipient address."
-      )
+      expect(result.isErr()).toBe(true)
+      expect(result.unwrapErr()).toBe("SELF_WITHDRAWAL")
     })
 
     it("should accept valid EVM address", () => {
@@ -75,7 +72,7 @@ describe("validateAddressSoft", () => {
         "0x5ff8d1644ec46f23f1e3981831ed2ec3dd40c2ca",
         AuthMethod.Near
       )
-      expect(result).toBeNull()
+      expect(result.isOk()).toBe(true)
     })
     it("should reject self EVM address", () => {
       const userAddress = "0x5ff8d1644ec46f23f1e3981831ed2ec3dd40c2ca"
@@ -85,9 +82,8 @@ describe("validateAddressSoft", () => {
         userAddress,
         AuthMethod.Near
       )
-      expect(result).toBe(
-        "You cannot withdraw to your own address. Please enter a different recipient address."
-      )
+      expect(result.isErr()).toBe(true)
+      expect(result.unwrapErr()).toBe("SELF_WITHDRAWAL")
     })
 
     it("should accept valid Solana address", () => {
@@ -98,7 +94,7 @@ describe("validateAddressSoft", () => {
         authIdentity.authHandleToIntentsUserId(userAddress, AuthMethod.Solana),
         AuthMethod.Near
       )
-      expect(result).toBeNull()
+      expect(result.isOk()).toBe(true)
     })
     it("should reject self Solana address", () => {
       const userAddress = authIdentity.authHandleToIntentsUserId(
@@ -111,9 +107,8 @@ describe("validateAddressSoft", () => {
         userAddress,
         AuthMethod.Near
       )
-      expect(result).toBe(
-        "You cannot withdraw to your own address. Please enter a different recipient address."
-      )
+      expect(result.isErr()).toBe(true)
+      expect(result.unwrapErr()).toBe("SELF_WITHDRAWAL")
     })
 
     it("should accept valid Ton address", () => {
@@ -125,7 +120,7 @@ describe("validateAddressSoft", () => {
         authIdentity.authHandleToIntentsUserId(userAddress, AuthMethod.Ton),
         AuthMethod.Near
       )
-      expect(result).toBeNull()
+      expect(result.isOk()).toBe(true)
     })
     it("should reject self Ton address", () => {
       const userAddress = authIdentity.authHandleToIntentsUserId(
@@ -138,16 +133,15 @@ describe("validateAddressSoft", () => {
         userAddress,
         AuthMethod.Near
       )
-      expect(result).toBe(
-        "You cannot withdraw to your own address. Please enter a different recipient address."
-      )
+      expect(result.isErr()).toBe(true)
+      expect(result.unwrapErr()).toBe("SELF_WITHDRAWAL")
     })
   })
 
   describe("NEAR network", () => {
     it("should accept valid NEAR address", () => {
       const result = validateAddressSoft("valid-recipient.near", "near")
-      expect(result).toBeNull()
+      expect(result.isOk()).toBe(true)
     })
 
     it("should accept EVM address for NEAR network", () => {
@@ -158,7 +152,7 @@ describe("validateAddressSoft", () => {
         ),
         "near"
       )
-      expect(result).toBeNull()
+      expect(result.isOk()).toBe(true)
     })
 
     it("should accept any EVM address for NEAR network", () => {
@@ -166,7 +160,7 @@ describe("validateAddressSoft", () => {
         authIdentity.authHandleToIntentsUserId("0xd", AuthMethod.Near), // TODO: this is invalid EVM address
         "near"
       )
-      expect(result).toBeNull()
+      expect(result.isOk()).toBe(true)
     })
   })
 
@@ -176,14 +170,13 @@ describe("validateAddressSoft", () => {
         "0x32Be343B94f860124dC4fEe278FDCBD38C102D88",
         "eth"
       )
-      expect(result).toBeNull()
+      expect(result.isOk()).toBe(true)
     })
 
     it("should reject invalid EVM address", () => {
       const result = validateAddressSoft("0xd", "eth")
-      expect(result).toBe(
-        "Please enter a valid address for the selected blockchain."
-      )
+      expect(result.isErr()).toBe(true)
+      expect(result.unwrapErr()).toBe("ADDRESS_INVALID")
     })
   })
 
@@ -193,14 +186,13 @@ describe("validateAddressSoft", () => {
         "DRpbCBMxVnDK7maPGv7vhuYme3jNdBAt4YHw2wKgqWPU",
         "solana"
       )
-      expect(result).toBeNull()
+      expect(result.isOk()).toBe(true)
     })
 
     it("should reject invalid Solana address", () => {
       const result = validateAddressSoft("invalid_solana", "solana")
-      expect(result).toBe(
-        "Please enter a valid address for the selected blockchain."
-      )
+      expect(result.isErr()).toBe(true)
+      expect(result.unwrapErr()).toBe("ADDRESS_INVALID")
     })
   })
 
@@ -210,30 +202,27 @@ describe("validateAddressSoft", () => {
         "EQCz7_vtRwQWnKPYVb-JBl8WqF6MdwypKBT1KCeZzvS7DQdD",
         "ton"
       )
-      expect(result).toBeNull()
+      expect(result.isOk()).toBe(true)
     })
 
     it("should reject invalid Ton address", () => {
       const result = validateAddressSoft("invalid_ton", "ton")
-      expect(result).toBe(
-        "Please enter a valid address for the selected blockchain."
-      )
+      expect(result.isErr()).toBe(true)
+      expect(result.unwrapErr()).toBe("ADDRESS_INVALID")
     })
   })
 
   describe("Edge cases", () => {
     it("should handle empty address", () => {
       const result = validateAddressSoft("", "near")
-      expect(result).toBe(
-        "Please enter a valid address for the selected blockchain."
-      )
+      expect(result.isErr()).toBe(true)
+      expect(result.unwrapErr()).toBe("ADDRESS_INVALID")
     })
 
     it("should handle whitespace-only address", () => {
       const result = validateAddressSoft(" ", "near")
-      expect(result).toBe(
-        "Please enter a valid address for the selected blockchain."
-      )
+      expect(result.isErr()).toBe(true)
+      expect(result.unwrapErr()).toBe("ADDRESS_INVALID")
     })
   })
 })

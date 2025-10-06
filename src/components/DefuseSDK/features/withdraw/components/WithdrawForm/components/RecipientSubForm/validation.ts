@@ -1,4 +1,5 @@
 import { type AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
+import { isImplicitAccount } from "@src/components/DefuseSDK/utils/near"
 import { logger } from "@src/utils/logger"
 import { Err, Ok, type Result } from "@thames/monads"
 import * as v from "valibot"
@@ -9,9 +10,7 @@ import { validateAddress } from "../../../../../../utils/validateAddress"
 import { isNearIntentsNetwork } from "../../utils"
 
 type ValidateAddressSoftReturnType = boolean
-export type ValidateAddressSoftErrorType = {
-  name: "ADDRESS_INVALID" | "SELF_WITHDRAWAL"
-}
+export type ValidateAddressSoftErrorType = "ADDRESS_INVALID" | "SELF_WITHDRAWAL"
 
 export function validateAddressSoft(
   recipientAddress: string,
@@ -22,13 +21,13 @@ export function validateAddressSoft(
   // Special handling for Near Intents network
   if (userAddress && isNearIntentsNetwork(chainName)) {
     if (isSelfWithdrawal(recipientAddress, userAddress, chainType)) {
-      return Err({ name: "SELF_WITHDRAWAL" })
+      return Err("SELF_WITHDRAWAL")
     }
     // Only validate as NEAR address for Near Intents
     if (validateAddress(recipientAddress, "near")) {
       return Ok(true)
     }
-    return Err({ name: "ADDRESS_INVALID" })
+    return Err("ADDRESS_INVALID")
   }
 
   // For other networks, validate using the chain's rules
@@ -46,7 +45,7 @@ export function validateAddressSoft(
     }
   }
 
-  return Err({ name: "ADDRESS_INVALID" })
+  return Err("ADDRESS_INVALID")
 }
 
 function isNearEVMAddress(
@@ -77,9 +76,9 @@ function isSelfWithdrawal(
   return false
 }
 
-export type ValidateNearExplicitAccountErrorType = {
-  name: "ACCOUNT_DOES_NOT_EXIST" | "UNHANDLED_ERROR"
-}
+export type ValidateNearExplicitAccountErrorType =
+  | "ACCOUNT_DOES_NOT_EXIST"
+  | "UNHANDLED_ERROR"
 
 // Cache for validation results to prevent RPC spam
 const validationCache = new Map<
@@ -126,9 +125,9 @@ export async function validateNearExplicitAccount(
 
     // Exist account should have at least one access key
     if (!parsed.keys.length) {
-      const result = Err<boolean, ValidateNearExplicitAccountErrorType>({
-        name: "ACCOUNT_DOES_NOT_EXIST",
-      })
+      const result = Err<boolean, ValidateNearExplicitAccountErrorType>(
+        "ACCOUNT_DOES_NOT_EXIST"
+      )
       validationCache.set(cacheKey, { result, timestamp: now })
       return result
     }
@@ -138,10 +137,17 @@ export async function validateNearExplicitAccount(
     return result
   } catch (error) {
     logger.warn("Failed to view NEAR account", { cause: error })
-    const result = Err<boolean, ValidateNearExplicitAccountErrorType>({
-      name: "UNHANDLED_ERROR",
-    })
+    const result = Err<boolean, ValidateNearExplicitAccountErrorType>(
+      "UNHANDLED_ERROR"
+    )
     validationCache.set(cacheKey, { result, timestamp: now })
     return result
   }
+}
+
+export function isNearAndExplicitAccount(
+  blockChain: SupportedChainName,
+  accountId: string
+) {
+  return blockChain === "near" && !isImplicitAccount(accountId)
 }
