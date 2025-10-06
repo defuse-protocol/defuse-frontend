@@ -1,9 +1,9 @@
 import { type AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
 import { logger } from "@src/utils/logger"
 import { Err, Ok, type Result } from "@thames/monads"
-import { JsonRpcProvider } from "near-api-js/lib/providers/json-rpc-provider"
+import * as v from "valibot"
 import { isAddress } from "viem"
-import { settings } from "../../../../../../constants/settings"
+import { nearClient } from "../../../../../../constants/nearClient"
 import type { SupportedChainName } from "../../../../../../types/base"
 import { validateAddress } from "../../../../../../utils/validateAddress"
 import { isNearIntentsNetwork } from "../../utils"
@@ -117,37 +117,31 @@ export async function validateNearExplicitAccount(
   }
 
   try {
-    // Use pure JsonRpcProvider to get proper error messages
-    const provider = new JsonRpcProvider({ url: settings.rpcUrls.near })
-    await provider.query({
-      request_type: "view_account",
+    const response = await nearClient.query({
+      request_type: "view_access_key_list",
       account_id: recipient,
       finality: "final",
     })
+    const parsed = v.parse(v.object({ keys: v.array(v.any()) }), response)
+
+    // Exist account should have at least one access key
+    if (!parsed.keys.length) {
+      const result = Err<boolean, ValidateNearExplicitAccountErrorType>({
+        name: "ACCOUNT_DOES_NOT_EXIST",
+      })
+      validationCache.set(cacheKey, { result, timestamp: now })
+      return result
+    }
 
     const result = Ok(true)
     validationCache.set(cacheKey, { result, timestamp: now })
     return result
   } catch (error) {
-    let result: Result<boolean, ValidateNearExplicitAccountErrorType>
-
-    if (isNearAccountError(error)) {
-      result = Err({ name: "ACCOUNT_DOES_NOT_EXIST" })
-    } else {
-      logger.warn("Failed to view NEAR account", { cause: error })
-      result = Err({ name: "UNHANDLED_ERROR" })
-    }
-
+    logger.warn("Failed to view NEAR account", { cause: error })
+    const result = Err<boolean, ValidateNearExplicitAccountErrorType>({
+      name: "UNHANDLED_ERROR",
+    })
     validationCache.set(cacheKey, { result, timestamp: now })
     return result
   }
-}
-
-const isNearAccountError = (error: unknown): error is Error => {
-  return (
-    error instanceof Error &&
-    "type" in error &&
-    typeof error.type === "string" &&
-    error.type.includes("AccountDoesNotExist")
-  )
 }

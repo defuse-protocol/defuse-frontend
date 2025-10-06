@@ -259,6 +259,9 @@ export const RecipientSubForm = ({
                       userAddress ?? "",
                       chainType
                     )
+                    if (result.isErr()) {
+                      return renderRecipientAddressError(result.unwrapErr())
+                    }
 
                     if (
                       formValues.blockchain === "near" &&
@@ -273,9 +276,7 @@ export const RecipientSubForm = ({
                       }
                     }
 
-                    return result.isErr()
-                      ? renderRecipientAddressError(result.unwrapErr())
-                      : result.unwrap()
+                    return result.unwrap()
                   },
                 },
               })}
