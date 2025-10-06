@@ -17,7 +17,9 @@ type Swap1csCardProps = {
 const EXPLORER_NEAR_INTENTS = "https://explorer.near-intents.org"
 
 function getStatusDisplayInfo(status: string | null) {
-  if (!status) return { label: "Checking...", color: undefined }
+  if (!status) {
+    return { label: "Pending...", color: undefined, showSpinner: true }
+  }
 
   const displayStatus =
     status in oneClickStatuses
