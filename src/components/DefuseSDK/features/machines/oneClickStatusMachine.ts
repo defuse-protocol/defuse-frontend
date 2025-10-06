@@ -1,8 +1,8 @@
+import { solverRelay } from "@defuse-protocol/internal-utils"
 import { logger } from "@src/utils/logger"
 import { type ActorRef, type Snapshot, log } from "xstate"
 import { assign, fromPromise, not, setup } from "xstate"
 import type { TokenInfo } from "../../types/base"
-import { waitForIntentSettlement } from "../../utils/waitForIntentSettlement"
 import { getTxStatus, submitTxHash } from "./1cs"
 
 type ChildEvent = {
@@ -80,17 +80,22 @@ export const oneClickStatusMachine = setup({
         signal: AbortSignal
       }): Promise<string> => {
         return new Promise<string>((resolve, reject) => {
-          void waitForIntentSettlement({
-            signal,
-            intentHash: input.intentHash,
-            retryOptions: {
-              delay: 100,
-              maxAttempts: 50,
-            },
-            onTxHashKnown: ({ txHash }) => {
-              resolve(txHash)
-            },
-          }).catch(reject)
+          return solverRelay
+            .waitForIntentSettlement({
+              signal,
+              intentHash: input.intentHash,
+              retryOptions: {
+                delay: 100,
+                maxAttempts: 50,
+              },
+              onTxHashKnown: (txHash) => {
+                resolve(txHash)
+              },
+            })
+            .then((result) => {
+              // Fallback in case `onTxHashKnown` is not called (but it should never happen)
+              resolve(result.txHash)
+            }, reject)
         })
       }
     ),
