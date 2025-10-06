@@ -1,37 +1,51 @@
 import { type AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
+import { Err, Ok, type Result } from "@thames/monads"
+import { JsonRpcProvider } from "near-api-js/lib/providers/json-rpc-provider"
 import { isAddress } from "viem"
+import { settings } from "../../../../../../constants/settings"
 import type { SupportedChainName } from "../../../../../../types/base"
 import { validateAddress } from "../../../../../../utils/validateAddress"
 import { isNearIntentsNetwork } from "../../utils"
+
+type ValidateAddressSoftReturnType = boolean
+export type ValidateAddressSoftErrorType = {
+  name: "ADDRESS_INVALID" | "SELF_WITHDRAWAL"
+}
 
 export function validateAddressSoft(
   recipientAddress: string,
   chainName: SupportedChainName | "near_intents",
   userAddress?: string,
   chainType?: AuthMethod
-): string | null {
+): Result<ValidateAddressSoftReturnType, ValidateAddressSoftErrorType> {
   // Special handling for Near Intents network
   if (userAddress && isNearIntentsNetwork(chainName)) {
     if (isSelfWithdrawal(recipientAddress, userAddress, chainType)) {
-      return "You cannot withdraw to your own address. Please enter a different recipient address."
+      return Err({ name: "SELF_WITHDRAWAL" })
     }
     // Only validate as NEAR address for Near Intents
     if (validateAddress(recipientAddress, "near")) {
-      return null
+      return Ok(true)
     }
-    return "Please enter a valid address for the selected blockchain."
+    return Err({ name: "ADDRESS_INVALID" })
   }
 
   // For other networks, validate using the chain's rules
-  if (
-    !isNearIntentsNetwork(chainName) &&
-    (validateAddress(recipientAddress, chainName as SupportedChainName) ||
-      isNearEVMAddress(recipientAddress, chainName as SupportedChainName))
-  ) {
-    return null
+  if (!isNearIntentsNetwork(chainName)) {
+    const isValidChainAddress = validateAddress(
+      recipientAddress,
+      chainName as SupportedChainName
+    )
+    const isNearEVMCompatible = isNearEVMAddress(
+      recipientAddress,
+      chainName as SupportedChainName
+    )
+    if (isValidChainAddress || isNearEVMCompatible) {
+      return Ok(true)
+    }
   }
 
-  return "Please enter a valid address for the selected blockchain."
+  return Err({ name: "ADDRESS_INVALID" })
 }
 
 function isNearEVMAddress(
@@ -60,4 +74,37 @@ function isSelfWithdrawal(
     return true
   }
   return false
+}
+
+export type ValidateNearExplicitAccountErrorType = {
+  name: "ACCOUNT_DOES_NOT_EXIST" | "UNHANDLED_ERROR"
+}
+
+export async function validateNearExplicitAccount(
+  recipient: string
+): Promise<Result<boolean, ValidateNearExplicitAccountErrorType>> {
+  try {
+    // Use pure JsonRpcProvider to get proper error messages
+    const provider = new JsonRpcProvider({ url: settings.rpcUrls.near })
+    await provider.query({
+      request_type: "view_account",
+      account_id: recipient,
+      finality: "final",
+    })
+    return Ok(true)
+  } catch (error) {
+    if (isNearAccountError(error)) {
+      return Err({ name: "ACCOUNT_DOES_NOT_EXIST" })
+    }
+    return Err({ name: "UNHANDLED_ERROR" })
+  }
+}
+
+const isNearAccountError = (error: unknown): error is Error => {
+  return (
+    error instanceof Error &&
+    "type" in error &&
+    typeof error.type === "string" &&
+    error.type.includes("AccountDoesNotExist")
+  )
 }

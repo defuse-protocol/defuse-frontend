@@ -38,7 +38,12 @@ import {
 import { truncateUserAddress } from "../../utils"
 import { HotBalance } from "../HotBalance/HotBalance"
 import { LongWithdrawWarning } from "../LongWithdrawWarning"
-import { validateAddressSoft } from "./validation"
+import {
+  type ValidateAddressSoftErrorType,
+  type ValidateNearExplicitAccountErrorType,
+  validateAddressSoft,
+  validateNearExplicitAccount,
+} from "./validation"
 
 type RecipientSubFormProps = {
   form: UseFormReturn<WithdrawFormNearValues>
@@ -246,14 +251,27 @@ export const RecipientSubForm = ({
               size="3"
               {...register("recipient", {
                 validate: {
-                  pattern: (value, formValues) => {
-                    const error = validateAddressSoft(
+                  pattern: async (value, formValues) => {
+                    const result = validateAddressSoft(
                       value,
                       formValues.blockchain,
                       userAddress ?? "",
                       chainType
                     )
-                    return error ? error : true
+
+                    if (formValues.blockchain === "near") {
+                      const explicitAccountExist =
+                        await validateNearExplicitAccount(value)
+                      if (explicitAccountExist.isErr()) {
+                        return renderRecipientAddressError(
+                          explicitAccountExist.unwrapErr()
+                        )
+                      }
+                    }
+
+                    return result.isErr()
+                      ? renderRecipientAddressError(result.unwrapErr())
+                      : result.unwrap()
                   },
                 },
               })}
@@ -390,4 +408,19 @@ function determineBlockchainControllerHint(
     return "Internal network"
   }
   return "Network"
+}
+
+function renderRecipientAddressError(
+  error: ValidateAddressSoftErrorType | ValidateNearExplicitAccountErrorType
+) {
+  switch (error.name) {
+    case "SELF_WITHDRAWAL":
+      return "You cannot withdraw to your own address. Please enter a different recipient address."
+    case "ADDRESS_INVALID":
+      return "Please enter a valid address for the selected blockchain."
+    case "ACCOUNT_DOES_NOT_EXIST":
+      return "The account does not exist. Please enter a different recipient address."
+    default:
+      return "An unexpected error occurred. Please try again later."
+  }
 }
