@@ -80,9 +80,41 @@ export type ValidateNearExplicitAccountErrorType = {
   name: "ACCOUNT_DOES_NOT_EXIST" | "UNHANDLED_ERROR"
 }
 
+// Cache for validation results to prevent RPC spam
+const validationCache = new Map<
+  string,
+  {
+    result: Result<boolean, ValidateNearExplicitAccountErrorType>
+    timestamp: number
+  }
+>()
+const CACHE_TTL = 60000 // 1 minute TTL
+
+function cleanupExpiredCache() {
+  const now = Date.now()
+  for (const [key, value] of validationCache.entries()) {
+    if (now - value.timestamp >= CACHE_TTL) {
+      validationCache.delete(key)
+    }
+  }
+}
+
 export async function validateNearExplicitAccount(
   recipient: string
 ): Promise<Result<boolean, ValidateNearExplicitAccountErrorType>> {
+  const now = Date.now()
+  const cacheKey = recipient.toLowerCase()
+
+  // Clean up expired entries periodically (approximately every 10th call)
+  if (validationCache.size > 0 && Math.random() < 0.1) {
+    cleanupExpiredCache()
+  }
+
+  const cached = validationCache.get(cacheKey)
+  if (cached && now - cached.timestamp < CACHE_TTL) {
+    return cached.result
+  }
+
   try {
     // Use pure JsonRpcProvider to get proper error messages
     const provider = new JsonRpcProvider({ url: settings.rpcUrls.near })
@@ -91,12 +123,21 @@ export async function validateNearExplicitAccount(
       account_id: recipient,
       finality: "final",
     })
-    return Ok(true)
+
+    const result = Ok(true)
+    validationCache.set(cacheKey, { result, timestamp: now })
+    return result
   } catch (error) {
+    let result: Result<boolean, ValidateNearExplicitAccountErrorType>
+
     if (isNearAccountError(error)) {
-      return Err({ name: "ACCOUNT_DOES_NOT_EXIST" })
+      result = Err({ name: "ACCOUNT_DOES_NOT_EXIST" })
+    } else {
+      result = Err({ name: "UNHANDLED_ERROR" })
     }
-    return Err({ name: "UNHANDLED_ERROR" })
+
+    validationCache.set(cacheKey, { result, timestamp: now })
+    return result
   }
 }
 
