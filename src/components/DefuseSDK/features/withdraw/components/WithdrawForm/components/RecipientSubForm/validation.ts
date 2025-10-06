@@ -1,4 +1,5 @@
 import { type AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
+import { logger } from "@src/utils/logger"
 import { Err, Ok, type Result } from "@thames/monads"
 import { JsonRpcProvider } from "near-api-js/lib/providers/json-rpc-provider"
 import { isAddress } from "viem"
@@ -133,6 +134,7 @@ export async function validateNearExplicitAccount(
     if (isNearAccountError(error)) {
       result = Err({ name: "ACCOUNT_DOES_NOT_EXIST" })
     } else {
+      logger.warn("Failed to view NEAR account", { cause: error })
       result = Err({ name: "UNHANDLED_ERROR" })
     }
 
