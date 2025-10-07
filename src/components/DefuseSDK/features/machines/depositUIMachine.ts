@@ -56,6 +56,7 @@ export type Context = {
   depositTokenBalanceRef: ActorRefFrom<typeof depositTokenBalanceMachine>
   depositEstimationRef: ActorRefFrom<typeof depositEstimationMachine>
   depositOutput: DepositOutput | null
+  is1cs: boolean
 }
 
 export const depositUIMachine = setup({
@@ -166,12 +167,21 @@ export const depositUIMachine = setup({
     requestGenerateAddress: sendTo(
       "depositGenerateAddressRef",
       ({ context }) => {
+        const { token, derivedToken } =
+          context.depositFormRef.getSnapshot().context
+        assert(token != null, "token is null")
+        assert(derivedToken != null, "derivedToken is null")
+        const baseToken = getBaseTokenInfoWithFallback(token, null)
+        // TODO: Remove equality check once 1cs supports same-token swaps
+        const is1cs = is1csLegit(context.is1cs, baseToken, derivedToken)
+
         return {
           type: "REQUEST_GENERATE_ADDRESS",
           params: {
             userAddress: context.userAddress,
             blockchain: context.depositFormRef.getSnapshot().context.blockchain,
             userChainType: context.userChainType,
+            is1cs,
           },
         }
       }
@@ -267,7 +277,12 @@ export const depositUIMachine = setup({
         ) {
           return { type: "PAUSE" }
         }
+
         const baseToken = getBaseTokenInfoWithFallback(token, null)
+        // TODO: Remove this check once 1cs supports same-token swaps
+        if (!is1csLegit(context.is1cs, derivedToken, baseToken)) {
+          return { type: "PAUSE" }
+        }
 
         return {
           type: "NEW_QUOTE_INPUT",
@@ -396,8 +411,7 @@ export const depositUIMachine = setup({
       id: "depositEstimationRef",
       input: { parentRef: self },
     }),
-    quote: null,
-    quote1csError: null,
+    is1cs: input.is1cs,
   }),
 
   entry: ["fetchPOABridgeInfo", "spawnBackground1csQuoterRef"],
@@ -881,4 +895,11 @@ function extractDepositParams(context: Context): DepositParams {
 }
 
 const isNetworkRequiresMemo = (chainName: SupportedChainName): boolean =>
-  ["stellar", "tron"].includes(chainName)
+  ["stellar"].includes(chainName) // "ton" requires memo but for some reason it works without it
+
+// 1cs swap doesn't support same-token swaps
+const is1csLegit = (
+  is1cs: boolean,
+  tokenIn: BaseTokenInfo,
+  tokenOut: BaseTokenInfo
+): boolean => is1cs && tokenIn.defuseAssetId !== tokenOut.defuseAssetId
