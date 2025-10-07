@@ -156,11 +156,7 @@ export const depositGenerateAddressMachine = setup({
       always: [
         {
           target: "generatingAddress1cs",
-          guard: ({ context }) => {
-            // biome-ignore lint/suspicious/noConsole: <explanation>
-            console.log("context.is1cs", context.is1cs)
-            return context.is1cs
-          },
+          guard: ({ context }) => context.is1cs,
         },
         {
           target: "generatingAddress",

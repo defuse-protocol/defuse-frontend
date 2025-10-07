@@ -179,7 +179,7 @@ export const depositUIMachine = setup({
     requestClearAddress: sendTo("depositGenerateAddressRef", () => ({
       type: "REQUEST_CLEAR_ADDRESS",
     })),
-    forwardQuoteDataToDepositGenerateAddress: sendTo(
+    sendToDepositGenerateAddressRef1csQuote: sendTo(
       "depositGenerateAddressRef",
       ({ event }) => {
         if (event.type !== "NEW_1CS_QUOTE") {
@@ -466,7 +466,7 @@ export const depositUIMachine = setup({
           },
         ],
         NEW_1CS_QUOTE: {
-          actions: "forwardQuoteDataToDepositGenerateAddress",
+          actions: "sendToDepositGenerateAddressRef1csQuote",
         },
       },
 
