@@ -1,4 +1,5 @@
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
+import type { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import { getQuote as get1csQuoteApi } from "@src/components/DefuseSDK/features/machines/1cs"
 import { type ActorRef, type Snapshot, fromCallback } from "xstate"
 
@@ -14,6 +15,12 @@ export type Quote1csInput = {
   deadline: string
   userAddress: string
   userChainType: AuthMethod
+  dry?: boolean
+  depositType?: QuoteRequest.depositType
+  refundTo?: string
+  refundType?: QuoteRequest.refundType
+  swapType?: QuoteRequest.swapType
+  quoteWaitingTimeMs?: number
 }
 
 export type Events =
@@ -125,7 +132,7 @@ async function get1csQuote(
 
   try {
     const result = await get1csQuoteApi({
-      dry: true,
+      dry: quoteInput.dry ?? true,
       slippageTolerance: Math.round(quoteInput.slippageBasisPoints / 100),
       originAsset: tokenInAssetId,
       destinationAsset: tokenOutAssetId,
@@ -133,6 +140,9 @@ async function get1csQuote(
       deadline: quoteInput.deadline,
       userAddress: quoteInput.userAddress,
       authMethod: quoteInput.userChainType,
+      depositType: quoteInput.depositType,
+      swapType: quoteInput.swapType,
+      quoteWaitingTimeMs: quoteInput.quoteWaitingTimeMs,
     })
 
     onResult(result, tokenInAssetId, tokenOutAssetId)

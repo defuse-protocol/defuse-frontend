@@ -1,6 +1,7 @@
 import { authIdentity } from "@defuse-protocol/internal-utils"
 import { depositMachine } from "@src/components/DefuseSDK/features/machines/depositMachine"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
+import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { logger } from "@src/utils/logger"
 import { createActorContext } from "@xstate/react"
 import type { PropsWithChildren, ReactElement, ReactNode } from "react"
@@ -95,6 +96,7 @@ export function DepositUIMachineProvider({
 }: DepositUIMachineProviderProps) {
   const { setValue } = useFormContext<DepositFormValues>()
   const token = initialToken ?? tokenList[0]
+  const is1cs = useIs1CsEnabled()
   assert(token != null, "Token is not defined")
 
   return (
@@ -103,6 +105,7 @@ export function DepositUIMachineProvider({
         input: {
           tokenList,
           token,
+          is1cs,
         },
       }}
       logic={depositUIMachine.provide({

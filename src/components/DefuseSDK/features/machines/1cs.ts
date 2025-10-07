@@ -68,6 +68,9 @@ const getQuoteArgsSchema = z.object({
   deadline: z.string(),
   userAddress: z.string(),
   authMethod: authMethodSchema,
+  depositType: z.optional(z.nativeEnum(QuoteRequest.depositType)),
+  swapType: z.optional(z.nativeEnum(QuoteRequest.swapType)),
+  quoteWaitingTimeMs: z.optional(z.number()),
 })
 
 type GetQuoteArgs = z.infer<typeof getQuoteArgsSchema>
@@ -113,13 +116,17 @@ export async function getQuote(
 
     const req: QuoteRequest = {
       ...quoteRequest,
-      depositType: QuoteRequest.depositType.INTENTS,
+      depositMode: QuoteRequest.depositMode.MEMO,
+      dry: quoteRequest.dry,
+      slippageTolerance: quoteRequest.slippageTolerance,
+      depositType:
+        parseResult.data.depositType ?? QuoteRequest.depositType.INTENTS,
       refundTo: intentsUserId,
       refundType: QuoteRequest.refundType.INTENTS,
       recipient: intentsUserId,
       recipientType: QuoteRequest.recipientType.INTENTS,
-      swapType: QuoteRequest.swapType.EXACT_INPUT,
-      quoteWaitingTimeMs: 0, // means the fastest quote
+      swapType: parseResult.data.swapType ?? QuoteRequest.swapType.EXACT_INPUT,
+      quoteWaitingTimeMs: parseResult.data.quoteWaitingTimeMs ?? 0, // 0 means the fastest quote
       referral: referralMap[await whitelabelTemplateFlag()],
       ...(appFeeBps > 0
         ? { appFees: [{ recipient: APP_FEE_RECIPIENT, fee: appFeeBps }] }
