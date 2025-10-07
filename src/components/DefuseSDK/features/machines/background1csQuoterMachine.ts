@@ -21,6 +21,7 @@ export type Quote1csInput = {
   refundType?: QuoteRequest.refundType
   swapType?: QuoteRequest.swapType
   quoteWaitingTimeMs?: number
+  depositMode?: QuoteRequest.depositMode
 }
 
 export type Events =
@@ -43,6 +44,8 @@ type EmittedEvents = {
               amountIn: string
               amountOut: string
               deadline?: string
+              depositAddress?: string
+              depositMemo?: string
             }
             appFee: [string, bigint][]
           }
@@ -118,6 +121,8 @@ async function get1csQuote(
             quote: {
               amountIn: string
               amountOut: string
+              depositAddress?: string
+              depositMemo?: string
             }
             appFee: [string, bigint][]
           }
@@ -143,6 +148,7 @@ async function get1csQuote(
       depositType: quoteInput.depositType,
       swapType: quoteInput.swapType,
       quoteWaitingTimeMs: quoteInput.quoteWaitingTimeMs,
+      depositMode: quoteInput.depositMode,
     })
 
     onResult(result, tokenInAssetId, tokenOutAssetId)

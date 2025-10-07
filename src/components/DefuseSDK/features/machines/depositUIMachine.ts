@@ -14,7 +14,6 @@ import {
 } from "xstate"
 import { config } from "../../config"
 import { clearSolanaATACache } from "../../services/depositService"
-import type { QuoteResult } from "../../services/quoteService"
 import type {
   BaseTokenInfo,
   SupportedChainName,
@@ -57,8 +56,6 @@ export type Context = {
   depositTokenBalanceRef: ActorRefFrom<typeof depositTokenBalanceMachine>
   depositEstimationRef: ActorRefFrom<typeof depositEstimationMachine>
   depositOutput: DepositOutput | null
-  quote: QuoteResult | null
-  quote1csError: string | null
 }
 
 export const depositUIMachine = setup({
@@ -94,16 +91,12 @@ export const depositUIMachine = setup({
               | {
                   ok: {
                     quote: {
-                      amountIn: string
-                      amountOut: string
-                      deadline?: string
+                      depositAddress: string
+                      depositMemo: string
                     }
-                    appFee: [string, bigint][]
                   }
                 }
               | { err: string }
-            tokenInAssetId: string
-            tokenOutAssetId: string
           }
         },
     children: {} as {
@@ -190,27 +183,29 @@ export const depositUIMachine = setup({
       "depositGenerateAddressRef",
       ({ event }) => {
         if (event.type !== "NEW_1CS_QUOTE") {
-          return { type: "REQUEST_CLEAR_ADDRESS" }
+          return null
         }
-
-        return {
-          type: "QUOTE_DATA_RECEIVED",
-          params: {
-            result: event.params.result,
-            tokenInAssetId: event.params.tokenInAssetId,
-            tokenOutAssetId: event.params.tokenOutAssetId,
-          },
+        const { result } = event.params
+        if ("err" in result) {
+          return {
+            type: "REQUEST_1CS_GENERATE_ADDRESS",
+            params: {
+              tag: "err",
+              value: {
+                reason: "ERR_GENERATING_ADDRESS",
+                error: new Error(result.err),
+              },
+            },
+          }
         }
-      }
-    ),
-    requestStorageDepositAmount: sendTo(
-      "storageDepositAmountRef",
-      ({ context }) => {
         return {
-          type: "REQUEST_STORAGE_DEPOSIT",
+          type: "REQUEST_1CS_GENERATE_ADDRESS",
           params: {
-            token: context.depositFormRef.getSnapshot().context.derivedToken,
-            userAccountId: context.userAddress,
+            tag: "ok",
+            value: {
+              generateDepositAddress: result.ok.quote.depositAddress,
+              memo: result.ok.quote.depositMemo ?? null,
+            },
           },
         }
       }
@@ -259,6 +254,7 @@ export const depositUIMachine = setup({
       ({ context }): Background1csQuoterEvents => {
         const { token, tokenDeployment, derivedToken, parsedAmount } =
           context.depositFormRef.getSnapshot().context
+        const { blockchain } = context.depositFormRef.getSnapshot().context
         const { userAddress, userChainType } = context
 
         if (
@@ -266,7 +262,8 @@ export const depositUIMachine = setup({
           tokenDeployment == null ||
           userAddress == null ||
           userChainType == null ||
-          token == null
+          token == null ||
+          blockchain == null
         ) {
           return { type: "PAUSE" }
         }
@@ -293,52 +290,13 @@ export const depositUIMachine = setup({
             depositType: QuoteRequest.depositType.ORIGIN_CHAIN,
             swapType: QuoteRequest.swapType.FLEX_INPUT,
             quoteWaitingTimeMs: 3000,
+            depositMode: isNetworkRequiresMemo(blockchain)
+              ? QuoteRequest.depositMode.MEMO
+              : QuoteRequest.depositMode.SIMPLE,
           },
         }
       }
     ),
-    process1csQuote: assign({
-      quote: ({ event }) => {
-        if (event.type !== "NEW_1CS_QUOTE") {
-          return null
-        }
-        const { result, tokenInAssetId, tokenOutAssetId } = event.params
-
-        if ("ok" in result) {
-          const quote: QuoteResult = {
-            tag: "ok",
-            value: {
-              quoteHashes: [],
-              // dry run doesn't have expiration time
-              expirationTime: new Date(0).toISOString(),
-              tokenDeltas: [
-                [tokenInAssetId, -BigInt(result.ok.quote.amountIn)],
-                [tokenOutAssetId, BigInt(result.ok.quote.amountOut)],
-              ],
-              appFee: result.ok.appFee,
-            },
-          }
-
-          return quote
-        }
-
-        const errorQuote: QuoteResult = {
-          tag: "err",
-          value: {
-            reason: "ERR_NO_QUOTES_1CS" as const,
-          },
-        }
-        return errorQuote
-      },
-      quote1csError: ({ event }) => {
-        if (event.type !== "NEW_1CS_QUOTE") {
-          return null
-        }
-
-        const { result } = event.params
-        return "ok" in result ? null : result.err
-      },
-    }),
   },
   guards: {
     isTokenValid: ({ context }) => {
@@ -508,10 +466,7 @@ export const depositUIMachine = setup({
           },
         ],
         NEW_1CS_QUOTE: {
-          actions: [
-            "process1csQuote",
-            "forwardQuoteDataToDepositGenerateAddress",
-          ],
+          actions: "forwardQuoteDataToDepositGenerateAddress",
         },
       },
 
@@ -586,7 +541,6 @@ export const depositUIMachine = setup({
           entry: [
             "requestGenerateAddress",
             "requestBalanceRefresh",
-            "requestStorageDepositAmount",
             "sendToBackground1csQuoterRefNewQuoteInput",
           ],
           invoke: {
@@ -925,3 +879,6 @@ function extractDepositParams(context: Context): DepositParams {
     memo: prepOutput.memo,
   }
 }
+
+const isNetworkRequiresMemo = (chainName: SupportedChainName): boolean =>
+  ["stellar", "tron"].includes(chainName)

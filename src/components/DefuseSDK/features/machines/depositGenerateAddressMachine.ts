@@ -2,7 +2,6 @@ import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import type { SupportedChainName } from "@src/components/DefuseSDK/types/base"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { assertEvent, assign, fromPromise, setup } from "xstate"
-import type { QuoteResult } from "../../services/quoteService"
 
 export type Context = {
   userAddress: string | null
@@ -24,7 +23,6 @@ export type Context = {
         }
       }
     | null
-  quote: QuoteResult | null
 }
 
 export const depositGenerateAddressMachine = setup({
@@ -44,23 +42,22 @@ export const depositGenerateAddressMachine = setup({
           type: "REQUEST_CLEAR_ADDRESS"
         }
       | {
-          type: "QUOTE_DATA_RECEIVED"
-          params: {
-            result:
-              | {
-                  ok: {
-                    quote: {
-                      amountIn: string
-                      amountOut: string
-                      deadline?: string
-                    }
-                    appFee: [string, bigint][]
-                  }
+          type: "REQUEST_1CS_GENERATE_ADDRESS"
+          params:
+            | {
+                tag: "ok"
+                value: {
+                  generateDepositAddress: string
+                  memo: string | null
                 }
-              | { err: string }
-            tokenInAssetId: string
-            tokenOutAssetId: string
-          }
+              }
+            | {
+                tag: "err"
+                value: {
+                  reason: "ERR_GENERATING_ADDRESS"
+                  error: Error
+                }
+              }
         },
   },
   actors: {
@@ -93,12 +90,9 @@ export const depositGenerateAddressMachine = setup({
         preparationOutput: null,
       }
     }),
-    processQuoteData: assign({
-      // @ts-ignore TODO: fix this
-      quote: ({ event }) => {
-        assertEvent(event, "QUOTE_DATA_RECEIVED")
-        // biome-ignore lint/suspicious/noConsole: <explanation>
-        console.log("Quote data received:", event.params)
+    setGeneratingAddress1cs: assign({
+      preparationOutput: ({ event }) => {
+        assertEvent(event, "REQUEST_1CS_GENERATE_ADDRESS")
         return event.params
       },
     }),
@@ -174,10 +168,9 @@ export const depositGenerateAddressMachine = setup({
       ],
     },
     generatingAddress1cs: {
-      // Wait for quote data from parent
       on: {
-        QUOTE_DATA_RECEIVED: {
-          actions: "processQuoteData",
+        REQUEST_1CS_GENERATE_ADDRESS: {
+          actions: "setGeneratingAddress1cs",
           target: "completed",
         },
       },

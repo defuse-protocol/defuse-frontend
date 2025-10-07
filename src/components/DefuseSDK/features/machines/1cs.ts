@@ -71,6 +71,7 @@ const getQuoteArgsSchema = z.object({
   depositType: z.optional(z.nativeEnum(QuoteRequest.depositType)),
   swapType: z.optional(z.nativeEnum(QuoteRequest.swapType)),
   quoteWaitingTimeMs: z.optional(z.number()),
+  depositMode: z.optional(z.nativeEnum(QuoteRequest.depositMode)),
 })
 
 type GetQuoteArgs = z.infer<typeof getQuoteArgsSchema>
@@ -116,7 +117,8 @@ export async function getQuote(
 
     const req: QuoteRequest = {
       ...quoteRequest,
-      depositMode: QuoteRequest.depositMode.MEMO,
+      depositMode:
+        parseResult.data.depositMode ?? QuoteRequest.depositMode.SIMPLE,
       dry: quoteRequest.dry,
       slippageTolerance: quoteRequest.slippageTolerance,
       depositType:
