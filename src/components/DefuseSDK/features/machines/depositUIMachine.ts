@@ -290,7 +290,10 @@ export const depositUIMachine = setup({
             tokenIn: derivedToken,
             tokenOut: baseToken,
             amountIn: {
-              amount: parsedAmount ?? 70830n, // this is correct on passive deposit - should be configurable
+              amount:
+                parsedAmount != null && parsedAmount > 0n
+                  ? parsedAmount
+                  : 70830n, // 0n will not fail a quote, so we need to set a default value
               decimals: derivedToken.decimals,
             },
             slippageBasisPoints: 1,
