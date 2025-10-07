@@ -1,4 +1,5 @@
-import type { AuthMethod } from "@defuse-protocol/internal-utils"
+import { type AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
+import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import {
   type ActorRefFrom,
@@ -9,15 +10,22 @@ import {
   enqueueActions,
   sendTo,
   setup,
+  spawnChild,
 } from "xstate"
 import { config } from "../../config"
 import { clearSolanaATACache } from "../../services/depositService"
+import type { QuoteResult } from "../../services/quoteService"
 import type {
   BaseTokenInfo,
   SupportedChainName,
   TokenDeployment,
 } from "../../types/base"
 import type { TokenInfo } from "../../types/base"
+import {
+  type Events as Background1csQuoterEvents,
+  type ParentEvents as Background1csQuoterParentEvents,
+  background1csQuoterMachine,
+} from "./background1csQuoterMachine"
 import { depositEstimationMachine } from "./depositEstimationActor"
 import {
   type Events as DepositFormEvents,
@@ -34,6 +42,7 @@ import {
   prepareDepositActor,
 } from "./prepareDepositActor"
 import { storageDepositAmountMachine } from "./storageDepositAmountMachine"
+import { getBaseTokenInfoWithFallback } from "./withdrawFormReducer"
 
 export type Context = {
   depositGenerateAddressRef: ActorRefFrom<typeof depositGenerateAddressMachine>
@@ -48,6 +57,8 @@ export type Context = {
   depositTokenBalanceRef: ActorRefFrom<typeof depositTokenBalanceMachine>
   depositEstimationRef: ActorRefFrom<typeof depositEstimationMachine>
   depositOutput: DepositOutput | null
+  quote: QuoteResult | null
+  quote1csError: string | null
 }
 
 export const depositUIMachine = setup({
@@ -55,6 +66,7 @@ export const depositUIMachine = setup({
     input: {} as {
       tokenList: TokenInfo[]
       token: TokenInfo
+      is1cs: boolean
     },
     context: {} as Context,
     events: {} as
@@ -73,7 +85,27 @@ export const depositUIMachine = setup({
           type: "LOGOUT"
         }
       | DepositFormEvents
-      | DepositFormParentEvents,
+      | DepositFormParentEvents
+      | Background1csQuoterParentEvents
+      | {
+          type: "NEW_1CS_QUOTE"
+          params: {
+            result:
+              | {
+                  ok: {
+                    quote: {
+                      amountIn: string
+                      amountOut: string
+                      deadline?: string
+                    }
+                    appFee: [string, bigint][]
+                  }
+                }
+              | { err: string }
+            tokenInAssetId: string
+            tokenOutAssetId: string
+          }
+        },
     children: {} as {
       depositNearRef: "depositNearActor"
       depositEVMRef: "depositEVMActor"
@@ -81,6 +113,7 @@ export const depositUIMachine = setup({
       depositTurboRef: "depositTurboActor"
       depositVirtualChainRef: "depositVirtualChainActor"
       depositTonRef: "depositTonActor"
+      background1csQuoterRef: "background1csQuoterActor"
     },
   },
   actors: {
@@ -99,6 +132,7 @@ export const depositUIMachine = setup({
     storageDepositAmountActor: storageDepositAmountMachine,
     depositTokenBalanceActor: depositTokenBalanceMachine,
     depositEstimationActor: depositEstimationMachine,
+    background1csQuoterActor: background1csQuoterMachine,
   },
   actions: {
     setDepositOutput: assign({
@@ -152,6 +186,23 @@ export const depositUIMachine = setup({
     requestClearAddress: sendTo("depositGenerateAddressRef", () => ({
       type: "REQUEST_CLEAR_ADDRESS",
     })),
+    forwardQuoteDataToDepositGenerateAddress: sendTo(
+      "depositGenerateAddressRef",
+      ({ event }) => {
+        if (event.type !== "NEW_1CS_QUOTE") {
+          return { type: "REQUEST_CLEAR_ADDRESS" }
+        }
+
+        return {
+          type: "QUOTE_DATA_RECEIVED",
+          params: {
+            result: event.params.result,
+            tokenInAssetId: event.params.tokenInAssetId,
+            tokenOutAssetId: event.params.tokenOutAssetId,
+          },
+        }
+      }
+    ),
     requestStorageDepositAmount: sendTo(
       "storageDepositAmountRef",
       ({ context }) => {
@@ -199,6 +250,95 @@ export const depositUIMachine = setup({
         }
       }
     ),
+    spawnBackground1csQuoterRef: spawnChild("background1csQuoterActor", {
+      id: "background1csQuoterRef",
+      input: ({ self }) => ({ parentRef: self }),
+    }),
+    sendToBackground1csQuoterRefNewQuoteInput: sendTo(
+      "background1csQuoterRef",
+      ({ context }): Background1csQuoterEvents => {
+        const { token, tokenDeployment, derivedToken, parsedAmount } =
+          context.depositFormRef.getSnapshot().context
+        const { userAddress, userChainType } = context
+
+        if (
+          derivedToken == null ||
+          tokenDeployment == null ||
+          userAddress == null ||
+          userChainType == null ||
+          token == null
+        ) {
+          return { type: "PAUSE" }
+        }
+        const baseToken = getBaseTokenInfoWithFallback(token, null)
+
+        return {
+          type: "NEW_QUOTE_INPUT",
+          params: {
+            tokenIn: derivedToken,
+            tokenOut: baseToken,
+            amountIn: {
+              amount: parsedAmount ?? 70830n, // this is correct on passive deposit - should be configurable
+              decimals: derivedToken.decimals,
+            },
+            slippageBasisPoints: 1,
+            defuseUserId: authIdentity.authHandleToIntentsUserId(
+              userAddress,
+              userChainType
+            ),
+            deadline: new Date(Date.now() + 5 * 60 * 1000).toISOString(), // 5 minutes - should be configurable
+            userAddress: userAddress,
+            userChainType: userChainType,
+            dry: false,
+            depositType: QuoteRequest.depositType.ORIGIN_CHAIN,
+            swapType: QuoteRequest.swapType.FLEX_INPUT,
+            quoteWaitingTimeMs: 3000,
+          },
+        }
+      }
+    ),
+    process1csQuote: assign({
+      quote: ({ event }) => {
+        if (event.type !== "NEW_1CS_QUOTE") {
+          return null
+        }
+        const { result, tokenInAssetId, tokenOutAssetId } = event.params
+
+        if ("ok" in result) {
+          const quote: QuoteResult = {
+            tag: "ok",
+            value: {
+              quoteHashes: [],
+              // dry run doesn't have expiration time
+              expirationTime: new Date(0).toISOString(),
+              tokenDeltas: [
+                [tokenInAssetId, -BigInt(result.ok.quote.amountIn)],
+                [tokenOutAssetId, BigInt(result.ok.quote.amountOut)],
+              ],
+              appFee: result.ok.appFee,
+            },
+          }
+
+          return quote
+        }
+
+        const errorQuote: QuoteResult = {
+          tag: "err",
+          value: {
+            reason: "ERR_NO_QUOTES_1CS" as const,
+          },
+        }
+        return errorQuote
+      },
+      quote1csError: ({ event }) => {
+        if (event.type !== "NEW_1CS_QUOTE") {
+          return null
+        }
+
+        const { result } = event.params
+        return "ok" in result ? null : result.err
+      },
+    }),
   },
   guards: {
     isTokenValid: ({ context }) => {
@@ -284,7 +424,7 @@ export const depositUIMachine = setup({
     }),
     depositGenerateAddressRef: spawn("depositGenerateAddressActor", {
       id: "depositGenerateAddressRef",
-      input: { parentRef: self },
+      input: { is1cs: input.is1cs },
     }),
     storageDepositAmountRef: spawn("storageDepositAmountActor", {
       id: "storageDepositAmountRef",
@@ -298,9 +438,11 @@ export const depositUIMachine = setup({
       id: "depositEstimationRef",
       input: { parentRef: self },
     }),
+    quote: null,
+    quote1csError: null,
   }),
 
-  entry: ["fetchPOABridgeInfo"],
+  entry: ["fetchPOABridgeInfo", "spawnBackground1csQuoterRef"],
 
   on: {
     LOGIN: {
@@ -365,6 +507,12 @@ export const depositUIMachine = setup({
             ],
           },
         ],
+        NEW_1CS_QUOTE: {
+          actions: [
+            "process1csQuote",
+            "forwardQuoteDataToDepositGenerateAddress",
+          ],
+        },
       },
 
       states: {
@@ -439,6 +587,7 @@ export const depositUIMachine = setup({
             "requestGenerateAddress",
             "requestBalanceRefresh",
             "requestStorageDepositAmount",
+            "sendToBackground1csQuoterRefNewQuoteInput",
           ],
           invoke: {
             src: "prepareDepositActor",
