@@ -4,10 +4,10 @@ import { http, type Address, type Hash, createPublicClient } from "viem"
 /**
  * EVM gas cost estimation
  */
-const ABSOLUTE_BUFFER_WEI = 100_000_000_000_000n // 0.0001 ETH (increased from 0.00005 ETH)
-const FLAT_L1_FEE_WEI = 2_000_000_000_000n // 0.000002 ETH everywhere (increased from 0.000001 ETH)
-const EXTRA_GAS_LIMIT = 2_000n // add ~2k gas headroom (increased from 1k)
-const PERCENT_MULTIPLIER = 180n // always +80% (increased from +60%)
+const ABSOLUTE_BUFFER_WEI = 50_000_000_000_000n // 0.00005 ETH
+const FLAT_L1_FEE_WEI = 1_000_000_000_000n // 0.000001 ETH everywhere
+const EXTRA_GAS_LIMIT = 1_000n // add ~1k gas headroom
+const PERCENT_MULTIPLIER = 160n // always +60% (no threshold)
 
 export async function estimateEVMTransferCost({
   rpcUrl,
