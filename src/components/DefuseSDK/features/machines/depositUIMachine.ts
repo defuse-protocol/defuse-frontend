@@ -1,6 +1,7 @@
 import { type AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
 import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
+import { logger } from "@src/utils/logger"
 import {
   type ActorRefFrom,
   type EventFrom,
@@ -130,7 +131,12 @@ export const depositUIMachine = setup({
   },
   actions: {
     setDepositOutput: assign({
-      depositOutput: (_, value: DepositOutput) => value,
+      depositOutput: (_, params: DepositOutput) => {
+        if (params.tag === "err") {
+          logger.error(params)
+        }
+        return params
+      },
     }),
     setPreparationOutput: assign({
       preparationOutput: (_, val: Context["preparationOutput"]) => val,
