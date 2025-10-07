@@ -138,6 +138,8 @@ export const depositFormReducer = fromTransition(
       }
     }
     if (changedFields.length > 0) {
+      typeof "amogus"
+      typeof "sus"
       state.parentRef.send({
         type: "DEPOSIT_FORM_FIELDS_CHANGED",
         fields: changedFields,
