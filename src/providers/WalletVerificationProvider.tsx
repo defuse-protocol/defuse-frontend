@@ -10,6 +10,7 @@ import { WalletVerificationDialog } from "@src/components/WalletVerificationDial
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import { walletVerificationMachine } from "@src/machines/walletVerificationMachine"
+import { useBypassedWalletsStore } from "@src/stores/useBypassedWalletsStore"
 import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
 import {
   verifyWalletSignature,
@@ -19,6 +20,7 @@ import { useMixpanel } from "./MixpanelProvider"
 
 export function WalletVerificationProvider() {
   const { state, signOut } = useConnectWallet()
+  const mixPanel = useMixpanel()
 
   const safetyCheck = useQuery({
     queryKey: ["address_safety", state.address],
@@ -30,13 +32,28 @@ export function WalletVerificationProvider() {
   })
 
   const { addWalletAddress } = useVerifiedWalletsStore()
+  const { addBypassedWalletAddress, isWalletBypassed } =
+    useBypassedWalletsStore()
 
-  if (state.address != null && safetyCheck.data?.safetyStatus === "unsafe") {
+  if (
+    state.address != null &&
+    safetyCheck.data?.safetyStatus === "unsafe" &&
+    !isWalletBypassed(state.address)
+  ) {
     return (
       <WalletBannedUI
         onAbort={() => {
           if (state.chainType != null) {
             void signOut({ id: state.chainType })
+          }
+        }}
+        onBypass={() => {
+          if (state.address != null) {
+            addBypassedWalletAddress(state.address)
+            mixPanel?.track("wallet_bypassed", {
+              wallet: state.address,
+              wallet_type: state.chainType,
+            })
           }
         }}
       />
@@ -45,7 +62,8 @@ export function WalletVerificationProvider() {
 
   if (
     state.address != null &&
-    safetyCheck.data?.safetyStatus === "safe" &&
+    (safetyCheck.data?.safetyStatus === "safe" ||
+      isWalletBypassed(state.address)) &&
     !state.isVerified
   ) {
     return (
@@ -67,8 +85,13 @@ export function WalletVerificationProvider() {
   return null
 }
 
-function WalletBannedUI({ onAbort }: { onAbort: () => void }) {
-  return <WalletBannedDialog open={true} onCancel={onAbort} />
+function WalletBannedUI({
+  onAbort,
+  onBypass,
+}: { onAbort: () => void; onBypass: () => void }) {
+  return (
+    <WalletBannedDialog open={true} onCancel={onAbort} onBypass={onBypass} />
+  )
 }
 
 function WalletVerificationUI({
