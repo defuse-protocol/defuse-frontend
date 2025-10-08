@@ -36,18 +36,13 @@ export type Events =
       type: "DEPOSIT_FORM.UPDATE_BLOCKCHAIN"
       params: {
         network: BlockchainEnum | null
+        is1cs: boolean
       }
     }
   | {
       type: "DEPOSIT_FORM.UPDATE_AMOUNT"
       params: {
         amount: string
-      }
-    }
-  | {
-      type: "DEPOSIT_FORM.UPDATE_DEPOSIT_MODE"
-      params: {
-        is1cs: boolean
       }
     }
 
@@ -109,6 +104,12 @@ export const depositFormReducer = fromTransition(
           LIST_TOKENS_FLATTEN
         )
 
+        const tokenIn = derivedToken
+        const tokenOut = getBaseTokenInfoWithFallback(state.token, null)
+
+        // Note: 1cs swap doesn't support same-token swaps
+        const sameToken = tokenIn.defuseAssetId === tokenOut.defuseAssetId
+
         // This isn't possible assertion, if this happens then we need to check the token list
         assert(derivedToken != null, "Token not found")
         newState = {
@@ -118,6 +119,10 @@ export const depositFormReducer = fromTransition(
           tokenDeployment,
           parsedAmount: null,
           amount: "",
+          depositMode:
+            event.params.is1cs && !sameToken // TODO: remove this check once 1cs supports same-token swaps
+              ? DepositMode.ONE_CLICK
+              : DepositMode.SIMPLE,
         }
         break
       }
@@ -142,29 +147,6 @@ export const depositFormReducer = fromTransition(
             parsedAmount: null,
             amount: "",
           }
-        }
-        break
-      }
-      case "DEPOSIT_FORM.UPDATE_DEPOSIT_MODE": {
-        if (state.derivedToken == null || state.token == null) {
-          newState = {
-            ...state,
-            depositMode: DepositMode.SIMPLE,
-          }
-          break
-        }
-        const tokenIn = state.derivedToken
-        const tokenOut = getBaseTokenInfoWithFallback(state.token, null)
-
-        // Note: 1cs swap doesn't support same-token swaps
-        const sameToken = tokenIn.defuseAssetId === tokenOut.defuseAssetId
-
-        newState = {
-          ...state,
-          depositMode:
-            event.params.is1cs && !sameToken // TODO: remove this check once 1cs supports same-token swaps
-              ? DepositMode.ONE_CLICK
-              : DepositMode.SIMPLE,
         }
         break
       }

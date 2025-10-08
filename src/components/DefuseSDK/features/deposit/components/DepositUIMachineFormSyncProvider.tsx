@@ -45,28 +45,14 @@ export function DepositUIMachineFormSyncProvider({
         }
         actorRef.send({
           type: "DEPOSIT_FORM.UPDATE_BLOCKCHAIN",
-          params: { network: networkValue },
+          params: { network: networkValue, is1cs },
         })
       }
     })
     return () => {
       sub.unsubscribe()
     }
-  }, [watch, actorRef])
-
-  useEffect(() => {
-    const sub = watch(async (_, { name }) => {
-      if (name === "network") {
-        actorRef.send({
-          type: "DEPOSIT_FORM.UPDATE_DEPOSIT_MODE",
-          params: { is1cs },
-        })
-      }
-    })
-    return () => {
-      sub.unsubscribe()
-    }
-  }, [is1cs, actorRef, watch])
+  }, [watch, actorRef, is1cs])
 
   // Debounce amount input updates to reduce network load and RPC calls
   useEffect(() => {
