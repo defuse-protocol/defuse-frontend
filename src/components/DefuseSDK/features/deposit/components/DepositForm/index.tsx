@@ -65,6 +65,7 @@ export const DepositForm = ({
   const depositUIActorRef = DepositUIMachineContext.useActorRef()
   const snapshot = DepositUIMachineContext.useSelector((snapshot) => snapshot)
   const preparationOutput = snapshot.context.preparationOutput
+  const depositOutput = snapshot.context.depositOutput
 
   const {
     token,
@@ -205,6 +206,7 @@ export const DepositForm = ({
 
   const networkEnum = assetNetworkAdapter[network as SupportedChainName]
   const singleNetwork = Object.keys(chainOptions).length === 1
+  const depositWarning = depositOutput || preparationOutput
   return (
     <Island className="widget-container flex flex-col gap-4">
       <IslandHeader heading="Deposit" condensed />
@@ -311,6 +313,7 @@ export const DepositForm = ({
                   token={derivedToken}
                   tokenDeployment={tokenDeployment}
                   memo={memo}
+                  depositWarning={depositWarning}
                 />
               )}
           </>
