@@ -2,6 +2,7 @@ import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import type { SupportedChainName } from "@src/components/DefuseSDK/types/base"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { and, assertEvent, assign, fromPromise, setup } from "xstate"
+import { DepositMode } from "./depositFormReducer"
 
 export type Context = {
   userAddress: string | null
@@ -34,7 +35,7 @@ export const depositGenerateAddressMachine = setup({
             userAddress: string
             userChainType: AuthMethod
             blockchain: SupportedChainName
-            is1cs: boolean
+            depositMode: DepositMode
           }
         }
       | {
@@ -82,7 +83,7 @@ export const depositGenerateAddressMachine = setup({
         userAddress: event.params.userAddress,
         userChainType: event.params.userChainType,
         blockchain: event.params.blockchain,
-        is1cs: event.params.is1cs,
+        depositMode: event.params.depositMode,
       }
     }),
     resetPreparationOutput: assign(() => {
@@ -119,7 +120,7 @@ export const depositGenerateAddressMachine = setup({
     },
     is1cs: ({ event }) => {
       assertEvent(event, "REQUEST_GENERATE_ADDRESS")
-      return event.params.is1cs
+      return event.params.depositMode === DepositMode.ONE_CLICK
     },
   },
 }).createMachine({

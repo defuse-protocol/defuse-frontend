@@ -295,7 +295,11 @@ async function getGeneratedDepositAddress(
 ): Promise<
   | {
       tag: "ok"
-      value: { generateDepositAddress: string | null; memo: string | null }
+      value: {
+        generateDepositAddress: string | null
+        memo: string | null
+        is1cs?: boolean
+      }
     }
   | { tag: "err"; value: { reason: "ERR_GENERATING_ADDRESS" } }
 > {

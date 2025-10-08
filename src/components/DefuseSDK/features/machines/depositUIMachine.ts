@@ -30,6 +30,7 @@ import { depositEstimationMachine } from "./depositEstimationActor"
 import {
   type Events as DepositFormEvents,
   type ParentEvents as DepositFormParentEvents,
+  DepositMode,
   type Fields,
   depositFormReducer,
 } from "./depositFormReducer"
@@ -57,7 +58,6 @@ export type Context = {
   depositTokenBalanceRef: ActorRefFrom<typeof depositTokenBalanceMachine>
   depositEstimationRef: ActorRefFrom<typeof depositEstimationMachine>
   depositOutput: DepositOutput | null
-  is1cs: boolean
 }
 
 export const depositUIMachine = setup({
@@ -65,7 +65,6 @@ export const depositUIMachine = setup({
     input: {} as {
       tokenList: TokenInfo[]
       token: TokenInfo
-      is1cs: boolean
     },
     context: {} as Context,
     events: {} as
@@ -173,13 +172,11 @@ export const depositUIMachine = setup({
     requestGenerateAddress: sendTo(
       "depositGenerateAddressRef",
       ({ context }) => {
-        const { token, derivedToken } =
+        const { token, derivedToken, depositMode } =
           context.depositFormRef.getSnapshot().context
         assert(token != null, "token is null")
         assert(derivedToken != null, "derivedToken is null")
-        const baseToken = getBaseTokenInfoWithFallback(token, null)
-        // TODO: Remove equality check once 1cs supports same-token swaps
-        const is1cs = is1csLegit(context.is1cs, baseToken, derivedToken)
+        assert(depositMode != null, "depositMode is null")
 
         return {
           type: "REQUEST_GENERATE_ADDRESS",
@@ -187,7 +184,7 @@ export const depositUIMachine = setup({
             userAddress: context.userAddress,
             blockchain: context.depositFormRef.getSnapshot().context.blockchain,
             userChainType: context.userChainType,
-            is1cs,
+            depositMode,
           },
         }
       }
@@ -221,6 +218,7 @@ export const depositUIMachine = setup({
             value: {
               generateDepositAddress: result.ok.quote.depositAddress,
               memo: result.ok.quote.depositMemo ?? null,
+              is1cs: true,
             },
           },
         }
@@ -268,7 +266,7 @@ export const depositUIMachine = setup({
     sendToBackground1csQuoterRefNewQuoteInput: sendTo(
       "background1csQuoterRef",
       ({ context }): Background1csQuoterEvents => {
-        const { token, tokenDeployment, derivedToken } =
+        const { token, tokenDeployment, derivedToken, depositMode } =
           context.depositFormRef.getSnapshot().context
         const { blockchain } = context.depositFormRef.getSnapshot().context
         const { userAddress, userChainType } = context
@@ -279,17 +277,13 @@ export const depositUIMachine = setup({
           userAddress == null ||
           userChainType == null ||
           token == null ||
-          blockchain == null
+          blockchain == null ||
+          depositMode === DepositMode.SIMPLE
         ) {
           return { type: "PAUSE" }
         }
 
         const baseToken = getBaseTokenInfoWithFallback(token, null)
-        // TODO: Remove this check once 1cs supports same-token swaps
-        if (!is1csLegit(context.is1cs, derivedToken, baseToken)) {
-          return { type: "PAUSE" }
-        }
-
         return {
           type: "NEW_QUOTE_INPUT",
           params: {
@@ -403,7 +397,7 @@ export const depositUIMachine = setup({
     }),
     depositGenerateAddressRef: spawn("depositGenerateAddressActor", {
       id: "depositGenerateAddressRef",
-      input: { is1cs: input.is1cs },
+      input: { parentRef: self },
     }),
     storageDepositAmountRef: spawn("storageDepositAmountActor", {
       id: "storageDepositAmountRef",
@@ -417,7 +411,6 @@ export const depositUIMachine = setup({
       id: "depositEstimationRef",
       input: { parentRef: self },
     }),
-    is1cs: input.is1cs,
   }),
 
   entry: ["fetchPOABridgeInfo", "spawnBackground1csQuoterRef"],
@@ -862,6 +855,7 @@ type DepositParams = {
   solanaATACreationRequired: boolean
   tonJettonWalletCreationRequired: boolean
   memo: string | null
+  depositMode: DepositMode
 }
 
 function extractDepositParams(context: Context): DepositParams {
@@ -870,8 +864,14 @@ function extractDepositParams(context: Context): DepositParams {
       ? context.preparationOutput
       : { value: null }
 
-  const { token, derivedToken, tokenDeployment, blockchain, parsedAmount } =
-    context.depositFormRef.getSnapshot().context
+  const {
+    token,
+    derivedToken,
+    tokenDeployment,
+    blockchain,
+    parsedAmount,
+    depositMode,
+  } = context.depositFormRef.getSnapshot().context
 
   // Validate all required fields
   assert(token, "token is null")
@@ -897,15 +897,9 @@ function extractDepositParams(context: Context): DepositParams {
     solanaATACreationRequired: prepOutput.solanaATACreationRequired,
     tonJettonWalletCreationRequired: prepOutput.tonJettonWalletCreationRequired,
     memo: prepOutput.memo,
+    depositMode,
   }
 }
 
 const isNetworkRequiresMemo = (chainName: SupportedChainName): boolean =>
   ["stellar"].includes(chainName) // "ton" requires memo but for some reason it works without it
-
-// 1cs swap doesn't support same-token swaps
-const is1csLegit = (
-  is1cs: boolean,
-  tokenIn: BaseTokenInfo,
-  tokenOut: BaseTokenInfo
-): boolean => is1cs && tokenIn.defuseAssetId !== tokenOut.defuseAssetId

@@ -1,5 +1,8 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
-import { resolveTokenOut } from "@src/components/DefuseSDK/features/machines/withdrawFormReducer"
+import {
+  getBaseTokenInfoWithFallback,
+  resolveTokenOut,
+} from "@src/components/DefuseSDK/features/machines/withdrawFormReducer"
 import { reverseAssetNetworkAdapter } from "@src/components/DefuseSDK/utils/adapters"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { parseUnits } from "@src/components/DefuseSDK/utils/parse"
@@ -41,6 +44,21 @@ export type Events =
         amount: string
       }
     }
+  | {
+      type: "DEPOSIT_FORM.UPDATE_DEPOSIT_MODE"
+      params: {
+        is1cs: boolean
+      }
+    }
+
+export const DepositMode = {
+  SIMPLE: "SIMPLE",
+  ONE_CLICK: "ONE_CLICK",
+} as const
+
+export type DepositMode =
+  | typeof DepositMode.SIMPLE
+  | typeof DepositMode.ONE_CLICK
 
 export type State = {
   parentRef: ParentActor
@@ -50,6 +68,7 @@ export type State = {
   blockchain: SupportedChainName | null
   parsedAmount: bigint | null
   amount: string
+  depositMode: DepositMode
 }
 
 export const depositFormReducer = fromTransition(
@@ -126,6 +145,29 @@ export const depositFormReducer = fromTransition(
         }
         break
       }
+      case "DEPOSIT_FORM.UPDATE_DEPOSIT_MODE": {
+        if (state.derivedToken == null || state.token == null) {
+          newState = {
+            ...state,
+            depositMode: DepositMode.SIMPLE,
+          }
+          break
+        }
+        const tokenIn = state.derivedToken
+        const tokenOut = getBaseTokenInfoWithFallback(state.token, null)
+
+        // Note: 1cs swap doesn't support same-token swaps
+        const sameToken = tokenIn.defuseAssetId === tokenOut.defuseAssetId
+
+        newState = {
+          ...state,
+          depositMode:
+            event.params.is1cs && !sameToken // TODO: remove this check once 1cs supports same-token swaps
+              ? DepositMode.ONE_CLICK
+              : DepositMode.SIMPLE,
+        }
+        break
+      }
       default:
         event satisfies never
         return state
@@ -169,6 +211,7 @@ export const depositFormReducer = fromTransition(
       blockchain,
       parsedAmount: null,
       amount: "",
+      depositMode: DepositMode.SIMPLE,
     }
   }
 )

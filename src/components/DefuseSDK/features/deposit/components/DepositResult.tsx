@@ -3,8 +3,12 @@ import { AssetComboIcon } from "@src/components/DefuseSDK/components/Asset/Asset
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { chainTxExplorer } from "@src/components/DefuseSDK/utils/chainTxExplorer"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
+import { CopyButton } from "../../../components/IntentCard/CopyButton"
 import type { SupportedChainName } from "../../../types/base"
+import { DepositMode } from "../../machines/depositFormReducer"
 import type { Context } from "../../machines/depositUIMachine"
+
+const EXPLORER_NEAR_INTENTS = "https://explorer.near-intents.org"
 
 export const DepositResult = ({
   chainName,
@@ -22,6 +26,9 @@ export const DepositResult = ({
   assert(explorerUrl != null, "explorerUrl should not be null")
 
   const txUrl = explorerUrl + txHash
+
+  const depositMode = depositResult.value.depositDescription.depositMode
+  const depositAddress = depositResult.value.depositDescription.depositAddress
 
   return (
     <Flex p="2" gap="3">
@@ -84,12 +91,34 @@ export const DepositResult = ({
           </Box>
         )}
 
-        <Box>
-          <Text size="1" color="gray">
-            Settlement in flight!
-          </Text>
-        </Box>
+        {depositMode === DepositMode.ONE_CLICK && depositAddress ? (
+          <OneClickSwapExploreLink depositAddress={depositAddress} />
+        ) : (
+          <Box>
+            <Text size="1" color="gray">
+              Settlement in flight!
+            </Text>
+          </Box>
+        )}
       </Flex>
+    </Flex>
+  )
+}
+
+function OneClickSwapExploreLink({
+  depositAddress,
+}: { depositAddress: string }) {
+  const explorerUrl = `${EXPLORER_NEAR_INTENTS}/transactions/${depositAddress}`
+  return (
+    <Flex align="center" gap="1">
+      <Text size="1" color="gray">
+        Track your swap progress on explorer:{" "}
+        <Link href={explorerUrl} target="_blank" color="blue">
+          {shortenText(depositAddress)}
+        </Link>
+      </Text>
+
+      <CopyButton text={depositAddress} ariaLabel="Copy Deposit address" />
     </Flex>
   )
 }

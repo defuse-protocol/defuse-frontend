@@ -1,4 +1,5 @@
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
+import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { type PropsWithChildren, useEffect } from "react"
 import { useFormContext } from "react-hook-form"
 import { useDebounce } from "../../../../../hooks/useDebounce"
@@ -20,6 +21,7 @@ export function DepositUIMachineFormSyncProvider({
 }: DepositUIMachineFormSyncProviderProps) {
   const { watch } = useFormContext<DepositFormValues>()
   const actorRef = DepositUIMachineContext.useActorRef()
+  const is1cs = useIs1CsEnabled()
 
   const amountValue = watch("amount")
   const debouncedAmount = useDebounce(amountValue, 500)
@@ -51,6 +53,20 @@ export function DepositUIMachineFormSyncProvider({
       sub.unsubscribe()
     }
   }, [watch, actorRef])
+
+  useEffect(() => {
+    const sub = watch(async (_, { name }) => {
+      if (name === "network") {
+        actorRef.send({
+          type: "DEPOSIT_FORM.UPDATE_DEPOSIT_MODE",
+          params: { is1cs },
+        })
+      }
+    })
+    return () => {
+      sub.unsubscribe()
+    }
+  }, [is1cs, actorRef, watch])
 
   // Debounce amount input updates to reduce network load and RPC calls
   useEffect(() => {

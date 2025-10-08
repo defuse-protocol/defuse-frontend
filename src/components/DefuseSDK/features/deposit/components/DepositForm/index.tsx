@@ -98,7 +98,6 @@ export const DepositForm = ({
       ? preparationOutput.value.memo
       : null
     : null
-
   const { setModalType, payload, onCloseModal } = useModalStore(
     (state) => state
   )

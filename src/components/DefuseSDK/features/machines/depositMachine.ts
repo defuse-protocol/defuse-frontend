@@ -8,6 +8,7 @@ import type {
   TokenDeployment,
 } from "../../types/base"
 import { assert } from "../../utils/assert"
+import type { DepositMode } from "./depositFormReducer"
 
 export type Context = Input & {
   txHash: string | null
@@ -29,6 +30,7 @@ export type Input = {
   nearBalance: bigint | null
   type: string
   memo: string | null
+  depositMode: DepositMode
 }
 
 export type DepositDescription = {
@@ -38,6 +40,8 @@ export type DepositDescription = {
   userWalletAddress: string | null
   derivedToken: BaseTokenInfo
   tokenDeployment: TokenDeployment
+  depositAddress: string | null
+  depositMode: DepositMode
 }
 
 export type Output =
@@ -150,6 +154,8 @@ export const depositMachine = setup({
             amount: context.amount,
             derivedToken: context.derivedToken,
             tokenDeployment: context.tokenDeployment,
+            depositAddress: context.depositAddress,
+            depositMode: context.depositMode,
           },
         },
       }
