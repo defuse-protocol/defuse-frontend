@@ -253,7 +253,7 @@ export const RecipientSubForm = ({
               {...register("recipient", {
                 validate: {
                   pattern: async (value, formValues) => {
-                    const result = validationRecipientAddress(
+                    const result = await validationRecipientAddress(
                       value,
                       formValues.blockchain,
                       userAddress ?? "",

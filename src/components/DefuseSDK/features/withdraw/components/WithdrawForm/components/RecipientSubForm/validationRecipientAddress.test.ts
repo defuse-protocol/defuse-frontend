@@ -4,8 +4,8 @@ import { validationRecipientAddress } from "./validationRecipientAddress"
 
 describe("validationRecipientAddress", () => {
   describe("Near Intents network", () => {
-    it("should accept valid NEAR address", () => {
-      const result = validationRecipientAddress(
+    it("should accept valid NEAR address", async () => {
+      const result = await validationRecipientAddress(
         "recipient.near",
         "near_intents",
         "valid-recipient.near",
@@ -13,8 +13,8 @@ describe("validationRecipientAddress", () => {
       )
       expect(result.isOk()).toBe(true)
     })
-    it("should reject invalid NEAR address", () => {
-      const result = validationRecipientAddress(
+    it("should reject invalid NEAR address", async () => {
+      const result = await validationRecipientAddress(
         "invalid_near-",
         "near_intents",
         "valid-recipient.near",
@@ -23,8 +23,8 @@ describe("validationRecipientAddress", () => {
       expect(result.isErr()).toBe(true)
       expect(result.unwrapErr()).toBe("ADDRESS_INVALID")
     })
-    it("should reject self NEAR address", () => {
-      const result = validationRecipientAddress(
+    it("should reject self NEAR address", async () => {
+      const result = await validationRecipientAddress(
         "valid-recipient.near",
         "near_intents",
         "valid-recipient.near",
@@ -34,10 +34,10 @@ describe("validationRecipientAddress", () => {
       expect(result.unwrapErr()).toBe("SELF_WITHDRAWAL")
     })
 
-    it("should accept valid WebAuthn address", () => {
+    it("should accept valid WebAuthn address", async () => {
       const webAuthnPublicKey =
         "p256:3NSY8SFTWoPFMrTGdLVqPogirCyt3kMnUajXoDQuVeCsA6wzkMMp5whBqymAPM7xFiBthDKueiUv1zVAj7GDT8rQ"
-      const result = validationRecipientAddress(
+      const result = await validationRecipientAddress(
         "valid-recipient.near",
         "near_intents",
         authIdentity.authHandleToIntentsUserId(
@@ -48,14 +48,14 @@ describe("validationRecipientAddress", () => {
       )
       expect(result.isOk()).toBe(true)
     })
-    it("should reject self WebAuthn address", () => {
+    it("should reject self WebAuthn address", async () => {
       const webAuthnPublicKey =
         "p256:3NSY8SFTWoPFMrTGdLVqPogirCyt3kMnUajXoDQuVeCsA6wzkMMp5whBqymAPM7xFiBthDKueiUv1zVAj7GDT8rQ"
       const userAddress = authIdentity.authHandleToIntentsUserId(
         webAuthnPublicKey,
         AuthMethod.WebAuthn
       )
-      const result = validationRecipientAddress(
+      const result = await validationRecipientAddress(
         userAddress,
         "near_intents",
         userAddress,
@@ -65,8 +65,8 @@ describe("validationRecipientAddress", () => {
       expect(result.unwrapErr()).toBe("SELF_WITHDRAWAL")
     })
 
-    it("should accept valid EVM address", () => {
-      const result = validationRecipientAddress(
+    it("should accept valid EVM address", async () => {
+      const result = await validationRecipientAddress(
         "valid-recipient.near",
         "near_intents",
         "0x5ff8d1644ec46f23f1e3981831ed2ec3dd40c2ca",
@@ -74,9 +74,9 @@ describe("validationRecipientAddress", () => {
       )
       expect(result.isOk()).toBe(true)
     })
-    it("should reject self EVM address", () => {
+    it("should reject self EVM address", async () => {
       const userAddress = "0x5ff8d1644ec46f23f1e3981831ed2ec3dd40c2ca"
-      const result = validationRecipientAddress(
+      const result = await validationRecipientAddress(
         userAddress,
         "near_intents",
         userAddress,
@@ -86,9 +86,9 @@ describe("validationRecipientAddress", () => {
       expect(result.unwrapErr()).toBe("SELF_WITHDRAWAL")
     })
 
-    it("should accept valid Solana address", () => {
+    it("should accept valid Solana address", async () => {
       const userAddress = "DRpbCBMxVnDK7maPGv7vhuYme3jNdBAt4YHw2wKgqWPU"
-      const result = validationRecipientAddress(
+      const result = await validationRecipientAddress(
         "valid-recipient.near",
         "near_intents",
         authIdentity.authHandleToIntentsUserId(userAddress, AuthMethod.Solana),
@@ -96,12 +96,12 @@ describe("validationRecipientAddress", () => {
       )
       expect(result.isOk()).toBe(true)
     })
-    it("should reject self Solana address", () => {
+    it("should reject self Solana address", async () => {
       const userAddress = authIdentity.authHandleToIntentsUserId(
         "DRpbCBMxVnDK7maPGv7vhuYme3jNdBAt4YHw2wKgqWPU",
         AuthMethod.Solana
       )
-      const result = validationRecipientAddress(
+      const result = await validationRecipientAddress(
         userAddress,
         "near_intents",
         userAddress,
@@ -111,10 +111,10 @@ describe("validationRecipientAddress", () => {
       expect(result.unwrapErr()).toBe("SELF_WITHDRAWAL")
     })
 
-    it("should accept valid Ton address", () => {
+    it("should accept valid Ton address", async () => {
       const userAddress =
         "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
-      const result = validationRecipientAddress(
+      const result = await validationRecipientAddress(
         "valid-recipient.near",
         "near_intents",
         authIdentity.authHandleToIntentsUserId(userAddress, AuthMethod.Ton),
@@ -122,12 +122,12 @@ describe("validationRecipientAddress", () => {
       )
       expect(result.isOk()).toBe(true)
     })
-    it("should reject self Ton address", () => {
+    it("should reject self Ton address", async () => {
       const userAddress = authIdentity.authHandleToIntentsUserId(
         "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
         AuthMethod.Ton
       )
-      const result = validationRecipientAddress(
+      const result = await validationRecipientAddress(
         userAddress,
         "near_intents",
         userAddress,
@@ -138,14 +138,17 @@ describe("validationRecipientAddress", () => {
     })
   })
 
-  describe("NEAR network", () => {
-    it("should accept valid NEAR address", () => {
-      const result = validationRecipientAddress("valid-recipient.near", "near")
+  describe("NEAR network", async () => {
+    it("should accept valid NEAR address", async () => {
+      const result = await validationRecipientAddress(
+        "valid-recipient.near",
+        "near"
+      )
       expect(result.isOk()).toBe(true)
     })
 
-    it("should accept EVM address for NEAR network", () => {
-      const result = validationRecipientAddress(
+    it("should accept EVM address for NEAR network", async () => {
+      const result = await validationRecipientAddress(
         authIdentity.authHandleToIntentsUserId(
           "0x32Be343B94f860124dC4fEe278FDCBD38C102D88",
           AuthMethod.Near
@@ -155,8 +158,8 @@ describe("validationRecipientAddress", () => {
       expect(result.isOk()).toBe(true)
     })
 
-    it("should accept any EVM address for NEAR network", () => {
-      const result = validationRecipientAddress(
+    it("should accept any EVM address for NEAR network", async () => {
+      const result = await validationRecipientAddress(
         authIdentity.authHandleToIntentsUserId("0xd", AuthMethod.Near), // TODO: this is invalid EVM address
         "near"
       )
@@ -165,62 +168,65 @@ describe("validationRecipientAddress", () => {
   })
 
   describe("EVM networks", () => {
-    it("should accept valid EVM address for eth", () => {
-      const result = validationRecipientAddress(
+    it("should accept valid EVM address for eth", async () => {
+      const result = await validationRecipientAddress(
         "0x32Be343B94f860124dC4fEe278FDCBD38C102D88",
         "eth"
       )
       expect(result.isOk()).toBe(true)
     })
 
-    it("should reject invalid EVM address", () => {
-      const result = validationRecipientAddress("0xd", "eth")
+    it("should reject invalid EVM address", async () => {
+      const result = await validationRecipientAddress("0xd", "eth")
       expect(result.isErr()).toBe(true)
       expect(result.unwrapErr()).toBe("ADDRESS_INVALID")
     })
   })
 
   describe("Solana network", () => {
-    it("should accept valid Solana address", () => {
-      const result = validationRecipientAddress(
+    it("should accept valid Solana address", async () => {
+      const result = await validationRecipientAddress(
         "DRpbCBMxVnDK7maPGv7vhuYme3jNdBAt4YHw2wKgqWPU",
         "solana"
       )
       expect(result.isOk()).toBe(true)
     })
 
-    it("should reject invalid Solana address", () => {
-      const result = validationRecipientAddress("invalid_solana", "solana")
+    it("should reject invalid Solana address", async () => {
+      const result = await validationRecipientAddress(
+        "invalid_solana",
+        "solana"
+      )
       expect(result.isErr()).toBe(true)
       expect(result.unwrapErr()).toBe("ADDRESS_INVALID")
     })
   })
 
   describe("Ton network", () => {
-    it("should accept valid Ton address", () => {
-      const result = validationRecipientAddress(
+    it("should accept valid Ton address", async () => {
+      const result = await validationRecipientAddress(
         "EQCz7_vtRwQWnKPYVb-JBl8WqF6MdwypKBT1KCeZzvS7DQdD",
         "ton"
       )
       expect(result.isOk()).toBe(true)
     })
 
-    it("should reject invalid Ton address", () => {
-      const result = validationRecipientAddress("invalid_ton", "ton")
+    it("should reject invalid Ton address", async () => {
+      const result = await validationRecipientAddress("invalid_ton", "ton")
       expect(result.isErr()).toBe(true)
       expect(result.unwrapErr()).toBe("ADDRESS_INVALID")
     })
   })
 
   describe("Edge cases", () => {
-    it("should handle empty address", () => {
-      const result = validationRecipientAddress("", "near")
+    it("should handle empty address", async () => {
+      const result = await validationRecipientAddress("", "near")
       expect(result.isErr()).toBe(true)
       expect(result.unwrapErr()).toBe("ADDRESS_INVALID")
     })
 
-    it("should handle whitespace-only address", () => {
-      const result = validationRecipientAddress(" ", "near")
+    it("should handle whitespace-only address", async () => {
+      const result = await validationRecipientAddress(" ", "near")
       expect(result.isErr()).toBe(true)
       expect(result.unwrapErr()).toBe("ADDRESS_INVALID")
     })

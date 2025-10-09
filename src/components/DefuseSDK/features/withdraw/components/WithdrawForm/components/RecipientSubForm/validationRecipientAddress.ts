@@ -14,14 +14,13 @@ export type ValidateRecipientAddressErrorType =
   | "ADDRESS_INVALID"
   | "SELF_WITHDRAWAL"
 
-export function validationRecipientAddress(
+export async function validationRecipientAddress(
   recipientAddress: string,
   chainName: SupportedChainName | "near_intents",
   userAddress?: string,
   chainType?: AuthMethod
-): Result<
-  ValidateRecipientAddressReturnType,
-  ValidateRecipientAddressErrorType
+): Promise<
+  Result<ValidateRecipientAddressReturnType, ValidateRecipientAddressErrorType>
 > {
   // Special handling for Near Intents network
   if (userAddress && isNearIntentsNetwork(chainName)) {
