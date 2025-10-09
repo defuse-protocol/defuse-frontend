@@ -201,6 +201,25 @@ describe("validationRecipientAddress", () => {
     })
   })
 
+  describe("Bitcoin network", () => {
+    it("should accept valid Bitcoin address", async () => {
+      const result = await validationRecipientAddress(
+        "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
+        "bitcoin"
+      )
+      expect(result.isOk()).toBe(true)
+    })
+
+    it("should reject invalid Bitcoin address", async () => {
+      const result = await validationRecipientAddress(
+        "invalid_bitcoin",
+        "bitcoin"
+      )
+      expect(result.isErr()).toBe(true)
+      expect(result.unwrapErr()).toBe("ADDRESS_INVALID")
+    })
+  })
+
   describe("Solana network", () => {
     it("should accept valid Solana address", async () => {
       const result = await validationRecipientAddress(
@@ -220,6 +239,76 @@ describe("validationRecipientAddress", () => {
     })
   })
 
+  describe("Dogecoin network", () => {
+    it("should accept valid Dogecoin address", async () => {
+      const result = await validationRecipientAddress(
+        "DPvG6Dk8cQRX7VauYbYHTxStD3kHZGBSda",
+        "dogecoin"
+      )
+      expect(result.isOk()).toBe(true)
+    })
+
+    it("should reject invalid Dogecoin address", async () => {
+      const result = await validationRecipientAddress(
+        "invalid_dogecoin",
+        "dogecoin"
+      )
+      expect(result.isErr()).toBe(true)
+      expect(result.unwrapErr()).toBe("ADDRESS_INVALID")
+    })
+  })
+
+  describe("Xrpledger network", () => {
+    it("should accept valid Xrpledger address", async () => {
+      const result = await validationRecipientAddress(
+        "rG1QQv2nh2gr7RCZ1P8YYcBUKCCN633jCn",
+        "xrpledger"
+      )
+      expect(result.isOk()).toBe(true)
+    })
+
+    it("should reject invalid Xrpledger address", async () => {
+      const result = await validationRecipientAddress(
+        "invalid_xrpledger",
+        "xrpledger"
+      )
+      expect(result.isErr()).toBe(true)
+      expect(result.unwrapErr()).toBe("ADDRESS_INVALID")
+    })
+  })
+
+  describe("Zcash network", () => {
+    it("should accept valid Zcash address", async () => {
+      const result = await validationRecipientAddress(
+        "t1XJD5btQc9qHHzywPS8xhPbs2hbXGXWLFq",
+        "zcash"
+      )
+      expect(result.isOk()).toBe(true)
+    })
+
+    it("should reject invalid Zcash address", async () => {
+      const result = await validationRecipientAddress("invalid_zcash", "zcash")
+      expect(result.isErr()).toBe(true)
+      expect(result.unwrapErr()).toBe("ADDRESS_INVALID")
+    })
+  })
+
+  describe("Tron network", () => {
+    it("should accept valid Tron address", async () => {
+      const result = await validationRecipientAddress(
+        "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+        "tron"
+      )
+      expect(result.isOk()).toBe(true)
+    })
+
+    it("should reject invalid Tron address", async () => {
+      const result = await validationRecipientAddress("invalid_tron", "tron")
+      expect(result.isErr()).toBe(true)
+      expect(result.unwrapErr()).toBe("ADDRESS_INVALID")
+    })
+  })
+
   describe("Ton network", () => {
     it("should accept valid Ton address", async () => {
       const result = await validationRecipientAddress(
@@ -231,6 +320,76 @@ describe("validationRecipientAddress", () => {
 
     it("should reject invalid Ton address", async () => {
       const result = await validationRecipientAddress("invalid_ton", "ton")
+      expect(result.isErr()).toBe(true)
+      expect(result.unwrapErr()).toBe("ADDRESS_INVALID")
+    })
+  })
+
+  describe("Sui network", () => {
+    it("should accept valid Sui address", async () => {
+      const result = await validationRecipientAddress(
+        "0x2f1c9a8d3b4e5f6a7b8c9d0e1f2a3b4c5d6e7f8090a1b2c3d4e5f6a7b8c9d0e1",
+        "sui"
+      )
+      expect(result.isOk()).toBe(true)
+    })
+
+    it("should reject invalid Sui address", async () => {
+      const result = await validationRecipientAddress("invalid_sui", "sui")
+      expect(result.isErr()).toBe(true)
+      expect(result.unwrapErr()).toBe("ADDRESS_INVALID")
+    })
+  })
+
+  describe("Stellar network", () => {
+    it("should accept valid Stellar address", async () => {
+      const result = await validationRecipientAddress(
+        "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "stellar"
+      )
+      expect(result.isOk()).toBe(true)
+    })
+
+    it("should reject invalid Stellar address", async () => {
+      const result = await validationRecipientAddress(
+        "invalid_stellar",
+        "stellar"
+      )
+      expect(result.isErr()).toBe(true)
+      expect(result.unwrapErr()).toBe("ADDRESS_INVALID")
+    })
+  })
+
+  describe("Aptos network", () => {
+    it("should accept valid Aptos address", async () => {
+      const result = await validationRecipientAddress(
+        "0x2f1c9a8d3b4e5f6a7b8c9d0e1f2a3b4c5d6e7f8090a1b2c3d4e5f6a7b8c9d0e1",
+        "aptos"
+      )
+      expect(result.isOk()).toBe(true)
+    })
+
+    it("should reject invalid Aptos address", async () => {
+      const result = await validationRecipientAddress("invalid_aptos", "aptos")
+      expect(result.isErr()).toBe(true)
+      expect(result.unwrapErr()).toBe("ADDRESS_INVALID")
+    })
+  })
+
+  describe("Cardano network", () => {
+    it("should accept valid Cardano address", async () => {
+      const result = await validationRecipientAddress(
+        "addr1qx2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzer3n0d3vllmyqwsx5wktcd8cc3sq835lu7drv2xwl2wywfgse35a3x",
+        "cardano"
+      )
+      expect(result.isOk()).toBe(true)
+    })
+
+    it("should reject invalid Cardano address", async () => {
+      const result = await validationRecipientAddress(
+        "invalid_cardano",
+        "cardano"
+      )
       expect(result.isErr()).toBe(true)
       expect(result.unwrapErr()).toBe("ADDRESS_INVALID")
     })
