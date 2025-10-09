@@ -42,6 +42,7 @@ jobs:
 
     env:
       MM_SEED_PHRASE: ${{ secrets.MM_SEED_PHRASE }}
+      NEXT_PUBLIC_BASE_URL: ${{ vars.NEXT_PUBLIC_BASE_URL }}
       # SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       RUN_TAG: ${{ inputs.tag || '@near-intents-wallet' }}
       MANUAL_TRIGGER: ${{ inputs.manual_trigger }}
