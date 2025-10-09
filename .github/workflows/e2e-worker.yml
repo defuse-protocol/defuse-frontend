@@ -38,7 +38,6 @@ jobs:
   e2e-test:
     runs-on: ubuntu-8-core
     timeout-minutes: 240
-    if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, '@near-intents-wallet') || github.event_name != 'pull_request'
 
     env:
       MM_SEED_PHRASE: ${{ secrets.MM_SEED_PHRASE }}
