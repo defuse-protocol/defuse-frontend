@@ -67,9 +67,9 @@ describe("validationRecipientAddress", () => {
 
     it("should accept valid EVM address", async () => {
       const result = await validationRecipientAddress(
-        "test.near",
-        "near_intents",
         "0x5ff8d1644ec46f23f1e3981831ed2ec3dd40c2ca",
+        "near_intents",
+        "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
         AuthMethod.Near
       )
       expect(result.isOk()).toBe(true)
@@ -121,6 +121,11 @@ describe("validationRecipientAddress", () => {
         AuthMethod.Near
       )
       expect(result.isOk()).toBe(true)
+    })
+    it("should reject invalid Ton address", async () => {
+      const result = await validationRecipientAddress("invalid_ton", "ton")
+      expect(result.isErr()).toBe(true)
+      expect(result.unwrapErr()).toBe("ADDRESS_INVALID")
     })
     it("should reject self Ton address", async () => {
       const userAddress = authIdentity.authHandleToIntentsUserId(

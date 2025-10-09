@@ -50,8 +50,7 @@ export async function validationRecipientAddress(
       }
     }
 
-    // Only validate as NEAR address for Near Intents
-    if (isValidNearAddress) {
+    if (isValidNearAddress || isNearEVMCompatible) {
       return Ok(true)
     }
     return Err("ADDRESS_INVALID")
@@ -90,9 +89,11 @@ export async function validationRecipientAddress(
 
 function isNearEVMAddress(
   address: string,
-  chainName: SupportedChainName
+  chainName: SupportedChainName | "near_intents"
 ): boolean {
-  return chainName === "near" && isAddress(address)
+  return (
+    (chainName === "near" || chainName === "near_intents") && isAddress(address)
+  )
 }
 
 function isSelfWithdrawal(
