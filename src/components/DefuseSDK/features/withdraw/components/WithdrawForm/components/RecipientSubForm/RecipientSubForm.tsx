@@ -39,12 +39,12 @@ import { truncateUserAddress } from "../../utils"
 import { HotBalance } from "../HotBalance/HotBalance"
 import { LongWithdrawWarning } from "../LongWithdrawWarning"
 import {
-  type ValidateAddressSoftErrorType,
   type ValidateNearExplicitAccountErrorType,
+  type ValidateRecipientAddressErrorType,
   isNearAndExplicitAccount,
-  validateAddressSoft,
   validateNearExplicitAccount,
-} from "./validation"
+  validationRecipientAddress,
+} from "./validationRecipientAddress"
 
 type RecipientSubFormProps = {
   form: UseFormReturn<WithdrawFormNearValues>
@@ -253,7 +253,7 @@ export const RecipientSubForm = ({
               {...register("recipient", {
                 validate: {
                   pattern: async (value, formValues) => {
-                    const result = validateAddressSoft(
+                    const result = validationRecipientAddress(
                       value,
                       formValues.blockchain,
                       userAddress ?? "",
@@ -418,7 +418,9 @@ function determineBlockchainControllerHint(
 }
 
 function renderRecipientAddressError(
-  error: ValidateAddressSoftErrorType | ValidateNearExplicitAccountErrorType
+  error:
+    | ValidateRecipientAddressErrorType
+    | ValidateNearExplicitAccountErrorType
 ) {
   switch (error) {
     case "SELF_WITHDRAWAL":

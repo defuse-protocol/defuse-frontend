@@ -9,15 +9,20 @@ import type { SupportedChainName } from "../../../../../../types/base"
 import { validateAddress } from "../../../../../../utils/validateAddress"
 import { isNearIntentsNetwork } from "../../utils"
 
-type ValidateAddressSoftReturnType = boolean
-export type ValidateAddressSoftErrorType = "ADDRESS_INVALID" | "SELF_WITHDRAWAL"
+type ValidateRecipientAddressReturnType = boolean
+export type ValidateRecipientAddressErrorType =
+  | "ADDRESS_INVALID"
+  | "SELF_WITHDRAWAL"
 
-export function validateAddressSoft(
+export function validationRecipientAddress(
   recipientAddress: string,
   chainName: SupportedChainName | "near_intents",
   userAddress?: string,
   chainType?: AuthMethod
-): Result<ValidateAddressSoftReturnType, ValidateAddressSoftErrorType> {
+): Result<
+  ValidateRecipientAddressReturnType,
+  ValidateRecipientAddressErrorType
+> {
   // Special handling for Near Intents network
   if (userAddress && isNearIntentsNetwork(chainName)) {
     if (isSelfWithdrawal(recipientAddress, userAddress, chainType)) {
