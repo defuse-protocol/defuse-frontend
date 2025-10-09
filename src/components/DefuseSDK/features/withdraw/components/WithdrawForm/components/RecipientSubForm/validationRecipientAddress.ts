@@ -13,6 +13,7 @@ type ValidateRecipientAddressReturnType = boolean
 export type ValidateRecipientAddressErrorType =
   | "ADDRESS_INVALID"
   | "SELF_WITHDRAWAL"
+  | ValidateNearExplicitAccountErrorType
 
 export async function validationRecipientAddress(
   recipientAddress: string,
@@ -20,15 +21,37 @@ export async function validationRecipientAddress(
   userAddress?: string,
   chainType?: AuthMethod
 ): Promise<
-  Result<ValidateRecipientAddressReturnType, ValidateRecipientAddressErrorType>
+  Result<
+    ValidateRecipientAddressReturnType,
+    ValidateRecipientAddressErrorType | ValidateNearExplicitAccountErrorType
+  >
 > {
   // Special handling for Near Intents network
   if (userAddress && isNearIntentsNetwork(chainName)) {
     if (isSelfWithdrawal(recipientAddress, userAddress, chainType)) {
       return Err("SELF_WITHDRAWAL")
     }
+
+    const isValidNearAddress = validateAddress(recipientAddress, "near")
+    const isNearEVMCompatible = isNearEVMAddress(
+      recipientAddress,
+      chainName as SupportedChainName
+    )
+    // Validate explicit account for NEAR network
+    if (
+      isValidNearAddress &&
+      !isNearEVMCompatible &&
+      !isImplicitAccount(recipientAddress)
+    ) {
+      const explicitAccountExist =
+        await validateNearExplicitAccount(recipientAddress)
+      if (explicitAccountExist.isErr()) {
+        return Err(explicitAccountExist.unwrapErr())
+      }
+    }
+
     // Only validate as NEAR address for Near Intents
-    if (validateAddress(recipientAddress, "near")) {
+    if (isValidNearAddress) {
       return Ok(true)
     }
     return Err("ADDRESS_INVALID")
@@ -44,6 +67,19 @@ export async function validationRecipientAddress(
       recipientAddress,
       chainName as SupportedChainName
     )
+    // Validate explicit account for NEAR network
+    if (
+      isValidChainAddress &&
+      chainName === "near" &&
+      !isImplicitAccount(recipientAddress) &&
+      !isNearEVMCompatible
+    ) {
+      const explicitAccountExist =
+        await validateNearExplicitAccount(recipientAddress)
+      if (explicitAccountExist.isErr()) {
+        return Err(explicitAccountExist.unwrapErr())
+      }
+    }
     if (isValidChainAddress || isNearEVMCompatible) {
       return Ok(true)
     }

@@ -41,8 +41,6 @@ import { LongWithdrawWarning } from "../LongWithdrawWarning"
 import {
   type ValidateNearExplicitAccountErrorType,
   type ValidateRecipientAddressErrorType,
-  isNearAndExplicitAccount,
-  validateNearExplicitAccount,
   validationRecipientAddress,
 } from "./validationRecipientAddress"
 
@@ -262,22 +260,6 @@ export const RecipientSubForm = ({
                     if (result.isErr()) {
                       return renderRecipientAddressError(result.unwrapErr())
                     }
-
-                    if (
-                      isNearAndExplicitAccount(
-                        formValues.blockchain as SupportedChainName,
-                        value
-                      )
-                    ) {
-                      const explicitAccountExist =
-                        await validateNearExplicitAccount(value)
-                      if (explicitAccountExist.isErr()) {
-                        return renderRecipientAddressError(
-                          explicitAccountExist.unwrapErr()
-                        )
-                      }
-                    }
-
                     return result.unwrap()
                   },
                 },
@@ -430,6 +412,6 @@ function renderRecipientAddressError(
     case "ACCOUNT_DOES_NOT_EXIST":
       return "The account does not exist. Please enter a different recipient address."
     default:
-      return "An unexpected error occurred. Please try again later."
+      return "An unexpected error occurred. Please enter a different recipient address."
   }
 }
