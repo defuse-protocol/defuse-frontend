@@ -112,7 +112,6 @@ export default defineConfig({
 //   return [header, summary, ...fails]
 // }
 
-
 // function getProductFromTag(tagName: string): string {
 //   switch (tagName) {
 //     case tags.NEAR_INTENTS_TAG:
@@ -183,4 +182,3 @@ export default defineConfig({
 //     ...fails,
 //   ]
 // }
-

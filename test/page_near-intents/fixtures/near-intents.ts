@@ -65,7 +65,7 @@ export const test = testWithSynpress(
     }
 
     const loginToNearIntentsAccount = async (accountString: string) => {
-      let messageOnFail = '"Log in with Ethereum" button is not visible'
+      let messageOnFail = '"Sign in" button is not visible'
       await expect(signInButton, messageOnFail).toBeVisible(shortTimeout)
       await signInButton.click()
 

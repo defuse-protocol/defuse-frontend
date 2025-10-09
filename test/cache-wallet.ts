@@ -1,11 +1,12 @@
 import { $ } from "bun"
 
-let synpressResult = await $`bunx synpress`.quiet().nothrow()
+await $`bunx --headless -f`.quiet().nothrow()
+let synpressResult = await $`bunx --headless`.quiet().nothrow()
 
 if (synpressResult.exitCode !== 0) {
   await $`bunx playwright install chromium`
   await $`bunx synpress --headless -f`
-  synpressResult = await $`bunx synpress`.quiet().nothrow()
+  synpressResult = await $`bunx synpress --headless`.quiet().nothrow()
 }
 
 const synpressHash = synpressResult.stdout

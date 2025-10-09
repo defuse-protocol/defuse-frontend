@@ -1,3 +1,3 @@
 export const NEAR_INTENTS_PAGE = {
-  baseURL: "https://near-intents.org",
+  baseURL: process.env.NEXT_PUBLIC_BASE_URL,
 }

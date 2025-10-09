@@ -36,7 +36,8 @@ on:
 
 jobs:
   e2e-test:
-    runs-on: ubuntu-8-core
+    runs-on: ubuntu-latest
+    # runs-on: ubuntu-8-core
     timeout-minutes: 240
 
     env:

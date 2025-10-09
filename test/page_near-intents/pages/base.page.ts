@@ -17,15 +17,15 @@ export class BasePage {
     this.accountTab = page.getByRole("link", { name: "Account" })
   }
 
-  async confirmCorrectPageLoaded(page: Page, url: string) {
+  async confirmCorrectPageLoaded(url: string) {
     const messageOnFail: string = `Loaded page is not ${url}`
     await this.page.waitForLoadState("domcontentloaded")
     await this.page.waitForURL(`${NEAR_INTENTS_PAGE.baseURL}${url}`, midTimeout)
-    await expect(page, messageOnFail).toHaveURL(
+    await expect(this.page, messageOnFail).toHaveURL(
       `${NEAR_INTENTS_PAGE.baseURL}${url}`
     )
 
-    await page.waitForLoadState()
+    await this.page.waitForLoadState()
   }
 
   async clickNearIntentsLogo() {
@@ -35,7 +35,7 @@ export class BasePage {
       "Near-Intents logo not visible"
     ).toBeVisible()
     await this.nearIntentsLogo.click()
-    await this.confirmCorrectPageLoaded(this.page, url)
+    await this.confirmCorrectPageLoaded(url)
   }
 
   async navigateToDepositPage() {
@@ -46,7 +46,7 @@ export class BasePage {
     ).toBeVisible()
 
     await this.depositTab.click()
-    await this.confirmCorrectPageLoaded(this.page, url)
+    await this.confirmCorrectPageLoaded(url)
   }
 
   async navigateToTradePage() {
@@ -54,7 +54,7 @@ export class BasePage {
     await expect(this.tradeTab, "Trade tab button not visible").toBeVisible()
 
     await this.tradeTab.click()
-    await this.confirmCorrectPageLoaded(this.page, url)
+    await this.confirmCorrectPageLoaded(url)
   }
 
   async navigateToAccountPage() {
@@ -65,14 +65,16 @@ export class BasePage {
     ).toBeVisible()
 
     await this.accountTab.click()
-    await this.confirmCorrectPageLoaded(this.page, url)
+    await this.confirmCorrectPageLoaded(url)
   }
 
   async waitForMetamaskAction() {
+    // TODO: Find a better way to wait for metamask action
     await this.page.waitForTimeout(5_000)
   }
 
   async waitForStableElement() {
+    // TODO: Find a better way to wait for stable element
     await this.page.waitForTimeout(1_000)
   }
 }

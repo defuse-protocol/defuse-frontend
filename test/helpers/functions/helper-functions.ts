@@ -1,15 +1,4 @@
 import type { BrowserContext } from "playwright"
-
-export function parseFloatWithRounding(
-  str: string,
-  decimalPlaces: number
-): number {
-  const parsed = Number.parseFloat(str)
-  const factor = 10 ** decimalPlaces // 10^decimalPlaces
-
-  return Math.round(parsed * factor) / factor
-}
-
 export async function waitForMetaMaskPage(
   context: BrowserContext,
   timeout = 10_000
@@ -39,16 +28,4 @@ export async function waitForMetaMaskPage(
   }
 
   throw new Error("Timed out waiting for MetaMask extension page")
-}
-
-export function truncateAddress(addr: string, startChars = 6, endChars = 5) {
-  if (!addr) {
-    return addr
-  }
-
-  if (addr.length <= startChars + endChars) {
-    return addr
-  }
-
-  return `${addr.slice(0, startChars)}…${addr.slice(-endChars)}`
 }
