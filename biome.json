@@ -3,7 +3,7 @@
   "vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
   "files": {
     "ignoreUnknown": false,
-    "include": ["src/**/*", "test/**/*"],
+    "include": ["src/**/*", "test/**/*", "*.ts", "*.js", "*.tsx", "*.jsx"],
     "ignore": ["src/types/database-generated.ts"]
   },
   "formatter": {

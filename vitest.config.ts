@@ -7,6 +7,8 @@ export default defineConfig({
     alias: {
       "@src": "/src",
     },
+    include: ["src/**/*.{test,spec}.{js,ts,jsx,tsx}"],
+    exclude: ["test/**/*", "node_modules/**/*"],
   },
   esbuild: {
     jsx: "automatic", // use react-jsx transform
