@@ -12,14 +12,16 @@ import {
 export function WalletBannedDialog({
   open,
   onCancel,
+  onBypass,
 }: {
   open: boolean
   onCancel: () => void
+  onBypass: () => void
 }) {
   return (
     <AlertDialog.Root open={open}>
       <themes_AlertDialog.Content className="max-w-md p-6 sm:animate-none animate-slide-up">
-        <FailureContent open={open} onCancel={onCancel} />
+        <FailureContent open={open} onCancel={onCancel} onBypass={onBypass} />
       </themes_AlertDialog.Content>
     </AlertDialog.Root>
   )
@@ -28,9 +30,11 @@ export function WalletBannedDialog({
 function FailureContent({
   open: _open,
   onCancel,
+  onBypass,
 }: {
   open: boolean
   onCancel: () => void
+  onBypass: () => void
 }) {
   return (
     <>
@@ -68,7 +72,7 @@ function FailureContent({
         </Callout.Text>
       </Callout.Root>
 
-      <div className="flex flex-col sm:flex-row justify-center gap-3 mt-6">
+      <div className="flex flex-col justify-center gap-3 mt-6">
         <themes_AlertDialog.Cancel>
           <Button
             size="4"
@@ -80,6 +84,11 @@ function FailureContent({
             Disconnect
           </Button>
         </themes_AlertDialog.Cancel>
+        <themes_AlertDialog.Action>
+          <Button size="4" type="button" color="red" onClick={onBypass}>
+            Proceed anyway, I know what I’m doing
+          </Button>
+        </themes_AlertDialog.Action>
       </div>
     </>
   )
