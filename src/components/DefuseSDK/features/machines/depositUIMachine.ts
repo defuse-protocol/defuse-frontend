@@ -37,7 +37,7 @@ import {
 import { depositGenerateAddressMachine } from "./depositGenerateAddressMachine"
 import { type Output as DepositOutput, depositMachine } from "./depositMachine"
 import { depositTokenBalanceMachine } from "./depositTokenBalanceMachine"
-import { poaBridgeInfoActor } from "./poaBridgeInfoActor"
+import { getPOABridgeInfo, poaBridgeInfoActor } from "./poaBridgeInfoActor"
 import {
   type PreparationOutput,
   prepareDepositActor,
@@ -266,8 +266,13 @@ export const depositUIMachine = setup({
     sendToBackground1csQuoterRefNewQuoteInput: sendTo(
       "background1csQuoterRef",
       ({ context }): Background1csQuoterEvents => {
-        const { token, tokenDeployment, derivedToken, depositMode } =
-          context.depositFormRef.getSnapshot().context
+        const {
+          token,
+          tokenDeployment,
+          derivedToken,
+          depositMode,
+          minimal1csAmount,
+        } = context.depositFormRef.getSnapshot().context
         const { blockchain } = context.depositFormRef.getSnapshot().context
         const { userAddress, userChainType } = context
 
@@ -278,19 +283,33 @@ export const depositUIMachine = setup({
           userChainType == null ||
           token == null ||
           blockchain == null ||
-          depositMode === DepositMode.SIMPLE
+          depositMode === DepositMode.SIMPLE ||
+          minimal1csAmount == null
         ) {
           return { type: "PAUSE" }
         }
 
         const baseToken = getBaseTokenInfoWithFallback(token, null)
+
+        // This is a hack around amountIn.amount due to 1cs isn't supported 0 amount right now
+        // and can't proceed minDeposit amount due to some fees
+        // TODO: remove this once 1cs supports 0 amount
+        const bridgeInfoSnapshot = context.poaBridgeInfoRef.getSnapshot()
+        const minAmountsInfo = getPOABridgeInfo(
+          bridgeInfoSnapshot,
+          derivedToken.defuseAssetId
+        )
+        const amountIn = minAmountsInfo?.minDeposit
+          ? minAmountsInfo?.minDeposit + minimal1csAmount
+          : minimal1csAmount
+
         return {
           type: "NEW_QUOTE_INPUT",
           params: {
             tokenIn: derivedToken,
             tokenOut: baseToken,
             amountIn: {
-              amount: 70830n, // TODO: 1cs aren't support yet, so 0n will not fail a quote, so we need to set minimal deposit amount here
+              amount: amountIn,
               decimals: derivedToken.decimals,
             },
             slippageBasisPoints: 1,

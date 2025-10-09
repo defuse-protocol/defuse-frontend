@@ -8,6 +8,7 @@ import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { parseUnits } from "@src/components/DefuseSDK/utils/parse"
 import { LIST_TOKENS_FLATTEN, tokenFamilies } from "@src/constants/tokens"
 import { type ActorRef, type Snapshot, fromTransition } from "xstate"
+import type { TokenUsdPriceData } from "../../hooks/useTokensUsdPrices"
 import type {
   BaseTokenInfo,
   SupportedChainName,
@@ -15,6 +16,7 @@ import type {
 } from "../../types/base"
 import type { TokenInfo } from "../../types/base"
 import { isBaseToken } from "../../utils"
+import { getMinimalOneClickSwapTokenAmount } from "../../utils/getMinimalOneClickSwapTokenAmount"
 
 export type Fields = Array<Exclude<keyof State, "parentRef">>
 const fields: Fields = ["token", "blockchain", "parsedAmount", "amount"]
@@ -37,6 +39,7 @@ export type Events =
       params: {
         network: BlockchainEnum | null
         is1cs: boolean
+        tokensUsdPriceData: TokenUsdPriceData
       }
     }
   | {
@@ -64,6 +67,7 @@ export type State = {
   parsedAmount: bigint | null
   amount: string
   depositMode: DepositMode
+  minimal1csAmount: bigint | null
 }
 
 export const depositFormReducer = fromTransition(
@@ -107,6 +111,11 @@ export const depositFormReducer = fromTransition(
         const tokenIn = derivedToken
         const tokenOut = getBaseTokenInfoWithFallback(state.token, null)
 
+        // biome-ignore lint/suspicious/noConsole: <explanation>
+        console.log("tokenIn", tokenIn)
+        // biome-ignore lint/suspicious/noConsole: <explanation>
+        console.log("tokenOut", tokenOut)
+
         // Note: 1cs swap doesn't support same-token swaps
         const sameToken = tokenIn.defuseAssetId === tokenOut.defuseAssetId
 
@@ -123,6 +132,12 @@ export const depositFormReducer = fromTransition(
             event.params.is1cs && !sameToken // TODO: remove this check once 1cs supports same-token swaps
               ? DepositMode.ONE_CLICK
               : DepositMode.SIMPLE,
+          minimal1csAmount: event.params.is1cs
+            ? getMinimalOneClickSwapTokenAmount(
+                state.token,
+                event.params.tokensUsdPriceData
+              )
+            : null,
         }
         break
       }
@@ -194,6 +209,7 @@ export const depositFormReducer = fromTransition(
       parsedAmount: null,
       amount: "",
       depositMode: DepositMode.SIMPLE,
+      minimal1csAmount: null,
     }
   }
 )

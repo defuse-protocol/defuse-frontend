@@ -140,7 +140,7 @@ export function PassiveDeposit({
                   href={explorerUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center box-border size-8 p-0 rounded-md bg-accent-9 text-accent-contrast hover:bg-accent-10 transition-colors"
+                  className="inline-flex items-center justify-center box-border size-8 p-0 rounded-md bg-accent-9 text-white hover:bg-accent-10 transition-colors"
                 >
                   <ArrowSquareOutIcon size={16} weight="bold" />
                 </Link>
