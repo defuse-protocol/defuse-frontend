@@ -39,7 +39,6 @@ import { truncateUserAddress } from "../../utils"
 import { HotBalance } from "../HotBalance/HotBalance"
 import { LongWithdrawWarning } from "../LongWithdrawWarning"
 import {
-  type ValidateNearExplicitAccountErrorType,
   type ValidateRecipientAddressErrorType,
   validationRecipientAddress,
 } from "./validationRecipientAddress"
@@ -399,11 +398,7 @@ function determineBlockchainControllerHint(
   return "Network"
 }
 
-function renderRecipientAddressError(
-  error:
-    | ValidateRecipientAddressErrorType
-    | ValidateNearExplicitAccountErrorType
-) {
+function renderRecipientAddressError(error: ValidateRecipientAddressErrorType) {
   switch (error) {
     case "SELF_WITHDRAWAL":
       return "You cannot withdraw to your own address. Please enter a different recipient address."

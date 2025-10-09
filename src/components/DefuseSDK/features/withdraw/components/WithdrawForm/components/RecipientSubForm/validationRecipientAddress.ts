@@ -9,7 +9,6 @@ import type { SupportedChainName } from "../../../../../../types/base"
 import { validateAddress } from "../../../../../../utils/validateAddress"
 import { isNearIntentsNetwork } from "../../utils"
 
-type ValidateRecipientAddressReturnType = boolean
 export type ValidateRecipientAddressErrorType =
   | "ADDRESS_INVALID"
   | "SELF_WITHDRAWAL"
@@ -20,12 +19,7 @@ export async function validationRecipientAddress(
   chainName: SupportedChainName | "near_intents",
   userAddress?: string,
   chainType?: AuthMethod
-): Promise<
-  Result<
-    ValidateRecipientAddressReturnType,
-    ValidateRecipientAddressErrorType | ValidateNearExplicitAccountErrorType
-  >
-> {
+): Promise<Result<boolean, ValidateRecipientAddressErrorType>> {
   // Special handling for Near Intents network
   if (userAddress && isNearIntentsNetwork(chainName)) {
     if (isSelfWithdrawal(recipientAddress, userAddress, chainType)) {
@@ -44,7 +38,7 @@ export async function validationRecipientAddress(
       !isImplicitAccount(recipientAddress)
     ) {
       const explicitAccountExist =
-        await validateNearExplicitAccount(recipientAddress)
+        await validateAndCacheNearExplicitAccount(recipientAddress)
       if (explicitAccountExist.isErr()) {
         return Err(explicitAccountExist.unwrapErr())
       }
@@ -74,7 +68,7 @@ export async function validationRecipientAddress(
       !isNearEVMCompatible
     ) {
       const explicitAccountExist =
-        await validateNearExplicitAccount(recipientAddress)
+        await validateAndCacheNearExplicitAccount(recipientAddress)
       if (explicitAccountExist.isErr()) {
         return Err(explicitAccountExist.unwrapErr())
       }
@@ -117,7 +111,7 @@ function isSelfWithdrawal(
   return false
 }
 
-export type ValidateNearExplicitAccountErrorType =
+type ValidateNearExplicitAccountErrorType =
   | "ACCOUNT_DOES_NOT_EXIST"
   | "UNHANDLED_ERROR"
 
@@ -140,7 +134,7 @@ function cleanupExpiredCache() {
   }
 }
 
-export async function validateNearExplicitAccount(
+async function validateAndCacheNearExplicitAccount(
   recipient: string
 ): Promise<Result<boolean, ValidateNearExplicitAccountErrorType>> {
   const now = Date.now()
@@ -156,6 +150,14 @@ export async function validateNearExplicitAccount(
     return cached.result
   }
 
+  const result = await checkNearAccountExists(recipient)
+  validationCache.set(cacheKey, { result, timestamp: now })
+  return result
+}
+
+async function checkNearAccountExists(
+  recipient: string
+): Promise<Result<boolean, ValidateNearExplicitAccountErrorType>> {
   try {
     const response = await nearClient.query({
       request_type: "view_access_key_list",
@@ -163,32 +165,12 @@ export async function validateNearExplicitAccount(
       finality: "final",
     })
     const parsed = v.parse(v.object({ keys: v.array(v.any()) }), response)
-
-    // Exist account should have at least one access key
     if (!parsed.keys.length) {
-      const result = Err<boolean, ValidateNearExplicitAccountErrorType>(
-        "ACCOUNT_DOES_NOT_EXIST"
-      )
-      validationCache.set(cacheKey, { result, timestamp: now })
-      return result
+      return Err("ACCOUNT_DOES_NOT_EXIST")
     }
-
-    const result = Ok(true)
-    validationCache.set(cacheKey, { result, timestamp: now })
-    return result
+    return Ok(true)
   } catch (error) {
     logger.warn("Failed to view NEAR account", { cause: error })
-    const result = Err<boolean, ValidateNearExplicitAccountErrorType>(
-      "UNHANDLED_ERROR"
-    )
-    validationCache.set(cacheKey, { result, timestamp: now })
-    return result
+    return Err("UNHANDLED_ERROR")
   }
-}
-
-export function isNearAndExplicitAccount(
-  blockChain: SupportedChainName,
-  accountId: string
-) {
-  return blockChain === "near" && !isImplicitAccount(accountId)
 }
