@@ -1,0 +1,95 @@
+name: E2E UI automation tests worker
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_call:
+    inputs:
+      tag:
+        description: "Provide tag to run tests by"
+        required: true
+        type: string
+      manual_trigger:
+        required: false
+        type: boolean
+        default: true
+    secrets:
+      MM_SEED_PHRASE:
+        required: true
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Provide tag to run tests by"
+        required: true
+        type: choice
+        options:
+          - "@near-intents-wallet"
+          - "@near-intents-wallet-swapping"
+          - "@near-intents-wallet-otc"
+          - "@near-intents-wallet-deposit"
+          - "@near-intents-wallet-withdraw"
+      manual_trigger:
+        description: "Set to true to manually trigger the workflow"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  e2e-test:
+    runs-on: ubuntu-8-core
+    timeout-minutes: 240
+    if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, '@near-intents-wallet') || github.event_name != 'pull_request'
+
+    env:
+      MM_SEED_PHRASE: ${{ secrets.MM_SEED_PHRASE }}
+      # SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      RUN_TAG: ${{ inputs.tag || '@near-intents-wallet' }}
+      MANUAL_TRIGGER: ${{ inputs.manual_trigger }}
+      EXTENSION_LOAD_TIMEOUT: 60000
+      CHROME_ARGS: "--no-sandbox --disable-dev-shm-usage"
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/Jod
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install linux deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+          fluxbox \
+          xvfb
+
+      - name: Run xvfb and fluxbox
+        run: |
+          Xvfb :0 -screen 0 2560x1440x24 -listen tcp -ac &
+          fluxbox -display :0.0 &
+        env:
+          DISPLAY: :0.0
+
+      - name: Install Bun dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Install Playwright
+        run: bunx playwright install
+
+      - name: Create Synpress cache
+        run: |
+          xvfb-run bun cache-e2e-wallet
+
+      - name: Run tests
+        run: |
+          xvfb-run bun test-e2e-tag ${{ inputs.tag || '@near-intents-wallet' }}
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ inputs.tag || '@near-intents-wallet' }}
+          path: my-report/
+          retention-days: 5

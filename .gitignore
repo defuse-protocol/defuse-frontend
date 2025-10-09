@@ -50,3 +50,7 @@ next-env.d.ts
 
 # Vi
 *.swp
+
+.cache-synpress
+playwright-report
+test-results
