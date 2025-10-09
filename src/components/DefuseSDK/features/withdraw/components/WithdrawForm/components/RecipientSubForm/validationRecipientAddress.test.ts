@@ -1,8 +1,18 @@
 import { AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
-import { describe, expect, it } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 import { validationRecipientAddress } from "./validationRecipientAddress"
 
+vi.mock("@src/components/DefuseSDK/constants/nearClient", () => ({
+  nearClient: {
+    query: vi.fn().mockResolvedValue({ keys: [{ public_key: "test-key" }] }),
+  },
+}))
+
 describe("validationRecipientAddress", () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   describe("Near Intents network", () => {
     it("should accept valid NEAR address", async () => {
       const result = await validationRecipientAddress(
@@ -160,22 +170,25 @@ describe("validationRecipientAddress", () => {
       expect(result.isOk()).toBe(true)
     })
 
-    it("should accept any EVM address for NEAR network", async () => {
-      const result = await validationRecipientAddress(
-        authIdentity.authHandleToIntentsUserId(
-          "0x32Be343B94f860124dC4fEe278FDCBD38C102D88",
-          AuthMethod.Near
-        ),
-        "near"
+    it("should reject non-existent explicit NEAR address", async () => {
+      const { nearClient } = await import(
+        "@src/components/DefuseSDK/constants/nearClient"
       )
-      expect(result.isOk()).toBe(true)
+      const mockQuery = vi.mocked(nearClient.query)
+      // @ts-expect-error - keys is not a valid property of query response but it ok for the test
+      mockQuery.mockResolvedValueOnce({ keys: [] }) // Empty keys means account doesn't exist
+
+      const result = await validationRecipientAddress("no-exists.near", "near")
+
+      expect(result.isErr()).toBe(true)
+      expect(result.unwrapErr()).toBe("ACCOUNT_DOES_NOT_EXIST")
     })
   })
 
   describe("EVM networks", () => {
     it("should accept valid EVM address for eth", async () => {
       const result = await validationRecipientAddress(
-        "0x32Be343B94f860124dC4fEe278FDCBD38C102D88",
+        "0xAb5801a7D398351b8bE11C439e05C5B3259aec9B",
         "eth"
       )
       expect(result.isOk()).toBe(true)

@@ -20,7 +20,7 @@ export async function validationRecipientAddress(
   userAddress?: string,
   chainType?: AuthMethod
 ): Promise<Result<boolean, ValidateRecipientAddressErrorType>> {
-  // Special handling for Near Intents network
+  // Case 1.: Near Intents network
   if (userAddress && isNearIntentsNetwork(chainName)) {
     if (isSelfWithdrawal(recipientAddress, userAddress, chainType)) {
       return Err("SELF_WITHDRAWAL")
@@ -50,7 +50,7 @@ export async function validationRecipientAddress(
     return Err("ADDRESS_INVALID")
   }
 
-  // For other networks, validate using the chain's rules
+  // Case 2.: Other networks
   if (!isNearIntentsNetwork(chainName)) {
     const isValidChainAddress = validateAddress(
       recipientAddress,
