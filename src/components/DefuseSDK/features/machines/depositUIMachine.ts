@@ -312,7 +312,7 @@ export const depositUIMachine = setup({
               amount: amountIn,
               decimals: derivedToken.decimals,
             },
-            slippageBasisPoints: 1,
+            slippageBasisPoints: 10000,
             defuseUserId: authIdentity.authHandleToIntentsUserId(
               userAddress,
               userChainType
@@ -323,7 +323,7 @@ export const depositUIMachine = setup({
             dry: false,
             depositType: QuoteRequest.depositType.ORIGIN_CHAIN,
             swapType: QuoteRequest.swapType.FLEX_INPUT,
-            quoteWaitingTimeMs: 3000,
+            quoteWaitingTimeMs: 0,
             depositMode: isNetworkRequiresMemo(blockchain)
               ? QuoteRequest.depositMode.MEMO
               : QuoteRequest.depositMode.SIMPLE,
