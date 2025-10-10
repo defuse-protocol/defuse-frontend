@@ -1,8 +1,6 @@
 name: E2E UI automation tests worker
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
   repository_dispatch:
     types: [vercel_deployment]
   workflow_call:
@@ -49,7 +47,7 @@ on:
 jobs:
   e2e-test:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+    if: ${{ github.event_name == 'repository_dispatch' || github.event_name == 'workflow_call' || github.event_name == 'workflow_dispatch' }}
     # runs-on: ubuntu-8-core
     timeout-minutes: 240
 
