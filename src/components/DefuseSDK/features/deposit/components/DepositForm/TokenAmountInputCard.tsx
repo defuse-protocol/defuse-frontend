@@ -68,7 +68,10 @@ TokenAmountInputCard.Input = forwardRef<
       pattern="[0-9]*[.]?[0-9]*"
       autoComplete="off"
       placeholder="0"
-      className="w-full border-0 bg-transparent p-0 font-medium text-3xl text-label focus:ring-0 outline-none"
+      className={cn(
+        "w-full border-0 bg-transparent p-0 font-medium text-3xl text-label focus:ring-0 outline-none",
+        props.disabled && "opacity-50"
+      )}
       {...props}
     />
   )
