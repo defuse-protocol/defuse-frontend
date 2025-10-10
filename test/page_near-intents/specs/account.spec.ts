@@ -5,6 +5,7 @@ import {
   NEAR_INTENTS_TAG_DEPOSIT,
   NEAR_INTENTS_TAG_WITHDRAW,
 } from "../../helpers/constants/tags"
+import { waitForMetaMaskPageClosed } from "../../helpers/functions/helper-functions"
 import nearWeb3ProdSetup from "../../wallet-setup/near-web3-prod.setup"
 import { test } from "../fixtures/near-intents"
 import { AccountPage } from "../pages/account.page"
@@ -32,8 +33,8 @@ test.describe(
       const homePage = new HomePage(page)
       const depositPage = new DepositPage(page)
       await homePage.navigateToDepositPage()
-      await depositPage.selectAssetToken("Aurora")
-      await depositPage.selectAssetNetwork("Aurora")
+      await depositPage.selectAssetToken("Turbo")
+      await depositPage.selectAssetNetwork("TurboChain")
       await depositPage.enterDepositValue(1000000)
       await depositPage.confirmInsufficientBalance()
     })
@@ -52,8 +53,8 @@ test.describe(
         extensionId
       )
       await homePage.navigateToDepositPage()
-      await depositPage.selectAssetToken("Aurora")
-      await depositPage.selectAssetNetwork("Aurora")
+      await depositPage.selectAssetToken("Turbo")
+      await depositPage.selectAssetNetwork("TurboChain")
       await depositPage.enterDepositValue(0.001)
       await depositPage.clickDeposit()
       await metamask.approveNewNetwork()
@@ -73,8 +74,8 @@ test.describe(
         extensionId
       )
       await homePage.navigateToDepositPage()
-      await depositPage.selectAssetToken("Aurora")
-      await depositPage.selectAssetNetwork("Aurora")
+      await depositPage.selectAssetToken("Turbo")
+      await depositPage.selectAssetNetwork("TurboChain")
       await depositPage.enterDepositValue(0.001)
       await depositPage.waitForStableElement()
       await depositPage.clickDeposit()
@@ -82,13 +83,7 @@ test.describe(
       await metamask.approveSwitchNetwork()
       await depositPage.waitForMetamaskAction()
       await metamask.confirmTransaction()
-
-      if (!(await depositPage.isTransactionProcessing())) {
-        await metamask.confirmTransaction()
-        await depositPage.waitForMetamaskAction()
-        await metamask.confirmTransaction()
-      }
-
+      await waitForMetaMaskPageClosed(context)
       await depositPage.confirmTransactionCompleted()
     })
   }
@@ -100,26 +95,20 @@ test.describe(
   () => {
     test("Confirm that user cannot withdraw more than allowed", async ({
       page,
-      context,
-      extensionId,
+      nearIntentsPreconditions,
     }) => {
       const homePage = new HomePage(page)
       const accountsPage = new AccountPage(page)
       await homePage.navigateToAccountPage()
       await accountsPage.confirmAccountPageLoaded()
       await accountsPage.pressAccountsBtn()
-      await accountsPage.selectWithdrawToken("Aurora")
+      await accountsPage.selectWithdrawToken("Turbo")
       await accountsPage.enterAmount(10000)
-      await accountsPage.selectTargetNetwork("Near")
+      await accountsPage.selectTargetNetwork("TurboChain")
 
-      const metamask = new MetaMask(
-        context,
-        page,
-        nearWeb3ProdSetup.walletPassword,
-        extensionId
+      await accountsPage.enterTargetAccount(
+        await nearIntentsPreconditions.getAccountAddress()
       )
-
-      await accountsPage.enterTargetAccount(await metamask.getAccountAddress())
       await accountsPage.confirmWithdrawal()
       await accountsPage.confirmWithdrawInsufficientBalance()
     })
@@ -128,6 +117,7 @@ test.describe(
       page,
       context,
       extensionId,
+      nearIntentsPreconditions,
     }) => {
       const homePage = new HomePage(page)
       const accountsPage = new AccountPage(page)
@@ -140,10 +130,12 @@ test.describe(
       await homePage.navigateToAccountPage()
       await accountsPage.confirmAccountPageLoaded()
       await accountsPage.pressAccountsBtn()
-      await accountsPage.selectWithdrawToken("Aurora")
+      await accountsPage.selectWithdrawToken("Turbo")
       await accountsPage.enterAmount(0.0001)
-      await accountsPage.selectTargetNetwork("Aurora")
-      await accountsPage.enterTargetAccount(await metamask.getAccountAddress())
+      await accountsPage.selectTargetNetwork("TurboChain")
+      await accountsPage.enterTargetAccount(
+        await nearIntentsPreconditions.getAccountAddress()
+      )
       await accountsPage.confirmWithdrawal()
 
       await metamask.rejectSignature()
@@ -154,6 +146,7 @@ test.describe(
       page,
       context,
       extensionId,
+      nearIntentsPreconditions,
     }) => {
       const homePage = new HomePage(page)
       const accountsPage = new AccountPage(page)
@@ -166,10 +159,12 @@ test.describe(
       await homePage.navigateToAccountPage()
       await accountsPage.confirmAccountPageLoaded()
       await accountsPage.pressAccountsBtn()
-      await accountsPage.selectWithdrawToken("Aurora")
+      await accountsPage.selectWithdrawToken("Turbo")
       await accountsPage.enterAmount(0.0001)
-      await accountsPage.selectTargetNetwork("Aurora")
-      await accountsPage.enterTargetAccount(await metamask.getAccountAddress())
+      await accountsPage.selectTargetNetwork("TurboChain")
+      await accountsPage.enterTargetAccount(
+        await nearIntentsPreconditions.getAccountAddress()
+      )
       await accountsPage.confirmWithdrawal()
 
       await metamask.confirmSignature()

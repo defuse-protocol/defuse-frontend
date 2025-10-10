@@ -33,7 +33,7 @@ test.describe(
 
       await homePage.navigateToTradePage()
       await tradePage.switchToSwap()
-      await tradePage.selectFromToken("Aurora")
+      await tradePage.selectFromToken("Turbo")
       await tradePage.selectToToken("Near")
       await tradePage.enterFromAmount(amount)
       await tradePage.confirmInsufficientBalance()
@@ -54,9 +54,9 @@ test.describe(
       )
       await homePage.navigateToTradePage()
       await tradePage.switchToSwap()
-      await tradePage.selectFromToken("Aurora")
+      await tradePage.selectFromToken("Turbo")
       await tradePage.selectToToken("Near")
-      await tradePage.enterFromAmount(0.0001)
+      await tradePage.enterFromAmount(0.001)
       await tradePage.waitForSwapCalculationToComplete()
       await tradePage.pressSwapButton()
       await metamask.rejectSignature()
@@ -75,9 +75,9 @@ test.describe(
 
       await homePage.navigateToTradePage()
       await tradePage.switchToSwap()
-      await tradePage.selectFromToken("Aurora")
+      await tradePage.selectFromToken("Turbo")
       await tradePage.selectToToken("Near")
-      await tradePage.enterFromAmount(0.0001)
+      await tradePage.enterFromAmount(0.001)
       await tradePage.waitForSwapCalculationToComplete()
       await tradePage.pressSwapButton()
       await metamask.confirmSignature()
@@ -107,10 +107,10 @@ test.describe(
       await homePage.navigateToTradePage()
       await tradePage.switchToOTC()
       await tradePage.waitForStableElement()
-      await tradePage.selectSellToken("Aurora")
+      await tradePage.selectSellToken("Turbo")
       await tradePage.selectBuyToken("Near")
-      await tradePage.enterFromAmount(0.0001)
-      await tradePage.enterToAmount(0.0001)
+      await tradePage.enterFromAmount(0.001)
+      await tradePage.enterToAmount(0.001)
       await tradePage.pressCreateSwapLink()
       await metamask.rejectSignature()
       await tradePage.confirmOTCRejectedSignature()
@@ -133,7 +133,7 @@ test.describe(
       await homePage.navigateToTradePage()
       await tradePage.switchToOTC()
       await tradePage.waitForStableElement()
-      await tradePage.selectSellToken("Aurora")
+      await tradePage.selectSellToken("Turbo")
       await tradePage.selectBuyToken("Near")
       await tradePage.enterFromAmount(10000)
       await tradePage.enterToAmount(10000)
@@ -163,19 +163,19 @@ test.describe(
       await homePage.navigateToTradePage()
       await tradePage.switchToOTC()
       await tradePage.waitForStableElement()
-      await tradePage.selectSellToken("Aurora")
+      await tradePage.selectSellToken("Turbo")
       await tradePage.selectBuyToken("Near")
-      await tradePage.enterFromAmount(0.0001)
-      await tradePage.enterToAmount(0.0001)
+      await tradePage.enterFromAmount(0.001)
+      await tradePage.enterToAmount(0.001)
       await tradePage.pressCreateSwapLink()
 
       await metamask.confirmSignature()
       await tradePage.confirmOrderWindowIsOpen()
       await tradePage.closeOrderWindow()
       await tradePage.confirmOTCCreated({
-        sellAmount: 0.0001,
-        sellToken: "Aurora",
-        buyAmount: 0.0001,
+        sellAmount: 0.001,
+        sellToken: "Turbo",
+        buyAmount: 0.001,
         buyToken: "Near",
       })
 
@@ -202,10 +202,10 @@ test.describe(
       await homePage.navigateToTradePage()
       await tradePage.switchToOTC()
       await tradePage.waitForStableElement()
-      await tradePage.selectSellToken("Aurora")
+      await tradePage.selectSellToken("Turbo")
       await tradePage.selectBuyToken("Near")
-      await tradePage.enterFromAmount(0.0001)
-      await tradePage.enterToAmount(0.0001)
+      await tradePage.enterFromAmount(0.001)
+      await tradePage.enterToAmount(0.001)
       await tradePage.pressCreateSwapLink()
 
       await metamask.confirmSignature()
@@ -214,9 +214,9 @@ test.describe(
 
       await tradePage.closeOrderWindow()
       await tradePage.confirmOTCCreated({
-        sellAmount: 0.0001,
-        sellToken: "Aurora",
-        buyAmount: 0.0001,
+        sellAmount: 0.001,
+        sellToken: "Turbo",
+        buyAmount: 0.001,
         buyToken: "Near",
       })
     })

@@ -8,7 +8,6 @@ import {
 import { BasePage } from "./base.page"
 
 export class TradePage extends BasePage {
-  page: Page
   swapTabBtn: Locator
   otcTabBtn: Locator
   swapBtn: Locator
@@ -32,17 +31,16 @@ export class TradePage extends BasePage {
 
   constructor(page: Page) {
     super(page)
-    this.page = page
     this.swapTabBtn = page.getByRole("link", { name: "Swap" })
     this.otcTabBtn = page.getByRole("link", { name: "OTC" })
     this.swapBtn = page.getByRole("button", { name: "Swap" })
     this.otcSwapLinkBtn = page.getByRole("button", { name: "Create swap link" })
     this.selectInputTokenSelectionDropdown = page
-      .locator('button[data-sentry-component="SelectAssets"]')
+      .getByTestId("select-assets")
       .first()
 
     this.selectOutputTokenSelectionDropdown = page
-      .locator('button[data-sentry-component="SelectAssets"]')
+      .getByTestId("select-assets")
       .last()
 
     this.selectTokenSearchBar = page.getByPlaceholder("Search coin")
@@ -50,11 +48,9 @@ export class TradePage extends BasePage {
     this.swapOutputField = page.locator('input[name="amountOut"]')
     this.transactionCompleted = page.getByText("Success")
     this.otcSellTokenSelectionDropdown = page
-      .locator('button[data-sentry-component="SelectAssets"]')
+      .getByTestId("select-assets")
       .first()
-    this.otcBuyTokenSelectionDropdown = page
-      .locator('button[data-sentry-component="SelectAssets"]')
-      .last()
+    this.otcBuyTokenSelectionDropdown = page.getByTestId("select-assets").last()
 
     this.insufficientBalanceBtn = page.getByRole("button", {
       name: "Insufficient Balance",
@@ -64,9 +60,7 @@ export class TradePage extends BasePage {
       "It seems the message wasn’t signed in your wallet. Please try again"
     )
 
-    this.rejectedOTCSignatureMessage = page.locator(
-      'div[data-sentry-component="ErrorReason"]'
-    )
+    this.rejectedOTCSignatureMessage = page.getByTestId("error-reason")
     this.otcCannotBeFilledField = page.getByText(
       "The order cannot be filled. Your balance is incorrect. Please cancel the order"
     )
@@ -107,11 +101,12 @@ export class TradePage extends BasePage {
     await this.otcSwapLinkBtn.click()
   }
 
-  async selectFromToken(searchToken: string | null) {
-    await expect(this.selectInputTokenSelectionDropdown).toBeVisible(
-      shortTimeout
-    )
-    await this.selectInputTokenSelectionDropdown.click()
+  private async selectToken(
+    dropdownLocator: Locator,
+    searchToken: string | null
+  ) {
+    await expect(dropdownLocator).toBeVisible(shortTimeout)
+    await dropdownLocator.click()
 
     if (searchToken) {
       await expect(this.selectTokenSearchBar).toBeVisible(shortTimeout)
@@ -125,7 +120,7 @@ export class TradePage extends BasePage {
       await targetToken.click()
     } else {
       const allVisibleTokens = this.page
-        .locator('div[data-sentry-component="AssetList"]')
+        .getByTestId("asset-list")
         .first()
         .getByRole("button")
         .first()
@@ -134,31 +129,12 @@ export class TradePage extends BasePage {
     }
   }
 
-  async selectToToken(searchToken: string | null) {
-    await expect(this.selectOutputTokenSelectionDropdown).toBeVisible(
-      shortTimeout
-    )
-    await this.selectOutputTokenSelectionDropdown.click()
+  async selectFromToken(searchToken: string | null) {
+    await this.selectToken(this.selectInputTokenSelectionDropdown, searchToken)
+  }
 
-    if (searchToken) {
-      await expect(this.selectTokenSearchBar).toBeVisible(shortTimeout)
-      await this.selectTokenSearchBar.fill(searchToken)
-      const targetToken = this.page
-        .getByRole("button", {
-          name: searchToken,
-        })
-        .first()
-      await expect(targetToken).toBeVisible(shortTimeout)
-      await targetToken.click()
-    } else {
-      const allVisibleTokens = this.page
-        .locator('div[data-sentry-component="AssetList"]')
-        .first()
-        .getByRole("button")
-        .first()
-      await expect(allVisibleTokens).toBeVisible(midTimeout)
-      await allVisibleTokens.click()
-    }
+  async selectToToken(searchToken: string | null) {
+    await this.selectToken(this.selectOutputTokenSelectionDropdown, searchToken)
   }
 
   async enterFromAmount(amount: number) {
@@ -176,57 +152,15 @@ export class TradePage extends BasePage {
   }
 
   async waitForSwapCalculationToComplete() {
-    await expect(this.swapOutputField).toHaveValue(/[0-9]/, longTimeout)
+    await expect(this.swapOutputField).toHaveValue(/^\d+(\.\d+)?$/, longTimeout)
   }
 
   async selectSellToken(token: string | null) {
-    await expect(this.otcSellTokenSelectionDropdown).toBeVisible(shortTimeout)
-    await this.otcSellTokenSelectionDropdown.click()
-
-    if (token) {
-      await expect(this.selectTokenSearchBar).toBeVisible(shortTimeout)
-      await this.selectTokenSearchBar.fill(token)
-      const targetToken = this.page
-        .getByRole("button", {
-          name: token,
-        })
-        .first()
-      await expect(targetToken).toBeVisible(shortTimeout)
-      await targetToken.click()
-    } else {
-      const allVisibleTokens = this.page
-        .locator('div[data-sentry-component="AssetList"]')
-        .first()
-        .getByRole("button")
-        .first()
-      await expect(allVisibleTokens).toBeVisible(midTimeout)
-      await allVisibleTokens.click()
-    }
+    await this.selectToken(this.otcSellTokenSelectionDropdown, token)
   }
 
   async selectBuyToken(token: string | null) {
-    await expect(this.otcBuyTokenSelectionDropdown).toBeVisible(shortTimeout)
-    await this.otcBuyTokenSelectionDropdown.click()
-
-    if (token) {
-      await expect(this.selectTokenSearchBar).toBeVisible(shortTimeout)
-      await this.selectTokenSearchBar.fill(token)
-      const targetToken = this.page
-        .getByRole("button", {
-          name: token,
-        })
-        .first()
-      await expect(targetToken).toBeVisible(shortTimeout)
-      await targetToken.click()
-    } else {
-      const allVisibleTokens = this.page
-        .locator('div[data-sentry-component="AssetList"]')
-        .first()
-        .getByRole("button")
-        .first()
-      await expect(allVisibleTokens).toBeVisible(midTimeout)
-      await allVisibleTokens.click()
-    }
+    await this.selectToken(this.otcBuyTokenSelectionDropdown, token)
   }
 
   async confirmOrderWindowIsOpen() {
@@ -239,17 +173,17 @@ export class TradePage extends BasePage {
     await expect(this.copyLinkBtn).toBeVisible(longTimeout)
     await this.copyLinkBtn.click()
     // Get clipboard content after the link/button has been clicked
-    const handle = await this.page.evaluateHandle(() =>
+    const clipboardContent = await this.page.evaluate(() =>
       navigator.clipboard.readText()
     )
-    const clipboardContent = await handle.jsonValue()
 
-    const pattern = /^https:\/\/near-intents\.org\/otc\/order#[A-Za-z0-9-_]+$/
-
-    expect(clipboardContent).toMatch(pattern)
+    expect(clipboardContent).toContain(
+      `${NEAR_INTENTS_PAGE.baseURL}/otc/order#`
+    )
   }
 
   async closeOrderWindow() {
+    // TODO: use better, more specific selector then .first()
     const closeBtn = this.page.getByRole("button").first()
     await expect(closeBtn).toBeVisible(midTimeout)
     await closeBtn.click()
@@ -262,9 +196,7 @@ export class TradePage extends BasePage {
     buyToken: string
   }) {
     const { sellAmount, sellToken, buyAmount, buyToken } = options
-    const loc = this.page
-      .locator('div[data-sentry-component="OtcMakerTradeItem"]')
-      .first()
+    const loc = this.page.getByTestId("otc-maker-trade-item").first()
 
     const type = loc.locator("div.flex-col").locator("div").first()
     const swapDetails = loc.locator("div.flex-col").locator("div").last()
@@ -305,9 +237,7 @@ export class TradePage extends BasePage {
   }
 
   async removeCreatedOTCOffer() {
-    const offerElem = this.page
-      .locator('div[data-sentry-component="OtcMakerTradeItem"]')
-      .first()
+    const offerElem = this.page.getByTestId("otc-maker-trade-item").first()
     await expect(offerElem).toBeVisible(midTimeout)
 
     const deleteBtn = offerElem.locator('button[data-accent-color="red"]')
@@ -319,9 +249,7 @@ export class TradePage extends BasePage {
   }
 
   async confirmOTCCancelled() {
-    const offerElem = this.page.locator(
-      'div[data-sentry-component="OtcMakerTradeItem"]'
-    )
+    const offerElem = this.page.getByTestId("otc-maker-trade-item")
     await expect(offerElem).not.toBeVisible(shortTimeout)
   }
 }

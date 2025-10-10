@@ -8,7 +8,6 @@ import {
 import { BasePage } from "./base.page"
 
 export class AccountPage extends BasePage {
-  page: Page
   withdrawBtn: Locator
   selectTokenSelectionDropdown: Locator
   selectTokenSearchBar: Locator
@@ -22,18 +21,13 @@ export class AccountPage extends BasePage {
 
   constructor(page: Page) {
     super(page)
-    this.page = page
     this.withdrawBtn = page.getByLabel("Withdraw")
-    this.selectTokenSelectionDropdown = page.locator(
-      'button[data-sentry-component="SelectAssets"]'
-    )
+    this.selectTokenSelectionDropdown = page.getByTestId("select-assets")
     this.selectTokenSearchBar = page.getByPlaceholder("Search")
     this.withdrawAmountField = page.getByPlaceholder("0")
-    this.withdrawTargetNetwork = page.locator(
-      'button[data-sentry-component="SelectTriggerLike"]'
-    )
-    this.withdrawTargetAccountField = page.getByPlaceholder(
-      "Enter wallet address"
+    this.withdrawTargetNetwork = page.getByTestId("select-trigger-like")
+    this.withdrawTargetAccountField = page.getByTestId(
+      "withdraw-target-account-field"
     )
     this.withdrawConfirmBtn = page.getByRole("button", { name: "Withdraw" })
     this.withdrawInsufficientBalanceField = page.getByText(
@@ -62,14 +56,14 @@ export class AccountPage extends BasePage {
       await expect(this.selectTokenSearchBar).toBeVisible(shortTimeout)
       await this.selectTokenSearchBar.fill(token)
       const targetNetwork = this.page
-        .locator('div[data-sentry-component="AssetList"]')
+        .getByTestId("asset-list")
         .getByRole("button")
         .first()
       await expect(targetNetwork).toBeVisible(shortTimeout)
       await targetNetwork.click()
     } else {
       const allVisibleNetworks = this.page
-        .locator('div[data-sentry-component="AssetList"]')
+        .getByTestId("asset-list")
         .first()
         .getByRole("button")
         .first()
@@ -92,7 +86,7 @@ export class AccountPage extends BasePage {
       await targetToken.click()
     } else {
       const allVisibleTokens = this.page
-        .locator('div[data-sentry-component="AssetList"]')
+        .getByTestId("asset-list")
         .first()
         .getByRole("button")
         .first()
@@ -114,14 +108,14 @@ export class AccountPage extends BasePage {
       await expect(this.selectTokenSearchBar).toBeVisible(shortTimeout)
       await this.selectTokenSearchBar.fill(network)
       const targetNetwork = this.page
-        .locator('div[data-sentry-component="NetworkList"]')
+        .getByTestId("network-list")
         .getByRole("button")
         .first()
       await expect(targetNetwork).toBeVisible(shortTimeout)
       await targetNetwork.click()
     } else {
       const allVisibleNetworks = this.page
-        .locator('div[data-sentry-component="NetworkList"]')
+        .getByTestId("network-list")
         .first()
         .getByRole("button")
         .first()
@@ -137,6 +131,8 @@ export class AccountPage extends BasePage {
 
   async confirmWithdrawal() {
     await expect(this.withdrawConfirmBtn).toBeVisible(midTimeout)
+    // TODO: Find a better way to wait for withdraw button to be clickable
+    await this.page.waitForTimeout(1000)
     await this.withdrawConfirmBtn.click()
   }
 

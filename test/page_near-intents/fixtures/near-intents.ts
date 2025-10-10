@@ -2,12 +2,12 @@ import { expect } from "@playwright/test"
 import { testWithSynpress } from "@synthetixio/synpress"
 import { MetaMask, metaMaskFixtures } from "@synthetixio/synpress/playwright"
 
+import { NEAR_INTENTS_PAGE } from "../../helpers/constants/pages"
+import { longTimeout, shortTimeout } from "../../helpers/constants/timeouts"
 import {
-  longTimeout,
-  midTimeout,
-  shortTimeout,
-} from "../../helpers/constants/timeouts"
-import { waitForMetaMaskPage } from "../../helpers/functions/helper-functions"
+  waitForMetaMaskPage,
+  waitForMetaMaskPageClosed,
+} from "../../helpers/functions/helper-functions"
 import nearWeb3ProdSetup from "../../wallet-setup/near-web3-prod.setup"
 
 export const test = testWithSynpress(
@@ -18,9 +18,18 @@ export const test = testWithSynpress(
     loginToNearIntentsAccount: (accountString: string) => Promise<void>
     isSignatureCheckRequired: () => Promise<void>
     waitForAccountSync: () => Promise<void>
+    getAccountAddress: (opts?: {
+      timeout?: number
+      polling?: number
+    }) => Promise<string>
   }
 }>({
   nearIntentsPreconditions: async ({ page, context, extensionId }, use) => {
+    // Grant clipboard permissions
+    await context.grantPermissions(["clipboard-read", "clipboard-write"], {
+      origin: NEAR_INTENTS_PAGE.baseURL,
+    })
+
     const metamask = new MetaMask(
       context,
       page,
@@ -28,9 +37,7 @@ export const test = testWithSynpress(
       extensionId
     )
 
-    const signInButton = page
-      .getByRole("banner")
-      .getByRole("button", { name: "Sign in" })
+    const signInButton = page.getByTestId("sign-in-button")
 
     const metamaskButton = page.getByRole("button", {
       name: "MetaMask MetaMask",
@@ -44,17 +51,11 @@ export const test = testWithSynpress(
       name: "Check Compatibility",
     })
 
-    const accountTypeDropdown = page.locator(
-      "div[data-radix-popper-content-wrapper]"
-    )
-
     const loginToNearIntents = async () => {
       let messageOnFail = '"Sign in" button is not visible'
       await expect(signInButton, messageOnFail).toBeVisible(shortTimeout)
       await expect(signInButton, messageOnFail).toBeEnabled(shortTimeout)
       await signInButton.click()
-
-      await expect(accountTypeDropdown).toBeVisible(midTimeout)
 
       messageOnFail = "MetaMask login option is not visible in pop up"
       await expect(metamaskButton, messageOnFail).toBeVisible(shortTimeout)
@@ -80,13 +81,17 @@ export const test = testWithSynpress(
       await expect(signatureCheckRequiredPopup).toBeVisible(shortTimeout)
       await expect(checkCompatibility).toBeVisible(shortTimeout)
       await expect(checkCompatibility).toBeEnabled(shortTimeout)
+      await waitForMetaMaskPageClosed(context)
       await checkCompatibility.click()
       await waitForMetaMaskPage(context)
       await metamask.confirmSignature()
     }
 
     const getAccountAddress = async (
-      opts = { timeout: 5000, polling: 200 }
+      opts: { timeout?: number; polling?: number } = {
+        timeout: 5000,
+        polling: 200,
+      }
     ) => {
       const { timeout, polling } = opts
 
@@ -121,9 +126,7 @@ export const test = testWithSynpress(
     const waitForAccountSync = async (
       opts = { timeout: 5000, polling: 200 }
     ) => {
-      const accountIndicator = page
-        .locator('div[data-sentry-component="ConnectWallet"]')
-        .getByRole("button")
+      const accountIndicator = page.getByTestId("account-indicator")
       await expect(accountIndicator).toBeVisible(longTimeout)
 
       const currentAddress = await getAccountAddress(opts)
@@ -143,6 +146,7 @@ export const test = testWithSynpress(
       loginToNearIntentsAccount,
       isSignatureCheckRequired,
       waitForAccountSync,
+      getAccountAddress,
     })
   },
 })

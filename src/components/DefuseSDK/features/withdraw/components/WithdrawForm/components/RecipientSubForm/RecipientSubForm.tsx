@@ -192,6 +192,7 @@ export const RecipientSubForm = ({
                   : undefined
               )}
               onClick={() => setIsNetworkModalOpen(true)}
+              data-testid="select-trigger-like"
               hint={
                 <Select.Hint>
                   {determineBlockchainControllerHint(field.value)}
@@ -258,6 +259,7 @@ export const RecipientSubForm = ({
                 },
               })}
               placeholder="Enter wallet address"
+              data-testid="withdraw-target-account-field"
             >
               <TextField.Slot>
                 <PersonIcon height="16" width="16" />

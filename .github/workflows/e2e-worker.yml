@@ -37,6 +37,7 @@ on:
 jobs:
   e2e-test:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
     # runs-on: ubuntu-8-core
     timeout-minutes: 240
 
@@ -82,11 +83,11 @@ jobs:
 
       - name: Create Synpress cache
         run: |
-          xvfb-run bun cache-e2e-wallet
+          xvfb-run bun run cache-e2e-wallet
 
       - name: Run tests
         run: |
-          xvfb-run bun test-e2e-tag ${{ inputs.tag || '@near-intents-wallet' }}
+          xvfb-run bun run test-e2e-tag ${{ inputs.tag || '@near-intents-wallet' }}
 
       - uses: actions/upload-artifact@v4
         if: always()

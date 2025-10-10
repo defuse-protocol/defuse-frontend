@@ -7,7 +7,6 @@ import {
 import { BasePage } from "./base.page"
 
 export class DepositPage extends BasePage {
-  page: Page
   selectNetworkSelectionDropdown: Locator
   selectNetworkSearchBar: Locator
   selectTokenSelectionDropdown: Locator
@@ -21,14 +20,11 @@ export class DepositPage extends BasePage {
 
   constructor(page: Page) {
     super(page)
-    this.page = page
-    this.selectNetworkSelectionDropdown = page.getByRole("button", {
-      name: "Select network",
-    })
+    this.selectNetworkSelectionDropdown = page.getByTestId(
+      "select-network-trigger"
+    )
     this.selectNetworkSearchBar = page.getByPlaceholder("Search")
-    this.selectTokenSelectionDropdown = page
-      .locator('button[data-sentry-element="SelectTriggerLike"]')
-      .first()
+    this.selectTokenSelectionDropdown = page.getByTestId("select-deposit-asset")
 
     this.selectTokenSearchBar = page.getByPlaceholder("Search")
     this.depositInputField = page.getByPlaceholder("0")
@@ -56,14 +52,14 @@ export class DepositPage extends BasePage {
       await expect(this.selectNetworkSearchBar).toBeVisible(shortTimeout)
       await this.selectNetworkSearchBar.fill(searchNetwork)
       const targetNetwork = this.page
-        .locator('div[data-sentry-component="NetworkList"]')
+        .getByTestId("network-list")
         .getByRole("button")
         .first()
       await expect(targetNetwork).toBeVisible(shortTimeout)
       await targetNetwork.click()
     } else {
       const allVisibleNetworks = this.page
-        .locator('div[data-sentry-component="NetworkList"]')
+        .getByTestId("network-list")
         .first()
         .getByRole("button")
         .first()
@@ -86,7 +82,7 @@ export class DepositPage extends BasePage {
       await targetToken.click()
     } else {
       const allVisibleTokens = this.page
-        .locator('div[data-sentry-component="AssetList"]')
+        .getByTestId("asset-list")
         .first()
         .getByRole("button")
         .first()
@@ -103,7 +99,8 @@ export class DepositPage extends BasePage {
   async clickDeposit() {
     await expect(this.depositBtn).toBeVisible(midTimeout)
     await expect(this.depositBtn).toBeEnabled(midTimeout)
-    // await this.page.waitForTimeout(1_000)
+    // TODO: Find a better way to wait for deposit button to be clickable
+    await this.page.waitForTimeout(1_000)
     await this.depositBtn.click()
   }
 
