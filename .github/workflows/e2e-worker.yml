@@ -12,10 +12,9 @@ on:
         required: true
         type: string
       base_url:
-        description: "Base URL for the application (default: localhost:3000)"
+        description: "Base URL for the application"
         required: false
         type: string
-        default: "http://localhost:3000"
       manual_trigger:
         required: false
         type: boolean
@@ -36,10 +35,9 @@ on:
           - "@near-intents-wallet-deposit"
           - "@near-intents-wallet-withdraw"
       base_url:
-        description: "Base URL for the application (default: localhost:3000)"
+        description: "Base URL for the application"
         required: false
         type: string
-        default: "http://localhost:3000"
       manual_trigger:
         description: "Set to true to manually trigger the workflow"
         required: false
@@ -55,7 +53,7 @@ jobs:
 
     env:
       MM_SEED_PHRASE: ${{ secrets.MM_SEED_PHRASE }}
-      NEXT_PUBLIC_BASE_URL: ${{ github.event.client_payload.deployment_url || inputs.base_url || 'http://localhost:3000' }}
+      NEXT_PUBLIC_BASE_URL: ${{ inputs.base_url }}
       # SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       RUN_TAG: ${{ inputs.tag || '@near-intents-wallet' }}
       MANUAL_TRIGGER: ${{ inputs.manual_trigger }}
@@ -99,15 +97,66 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Install Playwright
-        run: bunx playwright install
+        run: bunx playwright install chromium
+      - name: Wait for Vercel Deployment
+        if: ${{ github.event_name == 'pull_request' }}
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          echo "Waiting for Vercel deployment for PR #$PR_NUMBER..."
+
+          # Wait for deployment to be ready
+          DEPLOYMENT_URL=""
+          MAX_ATTEMPTS=120  # 20 minutes max wait
+          ATTEMPT=0
+
+          while [ -z "$DEPLOYMENT_URL" ] && [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+            ATTEMPT=$((ATTEMPT + 1))
+            echo "Attempt $ATTEMPT/$MAX_ATTEMPTS: Checking for deployment..."
+
+            # Query Vercel API for deployments associated with this PR
+            RESPONSE=$(curl -s -G "https://api.vercel.com/v6/deployments" \
+              -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
+              --data-urlencode "projectId=${{ secrets.VERCEL_PROJECT_ID }}" \
+              --data-urlencode "meta.githubPullRequestId=$PR_NUMBER" \
+              --data-urlencode "state=READY" \
+              --data-urlencode "limit=1")
+
+            DEPLOYMENT_URL=$(echo "$RESPONSE" | jq -r '.deployments[0].url // empty')
+
+            if [ -n "$DEPLOYMENT_URL" ]; then
+              echo "✅ Vercel deployment is ready: https://$DEPLOYMENT_URL"
+              echo "VERCEL_DEPLOYMENT_URL=https://$DEPLOYMENT_URL" >> $GITHUB_ENV
+              break
+            else
+              echo "⏳ Deployment not ready yet. Waiting 10 seconds..."
+              sleep 10
+            fi
+          done
+
+          if [ -z "$DEPLOYMENT_URL" ]; then
+            echo "❌ Timeout waiting for Vercel deployment after $MAX_ATTEMPTS attempts"
+            exit 1
+          fi
 
       - name: Create Synpress cache
         run: |
           xvfb-run bun run cache-e2e-wallet
 
+      - name: Validate Base URL
+        run: |
+          if [ -z "$VERCEL_DEPLOYMENT_URL" ] && [ -z "${{ inputs.base_url }}" ]; then
+            echo "❌ No base URL available. Either:"
+            echo "1. Provide base_url input when triggering workflow"
+            echo "2. Ensure Vercel deployment is ready (for pull requests)"
+            exit 1
+          fi
+          echo "✅ Base URL validated"
+
       - name: Run tests
         run: |
           xvfb-run bun run test-e2e-tag ${{ inputs.tag || '@near-intents-wallet' }}
+        env:
+          NEXT_PUBLIC_BASE_URL: ${{ env.VERCEL_DEPLOYMENT_URL || inputs.base_url }}
 
       - uses: actions/upload-artifact@v4
         if: always()
