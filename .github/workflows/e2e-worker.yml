@@ -121,7 +121,25 @@ jobs:
               --data-urlencode "state=READY" \
               --data-urlencode "limit=1")
 
+            echo "API Response (READY): $RESPONSE"
             DEPLOYMENT_URL=$(echo "$RESPONSE" | jq -r '.deployments[0].url // empty')
+            echo "Extracted URL (READY): $DEPLOYMENT_URL"
+
+            # If no READY deployment found, try without state filter
+            if [ -z "$DEPLOYMENT_URL" ]; then
+              echo "No READY deployment found, checking all deployments..."
+              RESPONSE_ALL=$(curl -s -G "https://api.vercel.com/v6/deployments" \
+                -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
+                --data-urlencode "projectId=${{ secrets.VERCEL_PROJECT_ID }}" \
+                --data-urlencode "meta.githubPullRequestId=$PR_NUMBER" \
+                --data-urlencode "limit=5")
+
+              echo "API Response (ALL): $RESPONSE_ALL"
+              DEPLOYMENT_URL=$(echo "$RESPONSE_ALL" | jq -r '.deployments[0].url // empty')
+              DEPLOYMENT_STATE=$(echo "$RESPONSE_ALL" | jq -r '.deployments[0].state // empty')
+              echo "Extracted URL (ALL): $DEPLOYMENT_URL"
+              echo "Deployment State: $DEPLOYMENT_STATE"
+            fi
 
             if [ -n "$DEPLOYMENT_URL" ]; then
               echo "✅ Vercel deployment is ready: https://$DEPLOYMENT_URL"
