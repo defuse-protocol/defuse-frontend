@@ -9,6 +9,11 @@ on:
         description: "Provide tag to run tests by"
         required: true
         type: string
+      base_url:
+        description: "Base URL for the application (default: localhost:3000)"
+        required: false
+        type: string
+        default: "http://localhost:3000"
       manual_trigger:
         required: false
         type: boolean
@@ -28,6 +33,11 @@ on:
           - "@near-intents-wallet-otc"
           - "@near-intents-wallet-deposit"
           - "@near-intents-wallet-withdraw"
+      base_url:
+        description: "Base URL for the application (default: localhost:3000)"
+        required: false
+        type: string
+        default: "http://localhost:3000"
       manual_trigger:
         description: "Set to true to manually trigger the workflow"
         required: false
@@ -43,7 +53,7 @@ jobs:
 
     env:
       MM_SEED_PHRASE: ${{ secrets.MM_SEED_PHRASE }}
-      NEXT_PUBLIC_BASE_URL: ${{ vars.NEXT_PUBLIC_BASE_URL }}
+      NEXT_PUBLIC_BASE_URL: ${{ inputs.base_url || 'http://localhost:3000' }}
       # SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       RUN_TAG: ${{ inputs.tag || '@near-intents-wallet' }}
       MANUAL_TRIGGER: ${{ inputs.manual_trigger }}
@@ -80,6 +90,18 @@ jobs:
 
       - name: Install Playwright
         run: bunx playwright install
+
+      - name: Build application
+        if: ${{ inputs.base_url == 'http://localhost:3000' || inputs.base_url == '' }}
+        run: bun run build
+
+      - name: Start development server
+        if: ${{ inputs.base_url == 'http://localhost:3000' || inputs.base_url == '' }}
+        run: |
+          bun start &
+          sleep 10
+          # Wait for server to be ready
+          timeout 60 bash -c 'until curl -f http://localhost:3000 > /dev/null 2>&1; do sleep 1; done'
 
       - name: Create Synpress cache
         run: |
