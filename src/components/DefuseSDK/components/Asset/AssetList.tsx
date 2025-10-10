@@ -48,7 +48,10 @@ export function AssetList<T extends TokenInfo>({
   )
 
   return (
-    <div className={clsx("flex flex-col", className && className)}>
+    <div
+      className={clsx("flex flex-col", className && className)}
+      data-testid="asset-list"
+    >
       {assets.map(
         ({ token, selected, isHoldingsEnabled, value, usdValue }, i) => {
           const chainIcon = isBaseToken(token)

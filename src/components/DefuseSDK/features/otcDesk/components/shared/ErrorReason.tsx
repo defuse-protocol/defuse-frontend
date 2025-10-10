@@ -7,7 +7,7 @@ type ErrorReasonProps = {
 
 export function ErrorReason({ reason }: ErrorReasonProps) {
   return (
-    <Callout.Root size="1" color="red">
+    <Callout.Root size="1" color="red" data-testid="error-reason">
       <Callout.Icon>
         <ExclamationTriangleIcon />
       </Callout.Icon>

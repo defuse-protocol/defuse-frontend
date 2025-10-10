@@ -75,6 +75,7 @@ export const SelectAssets = ({
       type="button"
       onClick={handleAssetsSelect}
       className="max-w-[148px] md:max-w-[210px] bg-gray-1 shadow-select-token rounded-full flex justify-between items-center p-1 gap-2.5 dark:shadow-select-token-dark"
+      data-testid="select-assets"
     >
       {selected?.icon ? (
         <AssetComboIcon
