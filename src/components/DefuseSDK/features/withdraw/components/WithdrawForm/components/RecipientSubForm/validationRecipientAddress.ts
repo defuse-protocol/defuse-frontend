@@ -12,6 +12,7 @@ import { isNearIntentsNetwork } from "../../utils"
 export type ValidateRecipientAddressErrorType =
   | "ADDRESS_INVALID"
   | "SELF_WITHDRAWAL"
+  | "USER_ADDRESS_REQUIRED"
   | ValidateNearExplicitAccountErrorType
 
 export async function validationRecipientAddress(
@@ -21,7 +22,10 @@ export async function validationRecipientAddress(
   chainType?: AuthMethod
 ): Promise<Result<boolean, ValidateRecipientAddressErrorType>> {
   // Case 1.: Near Intents network
-  if (userAddress && isNearIntentsNetwork(chainName)) {
+  if (isNearIntentsNetwork(chainName)) {
+    if (!userAddress) {
+      return Err("USER_ADDRESS_REQUIRED")
+    }
     if (isSelfWithdrawal(recipientAddress, userAddress, chainType)) {
       return Err("SELF_WITHDRAWAL")
     }
