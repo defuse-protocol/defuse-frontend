@@ -3,6 +3,8 @@ name: E2E UI automation tests worker
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+  repository_dispatch:
+    types: [vercel_deployment]
   workflow_call:
     inputs:
       tag:
@@ -53,7 +55,7 @@ jobs:
 
     env:
       MM_SEED_PHRASE: ${{ secrets.MM_SEED_PHRASE }}
-      NEXT_PUBLIC_BASE_URL: ${{ inputs.base_url || 'http://localhost:3000' }}
+      NEXT_PUBLIC_BASE_URL: ${{ github.event.client_payload.deployment_url || inputs.base_url || 'http://localhost:3000' }}
       # SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       RUN_TAG: ${{ inputs.tag || '@near-intents-wallet' }}
       MANUAL_TRIGGER: ${{ inputs.manual_trigger }}
@@ -98,26 +100,6 @@ jobs:
 
       - name: Install Playwright
         run: bunx playwright install
-
-      - name: Cache Next.js build artifacts
-        uses: actions/cache@v4
-        with:
-          path: .next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/bun.lockb') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
-          restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/bun.lockb') }}-
-
-      - name: Build application
-        if: ${{ inputs.base_url == 'http://localhost:3000' || inputs.base_url == '' }}
-        run: bun run build
-
-      - name: Start development server
-        if: ${{ inputs.base_url == 'http://localhost:3000' || inputs.base_url == '' }}
-        run: |
-          bun start &
-          sleep 10
-          # Wait for server to be ready
-          timeout 60 bash -c 'until curl -f http://localhost:3000 > /dev/null 2>&1; do sleep 1; done'
 
       - name: Create Synpress cache
         run: |
