@@ -53,9 +53,7 @@ jobs:
 
     env:
       MM_SEED_PHRASE: ${{ secrets.MM_SEED_PHRASE }}
-      NEXT_PUBLIC_BASE_URL: ${{ inputs.base_url }}
       # SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      RUN_TAG: ${{ inputs.tag || '@near-intents-wallet' }}
       MANUAL_TRIGGER: ${{ inputs.manual_trigger }}
       EXTENSION_LOAD_TIMEOUT: 60000
       CHROME_ARGS: "--no-sandbox --disable-dev-shm-usage"

@@ -19,13 +19,11 @@ export class BasePage {
 
   async confirmCorrectPageLoaded(url: string) {
     const messageOnFail: string = `Loaded page is not ${url}`
+    const expectedUrl = `${NEAR_INTENTS_PAGE.baseURL}${url}`
     await this.page.waitForLoadState("domcontentloaded")
-    await this.page.waitForURL(`${NEAR_INTENTS_PAGE.baseURL}${url}`, midTimeout)
-    await expect(this.page, messageOnFail).toHaveURL(
-      `${NEAR_INTENTS_PAGE.baseURL}${url}`
-    )
-
-    await this.page.waitForLoadState()
+    await this.waitForUrl(expectedUrl)
+    await expect(this.page, messageOnFail).toHaveURL(expectedUrl)
+    await this.page.waitForLoadState("networkidle")
   }
 
   async clickNearIntentsLogo() {
@@ -76,5 +74,39 @@ export class BasePage {
   async waitForStableElement() {
     // TODO: Find a better way to wait for stable element
     await this.page.waitForTimeout(1_000)
+  }
+
+  /**
+   * Robust URL waiting mechanism that handles CI environment quirks
+   * @param expectedUrl - The expected URL to wait for
+   * @param timeout - Optional timeout override
+   */
+  private async waitForUrl(expectedUrl: string, timeout = midTimeout.timeout) {
+    const startTime = Date.now()
+
+    while (Date.now() - startTime < timeout) {
+      try {
+        const currentUrl = this.page.url()
+
+        if (currentUrl === expectedUrl) {
+          return
+        }
+
+        const urlPath = new URL(currentUrl).pathname
+        const expectedPath = new URL(expectedUrl).pathname
+
+        if (urlPath === expectedPath) {
+          return
+        }
+
+        await this.page.waitForTimeout(100)
+      } catch {
+        await this.page.waitForTimeout(100)
+      }
+    }
+
+    throw new Error(
+      `Timeout waiting for URL: ${expectedUrl}. Current URL: ${this.page.url()}`
+    )
   }
 }

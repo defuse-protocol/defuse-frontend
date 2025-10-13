@@ -104,18 +104,6 @@ export class DepositPage extends BasePage {
     await this.depositBtn.click()
   }
 
-  async isTransactionCompleted(): Promise<boolean> {
-    const result = await this.transactionCompleted.isVisible()
-
-    return result
-  }
-
-  async isTransactionProcessing(): Promise<boolean> {
-    const result = await this.page.getByText("Pending").isVisible()
-
-    return result
-  }
-
   async confirmTransactionCompleted() {
     await expect(this.transactionCompleted).toBeVisible(longTimeout)
   }
