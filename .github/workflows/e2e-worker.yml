@@ -89,7 +89,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.bun/install/cache
-          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
           restore-keys: |
             ${{ runner.os }}-bun-
 
@@ -100,9 +100,17 @@ jobs:
         run: bunx playwright install chromium
       - name: Wait for Vercel Deployment
         if: ${{ github.event_name == 'pull_request' }}
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
           PR_NUMBER=${{ github.event.pull_request.number }}
           echo "Waiting for Vercel deployment for PR #$PR_NUMBER..."
+
+          # Debug token and project ID
+          echo "VERCEL_TOKEN length: ${#VERCEL_TOKEN}"
+          echo "VERCEL_PROJECT_ID: $VERCEL_PROJECT_ID"
+          echo "Token starts with: ${VERCEL_TOKEN:0:10}..."
 
           # Wait for deployment to be ready
           DEPLOYMENT_URL=""
