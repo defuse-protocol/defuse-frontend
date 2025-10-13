@@ -1,10 +1,10 @@
-name: E2E UI automation tests worker
+name: E2E UI automation tests
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-  repository_dispatch:
-    types: [vercel_deployment]
+  push:
+    branches: [main]
   workflow_call:
     inputs:
       tag:
@@ -15,46 +15,30 @@ on:
         description: "Base URL for the application"
         required: false
         type: string
-      manual_trigger:
-        required: false
-        type: boolean
-        default: true
     secrets:
       MM_SEED_PHRASE:
-        required: true
+        required: false
   workflow_dispatch:
     inputs:
       tag:
         description: "Provide tag to run tests by"
         required: true
-        type: choice
-        options:
-          - "@near-intents-wallet"
-          - "@near-intents-wallet-swapping"
-          - "@near-intents-wallet-otc"
-          - "@near-intents-wallet-deposit"
-          - "@near-intents-wallet-withdraw"
+        type: string
+        default: "@near-intents"
       base_url:
         description: "Base URL for the application"
         required: false
         type: string
-      manual_trigger:
-        description: "Set to true to manually trigger the workflow"
-        required: false
-        type: boolean
-        default: false
 
 jobs:
   e2e-test:
     runs-on: ubuntu-latest
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
-    # runs-on: ubuntu-8-core
     timeout-minutes: 240
 
     env:
       MM_SEED_PHRASE: ${{ secrets.MM_SEED_PHRASE }}
       # SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      MANUAL_TRIGGER: ${{ inputs.manual_trigger }}
       EXTENSION_LOAD_TIMEOUT: 60000
       CHROME_ARGS: "--no-sandbox --disable-dev-shm-usage"
 
@@ -157,13 +141,13 @@ jobs:
 
       - name: Run tests
         run: |
-          xvfb-run bun run test-e2e-tag ${{ inputs.tag || '@near-intents-wallet' }}
+          xvfb-run bun run test-e2e-tag ${{ inputs.tag || '@near-intents' }}
         env:
           NEXT_PUBLIC_BASE_URL: ${{ env.VERCEL_DEPLOYMENT_URL || inputs.base_url }}
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report-${{ inputs.tag || '@near-intents-wallet' }}
+          name: playwright-report-${{ inputs.tag || '@near-intents' }}
           path: my-report/
           retention-days: 5

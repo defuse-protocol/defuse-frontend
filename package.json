@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "test": "vitest",
-    "test-e2e": "playwright test --workers=1 --grep @near-intents-wallet",
+    "test-e2e": "playwright test --workers=1 --grep @near-intents",
     "test-e2e-tag": "playwright test --workers=1 --grep",
     "cache-e2e-wallet": "bun run test/cache-wallet.ts",
     "typecheck": "next typegen && tsc --noEmit",
