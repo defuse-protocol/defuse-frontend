@@ -103,14 +103,10 @@ jobs:
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }}
         run: |
-          PR_NUMBER=${{ github.event.pull_request.number }}
-          echo "Waiting for Vercel deployment for PR #$PR_NUMBER..."
+          COMMIT_SHA=${{ github.event.pull_request.head.sha }}
 
-          # Debug token and project ID
-          echo "VERCEL_TOKEN length: ${#VERCEL_TOKEN}"
-          echo "VERCEL_PROJECT_ID: $VERCEL_PROJECT_ID"
-          echo "Token starts with: ${VERCEL_TOKEN:0:10}..."
 
           # Wait for deployment to be ready
           DEPLOYMENT_URL=""
@@ -121,33 +117,16 @@ jobs:
             ATTEMPT=$((ATTEMPT + 1))
             echo "Attempt $ATTEMPT/$MAX_ATTEMPTS: Checking for deployment..."
 
-            # Query Vercel API for deployments associated with this PR
+            # Query Vercel API for READY deployments associated with this commit
             RESPONSE=$(curl -s -G "https://api.vercel.com/v6/deployments" \
-              -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
-              --data-urlencode "projectId=${{ secrets.VERCEL_PROJECT_ID }}" \
-              --data-urlencode "meta.githubPullRequestId=$PR_NUMBER" \
+              -H "Authorization: Bearer $VERCEL_TOKEN" \
+              --data-urlencode "teamId=$VERCEL_TEAM_ID" \
+              --data-urlencode "projectId=$VERCEL_PROJECT_ID" \
+              --data-urlencode "sha=$COMMIT_SHA" \
               --data-urlencode "state=READY" \
               --data-urlencode "limit=1")
 
-            echo "API Response (READY): $RESPONSE"
             DEPLOYMENT_URL=$(echo "$RESPONSE" | jq -r '.deployments[0].url // empty')
-            echo "Extracted URL (READY): $DEPLOYMENT_URL"
-
-            # If no READY deployment found, try without state filter
-            if [ -z "$DEPLOYMENT_URL" ]; then
-              echo "No READY deployment found, checking all deployments..."
-              RESPONSE_ALL=$(curl -s -G "https://api.vercel.com/v6/deployments" \
-                -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
-                --data-urlencode "projectId=${{ secrets.VERCEL_PROJECT_ID }}" \
-                --data-urlencode "meta.githubPullRequestId=$PR_NUMBER" \
-                --data-urlencode "limit=5")
-
-              echo "API Response (ALL): $RESPONSE_ALL"
-              DEPLOYMENT_URL=$(echo "$RESPONSE_ALL" | jq -r '.deployments[0].url // empty')
-              DEPLOYMENT_STATE=$(echo "$RESPONSE_ALL" | jq -r '.deployments[0].state // empty')
-              echo "Extracted URL (ALL): $DEPLOYMENT_URL"
-              echo "Deployment State: $DEPLOYMENT_STATE"
-            fi
 
             if [ -n "$DEPLOYMENT_URL" ]; then
               echo "✅ Vercel deployment is ready: https://$DEPLOYMENT_URL"
