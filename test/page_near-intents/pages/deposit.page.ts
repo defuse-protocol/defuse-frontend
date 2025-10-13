@@ -44,51 +44,39 @@ export class DepositPage extends BasePage {
     )
   }
 
-  async selectAssetNetwork(searchNetwork: string | null) {
-    await expect(this.selectNetworkSelectionDropdown).toBeVisible(shortTimeout)
-    await this.selectNetworkSelectionDropdown.click()
-
-    if (searchNetwork) {
-      await expect(this.selectNetworkSearchBar).toBeVisible(shortTimeout)
-      await this.selectNetworkSearchBar.fill(searchNetwork)
-      const targetNetwork = this.page
-        .getByTestId("network-list")
-        .getByRole("button")
-        .first()
-      await expect(targetNetwork).toBeVisible(shortTimeout)
-      await targetNetwork.click()
-    } else {
-      const allVisibleNetworks = this.page
-        .getByTestId("network-list")
-        .first()
-        .getByRole("button")
-        .first()
-      await expect(allVisibleNetworks).toBeVisible(midTimeout)
-      await allVisibleNetworks.click()
-    }
+  private async selectFromDropdown(
+    dropdown: Locator,
+    searchBar: Locator,
+    listTestId: string,
+    searchValue: string
+  ) {
+    await expect(dropdown).toBeVisible(shortTimeout)
+    await dropdown.click()
+    await expect(searchBar).toBeVisible(shortTimeout)
+    await searchBar.fill(searchValue)
+    const targetItem = this.page
+      .getByTestId(listTestId)
+      .getByRole("button", { name: searchValue })
+    await expect(targetItem).toBeVisible(shortTimeout)
+    await targetItem.click()
   }
 
-  async selectAssetToken(searchToken: string | null) {
-    await expect(this.selectTokenSelectionDropdown).toBeVisible(shortTimeout)
-    await this.selectTokenSelectionDropdown.click()
+  async selectAssetNetwork(searchNetwork: string) {
+    await this.selectFromDropdown(
+      this.selectNetworkSelectionDropdown,
+      this.selectNetworkSearchBar,
+      "network-list",
+      searchNetwork
+    )
+  }
 
-    if (searchToken) {
-      await expect(this.selectTokenSearchBar).toBeVisible(shortTimeout)
-      await this.selectTokenSearchBar.fill(searchToken)
-      const targetToken = this.page.getByRole("button", {
-        name: searchToken,
-      })
-      await expect(targetToken).toBeVisible(shortTimeout)
-      await targetToken.click()
-    } else {
-      const allVisibleTokens = this.page
-        .getByTestId("asset-list")
-        .first()
-        .getByRole("button")
-        .first()
-      await expect(allVisibleTokens).toBeVisible(midTimeout)
-      await allVisibleTokens.click()
-    }
+  async selectAssetToken(searchToken: string) {
+    await this.selectFromDropdown(
+      this.selectTokenSelectionDropdown,
+      this.selectTokenSearchBar,
+      "asset-list",
+      searchToken
+    )
   }
 
   async enterDepositValue(value: number) {
