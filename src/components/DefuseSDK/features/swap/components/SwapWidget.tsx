@@ -14,6 +14,7 @@ import {
 import { WidgetRoot } from "../../../components/WidgetRoot"
 import type { SwapWidgetProps } from "../../../types/swap"
 import { TokenMigration } from "../../tokenMigration/components/TokenMigration"
+import { formValuesSelector } from "../actors/swapFormMachine"
 import { SwapForm } from "./SwapForm"
 import { SwapFormProvider } from "./SwapFormProvider"
 import { SwapSubmitterProvider } from "./SwapSubmitter"
@@ -90,11 +91,15 @@ export const SwapWidget = ({
 
 function TokenListUpdaterSwap({ tokenList }: { tokenList: TokenInfo[] }) {
   const swapUIActorRef = SwapUIMachineContext.useActorRef()
+  const formRef = useSelector(swapUIActorRef, (s) => s.context.formRef)
+  const formValuesRef = useSelector(formRef, formValuesSelector)
+  const formValues = useSelector(formValuesRef, (s) => s.context)
+
   const { tokenIn, tokenOut, depositedBalanceRef } = useSelector(
     swapUIActorRef,
     (snapshot) => ({
-      tokenIn: snapshot.context.formValues.tokenIn,
-      tokenOut: snapshot.context.formValues.tokenOut,
+      tokenIn: formValues.tokenIn,
+      tokenOut: formValues.tokenOut,
       depositedBalanceRef: snapshot.children.depositedBalanceRef,
     })
   )

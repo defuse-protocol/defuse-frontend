@@ -15,12 +15,14 @@ export function useSwapTokenChangeNotifier(tokenInAndOut: {
   const searchParams = useSearchParams()
   const tokens = useTokensStore((state) => state.tokens)
 
-  const { tokenIn, tokenOut } = SwapUIMachineContext.useSelector(
-    (snapshot) => ({
-      tokenIn: snapshot.context.formValues.tokenIn,
-      tokenOut: snapshot.context.formValues.tokenOut,
-    })
-  )
+  const { tokenIn, tokenOut } = SwapUIMachineContext.useSelector((snapshot) => {
+    const form = snapshot.context.formRef.getSnapshot()
+    const formValues = form.context.formValues.getSnapshot().context
+    return {
+      tokenIn: formValues.tokenIn,
+      tokenOut: formValues.tokenOut,
+    }
+  })
 
   useEffect(() => {
     const prev = prevTokensRef.current

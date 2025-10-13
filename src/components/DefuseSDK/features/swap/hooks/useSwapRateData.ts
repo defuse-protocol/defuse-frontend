@@ -24,18 +24,20 @@ function swapRateDataSelector(state: SnapshotFrom<typeof swapUIMachine>) {
   }
 
   const quote = state.context.quote.value
+  const form = state.context.formRef.getSnapshot()
+  const parsed = form.context.parsedValues.getSnapshot().context
 
   const amountOut = computeTotalDeltaDifferentDecimals(
-    [state.context.parsedFormValues.tokenOut],
+    [parsed.tokenOut],
     quote.tokenDeltas
   )
 
   const minAmountOut = computeTotalDeltaDifferentDecimals(
-    [state.context.parsedFormValues.tokenOut],
+    [parsed.tokenOut],
     accountSlippageExactIn(quote.tokenDeltas, state.context.slippageBasisPoints)
   )
 
-  const amountIn = state.context.parsedFormValues.amountIn
+  const amountIn = parsed.amountIn
   const exchangeRate =
     amountIn != null && amountIn.amount !== 0n // hotfix incorrect calculation when amountOut is 0
       ? {

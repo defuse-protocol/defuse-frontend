@@ -1,10 +1,9 @@
 import type { authHandle } from "@defuse-protocol/internal-utils"
 import { useSelector } from "@xstate/react"
 import { type PropsWithChildren, useEffect, useRef } from "react"
-import { useFormContext } from "react-hook-form"
 import type { SwapWidgetProps } from "../../../types/swap"
+import { formValuesSelector } from "../actors/swapFormMachine"
 import { usePublicKeyModalOpener } from "../hooks/usePublicKeyModalOpener"
-import type { SwapFormValues } from "./SwapForm"
 import { SwapUIMachineContext } from "./SwapUIMachineProvider"
 
 type SwapUIMachineFormSyncProviderProps = PropsWithChildren<{
@@ -21,23 +20,13 @@ export function SwapUIMachineFormSyncProvider({
   onSuccessSwap,
   sendNearTransaction,
 }: SwapUIMachineFormSyncProviderProps) {
-  const { watch, setValue } = useFormContext<SwapFormValues>()
   const actorRef = SwapUIMachineContext.useActorRef()
+  const formRef = useSelector(actorRef, (s) => s.context.formRef)
+  const formValuesRef = useSelector(formRef, formValuesSelector)
 
   // Make `onSuccessSwap` stable reference, waiting for `useEvent` hook to come out
   const onSuccessSwapRef = useRef(onSuccessSwap)
   onSuccessSwapRef.current = onSuccessSwap
-
-  const amountIn = watch("amountIn")
-
-  useEffect(() => {
-    if (amountIn !== undefined) {
-      actorRef.send({
-        type: "input",
-        params: { amountIn },
-      })
-    }
-  }, [amountIn, actorRef])
 
   useEffect(() => {
     if (userAddress == null || userChainType == null) {
@@ -51,7 +40,7 @@ export function SwapUIMachineFormSyncProvider({
     const sub = actorRef.on("*", (event) => {
       switch (event.type) {
         case "INTENT_PUBLISHED": {
-          setValue("amountIn", "")
+          formValuesRef.trigger.updateAmountIn({ value: "" })
           break
         }
 
@@ -72,7 +61,7 @@ export function SwapUIMachineFormSyncProvider({
     return () => {
       sub.unsubscribe()
     }
-  }, [actorRef, setValue])
+  }, [actorRef, formValuesRef])
 
   const swapRef = useSelector(
     actorRef,

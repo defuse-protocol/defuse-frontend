@@ -1,4 +1,10 @@
-import { type SnapshotFrom, assign, setup, spawnChild } from "xstate"
+import {
+  type AnyActorRef,
+  type SnapshotFrom,
+  assign,
+  setup,
+  spawnChild,
+} from "xstate"
 import type { TokenInfo } from "../../../types/base"
 import {
   allSetSelector,
@@ -7,9 +13,12 @@ import {
 import { swapFormSyncActor } from "./swapFormSyncActor"
 import { createSwapFormValuesStore } from "./swapFormValuesStore"
 
+type ParentActor = AnyActorRef
+
 export const swapFormMachine = setup({
   types: {
     input: {} as {
+      parentRef: ParentActor
       initialTokenIn: TokenInfo
       initialTokenOut: TokenInfo
     },
@@ -17,6 +26,7 @@ export const swapFormMachine = setup({
       isValid: boolean
       formValues: ReturnType<typeof createSwapFormValuesStore>
       parsedValues: ReturnType<typeof createSwapFormParsedValuesStore>
+      parentRef: ParentActor
     },
   },
   actors: {
@@ -28,6 +38,7 @@ export const swapFormMachine = setup({
         return allSetSelector(context.parsedValues.getSnapshot())
       },
     }),
+    notifyParent: ({ context }) => context.parentRef.send({ type: "input" }),
   },
   guards: {
     isFormValid: ({ context }) => {
@@ -39,6 +50,7 @@ export const swapFormMachine = setup({
     isValid: false,
     formValues: createSwapFormValuesStore(input),
     parsedValues: createSwapFormParsedValuesStore(),
+    parentRef: input.parentRef,
   }),
   entry: spawnChild("formSyncActor", {
     input: ({ context }) => ({
@@ -48,7 +60,7 @@ export const swapFormMachine = setup({
   }),
   on: {
     VALIDATE: {
-      actions: "validate",
+      actions: ["validate", "notifyParent"],
     },
   },
   initial: "idle",
