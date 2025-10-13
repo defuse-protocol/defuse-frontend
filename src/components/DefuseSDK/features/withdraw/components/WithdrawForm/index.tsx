@@ -1,4 +1,4 @@
-import { Checkbox, Flex, Text, Tooltip } from "@radix-ui/themes"
+import { Flex } from "@radix-ui/themes"
 import { useModalController } from "@src/components/DefuseSDK/hooks/useModalController"
 import { useTokensUsdPrices } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
 import { ModalType } from "@src/components/DefuseSDK/stores/modalStore"
@@ -14,9 +14,10 @@ import {
   isMinAmountNotRequired,
   subtractAmounts,
 } from "@src/components/DefuseSDK/utils/tokenUtils"
+import { logger } from "@src/utils/logger"
 import { useSelector } from "@xstate/react"
 import { useCallback, useEffect } from "react"
-import { Controller, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { AuthGate } from "../../../../components/AuthGate"
 import { ButtonCustom } from "../../../../components/Button/ButtonCustom"
 import { Form } from "../../../../components/Form"
@@ -24,7 +25,6 @@ import { FieldComboInput } from "../../../../components/Form/FieldComboInput"
 import { Island } from "../../../../components/Island"
 import { IslandHeader } from "../../../../components/IslandHeader"
 import { nearClient } from "../../../../constants/nearClient"
-import { logger } from "../../../../logger"
 import type {
   SupportedChainName,
   TokenInfo,
@@ -49,6 +49,7 @@ import {
   ReceivedAmountAndFee,
   RecipientSubForm,
 } from "./components"
+import { AcknowledgementCheckbox } from "./components/AcknowledgementCheckbox/AcknowledgementCheckbox"
 import { useMinWithdrawalAmountWithFeeEstimation } from "./hooks/useMinWithdrawalAmountWithFeeEstimation"
 import {
   balancesSelector,
@@ -134,6 +135,7 @@ export const WithdrawForm = ({
   const {
     token,
     tokenOut,
+    tokenOutDeployment,
     parsedAmountIn,
     amountIn,
     recipient,
@@ -143,6 +145,7 @@ export const WithdrawForm = ({
     return {
       token: state.context.tokenIn,
       tokenOut: state.context.tokenOut,
+      tokenOutDeployment: state.context.tokenOutDeployment,
       parsedAmountIn: state.context.parsedAmount,
       amountIn: state.context.amount,
       recipient: state.context.recipient,
@@ -181,7 +184,7 @@ export const WithdrawForm = ({
   const minWithdrawalPOABridgeAmount = useSelector(
     poaBridgeInfoRef,
     (state) => {
-      const bridgedTokenInfo = getPOABridgeInfo(state, tokenOut)
+      const bridgedTokenInfo = getPOABridgeInfo(state, tokenOut.defuseAssetId)
       return bridgedTokenInfo == null
         ? null
         : {
@@ -453,48 +456,14 @@ export const WithdrawForm = ({
             tokenInBalance={tokenInBalance}
           />
 
-          {!isNearIntentsNetwork(blockchain) && isCexIncompatible(tokenOut) && (
-            <Text
-              as="label"
-              size="1"
-              weight="medium"
-              color={errors.isFundsLooseConfirmed ? "red" : "gray"}
-            >
-              <Flex as="span" gap="2">
-                <Controller
-                  control={control}
-                  name="isFundsLooseConfirmed"
-                  rules={{ required: true }}
-                  render={({ field }) => (
-                    <Checkbox
-                      size="3"
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  )}
-                />
-                I understand CEX addresses may cause fund loss or issues.
-                <Tooltip
-                  side="bottom"
-                  align="center"
-                  maxWidth="300px"
-                  content="Many centralized exchanges (CEXs) don’t support third-party protocol withdrawals. Using a CEX address may result in lost or delayed funds. Use a self-custodial wallet instead."
-                >
-                  <Text
-                    size="1"
-                    color="gray"
-                    as="span"
-                    style={{
-                      textDecoration: "underline",
-                      textDecorationStyle: "dotted",
-                    }}
-                  >
-                    Why?
-                  </Text>
-                </Tooltip>
-              </Flex>
-            </Text>
-          )}
+          {!isNearIntentsNetwork(blockchain) &&
+            isCexIncompatible(tokenOutDeployment) && (
+              <AcknowledgementCheckbox
+                control={control}
+                errors={errors}
+                tokenOut={tokenOut}
+              />
+            )}
 
           <ReceivedAmountAndFee
             fee={withdtrawalFee}

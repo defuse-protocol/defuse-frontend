@@ -1,5 +1,5 @@
+import { logger } from "@src/utils/logger"
 import { useQuery } from "@tanstack/react-query"
-import { logger } from "../../../../../logger"
 import { generateHLAddress } from "../../../../../sdk/hyperunit/apis"
 import type { SupportedChainName, TokenInfo } from "../../../../../types/base"
 import {

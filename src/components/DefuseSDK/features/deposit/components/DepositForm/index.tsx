@@ -66,24 +66,27 @@ export const DepositForm = ({
   const snapshot = DepositUIMachineContext.useSelector((snapshot) => snapshot)
   const preparationOutput = snapshot.context.preparationOutput
 
-  const { token, derivedToken, network, userAddress, poaBridgeInfoRef } =
-    DepositUIMachineContext.useSelector((snapshot) => {
-      const token = snapshot.context.depositFormRef.getSnapshot().context.token
-      const derivedToken =
-        snapshot.context.depositFormRef.getSnapshot().context.derivedToken
-      const blockchain =
-        snapshot.context.depositFormRef.getSnapshot().context.blockchain
-      const userAddress = snapshot.context.userAddress
-      const poaBridgeInfoRef = snapshot.context.poaBridgeInfoRef
+  const {
+    token,
+    derivedToken,
+    tokenDeployment,
+    network,
+    userAddress,
+    poaBridgeInfoRef,
+  } = DepositUIMachineContext.useSelector((snapshot) => {
+    const { userAddress, poaBridgeInfoRef } = snapshot.context
+    const { token, derivedToken, tokenDeployment, blockchain } =
+      snapshot.context.depositFormRef.getSnapshot().context
 
-      return {
-        token,
-        derivedToken,
-        network: blockchain,
-        userAddress,
-        poaBridgeInfoRef,
-      }
-    })
+    return {
+      token,
+      derivedToken,
+      tokenDeployment,
+      network: blockchain,
+      userAddress,
+      poaBridgeInfoRef,
+    }
+  })
 
   const isOutputOk = preparationOutput?.tag === "ok"
   const depositAddress = isOutputOk
@@ -170,7 +173,7 @@ export const DepositForm = ({
       return null
     }
 
-    const bridgedTokenInfo = getPOABridgeInfo(state, tokenOut)
+    const bridgedTokenInfo = getPOABridgeInfo(state, tokenOut.defuseAssetId)
     return bridgedTokenInfo == null ? null : bridgedTokenInfo.minDeposit
   })
 
@@ -287,22 +290,26 @@ export const DepositForm = ({
 
             {currentDepositOption === "active" &&
               network != null &&
-              derivedToken != null && (
+              derivedToken != null &&
+              tokenDeployment != null && (
                 <ActiveDeposit
                   network={assetNetworkAdapter[network]}
                   token={derivedToken}
+                  tokenDeployment={tokenDeployment}
                   minDepositAmount={minDepositAmount}
                 />
               )}
 
             {currentDepositOption === "passive" &&
               network != null &&
-              derivedToken != null && (
+              derivedToken != null &&
+              tokenDeployment != null && (
                 <PassiveDeposit
                   network={assetNetworkAdapter[network]}
                   depositAddress={depositAddress}
                   minDepositAmount={minDepositAmount}
                   token={derivedToken}
+                  tokenDeployment={tokenDeployment}
                   memo={memo}
                 />
               )}

@@ -13,6 +13,7 @@ import {
   Transaction as TransactionSolana,
 } from "@solana/web3.js"
 import { auroraErc20ABI } from "@src/components/DefuseSDK/utils/blockchain"
+import { logger } from "@src/utils/logger"
 import {
   type Account,
   Asset,
@@ -41,8 +42,7 @@ import type { depositGenerateAddressMachine } from "../features/machines/deposit
 import type { depositTokenBalanceMachine } from "../features/machines/depositTokenBalanceMachine"
 import { getNearTxSuccessValue } from "../features/machines/getTxMachine"
 import type { storageDepositAmountMachine } from "../features/machines/storageDepositAmountMachine"
-import { logger } from "../logger"
-import type { BaseTokenInfo, SupportedChainName } from "../types/base"
+import type { SupportedChainName, TokenDeployment } from "../types/base"
 import type {
   SendTransactionEVMParams,
   SendTransactionStellarParams,
@@ -133,7 +133,7 @@ export async function prepareDeposit(
   },
   { signal }: { signal: AbortSignal }
 ): Promise<PreparationOutput> {
-  assert(formValues.derivedToken, "Token is required")
+  assert(formValues.tokenDeployment, "Token is required")
 
   const userChainType =
     depositGenerateAddressRef.getSnapshot().context.userChainType
@@ -189,13 +189,13 @@ export async function prepareDeposit(
   }
 
   const solanaATACreationRequired = await checkSolanaATARequired(
-    formValues.derivedToken,
+    formValues.tokenDeployment,
     generateDepositAddress.value.generateDepositAddress
   )
 
   const tonJettonWalletCreationRequired = await checkTonJettonWalletRequired(
     createTonClient(settings.rpcUrls.ton),
-    formValues.derivedToken,
+    formValues.tokenDeployment,
     userAddress
   )
 
@@ -341,7 +341,7 @@ async function getDepositEstimation(
   | { tag: "ok"; value: { maxDepositValue: bigint | null } }
   | { tag: "err"; value: { reason: "ERR_ESTIMATE_MAX_DEPOSIT_VALUE" } }
 > {
-  assert(formValues.derivedToken, "Token is required")
+  assert(formValues.tokenDeployment, "Token is required")
   assert(formValues.blockchain, "Blockchain is required")
   depositEstimationRef.send({
     type: "REQUEST_ESTIMATE_MAX_DEPOSIT_VALUE",
@@ -350,7 +350,7 @@ async function getDepositEstimation(
       userAddress,
       balance: balance,
       nearBalance: nearBalance,
-      token: formValues.derivedToken,
+      token: formValues.tokenDeployment,
       generateAddress: generateDepositAddress,
     },
   })
@@ -607,7 +607,7 @@ export function createDepositSolanaTransaction({
   userAddress: string
   depositAddress: string
   amount: bigint
-  token: BaseTokenInfo
+  token: TokenDeployment
   ataExists: boolean
 }): TransactionSolana {
   assert(token.chainName === "solana", "Token must be a Solana token")
@@ -688,7 +688,7 @@ export async function createDepositStellarTransaction({
   userAddress: string
   depositAddress: string
   amount: bigint
-  token: BaseTokenInfo
+  token: TokenDeployment
   memo?: string | null
 }): Promise<SendTransactionStellarParams> {
   assert(token.chainName === "stellar", "Token must be a Stellar token")
@@ -706,12 +706,14 @@ export async function createDepositStellarTransaction({
     )
   }
 
+  assert(token.stellarCode != null, "Token must have a stellar code")
+
   return createTrustlineTransferStellarTransaction(
     account,
     depositAddress,
     amountToFormat,
     token.address,
-    token.symbol,
+    token.stellarCode,
     memo
   )
 }
@@ -1448,7 +1450,7 @@ async function checkATAExists(
   }
 }
 
-function clearATACacheForToken(token: BaseTokenInfo, depositAddress: string) {
+function clearATACacheForToken(token: TokenDeployment, depositAddress: string) {
   if (token.chainName !== "solana" || isNativeToken(token)) {
     return
   }
@@ -1457,7 +1459,7 @@ function clearATACacheForToken(token: BaseTokenInfo, depositAddress: string) {
 }
 
 async function checkSolanaATARequired(
-  token: BaseTokenInfo,
+  token: TokenDeployment,
   depositAddress: string | null
 ): Promise<boolean> {
   if (
@@ -1494,7 +1496,7 @@ async function checkSolanaATARequired(
 }
 
 export function clearSolanaATACache(
-  token: BaseTokenInfo,
+  token: TokenDeployment,
   depositAddress: string
 ) {
   clearATACacheForToken(token, depositAddress)
@@ -1504,7 +1506,7 @@ export async function createDepositTonTransaction(
   userWalletAddress: string,
   depositAddress: string,
   amount: bigint,
-  token: BaseTokenInfo
+  token: TokenDeployment
 ): Promise<SendTransactionTonParams> {
   assert(token.chainName === "ton", "Token chain name is not TON")
 

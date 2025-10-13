@@ -1,4 +1,4 @@
-import { logger } from "../../../logger"
+import { logger } from "@src/utils/logger"
 
 export function formatGiftDate(dateString: number): string {
   try {

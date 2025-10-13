@@ -1,0 +1,287 @@
+{
+  "$ref": "#/definitions/TokenList",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "BaseTokenInfo": {
+      "additionalProperties": false,
+      "description": "Context: NEAR Intents is a multi-token contract. Each token on the NEAR blockchain is represented by a unique token ID string in the format: `nep141:<token-id>`, where `<token-id>` is the contract ID on NEAR.\n\nExample: `wrap.near` → `nep141:wrap.near` inside Intents.\n\nEach instance represents one token recognized by NEAR Intents.",
+      "properties": {
+        "decimals": {
+          "description": "Number of decimals of the corresponding token on NEAR",
+          "type": "number"
+        },
+        "defuseAssetId": {
+          "description": "Standardized token identifier used by NEAR Intents.\n\nFormat: <standard>:<contract_id>[:<token_id>] Standards:   - nep141: Fungible Token Standard on NEAR   - nep245: Multi Token Standard",
+          "type": "string"
+        },
+        "deployments": {
+          "description": "Mappings to the token's deployments across chains. Most tokens have a single deployment; some map to several.\n\n```text BaseTokenInfo (logical token in Intents)   defuseAssetId: \"nep141:tokenx.near\"           │           │ one-to-one           ▼ NEAR token contract (NEP-141)   contractId: tokenx.near           │           │ one-to-many  (deployments)           ▼ Deployments[]   - NEAR (NEP-141):     tokenx.near   - Solana (SPL):       abc   - Ethereum (ERC-20):  0xbeef\n* ```",
+          "items": {
+            "$ref": "#/definitions/TokenDeployment"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "icon": {
+          "description": "Icon of the corresponding token on NEAR",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the corresponding token on NEAR.",
+          "type": "string"
+        },
+        "originChainName": {
+          "$ref": "#/definitions/SupportedChainName",
+          "description": "Origin of the token. Most tokens are bridged from other chains, but some are canonical to NEAR (e.g., wNEAR, usdt.tether-token.near).\n\nUsed mainly for displaying a chain icon for the token. SHOULD NOT be used for domain logic."
+        },
+        "symbol": {
+          "description": "Symbol of the corresponding token on NEAR.",
+          "type": "string"
+        },
+        "tags": {
+          "description": "Tags are arbitrary strings that can be used to categorize tokens. Common patterns:   - \"aid:<family-id>\" - Groups related tokens into families   - \"mc:<rank>\" - Orders by MarketCap ranking (lower = higher cap)   - \"type:stablecoin\" - No app fee for swaps between stables",
+          "examples": [["aid:usdc", "mc:25", "type:stablecoin"]],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "defuseAssetId",
+        "symbol",
+        "name",
+        "decimals",
+        "icon",
+        "originChainName",
+        "deployments"
+      ],
+      "type": "object"
+    },
+    "FungibleTokenInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "bridge": {
+          "$ref": "#/definitions/SupportedBridge"
+        },
+        "chainName": {
+          "$ref": "#/definitions/SupportedChainName"
+        },
+        "decimals": {
+          "type": "number"
+        },
+        "stellarCode": {
+          "type": "string"
+        }
+      },
+      "required": ["address", "decimals", "chainName", "bridge"],
+      "type": "object"
+    },
+    "MockedChains": {
+      "const": "hyperliquid",
+      "type": "string"
+    },
+    "NativeTokenInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "bridge": {
+          "$ref": "#/definitions/SupportedBridge"
+        },
+        "chainName": {
+          "$ref": "#/definitions/SupportedChainName"
+        },
+        "decimals": {
+          "type": "number"
+        },
+        "type": {
+          "const": "native",
+          "type": "string"
+        }
+      },
+      "required": ["type", "decimals", "chainName", "bridge"],
+      "type": "object"
+    },
+    "SupportedBridge": {
+      "enum": ["direct", "poa", "aurora_engine", "hot_omni", "near_omni"],
+      "type": "string"
+    },
+    "SupportedChainName": {
+      "anyOf": [
+        {
+          "const": "eth",
+          "type": "string"
+        },
+        {
+          "const": "near",
+          "type": "string"
+        },
+        {
+          "const": "base",
+          "type": "string"
+        },
+        {
+          "const": "arbitrum",
+          "type": "string"
+        },
+        {
+          "const": "bitcoin",
+          "type": "string"
+        },
+        {
+          "const": "solana",
+          "type": "string"
+        },
+        {
+          "const": "dogecoin",
+          "type": "string"
+        },
+        {
+          "const": "xrpledger",
+          "type": "string"
+        },
+        {
+          "const": "zcash",
+          "type": "string"
+        },
+        {
+          "const": "gnosis",
+          "type": "string"
+        },
+        {
+          "const": "berachain",
+          "type": "string"
+        },
+        {
+          "const": "tron",
+          "type": "string"
+        },
+        {
+          "const": "polygon",
+          "type": "string"
+        },
+        {
+          "const": "bsc",
+          "type": "string"
+        },
+        {
+          "const": "ton",
+          "type": "string"
+        },
+        {
+          "const": "optimism",
+          "type": "string"
+        },
+        {
+          "const": "avalanche",
+          "type": "string"
+        },
+        {
+          "const": "sui",
+          "type": "string"
+        },
+        {
+          "const": "stellar",
+          "type": "string"
+        },
+        {
+          "const": "aptos",
+          "type": "string"
+        },
+        {
+          "const": "cardano",
+          "type": "string"
+        },
+        {
+          "$ref": "#/definitions/VirtualChains"
+        },
+        {
+          "$ref": "#/definitions/MockedChains"
+        }
+      ]
+    },
+    "TokenDeployment": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/FungibleTokenInfo"
+        },
+        {
+          "$ref": "#/definitions/NativeTokenInfo"
+        }
+      ]
+    },
+    "TokenInfo": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/BaseTokenInfo"
+        },
+        {
+          "$ref": "#/definitions/UnifiedTokenInfo"
+        }
+      ]
+    },
+    "TokenList": {
+      "additionalProperties": false,
+      "description": "Used for generating JSON schema for a token list.",
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "tokens": {
+          "items": {
+            "$ref": "#/definitions/TokenInfo"
+          },
+          "type": "array"
+        }
+      },
+      "required": ["tokens"],
+      "type": "object"
+    },
+    "UnifiedTokenInfo": {
+      "additionalProperties": false,
+      "description": "A virtual aggregation of the same token across multiple blockchains. This is not an on-chain token but a unified view of network-specific tokens with shared properties.\n\nThe name avoids \"NativeMultichainAsset\" to clarify that it doesn't represent an actual multichain token, just a virtual abstraction.",
+      "properties": {
+        "groupedTokens": {
+          "items": {
+            "$ref": "#/definitions/BaseTokenInfo"
+          },
+          "type": "array"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "unifiedAssetId": {
+          "type": "string"
+        }
+      },
+      "required": ["unifiedAssetId", "symbol", "name", "icon", "groupedTokens"],
+      "type": "object"
+    },
+    "VirtualChains": {
+      "enum": [
+        "turbochain",
+        "tuxappchain",
+        "vertex",
+        "optima",
+        "easychain",
+        "aurora",
+        "aurora_devnet"
+      ],
+      "type": "string"
+    }
+  }
+}

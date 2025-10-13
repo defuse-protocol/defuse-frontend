@@ -3,9 +3,9 @@ import { solverRelay } from "@defuse-protocol/internal-utils"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { base64 } from "@scure/base"
 import { createEmptyIntentMessage } from "@src/components/DefuseSDK/core/messages"
+import { logger } from "@src/utils/logger"
 import { assertEvent, assign, fromPromise, setup } from "xstate"
 import type { SignerCredentials } from "../../../core/formatters"
-import { logger } from "../../../logger"
 import {
   type PublishIntentsErr,
   convertPublishIntentsToLegacyFormat,

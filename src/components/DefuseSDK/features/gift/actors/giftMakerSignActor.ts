@@ -4,13 +4,13 @@ import {
   type walletMessage,
 } from "@defuse-protocol/internal-utils"
 import { base64 } from "@scure/base"
+import { logger } from "@src/utils/logger"
 import { type PromiseActorLogic, assertEvent, setup } from "xstate"
 import {
   type SignerCredentials,
   formatSignedIntent,
 } from "../../../core/formatters"
 import { createTransferMessage } from "../../../core/messages"
-import { logger } from "../../../logger"
 import { calculateSplitAmounts } from "../../../sdk/aggregatedQuote/calculateSplitAmounts"
 import { AmountMismatchError } from "../../../sdk/aggregatedQuote/errors/amountMismatchError"
 import type { BaseTokenInfo, TokenInfo, TokenValue } from "../../../types/base"

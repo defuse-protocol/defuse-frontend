@@ -1,6 +1,6 @@
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
+import { logger } from "@src/utils/logger"
 import { Ok, type Result } from "@thames/monads"
-import { logger } from "../../../logger"
 import { assert } from "../../../utils/assert"
 import type { GiftMakerHistory } from "../stores/giftMakerHistory"
 import { findTokenFromDiff } from "./deriveToken"

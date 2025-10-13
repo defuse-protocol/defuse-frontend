@@ -1,5 +1,6 @@
 import { authIdentity } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
+import { logger } from "@src/utils/logger"
 import type { providers } from "near-api-js"
 import {
   type ActorRefFrom,
@@ -10,7 +11,6 @@ import {
   setup,
   spawnChild,
 } from "xstate"
-import { logger } from "../../logger"
 import { emitEvent } from "../../services/emitter"
 import type { QuoteResult } from "../../services/quoteService"
 import type { BaseTokenInfo, TokenInfo } from "../../types/base"
@@ -612,6 +612,7 @@ export const withdrawUIMachine = setup({
             intentOperationParams: {
               type: "withdraw",
               tokenOut: formValues.tokenOut,
+              tokenOutDeployment: formValues.tokenOutDeployment,
               quote,
               feeEstimation: context.preparationOutput.value.feeEstimation,
               directWithdrawalAmount:

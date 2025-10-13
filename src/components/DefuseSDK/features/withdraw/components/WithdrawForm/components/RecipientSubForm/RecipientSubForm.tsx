@@ -38,7 +38,10 @@ import {
 import { truncateUserAddress } from "../../utils"
 import { HotBalance } from "../HotBalance/HotBalance"
 import { LongWithdrawWarning } from "../LongWithdrawWarning"
-import { validateAddressSoft } from "./validation"
+import {
+  type ValidateRecipientAddressErrorType,
+  validationRecipientAddress,
+} from "./validationRecipientAddress"
 
 type RecipientSubFormProps = {
   form: UseFormReturn<WithdrawFormNearValues>
@@ -73,21 +76,20 @@ export const RecipientSubForm = ({
       }
     })
 
-  const { token, tokenOut, parsedAmountIn, recipient } = useSelector(
-    formRef,
-    (state) => {
+  const { token, tokenOut, tokenOutDeployment, parsedAmountIn, recipient } =
+    useSelector(formRef, (state) => {
       return {
         token: state.context.tokenIn,
         tokenOut: state.context.tokenOut,
+        tokenOutDeployment: state.context.tokenOutDeployment,
         parsedAmountIn: state.context.parsedAmount,
         recipient: state.context.recipient,
       }
-    }
-  )
+    })
 
   const isChainTypeSatisfiesChainName = chainTypeSatisfiesChainName(
     chainType,
-    tokenOut.chainName
+    tokenOutDeployment.chainName
   )
 
   const hasAnyBalance = tokenInBalance != null && tokenInBalance?.amount > 0
@@ -230,11 +232,13 @@ export const RecipientSubForm = ({
         )}
       />
 
-      {tokenOut.bridge === "poa" && showHotBalances && (
+      {tokenOutDeployment.bridge === "poa" && showHotBalances && (
         <LongWithdrawWarning
           amountIn={parsedAmountIn}
           symbol={tokenOut.symbol}
-          hotBalance={blockchainSelectItems[tokenOut.chainName]?.hotBalance}
+          hotBalance={
+            blockchainSelectItems[tokenOutDeployment.chainName]?.hotBalance
+          }
         />
       )}
 
@@ -245,14 +249,17 @@ export const RecipientSubForm = ({
               size="3"
               {...register("recipient", {
                 validate: {
-                  pattern: (value, formValues) => {
-                    const error = validateAddressSoft(
+                  pattern: async (value, formValues) => {
+                    const result = await validationRecipientAddress(
                       value,
                       formValues.blockchain,
                       userAddress ?? "",
                       chainType
                     )
-                    return error ? error : true
+                    if (result.isErr()) {
+                      return renderRecipientAddressError(result.unwrapErr())
+                    }
+                    return result.unwrap()
                   },
                 },
               })}
@@ -322,7 +329,10 @@ export const RecipientSubForm = ({
                       if (value == null || value === "") return
 
                       if (
-                        parseDestinationMemo(value, tokenOut.chainName) == null
+                        parseDestinationMemo(
+                          value,
+                          tokenOutDeployment.chainName
+                        ) == null
                       ) {
                         return "Should be a number"
                       }
@@ -386,4 +396,19 @@ function determineBlockchainControllerHint(
     return "Internal network"
   }
   return "Network"
+}
+
+function renderRecipientAddressError(error: ValidateRecipientAddressErrorType) {
+  switch (error) {
+    case "SELF_WITHDRAWAL":
+      return "You cannot withdraw to your own address. Please enter a different recipient address."
+    case "ADDRESS_INVALID":
+      return "Please enter a valid address for the selected blockchain."
+    case "ACCOUNT_DOES_NOT_EXIST":
+      return "The account does not exist. Please enter a different recipient address."
+    case "USER_ADDRESS_REQUIRED":
+      return "Near Intents network requires your address. Try signing in again."
+    default:
+      return "An unexpected error occurred. Please enter a different recipient address."
+  }
 }

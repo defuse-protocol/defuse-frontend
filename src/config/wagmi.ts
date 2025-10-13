@@ -109,7 +109,13 @@ export const config = createConfig({
         showQrModal: true,
         customStoragePrefix: "near-intents",
       }),
-    coinbaseWallet({ appName: "Near Intents" }),
+    coinbaseWallet({
+      appName: "Near Intents",
+      preference: {
+        options: "eoaOnly", // smart-wallets can't sign intents
+        telemetry: false,
+      },
+    }),
     injected(),
   ].filter((a): a is Exclude<typeof a, boolean> => !!a),
   transports: {

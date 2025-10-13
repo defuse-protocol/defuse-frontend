@@ -39,11 +39,11 @@ const pairs: Record<WhitelabelTemplateValue, [string, string]> = {
   ],
 }
 
-export function useDeterminePair() {
+export function useDeterminePair(supports1cs = false) {
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
   const searchParams = useSearchParams()
-  const processedTokenList = useTokenList(LIST_TOKENS)
-  const is1cs = useIs1CsEnabled()
+  const processedTokenList = useTokenList(LIST_TOKENS, supports1cs)
+  const is1cs = useIs1CsEnabled() && supports1cs
 
   const fromParam = searchParams.get("from")
   const toParam = searchParams.get("to")
@@ -211,7 +211,7 @@ export function hasChainIcon(
 const SEPARATOR = ":"
 
 function tokenToSymbolWithChainName(token: BaseTokenInfo) {
-  return `${token.symbol}${SEPARATOR}${token.chainName}`
+  return `${token.symbol}${SEPARATOR}${token.originChainName}`
 }
 
 export function tokenFromSymbolWithChainName(symbolWithChainName: string) {
@@ -224,7 +224,8 @@ export function tokenFromSymbolWithChainName(symbolWithChainName: string) {
       ? LIST_TOKENS.find((t) => t.symbol === symbolWithoutChainName)
       : LIST_TOKENS_FLATTEN.find(
           (t) =>
-            t.symbol === symbolWithoutChainName && t.chainName === chainName
+            t.symbol === symbolWithoutChainName &&
+            t.originChainName === chainName
         )) ?? null
   )
 }

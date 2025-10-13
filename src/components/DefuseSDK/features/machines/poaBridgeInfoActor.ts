@@ -1,4 +1,5 @@
 import { errors, poaBridge } from "@defuse-protocol/internal-utils"
+import { logger } from "@src/utils/logger"
 import {
   type ActorRefFrom,
   type SnapshotFrom,
@@ -8,7 +9,6 @@ import {
   setup,
   waitFor,
 } from "xstate"
-import { logger } from "../../logger"
 import type { BaseTokenInfo } from "../../types/base"
 
 export interface Context {
@@ -17,7 +17,7 @@ export interface Context {
     {
       minDeposit: bigint
       minWithdrawal: bigint
-      withdrawalFee: number
+      withdrawalFee: bigint
     }
   >
 }
@@ -49,7 +49,7 @@ export const poaBridgeInfoActor = setup({
               {
                 minDeposit: BigInt(bridgedTokenInfo.min_deposit_amount),
                 minWithdrawal: BigInt(bridgedTokenInfo.min_withdrawal_amount),
-                withdrawalFee: Number(bridgedTokenInfo.withdrawal_fee),
+                withdrawalFee: BigInt(bridgedTokenInfo.withdrawal_fee),
               },
             ]
           }
@@ -118,19 +118,21 @@ export const waitPOABridgeInfoActor = fromPromise(
   }
 )
 
-export const getPOABridgeInfo = (
+export function getPOABridgeInfo(
   state: SnapshotFrom<typeof poaBridgeInfoActor>,
-  token: BaseTokenInfo | BaseTokenInfo["defuseAssetId"]
-) => {
+  tokenId: BaseTokenInfo["defuseAssetId"]
+): {
+  minDeposit: bigint
+  minWithdrawal: bigint
+  withdrawalFee: bigint
+} | null {
   if (!state.matches("success")) return null
 
   return (
-    state.context.bridgeInfo[
-      typeof token === "object" ? token.defuseAssetId : token
-    ] ?? {
+    state.context.bridgeInfo[tokenId] ?? {
       minDeposit: 1n,
       minWithdrawal: 1n,
-      withdrawalFee: 0,
+      withdrawalFee: 0n,
     }
   )
 }

@@ -1,8 +1,16 @@
 "use client"
 
 import { APP_ENV } from "@src/utils/environment"
-import { TonConnectUIProvider } from "@tonconnect/ui-react"
+import dynamic from "next/dynamic"
 import type { ReactNode } from "react"
+
+// Disable SSR for TonConnectUIProvider to prevent hydration mismatch
+// The TON Connect library adds ontouchstart attribute to body during initialization,
+// which causes React hydration errors when server and client DOM don't match
+const TonConnectUIProvider = dynamic(
+  () => import("@tonconnect/ui-react").then((mod) => mod.TonConnectUIProvider),
+  { ssr: false }
+)
 
 function TonConnectUIProviderWrapper({ children }: { children: ReactNode }) {
   return (

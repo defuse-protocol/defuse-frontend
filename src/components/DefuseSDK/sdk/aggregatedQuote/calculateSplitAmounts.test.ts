@@ -12,13 +12,19 @@ import { AmountMismatchError } from "./errors/amountMismatchError"
 
 const tokenInfo: BaseTokenInfo = {
   defuseAssetId: "",
-  address: "",
   symbol: "",
   name: "",
   decimals: 0,
   icon: "",
-  chainName: "eth",
-  bridge: "poa",
+  originChainName: "eth",
+  deployments: [
+    {
+      chainName: "eth",
+      bridge: "poa",
+      decimals: 0,
+      address: "",
+    },
+  ],
 }
 
 const token1 = {

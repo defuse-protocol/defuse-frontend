@@ -5,21 +5,33 @@ import { adjustDecimals } from "../../utils/tokenUtils"
 import { AggregatedQuoteError } from "./errors/aggregatedQuoteError"
 import { getAggregatedQuoteExactIn } from "./getAggregatedQuoteExactIn"
 
-vi.mock("@defuse-protocol/internal-utils", () => ({
-  solverRelay: {
-    quote: vi.fn(),
-  },
-}))
+vi.mock("@defuse-protocol/internal-utils", async (importOriginal) => {
+  const module =
+    await importOriginal<typeof import("@defuse-protocol/internal-utils")>()
+  return {
+    ...module,
+    solverRelay: {
+      ...module.solverRelay,
+      quote: vi.fn(),
+    },
+  }
+})
 
 const tokenInfo: BaseTokenInfo = {
   defuseAssetId: "",
-  address: "",
   symbol: "",
   name: "",
   decimals: 0,
   icon: "",
-  chainName: "eth",
-  bridge: "poa",
+  originChainName: "eth",
+  deployments: [
+    {
+      chainName: "eth",
+      bridge: "poa",
+      decimals: 0,
+      address: "",
+    },
+  ],
 }
 
 const token1 = {
@@ -330,7 +342,6 @@ describe.skip("getAggregatedQuoteExactIn()", () => {
       quoteErrors: [
         new QuoteError({
           quote: null,
-          // @ts-expect-error - `QuoteError` type compiled incorrectly
           // biome-ignore lint/style/noNonNullAssertion: <explanation>
           quoteParams: quoteParams[1]!,
         }),

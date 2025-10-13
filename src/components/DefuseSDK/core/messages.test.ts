@@ -4,6 +4,7 @@ import {
   createEmptyIntentMessage,
   createSwapIntentMessage,
   createTransferMessage,
+  createWalletVerificationMessage,
 } from "./messages"
 
 const TEST_TIMESTAMP = 1704110400000 // 2024-01-01T12:00:00.000Z
@@ -60,6 +61,26 @@ describe("createEmptyIntentMessage()", () => {
     const parsed = JSON.parse(message.NEP413.message)
     expect(Date.parse(parsed.deadline)).toBeGreaterThan(Date.now())
     expect(parsed.intents).toEqual([])
+  })
+})
+
+describe("createWalletVerificationMessage()", () => {
+  it("creates long message that exceeds the 256 symbols threshold", () => {
+    const THRESHOLD = 256
+    const message = createWalletVerificationMessage(
+      {
+        signerId: TEST_USER,
+        deadlineTimestamp: TEST_TIMESTAMP,
+      },
+      "tron"
+    )
+    expect(message.TRON.message.length).toBeGreaterThan(THRESHOLD)
+
+    const tronMessage = JSON.parse(message.TRON.message)
+    expect(tronMessage.message_size_validation).toBeDefined()
+    expect(tronMessage.message_size_validation).toBe(
+      "Validates message size compatibility with wallet signing requirements."
+    )
   })
 })
 

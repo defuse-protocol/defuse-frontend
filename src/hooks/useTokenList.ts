@@ -3,8 +3,8 @@ import { useFlatTokenList } from "@src/hooks/useFlatTokenList"
 import { useSearchParams } from "next/navigation"
 import { useMemo } from "react"
 
-export function useTokenList(tokenList: TokenInfo[]) {
-  const flatTokenList = useFlatTokenList(tokenList)
+export function useTokenList(tokenList: TokenInfo[], supports1cs = false) {
+  const flatTokenList = useFlatTokenList(tokenList, supports1cs)
   const searchParams = useSearchParams()
 
   const sortedList = useMemo(
@@ -24,20 +24,6 @@ export function useTokenList(tokenList: TokenInfo[]) {
       }
       return searchParams.has(feature.split(":")[1])
     })
-
-    if (searchParams.get("fms")) {
-      filteredList.push({
-        defuseAssetId:
-          "nep141:base-0xa5c67d8d37b88c2d88647814da5578128e2c93b2.omft.near",
-        address: "0xa5c67d8d37b88c2d88647814da5578128e2c93b2",
-        decimals: 18,
-        icon: "/static/icons/icon-fms.svg",
-        chainName: "base",
-        bridge: "poa",
-        symbol: "FMS",
-        name: "FOMO SOLVER",
-      })
-    }
 
     return filteredList
   }, [searchParams, sortedList])

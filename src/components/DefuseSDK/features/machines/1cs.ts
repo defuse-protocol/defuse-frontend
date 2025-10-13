@@ -119,6 +119,7 @@ export async function getQuote(
       recipient: intentsUserId,
       recipientType: QuoteRequest.recipientType.INTENTS,
       swapType: QuoteRequest.swapType.EXACT_INPUT,
+      quoteWaitingTimeMs: 0, // means the fastest quote
       referral: referralMap[await whitelabelTemplateFlag()],
       ...(appFeeBps > 0
         ? { appFees: [{ recipient: APP_FEE_RECIPIENT, fee: appFeeBps }] }
@@ -190,7 +191,13 @@ export async function submitTxHash(args: SubmitTxHashArg) {
   }
 
   try {
-    return { ok: await OneClickService.submitDepositTx(body.data) }
+    return {
+      ok: await OneClickService.submitDepositTx({
+        ...body.data,
+        // @ts-expect-error not documented feature
+        type: "INTENTS",
+      }),
+    }
   } catch (error) {
     const err = unknownServerErrorToString(error)
     logger.error(`1cs: submitTxHash error: ${err}`)

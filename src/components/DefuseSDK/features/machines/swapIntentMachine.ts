@@ -12,16 +12,16 @@ import { messageFactory } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { secp256k1 } from "@noble/curves/secp256k1"
 import { APP_FEE_RECIPIENT } from "@src/utils/environment"
+import { logger } from "@src/utils/logger"
 import type { providers } from "near-api-js"
 import { assign, fromPromise, setup } from "xstate"
 import { settings } from "../../constants/settings"
-import { logger } from "../../logger"
 import { convertPublishIntentToLegacyFormat } from "../../sdk/solverRelay/utils/parseFailedPublishError"
 import { emitEvent } from "../../services/emitter"
 import type { AggregatedQuote } from "../../services/quoteService"
 import type {
   BaseTokenInfo,
-  SupportedChainName,
+  TokenDeployment,
   TokenValue,
 } from "../../types/base"
 import type { IntentsUserId } from "../../types/intentsUserId"
@@ -59,6 +59,7 @@ type IntentOperationParams =
   | {
       type: "withdraw"
       tokenOut: BaseTokenInfo
+      tokenOutDeployment: TokenDeployment
       quote: AggregatedQuote | null
       feeEstimation: FeeEstimation
       directWithdrawalAmount: TokenValue
@@ -79,9 +80,9 @@ export type IntentDescription =
   | {
       type: "withdraw"
       tokenOut: BaseTokenInfo
+      tokenOutDeployment: TokenDeployment
       amountWithdrawn: TokenValue
       accountId: IntentsUserId
-      chainName: SupportedChainName
       recipient: string
       nearIntentsNetwork: boolean
       withdrawalParams: WithdrawalParams
@@ -355,12 +356,13 @@ export const swapIntentMachine = setup({
               intentDescription: {
                 type: "withdraw",
                 tokenOut: context.intentOperationParams.tokenOut,
+                tokenOutDeployment:
+                  context.intentOperationParams.tokenOutDeployment,
                 amountWithdrawn: calcOperationAmountOut(
                   context.intentOperationParams,
                   context.quoteToPublish
                 ),
                 accountId: context.defuseUserId,
-                chainName: context.intentOperationParams.tokenOut.chainName,
                 recipient: context.intentOperationParams.recipient,
                 nearIntentsNetwork:
                   context.intentOperationParams.nearIntentsNetwork,
