@@ -239,6 +239,23 @@
         }
       ],
       "tags": ["mc:120", "tvol:1", "aid:zec"]
+    },
+    {
+      "defuseAssetId": "nep141:wrap.near",
+      "symbol": "NEAR",
+      "name": "Near",
+      "decimals": 24,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/6535.png",
+      "originChainName": "near",
+      "deployments": [
+        {
+          "address": "wrap.near",
+          "decimals": 24,
+          "chainName": "near",
+          "bridge": "direct"
+        }
+      ],
+      "tags": ["mc:31", "tvol:2", "aid:near"]
     }
   ]
 }
