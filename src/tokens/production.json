@@ -2232,7 +2232,7 @@
           "bridge": "poa"
         }
       ],
-      "tags": ["mc:4515"]
+      "tags": ["mc:4515", "type:stablecoin"]
     },
     {
       "defuseAssetId": "nep141:gnosis-0x5cb9073902f2035222b9749f8fb0c9bfe5527108.omft.near",
@@ -2249,7 +2249,7 @@
           "bridge": "poa"
         }
       ],
-      "tags": []
+      "tags": ["type:stablecoin"]
     }
   ]
 }
