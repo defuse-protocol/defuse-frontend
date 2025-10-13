@@ -15,7 +15,7 @@ import { useNearWallet } from "@src/providers/NearWalletProvider"
 import { renderAppLink } from "@src/utils/renderAppLink"
 import { useQuery } from "@tanstack/react-query"
 import { useSearchParams } from "next/navigation"
-import { useEffect, useMemo } from "react"
+import { useMemo } from "react"
 
 export default function Swap() {
   const { state } = useConnectWallet()
@@ -28,15 +28,7 @@ export default function Swap() {
   const { tokenIn, tokenOut } = useDeterminePair(true)
   const referral = useIntentsReferral()
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      void prefetchMostTradableTokens()
-    }, 3000)
-
-    return () => {
-      clearTimeout(timer)
-    }
-  }, [])
+  prefetchMostTradableTokens()
 
   return (
     <Paper>

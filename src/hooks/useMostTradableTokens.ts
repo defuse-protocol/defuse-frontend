@@ -15,8 +15,8 @@ export function useMostTradableTokens(): UseQueryResult<MostTradableTokensRespon
   })
 }
 
-export const prefetchMostTradableTokens = async () => {
-  await queryClient.prefetchQuery({
+export const prefetchMostTradableTokens = () => {
+  void queryClient.prefetchQuery({
     queryKey: ["most-tradable-tokens"],
     queryFn: getMostTradableTokens,
     staleTime: 60 * 60 * 1000, // 1 hour
