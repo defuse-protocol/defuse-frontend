@@ -29,6 +29,63 @@ export const turbo = {
   },
 } as const satisfies Chain
 
+export const tuxappchain = {
+  id: 1313161573,
+  name: "TuxaChain",
+  nativeCurrency: { name: "Tuxa", symbol: "TUXA", decimals: 18 },
+  rpcUrls: {
+    default: { http: ["https://rpc-0x4e454165.aurora-cloud.dev"] },
+  },
+  blockExplorers: {
+    default: { name: "Explorer", url: "https://explorer.tuxa.aurora.dev" },
+  },
+} as const satisfies Chain
+
+export const vertex = {
+  id: 1313161587,
+  name: "Vertex",
+  nativeCurrency: { name: "Aurora", symbol: "AURORA", decimals: 18 },
+  rpcUrls: {
+    default: { http: ["https://rpc-0x4e454173.aurora-cloud.dev"] },
+  },
+  blockExplorers: {
+    default: {
+      name: "Explorer",
+      url: "https://explorer.0x4e454173.aurora-cloud.dev",
+    },
+  },
+} as const satisfies Chain
+
+export const optima = {
+  id: 1313161569,
+  name: "Optima",
+  nativeCurrency: { name: "Optima", symbol: "OPTIMA", decimals: 18 },
+  rpcUrls: {
+    default: { http: ["https://rpc-0x4e454161.aurora-cloud.dev"] },
+  },
+  blockExplorers: {
+    default: {
+      name: "Explorer",
+      url: "https://explorer.optima.aurora.dev",
+    },
+  },
+} as const satisfies Chain
+
+export const coineasy = {
+  id: 1313161752,
+  name: "EasyChain",
+  nativeCurrency: { name: "Ethereum", symbol: "ETH", decimals: 18 },
+  rpcUrls: {
+    default: { http: ["https://0x4e454218.rpc.aurora-cloud.dev"] },
+  },
+  blockExplorers: {
+    default: {
+      name: "Explorer",
+      url: "https://0x4e454218.explorer.aurora-cloud.dev",
+    },
+  },
+} as const satisfies Chain
+
 export const config = createConfig({
   chains: [
     mainnet,
@@ -40,6 +97,10 @@ export const config = createConfig({
     bsc,
     optimism,
     avalanche,
+    tuxappchain,
+    vertex,
+    optima,
+    coineasy,
   ],
   connectors: [
     PROJECT_ID != null &&
@@ -67,5 +128,9 @@ export const config = createConfig({
     [bsc.id]: http(),
     [optimism.id]: http(),
     [avalanche.id]: http(),
+    [tuxappchain.id]: http(),
+    [vertex.id]: http(),
+    [optima.id]: http(),
+    [coineasy.id]: http(),
   },
 })
