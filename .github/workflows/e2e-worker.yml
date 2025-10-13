@@ -81,14 +81,17 @@ jobs:
       - name: Install Playwright
         run: bunx playwright install chromium
       - name: Wait for Vercel Deployment
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request' || github.event_name == 'push' }}
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }}
         run: |
-          COMMIT_SHA=${{ github.event.pull_request.head.sha }}
-
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            COMMIT_SHA=${{ github.event.pull_request.head.sha }}
+          else
+            COMMIT_SHA=${{ github.sha }}
+          fi
 
           # Wait for deployment to be ready
           DEPLOYMENT_URL=""
