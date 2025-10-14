@@ -14,16 +14,8 @@ import { useSelector } from "@xstate/react"
 import clsx from "clsx"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
-import {
-  Fragment,
-  type ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-} from "react"
-import { useFormContext } from "react-hook-form"
-import type { ActorRefFrom, SnapshotFrom } from "xstate"
+import { Fragment, type ReactNode, useContext, useMemo } from "react"
+import type { ActorRefFrom } from "xstate"
 import { AuthGate } from "../../../components/AuthGate"
 import { BlockMultiBalances } from "../../../components/Block/BlockMultiBalances"
 import { ButtonCustom } from "../../../components/Button/ButtonCustom"
@@ -44,11 +36,8 @@ import {
 } from "../../machines/depositedBalanceMachine"
 import type { intentStatusMachine } from "../../machines/intentStatusMachine"
 import type { oneClickStatusMachine } from "../../machines/oneClickStatusMachine"
-import {
-  type Context,
-  ONE_CLICK_PREFIX,
-  type swapUIMachine,
-} from "../../machines/swapUIMachine"
+import { type Context, ONE_CLICK_PREFIX } from "../../machines/swapUIMachine"
+import { formValuesSelector } from "../actors/swapFormMachine"
 import { SwapPriceImpact } from "./SwapPriceImpact"
 import { SwapRateInfo } from "./SwapRateInfo"
 import { SwapSubmitterContext } from "./SwapSubmitter"
@@ -65,15 +54,15 @@ export interface SwapFormProps {
 }
 
 export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
-  const { setValue, getValues, watch } = useFormContext<SwapFormValues>()
-
   const swapUIActorRef = SwapUIMachineContext.useActorRef()
   const snapshot = SwapUIMachineContext.useSelector((snapshot) => snapshot)
   const intentCreationResult = snapshot.context.intentCreationResult
   const { data: tokensUsdPriceData } = useTokensUsdPrices()
 
-  const formValuesRef = useSelector(swapUIActorRef, formValuesSelector)
-  const { tokenIn, tokenOut, amountIn } = formValuesRef
+  const formRef = useSelector(swapUIActorRef, (s) => s.context.formRef)
+  const formValuesRef = useSelector(formRef, formValuesSelector)
+  const formValues = useSelector(formValuesRef, (s) => s.context)
+  const { tokenIn, tokenOut, amountIn, amountOut } = formValues
 
   const {
     noLiquidity,
@@ -102,25 +91,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     }
   })
 
-  // we need stable references to allow passing to useEffect
-  const switchTokens = useCallback(() => {
-    const { amountIn, amountOut } = getValues()
-    setValue("amountIn", amountOut)
-    setValue("amountOut", amountIn)
-    swapUIActorRef.send({
-      type: "input",
-      params: {
-        tokenIn: tokenOut,
-        tokenOut: tokenIn,
-      },
-    })
-  }, [tokenIn, tokenOut, getValues, setValue, swapUIActorRef.send])
-
-  const {
-    setModalType,
-    payload,
-    modalType: currentModalType,
-  } = useModalStore((state) => state)
+  const { setModalType, payload } = useModalStore((state) => state)
 
   const openModalSelectAssets = (
     fieldName: string,
@@ -132,50 +103,32 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
       [fieldName]: token,
       isHoldingsEnabled: true,
       isMostTradableTokensEnabled: true,
+      onConfirm: (payload: ModalSelectAssetsPayload) => {
+        const { fieldName } = payload as ModalSelectAssetsPayload
+        const _payload = payload as ModalSelectAssetsPayload
+        const token = _payload[fieldName || "token"]
+
+        if (fieldName && token) {
+          switch (fieldName) {
+            case SWAP_TOKEN_FLAGS.IN:
+              if (getTokenId(tokenOut) === getTokenId(token)) {
+                formValuesRef.trigger.switchTokens()
+              } else {
+                formValuesRef.trigger.updateTokenIn({ value: token })
+              }
+              break
+            case SWAP_TOKEN_FLAGS.OUT:
+              if (getTokenId(tokenIn) === getTokenId(token)) {
+                formValuesRef.trigger.switchTokens()
+              } else {
+                formValuesRef.trigger.updateTokenOut({ value: token })
+              }
+              break
+          }
+        }
+      },
     })
   }
-
-  useEffect(() => {
-    if (
-      currentModalType !== null ||
-      (payload as ModalSelectAssetsPayload)?.modalType !==
-        ModalType.MODAL_SELECT_ASSETS
-    ) {
-      return
-    }
-    const { modalType, fieldName } = payload as ModalSelectAssetsPayload
-    const _payload = payload as ModalSelectAssetsPayload
-    const token = _payload[fieldName || "token"]
-    if (modalType === ModalType.MODAL_SELECT_ASSETS && fieldName && token) {
-      const { tokenIn, tokenOut } =
-        swapUIActorRef.getSnapshot().context.formValues
-
-      switch (fieldName) {
-        case SWAP_TOKEN_FLAGS.IN:
-          if (getTokenId(tokenOut) === getTokenId(token)) {
-            // Don't need to switch amounts, when token selected from dialog
-            swapUIActorRef.send({
-              type: "input",
-              params: { tokenIn: tokenOut, tokenOut: tokenIn },
-            })
-          } else {
-            swapUIActorRef.send({ type: "input", params: { tokenIn: token } })
-          }
-          break
-        case SWAP_TOKEN_FLAGS.OUT:
-          if (getTokenId(tokenIn) === getTokenId(token)) {
-            // Don't need to switch amounts, when token selected from dialog
-            swapUIActorRef.send({
-              type: "input",
-              params: { tokenIn: tokenOut, tokenOut: tokenIn },
-            })
-          } else {
-            swapUIActorRef.send({ type: "input", params: { tokenOut: token } })
-          }
-          break
-      }
-    }
-  }, [payload, currentModalType, swapUIActorRef])
 
   const { onSubmit } = useContext(SwapSubmitterContext)
 
@@ -199,27 +152,19 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     transitBalanceSelector(tokenIn)
   )
 
+  const parsedValuesRef = useSelector(formRef, (s) => s.context.parsedValues)
+  const parsedValues = useSelector(parsedValuesRef, (s) => s.context)
+
   const balanceInsufficient =
-    tokenInBalance != null && snapshot.context.parsedFormValues.amountIn != null
-      ? compareAmounts(
-          tokenInBalance,
-          snapshot.context.parsedFormValues.amountIn
-        ) === -1
+    tokenInBalance != null && parsedValues.amountIn != null
+      ? compareAmounts(tokenInBalance, parsedValues.amountIn) === -1
       : false
 
   const showDepositButton =
     tokenInBalance != null && tokenInBalance.amount === 0n
 
-  const usdAmountIn = getTokenUsdPrice(
-    getValues().amountIn,
-    tokenIn,
-    tokensUsdPriceData
-  )
-  const usdAmountOut = getTokenUsdPrice(
-    getValues().amountOut,
-    tokenOut,
-    tokensUsdPriceData
-  )
+  const usdAmountIn = getTokenUsdPrice(amountIn, tokenIn, tokensUsdPriceData)
+  const usdAmountOut = getTokenUsdPrice(amountOut, tokenOut, tokensUsdPriceData)
 
   const is1cs = useIs1CsEnabled()
   const isLoading =
@@ -238,14 +183,11 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   ) => {
     if (fieldName === SWAP_TOKEN_FLAGS.IN) {
       if (tokenInBalance != null) {
-        swapUIActorRef.send({
-          type: "input",
-          params: {
-            amountIn: formatTokenValue(
-              tokenInBalance.amount,
-              tokenInBalance.decimals
-            ),
-          },
+        formValuesRef.trigger.updateAmountIn({
+          value: formatTokenValue(
+            tokenInBalance.amount,
+            tokenInBalance.decimals
+          ),
         })
       }
     }
@@ -256,14 +198,11 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   ) => {
     if (fieldName === SWAP_TOKEN_FLAGS.IN) {
       if (tokenInBalance != null) {
-        swapUIActorRef.send({
-          type: "input",
-          params: {
-            amountIn: formatTokenValue(
-              tokenInBalance.amount / 2n,
-              tokenInBalance.decimals
-            ),
-          },
+        formValuesRef.trigger.updateAmountIn({
+          value: formatTokenValue(
+            tokenInBalance.amount / 2n,
+            tokenInBalance.decimals
+          ),
         })
       }
     }
@@ -298,12 +237,11 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                 id="swap-form-amount-in"
                 name="amountIn"
                 value={amountIn}
-                onChange={(e) =>
-                  swapUIActorRef.send({
-                    type: "input",
-                    params: { amountIn: e.target.value },
+                onChange={(e) => {
+                  formValuesRef.trigger.updateAmountIn({
+                    value: e.target.value,
                   })
-                }
+                }}
               />
             }
             tokenSlot={
@@ -353,7 +291,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             // mousedown event is used to prevent the button from stealing focus
             onMouseDown={(e) => {
               e.preventDefault()
-              switchTokens()
+              formValuesRef.trigger.switchTokens()
             }}
             className="size-10 -my-3.5 rounded-[10px] bg-accent-1 flex items-center justify-center z-10"
           >
@@ -375,7 +313,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                 <TokenAmountInputCard.Input
                   id="otc-maker-amount-out"
                   name="amountOut"
-                  value={watch("amountOut")}
+                  value={amountOut}
                   disabled={true}
                 />
               }
@@ -484,8 +422,8 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
           tokenIn={tokenIn}
           tokenOut={tokenOut}
           amountIn={{
-            amount: snapshot.context.parsedFormValues.amountIn?.amount ?? 0n,
-            decimals: snapshot.context.parsedFormValues.amountIn?.decimals ?? 0,
+            amount: parsedValues.amountIn?.amount ?? 0n,
+            decimals: parsedValues.amountIn?.decimals ?? 0,
           }}
           newAmountOut={snapshot.context.priceChangeDialog.pendingNewAmountOut}
           previousAmountOut={
@@ -671,8 +609,4 @@ export function renderIntentCreationResult(
       <Callout.Text>{content}</Callout.Text>
     </Callout.Root>
   )
-}
-
-function formValuesSelector(snapshot: SnapshotFrom<typeof swapUIMachine>) {
-  return snapshot.context.formValues
 }
