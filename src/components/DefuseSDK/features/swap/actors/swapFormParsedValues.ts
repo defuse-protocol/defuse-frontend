@@ -8,7 +8,7 @@ import {
 import type { SwapFormValuesState } from "./swapFormValuesStore"
 
 type State = {
-  tokenIn: null | TokenInfo
+  tokenIn: null | BaseTokenInfo
   tokenOut: null | BaseTokenInfo
   amountIn: null | TokenValue
   amountOut: null | TokenValue
@@ -31,6 +31,10 @@ export const createSwapFormParsedValuesStore = () =>
         { formValues }: { formValues: SwapFormValuesState },
         enqueue
       ) => {
+        const tokenIn =
+          formValues.tokenIn != null
+            ? getAnyBaseTokenInfo(formValues.tokenIn)
+            : null
         const tokenOut =
           formValues.tokenOut != null
             ? getAnyBaseTokenInfo(formValues.tokenOut)
@@ -38,9 +42,9 @@ export const createSwapFormParsedValuesStore = () =>
 
         const newContext = {
           ...context,
-          amountIn: parseTokenValue(formValues.tokenIn, formValues.amountIn),
+          amountIn: parseTokenValue(tokenIn, formValues.amountIn),
           amountOut: parseTokenValue(tokenOut, formValues.amountOut),
-          tokenIn: formValues.tokenIn,
+          tokenIn,
           tokenOut,
         }
         enqueue.emit.valuesParsed({ context: newContext })
