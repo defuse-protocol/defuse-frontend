@@ -12,8 +12,14 @@ export function useSwapRateData() {
 
 function swapRateDataSelector(state: SnapshotFrom<typeof swapUIMachine>) {
   const slippageBasisPoints = state.context.slippageBasisPoints
+  const form = state.context.formRef.getSnapshot()
+  const parsed = form.context.parsedValues.getSnapshot().context
 
-  if (state.context.quote == null || state.context.quote.tag === "err") {
+  if (
+    parsed.tokenOut == null ||
+    state.context.quote == null ||
+    state.context.quote.tag === "err"
+  ) {
     return {
       amountOut: null,
       minAmountOut: null,
@@ -24,8 +30,6 @@ function swapRateDataSelector(state: SnapshotFrom<typeof swapUIMachine>) {
   }
 
   const quote = state.context.quote.value
-  const form = state.context.formRef.getSnapshot()
-  const parsed = form.context.parsedValues.getSnapshot().context
 
   const amountOut = computeTotalDeltaDifferentDecimals(
     [parsed.tokenOut],
