@@ -14,15 +14,13 @@ import {
   spawnChild,
 } from "xstate"
 import type { QuoteResult } from "../../services/quoteService"
-import type { BaseTokenInfo, TokenValue } from "../../types/base"
 import type { TokenInfo } from "../../types/base"
 import { assert } from "../../utils/assert"
-import { parseUnits } from "../../utils/parse"
 import {
-  getAnyBaseTokenInfo,
-  getTokenMaxDecimals,
+  computeTotalDeltaDifferentDecimals,
   getUnderlyingBaseTokenInfos,
 } from "../../utils/tokenUtils"
+import { swapFormMachine } from "../swap/actors/swapFormMachine"
 import {
   type Events as Background1csQuoterEvents,
   type ParentEvents as Background1csQuoterParentEvents,
@@ -34,7 +32,7 @@ import {
   backgroundQuoterMachine,
 } from "./backgroundQuoterMachine"
 
-import { isBaseToken } from "@src/components/DefuseSDK/utils/token"
+import { formatUnits } from "viem"
 import {
   type BalanceMapping,
   type Events as DepositedBalanceEvents,
@@ -52,25 +50,12 @@ import {
   swapIntentMachine,
 } from "./swapIntentMachine"
 
-function getTokenDecimals(token: TokenInfo) {
-  return isBaseToken(token) ? token.decimals : token.groupedTokens[0].decimals
-}
-
 export type Context = {
   user: null | authHandle.AuthHandle
   error: Error | null
   quote: QuoteResult | null
   quote1csError: string | null
-  formValues: {
-    tokenIn: TokenInfo
-    tokenOut: TokenInfo
-    amountIn: string
-  }
-  parsedFormValues: {
-    tokenIn: BaseTokenInfo
-    tokenOut: BaseTokenInfo
-    amountIn: TokenValue | null
-  }
+  formRef: ActorRefFrom<typeof swapFormMachine>
   intentCreationResult:
     | SwapIntentMachineOutput
     | SwapIntent1csMachineOutput
@@ -187,6 +172,7 @@ export const swapUIMachine = setup({
       background1csQuoterRef: "background1csQuoterActor"
       swapRef: "swapActor"
       swapRef1cs: "swap1csActor"
+      formRef: "formActor"
     },
   },
   actors: {
@@ -197,56 +183,41 @@ export const swapUIMachine = setup({
     swap1csActor: swapIntent1csMachine,
     intentStatusActor: intentStatusMachine,
     oneClickStatusActor: oneClickStatusMachine,
+    formActor: swapFormMachine,
   },
   actions: {
     setUser: assign({
       user: (_, v: Context["user"]) => v,
     }),
-    setFormValues: assign({
-      formValues: (
-        { context },
-        {
-          data,
-        }: {
-          data: Partial<{
-            tokenIn: TokenInfo
-            tokenOut: TokenInfo
-            amountIn: string
-          }>
-        }
-      ) => ({
-        ...context.formValues,
-        ...data,
-      }),
-    }),
-    parseFormValues: assign({
-      parsedFormValues: ({ context }) => {
-        const tokenIn = getAnyBaseTokenInfo(context.formValues.tokenIn)
-        const tokenOut = getAnyBaseTokenInfo(context.formValues.tokenOut)
+    clearUIAmountOut: ({ context }) => {
+      const form = context.formRef.getSnapshot()
+      form.context.formValues.trigger.updateAmountOut({ value: "" })
+    },
+    updateUIAmountOut: ({ context }) => {
+      const form = context.formRef.getSnapshot()
+      const parsed = form.context.parsedValues.getSnapshot().context
+      const { tokenOut } = parsed
+      const quote = context.quote
 
-        try {
-          const decimals = context.is1cs
-            ? getTokenDecimals(context.formValues.tokenIn)
-            : getTokenMaxDecimals(context.formValues.tokenIn)
-          return {
-            tokenIn,
-            tokenOut,
-            amountIn: {
-              amount: parseUnits(context.formValues.amountIn, decimals),
-              decimals,
-            },
-          }
-        } catch {
-          return {
-            tokenIn,
-            tokenOut,
-            amountIn: null,
-          }
+      let amountOut = ""
+      if (quote == null) {
+        amountOut = ""
+      } else if (quote.tag === "err") {
+        amountOut = "–"
+      } else {
+        if (tokenOut) {
+          const totalAmountOut = computeTotalDeltaDifferentDecimals(
+            [tokenOut],
+            quote.value.tokenDeltas
+          )
+          const amountOutFormatted = formatUnits(
+            totalAmountOut.amount,
+            totalAmountOut.decimals
+          )
+          amountOut = amountOutFormatted
         }
-      },
-    }),
-    updateUIAmountOut: () => {
-      throw new Error("not implemented")
+      }
+      form.context.formValues.trigger.updateAmountOut({ value: amountOut })
     },
     setQuote: assign({
       quote: ({ context }, newQuote: QuoteResult) => {
@@ -309,21 +280,28 @@ export const swapUIMachine = setup({
         const depositedBalanceRef:
           | ActorRefFrom<typeof depositedBalanceMachine>
           | undefined = snapshot.children.depositedBalanceRef
-        const balances = balancesSelector(depositedBalanceRef?.getSnapshot())
+        const balances =
+          balancesSelector(depositedBalanceRef?.getSnapshot()) ?? {}
 
-        assert(context.parsedFormValues.amountIn != null, "amountIn is not set")
+        const form = context.formRef.getSnapshot()
+        const formValues = form.context.formValues.getSnapshot().context
+        const parsed = form.context.parsedValues.getSnapshot().context
+
+        assert(parsed.tokenIn != null, "tokenIn is not set")
+        assert(parsed.tokenOut != null, "tokenOut is not set")
+        assert(parsed.amountIn != null, "amountIn is not set")
 
         return {
           type: "NEW_QUOTE_INPUT",
           params: {
-            tokenIn: context.formValues.tokenIn,
-            tokenOut: context.parsedFormValues.tokenOut,
-            amountIn: context.parsedFormValues.amountIn,
-            balances: balances ?? {},
+            tokenIn: formValues.tokenIn,
+            tokenOut: parsed.tokenOut,
+            amountIn: parsed.amountIn,
+            balances,
             appFeeBps: computeAppFeeBps(
               APP_FEE_BPS,
-              context.formValues.tokenIn,
-              context.formValues.tokenOut,
+              formValues.tokenIn,
+              formValues.tokenOut,
               APP_FEE_RECIPIENT,
               context.user
             ),
@@ -338,7 +316,12 @@ export const swapUIMachine = setup({
     sendToBackground1csQuoterRefNewQuoteInput: sendTo(
       "background1csQuoterRef",
       ({ context }): Background1csQuoterEvents => {
-        assert(context.parsedFormValues.amountIn != null, "amountIn is not set")
+        const form = context.formRef.getSnapshot()
+        const parsed = form.context.parsedValues.getSnapshot().context
+
+        assert(parsed.tokenIn != null, "tokenIn is not set")
+        assert(parsed.tokenOut != null, "tokenOut is not set")
+        assert(parsed.amountIn != null, "amountIn is not set")
 
         const user =
           context.user ??
@@ -347,9 +330,9 @@ export const swapUIMachine = setup({
         return {
           type: "NEW_QUOTE_INPUT",
           params: {
-            tokenIn: context.parsedFormValues.tokenIn,
-            tokenOut: context.parsedFormValues.tokenOut,
-            amountIn: context.parsedFormValues.amountIn,
+            tokenIn: parsed.tokenIn,
+            tokenOut: parsed.tokenOut,
+            amountIn: parsed.amountIn,
             slippageBasisPoints: context.slippageBasisPoints,
             defuseUserId: authIdentity.authHandleToIntentsUserId(
               user.identifier,
@@ -407,6 +390,9 @@ export const swapUIMachine = setup({
       ) => {
         if (output.tag !== "ok") return context.intentRefs
 
+        const form = context.formRef.getSnapshot()
+        const formValues = form.context.formValues.getSnapshot()
+
         if (context.is1cs && "depositAddress" in output.value) {
           const swapDescription = output.value.intentDescription as Extract<
             typeof output.value.intentDescription,
@@ -418,8 +404,8 @@ export const swapUIMachine = setup({
               parentRef: self,
               intentHash: output.value.intentHash,
               depositAddress: output.value.depositAddress,
-              tokenIn: context.formValues.tokenIn,
-              tokenOut: context.formValues.tokenOut,
+              tokenIn: formValues.context.tokenIn,
+              tokenOut: formValues.context.tokenOut,
               totalAmountIn: swapDescription.totalAmountIn,
               totalAmountOut: swapDescription.totalAmountOut,
             },
@@ -433,8 +419,8 @@ export const swapUIMachine = setup({
           input: {
             parentRef: self,
             intentHash: output.value.intentHash,
-            tokenIn: context.formValues.tokenIn,
-            tokenOut: context.formValues.tokenOut,
+            tokenIn: formValues.context.tokenIn,
+            tokenOut: formValues.context.tokenOut,
             intentDescription: output.value.intentDescription,
           },
         })
@@ -498,26 +484,32 @@ export const swapUIMachine = setup({
       )
     },
     isQuoteValidAnd1cs: ({ context }) => {
+      const form = context.formRef.getSnapshot()
+      const parsed = form.context.parsedValues.getSnapshot()
       return (
         context.is1cs &&
-        context.parsedFormValues.amountIn != null &&
-        context.parsedFormValues.amountIn.amount > 0n
+        parsed.context.amountIn != null &&
+        parsed.context.amountIn.amount > 0n
       )
     },
 
     isOk: (_, a: { tag: "err" | "ok" }) => a.tag === "ok",
 
     isFormValidAndNot1cs: ({ context }) => {
+      const form = context.formRef.getSnapshot()
+      const parsed = form.context.parsedValues.getSnapshot()
       return (
-        context.parsedFormValues.amountIn != null &&
-        context.parsedFormValues.amountIn.amount > 0n &&
+        parsed.context.amountIn != null &&
+        parsed.context.amountIn.amount > 0n &&
         !context.is1cs
       )
     },
     isFormValidAnd1cs: ({ context }) => {
+      const form = context.formRef.getSnapshot()
+      const parsed = form.context.parsedValues.getSnapshot()
       return (
-        context.parsedFormValues.amountIn != null &&
-        context.parsedFormValues.amountIn.amount > 0n &&
+        parsed.context.amountIn != null &&
+        parsed.context.amountIn.amount > 0n &&
         context.is1cs
       )
     },
@@ -526,21 +518,19 @@ export const swapUIMachine = setup({
   /** @xstate-layout N4IgpgJg5mDOIC5SwO4EMAOBaArgSwGIBJAOQBUBRcgfQGUKyyAZCgEQG0AGAXUVAwD2sPABc8AgHZ8QAD0RYArAoAcAOgCMAdgWcALJ04BOZZoBMCgDQgAnvMO7Nq5ac6b1B07oWfDAX19WqJi4hADyJBTUAMJMRFEA0nQMzGxcvEgggsJiktJyCOqmhgDMGsXlxQBs9pqGhuq6VrYIWIaaapWemsXenJXq9er+gejY+AQAQgCCTFMkUZFRABJzAOKpPNJZouJSGfnFuqXKnAqFuvp9CkdNdqaVqoYKVVXeJZpuwyBBY4TTs-NFisSOsOOp0vwhDtcvtEOozqpKppOMVlDVlAN1LcWpViuonHV3B8epU0covj8QgQmKFVqQ0lsoTk9qB8riCQ17kddFojJpsa1dIZVMU3MpxTVilcKaMqTTVqEAKpkBkZbbMvLyUzqB4NIzmbXKBSaSqkgX2YWi9TitEOKWVBQy4LjAAKACU4kC1otwgAxIhugCyUzIRHC1DdFAAioqKLQVZs1UzdpqCpUDIj6uV2uodcbGjZ5OpSm1jKLOLmvEp4U7fgR3Z7osD1tE-QHAxsIZlkzDWXDrqZVNX0-0kbpTGjsUVhUjCrjvJ5XKZirWqQ2Fk3vdE5gsmCwOInIdkU7CCgpSUOjmYLoc+j1scX8ZxTC5lDzlEjyqv8KpIDsJFABCwDgABGAC2oiqke0IsrIcJaKotR6A69TIsoxSGA+GZ6IcL4OmYhikro354L+ED-oBwHgZB4KMsevZwQUz6qM+uhovcWiot0BbNFg+hPhOzzoa49hvo6ATfLKP5-mIAEEHgEgYDgIhQd29GwfkWDmA81SGHohQYWizwCocDwnL07hZkilQkWRFEEBEADq1AxqElCqeqJ59i0dqPCUzzGEh+jFAKlReBo2lhd41omEMEmUtJ5GyYBTnUOoUS0C5ipuRQHk9hpWrFqoPIYfcE71NcmGFji4WFOeUWGrFtkyQpUCqAAbmgAA2eAQGgyUEHl6mplgxSeI8z4NOKDoGNmU7tIiQposYbElBhNnxVJpEtQBHXdb1-WtYNtFJsNp58UVnSitUpIqMW-LVfCajdAYCiEW4L7Pium3OttSWtXtPV9QN7CmF2nkMZpPSDpwJx4ToJJPNiCh+YRRz9LDubtKczX-bt6AUdQACOOACCIYAORQzmue5h5qTBI16Y4b0ThWZhcaiJkIjymLpqKeLeLjFGqATyXE6T5OU856WZTTuV0xDBUtDoDz6CzSImM4ljVVprgaG4uZjSYk0bSMv2qFREEiANECSGAqgKe1AgANb2z8bpgAAZkNDOntUg7aLUuFtEahECsug63e4HHaBU4lm78FugVbNt2w7EhO67FujB73sndBGqnhh+JHMYE4vPonSVAKH6PD0JpnAaPRjbZluiANYAAE6dwIneqBgXX9Z7vdgdnmC5z7hfeV4jjuDd-RGum2u8dOjzdNczhaA01zET9idt9bR2pXLk9eYxzhqIJ7Qb20WjKKFzGku946eMWsOt8n7etWlADGsAELbCQ9tHYuzdjnL26g-6n0hogZEOlKyaF0P0dot9sT6EcLiI4RhRT1HMMaD+1FD4AV-v-QBwCM6gLHhgXOkDYDsHzvTKejFUT4lKsYISz5xRaGRhWIcpxrT6HLsiUUBCU7f1oQQLuPc+4DyHiPKhNCoEK3yqmI4g56gnHLKiN6KIHxPEQgZWKRRjRmHjpJc2B8xYSNSjLLKOVoFKyeMKARbFTSuE5NXHW44RQ6kIlyG8phtCiK-sQiR64vQgh9CQf0QZOx0V9t5XMtdxRmEXpWF899HonEeEaD8Oh4TImMMEohUASH1g9BuZYW4og7goHuOJp0EmMRqD460iDPCuIGNiKUugnAfHnEoIUbhCL+AkhIAQEA4DSASngeJTDNLuBREOQwrMtDLhMJzHW6F8SdHquOJQTU94hDsslOZZ9NJPBRizE4ayOaZN4mxFGgx7CFCxmxckRzErC16l1MAZyYE+WNMVI23g8QrNqA9FeelVDakMuYEqFwShC2SoDA6pzGnzKLCYEUbEXxtBeOYPQAprjFQdC4B0mDtT1FNuYxOO02qi2-iTMmfyMXnPkKSUo90PzLiODcyFiAkQinsDyHQ7RXFvWKeigu7KECkk4CxZaK0Mm4ixF4klLClAvjOCsqV4i-7-KVqSNQhxnBjTGsaCs9z4KsNQlUVmBgtDiX8EAA */
   id: "swap-ui",
 
-  context: ({ input }) => ({
+  context: ({ input, spawn, self }) => ({
     user: null,
     error: null,
     quote: null,
     quote1csError: null,
-    formValues: {
-      tokenIn: input.tokenIn,
-      tokenOut: input.tokenOut,
-      amountIn: "",
-    },
-    parsedFormValues: {
-      tokenIn: getAnyBaseTokenInfo(input.tokenIn),
-      tokenOut: getAnyBaseTokenInfo(input.tokenOut),
-      amountIn: null,
-    },
+    formRef: spawn("formActor", {
+      id: "formRef",
+      input: {
+        parentRef: self,
+        initialTokenIn: input.tokenIn,
+        initialTokenOut: input.tokenOut,
+      },
+    }),
     intentCreationResult: null,
     intentRefs: [],
     tokenList: input.tokenList,
@@ -667,14 +657,8 @@ export const swapUIMachine = setup({
             "sendToBackgroundQuoterRefPause",
             "sendToBackground1csQuoterRefPause",
             "clearQuote",
-            "updateUIAmountOut",
             "clearError",
             "clear1csError",
-            {
-              type: "setFormValues",
-              params: ({ event }) => ({ data: event.params }),
-            },
-            "parseFormValues",
           ],
         },
 
@@ -748,6 +732,13 @@ export const swapUIMachine = setup({
           const quote = context.quote
           assert(quote !== null, "non valid quote")
           assert(quote.tag === "ok", "non valid quote")
+
+          const form = context.formRef.getSnapshot()
+          const formValues = form.context.formValues.getSnapshot()
+          const parsed = form.context.parsedValues.getSnapshot()
+
+          assert(parsed.context.tokenOut !== null, "tokenOut is not set")
+
           return {
             userAddress: event.params.userAddress,
             userChainType: event.params.userChainType,
@@ -760,8 +751,8 @@ export const swapUIMachine = setup({
             nearClient: event.params.nearClient,
             intentOperationParams: {
               type: "swap" as const,
-              tokensIn: getUnderlyingBaseTokenInfos(context.formValues.tokenIn),
-              tokenOut: context.parsedFormValues.tokenOut,
+              tokensIn: getUnderlyingBaseTokenInfos(formValues.context.tokenIn),
+              tokenOut: parsed.context.tokenOut,
               quote: quote.value,
             },
           }
@@ -833,17 +824,20 @@ export const swapUIMachine = setup({
         input: ({ context, event, self }) => {
           assertEvent(event, "submit")
 
-          assert(
-            context.parsedFormValues.amountIn != null,
-            "amountIn is not set"
-          )
+          const form = context.formRef.getSnapshot()
+          const parsed = form.context.parsedValues.getSnapshot().context
+
+          assert(parsed.tokenIn != null, "tokenIn is not set")
+          assert(parsed.tokenOut != null, "tokenOut is not set")
+          assert(parsed.amountIn != null, "amountIn is not set")
+          assert(parsed.amountOut != null, "amountOut is not set")
           assert(context.user?.identifier != null, "user address is not set")
           assert(context.user?.method != null, "user chain type is not set")
 
           return {
-            tokenIn: context.parsedFormValues.tokenIn,
-            tokenOut: context.parsedFormValues.tokenOut,
-            amountIn: context.parsedFormValues.amountIn,
+            tokenIn: parsed.tokenIn,
+            tokenOut: parsed.tokenOut,
+            amountIn: parsed.amountIn,
             slippageBasisPoints: context.slippageBasisPoints,
             defuseUserId: authIdentity.authHandleToIntentsUserId(
               context.user.identifier,
@@ -861,7 +855,7 @@ export const swapUIMachine = setup({
                       context.quote.value.tokenDeltas.find(
                         ([, delta]) => delta > 0n
                       )?.[1] ?? 0n,
-                    decimals: context.parsedFormValues.tokenOut.decimals,
+                    decimals: parsed.tokenOut.decimals,
                   }
                 : undefined,
             parentRef: self,
