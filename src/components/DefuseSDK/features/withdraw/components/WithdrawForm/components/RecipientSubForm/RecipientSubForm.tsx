@@ -107,7 +107,8 @@ export const RecipientSubForm = ({
     near_intents: true,
   })
 
-  const showHotBalances = Object.keys(maxWithdrawals).length > 0
+  // temporary disable it, it's not working properly
+  const showHotBalances = false && Object.keys(maxWithdrawals).length > 0
 
   const onCloseNetworkModal = () => setIsNetworkModalOpen(false)
 
