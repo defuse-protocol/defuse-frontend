@@ -212,6 +212,9 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const balanceAmountOut = tokenOutBalance?.amount ?? 0n
   const disabledIn = tokenInBalance?.amount === 0n
 
+  const showPriceImpact = usdAmountIn && usdAmountOut && !isLoading
+  const showRateInfo = tokenIn && tokenOut && !isLoading
+
   return (
     <div className="flex flex-col">
       <form
@@ -381,37 +384,42 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               fullWidth
               isLoading={
                 snapshot.matches("submitting") ||
-                snapshot.matches("submitting_1cs")
+                snapshot.matches("submitting_1cs") ||
+                isLoading
               }
               disabled={
                 balanceInsufficient ||
                 noLiquidity ||
                 insufficientTokenInAmount ||
-                failedToGetAQuote
+                failedToGetAQuote ||
+                isLoading
               }
             >
               {renderSwapButtonText(
                 noLiquidity,
                 balanceInsufficient,
                 insufficientTokenInAmount,
-                failedToGetAQuote
+                failedToGetAQuote,
+                isLoading
               )}
             </ButtonCustom>
           )}
         </AuthGate>
 
-        <div className="mt-5">
-          <SwapPriceImpact
-            amountIn={usdAmountIn}
-            amountOut={isLoading ? null : usdAmountOut}
-          />
-        </div>
-        <SwapRateInfo tokenIn={tokenIn} tokenOut={tokenOut} />
+        {(showPriceImpact || showRateInfo) && (
+          <>
+            <SwapPriceImpact
+              amountIn={usdAmountIn}
+              amountOut={isLoading ? null : usdAmountOut}
+            />
+            <SwapRateInfo tokenIn={tokenIn} tokenOut={tokenOut} />
+          </>
+        )}
       </form>
 
       {renderIntentCreationResult(intentCreationResult)}
       {snapshot.context.intentRefs.length > 0 && (
-        <Box>
+        <Box className="mt-5">
           <Intents intentRefs={snapshot.context.intentRefs} />
         </Box>
       )}
@@ -510,12 +518,14 @@ function renderSwapButtonText(
   noLiquidity: boolean,
   balanceInsufficient: boolean,
   insufficientTokenInAmount: boolean,
-  failedToGetAQuote: boolean
+  failedToGetAQuote: boolean,
+  isLoading: boolean
 ) {
   if (noLiquidity) return "No liquidity providers"
   if (balanceInsufficient) return "Insufficient Balance"
   if (insufficientTokenInAmount) return "Insufficient amount"
   if (failedToGetAQuote) return "Failed to get a quote"
+  if (isLoading) return "Getting quote"
   return "Swap"
 }
 
