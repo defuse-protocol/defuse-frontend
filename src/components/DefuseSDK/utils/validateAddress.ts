@@ -7,7 +7,7 @@ import {
 } from "ripple-address-codec"
 import type { SupportedChainName } from "../types/base"
 import { validateCardanoAddress } from "./addressValidation/cardano"
-import { isLegitAccountId } from "./near"
+import { validateNearAddress } from "./near"
 
 export function validateAddress(
   address: string,
@@ -15,7 +15,7 @@ export function validateAddress(
 ): boolean {
   switch (blockchain) {
     case "near":
-      return isLegitAccountId(address)
+      return validateNearAddress(address)
     case "eth":
     case "base":
     case "arbitrum":
