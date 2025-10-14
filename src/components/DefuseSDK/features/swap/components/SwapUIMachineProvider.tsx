@@ -4,20 +4,16 @@ import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { createActorContext } from "@xstate/react"
 import type { PropsWithChildren, ReactElement, ReactNode } from "react"
-import { useFormContext } from "react-hook-form"
-import { formatUnits } from "viem"
 import {
   type Actor,
   type ActorOptions,
   type SnapshotFrom,
   fromPromise,
 } from "xstate"
-import { computeTotalDeltaDifferentDecimals } from "../../../utils/tokenUtils"
 import { swapIntent1csMachine } from "../../machines/swapIntent1csMachine"
 import { swapIntentMachine } from "../../machines/swapIntentMachine"
 import { swapUIMachine } from "../../machines/swapUIMachine"
 import { useSwapTokenChangeNotifier } from "../hooks/useTokenChangeNotifier"
-import type { SwapFormValues } from "./SwapForm"
 
 /**
  * We explicitly define the type of `swapUIMachine` to avoid:
@@ -67,7 +63,6 @@ export function SwapUIMachineProvider({
   signMessage,
   referral,
 }: SwapUIMachineProviderProps) {
-  const { setValue, resetField } = useFormContext<SwapFormValues>()
   const tokenIn = initialTokenIn || tokenList[0]
   const tokenOut = initialTokenOut || tokenList[1]
   const is1cs = useIs1CsEnabled()
@@ -87,30 +82,6 @@ export function SwapUIMachineProvider({
         },
       }}
       logic={swapUIMachine.provide({
-        actions: {
-          updateUIAmountOut: ({ context }) => {
-            const quote = context.quote
-            if (quote == null) {
-              resetField("amountOut")
-            } else if (quote.tag === "err") {
-              setValue("amountOut", "–", {
-                shouldValidate: false,
-              })
-            } else {
-              const totalAmountOut = computeTotalDeltaDifferentDecimals(
-                [context.parsedFormValues.tokenOut],
-                quote.value.tokenDeltas
-              )
-              const amountOutFormatted = formatUnits(
-                totalAmountOut.amount,
-                totalAmountOut.decimals
-              )
-              setValue("amountOut", amountOutFormatted, {
-                shouldValidate: true,
-              })
-            }
-          },
-        },
         actors: {
           swapActor: swapIntentMachine.provide({
             actors: {
