@@ -30,6 +30,7 @@ export const createSwapFormValuesStore = ({
         const newContext = {
           ...context,
           amountIn: event.value,
+          amountOut: "",
         }
         enqueue.emit.changed({ context: newContext })
         return newContext
