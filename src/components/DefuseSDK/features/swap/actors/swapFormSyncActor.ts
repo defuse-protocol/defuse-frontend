@@ -11,19 +11,17 @@ export const swapFormSyncActor = fromCallback(
       formValues: ReturnType<typeof createSwapFormValuesStore>
       parsedValues: ReturnType<typeof createSwapFormParsedValuesStore>
     }
-    sendBack: (event: { type: "VALIDATE" }) => void
+    sendBack: (event: { type: "VALIDATE"; dry?: boolean }) => void
   }) => {
-    const sub = input.formValues.on("changed", ({ context }) => {
+    const sub = input.formValues.on("changed", ({ context, dry }) => {
       input.parsedValues.trigger.parseValues({ formValues: context })
-    })
 
-    const sub2 = input.parsedValues.on("valuesParsed", () => {
-      sendBack({ type: "VALIDATE" })
+      // Send VALIDATE immediately with the dry flag from the changed event
+      sendBack({ type: "VALIDATE", dry: dry === true })
     })
 
     return () => {
       sub.unsubscribe()
-      sub2.unsubscribe()
     }
   }
 )

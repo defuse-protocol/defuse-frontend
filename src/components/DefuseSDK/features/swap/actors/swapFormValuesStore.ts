@@ -23,7 +23,7 @@ export const createSwapFormValuesStore = ({
       tokenOut: initialTokenOut,
     } satisfies SwapFormValuesState,
     emits: {
-      changed: (_: { context: SwapFormValuesState }) => {},
+      changed: (_: { context: SwapFormValuesState; dry?: boolean }) => {},
     },
     on: {
       updateAmountIn: (context, event: { value: string }, enqueue) => {
@@ -40,7 +40,7 @@ export const createSwapFormValuesStore = ({
           ...context,
           amountOut: event.value,
         }
-        enqueue.emit.changed({ context: newContext })
+        enqueue.emit.changed({ context: newContext, dry: true })
         return newContext
       },
       updateTokenIn: (context, event: { value: TokenInfo }, enqueue) => {

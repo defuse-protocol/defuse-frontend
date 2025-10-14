@@ -38,11 +38,11 @@ export const swapFormMachine = setup({
         return allSetSelector(context.parsedValues.getSnapshot())
       },
     }),
-    notifyParent: ({ context }) => context.parentRef.send({ type: "input" }),
-  },
-  guards: {
-    isFormValid: ({ context }) => {
-      return allSetSelector(context.parsedValues.getSnapshot())
+    notifyParent: ({ context, event }) => {
+      // Only notify parent if this is not a dry update (amountOut change), to avoid NEW quote request
+      if (event.dry !== true) {
+        context.parentRef.send({ type: "input" })
+      }
     },
   },
 }).createMachine({
