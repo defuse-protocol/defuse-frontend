@@ -38,7 +38,10 @@ import {
 import { truncateUserAddress } from "../../utils"
 import { HotBalance } from "../HotBalance/HotBalance"
 import { LongWithdrawWarning } from "../LongWithdrawWarning"
-import { validateAddressSoft } from "./validation"
+import {
+  type ValidateRecipientAddressErrorType,
+  validationRecipientAddress,
+} from "./validationRecipientAddress"
 
 type RecipientSubFormProps = {
   form: UseFormReturn<WithdrawFormNearValues>
@@ -104,7 +107,8 @@ export const RecipientSubForm = ({
     near_intents: true,
   })
 
-  const showHotBalances = Object.keys(maxWithdrawals).length > 0
+  // temporary disable it, it's not working properly
+  const showHotBalances = false && Object.keys(maxWithdrawals).length > 0
 
   const onCloseNetworkModal = () => setIsNetworkModalOpen(false)
 
@@ -246,14 +250,17 @@ export const RecipientSubForm = ({
               size="3"
               {...register("recipient", {
                 validate: {
-                  pattern: (value, formValues) => {
-                    const error = validateAddressSoft(
+                  pattern: async (value, formValues) => {
+                    const result = await validationRecipientAddress(
                       value,
                       formValues.blockchain,
                       userAddress ?? "",
                       chainType
                     )
-                    return error ? error : true
+                    if (result.isErr()) {
+                      return renderRecipientAddressError(result.unwrapErr())
+                    }
+                    return result.unwrap()
                   },
                 },
               })}
@@ -390,4 +397,19 @@ function determineBlockchainControllerHint(
     return "Internal network"
   }
   return "Network"
+}
+
+function renderRecipientAddressError(error: ValidateRecipientAddressErrorType) {
+  switch (error) {
+    case "SELF_WITHDRAWAL":
+      return "You cannot withdraw to your own address. Please enter a different recipient address."
+    case "ADDRESS_INVALID":
+      return "Please enter a valid address for the selected blockchain."
+    case "ACCOUNT_DOES_NOT_EXIST":
+      return "The account does not exist. Please enter a different recipient address."
+    case "USER_ADDRESS_REQUIRED":
+      return "Near Intents network requires your address. Try signing in again."
+    default:
+      return "An unexpected error occurred. Please enter a different recipient address."
+  }
 }

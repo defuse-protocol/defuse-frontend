@@ -282,6 +282,12 @@
               "decimals": 8,
               "chainName": "near",
               "bridge": "direct"
+            },
+            {
+              "address": "A7bdiYdS5GjqGFtxf17ppRHtDKPkkRqbKtR27dxvQXaS",
+              "decimals": 8,
+              "chainName": "solana",
+              "bridge": "near_omni"
             }
           ],
           "tags": ["mc:120", "tvol:1", "aid:zec"]
@@ -2216,6 +2222,40 @@
         }
       ],
       "tags": ["mc:44"]
+    },
+    {
+      "defuseAssetId": "nep141:gnosis-0x420ca0f9b9b604ce0fd9c18ef134c705e5fa3430.omft.near",
+      "symbol": "EURe",
+      "name": "Monerium EUR emoney",
+      "decimals": 18,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/20920.png",
+      "originChainName": "gnosis",
+      "deployments": [
+        {
+          "address": "0x420ca0f9b9b604ce0fd9c18ef134c705e5fa3430",
+          "decimals": 18,
+          "chainName": "gnosis",
+          "bridge": "poa"
+        }
+      ],
+      "tags": ["mc:4515", "type:stablecoin"]
+    },
+    {
+      "defuseAssetId": "nep141:gnosis-0x5cb9073902f2035222b9749f8fb0c9bfe5527108.omft.near",
+      "symbol": "GBPe",
+      "name": "Monerium GBP emoney",
+      "decimals": 18,
+      "icon": "https://assets.coingecko.com/coins/images/39004/standard/gbp.png?1719840784",
+      "originChainName": "gnosis",
+      "deployments": [
+        {
+          "address": "0x5cb9073902f2035222b9749f8fb0c9bfe5527108",
+          "decimals": 18,
+          "chainName": "gnosis",
+          "bridge": "poa"
+        }
+      ],
+      "tags": ["type:stablecoin"]
     }
   ]
 }
