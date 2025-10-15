@@ -232,7 +232,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             variant="2"
             labelSlot={
               <label
-                htmlFor="otc-maker-amount-in"
+                htmlFor="swap-form-amount-in"
                 className="font-bold text-label text-sm"
               >
                 Sell
@@ -309,7 +309,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               variant="2"
               labelSlot={
                 <label
-                  htmlFor="otc-maker-amount-out"
+                  htmlFor="swap-form-amount-out"
                   className="font-bold text-label text-sm"
                 >
                   Buy
@@ -317,7 +317,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               }
               inputSlot={
                 <TokenAmountInputCard.Input
-                  id="otc-maker-amount-out"
+                  id="swap-form-amount-out"
                   name="amountOut"
                   value={amountOut}
                   disabled={true}
