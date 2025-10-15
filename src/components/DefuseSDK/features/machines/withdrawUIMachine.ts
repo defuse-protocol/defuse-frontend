@@ -9,18 +9,13 @@ import {
   emit,
   sendTo,
   setup,
-  spawnChild,
 } from "xstate"
 import { emitEvent } from "../../services/emitter"
 import type { QuoteResult } from "../../services/quoteService"
 import type { BaseTokenInfo, TokenInfo } from "../../types/base"
 import { assert } from "../../utils/assert"
 import { isNearIntentsNetwork } from "../withdraw/components/WithdrawForm/utils"
-import {
-  type Events as BackgroundQuoterEvents,
-  type ParentEvents as BackgroundQuoterParentEvents,
-  backgroundQuoterMachine,
-} from "./backgroundQuoterMachine"
+import type { ParentEvents as BackgroundQuoterParentEvents } from "./backgroundQuoterMachine"
 import {
   type BalanceMapping,
   type Events as DepositedBalanceEvents,
@@ -109,12 +104,10 @@ export const withdrawUIMachine = setup({
     emitted: {} as EmittedEvents,
 
     children: {} as {
-      backgroundQuoterRef: "backgroundQuoterActor"
       swapRef: "swapActor"
     },
   },
   actors: {
-    backgroundQuoterActor: backgroundQuoterMachine,
     // biome-ignore lint/suspicious/noExplicitAny: bypass xstate+ts bloating; be careful when interacting with `depositedBalanceActor` string
     depositedBalanceActor: depositedBalanceMachine as any,
     swapActor: swapIntentMachine,
@@ -128,54 +121,6 @@ export const withdrawUIMachine = setup({
     logError: (_, event: { error: unknown }) => {
       logger.error(event.error)
     },
-
-    setQuote: assign({
-      preparationOutput: ({ context }, value: QuoteResult) => {
-        if (
-          context.preparationOutput == null ||
-          context.preparationOutput.tag === "err" ||
-          context.preparationOutput.value.swap == null
-        ) {
-          return context.preparationOutput
-        }
-
-        return {
-          ...context.preparationOutput,
-          value: {
-            ...context.preparationOutput.value,
-            swap: {
-              ...context.preparationOutput.value.swap,
-              swapQuote: value,
-            },
-          },
-        }
-      },
-    }),
-    updateSwapParams: assign({
-      preparationOutput: (
-        { context },
-        { balances }: { balances: BalanceMapping }
-      ) => {
-        if (
-          context.preparationOutput == null ||
-          context.preparationOutput.tag === "err" ||
-          context.preparationOutput.value.swap == null
-        ) {
-          return context.preparationOutput
-        }
-
-        return {
-          ...context.preparationOutput,
-          value: {
-            ...context.preparationOutput.value,
-            swap: {
-              ...context.preparationOutput.value.swap,
-              balances,
-            },
-          },
-        }
-      },
-    }),
 
     setUserAddress: assign({
       userAddress: (_, value: Context["userAddress"]) => value,
@@ -217,40 +162,6 @@ export const withdrawUIMachine = setup({
       })
     },
 
-    spawnBackgroundQuoterRef: spawnChild("backgroundQuoterActor", {
-      id: "backgroundQuoterRef",
-      input: ({ self }) => ({ parentRef: self }),
-    }),
-    sendToBackgroundQuoterRefNewQuoteInput: sendTo(
-      "backgroundQuoterRef",
-      ({ context }): BackgroundQuoterEvents => {
-        const preparationOutput = context.preparationOutput
-
-        if (
-          preparationOutput == null ||
-          preparationOutput.tag === "err" ||
-          preparationOutput.value.swap == null
-        ) {
-          return { type: "PAUSE" }
-        }
-
-        return {
-          type: "NEW_QUOTE_INPUT",
-          params: {
-            ...preparationOutput.value.swap.swapParams,
-            balances: balancesSelector(
-              context.depositedBalanceRef.getSnapshot()
-            ),
-            appFeeBps: 0, // no app fee for withdrawals
-          },
-        }
-      }
-    ),
-    // Warning: This cannot be properly typed, so you can send an incorrect event
-    sendToBackgroundQuoterRefPause: sendTo("backgroundQuoterRef", {
-      type: "PAUSE",
-    }),
-
     relayToDepositedBalanceRef: sendTo(
       "depositedBalanceRef",
       (_, event: DepositedBalanceEvents) => event
@@ -258,12 +169,6 @@ export const withdrawUIMachine = setup({
     sendToDepositedBalanceRefRefresh: sendTo("depositedBalanceRef", (_) => ({
       type: "REQUEST_BALANCE_REFRESH",
     })),
-
-    // Warning: This cannot be properly typed, so you can send an incorrect event
-    sendToSwapRefNewQuote: sendTo(
-      "swapRef",
-      (_, event: BackgroundQuoterParentEvents) => event
-    ),
 
     spawnIntentStatusActor: assign({
       intentRefs: (
@@ -394,7 +299,7 @@ export const withdrawUIMachine = setup({
     referral: input.referral,
   }),
 
-  entry: ["spawnBackgroundQuoterRef", "fetchPOABridgeInfo"],
+  entry: ["fetchPOABridgeInfo"],
 
   on: {
     INTENT_SETTLED: {
@@ -474,25 +379,9 @@ export const withdrawUIMachine = setup({
                 }
               },
             },
-            actions: [
-              {
-                type: "updateSwapParams",
-                params: ({ event }) => ({
-                  balances: event.params.changedBalanceMapping,
-                }),
-              },
-              "sendToBackgroundQuoterRefNewQuoteInput",
-            ],
           },
           ".reset_previous_preparation",
         ],
-
-        NEW_QUOTE: {
-          actions: {
-            type: "setQuote",
-            params: ({ event }) => event.params.quote,
-          },
-        },
 
         WITHDRAW_FORM_FIELDS_CHANGED: ".reset_previous_preparation",
 
@@ -521,33 +410,24 @@ export const withdrawUIMachine = setup({
             {
               target: "preparation",
               guard: "isWithdrawParamsComplete",
-              actions: [
-                "sendToBackgroundQuoterRefPause",
-                "clearPreparationOutput",
-              ],
+              actions: ["clearPreparationOutput"],
             },
             {
               target: "idle",
             },
           ],
 
-          entry: ["sendToBackgroundQuoterRefPause", "clearPreparationOutput"],
+          entry: ["clearPreparationOutput"],
         },
 
         preparation: {
           invoke: {
             src: "prepareWithdrawActor",
-            input: ({ context, self }) => {
-              const backgroundQuoteRef:
-                | ActorRefFrom<typeof backgroundQuoterMachine>
-                | undefined = self.getSnapshot().children.backgroundQuoterRef
-              assert(backgroundQuoteRef != null, "backgroundQuoteRef is null")
-
+            input: ({ context }) => {
               return {
                 formValues: context.withdrawFormRef.getSnapshot().context,
                 depositedBalanceRef: context.depositedBalanceRef,
                 poaBridgeInfoRef: context.poaBridgeInfoRef,
-                backgroundQuoteRef: backgroundQuoteRef,
               }
             },
             onDone: {
@@ -662,25 +542,6 @@ export const withdrawUIMachine = setup({
             type: "logError",
             params: ({ event }) => event,
           },
-        },
-      },
-
-      on: {
-        NEW_QUOTE: {
-          guard: {
-            type: "isQuoteOk",
-            params: ({ event }) => event.params.quote,
-          },
-          actions: [
-            {
-              type: "setQuote",
-              params: ({ event }) => event.params.quote,
-            },
-            {
-              type: "sendToSwapRefNewQuote",
-              params: ({ event }) => event,
-            },
-          ],
         },
       },
     },
