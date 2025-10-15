@@ -282,6 +282,12 @@
               "decimals": 8,
               "chainName": "near",
               "bridge": "direct"
+            },
+            {
+              "address": "A7bdiYdS5GjqGFtxf17ppRHtDKPkkRqbKtR27dxvQXaS",
+              "decimals": 8,
+              "chainName": "solana",
+              "bridge": "near_omni"
             }
           ],
           "tags": ["mc:120", "tvol:1", "aid:zec"]
