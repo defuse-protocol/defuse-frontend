@@ -1,4 +1,5 @@
 import type { SnapshotFrom } from "xstate"
+import { assert } from "../../../utils/assert"
 import {
   accountSlippageExactIn,
   computeTotalDeltaDifferentDecimals,
@@ -14,6 +15,7 @@ function swapRateDataSelector(state: SnapshotFrom<typeof swapUIMachine>) {
   const slippageBasisPoints = state.context.slippageBasisPoints
   const form = state.context.formRef.getSnapshot()
   const parsed = form.context.parsedValues.getSnapshot().context
+  assert(form, "Swap formRef is not defined")
 
   if (
     parsed.tokenOut == null ||

@@ -13,6 +13,7 @@ import {
 } from "../../../components/TokenListUpdater"
 import { WidgetRoot } from "../../../components/WidgetRoot"
 import type { SwapWidgetProps } from "../../../types/swap"
+import { assert } from "../../../utils/assert"
 import { TokenMigration } from "../../tokenMigration/components/TokenMigration"
 import { formValuesSelector } from "../actors/swapFormMachine"
 import { SwapForm } from "./SwapForm"
@@ -92,6 +93,7 @@ export const SwapWidget = ({
 function TokenListUpdaterSwap({ tokenList }: { tokenList: TokenInfo[] }) {
   const swapUIActorRef = SwapUIMachineContext.useActorRef()
   const formRef = useSelector(swapUIActorRef, (s) => s.context.formRef)
+  assert(formRef, "Swap formRef is not defined")
   const formValuesRef = useSelector(formRef, formValuesSelector)
   const formValues = useSelector(formValuesRef, (s) => s.context)
 
