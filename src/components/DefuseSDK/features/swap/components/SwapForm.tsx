@@ -234,39 +234,31 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
         )?.[1]
       ))
 
-  const handleSetMaxValue = async (
-    fieldName: typeof SWAP_TOKEN_FLAGS.IN | typeof SWAP_TOKEN_FLAGS.OUT
-  ) => {
-    if (fieldName === SWAP_TOKEN_FLAGS.IN) {
-      if (tokenInBalance != null) {
-        swapUIActorRef.send({
-          type: "input",
-          params: {
-            amountIn: formatTokenValue(
-              tokenInBalance.amount,
-              tokenInBalance.decimals
-            ),
-          },
-        })
-      }
+  const handleSetMaxValue = async () => {
+    if (tokenInBalance != null) {
+      swapUIActorRef.send({
+        type: "input",
+        params: {
+          amountIn: formatTokenValue(
+            tokenInBalance.amount,
+            tokenInBalance.decimals
+          ),
+        },
+      })
     }
   }
 
-  const handleSetHalfValue = async (
-    fieldName: typeof SWAP_TOKEN_FLAGS.IN | typeof SWAP_TOKEN_FLAGS.OUT
-  ) => {
-    if (fieldName === SWAP_TOKEN_FLAGS.IN) {
-      if (tokenInBalance != null) {
-        swapUIActorRef.send({
-          type: "input",
-          params: {
-            amountIn: formatTokenValue(
-              tokenInBalance.amount / 2n,
-              tokenInBalance.decimals
-            ),
-          },
-        })
-      }
+  const handleSetHalfValue = async () => {
+    if (tokenInBalance != null) {
+      swapUIActorRef.send({
+        type: "input",
+        params: {
+          amountIn: formatTokenValue(
+            tokenInBalance.amount / 2n,
+            tokenInBalance.decimals
+          ),
+        },
+      })
     }
   }
 
@@ -330,14 +322,14 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                 )}
                 maxButtonSlot={
                   <BlockMultiBalances.DisplayMaxButton
-                    onClick={() => handleSetMaxValue(SWAP_TOKEN_FLAGS.IN)}
+                    onClick={handleSetMaxValue}
                     balance={balanceAmountIn}
                     disabled={disabledIn}
                   />
                 }
                 halfButtonSlot={
                   <BlockMultiBalances.DisplayHalfButton
-                    onClick={() => handleSetHalfValue(SWAP_TOKEN_FLAGS.IN)}
+                    onClick={handleSetHalfValue}
                     balance={balanceAmountIn}
                     disabled={disabledIn}
                   />
@@ -404,14 +396,12 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                   )}
                   maxButtonSlot={
                     <BlockMultiBalances.DisplayMaxButton
-                      onClick={() => handleSetMaxValue(SWAP_TOKEN_FLAGS.OUT)}
                       balance={balanceAmountOut}
                       disabled={true}
                     />
                   }
                   halfButtonSlot={
                     <BlockMultiBalances.DisplayHalfButton
-                      onClick={() => handleSetHalfValue(SWAP_TOKEN_FLAGS.OUT)}
                       balance={balanceAmountOut}
                       disabled={true}
                     />
