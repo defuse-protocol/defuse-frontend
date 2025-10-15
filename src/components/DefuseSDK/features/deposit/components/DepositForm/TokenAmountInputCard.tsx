@@ -62,11 +62,11 @@ export function TokenAmountInputCard({
 TokenAmountInputCard.Input = forwardRef<
   HTMLInputElement,
   InputHTMLAttributes<HTMLInputElement> & { isLoading?: boolean }
->(function Input(props, ref) {
+>(function Input({ isLoading, className, disabled, ...rest }, ref) {
   return (
     <>
-      {props.isLoading && (
-        <Skeleton className="w-full absolute" height="40px" />
+      {isLoading && (
+        <Skeleton className="w-full absolute inset-y-0" height="40px" />
       )}
       <input
         ref={ref}
@@ -75,12 +75,15 @@ TokenAmountInputCard.Input = forwardRef<
         pattern="[0-9]*[.]?[0-9]*"
         autoComplete="off"
         placeholder="0"
+        disabled={disabled}
+        aria-busy={isLoading || undefined}
         className={cn(
           "w-full border-0 bg-transparent relative p-0 font-medium text-3xl text-label focus:ring-0 outline-none",
-          props.isLoading && "z-[-1]",
-          props.disabled && "opacity-50"
+          isLoading && "z-[-1]",
+          disabled && "opacity-50",
+          className
         )}
-        {...props}
+        {...rest}
       />
     </>
   )
