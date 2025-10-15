@@ -1,6 +1,7 @@
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
+import { computeTotalDeltaDifferentDecimals } from "@src/components/DefuseSDK/utils/tokenUtils"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { createActorContext } from "@xstate/react"
 import type { PropsWithChildren, ReactElement, ReactNode } from "react"
@@ -12,7 +13,6 @@ import {
   type SnapshotFrom,
   fromPromise,
 } from "xstate"
-import { computeTotalDeltaDifferentDecimals } from "../../../utils/tokenUtils"
 import { swapIntent1csMachine } from "../../machines/swapIntent1csMachine"
 import { swapIntentMachine } from "../../machines/swapIntentMachine"
 import { swapUIMachine } from "../../machines/swapUIMachine"
@@ -89,25 +89,34 @@ export function SwapUIMachineProvider({
       logic={swapUIMachine.provide({
         actions: {
           updateUIAmountOut: ({ context }) => {
+            // ТУТ тоже должно учитывать то что теперь два поля могут меняться
+            console.log("updateUIAmountOut", context)
             const quote = context.quote
-            if (quote == null) {
-              resetField("amountOut")
-            } else if (quote.tag === "err") {
-              setValue("amountOut", "–", {
+            const totalAmountOutUpdated = context.formValues.amountIn === ""
+            const fieldNameToUpdate = totalAmountOutUpdated
+              ? "amountIn"
+              : "amountOut"
+            if (quote == null) return
+            if (quote.tag === "err") {
+              setValue(fieldNameToUpdate, "–", {
                 shouldValidate: false,
               })
             } else {
-              const totalAmountOut = computeTotalDeltaDifferentDecimals(
-                [context.parsedFormValues.tokenOut],
+              const totalAmount = computeTotalDeltaDifferentDecimals(
+                [
+                  totalAmountOutUpdated
+                    ? context.parsedFormValues.tokenIn
+                    : context.parsedFormValues.tokenOut,
+                ],
                 quote.value.tokenDeltas
               )
-              const amountOutFormatted = formatUnits(
-                totalAmountOut.amount,
-                totalAmountOut.decimals
+              setValue(
+                fieldNameToUpdate,
+                formatUnits(totalAmount.amount, totalAmount.decimals),
+                {
+                  shouldValidate: true,
+                }
               )
-              setValue("amountOut", amountOutFormatted, {
-                shouldValidate: true,
-              })
             }
           },
         },

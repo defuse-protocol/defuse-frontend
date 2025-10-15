@@ -5,6 +5,7 @@ import {
 } from "@defuse-protocol/internal-utils"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
+import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import { retry } from "@lifeomic/attempt"
 import { getQuote as get1csQuoteApi } from "@src/components/DefuseSDK/features/machines/1cs"
 import type { ParentEvents as Background1csQuoterParentEvents } from "@src/components/DefuseSDK/features/machines/background1csQuoterMachine"
@@ -161,7 +162,7 @@ export const swapIntent1csMachine = setup({
       }: { input: Quote1csInput & { userChainType: AuthMethod } }) => {
         const tokenInAssetId = input.tokenIn.defuseAssetId
         const tokenOutAssetId = input.tokenOut.defuseAssetId
-
+        console.log("Hello", input)
         return get1csQuoteApiWithRetry({
           dry: false,
           slippageTolerance: Math.round(input.slippageBasisPoints / 100),
@@ -171,6 +172,7 @@ export const swapIntent1csMachine = setup({
           deadline: input.deadline,
           userAddress: input.userAddress,
           authMethod: input.userChainType,
+          swapType: QuoteRequest.swapType.EXACT_INPUT,
         })
       }
     ),

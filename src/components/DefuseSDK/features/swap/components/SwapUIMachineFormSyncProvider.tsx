@@ -29,6 +29,7 @@ export function SwapUIMachineFormSyncProvider({
   onSuccessSwapRef.current = onSuccessSwap
 
   const amountIn = watch("amountIn")
+  const amountOut = watch("amountOut")
 
   useEffect(() => {
     if (amountIn !== undefined) {
@@ -38,6 +39,16 @@ export function SwapUIMachineFormSyncProvider({
       })
     }
   }, [amountIn, actorRef])
+
+  useEffect(() => {
+    if (amountOut !== undefined) {
+      console.log("amountOut", amountOut)
+      actorRef.send({
+        type: "input",
+        params: { amountOut },
+      })
+    }
+  }, [amountOut, actorRef])
 
   useEffect(() => {
     if (userAddress == null || userChainType == null) {

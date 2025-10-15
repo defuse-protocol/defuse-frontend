@@ -281,7 +281,6 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             }}
             className="border border-gray-4 rounded-b-xl mb-5"
             errors={errors}
-            disabled={true}
             isLoading={isLoading}
             usdAmount={
               usdAmountOut !== null && usdAmountOut > 0 && !isLoading
