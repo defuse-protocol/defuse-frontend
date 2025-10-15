@@ -10,6 +10,7 @@ import {
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
 import { getTokenId } from "@src/components/DefuseSDK/utils/token"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
+import { useThrottledValue } from "@src/hooks/useThrottledValue"
 import { useSelector } from "@xstate/react"
 import clsx from "clsx"
 import Link from "next/link"
@@ -276,6 +277,8 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const showPriceImpact = usdAmountIn && usdAmountOut && !isLoading
   const showRateInfo = tokenIn && tokenOut && !isLoading
 
+  const isLongLoading = useThrottledValue(isLoading, isLoading ? 3000 : 0)
+
   return (
     <div className="flex flex-col">
       <form
@@ -380,6 +383,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                   name="amountOut"
                   value={watch("amountOut")}
                   disabled={true}
+                  isLoading={isLoading}
                 />
               }
               tokenSlot={
@@ -421,6 +425,13 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                     : null}
                 </TokenAmountInputCard.DisplayPrice>
               }
+              infoSlot={
+                isLongLoading ? (
+                  <TokenAmountInputCard.DisplayInfo>
+                    Searching for more liquidity...
+                  </TokenAmountInputCard.DisplayInfo>
+                ) : null
+              }
             />
           </div>
         </div>
@@ -446,23 +457,20 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               fullWidth
               isLoading={
                 snapshot.matches("submitting") ||
-                snapshot.matches("submitting_1cs") ||
-                isLoading
+                snapshot.matches("submitting_1cs")
               }
               disabled={
                 balanceInsufficient ||
                 noLiquidity ||
                 insufficientTokenInAmount ||
-                failedToGetAQuote ||
-                isLoading
+                failedToGetAQuote
               }
             >
               {renderSwapButtonText(
                 noLiquidity,
                 balanceInsufficient,
                 insufficientTokenInAmount,
-                failedToGetAQuote,
-                isLoading
+                failedToGetAQuote
               )}
             </ButtonCustom>
           )}
@@ -580,14 +588,12 @@ function renderSwapButtonText(
   noLiquidity: boolean,
   balanceInsufficient: boolean,
   insufficientTokenInAmount: boolean,
-  failedToGetAQuote: boolean,
-  isLoading: boolean
+  failedToGetAQuote: boolean
 ) {
   if (noLiquidity) return "No liquidity providers"
   if (balanceInsufficient) return "Insufficient Balance"
   if (insufficientTokenInAmount) return "Insufficient amount"
   if (failedToGetAQuote) return "Failed to get a quote"
-  if (isLoading) return "Getting quote"
   return "Swap"
 }
 
