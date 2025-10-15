@@ -212,12 +212,12 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     tokenInBalance != null && tokenInBalance.amount === 0n
 
   const usdAmountIn = getTokenUsdPrice(
-    getValues().amountIn,
+    watch("amountIn"),
     tokenIn,
     tokensUsdPriceData
   )
   const usdAmountOut = getTokenUsdPrice(
-    getValues().amountOut,
+    watch("amountOut"),
     tokenOut,
     tokensUsdPriceData
   )
