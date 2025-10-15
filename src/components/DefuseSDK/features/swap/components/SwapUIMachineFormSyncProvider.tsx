@@ -28,16 +28,20 @@ export function SwapUIMachineFormSyncProvider({
   const onSuccessSwapRef = useRef(onSuccessSwap)
   onSuccessSwapRef.current = onSuccessSwap
 
-  const amountIn = watch("amountIn")
-
   useEffect(() => {
-    if (amountIn !== undefined) {
+    const subscription = watch((values, { name, type }) => {
+      if (type === undefined || name === undefined) return
+      const value = values[name]
+      if (value === undefined) return
+
       actorRef.send({
         type: "input",
-        params: { amountIn },
+        params: { [name]: value },
       })
-    }
-  }, [amountIn, actorRef])
+    })
+
+    return () => subscription.unsubscribe()
+  }, [watch, actorRef])
 
   useEffect(() => {
     if (userAddress == null || userChainType == null) {

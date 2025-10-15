@@ -62,8 +62,8 @@ export const backgroundQuoterMachine = fromCallback<
   EmittedEvents
 >(({ receive, input, emit }) => {
   let abortController = new AbortController()
-
   receive((event) => {
+    console.log("backgroundQuoterMachine", event)
     abortController.abort()
     abortController = new AbortController()
 
