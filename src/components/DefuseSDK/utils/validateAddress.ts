@@ -1,3 +1,4 @@
+import { utils } from "@defuse-protocol/internal-utils"
 import { sha256 } from "@noble/hashes/sha256"
 import { base58, bech32m, hex } from "@scure/base"
 import { PublicKey } from "@solana/web3.js"
@@ -7,7 +8,6 @@ import {
 } from "ripple-address-codec"
 import type { SupportedChainName } from "../types/base"
 import { validateCardanoAddress } from "./addressValidation/cardano"
-import { validateNearAddress } from "./near"
 
 export function validateAddress(
   address: string,
@@ -15,7 +15,7 @@ export function validateAddress(
 ): boolean {
   switch (blockchain) {
     case "near":
-      return validateNearAddress(address)
+      return utils.validateNearAddress(address)
     case "eth":
     case "base":
     case "arbitrum":

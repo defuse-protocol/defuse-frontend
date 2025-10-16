@@ -1,5 +1,5 @@
 import { type AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
-import { isImplicitAccount } from "@src/components/DefuseSDK/utils/near"
+import { utils } from "@defuse-protocol/internal-utils"
 import { logger } from "@src/utils/logger"
 import { Err, Ok, type Result } from "@thames/monads"
 import * as v from "valibot"
@@ -32,7 +32,7 @@ export async function validationRecipientAddress(
     const isValidNearAddress = validateAddress(recipientAddress, "near")
 
     // Validate explicit account for NEAR network
-    if (isValidNearAddress && !isImplicitAccount(recipientAddress)) {
+    if (isValidNearAddress && !utils.isImplicitAccount(recipientAddress)) {
       const explicitAccountExist =
         await validateAndCacheNearExplicitAccount(recipientAddress)
       if (explicitAccountExist.isErr()) {
@@ -57,7 +57,7 @@ export async function validationRecipientAddress(
     if (
       isValidChainAddress &&
       chainName === "near" &&
-      !isImplicitAccount(recipientAddress)
+      !utils.isImplicitAccount(recipientAddress)
     ) {
       const explicitAccountExist =
         await validateAndCacheNearExplicitAccount(recipientAddress)
