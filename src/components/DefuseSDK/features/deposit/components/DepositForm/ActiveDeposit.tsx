@@ -5,6 +5,7 @@ import { useSelector } from "@xstate/react"
 import clsx from "clsx"
 import { useId } from "react"
 import { useFormContext } from "react-hook-form"
+import type { SnapshotFrom } from "xstate"
 import { BlockMultiBalances } from "../../../../components/Block/BlockMultiBalances"
 import { ButtonCustom } from "../../../../components/Button/ButtonCustom"
 import { TooltipInfo } from "../../../../components/TooltipInfo"
@@ -15,9 +16,12 @@ import { reverseAssetNetworkAdapter } from "../../../../utils/adapters"
 import { formatTokenValue, formatUsdAmount } from "../../../../utils/format"
 import getTokenUsdPrice from "../../../../utils/getTokenUsdPrice"
 import { isFungibleToken } from "../../../../utils/token"
+import { DepositMode } from "../../../machines/depositFormReducer"
+import type { depositUIMachine } from "../../../machines/depositUIMachine"
 import { DepositResult } from "../DepositResult"
 import { DepositUIMachineContext } from "../DepositUIMachineProvider"
 import { DepositWarning } from "../DepositWarning"
+import { Intents } from "./Intents"
 import { TokenAmountInputCard } from "./TokenAmountInputCard"
 import type { DepositFormValues } from "./index"
 import {
@@ -39,21 +43,19 @@ export function ActiveDeposit({
   minDepositAmount,
 }: ActiveDepositProps) {
   const { setValue, watch } = useFormContext<DepositFormValues>()
+  const depositUIActorRef = DepositUIMachineContext.useActorRef()
+  const formValuesRef = useSelector(depositUIActorRef, formValuesSelector)
+  const { amount, parsedAmount, depositMode } = formValuesRef
 
   const {
-    amount,
-    parsedAmount,
+    intentRefs,
     depositOutput,
     preparationOutput,
     depositTokenBalanceRef,
     isLoading,
   } = DepositUIMachineContext.useSelector((snapshot) => {
-    const amount = snapshot.context.depositFormRef.getSnapshot().context.amount
-    const parsedAmount =
-      snapshot.context.depositFormRef.getSnapshot().context.parsedAmount
     return {
-      amount,
-      parsedAmount,
+      intentRefs: snapshot.context.intentRefs,
       depositOutput: snapshot.context.depositOutput,
       preparationOutput: snapshot.context.preparationOutput,
       depositTokenBalanceRef: snapshot.context.depositTokenBalanceRef,
@@ -184,10 +186,14 @@ export function ActiveDeposit({
 
       {renderDepositHint(network, token, tokenDeployment)}
 
-      <DepositResult
-        chainName={reverseAssetNetworkAdapter[network]}
-        depositResult={depositOutput}
-      />
+      {depositMode === DepositMode.ONE_CLICK ? (
+        <Intents intentRefs={intentRefs} />
+      ) : (
+        <DepositResult
+          chainName={reverseAssetNetworkAdapter[network]}
+          depositResult={depositOutput}
+        />
+      )}
     </div>
   )
 }
@@ -292,4 +298,8 @@ function isInsufficientBalance(
 
   const balanceToFormat = formatTokenValue(balance, token.decimals)
   return Number.parseFloat(formAmount) > Number.parseFloat(balanceToFormat)
+}
+
+function formValuesSelector(snapshot: SnapshotFrom<typeof depositUIMachine>) {
+  return snapshot.context.depositFormRef.getSnapshot().context
 }
