@@ -1,9 +1,8 @@
 import { type AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
-import { isImplicitAccount } from "@src/components/DefuseSDK/utils/near"
+import { utils } from "@defuse-protocol/internal-utils"
 import { logger } from "@src/utils/logger"
 import { Err, Ok, type Result } from "@thames/monads"
 import * as v from "valibot"
-import { isAddress } from "viem"
 import { nearClient } from "../../../../../../constants/nearClient"
 import type { SupportedChainName } from "../../../../../../types/base"
 import { validateAddress } from "../../../../../../utils/validateAddress"
@@ -31,16 +30,9 @@ export async function validationRecipientAddress(
     }
 
     const isValidNearAddress = validateAddress(recipientAddress, "near")
-    const isNearEVMCompatible = isNearEVMAddress(
-      recipientAddress,
-      chainName as SupportedChainName
-    )
+
     // Validate explicit account for NEAR network
-    if (
-      isValidNearAddress &&
-      !isNearEVMCompatible &&
-      !isImplicitAccount(recipientAddress)
-    ) {
+    if (isValidNearAddress && !utils.isImplicitAccount(recipientAddress)) {
       const explicitAccountExist =
         await validateAndCacheNearExplicitAccount(recipientAddress)
       if (explicitAccountExist.isErr()) {
@@ -48,7 +40,7 @@ export async function validationRecipientAddress(
       }
     }
 
-    if (isValidNearAddress || isNearEVMCompatible) {
+    if (isValidNearAddress) {
       return Ok(true)
     }
     return Err("ADDRESS_INVALID")
@@ -60,16 +52,12 @@ export async function validationRecipientAddress(
       recipientAddress,
       chainName as SupportedChainName
     )
-    const isNearEVMCompatible = isNearEVMAddress(
-      recipientAddress,
-      chainName as SupportedChainName
-    )
+
     // Validate explicit account for NEAR network
     if (
       isValidChainAddress &&
       chainName === "near" &&
-      !isImplicitAccount(recipientAddress) &&
-      !isNearEVMCompatible
+      !utils.isImplicitAccount(recipientAddress)
     ) {
       const explicitAccountExist =
         await validateAndCacheNearExplicitAccount(recipientAddress)
@@ -77,21 +65,12 @@ export async function validationRecipientAddress(
         return Err(explicitAccountExist.unwrapErr())
       }
     }
-    if (isValidChainAddress || isNearEVMCompatible) {
+    if (isValidChainAddress) {
       return Ok(true)
     }
   }
 
   return Err("ADDRESS_INVALID")
-}
-
-function isNearEVMAddress(
-  address: string,
-  chainName: SupportedChainName | "near_intents"
-): boolean {
-  return (
-    (chainName === "near" || chainName === "near_intents") && isAddress(address)
-  )
 }
 
 function isSelfWithdrawal(
