@@ -37,7 +37,6 @@ import {
 import { depositGenerateAddressMachine } from "./depositGenerateAddressMachine"
 import { type Output as DepositOutput, depositMachine } from "./depositMachine"
 import { depositTokenBalanceMachine } from "./depositTokenBalanceMachine"
-import { intentStatusMachine } from "./intentStatusMachine"
 import { oneClickStatusMachine } from "./oneClickStatusMachine"
 import { poaBridgeInfoActor } from "./poaBridgeInfoActor"
 import {
@@ -60,10 +59,7 @@ export type Context = {
   depositTokenBalanceRef: ActorRefFrom<typeof depositTokenBalanceMachine>
   depositEstimationRef: ActorRefFrom<typeof depositEstimationMachine>
   depositOutput: DepositOutput | null
-  intentRefs: (
-    | ActorRefFrom<typeof oneClickStatusMachine>
-    | ActorRefFrom<typeof intentStatusMachine>
-  )[]
+  intentRefs: ActorRefFrom<typeof oneClickStatusMachine>[]
 }
 
 export const ONE_CLICK_PREFIX = "oneclick-"
@@ -116,8 +112,6 @@ export const depositUIMachine = setup({
       depositVirtualChainRef: "depositVirtualChainActor"
       depositTonRef: "depositTonActor"
       background1csQuoterRef: "background1csQuoterActor"
-      oneClickStatusActor: "oneClickStatusActor"
-      intentStatusActor: "intentStatusActor"
     },
   },
   actors: {
@@ -138,7 +132,6 @@ export const depositUIMachine = setup({
     depositEstimationActor: depositEstimationMachine,
     background1csQuoterActor: background1csQuoterMachine,
     oneClickStatusActor: oneClickStatusMachine,
-    intentStatusActor: intentStatusMachine,
   },
   actions: {
     setDepositOutput: assign({
@@ -277,8 +270,7 @@ export const depositUIMachine = setup({
     }),
     sendToBackground1csQuoterRefNewQuoteInput: sendTo(
       "background1csQuoterRef",
-      // @ts-ignore TODO: fix this
-      ({ context }): Background1csQuoterEvents => {
+      ({ context }: { context: Context }): Background1csQuoterEvents => {
         const {
           token,
           tokenDeployment,
@@ -304,25 +296,13 @@ export const depositUIMachine = setup({
 
         const baseToken = getBaseTokenInfoWithFallback(token, null)
 
-        // This is a hack around amountIn.amount due to 1cs isn't supported 0 amount right now
-        // and can't proceed minDeposit amount due to some fees
-        // TODO: remove this once 1cs supports 0 amount
-        // const bridgeInfoSnapshot = context.poaBridgeInfoRef.getSnapshot()
-        // const minAmountsInfo = getPOABridgeInfo(
-        //   bridgeInfoSnapshot,
-        //   derivedToken.defuseAssetId
-        // )
-        // const amountIn = minAmountsInfo?.minDeposit
-        //   ? minAmountsInfo?.minDeposit + minimal1csAmount
-        //   : minimal1csAmount
-
         return {
           type: "NEW_QUOTE_INPUT",
           params: {
             tokenIn: derivedToken,
             tokenOut: baseToken,
             amountIn: {
-              amount: 0n,
+              amount: 0n, // Since this is correct for passive deposit it also works for active deposit
               decimals: derivedToken.decimals,
             },
             slippageBasisPoints: 10000,
@@ -344,48 +324,42 @@ export const depositUIMachine = setup({
         }
       }
     ),
-    spawnIntentStatusActor: assign({
-      intentRefs: ({ context, spawn, self }, output: DepositOutput) => {
-        if (output.tag !== "ok") return context.intentRefs
-        const { tokenDeployment, derivedToken } =
-          context.depositFormRef.getSnapshot().context
+    spawnIntentStatusActor: assign(
+      ({ context, spawn, self }, output: DepositOutput) => {
+        if (output.tag !== "ok") return { intentRefs: context.intentRefs }
+        const { depositMode } = context.depositFormRef.getSnapshot().context
 
-        // Transform DepositOutput to match SwapIntentMachineOutput format
-        const { depositDescription, txHash } = output.value
-        const adaptedOutput = {
-          tag: "ok" as const,
-          value: {
-            intentHash: txHash, // Use txHash as intentHash for deposits
-            intentDescription: {
-              type: "deposit" as const,
-              amount: depositDescription.amount,
-              token: depositDescription.derivedToken,
-              tokenDeployment: depositDescription.tokenDeployment,
-              depositAddress: depositDescription.depositAddress,
-              userAddress: depositDescription.userAddress,
+        if (
+          depositMode === DepositMode.ONE_CLICK &&
+          "depositAddress" in output.value.depositDescription
+        ) {
+          // @ts-expect-error Who knows how to fix this?
+          const oneClickRef = spawn("oneClickStatusActor", {
+            id: `${ONE_CLICK_PREFIX}${output.value.depositDescription.depositAddress}`,
+            input: {
+              parentRef: self,
+              intentHash: output.value.txHash,
+              depositAddress: output.value.depositDescription.depositAddress,
+              tokenIn: output.value.depositDescription.derivedToken,
+              tokenOut: output.value.depositDescription.derivedToken,
+              totalAmountIn: {
+                amount: output.value.depositDescription.amount,
+                decimals: output.value.depositDescription.derivedToken.decimals,
+              },
+              totalAmountOut: {
+                amount: output.value.depositDescription.amount,
+                decimals:
+                  output.value.depositDescription.tokenDeployment.decimals,
+              },
             },
-          },
+          })
+
+          return { intentRefs: [oneClickRef, ...context.intentRefs] }
         }
 
-        // Use the same logic as swapUIMachine
-        // @ts-ignore TODO: fix this
-        const intentRef = spawn("intentStatusActor", {
-          id: `intent-${adaptedOutput.value.intentHash}`,
-          input: {
-            parentRef: self,
-            intentHash: adaptedOutput.value.intentHash,
-            tokenIn: derivedToken,
-            tokenOut: tokenDeployment,
-            intentDescription: adaptedOutput.value.intentDescription,
-          },
-        })
-
-        return [intentRef, ...context.intentRefs] as (
-          | ActorRefFrom<typeof oneClickStatusMachine>
-          | ActorRefFrom<typeof intentStatusMachine>
-        )[]
-      },
-    }),
+        return { intentRefs: context.intentRefs }
+      }
+    ),
   },
   guards: {
     isTokenValid: ({ context }) => {
