@@ -1,3 +1,4 @@
+import { utils } from "@defuse-protocol/internal-utils"
 import { AccountLayout } from "@solana/spl-token"
 import { Connection, PublicKey } from "@solana/web3.js"
 import { logger } from "@src/utils/logger"
@@ -7,7 +8,6 @@ import { TronWeb } from "tronweb"
 import * as v from "valibot"
 import { http, type Address, createPublicClient, erc20Abi } from "viem"
 import { nearClient } from "../constants/nearClient"
-import { decodeQueryResult } from "../utils/near"
 import { parseUnits } from "../utils/parse"
 import { createTonClient } from "./tonJettonService"
 
@@ -58,7 +58,7 @@ export const getNearNep141Balance = async ({
       finality: "optimistic",
     })
 
-    const result = decodeQueryResult(response, v.string())
+    const result = utils.decodeQueryResult(response, v.string())
     const balance = BigInt(result)
     return balance
   } catch (err: unknown) {

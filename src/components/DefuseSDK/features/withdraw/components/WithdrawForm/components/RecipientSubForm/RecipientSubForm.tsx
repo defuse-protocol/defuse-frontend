@@ -406,7 +406,7 @@ function renderRecipientAddressError(error: ValidateRecipientAddressErrorType) {
     case "ADDRESS_INVALID":
       return "Please enter a valid address for the selected blockchain."
     case "ACCOUNT_DOES_NOT_EXIST":
-      return "The account does not exist. Please enter a different recipient address."
+      return "The account doesn't exist on NEAR. Please enter a different recipient address."
     case "USER_ADDRESS_REQUIRED":
       return "Near Intents network requires your address. Try signing in again."
     default:
