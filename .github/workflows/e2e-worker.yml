@@ -30,6 +30,10 @@ on:
         required: false
         type: string
 
+concurrency:
+  group: e2e-tests-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   e2e-test:
     runs-on: ubuntu-latest
