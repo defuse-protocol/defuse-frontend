@@ -311,6 +311,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                       type: "input",
                       params: { amountIn: e.target.value },
                     })
+                    setValue("amountOut", "")
                   },
                 })}
               />
