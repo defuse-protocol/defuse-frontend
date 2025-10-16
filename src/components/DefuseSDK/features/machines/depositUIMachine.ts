@@ -268,6 +268,18 @@ export const depositUIMachine = setup({
       id: "background1csQuoterRef",
       input: ({ self }) => ({ parentRef: self }),
     }),
+    requestStorageDepositAmount: sendTo(
+      "storageDepositAmountRef",
+      ({ context }) => {
+        return {
+          type: "REQUEST_STORAGE_DEPOSIT",
+          params: {
+            token: context.depositFormRef.getSnapshot().context.derivedToken,
+            userAccountId: context.userAddress,
+          },
+        }
+      }
+    ),
     sendToBackground1csQuoterRefNewQuoteInput: sendTo(
       "background1csQuoterRef",
       ({ context }: { context: Context }): Background1csQuoterEvents => {
@@ -604,6 +616,7 @@ export const depositUIMachine = setup({
             "requestGenerateAddress",
             "requestBalanceRefresh",
             "sendToBackground1csQuoterRefNewQuoteInput",
+            "requestStorageDepositAmount",
           ],
           invoke: {
             src: "prepareDepositActor",
