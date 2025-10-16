@@ -12,7 +12,6 @@ import { getTokenId } from "@src/components/DefuseSDK/utils/token"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useThrottledValue } from "@src/hooks/useThrottledValue"
 import { useSelector } from "@xstate/react"
-import clsx from "clsx"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import {
@@ -37,6 +36,7 @@ import { SWAP_TOKEN_FLAGS } from "../../../constants/swap"
 import { useModalStore } from "../../../providers/ModalStoreProvider"
 import { ModalType } from "../../../stores/modalStore"
 import type { RenderHostAppLink } from "../../../types/hostAppLink"
+import { cn } from "../../../utils/cn"
 import { compareAmounts } from "../../../utils/tokenUtils"
 import { TokenAmountInputCard } from "../../deposit/components/DepositForm/TokenAmountInputCard"
 import {
@@ -324,10 +324,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               <BlockMultiBalances
                 balance={tokenInBalance?.amount ?? 0n}
                 decimals={tokenInBalance?.decimals ?? 0}
-                className={clsx(
-                  "!static",
-                  tokenInBalance == null && "invisible"
-                )}
+                className={cn("!static", tokenInBalance == null && "invisible")}
                 maxButtonSlot={
                   <BlockMultiBalances.DisplayMaxButton
                     onClick={handleSetMaxValue}
@@ -405,7 +402,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                 <BlockMultiBalances
                   balance={balanceAmountOut}
                   decimals={tokenOutBalance?.decimals ?? 0}
-                  className={clsx(
+                  className={cn(
                     "!static",
                     tokenOutBalance == null && "invisible"
                   )}
