@@ -24,7 +24,7 @@ export function TokenAmountInputCard({
   return (
     <div
       className={cn(
-        "flex flex-col gap-2.5 rounded-lg border border-border bg-gray-2 p-4",
+        "flex flex-col gap-2.5 rounded-lg border border-border bg-gray-2 p-3 md:p-4 min-w-0",
         variant === "2" &&
           "rounded-[10px] border-0 bg-gray-3 hover:bg-gray-4 focus-within:bg-gray-4"
       )}
@@ -34,26 +34,26 @@ export function TokenAmountInputCard({
         <div>{labelSlot}</div>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 md:gap-4 min-w-0">
         {/* Amount Input */}
-        <div className="relative flex-1">
+        <div className="relative flex-1 min-w-0">
           <div className="overflow-hidden">{inputSlot}</div>
-          <div className="pointer-events-none absolute top-0 right-0 bottom-0 w-12 bg-transparent" />
+          <div className="pointer-events-none absolute top-0 right-0 bottom-0 w-8 md:w-12 bg-transparent" />
         </div>
 
         {/* Token Selector */}
-        <div className="shrink-0">{tokenSlot}</div>
+        <div className="shrink-0 min-w-0">{tokenSlot}</div>
       </div>
 
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-2 md:gap-4 min-w-0">
         {/* Info or Price Slot */}
-        <div className="relative flex-1 overflow-hidden whitespace-nowrap">
-          <div>{infoSlot ?? priceSlot}</div>
-          <div className="pointer-events-none absolute top-0 right-0 bottom-0 w-12 bg-transparent" />
+        <div className="relative flex-1 overflow-hidden whitespace-nowrap min-w-0">
+          <div className="truncate">{infoSlot ?? priceSlot}</div>
+          <div className="pointer-events-none absolute top-0 right-0 bottom-0 w-8 md:w-12 bg-transparent" />
         </div>
 
         {/* Balance */}
-        <div className="shrink-0">{balanceSlot}</div>
+        <div className="shrink-0 min-w-0">{balanceSlot}</div>
       </div>
     </div>
   )
@@ -78,7 +78,7 @@ TokenAmountInputCard.Input = forwardRef<
         disabled={disabled}
         aria-busy={isLoading || undefined}
         className={cn(
-          "w-full border-0 bg-transparent relative p-0 font-medium text-3xl text-label focus:ring-0 outline-none",
+          "w-full border-0 bg-transparent relative p-0 font-medium text-2xl md:text-3xl text-label focus:ring-0 outline-none",
           isLoading && "z-[-1]",
           disabled && "opacity-50",
           className
@@ -93,14 +93,16 @@ TokenAmountInputCard.DisplayToken = function DisplayToken({
   token,
 }: { token: TokenInfo }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 min-w-0">
       <AssetComboIcon
         icon={token.icon}
         name={token.name}
         chainName={isBaseToken(token) ? token.originChainName : undefined}
       />
 
-      <div className="font-bold text-label text-sm">{token.symbol}</div>
+      <div className="font-bold text-label text-xs md:text-sm truncate max-w-[60px] md:max-w-none">
+        {token.symbol}
+      </div>
     </div>
   )
 }
@@ -110,7 +112,11 @@ TokenAmountInputCard.DisplayPrice = function DisplayPrice({
 }: {
   children: ReactNode
 }) {
-  return <div className="font-medium text-gray-9 text-sm">{children}</div>
+  return (
+    <div className="font-medium text-gray-9 text-xs md:text-sm truncate">
+      {children}
+    </div>
+  )
 }
 
 TokenAmountInputCard.DisplayInfo = function DisplayInfo({
@@ -118,5 +124,9 @@ TokenAmountInputCard.DisplayInfo = function DisplayInfo({
 }: {
   children: ReactNode
 }) {
-  return <div className="font-medium text-gray-9 text-sm">{children}</div>
+  return (
+    <div className="font-medium text-gray-9 text-xs md:text-sm truncate">
+      {children}
+    </div>
+  )
 }

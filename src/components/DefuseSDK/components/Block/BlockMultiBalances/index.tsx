@@ -24,11 +24,13 @@ export function BlockMultiBalances({
 }: BlockMultiBalancesProps) {
   const active = balance > 0n
   return (
-    <div className={clsx("flex items-center gap-1.5", className)}>
+    <div
+      className={clsx("flex items-center gap-1 md:gap-1.5 min-w-0", className)}
+    >
       {/* Balance */}
       <div
         className={clsx(
-          "text-xs font-bold",
+          "text-xs font-bold truncate min-w-0",
           active ? "text-gray-12" : "text-gray-8"
         )}
       >
@@ -99,7 +101,7 @@ BlockMultiBalances.DisplayMaxButton = function DisplayMaxButton({
         e.preventDefault()
         onClick?.()
       }}
-      className="text-xs font-bold leading-4"
+      className="text-xs font-bold leading-4 min-w-[32px] md:min-w-[36px]"
       disabled={!active}
     >
       Max
@@ -124,7 +126,7 @@ BlockMultiBalances.DisplayHalfButton = function DisplayHalfButton({
         e.preventDefault()
         onClick?.()
       }}
-      className="text-xs font-bold leading-4"
+      className="text-xs font-bold leading-4 min-w-[32px] md:min-w-[36px]"
       disabled={!active}
     >
       50%
