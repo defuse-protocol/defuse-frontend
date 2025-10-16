@@ -1,7 +1,8 @@
 import { Skeleton } from "@radix-ui/themes"
 import { useTokensStore } from "@src/components/DefuseSDK/providers/TokensStoreProvider"
+import { useThrottledValue } from "@src/hooks/useThrottledValue"
 import clsx from "clsx"
-import { useEffect, useRef, useState } from "react"
+import { useRef } from "react"
 import type {
   FieldError,
   FieldErrors,
@@ -210,22 +211,3 @@ export const FieldComboInput = <T extends FieldValues>({
 }
 
 FieldComboInput.displayName = FieldComboInputRegistryName
-
-/**
- * Sets a value after a delay
- */
-function useThrottledValue<T>(value: T, delayMs: number): T {
-  const [throttledValue, setThrottledValue] = useState(value)
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setThrottledValue(value)
-    }, delayMs)
-
-    return () => {
-      clearTimeout(timer)
-    }
-  }, [value, delayMs])
-
-  return throttledValue
-}

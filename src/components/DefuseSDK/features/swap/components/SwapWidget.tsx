@@ -1,9 +1,12 @@
 "use client"
+
+import { TradeNavigationLinks } from "@src/components/DefuseSDK/components/TradeNavigationLinks"
 import { SwapWidgetProvider } from "@src/components/DefuseSDK/providers/SwapWidgetProvider"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useSelector } from "@xstate/react"
 import { useCallback } from "react"
+import { Island } from "../../../components/Island"
 import {
   TokenListUpdater,
   TokenListUpdater1cs,
@@ -36,44 +39,50 @@ export const SwapWidget = ({
   return (
     <WidgetRoot>
       <SwapWidgetProvider>
-        <TokenMigration
-          userAddress={userAddress}
-          userChainType={userChainType}
-          signMessage={signMessage}
-        />
-
-        <SwapFormProvider>
-          <SwapUIMachineProvider
-            initialTokenIn={initialTokenIn}
-            initialTokenOut={initialTokenOut}
-            tokenList={tokenList}
+        <Island className="widget-container flex flex-col gap-5">
+          <TradeNavigationLinks
+            currentRoute="swap"
+            renderHostAppLink={renderHostAppLink}
+          />
+          <TokenMigration
+            userAddress={userAddress}
+            userChainType={userChainType}
             signMessage={signMessage}
-            referral={referral}
-          >
-            {is1cs ? (
-              <TokenListUpdaterSwap tokenList={tokenList} />
-            ) : (
-              <TokenListUpdater tokenList={tokenList} />
-            )}
+          />
 
-            <SwapUIMachineFormSyncProvider
-              userAddress={userAddress}
-              userChainType={userChainType}
-              onSuccessSwap={onSuccessSwap}
-              sendNearTransaction={sendNearTransaction}
+          <SwapFormProvider>
+            <SwapUIMachineProvider
+              initialTokenIn={initialTokenIn}
+              initialTokenOut={initialTokenOut}
+              tokenList={tokenList}
+              signMessage={signMessage}
+              referral={referral}
             >
-              <SwapSubmitterProvider
+              {is1cs ? (
+                <TokenListUpdaterSwap tokenList={tokenList} />
+              ) : (
+                <TokenListUpdater tokenList={tokenList} />
+              )}
+
+              <SwapUIMachineFormSyncProvider
                 userAddress={userAddress}
                 userChainType={userChainType}
+                onSuccessSwap={onSuccessSwap}
+                sendNearTransaction={sendNearTransaction}
               >
-                <SwapForm
-                  isLoggedIn={userAddress != null}
-                  renderHostAppLink={renderHostAppLink}
-                />
-              </SwapSubmitterProvider>
-            </SwapUIMachineFormSyncProvider>
-          </SwapUIMachineProvider>
-        </SwapFormProvider>
+                <SwapSubmitterProvider
+                  userAddress={userAddress}
+                  userChainType={userChainType}
+                >
+                  <SwapForm
+                    isLoggedIn={userAddress != null}
+                    renderHostAppLink={renderHostAppLink}
+                  />
+                </SwapSubmitterProvider>
+              </SwapUIMachineFormSyncProvider>
+            </SwapUIMachineProvider>
+          </SwapFormProvider>
+        </Island>
       </SwapWidgetProvider>
     </WidgetRoot>
   )

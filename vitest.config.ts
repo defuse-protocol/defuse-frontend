@@ -9,6 +9,11 @@ export default defineConfig({
     },
     include: ["src/**/*.{test,spec}.{js,ts,jsx,tsx}"],
     exclude: ["test/**/*", "node_modules/**/*"],
+    deps: {
+      // Emil: I don't understand why vitest complains about "@hot-labs/omni-sdk".
+      //       And why processing our intents-sdk fixes the problem.
+      inline: ["@defuse-protocol/intents-sdk"]
+    }
   },
   esbuild: {
     jsx: "automatic", // use react-jsx transform
