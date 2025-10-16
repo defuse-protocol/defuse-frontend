@@ -243,13 +243,15 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
   const handleSetMaxValue = async () => {
     if (tokenInBalance != null) {
+      const amountIn = formatTokenValue(
+        tokenInBalance.amount,
+        tokenInBalance.decimals
+      )
+      setValue("amountIn", amountIn)
       swapUIActorRef.send({
         type: "input",
         params: {
-          amountIn: formatTokenValue(
-            tokenInBalance.amount,
-            tokenInBalance.decimals
-          ),
+          amountIn,
         },
       })
     }
@@ -257,15 +259,12 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
   const handleSetHalfValue = async () => {
     if (tokenInBalance != null) {
-      swapUIActorRef.send({
-        type: "input",
-        params: {
-          amountIn: formatTokenValue(
-            tokenInBalance.amount / 2n,
-            tokenInBalance.decimals
-          ),
-        },
-      })
+      const amountIn = formatTokenValue(
+        tokenInBalance.amount / 2n,
+        tokenInBalance.decimals
+      )
+      setValue("amountIn", amountIn)
+      swapUIActorRef.send({ type: "input", params: { amountIn } })
     }
   }
 
