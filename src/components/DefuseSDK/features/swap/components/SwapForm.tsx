@@ -66,7 +66,14 @@ export interface SwapFormProps {
 }
 
 export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
-  const { setValue, getValues, watch } = useFormContext<SwapFormValues>()
+  const {
+    setValue,
+    getValues,
+    watch,
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useFormContext<SwapFormValues>()
 
   const swapUIActorRef = SwapUIMachineContext.useActorRef()
   const snapshot = SwapUIMachineContext.useSelector((snapshot) => snapshot)
@@ -74,7 +81,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const { data: tokensUsdPriceData } = useTokensUsdPrices()
 
   const formValuesRef = useSelector(swapUIActorRef, formValuesSelector)
-  const { tokenIn, tokenOut, amountIn } = formValuesRef
+  const { tokenIn, tokenOut } = formValuesRef
 
   const {
     noLiquidity,
@@ -273,13 +280,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
   return (
     <div className="flex flex-col">
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          onSubmit()
-        }}
-        className="flex flex-col gap-5"
-      >
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
         <div className="flex flex-col items-center">
           <TokenAmountInputCard
             variant="2"
@@ -294,14 +295,22 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             inputSlot={
               <TokenAmountInputCard.Input
                 id="swap-form-amount-in"
-                name="amountIn"
-                value={amountIn}
-                onChange={(e) =>
-                  swapUIActorRef.send({
-                    type: "input",
-                    params: { amountIn: e.target.value },
-                  })
-                }
+                {...register("amountIn", {
+                  required: true,
+                  validate: (value) => {
+                    if (!value) return true
+                    const num = Number.parseFloat(value.replace(",", "."))
+                    return (
+                      (!Number.isNaN(num) && num > 0) || "Enter a valid amount"
+                    )
+                  },
+                  onChange: (e) => {
+                    swapUIActorRef.send({
+                      type: "input",
+                      params: { amountIn: e.target.value },
+                    })
+                  },
+                })}
               />
             }
             tokenSlot={
@@ -343,6 +352,13 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                   ? formatUsdAmount(usdAmountIn)
                   : null}
               </TokenAmountInputCard.DisplayPrice>
+            }
+            infoSlot={
+              errors.amountIn && (
+                <p className="text-label text-sm text-red-500">
+                  {errors.amountIn.message || "This field is required"}
+                </p>
+              )
             }
           />
 
