@@ -37,7 +37,9 @@ import {
 import { depositGenerateAddressMachine } from "./depositGenerateAddressMachine"
 import { type Output as DepositOutput, depositMachine } from "./depositMachine"
 import { depositTokenBalanceMachine } from "./depositTokenBalanceMachine"
-import { getPOABridgeInfo, poaBridgeInfoActor } from "./poaBridgeInfoActor"
+import { intentStatusMachine } from "./intentStatusMachine"
+import { oneClickStatusMachine } from "./oneClickStatusMachine"
+import { poaBridgeInfoActor } from "./poaBridgeInfoActor"
 import {
   type PreparationOutput,
   prepareDepositActor,
@@ -58,7 +60,13 @@ export type Context = {
   depositTokenBalanceRef: ActorRefFrom<typeof depositTokenBalanceMachine>
   depositEstimationRef: ActorRefFrom<typeof depositEstimationMachine>
   depositOutput: DepositOutput | null
+  intentRefs: (
+    | ActorRefFrom<typeof oneClickStatusMachine>
+    | ActorRefFrom<typeof intentStatusMachine>
+  )[]
 }
+
+export const ONE_CLICK_PREFIX = "oneclick-"
 
 export const depositUIMachine = setup({
   types: {
@@ -108,6 +116,8 @@ export const depositUIMachine = setup({
       depositVirtualChainRef: "depositVirtualChainActor"
       depositTonRef: "depositTonActor"
       background1csQuoterRef: "background1csQuoterActor"
+      oneClickStatusActor: "oneClickStatusActor"
+      intentStatusActor: "intentStatusActor"
     },
   },
   actors: {
@@ -127,6 +137,8 @@ export const depositUIMachine = setup({
     depositTokenBalanceActor: depositTokenBalanceMachine,
     depositEstimationActor: depositEstimationMachine,
     background1csQuoterActor: background1csQuoterMachine,
+    oneClickStatusActor: oneClickStatusMachine,
+    intentStatusActor: intentStatusMachine,
   },
   actions: {
     setDepositOutput: assign({
@@ -265,6 +277,7 @@ export const depositUIMachine = setup({
     }),
     sendToBackground1csQuoterRefNewQuoteInput: sendTo(
       "background1csQuoterRef",
+      // @ts-ignore TODO: fix this
       ({ context }): Background1csQuoterEvents => {
         const {
           token,
@@ -294,14 +307,14 @@ export const depositUIMachine = setup({
         // This is a hack around amountIn.amount due to 1cs isn't supported 0 amount right now
         // and can't proceed minDeposit amount due to some fees
         // TODO: remove this once 1cs supports 0 amount
-        const bridgeInfoSnapshot = context.poaBridgeInfoRef.getSnapshot()
-        const minAmountsInfo = getPOABridgeInfo(
-          bridgeInfoSnapshot,
-          derivedToken.defuseAssetId
-        )
-        const amountIn = minAmountsInfo?.minDeposit
-          ? minAmountsInfo?.minDeposit + minimal1csAmount
-          : minimal1csAmount
+        // const bridgeInfoSnapshot = context.poaBridgeInfoRef.getSnapshot()
+        // const minAmountsInfo = getPOABridgeInfo(
+        //   bridgeInfoSnapshot,
+        //   derivedToken.defuseAssetId
+        // )
+        // const amountIn = minAmountsInfo?.minDeposit
+        //   ? minAmountsInfo?.minDeposit + minimal1csAmount
+        //   : minimal1csAmount
 
         return {
           type: "NEW_QUOTE_INPUT",
@@ -309,7 +322,7 @@ export const depositUIMachine = setup({
             tokenIn: derivedToken,
             tokenOut: baseToken,
             amountIn: {
-              amount: amountIn,
+              amount: 0n,
               decimals: derivedToken.decimals,
             },
             slippageBasisPoints: 10000,
@@ -331,6 +344,48 @@ export const depositUIMachine = setup({
         }
       }
     ),
+    spawnIntentStatusActor: assign({
+      intentRefs: ({ context, spawn, self }, output: DepositOutput) => {
+        if (output.tag !== "ok") return context.intentRefs
+        const { tokenDeployment, derivedToken } =
+          context.depositFormRef.getSnapshot().context
+
+        // Transform DepositOutput to match SwapIntentMachineOutput format
+        const { depositDescription, txHash } = output.value
+        const adaptedOutput = {
+          tag: "ok" as const,
+          value: {
+            intentHash: txHash, // Use txHash as intentHash for deposits
+            intentDescription: {
+              type: "deposit" as const,
+              amount: depositDescription.amount,
+              token: depositDescription.derivedToken,
+              tokenDeployment: depositDescription.tokenDeployment,
+              depositAddress: depositDescription.depositAddress,
+              userAddress: depositDescription.userAddress,
+            },
+          },
+        }
+
+        // Use the same logic as swapUIMachine
+        // @ts-ignore TODO: fix this
+        const intentRef = spawn("intentStatusActor", {
+          id: `intent-${adaptedOutput.value.intentHash}`,
+          input: {
+            parentRef: self,
+            intentHash: adaptedOutput.value.intentHash,
+            tokenIn: derivedToken,
+            tokenOut: tokenDeployment,
+            intentDescription: adaptedOutput.value.intentDescription,
+          },
+        })
+
+        return [intentRef, ...context.intentRefs] as (
+          | ActorRefFrom<typeof oneClickStatusMachine>
+          | ActorRefFrom<typeof intentStatusMachine>
+        )[]
+      },
+    }),
   },
   guards: {
     isTokenValid: ({ context }) => {
@@ -430,6 +485,7 @@ export const depositUIMachine = setup({
       id: "depositEstimationRef",
       input: { parentRef: self },
     }),
+    intentRefs: [],
   }),
 
   entry: ["fetchPOABridgeInfo", "spawnBackground1csQuoterRef"],
@@ -644,6 +700,10 @@ export const depositUIMachine = setup({
               type: "setDepositOutput",
               params: ({ event }) => event.output,
             },
+            {
+              type: "spawnIntentStatusActor",
+              params: ({ event }) => event.output,
+            },
             "clearUIDepositAmount",
             "requestBalanceRefresh",
             "resetPreparationOutput",
@@ -671,6 +731,10 @@ export const depositUIMachine = setup({
           actions: [
             {
               type: "setDepositOutput",
+              params: ({ event }) => event.output,
+            },
+            {
+              type: "spawnIntentStatusActor",
               params: ({ event }) => event.output,
             },
             "clearUIDepositAmount",
@@ -702,6 +766,10 @@ export const depositUIMachine = setup({
               type: "setDepositOutput",
               params: ({ event }) => event.output,
             },
+            {
+              type: "spawnIntentStatusActor",
+              params: ({ event }) => event.output,
+            },
             "clearUIDepositAmount",
             "requestBalanceRefresh",
             "resetPreparationOutput",
@@ -729,6 +797,10 @@ export const depositUIMachine = setup({
           actions: [
             {
               type: "setDepositOutput",
+              params: ({ event }) => event.output,
+            },
+            {
+              type: "spawnIntentStatusActor",
               params: ({ event }) => event.output,
             },
             "clearUIDepositAmount",
@@ -759,6 +831,10 @@ export const depositUIMachine = setup({
               type: "setDepositOutput",
               params: ({ event }) => event.output,
             },
+            {
+              type: "spawnIntentStatusActor",
+              params: ({ event }) => event.output,
+            },
             "clearUIDepositAmount",
             "requestBalanceRefresh",
             "resetPreparationOutput",
@@ -786,6 +862,10 @@ export const depositUIMachine = setup({
           actions: [
             {
               type: "setDepositOutput",
+              params: ({ event }) => event.output,
+            },
+            {
+              type: "spawnIntentStatusActor",
               params: ({ event }) => event.output,
             },
             "clearUIDepositAmount",
@@ -818,6 +898,10 @@ export const depositUIMachine = setup({
               type: "setDepositOutput",
               params: ({ event }) => event.output,
             },
+            {
+              type: "spawnIntentStatusActor",
+              params: ({ event }) => event.output,
+            },
             "clearUIDepositAmount",
             "requestBalanceRefresh",
             "resetPreparationOutput",
@@ -845,6 +929,10 @@ export const depositUIMachine = setup({
           actions: [
             {
               type: "setDepositOutput",
+              params: ({ event }) => event.output,
+            },
+            {
+              type: "spawnIntentStatusActor",
               params: ({ event }) => event.output,
             },
             "clearUIDepositAmount",
