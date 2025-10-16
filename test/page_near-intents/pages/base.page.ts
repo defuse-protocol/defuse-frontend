@@ -1,5 +1,6 @@
 import { type Locator, type Page, expect } from "@playwright/test"
 import { NEAR_INTENTS_PAGE } from "../../helpers/constants/pages"
+import { shortTimeout } from "../../helpers/constants/timeouts"
 
 export class BasePage {
   page: Page
@@ -20,8 +21,7 @@ export class BasePage {
     const messageOnFail: string = `Loaded page is not ${url}`
     const expectedUrl = `${NEAR_INTENTS_PAGE.baseURL}${url}`
     await this.page.waitForLoadState("domcontentloaded")
-    await this.page.waitForURL(expectedUrl)
-    await expect(this.page, messageOnFail).toHaveURL(expectedUrl)
+    await expect(this.page, messageOnFail).toHaveURL(expectedUrl, shortTimeout)
     await this.page.waitForLoadState("networkidle")
   }
 
