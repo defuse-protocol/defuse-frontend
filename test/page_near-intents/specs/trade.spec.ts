@@ -56,7 +56,7 @@ test.describe(
       await tradePage.switchToSwap()
       await tradePage.selectFromToken("Turbo")
       await tradePage.selectToToken("Near")
-      await tradePage.enterFromAmount(0.001)
+      await tradePage.enterFromAmount(10)
       await tradePage.waitForSwapCalculationToComplete()
       await tradePage.pressSwapButton()
       await metamask.rejectSignature()
@@ -77,7 +77,7 @@ test.describe(
       await tradePage.switchToSwap()
       await tradePage.selectFromToken("Turbo")
       await tradePage.selectToToken("Near")
-      await tradePage.enterFromAmount(0.001)
+      await tradePage.enterFromAmount(10)
       await tradePage.waitForSwapCalculationToComplete()
       await tradePage.pressSwapButton()
       await metamask.confirmSignature()
@@ -109,8 +109,8 @@ test.describe(
       await tradePage.waitForStableElement()
       await tradePage.selectSellToken("Turbo")
       await tradePage.selectBuyToken("Near")
-      await tradePage.enterFromAmount(0.001)
-      await tradePage.enterToAmount(0.001)
+      await tradePage.enterFromAmount(10)
+      await tradePage.enterToAmount(10)
       await tradePage.pressCreateSwapLink()
       await metamask.rejectSignature()
       await tradePage.confirmOTCRejectedSignature()
@@ -165,17 +165,17 @@ test.describe(
       await tradePage.waitForStableElement()
       await tradePage.selectSellToken("Turbo")
       await tradePage.selectBuyToken("Near")
-      await tradePage.enterFromAmount(0.001)
-      await tradePage.enterToAmount(0.001)
+      await tradePage.enterFromAmount(10)
+      await tradePage.enterToAmount(10)
       await tradePage.pressCreateSwapLink()
 
       await metamask.confirmSignature()
       await tradePage.confirmOrderWindowIsOpen()
       await tradePage.closeOrderWindow()
       await tradePage.confirmOTCCreated({
-        sellAmount: 0.001,
+        sellAmount: 10,
         sellToken: "Turbo",
-        buyAmount: 0.001,
+        buyAmount: 10,
         buyToken: "Near",
       })
 
@@ -204,8 +204,8 @@ test.describe(
       await tradePage.waitForStableElement()
       await tradePage.selectSellToken("Turbo")
       await tradePage.selectBuyToken("Near")
-      await tradePage.enterFromAmount(0.001)
-      await tradePage.enterToAmount(0.001)
+      await tradePage.enterFromAmount(10)
+      await tradePage.enterToAmount(10)
       await tradePage.pressCreateSwapLink()
 
       await metamask.confirmSignature()
@@ -214,9 +214,9 @@ test.describe(
 
       await tradePage.closeOrderWindow()
       await tradePage.confirmOTCCreated({
-        sellAmount: 0.001,
+        sellAmount: 10,
         sellToken: "Turbo",
-        buyAmount: 0.001,
+        buyAmount: 10,
         buyToken: "Near",
       })
     })
