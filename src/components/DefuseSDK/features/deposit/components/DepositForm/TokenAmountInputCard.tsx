@@ -1,3 +1,4 @@
+import { Skeleton } from "@radix-ui/themes"
 import { type InputHTMLAttributes, type ReactNode, forwardRef } from "react"
 import { AssetComboIcon } from "../../../../components/Asset/AssetComboIcon"
 import type { TokenInfo } from "../../../../types/base"
@@ -10,6 +11,7 @@ export function TokenAmountInputCard({
   balanceSlot,
   priceSlot,
   labelSlot,
+  infoSlot,
 }: {
   variant?: "1" | "2"
   tokenSlot?: ReactNode
@@ -17,6 +19,7 @@ export function TokenAmountInputCard({
   balanceSlot?: ReactNode
   priceSlot?: ReactNode
   labelSlot?: ReactNode
+  infoSlot?: ReactNode
 }) {
   return (
     <div
@@ -43,9 +46,9 @@ export function TokenAmountInputCard({
       </div>
 
       <div className="flex items-center justify-between gap-4">
-        {/* Price */}
+        {/* Info or Price Slot */}
         <div className="relative flex-1 overflow-hidden whitespace-nowrap">
-          <div>{priceSlot}</div>
+          <div>{infoSlot ?? priceSlot}</div>
           <div className="pointer-events-none absolute top-0 right-0 bottom-0 w-12 bg-transparent" />
         </div>
 
@@ -58,19 +61,31 @@ export function TokenAmountInputCard({
 
 TokenAmountInputCard.Input = forwardRef<
   HTMLInputElement,
-  InputHTMLAttributes<HTMLInputElement>
->(function Input(props, ref) {
+  InputHTMLAttributes<HTMLInputElement> & { isLoading?: boolean }
+>(function Input({ isLoading, className, disabled, ...rest }, ref) {
   return (
-    <input
-      ref={ref}
-      type="text"
-      inputMode="decimal"
-      pattern="[0-9]*[.]?[0-9]*"
-      autoComplete="off"
-      placeholder="0"
-      className="w-full border-0 bg-transparent p-0 font-medium text-3xl text-label focus:ring-0 outline-none"
-      {...props}
-    />
+    <>
+      {isLoading && (
+        <Skeleton className="w-full absolute inset-y-0" height="40px" />
+      )}
+      <input
+        ref={ref}
+        type="text"
+        inputMode="decimal"
+        pattern="[0-9]*[.]?[0-9]*"
+        autoComplete="off"
+        placeholder="0"
+        disabled={disabled}
+        aria-busy={isLoading || undefined}
+        className={cn(
+          "w-full border-0 bg-transparent relative p-0 font-medium text-3xl text-label focus:ring-0 outline-none",
+          isLoading && "z-[-1]",
+          disabled && "opacity-50",
+          className
+        )}
+        {...rest}
+      />
+    </>
   )
 })
 
@@ -91,6 +106,14 @@ TokenAmountInputCard.DisplayToken = function DisplayToken({
 }
 
 TokenAmountInputCard.DisplayPrice = function DisplayPrice({
+  children,
+}: {
+  children: ReactNode
+}) {
+  return <div className="font-medium text-gray-9 text-sm">{children}</div>
+}
+
+TokenAmountInputCard.DisplayInfo = function DisplayInfo({
   children,
 }: {
   children: ReactNode
