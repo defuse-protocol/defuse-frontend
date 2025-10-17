@@ -87,7 +87,9 @@ export class TradePage extends BasePage {
   async switchToOTC() {
     await expect(this.otcTabBtn).toBeVisible(midTimeout)
     await this.otcTabBtn.click()
-    await this.confirmCorrectPageLoaded(this.otcSellTokenSelectionDropdown)
+    await this.clickAndConfirmCorrectPageLoaded(
+      this.otcSellTokenSelectionDropdown
+    )
   }
 
   async pressSwapButton() {

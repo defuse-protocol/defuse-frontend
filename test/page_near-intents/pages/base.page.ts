@@ -1,5 +1,5 @@
 import { type Locator, type Page, expect } from "@playwright/test"
-import { longTimeout } from "../../helpers/constants/timeouts"
+import { shortTimeout } from "../../helpers/constants/timeouts"
 
 export class BasePage {
   page: Page
@@ -16,8 +16,19 @@ export class BasePage {
     this.accountTab = page.getByTestId("account-tab")
   }
 
-  async confirmCorrectPageLoaded(element: Locator) {
-    await element.waitFor({ state: "visible", ...longTimeout })
+  async clickAndConfirmCorrectPageLoaded(
+    elementToClick: Locator,
+    elementToExpect: Locator
+  ) {
+    for (let i = 0; i < 2; i++) {
+      try {
+        await elementToClick.click()
+        await elementToExpect.waitFor({ state: "visible", ...shortTimeout })
+        return
+      } catch {}
+    }
+
+    expect(elementToExpect).toBeVisible()
   }
 
   async navigateToDepositPage() {
@@ -26,35 +37,19 @@ export class BasePage {
       "Deposit tab button not visible"
     ).toBeVisible()
 
-    // try navigating two times to handle cases where the tab is not immediately clickable
-    try {
-      await this.depositTab.click()
-      await this.confirmCorrectPageLoaded(
-        this.page.getByTestId("select-network-trigger")
-      )
-    } catch {
-      await this.depositTab.click()
-      await this.confirmCorrectPageLoaded(
-        this.page.getByTestId("select-network-trigger")
-      )
-    }
+    await this.clickAndConfirmCorrectPageLoaded(
+      this.depositTab,
+      this.page.getByTestId("select-network-trigger")
+    )
   }
 
   async navigateToTradePage() {
     await expect(this.tradeTab, "Trade tab button not visible").toBeVisible()
 
-    // try navigating two times to handle cases where the tab is not immediately clickable
-    try {
-      await this.tradeTab.click()
-      await this.confirmCorrectPageLoaded(
-        this.page.getByTestId("select-assets-input")
-      )
-    } catch {
-      await this.tradeTab.click()
-      await this.confirmCorrectPageLoaded(
-        this.page.getByTestId("select-assets-input")
-      )
-    }
+    await this.clickAndConfirmCorrectPageLoaded(
+      this.tradeTab,
+      this.page.getByTestId("select-assets-input")
+    )
   }
 
   async navigateToAccountPage() {
@@ -63,18 +58,10 @@ export class BasePage {
       "Account tab button not visible"
     ).toBeVisible()
 
-    // try navigating two times to handle cases where the tab is not immediately clickable
-    try {
-      await this.accountTab.click()
-      await this.confirmCorrectPageLoaded(
-        this.page.getByTestId("withdraw-button")
-      )
-    } catch {
-      await this.accountTab.click()
-      await this.confirmCorrectPageLoaded(
-        this.page.getByTestId("withdraw-button")
-      )
-    }
+    await this.clickAndConfirmCorrectPageLoaded(
+      this.accountTab,
+      this.page.getByTestId("withdraw-button")
+    )
   }
 
   async waitForMetamaskAction() {
