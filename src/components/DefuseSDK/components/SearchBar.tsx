@@ -18,6 +18,11 @@ export const SearchBar = ({
         <MagnifyingGlassIcon width={22} height={22} />
       </div>
       <input
+        ref={(el) => {
+          if (el && window?.innerWidth >= 768) {
+            el.focus()
+          }
+        }}
         className="flex-1 border-transparent p-0 focus:border-transparent focus:ring-0 bg-gray-3 outline-none"
         placeholder={placeholder}
         value={query}
