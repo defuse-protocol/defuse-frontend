@@ -76,8 +76,8 @@ export const SelectAssets = ({
     <button
       type="button"
       onClick={handleAssetsSelect}
-      className="max-w-[148px] md:max-w-[210px] bg-gray-1 shadow-select-token rounded-full flex justify-between items-center p-1 gap-2.5 dark:shadow-select-token-dark"
       data-testid={dataTestId}
+      className="max-w-[120px] sm:max-w-[148px] md:max-w-[210px] bg-gray-1 shadow-select-token rounded-full flex justify-between items-center p-1 gap-1.5 md:gap-2.5 dark:shadow-select-token-dark min-w-0"
     >
       {selected?.icon ? (
         <AssetComboIcon
@@ -92,7 +92,7 @@ export const SelectAssets = ({
       ) : (
         <EmptyIcon />
       )}
-      <span className="text-sm uppercase truncate">
+      <span className="text-xs sm:text-sm uppercase truncate min-w-0">
         {selected?.symbol ?? "select token"}
       </span>
       <CaretDownIcon width={25} height={25} />
