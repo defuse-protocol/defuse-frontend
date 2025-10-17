@@ -17,7 +17,7 @@ export class TradePage extends BasePage {
   selectTokenSearchBar: Locator
   swapInputField: Locator
   swapOutputField: Locator
-  transactionCompleted: Locator
+  formSwitchTokensButton: Locator
   otcSellTokenSelectionDropdown: Locator
   otcBuyTokenSelectionDropdown: Locator
   insufficientBalanceBtn: Locator
@@ -35,22 +35,22 @@ export class TradePage extends BasePage {
     this.otcTabBtn = page.getByRole("link", { name: "OTC" })
     this.swapBtn = page.getByRole("button", { name: "Swap" })
     this.otcSwapLinkBtn = page.getByRole("button", { name: "Create swap link" })
-    this.selectInputTokenSelectionDropdown = page
-      .getByTestId("select-assets")
-      .first()
+    this.selectInputTokenSelectionDropdown = page.getByTestId(
+      "select-assets-input"
+    )
 
-    this.selectOutputTokenSelectionDropdown = page
-      .getByTestId("select-assets")
-      .last()
+    this.selectOutputTokenSelectionDropdown = page.getByTestId(
+      "select-assets-output"
+    )
 
     this.selectTokenSearchBar = page.getByPlaceholder("Search coin")
     this.swapInputField = page.locator('input[name="amountIn"]')
     this.swapOutputField = page.locator('input[name="amountOut"]')
-    this.transactionCompleted = page.getByText("Success")
-    this.otcSellTokenSelectionDropdown = page
-      .getByTestId("select-assets")
-      .first()
-    this.otcBuyTokenSelectionDropdown = page.getByTestId("select-assets").last()
+    this.formSwitchTokensButton = page.getByTestId(
+      "swap-form-switch-tokens-button"
+    )
+    this.otcSellTokenSelectionDropdown = page.getByTestId("select-assets-sell")
+    this.otcBuyTokenSelectionDropdown = page.getByTestId("select-assets-buy")
 
     this.insufficientBalanceBtn = page.getByRole("button", {
       name: "Insufficient Balance",
@@ -87,6 +87,7 @@ export class TradePage extends BasePage {
   async switchToOTC() {
     await expect(this.otcTabBtn).toBeVisible(midTimeout)
     await this.otcTabBtn.click()
+    await this.confirmCorrectPageLoaded(this.otcSellTokenSelectionDropdown)
   }
 
   async pressSwapButton() {
@@ -147,8 +148,14 @@ export class TradePage extends BasePage {
     await this.swapOutputField.fill(amount.toString())
   }
 
-  async confirmTransactionCompleted() {
-    await expect(this.transactionCompleted).toBeVisible(longTimeout)
+  async pressFormSwitchTokensButton() {
+    await expect(this.formSwitchTokensButton).toBeVisible(shortTimeout)
+    await this.formSwitchTokensButton.click()
+  }
+
+  async confirmTransactionCompleted(count = 1) {
+    const elements = this.page.getByTestId("swap-success")
+    await expect(elements).toHaveCount(count, longTimeout)
   }
 
   async waitForSwapCalculationToComplete() {

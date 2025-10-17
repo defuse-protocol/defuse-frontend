@@ -82,6 +82,11 @@ test.describe(
       await tradePage.pressSwapButton()
       await metamask.confirmSignature()
       await tradePage.confirmTransactionCompleted()
+
+      await tradePage.pressFormSwitchTokensButton()
+      await tradePage.pressSwapButton()
+      await metamask.confirmSignature()
+      await tradePage.confirmTransactionCompleted(2)
     })
   }
 )
@@ -106,7 +111,6 @@ test.describe(
 
       await homePage.navigateToTradePage()
       await tradePage.switchToOTC()
-      await tradePage.waitForStableElement()
       await tradePage.selectSellToken("Turbo")
       await tradePage.selectBuyToken("Near")
       await tradePage.enterFromAmount(10)
@@ -132,7 +136,6 @@ test.describe(
 
       await homePage.navigateToTradePage()
       await tradePage.switchToOTC()
-      await tradePage.waitForStableElement()
       await tradePage.selectSellToken("Turbo")
       await tradePage.selectBuyToken("Near")
       await tradePage.enterFromAmount(10000)
@@ -162,7 +165,6 @@ test.describe(
 
       await homePage.navigateToTradePage()
       await tradePage.switchToOTC()
-      await tradePage.waitForStableElement()
       await tradePage.selectSellToken("Turbo")
       await tradePage.selectBuyToken("Near")
       await tradePage.enterFromAmount(10)
@@ -201,7 +203,6 @@ test.describe(
 
       await homePage.navigateToTradePage()
       await tradePage.switchToOTC()
-      await tradePage.waitForStableElement()
       await tradePage.selectSellToken("Turbo")
       await tradePage.selectBuyToken("Near")
       await tradePage.enterFromAmount(10)

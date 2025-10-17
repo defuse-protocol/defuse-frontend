@@ -1,5 +1,4 @@
 import { type Locator, type Page, expect } from "@playwright/test"
-import { NEAR_INTENTS_PAGE } from "../../helpers/constants/pages"
 import {
   longTimeout,
   midTimeout,
@@ -9,7 +8,7 @@ import { BasePage } from "./base.page"
 
 export class AccountPage extends BasePage {
   withdrawBtn: Locator
-  selectTokenSelectionDropdown: Locator
+  withdrawFormAmountIn: Locator
   selectTokenSearchBar: Locator
   selectWithdrawTokenSearchBar: Locator
   withdrawAmountField: Locator
@@ -21,8 +20,8 @@ export class AccountPage extends BasePage {
 
   constructor(page: Page) {
     super(page)
-    this.withdrawBtn = page.getByLabel("Withdraw")
-    this.selectTokenSelectionDropdown = page.getByTestId("select-assets")
+    this.withdrawBtn = page.getByTestId("withdraw-button")
+    this.withdrawFormAmountIn = page.getByTestId("withdraw-form-amount-in")
     this.selectTokenSearchBar = page.getByPlaceholder("Search")
     this.withdrawAmountField = page.getByPlaceholder("0")
     this.withdrawTargetNetwork = page.getByTestId("select-trigger-like")
@@ -39,18 +38,15 @@ export class AccountPage extends BasePage {
     this.selectWithdrawTokenSearchBar = page.getByPlaceholder("Search coin")
   }
 
-  async confirmAccountPageLoaded() {
-    await expect(this.page).toHaveURL(`${NEAR_INTENTS_PAGE.baseURL}/account`)
-  }
-
-  async pressAccountsBtn() {
+  async navigateToWithdrawPage() {
     await expect(this.withdrawBtn).toBeVisible(midTimeout)
     await this.withdrawBtn.click()
+    await this.confirmCorrectPageLoaded(this.withdrawFormAmountIn)
   }
 
   async selectToken(token: string, searchNetwork = true) {
-    await expect(this.selectTokenSelectionDropdown).toBeVisible(shortTimeout)
-    await this.selectTokenSelectionDropdown.click()
+    await expect(this.withdrawFormAmountIn).toBeVisible(shortTimeout)
+    await this.withdrawFormAmountIn.click()
 
     if (searchNetwork) {
       await expect(this.selectTokenSearchBar).toBeVisible(shortTimeout)
@@ -73,8 +69,8 @@ export class AccountPage extends BasePage {
   }
 
   async selectWithdrawToken(searchToken: string | null) {
-    await expect(this.selectTokenSelectionDropdown).toBeVisible(shortTimeout)
-    await this.selectTokenSelectionDropdown.click()
+    await expect(this.withdrawFormAmountIn).toBeVisible(shortTimeout)
+    await this.withdrawFormAmountIn.click()
 
     if (searchToken) {
       await expect(this.selectWithdrawTokenSearchBar).toBeVisible(shortTimeout)

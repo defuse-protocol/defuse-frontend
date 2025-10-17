@@ -1,6 +1,5 @@
 import { type Locator, type Page, expect } from "@playwright/test"
-import { NEAR_INTENTS_PAGE } from "../../helpers/constants/pages"
-import { shortTimeout } from "../../helpers/constants/timeouts"
+import { longTimeout } from "../../helpers/constants/timeouts"
 
 export class BasePage {
   page: Page
@@ -17,61 +16,45 @@ export class BasePage {
     this.accountTab = page.getByRole("link", { name: "Account" })
   }
 
-  async confirmCorrectPageLoaded(url: string) {
-    const messageOnFail: string = `Loaded page is not ${url}`
-    const expectedUrl = `${NEAR_INTENTS_PAGE.baseURL}${url}`
-    await this.page.waitForLoadState("domcontentloaded")
-    await expect(this.page, messageOnFail).toHaveURL(expectedUrl, shortTimeout)
-    await this.page.waitForLoadState("networkidle")
-  }
-
-  async clickNearIntentsLogo() {
-    const url: string = "/dashboard"
-    await expect(
-      this.nearIntentsLogo,
-      "Near-Intents logo not visible"
-    ).toBeVisible()
-    await this.nearIntentsLogo.click()
-    await this.confirmCorrectPageLoaded(url)
+  async confirmCorrectPageLoaded(element: Locator) {
+    await element.waitFor({ state: "visible", ...longTimeout })
   }
 
   async navigateToDepositPage() {
-    const url: string = "/deposit"
     await expect(
       this.depositTab,
       "Deposit tab button not visible"
     ).toBeVisible()
 
     await this.depositTab.click()
-    await this.confirmCorrectPageLoaded(url)
+    await this.confirmCorrectPageLoaded(
+      this.page.getByTestId("select-network-trigger")
+    )
   }
 
   async navigateToTradePage() {
-    const url: string = ""
     await expect(this.tradeTab, "Trade tab button not visible").toBeVisible()
 
     await this.tradeTab.click()
-    await this.confirmCorrectPageLoaded(url)
+    await this.confirmCorrectPageLoaded(
+      this.page.getByTestId("select-assets-input")
+    )
   }
 
   async navigateToAccountPage() {
-    const url: string = "/account"
     await expect(
       this.accountTab,
       "Account tab button not visible"
     ).toBeVisible()
 
     await this.accountTab.click()
-    await this.confirmCorrectPageLoaded(url)
+    await this.confirmCorrectPageLoaded(
+      this.page.getByTestId("withdraw-button")
+    )
   }
 
   async waitForMetamaskAction() {
     // TODO: Find a better way to wait for metamask action
     await this.page.waitForTimeout(5_000)
-  }
-
-  async waitForStableElement() {
-    // TODO: Find a better way to wait for stable element
-    await this.page.waitForTimeout(1_000)
   }
 }

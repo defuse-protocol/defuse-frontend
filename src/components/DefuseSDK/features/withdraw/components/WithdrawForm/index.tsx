@@ -401,6 +401,7 @@ export const WithdrawForm = ({
         <Flex direction="column" gap="5">
           <FieldComboInput<WithdrawFormNearValues>
             fieldName="amountIn"
+            dataTestId="withdraw-form-amount-in"
             selected={token}
             tokenIn={token}
             handleSelect={handleSelect}
