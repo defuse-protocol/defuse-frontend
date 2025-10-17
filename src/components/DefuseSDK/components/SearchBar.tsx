@@ -1,6 +1,5 @@
 import { XCircleIcon } from "@phosphor-icons/react"
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons"
-import { useIsDesktop } from "@src/hooks/useIsDesktop"
 
 type Props = {
   query: string
@@ -13,8 +12,6 @@ export const SearchBar = ({
   setQuery,
   placeholder = "Search coin",
 }: Props) => {
-  const isDesktop = useIsDesktop()
-
   return (
     <div className="flex justify-between items-center gap-2.5 py-2.5 px-4 bg-gray-3 rounded-lg">
       <div>
@@ -22,7 +19,7 @@ export const SearchBar = ({
       </div>
       <input
         ref={(el) => {
-          if (el && isDesktop) {
+          if (el && window?.innerWidth >= 768) {
             el.focus()
           }
         }}
