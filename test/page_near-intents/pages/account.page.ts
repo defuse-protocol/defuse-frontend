@@ -40,8 +40,10 @@ export class AccountPage extends BasePage {
 
   async navigateToWithdrawPage() {
     await expect(this.withdrawBtn).toBeVisible(midTimeout)
-    await this.withdrawBtn.click()
-    await this.clickAndConfirmCorrectPageLoaded(this.withdrawFormAmountIn)
+    await this.clickAndConfirmCorrectPageLoaded(
+      this.withdrawBtn,
+      this.withdrawFormAmountIn
+    )
   }
 
   async selectToken(token: string, searchNetwork = true) {
