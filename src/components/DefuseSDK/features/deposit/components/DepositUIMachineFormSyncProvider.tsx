@@ -1,6 +1,9 @@
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
+import { useTokensUsdPrices } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
+import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { type PropsWithChildren, useEffect } from "react"
 import { useFormContext } from "react-hook-form"
+import { useDebounce } from "../../../../../hooks/useDebounce"
 import { reverseAssetNetworkAdapter } from "../../../utils/adapters"
 import type { DepositFormValues } from "./DepositForm"
 import { DepositUIMachineContext } from "./DepositUIMachineProvider"
@@ -19,10 +22,16 @@ export function DepositUIMachineFormSyncProvider({
 }: DepositUIMachineFormSyncProviderProps) {
   const { watch } = useFormContext<DepositFormValues>()
   const actorRef = DepositUIMachineContext.useActorRef()
+  const is1cs = useIs1CsEnabled()
+
+  const amountValue = watch("amount")
+  const debouncedAmount = useDebounce(amountValue, 500)
+
+  const { data: tokensUsdPriceData } = useTokensUsdPrices()
 
   useEffect(() => {
     const sub = watch(async (value, { name }) => {
-      if (name === "network") {
+      if (name === "network" && tokensUsdPriceData) {
         const networkValue = value[name]
         if (networkValue === undefined) {
           return
@@ -39,24 +48,25 @@ export function DepositUIMachineFormSyncProvider({
         }
         actorRef.send({
           type: "DEPOSIT_FORM.UPDATE_BLOCKCHAIN",
-          params: { network: networkValue },
-        })
-      }
-      if (name === "amount") {
-        const amountValue = value[name]
-        if (amountValue === undefined) {
-          return
-        }
-        actorRef.send({
-          type: "DEPOSIT_FORM.UPDATE_AMOUNT",
-          params: { amount: amountValue },
+          params: { network: networkValue, is1cs, tokensUsdPriceData },
         })
       }
     })
     return () => {
       sub.unsubscribe()
     }
-  }, [watch, actorRef])
+  }, [watch, actorRef, is1cs, tokensUsdPriceData])
+
+  // Debounce amount input updates to reduce network load and RPC calls
+  useEffect(() => {
+    if (debouncedAmount === undefined) {
+      return
+    }
+    actorRef.send({
+      type: "DEPOSIT_FORM.UPDATE_AMOUNT",
+      params: { amount: debouncedAmount },
+    })
+  }, [debouncedAmount, actorRef])
 
   useEffect(() => {
     if (!userAddress || userChainType == null) {

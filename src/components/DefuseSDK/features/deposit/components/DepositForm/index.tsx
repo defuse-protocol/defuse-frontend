@@ -65,6 +65,7 @@ export const DepositForm = ({
   const depositUIActorRef = DepositUIMachineContext.useActorRef()
   const snapshot = DepositUIMachineContext.useSelector((snapshot) => snapshot)
   const preparationOutput = snapshot.context.preparationOutput
+  const depositOutput = snapshot.context.depositOutput
 
   const {
     token,
@@ -73,9 +74,10 @@ export const DepositForm = ({
     network,
     userAddress,
     poaBridgeInfoRef,
+    depositMode,
   } = DepositUIMachineContext.useSelector((snapshot) => {
     const { userAddress, poaBridgeInfoRef } = snapshot.context
-    const { token, derivedToken, tokenDeployment, blockchain } =
+    const { token, derivedToken, tokenDeployment, blockchain, depositMode } =
       snapshot.context.depositFormRef.getSnapshot().context
 
     return {
@@ -85,6 +87,7 @@ export const DepositForm = ({
       network: blockchain,
       userAddress,
       poaBridgeInfoRef,
+      depositMode,
     }
   })
 
@@ -97,7 +100,6 @@ export const DepositForm = ({
       ? preparationOutput.value.memo
       : null
     : null
-
   const { setModalType, payload, onCloseModal } = useModalStore(
     (state) => state
   )
@@ -205,6 +207,7 @@ export const DepositForm = ({
 
   const networkEnum = assetNetworkAdapter[network as SupportedChainName]
   const singleNetwork = Object.keys(chainOptions).length === 1
+  const depositWarning = depositOutput || preparationOutput
   return (
     <Island className="widget-container flex flex-col gap-4">
       <IslandHeader heading="Deposit" condensed />
@@ -311,6 +314,8 @@ export const DepositForm = ({
                   token={derivedToken}
                   tokenDeployment={tokenDeployment}
                   memo={memo}
+                  depositWarning={depositWarning}
+                  depositMode={depositMode}
                 />
               )}
           </>
