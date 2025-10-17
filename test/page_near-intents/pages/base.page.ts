@@ -25,10 +25,12 @@ export class BasePage {
         await elementToClick.click()
         await elementToExpect.waitFor({ state: "visible", ...shortTimeout })
         return
-      } catch {}
+      } catch (e) {
+        if (i === 1) {
+          throw e
+        }
+      }
     }
-
-    expect(elementToExpect).toBeVisible()
   }
 
   async navigateToDepositPage() {
