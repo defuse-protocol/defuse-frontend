@@ -85,7 +85,6 @@ export const background1csQuoterMachine = fromCallback<
   }
 
   receive((event) => {
-    console.log("background1csQuoterMachine", event)
     const eventType = event.type
     switch (eventType) {
       case "PAUSE":
@@ -139,7 +138,6 @@ async function get1csQuote(
       // swapType: QuoteRequest.swapType.EXACT_INPUT
     }
 
-    console.log("1cs", payload)
     if (quoteInput.amountOut === null) {
       payload.amount = quoteInput.amountIn.amount.toString()
       payload.swapType = QuoteRequest.swapType.EXACT_INPUT

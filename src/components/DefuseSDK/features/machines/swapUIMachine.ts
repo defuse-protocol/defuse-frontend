@@ -74,9 +74,9 @@ export type Context = {
     amountOut: TokenValue | null
   }
   intentCreationResult:
-  | SwapIntentMachineOutput
-  | SwapIntent1csMachineOutput
-  | null
+    | SwapIntentMachineOutput
+    | SwapIntent1csMachineOutput
+    | null
   intentRefs: (
     | ActorRefFrom<typeof intentStatusMachine>
     | ActorRefFrom<typeof oneClickStatusMachine>
@@ -93,23 +93,23 @@ export type Context = {
 
 type PassthroughEvent =
   | {
-    type: "INTENT_SETTLED"
-    data: {
-      intentHash: string
-      txHash: string
-      tokenIn: TokenInfo
-      tokenOut: TokenInfo
+      type: "INTENT_SETTLED"
+      data: {
+        intentHash: string
+        txHash: string
+        tokenIn: TokenInfo
+        tokenOut: TokenInfo
+      }
     }
-  }
   | {
-    type: "ONE_CLICK_SETTLED"
-    data: {
-      depositAddress: string
-      status: string
-      tokenIn: TokenInfo
-      tokenOut: TokenInfo
+      type: "ONE_CLICK_SETTLED"
+      data: {
+        depositAddress: string
+        status: string
+        tokenIn: TokenInfo
+        tokenOut: TokenInfo
+      }
     }
-  }
 
 type EmittedEvents = PassthroughEvent | { type: "INTENT_PUBLISHED" }
 
@@ -127,57 +127,57 @@ export const swapUIMachine = setup({
     context: {} as Context,
     events: {} as
       | {
-        type: "input"
-        params: Partial<{
-          tokenIn: TokenInfo
-          tokenOut: TokenInfo
-          amountIn: string
-          amountOut: string
-        }>
-      }
-      | {
-        type: "submit"
-        params: {
-          userAddress: string
-          userChainType: AuthMethod
-          nearClient: providers.Provider
+          type: "input"
+          params: Partial<{
+            tokenIn: TokenInfo
+            tokenOut: TokenInfo
+            amountIn: string
+            amountOut: string
+          }>
         }
-      }
       | {
-        type: "BALANCE_CHANGED"
-        params: {
-          changedBalanceMapping: BalanceMapping
-        }
-      }
-      | {
-        type: "NEW_1CS_QUOTE"
-        params: {
-          result:
-          | {
-            ok: {
-              quote: {
-                amountIn: string
-                amountOut: string
-                deadline?: string
-              }
-              appFee: [string, bigint][]
-            }
+          type: "submit"
+          params: {
+            userAddress: string
+            userChainType: AuthMethod
+            nearClient: providers.Provider
           }
-          | { err: string }
-          tokenInAssetId: string
-          tokenOutAssetId: string
         }
-      }
+      | {
+          type: "BALANCE_CHANGED"
+          params: {
+            changedBalanceMapping: BalanceMapping
+          }
+        }
+      | {
+          type: "NEW_1CS_QUOTE"
+          params: {
+            result:
+              | {
+                  ok: {
+                    quote: {
+                      amountIn: string
+                      amountOut: string
+                      deadline?: string
+                    }
+                    appFee: [string, bigint][]
+                  }
+                }
+              | { err: string }
+            tokenInAssetId: string
+            tokenOutAssetId: string
+          }
+        }
       | BackgroundQuoterParentEvents
       | Background1csQuoterParentEvents
       | DepositedBalanceEvents
       | {
-        type: "PRICE_CHANGE_CONFIRMATION_REQUEST"
-        params: {
-          newAmountOut: { amount: bigint; decimals: number }
-          previousAmountOut?: { amount: bigint; decimals: number }
+          type: "PRICE_CHANGE_CONFIRMATION_REQUEST"
+          params: {
+            newAmountOut: { amount: bigint; decimals: number }
+            previousAmountOut?: { amount: bigint; decimals: number }
+          }
         }
-      }
       | { type: "PRICE_CHANGE_CONFIRMED" }
       | { type: "PRICE_CHANGE_CANCELLED" }
       | PassthroughEvent,
@@ -215,11 +215,19 @@ export const swapUIMachine = setup({
             tokenIn: TokenInfo
             tokenOut: TokenInfo
             amountIn: string
+            amountOut: string
           }>
         }
       ) => {
-        console.log("setFormValues", data)
-        if (data.amountIn !== undefined) {
+        const hasAmountIn = data.amountIn !== undefined
+        const hasAmountOut = data.amountOut !== undefined
+        if (hasAmountIn === false && hasAmountOut === false) {
+          return {
+            ...context.formValues,
+            ...data,
+          }
+        }
+        if (hasAmountIn) {
           return {
             ...context.formValues,
             ...{
@@ -254,23 +262,23 @@ export const swapUIMachine = setup({
             tokenOut,
             amountIn:
               context.formValues.amountIn === "" ||
-                isNaN(+context.formValues.amountIn)
+              Number.isNaN(+context.formValues.amountIn)
                 ? null
                 : {
-                  amount: parseUnits(context.formValues.amountIn, decimalsIn),
-                  decimals: decimalsIn,
-                },
+                    amount: parseUnits(context.formValues.amountIn, decimalsIn),
+                    decimals: decimalsIn,
+                  },
             amountOut:
               context.formValues.amountOut === "" ||
-                isNaN(+context.formValues.amountOut)
+              Number.isNaN(+context.formValues.amountOut)
                 ? null
                 : {
-                  amount: parseUnits(
-                    context.formValues.amountOut,
-                    decimalsOut
-                  ),
-                  decimals: decimalsOut,
-                },
+                    amount: parseUnits(
+                      context.formValues.amountOut,
+                      decimalsOut
+                    ),
+                    decimals: decimalsOut,
+                  },
           }
         } catch {
           return {
@@ -282,7 +290,7 @@ export const swapUIMachine = setup({
         }
       },
     }),
-    updateUIAmountOut: () => {
+    updateUIAmount: () => {
       throw new Error("not implemented")
     },
     setQuote: assign({
@@ -378,8 +386,8 @@ export const swapUIMachine = setup({
         assert(
           (context.parsedFormValues.amountIn != null &&
             context.parsedFormValues.amountIn.amount > 0n) ||
-          (context.parsedFormValues.amountOut != null &&
-            context.parsedFormValues.amountOut.amount > 0n),
+            (context.parsedFormValues.amountOut != null &&
+              context.parsedFormValues.amountOut.amount > 0n),
           "amounts not set"
         )
 
@@ -387,7 +395,6 @@ export const swapUIMachine = setup({
           context.user ??
           ({ identifier: "check-price", method: AuthMethod.Near } as const)
 
-        console.log("sendToBackground1csQuoterRefNewQuoteInput")
         return {
           type: "NEW_QUOTE_INPUT",
           params: {
@@ -715,7 +722,7 @@ export const swapUIMachine = setup({
             "sendToBackgroundQuoterRefPause",
             "sendToBackground1csQuoterRefPause",
             "clearQuote",
-            "updateUIAmountOut",
+            "updateUIAmount",
             "clearError",
             "clear1csError",
             {
@@ -732,12 +739,12 @@ export const swapUIMachine = setup({
               type: "setQuote",
               params: ({ event }) => event.params.quote,
             },
-            "updateUIAmountOut",
+            "updateUIAmount",
           ],
         },
 
         NEW_1CS_QUOTE: {
-          actions: ["process1csQuote", "updateUIAmountOut"],
+          actions: ["process1csQuote", "updateUIAmount"],
         },
       },
 
@@ -769,20 +776,20 @@ export const swapUIMachine = setup({
                   type: "setQuote",
                   params: ({ event }) => event.params.quote,
                 },
-                "updateUIAmountOut",
+                "updateUIAmount",
               ],
               description: `should do the same as NEW_QUOTE on "editing" itself`,
             },
             NEW_1CS_QUOTE: {
               target: "idle",
-              actions: ["process1csQuote", "updateUIAmountOut"],
+              actions: ["process1csQuote", "updateUIAmount"],
             },
           },
         },
       },
 
       initial: "idle",
-      entry: "updateUIAmountOut",
+      entry: "updateUIAmount",
     },
 
     submitting: {
@@ -884,8 +891,8 @@ export const swapUIMachine = setup({
           assert(
             (context.parsedFormValues.amountIn != null &&
               context.parsedFormValues.amountIn.amount > 0n) ||
-            (context.parsedFormValues.amountOut != null &&
-              context.parsedFormValues.amountOut.amount > 0n),
+              (context.parsedFormValues.amountOut != null &&
+                context.parsedFormValues.amountOut.amount > 0n),
             "amounts not set"
           )
           assert(context.user?.identifier != null, "user address is not set")
@@ -908,12 +915,12 @@ export const swapUIMachine = setup({
             previousAmountOut:
               context.quote && context.quote.tag === "ok"
                 ? {
-                  amount:
-                    context.quote.value.tokenDeltas.find(
-                      ([, delta]) => delta > 0n
-                    )?.[1] ?? 0n,
-                  decimals: context.parsedFormValues.tokenOut.decimals,
-                }
+                    amount:
+                      context.quote.value.tokenDeltas.find(
+                        ([, delta]) => delta > 0n
+                      )?.[1] ?? 0n,
+                    decimals: context.parsedFormValues.tokenOut.decimals,
+                  }
                 : undefined,
             parentRef: self,
           }
@@ -975,7 +982,7 @@ export const swapUIMachine = setup({
 
       on: {
         NEW_1CS_QUOTE: {
-          actions: ["process1csQuote", "updateUIAmountOut"],
+          actions: ["process1csQuote", "updateUIAmount"],
         },
       },
     },

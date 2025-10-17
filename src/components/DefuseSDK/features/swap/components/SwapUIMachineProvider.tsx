@@ -88,7 +88,7 @@ export function SwapUIMachineProvider({
       }}
       logic={swapUIMachine.provide({
         actions: {
-          updateUIAmountOut: ({ context }) => {
+          updateUIAmount: ({ context }) => {
             const quote = context.quote
             const totalAmountOutUpdated = context.formValues.amountIn === ""
             const fieldNameToUpdate = totalAmountOutUpdated

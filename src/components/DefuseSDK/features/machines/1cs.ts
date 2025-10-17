@@ -80,7 +80,6 @@ export async function getQuote(
 ): Promise<
   { ok: QuoteResponse & { appFee: [string, bigint][] } } | { err: string }
 > {
-  console.log("getQuote", args)
   const parseResult = getQuoteArgsSchema.safeParse(args)
 
   if (!parseResult.success) {

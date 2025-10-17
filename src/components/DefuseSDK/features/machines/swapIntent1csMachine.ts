@@ -162,7 +162,6 @@ export const swapIntent1csMachine = setup({
       }: { input: Quote1csInput & { userChainType: AuthMethod } }) => {
         const tokenInAssetId = input.tokenIn.defuseAssetId
         const tokenOutAssetId = input.tokenOut.defuseAssetId
-        console.log("Hello", input)
         return get1csQuoteApiWithRetry({
           dry: false,
           slippageTolerance: Math.round(input.slippageBasisPoints / 100),
