@@ -1,10 +1,11 @@
 import { X as CrossIcon } from "@phosphor-icons/react"
 import { InfoCircledIcon } from "@radix-ui/react-icons"
 import { Text } from "@radix-ui/themes"
+import { performSearch } from "@src/utils/smartSearch"
 import { type ReactNode, useMemo, useState } from "react"
+import type { NetworkOption } from "../../constants/blockchains"
 import type { NetworkOptions } from "../../hooks/useNetworkLists"
 import type { SupportedChainName } from "../../types/base"
-import { filterChains } from "../../utils/blockchain"
 import { BaseModalDialog } from "../Modal/ModalDialog"
 import { ModalNoResults } from "../Modal/ModalNoResults"
 import { SearchBar } from "../SearchBar"
@@ -22,6 +23,14 @@ interface ModalSelectNetworkProps {
   onIntentsSelect?: () => void
 }
 
+type SearchableNetwork = {
+  networkOption: NetworkOption
+  key: string
+  searchData: {
+    nameLower: string
+  }
+}
+
 export const ModalSelectNetwork = ({
   selectNetwork,
   selectedNetwork,
@@ -34,21 +43,56 @@ export const ModalSelectNetwork = ({
 }: ModalSelectNetworkProps) => {
   const [searchValue, setSearchValue] = useState("")
 
+  // Create searchable items for available networks
+  const searchableAvailableNetworks: SearchableNetwork[] = useMemo(() => {
+    return Object.entries(availableNetworks).map(([key, networkOption]) => ({
+      key,
+      networkOption,
+      searchData: {
+        nameLower: networkOption.label.toLowerCase(),
+      },
+    }))
+  }, [availableNetworks])
+
+  const searchableDisabledNetworks: SearchableNetwork[] = useMemo(() => {
+    return Object.entries(disabledNetworks).map(([key, networkOption]) => ({
+      key,
+      networkOption,
+      searchData: {
+        nameLower: networkOption.label.toLowerCase(),
+      },
+    }))
+  }, [disabledNetworks])
+
+  // Filter networks with search
   const filteredAvailableNetworks = useMemo(() => {
-    return filterChains(availableNetworks, searchValue)
-  }, [availableNetworks, searchValue])
+    return filterNetworksWithSearch(searchableAvailableNetworks, searchValue)
+  }, [searchableAvailableNetworks, searchValue])
 
   const filteredDisabledNetworks = useMemo(() => {
-    return filterChains(disabledNetworks, searchValue)
-  }, [disabledNetworks, searchValue])
+    return filterNetworksWithSearch(searchableDisabledNetworks, searchValue)
+  }, [searchableDisabledNetworks, searchValue])
+
+  // Convert filtered networks to NetworkOptions format
+  const availableNetworksOptions = useMemo(() => {
+    return Object.fromEntries(
+      filteredAvailableNetworks.map((item) => [item.key, item.networkOption])
+    )
+  }, [filteredAvailableNetworks])
+
+  const disabledNetworksOptions = useMemo(() => {
+    return Object.fromEntries(
+      filteredDisabledNetworks.map((item) => [item.key, item.networkOption])
+    )
+  }, [filteredDisabledNetworks])
 
   const onChangeNetwork = (network: SupportedChainName) => {
     selectNetwork(network)
     onClose()
   }
 
-  const availableNetworksValues = Object.keys(filteredAvailableNetworks)
-  const disabledNetworksValues = Object.keys(filteredDisabledNetworks)
+  const availableNetworksValues = Object.keys(availableNetworksOptions)
+  const disabledNetworksValues = Object.keys(disabledNetworksOptions)
 
   return (
     <BaseModalDialog open={!!isOpen} onClose={onClose} isDismissable>
@@ -83,7 +127,7 @@ export const ModalSelectNetwork = ({
               {availableNetworksValues.length > 0 && (
                 <div className="flex flex-col gap-2">
                   <NetworkList
-                    networkOptions={filteredAvailableNetworks}
+                    networkOptions={availableNetworksOptions}
                     selectedNetwork={selectedNetwork}
                     onChangeNetwork={onChangeNetwork}
                     renderValueDetails={renderValueDetails}
@@ -112,7 +156,7 @@ export const ModalSelectNetwork = ({
                   </div>
                   <NetworkList
                     disabled
-                    networkOptions={filteredDisabledNetworks}
+                    networkOptions={disabledNetworksOptions}
                     selectedNetwork={selectedNetwork}
                     onChangeNetwork={onChangeNetwork}
                     onIntentsSelect={onIntentsSelect}
@@ -125,4 +169,23 @@ export const ModalSelectNetwork = ({
       </div>
     </BaseModalDialog>
   )
+}
+
+function filterNetworksWithSearch(
+  networks: SearchableNetwork[],
+  searchValue: string,
+  options: {
+    maxFuzzyDistance?: number
+    maxResults?: number
+  } = {}
+): SearchableNetwork[] {
+  if (!searchValue.trim()) {
+    return networks
+  }
+  const { maxFuzzyDistance = 1, maxResults = 50 } = options
+  const { results } = performSearch(networks, searchValue, {
+    maxFuzzyDistance,
+    maxResults,
+  })
+  return results
 }

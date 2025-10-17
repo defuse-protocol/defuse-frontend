@@ -23,7 +23,6 @@ import { MostTradableTokens } from "../MostTradableTokens/MostTradableTokens"
 import { SearchBar } from "../SearchBar"
 import { ModalDialog } from "./ModalDialog"
 import { ModalNoResults } from "./ModalNoResults"
-import { ModalSearchLoading } from "./ModalSearchLoading"
 
 export type ModalSelectAssetsPayload = {
   modalType?: ModalType.MODAL_SELECT_ASSETS
@@ -69,15 +68,11 @@ export function ModalSelectAssets() {
 
   const handleSearchClear = () => setSearchValue("")
 
-  const { results: searchResults, isLoading } = useSmartSearch(
-    assetList,
-    searchValue,
-    {
-      maxResults: 100,
-      maxFuzzyDistance: 1,
-      debounceMs: 350,
-    }
-  )
+  const { results: searchResults } = useSmartSearch(assetList, searchValue, {
+    maxResults: 100,
+    maxFuzzyDistance: 1,
+    debounceMs: 0, // We don't need debonce since we have a short list and can get results instantly, consider for future
+  })
 
   const handleSelectToken = (selectedItem: SelectItemToken) => {
     if (modalType !== ModalType.MODAL_SELECT_ASSETS) {
@@ -199,9 +194,7 @@ export function ModalSelectAssets() {
           </div>
         </div>
         <div className="z-10 flex-1 overflow-y-auto border-b border-gray-1 dark:border-black-950 -mr-[var(--inset-padding-right)] pr-[var(--inset-padding-right)]">
-          {isLoading ? (
-            <ModalSearchLoading />
-          ) : assetList.length ? (
+          {assetList.length ? (
             <AssetList
               assets={displayAssets}
               className="h-full"
@@ -212,7 +205,7 @@ export function ModalSelectAssets() {
           ) : (
             <EmptyAssetList className="h-full" />
           )}
-          {searchValue.trim() && !isLoading && searchResults.length === 0 && (
+          {searchValue.trim() && searchResults.length === 0 && (
             <ModalNoResults handleSearchClear={handleSearchClear} />
           )}
         </div>
