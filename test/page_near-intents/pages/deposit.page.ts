@@ -28,9 +28,7 @@ export class DepositPage extends BasePage {
 
     this.selectTokenSearchBar = page.getByPlaceholder("Search")
     this.depositInputField = page.getByPlaceholder("0")
-    this.depositBtn = page
-      .getByRole("main")
-      .getByRole("button", { name: "Deposit" })
+    this.depositBtn = page.getByTestId("deposit-button")
 
     this.transactionCompleted = page.getByText("Completed")
     this.insufficientBalanceBtn = page.getByRole("button", {

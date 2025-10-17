@@ -11,9 +11,9 @@ export class BasePage {
   constructor(page: Page) {
     this.page = page
     this.nearIntentsLogo = page.getByAltText("Near Intent Logo")
-    this.depositTab = page.getByRole("button", { name: "Deposit" })
-    this.tradeTab = page.getByRole("link", { name: "Trade" })
-    this.accountTab = page.getByRole("link", { name: "Account" })
+    this.depositTab = page.getByTestId("deposit-tab")
+    this.tradeTab = page.getByTestId("trade-tab")
+    this.accountTab = page.getByTestId("account-tab")
   }
 
   async confirmCorrectPageLoaded(element: Locator) {

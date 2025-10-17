@@ -20,10 +20,16 @@ export function NavbarDesktop() {
         label="Account"
         isActive={isAccountActive}
         href={navigation.account}
+        dataTestId="account-tab"
       />
 
       {/* Trade */}
-      <NavItem label="Trade" isActive={isTradeActive} href={navigation.home} />
+      <NavItem
+        label="Trade"
+        isActive={isTradeActive}
+        href={navigation.home}
+        dataTestId="trade-tab"
+      />
     </nav>
   )
 }
@@ -32,10 +38,12 @@ function NavItem({
   label,
   isActive,
   href,
+  dataTestId,
 }: {
   label: string
   isActive: boolean
   href: string
+  dataTestId?: string
 }) {
   return (
     <Link href={href}>
@@ -48,6 +56,7 @@ function NavItem({
           "relative text-sm",
           isActive ? "text-gray-1" : "bg-transparent"
         )}
+        data-testid={dataTestId}
         asChild
       >
         <span className="text-sm font-bold whitespace-nowrap">{label}</span>
@@ -65,6 +74,7 @@ export function NavbarDeposit() {
         highContrast
         variant="soft"
         className="flex items-center gap-2 text-sm"
+        data-testid="deposit-tab"
       >
         <Plus className="size-3 text-gray-12" weight="bold" />
         <span className="text-sm font-bold whitespace-nowrap">Deposit</span>
