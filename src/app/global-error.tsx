@@ -1,7 +1,6 @@
 "use client"
 
 import { ArrowClockwiseIcon, WarningIcon } from "@phosphor-icons/react"
-import { Text } from "@radix-ui/themes"
 import { logger } from "@src/utils/logger"
 import { useEffect } from "react"
 
@@ -53,9 +52,7 @@ export default function GlobalError({
               >
                 <div className="flex items-center justify-center gap-1">
                   <ArrowClockwiseIcon weight="bold" className="size-4" />
-                  <Text size="4" weight="medium">
-                    Refresh
-                  </Text>
+                  <span className="text-base font-medium">Refresh</span>
                 </div>
               </button>
             </div>
