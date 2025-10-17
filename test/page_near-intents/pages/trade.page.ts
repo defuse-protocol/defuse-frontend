@@ -97,7 +97,7 @@ export class TradePage extends BasePage {
 
     const confirmNewPriceBtn = this.page.getByTestId("confirm-new-price-button")
     try {
-      await confirmNewPriceBtn.waitFor({ state: "visible", ...midTimeout })
+      await confirmNewPriceBtn.waitFor({ state: "visible", ...shortTimeout })
       await confirmNewPriceBtn.click()
     } catch {}
   }
