@@ -26,19 +26,35 @@ export class BasePage {
       "Deposit tab button not visible"
     ).toBeVisible()
 
-    await this.depositTab.click()
-    await this.confirmCorrectPageLoaded(
-      this.page.getByTestId("select-network-trigger")
-    )
+    // try navigating two times to handle cases where the tab is not immediately clickable
+    try {
+      await this.depositTab.click()
+      await this.confirmCorrectPageLoaded(
+        this.page.getByTestId("select-network-trigger")
+      )
+    } catch {
+      await this.depositTab.click()
+      await this.confirmCorrectPageLoaded(
+        this.page.getByTestId("select-network-trigger")
+      )
+    }
   }
 
   async navigateToTradePage() {
     await expect(this.tradeTab, "Trade tab button not visible").toBeVisible()
 
-    await this.tradeTab.click()
-    await this.confirmCorrectPageLoaded(
-      this.page.getByTestId("select-assets-input")
-    )
+    // try navigating two times to handle cases where the tab is not immediately clickable
+    try {
+      await this.tradeTab.click()
+      await this.confirmCorrectPageLoaded(
+        this.page.getByTestId("select-assets-input")
+      )
+    } catch {
+      await this.tradeTab.click()
+      await this.confirmCorrectPageLoaded(
+        this.page.getByTestId("select-assets-input")
+      )
+    }
   }
 
   async navigateToAccountPage() {
@@ -47,10 +63,18 @@ export class BasePage {
       "Account tab button not visible"
     ).toBeVisible()
 
-    await this.accountTab.click()
-    await this.confirmCorrectPageLoaded(
-      this.page.getByTestId("withdraw-button")
-    )
+    // try navigating two times to handle cases where the tab is not immediately clickable
+    try {
+      await this.accountTab.click()
+      await this.confirmCorrectPageLoaded(
+        this.page.getByTestId("withdraw-button")
+      )
+    } catch {
+      await this.accountTab.click()
+      await this.confirmCorrectPageLoaded(
+        this.page.getByTestId("withdraw-button")
+      )
+    }
   }
 
   async waitForMetamaskAction() {
