@@ -1,7 +1,7 @@
 "use client"
 
-import { WarningIcon } from "@phosphor-icons/react"
-import { Button, Text } from "@radix-ui/themes"
+import { ArrowClockwiseIcon, WarningIcon } from "@phosphor-icons/react"
+import { Text } from "@radix-ui/themes"
 import { logger } from "@src/utils/logger"
 import { useEffect } from "react"
 
@@ -46,18 +46,18 @@ export default function GlobalError({
                 </div>
               )}
 
-              <Button
+              <button
                 type="button"
-                size="4"
-                variant="outline"
-                color="gray"
-                className="md:flex-1 font-bold rounded-full px-4 py-1.5 cursor-pointer"
+                className="font-bold my-2.5 px-4 py-1.5 border border-gray hover:bg-gray-a3 rounded-full cursor-pointer"
                 onClick={() => window.location.reload()}
               >
-                <Text size="4" weight="medium">
-                  Refresh
-                </Text>
-              </Button>
+                <div className="flex items-center justify-center gap-1">
+                  <ArrowClockwiseIcon weight="bold" className="size-4" />
+                  <Text size="4" weight="medium">
+                    Refresh
+                  </Text>
+                </div>
+              </button>
             </div>
           </div>
         </div>
