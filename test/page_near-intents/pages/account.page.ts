@@ -60,7 +60,6 @@ export class AccountPage extends BasePage {
     } else {
       const allVisibleNetworks = this.page
         .getByTestId("asset-list")
-        .first()
         .getByRole("button")
         .first()
       await expect(allVisibleNetworks).toBeVisible(midTimeout)

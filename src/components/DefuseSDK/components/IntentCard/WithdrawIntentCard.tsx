@@ -69,7 +69,7 @@ export function WithdrawIntentCard({
                   : undefined
               }
               data-testid={
-                state.value === "success" ? "swap-success" : undefined
+                state.value === "success" ? "withdraw-success" : undefined
               }
             >
               {renderStatusLabel(state.value)}

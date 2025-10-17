@@ -122,7 +122,6 @@ export class TradePage extends BasePage {
     } else {
       const allVisibleTokens = this.page
         .getByTestId("asset-list")
-        .first()
         .getByRole("button")
         .first()
       await expect(allVisibleTokens).toBeVisible(midTimeout)
