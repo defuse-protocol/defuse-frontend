@@ -96,7 +96,8 @@ export class TradePage extends BasePage {
     await this.swapBtn.click()
 
     const confirmNewPriceBtn = this.page.getByTestId("confirm-new-price-button")
-    const isConfirmNewPriceVisible = await confirmNewPriceBtn.isVisible()
+    const isConfirmNewPriceVisible =
+      await confirmNewPriceBtn.isVisible(longTimeout)
 
     if (isConfirmNewPriceVisible) {
       await confirmNewPriceBtn.click()
