@@ -1,8 +1,7 @@
 "use client"
 
-import { ArrowClockwiseIcon, WarningIcon } from "@phosphor-icons/react"
-import { Button } from "@radix-ui/themes"
-import { useMagneticEffect } from "@src/hooks/useMagneticEffect"
+import { WarningIcon } from "@phosphor-icons/react"
+import { Button, Text } from "@radix-ui/themes"
 import { logger } from "@src/utils/logger"
 import { useEffect } from "react"
 
@@ -11,12 +10,6 @@ export default function GlobalError({
 }: {
   error: Error & { digest?: string }
 }) {
-  const { buttonProps } = useMagneticEffect({
-    magneticRadius: 100,
-    maxMove: 8,
-    transitionDuration: 300,
-  })
-
   useEffect(() => {
     logger.error(new Error("Global error", { cause: error }))
   }, [error])
@@ -54,16 +47,16 @@ export default function GlobalError({
               )}
 
               <Button
-                {...buttonProps}
                 type="button"
-                size="3"
-                className={`w-full font-medium cursor-pointer ${buttonProps.className}`}
-                onClick={() => {
-                  window.location.reload()
-                }}
+                size="4"
+                variant="outline"
+                color="gray"
+                className="md:flex-1 font-bold rounded-full px-4 py-1.5 cursor-pointer"
+                onClick={() => window.location.reload()}
               >
-                Refresh{" "}
-                <ArrowClockwiseIcon weight="bold" className="ml-2 size-4" />
+                <Text size="4" weight="medium">
+                  Refresh
+                </Text>
               </Button>
             </div>
           </div>
