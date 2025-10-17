@@ -1,9 +1,9 @@
 import { prepareBroadcastRequest } from "@defuse-protocol/internal-utils"
+import { utils } from "@defuse-protocol/internal-utils"
 import { base58, base64, base64urlnopad, hex } from "@scure/base"
 import * as v from "valibot"
 import { AssertionError } from "../../../errors/assert"
 import { findError } from "../../../utils/errors"
-import { isLegitAccountId } from "../../../utils/near"
 import { parseDefuseAssetId } from "../../../utils/tokenUtils"
 import { normalizeSignatureS } from "../../../utils/webAuthn"
 
@@ -12,7 +12,10 @@ export const ToBigIntSchema = v.pipe(
   v.transform((a) => BigInt(a))
 )
 
-export const NearAccountIdSchema = v.pipe(v.string(), v.check(isLegitAccountId))
+export const NearAccountIdSchema = v.pipe(
+  v.string(),
+  v.check(utils.validateNearAddress)
+)
 
 export const DeadlineSchema = v.pipe(v.string(), v.isoTimestamp())
 

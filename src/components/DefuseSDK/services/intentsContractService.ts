@@ -1,20 +1,21 @@
+import { utils } from "@defuse-protocol/internal-utils"
 import type { providers } from "near-api-js"
 import * as v from "valibot"
 import { config } from "../config"
-import { type OptionalBlockReference, queryContract } from "../utils/near"
 
 export async function getProtocolFee(
-  params: { nearClient: providers.Provider } & OptionalBlockReference
+  params: { nearClient: providers.Provider } & utils.OptionalBlockReference
 ) {
-  const data = await queryContract({
+  const data = await utils.queryContract({
     ...params,
     contractId: config.env.contractID,
     methodName: "fee",
     args: {},
+    schema: v.number(),
   })
 
   // in bip: 1 bip = 0.0001% = 0.000001
-  return v.parse(v.number(), data)
+  return data
 }
 
 export async function hasPublicKey({
@@ -25,8 +26,8 @@ export async function hasPublicKey({
   nearClient: providers.Provider
   accountId: string
   publicKey: string
-} & OptionalBlockReference): Promise<boolean> {
-  const data = await queryContract({
+} & utils.OptionalBlockReference): Promise<boolean> {
+  const data = await utils.queryContract({
     ...params,
     contractId: config.env.contractID,
     methodName: "has_public_key",
@@ -34,9 +35,10 @@ export async function hasPublicKey({
       account_id: accountId,
       public_key: publicKey,
     },
+    schema: v.boolean(),
   })
 
-  return v.parse(v.boolean(), data)
+  return data
 }
 
 export async function isNonceUsed({
@@ -47,8 +49,8 @@ export async function isNonceUsed({
   nearClient: providers.Provider
   accountId: string
   nonce: string
-} & OptionalBlockReference): Promise<boolean> {
-  const data = await queryContract({
+} & utils.OptionalBlockReference): Promise<boolean> {
+  const data = await utils.queryContract({
     ...params,
     contractId: config.env.contractID,
     methodName: "is_nonce_used",
@@ -56,9 +58,10 @@ export async function isNonceUsed({
       account_id: accountId,
       nonce: nonce,
     },
+    schema: v.boolean(),
   })
 
-  return v.parse(v.boolean(), data)
+  return data
 }
 
 export async function batchBalanceOf({
@@ -69,8 +72,8 @@ export async function batchBalanceOf({
   nearClient: providers.Provider
   accountId: string
   tokenIds: string[]
-} & OptionalBlockReference): Promise<bigint[]> {
-  const data = await queryContract({
+} & utils.OptionalBlockReference): Promise<bigint[]> {
+  const data = await utils.queryContract({
     ...params,
     contractId: config.env.contractID,
     methodName: "mt_batch_balance_of",
@@ -78,13 +81,11 @@ export async function batchBalanceOf({
       account_id: accountId,
       token_ids: tokenIds,
     },
-  })
-
-  return v.parse(
-    v.pipe(
+    schema: v.pipe(
       v.array(v.string()),
       v.transform((v) => v.map(BigInt))
     ),
-    data
-  )
+  })
+
+  return data
 }

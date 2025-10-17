@@ -17,10 +17,7 @@ import { Err, Ok, type Result } from "@thames/monads"
 import { type ActorRefFrom, waitFor } from "xstate"
 import { getAuroraEngineContractId } from "../constants/aurora"
 import { bridgeSDK } from "../constants/bridgeSdk"
-import type {
-  QuoteInput,
-  backgroundQuoterMachine,
-} from "../features/machines/backgroundQuoterMachine"
+import type { QuoteInput } from "../features/machines/backgroundQuoterMachine"
 import {
   type BalanceMapping,
   balancesSelector,
@@ -47,7 +44,11 @@ import {
   subtractAmounts,
   truncateTokenValue,
 } from "../utils/tokenUtils"
-import type { QuoteResult } from "./quoteService"
+import {
+  type AggregatedQuoteParams,
+  type QuoteResult,
+  queryQuote,
+} from "./quoteService"
 
 interface SwapRequirement {
   swapParams: QuoteInput
@@ -96,12 +97,10 @@ export async function prepareWithdraw(
     formValues,
     depositedBalanceRef,
     poaBridgeInfoRef,
-    backgroundQuoteRef,
   }: {
     formValues: WithdrawFormContext
     depositedBalanceRef: ActorRefFrom<typeof depositedBalanceMachine>
     poaBridgeInfoRef: ActorRefFrom<typeof poaBridgeInfoActor>
-    backgroundQuoteRef: ActorRefFrom<typeof backgroundQuoterMachine>
   },
   { signal }: { signal: AbortSignal }
 ): Promise<PreparationOutput> {
@@ -153,25 +152,16 @@ export async function prepareWithdraw(
 
   let swapRequirement: null | SwapRequirement = null
   if (swapNeeded.amount.amount > 0n) {
-    const swapParams = {
+    const swapParams: AggregatedQuoteParams = {
       amountIn: swapNeeded.amount,
       tokensIn: swapNeeded.tokens,
       tokenOut: formValues.tokenOut,
       balances: balances,
       appFeeBps: 0, // no app fee for withdrawals
+      waitMs: 5_000, // it is good enough for most solvers
     }
 
-    const swapQuote = await new Promise<QuoteResult>((resolve) => {
-      backgroundQuoteRef.send({
-        type: "NEW_QUOTE_INPUT",
-        params: swapParams,
-      })
-
-      const sub = backgroundQuoteRef.on("NEW_QUOTE", (event) => {
-        sub.unsubscribe()
-        resolve(event.params.quote)
-      })
-    })
+    const swapQuote = await queryQuote(swapParams, { signal })
 
     swapRequirement = {
       swapParams,

@@ -1,4 +1,5 @@
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
+import { utils } from "@defuse-protocol/internal-utils"
 import type { BalanceMapping } from "../features/machines/depositedBalanceMachine"
 import type {
   BaseTokenInfo,
@@ -7,7 +8,6 @@ import type {
   TokenValue,
 } from "../types/base"
 import { assert, type AssertErrorType } from "./assert"
-import { isLegitAccountId } from "./near"
 import { isBaseToken } from "./token"
 
 export function computeTotalBalance(
@@ -416,7 +416,7 @@ export function parseDefuseAssetId(
   const [tokenStandard, tokenContractId, multiTokenId] = assetId.split(":")
 
   assert(
-    tokenContractId != null && isLegitAccountId(tokenContractId),
+    tokenContractId != null && utils.validateNearAddress(tokenContractId),
     "Incorrect format of assetId"
   )
 

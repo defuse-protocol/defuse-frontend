@@ -21,27 +21,12 @@ export function SwapUIMachineFormSyncProvider({
   onSuccessSwap,
   sendNearTransaction,
 }: SwapUIMachineFormSyncProviderProps) {
-  const { watch, setValue } = useFormContext<SwapFormValues>()
+  const { setValue } = useFormContext<SwapFormValues>()
   const actorRef = SwapUIMachineContext.useActorRef()
 
   // Make `onSuccessSwap` stable reference, waiting for `useEvent` hook to come out
   const onSuccessSwapRef = useRef(onSuccessSwap)
   onSuccessSwapRef.current = onSuccessSwap
-
-  useEffect(() => {
-    const subscription = watch((values, { name, type }) => {
-      if (type === undefined || name === undefined) return
-      const value = values[name]
-      if (value === undefined) return
-
-      actorRef.send({
-        type: "input",
-        params: { [name]: value },
-      })
-    })
-
-    return () => subscription.unsubscribe()
-  }, [watch, actorRef])
 
   useEffect(() => {
     if (userAddress == null || userChainType == null) {
@@ -56,6 +41,7 @@ export function SwapUIMachineFormSyncProvider({
       switch (event.type) {
         case "INTENT_PUBLISHED": {
           setValue("amountIn", "")
+          setValue("amountOut", "")
           break
         }
 
