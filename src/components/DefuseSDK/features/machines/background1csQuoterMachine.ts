@@ -2,13 +2,15 @@ import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { getQuote as get1csQuoteApi } from "@src/components/DefuseSDK/features/machines/1cs"
 import { type ActorRef, type Snapshot, fromCallback } from "xstate"
 
+import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import { logger } from "@src/utils/logger"
 import type { BaseTokenInfo } from "../../types/base"
 
 export type Quote1csInput = {
   tokenIn: BaseTokenInfo
   tokenOut: BaseTokenInfo
-  amountIn: { amount: bigint; decimals: number }
+  amountIn: { amount: bigint; decimals: number } | null
+  amountOut: { amount: bigint; decimals: number } | null
   slippageBasisPoints: number
   defuseUserId: string
   deadline: string
@@ -124,16 +126,26 @@ async function get1csQuote(
   const tokenOutAssetId = quoteInput.tokenOut.defuseAssetId
 
   try {
-    const result = await get1csQuoteApi({
+    const payload = {
       dry: true,
       slippageTolerance: Math.round(quoteInput.slippageBasisPoints / 100),
       originAsset: tokenInAssetId,
       destinationAsset: tokenOutAssetId,
-      amount: quoteInput.amountIn.amount.toString(),
+      // amount: quoteInput.amountIn.amount.toString(),
       deadline: quoteInput.deadline,
       userAddress: quoteInput.userAddress,
       authMethod: quoteInput.userChainType,
-    })
+      // swapType: QuoteRequest.swapType.EXACT_INPUT
+    }
+
+    if (quoteInput.amountOut === null) {
+      payload.amount = quoteInput.amountIn.amount.toString()
+      payload.swapType = QuoteRequest.swapType.EXACT_INPUT
+    } else {
+      payload.amount = quoteInput.amountOut.amount.toString()
+      payload.swapType = QuoteRequest.swapType.EXACT_OUTPUT
+    }
+    const result = await get1csQuoteApi(payload)
 
     onResult(result, tokenInAssetId, tokenOutAssetId)
   } catch {

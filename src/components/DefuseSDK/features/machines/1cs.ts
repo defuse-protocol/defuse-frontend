@@ -59,6 +59,8 @@ const _: AuthMethodSchema extends AuthMethod
     : never
   : never = true
 
+const swapTypeSchema = z.enum(["EXACT_INPUT", "EXACT_OUTPUT", "FLEX_INPUT"])
+
 const getQuoteArgsSchema = z.object({
   dry: z.boolean(),
   slippageTolerance: z.number(),
@@ -68,6 +70,7 @@ const getQuoteArgsSchema = z.object({
   deadline: z.string(),
   userAddress: z.string(),
   authMethod: authMethodSchema,
+  swapType: swapTypeSchema,
 })
 
 type GetQuoteArgs = z.infer<typeof getQuoteArgsSchema>
@@ -78,6 +81,7 @@ export async function getQuote(
   { ok: QuoteResponse & { appFee: [string, bigint][] } } | { err: string }
 > {
   const parseResult = getQuoteArgsSchema.safeParse(args)
+
   if (!parseResult.success) {
     return { err: `Invalid arguments: ${parseResult.error.message}` }
   }
@@ -118,7 +122,6 @@ export async function getQuote(
       refundType: QuoteRequest.refundType.INTENTS,
       recipient: intentsUserId,
       recipientType: QuoteRequest.recipientType.INTENTS,
-      swapType: QuoteRequest.swapType.EXACT_INPUT,
       quoteWaitingTimeMs: 0, // means the fastest quote
       referral: referralMap[await whitelabelTemplateFlag()],
       ...(appFeeBps > 0

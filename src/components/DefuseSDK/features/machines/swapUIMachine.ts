@@ -65,11 +65,13 @@ export type Context = {
     tokenIn: TokenInfo
     tokenOut: TokenInfo
     amountIn: string
+    amountOut: string
   }
   parsedFormValues: {
     tokenIn: BaseTokenInfo
     tokenOut: BaseTokenInfo
     amountIn: TokenValue | null
+    amountOut: TokenValue | null
   }
   intentCreationResult:
     | SwapIntentMachineOutput
@@ -130,6 +132,7 @@ export const swapUIMachine = setup({
             tokenIn: TokenInfo
             tokenOut: TokenInfo
             amountIn: string
+            amountOut: string
           }>
         }
       | {
@@ -212,12 +215,35 @@ export const swapUIMachine = setup({
             tokenIn: TokenInfo
             tokenOut: TokenInfo
             amountIn: string
+            amountOut: string
           }>
         }
-      ) => ({
-        ...context.formValues,
-        ...data,
-      }),
+      ) => {
+        const hasAmountIn = data.amountIn !== undefined
+        const hasAmountOut = data.amountOut !== undefined
+        if (hasAmountIn === false && hasAmountOut === false) {
+          return {
+            ...context.formValues,
+            ...data,
+          }
+        }
+        if (hasAmountIn) {
+          return {
+            ...context.formValues,
+            ...{
+              amountIn: data.amountIn,
+              amountOut: "",
+            },
+          }
+        }
+        return {
+          ...context.formValues,
+          ...{
+            amountOut: data.amountOut,
+            amountIn: "",
+          },
+        }
+      },
     }),
     parseFormValues: assign({
       parsedFormValues: ({ context }) => {
@@ -225,27 +251,46 @@ export const swapUIMachine = setup({
         const tokenOut = getAnyBaseTokenInfo(context.formValues.tokenOut)
 
         try {
-          const decimals = context.is1cs
+          const decimalsIn = context.is1cs
             ? getTokenDecimals(context.formValues.tokenIn)
             : getTokenMaxDecimals(context.formValues.tokenIn)
+          const decimalsOut = context.is1cs
+            ? getTokenDecimals(context.formValues.tokenOut)
+            : getTokenMaxDecimals(context.formValues.tokenOut)
           return {
             tokenIn,
             tokenOut,
-            amountIn: {
-              amount: parseUnits(context.formValues.amountIn, decimals),
-              decimals,
-            },
+            amountIn:
+              context.formValues.amountIn === "" ||
+              Number.isNaN(+context.formValues.amountIn)
+                ? null
+                : {
+                    amount: parseUnits(context.formValues.amountIn, decimalsIn),
+                    decimals: decimalsIn,
+                  },
+            amountOut:
+              context.formValues.amountOut === "" ||
+              Number.isNaN(+context.formValues.amountOut)
+                ? null
+                : {
+                    amount: parseUnits(
+                      context.formValues.amountOut,
+                      decimalsOut
+                    ),
+                    decimals: decimalsOut,
+                  },
           }
         } catch {
           return {
             tokenIn,
             tokenOut,
             amountIn: null,
+            amountOut: null,
           }
         }
       },
     }),
-    updateUIAmountOut: () => {
+    updateUIAmount: () => {
       throw new Error("not implemented")
     },
     setQuote: assign({
@@ -338,7 +383,13 @@ export const swapUIMachine = setup({
     sendToBackground1csQuoterRefNewQuoteInput: sendTo(
       "background1csQuoterRef",
       ({ context }): Background1csQuoterEvents => {
-        assert(context.parsedFormValues.amountIn != null, "amountIn is not set")
+        assert(
+          (context.parsedFormValues.amountIn != null &&
+            context.parsedFormValues.amountIn.amount > 0n) ||
+            (context.parsedFormValues.amountOut != null &&
+              context.parsedFormValues.amountOut.amount > 0n),
+          "amounts not set"
+        )
 
         const user =
           context.user ??
@@ -350,6 +401,7 @@ export const swapUIMachine = setup({
             tokenIn: context.parsedFormValues.tokenIn,
             tokenOut: context.parsedFormValues.tokenOut,
             amountIn: context.parsedFormValues.amountIn,
+            amountOut: context.parsedFormValues.amountOut,
             slippageBasisPoints: context.slippageBasisPoints,
             defuseUserId: authIdentity.authHandleToIntentsUserId(
               user.identifier,
@@ -516,8 +568,10 @@ export const swapUIMachine = setup({
     },
     isFormValidAnd1cs: ({ context }) => {
       return (
-        context.parsedFormValues.amountIn != null &&
-        context.parsedFormValues.amountIn.amount > 0n &&
+        ((context.parsedFormValues.amountIn != null &&
+          context.parsedFormValues.amountIn.amount > 0n) ||
+          (context.parsedFormValues.amountOut != null &&
+            context.parsedFormValues.amountOut.amount > 0n)) &&
         context.is1cs
       )
     },
@@ -535,6 +589,7 @@ export const swapUIMachine = setup({
       tokenIn: input.tokenIn,
       tokenOut: input.tokenOut,
       amountIn: "",
+      amountOut: "",
     },
     parsedFormValues: {
       tokenIn: getAnyBaseTokenInfo(input.tokenIn),
@@ -667,7 +722,7 @@ export const swapUIMachine = setup({
             "sendToBackgroundQuoterRefPause",
             "sendToBackground1csQuoterRefPause",
             "clearQuote",
-            "updateUIAmountOut",
+            "updateUIAmount",
             "clearError",
             "clear1csError",
             {
@@ -684,12 +739,12 @@ export const swapUIMachine = setup({
               type: "setQuote",
               params: ({ event }) => event.params.quote,
             },
-            "updateUIAmountOut",
+            "updateUIAmount",
           ],
         },
 
         NEW_1CS_QUOTE: {
-          actions: ["process1csQuote", "updateUIAmountOut"],
+          actions: ["process1csQuote", "updateUIAmount"],
         },
       },
 
@@ -721,20 +776,20 @@ export const swapUIMachine = setup({
                   type: "setQuote",
                   params: ({ event }) => event.params.quote,
                 },
-                "updateUIAmountOut",
+                "updateUIAmount",
               ],
               description: `should do the same as NEW_QUOTE on "editing" itself`,
             },
             NEW_1CS_QUOTE: {
               target: "idle",
-              actions: ["process1csQuote", "updateUIAmountOut"],
+              actions: ["process1csQuote", "updateUIAmount"],
             },
           },
         },
       },
 
       initial: "idle",
-      entry: "updateUIAmountOut",
+      entry: "updateUIAmount",
     },
 
     submitting: {
@@ -834,8 +889,11 @@ export const swapUIMachine = setup({
           assertEvent(event, "submit")
 
           assert(
-            context.parsedFormValues.amountIn != null,
-            "amountIn is not set"
+            (context.parsedFormValues.amountIn != null &&
+              context.parsedFormValues.amountIn.amount > 0n) ||
+              (context.parsedFormValues.amountOut != null &&
+                context.parsedFormValues.amountOut.amount > 0n),
+            "amounts not set"
           )
           assert(context.user?.identifier != null, "user address is not set")
           assert(context.user?.method != null, "user chain type is not set")
@@ -924,7 +982,7 @@ export const swapUIMachine = setup({
 
       on: {
         NEW_1CS_QUOTE: {
-          actions: ["process1csQuote", "updateUIAmountOut"],
+          actions: ["process1csQuote", "updateUIAmount"],
         },
       },
     },

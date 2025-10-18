@@ -112,9 +112,8 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
   // we need stable references to allow passing to useEffect
   const switchTokens = useCallback(() => {
-    const { amountIn, amountOut } = getValues()
+    const { amountOut } = getValues()
     setValue("amountIn", amountOut)
-    setValue("amountOut", amountIn)
     swapUIActorRef.send({
       type: "input",
       params: {
@@ -388,10 +387,23 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               inputSlot={
                 <TokenAmountInputCard.Input
                   id="swap-form-amount-out"
-                  name="amountOut"
-                  value={watch("amountOut")}
-                  disabled={true}
-                  isLoading={isLoading}
+                  {...register("amountOut", {
+                    required: true,
+                    validate: (value) => {
+                      if (!value) return true
+                      const num = Number.parseFloat(value.replace(",", "."))
+                      return (
+                        (!Number.isNaN(num) && num > 0) ||
+                        "Enter a valid amount"
+                      )
+                    },
+                    onChange: (e) => {
+                      swapUIActorRef.send({
+                        type: "input",
+                        params: { amountOut: e.target.value },
+                      })
+                    },
+                  })}
                 />
               }
               tokenSlot={
