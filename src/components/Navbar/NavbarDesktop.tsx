@@ -67,14 +67,13 @@ function NavItem({
 
 export function NavbarDeposit() {
   return (
-    <Link href={navigation.deposit}>
+    <Link href={navigation.deposit} data-testid="deposit-tab">
       <Button
         radius="full"
         color="gray"
         highContrast
         variant="soft"
         className="flex items-center gap-2 text-sm"
-        data-testid="deposit-tab"
       >
         <Plus className="size-3 text-gray-12" weight="bold" />
         <span className="text-sm font-bold whitespace-nowrap">Deposit</span>
