@@ -29,12 +29,12 @@ function SelectTriggerLike(
   return (
     <button
       ref={ref}
-      {...props}
       type="button"
       className={clsx(
         "inline-flex h-12 items-center gap-2.5 rounded-lg bg-gray-3 px-4 text-gray-12 hover:bg-gray-4",
         className
       )}
+      {...props}
     >
       <div className="flex flex-1 items-center justify-between">
         <div className="flex items-center gap-2">

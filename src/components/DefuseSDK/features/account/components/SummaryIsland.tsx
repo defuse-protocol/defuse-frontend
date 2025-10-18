@@ -82,6 +82,7 @@ export function SummaryIsland({
           <NavButton
             routeName="withdraw"
             renderHostAppLink={renderHostAppLink}
+            dataTestId="withdraw-button"
             className="flex-1"
             variant="secondary"
             label="Withdraw"

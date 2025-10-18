@@ -129,7 +129,12 @@ export function PriceChangeDialog({
             </Button>
           </themes_AlertDialog.Cancel>
           <themes_AlertDialog.Action>
-            <Button size="4" type="button" onClick={onConfirm}>
+            <Button
+              size="4"
+              type="button"
+              onClick={onConfirm}
+              data-testid="confirm-new-price-button"
+            >
               Confirm new price
             </Button>
           </themes_AlertDialog.Action>

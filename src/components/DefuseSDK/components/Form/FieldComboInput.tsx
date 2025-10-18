@@ -39,6 +39,7 @@ interface Props<T extends FieldValues>
   usdAmount?: string | null
   disabled?: boolean
   isLoading?: boolean
+  dataTestId?: string
 }
 
 export const FieldComboInputRegistryName = "FieldComboInput"
@@ -61,6 +62,7 @@ export const FieldComboInput = <T extends FieldValues>({
   usdAmount,
   disabled,
   isLoading,
+  dataTestId,
 }: Props<T>) => {
   if (!register) {
     return null
@@ -159,6 +161,7 @@ export const FieldComboInput = <T extends FieldValues>({
             tokenIn={tokenIn}
             tokenOut={tokenOut}
             tokens={tokens}
+            dataTestId={dataTestId}
           />
         )}
       </div>

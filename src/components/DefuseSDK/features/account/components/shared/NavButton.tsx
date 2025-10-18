@@ -13,6 +13,7 @@ type NavButtonProps = {
   routeName: HostAppRoute
   renderHostAppLink: RenderHostAppLink
   className?: string
+  dataTestId?: string
 }
 
 export function NavButton({
@@ -22,6 +23,7 @@ export function NavButton({
   routeName,
   renderHostAppLink,
   className,
+  dataTestId,
 }: NavButtonProps) {
   const id = useId()
   return (
@@ -37,6 +39,7 @@ export function NavButton({
           className="w-full"
           aria-hidden
           asChild
+          data-testid={dataTestId}
         >
           <div>{icon}</div>
         </Button>,

@@ -16,6 +16,7 @@ type Props = {
   tokens?: TokenInfo[]
   tokenIn?: TokenInfo
   tokenOut?: TokenInfo
+  dataTestId?: string
 }
 
 const EmptyIcon = () => {
@@ -30,6 +31,7 @@ export const SelectAssets = ({
   tokens,
   tokenIn,
   tokenOut,
+  dataTestId,
 }: Props) => {
   const handleAssetsSelect = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -74,6 +76,7 @@ export const SelectAssets = ({
     <button
       type="button"
       onClick={handleAssetsSelect}
+      data-testid={dataTestId}
       className="max-w-[120px] sm:max-w-[148px] md:max-w-[210px] bg-gray-1 shadow-select-token rounded-full flex justify-between items-center p-1 gap-1.5 md:gap-2.5 dark:shadow-select-token-dark min-w-0"
     >
       {selected?.icon ? (

@@ -319,6 +319,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             tokenSlot={
               <SelectAssets
                 selected={tokenIn ?? undefined}
+                dataTestId="select-assets-input"
                 handleSelect={() =>
                   openModalSelectAssets(SWAP_TOKEN_FLAGS.IN, tokenIn)
                 }
@@ -370,6 +371,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               switchTokens()
             }}
             className="size-10 -my-3.5 rounded-[10px] bg-accent-1 flex items-center justify-center z-10"
+            data-testid="swap-form-switch-tokens-button"
           >
             <ArrowsDownUpIcon className="size-5" weight="bold" />
           </button>
@@ -396,6 +398,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               }
               tokenSlot={
                 <SelectAssets
+                  dataTestId="select-assets-output"
                   selected={tokenOut ?? undefined}
                   handleSelect={() =>
                     openModalSelectAssets(SWAP_TOKEN_FLAGS.OUT, tokenOut)
