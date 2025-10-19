@@ -90,11 +90,11 @@ export function SwapUIMachineProvider({
         actions: {
           updateUIAmount: ({ context }) => {
             const quote = context.quote
+            if (quote == null) return
             const totalAmountOutUpdated = context.formValues.amountIn === ""
             const fieldNameToUpdate = totalAmountOutUpdated
               ? "amountIn"
               : "amountOut"
-            if (quote == null) return
             if (quote.tag === "err") {
               setValue(fieldNameToUpdate, "–", {
                 shouldValidate: false,

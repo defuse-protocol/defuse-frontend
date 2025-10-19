@@ -225,6 +225,28 @@ export const swapUIMachine = setup({
         }
       },
     }),
+    resetFormValueAmounts: assign({
+      formValues: ({ context }) => {
+        return {
+          ...context.formValues,
+          ...{
+            amountIn: "",
+            amountOut: "",
+          },
+        }
+      },
+    }),
+    resetParsedFormValueAmounts: assign({
+      parsedFormValues: ({ context }) => {
+        return {
+          ...context.parsedFormValues,
+          ...{
+            amountIn: null,
+            amountOut: null,
+          },
+        }
+      },
+    }),
     parseFormValues: assign({
       parsedFormValues: ({ context }) => {
         const tokenIn = getAnyBaseTokenInfo(context.formValues.tokenIn)
@@ -912,6 +934,8 @@ export const swapUIMachine = setup({
             guard: { type: "isOk", params: ({ event }) => event.output },
 
             actions: [
+              "resetParsedFormValueAmounts",
+              "resetFormValueAmounts",
               {
                 type: "spawnIntentStatusActor",
                 params: ({ event }) => event.output,
