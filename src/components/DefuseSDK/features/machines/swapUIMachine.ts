@@ -219,29 +219,9 @@ export const swapUIMachine = setup({
           }>
         }
       ) => {
-        const hasAmountIn = data.amountIn !== undefined
-        const hasAmountOut = data.amountOut !== undefined
-        if (hasAmountIn === false && hasAmountOut === false) {
-          return {
-            ...context.formValues,
-            ...data,
-          }
-        }
-        if (hasAmountIn) {
-          return {
-            ...context.formValues,
-            ...{
-              amountIn: data.amountIn,
-              amountOut: "",
-            },
-          }
-        }
         return {
           ...context.formValues,
-          ...{
-            amountOut: data.amountOut,
-            amountIn: "",
-          },
+          ...data,
         }
       },
     }),

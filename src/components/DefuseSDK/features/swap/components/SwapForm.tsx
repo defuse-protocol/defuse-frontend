@@ -68,8 +68,8 @@ export interface SwapFormProps {
 export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const {
     setValue,
-    getValues,
     watch,
+    getValues,
     register,
     handleSubmit,
     formState: { errors },
@@ -82,7 +82,8 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
   const formValuesRef = useSelector(swapUIActorRef, formValuesSelector)
   const { tokenIn, tokenOut } = formValuesRef
-
+  const amountIn = watch("amountIn")
+  const amountOut = watch("amountOut")
   const {
     noLiquidity,
     insufficientTokenInAmount,
@@ -114,14 +115,17 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const switchTokens = useCallback(() => {
     const { amountOut } = getValues()
     setValue("amountIn", amountOut)
+    setValue("amountOut", "")
     swapUIActorRef.send({
       type: "input",
       params: {
         tokenIn: tokenOut,
         tokenOut: tokenIn,
+        amountIn: amountOut,
+        amountOut: "",
       },
     })
-  }, [tokenIn, tokenOut, getValues, setValue, swapUIActorRef.send])
+  }, [tokenIn, tokenOut, setValue, getValues, swapUIActorRef.send])
 
   const {
     setModalType,
@@ -156,33 +160,51 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     if (modalType === ModalType.MODAL_SELECT_ASSETS && fieldName && token) {
       const { tokenIn, tokenOut } =
         swapUIActorRef.getSnapshot().context.formValues
-
+      const { amountIn, amountOut } = getValues()
       switch (fieldName) {
         case SWAP_TOKEN_FLAGS.IN:
           if (getTokenId(tokenOut) === getTokenId(token)) {
             // Don't need to switch amounts, when token selected from dialog
             swapUIActorRef.send({
               type: "input",
-              params: { tokenIn: tokenOut, tokenOut: tokenIn },
+              params: {
+                tokenIn: tokenOut,
+                tokenOut: tokenIn,
+                amountOut: "",
+                amountIn,
+              },
             })
           } else {
-            swapUIActorRef.send({ type: "input", params: { tokenIn: token } })
+            swapUIActorRef.send({
+              type: "input",
+              params: { tokenIn: token, amountOut: "", amountIn },
+            })
           }
+          setValue("amountOut", "")
           break
         case SWAP_TOKEN_FLAGS.OUT:
           if (getTokenId(tokenIn) === getTokenId(token)) {
             // Don't need to switch amounts, when token selected from dialog
             swapUIActorRef.send({
               type: "input",
-              params: { tokenIn: tokenOut, tokenOut: tokenIn },
+              params: {
+                tokenIn: tokenOut,
+                tokenOut: tokenIn,
+                amountIn: "",
+                amountOut,
+              },
             })
           } else {
-            swapUIActorRef.send({ type: "input", params: { tokenOut: token } })
+            swapUIActorRef.send({
+              type: "input",
+              params: { tokenOut: token, amountIn: "", amountOut },
+            })
           }
+          setValue("amountIn", "")
           break
       }
     }
-  }, [payload, currentModalType, swapUIActorRef])
+  }, [payload, currentModalType, swapUIActorRef, getValues, setValue])
 
   const { onSubmit } = useContext(SwapSubmitterContext)
 
@@ -217,16 +239,8 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const showDepositButton =
     tokenInBalance != null && tokenInBalance.amount === 0n
 
-  const usdAmountIn = getTokenUsdPrice(
-    watch("amountIn"),
-    tokenIn,
-    tokensUsdPriceData
-  )
-  const usdAmountOut = getTokenUsdPrice(
-    watch("amountOut"),
-    tokenOut,
-    tokensUsdPriceData
-  )
+  const usdAmountIn = getTokenUsdPrice(amountIn, tokenIn, tokensUsdPriceData)
+  const usdAmountOut = getTokenUsdPrice(amountOut, tokenOut, tokensUsdPriceData)
 
   const is1cs = useIs1CsEnabled()
   const isLoading =
@@ -247,10 +261,12 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
         tokenInBalance.decimals
       )
       setValue("amountIn", amountIn)
+      setValue("amountOut", "")
       swapUIActorRef.send({
         type: "input",
         params: {
           amountIn,
+          amountOut: "",
         },
       })
     }
@@ -263,7 +279,11 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
         tokenInBalance.decimals
       )
       setValue("amountIn", amountIn)
-      swapUIActorRef.send({ type: "input", params: { amountIn } })
+      setValue("amountOut", "")
+      swapUIActorRef.send({
+        type: "input",
+        params: { amountIn, amountOut: "" },
+      })
     }
   }
 
@@ -293,6 +313,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             inputSlot={
               <TokenAmountInputCard.Input
                 id="swap-form-amount-in"
+                isLoading={isLoading && amountIn === ""}
                 {...register("amountIn", {
                   required: true,
                   validate: (value) => {
@@ -303,9 +324,10 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                     )
                   },
                   onChange: (e) => {
+                    setValue("amountOut", "")
                     swapUIActorRef.send({
                       type: "input",
-                      params: { amountIn: e.target.value },
+                      params: { amountIn: e.target.value, amountOut: "" },
                     })
                   },
                 })}
@@ -383,6 +405,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               inputSlot={
                 <TokenAmountInputCard.Input
                   id="swap-form-amount-out"
+                  isLoading={isLoading && amountOut === ""}
                   {...register("amountOut", {
                     required: true,
                     validate: (value) => {
@@ -394,9 +417,10 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                       )
                     },
                     onChange: (e) => {
+                      setValue("amountIn", "")
                       swapUIActorRef.send({
                         type: "input",
-                        params: { amountOut: e.target.value },
+                        params: { amountOut: e.target.value, amountIn: "" },
                       })
                     },
                   })}
