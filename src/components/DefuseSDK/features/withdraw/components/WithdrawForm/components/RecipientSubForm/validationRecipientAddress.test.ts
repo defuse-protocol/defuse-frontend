@@ -175,13 +175,12 @@ describe("validationRecipientAddress", () => {
         "@src/components/DefuseSDK/constants/nearClient"
       )
       const mockQuery = vi.mocked(nearClient.query)
-      // @ts-expect-error - keys is not a valid property of query response but it ok for the test
-      mockQuery.mockResolvedValueOnce({ keys: [] }) // Empty keys means account doesn't exist
+      mockQuery.mockRejectedValueOnce(new Error("Account not found"))
 
       const result = await validationRecipientAddress("no-exists.near", "near")
 
       expect(result.isErr()).toBe(true)
-      expect(result.unwrapErr()).toBe("ACCOUNT_DOES_NOT_EXIST")
+      expect(result.unwrapErr()).toBe("NEAR_ACCOUNT_DOES_NOT_EXIST")
     })
   })
 
