@@ -111,7 +111,12 @@ export const depositUIMachine = setup({
       },
     }),
     setPreparationOutput: assign({
-      preparationOutput: (_, val: Context["preparationOutput"]) => val,
+      preparationOutput: (_, params: PreparationOutput) => {
+        if (params.tag === "err") {
+          logger.error(params)
+        }
+        return params
+      },
     }),
     resetPreparationOutput: assign({
       preparationOutput: null,
@@ -448,10 +453,8 @@ export const depositUIMachine = setup({
           ],
           invoke: {
             src: "prepareDepositActor",
-
             input: ({ context }) => {
               assert(context.userAddress, "userAddress is null")
-
               return {
                 userAddress: context.userAddress,
                 userWalletAddress: context.userWalletAddress,
@@ -462,22 +465,6 @@ export const depositUIMachine = setup({
                 depositEstimationRef: context.depositEstimationRef,
               }
             },
-
-            onError: {
-              target: "idle",
-              actions: {
-                type: "setPreparationOutput",
-                params: ({ event }) => ({
-                  tag: "err",
-                  value: {
-                    reason: "ERR_PREPARING_DEPOSIT",
-                    error: event.error,
-                  },
-                }),
-              },
-              reenter: true,
-            },
-
             onDone: {
               target: "idle",
               actions: {
