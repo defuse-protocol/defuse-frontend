@@ -1,6 +1,5 @@
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
-import { logger } from "@src/utils/logger"
 import {
   type ActorRefFrom,
   type EventFrom,
@@ -102,24 +101,11 @@ export const depositUIMachine = setup({
     depositEstimationActor: depositEstimationMachine,
   },
   actions: {
-    logError: (_, event: { error: unknown }) => {
-      logger.error(event.error)
-    },
     setDepositOutput: assign({
-      depositOutput: (_, params: DepositOutput) => {
-        if (params.tag === "err") {
-          logger.error(params)
-        }
-        return params
-      },
+      depositOutput: (_, params: DepositOutput) => params,
     }),
     setPreparationOutput: assign({
-      preparationOutput: (_, params: PreparationOutput) => {
-        if (params.tag === "err") {
-          logger.error(params)
-        }
-        return params
-      },
+      preparationOutput: (_, params: PreparationOutput) => params,
     }),
     resetPreparationOutput: assign({
       preparationOutput: null,
@@ -476,13 +462,6 @@ export const depositUIMachine = setup({
               },
               reenter: true,
             },
-            onError: {
-              target: "idle",
-              actions: {
-                type: "logError",
-                params: ({ event }: { event: { error: unknown } }) => event,
-              },
-            },
           },
         },
       },
@@ -518,13 +497,6 @@ export const depositUIMachine = setup({
           ],
           reenter: true,
         },
-        onError: {
-          target: "editing",
-          actions: {
-            type: "logError",
-            params: ({ event }: { event: { error: unknown } }) => event,
-          },
-        },
       },
     },
     submittingEVMTx: {
@@ -553,13 +525,6 @@ export const depositUIMachine = setup({
             "resetPreparationOutput",
           ],
           reenter: true,
-        },
-        onError: {
-          target: "editing",
-          actions: {
-            type: "logError",
-            params: ({ event }: { event: { error: unknown } }) => event,
-          },
         },
       },
     },
@@ -591,13 +556,6 @@ export const depositUIMachine = setup({
           ],
           reenter: true,
         },
-        onError: {
-          target: "editing",
-          actions: {
-            type: "logError",
-            params: ({ event }: { event: { error: unknown } }) => event,
-          },
-        },
       },
     },
     submittingTurboTx: {
@@ -625,13 +583,6 @@ export const depositUIMachine = setup({
             "resetPreparationOutput",
           ],
           reenter: true,
-        },
-        onError: {
-          target: "editing",
-          actions: {
-            type: "logError",
-            params: ({ event }: { event: { error: unknown } }) => event,
-          },
         },
       },
     },
@@ -661,13 +612,6 @@ export const depositUIMachine = setup({
           ],
           reenter: true,
         },
-        onError: {
-          target: "editing",
-          actions: {
-            type: "logError",
-            params: ({ event }: { event: { error: unknown } }) => event,
-          },
-        },
       },
     },
     submittingTonTx: {
@@ -696,13 +640,6 @@ export const depositUIMachine = setup({
             "resetPreparationOutput",
           ],
           reenter: true,
-        },
-        onError: {
-          target: "editing",
-          actions: {
-            type: "logError",
-            params: ({ event }: { event: { error: unknown } }) => event,
-          },
         },
       },
     },
@@ -734,13 +671,6 @@ export const depositUIMachine = setup({
           ],
           reenter: true,
         },
-        onError: {
-          target: "editing",
-          actions: {
-            type: "logError",
-            params: ({ event }: { event: { error: unknown } }) => event,
-          },
-        },
       },
     },
     submittingTronTx: {
@@ -769,13 +699,6 @@ export const depositUIMachine = setup({
             "resetPreparationOutput",
           ],
           reenter: true,
-        },
-        onError: {
-          target: "editing",
-          actions: {
-            type: "logError",
-            params: ({ event }: { event: { error: unknown } }) => event,
-          },
         },
       },
     },

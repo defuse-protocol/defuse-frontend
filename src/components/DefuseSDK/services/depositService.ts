@@ -804,32 +804,24 @@ export async function generateDepositAddress(
   generatedDepositAddress: string
   memo: string | null
 }> {
-  try {
-    const supportedTokens = await poaBridge.httpClient.getSupportedTokens({
-      chains: [chain],
-    })
+  const supportedTokens = await poaBridge.httpClient.getSupportedTokens({
+    chains: [chain],
+  })
 
-    if (supportedTokens.tokens.length === 0) {
-      throw new Error("No supported tokens found")
-    }
+  if (supportedTokens.tokens.length === 0) {
+    throw new Error("No supported tokens found")
+  }
 
-    const depositNetworkMemo = getDepositNetworkMemo(chain)
-    const generatedDepositAddress =
-      await poaBridge.httpClient.getDepositAddress({
-        account_id: userAddress,
-        chain,
-        ...(depositNetworkMemo && depositNetworkMemo),
-      })
+  const depositNetworkMemo = getDepositNetworkMemo(chain)
+  const generatedDepositAddress = await poaBridge.httpClient.getDepositAddress({
+    account_id: userAddress,
+    chain,
+    ...(depositNetworkMemo && depositNetworkMemo),
+  })
 
-    return {
-      generatedDepositAddress: generatedDepositAddress.address,
-      memo: generatedDepositAddress.memo ?? null,
-    }
-  } catch (error) {
-    logger.error(
-      new Error("Error generating deposit address", { cause: error })
-    )
-    throw error
+  return {
+    generatedDepositAddress: generatedDepositAddress.address,
+    memo: generatedDepositAddress.memo ?? null,
   }
 }
 
@@ -855,20 +847,16 @@ export async function getAllowance(
   spender: string,
   network: BlockchainEnum
 ): Promise<bigint | null> {
-  try {
-    const client = createPublicClient({
-      transport: http(getWalletRpcUrl(network)),
-    })
-    const result = await client.readContract({
-      address: getAddress(tokenAddress),
-      abi: erc20Abi,
-      functionName: "allowance",
-      args: [getAddress(owner), getAddress(spender)],
-    })
-    return result
-  } catch {
-    return null
-  }
+  const client = createPublicClient({
+    transport: http(getWalletRpcUrl(network)),
+  })
+  const result = await client.readContract({
+    address: getAddress(tokenAddress),
+    abi: erc20Abi,
+    functionName: "allowance",
+    args: [getAddress(owner), getAddress(spender)],
+  })
+  return result
 }
 
 export function createApproveTransaction(
@@ -1423,7 +1411,8 @@ async function checkATAExists(
   try {
     await getAccount(connection, ataAddress)
     return true
-  } catch {
+  } catch (error) {
+    logger.error("Error checking Solana ATA existence", { error })
     return false
   }
 }
