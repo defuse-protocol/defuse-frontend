@@ -18,3 +18,5 @@ CREATE TRIGGER solver_liquidity_set_updated_at
     ON solver_liquidity
     FOR EACH ROW
     EXECUTE FUNCTION trigger_set_timestamp();
+
+ALTER TABLE solver_liquidity ENABLE ROW LEVEL SECURITY;
