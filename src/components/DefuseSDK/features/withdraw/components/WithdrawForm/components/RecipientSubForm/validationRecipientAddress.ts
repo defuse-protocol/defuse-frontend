@@ -2,7 +2,6 @@ import { type AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
 import { utils } from "@defuse-protocol/internal-utils"
 import { logger } from "@src/utils/logger"
 import { Err, Ok, type Result } from "@thames/monads"
-import * as v from "valibot"
 import { nearClient } from "../../../../../../constants/nearClient"
 import type { SupportedChainName } from "../../../../../../types/base"
 import { validateAddress } from "../../../../../../utils/validateAddress"
@@ -94,9 +93,7 @@ function isSelfWithdrawal(
   return false
 }
 
-type ValidateNearExplicitAccountErrorType =
-  | "ACCOUNT_DOES_NOT_EXIST"
-  | "UNHANDLED_ERROR"
+type ValidateNearExplicitAccountErrorType = "NEAR_ACCOUNT_DOES_NOT_EXIST"
 
 // Cache for validation results to prevent RPC spam
 const validationCache = new Map<
@@ -142,18 +139,14 @@ async function checkNearAccountExists(
   recipient: string
 ): Promise<Result<boolean, ValidateNearExplicitAccountErrorType>> {
   try {
-    const response = await nearClient.query({
-      request_type: "view_access_key_list",
+    await nearClient.query({
+      request_type: "view_account",
       account_id: recipient,
       finality: "final",
     })
-    const parsed = v.parse(v.object({ keys: v.array(v.any()) }), response)
-    if (!parsed.keys.length) {
-      return Err("ACCOUNT_DOES_NOT_EXIST")
-    }
     return Ok(true)
   } catch (error) {
     logger.warn("Failed to view NEAR account", { cause: error })
-    return Err("UNHANDLED_ERROR")
+    return Err("NEAR_ACCOUNT_DOES_NOT_EXIST")
   }
 }
