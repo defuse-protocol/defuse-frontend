@@ -102,6 +102,9 @@ export const depositUIMachine = setup({
     depositEstimationActor: depositEstimationMachine,
   },
   actions: {
+    logError: (_, event: { error: unknown }) => {
+      logger.error(event.error)
+    },
     setDepositOutput: assign({
       depositOutput: (_, params: DepositOutput) => {
         if (params.tag === "err") {
@@ -473,6 +476,13 @@ export const depositUIMachine = setup({
               },
               reenter: true,
             },
+            onError: {
+              target: "idle",
+              actions: {
+                type: "logError",
+                params: ({ event }: { event: { error: unknown } }) => event,
+              },
+            },
           },
         },
       },
@@ -508,6 +518,13 @@ export const depositUIMachine = setup({
           ],
           reenter: true,
         },
+        onError: {
+          target: "editing",
+          actions: {
+            type: "logError",
+            params: ({ event }: { event: { error: unknown } }) => event,
+          },
+        },
       },
     },
     submittingEVMTx: {
@@ -536,6 +553,13 @@ export const depositUIMachine = setup({
             "resetPreparationOutput",
           ],
           reenter: true,
+        },
+        onError: {
+          target: "editing",
+          actions: {
+            type: "logError",
+            params: ({ event }: { event: { error: unknown } }) => event,
+          },
         },
       },
     },
@@ -567,6 +591,13 @@ export const depositUIMachine = setup({
           ],
           reenter: true,
         },
+        onError: {
+          target: "editing",
+          actions: {
+            type: "logError",
+            params: ({ event }: { event: { error: unknown } }) => event,
+          },
+        },
       },
     },
     submittingTurboTx: {
@@ -594,6 +625,13 @@ export const depositUIMachine = setup({
             "resetPreparationOutput",
           ],
           reenter: true,
+        },
+        onError: {
+          target: "editing",
+          actions: {
+            type: "logError",
+            params: ({ event }: { event: { error: unknown } }) => event,
+          },
         },
       },
     },
@@ -623,6 +661,13 @@ export const depositUIMachine = setup({
           ],
           reenter: true,
         },
+        onError: {
+          target: "editing",
+          actions: {
+            type: "logError",
+            params: ({ event }: { event: { error: unknown } }) => event,
+          },
+        },
       },
     },
     submittingTonTx: {
@@ -651,6 +696,13 @@ export const depositUIMachine = setup({
             "resetPreparationOutput",
           ],
           reenter: true,
+        },
+        onError: {
+          target: "editing",
+          actions: {
+            type: "logError",
+            params: ({ event }: { event: { error: unknown } }) => event,
+          },
         },
       },
     },
@@ -682,6 +734,13 @@ export const depositUIMachine = setup({
           ],
           reenter: true,
         },
+        onError: {
+          target: "editing",
+          actions: {
+            type: "logError",
+            params: ({ event }: { event: { error: unknown } }) => event,
+          },
+        },
       },
     },
     submittingTronTx: {
@@ -710,6 +769,13 @@ export const depositUIMachine = setup({
             "resetPreparationOutput",
           ],
           reenter: true,
+        },
+        onError: {
+          target: "editing",
+          actions: {
+            type: "logError",
+            params: ({ event }: { event: { error: unknown } }) => event,
+          },
         },
       },
     },
