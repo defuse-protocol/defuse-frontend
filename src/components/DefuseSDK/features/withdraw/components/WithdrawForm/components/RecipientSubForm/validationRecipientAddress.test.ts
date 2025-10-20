@@ -3,14 +3,17 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { validationRecipientAddress } from "./validationRecipientAddress"
 
 vi.mock("near-api-js", () => {
-  class JsonRpcProvider {
-    async query(_: unknown) {
-      return {}
-    }
-  }
   return {
     providers: {
-      JsonRpcProvider,
+      JsonRpcProvider: vi.fn(() => ({
+        query: vi.fn(async (args: unknown) => {
+          const params = args as { account_id?: string }
+          if (params?.account_id === "no-exists.near") {
+            throw new Error("Account not found")
+          }
+          return {}
+        }),
+      })),
     },
   }
 })
@@ -178,14 +181,6 @@ describe("validationRecipientAddress", () => {
     })
 
     it("should reject non-existent explicit NEAR address", async () => {
-      const { providers } = await import("near-api-js")
-      vi.spyOn(
-        providers.JsonRpcProvider.prototype as unknown as {
-          query: (args: unknown) => Promise<unknown>
-        },
-        "query"
-      ).mockRejectedValueOnce(new Error("Account not found"))
-
       const result = await validationRecipientAddress("no-exists.near", "near")
 
       expect(result.isErr()).toBe(true)
