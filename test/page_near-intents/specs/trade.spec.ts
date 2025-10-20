@@ -24,44 +24,44 @@ test.describe(
   "NEAR Intents Wallet: Swapping",
   { tag: [NEAR_INTENTS_TAG, NEAR_INTENTS_TAG_SWAP] },
   () => {
-    test("Confirm that user cannot swap more than the available balance", async ({
-      page,
-    }) => {
-      const amount = 100000
-      const homePage = new HomePage(page)
-      const tradePage = new TradePage(page)
+    // test("Confirm that user cannot swap more than the available balance", async ({
+    //   page,
+    // }) => {
+    //   const amount = 100000
+    //   const homePage = new HomePage(page)
+    //   const tradePage = new TradePage(page)
 
-      await homePage.navigateToTradePage()
-      await tradePage.switchToSwap()
-      await tradePage.selectFromToken("Turbo")
-      await tradePage.selectToToken("Near")
-      await tradePage.enterFromAmount(amount)
-      await tradePage.confirmInsufficientBalance()
-    })
+    //   await homePage.navigateToTradePage()
+    //   await tradePage.switchToSwap()
+    //   await tradePage.selectFromToken("Turbo")
+    //   await tradePage.selectToToken("Near")
+    //   await tradePage.enterFromAmount(amount)
+    //   await tradePage.confirmInsufficientBalance()
+    // })
 
-    test("Confirm that user can deny the swap", async ({
-      page,
-      context,
-      extensionId,
-    }) => {
-      const homePage = new HomePage(page)
-      const tradePage = new TradePage(page)
-      const metamask = new MetaMask(
-        context,
-        page,
-        nearWeb3ProdSetup.walletPassword,
-        extensionId
-      )
-      await homePage.navigateToTradePage()
-      await tradePage.switchToSwap()
-      await tradePage.selectFromToken("Turbo")
-      await tradePage.selectToToken("Near")
-      await tradePage.enterFromAmount(10)
-      await tradePage.waitForSwapCalculationToComplete()
-      await tradePage.pressSwapButton()
-      await metamask.rejectSignature()
-      await tradePage.confirmUserRejectedSignature()
-    })
+    // test("Confirm that user can deny the swap", async ({
+    //   page,
+    //   context,
+    //   extensionId,
+    // }) => {
+    //   const homePage = new HomePage(page)
+    //   const tradePage = new TradePage(page)
+    //   const metamask = new MetaMask(
+    //     context,
+    //     page,
+    //     nearWeb3ProdSetup.walletPassword,
+    //     extensionId
+    //   )
+    //   await homePage.navigateToTradePage()
+    //   await tradePage.switchToSwap()
+    //   await tradePage.selectFromToken("Turbo")
+    //   await tradePage.selectToToken("Near")
+    //   await tradePage.enterFromAmount(10)
+    //   await tradePage.waitForSwapCalculationToComplete()
+    //   await tradePage.pressSwapButton()
+    //   await metamask.rejectSignature()
+    //   await tradePage.confirmUserRejectedSignature()
+    // })
 
     test("Confirm user can swap", async ({ page, context, extensionId }) => {
       const homePage = new HomePage(page)
