@@ -91,7 +91,10 @@ export function SwapUIMachineProvider({
           updateUIAmount: ({ context }) => {
             const quote = context.quote
             if (quote == null) return
-            const totalAmountOutUpdated = context.formValues.amountIn === ""
+            const amountInEmpty = context.formValues.amountIn === ""
+            const amountOutEmpty = context.formValues.amountOut === ""
+            if (amountInEmpty && amountOutEmpty) return
+            const totalAmountOutUpdated = amountInEmpty
             const fieldNameToUpdate = totalAmountOutUpdated
               ? "amountIn"
               : "amountOut"

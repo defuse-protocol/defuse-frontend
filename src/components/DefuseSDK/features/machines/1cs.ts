@@ -81,7 +81,6 @@ export async function getQuote(
   { ok: QuoteResponse & { appFee: [string, bigint][] } } | { err: string }
 > {
   const parseResult = getQuoteArgsSchema.safeParse(args)
-
   if (!parseResult.success) {
     return { err: `Invalid arguments: ${parseResult.error.message}` }
   }

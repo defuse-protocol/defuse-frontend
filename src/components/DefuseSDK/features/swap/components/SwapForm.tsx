@@ -183,24 +183,45 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
           setValue("amountOut", "")
           break
         case SWAP_TOKEN_FLAGS.OUT:
-          if (getTokenId(tokenIn) === getTokenId(token)) {
-            // Don't need to switch amounts, when token selected from dialog
-            swapUIActorRef.send({
-              type: "input",
-              params: {
-                tokenIn: tokenOut,
-                tokenOut: tokenIn,
-                amountIn: "",
-                amountOut,
-              },
-            })
+          if (is1cs) {
+            if (getTokenId(tokenIn) === getTokenId(token)) {
+              // Don't need to switch amounts, when token selected from dialog
+              swapUIActorRef.send({
+                type: "input",
+                params: {
+                  tokenIn: tokenOut,
+                  tokenOut: tokenIn,
+                  amountIn: "",
+                  amountOut,
+                },
+              })
+            } else {
+              swapUIActorRef.send({
+                type: "input",
+                params: { tokenOut: token, amountIn: "", amountOut },
+              })
+            }
+            setValue("amountIn", "")
           } else {
-            swapUIActorRef.send({
-              type: "input",
-              params: { tokenOut: token, amountIn: "", amountOut },
-            })
+            if (getTokenId(tokenIn) === getTokenId(token)) {
+              // Don't need to switch amounts, when token selected from dialog
+              swapUIActorRef.send({
+                type: "input",
+                params: {
+                  tokenIn: tokenOut,
+                  tokenOut: tokenIn,
+                  amountOut: "",
+                  amountIn,
+                },
+              })
+            } else {
+              swapUIActorRef.send({
+                type: "input",
+                params: { tokenOut: token, amountOut: "", amountIn },
+              })
+            }
+            setValue("amountOut", "")
           }
-          setValue("amountIn", "")
           break
       }
     }
@@ -295,7 +316,6 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const showRateInfo = tokenIn && tokenOut && !isLoading
 
   const isLongLoading = useThrottledValue(isLoading, isLoading ? 3000 : 0)
-
   return (
     <div className="flex flex-col">
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
@@ -406,24 +426,30 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                 <TokenAmountInputCard.Input
                   id="swap-form-amount-out"
                   isLoading={isLoading && amountOut === ""}
-                  {...register("amountOut", {
-                    required: true,
-                    validate: (value) => {
-                      if (!value) return true
-                      const num = Number.parseFloat(value.replace(",", "."))
-                      return (
-                        (!Number.isNaN(num) && num > 0) ||
-                        "Enter a valid amount"
-                      )
-                    },
-                    onChange: (e) => {
-                      setValue("amountIn", "")
-                      swapUIActorRef.send({
-                        type: "input",
-                        params: { amountOut: e.target.value, amountIn: "" },
+                  {...(is1cs
+                    ? register("amountOut", {
+                        required: true,
+                        validate: (value) => {
+                          if (!value) return true
+                          const num = Number.parseFloat(value.replace(",", "."))
+                          return (
+                            (!Number.isNaN(num) && num > 0) ||
+                            "Enter a valid amount"
+                          )
+                        },
+                        onChange: (e) => {
+                          setValue("amountIn", "")
+                          swapUIActorRef.send({
+                            type: "input",
+                            params: { amountOut: e.target.value, amountIn: "" },
+                          })
+                        },
                       })
-                    },
-                  })}
+                    : {
+                        disabled: true,
+                        name: "amountOut",
+                        value: amountOut,
+                      })}
                 />
               }
               tokenSlot={

@@ -714,7 +714,10 @@ export const swapUIMachine = setup({
           {
             target: "submitting",
             guard: "isQuoteValidAndNot1cs",
-            actions: "clearIntentCreationResult",
+            actions: [
+              "clearIntentCreationResult",
+              "sendToBackgroundQuoterRefPause",
+            ],
           },
         ],
 
@@ -830,6 +833,8 @@ export const swapUIMachine = setup({
             guard: { type: "isOk", params: ({ event }) => event.output },
 
             actions: [
+              "resetParsedFormValueAmounts",
+              "resetFormValueAmounts",
               {
                 type: "spawnIntentStatusActor",
                 params: ({ event }) => event.output,
