@@ -1,8 +1,10 @@
 import { type AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
 import { utils } from "@defuse-protocol/internal-utils"
+import { settings } from "@src/components/DefuseSDK/constants/settings"
 import { logger } from "@src/utils/logger"
 import { Err, Ok, type Result } from "@thames/monads"
-import { nearClient } from "../../../../../../constants/nearClient"
+import { providers } from "near-api-js"
+import { TypedError } from "near-api-js/lib/providers"
 import type { SupportedChainName } from "../../../../../../types/base"
 import { validateAddress } from "../../../../../../utils/validateAddress"
 import { isNearIntentsNetwork } from "../../utils"
@@ -93,7 +95,9 @@ function isSelfWithdrawal(
   return false
 }
 
-type ValidateNearExplicitAccountErrorType = "NEAR_ACCOUNT_DOES_NOT_EXIST"
+type ValidateNearExplicitAccountErrorType =
+  | "NEAR_ACCOUNT_DOES_NOT_EXIST"
+  | "NEAR_RPC_UNHANDLED_ERROR"
 
 // Cache for validation results to prevent RPC spam
 const validationCache = new Map<
@@ -139,14 +143,25 @@ async function checkNearAccountExists(
   recipient: string
 ): Promise<Result<boolean, ValidateNearExplicitAccountErrorType>> {
   try {
+    // Use pure client in order to detect specific errors (e.g. AccountDoesNotExist)
+    const nearClient = new providers.JsonRpcProvider({
+      url: settings.rpcUrls.near,
+    })
     await nearClient.query({
       request_type: "view_account",
       account_id: recipient,
       finality: "final",
     })
     return Ok(true)
-  } catch (error) {
-    logger.warn("Failed to view NEAR account", { cause: error })
-    return Err("NEAR_ACCOUNT_DOES_NOT_EXIST")
+  } catch (error: unknown) {
+    logger.warn("Failed to view NEAR account", { cause: error, recipient })
+
+    if (typeof error === "object" && error !== null) {
+      if (error instanceof TypedError && error.type === "AccountDoesNotExist") {
+        return Err("NEAR_ACCOUNT_DOES_NOT_EXIST")
+      }
+    }
+
+    return Err("NEAR_RPC_UNHANDLED_ERROR")
   }
 }
