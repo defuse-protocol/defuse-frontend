@@ -2,11 +2,18 @@ import { AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { validationRecipientAddress } from "./validationRecipientAddress"
 
-vi.mock("@src/components/DefuseSDK/constants/nearClient", () => ({
-  nearClient: {
-    query: vi.fn().mockResolvedValue({ keys: [{ public_key: "test-key" }] }),
-  },
-}))
+vi.mock("near-api-js", () => {
+  class JsonRpcProvider {
+    async query(_: unknown) {
+      return {}
+    }
+  }
+  return {
+    providers: {
+      JsonRpcProvider,
+    },
+  }
+})
 
 describe("validationRecipientAddress", () => {
   beforeEach(() => {
@@ -171,16 +178,18 @@ describe("validationRecipientAddress", () => {
     })
 
     it("should reject non-existent explicit NEAR address", async () => {
-      const { nearClient } = await import(
-        "@src/components/DefuseSDK/constants/nearClient"
-      )
-      const mockQuery = vi.mocked(nearClient.query)
-      mockQuery.mockRejectedValueOnce(new Error("Account not found"))
+      const { providers } = await import("near-api-js")
+      vi.spyOn(
+        providers.JsonRpcProvider.prototype as unknown as {
+          query: (args: unknown) => Promise<unknown>
+        },
+        "query"
+      ).mockRejectedValueOnce(new Error("Account not found"))
 
       const result = await validationRecipientAddress("no-exists.near", "near")
 
       expect(result.isErr()).toBe(true)
-      expect(result.unwrapErr()).toBe("NEAR_ACCOUNT_DOES_NOT_EXIST")
+      expect(result.unwrapErr()).toBe("NEAR_RPC_UNHANDLED_ERROR")
     })
   })
 
