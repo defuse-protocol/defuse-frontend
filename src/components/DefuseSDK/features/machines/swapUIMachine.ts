@@ -454,13 +454,12 @@ export const swapUIMachine = setup({
       type: "INTENT_PUBLISHED" as const,
     })),
 
-    log1csNoLiquidity: ({ context, self, event }) => {
+    log1csNoLiquidity: ({ self, event }) => {
       if (
         event.type !== "NEW_1CS_QUOTE" ||
         !("err" in event.params.result) ||
         event.params.result.err !== "Failed to get quote" ||
-        event.params.result.originalRequest === undefined ||
-        !context.parsedFormValues.amountIn
+        event.params.result.originalRequest === undefined
       ) {
         return
       }
@@ -478,7 +477,7 @@ export const swapUIMachine = setup({
       }
 
       const tokenInBalance = computeTotalBalanceDifferentDecimals(
-        context.formValues.tokenIn,
+        event.params.quoteInput.tokenIn,
         balances
       )
 
@@ -487,7 +486,7 @@ export const swapUIMachine = setup({
       }
 
       const hasSufficientBalance =
-        compareAmounts(tokenInBalance, context.parsedFormValues.amountIn) !== -1
+        compareAmounts(tokenInBalance, event.params.quoteInput.amountIn) !== -1
 
       if (!hasSufficientBalance) {
         return
@@ -502,7 +501,6 @@ export const swapUIMachine = setup({
         ),
         contexts: {
           originalRequest: event.params.result.originalRequest,
-          balanceInfo: { tokenInBalance },
         },
       })
     },
