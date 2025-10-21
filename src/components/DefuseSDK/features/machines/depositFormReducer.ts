@@ -111,11 +111,6 @@ export const depositFormReducer = fromTransition(
         const tokenIn = derivedToken
         const tokenOut = getBaseTokenInfoWithFallback(state.token, null)
 
-        // biome-ignore lint/suspicious/noConsole: <explanation>
-        console.log("tokenIn", tokenIn)
-        // biome-ignore lint/suspicious/noConsole: <explanation>
-        console.log("tokenOut", tokenOut)
-
         // Note: 1cs swap doesn't support same-token swaps
         const sameToken = tokenIn.defuseAssetId === tokenOut.defuseAssetId
 
