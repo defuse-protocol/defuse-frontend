@@ -19,6 +19,7 @@ import type { TokenInfo } from "../../types/base"
 import { assert } from "../../utils/assert"
 import { parseUnits } from "../../utils/parse"
 import {
+  computeTotalDeltaDifferentDecimals,
   getAnyBaseTokenInfo,
   getTokenMaxDecimals,
   getUnderlyingBaseTokenInfos,
@@ -34,7 +35,9 @@ import {
   backgroundQuoterMachine,
 } from "./backgroundQuoterMachine"
 
+import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import { isBaseToken } from "@src/components/DefuseSDK/utils/token"
+import { formatUnits } from "viem"
 import {
   type BalanceMapping,
   type Events as DepositedBalanceEvents,
@@ -66,6 +69,7 @@ export type Context = {
     tokenOut: TokenInfo
     amountIn: string
     amountOut: string
+    swapType: QuoteRequest.swapType | null
   }
   parsedFormValues: {
     tokenIn: BaseTokenInfo
@@ -86,8 +90,8 @@ export type Context = {
   slippageBasisPoints: number
   is1cs: boolean
   priceChangeDialog: null | {
-    pendingNewAmountOut: { amount: bigint; decimals: number }
-    previousAmountOut?: { amount: bigint; decimals: number }
+    pendingnewOppositeAmount: { amount: bigint; decimals: number }
+    previousOppositeAmount?: { amount: bigint; decimals: number }
   }
 }
 
@@ -133,6 +137,7 @@ export const swapUIMachine = setup({
             tokenOut: TokenInfo
             amountIn: string
             amountOut: string
+            swapType: QuoteRequest.swapType
           }>
         }
       | {
@@ -174,8 +179,8 @@ export const swapUIMachine = setup({
       | {
           type: "PRICE_CHANGE_CONFIRMATION_REQUEST"
           params: {
-            newAmountOut: { amount: bigint; decimals: number }
-            previousAmountOut?: { amount: bigint; decimals: number }
+            newOppositeAmount: { amount: bigint; decimals: number }
+            previousOppositeAmount?: { amount: bigint; decimals: number }
           }
         }
       | { type: "PRICE_CHANGE_CONFIRMED" }
@@ -292,6 +297,34 @@ export const swapUIMachine = setup({
         }
       },
     }),
+    updateFormValuesWithQuoteData: assign({
+      formValues: ({ context }) => {
+        const quote = context.quote
+        if (quote === null || quote.tag === "err") return context.formValues
+        const exactOutQuote =
+          context.formValues.swapType === QuoteRequest.swapType.EXACT_OUTPUT
+        const fieldNameToUpdate = exactOutQuote ? "amountIn" : "amountOut"
+        const totalAmount = computeTotalDeltaDifferentDecimals(
+          [
+            exactOutQuote
+              ? context.parsedFormValues.tokenIn
+              : context.parsedFormValues.tokenOut,
+          ],
+          quote.value.tokenDeltas
+        )
+        return {
+          ...context.formValues,
+          ...{
+            [fieldNameToUpdate]: formatUnits(
+              totalAmount.amount < 0n
+                ? -totalAmount.amount
+                : totalAmount.amount,
+              totalAmount.decimals
+            ),
+          },
+        }
+      },
+    }),
     updateUIAmount: () => {
       throw new Error("not implemented")
     },
@@ -322,12 +355,12 @@ export const swapUIMachine = setup({
       priceChangeDialog: (
         _,
         params: {
-          newAmountOut: { amount: bigint; decimals: number }
-          previousAmountOut?: { amount: bigint; decimals: number }
+          newOppositeAmount: { amount: bigint; decimals: number }
+          previousOppositeAmount?: { amount: bigint; decimals: number }
         }
       ) => ({
-        pendingNewAmountOut: params.newAmountOut,
-        previousAmountOut: params.previousAmountOut,
+        pendingnewOppositeAmount: params.newOppositeAmount,
+        previousOppositeAmount: params.previousOppositeAmount,
       }),
     }),
     closePriceChangeDialog: assign({ priceChangeDialog: null }),
@@ -385,13 +418,13 @@ export const swapUIMachine = setup({
     sendToBackground1csQuoterRefNewQuoteInput: sendTo(
       "background1csQuoterRef",
       ({ context }): Background1csQuoterEvents => {
-        assert(
-          (context.parsedFormValues.amountIn != null &&
-            context.parsedFormValues.amountIn.amount > 0n) ||
-            (context.parsedFormValues.amountOut != null &&
-              context.parsedFormValues.amountOut.amount > 0n),
-          "amounts not set"
-        )
+        assert(context.formValues.swapType !== null, "swap type not set")
+        const amount =
+          context.formValues.swapType === QuoteRequest.swapType.EXACT_INPUT
+            ? context.parsedFormValues.amountIn
+            : context.parsedFormValues.amountOut
+
+        assert(amount !== null, "amount not set")
 
         const user =
           context.user ??
@@ -402,8 +435,8 @@ export const swapUIMachine = setup({
           params: {
             tokenIn: context.parsedFormValues.tokenIn,
             tokenOut: context.parsedFormValues.tokenOut,
-            amountIn: context.parsedFormValues.amountIn,
-            amountOut: context.parsedFormValues.amountOut,
+            amount,
+            swapType: context.formValues.swapType,
             slippageBasisPoints: context.slippageBasisPoints,
             defuseUserId: authIdentity.authHandleToIntentsUserId(
               user.identifier,
@@ -551,13 +584,6 @@ export const swapUIMachine = setup({
         !context.is1cs && context.quote != null && context.quote.tag === "ok"
       )
     },
-    isQuoteValidAnd1cs: ({ context }) => {
-      return (
-        context.is1cs &&
-        context.parsedFormValues.amountIn != null &&
-        context.parsedFormValues.amountIn.amount > 0n
-      )
-    },
 
     isOk: (_, a: { tag: "err" | "ok" }) => a.tag === "ok",
 
@@ -569,13 +595,14 @@ export const swapUIMachine = setup({
       )
     },
     isFormValidAnd1cs: ({ context }) => {
-      return (
-        ((context.parsedFormValues.amountIn != null &&
-          context.parsedFormValues.amountIn.amount > 0n) ||
-          (context.parsedFormValues.amountOut != null &&
-            context.parsedFormValues.amountOut.amount > 0n)) &&
-        context.is1cs
-      )
+      if (context.is1cs === false) return false
+      if (context.formValues.swapType === null) return false
+      const amount =
+        context.formValues.swapType === QuoteRequest.swapType.EXACT_INPUT
+          ? context.parsedFormValues.amountIn
+          : context.parsedFormValues.amountOut
+
+      return amount !== null && amount.amount > 0n
     },
   },
 }).createMachine({
@@ -592,11 +619,13 @@ export const swapUIMachine = setup({
       tokenOut: input.tokenOut,
       amountIn: "",
       amountOut: "",
+      swapType: null,
     },
     parsedFormValues: {
       tokenIn: getAnyBaseTokenInfo(input.tokenIn),
       tokenOut: getAnyBaseTokenInfo(input.tokenOut),
       amountIn: null,
+      amountOut: null,
     },
     intentCreationResult: null,
     intentRefs: [],
@@ -680,8 +709,8 @@ export const swapUIMachine = setup({
       actions: {
         type: "openPriceChangeDialog",
         params: ({ event }) => ({
-          newAmountOut: event.params.newAmountOut,
-          previousAmountOut: event.params.previousAmountOut,
+          newOppositeAmount: event.params.newOppositeAmount,
+          previousOppositeAmount: event.params.previousOppositeAmount,
         }),
       },
     },
@@ -705,8 +734,9 @@ export const swapUIMachine = setup({
         submit: [
           {
             target: "submitting_1cs",
-            guard: "isQuoteValidAnd1cs",
+            guard: "isFormValidAnd1cs",
             actions: [
+              "parseFormValues",
               "clearIntentCreationResult",
               "sendToBackground1csQuoterRefPause",
             ],
@@ -727,7 +757,6 @@ export const swapUIMachine = setup({
             "sendToBackgroundQuoterRefPause",
             "sendToBackground1csQuoterRefPause",
             "clearQuote",
-            "updateUIAmount",
             "clearError",
             "clear1csError",
             {
@@ -744,12 +773,17 @@ export const swapUIMachine = setup({
               type: "setQuote",
               params: ({ event }) => event.params.quote,
             },
+            "updateFormValuesWithQuoteData",
             "updateUIAmount",
           ],
         },
 
         NEW_1CS_QUOTE: {
-          actions: ["process1csQuote", "updateUIAmount"],
+          actions: [
+            "process1csQuote",
+            "updateFormValuesWithQuoteData",
+            "updateUIAmount",
+          ],
         },
       },
 
@@ -781,20 +815,24 @@ export const swapUIMachine = setup({
                   type: "setQuote",
                   params: ({ event }) => event.params.quote,
                 },
+                "updateFormValuesWithQuoteData",
                 "updateUIAmount",
               ],
               description: `should do the same as NEW_QUOTE on "editing" itself`,
             },
             NEW_1CS_QUOTE: {
               target: "idle",
-              actions: ["process1csQuote", "updateUIAmount"],
+              actions: [
+                "process1csQuote",
+                "updateFormValuesWithQuoteData",
+                "updateUIAmount",
+              ],
             },
           },
         },
       },
 
       initial: "idle",
-      entry: "updateUIAmount",
     },
 
     submitting: {
@@ -896,11 +934,13 @@ export const swapUIMachine = setup({
           assertEvent(event, "submit")
 
           assert(
-            (context.parsedFormValues.amountIn != null &&
-              context.parsedFormValues.amountIn.amount > 0n) ||
-              (context.parsedFormValues.amountOut != null &&
-                context.parsedFormValues.amountOut.amount > 0n),
-            "amounts not set"
+            context.parsedFormValues.amountIn != null &&
+              context.parsedFormValues.amountIn.amount > 0n &&
+              context.parsedFormValues.amountOut != null &&
+              context.parsedFormValues.amountOut.amount > 0n &&
+              context.is1cs &&
+              context.formValues.swapType,
+            "Invalid input for submitting_1cs"
           )
           assert(context.user?.identifier != null, "user address is not set")
           assert(context.user?.method != null, "user chain type is not set")
@@ -909,6 +949,8 @@ export const swapUIMachine = setup({
             tokenIn: context.parsedFormValues.tokenIn,
             tokenOut: context.parsedFormValues.tokenOut,
             amountIn: context.parsedFormValues.amountIn,
+            amountOut: context.parsedFormValues.amountOut,
+            swapType: context.formValues.swapType,
             slippageBasisPoints: context.slippageBasisPoints,
             defuseUserId: authIdentity.authHandleToIntentsUserId(
               context.user.identifier,
@@ -919,7 +961,7 @@ export const swapUIMachine = setup({
             userAddress: event.params.userAddress,
             userChainType: event.params.userChainType,
             nearClient: event.params.nearClient,
-            previousAmountOut:
+            previousOppositeAmount:
               context.quote && context.quote.tag === "ok"
                 ? {
                     amount:
@@ -991,7 +1033,11 @@ export const swapUIMachine = setup({
 
       on: {
         NEW_1CS_QUOTE: {
-          actions: ["process1csQuote", "updateUIAmount"],
+          actions: [
+            "process1csQuote",
+            "updateFormValuesWithQuoteData",
+            "updateUIAmount",
+          ],
         },
       },
     },

@@ -59,7 +59,14 @@ const _: AuthMethodSchema extends AuthMethod
     : never
   : never = true
 
-const swapTypeSchema = z.enum(["EXACT_INPUT", "EXACT_OUTPUT", "FLEX_INPUT"])
+const swapTypeSchema = z.enum(
+  Object.values(QuoteRequest.swapType) as [
+    QuoteRequest.swapType,
+    ...QuoteRequest.swapType[],
+  ]
+)
+
+export type SwapTypeSchema = z.infer<typeof swapTypeSchema>
 
 const getQuoteArgsSchema = z.object({
   dry: z.boolean(),
@@ -73,7 +80,7 @@ const getQuoteArgsSchema = z.object({
   swapType: swapTypeSchema,
 })
 
-type GetQuoteArgs = z.infer<typeof getQuoteArgsSchema>
+export type GetQuoteArgs = z.infer<typeof getQuoteArgsSchema>
 
 export async function getQuote(
   args: GetQuoteArgs

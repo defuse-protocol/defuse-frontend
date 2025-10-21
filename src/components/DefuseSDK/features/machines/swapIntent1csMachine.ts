@@ -22,7 +22,6 @@ import {
   type WalletErrorCode,
   extractWalletErrorCode,
 } from "../../utils/walletErrorExtractor"
-import type { Quote1csInput } from "./background1csQuoterMachine"
 import {
   type ErrorCodes as PublicKeyVerifierErrorCodes,
   publicKeyVerifierMachine,
@@ -75,11 +74,20 @@ type Context = {
   }
 }
 
-type Input = Quote1csInput & {
+type Input = {
+  tokenIn: BaseTokenInfo
+  tokenOut: BaseTokenInfo
+
+  swapType: QuoteRequest.swapType
+  slippageBasisPoints: number
+  defuseUserId: string
+  deadline: string
   userAddress: string
   userChainType: AuthMethod
   nearClient: providers.Provider
-  previousAmountOut?: { amount: bigint; decimals: number }
+  amountIn: { amount: bigint; decimals: number }
+  amountOut: { amount: bigint; decimals: number }
+  previousOppositeAmount?: { amount: bigint; decimals: number }
   parentRef?: {
     send: (
       event:
@@ -87,8 +95,8 @@ type Input = Quote1csInput & {
         | {
             type: "PRICE_CHANGE_CONFIRMATION_REQUEST"
             params: {
-              newAmountOut: { amount: bigint; decimals: number }
-              previousAmountOut?: { amount: bigint; decimals: number }
+              newOppositeAmount: { amount: bigint; decimals: number }
+              previousOppositeAmount?: { amount: bigint; decimals: number }
             }
           }
     ) => void
@@ -147,7 +155,20 @@ export const swapIntent1csMachine = setup({
           type: "NEW_1CS_QUOTE",
           params: {
             result: context.quote1csResult,
-            quoteInput: context.input,
+            quoteInput: {
+              tokenIn: context.input.tokenIn,
+              tokenOut: context.input.tokenOut,
+              amount:
+                context.input.swapType === QuoteRequest.swapType.EXACT_INPUT
+                  ? context.input.amountIn
+                  : context.input.amountOut,
+              swapType: context.input.swapType,
+              slippageBasisPoints: context.input.slippageBasisPoints,
+              defuseUserId: context.input.defuseUserId,
+              deadline: context.input.deadline,
+              userAddress: context.input.userAddress,
+              userChainType: context.input.userChainType,
+            },
             tokenInAssetId,
             tokenOutAssetId,
           },
@@ -157,21 +178,23 @@ export const swapIntent1csMachine = setup({
   },
   actors: {
     fetch1csQuoteActor: fromPromise(
-      async ({
-        input,
-      }: { input: Quote1csInput & { userChainType: AuthMethod } }) => {
+      async ({ input }: { input: Input & { userChainType: AuthMethod } }) => {
         const tokenInAssetId = input.tokenIn.defuseAssetId
         const tokenOutAssetId = input.tokenOut.defuseAssetId
+        const amount =
+          input.swapType === QuoteRequest.swapType.EXACT_INPUT
+            ? input.amountIn.amount
+            : input.amountOut.amount
         return get1csQuoteApiWithRetry({
           dry: false,
           slippageTolerance: Math.round(input.slippageBasisPoints / 100),
           originAsset: tokenInAssetId,
           destinationAsset: tokenOutAssetId,
-          amount: input.amountIn.amount.toString(),
+          amount: amount.toString(),
           deadline: input.deadline,
           userAddress: input.userAddress,
           authMethod: input.userChainType,
-          swapType: QuoteRequest.swapType.EXACT_INPUT,
+          swapType: input.swapType,
         })
       }
     ),
@@ -249,7 +272,7 @@ export const swapIntent1csMachine = setup({
       )
     },
     isWorseThanPrevious: ({ context }) => {
-      const prev = context.input.previousAmountOut
+      const prev = context.input.previousOppositeAmount
       if (
         context.quote1csResult == null ||
         !("ok" in context.quote1csResult) ||
@@ -258,8 +281,14 @@ export const swapIntent1csMachine = setup({
       ) {
         return false
       }
-
-      return BigInt(context.quote1csResult.ok.quote.amountOut) < prev.amount
+      const isExactIn =
+        context.input.swapType === QuoteRequest.swapType.EXACT_INPUT
+      const amount = BigInt(
+        isExactIn
+          ? context.quote1csResult.ok.quote.amountOut
+          : context.quote1csResult.ok.quote.amountIn
+      )
+      return isExactIn ? amount < prev.amount : amount > prev.amount
     },
   },
 }).createMachine({
@@ -296,7 +325,10 @@ export const swapIntent1csMachine = setup({
           depositAddress: context.quote1csResult.ok.quote.depositAddress,
           intentDescription: {
             type: "swap",
-            totalAmountIn: context.input.amountIn,
+            totalAmountIn: {
+              amount: BigInt(context.quote1csResult.ok.quote.amountIn ?? "0"),
+              decimals: context.input.tokenIn.decimals,
+            },
             totalAmountOut: {
               amount: BigInt(context.quote1csResult.ok.quote.amountOut ?? "0"),
               decimals: context.input.tokenOut.decimals,
@@ -397,15 +429,23 @@ export const swapIntent1csMachine = setup({
     AwaitingPriceChangeConfirmation: {
       entry: ({ context }) => {
         if (context.quote1csResult && "ok" in context.quote1csResult) {
-          const amountOut = BigInt(context.quote1csResult.ok.quote.amountOut)
+          const isExactIn =
+            context.input.swapType === QuoteRequest.swapType.EXACT_INPUT
+          const amount = BigInt(
+            isExactIn
+              ? context.quote1csResult.ok.quote.amountOut
+              : context.quote1csResult.ok.quote.amountIn
+          )
           context.input.parentRef?.send({
             type: "PRICE_CHANGE_CONFIRMATION_REQUEST",
             params: {
-              newAmountOut: {
-                amount: amountOut,
-                decimals: context.input.tokenOut.decimals,
+              newOppositeAmount: {
+                amount,
+                decimals: isExactIn
+                  ? context.input.tokenOut.decimals
+                  : context.input.tokenIn.decimals,
               },
-              previousAmountOut: context.input.previousAmountOut,
+              previousOppositeAmount: context.input.previousOppositeAmount,
             },
           })
         }

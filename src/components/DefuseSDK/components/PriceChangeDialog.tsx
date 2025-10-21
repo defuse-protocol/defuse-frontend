@@ -12,8 +12,8 @@ type Props = {
   tokenIn: TokenInfo
   tokenOut: TokenInfo
   amountIn: { amount: bigint; decimals: number }
-  newAmountOut: { amount: bigint; decimals: number }
-  previousAmountOut?: { amount: bigint; decimals: number }
+  newOppositeAmount: { amount: bigint; decimals: number }
+  previousOppositeAmount?: { amount: bigint; decimals: number }
   onConfirm: () => void
   onCancel: () => void
 }
@@ -23,8 +23,8 @@ export function PriceChangeDialog({
   tokenIn,
   tokenOut,
   amountIn,
-  newAmountOut,
-  previousAmountOut,
+  newOppositeAmount,
+  previousOppositeAmount,
   onConfirm,
   onCancel,
 }: Props) {
@@ -66,14 +66,14 @@ export function PriceChangeDialog({
 
             <div className="flex items-center justify-between border border-gray-4 p-6 rounded-b-lg rounded-br-lg border-t-0">
               <div className="flex flex-col gap-1 font-medium">
-                {previousAmountOut ? (
+                {previousOppositeAmount ? (
                   <div className="text-gray-10">
                     <span className="line-through">
                       {formatTokenValue(
-                        previousAmountOut.amount,
-                        previousAmountOut.decimals,
+                        previousOppositeAmount.amount,
+                        previousOppositeAmount.decimals,
                         {
-                          fractionDigits: previousAmountOut.decimals,
+                          fractionDigits: previousOppositeAmount.decimals,
                         }
                       )}
                     </span>{" "}
@@ -82,10 +82,10 @@ export function PriceChangeDialog({
                 ) : null}
                 <div>
                   {formatTokenValue(
-                    newAmountOut.amount,
-                    newAmountOut.decimals,
+                    newOppositeAmount.amount,
+                    newOppositeAmount.decimals,
                     {
-                      fractionDigits: newAmountOut.decimals,
+                      fractionDigits: newOppositeAmount.decimals,
                     }
                   )}{" "}
                   (new)

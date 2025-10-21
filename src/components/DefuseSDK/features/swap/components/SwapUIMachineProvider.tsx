@@ -1,12 +1,11 @@
 import type { walletMessage } from "@defuse-protocol/internal-utils"
+import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
-import { computeTotalDeltaDifferentDecimals } from "@src/components/DefuseSDK/utils/tokenUtils"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { createActorContext } from "@xstate/react"
 import type { PropsWithChildren, ReactElement, ReactNode } from "react"
 import { useFormContext } from "react-hook-form"
-import { formatUnits } from "viem"
 import {
   type Actor,
   type ActorOptions,
@@ -91,39 +90,21 @@ export function SwapUIMachineProvider({
           updateUIAmount: ({ context }) => {
             const quote = context.quote
             if (quote == null) return
-            const amountInEmpty = context.formValues.amountIn === ""
-            const amountOutEmpty = context.formValues.amountOut === ""
-            if (amountInEmpty && amountOutEmpty) return
-            const totalAmountOutUpdated = amountInEmpty
-            const fieldNameToUpdate = totalAmountOutUpdated
-              ? "amountIn"
-              : "amountOut"
+            const exactOutQuote =
+              context.formValues.swapType === QuoteRequest.swapType.EXACT_OUTPUT
+            const fieldNameToUpdate = exactOutQuote ? "amountIn" : "amountOut"
             if (quote.tag === "err") {
-              setValue(fieldNameToUpdate, "–", {
-                shouldValidate: false,
-              })
-            } else {
-              const totalAmount = computeTotalDeltaDifferentDecimals(
-                [
-                  totalAmountOutUpdated
-                    ? context.parsedFormValues.tokenIn
-                    : context.parsedFormValues.tokenOut,
-                ],
-                quote.value.tokenDeltas
-              )
-              setValue(
-                fieldNameToUpdate,
-                formatUnits(
-                  totalAmount.amount < 0n
-                    ? -totalAmount.amount
-                    : totalAmount.amount,
-                  totalAmount.decimals
-                ),
-                {
-                  shouldValidate: true,
-                }
-              )
+              setValue(fieldNameToUpdate, "-", { shouldValidate: false })
+              return
             }
+            if (
+              context.formValues.amountIn === "" &&
+              context.formValues.amountOut === ""
+            )
+              return
+            setValue(fieldNameToUpdate, context.formValues[fieldNameToUpdate], {
+              shouldValidate: true,
+            })
           },
         },
         actors: {

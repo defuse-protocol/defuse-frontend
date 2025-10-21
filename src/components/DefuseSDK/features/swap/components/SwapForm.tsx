@@ -1,3 +1,4 @@
+import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import { ArrowsDownUpIcon } from "@phosphor-icons/react"
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Box, Button, Callout } from "@radix-ui/themes"
@@ -123,6 +124,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
         tokenOut: tokenIn,
         amountIn: amountOut,
         amountOut: "",
+        swapType: QuoteRequest.swapType.EXACT_INPUT,
       },
     })
   }, [tokenIn, tokenOut, setValue, getValues, swapUIActorRef.send])
@@ -172,12 +174,18 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                 tokenOut: tokenIn,
                 amountOut: "",
                 amountIn,
+                swapType: QuoteRequest.swapType.EXACT_INPUT,
               },
             })
           } else {
             swapUIActorRef.send({
               type: "input",
-              params: { tokenIn: token, amountOut: "", amountIn },
+              params: {
+                tokenIn: token,
+                amountOut: "",
+                amountIn,
+                swapType: QuoteRequest.swapType.EXACT_INPUT,
+              },
             })
           }
           setValue("amountOut", "")
@@ -193,12 +201,18 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                   tokenOut: tokenIn,
                   amountIn: "",
                   amountOut,
+                  swapType: QuoteRequest.swapType.EXACT_OUTPUT,
                 },
               })
             } else {
               swapUIActorRef.send({
                 type: "input",
-                params: { tokenOut: token, amountIn: "", amountOut },
+                params: {
+                  tokenOut: token,
+                  amountIn: "",
+                  amountOut,
+                  swapType: QuoteRequest.swapType.EXACT_OUTPUT,
+                },
               })
             }
             setValue("amountIn", "")
@@ -212,12 +226,18 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                   tokenOut: tokenIn,
                   amountOut: "",
                   amountIn,
+                  swapType: QuoteRequest.swapType.EXACT_INPUT,
                 },
               })
             } else {
               swapUIActorRef.send({
                 type: "input",
-                params: { tokenOut: token, amountOut: "", amountIn },
+                params: {
+                  tokenOut: token,
+                  amountOut: "",
+                  amountIn,
+                  swapType: QuoteRequest.swapType.EXACT_INPUT,
+                },
               })
             }
             setValue("amountOut", "")
@@ -288,6 +308,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
         params: {
           amountIn,
           amountOut: "",
+          swapType: QuoteRequest.swapType.EXACT_INPUT,
         },
       })
     }
@@ -303,7 +324,11 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
       setValue("amountOut", "")
       swapUIActorRef.send({
         type: "input",
-        params: { amountIn, amountOut: "" },
+        params: {
+          amountIn,
+          amountOut: "",
+          swapType: QuoteRequest.swapType.EXACT_INPUT,
+        },
       })
     }
   }
@@ -347,7 +372,14 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                     setValue("amountOut", "")
                     swapUIActorRef.send({
                       type: "input",
-                      params: { amountIn: e.target.value, amountOut: "" },
+                      params: {
+                        tokenIn,
+                        tokenOut,
+                        swapType: QuoteRequest.swapType.EXACT_INPUT,
+
+                        amountIn: e.target.value,
+                        amountOut: "",
+                      },
                     })
                   },
                 })}
@@ -441,7 +473,13 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                           setValue("amountIn", "")
                           swapUIActorRef.send({
                             type: "input",
-                            params: { amountOut: e.target.value, amountIn: "" },
+                            params: {
+                              tokenIn,
+                              tokenOut,
+                              swapType: QuoteRequest.swapType.EXACT_OUTPUT,
+                              amountOut: e.target.value,
+                              amountIn: "",
+                            },
                           })
                         },
                       })
@@ -567,9 +605,11 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             amount: snapshot.context.parsedFormValues.amountIn?.amount ?? 0n,
             decimals: snapshot.context.parsedFormValues.amountIn?.decimals ?? 0,
           }}
-          newAmountOut={snapshot.context.priceChangeDialog.pendingNewAmountOut}
-          previousAmountOut={
-            snapshot.context.priceChangeDialog.previousAmountOut
+          newOppositeAmount={
+            snapshot.context.priceChangeDialog.pendingnewOppositeAmount
+          }
+          previousOppositeAmount={
+            snapshot.context.priceChangeDialog.previousOppositeAmount
           }
           onConfirm={() =>
             swapUIActorRef.send({ type: "PRICE_CHANGE_CONFIRMED" })
@@ -744,7 +784,7 @@ export function renderIntentCreationResult(
   }
 
   return (
-    <Callout.Root size="1" color="red">
+    <Callout.Root size="1" color="red" className="mt-4">
       <Callout.Icon>
         <ExclamationTriangleIcon />
       </Callout.Icon>
