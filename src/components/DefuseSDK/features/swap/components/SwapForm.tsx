@@ -367,9 +367,12 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const amountInEmpty = amountIn === ""
   const amountOutEmpty = amountOut === ""
   return (
-    <div className="flex flex-col">
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
-        <div className="flex flex-col items-center">
+    <div className="flex flex-col min-w-0">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col gap-5 min-w-0"
+      >
+        <div className="flex flex-col items-center min-w-0">
           <TokenAmountInputCard
             variant="2"
             labelSlot={
@@ -406,6 +409,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                         amountOut: "",
                       },
                     })
+                    setValue("amountOut", "")
                   },
                 })}
               />
