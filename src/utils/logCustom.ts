@@ -6,6 +6,13 @@ import { isBaseToken } from "@src/components/DefuseSDK/utils"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { formatUnits } from "viem"
 
+export type LogNoLiquiditySolverRelayParams = Parameters<
+  typeof solverRelay.quote
+>[0] & {
+  exact_amount_in: string
+  requestId: string
+}
+
 export function logNoLiquidity({
   tokenIn,
   tokenOut,
@@ -36,14 +43,14 @@ export function logNoLiquidity({
 export function logNoLiquiditySolverRelay({
   requestId,
   ...quoteParams
-}: Parameters<typeof solverRelay.quote>[0] & { requestId: string }) {
+}: LogNoLiquiditySolverRelayParams) {
   const tokenIn = toToken(quoteParams.defuse_asset_identifier_in)
 
   logNoLiquidity({
     tokenIn,
     tokenOut: toToken(quoteParams.defuse_asset_identifier_out),
     amountIn: formatUnits(
-      BigInt(quoteParams.exact_amount_in ?? 0),
+      BigInt(quoteParams.exact_amount_in),
       tokenIn?.decimals ?? 0
     ),
     contexts: { quoteParams, quoteRequestInfo: { requestId } },
