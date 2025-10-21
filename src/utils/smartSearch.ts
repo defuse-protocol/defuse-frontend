@@ -1,5 +1,3 @@
-import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
-
 // Scoring system for search relevance
 export const SEARCH_SCORES = {
   EXACT_MATCH: 100,
@@ -29,9 +27,8 @@ export function levenshteinDistance(a: string, b: string): number {
 }
 
 export interface SearchableItem {
-  token: TokenInfo
-  searchData?: {
-    symbolLower: string
+  searchData: {
+    symbolLower?: string
     nameLower: string
   }
 }
@@ -48,7 +45,7 @@ export function calculateSearchScore(
   const queryLower = query.toLowerCase()
 
   // Exact match (case-sensitive)
-  if (item.token.symbol === query || item.token.name === query) {
+  if (symbolLower === query || nameLower === query) {
     return SEARCH_SCORES.EXACT_MATCH
   }
 
@@ -58,17 +55,19 @@ export function calculateSearchScore(
   }
 
   // Starts with query
-  if (symbolLower.startsWith(queryLower) || nameLower.startsWith(queryLower)) {
+  if (symbolLower?.startsWith(queryLower) || nameLower.startsWith(queryLower)) {
     return SEARCH_SCORES.STARTS_WITH
   }
 
   // Contains query
-  if (symbolLower.includes(queryLower) || nameLower.includes(queryLower)) {
+  if (symbolLower?.includes(queryLower) || nameLower.includes(queryLower)) {
     return SEARCH_SCORES.CONTAINS
   }
 
   // Fuzzy match (Levenshtein distance) - only for very close matches
-  const symbolDistance = levenshteinDistance(symbolLower, queryLower)
+  const symbolDistance = symbolLower
+    ? levenshteinDistance(symbolLower, queryLower)
+    : Number.POSITIVE_INFINITY
   const nameDistance = levenshteinDistance(nameLower, queryLower)
   const minDistance = Math.min(symbolDistance, nameDistance)
 
@@ -126,9 +125,11 @@ export function performSearch<T extends SearchableItem>(
   return { results: result.slice(0, maxResults), isComputing: false }
 }
 
-export function createSearchData(token: TokenInfo) {
+export function createSearchData<T extends { symbol?: string; name: string }>(
+  item: T
+) {
   return {
-    symbolLower: token.symbol.toLowerCase(),
-    nameLower: token.name.toLowerCase(),
+    symbolLower: item.symbol?.toLowerCase(),
+    nameLower: item.name.toLowerCase(),
   }
 }

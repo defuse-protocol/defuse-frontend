@@ -27,7 +27,6 @@ const createMockToken = (symbol: string, name: string): TokenInfo => ({
 })
 
 const createMockSearchableItem = (token: TokenInfo): SearchableItem => ({
-  token,
   searchData: createSearchData(token),
 })
 
@@ -68,14 +67,14 @@ describe("searchUtils", () => {
   describe("calculateSearchScore", () => {
     it("should return exact match score for case-sensitive match", () => {
       const item = createMockSearchableItem(createMockToken("ETH", "Ethereum"))
-      const score = calculateSearchScore(item, "ETH")
+      const score = calculateSearchScore(item, "eth") // lowercase query matches lowercase symbol
 
       expect(score).toBe(SEARCH_SCORES.EXACT_MATCH)
     })
 
     it("should return case-insensitive exact match score", () => {
       const item = createMockSearchableItem(createMockToken("ETH", "Ethereum"))
-      const score = calculateSearchScore(item, "eth")
+      const score = calculateSearchScore(item, "ETH") // uppercase query matches lowercase symbol
 
       expect(score).toBe(SEARCH_SCORES.CASE_INSENSITIVE_EXACT)
     })
@@ -103,8 +102,8 @@ describe("searchUtils", () => {
 
     it("should return 0 for items without search data", () => {
       const item: SearchableItem = {
-        token: createMockToken("ETH", "Ethereum"),
-        // No searchData
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+        searchData: undefined as any,
       }
       const score = calculateSearchScore(item, "eth")
 
@@ -132,10 +131,10 @@ describe("searchUtils", () => {
         // Should include ETH, USDT
         expect(results.length).toBe(2)
 
-        expect(results[0].token.symbol).toBe("ETH")
-        expect(results[0].token.name).toBe("Ethereum")
-        expect(results[1].token.symbol).toBe("USDT")
-        expect(results[1].token.name).toBe("Tether USD")
+        expect(results[0].searchData.symbolLower).toBe("eth")
+        expect(results[0].searchData.nameLower).toBe("ethereum")
+        expect(results[1].searchData.symbolLower).toBe("usdt")
+        expect(results[1].searchData.nameLower).toBe("tether usd")
       })
     })
 
@@ -144,11 +143,11 @@ describe("searchUtils", () => {
         const { results } = performSearch(mockSearchableItems, "b")
 
         // Should include BTC, BNB, but not others
-        const symbols = results.map((item) => item.token.symbol)
-        expect(symbols).toContain("BTC")
-        expect(symbols).toContain("BNB")
-        expect(symbols).not.toContain("ETH")
-        expect(symbols).not.toContain("USDC")
+        const symbols = results.map((item) => item.searchData.symbolLower)
+        expect(symbols).toContain("btc")
+        expect(symbols).toContain("bnb")
+        expect(symbols).not.toContain("eth")
+        expect(symbols).not.toContain("usdc")
       })
     })
 
@@ -162,9 +161,9 @@ describe("searchUtils", () => {
         const { results } = performSearch(itemsWithClose, "eth")
 
         // Should find both ETH and ETC
-        const symbols = results.map((item) => item.token.symbol)
-        expect(symbols).toContain("ETH")
-        expect(symbols).toContain("ETC")
+        const symbols = results.map((item) => item.searchData.symbolLower)
+        expect(symbols).toContain("eth")
+        expect(symbols).toContain("etc")
       })
     })
 
@@ -184,7 +183,7 @@ describe("searchUtils", () => {
 
         // Should only return exact matches, no fuzzy matches
         expect(results.length).toBeGreaterThanOrEqual(1)
-        expect(results[0].token.symbol).toBe("ETH")
+        expect(results[0].searchData.symbolLower).toBe("eth")
       })
     })
 
@@ -194,10 +193,10 @@ describe("searchUtils", () => {
 
         // ETH should come before Tether USD (exact symbol match vs contains)
         const ethIndex = results.findIndex(
-          (item) => item.token.symbol === "ETH"
+          (item) => item.searchData.symbolLower === "eth"
         )
         const usdtIndex = results.findIndex(
-          (item) => item.token.symbol === "USDT"
+          (item) => item.searchData.symbolLower === "usdt"
         )
 
         expect(ethIndex).toBeLessThan(usdtIndex)
@@ -207,7 +206,7 @@ describe("searchUtils", () => {
         const { results } = performSearch(mockSearchableItems, "usd")
 
         // USDC should come first (symbol starts with "USD")
-        expect(results[0].token.symbol).toBe("USDC")
+        expect(results[0].searchData.symbolLower).toBe("usdc")
       })
     })
 
