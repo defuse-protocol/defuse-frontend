@@ -489,7 +489,8 @@ export const swapUIMachine = setup({
       const hasSufficientBalance =
         compareAmounts(tokenInBalance, context.parsedFormValues.amountIn) !== -1
 
-      if (!hasSufficientBalance) {
+      // temporarily disable this to check that logging works
+      if (hasSufficientBalance) {
         return
       }
 
