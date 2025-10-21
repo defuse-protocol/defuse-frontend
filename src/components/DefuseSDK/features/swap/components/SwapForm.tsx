@@ -364,6 +364,8 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const showRateInfo = tokenIn && tokenOut && !isLoading
 
   const isLongLoading = useThrottledValue(isLoading, isLoading ? 3000 : 0)
+  const amountInEmpty = amountIn === ""
+  const amountOutEmpty = amountOut === ""
   return (
     <div className="flex flex-col">
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
@@ -381,7 +383,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             inputSlot={
               <TokenAmountInputCard.Input
                 id="swap-form-amount-in"
-                isLoading={isLoading && amountIn === ""}
+                isLoading={isLoading && amountInEmpty}
                 {...register("amountIn", {
                   required: true,
                   validate: (value) => {
@@ -446,11 +448,15 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               </TokenAmountInputCard.DisplayPrice>
             }
             infoSlot={
-              errors.amountIn && (
+              errors.amountIn ? (
                 <p className="text-label text-sm text-red-500">
                   {errors.amountIn.message || "This field is required"}
                 </p>
-              )
+              ) : isLongLoading && amountInEmpty ? (
+                <TokenAmountInputCard.DisplayInfo>
+                  Searching for more liquidity...
+                </TokenAmountInputCard.DisplayInfo>
+              ) : null
             }
           />
 
@@ -480,7 +486,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               inputSlot={
                 <TokenAmountInputCard.Input
                   id="swap-form-amount-out"
-                  isLoading={isLoading && amountOut === ""}
+                  isLoading={isLoading && amountOutEmpty}
                   {...(is1cs
                     ? register("amountOut", {
                         required: true,
@@ -551,7 +557,11 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                 </TokenAmountInputCard.DisplayPrice>
               }
               infoSlot={
-                isLongLoading ? (
+                errors.amountOut && is1cs ? (
+                  <p className="text-label text-sm text-red-500">
+                    {errors.amountOut.message || "This field is required"}
+                  </p>
+                ) : isLongLoading && amountOutEmpty ? (
                   <TokenAmountInputCard.DisplayInfo>
                     Searching for more liquidity...
                   </TokenAmountInputCard.DisplayInfo>
