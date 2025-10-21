@@ -409,7 +409,6 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                         amountOut: "",
                       },
                     })
-                    setValue("amountOut", "")
                   },
                 })}
               />
