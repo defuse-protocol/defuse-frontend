@@ -160,11 +160,24 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     const _payload = payload as ModalSelectAssetsPayload
     const token = _payload[fieldName || "token"]
     if (modalType === ModalType.MODAL_SELECT_ASSETS && fieldName && token) {
-      const { tokenIn, tokenOut } =
+      const { tokenIn, tokenOut, swapType } =
         swapUIActorRef.getSnapshot().context.formValues
       const { amountIn, amountOut } = getValues()
       switch (fieldName) {
-        case SWAP_TOKEN_FLAGS.IN:
+        case SWAP_TOKEN_FLAGS.IN: {
+          const isExactInputSwap =
+            swapType === QuoteRequest.swapType.EXACT_INPUT
+
+          let newAmountIn = ""
+          let newAmountOut = ""
+          let valueToReset: "amountIn" | "amountOut" = "amountOut"
+
+          if (isExactInputSwap) {
+            newAmountIn = amountIn
+          } else {
+            newAmountOut = amountOut
+            valueToReset = "amountIn"
+          }
           if (getTokenId(tokenOut) === getTokenId(token)) {
             // Don't need to switch amounts, when token selected from dialog
             swapUIActorRef.send({
@@ -172,9 +185,8 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               params: {
                 tokenIn: tokenOut,
                 tokenOut: tokenIn,
-                amountOut: "",
-                amountIn,
-                swapType: QuoteRequest.swapType.EXACT_INPUT,
+                amountIn: newAmountIn,
+                amountOut: newAmountOut,
               },
             })
           } else {
@@ -182,16 +194,27 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               type: "input",
               params: {
                 tokenIn: token,
-                amountOut: "",
-                amountIn,
-                swapType: QuoteRequest.swapType.EXACT_INPUT,
+                amountIn: newAmountIn,
+                amountOut: newAmountOut,
               },
             })
           }
-          setValue("amountOut", "")
+          setValue(valueToReset, "")
           break
-        case SWAP_TOKEN_FLAGS.OUT:
+        }
+        case SWAP_TOKEN_FLAGS.OUT: {
           if (is1cs) {
+            const isExactOuputSwap =
+              swapType === QuoteRequest.swapType.EXACT_OUTPUT
+            let newAmountIn = ""
+            let newAmountOut = ""
+            let valueToReset: "amountIn" | "amountOut" = "amountIn"
+            if (isExactOuputSwap) {
+              newAmountOut = amountOut
+            } else {
+              newAmountIn = amountIn
+              valueToReset = "amountOut"
+            }
             if (getTokenId(tokenIn) === getTokenId(token)) {
               // Don't need to switch amounts, when token selected from dialog
               swapUIActorRef.send({
@@ -199,9 +222,8 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                 params: {
                   tokenIn: tokenOut,
                   tokenOut: tokenIn,
-                  amountIn: "",
-                  amountOut,
-                  swapType: QuoteRequest.swapType.EXACT_OUTPUT,
+                  amountIn: newAmountIn,
+                  amountOut: newAmountOut,
                 },
               })
             } else {
@@ -209,13 +231,13 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                 type: "input",
                 params: {
                   tokenOut: token,
-                  amountIn: "",
-                  amountOut,
-                  swapType: QuoteRequest.swapType.EXACT_OUTPUT,
+                  amountIn: newAmountIn,
+                  amountOut: newAmountOut,
                 },
               })
             }
-            setValue("amountIn", "")
+
+            setValue(valueToReset, "")
           } else {
             if (getTokenId(tokenIn) === getTokenId(token)) {
               // Don't need to switch amounts, when token selected from dialog
@@ -243,6 +265,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             setValue("amountOut", "")
           }
           break
+        }
       }
     }
   }, [payload, currentModalType, swapUIActorRef, getValues, setValue])
