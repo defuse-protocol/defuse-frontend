@@ -2,8 +2,9 @@ import { AuthMethod, type authHandle } from "@defuse-protocol/internal-utils"
 import { authIdentity } from "@defuse-protocol/internal-utils"
 import { computeAppFeeBps } from "@src/components/DefuseSDK/utils/appFee"
 import { APP_FEE_BPS, APP_FEE_RECIPIENT } from "@src/utils/environment"
-import { logger } from "@src/utils/logger"
+import { logNoLiquidity, logger } from "@src/utils/logger"
 import type { providers } from "near-api-js"
+import { formatUnits } from "viem"
 import {
   type ActorRefFrom,
   assertEvent,
@@ -19,6 +20,8 @@ import type { TokenInfo } from "../../types/base"
 import { assert } from "../../utils/assert"
 import { parseUnits } from "../../utils/parse"
 import {
+  compareAmounts,
+  computeTotalBalanceDifferentDecimals,
   getAnyBaseTokenInfo,
   getTokenMaxDecimals,
   getUnderlyingBaseTokenInfos,
@@ -34,6 +37,8 @@ import {
   backgroundQuoterMachine,
 } from "./backgroundQuoterMachine"
 
+import type { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
+import type { Quote1csInput } from "@src/components/DefuseSDK/features/machines/background1csQuoterMachine"
 import { isBaseToken } from "@src/components/DefuseSDK/utils/token"
 import {
   type BalanceMapping,
@@ -149,6 +154,7 @@ export const swapUIMachine = setup({
       | {
           type: "NEW_1CS_QUOTE"
           params: {
+            quoteInput: Quote1csInput
             result:
               | {
                   ok: {
@@ -160,7 +166,7 @@ export const swapUIMachine = setup({
                     appFee: [string, bigint][]
                   }
                 }
-              | { err: string }
+              | { err: string; originalRequest?: QuoteRequest | undefined }
             tokenInAssetId: string
             tokenOutAssetId: string
           }
@@ -447,6 +453,59 @@ export const swapUIMachine = setup({
       type: "INTENT_PUBLISHED" as const,
     })),
 
+    log1csNoLiquidity: ({ context, self, event }) => {
+      if (
+        event.type !== "NEW_1CS_QUOTE" ||
+        !("err" in event.params.result) ||
+        event.params.result.err !== "Failed to get quote" ||
+        event.params.result.originalRequest === undefined ||
+        !context.parsedFormValues.amountIn
+      ) {
+        return
+      }
+
+      // log only if we can be sure
+      // that the user has sufficient balance
+      const snapshot = self.getSnapshot()
+      const depositedBalanceRef:
+        | ActorRefFrom<typeof depositedBalanceMachine>
+        | undefined = snapshot.children.depositedBalanceRef
+      const balances = balancesSelector(depositedBalanceRef?.getSnapshot())
+
+      if (!balances) {
+        return
+      }
+
+      const tokenInBalance = computeTotalBalanceDifferentDecimals(
+        context.formValues.tokenIn,
+        balances
+      )
+
+      if (!tokenInBalance) {
+        return
+      }
+
+      const hasSufficientBalance =
+        compareAmounts(tokenInBalance, context.parsedFormValues.amountIn) !== -1
+
+      if (!hasSufficientBalance) {
+        return
+      }
+
+      logNoLiquidity({
+        tokenIn: event.params.quoteInput.tokenIn,
+        tokenOut: event.params.quoteInput.tokenOut,
+        amountIn: formatUnits(
+          event.params.quoteInput.amountIn.amount,
+          event.params.quoteInput.amountIn.decimals
+        ),
+        contexts: {
+          originalRequest: event.params.result.originalRequest,
+          balanceInfo: { tokenInBalance },
+        },
+      })
+    },
+
     process1csQuote: assign({
       quote: ({ event }) => {
         if (event.type !== "NEW_1CS_QUOTE") {
@@ -689,7 +748,11 @@ export const swapUIMachine = setup({
         },
 
         NEW_1CS_QUOTE: {
-          actions: ["process1csQuote", "updateUIAmountOut"],
+          actions: [
+            "process1csQuote",
+            "log1csNoLiquidity",
+            "updateUIAmountOut",
+          ],
         },
       },
 
@@ -727,7 +790,11 @@ export const swapUIMachine = setup({
             },
             NEW_1CS_QUOTE: {
               target: "idle",
-              actions: ["process1csQuote", "updateUIAmountOut"],
+              actions: [
+                "process1csQuote",
+                "log1csNoLiquidity",
+                "updateUIAmountOut",
+              ],
             },
           },
         },
@@ -924,7 +991,11 @@ export const swapUIMachine = setup({
 
       on: {
         NEW_1CS_QUOTE: {
-          actions: ["process1csQuote", "updateUIAmountOut"],
+          actions: [
+            "process1csQuote",
+            "log1csNoLiquidity",
+            "updateUIAmountOut",
+          ],
         },
       },
     },

@@ -5,6 +5,7 @@ import {
 } from "@defuse-protocol/internal-utils"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
+import type { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import { retry } from "@lifeomic/attempt"
 import { getQuote as get1csQuoteApi } from "@src/components/DefuseSDK/features/machines/1cs"
 import type { ParentEvents as Background1csQuoterParentEvents } from "@src/components/DefuseSDK/features/machines/background1csQuoterMachine"
@@ -45,7 +46,7 @@ type Context = {
           appFee: [string, bigint][]
         }
       }
-    | { err: string }
+    | { err: string; originalRequest?: QuoteRequest | undefined }
     | null
   walletMessage: walletMessage.WalletMessage | null
   signature: walletMessage.WalletSignatureResult | null

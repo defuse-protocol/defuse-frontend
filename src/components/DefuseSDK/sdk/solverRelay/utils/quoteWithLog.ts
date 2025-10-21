@@ -1,5 +1,5 @@
 import { solverRelay } from "@defuse-protocol/internal-utils"
-import { logger } from "@src/utils/logger"
+import { logNoLiquiditySolverRelay, logger } from "@src/utils/logger"
 
 export async function quoteWithLog(
   params: Parameters<typeof solverRelay.quote>[0],
@@ -18,10 +18,7 @@ export async function quoteWithLog(
       // We don't care about fast quotes, since they fail often
       (params.wait_ms == null || params.wait_ms > 2500)
     ) {
-      logger.warn(
-        "quote: No liquidity available for user with sufficient balance",
-        { quoteParams: params, quoteRequestInfo: { requestId } }
-      )
+      logNoLiquiditySolverRelay({ ...params, requestId })
     }
   }
   return result
