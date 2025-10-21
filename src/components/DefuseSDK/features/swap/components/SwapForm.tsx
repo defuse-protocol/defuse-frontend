@@ -629,29 +629,37 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
         </Box>
       )}
 
-      {snapshot.context.priceChangeDialog && (
-        <PriceChangeDialog
-          open={true}
-          tokenIn={tokenIn}
-          tokenOut={tokenOut}
-          amountIn={{
-            amount: snapshot.context.parsedFormValues.amountIn?.amount ?? 0n,
-            decimals: snapshot.context.parsedFormValues.amountIn?.decimals ?? 0,
-          }}
-          newOppositeAmount={
-            snapshot.context.priceChangeDialog.pendingnewOppositeAmount
-          }
-          previousOppositeAmount={
-            snapshot.context.priceChangeDialog.previousOppositeAmount
-          }
-          onConfirm={() =>
-            swapUIActorRef.send({ type: "PRICE_CHANGE_CONFIRMED" })
-          }
-          onCancel={() =>
-            swapUIActorRef.send({ type: "PRICE_CHANGE_CANCELLED" })
-          }
-        />
-      )}
+      {snapshot.context.priceChangeDialog &&
+        snapshot.context.formValues.swapType !== null && (
+          <PriceChangeDialog
+            open={true}
+            tokenIn={tokenIn}
+            tokenOut={tokenOut}
+            amountIn={{
+              amount: snapshot.context.parsedFormValues.amountIn?.amount ?? 0n,
+              decimals:
+                snapshot.context.parsedFormValues.amountIn?.decimals ?? 0,
+            }}
+            amountOut={{
+              amount: snapshot.context.parsedFormValues.amountOut?.amount ?? 0n,
+              decimals:
+                snapshot.context.parsedFormValues.amountOut?.decimals ?? 0,
+            }}
+            previousOppositeAmount={
+              snapshot.context.priceChangeDialog.previousOppositeAmount
+            }
+            newOppositeAmount={
+              snapshot.context.priceChangeDialog.pendingNewOppositeAmount
+            }
+            swapType={snapshot.context.formValues.swapType}
+            onConfirm={() =>
+              swapUIActorRef.send({ type: "PRICE_CHANGE_CONFIRMED" })
+            }
+            onCancel={() =>
+              swapUIActorRef.send({ type: "PRICE_CHANGE_CANCELLED" })
+            }
+          />
+        )}
     </div>
   )
 }

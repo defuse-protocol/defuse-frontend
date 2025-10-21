@@ -90,8 +90,8 @@ export type Context = {
   slippageBasisPoints: number
   is1cs: boolean
   priceChangeDialog: null | {
-    pendingnewOppositeAmount: { amount: bigint; decimals: number }
-    previousOppositeAmount?: { amount: bigint; decimals: number }
+    pendingNewOppositeAmount: { amount: bigint; decimals: number }
+    previousOppositeAmount: { amount: bigint; decimals: number }
   }
 }
 
@@ -180,7 +180,7 @@ export const swapUIMachine = setup({
           type: "PRICE_CHANGE_CONFIRMATION_REQUEST"
           params: {
             newOppositeAmount: { amount: bigint; decimals: number }
-            previousOppositeAmount?: { amount: bigint; decimals: number }
+            previousOppositeAmount: { amount: bigint; decimals: number }
           }
         }
       | { type: "PRICE_CHANGE_CONFIRMED" }
@@ -356,10 +356,10 @@ export const swapUIMachine = setup({
         _,
         params: {
           newOppositeAmount: { amount: bigint; decimals: number }
-          previousOppositeAmount?: { amount: bigint; decimals: number }
+          previousOppositeAmount: { amount: bigint; decimals: number }
         }
       ) => ({
-        pendingnewOppositeAmount: params.newOppositeAmount,
+        pendingNewOppositeAmount: params.newOppositeAmount,
         previousOppositeAmount: params.previousOppositeAmount,
       }),
     }),
@@ -939,12 +939,15 @@ export const swapUIMachine = setup({
               context.parsedFormValues.amountOut != null &&
               context.parsedFormValues.amountOut.amount > 0n &&
               context.is1cs &&
-              context.formValues.swapType,
+              context.formValues.swapType !== null &&
+              context.quote &&
+              context.quote.tag === "ok",
             "Invalid input for submitting_1cs"
           )
           assert(context.user?.identifier != null, "user address is not set")
           assert(context.user?.method != null, "user chain type is not set")
-
+          const isExactInput =
+            context.formValues.swapType === QuoteRequest.swapType.EXACT_INPUT
           return {
             tokenIn: context.parsedFormValues.tokenIn,
             tokenOut: context.parsedFormValues.tokenOut,
@@ -961,16 +964,16 @@ export const swapUIMachine = setup({
             userAddress: event.params.userAddress,
             userChainType: event.params.userChainType,
             nearClient: event.params.nearClient,
-            previousOppositeAmount:
-              context.quote && context.quote.tag === "ok"
-                ? {
-                    amount:
-                      context.quote.value.tokenDeltas.find(
-                        ([, delta]) => delta > 0n
-                      )?.[1] ?? 0n,
-                    decimals: context.parsedFormValues.tokenOut.decimals,
-                  }
-                : undefined,
+            previousOppositeAmount: {
+              amount: BigInt(
+                isExactInput
+                  ? context.quote.value.tokenDeltas[1][1]
+                  : -context.quote.value.tokenDeltas[0][1]
+              ),
+              decimals: isExactInput
+                ? context.parsedFormValues.tokenOut.decimals
+                : context.parsedFormValues.tokenIn.decimals,
+            },
             parentRef: self,
           }
         },

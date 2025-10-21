@@ -1,4 +1,5 @@
 "use client"
+import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import * as AlertDialog from "@radix-ui/react-alert-dialog"
 import { ArrowDownIcon } from "@radix-ui/react-icons"
 import { Button, AlertDialog as themes_AlertDialog } from "@radix-ui/themes"
@@ -12,10 +13,12 @@ type Props = {
   tokenIn: TokenInfo
   tokenOut: TokenInfo
   amountIn: { amount: bigint; decimals: number }
+  amountOut: { amount: bigint; decimals: number }
   newOppositeAmount: { amount: bigint; decimals: number }
-  previousOppositeAmount?: { amount: bigint; decimals: number }
+  previousOppositeAmount: { amount: bigint; decimals: number }
   onConfirm: () => void
   onCancel: () => void
+  swapType: QuoteRequest.swapType
 }
 
 export function PriceChangeDialog({
@@ -23,10 +26,12 @@ export function PriceChangeDialog({
   tokenIn,
   tokenOut,
   amountIn,
+  amountOut,
   newOppositeAmount,
   previousOppositeAmount,
   onConfirm,
   onCancel,
+  swapType,
 }: Props) {
   return (
     <AlertDialog.Root open={open}>
@@ -40,74 +45,25 @@ export function PriceChangeDialog({
 
         <div className="relative mt-5">
           <div className="grid grid-rows-2">
-            <div className="flex items-center justify-between border border-gray-4 p-6 rounded-tl-lg rounded-tr-lg">
-              <div className="flex flex-col gap-0.5">
-                <div className="text-xl font-medium">
-                  {formatTokenValue(amountIn.amount, amountIn.decimals, {
-                    fractionDigits: amountIn.decimals,
-                  })}
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                {tokenIn.symbol}
-                {tokenIn.icon && (
-                  <AssetComboIcon
-                    icon={tokenIn.icon as string}
-                    name={
-                      (tokenIn.name as string | undefined) ?? tokenIn.symbol
-                    }
-                    chainName={
-                      isBaseToken(tokenIn) ? tokenIn.originChainName : undefined
-                    }
-                  />
-                )}
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between border border-gray-4 p-6 rounded-b-lg rounded-br-lg border-t-0">
-              <div className="flex flex-col gap-1 font-medium">
-                {previousOppositeAmount ? (
-                  <div className="text-gray-10">
-                    <span className="line-through">
-                      {formatTokenValue(
-                        previousOppositeAmount.amount,
-                        previousOppositeAmount.decimals,
-                        {
-                          fractionDigits: previousOppositeAmount.decimals,
-                        }
-                      )}
-                    </span>{" "}
-                    (old)
-                  </div>
-                ) : null}
-                <div>
-                  {formatTokenValue(
-                    newOppositeAmount.amount,
-                    newOppositeAmount.decimals,
-                    {
-                      fractionDigits: newOppositeAmount.decimals,
-                    }
-                  )}{" "}
-                  (new)
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                {tokenOut.symbol}
-                {tokenOut.icon && (
-                  <AssetComboIcon
-                    icon={tokenOut.icon as string}
-                    name={
-                      (tokenOut.name as string | undefined) ?? tokenOut.symbol
-                    }
-                    chainName={
-                      isBaseToken(tokenOut)
-                        ? tokenOut.originChainName
-                        : undefined
-                    }
-                  />
-                )}
-              </div>
-            </div>
+            {swapType === QuoteRequest.swapType.EXACT_INPUT ? (
+              <>
+                <ActualAmountBlock amount={amountIn} token={tokenIn} />
+                <ChangedAmounts
+                  newOppositeAmount={newOppositeAmount}
+                  previousOppositeAmount={previousOppositeAmount}
+                  token={tokenOut}
+                />
+              </>
+            ) : (
+              <>
+                <ChangedAmounts
+                  newOppositeAmount={newOppositeAmount}
+                  previousOppositeAmount={previousOppositeAmount}
+                  token={tokenIn}
+                />
+                <ActualAmountBlock amount={amountOut} token={tokenOut} />
+              </>
+            )}
           </div>
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10">
             <div className="flex justify-center items-center w-[40px] h-[40px] rounded-md bg-gray-1 shadow-switch-token dark:shadow-switch-token-dark">
@@ -136,5 +92,86 @@ export function PriceChangeDialog({
         </div>
       </themes_AlertDialog.Content>
     </AlertDialog.Root>
+  )
+}
+
+const ActualAmountBlock = ({
+  amount,
+  token,
+}: {
+  amount: { amount: bigint; decimals: number }
+  token: TokenInfo
+}) => {
+  return (
+    <div className="flex items-center justify-between border border-gray-4 p-6 rounded-tl-lg rounded-tr-lg">
+      <div className="flex flex-col gap-0.5">
+        <div className="text-xl font-medium">
+          {formatTokenValue(amount.amount, amount.decimals, {
+            fractionDigits: amount.decimals,
+          })}
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        {token.symbol}
+        {token.icon && (
+          <AssetComboIcon
+            icon={token.icon as string}
+            name={(token.name as string | undefined) ?? token.symbol}
+            chainName={isBaseToken(token) ? token.originChainName : undefined}
+          />
+        )}
+      </div>
+    </div>
+  )
+}
+
+const ChangedAmounts = ({
+  newOppositeAmount,
+  previousOppositeAmount,
+  token,
+}: {
+  newOppositeAmount: { amount: bigint; decimals: number }
+  previousOppositeAmount: { amount: bigint; decimals: number }
+  token: TokenInfo
+}) => {
+  return (
+    <div className="flex items-center justify-between border border-gray-4 p-6 rounded-b-lg rounded-br-lg border-t-0">
+      <div className="flex flex-col gap-1 font-medium">
+        {previousOppositeAmount ? (
+          <div className="text-gray-10">
+            <span className="line-through">
+              {formatTokenValue(
+                previousOppositeAmount.amount,
+                previousOppositeAmount.decimals,
+                {
+                  fractionDigits: previousOppositeAmount.decimals,
+                }
+              )}
+            </span>{" "}
+            (old)
+          </div>
+        ) : null}
+        <div>
+          {formatTokenValue(
+            newOppositeAmount.amount,
+            newOppositeAmount.decimals,
+            {
+              fractionDigits: newOppositeAmount.decimals,
+            }
+          )}{" "}
+          (new)
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        {token.symbol}
+        {token.icon && (
+          <AssetComboIcon
+            icon={token.icon as string}
+            name={(token.name as string | undefined) ?? token.symbol}
+            chainName={isBaseToken(token) ? token.originChainName : undefined}
+          />
+        )}
+      </div>
+    </div>
   )
 }

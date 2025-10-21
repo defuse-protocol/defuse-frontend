@@ -87,7 +87,7 @@ type Input = {
   nearClient: providers.Provider
   amountIn: { amount: bigint; decimals: number }
   amountOut: { amount: bigint; decimals: number }
-  previousOppositeAmount?: { amount: bigint; decimals: number }
+  previousOppositeAmount: { amount: bigint; decimals: number }
   parentRef?: {
     send: (
       event:
@@ -96,7 +96,7 @@ type Input = {
             type: "PRICE_CHANGE_CONFIRMATION_REQUEST"
             params: {
               newOppositeAmount: { amount: bigint; decimals: number }
-              previousOppositeAmount?: { amount: bigint; decimals: number }
+              previousOppositeAmount: { amount: bigint; decimals: number }
             }
           }
     ) => void
@@ -277,7 +277,7 @@ export const swapIntent1csMachine = setup({
         context.quote1csResult == null ||
         !("ok" in context.quote1csResult) ||
         context.quote1csResult.ok.quote.amountOut == null ||
-        prev == null
+        context.quote1csResult.ok.quote.amountIn == null
       ) {
         return false
       }
