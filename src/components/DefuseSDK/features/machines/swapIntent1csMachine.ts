@@ -299,14 +299,14 @@ export const swapIntent1csMachine = setup({
       ) {
         return false
       }
-      const isExactIn =
+      const isExactInput =
         context.input.swapType === QuoteRequest.swapType.EXACT_INPUT
       const amount = BigInt(
-        isExactIn
+        isExactInput
           ? context.quote1csResult.ok.quote.amountOut
           : context.quote1csResult.ok.quote.amountIn
       )
-      return isExactIn ? amount < prev.amount : amount > prev.amount
+      return isExactInput ? amount < prev.amount : amount > prev.amount
     },
   },
 }).createMachine({
@@ -464,11 +464,11 @@ export const swapIntent1csMachine = setup({
     AwaitingPriceChangeConfirmation: {
       entry: ({ context }) => {
         if (context.quote1csResult && "ok" in context.quote1csResult) {
-          const isExactIn =
+          const isExactInput =
             context.input.swapType === QuoteRequest.swapType.EXACT_INPUT
           let newOppositeAmount = ""
           let oppositeDecimals = 0
-          if (isExactIn) {
+          if (isExactInput) {
             newOppositeAmount = context.quote1csResult.ok.quote.amountOut
             oppositeDecimals = context.input.tokenOut.decimals
           } else {

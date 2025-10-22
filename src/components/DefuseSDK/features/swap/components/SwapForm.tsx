@@ -163,19 +163,17 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
       const { tokenIn, tokenOut, swapType } =
         swapUIActorRef.getSnapshot().context.formValues
       const { amountIn, amountOut } = getValues()
+      const isExactInput = swapType === QuoteRequest.swapType.EXACT_INPUT
       switch (fieldName) {
         case SWAP_TOKEN_FLAGS.IN: {
-          const isExactInputSwap =
-            swapType === QuoteRequest.swapType.EXACT_INPUT
-
           let newAmountIn = ""
           let newAmountOut = ""
           let valueToReset: "amountIn" | "amountOut" = "amountOut"
 
-          if (isExactInputSwap) {
+          if (isExactInput) {
             newAmountIn = amountIn
           } else {
-            // If we change TOKEN IN but last touched input was AMOUNT OUT , we SHOULD NOT trigger and EXACT IN quote and keep with EXACT OUT quote
+            // If we change TOKEN IN but last touched input was AMOUNT OUT and so current swap type is EXACT_OUTPUT , we SHOULD NOT trigger and EXACT IN quote and keep with EXACT OUT quote
             newAmountOut = amountOut
             valueToReset = "amountIn"
           }
@@ -205,17 +203,15 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
         }
         case SWAP_TOKEN_FLAGS.OUT: {
           if (is1cs) {
-            const isExactOuputSwap =
-              swapType === QuoteRequest.swapType.EXACT_OUTPUT
             let newAmountIn = ""
             let newAmountOut = ""
             let valueToReset: "amountIn" | "amountOut" = "amountIn"
-            if (isExactOuputSwap) {
-              newAmountOut = amountOut
-            } else {
-              // If we change TOKEN OUT but last touched input was AMOUNT IN , we SHOULD NOT trigger and EXACT OUT quote and keep with EXACT IN quote
+            if (isExactInput) {
+              // If we change TOKEN OUT but last touched input was AMOUNT IN and so current swap type is EXACT_INPUT, we SHOULD NOT trigger and EXACT OUT quote and keep with EXACT IN quote
               newAmountIn = amountIn
               valueToReset = "amountOut"
+            } else {
+              newAmountOut = amountOut
             }
             if (getTokenId(tokenIn) === getTokenId(token)) {
               // Don't need to switch amounts, when token selected from dialog
@@ -407,7 +403,6 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                         tokenIn,
                         tokenOut,
                         swapType: QuoteRequest.swapType.EXACT_INPUT,
-
                         amountIn: e.target.value,
                         amountOut: "",
                       },
@@ -635,37 +630,35 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
         </Box>
       )}
 
-      {snapshot.context.priceChangeDialog &&
-        snapshot.context.formValues.swapType !== null && (
-          <PriceChangeDialog
-            open={true}
-            tokenIn={tokenIn}
-            tokenOut={tokenOut}
-            amountIn={{
-              amount: snapshot.context.parsedFormValues.amountIn?.amount ?? 0n,
-              decimals:
-                snapshot.context.parsedFormValues.amountIn?.decimals ?? 0,
-            }}
-            amountOut={{
-              amount: snapshot.context.parsedFormValues.amountOut?.amount ?? 0n,
-              decimals:
-                snapshot.context.parsedFormValues.amountOut?.decimals ?? 0,
-            }}
-            previousOppositeAmount={
-              snapshot.context.priceChangeDialog.previousOppositeAmount
-            }
-            newOppositeAmount={
-              snapshot.context.priceChangeDialog.pendingNewOppositeAmount
-            }
-            swapType={snapshot.context.formValues.swapType}
-            onConfirm={() =>
-              swapUIActorRef.send({ type: "PRICE_CHANGE_CONFIRMED" })
-            }
-            onCancel={() =>
-              swapUIActorRef.send({ type: "PRICE_CHANGE_CANCELLED" })
-            }
-          />
-        )}
+      {snapshot.context.priceChangeDialog && (
+        <PriceChangeDialog
+          open={true}
+          tokenIn={tokenIn}
+          tokenOut={tokenOut}
+          amountIn={{
+            amount: snapshot.context.parsedFormValues.amountIn?.amount ?? 0n,
+            decimals: snapshot.context.parsedFormValues.amountIn?.decimals ?? 0,
+          }}
+          amountOut={{
+            amount: snapshot.context.parsedFormValues.amountOut?.amount ?? 0n,
+            decimals:
+              snapshot.context.parsedFormValues.amountOut?.decimals ?? 0,
+          }}
+          previousOppositeAmount={
+            snapshot.context.priceChangeDialog.previousOppositeAmount
+          }
+          newOppositeAmount={
+            snapshot.context.priceChangeDialog.pendingNewOppositeAmount
+          }
+          swapType={snapshot.context.formValues.swapType}
+          onConfirm={() =>
+            swapUIActorRef.send({ type: "PRICE_CHANGE_CONFIRMED" })
+          }
+          onCancel={() =>
+            swapUIActorRef.send({ type: "PRICE_CHANGE_CANCELLED" })
+          }
+        />
+      )}
     </div>
   )
 }

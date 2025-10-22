@@ -89,9 +89,9 @@ export function SwapUIMachineProvider({
         actions: {
           updateUIAmount: ({ context }) => {
             const quote = context.quote
-            const exactOutQuote =
-              context.formValues.swapType === QuoteRequest.swapType.EXACT_OUTPUT
-            const fieldNameToUpdate = exactOutQuote ? "amountIn" : "amountOut"
+            const isExactInput =
+              context.formValues.swapType === QuoteRequest.swapType.EXACT_INPUT
+            const fieldNameToUpdate = isExactInput ? "amountOut" : "amountIn"
             if (quote === null || quote.tag === "err") {
               setValue(
                 fieldNameToUpdate,
@@ -100,6 +100,7 @@ export function SwapUIMachineProvider({
               )
               return
             }
+            // Extra protection from setting anything when both form values are empty
             if (
               context.formValues.amountIn === "" &&
               context.formValues.amountOut === ""

@@ -69,7 +69,7 @@ export type Context = {
     tokenOut: TokenInfo
     amountIn: string
     amountOut: string
-    swapType: QuoteRequest.swapType | null
+    swapType: QuoteRequest.swapType
   }
   parsedFormValues: {
     tokenIn: BaseTokenInfo
@@ -300,9 +300,9 @@ export const swapUIMachine = setup({
     updateFormValuesWithQuoteData: assign({
       formValues: ({ context }) => {
         const quote = context.quote
-        const exactOutQuote =
-          context.formValues.swapType === QuoteRequest.swapType.EXACT_OUTPUT
-        const fieldNameToUpdate = exactOutQuote ? "amountIn" : "amountOut"
+        const isExactInput =
+          context.formValues.swapType === QuoteRequest.swapType.EXACT_INPUT
+        const fieldNameToUpdate = isExactInput ? "amountOut" : "amountIn"
         if (quote === null || quote.tag === "err") {
           return {
             ...context.formValues,
@@ -313,9 +313,9 @@ export const swapUIMachine = setup({
         }
         const totalAmount = computeTotalDeltaDifferentDecimals(
           [
-            exactOutQuote
-              ? context.parsedFormValues.tokenIn
-              : context.parsedFormValues.tokenOut,
+            isExactInput
+              ? context.parsedFormValues.tokenOut
+              : context.parsedFormValues.tokenIn,
           ],
           quote.value.tokenDeltas
         )
@@ -425,7 +425,6 @@ export const swapUIMachine = setup({
     sendToBackground1csQuoterRefNewQuoteInput: sendTo(
       "background1csQuoterRef",
       ({ context }): Background1csQuoterEvents => {
-        assert(context.formValues.swapType !== null, "swap type not set")
         const amount =
           context.formValues.swapType === QuoteRequest.swapType.EXACT_INPUT
             ? context.parsedFormValues.amountIn
@@ -603,7 +602,6 @@ export const swapUIMachine = setup({
     },
     isFormValidAnd1cs: ({ context }) => {
       if (context.is1cs === false) return false
-      if (context.formValues.swapType === null) return false
       const amount =
         context.formValues.swapType === QuoteRequest.swapType.EXACT_INPUT
           ? context.parsedFormValues.amountIn
@@ -626,7 +624,7 @@ export const swapUIMachine = setup({
       tokenOut: input.tokenOut,
       amountIn: "",
       amountOut: "",
-      swapType: null,
+      swapType: QuoteRequest.swapType.EXACT_INPUT,
     },
     parsedFormValues: {
       tokenIn: getAnyBaseTokenInfo(input.tokenIn),
@@ -948,7 +946,6 @@ export const swapUIMachine = setup({
               context.parsedFormValues.amountOut != null &&
               context.parsedFormValues.amountOut.amount > 0n &&
               context.is1cs &&
-              context.formValues.swapType !== null &&
               context.quote &&
               context.quote.tag === "ok",
             "Invalid input for submitting_1cs"
