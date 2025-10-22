@@ -11,3 +11,5 @@ CREATE TRIGGER webauthn_credentials_set_updated_at
     BEFORE UPDATE ON webauthn_credentials
     FOR EACH ROW
     EXECUTE FUNCTION trigger_set_timestamp();
+
+ALTER TABLE webauthn_credentials ENABLE ROW LEVEL SECURITY;
