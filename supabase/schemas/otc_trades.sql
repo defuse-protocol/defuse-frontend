@@ -12,3 +12,5 @@ CREATE TRIGGER otc_trades_set_updated_at
     BEFORE UPDATE ON otc_trades
     FOR EACH ROW
     EXECUTE FUNCTION trigger_set_timestamp();
+
+ALTER TABLE otc_trades ENABLE ROW LEVEL SECURITY;
