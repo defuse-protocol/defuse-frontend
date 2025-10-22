@@ -223,12 +223,10 @@ export const swapUIMachine = setup({
             amountOut: string
           }>
         }
-      ) => {
-        return {
-          ...context.formValues,
-          ...data,
-        }
-      },
+      ) => ({
+        ...context.formValues,
+        ...data,
+      }),
     }),
     resetFormValueAmounts: assign({
       formValues: ({ context }) => {
