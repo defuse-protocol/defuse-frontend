@@ -782,6 +782,7 @@ export const swapUIMachine = setup({
           actions: [
             "process1csQuote",
             "updateFormValuesWithQuoteData",
+            "parseFormValues",
             "updateUIAmount",
           ],
         },
@@ -825,6 +826,7 @@ export const swapUIMachine = setup({
               actions: [
                 "process1csQuote",
                 "updateFormValuesWithQuoteData",
+                "parseFormValues",
                 "updateUIAmount",
               ],
             },
