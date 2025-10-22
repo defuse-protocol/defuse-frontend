@@ -466,19 +466,22 @@ export const swapIntent1csMachine = setup({
         if (context.quote1csResult && "ok" in context.quote1csResult) {
           const isExactIn =
             context.input.swapType === QuoteRequest.swapType.EXACT_INPUT
-          const amount = BigInt(
-            isExactIn
-              ? context.quote1csResult.ok.quote.amountOut
-              : context.quote1csResult.ok.quote.amountIn
-          )
+          let newOppositeAmount = ""
+          let oppositeDecimals = 0
+          if (isExactIn) {
+            newOppositeAmount = context.quote1csResult.ok.quote.amountOut
+            oppositeDecimals = context.input.tokenOut.decimals
+          } else {
+            newOppositeAmount = context.quote1csResult.ok.quote.amountIn
+            oppositeDecimals = context.input.tokenIn.decimals
+          }
+
           context.input.parentRef?.send({
             type: "PRICE_CHANGE_CONFIRMATION_REQUEST",
             params: {
               newOppositeAmount: {
-                amount,
-                decimals: isExactIn
-                  ? context.input.tokenOut.decimals
-                  : context.input.tokenIn.decimals,
+                amount: BigInt(newOppositeAmount),
+                decimals: oppositeDecimals,
               },
               previousOppositeAmount: context.input.previousOppositeAmount,
             },
