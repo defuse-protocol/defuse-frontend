@@ -70,6 +70,7 @@ describe("depositUIMachine on login/logout", () => {
       input: {
         tokenList: [],
         token: mockToken,
+        is1cs: true,
       },
     })
     actor.start()
@@ -152,6 +153,7 @@ describe("depositUIMachine on editing", () => {
       input: {
         tokenList: [],
         token: mockToken,
+        is1cs: true,
       },
     })
     actor.start()
