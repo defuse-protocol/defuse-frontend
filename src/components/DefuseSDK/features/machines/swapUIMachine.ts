@@ -956,18 +956,18 @@ export const swapUIMachine = setup({
             | ActorRefFrom<typeof depositedBalanceMachine>
             | undefined = snapshot.children.depositedBalanceRef
           const balances = balancesSelector(depositedBalanceRef?.getSnapshot())
-
+          const amountInTokenBalance =
+            balances[context.parsedFormValues.tokenIn.defuseAssetId]
           assert(
-            context.parsedFormValues.amountIn != null,
-            "amountIn is not set"
+            amountInTokenBalance != null,
+            "amountInTokenBalance is invalid"
           )
           return {
             tokenIn: context.parsedFormValues.tokenIn,
             tokenOut: context.parsedFormValues.tokenOut,
             amountIn: context.parsedFormValues.amountIn,
             amountOut: context.parsedFormValues.amountOut,
-            amountInTokenBalance:
-              balances[context.parsedFormValues.tokenIn.defuseAssetId],
+            amountInTokenBalance,
             swapType: context.formValues.swapType,
             slippageBasisPoints: context.slippageBasisPoints,
             defuseUserId: authIdentity.authHandleToIntentsUserId(
