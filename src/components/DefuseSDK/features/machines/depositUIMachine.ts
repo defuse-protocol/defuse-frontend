@@ -356,7 +356,7 @@ export const depositUIMachine = setup({
             id: `${ONE_CLICK_PREFIX}${depositAddress}`,
             input: {
               parentRef: self,
-              intentHash: output.value.txHash,
+              intentHash: "null", // TODO: since we don't have signatureData to publish intent and get intentHash so optionaly we might tyry get it from quoute if this is possible
               depositAddress: depositAddress,
               tokenIn: derivedToken,
               tokenOut: derivedToken,
