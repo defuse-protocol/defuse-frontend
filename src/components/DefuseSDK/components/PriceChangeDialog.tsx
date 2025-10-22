@@ -44,7 +44,7 @@ export function PriceChangeDialog({
         </AlertDialog.Description>
 
         <div className="relative mt-5">
-          <div className="grid grid-rows-2">
+          <div className="grid grid-rows-2 border border-gray-4 rounded-lg">
             {swapType === QuoteRequest.swapType.EXACT_INPUT ? (
               <>
                 <ActualAmountBlock amount={amountIn} token={tokenIn} />
@@ -70,6 +70,7 @@ export function PriceChangeDialog({
               <ArrowDownIcon width={18} height={18} />
             </div>
           </div>
+          <div className="absolute left-0 right-0 top-1/2 h-[1px] bg-gray-4 w-full -translate-y-1/2 pointer-events-none" />
         </div>
 
         <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
@@ -103,7 +104,7 @@ const ActualAmountBlock = ({
   token: TokenInfo
 }) => {
   return (
-    <div className="flex items-center justify-between border border-gray-4 p-6 rounded-tl-lg rounded-tr-lg">
+    <div className="flex items-center justify-between p-6">
       <div className="flex flex-col gap-0.5">
         <div className="text-xl font-medium">
           {formatTokenValue(amount.amount, amount.decimals, {
@@ -135,7 +136,7 @@ const ChangedAmounts = ({
   token: TokenInfo
 }) => {
   return (
-    <div className="flex items-center justify-between border border-gray-4 p-6 rounded-b-lg rounded-br-lg border-t-0">
+    <div className="flex items-center justify-between p-6">
       <div className="flex flex-col gap-1 font-medium">
         {previousOppositeAmount ? (
           <div className="text-gray-10">
