@@ -12,6 +12,7 @@ import {
 } from "../../../../components/Tooltip"
 import type { BaseTokenInfo, TokenDeployment } from "../../../../types/base"
 import { DepositMode } from "../../../machines/depositFormReducer"
+import { DepositSwitchToSimpleMode } from "../DepositSwitchToSimpleMode"
 import { DepositWarning, type DepositWarningOutput } from "../DepositWarning"
 import {
   renderDepositHint,
@@ -173,7 +174,13 @@ export function PassiveDeposit({
       </div>
       {renderDepositHint(network, token, tokenDeployment)}
 
-      <DepositWarning depositWarning={depositWarning} />
+      {depositWarning != null && (
+        <div className="mt-1.5">
+          <DepositWarning depositWarning={depositWarning} />
+        </div>
+      )}
+      {depositWarning?.tag === "err" &&
+        depositMode === DepositMode.ONE_CLICK && <DepositSwitchToSimpleMode />}
     </div>
   )
 }

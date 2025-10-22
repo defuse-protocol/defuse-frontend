@@ -1,6 +1,7 @@
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import type { SupportedChainName } from "@src/components/DefuseSDK/types/base"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
+import { logger } from "@src/utils/logger"
 import { and, assertEvent, assign, fromPromise, setup } from "xstate"
 import { DepositMode } from "./depositFormReducer"
 
@@ -147,7 +148,15 @@ export const depositGenerateAddressMachine = setup({
         target: ".generatingAddress",
         guard: "isInputSufficient",
       },
-      ".completed",
+      {
+        actions: ({ event }) => {
+          logger.error(
+            "Invalid input for REQUEST_GENERATE_ADDRESS event",
+            event
+          )
+        },
+        target: ".idle",
+      },
     ],
     REQUEST_CLEAR_ADDRESS: [
       {

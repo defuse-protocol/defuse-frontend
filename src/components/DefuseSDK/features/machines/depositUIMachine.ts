@@ -60,6 +60,7 @@ export type Context = {
   depositEstimationRef: ActorRefFrom<typeof depositEstimationMachine>
   depositOutput: DepositOutput | null
   intentRefs: ActorRefFrom<typeof oneClickStatusMachine>[]
+  is1cs: boolean
 }
 
 export const ONE_CLICK_PREFIX = "oneclick-"
@@ -69,6 +70,7 @@ export const depositUIMachine = setup({
     input: {} as {
       tokenList: TokenInfo[]
       token: TokenInfo
+      is1cs: boolean
     },
     context: {} as Context,
     events: {} as
@@ -292,13 +294,8 @@ export const depositUIMachine = setup({
     sendToBackground1csQuoterRefNewQuoteInput: sendTo(
       "background1csQuoterRef",
       ({ context }: { context: Context }): Background1csQuoterEvents => {
-        const {
-          token,
-          tokenDeployment,
-          derivedToken,
-          depositMode,
-          minimal1csAmount,
-        } = context.depositFormRef.getSnapshot().context
+        const { token, tokenDeployment, derivedToken, depositMode } =
+          context.depositFormRef.getSnapshot().context
         const { blockchain } = context.depositFormRef.getSnapshot().context
         const { userAddress, userChainType } = context
 
@@ -309,8 +306,7 @@ export const depositUIMachine = setup({
           userChainType == null ||
           token == null ||
           blockchain == null ||
-          depositMode === DepositMode.SIMPLE ||
-          minimal1csAmount == null
+          depositMode === DepositMode.SIMPLE
         ) {
           return { type: "PAUSE" }
         }
@@ -463,7 +459,7 @@ export const depositUIMachine = setup({
       }),
       depositFormRef: spawn("depositFormActor", {
         id: "depositFormRef",
-        input: { parentRef: self, token: input.token },
+        input: { parentRef: self, token: input.token, is1cs: input.is1cs },
       }),
       depositGenerateAddressRef: spawn("depositGenerateAddressActor", {
         id: "depositGenerateAddressRef",
@@ -482,6 +478,7 @@ export const depositUIMachine = setup({
         input: { parentRef: self },
       }),
       intentRefs: [],
+      is1cs: input.is1cs,
     }
   },
 

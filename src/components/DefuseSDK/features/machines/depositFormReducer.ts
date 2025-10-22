@@ -16,7 +16,6 @@ import type {
 } from "../../types/base"
 import type { TokenInfo } from "../../types/base"
 import { isBaseToken } from "../../utils"
-import { getMinimalOneClickSwapTokenAmount } from "../../utils/getMinimalOneClickSwapTokenAmount"
 
 export type Fields = Array<Exclude<keyof State, "parentRef">>
 const fields: Fields = ["token", "blockchain", "parsedAmount", "amount"]
@@ -38,7 +37,6 @@ export type Events =
       type: "DEPOSIT_FORM.UPDATE_BLOCKCHAIN"
       params: {
         network: BlockchainEnum | null
-        is1cs: boolean
         tokensUsdPriceData: TokenUsdPriceData
       }
     }
@@ -67,7 +65,7 @@ export type State = {
   parsedAmount: bigint | null
   amount: string
   depositMode: DepositMode
-  minimal1csAmount: bigint | null
+  is1cs: boolean
 }
 
 export const depositFormReducer = fromTransition(
@@ -124,15 +122,9 @@ export const depositFormReducer = fromTransition(
           parsedAmount: null,
           amount: "",
           depositMode:
-            event.params.is1cs && !sameToken // TODO: remove this check once 1cs supports same-token swaps
+            state.is1cs && !sameToken // TODO: remove this check once 1cs supports same-token swaps
               ? DepositMode.ONE_CLICK
               : DepositMode.SIMPLE,
-          minimal1csAmount: event.params.is1cs
-            ? getMinimalOneClickSwapTokenAmount(
-                state.token,
-                event.params.tokensUsdPriceData
-              )
-            : null,
         }
         break
       }
@@ -183,7 +175,7 @@ export const depositFormReducer = fromTransition(
   ({
     input,
   }: {
-    input: { parentRef: ParentActor; token: TokenInfo }
+    input: { parentRef: ParentActor; token: TokenInfo; is1cs: boolean }
   }): State => {
     let blockchain: SupportedChainName | null = null
     let tokenDeployment: TokenDeployment | null = null
@@ -203,8 +195,8 @@ export const depositFormReducer = fromTransition(
       blockchain,
       parsedAmount: null,
       amount: "",
-      depositMode: DepositMode.SIMPLE,
-      minimal1csAmount: null,
+      depositMode: input.is1cs ? DepositMode.ONE_CLICK : DepositMode.SIMPLE,
+      is1cs: input.is1cs,
     }
   }
 )

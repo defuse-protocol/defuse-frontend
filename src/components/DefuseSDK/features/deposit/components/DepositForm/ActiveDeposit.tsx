@@ -19,6 +19,7 @@ import { isFungibleToken } from "../../../../utils/token"
 import { DepositMode } from "../../../machines/depositFormReducer"
 import type { depositUIMachine } from "../../../machines/depositUIMachine"
 import { DepositResult } from "../DepositResult"
+import { DepositSwitchToSimpleMode } from "../DepositSwitchToSimpleMode"
 import { DepositUIMachineContext } from "../DepositUIMachineProvider"
 import { DepositWarning } from "../DepositWarning"
 import { Intents } from "./Intents"
@@ -161,6 +162,8 @@ export function ActiveDeposit({
       )}
 
       <DepositWarning depositWarning={depositOutput || preparationOutput} />
+      {(depositOutput?.tag === "err" || preparationOutput?.tag === "err") &&
+        depositMode === DepositMode.ONE_CLICK && <DepositSwitchToSimpleMode />}
 
       <ButtonCustom
         size="lg"
