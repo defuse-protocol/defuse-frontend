@@ -175,6 +175,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
           if (isExactInputSwap) {
             newAmountIn = amountIn
           } else {
+            // If we change TOKEN IN but last touched input was AMOUNT OUT , we SHOULD NOT trigger and EXACT IN quote and keep with EXACT OUT quote
             newAmountOut = amountOut
             valueToReset = "amountIn"
           }
@@ -212,6 +213,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             if (isExactOuputSwap) {
               newAmountOut = amountOut
             } else {
+              // If we change TOKEN OUT but last touched input was AMOUNT IN , we SHOULD NOT trigger and EXACT OUT quote and keep with EXACT IN quote
               newAmountIn = amountIn
               valueToReset = "amountOut"
             }
@@ -239,6 +241,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
             setValue(valueToReset, "")
           } else {
+            // legacy flow for non 1cs
             if (getTokenId(tokenIn) === getTokenId(token)) {
               // Don't need to switch amounts, when token selected from dialog
               swapUIActorRef.send({
