@@ -81,6 +81,7 @@ export type PreparedDepositReturnType = {
 
 export type PreparedDepositErrorType = {
   reason:
+    | "ERR_PREPARING_DEPOSIT"
     | "ERR_GENERATING_ADDRESS"
     | "ERR_NEP141_STORAGE_CANNOT_FETCH"
     | "ERR_FETCH_BALANCE"
