@@ -63,7 +63,7 @@ type Context = {
             | "ERR_SIGNED_DIFFERENT_ACCOUNT"
             | "ERR_PUBKEY_EXCEPTION"
             | "ERR_CANNOT_PUBLISH_INTENT"
-            | "ERR_AMOUNT_IN_BALANCE_INSUFFICIENT_AFTER_NEW_QUOTE"
+            | "ERR_AMOUNT_IN_BALANCE_INSUFFICIENT_AFTER_NEW_1CS_QUOTE"
             | WalletErrorCode
             | PublicKeyVerifierErrorCodes
           error: Error | null
@@ -414,7 +414,8 @@ export const swapIntent1csMachine = setup({
             type: "setError",
             params: () => {
               return {
-                reason: "ERR_AMOUNT_IN_BALANCE_INSUFFICIENT_AFTER_NEW_QUOTE",
+                reason:
+                  "ERR_AMOUNT_IN_BALANCE_INSUFFICIENT_AFTER_NEW_1CS_QUOTE",
                 error: new Error(
                   "1CS quote succeeded but new amount in exceeds user token in balance"
                 ),
