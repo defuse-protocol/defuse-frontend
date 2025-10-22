@@ -20,6 +20,7 @@ vi.mock("./depositUIMachine", async () => {
   }
 })
 
+// Using importOriginal provides automatic type inference and path updates
 vi.mock("../../services/depositService", async (importOriginal) => {
   const actual = await importOriginal()
   return {

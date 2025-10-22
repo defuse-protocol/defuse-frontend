@@ -15,7 +15,7 @@ const mockNEARToken = productionTokens.tokens.find(
   (token) => token.unifiedAssetId === "near"
 ) as TokenInfo
 
-describe("depositFormReducer", () => {
+describe("depositFormReducer is 1cs true", () => {
   let actor: ReturnType<typeof createActor>
   beforeEach(() => {
     actor = createActor(depositFormReducer, {
@@ -24,6 +24,7 @@ describe("depositFormReducer", () => {
           send: vi.fn(),
         } as unknown as ActorRef<Snapshot<unknown>, ParentEvents>,
         token: mockUSDCToken,
+        is1cs: true,
       },
     })
     actor.start()
@@ -39,13 +40,13 @@ describe("depositFormReducer", () => {
   })
 
   it("should be SIMPLE deposit mode on initial state", () => {
-    expect(actor.getSnapshot().context.depositMode).toBe(DepositMode.SIMPLE)
+    expect(actor.getSnapshot().context.depositMode).toBe(DepositMode.ONE_CLICK)
   })
 
   it("should be ONE_CLICK deposit mode if is1cs is true", () => {
     actor.send({
       type: "DEPOSIT_FORM.UPDATE_BLOCKCHAIN",
-      params: { network: "eth:8453", is1cs: true, tokensUsdPriceData: {} },
+      params: { network: "eth:8453", tokensUsdPriceData: {} },
     })
     expect(actor.getSnapshot().context.token).toBe(mockUSDCToken)
     expect(actor.getSnapshot().context.depositMode).toBe(DepositMode.ONE_CLICK)
@@ -54,30 +55,21 @@ describe("depositFormReducer", () => {
   it("should be SIMPLE deposit mode if is1cs is true and same-token is swapped", () => {
     actor.send({
       type: "DEPOSIT_FORM.UPDATE_BLOCKCHAIN",
-      params: { network: "eth:1", is1cs: true },
+      params: { network: "eth:1" },
     })
-    expect(actor.getSnapshot().context.depositMode).toBe(DepositMode.SIMPLE)
-  })
-
-  it("should be SIMPLE deposit mode if is1cs is false", () => {
-    actor.send({
-      type: "DEPOSIT_FORM.UPDATE_BLOCKCHAIN",
-      params: { network: "eth:8453", is1cs: false },
-    })
-    expect(actor.getSnapshot().context.token).toBe(mockUSDCToken)
     expect(actor.getSnapshot().context.depositMode).toBe(DepositMode.SIMPLE)
   })
 
   it("should switch to ONE_CLICK deposit mode if swap token is different", () => {
     actor.send({
       type: "DEPOSIT_FORM.UPDATE_BLOCKCHAIN",
-      params: { network: "eth:1", is1cs: true },
+      params: { network: "eth:1" },
     })
     expect(actor.getSnapshot().context.depositMode).toBe(DepositMode.SIMPLE)
 
     actor.send({
       type: "DEPOSIT_FORM.UPDATE_BLOCKCHAIN",
-      params: { network: "eth:8453", is1cs: true },
+      params: { network: "eth:8453" },
     })
     expect(actor.getSnapshot().context.depositMode).toBe(DepositMode.ONE_CLICK)
   })
@@ -85,7 +77,7 @@ describe("depositFormReducer", () => {
   it("should reset network and amount if token is updated", () => {
     actor.send({
       type: "DEPOSIT_FORM.UPDATE_BLOCKCHAIN",
-      params: { network: "eth:1", is1cs: true },
+      params: { network: "eth:1" },
     })
     actor.send({
       type: "DEPOSIT_FORM.UPDATE_AMOUNT",
@@ -102,5 +94,30 @@ describe("depositFormReducer", () => {
     expect(actor.getSnapshot().context.blockchain).toBe(null)
     expect(actor.getSnapshot().context.amount).toBe("")
     expect(actor.getSnapshot().context.parsedAmount).toBe(null)
+  })
+})
+
+describe("depositFormReducer is 1cs false", () => {
+  let actor: ReturnType<typeof createActor>
+  beforeEach(() => {
+    actor = createActor(depositFormReducer, {
+      input: {
+        parentRef: {
+          send: vi.fn(),
+        } as unknown as ActorRef<Snapshot<unknown>, ParentEvents>,
+        token: mockUSDCToken,
+        is1cs: false,
+      },
+    })
+    actor.start()
+  })
+
+  it("should be SIMPLE deposit mode if is1cs is false", () => {
+    actor.send({
+      type: "DEPOSIT_FORM.UPDATE_BLOCKCHAIN",
+      params: { network: "eth:8453" },
+    })
+    expect(actor.getSnapshot().context.token).toBe(mockUSDCToken)
+    expect(actor.getSnapshot().context.depositMode).toBe(DepositMode.SIMPLE)
   })
 })
