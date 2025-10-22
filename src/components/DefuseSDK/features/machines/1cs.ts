@@ -66,8 +66,6 @@ const swapTypeSchema = z.enum(
   ]
 )
 
-export type SwapTypeSchema = z.infer<typeof swapTypeSchema>
-
 const getQuoteArgsSchema = z.object({
   dry: z.boolean(),
   slippageTolerance: z.number(),
@@ -80,7 +78,7 @@ const getQuoteArgsSchema = z.object({
   swapType: swapTypeSchema,
 })
 
-export type GetQuoteArgs = z.infer<typeof getQuoteArgsSchema>
+type GetQuoteArgs = z.infer<typeof getQuoteArgsSchema>
 
 export async function getQuote(
   args: GetQuoteArgs
