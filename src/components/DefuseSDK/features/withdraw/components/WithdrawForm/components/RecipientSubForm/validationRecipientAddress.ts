@@ -1,10 +1,13 @@
 import { type AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
 import { utils } from "@defuse-protocol/internal-utils"
-import { settings } from "@src/components/DefuseSDK/constants/settings"
+import { nearClient } from "@src/components/DefuseSDK/constants/nearClient"
 import { logger } from "@src/utils/logger"
 import { Err, Ok, type Result } from "@thames/monads"
-import { providers } from "near-api-js"
-import { TypedError } from "near-api-js/lib/providers"
+import {
+  FailoverRpcProvider,
+  type Provider,
+  TypedError,
+} from "near-api-js/lib/providers"
 import type { SupportedChainName } from "../../../../../../types/base"
 import { validateAddress } from "../../../../../../utils/validateAddress"
 import { isNearIntentsNetwork } from "../../utils"
@@ -143,11 +146,8 @@ async function checkNearAccountExists(
   recipient: string
 ): Promise<Result<boolean, ValidateNearExplicitAccountErrorType>> {
   try {
-    // Use pure client in order to detect specific errors (e.g. AccountDoesNotExist)
-    const nearClient = new providers.JsonRpcProvider({
-      url: settings.rpcUrls.near,
-    })
-    await nearClient.query({
+    const client = unwrapProvider(nearClient)
+    await client.query({
       request_type: "view_account",
       account_id: recipient,
       finality: "final",
@@ -164,4 +164,14 @@ async function checkNearAccountExists(
 
     return Err("NEAR_RPC_UNHANDLED_ERROR")
   }
+}
+
+function unwrapProvider(provider: Provider): Provider {
+  if (
+    provider instanceof FailoverRpcProvider &&
+    provider.providers.length > 0
+  ) {
+    return provider.providers[0]
+  }
+  return provider
 }
