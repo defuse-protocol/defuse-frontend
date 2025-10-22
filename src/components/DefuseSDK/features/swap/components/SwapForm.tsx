@@ -818,6 +818,11 @@ export function renderIntentCreationResult(
       content = "Failed to create transfer message. Please try again."
       break
 
+    case "ERR_AMOUNT_IN_BALANCE_INSUFFICIENT_AFTER_NEW_QUOTE":
+      content =
+        "Swap aborted: Insufficient token in balance for the updated quote. Please adjust the output amount and try again."
+      break
+
     default:
       status satisfies never
       content = `An error occurred. Please try again. ${status}`

@@ -948,11 +948,24 @@ export const swapUIMachine = setup({
           assert(context.user?.method != null, "user chain type is not set")
           const isExactInput =
             context.formValues.swapType === QuoteRequest.swapType.EXACT_INPUT
+          // However knows how to access the child's state, please update this
+          const snapshot = self.getSnapshot()
+          const depositedBalanceRef:
+            | ActorRefFrom<typeof depositedBalanceMachine>
+            | undefined = snapshot.children.depositedBalanceRef
+          const balances = balancesSelector(depositedBalanceRef?.getSnapshot())
+
+          assert(
+            context.parsedFormValues.amountIn != null,
+            "amountIn is not set"
+          )
           return {
             tokenIn: context.parsedFormValues.tokenIn,
             tokenOut: context.parsedFormValues.tokenOut,
             amountIn: context.parsedFormValues.amountIn,
             amountOut: context.parsedFormValues.amountOut,
+            amountInTokenBalance:
+              balances[context.parsedFormValues.tokenIn.defuseAssetId],
             swapType: context.formValues.swapType,
             slippageBasisPoints: context.slippageBasisPoints,
             defuseUserId: authIdentity.authHandleToIntentsUserId(

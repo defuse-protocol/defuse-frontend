@@ -63,6 +63,7 @@ type Context = {
             | "ERR_SIGNED_DIFFERENT_ACCOUNT"
             | "ERR_PUBKEY_EXCEPTION"
             | "ERR_CANNOT_PUBLISH_INTENT"
+            | "ERR_AMOUNT_IN_BALANCE_INSUFFICIENT_AFTER_NEW_QUOTE"
             | WalletErrorCode
             | PublicKeyVerifierErrorCodes
           error: Error | null
@@ -77,7 +78,7 @@ type Context = {
 type Input = {
   tokenIn: BaseTokenInfo
   tokenOut: BaseTokenInfo
-
+  amountInTokenBalance: bigint
   swapType: QuoteRequest.swapType
   slippageBasisPoints: number
   defuseUserId: string
@@ -271,6 +272,23 @@ export const swapIntent1csMachine = setup({
         context.quote1csResult.ok.quote.depositAddress != null
       )
     },
+    insufficientBalanceForExactOutQuote: ({ context }) => {
+      if (context.input.swapType === QuoteRequest.swapType.EXACT_INPUT)
+        return false
+
+      if (
+        context.quote1csResult == null ||
+        !("ok" in context.quote1csResult) ||
+        context.quote1csResult.ok.quote.amountIn == null
+      ) {
+        return false
+      }
+
+      return (
+        BigInt(context.quote1csResult.ok.quote.amountIn) >
+        context.input.amountInTokenBalance
+      )
+    },
     isWorseThanPrevious: ({ context }) => {
       const prev = context.input.previousOppositeAmount
       if (
@@ -387,6 +405,23 @@ export const swapIntent1csMachine = setup({
 
     ValidatingQuote: {
       always: [
+        {
+          target: "Error",
+          guard: {
+            type: "insufficientBalanceForExactOutQuote",
+          },
+          actions: {
+            type: "setError",
+            params: () => {
+              return {
+                reason: "ERR_AMOUNT_IN_BALANCE_INSUFFICIENT_AFTER_NEW_QUOTE",
+                error: new Error(
+                  "1CS quote succeeded but new amount in exceeds user token in balance"
+                ),
+              }
+            },
+          },
+        },
         {
           target: "AwaitingPriceChangeConfirmation",
           guard: {
