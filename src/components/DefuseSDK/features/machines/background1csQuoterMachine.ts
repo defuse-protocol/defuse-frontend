@@ -125,7 +125,7 @@ async function get1csQuote(
   const tokenOutAssetId = quoteInput.tokenOut.defuseAssetId
 
   try {
-    const payload = {
+    const result = await get1csQuoteApi({
       dry: true,
       slippageTolerance: Math.round(quoteInput.slippageBasisPoints / 100),
       originAsset: tokenInAssetId,
@@ -135,9 +135,7 @@ async function get1csQuote(
       userAddress: quoteInput.userAddress,
       authMethod: quoteInput.userChainType,
       swapType: quoteInput.swapType,
-    }
-
-    const result = await get1csQuoteApi(payload)
+    })
 
     onResult(result, tokenInAssetId, tokenOutAssetId)
   } catch {
