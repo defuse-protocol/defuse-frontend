@@ -138,20 +138,18 @@ const ChangedAmounts = ({
   return (
     <div className="flex items-center justify-between p-6">
       <div className="flex flex-col gap-1 font-medium">
-        {previousOppositeAmount ? (
-          <div className="text-gray-10">
-            <span className="line-through">
-              {formatTokenValue(
-                previousOppositeAmount.amount,
-                previousOppositeAmount.decimals,
-                {
-                  fractionDigits: previousOppositeAmount.decimals,
-                }
-              )}
-            </span>{" "}
-            (old)
-          </div>
-        ) : null}
+        <div className="text-gray-10">
+          <span className="line-through">
+            {formatTokenValue(
+              previousOppositeAmount.amount,
+              previousOppositeAmount.decimals,
+              {
+                fractionDigits: previousOppositeAmount.decimals,
+              }
+            )}
+          </span>{" "}
+          (old)
+        </div>
         <div>
           {formatTokenValue(
             newOppositeAmount.amount,
