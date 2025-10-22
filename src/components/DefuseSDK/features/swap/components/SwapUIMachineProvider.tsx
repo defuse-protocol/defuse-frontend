@@ -89,12 +89,15 @@ export function SwapUIMachineProvider({
         actions: {
           updateUIAmount: ({ context }) => {
             const quote = context.quote
-            if (quote == null) return
             const exactOutQuote =
               context.formValues.swapType === QuoteRequest.swapType.EXACT_OUTPUT
             const fieldNameToUpdate = exactOutQuote ? "amountIn" : "amountOut"
-            if (quote.tag === "err") {
-              setValue(fieldNameToUpdate, "-", { shouldValidate: false })
+            if (quote === null || quote.tag === "err") {
+              setValue(
+                fieldNameToUpdate,
+                context.formValues[fieldNameToUpdate],
+                { shouldValidate: false }
+              )
               return
             }
             if (

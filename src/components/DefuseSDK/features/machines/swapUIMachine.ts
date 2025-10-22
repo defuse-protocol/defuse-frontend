@@ -300,10 +300,17 @@ export const swapUIMachine = setup({
     updateFormValuesWithQuoteData: assign({
       formValues: ({ context }) => {
         const quote = context.quote
-        if (quote === null || quote.tag === "err") return context.formValues
         const exactOutQuote =
           context.formValues.swapType === QuoteRequest.swapType.EXACT_OUTPUT
         const fieldNameToUpdate = exactOutQuote ? "amountIn" : "amountOut"
+        if (quote === null || quote.tag === "err") {
+          return {
+            ...context.formValues,
+            ...{
+              [fieldNameToUpdate]: "",
+            },
+          }
+        }
         const totalAmount = computeTotalDeltaDifferentDecimals(
           [
             exactOutQuote
