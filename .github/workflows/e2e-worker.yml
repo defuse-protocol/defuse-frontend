@@ -1,10 +1,17 @@
 name: E2E UI automation tests
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
-  push:
-    branches: [main]
+  # Temporarily disabled automatic runs on PRs and pushes due to test instability
+  # Tests sometimes randomly fail in CI because the app seems like it's redirecting to the index page
+  # in the middle of test execution, causing test failures. Keeping only manual dispatch
+  # until the stability issues are resolved.
+  #
+  # When re-enabling these triggers, also uncomment the `if` condition below (line ~44)
+  # to prevent running on PRs from forks which don't have access to secrets.
+  # pull_request:
+  #   types: [opened, synchronize, reopened]
+  # push:
+  #   branches: [main]
   workflow_call:
     inputs:
       tag:
@@ -37,7 +44,7 @@ concurrency:
 jobs:
   e2e-test:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+    # if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
     timeout-minutes: 240
 
     env:
