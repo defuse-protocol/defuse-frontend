@@ -2,6 +2,7 @@ import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { getQuote as get1csQuoteApi } from "@src/components/DefuseSDK/features/machines/1cs"
 import { type ActorRef, type Snapshot, fromCallback } from "xstate"
 
+import type { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import { logger } from "@src/utils/logger"
 import type { BaseTokenInfo } from "../../types/base"
 
@@ -40,7 +41,7 @@ type EmittedEvents = {
             appFee: [string, bigint][]
           }
         }
-      | { err: string }
+      | { err: string; originalRequest?: QuoteRequest | undefined }
     tokenInAssetId: string
     tokenOutAssetId: string
   }
