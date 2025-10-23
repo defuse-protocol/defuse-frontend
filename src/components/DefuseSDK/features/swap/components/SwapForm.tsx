@@ -534,18 +534,6 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                     "!static",
                     tokenOutBalance == null && "invisible"
                   )}
-                  maxButtonSlot={
-                    <BlockMultiBalances.DisplayMaxButton
-                      balance={balanceAmountOut}
-                      disabled={true}
-                    />
-                  }
-                  halfButtonSlot={
-                    <BlockMultiBalances.DisplayHalfButton
-                      balance={balanceAmountOut}
-                      disabled={true}
-                    />
-                  }
                 />
               }
               priceSlot={
