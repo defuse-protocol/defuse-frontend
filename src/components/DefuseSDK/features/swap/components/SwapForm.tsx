@@ -816,7 +816,7 @@ export function renderIntentCreationResult(
 
     case "ERR_AMOUNT_IN_BALANCE_INSUFFICIENT_AFTER_NEW_1CS_QUOTE":
       content =
-        "Swap aborted: Insufficient token in balance for the updated quote. Please adjust the output amount and try again."
+        "Swap aborted: Insufficient token balance for the updated quote. Please try again."
       break
 
     default:
