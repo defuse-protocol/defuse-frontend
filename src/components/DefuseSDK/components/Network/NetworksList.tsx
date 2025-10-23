@@ -33,6 +33,7 @@ export const NetworkList = ({
       className={clsx("flex flex-col gap-2", {
         "opacity-50 pointer-events-none": disabled,
       })}
+      data-testid="network-list"
     >
       {Object.keys(networkOptions).map((network) => {
         const networkInfo = networkOptions[network]

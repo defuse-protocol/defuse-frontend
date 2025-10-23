@@ -9,7 +9,11 @@
       let pkgs = nixpkgs.legacyPackages.${system};
       in {
         devShells.default = pkgs.mkShell {
-          buildInputs = [ pkgs.udev pkgs.pkg-config pkgs.bun ];
+          buildInputs = [ pkgs.udev pkgs.pkg-config pkgs.bun pkgs.nodejs ];
+
+          shellHook = ''
+            export PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1
+          '';
         };
       });
 }

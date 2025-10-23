@@ -77,6 +77,7 @@ export function Swap1csCard({ oneClickStatusActorRef }: Swap1csCardProps) {
               size="1"
               weight="medium"
               color={statusInfo.color as "red" | "green" | undefined}
+              data-testid={status === "SUCCESS" ? "swap-success" : undefined}
             >
               {statusInfo.label}
             </Text>
