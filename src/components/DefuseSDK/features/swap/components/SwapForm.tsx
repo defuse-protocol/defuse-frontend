@@ -2,6 +2,7 @@ import { ArrowsDownUpIcon } from "@phosphor-icons/react"
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Box, Button, Callout } from "@radix-ui/themes"
 import { useTokensUsdPrices } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
+import { useTokensStore } from "@src/components/DefuseSDK/providers/TokensStoreProvider"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import {
   formatTokenValue,
@@ -82,6 +83,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
   const formValuesRef = useSelector(swapUIActorRef, formValuesSelector)
   const { tokenIn, tokenOut } = formValuesRef
+  const tokens = useTokensStore((state) => state.tokens)
 
   const {
     noLiquidity,
@@ -319,9 +321,11 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             tokenSlot={
               <SelectAssets
                 selected={tokenIn ?? undefined}
+                dataTestId="select-assets-input"
                 handleSelect={() =>
                   openModalSelectAssets(SWAP_TOKEN_FLAGS.IN, tokenIn)
                 }
+                tokens={tokens}
               />
             }
             balanceSlot={
@@ -370,6 +374,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               switchTokens()
             }}
             className="size-10 -my-3.5 rounded-[10px] bg-accent-1 flex items-center justify-center z-10"
+            data-testid="swap-form-switch-tokens-button"
           >
             <ArrowsDownUpIcon className="size-5" weight="bold" />
           </button>
@@ -396,10 +401,12 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               }
               tokenSlot={
                 <SelectAssets
+                  dataTestId="select-assets-output"
                   selected={tokenOut ?? undefined}
                   handleSelect={() =>
                     openModalSelectAssets(SWAP_TOKEN_FLAGS.OUT, tokenOut)
                   }
+                  tokens={tokens}
                 />
               }
               balanceSlot={

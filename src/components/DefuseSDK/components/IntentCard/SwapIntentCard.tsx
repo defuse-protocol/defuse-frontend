@@ -52,6 +52,9 @@ export function SwapIntentCard({ intentStatusActorRef }: SwapIntentCardProps) {
                   ? "red"
                   : undefined
               }
+              data-testid={
+                state.value === "success" ? "swap-success" : undefined
+              }
             >
               {renderStatusLabel(state.value)}
             </Text>

@@ -1,0 +1,167 @@
+name: E2E UI automation tests
+
+on:
+  # Temporarily disabled automatic runs on PRs and pushes due to test instability
+  # Tests sometimes randomly fail in CI because the app seems like it's redirecting to the index page
+  # in the middle of test execution, causing test failures. Keeping only manual dispatch
+  # until the stability issues are resolved.
+  #
+  # When re-enabling these triggers, also uncomment the `if` condition below (line ~44)
+  # to prevent running on PRs from forks which don't have access to secrets.
+  # pull_request:
+  #   types: [opened, synchronize, reopened]
+  # push:
+  #   branches: [main]
+  workflow_call:
+    inputs:
+      tag:
+        description: "Provide tag to run tests by"
+        required: true
+        type: string
+      base_url:
+        description: "Base URL for the application"
+        required: false
+        type: string
+    secrets:
+      MM_SEED_PHRASE:
+        required: false
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Provide tag to run tests by"
+        required: true
+        type: string
+        default: "@near-intents"
+      base_url:
+        description: "Base URL for the application"
+        required: false
+        type: string
+
+concurrency:
+  group: e2e-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e-test:
+    runs-on: ubuntu-latest
+    # if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+    timeout-minutes: 240
+
+    env:
+      MM_SEED_PHRASE: ${{ secrets.MM_SEED_PHRASE }}
+      # SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      EXTENSION_LOAD_TIMEOUT: 60000
+      CHROME_ARGS: "--no-sandbox --disable-dev-shm-usage"
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/Jod
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install linux deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+          fluxbox \
+          xvfb
+
+      - name: Run xvfb and fluxbox
+        run: |
+          Xvfb :0 -screen 0 2560x1440x24 -listen tcp -ac &
+          fluxbox -display :0.0 &
+        env:
+          DISPLAY: :0.0
+
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install Bun dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Install Playwright
+        run: bunx playwright install chromium
+      - name: Wait for Vercel Deployment
+        if: ${{ github.event_name == 'pull_request' || github.event_name == 'push' }}
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }}
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            COMMIT_SHA=${{ github.event.pull_request.head.sha }}
+          else
+            COMMIT_SHA=${{ github.sha }}
+          fi
+
+          # Wait for deployment to be ready
+          DEPLOYMENT_URL=""
+          MAX_ATTEMPTS=120  # 20 minutes max wait
+          ATTEMPT=0
+
+          while [ -z "$DEPLOYMENT_URL" ] && [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+            ATTEMPT=$((ATTEMPT + 1))
+            echo "Attempt $ATTEMPT/$MAX_ATTEMPTS: Checking for deployment..."
+
+            # Query Vercel API for READY deployments associated with this commit
+            RESPONSE=$(curl -s -G "https://api.vercel.com/v6/deployments" \
+              -H "Authorization: Bearer $VERCEL_TOKEN" \
+              --data-urlencode "teamId=$VERCEL_TEAM_ID" \
+              --data-urlencode "projectId=$VERCEL_PROJECT_ID" \
+              --data-urlencode "sha=$COMMIT_SHA" \
+              --data-urlencode "state=READY" \
+              --data-urlencode "limit=1")
+
+            DEPLOYMENT_URL=$(echo "$RESPONSE" | jq -r '.deployments[0].url // empty')
+
+            if [ -n "$DEPLOYMENT_URL" ]; then
+              echo "✅ Vercel deployment is ready: https://$DEPLOYMENT_URL"
+              echo "VERCEL_DEPLOYMENT_URL=https://$DEPLOYMENT_URL" >> $GITHUB_ENV
+              break
+            else
+              echo "⏳ Deployment not ready yet. Waiting 10 seconds..."
+              sleep 10
+            fi
+          done
+
+          if [ -z "$DEPLOYMENT_URL" ]; then
+            echo "❌ Timeout waiting for Vercel deployment after $MAX_ATTEMPTS attempts"
+            exit 1
+          fi
+
+      - name: Create Synpress cache
+        run: |
+          xvfb-run bun run cache-e2e-wallet
+
+      - name: Validate Base URL
+        run: |
+          if [ -z "$VERCEL_DEPLOYMENT_URL" ] && [ -z "${{ inputs.base_url }}" ]; then
+            echo "❌ No base URL available. Either:"
+            echo "1. Provide base_url input when triggering workflow"
+            echo "2. Ensure Vercel deployment is ready (for pull requests)"
+            exit 1
+          fi
+          echo "✅ Base URL validated"
+
+      - name: Run tests
+        run: |
+          xvfb-run bun run test-e2e-tag ${{ inputs.tag || '@near-intents' }}
+        env:
+          NEXT_PUBLIC_BASE_URL: ${{ env.VERCEL_DEPLOYMENT_URL || inputs.base_url }}
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ inputs.tag || '@near-intents' }}
+          path: my-report/
+          retention-days: 5

@@ -1,0 +1,5 @@
+export const NEAR_INTENTS_TAG = "@near-intents"
+export const NEAR_INTENTS_TAG_SWAP = "@near-intents-swapping"
+export const NEAR_INTENTS_TAG_OTC = "@near-intents-otc"
+export const NEAR_INTENTS_TAG_DEPOSIT = "@near-intents-deposit"
+export const NEAR_INTENTS_TAG_WITHDRAW = "@near-intents-withdraw"
