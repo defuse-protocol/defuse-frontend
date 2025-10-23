@@ -54,3 +54,4 @@ next-env.d.ts
 .cache-synpress
 playwright-report
 test-results
+.cursor
