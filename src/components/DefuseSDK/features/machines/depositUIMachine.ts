@@ -145,16 +145,14 @@ export const depositUIMachine = setup({
     oneClickStatusActor: oneClickStatusMachine,
   },
   actions: {
+    logError: (_, event: { error: unknown }) => {
+      logger.error(event.error)
+    },
     setDepositOutput: assign({
-      depositOutput: (_, params: DepositOutput) => {
-        if (params.tag === "err") {
-          logger.error(params)
-        }
-        return params
-      },
+      depositOutput: (_, params: DepositOutput) => params,
     }),
     setPreparationOutput: assign({
-      preparationOutput: (_, val: Context["preparationOutput"]) => val,
+      preparationOutput: (_, params: PreparationOutput) => params,
     }),
     resetPreparationOutput: assign({
       preparationOutput: null,
@@ -630,10 +628,8 @@ export const depositUIMachine = setup({
           ],
           invoke: {
             src: "prepareDepositActor",
-
             input: ({ context }) => {
               assert(context.userAddress, "userAddress is null")
-
               return {
                 userAddress: context.userAddress,
                 userWalletAddress: context.userWalletAddress,
@@ -644,28 +640,32 @@ export const depositUIMachine = setup({
                 depositEstimationRef: context.depositEstimationRef,
               }
             },
-
-            onError: {
-              target: "idle",
-              actions: {
-                type: "setPreparationOutput",
-                params: ({ event }) => ({
-                  tag: "err",
-                  value: {
-                    reason: "ERR_PREPARING_DEPOSIT",
-                    error: event.error,
-                  },
-                }),
-              },
-              reenter: true,
-            },
-
             onDone: {
               target: "idle",
               actions: {
                 type: "setPreparationOutput",
                 params: ({ event }) => event.output,
               },
+              reenter: true,
+            },
+            onError: {
+              target: "idle",
+              actions: [
+                {
+                  type: "setPreparationOutput",
+                  params: ({ event }) => ({
+                    tag: "err",
+                    value: {
+                      reason: "ERR_PREPARING_DEPOSIT",
+                      error: event.error,
+                    },
+                  }),
+                },
+                {
+                  type: "logError",
+                  params: ({ event }: { event: unknown }) => event,
+                },
+              ],
               reenter: true,
             },
           },
@@ -707,6 +707,16 @@ export const depositUIMachine = setup({
           ],
           reenter: true,
         },
+        onError: {
+          target: "editing",
+          actions: [
+            {
+              type: "logError",
+              params: ({ event }: { event: unknown }) => event,
+            },
+          ],
+          reenter: true,
+        },
       },
     },
     submittingEVMTx: {
@@ -737,6 +747,16 @@ export const depositUIMachine = setup({
             "clearUIDepositAmount",
             "requestBalanceRefresh",
             "resetPreparationOutput",
+          ],
+          reenter: true,
+        },
+        onError: {
+          target: "editing",
+          actions: [
+            {
+              type: "logError",
+              params: ({ event }: { event: unknown }) => event,
+            },
           ],
           reenter: true,
         },
@@ -774,6 +794,16 @@ export const depositUIMachine = setup({
           ],
           reenter: true,
         },
+        onError: {
+          target: "editing",
+          actions: [
+            {
+              type: "logError",
+              params: ({ event }: { event: unknown }) => event,
+            },
+          ],
+          reenter: true,
+        },
       },
     },
     submittingTurboTx: {
@@ -803,6 +833,16 @@ export const depositUIMachine = setup({
             "clearUIDepositAmount",
             "requestBalanceRefresh",
             "resetPreparationOutput",
+          ],
+          reenter: true,
+        },
+        onError: {
+          target: "editing",
+          actions: [
+            {
+              type: "logError",
+              params: ({ event }: { event: unknown }) => event,
+            },
           ],
           reenter: true,
         },
@@ -838,6 +878,16 @@ export const depositUIMachine = setup({
           ],
           reenter: true,
         },
+        onError: {
+          target: "editing",
+          actions: [
+            {
+              type: "logError",
+              params: ({ event }: { event: unknown }) => event,
+            },
+          ],
+          reenter: true,
+        },
       },
     },
     submittingTonTx: {
@@ -868,6 +918,16 @@ export const depositUIMachine = setup({
             "clearUIDepositAmount",
             "requestBalanceRefresh",
             "resetPreparationOutput",
+          ],
+          reenter: true,
+        },
+        onError: {
+          target: "editing",
+          actions: [
+            {
+              type: "logError",
+              params: ({ event }: { event: unknown }) => event,
+            },
           ],
           reenter: true,
         },
@@ -905,6 +965,16 @@ export const depositUIMachine = setup({
           ],
           reenter: true,
         },
+        onError: {
+          target: "editing",
+          actions: [
+            {
+              type: "logError",
+              params: ({ event }: { event: unknown }) => event,
+            },
+          ],
+          reenter: true,
+        },
       },
     },
     submittingTronTx: {
@@ -935,6 +1005,16 @@ export const depositUIMachine = setup({
             "clearUIDepositAmount",
             "requestBalanceRefresh",
             "resetPreparationOutput",
+          ],
+          reenter: true,
+        },
+        onError: {
+          target: "editing",
+          actions: [
+            {
+              type: "logError",
+              params: ({ event }: { event: unknown }) => event,
+            },
           ],
           reenter: true,
         },

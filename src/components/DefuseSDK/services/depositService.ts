@@ -62,56 +62,35 @@ import {
   getUserJettonWalletAddress,
 } from "./tonJettonService"
 
+export type PreparedDepositReturnType = {
+  generateDepositAddress: string | null
+  storageDepositRequired: bigint | null
+  balance: bigint | null
+  /**
+   * Near balance is required for depositing wrap.near only. We treat it as a just NEAR token
+   * to simplify the user experience by abstracting away the complexity of wrapping and unwrapping
+   * base tokens. This approach provides a more streamlined deposit process where users don't need
+   * to manually handle token wrapping operations.
+   */
+  nearBalance: bigint | null
+  maxDepositValue: bigint | null
+  solanaATACreationRequired: boolean
+  tonJettonWalletCreationRequired: boolean
+  memo: string | null
+}
+
+export type PreparedDepositErrorType = {
+  reason:
+    | "ERR_PREPARING_DEPOSIT"
+    | "ERR_GENERATING_ADDRESS"
+    | "ERR_NEP141_STORAGE_CANNOT_FETCH"
+    | "ERR_FETCH_BALANCE"
+    | "ERR_ESTIMATE_MAX_DEPOSIT_VALUE"
+}
+
 export type PreparationOutput =
-  | {
-      tag: "ok"
-      value: {
-        generateDepositAddress: string | null
-        storageDepositRequired: bigint | null
-        balance: bigint | null
-        /**
-         * Near balance is required for depositing wrap.near only. We treat it as a just NEAR token
-         * to simplify the user experience by abstracting away the complexity of wrapping and unwrapping
-         * base tokens. This approach provides a more streamlined deposit process where users don't need
-         * to manually handle token wrapping operations.
-         */
-        nearBalance: bigint | null
-        maxDepositValue: bigint | null
-        solanaATACreationRequired: boolean
-        tonJettonWalletCreationRequired: boolean
-        memo: string | null
-      }
-    }
-  | {
-      tag: "err"
-      value: {
-        reason: "ERR_PREPARING_DEPOSIT"
-      }
-    }
-  | {
-      tag: "err"
-      value: {
-        reason: "ERR_GENERATING_ADDRESS"
-      }
-    }
-  | {
-      tag: "err"
-      value: {
-        reason: "ERR_NEP141_STORAGE_CANNOT_FETCH"
-      }
-    }
-  | {
-      tag: "err"
-      value: {
-        reason: "ERR_FETCH_BALANCE"
-      }
-    }
-  | {
-      tag: "err"
-      value: {
-        reason: "ERR_ESTIMATE_MAX_DEPOSIT_VALUE"
-      }
-    }
+  | { tag: "ok"; value: PreparedDepositReturnType }
+  | { tag: "err"; value: PreparedDepositErrorType }
 
 export async function prepareDeposit(
   {
@@ -830,32 +809,24 @@ export async function generateDepositAddress(
   generatedDepositAddress: string
   memo: string | null
 }> {
-  try {
-    const supportedTokens = await poaBridge.httpClient.getSupportedTokens({
-      chains: [chain],
-    })
+  const supportedTokens = await poaBridge.httpClient.getSupportedTokens({
+    chains: [chain],
+  })
 
-    if (supportedTokens.tokens.length === 0) {
-      throw new Error("No supported tokens found")
-    }
+  if (supportedTokens.tokens.length === 0) {
+    throw new Error("No supported tokens found")
+  }
 
-    const depositNetworkMemo = getDepositNetworkMemo(chain)
-    const generatedDepositAddress =
-      await poaBridge.httpClient.getDepositAddress({
-        account_id: userAddress,
-        chain,
-        ...(depositNetworkMemo && depositNetworkMemo),
-      })
+  const depositNetworkMemo = getDepositNetworkMemo(chain)
+  const generatedDepositAddress = await poaBridge.httpClient.getDepositAddress({
+    account_id: userAddress,
+    chain,
+    ...(depositNetworkMemo && depositNetworkMemo),
+  })
 
-    return {
-      generatedDepositAddress: generatedDepositAddress.address,
-      memo: generatedDepositAddress.memo ?? null,
-    }
-  } catch (error) {
-    logger.error(
-      new Error("Error generating deposit address", { cause: error })
-    )
-    throw error
+  return {
+    generatedDepositAddress: generatedDepositAddress.address,
+    memo: generatedDepositAddress.memo ?? null,
   }
 }
 
@@ -881,20 +852,16 @@ export async function getAllowance(
   spender: string,
   network: BlockchainEnum
 ): Promise<bigint | null> {
-  try {
-    const client = createPublicClient({
-      transport: http(getWalletRpcUrl(network)),
-    })
-    const result = await client.readContract({
-      address: getAddress(tokenAddress),
-      abi: erc20Abi,
-      functionName: "allowance",
-      args: [getAddress(owner), getAddress(spender)],
-    })
-    return result
-  } catch {
-    return null
-  }
+  const client = createPublicClient({
+    transport: http(getWalletRpcUrl(network)),
+  })
+  const result = await client.readContract({
+    address: getAddress(tokenAddress),
+    abi: erc20Abi,
+    functionName: "allowance",
+    args: [getAddress(owner), getAddress(spender)],
+  })
+  return result
 }
 
 export function createApproveTransaction(
@@ -1449,7 +1416,8 @@ async function checkATAExists(
   try {
     await getAccount(connection, ataAddress)
     return true
-  } catch {
+  } catch (error) {
+    logger.error("Error checking Solana ATA existence", { error })
     return false
   }
 }

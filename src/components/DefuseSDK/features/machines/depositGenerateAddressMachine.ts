@@ -78,6 +78,9 @@ export const depositGenerateAddressMachine = setup({
     ),
   },
   actions: {
+    logError: (_, { error }: { error: unknown }) => {
+      logger.error(error)
+    },
     setInputParams: assign(({ event }) => {
       assertEvent(event, "REQUEST_GENERATE_ADDRESS")
       return {
@@ -200,14 +203,22 @@ export const depositGenerateAddressMachine = setup({
         },
         onError: {
           target: "completed",
-          actions: assign({
-            preparationOutput: {
-              tag: "err",
-              value: {
-                reason: "ERR_GENERATING_ADDRESS",
-              },
+          actions: [
+            {
+              type: "logError",
+              params: ({ event }) => event,
             },
-          }),
+            assign({
+              preparationOutput: () => {
+                return {
+                  tag: "err",
+                  value: {
+                    reason: "ERR_GENERATING_ADDRESS",
+                  },
+                }
+              },
+            }),
+          ],
 
           reenter: true,
         },

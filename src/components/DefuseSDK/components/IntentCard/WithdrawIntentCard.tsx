@@ -68,6 +68,9 @@ export function WithdrawIntentCard({
                   ? "red"
                   : undefined
               }
+              data-testid={
+                state.value === "success" ? "withdraw-success" : undefined
+              }
             >
               {renderStatusLabel(state.value)}
             </Text>

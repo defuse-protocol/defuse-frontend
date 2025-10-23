@@ -343,6 +343,7 @@ export function OtcMakerForm({
               }
               tokenSlot={
                 <SelectAssets
+                  dataTestId="select-assets-sell"
                   selected={formValues.tokenIn ?? undefined}
                   handleSelect={() =>
                     openModalSelectAssets(
@@ -423,6 +424,7 @@ export function OtcMakerForm({
               }
               tokenSlot={
                 <SelectAssets
+                  dataTestId="select-assets-buy"
                   selected={formValues.tokenOut ?? undefined}
                   handleSelect={() =>
                     openModalSelectAssets(
