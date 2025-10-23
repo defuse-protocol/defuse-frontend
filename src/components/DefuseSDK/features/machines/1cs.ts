@@ -59,12 +59,7 @@ const _: AuthMethodSchema extends AuthMethod
     : never
   : never = true
 
-const swapTypeSchema = z.enum(
-  Object.values(QuoteRequest.swapType) as [
-    QuoteRequest.swapType,
-    ...QuoteRequest.swapType[],
-  ]
-)
+const swapTypeSchema = z.nativeEnum(QuoteRequest.swapType)
 
 const getQuoteArgsSchema = z.object({
   dry: z.boolean(),
