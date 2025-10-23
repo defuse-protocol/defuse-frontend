@@ -1,5 +1,6 @@
 import { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import { getWalletRpcUrl } from "@src/components/DefuseSDK/services/depositService"
+import { logger } from "@src/utils/logger"
 import type { Address } from "viem"
 import { assign, fromPromise, setup } from "xstate"
 import {
@@ -174,6 +175,11 @@ export const depositEstimationMachine = setup({
   actors: {
     estimateMaxDepositValueActor: depositEstimateMaxValueActor,
   },
+  actions: {
+    logError: (_, { error }: { error: unknown }) => {
+      logger.error(error)
+    },
+  },
 }).createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QTABwPawJYBcCisOWAtgIZHoB2AxAEp4CKAqngMoAqA+m+wJICyAQXZ5OQgBqcAIngAKAeVa8uANUEAZFgG0ADAF1EoDNgqVDIAB6IALACYANCACeiAIw7bAOgCcAdgBs-q4AHNZ23h4ArLYAvjGOKMa4BERkpp5wqeRYlFDUEFRgnjkAbugA1kWJmMmEJNlUGXVpOVAIpegAxg2Uunp95kmm5lYIwa6ewb6ROq6uAMzuHq7WwY4uCPPRnovBtr6ufjoB1t6RcQloNfjNPU1ZRLnUYABOL+gvnqgANuQAZh9iJ5qiYUvV0plwa12pQyt1TH0BkgQEMsFQRog9p5IuEDqd5gFXJFfOsbLZrD4QvN-MFvLZXL5rDS4vEQJR0Ch4MiQbUHmizMjUejkaMALS+eaeFbjBl2HRhKb+UkIImeawBSLBeWRGmMsLWC4gHk3PmNLAQb5gQbXfkYhCi2yRKWrOaM2zy1bTJXONxatWhKaRbxzUL+CWG41glqNSEtXLWky2kWIGk7IME4PE7zeGnWZWHCmLfzzT3Z1z+JkG1mR27pTroYg-MA4SAJ3BJ0CjcsUvz+YkHYvWHTHSLKnX+Ty+bxbEs6PY6fzTlkxIA */
   id: "depositEstimation",
@@ -212,12 +218,18 @@ export const depositEstimationMachine = setup({
         },
         onError: {
           target: "completed",
-          actions: assign({
-            preparationOutput: {
-              tag: "err",
-              value: { reason: "ERR_ESTIMATE_MAX_DEPOSIT_VALUE" },
+          actions: [
+            {
+              type: "logError",
+              params: ({ event }) => event,
             },
-          }),
+            assign({
+              preparationOutput: {
+                tag: "err",
+                value: { reason: "ERR_ESTIMATE_MAX_DEPOSIT_VALUE" },
+              },
+            }),
+          ],
           reenter: true,
         },
       },

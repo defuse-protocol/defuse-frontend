@@ -1,3 +1,4 @@
+import { logger } from "@src/utils/logger"
 import { Address, TonClient, beginCell } from "@ton/ton"
 import axios from "axios"
 import type { TokenDeployment } from "../types/base"
@@ -128,7 +129,8 @@ export async function checkTonJettonWalletRequired(
       Address.parse(jettonWalletAddress)
     )
     return !walletExists
-  } catch {
+  } catch (error) {
+    logger.error("Error checking Ton jetton wallet required", { error })
     return true
   }
 }
