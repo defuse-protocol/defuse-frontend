@@ -64,7 +64,7 @@ import {
 
 export type PreparedDepositReturnType = {
   generateDepositAddress: string | null
-  storageDepositRequired: bigint | null
+  storageDepositAmount: bigint | null
   balance: bigint | null
   /**
    * Near balance is required for depositing wrap.near only. We treat it as a just NEAR token
@@ -116,19 +116,19 @@ export async function prepareDeposit(
 
   const userChainType =
     depositGenerateAddressRef.getSnapshot().context.userChainType
-  let storageDepositRequired: bigint | null = null
+  let storageDepositAmount: bigint | null = null
   // Getting storage deposit amount makes sense only for user NEAR wallet
   if (userChainType === AuthMethod.Near) {
-    const storageDepositAmount = await getStorageDepositAmount(
+    const storageDepositAmountResult = await getStorageDepositAmount(
       {
         storageDepositAmountRef,
       },
       { signal }
     )
-    if (storageDepositAmount.tag === "err") {
-      return storageDepositAmount
+    if (storageDepositAmountResult.tag === "err") {
+      return storageDepositAmountResult
     }
-    storageDepositRequired = storageDepositAmount.value.maxDepositValue
+    storageDepositAmount = storageDepositAmountResult.value.maxDepositValue
   }
 
   const generateDepositAddress = await getGeneratedDepositAddress(
@@ -183,7 +183,7 @@ export async function prepareDeposit(
     value: {
       generateDepositAddress:
         generateDepositAddress.value.generateDepositAddress,
-      storageDepositRequired,
+      storageDepositAmount,
       balance: balances.value.balance,
       nearBalance: balances.value.nearBalance,
       maxDepositValue: estimation.value.maxDepositValue,
