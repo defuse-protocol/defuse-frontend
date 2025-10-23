@@ -72,7 +72,7 @@
     "react": "19.1.0",
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "19.1.0",
-    "react-hook-form": "7.65.0",
+    "react-hook-form": ">=7.52.1 <7.55.0",
     "ripple-address-codec": "^5.0.0",
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
