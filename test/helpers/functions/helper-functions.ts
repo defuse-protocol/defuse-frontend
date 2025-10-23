@@ -17,13 +17,11 @@ export async function waitForMetaMaskPage(
     })
 
     if (extPage) {
-      // eslint-disable-next-line no-await-in-loop
       await extPage.waitForLoadState("domcontentloaded")
 
       return extPage
     }
 
-    // eslint-disable-next-line no-promise-executor-return, no-await-in-loop
     await new Promise((r) => setTimeout(r, 150))
   }
 

@@ -66,6 +66,8 @@ export default defineConfig({
   ],
 })
 
+// We can later re-enable the slack reporter and other reporters if we want to
+
 // function generateCustomLayoutSimpleMeta(
 //   summaryResults: SummaryResults
 // ): Array<Block | KnownBlock> {
