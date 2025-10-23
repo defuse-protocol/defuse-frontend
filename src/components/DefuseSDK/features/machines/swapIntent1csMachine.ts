@@ -514,10 +514,14 @@ export const swapIntent1csMachine = setup({
             context.quote1csResult != null && "ok" in context.quote1csResult
           )
           assert(context.quote1csResult.ok.quote.depositAddress != null)
-
+          const amount = BigInt(context.quote1csResult.ok.quote.amountIn ?? "0")
+          assert(amount > 0n, "Invalid amount, must be greater than 0")
           return {
             tokenIn: context.input.tokenIn,
-            amountIn: context.input.amountIn,
+            amountIn: {
+              amount,
+              decimals: context.input.tokenIn.decimals,
+            },
             depositAddress: context.quote1csResult.ok.quote.depositAddress,
             defuseUserId: context.input.defuseUserId,
             deadline: context.input.deadline,
