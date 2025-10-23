@@ -33,10 +33,6 @@ export const DepositWarning = ({
         content =
           "It seems the storage deposit check is failed. Please try again."
         break
-      case "ERR_PREPARING_DEPOSIT":
-        content =
-          "It seems the deposit preparation is failed. Please try again."
-        break
       case "ERR_ESTIMATE_MAX_DEPOSIT_VALUE":
         content =
           "It seems the max deposit value is not calculated. Please try again."

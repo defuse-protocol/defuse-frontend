@@ -40,7 +40,13 @@ const ConnectWallet = () => {
     return (
       <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
         <Popover.Trigger>
-          <Button type={"button"} variant={"solid"} size={"2"} radius={"full"}>
+          <Button
+            type={"button"}
+            variant={"solid"}
+            size={"2"}
+            radius={"full"}
+            data-testid="sign-in-button"
+          >
             <Text weight="bold" wrap="nowrap">
               Sign in
             </Text>
@@ -325,6 +331,7 @@ const ConnectWallet = () => {
                           variant="soft"
                           color="gray"
                           className="px-2.5"
+                          data-testid={connector.name}
                         >
                           <div className="w-full flex items-center justify-start gap-2">
                             <WalletIcon connector={connector} />
@@ -355,6 +362,7 @@ const ConnectWallet = () => {
             size={"2"}
             radius={"full"}
             className="font-bold text-gray-12"
+            data-testid="account-indicator"
           >
             {state.chainType !== "webauthn" ? (
               shortAccountId

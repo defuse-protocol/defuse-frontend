@@ -163,6 +163,7 @@ export function ActiveDeposit({
           !isDepositAmountHighEnough
         }
         isLoading={isLoading}
+        data-testid="deposit-button"
       >
         {renderDepositButtonText(
           watch("amount") === "",
