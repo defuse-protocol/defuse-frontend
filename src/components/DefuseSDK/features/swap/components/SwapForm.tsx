@@ -247,7 +247,6 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                   tokenOut: tokenIn,
                   amountOut: "",
                   amountIn,
-                  swapType: QuoteRequest.swapType.EXACT_INPUT,
                 },
               })
             } else {
@@ -257,7 +256,6 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                   tokenOut: token,
                   amountOut: "",
                   amountIn,
-                  swapType: QuoteRequest.swapType.EXACT_INPUT,
                 },
               })
             }
