@@ -154,14 +154,13 @@ async function checkNearAccountExists(
     })
     return Ok(true)
   } catch (error: unknown) {
-    logger.warn("Failed to view NEAR account", { cause: error, recipient })
-
     if (typeof error === "object" && error !== null) {
       if (error instanceof TypedError && error.type === "AccountDoesNotExist") {
         return Err("NEAR_ACCOUNT_DOES_NOT_EXIST")
       }
     }
 
+    logger.warn("Failed to view NEAR account", { cause: error, recipient })
     return Err("NEAR_RPC_UNHANDLED_ERROR")
   }
 }
