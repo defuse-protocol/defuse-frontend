@@ -127,7 +127,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
         swapType: QuoteRequest.swapType.EXACT_INPUT,
       },
     })
-  }, [tokenIn, tokenOut, setValue, getValues, swapUIActorRef.send])
+  }, [tokenIn, tokenOut, setValue, getValues, swapUIActorRef])
 
   const {
     setModalType,
