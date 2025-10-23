@@ -2,6 +2,7 @@ import { ArrowsDownUpIcon } from "@phosphor-icons/react"
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Box, Button, Callout } from "@radix-ui/themes"
 import { useTokensUsdPrices } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
+import { useTokensStore } from "@src/components/DefuseSDK/providers/TokensStoreProvider"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import {
   formatTokenValue,
@@ -82,6 +83,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
   const formValuesRef = useSelector(swapUIActorRef, formValuesSelector)
   const { tokenIn, tokenOut } = formValuesRef
+  const tokens = useTokensStore((state) => state.tokens)
 
   const {
     noLiquidity,
@@ -323,6 +325,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                 handleSelect={() =>
                   openModalSelectAssets(SWAP_TOKEN_FLAGS.IN, tokenIn)
                 }
+                tokens={tokens}
               />
             }
             balanceSlot={
@@ -403,6 +406,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                   handleSelect={() =>
                     openModalSelectAssets(SWAP_TOKEN_FLAGS.OUT, tokenOut)
                   }
+                  tokens={tokens}
                 />
               }
               balanceSlot={
