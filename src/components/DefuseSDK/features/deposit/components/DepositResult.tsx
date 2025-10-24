@@ -10,6 +10,7 @@ import type { Context } from "../../machines/depositUIMachine"
 
 const EXPLORER_NEAR_INTENTS = "https://explorer.near-intents.org"
 
+// TODO: remove this component
 export const DepositResult = ({
   chainName,
   depositResult,

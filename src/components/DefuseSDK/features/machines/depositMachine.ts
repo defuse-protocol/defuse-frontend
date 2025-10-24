@@ -41,6 +41,7 @@ export type DepositDescription = {
   derivedToken: BaseTokenInfo
   tokenDeployment: TokenDeployment
   depositAddress: string | null
+  memo: string | null
   depositMode: DepositMode
 }
 
@@ -155,6 +156,7 @@ export const depositMachine = setup({
             derivedToken: context.derivedToken,
             tokenDeployment: context.tokenDeployment,
             depositAddress: context.depositAddress,
+            memo: context.memo,
             depositMode: context.depositMode,
           },
         },

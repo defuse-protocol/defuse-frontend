@@ -122,7 +122,6 @@ export function DepositUIMachineProvider({
                   blockchain,
                   userChainType,
                   depositMode,
-                  amountIn,
                   tokenIn,
                   tokenOut,
                 } = input
@@ -132,7 +131,6 @@ export function DepositUIMachineProvider({
                     userAddress,
                     blockchain,
                     userChainType,
-                    amountIn,
                     tokenIn,
                     tokenOut
                   )

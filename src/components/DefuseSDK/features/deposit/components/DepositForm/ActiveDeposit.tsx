@@ -12,13 +12,11 @@ import { TooltipInfo } from "../../../../components/TooltipInfo"
 import { useTokensUsdPrices } from "../../../../hooks/useTokensUsdPrices"
 import { RESERVED_NEAR_BALANCE } from "../../../../services/blockchainBalanceService"
 import type { BaseTokenInfo, TokenDeployment } from "../../../../types/base"
-import { reverseAssetNetworkAdapter } from "../../../../utils/adapters"
 import { formatTokenValue, formatUsdAmount } from "../../../../utils/format"
 import getTokenUsdPrice from "../../../../utils/getTokenUsdPrice"
 import { isFungibleToken } from "../../../../utils/token"
 import { DepositMode } from "../../../machines/depositFormReducer"
 import type { depositUIMachine } from "../../../machines/depositUIMachine"
-import { DepositResult } from "../DepositResult"
 import { DepositSwitchToSimpleMode } from "../DepositSwitchToSimpleMode"
 import { DepositUIMachineContext } from "../DepositUIMachineProvider"
 import { DepositWarning } from "../DepositWarning"
@@ -190,14 +188,7 @@ export function ActiveDeposit({
 
       {renderDepositHint(network, token, tokenDeployment)}
 
-      {depositMode === DepositMode.ONE_CLICK ? (
-        <Intents intentRefs={intentRefs} />
-      ) : (
-        <DepositResult
-          chainName={reverseAssetNetworkAdapter[network]}
-          depositResult={depositOutput}
-        />
-      )}
+      <Intents intentRefs={intentRefs} />
     </div>
   )
 }

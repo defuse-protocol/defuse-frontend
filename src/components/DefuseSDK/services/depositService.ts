@@ -59,7 +59,6 @@ import type {
   BaseTokenInfo,
   SupportedChainName,
   TokenDeployment,
-  TokenValue,
 } from "../types/base"
 import type {
   SendTransactionEVMParams,
@@ -897,7 +896,6 @@ export async function generateTemporaryDepositAddress(
   userAddress: string,
   blockchain: SupportedChainName,
   userChainType: AuthMethod,
-  amountIn: TokenValue,
   tokenIn: BaseTokenInfo,
   tokenOut: BaseTokenInfo
 ): Promise<{
@@ -924,7 +922,7 @@ export async function generateTemporaryDepositAddress(
   )
 
   const req: QuoteRequest = {
-    amount: amountIn.amount.toString(),
+    amount: "0", // TODO: with specify amountIn.amount.toString() the quoute fails
     depositMode: isNetworkRequiresMemo(blockchain)
       ? QuoteRequest.depositMode.MEMO
       : QuoteRequest.depositMode.SIMPLE,
