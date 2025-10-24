@@ -24,29 +24,32 @@ export type Output =
  * @returns The amount of NEAR required for the user to store the token; 0 means no storage required.
  */
 export async function getNEP141StorageRequired({
-  token,
+  tokenDeployment,
   userAccountId,
 }: {
-  token: TokenDeployment
+  tokenDeployment: TokenDeployment
   userAccountId: string
 }): Promise<Output> {
-  if (!isFungibleToken(token) || token.chainName !== "near") {
+  if (
+    !isFungibleToken(tokenDeployment) ||
+    tokenDeployment.chainName !== "near"
+  ) {
     return { tag: "ok", value: 0n }
   }
 
   // No storage deposit is required for having ETH in near blockchain. (P.S. aurora is ETH address on Near network)
-  if (token.address === "aurora") {
+  if (tokenDeployment.address === "aurora") {
     return { tag: "ok", value: 0n }
   }
 
   const [minStorageBalanceResult, userStorageBalanceResult] =
     await Promise.allSettled([
       getNearNep141MinStorageBalance({
-        contractId: token.address,
+        contractId: tokenDeployment.address,
         nearProvider: nearClient,
       }),
       getNearNep141StorageBalance({
-        contractId: token.address,
+        contractId: tokenDeployment.address,
         accountId: userAccountId,
         nearProvider: nearClient,
       }),

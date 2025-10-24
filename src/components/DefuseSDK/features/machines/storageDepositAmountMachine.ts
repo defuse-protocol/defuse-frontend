@@ -11,12 +11,12 @@ const storageDepositAmountActor = fromPromise(
     input,
   }: {
     input: {
-      token: TokenDeployment
+      tokenDeployment: TokenDeployment
       userAccountId: string
     }
   }): Promise<Output> => {
     return getNEP141StorageRequired({
-      token: input.token,
+      tokenDeployment: input.tokenDeployment,
       userAccountId: input.userAccountId,
     })
   }
@@ -32,7 +32,7 @@ export const storageDepositAmountMachine = setup({
     events: {} as {
       type: "REQUEST_STORAGE_DEPOSIT"
       params: {
-        token: TokenDeployment
+        tokenDeployment: TokenDeployment
         userAccountId: string
       }
     },
@@ -63,7 +63,7 @@ export const storageDepositAmountMachine = setup({
         src: "storageDepositAmountActor",
 
         input: ({ event }) => ({
-          token: event.params.token,
+          tokenDeployment: event.params.tokenDeployment,
           userAccountId: event.params.userAccountId,
         }),
 
