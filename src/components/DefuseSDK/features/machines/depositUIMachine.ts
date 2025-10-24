@@ -162,7 +162,8 @@ export const depositUIMachine = setup({
         return {
           type: "REQUEST_STORAGE_DEPOSIT",
           params: {
-            token: context.depositFormRef.getSnapshot().context.derivedToken,
+            tokenDeployment:
+              context.depositFormRef.getSnapshot().context.tokenDeployment,
             userAccountId: context.userAddress,
           },
         }
@@ -499,13 +500,13 @@ export const depositUIMachine = setup({
           assertEvent(event, "SUBMIT")
           const params = extractDepositParams(context)
           assert(
-            params.storageDepositRequired !== null,
-            "storageDepositRequired is null"
+            params.storageDepositAmount !== null,
+            "storageDepositAmount is null"
           )
           return {
             ...params,
             type: "depositNear",
-            storageDepositRequired: params.storageDepositRequired,
+            storageDepositAmount: params.storageDepositAmount,
           }
         },
         onDone: {
@@ -821,7 +822,7 @@ type DepositParams = {
   userAddress: string
   userWalletAddress: string | null
   depositAddress: string | null
-  storageDepositRequired: bigint | null
+  storageDepositAmount: bigint | null
   solanaATACreationRequired: boolean
   tonJettonWalletCreationRequired: boolean
   memo: string | null
@@ -856,7 +857,7 @@ function extractDepositParams(context: Context): DepositParams {
     userAddress: context.userAddress,
     userWalletAddress: context.userWalletAddress,
     depositAddress: prepOutput.generateDepositAddress,
-    storageDepositRequired: prepOutput.storageDepositRequired,
+    storageDepositAmount: prepOutput.storageDepositAmount,
     solanaATACreationRequired: prepOutput.solanaATACreationRequired,
     tonJettonWalletCreationRequired: prepOutput.tonJettonWalletCreationRequired,
     memo: prepOutput.memo,
