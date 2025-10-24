@@ -1,10 +1,17 @@
 import { AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
+import { TypedError } from "near-api-js/lib/providers"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import { validationRecipientAddress } from "./validationRecipientAddress"
 
 vi.mock("@src/components/DefuseSDK/constants/nearClient", () => ({
   nearClient: {
-    query: vi.fn().mockResolvedValue({ keys: [{ public_key: "test-key" }] }),
+    query: vi.fn(async (args: unknown) => {
+      const params = args as { account_id?: string }
+      if (params?.account_id === "no-exists.near") {
+        throw new TypedError("Account does not exist", "AccountDoesNotExist")
+      }
+      return {}
+    }),
   },
 }))
 
@@ -171,17 +178,10 @@ describe("validationRecipientAddress", () => {
     })
 
     it("should reject non-existent explicit NEAR address", async () => {
-      const { nearClient } = await import(
-        "@src/components/DefuseSDK/constants/nearClient"
-      )
-      const mockQuery = vi.mocked(nearClient.query)
-      // @ts-expect-error - keys is not a valid property of query response but it ok for the test
-      mockQuery.mockResolvedValueOnce({ keys: [] }) // Empty keys means account doesn't exist
-
       const result = await validationRecipientAddress("no-exists.near", "near")
 
       expect(result.isErr()).toBe(true)
-      expect(result.unwrapErr()).toBe("ACCOUNT_DOES_NOT_EXIST")
+      expect(result.unwrapErr()).toBe("NEAR_ACCOUNT_DOES_NOT_EXIST")
     })
   })
 
