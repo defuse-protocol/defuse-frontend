@@ -976,7 +976,3 @@ function extractDepositParams(context: Context): DepositParams {
     depositMode,
   }
 }
-
-// biome-ignore lint/correctness/noUnusedVariables: TODO: use this in preparation 1cs quote
-const isNetworkRequiresMemo = (chainName: SupportedChainName): boolean =>
-  ["stellar"].includes(chainName) // "ton" requires memo but for some reason it works without it

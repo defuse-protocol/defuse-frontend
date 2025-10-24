@@ -1,6 +1,11 @@
 import { BlockchainEnum, poaBridge } from "@defuse-protocol/internal-utils"
 import { AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
 import {
+  OneClickService,
+  QuoteRequest,
+  type QuoteResponse,
+} from "@defuse-protocol/one-click-sdk-typescript"
+import {
   createAssociatedTokenAccountInstruction,
   createTransferInstruction,
   getAccount,
@@ -13,6 +18,7 @@ import {
   Transaction as TransactionSolana,
 } from "@solana/web3.js"
 import { auroraErc20ABI } from "@src/components/DefuseSDK/utils/blockchain"
+import { APP_FEE_BPS, APP_FEE_RECIPIENT } from "@src/utils/environment"
 import { logger } from "@src/utils/logger"
 import {
   type Account,
@@ -37,12 +43,20 @@ import { type ActorRefFrom, waitFor } from "xstate"
 import { config } from "../config"
 import { settings } from "../constants/settings"
 import type { depositEstimationMachine } from "../features/machines/depositEstimationActor"
-import type { State as DepositFormContext } from "../features/machines/depositFormReducer"
+import {
+  type State as DepositFormContext,
+  DepositMode,
+} from "../features/machines/depositFormReducer"
 import type { depositGenerateAddressMachine } from "../features/machines/depositGenerateAddressMachine"
 import type { depositTokenBalanceMachine } from "../features/machines/depositTokenBalanceMachine"
 import { getNearTxSuccessValue } from "../features/machines/getTxMachine"
 import type { storageDepositAmountMachine } from "../features/machines/storageDepositAmountMachine"
-import type { SupportedChainName, TokenDeployment } from "../types/base"
+import type {
+  BaseTokenInfo,
+  SupportedChainName,
+  TokenDeployment,
+  TokenValue,
+} from "../types/base"
 import type {
   SendTransactionEVMParams,
   SendTransactionStellarParams,
@@ -51,6 +65,7 @@ import type {
 } from "../types/deposit"
 import type { SendTransactionTonParams } from "../types/deposit"
 import type { IntentsUserId } from "../types/intentsUserId"
+import { computeAppFeeBps } from "../utils/appFee"
 import { assert } from "../utils/assert"
 import { getEVMChainId } from "../utils/evmChainId"
 import { formatTokenValue } from "../utils/format"
@@ -114,11 +129,9 @@ export async function prepareDeposit(
 ): Promise<PreparationOutput> {
   assert(formValues.tokenDeployment, "Token is required")
 
-  const userChainType =
-    depositGenerateAddressRef.getSnapshot().context.userChainType
   let storageDepositAmount: bigint | null = null
   // Getting storage deposit amount makes sense only for user NEAR wallet
-  if (userChainType === AuthMethod.Near) {
+  if (formValues.blockchain === AuthMethod.Near) {
     const storageDepositAmountResult = await getStorageDepositAmount(
       {
         storageDepositAmountRef,
@@ -795,19 +808,14 @@ export async function createDepositTronTRC20Transaction(
   return txResult.transaction
 }
 
-/**
- * Generate a deposit address for the specified blockchain and asset through the POA bridge API call.
- *
- * @param userAddress - The user address from the wallet
- * @param chain - The blockchain for which to generate the address
- * @returns A Promise that resolves to the generated deposit address
- */
-export async function generateDepositAddress(
+export async function generateStableDepositAddress(
   userAddress: IntentsUserId,
   chain: BlockchainEnum
 ): Promise<{
-  generatedDepositAddress: string
+  generatedDepositAddress: string | null
   memo: string | null
+  minAmountIn: string | null
+  depositMode: DepositMode
 }> {
   const supportedTokens = await poaBridge.httpClient.getSupportedTokens({
     chains: [chain],
@@ -827,8 +835,79 @@ export async function generateDepositAddress(
   return {
     generatedDepositAddress: generatedDepositAddress.address,
     memo: generatedDepositAddress.memo ?? null,
+    minAmountIn: null,
+    depositMode: DepositMode.SIMPLE,
   }
 }
+
+export async function generateTemporaryDepositAddress(
+  userAddress: string,
+  blockchain: SupportedChainName,
+  userChainType: AuthMethod,
+  amountIn: TokenValue,
+  tokenIn: BaseTokenInfo,
+  tokenOut: BaseTokenInfo
+): Promise<{
+  generatedDepositAddress: string | null
+  memo: string | null
+  minAmountIn: string | null
+  depositMode: DepositMode
+}> {
+  const appFeeBps = computeAppFeeBps(
+    APP_FEE_BPS,
+    tokenIn,
+    tokenOut,
+    APP_FEE_RECIPIENT,
+    { identifier: userAddress, method: userChainType }
+  )
+
+  if (appFeeBps > 0 && !APP_FEE_RECIPIENT) {
+    throw new Error("App fee recipient is not configured")
+  }
+
+  const intentsUserId = authIdentity.authHandleToIntentsUserId(
+    userAddress,
+    userChainType
+  )
+
+  const req: QuoteRequest = {
+    amount: amountIn.amount.toString(),
+    depositMode: isNetworkRequiresMemo(blockchain)
+      ? QuoteRequest.depositMode.MEMO
+      : QuoteRequest.depositMode.SIMPLE,
+    dry: false,
+    slippageTolerance: 10000,
+    originAsset: tokenIn.defuseAssetId,
+    destinationAsset: tokenOut.defuseAssetId,
+    depositType: QuoteRequest.depositType.ORIGIN_CHAIN,
+    refundTo: intentsUserId,
+    refundType: QuoteRequest.refundType.INTENTS,
+    recipient: intentsUserId,
+    recipientType: QuoteRequest.recipientType.INTENTS,
+    swapType: QuoteRequest.swapType.FLEX_INPUT,
+    quoteWaitingTimeMs: 0,
+    deadline: new Date(Date.now() + 300_000).toISOString(), // 5 minutes from now
+    ...(appFeeBps > 0
+      ? { appFees: [{ recipient: APP_FEE_RECIPIENT, fee: appFeeBps }] }
+      : {}),
+  }
+
+  const result: QuoteResponse = await OneClickService.getQuote(req)
+
+  if (!result.quote.depositAddress) {
+    throw new Error("Generated temporary deposit address is not found")
+  }
+
+  return {
+    generatedDepositAddress: result.quote.depositAddress,
+    memo: result.quote.depositMemo ?? null,
+    minAmountIn: result.quote.minAmountIn,
+    depositMode: DepositMode.ONE_CLICK,
+  }
+}
+
+const isNetworkRequiresMemo = (chainName: SupportedChainName): boolean =>
+  ["stellar"].includes(chainName)
 
 export async function checkNearTransactionValidity(
   txHash: string,

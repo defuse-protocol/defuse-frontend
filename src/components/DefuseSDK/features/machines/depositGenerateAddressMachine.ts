@@ -20,9 +20,9 @@ const UNSUPPORTED_DEPOSIT_BLOCKCHAINS: Set<SupportedChainName> = new Set([
 ])
 
 type DepositGenerateAddressReturnType = {
-  generateDepositAddress: string | null
+  generatedDepositAddress: string | null
   memo: string | null
-  minimumAmount: bigint | null
+  minAmountIn: string | null
   depositMode: DepositMode | null
 }
 
@@ -69,9 +69,10 @@ export const depositGenerateAddressMachine = setup({
           depositMode: DepositMode
         }
       }): Promise<{
-        generateDepositAddress: string | null
+        generatedDepositAddress: string | null
         memo: string | null
-        minimumAmount: bigint | null
+        minAmountIn: string | null
+        depositMode: DepositMode
       }> => {
         throw new Error("not implemented")
       }
@@ -149,7 +150,6 @@ export const depositGenerateAddressMachine = setup({
         onDone: {
           target: "completed",
           actions: assign({
-            // @ts-ignore TODO: fix this
             preparationOutput: ({ event }) => ({
               tag: "ok",
               value: event.output,

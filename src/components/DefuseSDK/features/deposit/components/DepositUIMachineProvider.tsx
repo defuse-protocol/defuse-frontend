@@ -29,7 +29,8 @@ import {
   createDepositTronTRC20Transaction,
   createDepositVirtualChainERC20Transaction,
   createExitToNearPrecompileTransaction,
-  generateDepositAddress,
+  generateStableDepositAddress,
+  generateTemporaryDepositAddress,
   getAllowance,
   waitEVMTransaction,
 } from "../../../services/depositService"
@@ -121,33 +122,29 @@ export function DepositUIMachineProvider({
                   blockchain,
                   userChainType,
                   depositMode,
-                  // biome-ignore lint/correctness/noUnusedVariables: TODO: use this in preparation 1cs quote
                   amountIn,
-                  // biome-ignore lint/correctness/noUnusedVariables: TODO: use this in preparation 1cs quote
                   tokenIn,
-                  // biome-ignore lint/correctness/noUnusedVariables: TODO: use this in preparation 1cs quote
                   tokenOut,
                 } = input
 
                 if (depositMode === DepositMode.ONE_CLICK) {
-                  // TODO implement one click API call
-                  throw new Error("Not implemented")
+                  return await generateTemporaryDepositAddress(
+                    userAddress,
+                    blockchain,
+                    userChainType,
+                    amountIn,
+                    tokenIn,
+                    tokenOut
+                  )
                 }
 
-                const generatedResult = await generateDepositAddress(
+                return await generateStableDepositAddress(
                   authIdentity.authHandleToIntentsUserId(
                     userAddress,
                     userChainType
                   ),
                   assetNetworkAdapter[blockchain]
                 )
-
-                return {
-                  generateDepositAddress:
-                    generatedResult.generatedDepositAddress,
-                  memo: generatedResult.memo,
-                  minimumAmount: null,
-                }
               }),
             },
           }),
