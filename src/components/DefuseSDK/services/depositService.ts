@@ -306,7 +306,7 @@ async function getGeneratedDepositAddress(
     return generateDepositAddressOutput
   }
   const generateDepositAddress =
-    generateDepositAddressOutput?.value.generateDepositAddress ?? null
+    generateDepositAddressOutput?.value.generatedDepositAddress ?? null
   return {
     tag: "ok",
     value: {
