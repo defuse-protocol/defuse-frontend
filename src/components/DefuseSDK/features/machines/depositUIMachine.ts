@@ -150,7 +150,7 @@ export const depositUIMachine = setup({
       const { tokenDeployment } = context.depositFormRef.getSnapshot().context
       const depositAddress =
         context.preparationOutput?.tag === "ok"
-          ? context.preparationOutput.value.generateDepositAddress
+          ? context.preparationOutput.value.generatedDepositAddress
           : null
 
       if (tokenDeployment != null && depositAddress != null) {
@@ -524,12 +524,14 @@ export const depositUIMachine = setup({
               assert(context.userAddress, "userAddress is null")
               return {
                 userAddress: context.userAddress,
+                userChainType: context.userChainType,
                 userWalletAddress: context.userWalletAddress,
                 formValues: context.depositFormRef.getSnapshot().context,
                 depositGenerateAddressRef: context.depositGenerateAddressRef,
                 storageDepositAmountRef: context.storageDepositAmountRef,
                 depositTokenBalanceRef: context.depositTokenBalanceRef,
                 depositEstimationRef: context.depositEstimationRef,
+                poaBridgeInfoRef: context.poaBridgeInfoRef,
               }
             },
             onDone: {
@@ -968,7 +970,7 @@ function extractDepositParams(context: Context): DepositParams {
     amount: parsedAmount,
     userAddress: context.userAddress,
     userWalletAddress: context.userWalletAddress,
-    depositAddress: prepOutput.generateDepositAddress,
+    depositAddress: prepOutput.generatedDepositAddress,
     storageDepositAmount: prepOutput.storageDepositAmount,
     solanaATACreationRequired: prepOutput.solanaATACreationRequired,
     tonJettonWalletCreationRequired: prepOutput.tonJettonWalletCreationRequired,

@@ -5,18 +5,12 @@ import { Callout } from "@radix-ui/themes"
 import { ModalSelectNetwork } from "@src/components/DefuseSDK/components/Network/ModalSelectNetwork"
 import { usePreparedNetworkLists } from "@src/components/DefuseSDK/hooks/useNetworkLists"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
-import {
-  assetNetworkAdapter,
-  reverseAssetNetworkAdapter,
-} from "@src/components/DefuseSDK/utils/adapters"
+import { assetNetworkAdapter } from "@src/components/DefuseSDK/utils/adapters"
 import {
   availableChainsForToken,
   getDefaultBlockchainOptionValue,
 } from "@src/components/DefuseSDK/utils/blockchain"
-import {
-  getDerivedToken,
-  isMinAmountNotRequired,
-} from "@src/components/DefuseSDK/utils/tokenUtils"
+import { isMinAmountNotRequired } from "@src/components/DefuseSDK/utils/tokenUtils"
 import { useSelector } from "@xstate/react"
 import { useEffect, useState } from "react"
 import { Controller, useFormContext } from "react-hook-form"
@@ -36,7 +30,6 @@ import { getAvailableDepositRoutes } from "../../../../services/depositService"
 import { ModalType } from "../../../../stores/modalStore"
 import type { SupportedChainName } from "../../../../types/base"
 import type { RenderHostAppLink } from "../../../../types/hostAppLink"
-import { getPOABridgeInfo } from "../../../machines/poaBridgeInfoActor"
 import { DepositUIMachineContext } from "../DepositUIMachineProvider"
 import { ActiveDeposit } from "./ActiveDeposit"
 import { DepositMethodSelector } from "./DepositMethodSelector"
@@ -62,44 +55,45 @@ export const DepositForm = ({
   const { handleSubmit, register, control, setValue, watch } =
     useFormContext<DepositFormValues>()
 
-  const depositUIActorRef = DepositUIMachineContext.useActorRef()
-  const snapshot = DepositUIMachineContext.useSelector((snapshot) => snapshot)
-  const preparationOutput = snapshot.context.preparationOutput
-  const depositOutput = snapshot.context.depositOutput
+  const actorRef = DepositUIMachineContext.useActorRef()
+  const { formRef, depositOutput, preparationOutput, userAddress } =
+    DepositUIMachineContext.useSelector((state) => {
+      return {
+        formRef: state.context.depositFormRef,
+        preparationOutput: state.context.preparationOutput,
+        depositOutput: state.context.depositOutput,
+        userAddress: state.context.userAddress,
+      }
+    })
 
-  const {
-    token,
-    derivedToken,
-    tokenDeployment,
-    network,
-    userAddress,
-    poaBridgeInfoRef,
-    depositMode,
-  } = DepositUIMachineContext.useSelector((snapshot) => {
-    const { userAddress, poaBridgeInfoRef } = snapshot.context
-    const { token, derivedToken, tokenDeployment, blockchain, depositMode } =
-      snapshot.context.depositFormRef.getSnapshot().context
-
-    return {
-      token,
-      derivedToken,
-      tokenDeployment,
-      network: blockchain,
-      userAddress,
-      poaBridgeInfoRef,
-      depositMode,
-    }
-  })
+  const { token, derivedToken, tokenDeployment, blockchain, depositMode } =
+    useSelector(formRef, (state) => {
+      return {
+        token: state.context.token,
+        derivedToken: state.context.derivedToken,
+        tokenDeployment: state.context.tokenDeployment,
+        blockchain: state.context.blockchain,
+        depositMode: state.context.depositMode,
+      }
+    })
 
   const isOutputOk = preparationOutput?.tag === "ok"
   const depositAddress = isOutputOk
-    ? preparationOutput.value.generateDepositAddress
+    ? preparationOutput.value.generatedDepositAddress
     : null
   const memo = isOutputOk
     ? "memo" in preparationOutput.value
       ? preparationOutput.value.memo
       : null
     : null
+  const minDepositAmount =
+    isOutputOk &&
+    chainType != null &&
+    blockchain != null &&
+    !isMinAmountNotRequired(chainType, blockchain)
+      ? preparationOutput.value.minDepositAmount
+      : null
+
   const { setModalType, payload, onCloseModal } = useModalStore(
     (state) => state
   )
@@ -130,7 +124,7 @@ export const DepositForm = ({
     }
     const { modalType, fieldName, token } = payload as ModalSelectAssetsPayload
     if (modalType === ModalType.MODAL_SELECT_ASSETS && fieldName && token) {
-      depositUIActorRef.send({
+      actorRef.send({
         type: "DEPOSIT_FORM.UPDATE_TOKEN",
         params: { token },
       })
@@ -140,10 +134,10 @@ export const DepositForm = ({
       setValue("amount", "")
       onCloseModal(undefined)
     }
-  }, [payload, onCloseModal, depositUIActorRef, setValue])
+  }, [payload, onCloseModal, actorRef, setValue])
 
   const onSubmit = () => {
-    depositUIActorRef.send({
+    actorRef.send({
       type: "SUBMIT",
     })
   }
@@ -158,31 +152,10 @@ export const DepositForm = ({
     }
   }, [formNetwork, token, setValue])
 
-  const minDepositAmount = useSelector(poaBridgeInfoRef, (state) => {
-    if (
-      chainType != null &&
-      network != null &&
-      isMinAmountNotRequired(chainType, network)
-    ) {
-      return null
-    }
-
-    const tokenOut =
-      token && formNetwork
-        ? getDerivedToken(token, reverseAssetNetworkAdapter[formNetwork])
-        : null
-    if (tokenOut == null) {
-      return null
-    }
-
-    const bridgedTokenInfo = getPOABridgeInfo(state, tokenOut.defuseAssetId)
-    return bridgedTokenInfo == null ? null : bridgedTokenInfo.minDeposit
-  })
-
   const availableDepositRoutes =
     chainType &&
-    network &&
-    getAvailableDepositRoutes(chainType, assetNetworkAdapter[network])
+    blockchain &&
+    getAvailableDepositRoutes(chainType, assetNetworkAdapter[blockchain])
   const isActiveDeposit = availableDepositRoutes?.activeDeposit
   const isPassiveDeposit = availableDepositRoutes?.passiveDeposit
 
@@ -205,7 +178,8 @@ export const DepositForm = ({
     token,
   })
 
-  const networkEnum = assetNetworkAdapter[network as SupportedChainName]
+  const networkEnum =
+    blockchain != null ? assetNetworkAdapter[blockchain] : null
   const singleNetwork = Object.keys(chainOptions).length === 1
   const depositWarning = depositOutput || preparationOutput
   return (
@@ -244,8 +218,18 @@ export const DepositForm = ({
               render={({ field }) => (
                 <>
                   <SelectTriggerLike
-                    label={chainOptions[networkEnum]?.label ?? "Select network"}
-                    icon={chainOptions[networkEnum]?.icon ?? <EmptyIcon />}
+                    label={
+                      networkEnum != null
+                        ? chainOptions[networkEnum]?.label
+                        : "Select network"
+                    }
+                    icon={
+                      networkEnum != null ? (
+                        chainOptions[networkEnum]?.icon
+                      ) : (
+                        <EmptyIcon />
+                      )
+                    }
                     onClick={() => setIsNetworkModalOpen(true)}
                     hint={
                       <Select.Hint>
@@ -262,7 +246,7 @@ export const DepositForm = ({
 
                   <ModalSelectNetwork
                     selectNetwork={onChangeNetwork}
-                    selectedNetwork={network}
+                    selectedNetwork={blockchain}
                     isOpen={isNetworkModalOpen}
                     onClose={onCloseNetworkModal}
                     availableNetworks={availableNetworks}
@@ -294,11 +278,11 @@ export const DepositForm = ({
             </div>
 
             {currentDepositOption === "active" &&
-              network != null &&
+              blockchain != null &&
               derivedToken != null &&
               tokenDeployment != null && (
                 <ActiveDeposit
-                  network={assetNetworkAdapter[network]}
+                  network={assetNetworkAdapter[blockchain]}
                   token={derivedToken}
                   tokenDeployment={tokenDeployment}
                   minDepositAmount={minDepositAmount}
@@ -306,11 +290,11 @@ export const DepositForm = ({
               )}
 
             {currentDepositOption === "passive" &&
-              network != null &&
+              blockchain != null &&
               derivedToken != null &&
               tokenDeployment != null && (
                 <PassiveDeposit
-                  network={assetNetworkAdapter[network]}
+                  network={assetNetworkAdapter[blockchain]}
                   depositAddress={depositAddress}
                   minDepositAmount={minDepositAmount}
                   token={derivedToken}
@@ -328,7 +312,7 @@ export const DepositForm = ({
           shouldRender={!!userAddress}
         />
 
-        {userAddress && network && !isActiveDeposit && !isPassiveDeposit && (
+        {userAddress && blockchain && !isActiveDeposit && !isPassiveDeposit && (
           <NotSupportedDepositRoute />
         )}
       </Form>

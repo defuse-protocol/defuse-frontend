@@ -50,6 +50,10 @@ import {
 import type { depositGenerateAddressMachine } from "../features/machines/depositGenerateAddressMachine"
 import type { depositTokenBalanceMachine } from "../features/machines/depositTokenBalanceMachine"
 import { getNearTxSuccessValue } from "../features/machines/getTxMachine"
+import {
+  getPOABridgeInfo,
+  type poaBridgeInfoActor,
+} from "../features/machines/poaBridgeInfoActor"
 import type { storageDepositAmountMachine } from "../features/machines/storageDepositAmountMachine"
 import type {
   BaseTokenInfo,
@@ -69,6 +73,7 @@ import { computeAppFeeBps } from "../utils/appFee"
 import { assert } from "../utils/assert"
 import { getEVMChainId } from "../utils/evmChainId"
 import { formatTokenValue } from "../utils/format"
+import { parseUnits } from "../utils/parse"
 import { isNativeToken } from "../utils/token"
 import { createTonClient } from "./tonJettonService"
 import {
@@ -78,7 +83,7 @@ import {
 } from "./tonJettonService"
 
 export type PreparedDepositReturnType = {
-  generateDepositAddress: string | null
+  generatedDepositAddress: string | null
   storageDepositAmount: bigint | null
   balance: bigint | null
   /**
@@ -88,7 +93,8 @@ export type PreparedDepositReturnType = {
    * to manually handle token wrapping operations.
    */
   nearBalance: bigint | null
-  maxDepositValue: bigint | null
+  maxDepositAmount: bigint | null
+  minDepositAmount: bigint | null
   solanaATACreationRequired: boolean
   tonJettonWalletCreationRequired: boolean
   memo: string | null
@@ -110,13 +116,16 @@ export type PreparationOutput =
 export async function prepareDeposit(
   {
     userAddress,
+    userChainType,
     formValues,
     depositGenerateAddressRef,
     storageDepositAmountRef,
     depositTokenBalanceRef,
     depositEstimationRef,
+    poaBridgeInfoRef,
   }: {
     userAddress: string
+    userChainType: AuthMethod
     formValues: DepositFormContext
     depositGenerateAddressRef: ActorRefFrom<
       typeof depositGenerateAddressMachine
@@ -124,6 +133,7 @@ export async function prepareDeposit(
     storageDepositAmountRef: ActorRefFrom<typeof storageDepositAmountMachine>
     depositTokenBalanceRef: ActorRefFrom<typeof depositTokenBalanceMachine>
     depositEstimationRef: ActorRefFrom<typeof depositEstimationMachine>
+    poaBridgeInfoRef: ActorRefFrom<typeof poaBridgeInfoActor>
   },
   { signal }: { signal: AbortSignal }
 ): Promise<PreparationOutput> {
@@ -131,7 +141,7 @@ export async function prepareDeposit(
 
   let storageDepositAmount: bigint | null = null
   // Getting storage deposit amount makes sense only for user NEAR wallet
-  if (formValues.blockchain === AuthMethod.Near) {
+  if (userChainType === AuthMethod.Near) {
     const storageDepositAmountResult = await getStorageDepositAmount(
       {
         storageDepositAmountRef,
@@ -141,17 +151,19 @@ export async function prepareDeposit(
     if (storageDepositAmountResult.tag === "err") {
       return storageDepositAmountResult
     }
-    storageDepositAmount = storageDepositAmountResult.value.maxDepositValue
+    storageDepositAmount = storageDepositAmountResult.value.maxDepositAmount
   }
 
-  const generateDepositAddress = await getGeneratedDepositAddress(
+  const generateDepositAddressResult = await getGeneratedDepositAddressResult(
     {
+      formValues,
       depositGenerateAddressRef,
+      poaBridgeInfoRef,
     },
     { signal }
   )
-  if (generateDepositAddress.tag === "err") {
-    return generateDepositAddress
+  if (generateDepositAddressResult.tag === "err") {
+    return generateDepositAddressResult
   }
 
   const balances = await getBalances(
@@ -170,8 +182,8 @@ export async function prepareDeposit(
       userAddress,
       balance: balances.value.balance,
       nearBalance: balances.value.nearBalance,
-      generateDepositAddress:
-        generateDepositAddress.value.generateDepositAddress,
+      generatedDepositAddress:
+        generateDepositAddressResult.value.generatedDepositAddress,
       depositEstimationRef,
     },
     { signal }
@@ -182,7 +194,7 @@ export async function prepareDeposit(
 
   const solanaATACreationRequired = await checkSolanaATARequired(
     formValues.tokenDeployment,
-    generateDepositAddress.value.generateDepositAddress
+    generateDepositAddressResult.value.generatedDepositAddress
   )
 
   const tonJettonWalletCreationRequired = await checkTonJettonWalletRequired(
@@ -194,15 +206,16 @@ export async function prepareDeposit(
   return {
     tag: "ok",
     value: {
-      generateDepositAddress:
-        generateDepositAddress.value.generateDepositAddress,
+      generatedDepositAddress:
+        generateDepositAddressResult.value.generatedDepositAddress,
       storageDepositAmount,
       balance: balances.value.balance,
       nearBalance: balances.value.nearBalance,
-      maxDepositValue: estimation.value.maxDepositValue,
+      maxDepositAmount: estimation.value.maxDepositAmount,
+      minDepositAmount: generateDepositAddressResult.value.minDepositAmount,
       solanaATACreationRequired,
       tonJettonWalletCreationRequired,
-      memo: generateDepositAddress.value.memo,
+      memo: generateDepositAddressResult.value.memo,
     },
   }
 }
@@ -215,7 +228,7 @@ async function getStorageDepositAmount(
   },
   { signal }: { signal: AbortSignal }
 ): Promise<
-  | { tag: "ok"; value: { maxDepositValue: bigint | null } }
+  | { tag: "ok"; value: { maxDepositAmount: bigint | null } }
   | { tag: "err"; value: { reason: "ERR_NEP141_STORAGE_CANNOT_FETCH" } }
 > {
   const storageDepositAmount = await waitFor(
@@ -229,7 +242,7 @@ async function getStorageDepositAmount(
   return {
     tag: "ok",
     value: {
-      maxDepositValue:
+      maxDepositAmount:
         storageDepositAmount.context.preparationOutput?.value ?? null,
     },
   }
@@ -275,43 +288,85 @@ async function getBalances(
   }
 }
 
-async function getGeneratedDepositAddress(
+async function getGeneratedDepositAddressResult(
   {
+    formValues,
     depositGenerateAddressRef,
+    poaBridgeInfoRef,
   }: {
+    formValues: DepositFormContext
     depositGenerateAddressRef: ActorRefFrom<
       typeof depositGenerateAddressMachine
     >
+    poaBridgeInfoRef: ActorRefFrom<typeof poaBridgeInfoActor>
   },
   { signal }: { signal: AbortSignal }
 ): Promise<
   | {
       tag: "ok"
       value: {
-        generateDepositAddress: string | null
+        generatedDepositAddress: string | null
         memo: string | null
-        is1cs?: boolean
+        minDepositAmount: bigint
       }
     }
   | { tag: "err"; value: { reason: "ERR_GENERATING_ADDRESS" } }
 > {
-  const depositGenerateAddressState = await waitFor(
-    depositGenerateAddressRef,
-    (state) => state.matches("completed"),
-    { signal }
-  )
+  const [depositGenerateAddressState, poaBridgeInfoOutput] = await Promise.all([
+    waitFor(depositGenerateAddressRef, (state) => state.matches("completed"), {
+      signal,
+    }),
+    waitFor(poaBridgeInfoRef, (state) => state.matches("success"), {
+      signal,
+    }),
+  ])
+
   const generateDepositAddressOutput =
     depositGenerateAddressState.context.preparationOutput
-  if (generateDepositAddressOutput?.tag === "err") {
-    return generateDepositAddressOutput
+  const tokenOut = formValues.derivedToken
+  if (
+    generateDepositAddressOutput == null ||
+    generateDepositAddressOutput.tag === "err" ||
+    poaBridgeInfoOutput.context.bridgeInfo == null ||
+    tokenOut == null
+  ) {
+    return { tag: "err", value: { reason: "ERR_GENERATING_ADDRESS" } }
   }
-  const generateDepositAddress =
-    generateDepositAddressOutput?.value.generatedDepositAddress ?? null
+
+  const { generatedDepositAddress, memo, minAmountIn } =
+    generateDepositAddressOutput.value
+  const bridgedTokenInfo = getPOABridgeInfo(
+    poaBridgeInfoOutput,
+    tokenOut.defuseAssetId
+  )
+
+  const oneClickMinDepositAmount =
+    formValues.tokenDeployment && minAmountIn
+      ? parseUnits(minAmountIn, formValues.tokenDeployment.decimals)
+      : 0n
+  const poaMinDepositAmount =
+    bridgedTokenInfo == null ? 0n : bridgedTokenInfo.minDeposit
+
+  if (formValues.depositMode === DepositMode.ONE_CLICK) {
+    return {
+      tag: "ok",
+      value: {
+        generatedDepositAddress,
+        memo,
+        minDepositAmount:
+          oneClickMinDepositAmount > 0n
+            ? oneClickMinDepositAmount
+            : poaMinDepositAmount,
+      },
+    }
+  }
+
   return {
     tag: "ok",
     value: {
-      generateDepositAddress,
-      memo: generateDepositAddressOutput?.value.memo ?? null,
+      generatedDepositAddress,
+      memo,
+      minDepositAmount: poaMinDepositAmount,
     },
   }
 }
@@ -322,19 +377,19 @@ async function getDepositEstimation(
     formValues,
     balance,
     nearBalance,
-    generateDepositAddress,
+    generatedDepositAddress,
     depositEstimationRef,
   }: {
     userAddress: string
     formValues: DepositFormContext
     balance: bigint
     nearBalance: bigint | null
-    generateDepositAddress: string | null
+    generatedDepositAddress: string | null
     depositEstimationRef: ActorRefFrom<typeof depositEstimationMachine>
   },
   { signal }: { signal: AbortSignal }
 ): Promise<
-  | { tag: "ok"; value: { maxDepositValue: bigint | null } }
+  | { tag: "ok"; value: { maxDepositAmount: bigint | null } }
   | { tag: "err"; value: { reason: "ERR_ESTIMATE_MAX_DEPOSIT_VALUE" } }
 > {
   assert(formValues.tokenDeployment, "Token is required")
@@ -347,7 +402,7 @@ async function getDepositEstimation(
       balance: balance,
       nearBalance: nearBalance,
       token: formValues.tokenDeployment,
-      generateAddress: generateDepositAddress,
+      generateAddress: generatedDepositAddress,
     },
   })
   const depositEstimationState = await waitFor(
@@ -361,9 +416,9 @@ async function getDepositEstimation(
   return {
     tag: "ok",
     value: {
-      maxDepositValue:
+      maxDepositAmount:
         depositEstimationState.context.preparationOutput?.value
-          .maxDepositValue ?? null,
+          .maxDepositAmount ?? null,
     },
   }
 }
@@ -815,7 +870,6 @@ export async function generateStableDepositAddress(
   generatedDepositAddress: string | null
   memo: string | null
   minAmountIn: string | null
-  depositMode: DepositMode
 }> {
   const supportedTokens = await poaBridge.httpClient.getSupportedTokens({
     chains: [chain],
@@ -836,7 +890,6 @@ export async function generateStableDepositAddress(
     generatedDepositAddress: generatedDepositAddress.address,
     memo: generatedDepositAddress.memo ?? null,
     minAmountIn: null,
-    depositMode: DepositMode.SIMPLE,
   }
 }
 

@@ -23,7 +23,6 @@ type DepositGenerateAddressReturnType = {
   generatedDepositAddress: string | null
   memo: string | null
   minAmountIn: string | null
-  depositMode: DepositMode | null
 }
 
 type DepositGenerateAddressErrorType = { reason: "ERR_GENERATING_ADDRESS" }
@@ -72,7 +71,6 @@ export const depositGenerateAddressMachine = setup({
         generatedDepositAddress: string | null
         memo: string | null
         minAmountIn: string | null
-        depositMode: DepositMode
       }> => {
         throw new Error("not implemented")
       }
