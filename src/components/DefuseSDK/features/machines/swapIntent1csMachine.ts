@@ -180,18 +180,15 @@ export const swapIntent1csMachine = setup({
   actors: {
     fetch1csQuoteActor: fromPromise(
       async ({ input }: { input: Input & { userChainType: AuthMethod } }) => {
-        const tokenInAssetId = input.tokenIn.defuseAssetId
-        const tokenOutAssetId = input.tokenOut.defuseAssetId
-        const amount =
-          input.swapType === QuoteRequest.swapType.EXACT_INPUT
-            ? input.amountIn.amount
-            : input.amountOut.amount
         return get1csQuoteApiWithRetry({
           dry: false,
           slippageTolerance: Math.round(input.slippageBasisPoints / 100),
-          originAsset: tokenInAssetId,
-          destinationAsset: tokenOutAssetId,
-          amount: amount.toString(),
+          originAsset: input.tokenIn.defuseAssetId,
+          destinationAsset: input.tokenOut.defuseAssetId,
+          amount: (input.swapType === QuoteRequest.swapType.EXACT_INPUT
+            ? input.amountIn.amount
+            : input.amountOut.amount
+          ).toString(),
           deadline: input.deadline,
           userAddress: input.userAddress,
           authMethod: input.userChainType,
@@ -514,6 +511,8 @@ export const swapIntent1csMachine = setup({
             context.quote1csResult != null && "ok" in context.quote1csResult
           )
           assert(context.quote1csResult.ok.quote.depositAddress != null)
+          // for EXACT_INPUT quote we use amountIn from input as it always changes
+          // for EXACT_OUTPUT quote we can't use initial amountIn from input as it is stale and changes after requoting, so we are using the input from the quote.
           const amount = BigInt(
             (context.input.swapType === QuoteRequest.swapType.EXACT_INPUT
               ? context.input.amountIn.amount
