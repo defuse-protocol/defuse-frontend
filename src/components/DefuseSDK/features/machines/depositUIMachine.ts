@@ -1,5 +1,4 @@
-import { type AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
-import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
+import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { logger } from "@src/utils/logger"
 import {
@@ -11,7 +10,6 @@ import {
   enqueueActions,
   sendTo,
   setup,
-  spawnChild,
 } from "xstate"
 import { config } from "../../config"
 import { clearSolanaATACache } from "../../services/depositService"
@@ -22,7 +20,6 @@ import type {
 } from "../../types/base"
 import type { TokenInfo } from "../../types/base"
 import {
-  type Events as Background1csQuoterEvents,
   type ParentEvents as Background1csQuoterParentEvents,
   background1csQuoterMachine,
 } from "./background1csQuoterMachine"
@@ -91,21 +88,6 @@ export const depositUIMachine = setup({
       | DepositFormEvents
       | DepositFormParentEvents
       | Background1csQuoterParentEvents
-      | {
-          type: "NEW_1CS_QUOTE"
-          params: {
-            result:
-              | {
-                  ok: {
-                    quote: {
-                      depositAddress: string
-                      depositMemo: string
-                    }
-                  }
-                }
-              | { err: string }
-          }
-        }
       | {
           type: "ONE_CLICK_SETTLED"
           data: {
@@ -186,18 +168,24 @@ export const depositUIMachine = setup({
     requestGenerateAddress: sendTo(
       "depositGenerateAddressRef",
       ({ context }) => {
-        const { token, derivedToken, depositMode } =
+        const { userAddress, userChainType } = context
+        const { token, derivedToken, parsedAmount, depositMode, blockchain } =
           context.depositFormRef.getSnapshot().context
         assert(token != null, "token is null")
         assert(derivedToken != null, "derivedToken is null")
-        assert(depositMode != null, "depositMode is null")
 
         return {
           type: "REQUEST_GENERATE_ADDRESS",
           params: {
-            userAddress: context.userAddress,
-            blockchain: context.depositFormRef.getSnapshot().context.blockchain,
-            userChainType: context.userChainType,
+            userAddress,
+            userChainType,
+            blockchain,
+            tokenIn: derivedToken,
+            tokenOut: getBaseTokenInfoWithFallback(token, null),
+            amountIn: {
+              amount: parsedAmount ?? 0n,
+              decimals: derivedToken.decimals,
+            },
             depositMode,
           },
         }
@@ -206,38 +194,6 @@ export const depositUIMachine = setup({
     requestClearAddress: sendTo("depositGenerateAddressRef", () => ({
       type: "REQUEST_CLEAR_ADDRESS",
     })),
-    sendToDepositGenerateAddressRef1csQuote: sendTo(
-      "depositGenerateAddressRef",
-      ({ event }) => {
-        if (event.type !== "NEW_1CS_QUOTE") {
-          return null
-        }
-        const { result } = event.params
-        if ("err" in result) {
-          return {
-            type: "REQUEST_1CS_GENERATE_ADDRESS",
-            params: {
-              tag: "err",
-              value: {
-                reason: "ERR_GENERATING_ADDRESS",
-                error: new Error(result.err),
-              },
-            },
-          }
-        }
-        return {
-          type: "REQUEST_1CS_GENERATE_ADDRESS",
-          params: {
-            tag: "ok",
-            value: {
-              generateDepositAddress: result.ok.quote.depositAddress,
-              memo: result.ok.quote.depositMemo ?? null,
-              is1cs: true,
-            },
-          },
-        }
-      }
-    ),
     // @ts-expect-error Weird xstate type error, which should not be thrown
     requestBalanceRefresh: enqueueActions(({ enqueue, context }) => {
       const { blockchain, tokenDeployment } =
@@ -273,10 +229,6 @@ export const depositUIMachine = setup({
         }
       }
     ),
-    spawnBackground1csQuoterRef: spawnChild("background1csQuoterActor", {
-      id: "background1csQuoterRef",
-      input: ({ self }) => ({ parentRef: self }),
-    }),
     requestStorageDepositAmount: sendTo(
       "storageDepositAmountRef",
       ({ context }) => {
@@ -285,56 +237,6 @@ export const depositUIMachine = setup({
           params: {
             token: context.depositFormRef.getSnapshot().context.derivedToken,
             userAccountId: context.userAddress,
-          },
-        }
-      }
-    ),
-    sendToBackground1csQuoterRefNewQuoteInput: sendTo(
-      "background1csQuoterRef",
-      ({ context }: { context: Context }): Background1csQuoterEvents => {
-        const { token, tokenDeployment, derivedToken, depositMode } =
-          context.depositFormRef.getSnapshot().context
-        const { blockchain } = context.depositFormRef.getSnapshot().context
-        const { userAddress, userChainType } = context
-
-        if (
-          derivedToken == null ||
-          tokenDeployment == null ||
-          userAddress == null ||
-          userChainType == null ||
-          token == null ||
-          blockchain == null ||
-          depositMode === DepositMode.SIMPLE
-        ) {
-          return { type: "PAUSE" }
-        }
-
-        const baseToken = getBaseTokenInfoWithFallback(token, null)
-
-        return {
-          type: "NEW_QUOTE_INPUT",
-          params: {
-            tokenIn: derivedToken,
-            tokenOut: baseToken,
-            amountIn: {
-              amount: 0n, // Since this is correct for passive deposit it also works for active deposit
-              decimals: derivedToken.decimals,
-            },
-            slippageBasisPoints: 10000,
-            defuseUserId: authIdentity.authHandleToIntentsUserId(
-              userAddress,
-              userChainType
-            ),
-            deadline: new Date(Date.now() + 5 * 60 * 1000).toISOString(), // 5 minutes
-            userAddress: userAddress,
-            userChainType: userChainType,
-            dry: false,
-            depositType: QuoteRequest.depositType.ORIGIN_CHAIN,
-            swapType: QuoteRequest.swapType.FLEX_INPUT,
-            quoteWaitingTimeMs: 0,
-            depositMode: isNetworkRequiresMemo(blockchain)
-              ? QuoteRequest.depositMode.MEMO
-              : QuoteRequest.depositMode.SIMPLE,
           },
         }
       }
@@ -433,12 +335,6 @@ export const depositUIMachine = setup({
       "isNetworkValid",
       "isLoggedIn",
     ]),
-    isOneClickMode: ({ context }) => {
-      return (
-        context.depositFormRef.getSnapshot().context.depositMode ===
-        DepositMode.ONE_CLICK
-      )
-    },
   },
 }).createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QTABwPawJYBcC0ArlgMQAyA8gOICSAcgNoAMAuoqBtjlugHZsgAPRAFYAzADYAdAHZxADgAscgEwLpjCQE5hAGhABPRHmXTRkxvICMy5eKULLD4QF9nelB1yESFSuQCqACpMrEggnly8-EII0gpS0pbiypaaoowK8Qq6Bkbi0sqSmaJylmXK2payru5omF5EkpC4WDxQxAAiAKIACuQAytSBAPoAYuQASgCykgBUIfwR3HxhMbZmwhZpBcJpqsp6hgjGcowyjJqqyYyMcrJy4jUgHvX4jc1cbZ29A0Njk1MxtQuqQOv1hgBhAASAEFaJQuh0FmEllFVohLIxpJJbLdMZpTiVRAVDhjhIVhKYbqJRMoMmkXG5nnVON4mhAWl9un1BiNxtMgSCwZDYfDEfRLKF2K9ltEyQoZHYCjS6flRApSQhxBoZJcNMlxHZNNkni9We8OZ92rQugB1YaWCHggCK-nIgS6yOlnFl6IQmgDkmECnSNzkBIc4lEmuMpnMVhsdkUjksjNqETZH1aUEkOAATvpAugJnAcOg82B+jgAIY4MDEL3hGVo0AxO6FNXCOzCB7SXbSGNVSRyWm7YTCMoORzVJlmhpYdmcnP5wvF0vlys1usNyWLZsrVsYqqFEfj9IPTSmOSD7Ej5Rjicpxzj00s+eLq2SLAQAA29f6-gAEJTEMjaogeggYgo2jDiY+LPsoxLRrkxwhuYuxJJYDzjuISRdq+GYWkuX6-v+QEgcEu4ovucoII4pySKm5LWJiZQSOImrWHIw6YnExrJLIGTSARryZpa2YkX+xAAcBoHKFKTY+i2kF0WoZh6thjA2FhNKaqIjiMQGKjqgGfbyI8s5vm8C5Zm0klkbJwSiAp4G0c+CqYow5JZModyXJqmyWEUcjBpYEhlHE0hyCJ5o2eJdnflJMkUfQCguTRfrTgq2QpKkXbQZcA4ofIZw9goNyGkolTKDF762TmiUOSlwjpUpEExPRZhbPpqbGoo0hFUcIWaMOWT5ANYUZNFlmEXFxGNdJ5GgeIrUtMpHVqAqeyUoJkbjpxGjCEUmipKmBS3MS03pqJRGfgtyWgdIq2RO1UEMeImgaCF45cZxKRHQSjjZIJn0DbV1kfhJqAVqg1Z5rWyzEBAvBgF+PAAG7oAA1qjc4Q-VkjQ2gcMI7wCCtJjADGpM8CEYEZYesQSJIo7apexKYrSmq4dx9xdgSlKnIwljg2JxFE7D8MvcQYB5nm5aEz+tYAGblgAtpIeNi5+Esky95MY+g1MvXTLB7m1tEBkd2SUhzGjqgcxVYYqDxYlhWImKIouNLABAAEZq7gVq0GAcOBAISMo2jmM45rVkh3DJbK-TFt+ohQ4hrIk4hV5qYxqUkgEnIii3Eadght7C6+wHQfZl0ABqUzh5HPCoxT2O41ZDdTEnKdra9CDp9ime4fRmwTjkQ0jcXnP6eVIYe5XkjV4HOBWv06BKzw1bN8jrfRx3ccRBvW-Vr3ZvUanjND4xXbqrsHvEpqthBdIDIqFpqQ5UvK+120gQEDzH7dAu8o7t1jnjABQC1zJwvt6futEb4j2zuPPOKF4gUhwpeXyxoqjGh-v7VeVp65YDzDgAg1YfwQgABbVlaKA-e4DO4RBIWQihVDaGtHPs9X019QxFHdj2VIPVuYOEkOIYMtJZDQWDA8AhNc17ZiLDwBhbdDYQKsso7h5sEFp30sPYko8lCoMnogD+hckhRTuIkT6qR5FEOzFWMAP4lZ5lUQfDRx86wuMTmAWBPD1qICQYYlBudTH+k0FILs2lTi7EvFUexf8oCBHlioiOe81Ex2Ya8FJvBtGX10XwjOhj0iOAkWgo4EVsS5ziKUG4GQkiuCZDwdAKB4BhC1kQHRL03JBVxHUgkX1iSqBjJkPpFxbDyF8tkMpS96rdN4SpXYOJtQDMJCOAoGoUJ4F4kGFQuxoIKBSF5RCcz4rLgLEWEssAywVirLWMACzAkIGglIEKI5SlWPuDGOk5gVCrLwtORwXsZo3TmndUiTyB6TSkPkCc2Q7COHvFso4dgziqAnqobI+jNBnPFjDPWizXJ+lOEFC4wZyq7FELgwaGIPpBiqISbUXkhI1VBbFZehCkkJzcTEeBPTMoPAVG7e8wtAYVFGRsf5vUkjJEvLi9l75f6KLaN3cOUK3LYRxGdbQWICgDWQpU3yOJ2zaCnB9RCILrocuVevTe1Zt7qoKQKxmWFyR-PkD2dUtwzJ6TCuI6RFgJq4UpIklVyTAHAKdfyxZHV3lBgnIkLCSQ0gopEDcQuuEAzyBHNqQ0YbiGkPIZQmhdC0kasFeVIMAtkgqD1OE-IpVtRdjCn2axFlrVKq5eG5R0bFKFJUlhRIOJgxv2pXfckHEULDRZohXOGR9JRg7cyWanKFHr28a4vtxLXUhQVOGClGFTLaAOuqTNihCT6UtWyztENbVKNSduhmg72w4kiX2NQbF7yGoxP9IolIGQ7EyAq1wQA */
@@ -480,7 +376,7 @@ export const depositUIMachine = setup({
     }
   },
 
-  entry: ["fetchPOABridgeInfo", "spawnBackground1csQuoterRef"],
+  entry: ["fetchPOABridgeInfo"],
 
   on: {
     LOGIN: {
@@ -546,10 +442,6 @@ export const depositUIMachine = setup({
             ],
           },
         ],
-        NEW_1CS_QUOTE: {
-          guard: "isOneClickMode",
-          actions: "sendToDepositGenerateAddressRef1csQuote",
-        },
       },
 
       states: {
@@ -623,7 +515,6 @@ export const depositUIMachine = setup({
           entry: [
             "requestGenerateAddress",
             "requestBalanceRefresh",
-            "sendToBackground1csQuoterRefNewQuoteInput",
             "requestStorageDepositAmount",
           ],
           invoke: {
@@ -790,7 +681,7 @@ export const depositUIMachine = setup({
             "clearUIDepositAmount",
             "requestBalanceRefresh",
             "resetPreparationOutput",
-            { type: "clearSolanaATACache" },
+            "clearSolanaATACache",
           ],
           reenter: true,
         },
@@ -1085,5 +976,6 @@ function extractDepositParams(context: Context): DepositParams {
   }
 }
 
+// biome-ignore lint/correctness/noUnusedVariables: TODO: use this in preparation 1cs quote
 const isNetworkRequiresMemo = (chainName: SupportedChainName): boolean =>
   ["stellar"].includes(chainName) // "ton" requires memo but for some reason it works without it

@@ -114,11 +114,9 @@ export async function prepareDeposit(
 ): Promise<PreparationOutput> {
   assert(formValues.tokenDeployment, "Token is required")
 
-  const userChainType =
-    depositGenerateAddressRef.getSnapshot().context.userChainType
   let storageDepositRequired: bigint | null = null
   // Getting storage deposit amount makes sense only for user NEAR wallet
-  if (userChainType === AuthMethod.Near) {
+  if (formValues.blockchain === AuthMethod.Near) {
     const storageDepositAmount = await getStorageDepositAmount(
       {
         storageDepositAmountRef,

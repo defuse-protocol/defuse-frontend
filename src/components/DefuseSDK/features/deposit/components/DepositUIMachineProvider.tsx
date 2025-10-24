@@ -38,6 +38,7 @@ import { assetNetworkAdapter } from "../../../utils/adapters"
 import { assert } from "../../../utils/assert"
 import { getEVMChainId } from "../../../utils/evmChainId"
 import { isFungibleToken, isNativeToken } from "../../../utils/token"
+import { DepositMode } from "../../machines/depositFormReducer"
 import { depositGenerateAddressMachine } from "../../machines/depositGenerateAddressMachine"
 import { depositUIMachine } from "../../machines/depositUIMachine"
 import { useDepositTokenChangeNotifier } from "../../swap/hooks/useTokenChangeNotifier"
@@ -115,7 +116,23 @@ export function DepositUIMachineProvider({
           depositGenerateAddressActor: depositGenerateAddressMachine.provide({
             actors: {
               generateDepositAddress: fromPromise(async ({ input }) => {
-                const { userAddress, blockchain, userChainType } = input
+                const {
+                  userAddress,
+                  blockchain,
+                  userChainType,
+                  depositMode,
+                  // biome-ignore lint/correctness/noUnusedVariables: TODO: use this in preparation 1cs quote
+                  amountIn,
+                  // biome-ignore lint/correctness/noUnusedVariables: TODO: use this in preparation 1cs quote
+                  tokenIn,
+                  // biome-ignore lint/correctness/noUnusedVariables: TODO: use this in preparation 1cs quote
+                  tokenOut,
+                } = input
+
+                if (depositMode === DepositMode.ONE_CLICK) {
+                  // TODO implement one click API call
+                  throw new Error("Not implemented")
+                }
 
                 const generatedResult = await generateDepositAddress(
                   authIdentity.authHandleToIntentsUserId(
@@ -129,6 +146,7 @@ export function DepositUIMachineProvider({
                   generateDepositAddress:
                     generatedResult.generatedDepositAddress,
                   memo: generatedResult.memo,
+                  minimumAmount: null,
                 }
               }),
             },
