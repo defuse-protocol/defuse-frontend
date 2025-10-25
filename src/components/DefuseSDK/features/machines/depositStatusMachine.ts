@@ -194,7 +194,7 @@ export const depositStatusMachine = setup({
         {
           target: "success",
           guard: not("shouldContinueTracking"),
-          actions: log("Swap completed"),
+          actions: log("Deposit completed"),
         },
         {
           target: "polling",
