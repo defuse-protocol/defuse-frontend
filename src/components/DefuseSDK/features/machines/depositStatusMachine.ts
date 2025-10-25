@@ -3,7 +3,7 @@ import { type ActorRef, type Snapshot, log } from "xstate"
 import { assign, fromPromise, not, setup } from "xstate"
 import type { SupportedChainName, TokenInfo } from "../../types/base"
 import { getTxStatus, submitTxHash } from "./1cs"
-import type { DepositMode } from "./depositFormReducer"
+import { DepositMode } from "./depositFormReducer"
 
 type ChildEvent = {
   type: "DEPOSIT_SETTLED"
@@ -101,6 +101,9 @@ export const depositStatusMachine = setup({
     shouldContinueTracking: ({ context }) => {
       return context.status != null && statusesToTrack.has(context.status)
     },
+    isOneClick: ({ context }) => {
+      return context.depositMode === DepositMode.ONE_CLICK
+    },
   },
   delays: {
     pollInterval: 500, // 1 second
@@ -124,7 +127,15 @@ export const depositStatusMachine = setup({
   }),
   states: {
     pending: {
-      always: "SubmittingTxHash",
+      always: [
+        {
+          target: "SubmittingTxHash",
+          guard: "isOneClick",
+        },
+        {
+          target: "success",
+        },
+      ],
     },
     SubmittingTxHash: {
       invoke: {

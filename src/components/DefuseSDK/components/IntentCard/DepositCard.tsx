@@ -1,3 +1,4 @@
+import { InfoIcon } from "@phosphor-icons/react"
 import { Box, Flex, Link, Spinner, Text } from "@radix-ui/themes"
 import { chainTxExplorer } from "@src/components/DefuseSDK/utils/chainTxExplorer"
 import { useSelector } from "@xstate/react"
@@ -10,6 +11,7 @@ import {
 } from "../../features/machines/oneClickStatusMachine"
 import { formatTokenValue } from "../../utils/format"
 import { AssetComboIcon } from "../Asset/AssetComboIcon"
+import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip"
 import { CopyButton } from "./CopyButton"
 
 type DepositCardProps = {
@@ -99,6 +101,14 @@ export function DepositCard({ depositStatusActorRef }: DepositCardProps) {
               <Text size="1" weight="medium" color="green">
                 Completed
               </Text>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <InfoIcon />
+                </TooltipTrigger>
+                <TooltipContent>
+                  Settlement in flight. Please wait for it to complete.
+                </TooltipContent>
+              </Tooltip>
             </Flex>
           )}
         </Flex>
