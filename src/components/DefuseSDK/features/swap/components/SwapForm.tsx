@@ -1,3 +1,4 @@
+import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import { ArrowsDownUpIcon } from "@phosphor-icons/react"
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Box, Button, Callout } from "@radix-ui/themes"
@@ -69,8 +70,8 @@ export interface SwapFormProps {
 export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const {
     setValue,
-    getValues,
     watch,
+    getValues,
     register,
     handleSubmit,
     formState: { errors },
@@ -82,7 +83,9 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const { data: tokensUsdPriceData } = useTokensUsdPrices()
 
   const formValuesRef = useSelector(swapUIActorRef, formValuesSelector)
-  const { tokenIn, tokenOut } = formValuesRef
+  const { tokenIn, tokenOut, swapType } = formValuesRef
+  const amountIn = watch("amountIn")
+  const amountOut = watch("amountOut")
   const tokens = useTokensStore((state) => state.tokens)
 
   const {
@@ -114,17 +117,20 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
   // we need stable references to allow passing to useEffect
   const switchTokens = useCallback(() => {
-    const { amountIn, amountOut } = getValues()
+    const { amountOut } = getValues()
     setValue("amountIn", amountOut)
-    setValue("amountOut", amountIn)
+    setValue("amountOut", "")
     swapUIActorRef.send({
       type: "input",
       params: {
         tokenIn: tokenOut,
         tokenOut: tokenIn,
+        amountIn: amountOut,
+        amountOut: "",
+        swapType: QuoteRequest.swapType.EXACT_INPUT,
       },
     })
-  }, [tokenIn, tokenOut, getValues, setValue, swapUIActorRef.send])
+  }, [tokenIn, tokenOut, setValue, getValues, swapUIActorRef])
 
   const {
     setModalType,
@@ -157,35 +163,112 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     const _payload = payload as ModalSelectAssetsPayload
     const token = _payload[fieldName || "token"]
     if (modalType === ModalType.MODAL_SELECT_ASSETS && fieldName && token) {
-      const { tokenIn, tokenOut } =
+      const { tokenIn, tokenOut, swapType } =
         swapUIActorRef.getSnapshot().context.formValues
-
+      const { amountIn, amountOut } = getValues()
+      const isExactInput = swapType === QuoteRequest.swapType.EXACT_INPUT
       switch (fieldName) {
-        case SWAP_TOKEN_FLAGS.IN:
+        case SWAP_TOKEN_FLAGS.IN: {
+          let newAmountIn = ""
+          let newAmountOut = ""
+          let valueToReset: "amountIn" | "amountOut" = "amountOut"
+
+          if (isExactInput) {
+            newAmountIn = amountIn
+          } else {
+            // If we change TOKEN IN but last touched input was AMOUNT OUT and so current swap type is EXACT_OUTPUT , we SHOULD NOT trigger and EXACT IN quote and keep with EXACT OUT quote
+            newAmountOut = amountOut
+            valueToReset = "amountIn"
+          }
           if (getTokenId(tokenOut) === getTokenId(token)) {
             // Don't need to switch amounts, when token selected from dialog
             swapUIActorRef.send({
               type: "input",
-              params: { tokenIn: tokenOut, tokenOut: tokenIn },
+              params: {
+                tokenIn: tokenOut,
+                tokenOut: tokenIn,
+                amountIn: newAmountIn,
+                amountOut: newAmountOut,
+              },
             })
           } else {
-            swapUIActorRef.send({ type: "input", params: { tokenIn: token } })
-          }
-          break
-        case SWAP_TOKEN_FLAGS.OUT:
-          if (getTokenId(tokenIn) === getTokenId(token)) {
-            // Don't need to switch amounts, when token selected from dialog
             swapUIActorRef.send({
               type: "input",
-              params: { tokenIn: tokenOut, tokenOut: tokenIn },
+              params: {
+                tokenIn: token,
+                amountIn: newAmountIn,
+                amountOut: newAmountOut,
+              },
             })
+          }
+          setValue(valueToReset, "")
+          break
+        }
+        case SWAP_TOKEN_FLAGS.OUT: {
+          if (is1cs) {
+            let newAmountIn = ""
+            let newAmountOut = ""
+            let valueToReset: "amountIn" | "amountOut" = "amountIn"
+            if (isExactInput) {
+              // If we change TOKEN OUT but last touched input was AMOUNT IN and so current swap type is EXACT_INPUT, we SHOULD NOT trigger and EXACT OUT quote and keep with EXACT IN quote
+              newAmountIn = amountIn
+              valueToReset = "amountOut"
+            } else {
+              newAmountOut = amountOut
+            }
+            if (getTokenId(tokenIn) === getTokenId(token)) {
+              // Don't need to switch amounts, when token selected from dialog
+              swapUIActorRef.send({
+                type: "input",
+                params: {
+                  tokenIn: tokenOut,
+                  tokenOut: tokenIn,
+                  amountIn: newAmountIn,
+                  amountOut: newAmountOut,
+                },
+              })
+            } else {
+              swapUIActorRef.send({
+                type: "input",
+                params: {
+                  tokenOut: token,
+                  amountIn: newAmountIn,
+                  amountOut: newAmountOut,
+                },
+              })
+            }
+
+            setValue(valueToReset, "")
           } else {
-            swapUIActorRef.send({ type: "input", params: { tokenOut: token } })
+            // legacy flow for non 1cs
+            if (getTokenId(tokenIn) === getTokenId(token)) {
+              // Don't need to switch amounts, when token selected from dialog
+              swapUIActorRef.send({
+                type: "input",
+                params: {
+                  tokenIn: tokenOut,
+                  tokenOut: tokenIn,
+                  amountOut: "",
+                  amountIn,
+                },
+              })
+            } else {
+              swapUIActorRef.send({
+                type: "input",
+                params: {
+                  tokenOut: token,
+                  amountOut: "",
+                  amountIn,
+                },
+              })
+            }
+            setValue("amountOut", "")
           }
           break
+        }
       }
     }
-  }, [payload, currentModalType, swapUIActorRef])
+  }, [payload, currentModalType, swapUIActorRef, getValues, setValue])
 
   const { onSubmit } = useContext(SwapSubmitterContext)
 
@@ -220,16 +303,8 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const showDepositButton =
     tokenInBalance != null && tokenInBalance.amount === 0n
 
-  const usdAmountIn = getTokenUsdPrice(
-    watch("amountIn"),
-    tokenIn,
-    tokensUsdPriceData
-  )
-  const usdAmountOut = getTokenUsdPrice(
-    watch("amountOut"),
-    tokenOut,
-    tokensUsdPriceData
-  )
+  const usdAmountIn = getTokenUsdPrice(amountIn, tokenIn, tokensUsdPriceData)
+  const usdAmountOut = getTokenUsdPrice(amountOut, tokenOut, tokensUsdPriceData)
 
   const is1cs = useIs1CsEnabled()
   const isLoading =
@@ -250,10 +325,13 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
         tokenInBalance.decimals
       )
       setValue("amountIn", amountIn)
+      setValue("amountOut", "")
       swapUIActorRef.send({
         type: "input",
         params: {
           amountIn,
+          amountOut: "",
+          swapType: QuoteRequest.swapType.EXACT_INPUT,
         },
       })
     }
@@ -266,7 +344,15 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
         tokenInBalance.decimals
       )
       setValue("amountIn", amountIn)
-      swapUIActorRef.send({ type: "input", params: { amountIn } })
+      setValue("amountOut", "")
+      swapUIActorRef.send({
+        type: "input",
+        params: {
+          amountIn,
+          amountOut: "",
+          swapType: QuoteRequest.swapType.EXACT_INPUT,
+        },
+      })
     }
   }
 
@@ -278,7 +364,8 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const showRateInfo = tokenIn && tokenOut && !isLoading
 
   const isLongLoading = useThrottledValue(isLoading, isLoading ? 3000 : 0)
-
+  const amountInEmpty = amountIn === ""
+  const amountOutEmpty = amountOut === ""
   return (
     <div className="flex flex-col min-w-0">
       <form
@@ -299,6 +386,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             inputSlot={
               <TokenAmountInputCard.Input
                 id="swap-form-amount-in"
+                isLoading={isLoading && amountInEmpty}
                 {...register("amountIn", {
                   required: true,
                   validate: (value) => {
@@ -309,11 +397,17 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                     )
                   },
                   onChange: (e) => {
+                    setValue("amountOut", "")
                     swapUIActorRef.send({
                       type: "input",
-                      params: { amountIn: e.target.value },
+                      params: {
+                        tokenIn,
+                        tokenOut,
+                        swapType: QuoteRequest.swapType.EXACT_INPUT,
+                        amountIn: e.target.value,
+                        amountOut: "",
+                      },
                     })
-                    setValue("amountOut", "")
                   },
                 })}
               />
@@ -358,11 +452,15 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               </TokenAmountInputCard.DisplayPrice>
             }
             infoSlot={
-              errors.amountIn && (
+              errors.amountIn ? (
                 <p className="text-label text-sm text-red-500">
                   {errors.amountIn.message || "This field is required"}
                 </p>
-              )
+              ) : isLongLoading && amountInEmpty ? (
+                <TokenAmountInputCard.DisplayInfo>
+                  Searching for more liquidity...
+                </TokenAmountInputCard.DisplayInfo>
+              ) : null
             }
           />
 
@@ -393,10 +491,37 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               inputSlot={
                 <TokenAmountInputCard.Input
                   id="swap-form-amount-out"
-                  name="amountOut"
-                  value={watch("amountOut")}
-                  disabled={true}
-                  isLoading={isLoading}
+                  isLoading={isLoading && amountOutEmpty}
+                  {...(is1cs
+                    ? register("amountOut", {
+                        required: true,
+                        validate: (value) => {
+                          if (!value) return true
+                          const num = Number.parseFloat(value.replace(",", "."))
+                          return (
+                            (!Number.isNaN(num) && num > 0) ||
+                            "Enter a valid amount"
+                          )
+                        },
+                        onChange: (e) => {
+                          setValue("amountIn", "")
+                          swapUIActorRef.send({
+                            type: "input",
+                            params: {
+                              tokenIn,
+                              tokenOut,
+                              swapType: QuoteRequest.swapType.EXACT_OUTPUT,
+                              amountOut: e.target.value,
+                              amountIn: "",
+                            },
+                          })
+                        },
+                      })
+                    : {
+                        disabled: true,
+                        name: "amountOut",
+                        value: amountOut,
+                      })}
                 />
               }
               tokenSlot={
@@ -417,18 +542,6 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                     "!static",
                     tokenOutBalance == null && "invisible"
                   )}
-                  maxButtonSlot={
-                    <BlockMultiBalances.DisplayMaxButton
-                      balance={balanceAmountOut}
-                      disabled={true}
-                    />
-                  }
-                  halfButtonSlot={
-                    <BlockMultiBalances.DisplayHalfButton
-                      balance={balanceAmountOut}
-                      disabled={true}
-                    />
-                  }
                 />
               }
               priceSlot={
@@ -439,7 +552,11 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                 </TokenAmountInputCard.DisplayPrice>
               }
               infoSlot={
-                isLongLoading ? (
+                errors.amountOut && is1cs ? (
+                  <p className="text-label text-sm text-red-500">
+                    {errors.amountOut.message || "This field is required"}
+                  </p>
+                ) : isLongLoading && amountOutEmpty ? (
                   <TokenAmountInputCard.DisplayInfo>
                     Searching for more liquidity...
                   </TokenAmountInputCard.DisplayInfo>
@@ -473,6 +590,8 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                 snapshot.matches("submitting_1cs")
               }
               disabled={
+                (isLoading &&
+                  swapType === QuoteRequest.swapType.EXACT_OUTPUT) ||
                 balanceInsufficient ||
                 noLiquidity ||
                 insufficientTokenInAmount ||
@@ -516,10 +635,18 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             amount: snapshot.context.parsedFormValues.amountIn?.amount ?? 0n,
             decimals: snapshot.context.parsedFormValues.amountIn?.decimals ?? 0,
           }}
-          newAmountOut={snapshot.context.priceChangeDialog.pendingNewAmountOut}
-          previousAmountOut={
-            snapshot.context.priceChangeDialog.previousAmountOut
+          amountOut={{
+            amount: snapshot.context.parsedFormValues.amountOut?.amount ?? 0n,
+            decimals:
+              snapshot.context.parsedFormValues.amountOut?.decimals ?? 0,
+          }}
+          previousOppositeAmount={
+            snapshot.context.priceChangeDialog.previousOppositeAmount
           }
+          newOppositeAmount={
+            snapshot.context.priceChangeDialog.pendingNewOppositeAmount
+          }
+          swapType={snapshot.context.formValues.swapType}
           onConfirm={() =>
             swapUIActorRef.send({ type: "PRICE_CHANGE_CONFIRMED" })
           }
@@ -683,6 +810,11 @@ export function renderIntentCreationResult(
       content = "Failed to create transfer message. Please try again."
       break
 
+    case "ERR_AMOUNT_IN_BALANCE_INSUFFICIENT_AFTER_NEW_1CS_QUOTE":
+      content =
+        "Swap aborted: Insufficient token balance for the updated quote. Please try again."
+      break
+
     default:
       status satisfies never
       content = `An error occurred. Please try again. ${status}`
@@ -693,7 +825,7 @@ export function renderIntentCreationResult(
   }
 
   return (
-    <Callout.Root size="1" color="red">
+    <Callout.Root size="1" color="red" className="mt-4">
       <Callout.Icon>
         <ExclamationTriangleIcon />
       </Callout.Icon>

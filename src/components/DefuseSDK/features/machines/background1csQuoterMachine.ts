@@ -1,14 +1,15 @@
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
+import type { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import { getQuote as get1csQuoteApi } from "@src/components/DefuseSDK/features/machines/1cs"
-import { type ActorRef, type Snapshot, fromCallback } from "xstate"
-
 import { logger } from "@src/utils/logger"
+import { type ActorRef, type Snapshot, fromCallback } from "xstate"
 import type { BaseTokenInfo } from "../../types/base"
 
 export type Quote1csInput = {
   tokenIn: BaseTokenInfo
   tokenOut: BaseTokenInfo
-  amountIn: { amount: bigint; decimals: number }
+  amount: { amount: bigint; decimals: number }
+  swapType: QuoteRequest.swapType
   slippageBasisPoints: number
   defuseUserId: string
   deadline: string
@@ -129,10 +130,11 @@ async function get1csQuote(
       slippageTolerance: Math.round(quoteInput.slippageBasisPoints / 100),
       originAsset: tokenInAssetId,
       destinationAsset: tokenOutAssetId,
-      amount: quoteInput.amountIn.amount.toString(),
+      amount: quoteInput.amount.amount.toString(),
       deadline: quoteInput.deadline,
       userAddress: quoteInput.userAddress,
       authMethod: quoteInput.userChainType,
+      swapType: quoteInput.swapType,
     })
 
     onResult(result, tokenInAssetId, tokenOutAssetId)

@@ -1,18 +1,17 @@
 import type { walletMessage } from "@defuse-protocol/internal-utils"
+import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { createActorContext } from "@xstate/react"
 import type { PropsWithChildren, ReactElement, ReactNode } from "react"
 import { useFormContext } from "react-hook-form"
-import { formatUnits } from "viem"
 import {
   type Actor,
   type ActorOptions,
   type SnapshotFrom,
   fromPromise,
 } from "xstate"
-import { computeTotalDeltaDifferentDecimals } from "../../../utils/tokenUtils"
 import { swapIntent1csMachine } from "../../machines/swapIntent1csMachine"
 import { swapIntentMachine } from "../../machines/swapIntentMachine"
 import { swapUIMachine } from "../../machines/swapUIMachine"
@@ -67,7 +66,7 @@ export function SwapUIMachineProvider({
   signMessage,
   referral,
 }: SwapUIMachineProviderProps) {
-  const { setValue, resetField } = useFormContext<SwapFormValues>()
+  const { setValue } = useFormContext<SwapFormValues>()
   const tokenIn = initialTokenIn || tokenList[0]
   const tokenOut = initialTokenOut || tokenList[1]
   const is1cs = useIs1CsEnabled()
@@ -88,27 +87,28 @@ export function SwapUIMachineProvider({
       }}
       logic={swapUIMachine.provide({
         actions: {
-          updateUIAmountOut: ({ context }) => {
+          updateUIAmount: ({ context }) => {
             const quote = context.quote
-            if (quote == null) {
-              resetField("amountOut")
-            } else if (quote.tag === "err") {
-              setValue("amountOut", "–", {
-                shouldValidate: false,
-              })
-            } else {
-              const totalAmountOut = computeTotalDeltaDifferentDecimals(
-                [context.parsedFormValues.tokenOut],
-                quote.value.tokenDeltas
+            const isExactInput =
+              context.formValues.swapType === QuoteRequest.swapType.EXACT_INPUT
+            const fieldNameToUpdate = isExactInput ? "amountOut" : "amountIn"
+            if (quote === null || quote.tag === "err") {
+              setValue(
+                fieldNameToUpdate,
+                context.formValues[fieldNameToUpdate],
+                { shouldValidate: false }
               )
-              const amountOutFormatted = formatUnits(
-                totalAmountOut.amount,
-                totalAmountOut.decimals
-              )
-              setValue("amountOut", amountOutFormatted, {
-                shouldValidate: true,
-              })
+              return
             }
+            // Extra protection from setting anything when both form values are empty
+            if (
+              context.formValues.amountIn === "" &&
+              context.formValues.amountOut === ""
+            )
+              return
+            setValue(fieldNameToUpdate, context.formValues[fieldNameToUpdate], {
+              shouldValidate: true,
+            })
           },
         },
         actors: {

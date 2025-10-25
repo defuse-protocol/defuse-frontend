@@ -25,7 +25,10 @@ export function BlockMultiBalances({
   const active = balance > 0n
   return (
     <div
-      className={clsx("flex items-center gap-1 md:gap-1.5 min-w-0", className)}
+      className={clsx(
+        "flex items-center gap-1 md:gap-1.5 min-w-0 min-h-6",
+        className
+      )}
     >
       {/* Balance */}
       <div
