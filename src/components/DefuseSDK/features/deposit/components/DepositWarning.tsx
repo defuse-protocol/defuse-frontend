@@ -3,10 +3,14 @@ import { Callout } from "@radix-ui/themes"
 import type { ReactNode } from "react"
 import type { Context } from "../../machines/depositUIMachine"
 
+export type DepositWarningOutput =
+  | Context["depositOutput"]
+  | Context["preparationOutput"]
+
 export const DepositWarning = ({
   depositWarning,
 }: {
-  depositWarning: Context["depositOutput"] | Context["preparationOutput"]
+  depositWarning: DepositWarningOutput
 }) => {
   let content: ReactNode = null
 

@@ -5,19 +5,22 @@ import { useSelector } from "@xstate/react"
 import clsx from "clsx"
 import { useId } from "react"
 import { useFormContext } from "react-hook-form"
+import type { SnapshotFrom } from "xstate"
 import { BlockMultiBalances } from "../../../../components/Block/BlockMultiBalances"
 import { ButtonCustom } from "../../../../components/Button/ButtonCustom"
 import { TooltipInfo } from "../../../../components/TooltipInfo"
 import { useTokensUsdPrices } from "../../../../hooks/useTokensUsdPrices"
 import { RESERVED_NEAR_BALANCE } from "../../../../services/blockchainBalanceService"
 import type { BaseTokenInfo, TokenDeployment } from "../../../../types/base"
-import { reverseAssetNetworkAdapter } from "../../../../utils/adapters"
 import { formatTokenValue, formatUsdAmount } from "../../../../utils/format"
 import getTokenUsdPrice from "../../../../utils/getTokenUsdPrice"
 import { isFungibleToken } from "../../../../utils/token"
-import { DepositResult } from "../DepositResult"
+import { DepositMode } from "../../../machines/depositFormReducer"
+import type { depositUIMachine } from "../../../machines/depositUIMachine"
+import { DepositSwitchToSimpleMode } from "../DepositSwitchToSimpleMode"
 import { DepositUIMachineContext } from "../DepositUIMachineProvider"
 import { DepositWarning } from "../DepositWarning"
+import { Intents } from "./Intents"
 import { TokenAmountInputCard } from "./TokenAmountInputCard"
 import type { DepositFormValues } from "./index"
 import {
@@ -39,21 +42,19 @@ export function ActiveDeposit({
   minDepositAmount,
 }: ActiveDepositProps) {
   const { setValue, watch } = useFormContext<DepositFormValues>()
+  const depositUIActorRef = DepositUIMachineContext.useActorRef()
+  const formValuesRef = useSelector(depositUIActorRef, formValuesSelector)
+  const { amount, parsedAmount, depositMode } = formValuesRef
 
   const {
-    amount,
-    parsedAmount,
+    intentRefs,
     depositOutput,
     preparationOutput,
     depositTokenBalanceRef,
     isLoading,
   } = DepositUIMachineContext.useSelector((snapshot) => {
-    const amount = snapshot.context.depositFormRef.getSnapshot().context.amount
-    const parsedAmount =
-      snapshot.context.depositFormRef.getSnapshot().context.parsedAmount
     return {
-      amount,
-      parsedAmount,
+      intentRefs: snapshot.context.intentRefs,
       depositOutput: snapshot.context.depositOutput,
       preparationOutput: snapshot.context.preparationOutput,
       depositTokenBalanceRef: snapshot.context.depositTokenBalanceRef,
@@ -83,15 +84,15 @@ export function ActiveDeposit({
       ? parsedAmount >= minDepositAmount
       : true
 
-  const maxDepositValue =
+  const maxDepositAmount =
     preparationOutput?.tag === "ok"
-      ? preparationOutput.value.maxDepositValue
+      ? preparationOutput.value.maxDepositAmount
       : null
 
   const handleSetMaxValue = async () => {
     if (balance == null) return
     const amountToFormat = formatTokenValue(
-      maxDepositValue || balance,
+      maxDepositAmount || balance,
       tokenDeployment.decimals
     )
     setValue("amount", amountToFormat)
@@ -100,7 +101,7 @@ export function ActiveDeposit({
   const handleSetHalfValue = async () => {
     if (balance == null) return
     const amountToFormat = formatTokenValue(
-      (maxDepositValue || balance) / 2n,
+      (maxDepositAmount || balance) / 2n,
       tokenDeployment.decimals
     )
     setValue("amount", amountToFormat)
@@ -109,7 +110,12 @@ export function ActiveDeposit({
   const inputId = useId()
 
   const { data: tokensUsdPriceData } = useTokensUsdPrices()
-  const usdAmountToDeposit = getTokenUsdPrice(amount, token, tokensUsdPriceData)
+
+  const usdAmountToDeposit = getTokenUsdPrice(
+    watch("amount"),
+    token,
+    tokensUsdPriceData
+  )
 
   return (
     <div className="flex flex-col gap-5">
@@ -147,13 +153,13 @@ export function ActiveDeposit({
         />
       </div>
 
-      {minDepositAmount != null && (
-        <div className="px-3">
-          {renderMinDepositAmountHint(minDepositAmount, token, tokenDeployment)}
-        </div>
-      )}
+      <div className="px-3">
+        {renderMinDepositAmountHint(minDepositAmount, token, tokenDeployment)}
+      </div>
 
       <DepositWarning depositWarning={depositOutput || preparationOutput} />
+      {(depositOutput?.tag === "err" || preparationOutput?.tag === "err") &&
+        depositMode === DepositMode.ONE_CLICK && <DepositSwitchToSimpleMode />}
 
       <ButtonCustom
         size="lg"
@@ -180,10 +186,7 @@ export function ActiveDeposit({
 
       {renderDepositHint(network, token, tokenDeployment)}
 
-      <DepositResult
-        chainName={reverseAssetNetworkAdapter[network]}
-        depositResult={depositOutput}
-      />
+      <Intents intentRefs={intentRefs} />
     </div>
   )
 }
@@ -288,4 +291,8 @@ function isInsufficientBalance(
 
   const balanceToFormat = formatTokenValue(balance, token.decimals)
   return Number.parseFloat(formAmount) > Number.parseFloat(balanceToFormat)
+}
+
+function formValuesSelector(snapshot: SnapshotFrom<typeof depositUIMachine>) {
+  return snapshot.context.depositFormRef.getSnapshot().context
 }

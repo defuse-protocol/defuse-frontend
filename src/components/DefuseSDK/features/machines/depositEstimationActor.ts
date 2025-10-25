@@ -147,7 +147,7 @@ export interface Context {
     | {
         tag: "ok"
         value: {
-          maxDepositValue: bigint
+          maxDepositAmount: bigint
         }
       }
     | {
@@ -173,7 +173,7 @@ export const depositEstimationMachine = setup({
     },
   },
   actors: {
-    estimateMaxDepositValueActor: depositEstimateMaxValueActor,
+    estimateMaxDepositAmountActor: depositEstimateMaxValueActor,
   },
   actions: {
     logError: (_, { error }: { error: unknown }) => {
@@ -195,7 +195,7 @@ export const depositEstimationMachine = setup({
 
     estimating: {
       invoke: {
-        src: "estimateMaxDepositValueActor",
+        src: "estimateMaxDepositAmountActor",
         input: ({ event }) => {
           return event.params
         },
@@ -208,7 +208,7 @@ export const depositEstimationMachine = setup({
                 return {
                   tag: "ok",
                   value: {
-                    maxDepositValue: event.output,
+                    maxDepositAmount: event.output,
                   },
                 }
               }

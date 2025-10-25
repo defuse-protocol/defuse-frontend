@@ -1,10 +1,14 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
-import { resolveTokenOut } from "@src/components/DefuseSDK/features/machines/withdrawFormReducer"
+import {
+  getBaseTokenInfoWithFallback,
+  resolveTokenOut,
+} from "@src/components/DefuseSDK/features/machines/withdrawFormReducer"
 import { reverseAssetNetworkAdapter } from "@src/components/DefuseSDK/utils/adapters"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { parseUnits } from "@src/components/DefuseSDK/utils/parse"
 import { LIST_TOKENS_FLATTEN, tokenFamilies } from "@src/constants/tokens"
 import { type ActorRef, type Snapshot, fromTransition } from "xstate"
+import type { TokenUsdPriceData } from "../../hooks/useTokensUsdPrices"
 import type {
   BaseTokenInfo,
   SupportedChainName,
@@ -33,6 +37,7 @@ export type Events =
       type: "DEPOSIT_FORM.UPDATE_BLOCKCHAIN"
       params: {
         network: BlockchainEnum | null
+        tokensUsdPriceData: TokenUsdPriceData
       }
     }
   | {
@@ -42,6 +47,15 @@ export type Events =
       }
     }
 
+export const DepositMode = {
+  SIMPLE: "SIMPLE",
+  ONE_CLICK: "ONE_CLICK",
+} as const
+
+export type DepositMode =
+  | typeof DepositMode.SIMPLE
+  | typeof DepositMode.ONE_CLICK
+
 export type State = {
   parentRef: ParentActor
   token: TokenInfo | null
@@ -50,6 +64,8 @@ export type State = {
   blockchain: SupportedChainName | null
   parsedAmount: bigint | null
   amount: string
+  depositMode: DepositMode
+  is1cs: boolean
 }
 
 export const depositFormReducer = fromTransition(
@@ -90,6 +106,12 @@ export const depositFormReducer = fromTransition(
           LIST_TOKENS_FLATTEN
         )
 
+        const tokenIn = derivedToken
+        const tokenOut = getBaseTokenInfoWithFallback(state.token, null)
+
+        // Note: 1cs swap doesn't support same-token swaps
+        const sameToken = tokenIn.defuseAssetId === tokenOut.defuseAssetId
+
         // This isn't possible assertion, if this happens then we need to check the token list
         assert(derivedToken != null, "Token not found")
         newState = {
@@ -99,6 +121,10 @@ export const depositFormReducer = fromTransition(
           tokenDeployment,
           parsedAmount: null,
           amount: "",
+          depositMode:
+            state.is1cs && !sameToken // TODO: remove this check once 1cs supports same-token swaps
+              ? DepositMode.ONE_CLICK
+              : DepositMode.SIMPLE,
         }
         break
       }
@@ -149,7 +175,7 @@ export const depositFormReducer = fromTransition(
   ({
     input,
   }: {
-    input: { parentRef: ParentActor; token: TokenInfo }
+    input: { parentRef: ParentActor; token: TokenInfo; is1cs: boolean }
   }): State => {
     let blockchain: SupportedChainName | null = null
     let tokenDeployment: TokenDeployment | null = null
@@ -169,6 +195,8 @@ export const depositFormReducer = fromTransition(
       blockchain,
       parsedAmount: null,
       amount: "",
+      depositMode: input.is1cs ? DepositMode.ONE_CLICK : DepositMode.SIMPLE,
+      is1cs: input.is1cs,
     }
   }
 )

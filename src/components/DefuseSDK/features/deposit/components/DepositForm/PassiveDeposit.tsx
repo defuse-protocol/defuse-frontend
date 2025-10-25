@@ -1,10 +1,19 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
+import { ArrowSquareOutIcon } from "@phosphor-icons/react"
 import { CheckIcon, CopyIcon } from "@radix-ui/react-icons"
-import { Button, Spinner } from "@radix-ui/themes"
+import { Button, Link, Spinner } from "@radix-ui/themes"
 import { QRCodeSVG } from "qrcode.react"
 import { Copy } from "../../../../components/IntentCard/CopyButton"
 import { Separator } from "../../../../components/Separator"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "../../../../components/Tooltip"
 import type { BaseTokenInfo, TokenDeployment } from "../../../../types/base"
+import { DepositMode } from "../../../machines/depositFormReducer"
+import { DepositSwitchToSimpleMode } from "../DepositSwitchToSimpleMode"
+import { DepositWarning, type DepositWarningOutput } from "../DepositWarning"
 import {
   renderDepositHint,
   renderMinDepositAmountHint,
@@ -17,7 +26,11 @@ export type PassiveDepositProps = {
   token: BaseTokenInfo
   tokenDeployment: TokenDeployment
   memo: string | null
+  depositWarning: DepositWarningOutput
+  depositMode: DepositMode
 }
+
+const EXPLORER_NEAR_INTENTS = "https://explorer.near-intents.org"
 
 export function PassiveDeposit({
   network,
@@ -26,8 +39,14 @@ export function PassiveDeposit({
   token,
   tokenDeployment,
   memo,
+  depositWarning,
+  depositMode,
 }: PassiveDepositProps) {
   const truncatedAddress = truncateAddress(depositAddress ?? "")
+  const explorerUrl =
+    depositMode === DepositMode.ONE_CLICK && depositAddress
+      ? `${EXPLORER_NEAR_INTENTS}/transactions/${depositAddress}`
+      : null
 
   return (
     <div className="flex flex-col items-stretch">
@@ -82,11 +101,10 @@ export function PassiveDeposit({
       </div>
 
       <div className="mb-4 px-3">
-        {minDepositAmount != null &&
-          renderMinDepositAmountHint(minDepositAmount, token, tokenDeployment)}
+        {renderMinDepositAmountHint(minDepositAmount, token, tokenDeployment)}
       </div>
 
-      <div className="mb-4 flex items-center rounded-lg bg-gray-3 px-4 py-2">
+      <div className="mb-4 flex items-center rounded-lg bg-gray-3 px-4 py-2 gap-2">
         <div className="flex flex-1 justify-center">
           <span className="relative">
             {/* Visible truncated address */}
@@ -114,6 +132,30 @@ export function PassiveDeposit({
           </span>
         </div>
 
+        {explorerUrl && (
+          <div className="shrink-0">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link
+                  href={explorerUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center box-border size-8 p-0 rounded-md bg-accent-9 text-white hover:bg-accent-10 transition-colors"
+                >
+                  <ArrowSquareOutIcon size={16} weight="bold" />
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent
+                side="top"
+                className="z-50 max-w-xs"
+                sideOffset={5}
+              >
+                Track your deposit progress on explorer
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        )}
+
         <div className="shrink-0">
           <Copy text={depositAddress ?? ""}>
             {(copied) => (
@@ -130,6 +172,14 @@ export function PassiveDeposit({
         </div>
       </div>
       {renderDepositHint(network, token, tokenDeployment)}
+
+      {depositWarning != null && (
+        <div className="mt-1.5">
+          <DepositWarning depositWarning={depositWarning} />
+        </div>
+      )}
+      {depositWarning?.tag === "err" &&
+        depositMode === DepositMode.ONE_CLICK && <DepositSwitchToSimpleMode />}
     </div>
   )
 }

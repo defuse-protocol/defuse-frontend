@@ -1,6 +1,7 @@
 import { authIdentity } from "@defuse-protocol/internal-utils"
 import { depositMachine } from "@src/components/DefuseSDK/features/machines/depositMachine"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
+import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { logger } from "@src/utils/logger"
 import { createActorContext } from "@xstate/react"
 import type { PropsWithChildren, ReactElement, ReactNode } from "react"
@@ -28,7 +29,8 @@ import {
   createDepositTronTRC20Transaction,
   createDepositVirtualChainERC20Transaction,
   createExitToNearPrecompileTransaction,
-  generateDepositAddress,
+  generateStableDepositAddress,
+  generateTemporaryDepositAddress,
   getAllowance,
   waitEVMTransaction,
 } from "../../../services/depositService"
@@ -37,6 +39,7 @@ import { assetNetworkAdapter } from "../../../utils/adapters"
 import { assert } from "../../../utils/assert"
 import { getEVMChainId } from "../../../utils/evmChainId"
 import { isFungibleToken, isNativeToken } from "../../../utils/token"
+import { DepositMode } from "../../machines/depositFormReducer"
 import { depositGenerateAddressMachine } from "../../machines/depositGenerateAddressMachine"
 import { depositUIMachine } from "../../machines/depositUIMachine"
 import { useDepositTokenChangeNotifier } from "../../swap/hooks/useTokenChangeNotifier"
@@ -97,12 +100,16 @@ export function DepositUIMachineProvider({
   const token = initialToken ?? tokenList[0]
   assert(token != null, "Token is not defined")
 
+  const is1cs = useIs1CsEnabled()
+
   return (
     <DepositUIMachineContext.Provider
+      key={is1cs ? "1cs" : "not1cs"}
       options={{
         input: {
           tokenList,
           token,
+          is1cs,
         },
       }}
       logic={depositUIMachine.provide({
@@ -110,21 +117,32 @@ export function DepositUIMachineProvider({
           depositGenerateAddressActor: depositGenerateAddressMachine.provide({
             actors: {
               generateDepositAddress: fromPromise(async ({ input }) => {
-                const { userAddress, blockchain, userChainType } = input
+                const {
+                  userAddress,
+                  blockchain,
+                  userChainType,
+                  depositMode,
+                  tokenIn,
+                  tokenOut,
+                } = input
 
-                const generatedResult = await generateDepositAddress(
+                if (depositMode === DepositMode.ONE_CLICK) {
+                  return await generateTemporaryDepositAddress(
+                    userAddress,
+                    blockchain,
+                    userChainType,
+                    tokenIn,
+                    tokenOut
+                  )
+                }
+
+                return await generateStableDepositAddress(
                   authIdentity.authHandleToIntentsUserId(
                     userAddress,
                     userChainType
                   ),
                   assetNetworkAdapter[blockchain]
                 )
-
-                return {
-                  generateDepositAddress:
-                    generatedResult.generatedDepositAddress,
-                  memo: generatedResult.memo,
-                }
               }),
             },
           }),
