@@ -129,7 +129,7 @@
     "json-schema-to-typescript": "^15.0.4",
     "lint-staged": "^15.2.10",
     "msw": "^2.7.0",
-    "playwright": "1.48.2",
+    "playwright": "1.55.1",
     "postcss": "^8.4.47",
     "postcss-import": "^15.1.0",
     "rollup": "^4.22.5",
