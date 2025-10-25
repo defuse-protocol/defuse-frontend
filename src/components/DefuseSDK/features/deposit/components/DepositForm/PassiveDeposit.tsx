@@ -101,8 +101,7 @@ export function PassiveDeposit({
       </div>
 
       <div className="mb-4 px-3">
-        {minDepositAmount != null &&
-          renderMinDepositAmountHint(minDepositAmount, token, tokenDeployment)}
+        {renderMinDepositAmountHint(minDepositAmount, token, tokenDeployment)}
       </div>
 
       <div className="mb-4 flex items-center rounded-lg bg-gray-3 px-4 py-2 gap-2">
