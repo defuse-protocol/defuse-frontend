@@ -1,40 +1,14 @@
 import { Box, Button, Flex, Link, Spinner, Text } from "@radix-ui/themes"
 import { useSelector } from "@xstate/react"
 import type { ActorRefFrom } from "xstate"
-import {
-  type oneClickStatusMachine,
-  oneClickStatuses,
-  statusesToTrack,
-} from "../../features/machines/oneClickStatusMachine"
+import type { oneClickStatusMachine } from "../../features/machines/oneClickStatusMachine"
 import { formatTokenValue } from "../../utils/format"
 import { AssetComboIcon } from "../Asset/AssetComboIcon"
 import { CopyButton } from "./CopyButton"
+import { EXPLORER_NEAR_INTENTS, getStatusDisplayInfo, truncate } from "./utils"
 
 type Swap1csCardProps = {
   oneClickStatusActorRef: ActorRefFrom<typeof oneClickStatusMachine>
-}
-
-const EXPLORER_NEAR_INTENTS = "https://explorer.near-intents.org"
-
-function getStatusDisplayInfo(status: string | null) {
-  if (!status) {
-    return { label: "Pending...", color: undefined, showSpinner: true }
-  }
-
-  const displayStatus =
-    status in oneClickStatuses
-      ? oneClickStatuses[status as keyof typeof oneClickStatuses]
-      : status
-
-  const isTracking = status && (statusesToTrack as Set<string>).has(status)
-  const isSuccess = status === "SUCCESS"
-  const isFailed = status === "FAILED" || status === "REFUNDED"
-
-  return {
-    label: displayStatus,
-    color: isFailed ? "red" : isSuccess ? "green" : undefined,
-    showSpinner: isTracking,
-  }
 }
 
 export function Swap1csCard({ oneClickStatusActorRef }: Swap1csCardProps) {
@@ -128,7 +102,7 @@ export function Swap1csCard({ oneClickStatusActorRef }: Swap1csCardProps) {
               <Text size="1" color="gray">
                 Track your swap progress on explorer:{" "}
                 <Link href={explorerUrl} target="_blank" color="blue">
-                  {truncateHash(depositAddress)}
+                  {truncate(depositAddress)}
                 </Link>
               </Text>
 
@@ -142,8 +116,4 @@ export function Swap1csCard({ oneClickStatusActorRef }: Swap1csCardProps) {
       </Flex>
     </Flex>
   )
-}
-
-function truncateHash(hash: string) {
-  return `${hash.slice(0, 5)}...${hash.slice(-5)}`
 }

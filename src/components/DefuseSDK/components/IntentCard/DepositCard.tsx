@@ -5,40 +5,14 @@ import { useSelector } from "@xstate/react"
 import type { ActorRefFrom } from "xstate"
 import { DepositMode } from "../../features/machines/depositFormReducer"
 import type { depositStatusMachine } from "../../features/machines/depositStatusMachine"
-import {
-  oneClickStatuses,
-  statusesToTrack,
-} from "../../features/machines/oneClickStatusMachine"
 import { formatTokenValue } from "../../utils/format"
 import { AssetComboIcon } from "../Asset/AssetComboIcon"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip"
 import { CopyButton } from "./CopyButton"
+import { EXPLORER_NEAR_INTENTS, getStatusDisplayInfo, truncate } from "./utils"
 
 type DepositCardProps = {
   depositStatusActorRef: ActorRefFrom<typeof depositStatusMachine>
-}
-
-const EXPLORER_NEAR_INTENTS = "https://explorer.near-intents.org"
-
-function getStatusDisplayInfo(status: string | null) {
-  if (!status) {
-    return { label: "Pending...", color: undefined, showSpinner: true }
-  }
-
-  const displayStatus =
-    status in oneClickStatuses
-      ? oneClickStatuses[status as keyof typeof oneClickStatuses]
-      : status
-
-  const isTracking = status && (statusesToTrack as Set<string>).has(status)
-  const isSuccess = status === "SUCCESS"
-  const isFailed = status === "FAILED" || status === "REFUNDED"
-
-  return {
-    label: displayStatus,
-    color: isFailed ? "red" : isSuccess ? "green" : undefined,
-    showSpinner: isTracking,
-  }
 }
 
 export function DepositCard({ depositStatusActorRef }: DepositCardProps) {
@@ -171,8 +145,4 @@ export function DepositCard({ depositStatusActorRef }: DepositCardProps) {
       </Flex>
     </Flex>
   )
-}
-
-function truncate(hash: string) {
-  return `${hash.slice(0, 5)}...${hash.slice(-5)}`
 }
