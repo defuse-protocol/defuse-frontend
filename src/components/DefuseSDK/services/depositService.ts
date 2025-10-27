@@ -86,6 +86,7 @@ export type PreparedDepositReturnType = {
    */
   nearBalance: bigint | null
   maxDepositValue: bigint | null
+  minDepositAmount: bigint
   solanaATACreationRequired: boolean
   tonJettonWalletCreationRequired: boolean
   memo: string | null
@@ -107,6 +108,7 @@ export type PreparationOutput =
 export async function prepareDeposit(
   {
     userAddress,
+    userChainType,
     formValues,
     depositGenerateAddressRef,
     storageDepositAmountRef,
@@ -114,6 +116,7 @@ export async function prepareDeposit(
     depositEstimationRef,
   }: {
     userAddress: string
+    userChainType: AuthMethod
     formValues: DepositFormContext
     depositGenerateAddressRef: ActorRefFrom<
       typeof depositGenerateAddressMachine
@@ -126,8 +129,6 @@ export async function prepareDeposit(
 ): Promise<PreparationOutput> {
   assert(formValues.tokenDeployment, "Token is required")
 
-  const userChainType =
-    depositGenerateAddressRef.getSnapshot().context.userChainType
   let storageDepositAmount: bigint | null = null
   // Getting storage deposit amount makes sense only for user NEAR wallet
   if (userChainType === AuthMethod.Near) {
@@ -170,7 +171,7 @@ export async function prepareDeposit(
       balance: balances.value.balance,
       nearBalance: balances.value.nearBalance,
       generateDepositAddress:
-        generateDepositAddress.value.generateDepositAddress,
+        generateDepositAddress.value.generatedDepositAddress,
       depositEstimationRef,
     },
     { signal }
@@ -181,7 +182,7 @@ export async function prepareDeposit(
 
   const solanaATACreationRequired = await checkSolanaATARequired(
     formValues.tokenDeployment,
-    generateDepositAddress.value.generateDepositAddress
+    generateDepositAddress.value.generatedDepositAddress
   )
 
   const tonJettonWalletCreationRequired = await checkTonJettonWalletRequired(
@@ -194,11 +195,12 @@ export async function prepareDeposit(
     tag: "ok",
     value: {
       generateDepositAddress:
-        generateDepositAddress.value.generateDepositAddress,
+        generateDepositAddress.value.generatedDepositAddress,
       storageDepositAmount,
       balance: balances.value.balance,
       nearBalance: balances.value.nearBalance,
       maxDepositValue: estimation.value.maxDepositValue,
+      minDepositAmount: generateDepositAddress.value.minDepositAmount,
       solanaATACreationRequired,
       tonJettonWalletCreationRequired,
       memo: generateDepositAddress.value.memo,
@@ -286,7 +288,11 @@ async function getGeneratedDepositAddress(
 ): Promise<
   | {
       tag: "ok"
-      value: { generateDepositAddress: string | null; memo: string | null }
+      value: {
+        generatedDepositAddress: string
+        memo: string | null
+        minDepositAmount: bigint
+      }
     }
   | { tag: "err"; value: { reason: "ERR_GENERATING_ADDRESS" } }
 > {
@@ -297,16 +303,25 @@ async function getGeneratedDepositAddress(
   )
   const generateDepositAddressOutput =
     depositGenerateAddressState.context.preparationOutput
-  if (generateDepositAddressOutput?.tag === "err") {
-    return generateDepositAddressOutput
+  if (
+    generateDepositAddressOutput == null ||
+    generateDepositAddressOutput.tag === "err"
+  ) {
+    return (
+      generateDepositAddressOutput ?? {
+        tag: "err",
+        value: { reason: "ERR_GENERATING_ADDRESS" },
+      }
+    )
   }
-  const generateDepositAddress =
-    generateDepositAddressOutput?.value.generateDepositAddress ?? null
+
   return {
     tag: "ok",
     value: {
-      generateDepositAddress,
-      memo: generateDepositAddressOutput?.value.memo ?? null,
+      generatedDepositAddress:
+        generateDepositAddressOutput.value.generatedDepositAddress,
+      memo: generateDepositAddressOutput.value.memo,
+      minDepositAmount: generateDepositAddressOutput.value.minDepositAmount,
     },
   }
 }
