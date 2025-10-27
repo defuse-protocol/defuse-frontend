@@ -748,6 +748,7 @@ export const swapUIMachine = setup({
             target: "submitting",
             guard: "isQuoteValidAndNot1cs",
             actions: [
+              "parseFormValues",
               "clearIntentCreationResult",
               "sendToBackgroundQuoterRefPause",
             ],
@@ -777,6 +778,7 @@ export const swapUIMachine = setup({
               params: ({ event }) => event.params.quote,
             },
             "updateFormValuesWithQuoteData",
+            "parseFormValues",
             "updateUIAmount",
           ],
         },
@@ -820,6 +822,7 @@ export const swapUIMachine = setup({
                   params: ({ event }) => event.params.quote,
                 },
                 "updateFormValuesWithQuoteData",
+                "parseFormValues",
                 "updateUIAmount",
               ],
               description: `should do the same as NEW_QUOTE on "editing" itself`,
