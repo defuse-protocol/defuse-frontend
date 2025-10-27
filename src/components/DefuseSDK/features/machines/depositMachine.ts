@@ -23,7 +23,7 @@ export type Input = {
   userAddress: string
   userWalletAddress: string | null
   depositAddress: string | null
-  storageDepositRequired: bigint | null
+  storageDepositAmount: bigint | null
   solanaATACreationRequired: boolean
   tonJettonWalletCreationRequired: boolean
   nearBalance: bigint | null

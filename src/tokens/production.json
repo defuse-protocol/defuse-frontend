@@ -359,6 +359,23 @@
             }
           ],
           "tags": ["mc:31", "tvol:2", "aid:near"]
+        },
+        {
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:56_SZzgw3HSudhZcTwPWUTi2RJB19t",
+          "symbol": "NEAR",
+          "name": "Near",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/6535.png",
+          "originChainName": "near",
+          "deployments": [
+            {
+              "address": "0x1fa4a73a3f0133f0025378af00236f3abdee5d63",
+              "decimals": 18,
+              "chainName": "bsc",
+              "bridge": "hot_omni"
+            }
+          ],
+          "tags": ["mc:31", "tvol:2", "aid:near"]
         }
       ],
       "tags": ["mc:31", "tvol:2", "aid:near"]

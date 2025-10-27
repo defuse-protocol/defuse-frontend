@@ -407,7 +407,7 @@ function renderRecipientAddressError(error: ValidateRecipientAddressErrorType) {
       return "You cannot withdraw to your own address. Please enter a different recipient address."
     case "ADDRESS_INVALID":
       return "Please enter a valid address for the selected blockchain."
-    case "ACCOUNT_DOES_NOT_EXIST":
+    case "NEAR_ACCOUNT_DOES_NOT_EXIST":
       return "The account doesn't exist on NEAR. Please enter a different recipient address."
     case "USER_ADDRESS_REQUIRED":
       return "Near Intents network requires your address. Try signing in again."

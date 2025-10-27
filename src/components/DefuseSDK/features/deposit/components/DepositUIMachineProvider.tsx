@@ -136,7 +136,7 @@ export function DepositUIMachineProvider({
                   balance,
                   amount,
                   nearBalance,
-                  storageDepositRequired,
+                  storageDepositAmount,
                 } = input
                 const address = isFungibleToken(tokenDeployment)
                   ? tokenDeployment.address
@@ -144,7 +144,7 @@ export function DepositUIMachineProvider({
 
                 assert(address != null, "Address is not defined")
                 assert(
-                  storageDepositRequired !== null,
+                  storageDepositAmount !== null,
                   "Storage deposit required is null"
                 )
                 assert(nearBalance !== null, "Near balance is null")
@@ -167,13 +167,13 @@ export function DepositUIMachineProvider({
                   tx = createBatchDepositNearNativeTransaction(
                     amount,
                     nearAmountToWrap > 0n ? nearAmountToWrap : 0n,
-                    storageDepositRequired > 0n ? storageDepositRequired : 0n
+                    storageDepositAmount > 0n ? storageDepositAmount : 0n
                   )
                 } else {
                   tx = createBatchDepositNearNep141Transaction(
                     address,
                     amount,
-                    storageDepositRequired
+                    storageDepositAmount
                   )
                 }
 
@@ -196,7 +196,7 @@ export function DepositUIMachineProvider({
             guards: {
               isDepositParamsValid: ({ context }) => {
                 return (
-                  context.storageDepositRequired !== null &&
+                  context.storageDepositAmount !== null &&
                   context.nearBalance !== null
                 )
               },
