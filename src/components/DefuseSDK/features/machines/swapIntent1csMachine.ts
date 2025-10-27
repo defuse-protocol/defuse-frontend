@@ -513,12 +513,19 @@ export const swapIntent1csMachine = setup({
           assert(context.quote1csResult.ok.quote.depositAddress != null)
           // for EXACT_INPUT quote we use amountIn from input as it always changes
           // for EXACT_OUTPUT quote we can't use initial amountIn from input as it is stale and changes after requoting, so we are using the input from the quote.
+          const isExactIn =
+            context.input.swapType === QuoteRequest.swapType.EXACT_INPUT
           const amount = BigInt(
-            (context.input.swapType === QuoteRequest.swapType.EXACT_INPUT
+            (isExactIn
               ? context.input.amountIn.amount
               : context.quote1csResult.ok.quote.amountIn) ?? "0"
           )
-          assert(amount > 0n, "Invalid amount, must be greater than 0")
+          assert(
+            amount > 0n,
+            isExactIn
+              ? "Invalid input amount, must be greater than 0"
+              : "Quote missing amountIn or amountIn is 0 for exact-out swap"
+          )
           return {
             tokenIn: context.input.tokenIn,
             amountIn: {
