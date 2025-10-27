@@ -75,7 +75,7 @@ import {
 } from "./tonJettonService"
 
 export type PreparedDepositReturnType = {
-  generateDepositAddress: string | null
+  generateDepositAddress: string
   storageDepositAmount: bigint | null
   balance: bigint | null
   /**

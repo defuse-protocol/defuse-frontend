@@ -831,7 +831,7 @@ type DepositParams = {
   nearBalance: bigint | null
   userAddress: string
   userWalletAddress: string | null
-  depositAddress: string | null
+  depositAddress: string
   storageDepositAmount: bigint | null
   solanaATACreationRequired: boolean
   tonJettonWalletCreationRequired: boolean

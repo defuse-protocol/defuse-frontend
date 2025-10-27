@@ -1,10 +1,14 @@
 import { Box, Flex, Link, Text } from "@radix-ui/themes"
 import { AssetComboIcon } from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
+import { CopyButton } from "@src/components/DefuseSDK/components/IntentCard/CopyButton"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { chainTxExplorer } from "@src/components/DefuseSDK/utils/chainTxExplorer"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
+import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import type { SupportedChainName } from "../../../types/base"
 import type { Context } from "../../machines/depositUIMachine"
+
+const EXPLORER_NEAR_INTENTS = "https://explorer.near-intents.org"
 
 export const DepositResult = ({
   chainName,
@@ -18,10 +22,22 @@ export const DepositResult = ({
   }
   const explorerUrl = chainTxExplorer(chainName)
   const txHash = depositResult.value.txHash
+  const depositAddress = depositResult.value.depositDescription.depositAddress
+  const memoToUrl = depositResult.value.depositDescription.memo
+    ? `_${depositResult.value.depositDescription.memo}`
+    : ""
 
   assert(explorerUrl != null, "explorerUrl should not be null")
 
   const txUrl = explorerUrl + txHash
+
+  const is1cs = useIs1CsEnabled()
+  let oneClickExplorerUrl = null
+  if (is1cs) {
+    oneClickExplorerUrl = depositAddress
+      ? `${EXPLORER_NEAR_INTENTS}/transactions/${depositAddress}${memoToUrl}`
+      : null
+  }
 
   return (
     <Flex p="2" gap="3">
@@ -85,9 +101,25 @@ export const DepositResult = ({
         )}
 
         <Box>
-          <Text size="1" color="gray">
-            Settlement in flight!
-          </Text>
+          {is1cs && txHash && oneClickExplorerUrl ? (
+            <Flex align="center" gap="1">
+              <Text size="1" color="gray">
+                Track your deposit progress on explorer:{" "}
+                <Link href={oneClickExplorerUrl} target="_blank" color="blue">
+                  {shortenText(depositAddress)}
+                </Link>
+              </Text>
+
+              <CopyButton
+                text={depositAddress}
+                ariaLabel="Copy Deposit address"
+              />
+            </Flex>
+          ) : (
+            <Text size="1" color="gray">
+              Settlement in flight!
+            </Text>
+          )}
         </Box>
       </Flex>
     </Flex>
