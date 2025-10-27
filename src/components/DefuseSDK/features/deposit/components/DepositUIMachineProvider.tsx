@@ -29,8 +29,6 @@ import {
   createDepositTronTRC20Transaction,
   createDepositVirtualChainERC20Transaction,
   createExitToNearPrecompileTransaction,
-  generateStableDepositAddress,
-  generateTemporaryDepositAddress,
   getAllowance,
   waitEVMTransaction,
 } from "../../../services/depositService"
@@ -127,22 +125,31 @@ export function DepositUIMachineProvider({
                 } = input
 
                 if (depositMode === DepositMode.ONE_CLICK) {
-                  return await generateTemporaryDepositAddress(
-                    userAddress,
-                    blockchain,
-                    userChainType,
-                    tokenIn,
-                    tokenOut
-                  )
+                  const result = await fetch("/api/deposit-address/1click", {
+                    method: "POST",
+                    body: JSON.stringify({
+                      userAddress,
+                      userChainType,
+                      chainName: blockchain,
+                      tokenIn,
+                      tokenOut,
+                      amount: "0", // Actual amount for active deposit mode cause error on 1Click side, should be fixed in the future
+                    }),
+                  })
+                  return await result.json()
                 }
 
-                return await generateStableDepositAddress(
-                  authIdentity.authHandleToIntentsUserId(
-                    userAddress,
-                    userChainType
-                  ),
-                  assetNetworkAdapter[blockchain]
-                )
+                const result = await fetch("/api/deposit-address/poa", {
+                  method: "POST",
+                  body: JSON.stringify({
+                    accountId: authIdentity.authHandleToIntentsUserId(
+                      userAddress,
+                      userChainType
+                    ),
+                    blockchain: assetNetworkAdapter[blockchain],
+                  }),
+                })
+                return await result.json()
               }),
             },
           }),

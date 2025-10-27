@@ -56,16 +56,18 @@ export function DepositCard({ depositStatusActorRef }: DepositCardProps) {
   } = state.context
 
   const statusInfo = getStatusDisplayInfo(status)
-
   const memoToUrl = memo ? `_${memo}` : ""
-  const explorerUrl =
-    depositMode === DepositMode.ONE_CLICK
-      ? depositAddress
-        ? `${EXPLORER_NEAR_INTENTS}/transactions/${depositAddress}${memoToUrl}`
-        : txHash
-          ? chainTxExplorer(blockchain) + txHash
-          : null
+
+  let oneClickExplorerUrl = null
+  if (depositMode === DepositMode.ONE_CLICK) {
+    oneClickExplorerUrl = depositAddress
+      ? `${EXPLORER_NEAR_INTENTS}/transactions/${depositAddress}${memoToUrl}`
       : null
+  }
+
+  const transactionExplorerUrl = txHash
+    ? chainTxExplorer(blockchain) + txHash
+    : null
 
   return (
     <Flex p="2" gap="3">
@@ -115,9 +117,12 @@ export function DepositCard({ depositStatusActorRef }: DepositCardProps) {
 
         <Flex align="center">
           <Box flexGrow="1">
-            <Text size="1" weight="medium" color="gray">
-              From {truncate(userAddress)}
-            </Text>
+            <Flex align="center" gap="1">
+              <Text size="1" weight="medium" color="gray">
+                From {truncate(userAddress)}
+              </Text>
+              <CopyButton text={userAddress} ariaLabel="Copy Deposit address" />
+            </Flex>
           </Box>
 
           <Box>
@@ -132,23 +137,37 @@ export function DepositCard({ depositStatusActorRef }: DepositCardProps) {
           </Box>
         </Flex>
 
-        <Flex direction="column" gap="1" mt="1">
-          {depositAddress && explorerUrl && (
-            <Flex align="center" gap="1">
-              <Text size="1" color="gray">
-                Track your deposit progress on explorer:{" "}
-                <Link href={explorerUrl} target="_blank" color="blue">
-                  {truncate(depositAddress)}
-                </Link>
-              </Text>
+        {depositMode === DepositMode.ONE_CLICK && (
+          <Flex direction="column" gap="1" mt="1.5">
+            {depositAddress && oneClickExplorerUrl && (
+              <Flex align="center" gap="1">
+                <Text size="1" color="gray">
+                  Track your deposit progress on explorer:{" "}
+                  <Link href={oneClickExplorerUrl} target="_blank" color="blue">
+                    {truncate(depositAddress)}
+                  </Link>
+                </Text>
 
-              <CopyButton
-                text={depositAddress}
-                ariaLabel="Copy Deposit address"
-              />
-            </Flex>
-          )}
-        </Flex>
+                <CopyButton
+                  text={depositAddress}
+                  ariaLabel="Copy Deposit address"
+                />
+              </Flex>
+            )}
+          </Flex>
+        )}
+        {txHash && transactionExplorerUrl && (
+          <Flex align="center" gap="1" mt="1">
+            <Text size="1" color="gray">
+              Transaction:{" "}
+              <Link href={transactionExplorerUrl} target="_blank" color="blue">
+                {truncate(txHash)}
+              </Link>
+            </Text>
+
+            <CopyButton text={txHash} ariaLabel="Copy Transaction hash" />
+          </Flex>
+        )}
       </Flex>
     </Flex>
   )
