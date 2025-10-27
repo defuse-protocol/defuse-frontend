@@ -5,19 +5,12 @@ import { Callout } from "@radix-ui/themes"
 import { ModalSelectNetwork } from "@src/components/DefuseSDK/components/Network/ModalSelectNetwork"
 import { usePreparedNetworkLists } from "@src/components/DefuseSDK/hooks/useNetworkLists"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
-import {
-  assetNetworkAdapter,
-  reverseAssetNetworkAdapter,
-} from "@src/components/DefuseSDK/utils/adapters"
+import { assetNetworkAdapter } from "@src/components/DefuseSDK/utils/adapters"
 import {
   availableChainsForToken,
   getDefaultBlockchainOptionValue,
 } from "@src/components/DefuseSDK/utils/blockchain"
-import {
-  getDerivedToken,
-  isMinAmountNotRequired,
-} from "@src/components/DefuseSDK/utils/tokenUtils"
-import { useSelector } from "@xstate/react"
+import { isMinAmountNotRequired } from "@src/components/DefuseSDK/utils/tokenUtils"
 import { useEffect, useState } from "react"
 import { Controller, useFormContext } from "react-hook-form"
 import { AssetComboIcon } from "../../../../components/Asset/AssetComboIcon"
@@ -36,7 +29,6 @@ import { getAvailableDepositRoutes } from "../../../../services/depositService"
 import { ModalType } from "../../../../stores/modalStore"
 import type { SupportedChainName } from "../../../../types/base"
 import type { RenderHostAppLink } from "../../../../types/hostAppLink"
-import { getPOABridgeInfo } from "../../../machines/poaBridgeInfoActor"
 import { DepositUIMachineContext } from "../DepositUIMachineProvider"
 import { ActiveDeposit } from "./ActiveDeposit"
 import { DepositMethodSelector } from "./DepositMethodSelector"
@@ -66,27 +58,20 @@ export const DepositForm = ({
   const snapshot = DepositUIMachineContext.useSelector((snapshot) => snapshot)
   const preparationOutput = snapshot.context.preparationOutput
 
-  const {
-    token,
-    derivedToken,
-    tokenDeployment,
-    network,
-    userAddress,
-    poaBridgeInfoRef,
-  } = DepositUIMachineContext.useSelector((snapshot) => {
-    const { userAddress, poaBridgeInfoRef } = snapshot.context
-    const { token, derivedToken, tokenDeployment, blockchain } =
-      snapshot.context.depositFormRef.getSnapshot().context
+  const { token, derivedToken, tokenDeployment, network, userAddress } =
+    DepositUIMachineContext.useSelector((snapshot) => {
+      const { userAddress } = snapshot.context
+      const { token, derivedToken, tokenDeployment, blockchain } =
+        snapshot.context.depositFormRef.getSnapshot().context
 
-    return {
-      token,
-      derivedToken,
-      tokenDeployment,
-      network: blockchain,
-      userAddress,
-      poaBridgeInfoRef,
-    }
-  })
+      return {
+        token,
+        derivedToken,
+        tokenDeployment,
+        network: blockchain,
+        userAddress,
+      }
+    })
 
   const isOutputOk = preparationOutput?.tag === "ok"
   const depositAddress = isOutputOk
@@ -97,6 +82,12 @@ export const DepositForm = ({
       ? preparationOutput.value.memo
       : null
     : null
+  const minDepositAmount =
+    isOutputOk && chainType != null && network != null
+      ? isMinAmountNotRequired(chainType, network)
+        ? null
+        : preparationOutput.value.minDepositAmount
+      : null
 
   const { setModalType, payload, onCloseModal } = useModalStore(
     (state) => state
@@ -155,27 +146,6 @@ export const DepositForm = ({
       setValue("network", networkDefaultOption)
     }
   }, [formNetwork, token, setValue])
-
-  const minDepositAmount = useSelector(poaBridgeInfoRef, (state) => {
-    if (
-      chainType != null &&
-      network != null &&
-      isMinAmountNotRequired(chainType, network)
-    ) {
-      return null
-    }
-
-    const tokenOut =
-      token && formNetwork
-        ? getDerivedToken(token, reverseAssetNetworkAdapter[formNetwork])
-        : null
-    if (tokenOut == null) {
-      return null
-    }
-
-    const bridgedTokenInfo = getPOABridgeInfo(state, tokenOut.defuseAssetId)
-    return bridgedTokenInfo == null ? null : bridgedTokenInfo.minDeposit
-  })
 
   const availableDepositRoutes =
     chainType &&
