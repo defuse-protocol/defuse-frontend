@@ -2,7 +2,7 @@ import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { useTokensUsdPrices } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
 import { type PropsWithChildren, useEffect } from "react"
 import { useFormContext } from "react-hook-form"
-import { useDebounce } from "../../../../../hooks/useDebounce"
+import { useDebounce } from "use-debounce"
 import { reverseAssetNetworkAdapter } from "../../../utils/adapters"
 import type { DepositFormValues } from "./DepositForm"
 import { DepositUIMachineContext } from "./DepositUIMachineProvider"
@@ -23,7 +23,7 @@ export function DepositUIMachineFormSyncProvider({
   const actorRef = DepositUIMachineContext.useActorRef()
 
   const amountValue = watch("amount")
-  const debouncedAmount = useDebounce(amountValue, 500)
+  const [debouncedAmount] = useDebounce(amountValue, 500)
 
   const { data: tokensUsdPriceData } = useTokensUsdPrices()
 
