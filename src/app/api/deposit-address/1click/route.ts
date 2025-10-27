@@ -34,7 +34,6 @@ export const getDepositAddressArgsSchema = z.object({
   chainName: supportedChainNameSchema,
   tokenIn: baseTokenInfoSchema,
   tokenOut: baseTokenInfoSchema,
-  amount: z.string(),
 })
 
 export type GetOneClickDepositAddressResponse = {
@@ -56,7 +55,7 @@ export async function POST(request: Request) {
       )
     }
 
-    const { userAddress, userChainType, chainName, tokenIn, tokenOut, amount } =
+    const { userAddress, userChainType, chainName, tokenIn, tokenOut } =
       parseResult.data
 
     const appFeeBps = computeAppFeeBps(
@@ -83,7 +82,7 @@ export async function POST(request: Request) {
     const isNetworkRequiresMemo = ["stellar"].includes(chainName)
 
     const req: QuoteRequest = {
-      amount,
+      amount: "0", // Amount unknown in passive mode, using 0 for both modes to simplify logic,
       depositMode: isNetworkRequiresMemo
         ? QuoteRequest.depositMode.MEMO
         : QuoteRequest.depositMode.SIMPLE,
@@ -98,7 +97,7 @@ export async function POST(request: Request) {
       recipientType: QuoteRequest.recipientType.INTENTS,
       swapType: QuoteRequest.swapType.FLEX_INPUT,
       quoteWaitingTimeMs: 0,
-      deadline: new Date(Date.now() + 300_000).toISOString(),
+      deadline: new Date(Date.now() + 300_000).toISOString(), // 5 minutes
       ...(appFeeBps > 0
         ? { appFees: [{ recipient: APP_FEE_RECIPIENT, fee: appFeeBps }] }
         : {}),

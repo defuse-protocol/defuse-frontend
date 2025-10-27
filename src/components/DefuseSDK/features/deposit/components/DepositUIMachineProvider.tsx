@@ -133,7 +133,6 @@ export function DepositUIMachineProvider({
                       chainName: blockchain,
                       tokenIn,
                       tokenOut,
-                      amount: "0", // Amount unknown in passive mode, using 0 for both modes to simplify logic
                     }),
                   })
                   return await result.json()

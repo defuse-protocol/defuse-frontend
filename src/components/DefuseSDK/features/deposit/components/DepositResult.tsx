@@ -93,7 +93,7 @@ export const DepositResult = ({
         )}
 
         {depositMode === DepositMode.ONE_CLICK && depositAddress ? (
-          <OneClickSwapExploreLink depositAddress={depositAddress} />
+          <OneClickDepositExplorerLink depositAddress={depositAddress} />
         ) : (
           <Box>
             <Text size="1" color="gray">
@@ -106,14 +106,14 @@ export const DepositResult = ({
   )
 }
 
-function OneClickSwapExploreLink({
+function OneClickDepositExplorerLink({
   depositAddress,
 }: { depositAddress: string }) {
   const explorerUrl = `${EXPLORER_NEAR_INTENTS}/transactions/${depositAddress}`
   return (
     <Flex align="center" gap="1">
       <Text size="1" color="gray">
-        Track your swap progress on explorer:{" "}
+        Track your deposit progress on explorer:{" "}
         <Link href={explorerUrl} target="_blank" color="blue">
           {shortenText(depositAddress)}
         </Link>
