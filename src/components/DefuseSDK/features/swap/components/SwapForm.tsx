@@ -307,10 +307,11 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const usdAmountOut = getTokenUsdPrice(amountOut, tokenOut, tokensUsdPriceData)
 
   const is1cs = useIs1CsEnabled()
+  const isSubmitting = snapshot.matches("submitting")
+  const isSubmitting1cs = is1cs && snapshot.matches("submitting_1cs")
   const isLoading =
     snapshot.matches({ editing: "waiting_quote" }) ||
-    (is1cs &&
-      snapshot.matches("submitting_1cs") &&
+    (isSubmitting1cs &&
       !(
         snapshot.context.quote?.tag === "ok" &&
         snapshot.context.quote.value.tokenDeltas.find(
@@ -387,6 +388,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               <TokenAmountInputCard.Input
                 id="swap-form-amount-in"
                 isLoading={isLoading && amountInEmpty}
+                disabled={isSubmitting || isSubmitting1cs}
                 {...register("amountIn", {
                   required: true,
                   validate: (value) => {
@@ -416,6 +418,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               <SelectAssets
                 selected={tokenIn ?? undefined}
                 dataTestId="select-assets-input"
+                disabled={isSubmitting || isSubmitting1cs}
                 handleSelect={() =>
                   openModalSelectAssets(SWAP_TOKEN_FLAGS.IN, tokenIn)
                 }
@@ -431,14 +434,14 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                   <BlockMultiBalances.DisplayMaxButton
                     onClick={handleSetMaxValue}
                     balance={balanceAmountIn}
-                    disabled={disabledIn}
+                    disabled={disabledIn || isSubmitting || isSubmitting1cs}
                   />
                 }
                 halfButtonSlot={
                   <BlockMultiBalances.DisplayHalfButton
                     onClick={handleSetHalfValue}
                     balance={balanceAmountIn}
-                    disabled={disabledIn}
+                    disabled={disabledIn || isSubmitting || isSubmitting1cs}
                   />
                 }
                 transitBalance={tokenInTransitBalance}
@@ -473,6 +476,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             }}
             className="size-10 -my-3.5 rounded-[10px] bg-accent-1 flex items-center justify-center z-10"
             data-testid="swap-form-switch-tokens-button"
+            disabled={isSubmitting || isSubmitting1cs}
           >
             <ArrowsDownUpIcon className="size-5" weight="bold" />
           </button>
@@ -493,30 +497,35 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                   id="swap-form-amount-out"
                   isLoading={isLoading && amountOutEmpty}
                   {...(is1cs
-                    ? register("amountOut", {
-                        required: true,
-                        validate: (value) => {
-                          if (!value) return true
-                          const num = Number.parseFloat(value.replace(",", "."))
-                          return (
-                            (!Number.isNaN(num) && num > 0) ||
-                            "Enter a valid amount"
-                          )
-                        },
-                        onChange: (e) => {
-                          setValue("amountIn", "")
-                          swapUIActorRef.send({
-                            type: "input",
-                            params: {
-                              tokenIn,
-                              tokenOut,
-                              swapType: QuoteRequest.swapType.EXACT_OUTPUT,
-                              amountOut: e.target.value,
-                              amountIn: "",
-                            },
-                          })
-                        },
-                      })
+                    ? {
+                        ...register("amountOut", {
+                          required: true,
+                          validate: (value) => {
+                            if (!value) return true
+                            const num = Number.parseFloat(
+                              value.replace(",", ".")
+                            )
+                            return (
+                              (!Number.isNaN(num) && num > 0) ||
+                              "Enter a valid amount"
+                            )
+                          },
+                          onChange: (e) => {
+                            setValue("amountIn", "")
+                            swapUIActorRef.send({
+                              type: "input",
+                              params: {
+                                tokenIn,
+                                tokenOut,
+                                swapType: QuoteRequest.swapType.EXACT_OUTPUT,
+                                amountOut: e.target.value,
+                                amountIn: "",
+                              },
+                            })
+                          },
+                        }),
+                        disabled: isSubmitting || isSubmitting1cs,
+                      }
                     : {
                         disabled: true,
                         name: "amountOut",
@@ -532,6 +541,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                     openModalSelectAssets(SWAP_TOKEN_FLAGS.OUT, tokenOut)
                   }
                   tokens={tokens}
+                  disabled={isSubmitting || isSubmitting1cs}
                 />
               }
               balanceSlot={
@@ -585,10 +595,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               type="submit"
               size="lg"
               fullWidth
-              isLoading={
-                snapshot.matches("submitting") ||
-                snapshot.matches("submitting_1cs")
-              }
+              isLoading={isSubmitting || isSubmitting1cs}
               disabled={
                 (isLoading &&
                   swapType === QuoteRequest.swapType.EXACT_OUTPUT) ||
