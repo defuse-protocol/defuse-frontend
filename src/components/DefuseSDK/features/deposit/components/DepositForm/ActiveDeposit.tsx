@@ -112,7 +112,11 @@ export function ActiveDeposit({
   const inputId = useId()
 
   const { data: tokensUsdPriceData } = useTokensUsdPrices()
-  const usdAmountToDeposit = getTokenUsdPrice(amount, token, tokensUsdPriceData)
+  const usdAmountToDeposit = getTokenUsdPrice(
+    watch("amount"),
+    token,
+    tokensUsdPriceData
+  )
   const is1cs = useIs1CsEnabled()
   return (
     <div className="flex flex-col gap-5">
