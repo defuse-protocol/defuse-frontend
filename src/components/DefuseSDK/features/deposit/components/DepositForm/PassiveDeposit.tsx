@@ -1,10 +1,12 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import { CheckIcon, CopyIcon } from "@radix-ui/react-icons"
 import { Button, Spinner } from "@radix-ui/themes"
+import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { QRCodeSVG } from "qrcode.react"
 import { Copy } from "../../../../components/IntentCard/CopyButton"
 import { Separator } from "../../../../components/Separator"
 import type { BaseTokenInfo, TokenDeployment } from "../../../../types/base"
+import { SwitchToLegacyDeposit } from "../SwitchToLegacyDeposit"
 import {
   renderDepositHint,
   renderMinDepositAmountHint,
@@ -28,6 +30,7 @@ export function PassiveDeposit({
   memo,
 }: PassiveDepositProps) {
   const truncatedAddress = truncateAddress(depositAddress ?? "")
+  const is1cs = useIs1CsEnabled()
 
   return (
     <div className="flex flex-col items-stretch">
@@ -130,6 +133,8 @@ export function PassiveDeposit({
         </div>
       </div>
       {renderDepositHint(network, token, tokenDeployment)}
+
+      {depositWarning?.tag === "err" && is1cs && <SwitchToLegacyDeposit />}
     </div>
   )
 }
