@@ -901,11 +901,9 @@ async function generateTemporaryDepositAddress(
     throw new Error("App fee recipient is not configured")
   }
 
-  const isNetworkRequiresMemo = ["stellar"].includes(chainName)
-
   const req: QuoteRequest = {
     amount: "0", // Amount unknown in passive mode, using 0 for both modes to simplify logic,
-    depositMode: isNetworkRequiresMemo
+    depositMode: isNetworkRequiresMemo(chainName)
       ? QuoteRequest.depositMode.MEMO
       : QuoteRequest.depositMode.SIMPLE,
     dry: false,
@@ -936,6 +934,10 @@ async function generateTemporaryDepositAddress(
     memo: result.quote.depositMemo ?? null,
     minDepositAmount: parseUnits(result.quote.minAmountIn, tokenIn.decimals),
   }
+}
+
+function isNetworkRequiresMemo(chainName: BlockchainEnum): boolean {
+  return chainName === BlockchainEnum.STELLAR
 }
 
 export async function checkNearTransactionValidity(
