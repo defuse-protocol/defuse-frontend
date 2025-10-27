@@ -150,11 +150,9 @@ export function ActiveDeposit({
         />
       </div>
 
-      {minDepositAmount != null && (
-        <div className="px-3">
-          {renderMinDepositAmountHint(minDepositAmount, token, tokenDeployment)}
-        </div>
-      )}
+      <div className="px-3">
+        {renderMinDepositAmountHint(minDepositAmount, token, tokenDeployment)}
+      </div>
 
       <DepositWarning depositWarning={depositOutput || preparationOutput} />
       {(depositOutput?.tag === "err" || preparationOutput?.tag === "err") &&

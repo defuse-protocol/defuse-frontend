@@ -1,5 +1,10 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
-import { Callout } from "@radix-ui/themes"
+import { Callout, Skeleton } from "@radix-ui/themes"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@src/components/DefuseSDK/components/Tooltip"
 import { reverseAssetNetworkAdapter } from "@src/components/DefuseSDK/utils/adapters"
 import { isFungibleToken } from "@src/components/DefuseSDK/utils/token"
 import type { BaseTokenInfo, TokenDeployment } from "../../../../types/base"
@@ -30,7 +35,7 @@ export function renderDepositHint(
 }
 
 export function renderMinDepositAmountHint(
-  minDepositAmount: bigint,
+  minDepositAmount: bigint | null,
   token: BaseTokenInfo,
   tokenDeployment: TokenDeployment
 ) {
@@ -38,10 +43,22 @@ export function renderMinDepositAmountHint(
     <div className="flex flex-col gap-3.5 font-medium text-gray-11 text-xs">
       <div className="flex justify-between">
         <div>Minimum deposit</div>
-        <div className="text-label">
-          {formatTokenValue(minDepositAmount, tokenDeployment.decimals)}{" "}
-          {token.symbol}
-        </div>
+        {minDepositAmount != null ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="text-label">
+                {formatTokenValue(minDepositAmount, tokenDeployment.decimals)}{" "}
+                {token.symbol}
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              Deposits smaller than the minimum amount are not credited and are
+              not refunded
+            </TooltipContent>
+          </Tooltip>
+        ) : (
+          <Skeleton className="w-16 h-4" />
+        )}
       </div>
     </div>
   )
