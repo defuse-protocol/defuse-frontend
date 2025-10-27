@@ -133,7 +133,7 @@ export function DepositUIMachineProvider({
                       chainName: blockchain,
                       tokenIn,
                       tokenOut,
-                      amount: "0", // Actual amount for active deposit mode cause error on 1Click side, should be fixed in the future
+                      amount: "0", // Amount unknown in passive mode, using 0 for both modes to simplify logic
                     }),
                   })
                   return await result.json()
