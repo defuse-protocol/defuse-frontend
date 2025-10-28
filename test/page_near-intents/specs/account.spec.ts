@@ -1,12 +1,10 @@
-import { MetaMask } from "@synthetixio/synpress/playwright"
+import { Web3RequestKind } from "headless-web3-provider"
 import { NEAR_INTENTS_PAGE } from "../../helpers/constants/pages"
 import {
   NEAR_INTENTS_TAG,
   NEAR_INTENTS_TAG_DEPOSIT,
   NEAR_INTENTS_TAG_WITHDRAW,
 } from "../../helpers/constants/tags"
-import { waitForMetaMaskPageClosed } from "../../helpers/functions/helper-functions"
-import nearWeb3ProdSetup from "../../wallet-setup/near-web3-prod.setup"
 import { test } from "../fixtures/near-intents"
 import { AccountPage } from "../pages/account.page"
 import { DepositPage } from "../pages/deposit.page"
@@ -16,7 +14,8 @@ test.use(NEAR_INTENTS_PAGE)
 
 test.beforeEach(
   "Login to Near Web3 wallet with MetaMask",
-  async ({ nearIntentsPreconditions }) => {
+  async ({ page, nearIntentsPreconditions }) => {
+    await page.goto(NEAR_INTENTS_PAGE.baseURL)
     await nearIntentsPreconditions.loginToNearIntents()
     await nearIntentsPreconditions.isSignatureCheckRequired()
     await nearIntentsPreconditions.waitForAccountSync()
@@ -41,48 +40,40 @@ test.describe(
 
     test("Confirm user can deny the deposit", async ({
       page,
-      context,
-      extensionId,
+      injectWeb3Provider,
     }) => {
       const homePage = new HomePage(page)
       const depositPage = new DepositPage(page)
-      const metamask = new MetaMask(
-        context,
-        page,
-        nearWeb3ProdSetup.walletPassword,
-        extensionId
-      )
+      const wallet = await injectWeb3Provider(page)
       await homePage.navigateToDepositPage()
       await depositPage.selectAssetToken("Turbo")
       await depositPage.selectAssetNetwork("TurboChain")
       await depositPage.enterDepositValue(0.001)
       await depositPage.clickDeposit()
-      await metamask.approveNewNetwork()
-      await metamask.approveSwitchNetwork()
+      await wallet.authorize(Web3RequestKind.AddEthereumChain)
+      await wallet.authorize(Web3RequestKind.SwitchEthereumChain)
       await depositPage.waitForMetamaskAction()
-      await metamask.rejectTransaction()
+      await wallet.reject(Web3RequestKind.SendTransaction)
+
       await depositPage.confirmTransactionCancelled()
     })
 
-    test("Confirm user can deposit", async ({ page, context, extensionId }) => {
+    test("Confirm user can deposit", async ({ page, injectWeb3Provider }) => {
       const homePage = new HomePage(page)
       const depositPage = new DepositPage(page)
-      const metamask = new MetaMask(
-        context,
-        page,
-        nearWeb3ProdSetup.walletPassword,
-        extensionId
-      )
+      const wallet = await injectWeb3Provider(page)
+
       await homePage.navigateToDepositPage()
       await depositPage.selectAssetToken("Turbo")
       await depositPage.selectAssetNetwork("TurboChain")
       await depositPage.enterDepositValue(0.001)
       await depositPage.clickDeposit()
-      await metamask.approveNewNetwork()
-      await metamask.approveSwitchNetwork()
+
+      await wallet.authorize(Web3RequestKind.AddEthereumChain)
+      await wallet.authorize(Web3RequestKind.SwitchEthereumChain)
       await depositPage.waitForMetamaskAction()
-      await metamask.confirmTransaction()
-      await waitForMetaMaskPageClosed(context)
+      await wallet.authorize(Web3RequestKind.SendTransaction)
+
       await depositPage.confirmTransactionCompleted()
     })
   }
@@ -113,18 +104,12 @@ test.describe(
 
     test("Confirm user can deny withdraw", async ({
       page,
-      context,
-      extensionId,
       nearIntentsPreconditions,
+      injectWeb3Provider,
     }) => {
       const homePage = new HomePage(page)
       const accountsPage = new AccountPage(page)
-      const metamask = new MetaMask(
-        context,
-        page,
-        nearWeb3ProdSetup.walletPassword,
-        extensionId
-      )
+      const wallet = await injectWeb3Provider(page)
       await homePage.navigateToAccountPage()
       await accountsPage.navigateToWithdrawPage()
       await accountsPage.selectWithdrawToken("Turbo")
@@ -135,24 +120,18 @@ test.describe(
       )
       await accountsPage.confirmWithdrawal()
 
-      await metamask.rejectSignature()
+      await wallet.reject(Web3RequestKind.SignTypedData)
       await accountsPage.confirmTransactionCancelled()
     })
 
     test("Confirm that user can withdraw", async ({
       page,
-      context,
-      extensionId,
       nearIntentsPreconditions,
+      injectWeb3Provider,
     }) => {
       const homePage = new HomePage(page)
       const accountsPage = new AccountPage(page)
-      const metamask = new MetaMask(
-        context,
-        page,
-        nearWeb3ProdSetup.walletPassword,
-        extensionId
-      )
+      const wallet = await injectWeb3Provider(page)
       await homePage.navigateToAccountPage()
       await accountsPage.navigateToWithdrawPage()
       await accountsPage.selectWithdrawToken("Turbo")
@@ -163,7 +142,7 @@ test.describe(
       )
       await accountsPage.confirmWithdrawal()
 
-      await metamask.confirmSignature()
+      await wallet.authorize(Web3RequestKind.SignTypedData)
       await accountsPage.confirmWithdrawalState("Pending")
       await accountsPage.confirmWithdrawalState("Completed")
     })
