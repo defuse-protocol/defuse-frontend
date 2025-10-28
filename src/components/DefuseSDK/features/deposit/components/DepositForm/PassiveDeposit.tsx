@@ -3,7 +3,6 @@ import { ArrowSquareOutIcon } from "@phosphor-icons/react"
 import { CheckIcon, CopyIcon } from "@radix-ui/react-icons"
 import { Button, Spinner } from "@radix-ui/themes"
 import { EXPLORER_NEAR_INTENTS } from "@src/components/DefuseSDK/utils/getStatusDisplayInfo"
-import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import Link from "next/link"
 import { QRCodeSVG } from "qrcode.react"
 import { Copy } from "../../../../components/IntentCard/CopyButton"
@@ -23,6 +22,7 @@ export type PassiveDepositProps = {
   tokenDeployment: TokenDeployment
   memo: string | null
   depositWarning: DepositWarningOutput
+  is1cs: boolean
 }
 
 export function PassiveDeposit({
@@ -33,9 +33,9 @@ export function PassiveDeposit({
   tokenDeployment,
   memo,
   depositWarning,
+  is1cs,
 }: PassiveDepositProps) {
   const truncatedAddress = truncateAddress(depositAddress ?? "")
-  const is1cs = useIs1CsEnabled()
   const memoToUrl = memo ? `_${memo}` : ""
   const oneClickExplorerUrl =
     is1cs && depositAddress != null
