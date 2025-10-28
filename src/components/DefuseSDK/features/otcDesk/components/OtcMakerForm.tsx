@@ -318,74 +318,69 @@ export function OtcMakerForm({
         className="flex flex-col gap-5"
       >
         <div className="flex flex-col items-center">
-          <div className="flex flex-col gap-3">
-            <TokenAmountInputCard
-              variant="2"
-              labelSlot={
-                <label
-                  htmlFor="otc-maker-amount-in"
-                  className="font-bold text-label text-sm"
-                >
-                  Sell
-                </label>
-              }
-              inputSlot={
-                <TokenAmountInputCard.Input
-                  id="otc-maker-amount-in"
-                  name="amountIn"
-                  value={formValues.amountIn}
-                  onChange={(e) =>
-                    formValuesRef.trigger.updateAmountIn({
-                      value: e.target.value,
-                    })
-                  }
-                />
-              }
-              tokenSlot={
-                <SelectAssets
-                  dataTestId="select-assets-sell"
-                  selected={formValues.tokenIn ?? undefined}
-                  handleSelect={() =>
-                    openModalSelectAssets(
-                      SWAP_TOKEN_FLAGS.IN,
-                      formValues.tokenIn
-                    )
-                  }
-                />
-              }
-              balanceSlot={
-                <BlockMultiBalances
-                  balance={balanceAmountIn}
-                  decimals={tokenInBalance?.decimals ?? 0}
-                  className={clsx(
-                    "!static",
-                    tokenInBalance == null && "invisible"
-                  )}
-                  maxButtonSlot={
-                    <BlockMultiBalances.DisplayMaxButton
-                      onClick={() => handleSetMaxValue(SWAP_TOKEN_FLAGS.IN)}
-                      balance={balanceAmountIn}
-                      disabled={disabledIn}
-                    />
-                  }
-                  halfButtonSlot={
-                    <BlockMultiBalances.DisplayHalfButton
-                      onClick={() => handleSetHalfValue(SWAP_TOKEN_FLAGS.IN)}
-                      balance={balanceAmountIn}
-                      disabled={disabledIn}
-                    />
-                  }
-                />
-              }
-              priceSlot={
-                <TokenAmountInputCard.DisplayPrice>
-                  {usdAmountIn !== null && usdAmountIn > 0
-                    ? formatUsdAmount(usdAmountIn)
-                    : null}
-                </TokenAmountInputCard.DisplayPrice>
-              }
-            />
-          </div>
+          <TokenAmountInputCard
+            variant="2"
+            labelSlot={
+              <label
+                htmlFor="otc-maker-amount-in"
+                className="font-bold text-label text-sm"
+              >
+                Sell
+              </label>
+            }
+            inputSlot={
+              <TokenAmountInputCard.Input
+                id="otc-maker-amount-in"
+                name="amountIn"
+                value={formValues.amountIn}
+                onChange={(e) =>
+                  formValuesRef.trigger.updateAmountIn({
+                    value: e.target.value,
+                  })
+                }
+              />
+            }
+            tokenSlot={
+              <SelectAssets
+                dataTestId="select-assets-sell"
+                selected={formValues.tokenIn ?? undefined}
+                handleSelect={() =>
+                  openModalSelectAssets(SWAP_TOKEN_FLAGS.IN, formValues.tokenIn)
+                }
+              />
+            }
+            balanceSlot={
+              <BlockMultiBalances
+                balance={balanceAmountIn}
+                decimals={tokenInBalance?.decimals ?? 0}
+                className={clsx(
+                  "!static",
+                  tokenInBalance == null && "invisible"
+                )}
+                maxButtonSlot={
+                  <BlockMultiBalances.DisplayMaxButton
+                    onClick={() => handleSetMaxValue(SWAP_TOKEN_FLAGS.IN)}
+                    balance={balanceAmountIn}
+                    disabled={disabledIn}
+                  />
+                }
+                halfButtonSlot={
+                  <BlockMultiBalances.DisplayHalfButton
+                    onClick={() => handleSetHalfValue(SWAP_TOKEN_FLAGS.IN)}
+                    balance={balanceAmountIn}
+                    disabled={disabledIn}
+                  />
+                }
+              />
+            }
+            priceSlot={
+              <TokenAmountInputCard.DisplayPrice>
+                {usdAmountIn !== null && usdAmountIn > 0
+                  ? formatUsdAmount(usdAmountIn)
+                  : null}
+              </TokenAmountInputCard.DisplayPrice>
+            }
+          />
 
           <button
             type="button"
@@ -399,74 +394,72 @@ export function OtcMakerForm({
             <ArrowsDownUp className="size-5" weight="bold" />
           </button>
 
-          <div className="flex flex-col gap-3">
-            <TokenAmountInputCard
-              variant="2"
-              labelSlot={
-                <label
-                  htmlFor="otc-maker-amount-out"
-                  className="font-bold text-label text-sm"
-                >
-                  Buy
-                </label>
-              }
-              inputSlot={
-                <TokenAmountInputCard.Input
-                  id="otc-maker-amount-out"
-                  name="amountOut"
-                  value={formValues.amountOut}
-                  onChange={(e) =>
-                    formValuesRef.trigger.updateAmountOut({
-                      value: e.target.value,
-                    })
-                  }
-                />
-              }
-              tokenSlot={
-                <SelectAssets
-                  dataTestId="select-assets-buy"
-                  selected={formValues.tokenOut ?? undefined}
-                  handleSelect={() =>
-                    openModalSelectAssets(
-                      SWAP_TOKEN_FLAGS.OUT,
-                      formValues.tokenOut
-                    )
-                  }
-                />
-              }
-              balanceSlot={
-                <BlockMultiBalances
-                  balance={balanceAmountOut}
-                  decimals={tokenOutBalance?.decimals ?? 0}
-                  className={clsx(
-                    "!static",
-                    tokenOutBalance == null && "invisible"
-                  )}
-                  maxButtonSlot={
-                    <BlockMultiBalances.DisplayMaxButton
-                      onClick={() => handleSetMaxValue(SWAP_TOKEN_FLAGS.OUT)}
-                      balance={balanceAmountOut}
-                      disabled={disabledOut}
-                    />
-                  }
-                  halfButtonSlot={
-                    <BlockMultiBalances.DisplayHalfButton
-                      onClick={() => handleSetHalfValue(SWAP_TOKEN_FLAGS.OUT)}
-                      balance={balanceAmountOut}
-                      disabled={disabledOut}
-                    />
-                  }
-                />
-              }
-              priceSlot={
-                <TokenAmountInputCard.DisplayPrice>
-                  {usdAmountOut !== null && usdAmountOut > 0
-                    ? formatUsdAmount(usdAmountOut)
-                    : null}
-                </TokenAmountInputCard.DisplayPrice>
-              }
-            />
-          </div>
+          <TokenAmountInputCard
+            variant="2"
+            labelSlot={
+              <label
+                htmlFor="otc-maker-amount-out"
+                className="font-bold text-label text-sm"
+              >
+                Buy
+              </label>
+            }
+            inputSlot={
+              <TokenAmountInputCard.Input
+                id="otc-maker-amount-out"
+                name="amountOut"
+                value={formValues.amountOut}
+                onChange={(e) =>
+                  formValuesRef.trigger.updateAmountOut({
+                    value: e.target.value,
+                  })
+                }
+              />
+            }
+            tokenSlot={
+              <SelectAssets
+                dataTestId="select-assets-buy"
+                selected={formValues.tokenOut ?? undefined}
+                handleSelect={() =>
+                  openModalSelectAssets(
+                    SWAP_TOKEN_FLAGS.OUT,
+                    formValues.tokenOut
+                  )
+                }
+              />
+            }
+            balanceSlot={
+              <BlockMultiBalances
+                balance={balanceAmountOut}
+                decimals={tokenOutBalance?.decimals ?? 0}
+                className={clsx(
+                  "!static",
+                  tokenOutBalance == null && "invisible"
+                )}
+                maxButtonSlot={
+                  <BlockMultiBalances.DisplayMaxButton
+                    onClick={() => handleSetMaxValue(SWAP_TOKEN_FLAGS.OUT)}
+                    balance={balanceAmountOut}
+                    disabled={disabledOut}
+                  />
+                }
+                halfButtonSlot={
+                  <BlockMultiBalances.DisplayHalfButton
+                    onClick={() => handleSetHalfValue(SWAP_TOKEN_FLAGS.OUT)}
+                    balance={balanceAmountOut}
+                    disabled={disabledOut}
+                  />
+                }
+              />
+            }
+            priceSlot={
+              <TokenAmountInputCard.DisplayPrice>
+                {usdAmountOut !== null && usdAmountOut > 0
+                  ? formatUsdAmount(usdAmountOut)
+                  : null}
+              </TokenAmountInputCard.DisplayPrice>
+            }
+          />
 
           <div className="w-full flex items-center justify-between gap-3 mt-4">
             <label htmlFor="otc-maker-expiry" className="text-gray-11 text-sm">

@@ -1,4 +1,5 @@
 "use client"
+import { Island } from "@src/components/DefuseSDK/components/Island"
 import { TokenListUpdater } from "../../../components/TokenListUpdater"
 import { WidgetRoot } from "../../../components/WidgetRoot"
 import { SwapWidgetProvider } from "../../../providers/SwapWidgetProvider"
@@ -11,9 +12,9 @@ export function GiftMakerWidget(props: GiftMakerWidgetProps) {
     <WidgetRoot>
       <SwapWidgetProvider>
         <TokenListUpdater tokenList={props.tokenList} />
-        <div className="widget-container rounded-2xl bg-gray-1 p-5 shadow">
+        <Island className="widget-container">
           <GiftMakerForm {...props} />
-        </div>
+        </Island>
       </SwapWidgetProvider>
     </WidgetRoot>
   )
