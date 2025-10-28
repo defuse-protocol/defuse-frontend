@@ -25,7 +25,7 @@ export default function CreateGiftPage() {
 
   return (
     <Paper>
-      <div className="flex flex-col items-center gap-8">
+      <div className="flex w-full flex-col items-center gap-8">
         <GiftMakerWidget
           tokenList={tokenList}
           userAddress={userAddress}
