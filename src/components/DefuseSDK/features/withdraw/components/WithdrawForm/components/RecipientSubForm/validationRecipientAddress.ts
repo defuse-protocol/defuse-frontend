@@ -121,7 +121,7 @@ function cleanupExpiredCache() {
   }
 }
 
-async function validateAndCacheNearExplicitAccount(
+export async function validateAndCacheNearExplicitAccount(
   recipient: string
 ): Promise<Result<boolean, ValidateNearExplicitAccountErrorType>> {
   const now = Date.now()

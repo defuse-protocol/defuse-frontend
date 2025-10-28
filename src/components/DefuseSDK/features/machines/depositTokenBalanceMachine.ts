@@ -27,6 +27,7 @@ import { assetNetworkAdapter } from "../../utils/adapters"
 import { assert } from "../../utils/assert"
 import { isFungibleToken, isNativeToken } from "../../utils/token"
 import { validateAddress } from "../../utils/validateAddress"
+import { validateAndCacheNearExplicitAccount } from "../withdraw/components/WithdrawForm/components/RecipientSubForm/validationRecipientAddress"
 
 export const backgroundBalanceActor = fromPromise(
   async ({
@@ -63,6 +64,21 @@ export const backgroundBalanceActor = fromPromise(
           ? tokenDeployment.address
           : null
         assert(address != null, "Address is not defined")
+
+        // Check if NEAR account exists before querying balance,
+        // since EVM addresses may not be initialized yet it results in an error.
+        const isAccountExists = await validateAndCacheNearExplicitAccount(
+          normalizeToNearAddress(userWalletAddress)
+        )
+        if (
+          isAccountExists.isErr() &&
+          isAccountExists.unwrapErr() === "NEAR_ACCOUNT_DOES_NOT_EXIST"
+        ) {
+          return {
+            balance: 0n,
+            nearBalance: null,
+          }
+        }
 
         const [nep141Balance, nativeBalance] = await Promise.all([
           getNearNep141Balance({
