@@ -10,7 +10,7 @@
         "@defuse-protocol/intents-sdk": "0.26.4",
         "@defuse-protocol/internal-utils": "0.15.2",
         "@defuse-protocol/one-click-sdk-typescript": "^0.1.1-0.2",
-        "@hot-labs/near-connect": "0.6.2",
+        "@hot-labs/near-connect": "0.6.8",
         "@near-wallet-selector/core": "^9.1.0",
         "@next/third-parties": "^15.2.4",
         "@noble/curves": "1.4.0",
@@ -690,7 +690,7 @@
 
     "@hexagon/base64": ["@hexagon/base64@1.1.28", "", {}, "sha512-lhqDEAvWixy3bZ+UOYbPwUbBkwBq5C1LAJ/xPC8Oi+lL54oyakv/npbA0aU2hgCsx/1NUd4IBvV03+aUBWxerw=="],
 
-    "@hot-labs/near-connect": ["@hot-labs/near-connect@0.6.2", "", { "peerDependencies": { "@walletconnect/sign-client": "^2.21.8" } }, "sha512-cme+y9hDtFHkoRrA1eX8c+QpzZuUSeWt+ubJ325QwumNalCB4qtWr1Age+Y3sSYE0PDphxNZwNW/lIMOSCY1Pg=="],
+    "@hot-labs/near-connect": ["@hot-labs/near-connect@0.6.8", "", { "peerDependencies": { "@walletconnect/sign-client": "^2.21.8" } }, "sha512-hlxp5NeD/3VGWJFMG+UFy4xnaiaS4NILEgXwlogzP00deRwr+RPh1A1U9FVBYcu6CNDgUbdEvS5hQPOw4trP5w=="],
 
     "@hot-labs/omni-sdk": ["@hot-labs/omni-sdk@2.20.2", "", { "dependencies": { "@near-js/crypto": "2.2.5", "@near-js/providers": "2.2.5", "@near-js/transactions": "2.2.5", "@near-js/types": "2.2.5", "@near-js/utils": "2.2.5", "@stellar/stellar-sdk": "13.2.0", "@ton-api/client": "0.4.0", "@ton-api/ton-adapter": "0.4.1", "@ton/core": "0.60.1", "@ton/crypto": "3.3.0", "@ton/ton": "15.2.1", "ethers": "6.15.0", "rlp": "3.0.0" }, "optionalDependencies": { "@coral-xyz/anchor": "0.29.0", "@solana/spl-token": "0.4.13", "@solana/web3.js": "1.68.0", "tronweb": "6.0.4" } }, "sha512-BubAkyuZkF4qsiBR0i4eVowZEZpjwdo96SkTHGGMNmx9rCibCWE0bEZIDmiVasCuSEHECDh8+lUzbV1Coc57WQ=="],
 
