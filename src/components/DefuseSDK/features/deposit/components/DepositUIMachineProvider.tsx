@@ -141,6 +141,7 @@ export function DepositUIMachineProvider({
                     generatedResult.generatedDepositAddress,
                   memo: generatedResult.memo,
                   minDepositAmount: generatedResult.minDepositAmount,
+                  is1cs: generatedResult.is1cs,
                 }
               }),
             },

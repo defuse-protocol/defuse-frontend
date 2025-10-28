@@ -1,7 +1,6 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import { InfoCircledIcon } from "@radix-ui/react-icons"
 import { Text, useThemeContext } from "@radix-ui/themes"
-import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useSelector } from "@xstate/react"
 import clsx from "clsx"
 import { useId } from "react"
@@ -17,7 +16,6 @@ import getTokenUsdPrice from "../../../../utils/getTokenUsdPrice"
 import { isFungibleToken } from "../../../../utils/token"
 import { DepositUIMachineContext } from "../DepositUIMachineProvider"
 import { DepositWarning } from "../DepositWarning"
-import { SwitchToLegacyDeposit } from "../SwitchToLegacyDeposit"
 import { Intents } from "./Intents"
 import { TokenAmountInputCard } from "./TokenAmountInputCard"
 import type { DepositFormValues } from "./index"
@@ -117,7 +115,7 @@ export function ActiveDeposit({
     token,
     tokensUsdPriceData
   )
-  const is1cs = useIs1CsEnabled()
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-3">
@@ -159,8 +157,6 @@ export function ActiveDeposit({
       </div>
 
       <DepositWarning depositWarning={depositOutput || preparationOutput} />
-      {(depositOutput?.tag === "err" || preparationOutput?.tag === "err") &&
-        is1cs && <SwitchToLegacyDeposit />}
 
       <ButtonCustom
         size="lg"

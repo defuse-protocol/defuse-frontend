@@ -1,8 +1,5 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
-import {
-  getBaseTokenInfoWithFallback,
-  resolveTokenOut,
-} from "@src/components/DefuseSDK/features/machines/withdrawFormReducer"
+import { resolveTokenOut } from "@src/components/DefuseSDK/features/machines/withdrawFormReducer"
 import { reverseAssetNetworkAdapter } from "@src/components/DefuseSDK/utils/adapters"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { parseUnits } from "@src/components/DefuseSDK/utils/parse"
@@ -94,14 +91,6 @@ export const depositFormReducer = fromTransition(
           LIST_TOKENS_FLATTEN
         )
 
-        const tokenIn = derivedToken
-        const tokenOut = getBaseTokenInfoWithFallback(state.token, null)
-
-        // 1Click does not yet handle scenarios where tokenIn and tokenOut are the same, so we must avoid these cases.
-        // TODO: remove this once it supports these cases
-        const tokenInSameAsTokenOut =
-          tokenIn.defuseAssetId === tokenOut.defuseAssetId
-
         // This isn't possible assertion, if this happens then we need to check the token list
         assert(derivedToken != null, "Token not found")
         newState = {
@@ -111,7 +100,7 @@ export const depositFormReducer = fromTransition(
           tokenDeployment,
           parsedAmount: null,
           amount: "",
-          is1cs: state.is1cs && !tokenInSameAsTokenOut,
+          is1cs: state.is1cs,
         }
         break
       }

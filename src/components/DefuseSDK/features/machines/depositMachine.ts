@@ -29,6 +29,7 @@ export type Input = {
   nearBalance: bigint | null
   type: string
   memo: string | null
+  is1cs: boolean
 }
 
 export type DepositDescription = {
@@ -40,6 +41,7 @@ export type DepositDescription = {
   tokenDeployment: TokenDeployment
   depositAddress: string
   memo: string | null
+  is1cs: boolean
 }
 
 export type Output =
@@ -154,6 +156,7 @@ export const depositMachine = setup({
             tokenDeployment: context.tokenDeployment,
             depositAddress: context.depositAddress,
             memo: context.memo,
+            is1cs: context.is1cs,
           },
         },
       }

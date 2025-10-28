@@ -20,6 +20,7 @@ type DepositGenerateAddressReturnType = {
   generatedDepositAddress: string
   memo: string | null
   minDepositAmount: bigint
+  is1cs: boolean
 }
 
 type DepositGenerateAddressErrorType = { reason: "ERR_GENERATING_ADDRESS" }

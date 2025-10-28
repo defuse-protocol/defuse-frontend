@@ -10,7 +10,6 @@ import { Copy } from "../../../../components/IntentCard/CopyButton"
 import { Separator } from "../../../../components/Separator"
 import type { BaseTokenInfo, TokenDeployment } from "../../../../types/base"
 import { DepositWarning, type DepositWarningOutput } from "../DepositWarning"
-import { SwitchToLegacyDeposit } from "../SwitchToLegacyDeposit"
 import {
   renderDepositHint,
   renderMinDepositAmountHint,
@@ -162,7 +161,6 @@ export function PassiveDeposit({
           <DepositWarning depositWarning={depositWarning} />
         </div>
       )}
-      {depositWarning?.tag === "err" && is1cs && <SwitchToLegacyDeposit />}
     </div>
   )
 }
