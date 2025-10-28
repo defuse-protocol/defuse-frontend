@@ -11,13 +11,12 @@ import { TooltipInfo } from "../../../../components/TooltipInfo"
 import { useTokensUsdPrices } from "../../../../hooks/useTokensUsdPrices"
 import { RESERVED_NEAR_BALANCE } from "../../../../services/blockchainBalanceService"
 import type { BaseTokenInfo, TokenDeployment } from "../../../../types/base"
-import { reverseAssetNetworkAdapter } from "../../../../utils/adapters"
 import { formatTokenValue, formatUsdAmount } from "../../../../utils/format"
 import getTokenUsdPrice from "../../../../utils/getTokenUsdPrice"
 import { isFungibleToken } from "../../../../utils/token"
-import { DepositResult } from "../DepositResult"
 import { DepositUIMachineContext } from "../DepositUIMachineProvider"
 import { DepositWarning } from "../DepositWarning"
+import { Intents } from "./Intents"
 import { TokenAmountInputCard } from "./TokenAmountInputCard"
 import type { DepositFormValues } from "./index"
 import {
@@ -46,6 +45,7 @@ export function ActiveDeposit({
     depositOutput,
     preparationOutput,
     depositTokenBalanceRef,
+    intentRefs,
     isLoading,
   } = DepositUIMachineContext.useSelector((snapshot) => {
     const amount = snapshot.context.depositFormRef.getSnapshot().context.amount
@@ -57,6 +57,7 @@ export function ActiveDeposit({
       depositOutput: snapshot.context.depositOutput,
       preparationOutput: snapshot.context.preparationOutput,
       depositTokenBalanceRef: snapshot.context.depositTokenBalanceRef,
+      intentRefs: snapshot.context.intentRefs,
       isLoading:
         snapshot.matches("submittingNearTx") ||
         snapshot.matches("submittingEVMTx") ||
@@ -109,7 +110,12 @@ export function ActiveDeposit({
   const inputId = useId()
 
   const { data: tokensUsdPriceData } = useTokensUsdPrices()
-  const usdAmountToDeposit = getTokenUsdPrice(amount, token, tokensUsdPriceData)
+  const usdAmountToDeposit = getTokenUsdPrice(
+    watch("amount"),
+    token,
+    tokensUsdPriceData
+  )
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-3">
@@ -146,11 +152,9 @@ export function ActiveDeposit({
         />
       </div>
 
-      {minDepositAmount != null && (
-        <div className="px-3">
-          {renderMinDepositAmountHint(minDepositAmount, token, tokenDeployment)}
-        </div>
-      )}
+      <div className="px-3">
+        {renderMinDepositAmountHint(minDepositAmount, token, tokenDeployment)}
+      </div>
 
       <DepositWarning depositWarning={depositOutput || preparationOutput} />
 
@@ -179,10 +183,7 @@ export function ActiveDeposit({
 
       {renderDepositHint(network, token, tokenDeployment)}
 
-      <DepositResult
-        chainName={reverseAssetNetworkAdapter[network]}
-        depositResult={depositOutput}
-      />
+      <Intents intentRefs={intentRefs} />
     </div>
   )
 }

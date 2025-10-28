@@ -1,6 +1,9 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
+import { ArrowSquareOutIcon } from "@phosphor-icons/react"
 import { CheckIcon, CopyIcon } from "@radix-ui/react-icons"
 import { Button, Spinner } from "@radix-ui/themes"
+import { EXPLORER_NEAR_INTENTS } from "@src/components/DefuseSDK/utils/getStatusDisplayInfo"
+import Link from "next/link"
 import { QRCodeSVG } from "qrcode.react"
 import { Copy } from "../../../../components/IntentCard/CopyButton"
 import { Separator } from "../../../../components/Separator"
@@ -19,6 +22,7 @@ export type PassiveDepositProps = {
   tokenDeployment: TokenDeployment
   memo: string | null
   depositWarning: DepositWarningOutput
+  is1cs: boolean
 }
 
 export function PassiveDeposit({
@@ -29,8 +33,14 @@ export function PassiveDeposit({
   tokenDeployment,
   memo,
   depositWarning,
+  is1cs,
 }: PassiveDepositProps) {
   const truncatedAddress = truncateAddress(depositAddress ?? "")
+  const memoToUrl = memo ? `_${memo}` : ""
+  const oneClickExplorerUrl =
+    is1cs && depositAddress != null
+      ? `${EXPLORER_NEAR_INTENTS}/transactions/${depositAddress}${memoToUrl}`
+      : null
 
   return (
     <div className="flex flex-col items-stretch">
@@ -85,9 +95,21 @@ export function PassiveDeposit({
       </div>
 
       <div className="mb-4 px-3">
-        {minDepositAmount != null &&
-          renderMinDepositAmountHint(minDepositAmount, token, tokenDeployment)}
+        {renderMinDepositAmountHint(minDepositAmount, token, tokenDeployment)}
       </div>
+
+      {oneClickExplorerUrl && (
+        <div className="mb-4 px-3">
+          <div className="flex flex-col gap-3.5 font-medium text-gray-11 text-xs">
+            <div className="flex justify-between">
+              <div>Track your deposit progress on explorer</div>
+              <Link href={oneClickExplorerUrl} target="_blank" color="blue">
+                <ArrowSquareOutIcon size={16} />
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="mb-4 flex items-center rounded-lg bg-gray-3 px-4 py-2">
         <div className="flex flex-1 justify-center">

@@ -82,6 +82,7 @@ export const DepositForm = ({
       ? preparationOutput.value.memo
       : null
     : null
+  const is1cs = isOutputOk ? preparationOutput.value.is1cs : false
   const minDepositAmount =
     isOutputOk && chainType != null && network != null
       ? isMinAmountNotRequired(chainType, network)
@@ -284,6 +285,7 @@ export const DepositForm = ({
                   tokenDeployment={tokenDeployment}
                   memo={memo}
                   depositWarning={preparationOutput}
+                  is1cs={is1cs}
                 />
               )}
           </>

@@ -1,6 +1,7 @@
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { type PropsWithChildren, useEffect } from "react"
 import { useFormContext } from "react-hook-form"
+import { useDebounce } from "use-debounce"
 import { reverseAssetNetworkAdapter } from "../../../utils/adapters"
 import type { DepositFormValues } from "./DepositForm"
 import { DepositUIMachineContext } from "./DepositUIMachineProvider"
@@ -19,6 +20,17 @@ export function DepositUIMachineFormSyncProvider({
 }: DepositUIMachineFormSyncProviderProps) {
   const { watch } = useFormContext<DepositFormValues>()
   const actorRef = DepositUIMachineContext.useActorRef()
+
+  const amountValue = watch("amount")
+  const [debouncedAmount] = useDebounce(amountValue, 500)
+  useEffect(() => {
+    if (debouncedAmount !== undefined) {
+      actorRef.send({
+        type: "DEPOSIT_FORM.UPDATE_AMOUNT",
+        params: { amount: debouncedAmount },
+      })
+    }
+  }, [debouncedAmount, actorRef])
 
   useEffect(() => {
     const sub = watch(async (value, { name }) => {
@@ -40,16 +52,6 @@ export function DepositUIMachineFormSyncProvider({
         actorRef.send({
           type: "DEPOSIT_FORM.UPDATE_BLOCKCHAIN",
           params: { network: networkValue },
-        })
-      }
-      if (name === "amount") {
-        const amountValue = value[name]
-        if (amountValue === undefined) {
-          return
-        }
-        actorRef.send({
-          type: "DEPOSIT_FORM.UPDATE_AMOUNT",
-          params: { amount: amountValue },
         })
       }
     })

@@ -28,6 +28,10 @@ import {
 } from "./depositFormReducer"
 import { depositGenerateAddressMachine } from "./depositGenerateAddressMachine"
 import { type Output as DepositOutput, depositMachine } from "./depositMachine"
+import {
+  type DepositSettledEvent,
+  depositStatusMachine,
+} from "./depositStatusMachine"
 import { depositTokenBalanceMachine } from "./depositTokenBalanceMachine"
 import { poaBridgeInfoActor } from "./poaBridgeInfoActor"
 import {
@@ -50,6 +54,7 @@ export type Context = {
   depositEstimationRef: ActorRefFrom<typeof depositEstimationMachine>
   depositOutput: DepositOutput | null
   is1cs: boolean
+  intentRefs: ActorRefFrom<typeof depositStatusMachine>[]
 }
 
 export const depositUIMachine = setup({
@@ -76,7 +81,8 @@ export const depositUIMachine = setup({
           type: "LOGOUT"
         }
       | DepositFormEvents
-      | DepositFormParentEvents,
+      | DepositFormParentEvents
+      | DepositSettledEvent,
     children: {} as {
       depositNearRef: "depositNearActor"
       depositEVMRef: "depositEVMActor"
@@ -102,6 +108,7 @@ export const depositUIMachine = setup({
     storageDepositAmountActor: storageDepositAmountMachine,
     depositTokenBalanceActor: depositTokenBalanceMachine,
     depositEstimationActor: depositEstimationMachine,
+    depositStatusActor: depositStatusMachine,
   },
   actions: {
     logError: (_, event: { error: unknown }) => {
@@ -213,6 +220,37 @@ export const depositUIMachine = setup({
         }
       }
     ),
+    depositIntentStatusActor: assign({
+      intentRefs: ({ context, spawn, self }, output: DepositOutput) => {
+        if (output.tag !== "ok") return context.intentRefs
+        const depositDescription = output.value.depositDescription
+        assert(depositDescription != null, "depositDescription is null")
+
+        const blockchain =
+          context.depositFormRef.getSnapshot().context.blockchain
+        assert(blockchain !== null, "blockchain is null")
+
+        const depositStatusRef = spawn("depositStatusActor", {
+          id: `deposit-status-${output.value.txHash}`,
+          input: {
+            parentRef: self,
+            userAddress: depositDescription.userAddress,
+            depositAddress: depositDescription.depositAddress ?? "",
+            txHash: output.value.txHash,
+            memo: depositDescription.memo,
+            tokenIn: depositDescription.derivedToken,
+            totalAmountIn: {
+              amount: depositDescription.amount,
+              decimals: depositDescription.derivedToken.decimals,
+            },
+            is1cs: context.is1cs,
+            blockchain,
+          },
+        })
+
+        return [depositStatusRef, ...context.intentRefs]
+      },
+    }),
   },
   guards: {
     isTokenValid: ({ context }) => {
@@ -311,6 +349,7 @@ export const depositUIMachine = setup({
         input: { parentRef: self },
       }),
       is1cs: input.is1cs,
+      intentRefs: [],
     }
   },
 
@@ -526,6 +565,10 @@ export const depositUIMachine = setup({
               type: "setDepositOutput",
               params: ({ event }) => event.output,
             },
+            {
+              type: "depositIntentStatusActor",
+              params: ({ event }) => event.output,
+            },
             "clearUIDepositAmount",
             "requestBalanceRefresh",
             "resetPreparationOutput",
@@ -563,6 +606,10 @@ export const depositUIMachine = setup({
           actions: [
             {
               type: "setDepositOutput",
+              params: ({ event }) => event.output,
+            },
+            {
+              type: "depositIntentStatusActor",
               params: ({ event }) => event.output,
             },
             "clearUIDepositAmount",
@@ -604,6 +651,10 @@ export const depositUIMachine = setup({
               type: "setDepositOutput",
               params: ({ event }) => event.output,
             },
+            {
+              type: "depositIntentStatusActor",
+              params: ({ event }) => event.output,
+            },
             "clearUIDepositAmount",
             "requestBalanceRefresh",
             "resetPreparationOutput",
@@ -641,6 +692,10 @@ export const depositUIMachine = setup({
           actions: [
             {
               type: "setDepositOutput",
+              params: ({ event }) => event.output,
+            },
+            {
+              type: "depositIntentStatusActor",
               params: ({ event }) => event.output,
             },
             "clearUIDepositAmount",
@@ -681,6 +736,10 @@ export const depositUIMachine = setup({
               type: "setDepositOutput",
               params: ({ event }) => event.output,
             },
+            {
+              type: "depositIntentStatusActor",
+              params: ({ event }) => event.output,
+            },
             "clearUIDepositAmount",
             "requestBalanceRefresh",
             "resetPreparationOutput",
@@ -718,6 +777,10 @@ export const depositUIMachine = setup({
           actions: [
             {
               type: "setDepositOutput",
+              params: ({ event }) => event.output,
+            },
+            {
+              type: "depositIntentStatusActor",
               params: ({ event }) => event.output,
             },
             "clearUIDepositAmount",
@@ -760,6 +823,10 @@ export const depositUIMachine = setup({
               type: "setDepositOutput",
               params: ({ event }) => event.output,
             },
+            {
+              type: "depositIntentStatusActor",
+              params: ({ event }) => event.output,
+            },
             "clearUIDepositAmount",
             "requestBalanceRefresh",
             "resetPreparationOutput",
@@ -797,6 +864,10 @@ export const depositUIMachine = setup({
           actions: [
             {
               type: "setDepositOutput",
+              params: ({ event }) => event.output,
+            },
+            {
+              type: "depositIntentStatusActor",
               params: ({ event }) => event.output,
             },
             "clearUIDepositAmount",
