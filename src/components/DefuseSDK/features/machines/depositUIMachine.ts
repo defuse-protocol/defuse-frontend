@@ -845,14 +845,8 @@ function extractDepositParams(context: Context): DepositParams {
       ? context.preparationOutput
       : { value: null }
 
-  const {
-    token,
-    derivedToken,
-    tokenDeployment,
-    blockchain,
-    parsedAmount,
-    is1cs,
-  } = context.depositFormRef.getSnapshot().context
+  const { token, derivedToken, tokenDeployment, blockchain, parsedAmount } =
+    context.depositFormRef.getSnapshot().context
 
   // Validate all required fields
   assert(token, "token is null")
@@ -878,6 +872,6 @@ function extractDepositParams(context: Context): DepositParams {
     solanaATACreationRequired: prepOutput.solanaATACreationRequired,
     tonJettonWalletCreationRequired: prepOutput.tonJettonWalletCreationRequired,
     memo: prepOutput.memo,
-    is1cs,
+    is1cs: prepOutput.is1cs,
   }
 }

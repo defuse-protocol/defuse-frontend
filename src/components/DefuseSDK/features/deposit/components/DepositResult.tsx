@@ -4,7 +4,6 @@ import { CopyButton } from "@src/components/DefuseSDK/components/IntentCard/Copy
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { chainTxExplorer } from "@src/components/DefuseSDK/utils/chainTxExplorer"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
-import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import type { SupportedChainName } from "../../../types/base"
 import type { Context } from "../../machines/depositUIMachine"
 
@@ -31,7 +30,7 @@ export const DepositResult = ({
 
   const txUrl = explorerUrl + txHash
 
-  const is1cs = useIs1CsEnabled()
+  const is1cs = depositResult.value.depositDescription.is1cs
   let oneClickExplorerUrl = null
   if (is1cs) {
     oneClickExplorerUrl = depositAddress

@@ -90,6 +90,7 @@ export type PreparedDepositReturnType = {
   solanaATACreationRequired: boolean
   tonJettonWalletCreationRequired: boolean
   memo: string | null
+  is1cs: boolean
 }
 
 export type PreparedDepositErrorType = {
@@ -204,6 +205,7 @@ export async function prepareDeposit(
       solanaATACreationRequired,
       tonJettonWalletCreationRequired,
       memo: generateDepositAddress.value.memo,
+      is1cs: generateDepositAddress.value.is1cs,
     },
   }
 }
@@ -292,6 +294,7 @@ async function getGeneratedDepositAddress(
         generatedDepositAddress: string
         memo: string | null
         minDepositAmount: bigint
+        is1cs: boolean
       }
     }
   | { tag: "err"; value: { reason: "ERR_GENERATING_ADDRESS" } }
@@ -322,6 +325,7 @@ async function getGeneratedDepositAddress(
         generateDepositAddressOutput.value.generatedDepositAddress,
       memo: generateDepositAddressOutput.value.memo,
       minDepositAmount: generateDepositAddressOutput.value.minDepositAmount,
+      is1cs: generateDepositAddressOutput.value.is1cs,
     },
   }
 }
@@ -820,6 +824,10 @@ export async function createDepositTronTRC20Transaction(
 
 /**
  * Generate a deposit address for the specified blockchain and asset.
+ *
+ * Graceful degradation:
+ * - Try the 1Click (temporary) address generation first if `is1cs` is true.
+ * - If it fails, automatically fall back to stable generation.
  */
 export async function generateDepositAddress(
   userAddress: IntentsUserId,
@@ -832,16 +840,29 @@ export async function generateDepositAddress(
   generatedDepositAddress: string
   memo: string | null
   minDepositAmount: bigint
+  is1cs: boolean
 }> {
   if (is1cs) {
-    return await generateTemporaryDepositAddress(
-      chainName,
-      userAddress,
-      userChainType,
-      tokenIn,
-      tokenOut
-    )
+    try {
+      // Attempt 1Click (temporary) address generation
+      return await generateTemporaryDepositAddress(
+        chainName,
+        userAddress,
+        userChainType,
+        tokenIn,
+        tokenOut
+      )
+    } catch (error) {
+      logger.error("1Click address generation failed", {
+        error,
+        chainName,
+        userAddress,
+      })
+      // Fall through to stable generation
+    }
   }
+
+  // Fallback or direct stable generation
   return await generateStableDepositAddress(chainName, userAddress, tokenIn)
 }
 
@@ -875,6 +896,7 @@ async function generateStableDepositAddress(
     generatedDepositAddress: generatedDepositAddress.address,
     memo: generatedDepositAddress.memo ?? null,
     minDepositAmount: BigInt(bridgedTokenInfo.min_deposit_amount),
+    is1cs: false,
   }
 }
 
@@ -933,6 +955,7 @@ async function generateTemporaryDepositAddress(
     generatedDepositAddress: result.quote.depositAddress,
     memo: result.quote.depositMemo ?? null,
     minDepositAmount: parseUnits(result.quote.minAmountIn, tokenIn.decimals),
+    is1cs: true,
   }
 }
 
