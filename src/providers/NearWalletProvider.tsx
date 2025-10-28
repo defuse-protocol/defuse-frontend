@@ -75,11 +75,13 @@ export const NearWalletProvider: FC<{ children: ReactNode }> = ({
 
     try {
       const wallet = await newConnector.wallet()
-      const accountId = await wallet.getAddress()
-      if (accountId) {
-        setAccountId(accountId)
+      const accounts = await wallet.getAccounts()
+      if (accounts.length > 0) {
+        setAccountId(accounts[0].accountId)
       }
-    } catch {} // No existing wallet connection found
+    } catch (err) {
+      logger.error(err)
+    }
 
     return newConnector
   }, [connector, whitelabelTemplate])

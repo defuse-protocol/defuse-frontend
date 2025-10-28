@@ -43,7 +43,7 @@ export interface FunctionCallAction {
   type: "FunctionCall"
   params: {
     methodName: string
-    args: object
+    args: Record<string, unknown>
     gas: string
     deposit: string
   }
