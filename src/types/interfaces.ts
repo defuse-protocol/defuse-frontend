@@ -1,4 +1,5 @@
-import type { Transaction } from "@near-wallet-selector/core/src/lib/wallet/transactions.types"
+import type { Transaction } from "@hot-labs/near-connect/build/types/transactions"
+import type { Optional } from "@hot-labs/near-connect/build/types/wallet"
 import type { Transaction as TransactionSolana } from "@solana/web3.js"
 import type { SendTransactionRequest } from "@tonconnect/ui-react"
 import type { SendTransactionParameters } from "viem"
@@ -9,10 +10,6 @@ export type JobsDetails = {
   position: string
   link: string
 }
-
-type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
-
-// Copy from @near-wallet-selector/core/src/lib/wallet/wallet.types
 export interface SignAndSendTransactionsParams {
   /**
    * NEAR Transactions(s) to sign and send to the network. You can find more information on `Transaction` {@link https://github.com/near/wallet-selector/blob/main/packages/core/docs/api/transactions.md | here}.

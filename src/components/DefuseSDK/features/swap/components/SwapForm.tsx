@@ -481,99 +481,95 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             <ArrowsDownUpIcon className="size-5" weight="bold" />
           </button>
 
-          <div className="flex flex-col gap-3">
-            <TokenAmountInputCard
-              variant="2"
-              labelSlot={
-                <label
-                  htmlFor="swap-form-amount-out"
-                  className="font-bold text-label text-sm"
-                >
-                  Buy
-                </label>
-              }
-              inputSlot={
-                <TokenAmountInputCard.Input
-                  id="swap-form-amount-out"
-                  isLoading={isLoading && amountOutEmpty}
-                  {...(is1cs
-                    ? {
-                        ...register("amountOut", {
-                          required: true,
-                          validate: (value) => {
-                            if (!value) return true
-                            const num = Number.parseFloat(
-                              value.replace(",", ".")
-                            )
-                            return (
-                              (!Number.isNaN(num) && num > 0) ||
-                              "Enter a valid amount"
-                            )
-                          },
-                          onChange: (e) => {
-                            setValue("amountIn", "")
-                            swapUIActorRef.send({
-                              type: "input",
-                              params: {
-                                tokenIn,
-                                tokenOut,
-                                swapType: QuoteRequest.swapType.EXACT_OUTPUT,
-                                amountOut: e.target.value,
-                                amountIn: "",
-                              },
-                            })
-                          },
-                        }),
-                        disabled: isSubmitting || isSubmitting1cs,
-                      }
-                    : {
-                        disabled: true,
-                        name: "amountOut",
-                        value: amountOut,
-                      })}
-                />
-              }
-              tokenSlot={
-                <SelectAssets
-                  dataTestId="select-assets-output"
-                  selected={tokenOut ?? undefined}
-                  handleSelect={() =>
-                    openModalSelectAssets(SWAP_TOKEN_FLAGS.OUT, tokenOut)
-                  }
-                  tokens={tokens}
-                  disabled={isSubmitting || isSubmitting1cs}
-                />
-              }
-              balanceSlot={
-                <BlockMultiBalances
-                  balance={balanceAmountOut}
-                  decimals={tokenOutBalance?.decimals ?? 0}
-                  className={cn(
-                    "!static",
-                    tokenOutBalance == null && "invisible"
-                  )}
-                />
-              }
-              priceSlot={
-                <TokenAmountInputCard.DisplayPrice>
-                  {usdAmountOut !== null && usdAmountOut > 0
-                    ? formatUsdAmount(usdAmountOut)
-                    : null}
-                </TokenAmountInputCard.DisplayPrice>
-              }
-              infoSlot={
-                errors.amountOut && is1cs ? (
-                  <p className="text-label text-sm text-red-500">
-                    {errors.amountOut.message || "This field is required"}
-                  </p>
-                ) : isLongLoading && amountOutEmpty ? (
-                  <TokenAmountInputCard.DisplayInfo>
-                    Searching for more liquidity...
-                  </TokenAmountInputCard.DisplayInfo>
-                ) : null
-              }
-            />
-          </div>
+          <TokenAmountInputCard
+            variant="2"
+            labelSlot={
+              <label
+                htmlFor="swap-form-amount-out"
+                className="font-bold text-label text-sm"
+              >
+                Buy
+              </label>
+            }
+            inputSlot={
+              <TokenAmountInputCard.Input
+                id="swap-form-amount-out"
+                isLoading={isLoading && amountOutEmpty}
+                {...(is1cs
+                  ? {
+                      ...register("amountOut", {
+                        required: true,
+                        validate: (value) => {
+                          if (!value) return true
+                          const num = Number.parseFloat(value.replace(",", "."))
+                          return (
+                            (!Number.isNaN(num) && num > 0) ||
+                            "Enter a valid amount"
+                          )
+                        },
+                        onChange: (e) => {
+                          setValue("amountIn", "")
+                          swapUIActorRef.send({
+                            type: "input",
+                            params: {
+                              tokenIn,
+                              tokenOut,
+                              swapType: QuoteRequest.swapType.EXACT_OUTPUT,
+                              amountOut: e.target.value,
+                              amountIn: "",
+                            },
+                          })
+                        },
+                      }),
+                      disabled: isSubmitting || isSubmitting1cs,
+                    }
+                  : {
+                      disabled: true,
+                      name: "amountOut",
+                      value: amountOut,
+                    })}
+              />
+            }
+            tokenSlot={
+              <SelectAssets
+                dataTestId="select-assets-output"
+                selected={tokenOut ?? undefined}
+                handleSelect={() =>
+                  openModalSelectAssets(SWAP_TOKEN_FLAGS.OUT, tokenOut)
+                }
+                tokens={tokens}
+                disabled={isSubmitting || isSubmitting1cs}
+              />
+            }
+            balanceSlot={
+              <BlockMultiBalances
+                balance={balanceAmountOut}
+                decimals={tokenOutBalance?.decimals ?? 0}
+                className={cn(
+                  "!static",
+                  tokenOutBalance == null && "invisible"
+                )}
+              />
+            }
+            priceSlot={
+              <TokenAmountInputCard.DisplayPrice>
+                {usdAmountOut !== null && usdAmountOut > 0
+                  ? formatUsdAmount(usdAmountOut)
+                  : null}
+              </TokenAmountInputCard.DisplayPrice>
+            }
+            infoSlot={
+              errors.amountOut && is1cs ? (
+                <p className="text-label text-sm text-red-500">
+                  {errors.amountOut.message || "This field is required"}
+                </p>
+              ) : isLongLoading && amountOutEmpty ? (
+                <TokenAmountInputCard.DisplayInfo>
+                  Searching for more liquidity...
+                </TokenAmountInputCard.DisplayInfo>
+              ) : null
+            }
+          />
         </div>
 
         {quote1csError && <Quote1csError quote1csError={quote1csError} />}
