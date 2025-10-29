@@ -110,7 +110,6 @@ export function ActiveDeposit({
 
   const { data: tokensUsdPriceData } = useTokensUsdPrices()
   const usdAmountToDeposit = getTokenUsdPrice(amount, token, tokensUsdPriceData)
-
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-3">

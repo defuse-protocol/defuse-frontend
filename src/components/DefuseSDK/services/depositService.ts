@@ -1,6 +1,11 @@
 import { BlockchainEnum, poaBridge } from "@defuse-protocol/internal-utils"
 import { AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
 import {
+  OneClickService,
+  QuoteRequest,
+  type QuoteResponse,
+} from "@defuse-protocol/one-click-sdk-typescript"
+import {
   createAssociatedTokenAccountInstruction,
   createTransferInstruction,
   getAccount,
@@ -13,6 +18,7 @@ import {
   Transaction as TransactionSolana,
 } from "@solana/web3.js"
 import { auroraErc20ABI } from "@src/components/DefuseSDK/utils/blockchain"
+import { APP_FEE_BPS, APP_FEE_RECIPIENT } from "@src/utils/environment"
 import { logger } from "@src/utils/logger"
 import {
   type Account,
@@ -32,6 +38,7 @@ import {
   encodeFunctionData,
   erc20Abi,
   getAddress,
+  parseUnits,
 } from "viem"
 import { type ActorRefFrom, waitFor } from "xstate"
 import { config } from "../config"
@@ -42,7 +49,11 @@ import type { depositGenerateAddressMachine } from "../features/machines/deposit
 import type { depositTokenBalanceMachine } from "../features/machines/depositTokenBalanceMachine"
 import { getNearTxSuccessValue } from "../features/machines/getTxMachine"
 import type { storageDepositAmountMachine } from "../features/machines/storageDepositAmountMachine"
-import type { SupportedChainName, TokenDeployment } from "../types/base"
+import type {
+  BaseTokenInfo,
+  SupportedChainName,
+  TokenDeployment,
+} from "../types/base"
 import type {
   SendTransactionEVMParams,
   SendTransactionStellarParams,
@@ -51,6 +62,7 @@ import type {
 } from "../types/deposit"
 import type { SendTransactionTonParams } from "../types/deposit"
 import type { IntentsUserId } from "../types/intentsUserId"
+import { computeAppFeeBps } from "../utils/appFee"
 import { assert } from "../utils/assert"
 import { getEVMChainId } from "../utils/evmChainId"
 import { formatTokenValue } from "../utils/format"
@@ -63,7 +75,7 @@ import {
 } from "./tonJettonService"
 
 export type PreparedDepositReturnType = {
-  generateDepositAddress: string | null
+  generateDepositAddress: string
   storageDepositAmount: bigint | null
   balance: bigint | null
   /**
@@ -74,9 +86,11 @@ export type PreparedDepositReturnType = {
    */
   nearBalance: bigint | null
   maxDepositValue: bigint | null
+  minDepositAmount: bigint
   solanaATACreationRequired: boolean
   tonJettonWalletCreationRequired: boolean
   memo: string | null
+  is1cs: boolean
 }
 
 export type PreparedDepositErrorType = {
@@ -95,6 +109,7 @@ export type PreparationOutput =
 export async function prepareDeposit(
   {
     userAddress,
+    userChainType,
     formValues,
     depositGenerateAddressRef,
     storageDepositAmountRef,
@@ -102,6 +117,7 @@ export async function prepareDeposit(
     depositEstimationRef,
   }: {
     userAddress: string
+    userChainType: AuthMethod
     formValues: DepositFormContext
     depositGenerateAddressRef: ActorRefFrom<
       typeof depositGenerateAddressMachine
@@ -114,8 +130,6 @@ export async function prepareDeposit(
 ): Promise<PreparationOutput> {
   assert(formValues.tokenDeployment, "Token is required")
 
-  const userChainType =
-    depositGenerateAddressRef.getSnapshot().context.userChainType
   let storageDepositAmount: bigint | null = null
   // Getting storage deposit amount makes sense only for user NEAR wallet
   if (userChainType === AuthMethod.Near) {
@@ -158,7 +172,7 @@ export async function prepareDeposit(
       balance: balances.value.balance,
       nearBalance: balances.value.nearBalance,
       generateDepositAddress:
-        generateDepositAddress.value.generateDepositAddress,
+        generateDepositAddress.value.generatedDepositAddress,
       depositEstimationRef,
     },
     { signal }
@@ -169,7 +183,7 @@ export async function prepareDeposit(
 
   const solanaATACreationRequired = await checkSolanaATARequired(
     formValues.tokenDeployment,
-    generateDepositAddress.value.generateDepositAddress
+    generateDepositAddress.value.generatedDepositAddress
   )
 
   const tonJettonWalletCreationRequired = await checkTonJettonWalletRequired(
@@ -182,14 +196,16 @@ export async function prepareDeposit(
     tag: "ok",
     value: {
       generateDepositAddress:
-        generateDepositAddress.value.generateDepositAddress,
+        generateDepositAddress.value.generatedDepositAddress,
       storageDepositAmount,
       balance: balances.value.balance,
       nearBalance: balances.value.nearBalance,
       maxDepositValue: estimation.value.maxDepositValue,
+      minDepositAmount: generateDepositAddress.value.minDepositAmount,
       solanaATACreationRequired,
       tonJettonWalletCreationRequired,
       memo: generateDepositAddress.value.memo,
+      is1cs: generateDepositAddress.value.is1cs,
     },
   }
 }
@@ -274,7 +290,12 @@ async function getGeneratedDepositAddress(
 ): Promise<
   | {
       tag: "ok"
-      value: { generateDepositAddress: string | null; memo: string | null }
+      value: {
+        generatedDepositAddress: string
+        memo: string | null
+        minDepositAmount: bigint
+        is1cs: boolean
+      }
     }
   | { tag: "err"; value: { reason: "ERR_GENERATING_ADDRESS" } }
 > {
@@ -285,16 +306,26 @@ async function getGeneratedDepositAddress(
   )
   const generateDepositAddressOutput =
     depositGenerateAddressState.context.preparationOutput
-  if (generateDepositAddressOutput?.tag === "err") {
-    return generateDepositAddressOutput
+  if (
+    generateDepositAddressOutput == null ||
+    generateDepositAddressOutput.tag === "err"
+  ) {
+    return (
+      generateDepositAddressOutput ?? {
+        tag: "err",
+        value: { reason: "ERR_GENERATING_ADDRESS" },
+      }
+    )
   }
-  const generateDepositAddress =
-    generateDepositAddressOutput?.value.generateDepositAddress ?? null
+
   return {
     tag: "ok",
     value: {
-      generateDepositAddress,
-      memo: generateDepositAddressOutput?.value.memo ?? null,
+      generatedDepositAddress:
+        generateDepositAddressOutput.value.generatedDepositAddress,
+      memo: generateDepositAddressOutput.value.memo,
+      minDepositAmount: generateDepositAddressOutput.value.minDepositAmount,
+      is1cs: generateDepositAddressOutput.value.is1cs,
     },
   }
 }
@@ -792,38 +823,144 @@ export async function createDepositTronTRC20Transaction(
 }
 
 /**
- * Generate a deposit address for the specified blockchain and asset through the POA bridge API call.
+ * Generate a deposit address for the specified blockchain and asset.
  *
- * @param userAddress - The user address from the wallet
- * @param chain - The blockchain for which to generate the address
- * @returns A Promise that resolves to the generated deposit address
+ * Graceful degradation:
+ * - Try the 1Click (temporary) address generation first if `is1cs` is true.
+ * - If it fails, automatically fall back to stable generation.
  */
 export async function generateDepositAddress(
   userAddress: IntentsUserId,
-  chain: BlockchainEnum
+  chainName: BlockchainEnum,
+  userChainType: AuthMethod,
+  tokenIn: BaseTokenInfo,
+  tokenOut: BaseTokenInfo,
+  is1cs: boolean
 ): Promise<{
   generatedDepositAddress: string
   memo: string | null
+  minDepositAmount: bigint
+  is1cs: boolean
 }> {
+  if (is1cs) {
+    try {
+      // Attempt 1Click (temporary) address generation
+      return await generateTemporaryDepositAddress(
+        chainName,
+        userAddress,
+        userChainType,
+        tokenIn,
+        tokenOut
+      )
+    } catch (error) {
+      logger.error("1Click address generation failed", {
+        error,
+        chainName,
+        userAddress,
+      })
+      // Fall through to stable generation
+    }
+  }
+
+  // Fallback or direct stable generation
+  return await generateStableDepositAddress(chainName, userAddress, tokenIn)
+}
+
+/**
+ * Generate a stable deposit address through the POA bridge API call.
+ */
+async function generateStableDepositAddress(
+  chainName: BlockchainEnum,
+  userAddress: IntentsUserId,
+  tokenIn: BaseTokenInfo
+) {
   const supportedTokens = await poaBridge.httpClient.getSupportedTokens({
-    chains: [chain],
+    chains: [chainName],
   })
 
-  if (supportedTokens.tokens.length === 0) {
+  const bridgedTokenInfo = supportedTokens.tokens.find(
+    (token) => token.intents_token_id === tokenIn.defuseAssetId
+  )
+  if (bridgedTokenInfo == null) {
     throw new Error("No supported tokens found")
   }
 
-  const depositNetworkMemo = getDepositNetworkMemo(chain)
+  const depositNetworkMemo = getDepositNetworkMemo(chainName)
   const generatedDepositAddress = await poaBridge.httpClient.getDepositAddress({
     account_id: userAddress,
-    chain,
+    chain: chainName,
     ...(depositNetworkMemo && depositNetworkMemo),
   })
 
   return {
     generatedDepositAddress: generatedDepositAddress.address,
     memo: generatedDepositAddress.memo ?? null,
+    minDepositAmount: BigInt(bridgedTokenInfo.min_deposit_amount),
+    is1cs: false,
   }
+}
+
+/**
+ * Generate a temporary deposit address through the 1Click API call.
+ * Note: Deposit address should be regenerated after each deposit to avoid bounce back or deposit issues.
+ */
+async function generateTemporaryDepositAddress(
+  chainName: BlockchainEnum,
+  userAddress: IntentsUserId,
+  userChainType: AuthMethod,
+  tokenIn: BaseTokenInfo,
+  tokenOut: BaseTokenInfo
+) {
+  const appFeeBps = computeAppFeeBps(
+    APP_FEE_BPS,
+    tokenIn,
+    tokenOut,
+    APP_FEE_RECIPIENT,
+    { identifier: userAddress, method: userChainType }
+  )
+
+  if (appFeeBps > 0 && !APP_FEE_RECIPIENT) {
+    throw new Error("App fee recipient is not configured")
+  }
+
+  const req: QuoteRequest = {
+    amount: "0", // Amount unknown in passive mode, using 0 for both modes to simplify logic,
+    depositMode: isNetworkRequiresMemo(chainName)
+      ? QuoteRequest.depositMode.MEMO
+      : QuoteRequest.depositMode.SIMPLE,
+    dry: false,
+    slippageTolerance: 10000,
+    originAsset: tokenIn.defuseAssetId,
+    destinationAsset: tokenOut.defuseAssetId,
+    depositType: QuoteRequest.depositType.ORIGIN_CHAIN,
+    refundTo: userAddress,
+    refundType: QuoteRequest.refundType.INTENTS,
+    recipient: userAddress,
+    recipientType: QuoteRequest.recipientType.INTENTS,
+    swapType: QuoteRequest.swapType.FLEX_INPUT,
+    quoteWaitingTimeMs: 0,
+    deadline: new Date(Date.now() + 300_000).toISOString(), // 5 minutes
+    ...(appFeeBps > 0
+      ? { appFees: [{ recipient: APP_FEE_RECIPIENT, fee: appFeeBps }] }
+      : {}),
+  }
+
+  const result: QuoteResponse = await OneClickService.getQuote(req)
+
+  if (!result.quote.depositAddress) {
+    throw new Error("Generated temporary deposit address is not found")
+  }
+
+  return {
+    generatedDepositAddress: result.quote.depositAddress,
+    memo: result.quote.depositMemo ?? null,
+    minDepositAmount: parseUnits(result.quote.minAmountIn, tokenIn.decimals),
+    is1cs: true,
+  }
+}
+
+function isNetworkRequiresMemo(chainName: BlockchainEnum): boolean {
+  return chainName === BlockchainEnum.STELLAR
 }
 
 export async function checkNearTransactionValidity(

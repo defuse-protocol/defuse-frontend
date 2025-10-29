@@ -50,6 +50,7 @@ export type State = {
   blockchain: SupportedChainName | null
   parsedAmount: bigint | null
   amount: string
+  is1cs: boolean
 }
 
 export const depositFormReducer = fromTransition(
@@ -99,6 +100,7 @@ export const depositFormReducer = fromTransition(
           tokenDeployment,
           parsedAmount: null,
           amount: "",
+          is1cs: state.is1cs,
         }
         break
       }
@@ -149,7 +151,7 @@ export const depositFormReducer = fromTransition(
   ({
     input,
   }: {
-    input: { parentRef: ParentActor; token: TokenInfo }
+    input: { parentRef: ParentActor; token: TokenInfo; is1cs: boolean }
   }): State => {
     let blockchain: SupportedChainName | null = null
     let tokenDeployment: TokenDeployment | null = null
@@ -169,6 +171,7 @@ export const depositFormReducer = fromTransition(
       blockchain,
       parsedAmount: null,
       amount: "",
+      is1cs: input.is1cs,
     }
   }
 )
