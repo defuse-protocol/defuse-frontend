@@ -5,6 +5,7 @@ import { QRCodeSVG } from "qrcode.react"
 import { Copy } from "../../../../components/IntentCard/CopyButton"
 import { Separator } from "../../../../components/Separator"
 import type { BaseTokenInfo, TokenDeployment } from "../../../../types/base"
+import { DepositWarning, type DepositWarningOutput } from "../DepositWarning"
 import {
   renderDepositHint,
   renderMinDepositAmountHint,
@@ -17,6 +18,7 @@ export type PassiveDepositProps = {
   token: BaseTokenInfo
   tokenDeployment: TokenDeployment
   memo: string | null
+  depositWarning: DepositWarningOutput
 }
 
 export function PassiveDeposit({
@@ -26,6 +28,7 @@ export function PassiveDeposit({
   token,
   tokenDeployment,
   memo,
+  depositWarning,
 }: PassiveDepositProps) {
   const truncatedAddress = truncateAddress(depositAddress ?? "")
 
@@ -130,6 +133,12 @@ export function PassiveDeposit({
         </div>
       </div>
       {renderDepositHint(network, token, tokenDeployment)}
+
+      {depositWarning != null && (
+        <div className="mt-1.5">
+          <DepositWarning depositWarning={depositWarning} />
+        </div>
+      )}
     </div>
   )
 }

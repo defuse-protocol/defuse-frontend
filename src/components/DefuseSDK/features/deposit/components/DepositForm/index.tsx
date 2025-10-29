@@ -313,6 +313,7 @@ export const DepositForm = ({
                   token={derivedToken}
                   tokenDeployment={tokenDeployment}
                   memo={memo}
+                  depositWarning={preparationOutput}
                 />
               )}
           </>
