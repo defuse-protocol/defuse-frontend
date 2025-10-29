@@ -25,6 +25,7 @@ import {
   useMemo,
 } from "react"
 import { useFormContext } from "react-hook-form"
+import { useDebouncedCallback } from "use-debounce"
 import type { ActorRefFrom, SnapshotFrom } from "xstate"
 import { AuthGate } from "../../../components/AuthGate"
 import { BlockMultiBalances } from "../../../components/Block/BlockMultiBalances"
@@ -87,6 +88,32 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const amountIn = watch("amountIn")
   const amountOut = watch("amountOut")
   const tokens = useTokensStore((state) => state.tokens)
+
+  const debouncedAmountIn = useDebouncedCallback((amountIn) => {
+    swapUIActorRef.send({
+      type: "input",
+      params: {
+        tokenIn,
+        tokenOut,
+        swapType: QuoteRequest.swapType.EXACT_INPUT,
+        amountIn,
+        amountOut: "",
+      },
+    })
+  }, 500)
+
+  const debouncedAmountOut = useDebouncedCallback((amountOut) => {
+    swapUIActorRef.send({
+      type: "input",
+      params: {
+        tokenIn,
+        tokenOut,
+        swapType: QuoteRequest.swapType.EXACT_OUTPUT,
+        amountOut,
+        amountIn: "",
+      },
+    })
+  }, 500)
 
   const {
     noLiquidity,
@@ -303,8 +330,16 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const showDepositButton =
     tokenInBalance != null && tokenInBalance.amount === 0n
 
-  const usdAmountIn = getTokenUsdPrice(amountIn, tokenIn, tokensUsdPriceData)
-  const usdAmountOut = getTokenUsdPrice(amountOut, tokenOut, tokensUsdPriceData)
+  const usdAmountIn = getTokenUsdPrice(
+    watch("amountIn"),
+    tokenIn,
+    tokensUsdPriceData
+  )
+  const usdAmountOut = getTokenUsdPrice(
+    watch("amountOut"),
+    tokenOut,
+    tokensUsdPriceData
+  )
 
   const is1cs = useIs1CsEnabled()
   const isSubmitting = snapshot.matches("submitting")
@@ -400,16 +435,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                   },
                   onChange: (e) => {
                     setValue("amountOut", "")
-                    swapUIActorRef.send({
-                      type: "input",
-                      params: {
-                        tokenIn,
-                        tokenOut,
-                        swapType: QuoteRequest.swapType.EXACT_INPUT,
-                        amountIn: e.target.value,
-                        amountOut: "",
-                      },
-                    })
+                    debouncedAmountIn(e.target.value)
                   },
                 })}
               />
@@ -509,16 +535,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                         },
                         onChange: (e) => {
                           setValue("amountIn", "")
-                          swapUIActorRef.send({
-                            type: "input",
-                            params: {
-                              tokenIn,
-                              tokenOut,
-                              swapType: QuoteRequest.swapType.EXACT_OUTPUT,
-                              amountOut: e.target.value,
-                              amountIn: "",
-                            },
-                          })
+                          debouncedAmountOut(e.target.value)
                         },
                       }),
                       disabled: isSubmitting || isSubmitting1cs,
