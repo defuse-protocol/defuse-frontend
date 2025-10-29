@@ -38,7 +38,7 @@ export async function validationRecipientAddress(
     // Validate explicit account for NEAR network
     if (isValidNearAddress && !utils.isImplicitAccount(recipientAddress)) {
       const explicitAccountExist =
-        await validateAndCacheNearExplicitAccount(recipientAddress)
+        await validateAndCacheNearAccount(recipientAddress)
       if (explicitAccountExist.isErr()) {
         return Err(explicitAccountExist.unwrapErr())
       }
@@ -64,7 +64,7 @@ export async function validationRecipientAddress(
       !utils.isImplicitAccount(recipientAddress)
     ) {
       const explicitAccountExist =
-        await validateAndCacheNearExplicitAccount(recipientAddress)
+        await validateAndCacheNearAccount(recipientAddress)
       if (explicitAccountExist.isErr()) {
         return Err(explicitAccountExist.unwrapErr())
       }
@@ -121,7 +121,7 @@ function cleanupExpiredCache() {
   }
 }
 
-export async function validateAndCacheNearExplicitAccount(
+export async function validateAndCacheNearAccount(
   recipient: string
 ): Promise<Result<boolean, ValidateNearExplicitAccountErrorType>> {
   const now = Date.now()
