@@ -367,6 +367,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const isLongLoading = useThrottledValue(isLoading, isLoading ? 3000 : 0)
   const amountInEmpty = amountIn === ""
   const amountOutEmpty = amountOut === ""
+  const amountOutLoading = isLoading && amountOutEmpty
   return (
     <div className="flex flex-col min-w-0">
       <form
@@ -476,7 +477,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             }}
             className="size-10 -my-3.5 rounded-[10px] bg-accent-1 flex items-center justify-center z-10"
             data-testid="swap-form-switch-tokens-button"
-            disabled={isSubmitting || isSubmitting1cs}
+            disabled={amountOutLoading || isSubmitting || isSubmitting1cs}
           >
             <ArrowsDownUpIcon className="size-5" weight="bold" />
           </button>
@@ -494,7 +495,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             inputSlot={
               <TokenAmountInputCard.Input
                 id="swap-form-amount-out"
-                isLoading={isLoading && amountOutEmpty}
+                isLoading={amountOutLoading}
                 {...(is1cs
                   ? {
                       ...register("amountOut", {
