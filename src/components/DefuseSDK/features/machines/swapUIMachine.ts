@@ -751,6 +751,7 @@ export const swapUIMachine = setup({
               "parseFormValues",
               "clearIntentCreationResult",
               "sendToBackground1csQuoterRefPause",
+              "cancelSendToBackground1csQuoterRefNewQuoteInput",
             ],
           },
           {
@@ -760,6 +761,7 @@ export const swapUIMachine = setup({
               "parseFormValues",
               "clearIntentCreationResult",
               "sendToBackgroundQuoterRefPause",
+              "cancelSendToBackgroundQuoterRefNewQuoteInput",
             ],
           },
         ],
