@@ -8,6 +8,7 @@ import {
   type ActorRefFrom,
   assertEvent,
   assign,
+  cancel,
   emit,
   sendTo,
   setup,
@@ -414,7 +415,8 @@ export const swapUIMachine = setup({
             ),
           },
         }
-      }
+      },
+      { id: "sendToBackgroundQuoterRefNewQuoteInputRequest", delay: 500 }
     ),
     // Warning: This cannot be properly typed, so you can send an incorrect event
     sendToBackgroundQuoterRefPause: sendTo("backgroundQuoterRef", {
@@ -451,7 +453,14 @@ export const swapUIMachine = setup({
             userChainType: user.method,
           },
         }
-      }
+      },
+      { id: "sendToBackground1csQuoterRefNewQuoteInputRequest", delay: 500 }
+    ),
+    cancelSendToBackgroundQuoterRefNewQuoteInput: cancel(
+      "sendToBackgroundQuoterRefNewQuoteInputRequest"
+    ),
+    cancelSendToBackground1csQuoterRefNewQuoteInput: cancel(
+      "sendToBackground1csQuoterRefNewQuoteInputRequest"
     ),
     sendToBackground1csQuoterRefPause: sendTo("background1csQuoterRef", {
       type: "PAUSE",
@@ -742,6 +751,7 @@ export const swapUIMachine = setup({
               "parseFormValues",
               "clearIntentCreationResult",
               "sendToBackground1csQuoterRefPause",
+              "cancelSendToBackground1csQuoterRefNewQuoteInput",
             ],
           },
           {
@@ -751,6 +761,7 @@ export const swapUIMachine = setup({
               "parseFormValues",
               "clearIntentCreationResult",
               "sendToBackgroundQuoterRefPause",
+              "cancelSendToBackgroundQuoterRefNewQuoteInput",
             ],
           },
         ],
@@ -760,6 +771,8 @@ export const swapUIMachine = setup({
           actions: [
             "sendToBackgroundQuoterRefPause",
             "sendToBackground1csQuoterRefPause",
+            "cancelSendToBackgroundQuoterRefNewQuoteInput",
+            "cancelSendToBackground1csQuoterRefNewQuoteInput",
             "clearQuote",
             "clearError",
             "clear1csError",
