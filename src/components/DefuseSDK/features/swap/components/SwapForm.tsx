@@ -495,7 +495,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             inputSlot={
               <TokenAmountInputCard.Input
                 id="swap-form-amount-out"
-                isLoading={isLoading && amountOutEmpty}
+                isLoading={amountOutLoading}
                 {...(is1cs
                   ? {
                       ...register("amountOut", {
