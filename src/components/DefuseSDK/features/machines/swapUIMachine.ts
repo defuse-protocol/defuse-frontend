@@ -139,7 +139,6 @@ export const swapUIMachine = setup({
             amountIn: string
             amountOut: string
             swapType: QuoteRequest.swapType
-            debouncingQuoteRequestd: boolean
           }>
         }
       | {
