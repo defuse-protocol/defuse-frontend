@@ -143,15 +143,25 @@ export const DepositForm = ({
 
   const amountValue = watch("amount")
   const [debouncedAmount, debounceControls] = useDebounce(amountValue, 500)
+  const isDebouncing =
+    debounceControls.isPending() || amountValue !== debouncedAmount
+
+  useEffect(() => {
+    if (debouncedAmount !== undefined) {
+      depositUIActorRef.send({
+        type: "DEPOSIT_FORM.UPDATE_AMOUNT",
+        params: { amount: debouncedAmount },
+      })
+    }
+  }, [debouncedAmount, depositUIActorRef])
 
   const onSubmit = () => {
     // Only allow submit when debounce is settled and values match
-    if (debounceControls.isPending?.() || amountValue !== debouncedAmount) {
-      return
+    if (!isDebouncing) {
+      depositUIActorRef.send({
+        type: "SUBMIT",
+      })
     }
-    depositUIActorRef.send({
-      type: "SUBMIT",
-    })
   }
 
   const formNetwork = watch("network")
