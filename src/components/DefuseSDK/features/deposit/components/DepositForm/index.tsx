@@ -20,6 +20,7 @@ import {
 import { useSelector } from "@xstate/react"
 import { useEffect, useState } from "react"
 import { Controller, useFormContext } from "react-hook-form"
+import { useDebounce } from "use-debounce"
 import { AssetComboIcon } from "../../../../components/Asset/AssetComboIcon"
 import { AuthGate } from "../../../../components/AuthGate"
 import { EmptyIcon } from "../../../../components/EmptyIcon"
@@ -140,7 +141,14 @@ export const DepositForm = ({
     }
   }, [payload, onCloseModal, depositUIActorRef, setValue])
 
+  const amountValue = watch("amount")
+  const [debouncedAmount, debounceControls] = useDebounce(amountValue, 500)
+
   const onSubmit = () => {
+    // Only allow submit when debounce is settled and values match
+    if (debounceControls.isPending?.() || amountValue !== debouncedAmount) {
+      return
+    }
     depositUIActorRef.send({
       type: "SUBMIT",
     })
