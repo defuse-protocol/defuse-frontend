@@ -236,7 +236,10 @@ export const WithdrawForm = ({
   }, [token, setModalType])
 
   const amountInValue = watch("amountIn")
-  const [debouncedAmountIn] = useDebounce(amountInValue, 500)
+  const [debouncedAmountIn, debounceControls] = useDebounce(amountInValue, 500)
+  const isDebouncingAmountIn =
+    debounceControls.isPending() || amountInValue !== debouncedAmountIn
+
   useEffect(() => {
     if (debouncedAmountIn !== undefined) {
       const amount = debouncedAmountIn ?? ""
@@ -392,14 +395,16 @@ export const WithdrawForm = ({
             return
           }
 
-          actorRef.send({
-            type: "submit",
-            params: {
-              userAddress,
-              userChainType: chainType,
-              nearClient,
-            },
-          })
+          if (!isDebouncingAmountIn) {
+            actorRef.send({
+              type: "submit",
+              params: {
+                userAddress,
+                userChainType: chainType,
+                nearClient,
+              },
+            })
+          }
         })}
         register={register}
       >
