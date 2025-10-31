@@ -313,6 +313,7 @@ export const DepositForm = ({
                   tokenDeployment={tokenDeployment}
                   memo={memo}
                   depositWarning={preparationOutput}
+                  network={network}
                 />
               )}
           </>
