@@ -14,14 +14,15 @@ import { formatTokenValue } from "../../../../utils/format"
 
 export function renderDepositHint(
   token: BaseTokenInfo,
-  tokenDeployment: TokenDeployment
+  tokenDeployment: TokenDeployment,
+  chainName: SupportedChainName
 ) {
   return (
     <div className="flex flex-col gap-4">
       <Callout.Root className="bg-warning px-3 py-2 text-warning-foreground">
         <Callout.Text className="text-xs">
           <span className="font-bold">
-            {token.defuseAssetId === "nep141:wrap.near"
+            {chainName === "near" && token.defuseAssetId === "nep141:wrap.near"
               ? `Only deposit ${token.symbol} or wNEAR`
               : `Only deposit ${token.symbol}`}
             {isFungibleToken(tokenDeployment) && (
