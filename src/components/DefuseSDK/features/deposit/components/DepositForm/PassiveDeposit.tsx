@@ -3,7 +3,11 @@ import { Button, Spinner } from "@radix-ui/themes"
 import { QRCodeSVG } from "qrcode.react"
 import { Copy } from "../../../../components/IntentCard/CopyButton"
 import { Separator } from "../../../../components/Separator"
-import type { BaseTokenInfo, TokenDeployment } from "../../../../types/base"
+import type {
+  BaseTokenInfo,
+  SupportedChainName,
+  TokenDeployment,
+} from "../../../../types/base"
 import { DepositWarning, type DepositWarningOutput } from "../DepositWarning"
 import {
   renderDepositHint,
@@ -17,6 +21,7 @@ export type PassiveDepositProps = {
   tokenDeployment: TokenDeployment
   memo: string | null
   depositWarning: DepositWarningOutput
+  network: SupportedChainName
 }
 
 export function PassiveDeposit({
@@ -26,6 +31,7 @@ export function PassiveDeposit({
   tokenDeployment,
   memo,
   depositWarning,
+  network,
 }: PassiveDepositProps) {
   const truncatedAddress = truncateAddress(depositAddress ?? "")
 
@@ -129,7 +135,7 @@ export function PassiveDeposit({
           </Copy>
         </div>
       </div>
-      {renderDepositHint(token, tokenDeployment)}
+      {renderDepositHint(token, tokenDeployment, network)}
 
       {depositWarning != null && (
         <div className="mt-1.5">
