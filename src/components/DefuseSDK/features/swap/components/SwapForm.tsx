@@ -309,15 +309,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const is1cs = useIs1CsEnabled()
   const isSubmitting = snapshot.matches("submitting")
   const isSubmitting1cs = is1cs && snapshot.matches("submitting_1cs")
-  const isLoading =
-    snapshot.matches({ editing: "waiting_quote" }) ||
-    (isSubmitting1cs &&
-      !(
-        snapshot.context.quote?.tag === "ok" &&
-        snapshot.context.quote.value.tokenDeltas.find(
-          ([, delta]) => delta > 0n
-        )?.[1]
-      ))
+  const isLoadingQuote = snapshot.matches({ editing: "waiting_quote" })
 
   const handleSetMaxValue = async () => {
     if (tokenInBalance != null) {
@@ -361,13 +353,16 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const balanceAmountOut = tokenOutBalance?.amount ?? 0n
   const disabledIn = tokenInBalance?.amount === 0n
 
-  const showPriceImpact = usdAmountIn && usdAmountOut && !isLoading
-  const showRateInfo = tokenIn && tokenOut && !isLoading
+  const showPriceImpact = usdAmountIn && usdAmountOut && !isLoadingQuote
+  const showRateInfo = tokenIn && tokenOut && !isLoadingQuote
 
-  const isLongLoading = useThrottledValue(isLoading, isLoading ? 3000 : 0)
+  const isLongLoading = useThrottledValue(
+    isLoadingQuote,
+    isLoadingQuote ? 3000 : 0
+  )
   const amountInEmpty = amountIn === ""
   const amountOutEmpty = amountOut === ""
-  const amountOutLoading = isLoading && amountOutEmpty
+  const amountOutLoading = isLoadingQuote && amountOutEmpty
   return (
     <div className="flex flex-col min-w-0">
       <form
@@ -388,7 +383,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             inputSlot={
               <TokenAmountInputCard.Input
                 id="swap-form-amount-in"
-                isLoading={isLoading && amountInEmpty}
+                isLoading={isLoadingQuote && amountInEmpty}
                 disabled={isSubmitting || isSubmitting1cs}
                 {...register("amountIn", {
                   required: true,
@@ -594,7 +589,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               fullWidth
               isLoading={isSubmitting || isSubmitting1cs}
               disabled={
-                isLoading ||
+                isLoadingQuote ||
                 balanceInsufficient ||
                 noLiquidity ||
                 insufficientTokenInAmount ||
@@ -615,7 +610,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
           <>
             <SwapPriceImpact
               amountIn={usdAmountIn}
-              amountOut={isLoading ? null : usdAmountOut}
+              amountOut={isLoadingQuote ? null : usdAmountOut}
             />
             <SwapRateInfo tokenIn={tokenIn} tokenOut={tokenOut} />
           </>
