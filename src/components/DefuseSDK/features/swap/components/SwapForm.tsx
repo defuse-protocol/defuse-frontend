@@ -83,7 +83,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const { data: tokensUsdPriceData } = useTokensUsdPrices()
 
   const formValuesRef = useSelector(swapUIActorRef, formValuesSelector)
-  const { tokenIn, tokenOut, swapType } = formValuesRef
+  const { tokenIn, tokenOut } = formValuesRef
   const amountIn = watch("amountIn")
   const amountOut = watch("amountOut")
   const tokens = useTokensStore((state) => state.tokens)
@@ -594,8 +594,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               fullWidth
               isLoading={isSubmitting || isSubmitting1cs}
               disabled={
-                (isLoading &&
-                  swapType === QuoteRequest.swapType.EXACT_OUTPUT) ||
+                isLoading ||
                 balanceInsufficient ||
                 noLiquidity ||
                 insufficientTokenInAmount ||
