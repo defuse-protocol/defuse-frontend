@@ -20,10 +20,7 @@ import { DepositUIMachineContext } from "../DepositUIMachineProvider"
 import { DepositWarning } from "../DepositWarning"
 import { TokenAmountInputCard } from "./TokenAmountInputCard"
 import type { DepositFormValues } from "./index"
-import {
-  renderDepositHint,
-  renderMinDepositAmountHint,
-} from "./renderDepositHint"
+import { renderMinDepositAmountHint } from "./renderDepositHint"
 
 export type ActiveDepositProps = {
   network: BlockchainEnum
@@ -177,8 +174,6 @@ export function ActiveDeposit({
           isLoading
         )}
       </ButtonCustom>
-
-      {renderDepositHint(network, token, tokenDeployment)}
 
       <DepositResult
         chainName={reverseAssetNetworkAdapter[network]}

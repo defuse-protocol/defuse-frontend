@@ -1,24 +1,39 @@
-import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import { Callout } from "@radix-ui/themes"
-import { reverseAssetNetworkAdapter } from "@src/components/DefuseSDK/utils/adapters"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@src/components/DefuseSDK/components/Tooltip"
 import { isFungibleToken } from "@src/components/DefuseSDK/utils/token"
-import type { BaseTokenInfo, TokenDeployment } from "../../../../types/base"
+import type {
+  BaseTokenInfo,
+  SupportedChainName,
+  TokenDeployment,
+} from "../../../../types/base"
 import { formatTokenValue } from "../../../../utils/format"
 
 export function renderDepositHint(
-  network: BlockchainEnum,
   token: BaseTokenInfo,
-  tokenDeployment: TokenDeployment
+  tokenDeployment: TokenDeployment,
+  chainName: SupportedChainName
 ) {
   return (
     <div className="flex flex-col gap-4">
       <Callout.Root className="bg-warning px-3 py-2 text-warning-foreground">
         <Callout.Text className="text-xs">
           <span className="font-bold">
-            Only deposit {token.symbol}
-            {formatShortenedContractAddress(tokenDeployment)} from the{" "}
-            {reverseAssetNetworkAdapter[network]} network.
-          </span>{" "}
+            {chainName === "near" && token.defuseAssetId === "nep141:wrap.near"
+              ? `Only deposit ${token.symbol} or wNEAR`
+              : `Only deposit ${token.symbol}`}
+            {isFungibleToken(tokenDeployment) && (
+              <TokenDeploymentAddress address={tokenDeployment.address} />
+            )}{" "}
+            from the{" "}
+            <span className="capitalize">
+              {chainNameToNetworkName(tokenDeployment.chainName)}
+            </span>{" "}
+            network.{" "}
+          </span>
           <span>
             Depositing other assets or using a different network will result in
             loss of funds.
@@ -26,6 +41,15 @@ export function renderDepositHint(
         </Callout.Text>
       </Callout.Root>
     </div>
+  )
+}
+
+function TokenDeploymentAddress({ address }: { address: string }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger>(...{address.slice(-7)})</TooltipTrigger>
+      <TooltipContent>{address}</TooltipContent>
+    </Tooltip>
   )
 }
 
@@ -47,5 +71,15 @@ export function renderMinDepositAmountHint(
   )
 }
 
-const formatShortenedContractAddress = (token: TokenDeployment): string =>
-  isFungibleToken(token) ? `(...${token.address.slice(-7)})` : ""
+function chainNameToNetworkName(chainName: SupportedChainName): string {
+  switch (chainName) {
+    case "eth":
+      return "ethereum"
+    case "xrpledger":
+      return "XRP Ledger"
+    case "bsc":
+      return "BNB Smart Chain"
+    default:
+      return chainName
+  }
+}
