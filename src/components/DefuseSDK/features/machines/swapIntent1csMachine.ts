@@ -45,7 +45,7 @@ type Context = {
           appFee: [string, bigint][]
         }
       }
-    | { err: string }
+    | { err: string; originalRequest?: QuoteRequest | undefined }
     | null
   walletMessage: walletMessage.WalletMessage | null
   signature: walletMessage.WalletSignatureResult | null
