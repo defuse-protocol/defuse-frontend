@@ -18,6 +18,7 @@ import { logger } from "@src/utils/logger"
 import { useSelector } from "@xstate/react"
 import { useCallback, useEffect } from "react"
 import { useForm } from "react-hook-form"
+import { useDebounce } from "use-debounce"
 import { AuthGate } from "../../../../components/AuthGate"
 import { ButtonCustom } from "../../../../components/Button/ButtonCustom"
 import { Form } from "../../../../components/Form"
@@ -178,7 +179,6 @@ export const WithdrawForm = ({
     watch,
     formState: { errors },
     setValue,
-    getValues,
   } = form
 
   const minWithdrawalPOABridgeAmount = useSelector(
@@ -235,24 +235,32 @@ export const WithdrawForm = ({
     })
   }, [token, setModalType])
 
+  const amountInValue = watch("amountIn")
+  const [debouncedAmountIn, debounceControls] = useDebounce(amountInValue, 500)
+  const isDebouncingAmountIn =
+    debounceControls.isPending() || amountInValue !== debouncedAmountIn
+
+  useEffect(() => {
+    if (debouncedAmountIn !== undefined) {
+      const amount = debouncedAmountIn ?? ""
+      let parsedAmount: TokenValue | null = null
+      try {
+        const decimals = getTokenMaxDecimals(token)
+        parsedAmount = {
+          amount: parseUnits(amount, decimals),
+          decimals: decimals,
+        }
+      } catch {}
+
+      actorRef.send({
+        type: "WITHDRAW_FORM.UPDATE_AMOUNT",
+        params: { amount, parsedAmount },
+      })
+    }
+  }, [debouncedAmountIn, actorRef, token])
+
   useEffect(() => {
     const sub = watch(async (value, { name }) => {
-      if (name === "amountIn") {
-        const amount = value[name] ?? ""
-        let parsedAmount: TokenValue | null = null
-        try {
-          const decimals = getTokenMaxDecimals(token)
-          parsedAmount = {
-            amount: parseUnits(amount, decimals),
-            decimals: decimals,
-          }
-        } catch {}
-
-        actorRef.send({
-          type: "WITHDRAW_FORM.UPDATE_AMOUNT",
-          params: { amount, parsedAmount },
-        })
-      }
       if (name === "destinationMemo") {
         actorRef.send({
           type: "WITHDRAW_FORM.UPDATE_DESTINATION_MEMO",
@@ -273,7 +281,7 @@ export const WithdrawForm = ({
     return () => {
       sub.unsubscribe()
     }
-  }, [watch, actorRef, token])
+  }, [watch, actorRef])
 
   useEffect(() => {
     if (presetAmount != null) {
@@ -298,7 +306,7 @@ export const WithdrawForm = ({
   }, [actorRef, setValue])
 
   const tokenToWithdrawUsdAmount = getTokenUsdPrice(
-    getValues().amountIn,
+    watch("amountIn"),
     token,
     tokensUsdPriceData
   )
@@ -387,14 +395,16 @@ export const WithdrawForm = ({
             return
           }
 
-          actorRef.send({
-            type: "submit",
-            params: {
-              userAddress,
-              userChainType: chainType,
-              nearClient,
-            },
-          })
+          if (!isDebouncingAmountIn) {
+            actorRef.send({
+              type: "submit",
+              params: {
+                userAddress,
+                userChainType: chainType,
+                nearClient,
+              },
+            })
+          }
         })}
         register={register}
       >
