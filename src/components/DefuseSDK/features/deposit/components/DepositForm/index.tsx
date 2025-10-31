@@ -307,7 +307,6 @@ export const DepositForm = ({
               derivedToken != null &&
               tokenDeployment != null && (
                 <PassiveDeposit
-                  network={assetNetworkAdapter[network]}
                   depositAddress={depositAddress}
                   minDepositAmount={minDepositAmount}
                   token={derivedToken}
