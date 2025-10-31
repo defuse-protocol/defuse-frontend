@@ -50,9 +50,12 @@ export function WalletVerificationProvider() {
     staleTime: 1000 * 60 * 60, // 1 hour
   })
 
+  const predecessorCheckPasses = predecessorIdCheck.isSuccess
+    ? predecessorIdCheck.data
+    : false
+
   const isWalletSafe =
-    safetyCheck.data?.safetyStatus === "safe" &&
-    predecessorIdCheck.data === true
+    safetyCheck.data?.safetyStatus === "safe" && predecessorCheckPasses
 
   const { addWalletAddress } = useVerifiedWalletsStore()
   const { addBypassedWalletAddress, isWalletBypassed } =
