@@ -606,15 +606,10 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
           )}
         </AuthGate>
 
-        {(showPriceImpact || showRateInfo) && (
-          <>
-            <SwapPriceImpact
-              amountIn={usdAmountIn}
-              amountOut={isLoadingQuote ? null : usdAmountOut}
-            />
-            <SwapRateInfo tokenIn={tokenIn} tokenOut={tokenOut} />
-          </>
+        {showPriceImpact && (
+          <SwapPriceImpact amountIn={usdAmountIn} amountOut={usdAmountOut} />
         )}
+        {showRateInfo && <SwapRateInfo tokenIn={tokenIn} tokenOut={tokenOut} />}
       </form>
 
       {renderIntentCreationResult(intentCreationResult)}
