@@ -5,6 +5,8 @@ import { useActor } from "@xstate/react"
 import { useEffect, useRef } from "react"
 import { fromPromise } from "xstate"
 
+import { config, utils } from "@defuse-protocol/internal-utils"
+import { nearClient } from "@src/components/DefuseSDK/constants/nearClient"
 import { WalletBannedDialog } from "@src/components/WalletBannedDialog"
 import { WalletVerificationDialog } from "@src/components/WalletVerificationDialog"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
@@ -16,6 +18,8 @@ import {
   verifyWalletSignature,
   walletVerificationMessageFactory,
 } from "@src/utils/walletMessage"
+import type { providers } from "near-api-js"
+import * as v from "valibot"
 import { useMixpanel } from "./MixpanelProvider"
 
 export function WalletVerificationProvider() {
@@ -31,14 +35,37 @@ export function WalletVerificationProvider() {
     enabled: state.address != null,
   })
 
+  const predecessorIdCheck = useQuery({
+    queryKey: ["predecessor_id_check", state.address],
+    queryFn: async () => {
+      if (state.chainType === "evm" && state.address != null) {
+        return await isPredecessorIdEnabled({
+          nearClient: nearClient,
+          accountId: state.address,
+        })
+      }
+      return true
+    },
+    enabled: state.address != null && state.chainType !== undefined,
+    staleTime: 1000 * 60 * 60, // 1 hour
+  })
+
+  const isWalletSafe =
+    safetyCheck.data?.safetyStatus === "safe" &&
+    predecessorIdCheck.data === true
+
   const { addWalletAddress } = useVerifiedWalletsStore()
   const { addBypassedWalletAddress, isWalletBypassed } =
     useBypassedWalletsStore()
 
+  if (safetyCheck.isLoading || predecessorIdCheck.isLoading) {
+    return null
+  }
+
   if (
     state.address != null &&
-    safetyCheck.data?.safetyStatus === "unsafe" &&
-    !isWalletBypassed(state.address)
+    !isWalletBypassed(state.address) &&
+    !isWalletSafe
   ) {
     return (
       <WalletBannedUI
@@ -171,4 +198,24 @@ function WalletVerificationUI({
       isFailure={state.context.hadError}
     />
   )
+}
+
+async function isPredecessorIdEnabled({
+  nearClient,
+  accountId,
+}: {
+  nearClient: providers.Provider
+  accountId: string
+}) {
+  const normalizedAccountId = accountId.toLowerCase()
+  const data = await utils.queryContract({
+    nearClient,
+    contractId: config.env.contractID,
+    methodName: "is_auth_by_predecessor_id_enabled",
+    args: {
+      account_id: normalizedAccountId,
+    },
+    schema: v.boolean(),
+  })
+  return data
 }
