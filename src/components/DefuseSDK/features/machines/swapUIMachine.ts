@@ -583,7 +583,7 @@ export const swapUIMachine = setup({
       }
 
       const hasSufficientBalance =
-        compareAmounts(tokenInBalance, event.params.quoteInput.amountIn) !== -1
+        compareAmounts(tokenInBalance, event.params.quoteInput.amount) !== -1
 
       if (!hasSufficientBalance) {
         return
@@ -593,8 +593,8 @@ export const swapUIMachine = setup({
         tokenIn: event.params.quoteInput.tokenIn,
         tokenOut: event.params.quoteInput.tokenOut,
         amountIn: formatUnits(
-          event.params.quoteInput.amountIn.amount,
-          event.params.quoteInput.amountIn.decimals
+          event.params.quoteInput.amount.amount,
+          event.params.quoteInput.amount.decimals
         ),
         contexts: {
           originalRequest: event.params.result.originalRequest,
