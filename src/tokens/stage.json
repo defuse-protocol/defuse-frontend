@@ -209,14 +209,14 @@
       "tags": ["mc:13"]
     },
     {
-      "unifiedAssetId": "zcash",
-      "symbol": "ZEC",
+      "unifiedAssetId": "zcash_prod",
+      "symbol": "ZEC (prod)",
       "name": "Zcash",
       "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1437.png",
       "groupedTokens": [
         {
           "defuseAssetId": "nep141:zec.omft.near",
-          "symbol": "ZEC",
+          "symbol": "ZEC (prod)",
           "name": "Zcash",
           "decimals": 8,
           "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1437.png",
@@ -233,6 +233,38 @@
               "decimals": 8,
               "chainName": "solana",
               "bridge": "near_omni"
+            }
+          ],
+          "tags": ["mc:120", "tvol:1", "aid:zec"]
+        }
+      ],
+      "tags": ["mc:120", "tvol:1", "aid:zec"]
+    },
+    {
+      "unifiedAssetId": "zcash",
+      "symbol": "ZEC",
+      "name": "Zcash",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1437.png",
+      "groupedTokens": [
+        {
+          "defuseAssetId": "nep141:zec.stft.near",
+          "symbol": "ZEC",
+          "name": "Zcash",
+          "decimals": 8,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1437.png",
+          "originChainName": "zcash",
+          "deployments": [
+            {
+              "address": "zec.stft.near",
+              "decimals": 8,
+              "chainName": "near",
+              "bridge": "direct"
+            },
+            {
+              "type": "native",
+              "decimals": 8,
+              "chainName": "zcash",
+              "bridge": "poa"
             }
           ],
           "tags": ["mc:120", "tvol:1", "aid:zec"]
