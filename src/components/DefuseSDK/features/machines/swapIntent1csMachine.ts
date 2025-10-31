@@ -5,7 +5,7 @@ import {
 } from "@defuse-protocol/internal-utils"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
-import type { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
+import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import { retry } from "@lifeomic/attempt"
 import { getQuote as get1csQuoteApi } from "@src/components/DefuseSDK/features/machines/1cs"
 import type { ParentEvents as Background1csQuoterParentEvents } from "@src/components/DefuseSDK/features/machines/background1csQuoterMachine"
@@ -22,7 +22,6 @@ import {
   type WalletErrorCode,
   extractWalletErrorCode,
 } from "../../utils/walletErrorExtractor"
-import type { Quote1csInput } from "./background1csQuoterMachine"
 import {
   type ErrorCodes as PublicKeyVerifierErrorCodes,
   publicKeyVerifierMachine,
@@ -64,6 +63,7 @@ type Context = {
             | "ERR_SIGNED_DIFFERENT_ACCOUNT"
             | "ERR_PUBKEY_EXCEPTION"
             | "ERR_CANNOT_PUBLISH_INTENT"
+            | "ERR_AMOUNT_IN_BALANCE_INSUFFICIENT_AFTER_NEW_1CS_QUOTE"
             | WalletErrorCode
             | PublicKeyVerifierErrorCodes
           error: Error | null
@@ -75,11 +75,20 @@ type Context = {
   }
 }
 
-type Input = Quote1csInput & {
+type Input = {
+  tokenIn: BaseTokenInfo
+  tokenOut: BaseTokenInfo
+  amountInTokenBalance: bigint
+  swapType: QuoteRequest.swapType
+  slippageBasisPoints: number
+  defuseUserId: string
+  deadline: string
   userAddress: string
   userChainType: AuthMethod
   nearClient: providers.Provider
-  previousAmountOut?: { amount: bigint; decimals: number }
+  amountIn: { amount: bigint; decimals: number }
+  amountOut: { amount: bigint; decimals: number }
+  previousOppositeAmount: { amount: bigint; decimals: number }
   parentRef?: {
     send: (
       event:
@@ -87,8 +96,8 @@ type Input = Quote1csInput & {
         | {
             type: "PRICE_CHANGE_CONFIRMATION_REQUEST"
             params: {
-              newAmountOut: { amount: bigint; decimals: number }
-              previousAmountOut?: { amount: bigint; decimals: number }
+              newOppositeAmount: { amount: bigint; decimals: number }
+              previousOppositeAmount: { amount: bigint; decimals: number }
             }
           }
     ) => void
@@ -147,7 +156,20 @@ export const swapIntent1csMachine = setup({
           type: "NEW_1CS_QUOTE",
           params: {
             result: context.quote1csResult,
-            quoteInput: context.input,
+            quoteInput: {
+              tokenIn: context.input.tokenIn,
+              tokenOut: context.input.tokenOut,
+              amount:
+                context.input.swapType === QuoteRequest.swapType.EXACT_INPUT
+                  ? context.input.amountIn
+                  : context.input.amountOut,
+              swapType: context.input.swapType,
+              slippageBasisPoints: context.input.slippageBasisPoints,
+              defuseUserId: context.input.defuseUserId,
+              deadline: context.input.deadline,
+              userAddress: context.input.userAddress,
+              userChainType: context.input.userChainType,
+            },
             tokenInAssetId,
             tokenOutAssetId,
           },
@@ -157,21 +179,20 @@ export const swapIntent1csMachine = setup({
   },
   actors: {
     fetch1csQuoteActor: fromPromise(
-      async ({
-        input,
-      }: { input: Quote1csInput & { userChainType: AuthMethod } }) => {
-        const tokenInAssetId = input.tokenIn.defuseAssetId
-        const tokenOutAssetId = input.tokenOut.defuseAssetId
-
+      async ({ input }: { input: Input & { userChainType: AuthMethod } }) => {
         return get1csQuoteApiWithRetry({
           dry: false,
           slippageTolerance: Math.round(input.slippageBasisPoints / 100),
-          originAsset: tokenInAssetId,
-          destinationAsset: tokenOutAssetId,
-          amount: input.amountIn.amount.toString(),
+          originAsset: input.tokenIn.defuseAssetId,
+          destinationAsset: input.tokenOut.defuseAssetId,
+          amount: (input.swapType === QuoteRequest.swapType.EXACT_INPUT
+            ? input.amountIn.amount
+            : input.amountOut.amount
+          ).toString(),
           deadline: input.deadline,
           userAddress: input.userAddress,
           authMethod: input.userChainType,
+          swapType: input.swapType,
         })
       }
     ),
@@ -248,18 +269,41 @@ export const swapIntent1csMachine = setup({
         context.quote1csResult.ok.quote.depositAddress != null
       )
     },
-    isWorseThanPrevious: ({ context }) => {
-      const prev = context.input.previousAmountOut
+    insufficientBalanceForExactOutQuote: ({ context }) => {
+      if (context.input.swapType === QuoteRequest.swapType.EXACT_INPUT)
+        return false
+
       if (
         context.quote1csResult == null ||
         !("ok" in context.quote1csResult) ||
-        context.quote1csResult.ok.quote.amountOut == null ||
-        prev == null
+        context.quote1csResult.ok.quote.amountIn == null
       ) {
         return false
       }
 
-      return BigInt(context.quote1csResult.ok.quote.amountOut) < prev.amount
+      return (
+        BigInt(context.quote1csResult.ok.quote.amountIn) >
+        context.input.amountInTokenBalance
+      )
+    },
+    isWorseThanPrevious: ({ context }) => {
+      const prev = context.input.previousOppositeAmount
+      if (
+        context.quote1csResult == null ||
+        !("ok" in context.quote1csResult) ||
+        context.quote1csResult.ok.quote.amountOut == null ||
+        context.quote1csResult.ok.quote.amountIn == null
+      ) {
+        return false
+      }
+      const isExactInput =
+        context.input.swapType === QuoteRequest.swapType.EXACT_INPUT
+      const amount = BigInt(
+        isExactInput
+          ? context.quote1csResult.ok.quote.amountOut
+          : context.quote1csResult.ok.quote.amountIn
+      )
+      return isExactInput ? amount < prev.amount : amount > prev.amount
     },
   },
 }).createMachine({
@@ -296,7 +340,10 @@ export const swapIntent1csMachine = setup({
           depositAddress: context.quote1csResult.ok.quote.depositAddress,
           intentDescription: {
             type: "swap",
-            totalAmountIn: context.input.amountIn,
+            totalAmountIn: {
+              amount: BigInt(context.quote1csResult.ok.quote.amountIn ?? "0"),
+              decimals: context.input.tokenIn.decimals,
+            },
             totalAmountOut: {
               amount: BigInt(context.quote1csResult.ok.quote.amountOut ?? "0"),
               decimals: context.input.tokenOut.decimals,
@@ -356,6 +403,24 @@ export const swapIntent1csMachine = setup({
     ValidatingQuote: {
       always: [
         {
+          target: "Error",
+          guard: {
+            type: "insufficientBalanceForExactOutQuote",
+          },
+          actions: {
+            type: "setError",
+            params: () => {
+              return {
+                reason:
+                  "ERR_AMOUNT_IN_BALANCE_INSUFFICIENT_AFTER_NEW_1CS_QUOTE",
+                error: new Error(
+                  "1CS quote succeeded but new amount in exceeds user token in balance"
+                ),
+              }
+            },
+          },
+        },
+        {
           target: "AwaitingPriceChangeConfirmation",
           guard: {
             type: "isWorseThanPrevious",
@@ -397,15 +462,26 @@ export const swapIntent1csMachine = setup({
     AwaitingPriceChangeConfirmation: {
       entry: ({ context }) => {
         if (context.quote1csResult && "ok" in context.quote1csResult) {
-          const amountOut = BigInt(context.quote1csResult.ok.quote.amountOut)
+          const isExactInput =
+            context.input.swapType === QuoteRequest.swapType.EXACT_INPUT
+          let newOppositeAmount = ""
+          let oppositeDecimals = 0
+          if (isExactInput) {
+            newOppositeAmount = context.quote1csResult.ok.quote.amountOut
+            oppositeDecimals = context.input.tokenOut.decimals
+          } else {
+            newOppositeAmount = context.quote1csResult.ok.quote.amountIn
+            oppositeDecimals = context.input.tokenIn.decimals
+          }
+
           context.input.parentRef?.send({
             type: "PRICE_CHANGE_CONFIRMATION_REQUEST",
             params: {
-              newAmountOut: {
-                amount: amountOut,
-                decimals: context.input.tokenOut.decimals,
+              newOppositeAmount: {
+                amount: BigInt(newOppositeAmount),
+                decimals: oppositeDecimals,
               },
-              previousAmountOut: context.input.previousAmountOut,
+              previousOppositeAmount: context.input.previousOppositeAmount,
             },
           })
         }
@@ -435,10 +511,27 @@ export const swapIntent1csMachine = setup({
             context.quote1csResult != null && "ok" in context.quote1csResult
           )
           assert(context.quote1csResult.ok.quote.depositAddress != null)
-
+          // for EXACT_INPUT quote we use amountIn from input as it always changes
+          // for EXACT_OUTPUT quote we can't use initial amountIn from input as it is stale and changes after requoting, so we are using the input from the quote.
+          const isExactIn =
+            context.input.swapType === QuoteRequest.swapType.EXACT_INPUT
+          const amount = BigInt(
+            (isExactIn
+              ? context.input.amountIn.amount
+              : context.quote1csResult.ok.quote.amountIn) ?? "0"
+          )
+          assert(
+            amount > 0n,
+            isExactIn
+              ? "Invalid input amount, must be greater than 0"
+              : "Quote missing amountIn or amountIn is 0 for exact-out swap"
+          )
           return {
             tokenIn: context.input.tokenIn,
-            amountIn: context.input.amountIn,
+            amountIn: {
+              amount,
+              decimals: context.input.tokenIn.decimals,
+            },
             depositAddress: context.quote1csResult.ok.quote.depositAddress,
             defuseUserId: context.input.defuseUserId,
             deadline: context.input.deadline,

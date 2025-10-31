@@ -3,10 +3,14 @@ import { Callout } from "@radix-ui/themes"
 import type { ReactNode } from "react"
 import type { Context } from "../../machines/depositUIMachine"
 
+export type DepositWarningOutput =
+  | Context["depositOutput"]
+  | Context["preparationOutput"]
+
 export const DepositWarning = ({
   depositWarning,
 }: {
-  depositWarning: Context["depositOutput"] | Context["preparationOutput"]
+  depositWarning: DepositWarningOutput
 }) => {
   let content: ReactNode = null
 
@@ -32,10 +36,6 @@ export const DepositWarning = ({
       case "ERR_NEP141_STORAGE_CANNOT_FETCH":
         content =
           "It seems the storage deposit check is failed. Please try again."
-        break
-      case "ERR_PREPARING_DEPOSIT":
-        content =
-          "It seems the deposit preparation is failed. Please try again."
         break
       case "ERR_ESTIMATE_MAX_DEPOSIT_VALUE":
         content =

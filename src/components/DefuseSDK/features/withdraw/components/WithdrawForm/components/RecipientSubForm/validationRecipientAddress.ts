@@ -1,9 +1,13 @@
 import { type AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
 import { utils } from "@defuse-protocol/internal-utils"
+import { nearClient } from "@src/components/DefuseSDK/constants/nearClient"
 import { logger } from "@src/utils/logger"
 import { Err, Ok, type Result } from "@thames/monads"
-import * as v from "valibot"
-import { nearClient } from "../../../../../../constants/nearClient"
+import {
+  FailoverRpcProvider,
+  type Provider,
+  TypedError,
+} from "near-api-js/lib/providers"
 import type { SupportedChainName } from "../../../../../../types/base"
 import { validateAddress } from "../../../../../../utils/validateAddress"
 import { isNearIntentsNetwork } from "../../utils"
@@ -34,7 +38,7 @@ export async function validationRecipientAddress(
     // Validate explicit account for NEAR network
     if (isValidNearAddress && !utils.isImplicitAccount(recipientAddress)) {
       const explicitAccountExist =
-        await validateAndCacheNearExplicitAccount(recipientAddress)
+        await validateAndCacheNearAccount(recipientAddress)
       if (explicitAccountExist.isErr()) {
         return Err(explicitAccountExist.unwrapErr())
       }
@@ -60,7 +64,7 @@ export async function validationRecipientAddress(
       !utils.isImplicitAccount(recipientAddress)
     ) {
       const explicitAccountExist =
-        await validateAndCacheNearExplicitAccount(recipientAddress)
+        await validateAndCacheNearAccount(recipientAddress)
       if (explicitAccountExist.isErr()) {
         return Err(explicitAccountExist.unwrapErr())
       }
@@ -95,8 +99,8 @@ function isSelfWithdrawal(
 }
 
 type ValidateNearExplicitAccountErrorType =
-  | "ACCOUNT_DOES_NOT_EXIST"
-  | "UNHANDLED_ERROR"
+  | "NEAR_ACCOUNT_DOES_NOT_EXIST"
+  | "NEAR_RPC_UNHANDLED_ERROR"
 
 // Cache for validation results to prevent RPC spam
 const validationCache = new Map<
@@ -117,7 +121,7 @@ function cleanupExpiredCache() {
   }
 }
 
-async function validateAndCacheNearExplicitAccount(
+export async function validateAndCacheNearAccount(
   recipient: string
 ): Promise<Result<boolean, ValidateNearExplicitAccountErrorType>> {
   const now = Date.now()
@@ -142,18 +146,31 @@ async function checkNearAccountExists(
   recipient: string
 ): Promise<Result<boolean, ValidateNearExplicitAccountErrorType>> {
   try {
-    const response = await nearClient.query({
-      request_type: "view_access_key_list",
+    const client = unwrapProvider(nearClient)
+    await client.query({
+      request_type: "view_account",
       account_id: recipient,
       finality: "final",
     })
-    const parsed = v.parse(v.object({ keys: v.array(v.any()) }), response)
-    if (!parsed.keys.length) {
-      return Err("ACCOUNT_DOES_NOT_EXIST")
-    }
     return Ok(true)
-  } catch (error) {
-    logger.warn("Failed to view NEAR account", { cause: error })
-    return Err("UNHANDLED_ERROR")
+  } catch (error: unknown) {
+    if (typeof error === "object" && error !== null) {
+      if (error instanceof TypedError && error.type === "AccountDoesNotExist") {
+        return Err("NEAR_ACCOUNT_DOES_NOT_EXIST")
+      }
+    }
+
+    logger.warn("Failed to view NEAR account", { cause: error, recipient })
+    return Err("NEAR_RPC_UNHANDLED_ERROR")
   }
+}
+
+function unwrapProvider(provider: Provider): Provider {
+  if (
+    provider instanceof FailoverRpcProvider &&
+    provider.providers.length > 0
+  ) {
+    return provider.providers[0]
+  }
+  return provider
 }

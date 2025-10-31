@@ -289,71 +289,66 @@ export function GiftMakerForm({
         className="flex flex-col gap-5"
       >
         <div className="flex flex-col items-center">
-          <div className="flex flex-col gap-3">
-            <TokenAmountInputCard
-              variant="2"
-              labelSlot={
-                <label
-                  htmlFor="gift-amount-in"
-                  className="font-bold text-label text-sm"
-                >
-                  Gift amount
-                </label>
-              }
-              inputSlot={
-                <TokenAmountInputCard.Input
-                  id="gift-amount-in"
-                  name="amount"
-                  value={formValues.amount}
-                  onChange={(e) =>
-                    formValuesRef.trigger.updateAmount({
-                      value: e.target.value,
-                    })
-                  }
-                  disabled={processing}
-                />
-              }
-              tokenSlot={
-                <SelectAssets
-                  selected={formValues.token ?? undefined}
-                  handleSelect={() =>
-                    openModalSelectAssets("token", formValues.token)
-                  }
-                />
-              }
-              balanceSlot={
-                <BlockMultiBalances
-                  balance={balanceAmount}
-                  decimals={tokenBalance?.decimals ?? 0}
-                  className={clsx(
-                    "!static",
-                    tokenBalance == null && "invisible"
-                  )}
-                  maxButtonSlot={
-                    <BlockMultiBalances.DisplayMaxButton
-                      onClick={handleSetMaxValue}
-                      balance={balanceAmount}
-                      disabled={disabled}
-                    />
-                  }
-                  halfButtonSlot={
-                    <BlockMultiBalances.DisplayHalfButton
-                      onClick={handleSetHalfValue}
-                      balance={balanceAmount}
-                      disabled={disabled}
-                    />
-                  }
-                />
-              }
-              priceSlot={
-                <TokenAmountInputCard.DisplayPrice>
-                  {usdAmount !== null && usdAmount > 0
-                    ? formatUsdAmount(usdAmount)
-                    : null}
-                </TokenAmountInputCard.DisplayPrice>
-              }
-            />
-          </div>
+          <TokenAmountInputCard
+            variant="2"
+            labelSlot={
+              <label
+                htmlFor="gift-amount-in"
+                className="font-bold text-label text-sm"
+              >
+                Gift amount
+              </label>
+            }
+            inputSlot={
+              <TokenAmountInputCard.Input
+                id="gift-amount-in"
+                name="amount"
+                value={formValues.amount}
+                onChange={(e) =>
+                  formValuesRef.trigger.updateAmount({
+                    value: e.target.value,
+                  })
+                }
+                disabled={processing}
+              />
+            }
+            tokenSlot={
+              <SelectAssets
+                selected={formValues.token ?? undefined}
+                handleSelect={() =>
+                  openModalSelectAssets("token", formValues.token)
+                }
+              />
+            }
+            balanceSlot={
+              <BlockMultiBalances
+                balance={balanceAmount}
+                decimals={tokenBalance?.decimals ?? 0}
+                className={clsx("!static", tokenBalance == null && "invisible")}
+                maxButtonSlot={
+                  <BlockMultiBalances.DisplayMaxButton
+                    onClick={handleSetMaxValue}
+                    balance={balanceAmount}
+                    disabled={disabled}
+                  />
+                }
+                halfButtonSlot={
+                  <BlockMultiBalances.DisplayHalfButton
+                    onClick={handleSetHalfValue}
+                    balance={balanceAmount}
+                    disabled={disabled}
+                  />
+                }
+              />
+            }
+            priceSlot={
+              <TokenAmountInputCard.DisplayPrice>
+                {usdAmount !== null && usdAmount > 0
+                  ? formatUsdAmount(usdAmount)
+                  : null}
+              </TokenAmountInputCard.DisplayPrice>
+            }
+          />
           <div className="w-full mt-4">
             <GiftMessageInput
               inputSlot={

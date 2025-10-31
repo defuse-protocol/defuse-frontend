@@ -196,6 +196,7 @@ export const RecipientSubForm = ({
                   : undefined
               )}
               onClick={() => setIsNetworkModalOpen(true)}
+              data-testid="select-trigger-like"
               hint={
                 <Select.Hint>
                   {determineBlockchainControllerHint(field.value)}
@@ -265,6 +266,7 @@ export const RecipientSubForm = ({
                 },
               })}
               placeholder="Enter wallet address"
+              data-testid="withdraw-target-account-field"
             >
               <TextField.Slot>
                 <PersonIcon height="16" width="16" />
@@ -405,7 +407,7 @@ function renderRecipientAddressError(error: ValidateRecipientAddressErrorType) {
       return "You cannot withdraw to your own address. Please enter a different recipient address."
     case "ADDRESS_INVALID":
       return "Please enter a valid address for the selected blockchain."
-    case "ACCOUNT_DOES_NOT_EXIST":
+    case "NEAR_ACCOUNT_DOES_NOT_EXIST":
       return "The account doesn't exist on NEAR. Please enter a different recipient address."
     case "USER_ADDRESS_REQUIRED":
       return "Near Intents network requires your address. Try signing in again."

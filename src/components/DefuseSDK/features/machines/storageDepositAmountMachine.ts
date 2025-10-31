@@ -1,3 +1,4 @@
+import { logger } from "@src/utils/logger"
 import { assign, fromPromise, setup } from "xstate"
 import {
   type Output,
@@ -10,24 +11,14 @@ const storageDepositAmountActor = fromPromise(
     input,
   }: {
     input: {
-      token: TokenDeployment
+      tokenDeployment: TokenDeployment
       userAccountId: string
     }
   }): Promise<Output> => {
-    try {
-      const result = await getNEP141StorageRequired({
-        token: input.token,
-        userAccountId: input.userAccountId,
-      })
-      return result
-    } catch {
-      return {
-        tag: "err",
-        value: {
-          reason: "ERR_NEP141_STORAGE_CANNOT_FETCH",
-        },
-      }
-    }
+    return getNEP141StorageRequired({
+      tokenDeployment: input.tokenDeployment,
+      userAccountId: input.userAccountId,
+    })
   }
 )
 
@@ -41,13 +32,18 @@ export const storageDepositAmountMachine = setup({
     events: {} as {
       type: "REQUEST_STORAGE_DEPOSIT"
       params: {
-        token: TokenDeployment
+        tokenDeployment: TokenDeployment
         userAccountId: string
       }
     },
   },
   actors: {
     storageDepositAmountActor: storageDepositAmountActor,
+  },
+  actions: {
+    logError: (_, { error }: { error: unknown }) => {
+      logger.error(error)
+    },
   },
 }).createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5SwC4HsBOBDGARMADmrAJYoCCAtmgK4B2KAxAEoCiAigKqsDKAKgH1+AeWbkA4qwG5WABWE8AknwDaABgC6iUEVIoSaOtpAAPRAFoALAE4AdAEZLADksBmAOwBWADQgAnogATIFOttaOagBsgZ4AvrG+qJg4YPi6ZFS0DLYAZmAoAMYAFiR0UIwQhmC2pQBuaADW1UnYeITEGdT0KLn5xaVQCHVoBVj6huoak8bp40ZIphaeag5qnpaRTl6+AQiWnoG2G1txCSAtKWkdFF3ZeYUlZYxgGBiYtgQANmM5mJS2Fzas0y3V6DwGQzo9VGc0m0wWswM81AZgQVjsbm2-kQ63ctk80VOZzoaAgcGMgNS7T0IIYM2uSOMqPM9ickTCkTU1g8PmxCHs9nZ7msmy88US6FaVOBtx6JAgnzA9L0jIWzPsrlCIq5PJ2QTUllsgRFJ3F50ll2pnSyPXu-TKyrIqpRFkirls0XsOqxu1cwVsbL9TnsMTNlKuNNltgKaEoX3ykEdcyZQUNaycnm5PsQkQJtlclncucJ8XiQA */
@@ -67,7 +63,7 @@ export const storageDepositAmountMachine = setup({
         src: "storageDepositAmountActor",
 
         input: ({ event }) => ({
-          token: event.params.token,
+          tokenDeployment: event.params.tokenDeployment,
           userAccountId: event.params.userAccountId,
         }),
 
@@ -79,14 +75,20 @@ export const storageDepositAmountMachine = setup({
         },
         onError: {
           target: "completed",
-          actions: assign({
-            preparationOutput: {
-              tag: "err",
-              value: {
-                reason: "ERR_NEP141_STORAGE_CANNOT_FETCH",
-              },
+          actions: [
+            {
+              type: "logError",
+              params: ({ event }) => event,
             },
-          }),
+            assign({
+              preparationOutput: {
+                tag: "err",
+                value: {
+                  reason: "ERR_NEP141_STORAGE_CANNOT_FETCH",
+                },
+              },
+            }),
+          ],
           reenter: true,
         },
       },

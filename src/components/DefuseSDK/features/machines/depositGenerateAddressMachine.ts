@@ -1,6 +1,7 @@
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import type { SupportedChainName } from "@src/components/DefuseSDK/types/base"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
+import { logger } from "@src/utils/logger"
 import { assertEvent, assign, fromPromise, setup } from "xstate"
 
 export type Context = {
@@ -55,6 +56,9 @@ export const depositGenerateAddressMachine = setup({
     ),
   },
   actions: {
+    logError: (_, { error }: { error: unknown }) => {
+      logger.error(error)
+    },
     setInputParams: assign(({ event }) => {
       assertEvent(event, "REQUEST_GENERATE_ADDRESS")
       return {
@@ -144,14 +148,22 @@ export const depositGenerateAddressMachine = setup({
         },
         onError: {
           target: "completed",
-          actions: assign({
-            preparationOutput: {
-              tag: "err",
-              value: {
-                reason: "ERR_GENERATING_ADDRESS",
-              },
+          actions: [
+            {
+              type: "logError",
+              params: ({ event }) => event,
             },
-          }),
+            assign({
+              preparationOutput: () => {
+                return {
+                  tag: "err",
+                  value: {
+                    reason: "ERR_GENERATING_ADDRESS",
+                  },
+                }
+              },
+            }),
+          ],
 
           reenter: true,
         },

@@ -231,6 +231,7 @@ export const DepositForm = ({
             onClick={() => openModalSelectAssets("token", token ?? undefined)}
             isPlaceholder={!token}
             hint={token ? <Select.Hint>Asset</Select.Hint> : null}
+            data-testid="select-deposit-asset"
           />
 
           {token && (
@@ -253,6 +254,7 @@ export const DepositForm = ({
                       Object.keys(chainOptions).length === 1 &&
                       field.value === Object.values(chainOptions)[0]?.value
                     }
+                    data-testid="select-network-trigger"
                   />
 
                   <ModalSelectNetwork
@@ -305,12 +307,12 @@ export const DepositForm = ({
               derivedToken != null &&
               tokenDeployment != null && (
                 <PassiveDeposit
-                  network={assetNetworkAdapter[network]}
                   depositAddress={depositAddress}
                   minDepositAmount={minDepositAmount}
                   token={derivedToken}
                   tokenDeployment={tokenDeployment}
                   memo={memo}
+                  depositWarning={preparationOutput}
                 />
               )}
           </>

@@ -173,7 +173,7 @@ function OtcMakerTradeItem({
   const timeLeft = useCountdownTimer({ deadline: tradeTerms.deadline })
 
   return (
-    <div>
+    <div data-testid="otc-maker-trade-item">
       <div
         className={clsx(
           "px-4 py-2.5 gap-2.5 flex items-center",

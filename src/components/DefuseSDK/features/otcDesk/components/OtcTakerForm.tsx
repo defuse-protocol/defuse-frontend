@@ -195,117 +195,113 @@ export function OtcTakerForm({
       })}
 
       <div className="flex flex-col items-center">
-        <div className="flex flex-col gap-3">
-          <TokenAmountInputCard
-            variant="2"
-            labelSlot={
-              <label
-                htmlFor="otc-maker-amount-out"
-                className="font-bold text-label text-sm"
-              >
-                Pay
-              </label>
-            }
-            inputSlot={
-              <TokenAmountInputCard.Input
-                readOnly
-                name="amount"
-                value={formatTokenValue(
-                  totalAmountIn.amount,
-                  totalAmountIn.decimals
-                )}
-              />
-            }
-            tokenSlot={<TokenAmountInputCard.DisplayToken token={tokenIn} />}
-            balanceSlot={
-              <BlockMultiBalances
-                balance={balanceAmountIn}
-                decimals={balances?.tokenIn?.decimals ?? 0}
-                className={clsx(
-                  "!static",
-                  balances?.tokenIn == null && "invisible"
-                )}
-                maxButtonSlot={
-                  <BlockMultiBalances.DisplayMaxButton
-                    balance={balanceAmountIn}
-                    disabled
-                  />
-                }
-                halfButtonSlot={
-                  <BlockMultiBalances.DisplayHalfButton
-                    balance={balanceAmountIn}
-                    disabled
-                  />
-                }
-              />
-            }
-            priceSlot={
-              <TokenAmountInputCard.DisplayPrice>
-                {usdAmountIn !== null && usdAmountIn > 0
-                  ? formatUsdAmount(usdAmountIn)
-                  : null}
-              </TokenAmountInputCard.DisplayPrice>
-            }
-          />
-        </div>
+        <TokenAmountInputCard
+          variant="2"
+          labelSlot={
+            <label
+              htmlFor="otc-maker-amount-out"
+              className="font-bold text-label text-sm"
+            >
+              Pay
+            </label>
+          }
+          inputSlot={
+            <TokenAmountInputCard.Input
+              readOnly
+              name="amount"
+              value={formatTokenValue(
+                totalAmountIn.amount,
+                totalAmountIn.decimals
+              )}
+            />
+          }
+          tokenSlot={<TokenAmountInputCard.DisplayToken token={tokenIn} />}
+          balanceSlot={
+            <BlockMultiBalances
+              balance={balanceAmountIn}
+              decimals={balances?.tokenIn?.decimals ?? 0}
+              className={clsx(
+                "!static",
+                balances?.tokenIn == null && "invisible"
+              )}
+              maxButtonSlot={
+                <BlockMultiBalances.DisplayMaxButton
+                  balance={balanceAmountIn}
+                  disabled
+                />
+              }
+              halfButtonSlot={
+                <BlockMultiBalances.DisplayHalfButton
+                  balance={balanceAmountIn}
+                  disabled
+                />
+              }
+            />
+          }
+          priceSlot={
+            <TokenAmountInputCard.DisplayPrice>
+              {usdAmountIn !== null && usdAmountIn > 0
+                ? formatUsdAmount(usdAmountIn)
+                : null}
+            </TokenAmountInputCard.DisplayPrice>
+          }
+        />
 
         <div className="size-10 -my-3.5 rounded-[10px] bg-accent-1 flex items-center justify-center z-10">
           <ArrowDown className="size-5" weight="bold" />
         </div>
 
-        <div className="flex flex-col gap-3">
-          <TokenAmountInputCard
-            variant="2"
-            labelSlot={
-              <label
-                htmlFor="otc-maker-amount-out"
-                className="font-bold text-label text-sm"
-              >
-                Receive
-              </label>
-            }
-            inputSlot={
-              <TokenAmountInputCard.Input
-                readOnly
-                name="amount"
-                value={formatTokenValue(
-                  totalAmountOut.amount,
-                  totalAmountOut.decimals
-                )}
-              />
-            }
-            tokenSlot={<TokenAmountInputCard.DisplayToken token={tokenOut} />}
-            balanceSlot={
-              <BlockMultiBalances
-                balance={balanceAmountOut}
-                decimals={balances?.tokenOut?.decimals ?? 0}
-                className={clsx(
-                  "!static",
-                  balances?.tokenOut == null && "invisible"
-                )}
-                maxButtonSlot={
-                  <BlockMultiBalances.DisplayMaxButton
-                    balance={balanceAmountOut}
-                    disabled
-                  />
-                }
-                halfButtonSlot={
-                  <BlockMultiBalances.DisplayHalfButton
-                    balance={balanceAmountOut}
-                    disabled
-                  />
-                }
-              />
-            }
-            priceSlot={
-              <TokenAmountInputCard.DisplayPrice>
-                {usdAmountOut !== null && usdAmountOut > 0
-                  ? formatUsdAmount(usdAmountOut)
-                  : null}
-              </TokenAmountInputCard.DisplayPrice>
-            }
-          />
-        </div>
+        <TokenAmountInputCard
+          variant="2"
+          labelSlot={
+            <label
+              htmlFor="otc-maker-amount-out"
+              className="font-bold text-label text-sm"
+            >
+              Receive
+            </label>
+          }
+          inputSlot={
+            <TokenAmountInputCard.Input
+              readOnly
+              name="amount"
+              value={formatTokenValue(
+                totalAmountOut.amount,
+                totalAmountOut.decimals
+              )}
+            />
+          }
+          tokenSlot={<TokenAmountInputCard.DisplayToken token={tokenOut} />}
+          balanceSlot={
+            <BlockMultiBalances
+              balance={balanceAmountOut}
+              decimals={balances?.tokenOut?.decimals ?? 0}
+              className={clsx(
+                "!static",
+                balances?.tokenOut == null && "invisible"
+              )}
+              maxButtonSlot={
+                <BlockMultiBalances.DisplayMaxButton
+                  balance={balanceAmountOut}
+                  disabled
+                />
+              }
+              halfButtonSlot={
+                <BlockMultiBalances.DisplayHalfButton
+                  balance={balanceAmountOut}
+                  disabled
+                />
+              }
+            />
+          }
+          priceSlot={
+            <TokenAmountInputCard.DisplayPrice>
+              {usdAmountOut !== null && usdAmountOut > 0
+                ? formatUsdAmount(usdAmountOut)
+                : null}
+            </TokenAmountInputCard.DisplayPrice>
+          }
+        />
       </div>
 
       <AuthGate

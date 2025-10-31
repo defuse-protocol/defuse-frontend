@@ -1,31 +1,31 @@
-import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import { CheckIcon, CopyIcon } from "@radix-ui/react-icons"
 import { Button, Spinner } from "@radix-ui/themes"
 import { QRCodeSVG } from "qrcode.react"
 import { Copy } from "../../../../components/IntentCard/CopyButton"
 import { Separator } from "../../../../components/Separator"
 import type { BaseTokenInfo, TokenDeployment } from "../../../../types/base"
+import { DepositWarning, type DepositWarningOutput } from "../DepositWarning"
 import {
   renderDepositHint,
   renderMinDepositAmountHint,
 } from "./renderDepositHint"
 
 export type PassiveDepositProps = {
-  network: BlockchainEnum
   depositAddress: string | null
   minDepositAmount: bigint | null
   token: BaseTokenInfo
   tokenDeployment: TokenDeployment
   memo: string | null
+  depositWarning: DepositWarningOutput
 }
 
 export function PassiveDeposit({
-  network,
   depositAddress,
   minDepositAmount,
   token,
   tokenDeployment,
   memo,
+  depositWarning,
 }: PassiveDepositProps) {
   const truncatedAddress = truncateAddress(depositAddress ?? "")
 
@@ -129,7 +129,13 @@ export function PassiveDeposit({
           </Copy>
         </div>
       </div>
-      {renderDepositHint(network, token, tokenDeployment)}
+      {renderDepositHint(token, tokenDeployment)}
+
+      {depositWarning != null && (
+        <div className="mt-1.5">
+          <DepositWarning depositWarning={depositWarning} />
+        </div>
+      )}
     </div>
   )
 }

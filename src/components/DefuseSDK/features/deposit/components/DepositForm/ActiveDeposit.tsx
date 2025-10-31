@@ -163,6 +163,7 @@ export function ActiveDeposit({
           !isDepositAmountHighEnough
         }
         isLoading={isLoading}
+        data-testid="deposit-button"
       >
         {renderDepositButtonText(
           watch("amount") === "",
@@ -177,7 +178,7 @@ export function ActiveDeposit({
         )}
       </ButtonCustom>
 
-      {renderDepositHint(network, token, tokenDeployment)}
+      {renderDepositHint(token, tokenDeployment)}
 
       <DepositResult
         chainName={reverseAssetNetworkAdapter[network]}

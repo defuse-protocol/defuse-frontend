@@ -102,16 +102,14 @@ export const depositUIMachine = setup({
     depositEstimationActor: depositEstimationMachine,
   },
   actions: {
+    logError: (_, event: { error: unknown }) => {
+      logger.error(event.error)
+    },
     setDepositOutput: assign({
-      depositOutput: (_, params: DepositOutput) => {
-        if (params.tag === "err") {
-          logger.error(params)
-        }
-        return params
-      },
+      depositOutput: (_, params: DepositOutput) => params,
     }),
     setPreparationOutput: assign({
-      preparationOutput: (_, val: Context["preparationOutput"]) => val,
+      preparationOutput: (_, params: PreparationOutput) => params,
     }),
     resetPreparationOutput: assign({
       preparationOutput: null,
@@ -164,7 +162,8 @@ export const depositUIMachine = setup({
         return {
           type: "REQUEST_STORAGE_DEPOSIT",
           params: {
-            token: context.depositFormRef.getSnapshot().context.derivedToken,
+            tokenDeployment:
+              context.depositFormRef.getSnapshot().context.tokenDeployment,
             userAccountId: context.userAddress,
           },
         }
@@ -448,10 +447,8 @@ export const depositUIMachine = setup({
           ],
           invoke: {
             src: "prepareDepositActor",
-
             input: ({ context }) => {
               assert(context.userAddress, "userAddress is null")
-
               return {
                 userAddress: context.userAddress,
                 userWalletAddress: context.userWalletAddress,
@@ -462,28 +459,32 @@ export const depositUIMachine = setup({
                 depositEstimationRef: context.depositEstimationRef,
               }
             },
-
-            onError: {
-              target: "idle",
-              actions: {
-                type: "setPreparationOutput",
-                params: ({ event }) => ({
-                  tag: "err",
-                  value: {
-                    reason: "ERR_PREPARING_DEPOSIT",
-                    error: event.error,
-                  },
-                }),
-              },
-              reenter: true,
-            },
-
             onDone: {
               target: "idle",
               actions: {
                 type: "setPreparationOutput",
                 params: ({ event }) => event.output,
               },
+              reenter: true,
+            },
+            onError: {
+              target: "idle",
+              actions: [
+                {
+                  type: "setPreparationOutput",
+                  params: ({ event }) => ({
+                    tag: "err",
+                    value: {
+                      reason: "ERR_PREPARING_DEPOSIT",
+                      error: event.error,
+                    },
+                  }),
+                },
+                {
+                  type: "logError",
+                  params: ({ event }: { event: unknown }) => event,
+                },
+              ],
               reenter: true,
             },
           },
@@ -499,13 +500,13 @@ export const depositUIMachine = setup({
           assertEvent(event, "SUBMIT")
           const params = extractDepositParams(context)
           assert(
-            params.storageDepositRequired !== null,
-            "storageDepositRequired is null"
+            params.storageDepositAmount !== null,
+            "storageDepositAmount is null"
           )
           return {
             ...params,
             type: "depositNear",
-            storageDepositRequired: params.storageDepositRequired,
+            storageDepositAmount: params.storageDepositAmount,
           }
         },
         onDone: {
@@ -518,6 +519,16 @@ export const depositUIMachine = setup({
             "clearUIDepositAmount",
             "requestBalanceRefresh",
             "resetPreparationOutput",
+          ],
+          reenter: true,
+        },
+        onError: {
+          target: "editing",
+          actions: [
+            {
+              type: "logError",
+              params: ({ event }: { event: unknown }) => event,
+            },
           ],
           reenter: true,
         },
@@ -547,6 +558,16 @@ export const depositUIMachine = setup({
             "clearUIDepositAmount",
             "requestBalanceRefresh",
             "resetPreparationOutput",
+          ],
+          reenter: true,
+        },
+        onError: {
+          target: "editing",
+          actions: [
+            {
+              type: "logError",
+              params: ({ event }: { event: unknown }) => event,
+            },
           ],
           reenter: true,
         },
@@ -580,6 +601,16 @@ export const depositUIMachine = setup({
           ],
           reenter: true,
         },
+        onError: {
+          target: "editing",
+          actions: [
+            {
+              type: "logError",
+              params: ({ event }: { event: unknown }) => event,
+            },
+          ],
+          reenter: true,
+        },
       },
     },
     submittingTurboTx: {
@@ -605,6 +636,16 @@ export const depositUIMachine = setup({
             "clearUIDepositAmount",
             "requestBalanceRefresh",
             "resetPreparationOutput",
+          ],
+          reenter: true,
+        },
+        onError: {
+          target: "editing",
+          actions: [
+            {
+              type: "logError",
+              params: ({ event }: { event: unknown }) => event,
+            },
           ],
           reenter: true,
         },
@@ -636,6 +677,16 @@ export const depositUIMachine = setup({
           ],
           reenter: true,
         },
+        onError: {
+          target: "editing",
+          actions: [
+            {
+              type: "logError",
+              params: ({ event }: { event: unknown }) => event,
+            },
+          ],
+          reenter: true,
+        },
       },
     },
     submittingTonTx: {
@@ -662,6 +713,16 @@ export const depositUIMachine = setup({
             "clearUIDepositAmount",
             "requestBalanceRefresh",
             "resetPreparationOutput",
+          ],
+          reenter: true,
+        },
+        onError: {
+          target: "editing",
+          actions: [
+            {
+              type: "logError",
+              params: ({ event }: { event: unknown }) => event,
+            },
           ],
           reenter: true,
         },
@@ -695,6 +756,16 @@ export const depositUIMachine = setup({
           ],
           reenter: true,
         },
+        onError: {
+          target: "editing",
+          actions: [
+            {
+              type: "logError",
+              params: ({ event }: { event: unknown }) => event,
+            },
+          ],
+          reenter: true,
+        },
       },
     },
     submittingTronTx: {
@@ -724,6 +795,16 @@ export const depositUIMachine = setup({
           ],
           reenter: true,
         },
+        onError: {
+          target: "editing",
+          actions: [
+            {
+              type: "logError",
+              params: ({ event }: { event: unknown }) => event,
+            },
+          ],
+          reenter: true,
+        },
       },
     },
   },
@@ -741,7 +822,7 @@ type DepositParams = {
   userAddress: string
   userWalletAddress: string | null
   depositAddress: string | null
-  storageDepositRequired: bigint | null
+  storageDepositAmount: bigint | null
   solanaATACreationRequired: boolean
   tonJettonWalletCreationRequired: boolean
   memo: string | null
@@ -776,7 +857,7 @@ function extractDepositParams(context: Context): DepositParams {
     userAddress: context.userAddress,
     userWalletAddress: context.userWalletAddress,
     depositAddress: prepOutput.generateDepositAddress,
-    storageDepositRequired: prepOutput.storageDepositRequired,
+    storageDepositAmount: prepOutput.storageDepositAmount,
     solanaATACreationRequired: prepOutput.solanaATACreationRequired,
     tonJettonWalletCreationRequired: prepOutput.tonJettonWalletCreationRequired,
     memo: prepOutput.memo,
