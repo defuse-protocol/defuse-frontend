@@ -585,9 +585,7 @@ export const swapUIMachine = setup({
       const hasSufficientBalance =
         compareAmounts(tokenInBalance, event.params.quoteInput.amount) !== -1
 
-      // TODO: restore this temporarily disabled check
-      // if (!hasSufficientBalance) {
-      if (hasSufficientBalance) {
+      if (!hasSufficientBalance) {
         return
       }
 
