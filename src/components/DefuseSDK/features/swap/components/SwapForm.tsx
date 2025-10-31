@@ -353,8 +353,10 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const balanceAmountOut = tokenOutBalance?.amount ?? 0n
   const disabledIn = tokenInBalance?.amount === 0n
 
-  const showPriceImpact = usdAmountIn && usdAmountOut && !isLoadingQuote
-  const showRateInfo = tokenIn && tokenOut && !isLoadingQuote
+  const showPriceImpact = Boolean(
+    usdAmountIn && usdAmountOut && !isLoadingQuote
+  )
+  const showRateInfo = Boolean(tokenIn && tokenOut && !isLoadingQuote)
 
   const isLongLoading = useThrottledValue(
     isLoadingQuote,
@@ -606,10 +608,12 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
           )}
         </AuthGate>
 
-        {showPriceImpact && (
+        {showPriceImpact ? (
           <SwapPriceImpact amountIn={usdAmountIn} amountOut={usdAmountOut} />
-        )}
-        {showRateInfo && <SwapRateInfo tokenIn={tokenIn} tokenOut={tokenOut} />}
+        ) : null}
+        {showRateInfo ? (
+          <SwapRateInfo tokenIn={tokenIn} tokenOut={tokenOut} />
+        ) : null}
       </form>
 
       {renderIntentCreationResult(intentCreationResult)}
