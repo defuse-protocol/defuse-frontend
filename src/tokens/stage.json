@@ -223,16 +223,28 @@
           "originChainName": "zcash",
           "deployments": [
             {
-              "address": "zec.omft.near",
-              "decimals": 8,
-              "chainName": "near",
-              "bridge": "direct"
-            },
-            {
               "address": "A7bdiYdS5GjqGFtxf17ppRHtDKPkkRqbKtR27dxvQXaS",
               "decimals": 8,
               "chainName": "solana",
               "bridge": "near_omni"
+            }
+            
+          ],
+          "tags": ["mc:120", "tvol:1", "aid:zec"]
+        },
+        {
+          "defuseAssetId": "nep141:zec.stfm.near",
+          "symbol": "ZEC",
+          "name": "Zcash",
+          "decimals": 8,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1437.png",
+          "originChainName": "zcash",
+          "deployments": [
+            {
+              "address": "zec.stfm.near",
+              "decimals": 8,
+              "chainName": "near",
+              "bridge": "direct"
             }
           ],
           "tags": ["mc:120", "tvol:1", "aid:zec"]
