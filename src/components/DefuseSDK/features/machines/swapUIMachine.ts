@@ -757,12 +757,7 @@ export const swapUIMachine = setup({
           {
             target: "submitting",
             guard: "isQuoteValidAndNot1cs",
-            actions: [
-              "parseFormValues",
-              "clearIntentCreationResult",
-              "sendToBackgroundQuoterRefPause",
-              "cancelSendToBackgroundQuoterRefNewQuoteInput",
-            ],
+            actions: ["parseFormValues", "clearIntentCreationResult"],
           },
         ],
 
@@ -892,6 +887,8 @@ export const swapUIMachine = setup({
             guard: { type: "isOk", params: ({ event }) => event.output },
 
             actions: [
+              "sendToBackgroundQuoterRefPause",
+              "cancelSendToBackgroundQuoterRefNewQuoteInput",
               "resetParsedFormValueAmounts",
               "resetFormValueAmounts",
               {
@@ -1017,6 +1014,8 @@ export const swapUIMachine = setup({
             guard: { type: "isOk", params: ({ event }) => event.output },
 
             actions: [
+              "sendToBackground1csQuoterRefPause",
+              "cancelSendToBackground1csQuoterRefNewQuoteInput",
               "resetParsedFormValueAmounts",
               "resetFormValueAmounts",
               {

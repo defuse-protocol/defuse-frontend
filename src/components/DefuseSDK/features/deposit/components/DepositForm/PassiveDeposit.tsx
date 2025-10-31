@@ -1,4 +1,3 @@
-import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import { CheckIcon, CopyIcon } from "@radix-ui/react-icons"
 import { Button, Spinner } from "@radix-ui/themes"
 import { QRCodeSVG } from "qrcode.react"
@@ -12,7 +11,6 @@ import {
 } from "./renderDepositHint"
 
 export type PassiveDepositProps = {
-  network: BlockchainEnum
   depositAddress: string | null
   minDepositAmount: bigint | null
   token: BaseTokenInfo
@@ -22,7 +20,6 @@ export type PassiveDepositProps = {
 }
 
 export function PassiveDeposit({
-  network,
   depositAddress,
   minDepositAmount,
   token,
@@ -132,7 +129,7 @@ export function PassiveDeposit({
           </Copy>
         </div>
       </div>
-      {renderDepositHint(network, token, tokenDeployment)}
+      {renderDepositHint(token, tokenDeployment)}
 
       {depositWarning != null && (
         <div className="mt-1.5">

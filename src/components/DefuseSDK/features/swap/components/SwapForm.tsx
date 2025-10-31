@@ -83,7 +83,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const { data: tokensUsdPriceData } = useTokensUsdPrices()
 
   const formValuesRef = useSelector(swapUIActorRef, formValuesSelector)
-  const { tokenIn, tokenOut, swapType } = formValuesRef
+  const { tokenIn, tokenOut } = formValuesRef
   const amountIn = watch("amountIn")
   const amountOut = watch("amountOut")
   const tokens = useTokensStore((state) => state.tokens)
@@ -309,15 +309,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const is1cs = useIs1CsEnabled()
   const isSubmitting = snapshot.matches("submitting")
   const isSubmitting1cs = is1cs && snapshot.matches("submitting_1cs")
-  const isLoading =
-    snapshot.matches({ editing: "waiting_quote" }) ||
-    (isSubmitting1cs &&
-      !(
-        snapshot.context.quote?.tag === "ok" &&
-        snapshot.context.quote.value.tokenDeltas.find(
-          ([, delta]) => delta > 0n
-        )?.[1]
-      ))
+  const isLoadingQuote = snapshot.matches({ editing: "waiting_quote" })
 
   const handleSetMaxValue = async () => {
     if (tokenInBalance != null) {
@@ -361,13 +353,18 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const balanceAmountOut = tokenOutBalance?.amount ?? 0n
   const disabledIn = tokenInBalance?.amount === 0n
 
-  const showPriceImpact = usdAmountIn && usdAmountOut && !isLoading
-  const showRateInfo = tokenIn && tokenOut && !isLoading
+  const showPriceImpact = Boolean(
+    usdAmountIn && usdAmountOut && !isLoadingQuote
+  )
+  const showRateInfo = Boolean(tokenIn && tokenOut && !isLoadingQuote)
 
-  const isLongLoading = useThrottledValue(isLoading, isLoading ? 3000 : 0)
+  const isLongLoading = useThrottledValue(
+    isLoadingQuote,
+    isLoadingQuote ? 3000 : 0
+  )
   const amountInEmpty = amountIn === ""
   const amountOutEmpty = amountOut === ""
-  const amountOutLoading = isLoading && amountOutEmpty
+  const amountOutLoading = isLoadingQuote && amountOutEmpty
   return (
     <div className="flex flex-col min-w-0">
       <form
@@ -388,7 +385,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             inputSlot={
               <TokenAmountInputCard.Input
                 id="swap-form-amount-in"
-                isLoading={isLoading && amountInEmpty}
+                isLoading={isLoadingQuote && amountInEmpty}
                 disabled={isSubmitting || isSubmitting1cs}
                 {...register("amountIn", {
                   required: true,
@@ -594,8 +591,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               fullWidth
               isLoading={isSubmitting || isSubmitting1cs}
               disabled={
-                (isLoading &&
-                  swapType === QuoteRequest.swapType.EXACT_OUTPUT) ||
+                isLoadingQuote ||
                 balanceInsufficient ||
                 noLiquidity ||
                 insufficientTokenInAmount ||
@@ -612,15 +608,12 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
           )}
         </AuthGate>
 
-        {(showPriceImpact || showRateInfo) && (
-          <>
-            <SwapPriceImpact
-              amountIn={usdAmountIn}
-              amountOut={isLoading ? null : usdAmountOut}
-            />
-            <SwapRateInfo tokenIn={tokenIn} tokenOut={tokenOut} />
-          </>
-        )}
+        {showPriceImpact ? (
+          <SwapPriceImpact amountIn={usdAmountIn} amountOut={usdAmountOut} />
+        ) : null}
+        {showRateInfo ? (
+          <SwapRateInfo tokenIn={tokenIn} tokenOut={tokenOut} />
+        ) : null}
       </form>
 
       {renderIntentCreationResult(intentCreationResult)}

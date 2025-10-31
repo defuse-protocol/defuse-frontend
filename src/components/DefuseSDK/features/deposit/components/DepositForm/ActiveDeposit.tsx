@@ -185,7 +185,7 @@ export function ActiveDeposit({
         )}
       </ButtonCustom>
 
-      {renderDepositHint(network, token, tokenDeployment)}
+      {renderDepositHint(token, tokenDeployment)}
 
       <DepositResult
         chainName={reverseAssetNetworkAdapter[network]}
