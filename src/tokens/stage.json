@@ -246,7 +246,7 @@
           "originChainName": "zcash",
           "deployments": [
             {
-              "address": "zec.stfm.near",
+              "address": "zec.stft.near",
               "decimals": 8,
               "chainName": "near",
               "bridge": "poa"
