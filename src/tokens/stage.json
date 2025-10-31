@@ -216,7 +216,7 @@
       "groupedTokens": [
         {
           "defuseAssetId": "nep141:zec.omft.near",
-          "symbol": "ZEC",
+          "symbol": "ZEC (prod)",
           "name": "Zcash",
           "decimals": 8,
           "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1437.png",
@@ -249,6 +249,12 @@
               "address": "zec.stft.near",
               "decimals": 8,
               "chainName": "near",
+              "bridge": "direct"
+            },
+            {
+              "type": "native",
+              "decimals": 8,
+              "chainName": "zcash",
               "bridge": "poa"
             }
           ],
