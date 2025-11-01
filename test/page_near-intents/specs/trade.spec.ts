@@ -1,11 +1,10 @@
-import { MetaMask } from "@synthetixio/synpress/playwright"
+import { Web3RequestKind } from "headless-web3-provider"
 import { NEAR_INTENTS_PAGE } from "../../helpers/constants/pages"
 import {
   NEAR_INTENTS_TAG,
   NEAR_INTENTS_TAG_OTC,
   NEAR_INTENTS_TAG_SWAP,
 } from "../../helpers/constants/tags"
-import nearWeb3ProdSetup from "../../wallet-setup/near-web3-prod.setup"
 import { test } from "../fixtures/near-intents"
 import { HomePage } from "../pages/home.page"
 import { TradePage } from "../pages/trade.page"
@@ -14,7 +13,8 @@ test.use(NEAR_INTENTS_PAGE)
 
 test.beforeEach(
   "Login to Near Web3 wallet with MetaMask",
-  async ({ nearIntentsPreconditions }) => {
+  async ({ page, nearIntentsPreconditions }) => {
+    await page.goto(NEAR_INTENTS_PAGE.baseURL)
     await nearIntentsPreconditions.loginToNearIntents()
     await nearIntentsPreconditions.isSignatureCheckRequired()
   }
@@ -39,15 +39,10 @@ test.describe(
       await tradePage.confirmInsufficientBalance()
     })
 
-    test("Confirm user can swap", async ({ page, context, extensionId }) => {
+    test("Confirm user can swap", async ({ page, injectWeb3Provider }) => {
       const homePage = new HomePage(page)
       const tradePage = new TradePage(page)
-      const metamask = new MetaMask(
-        context,
-        page,
-        nearWeb3ProdSetup.walletPassword,
-        extensionId
-      )
+      const wallet = await injectWeb3Provider(page)
 
       await homePage.navigateToTradePage()
       await tradePage.switchToSwap()
@@ -56,12 +51,12 @@ test.describe(
       await tradePage.enterFromAmount(10)
       await tradePage.waitForSwapCalculationToComplete()
       await tradePage.pressSwapButton()
-      await metamask.confirmSignature()
+      await wallet.authorize(Web3RequestKind.SignTypedData)
       await tradePage.confirmTransactionCompleted()
 
       await tradePage.pressFormSwitchTokensButton()
       await tradePage.pressSwapButton()
-      await metamask.confirmSignature()
+      await wallet.authorize(Web3RequestKind.SignTypedData)
       await tradePage.confirmTransactionCompleted(2)
     })
   }
@@ -73,17 +68,11 @@ test.describe(
   () => {
     test("Confirm user can cancel the OTC offer", async ({
       page,
-      context,
-      extensionId,
+      injectWeb3Provider,
     }) => {
       const homePage = new HomePage(page)
       const tradePage = new TradePage(page)
-      const metamask = new MetaMask(
-        context,
-        page,
-        nearWeb3ProdSetup.walletPassword,
-        extensionId
-      )
+      const wallet = await injectWeb3Provider(page)
 
       await homePage.navigateToTradePage()
       await tradePage.switchToOTC()
@@ -92,23 +81,17 @@ test.describe(
       await tradePage.enterFromAmount(10)
       await tradePage.enterToAmount(10)
       await tradePage.pressCreateSwapLink()
-      await metamask.rejectSignature()
+      await wallet.reject(Web3RequestKind.SignTypedData)
       await tradePage.confirmOTCRejectedSignature()
     })
 
     test("Confirm user can create a offer that cannot be filled", async ({
       page,
-      context,
-      extensionId,
+      injectWeb3Provider,
     }) => {
       const homePage = new HomePage(page)
       const tradePage = new TradePage(page)
-      const metamask = new MetaMask(
-        context,
-        page,
-        nearWeb3ProdSetup.walletPassword,
-        extensionId
-      )
+      const wallet = await injectWeb3Provider(page)
 
       await homePage.navigateToTradePage()
       await tradePage.switchToOTC()
@@ -117,7 +100,7 @@ test.describe(
       await tradePage.enterFromAmount(10000)
       await tradePage.enterToAmount(10000)
       await tradePage.pressCreateSwapLink()
-      await metamask.confirmSignature()
+      await wallet.authorize(Web3RequestKind.SignTypedData)
       await tradePage.waitForMetamaskAction()
       await tradePage.closeOrderWindow()
 
@@ -126,18 +109,13 @@ test.describe(
 
     test("Confirm user can delete the OTC offer", async ({
       page,
+      injectWeb3Provider,
       context,
-      extensionId,
     }) => {
       await context.grantPermissions(["clipboard-read", "clipboard-write"])
       const homePage = new HomePage(page)
       const tradePage = new TradePage(page)
-      const metamask = new MetaMask(
-        context,
-        page,
-        nearWeb3ProdSetup.walletPassword,
-        extensionId
-      )
+      const wallet = await injectWeb3Provider(page)
 
       await homePage.navigateToTradePage()
       await tradePage.switchToOTC()
@@ -147,7 +125,7 @@ test.describe(
       await tradePage.enterToAmount(10)
       await tradePage.pressCreateSwapLink()
 
-      await metamask.confirmSignature()
+      await wallet.authorize(Web3RequestKind.SignTypedData)
       await tradePage.confirmOrderWindowIsOpen()
       await tradePage.closeOrderWindow()
       await tradePage.confirmOTCCreated({
@@ -158,24 +136,19 @@ test.describe(
       })
 
       await tradePage.removeCreatedOTCOffer()
-      await metamask.confirmSignature()
+      await wallet.authorize(Web3RequestKind.SignTypedData)
       await tradePage.confirmOTCCancelled()
     })
 
     test("Confirm user can create OTC offer", async ({
       page,
+      injectWeb3Provider,
       context,
-      extensionId,
     }) => {
       await context.grantPermissions(["clipboard-read", "clipboard-write"])
       const homePage = new HomePage(page)
       const tradePage = new TradePage(page)
-      const metamask = new MetaMask(
-        context,
-        page,
-        nearWeb3ProdSetup.walletPassword,
-        extensionId
-      )
+      const wallet = await injectWeb3Provider(page)
 
       await homePage.navigateToTradePage()
       await tradePage.switchToOTC()
@@ -185,7 +158,7 @@ test.describe(
       await tradePage.enterToAmount(10)
       await tradePage.pressCreateSwapLink()
 
-      await metamask.confirmSignature()
+      await wallet.authorize(Web3RequestKind.SignTypedData)
       await tradePage.confirmOrderWindowIsOpen()
       await tradePage.confirmUserCanCopyLink()
 
