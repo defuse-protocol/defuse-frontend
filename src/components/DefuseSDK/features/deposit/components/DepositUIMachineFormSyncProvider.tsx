@@ -42,16 +42,6 @@ export function DepositUIMachineFormSyncProvider({
           params: { network: networkValue },
         })
       }
-      if (name === "amount") {
-        const amountValue = value[name]
-        if (amountValue === undefined) {
-          return
-        }
-        actorRef.send({
-          type: "DEPOSIT_FORM.UPDATE_AMOUNT",
-          params: { amount: amountValue },
-        })
-      }
     })
     return () => {
       sub.unsubscribe()

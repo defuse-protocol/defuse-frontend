@@ -59,7 +59,10 @@ export function ActiveDeposit({
         snapshot.matches("submittingEVMTx") ||
         snapshot.matches("submittingSolanaTx") ||
         snapshot.matches("submittingTurboTx") ||
-        snapshot.matches("submittingStellarTx"),
+        snapshot.matches("submittingVirtualChainTx") ||
+        snapshot.matches("submittingTonTx") ||
+        snapshot.matches("submittingStellarTx") ||
+        snapshot.matches("submittingTronTx"),
     }
   })
 
@@ -106,7 +109,11 @@ export function ActiveDeposit({
   const inputId = useId()
 
   const { data: tokensUsdPriceData } = useTokensUsdPrices()
-  const usdAmountToDeposit = getTokenUsdPrice(amount, token, tokensUsdPriceData)
+  const usdAmountToDeposit = getTokenUsdPrice(
+    watch("amount"),
+    token,
+    tokensUsdPriceData
+  )
 
   return (
     <div className="flex flex-col gap-5">

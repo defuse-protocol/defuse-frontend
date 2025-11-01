@@ -81,6 +81,7 @@
     "tailwindcss-animate": "^1.0.7",
     "tronweb": "^6.0.4",
     "tweetnacl": "^1.0.3",
+    "use-debounce": "^10.0.6",
     "uuid": "^10.0.0",
     "valibot": "^1.0.0-rc.1",
     "viem": "^2.18.1",
