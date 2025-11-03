@@ -6,6 +6,7 @@ import type { PropsWithChildren } from "react"
 import Footer from "@src/components/Layout/Footer"
 import { Header } from "@src/components/Layout/Header"
 import { NavbarMobile } from "@src/components/Navbar/NavbarMobile"
+import NetworkOutageNotification from "@src/components/NetworkOutageNotification"
 import PageBackground from "@src/components/PageBackground"
 import { useMixpanelBus } from "@src/hooks/useMixpanelBus"
 import { usePathLogging } from "@src/hooks/usePathLogging"
@@ -33,6 +34,7 @@ const Layout: React.FC<PropsWithChildren> = ({ children }) => {
           </Header.DepositSlot>
         }
       />
+      <NetworkOutageNotification />
       <Main>{children}</Main>
       <Footer />
       <NavbarMobile />
