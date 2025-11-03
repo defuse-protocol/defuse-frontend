@@ -15,7 +15,7 @@ export function chainTxExplorer(blockchain: SupportedChainName): string | null {
     case "bitcoin":
       return "https://blockchain.info/tx/"
     case "solana":
-      return "https://solscan.io/tx/"
+      return "https://orb.helius.dev/tx/"
     case "dogecoin":
       return "https://dogechain.info/tx/"
     case "aurora":
