@@ -5,8 +5,7 @@ import { useActor } from "@xstate/react"
 import { useEffect, useRef } from "react"
 import { fromPromise } from "xstate"
 
-import { config, utils } from "@defuse-protocol/internal-utils"
-import { nearClient } from "@src/components/DefuseSDK/constants/nearClient"
+import {} from "@defuse-protocol/internal-utils"
 import { WalletBannedDialog } from "@src/components/WalletBannedDialog"
 import { WalletVerificationDialog } from "@src/components/WalletVerificationDialog"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
@@ -18,8 +17,6 @@ import {
   verifyWalletSignature,
   walletVerificationMessageFactory,
 } from "@src/utils/walletMessage"
-import type { providers } from "near-api-js"
-import * as v from "valibot"
 import { useMixpanel } from "./MixpanelProvider"
 
 export function WalletVerificationProvider() {
@@ -29,46 +26,33 @@ export function WalletVerificationProvider() {
   const safetyCheck = useQuery({
     queryKey: ["address_safety", state.address],
     queryFn: async () => {
-      const response = await fetch(`/api/addresses/${state.address}/safety`)
-      return response.json() as Promise<{ safetyStatus: "safe" | "unsafe" }>
-    },
-    enabled: state.address != null,
-  })
-
-  const predecessorIdCheck = useQuery({
-    queryKey: ["predecessor_id_check", state.address],
-    queryFn: async () => {
-      if (state.chainType === "evm" && state.address != null) {
-        return await isPredecessorIdEnabled({
-          nearClient: nearClient,
-          accountId: state.address,
-        })
+      if (state.chainType === "evm") {
+        const response = await fetch(`/api/addresses/${state.address}/safety`)
+        return response.json() as Promise<{ safetyStatus: "safe" | "unsafe" }>
       }
-      return true
+      // For non-EVM wallets, skip the safety API check
+      return { safetyStatus: "safe" }
     },
     enabled: state.address != null && state.chainType !== undefined,
-    staleTime: 1000 * 60 * 60, // 1 hour
+    staleTime: 1000 * 60 * 60, // 1 hour,
   })
 
-  const predecessorCheckPasses = predecessorIdCheck.isSuccess
-    ? predecessorIdCheck.data
-    : false
-
-  const isWalletSafe =
-    safetyCheck.data?.safetyStatus === "safe" && predecessorCheckPasses
+  const safetyCheckPasses = safetyCheck.isSuccess
+    ? safetyCheck.data
+    : { safetyStatus: "unsafe" } // We might use different status for outage dialog if API is not available
 
   const { addWalletAddress } = useVerifiedWalletsStore()
   const { addBypassedWalletAddress, isWalletBypassed } =
     useBypassedWalletsStore()
 
-  if (safetyCheck.isLoading || predecessorIdCheck.isLoading) {
+  if (safetyCheck.isLoading) {
     return null
   }
 
   if (
     state.address != null &&
-    !isWalletBypassed(state.address) &&
-    !isWalletSafe
+    safetyCheckPasses.safetyStatus === "unsafe" &&
+    !isWalletBypassed(state.address)
   ) {
     return (
       <WalletBannedUI
@@ -201,24 +185,4 @@ function WalletVerificationUI({
       isFailure={state.context.hadError}
     />
   )
-}
-
-async function isPredecessorIdEnabled({
-  nearClient,
-  accountId,
-}: {
-  nearClient: providers.Provider
-  accountId: string
-}) {
-  const normalizedAccountId = accountId.toLowerCase()
-  const data = await utils.queryContract({
-    nearClient,
-    contractId: config.env.contractID,
-    methodName: "is_auth_by_predecessor_id_enabled",
-    args: {
-      account_id: normalizedAccountId,
-    },
-    schema: v.boolean(),
-  })
-  return data
 }
