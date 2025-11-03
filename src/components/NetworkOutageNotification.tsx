@@ -48,8 +48,8 @@ const NetworkOutageNotification: React.FC = () => {
           />
         </svg>
         <span>
-          <strong>Berachain and Gnosis Network Issues:</strong> Swaps and
-          withdrawals on Berachain and Gnosis may not go through. Please use
+          <strong>Berachain and Gnosis Network Issues:</strong> Deposits, swaps,
+          and withdrawals on Berachain and Gnosis may not go through. Please use
           alternative networks for transactions.
         </span>
         <button
