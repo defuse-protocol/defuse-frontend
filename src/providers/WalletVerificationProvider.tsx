@@ -1,10 +1,5 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
-import { useActor } from "@xstate/react"
-import { useEffect, useRef } from "react"
-import { fromPromise } from "xstate"
-
 import { WalletBannedDialog } from "@src/components/WalletBannedDialog"
 import { WalletVerificationDialog } from "@src/components/WalletVerificationDialog"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
@@ -16,6 +11,10 @@ import {
   verifyWalletSignature,
   walletVerificationMessageFactory,
 } from "@src/utils/walletMessage"
+import { useQuery } from "@tanstack/react-query"
+import { useActor } from "@xstate/react"
+import { useEffect, useRef } from "react"
+import { fromPromise } from "xstate"
 import { useMixpanel } from "./MixpanelProvider"
 
 export function WalletVerificationProvider() {
@@ -27,6 +26,9 @@ export function WalletVerificationProvider() {
     queryFn: async () => {
       if (state.chainType === "evm") {
         const response = await fetch(`/api/addresses/${state.address}/safety`)
+        if (!response.ok) {
+          throw new Error("Failed to check safety status")
+        }
         return response.json() as Promise<{ safetyStatus: "safe" | "unsafe" }>
       }
       // For non-EVM wallets, skip the safety API check
@@ -35,10 +37,6 @@ export function WalletVerificationProvider() {
     enabled: state.address != null && state.chainType !== undefined,
     staleTime: 1000 * 60 * 60, // 1 hour,
   })
-
-  const safetyCheckPasses = safetyCheck.isSuccess
-    ? safetyCheck.data
-    : { safetyStatus: "unsafe" } // We might use different status for outage dialog if API is not available
 
   const { addWalletAddress } = useVerifiedWalletsStore()
   const { addBypassedWalletAddress, isWalletBypassed } =
@@ -50,7 +48,7 @@ export function WalletVerificationProvider() {
 
   if (
     state.address != null &&
-    safetyCheckPasses.safetyStatus === "unsafe" &&
+    safetyCheck.data?.safetyStatus === "unsafe" &&
     !isWalletBypassed(state.address)
   ) {
     return (
