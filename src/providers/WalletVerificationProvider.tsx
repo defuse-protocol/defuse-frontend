@@ -5,7 +5,6 @@ import { useActor } from "@xstate/react"
 import { useEffect, useRef } from "react"
 import { fromPromise } from "xstate"
 
-import {} from "@defuse-protocol/internal-utils"
 import { WalletBannedDialog } from "@src/components/WalletBannedDialog"
 import { WalletVerificationDialog } from "@src/components/WalletVerificationDialog"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
