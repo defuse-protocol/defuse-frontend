@@ -1,4 +1,8 @@
+import { resolve } from "node:path"
+import { config } from "dotenv"
 import { z } from "zod"
+
+config({ path: resolve(process.cwd(), ".env.local") })
 
 export const NEAR_INTENTS_PAGE = {
   baseURL: z
