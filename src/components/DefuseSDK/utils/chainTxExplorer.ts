@@ -25,7 +25,7 @@ export function chainTxExplorer(blockchain: SupportedChainName): string | null {
     case "xrpledger":
       return "https://livenet.xrpl.org/transactions/"
     case "zcash":
-      return "https://mainnet.zcashexplorer.app/transactions/"
+      return "https://3xpl.com/zcash/transaction/"
     case "gnosis":
       return "https://gnosisscan.io/tx/"
     case "berachain":
