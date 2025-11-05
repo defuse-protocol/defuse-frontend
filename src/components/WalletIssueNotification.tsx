@@ -1,20 +1,19 @@
 "use client"
+
+import * as AlertDialog from "@radix-ui/react-alert-dialog"
+import { Cross2Icon, ExclamationTriangleIcon } from "@radix-ui/react-icons"
+import { Button, AlertDialog as themes_AlertDialog } from "@radix-ui/themes"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useNearWallet } from "@src/providers/NearWalletProvider"
-import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 import type React from "react"
 
-const STORAGE_KEY = "mynearwallet-wallet-issue-notification-dismissed"
-
 const WalletIssueNotification: React.FC = () => {
-  const pathname = usePathname()
-  const [isVisible, setIsVisible] = useState(true)
   const [selectedWalletName, setSelectedWalletName] = useState<string | null>(
     null
   )
   const { connector } = useNearWallet()
-  const { state } = useConnectWallet()
+  const { state, signOut } = useConnectWallet()
 
   useEffect(() => {
     if (!connector || state.chainType !== ChainType.Near) {
@@ -27,73 +26,77 @@ const WalletIssueNotification: React.FC = () => {
     fetchWalletName()
   }, [connector, state])
 
-  // Only show on deposit, withdraw and swap pages
-  const shouldShowNotification =
-    pathname === "/deposit" || pathname === "/withdraw" || pathname === "/"
-
-  useEffect(() => {
-    // Check if notification was previously dismissed in this session
-    const wasDismissed = sessionStorage.getItem(STORAGE_KEY) === "true"
-    if (wasDismissed) {
-      setIsVisible(false)
-    }
-  }, [])
-
-  const handleClose = () => {
-    setIsVisible(false)
-    sessionStorage.setItem(STORAGE_KEY, "true")
-  }
-
-  if (
-    !isVisible ||
-    !shouldShowNotification ||
-    selectedWalletName !== "MyNearWallet"
-  ) {
+  if (selectedWalletName !== "MyNearWallet") {
     return null
   }
 
   return (
-    <div className="bg-amber-500 text-amber-900 px-3 py-2 text-center text-xs font-medium border-b border-amber-600">
-      <div className="flex items-center justify-center gap-2 relative">
-        <svg
-          className="w-3 h-3 flex-shrink-0"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-          aria-label="Warning"
-        >
-          <title>Warning</title>
-          <path
-            fillRule="evenodd"
-            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-            clipRule="evenodd"
-          />
-        </svg>
-        <span>
-          <strong>MyNearWallet Wallet Issue:</strong> Swaps and withdrawals
-          requests may not go through. Please use a different Near wallet.
-        </span>
-        <button
-          type="button"
-          onClick={handleClose}
-          className="absolute right-0 p-0.5 hover:bg-yellow-600 rounded-full transition-colors"
-          aria-label="Close notification"
-        >
-          <svg
-            className="w-3 h-3"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            aria-label="Close"
-          >
-            <title>Close</title>
-            <path
-              fillRule="evenodd"
-              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </button>
-      </div>
-    </div>
+    <WalletIssueDialog
+      open={true}
+      onCancel={() => {
+        if (state.chainType != null) {
+          void signOut({ id: state.chainType })
+        }
+      }}
+    />
+  )
+}
+
+export function WalletIssueDialog({
+  open,
+  onCancel,
+}: {
+  open: boolean
+  onCancel: () => void
+}) {
+  return (
+    <AlertDialog.Root open={open}>
+      <themes_AlertDialog.Content className="max-w-md p-6 sm:animate-none animate-slide-up">
+        <>
+          {/* Header Section */}
+          <div className="flex flex-col items-center text-center mb-6">
+            <div className="bg-amber-50 dark:bg-amber-950 p-3 rounded-full mb-4">
+              <ExclamationTriangleIcon className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+            </div>
+            <AlertDialog.Title className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              MyNearWallet Issue Detected
+            </AlertDialog.Title>
+            <AlertDialog.Description className="mt-2 text-gray-11">
+              Please try again later or connect a different wallet.
+            </AlertDialog.Description>
+          </div>
+
+          {/* Info List */}
+          <div className="bg-gray-50 dark:bg-gray-800 text-gray-11 rounded-lg p-4 mb-5">
+            <ul className="space-y-3">
+              <li className="flex items-start gap-3">
+                <div className="bg-amber-100 dark:bg-amber-900 rounded-full p-1 mt-0.5">
+                  <Cross2Icon className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                </div>
+                <span className="text-sm">
+                  Due to an singing requests issue on swaps and withdrawals we
+                  temporary disabled this wallet.
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="flex flex-col justify-center gap-3 mt-6">
+            <themes_AlertDialog.Cancel>
+              <Button
+                size="4"
+                type="button"
+                variant="soft"
+                color="gray"
+                onClick={onCancel}
+              >
+                Disconnect
+              </Button>
+            </themes_AlertDialog.Cancel>
+          </div>
+        </>
+      </themes_AlertDialog.Content>
+    </AlertDialog.Root>
   )
 }
 
