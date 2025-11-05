@@ -75,7 +75,7 @@ export function WalletIssueDialog({
                 </div>
                 <span className="text-sm">
                   Due to a signing requests issue on swaps and withdrawals we
-                  temporary disabled this wallet.
+                  temporarily disabled this wallet.
                 </span>
               </li>
             </ul>
