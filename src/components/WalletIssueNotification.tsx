@@ -74,7 +74,7 @@ export function WalletIssueDialog({
                   <Cross2Icon className="w-3 h-3 text-amber-600 dark:text-amber-400" />
                 </div>
                 <span className="text-sm">
-                  Due to an singing requests issue on swaps and withdrawals we
+                  Due to a signing requests issue on swaps and withdrawals we
                   temporary disabled this wallet.
                 </span>
               </li>
