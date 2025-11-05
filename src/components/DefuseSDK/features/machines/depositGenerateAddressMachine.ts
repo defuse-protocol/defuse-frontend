@@ -56,8 +56,13 @@ export const depositGenerateAddressMachine = setup({
     ),
   },
   actions: {
-    logError: (_, { error }: { error: unknown }) => {
-      logger.error(error)
+    logError: (_, params: { context: Context; error: unknown }) => {
+      logger.error(
+        `generateDepositAddress error: network ${params.context.blockchain}`,
+        {
+          cause: params.error,
+        }
+      )
     },
     setInputParams: assign(({ event }) => {
       assertEvent(event, "REQUEST_GENERATE_ADDRESS")
@@ -151,7 +156,13 @@ export const depositGenerateAddressMachine = setup({
           actions: [
             {
               type: "logError",
-              params: ({ event }) => event,
+              params: ({
+                event,
+                context,
+              }: { event: { error: unknown }; context: Context }) => ({
+                context,
+                error: event.error,
+              }),
             },
             assign({
               preparationOutput: () => {
