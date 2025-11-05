@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 import type React from "react"
 
-const STORAGE_KEY = "network-outage-notification-dismissed"
+const STORAGE_KEY = "polygon-outage-notification-dismissed"
 
 const NetworkOutageNotification: React.FC = () => {
   const pathname = usePathname()
