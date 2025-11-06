@@ -5,10 +5,12 @@ import { Cross2Icon, ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Button, AlertDialog as themes_AlertDialog } from "@radix-ui/themes"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useNearWallet } from "@src/providers/NearWalletProvider"
+import { useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import type React from "react"
 
 const WalletIssueNotification: React.FC = () => {
+  const searchParams = useSearchParams()
   const [selectedWalletName, setSelectedWalletName] = useState<string | null>(
     null
   )
@@ -26,7 +28,10 @@ const WalletIssueNotification: React.FC = () => {
     fetchWalletName()
   }, [connector, state])
 
-  if (selectedWalletName !== "MyNearWallet") {
+  if (
+    selectedWalletName !== "MyNearWallet" ||
+    searchParams.get("mynearwallet")
+  ) {
     return null
   }
 
