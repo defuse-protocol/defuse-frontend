@@ -614,6 +614,23 @@
             }
           ],
           "tags": ["mc:3", "type:stablecoin", "tvol:3", "aid:usdt"]
+        },
+        {
+          "defuseAssetId": "nep141:bera-0x779ded0c9e1022225f8e0630b35a9b54be713736.omft.near",
+          "symbol": "USDT",
+          "name": "Tether USD",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+          "originChainName": "berachain",
+          "deployments": [
+            {
+              "address": "0x779Ded0c9e1022225f8E0630b35a9b54bE713736",
+              "decimals": 6,
+              "chainName": "berachain",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:3", "type:stablecoin", "tvol:3", "aid:usdt"]
         }
       ],
       "tags": ["mc:3", "type:stablecoin", "tvol:3", "aid:usdt"]
