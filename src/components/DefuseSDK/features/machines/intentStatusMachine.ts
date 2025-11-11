@@ -183,7 +183,7 @@ export const intentStatusMachine = setup({
         },
 
         onError: {
-          target: "error",
+          target: "settled", // Causes an infinite retry check loop on bridge settlement due to missing delay handling for long-running intents.
           actions: {
             type: "logError",
             params: ({ event }) => event,
