@@ -2292,6 +2292,38 @@
       "tags": ["type:stablecoin"]
     },
     {
+      "unifiedAssetId": "ltc",
+      "symbol": "LTC",
+      "name": "Litecoin",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/2.png",
+      "groupedTokens": [
+        {
+          "defuseAssetId": "nep141:ltc.omft.near",
+          "symbol": "LTC",
+          "name": "Litecoin",
+          "decimals": 8,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/2.png",
+          "originChainName": "litecoin",
+          "deployments": [
+            {
+              "type": "native",
+              "decimals": 8,
+              "chainName": "litecoin",
+              "bridge": "poa"
+            },
+            {
+              "address": "itlx.intellex_xyz.near",
+              "decimals": 24,
+              "chainName": "near",
+              "bridge": "direct"
+            }
+          ],
+          "tags": ["mc:19"]
+        }
+      ],
+      "tags": ["mc:1539", "aid:ltc"]
+    },
+    {
       "unifiedAssetId": "spx",
       "symbol": "SPX",
       "name": "SPX6900",
