@@ -58,5 +58,7 @@ export const settings: Settings = {
     stellar: "https://horizon.stellar.org",
     aptos: "https://fullnode.mainnet.aptoslabs.com",
     cardano: "",
+    litecoin: "https://litecoinspace.org/api",
+    layerx: "",
   },
 }

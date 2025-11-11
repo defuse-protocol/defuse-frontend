@@ -29,6 +29,8 @@ const mapping: Record<RealChains, Chain> = {
   stellar: Chains.Stellar,
   aptos: Chains.Aptos,
   cardano: Chains.Cardano,
+  litecoin: Chains.Litecoin,
+  layerx: Chains.LayerX,
 }
 
 export function getCAIP2(chainName: SupportedChainName): Chain {
