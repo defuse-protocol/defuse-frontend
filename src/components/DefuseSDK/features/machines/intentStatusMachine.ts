@@ -50,6 +50,7 @@ export const intentStatusMachine = setup({
       txHash: string | null
       intentDescription: IntentDescription
       bridgeTransactionResult: null | { destinationTxHash: string | null }
+      bridgeRetryCount: number
     },
   },
   actions: {
@@ -67,6 +68,9 @@ export const intentStatusMachine = setup({
         _,
         v: null | { destinationTxHash: string | null }
       ) => v,
+    }),
+    incrementRetryCount: assign({
+      bridgeRetryCount: ({ context }) => context.bridgeRetryCount + 1,
     }),
   },
   actors: {
@@ -136,6 +140,7 @@ export const intentStatusMachine = setup({
       txHash: null,
       intentDescription: input.intentDescription,
       bridgeTransactionResult: null,
+      bridgeRetryCount: 0,
     }
   },
   states: {
@@ -183,6 +188,11 @@ export const intentStatusMachine = setup({
         },
       ],
     },
+    retryDelay: {
+      after: {
+        5000: "waitingForBridge", // Wait 5 seconds before retry
+      },
+    },
     waitingForBridge: {
       invoke: {
         src: "waitForBridgeActor",
@@ -197,11 +207,12 @@ export const intentStatusMachine = setup({
 
         onError: [
           {
-            target: "settled", // Retry if bridge is still pending (long-running intent)
+            target: "retryDelay", // Retry with delay if bridge is still pending (long-running intent)
             guard: {
               type: "isPendingBridge",
               params: ({ event }: { event: { error: unknown } }) => event,
             },
+            actions: "incrementRetryCount",
           },
           {
             target: "error",

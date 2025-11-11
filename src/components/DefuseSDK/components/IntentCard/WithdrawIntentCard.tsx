@@ -38,6 +38,8 @@ export function WithdrawIntentCard({
         )
       : undefined
 
+  const retryCount = state.context.bridgeRetryCount
+
   return (
     <Flex p="2" gap="3">
       <Box pt="2">
@@ -56,9 +58,18 @@ export function WithdrawIntentCard({
           </Box>
 
           <Flex gap="1" align="center">
+            {retryCount > 0 &&
+              (state.matches("waitingForBridge") ||
+                state.matches("retryDelay")) && (
+                <Text size="1" color="gray">
+                  Retried {retryCount} times
+                </Text>
+              )}
+
             {(state.matches("pending") ||
               state.matches("checking") ||
-              state.matches("waitingForBridge")) && <Spinner size="1" />}
+              state.matches("waitingForBridge") ||
+              state.matches("retryDelay")) && <Spinner size="1" />}
 
             <Text
               size="1"
@@ -171,6 +182,7 @@ export function renderStatusLabel(
     case "settled":
       return "Pending"
     case "waitingForBridge":
+    case "retryDelay":
       return "Transferring"
     case "error":
       return "Can't get status"
