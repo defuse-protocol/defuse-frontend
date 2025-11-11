@@ -2333,23 +2333,6 @@
         }
       ],
       "tags": ["mc:93", "aid:spx"]
-    },
-    {
-      "defuseAssetId": "nep141:ltc.omft.near",
-      "symbol": "LTC",
-      "name": "Litecoin",
-      "decimals": 8,
-      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/2.png",
-      "originChainName": "litecoin",
-      "deployments": [
-        {
-          "type": "native",
-          "decimals": 8,
-          "chainName": "litecoin",
-          "bridge": "poa"
-        }
-      ],
-      "tags": ["mc:19"]
     }
   ]
 }

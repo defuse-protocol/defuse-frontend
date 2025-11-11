@@ -195,10 +195,6 @@
           "type": "string"
         },
         {
-          "const": "litecoin",
-          "type": "string"
-        },
-        {
           "$ref": "#/definitions/VirtualChains"
         },
         {
