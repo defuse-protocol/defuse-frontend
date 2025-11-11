@@ -2332,7 +2332,7 @@
           "tags": ["mc:93"]
         }
       ],
-      "tags": ["mc:93"]
+      "tags": ["mc:93", "aid:spx"]
     },
     {
       "defuseAssetId": "nep141:ltc.omft.near",
