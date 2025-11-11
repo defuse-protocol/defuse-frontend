@@ -33,8 +33,10 @@ export function validateAddress(
     case "hyperliquid":
     case "optimism":
     case "avalanche":
+    case "layerx":
       return validateEthAddress(address)
     case "bitcoin":
+    case "litecoin":
       return validateBtcAddress(address)
     case "solana":
       return validateSolAddress(address)

@@ -60,6 +60,10 @@ export function chainTxExplorer(blockchain: SupportedChainName): string | null {
       return "https://explorer.aptoslabs.com/txn/"
     case "cardano":
       return "https://adastat.net/transactions/"
+    case "litecoin":
+      return "https://litecoinspace.org/tx/"
+    case "layerx":
+      return "https://layerxscan.io/tx/"
     default:
       blockchain satisfies never
       return null

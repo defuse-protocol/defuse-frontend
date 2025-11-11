@@ -151,6 +151,14 @@ export const chainIcons: Record<
     dark: "/static/icons/network/cardano.svg",
     light: "/static/icons/network/cardano.svg",
   },
+  litecoin: {
+    dark: "/static/icons/network/litecoin_white.svg",
+    light: "/static/icons/network/litecoin.svg",
+  },
+  layerx: {
+    dark: "/static/icons/network/layerx_white.svg",
+    light: "/static/icons/network/layerx.svg",
+  },
 }
 
 export function getBlockchainsOptions(): Record<
@@ -358,6 +366,20 @@ export function getBlockchainsOptions(): Record<
       label: "Cardano",
       icon: <NetworkIcon chainIcon={chainIcons.cardano} chainName="Cardano" />,
       value: BlockchainEnum.CARDANO,
+      tags: [],
+    },
+    [BlockchainEnum.LITECOIN]: {
+      label: "Litecoin",
+      icon: (
+        <NetworkIcon chainIcon={chainIcons.litecoin} chainName="Litecoin" />
+      ),
+      value: BlockchainEnum.LITECOIN,
+      tags: [],
+    },
+    [BlockchainEnum.LAYERX]: {
+      label: "LayerX",
+      icon: <NetworkIcon chainIcon={chainIcons.layerx} chainName="LayerX" />,
+      value: BlockchainEnum.LAYERX,
       tags: [],
     },
   }
