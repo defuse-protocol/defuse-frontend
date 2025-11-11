@@ -2350,6 +2350,23 @@
         }
       ],
       "tags": ["mc:93", "aid:spx"]
+    },
+    {
+      "defuseAssetId": "nep141:itlx.intellex_xyz.near",
+      "symbol": "ITLX",
+      "name": "Intellex AI Protocol Token",
+      "decimals": 24,
+      "icon": "https://ipfs.sintral.me/cdn-cgi/image/width=480,quality=100,format=webp/ipfs/QmaEdJJUjz8hrx2NSj3fcB24YvxJWW1i4nMGAavyChbDgF",
+      "originChainName": "near",
+      "deployments": [
+        {
+          "address": "itlx.intellex_xyz.near",
+          "decimals": 24,
+          "chainName": "near",
+          "bridge": "direct"
+        }
+      ],
+      "tags": []
     }
   ]
 }
