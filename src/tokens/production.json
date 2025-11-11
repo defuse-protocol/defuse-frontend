@@ -2290,6 +2290,66 @@
         }
       ],
       "tags": ["type:stablecoin"]
+    },
+    {
+      "unifiedAssetId": "spx",
+      "symbol": "SPX",
+      "name": "SPX6900",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/28081.png",
+      "groupedTokens": [
+        {
+          "defuseAssetId": "nep141:sol-c634d063ceff771aff0c972ec396fd915a6bbd0e.omft.near",
+          "symbol": "SPX",
+          "name": "SPX6900",
+          "decimals": 8,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/28081.png",
+          "originChainName": "solana",
+          "deployments": [
+            {
+              "address": "J3NKxxXZcnNiMjKw9hYb2K4LUxgwB6t1FtPtQVsv3KFr",
+              "decimals": 8,
+              "chainName": "solana",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:93"]
+        },
+        {
+          "defuseAssetId": "nep141:eth-0xe0f63a424a4439cbe457d80e4f4b51ad25b2c56c.omft.near",
+          "symbol": "SPX",
+          "name": "SPX6900",
+          "decimals": 8,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/28081.png",
+          "originChainName": "eth",
+          "deployments": [
+            {
+              "address": "0xe0f63a424a4439cbe457d80e4f4b51ad25b2c56c",
+              "decimals": 8,
+              "chainName": "eth",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:93"]
+        }
+      ],
+      "tags": ["mc:93"]
+    },
+    {
+      "defuseAssetId": "nep141:ltc.omft.near",
+      "symbol": "LTC",
+      "name": "Litecoin",
+      "decimals": 8,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/2.png",
+      "originChainName": "litecoin",
+      "deployments": [
+        {
+          "address": "native",
+          "decimals": 8,
+          "chainName": "litecoin",
+          "bridge": "poa"
+        }
+      ],
+      "tags": ["mc:19"]
     }
   ]
 }
