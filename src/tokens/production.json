@@ -2343,7 +2343,7 @@
       "originChainName": "litecoin",
       "deployments": [
         {
-          "address": "native",
+          "type": "native",
           "decimals": 8,
           "chainName": "litecoin",
           "bridge": "poa"
