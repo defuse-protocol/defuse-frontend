@@ -11,6 +11,7 @@ export type WhitelabelTemplateValue =
   | "dogecoinswap"
   | "turboswap"
   | "trumpswap"
+  | "rabitswap"
 
 export const whitelabelTemplateFlag = flag<WhitelabelTemplateValue>({
   key: "whitelabelTemplate",
@@ -21,6 +22,7 @@ export const whitelabelTemplateFlag = flag<WhitelabelTemplateValue>({
     { label: "DogecoinSwap.org", value: "dogecoinswap" },
     { label: "TurboSwap.org", value: "turboswap" },
     { label: "trump-swap.org", value: "trumpswap" },
+    { label: "rabitswap.org", value: "rabitswap" },
   ],
   async decide(): Promise<WhitelabelTemplateValue> {
     const headers_ = await headers()

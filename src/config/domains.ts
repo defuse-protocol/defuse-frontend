@@ -6,4 +6,5 @@ export const domains: Record<string, WhitelabelTemplateValue> = {
   "dogecoinswap.org": "dogecoinswap",
   "turboswap.org": "turboswap",
   "trump-swap.org": "trumpswap",
+  "rabitswap.org": "rabitswap",
 }

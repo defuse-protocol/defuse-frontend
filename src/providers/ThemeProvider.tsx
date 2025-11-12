@@ -16,6 +16,7 @@ const accentsColors: Record<
   dogecoinswap: "amber",
   turboswap: "amber",
   trumpswap: "tomato",
+  rabitswap: "blue",
 }
 
 export async function ThemeProvider({ children }: { children: ReactNode }) {
@@ -23,7 +24,10 @@ export async function ThemeProvider({ children }: { children: ReactNode }) {
   const accentColor = accentsColors[tpl]
 
   return (
-    <NextThemesThemeProvider attribute="class">
+    <NextThemesThemeProvider
+      attribute="class"
+      forcedTheme={tpl === "rabitswap" ? "dark" : undefined}
+    >
       <Theme accentColor={accentColor} hasBackground={false}>
         {children}
       </Theme>

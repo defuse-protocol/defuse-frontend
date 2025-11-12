@@ -35,8 +35,12 @@ const Settings = () => {
               </div>
             )}
 
-            <DarkMode />
-            <Separator orientation="horizontal" size="4" />
+            {whitelabelTemplate !== "rabitswap" && (
+              <>
+                <DarkMode />
+                <Separator orientation="horizontal" size="4" />
+              </>
+            )}
 
             <div className="flex flex-col justify-between items-center gap-1.5">
               <a

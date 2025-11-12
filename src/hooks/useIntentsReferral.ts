@@ -8,6 +8,7 @@ export const referralMap: Record<WhitelabelTemplateValue, string> = {
   dogecoinswap: "dogecoinswap.intents-referral.near",
   turboswap: "turboswap.intents-referral.near",
   trumpswap: "trumpswap.intents-referral.near",
+  rabitswap: "rabitswap.intents-referral.near",
 }
 
 export function useIntentsReferral() {
