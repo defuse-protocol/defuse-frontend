@@ -43,8 +43,62 @@
 
   /* Theme colors */
   :root {
-    --color-border: var(--sand-4);
-    --color-label: var(--sand-12);
+    /* RabbitSwap CSS variables (dark theme colors) */
+    --rs1d: rgba(18, 31, 57, 1);
+    --rs2d: rgba(26, 42, 71, 1);
+    --rs3d: rgba(36, 56, 86, 1);
+    --rs4d: rgba(46, 71, 101, 1);
+    --rs5d: rgba(56, 86, 116, 1);
+    --rs6d: rgba(66, 101, 131, 1);
+    --rs7d: rgba(76, 116, 146, 1);
+    --rs8d: rgba(86, 131, 161, 1);
+    --rs9d: rgba(96, 146, 176, 1);
+    --rs10d: rgba(106, 161, 191, 1);
+    --rs11d: rgba(116, 176, 206, 1);
+    --rs12d: rgba(126, 207, 239, 1);
+
+    /* RabbitSwap CSS variables (light theme colors) */
+    --rs1: rgba(247, 250, 255, 1);
+    --rs2: rgba(242, 247, 255, 1);
+    --rs3: rgba(230, 239, 255, 1);
+    --rs4: rgba(219, 231, 253, 1);
+    --rs5: rgba(209, 223, 251, 1);
+    --rs6: rgba(199, 216, 249, 1);
+    --rs7: rgba(183, 205, 246, 1);
+    --rs8: rgba(159, 185, 237, 1);
+    --rs9: rgba(114, 139, 188, 1);
+    --rs10: rgba(104, 128, 177, 1);
+    --rs11: rgba(75, 97, 140, 1);
+    --rs12: rgba(18, 31, 57, 1);
+
+    /* CSS variable aliases - default to sand colors */
+    --sand-1-alias: var(--sand-1);
+    --sand-2-alias: var(--sand-2);
+    --sand-3-alias: var(--sand-3);
+    --sand-4-alias: var(--sand-4);
+    --sand-5-alias: var(--sand-5);
+    --sand-6-alias: var(--sand-6);
+    --sand-7-alias: var(--sand-7);
+    --sand-8-alias: var(--sand-8);
+    --sand-9-alias: var(--sand-9);
+    --sand-10-alias: var(--sand-10);
+    --sand-11-alias: var(--sand-11);
+    --sand-12-alias: var(--sand-12);
+    --sand-a1-alias: var(--sand-a1);
+    --sand-a2-alias: var(--sand-a2);
+    --sand-a3-alias: var(--sand-a3);
+    --sand-a4-alias: var(--sand-a4);
+    --sand-a5-alias: var(--sand-a5);
+    --sand-a6-alias: var(--sand-a6);
+    --sand-a7-alias: var(--sand-a7);
+    --sand-a8-alias: var(--sand-a8);
+    --sand-a9-alias: var(--sand-a9);
+    --sand-a10-alias: var(--sand-a10);
+    --sand-a11-alias: var(--sand-a11);
+    --sand-a12-alias: var(--sand-a12);
+
+    --color-border: var(--sand-4-alias);
+    --color-label: var(--sand-12-alias);
     --color-warning: var(--amber-a2);
     --color-warning-foreground: var(--amber-a11);
   }
@@ -53,8 +107,8 @@
 		 * It's not a mistake, duplicating the same color values here.
 		 * They are Radix UI colors palette, and they're switched based on the theme.
 		 */
-    --color-border: var(--sand-4);
-    --color-label: var(--sand-12);
+    --color-border: var(--sand-4-alias);
+    --color-label: var(--sand-12-alias);
     --color-warning: var(--amber-a2);
     --color-warning-foreground: var(--amber-a11);
   }
@@ -69,6 +123,22 @@ html.tmpl-solswap,
 html.tmpl-dogecoinswap,
 .tmpl-dogecoinswap body {
   background: var(--gray-2);
+}
+
+html.tmpl-rabitswap {
+  --sand-1-alias: var(--rs1d);
+  --sand-2-alias: var(--rs2d);
+  --sand-3-alias: var(--rs3d);
+  --sand-4-alias: var(--rs4d);
+  --sand-5-alias: var(--rs5d);
+  --sand-6-alias: var(--rs6d);
+  --sand-7-alias: var(--rs7d);
+  --sand-8-alias: var(--rs8d);
+  --sand-9-alias: var(--rs9d);
+  --sand-10-alias: var(--rs10d);
+  --sand-11-alias: var(--rs11d);
+  --sand-12-alias: var(--rs12d);
+  /* Note: RabbitSwap doesn't have alpha variants defined, so we keep sand-a* for now */
 }
 
 .radix-themes {
