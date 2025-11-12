@@ -9,3 +9,7 @@
 :global(.tmpl-dogecoinswap) .header {
   background-color: var(--gray-2);
 }
+
+:global(.tmpl-rabitswap) .header {
+  background-color: transparent;
+}
