@@ -1,6 +1,6 @@
 import { utils } from "@defuse-protocol/internal-utils"
 import { sha256 } from "@noble/hashes/sha256"
-import { base58, bech32m, hex } from "@scure/base"
+import { base58, bech32, bech32m, hex } from "@scure/base"
 import { PublicKey } from "@solana/web3.js"
 import {
   isValidClassicAddress as xrp_isValidClassicAddress,
@@ -33,9 +33,11 @@ export function validateAddress(
     case "hyperliquid":
     case "optimism":
     case "avalanche":
+    case "layerx":
       return validateEthAddress(address)
     case "bitcoin":
       return validateBtcAddress(address)
+
     case "solana":
       return validateSolAddress(address)
 
@@ -65,6 +67,9 @@ export function validateAddress(
 
     case "cardano":
       return validateCardanoAddress(address)
+
+    case "litecoin":
+      return validateLitecoinAddress(address)
 
     default:
       blockchain satisfies never
@@ -129,6 +134,17 @@ function validateZcashAddress(address: string) {
     }
   }
 
+  // Unified address validation
+  const uaHrp = "u"
+  if (address.startsWith(`${uaHrp}1`)) {
+    try {
+      const decoded = bech32m.decodeToBytes(address)
+      return decoded.prefix === uaHrp
+    } catch {
+      return false
+    }
+  }
+
   return false
 }
 
@@ -187,4 +203,120 @@ function validateStellarAddress(address: string) {
 
 function validateAptosAddress(address: string) {
   return /^0x[a-fA-F0-9]{64}$/.test(address)
+}
+
+// This is copy from https://github.com/defuse-protocol/sdk-monorepo/blob/00f01151dac03d182d7d92545af8cddb673c1301/packages/intents-sdk/src/lib/validateAddress.ts#L252
+// TODO: We should take it from the SDK package
+function validateLitecoinAddress(address: string): boolean {
+  const first = address[0]
+
+  // ---- Base58 (mainnet) ----
+
+  // P2PKH: L... (0x30)
+  if (first === "L") {
+    return validateLitecoinBase58Address(address, 0x30)
+  }
+
+  // P2SH (new): M... (0x32)
+  if (first === "M") {
+    return validateLitecoinBase58Address(address, 0x32)
+  }
+
+  // P2SH (legacy): 3... (0x05)
+  // [Inference] This also matches Bitcoin P2SH; cannot distinguish by prefix+version alone.
+  if (first === "3") {
+    return validateLitecoinBase58Address(address, 0x05)
+  }
+
+  // ---- Bech32 / Bech32m (SegWit) ----
+
+  const lower = address.toLowerCase()
+  if (!lower.startsWith("ltc1")) {
+    return false
+  }
+
+  return validateLitecoinBech32Address(address)
+}
+
+function validateLitecoinBase58Address(
+  address: string,
+  expectedVersion: number
+): boolean {
+  let decoded: Uint8Array
+
+  try {
+    decoded = base58.decode(address)
+  } catch {
+    return false
+  }
+
+  // version (1) + payload (20) + checksum (4)
+  if (decoded.length !== 25) return false
+
+  const version = decoded[0]
+  if (version !== expectedVersion) return false
+
+  const payload = decoded.subarray(0, 21) // version + hash160
+  const checksum = decoded.subarray(21, 25)
+
+  const hash1 = sha256(payload)
+  const hash2 = sha256(hash1)
+  const expectedChecksum = hash2.subarray(0, 4)
+
+  for (let i = 0; i < 4; i++) {
+    if (checksum[i] !== expectedChecksum[i]) return false
+  }
+
+  return true
+}
+
+function validateLitecoinBech32Address(address: string): boolean {
+  let decoded: {
+    prefix: string
+    words: number[]
+  }
+  let isBech32m = false
+
+  try {
+    // Try Bech32 (v0)
+    decoded = bech32.decode(address as `${string}1${string}`)
+  } catch {
+    try {
+      // If Bech32 failed, try Bech32m (v1+)
+      decoded = bech32m.decode(address as `${string}1${string}`)
+      isBech32m = true
+    } catch {
+      return false
+    }
+  }
+
+  // HRP must be "ltc" (case-insensitive)
+  if (decoded.prefix.toLowerCase() !== "ltc") return false
+
+  const { words } = decoded
+  if (!words || words.length < 1) return false
+
+  const version = words[0]
+  if (version == null || version < 0 || version > 16) return false
+
+  const program = bech32.fromWords(words.slice(1))
+  const progLen = program.length
+
+  // Generic SegWit constraints
+  if (progLen < 2 || progLen > 40) return false
+
+  // v0: Bech32 only, 20 or 32 bytes
+  if (version === 0) {
+    if (isBech32m) return false
+    return progLen === 20 || progLen === 32
+  }
+
+  // v1 (Taproot on LTC): Bech32m only, 32 bytes
+  if (version === 1) {
+    if (!isBech32m) return false
+    return progLen === 32
+  }
+
+  // Other versions
+  return false
 }

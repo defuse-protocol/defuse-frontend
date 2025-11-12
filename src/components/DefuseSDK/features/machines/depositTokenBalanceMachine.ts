@@ -251,6 +251,8 @@ export const backgroundBalanceActor = fromPromise(
       case BlockchainEnum.SUI:
       case BlockchainEnum.APTOS:
       case BlockchainEnum.CARDANO:
+      case BlockchainEnum.LITECOIN:
+      case BlockchainEnum.LAYERX:
         break
       default:
         networkToSolverFormat satisfies never
