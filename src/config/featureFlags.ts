@@ -25,6 +25,24 @@ export const whitelabelTemplateFlag = flag<WhitelabelTemplateValue>({
     { label: "rabitswap.org", value: "rabitswap" },
   ],
   async decide(): Promise<WhitelabelTemplateValue> {
+    // TODO: Temporary allow setting the template via environment variable, should be removed
+    if (process.env.WHITELABEL_TEMPLATE) {
+      const envTemplate = process.env
+        .WHITELABEL_TEMPLATE as WhitelabelTemplateValue
+      if (
+        [
+          "near-intents",
+          "solswap",
+          "dogecoinswap",
+          "turboswap",
+          "trumpswap",
+          "rabitswap",
+        ].includes(envTemplate)
+      ) {
+        return envTemplate
+      }
+    }
+
     const headers_ = await headers()
     const host = headers_.get("host")
     if (host != null) {
