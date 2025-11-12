@@ -20,6 +20,8 @@ export type SupportedChainName =
   | "stellar"
   | "aptos"
   | "cardano"
+  | "litecoin"
+  | "layerx"
   | VirtualChains
   | MockedChains
 

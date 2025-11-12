@@ -144,6 +144,7 @@ const cspConfig = {
     "https://rpc.mainnet.pagoda.co",
     "https://api.trongrid.io",
     "https://fullnode.mainnet.aptoslabs.com",
+    "https://litecoinspace.org/api",
   ],
   "object-src": ["'none'"],
   "base-uri": ["'self'"],
