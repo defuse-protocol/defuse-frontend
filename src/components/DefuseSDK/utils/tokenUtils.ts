@@ -450,3 +450,17 @@ export function* eachBaseTokenInfo(tokenList: TokenInfo[]) {
     }
   }
 }
+
+/**
+ * Use this function before deltas computation to prevent wrong amount be taken.
+ * @example
+ * // [["token1", 1000000n], ["token1", -1000000n]]
+ * hasMatchingTokenKeys([["token1", 1000000n], ["token1", -1000000n]]) == true
+ */
+export function hasMatchingTokenKeys(tokenDeltas: [string, bigint][]): boolean {
+  return (
+    Array.isArray(tokenDeltas) &&
+    tokenDeltas.length >= 2 &&
+    tokenDeltas[0][0] === tokenDeltas[1][0]
+  )
+}

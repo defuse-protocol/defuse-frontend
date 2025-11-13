@@ -31,6 +31,7 @@ import {
   getAnyBaseTokenInfo,
   getTokenMaxDecimals,
   getUnderlyingBaseTokenInfos,
+  hasMatchingTokenKeys,
 } from "../../utils/tokenUtils"
 import {
   type Events as Background1csQuoterEvents,
@@ -314,6 +315,20 @@ export const swapUIMachine = setup({
             },
           }
         }
+        const tokenDeltas = quote.value.tokenDeltas
+        if (hasMatchingTokenKeys(tokenDeltas)) {
+          const amount = isExactInput ? tokenDeltas[0][1] : tokenDeltas[1][1]
+          return {
+            ...context.formValues,
+            ...{
+              [fieldNameToUpdate]: formatUnits(
+                amount < 0n ? -amount : amount,
+                context.parsedFormValues.tokenIn.decimals // same as tokenOut.decimals
+              ),
+            },
+          }
+        }
+
         const totalAmount = computeTotalDeltaDifferentDecimals(
           [
             isExactInput
