@@ -1,6 +1,7 @@
 import { XIcon } from "@phosphor-icons/react"
 import * as RadioGroup from "@radix-ui/react-radio-group"
 import { Text } from "@radix-ui/themes"
+import { useSlippageStore } from "@src/stores/useSlippageStore"
 import { useEffect, useState } from "react"
 import type { Actor } from "xstate"
 import type { swapUIMachine } from "../../features/machines/swapUIMachine"
@@ -69,22 +70,32 @@ export function ModalSlippageSettings() {
     }
   }
 
+  const setSlippagePercent = useSlippageStore(
+    (state) => state.setSlippagePercent
+  )
+
   const handleSave = () => {
     if (!actorRef) {
       return
     }
 
     let slippageBasisPoints: number
+    let slippagePercent: number
 
     if (isCustomSelected) {
       const customPercent = Number.parseFloat(customValue)
       if (Number.isNaN(customPercent) || customPercent <= 0) {
         return // Don't save invalid values
       }
+      slippagePercent = customPercent
       slippageBasisPoints = Math.round(customPercent * 10_000)
     } else {
       slippageBasisPoints = Number.parseInt(selectedValue, 10)
+      slippagePercent = slippageBasisPoints / 10_000
     }
+
+    // Save to localStorage
+    setSlippagePercent(slippagePercent)
 
     actorRef.send({
       type: "SET_SLIPPAGE",

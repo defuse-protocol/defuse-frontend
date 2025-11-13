@@ -708,7 +708,7 @@ export const swapUIMachine = setup({
     intentRefs: [],
     tokenList: input.tokenList,
     referral: input.referral,
-    slippageBasisPoints: 10_000, // 1%
+    slippageBasisPoints: 10_000, // 1% default, will be overridden from localStorage
     is1cs: input.is1cs,
     priceChangeDialog: null,
   }),
@@ -873,6 +873,53 @@ export const swapUIMachine = setup({
             "log1csNoLiquidity",
           ],
         },
+
+        SET_SLIPPAGE: [
+          {
+            guard: "isFormValidAndNot1cs",
+            target: ".waiting_quote",
+            actions: [
+              {
+                type: "setSlippage",
+                params: ({ event }) => ({
+                  slippageBasisPoints: event.params.slippageBasisPoints,
+                }),
+              },
+              "clearQuote",
+              {
+                type: "updateFormValuesWithQuoteData",
+              },
+              "updateUIAmount",
+              "sendToBackgroundQuoterRefNewQuoteInput",
+            ],
+          },
+          {
+            guard: "isFormValidAnd1cs",
+            target: ".waiting_quote",
+            actions: [
+              {
+                type: "setSlippage",
+                params: ({ event }) => ({
+                  slippageBasisPoints: event.params.slippageBasisPoints,
+                }),
+              },
+              "clearQuote",
+              {
+                type: "updateFormValuesWithQuoteData",
+              },
+              "updateUIAmount",
+              "sendToBackground1csQuoterRefNewQuoteInput",
+            ],
+          },
+          {
+            actions: {
+              type: "setSlippage",
+              params: ({ event }) => ({
+                slippageBasisPoints: event.params.slippageBasisPoints,
+              }),
+            },
+          },
+        ],
       },
 
       states: {
