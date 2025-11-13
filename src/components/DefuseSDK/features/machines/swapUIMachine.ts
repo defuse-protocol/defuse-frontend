@@ -901,7 +901,7 @@ export const swapUIMachine = setup({
               {
                 type: "updateFormValuesWithQuoteData",
               },
-              "parseFormValues", // Keep in sync with input handler (line ~851)
+              "parseFormValues", // Keep in sync with input handler
               "updateUIAmount",
               "sendToBackgroundQuoterRefNewQuoteInput",
             ],
@@ -920,7 +920,7 @@ export const swapUIMachine = setup({
               {
                 type: "updateFormValuesWithQuoteData",
               },
-              "parseFormValues", // Keep in sync with input handler (line ~851)
+              "parseFormValues", // Keep in sync with input handler
               "updateUIAmount",
               "sendToBackground1csQuoterRefNewQuoteInput",
             ],
