@@ -190,6 +190,12 @@ export const swapUIMachine = setup({
         }
       | { type: "PRICE_CHANGE_CONFIRMED" }
       | { type: "PRICE_CHANGE_CANCELLED" }
+      | {
+          type: "SET_SLIPPAGE"
+          params: {
+            slippageBasisPoints: number
+          }
+        }
       | PassthroughEvent,
 
     emitted: {} as EmittedEvents,
@@ -354,6 +360,10 @@ export const swapUIMachine = setup({
     clearQuote: assign({ quote: null }),
     clearError: assign({ error: null }),
     clear1csError: assign({ quote1csError: null }),
+    setSlippage: assign({
+      slippageBasisPoints: (_, params: { slippageBasisPoints: number }) =>
+        params.slippageBasisPoints,
+    }),
     setIntentCreationResult: assign({
       intentCreationResult: (
         _,
@@ -792,6 +802,14 @@ export const swapUIMachine = setup({
         { type: "closePriceChangeDialog" },
         { type: "sendToSwapRef1csCancel" },
       ],
+    },
+    SET_SLIPPAGE: {
+      actions: {
+        type: "setSlippage",
+        params: ({ event }) => ({
+          slippageBasisPoints: event.params.slippageBasisPoints,
+        }),
+      },
     },
   },
 
