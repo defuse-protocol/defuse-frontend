@@ -5,6 +5,7 @@ import type { BaseTokenInfo } from "@src/components/DefuseSDK/types"
 import { isBaseToken } from "@src/components/DefuseSDK/utils"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { formatUnits } from "viem"
+import { logger } from "./logger"
 
 export type LogNoLiquiditySolverRelayParams = Parameters<
   typeof solverRelay.quote
@@ -26,6 +27,7 @@ export function logNoLiquidity({
   contexts?: Sentry.Contexts | undefined
   tags?: Record<string, Primitive> | undefined
 }) {
+  logger.info("logNoLiquidity", { tokenIn, tokenOut, amount })
   Sentry.captureMessage(
     `TEST!!! No liquidity available for $${tokenIn?.symbol ?? "unknown"} (${tokenIn?.originChainName ?? "unknown"}) to $${tokenOut?.symbol ?? "unknown"} (${tokenOut?.originChainName ?? "unknown"})`,
     {
