@@ -16,13 +16,13 @@ export type LogNoLiquiditySolverRelayParams = Parameters<
 export function logNoLiquidity({
   tokenIn,
   tokenOut,
-  amountIn,
+  amount,
   contexts,
   tags = {},
 }: {
   tokenIn: BaseTokenInfo | undefined
   tokenOut: BaseTokenInfo | undefined
-  amountIn: string
+  amount: string
   contexts?: Sentry.Contexts | undefined
   tags?: Record<string, Primitive> | undefined
 }) {
@@ -30,11 +30,7 @@ export function logNoLiquidity({
     `No liquidity available for $${tokenIn?.symbol ?? "unknown"} (${tokenIn?.originChainName ?? "unknown"}) to $${tokenOut?.symbol ?? "unknown"} (${tokenOut?.originChainName ?? "unknown"})`,
     {
       level: "warning",
-      tags: {
-        "liquidity-alerts": true,
-        "amount-in": amountIn,
-        ...tags,
-      },
+      tags: { "liquidity-alerts": true, amount, ...tags },
       contexts,
     }
   )
@@ -49,7 +45,7 @@ export function logNoLiquiditySolverRelay({
   logNoLiquidity({
     tokenIn,
     tokenOut: toToken(quoteParams.defuse_asset_identifier_out),
-    amountIn: formatUnits(
+    amount: formatUnits(
       BigInt(quoteParams.exact_amount_in),
       tokenIn?.decimals ?? 0
     ),

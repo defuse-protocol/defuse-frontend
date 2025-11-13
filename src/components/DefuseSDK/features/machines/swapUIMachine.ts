@@ -592,7 +592,7 @@ export const swapUIMachine = setup({
       logNoLiquidity({
         tokenIn: event.params.quoteInput.tokenIn,
         tokenOut: event.params.quoteInput.tokenOut,
-        amountIn: formatUnits(
+        amount: formatUnits(
           event.params.quoteInput.amount.amount,
           event.params.quoteInput.amount.decimals
         ),
