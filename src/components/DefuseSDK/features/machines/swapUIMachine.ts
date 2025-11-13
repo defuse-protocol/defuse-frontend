@@ -569,8 +569,6 @@ export const swapUIMachine = setup({
         | undefined = snapshot.children.depositedBalanceRef
       const balances = balancesSelector(depositedBalanceRef?.getSnapshot())
 
-      logger.info("log1csNoLiquidity", { balances })
-
       if (!balances) {
         return
       }
@@ -580,8 +578,6 @@ export const swapUIMachine = setup({
         balances
       )
 
-      logger.info("log1csNoLiquidity", { tokenInBalance })
-
       if (!tokenInBalance) {
         return
       }
@@ -589,10 +585,7 @@ export const swapUIMachine = setup({
       const hasSufficientBalance =
         compareAmounts(tokenInBalance, event.params.quoteInput.amount) !== -1
 
-      logger.info("log1csNoLiquidity", { hasSufficientBalance })
-
-      // TODO: temp for checking it works
-      if (hasSufficientBalance) {
+      if (!hasSufficientBalance) {
         return
       }
 
