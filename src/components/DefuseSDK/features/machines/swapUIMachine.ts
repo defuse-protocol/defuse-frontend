@@ -834,6 +834,9 @@ export const swapUIMachine = setup({
           },
         ],
 
+        // input: When form input changes, reset quote and parse new values.
+        // NOTE: The SET_SLIPPAGE handler (line ~886) follows a similar pattern.
+        // If you modify the action sequence here, consider if SET_SLIPPAGE needs the same changes.
         input: {
           target: ".validating",
           actions: [
@@ -848,7 +851,7 @@ export const swapUIMachine = setup({
               type: "setFormValues",
               params: ({ event }) => ({ data: event.params }),
             },
-            "parseFormValues",
+            "parseFormValues", // Keep in sync with SET_SLIPPAGE handler (line ~901, ~920)
           ],
         },
 
@@ -874,6 +877,15 @@ export const swapUIMachine = setup({
           ],
         },
 
+        // SET_SLIPPAGE: When slippage changes, we need to reset the form and request a new quote.
+        // This handler follows a similar pattern to the `input` handler:
+        // 1. Update the slippage value
+        // 2. Clear the existing quote (since it's now invalid)
+        // 3. Update form values to clear the opposite amount field (via updateFormValuesWithQuoteData)
+        // 4. Parse form values to sync parsedFormValues with formValues (IMPORTANT: keep this in sync with input handler)
+        // 5. Update UI to reflect the cleared field
+        // 6. Request a new quote with the updated slippage
+        // NOTE: If you modify the action sequence in the `input` handler, consider if SET_SLIPPAGE needs the same changes.
         SET_SLIPPAGE: [
           {
             guard: "isFormValidAndNot1cs",
@@ -889,6 +901,7 @@ export const swapUIMachine = setup({
               {
                 type: "updateFormValuesWithQuoteData",
               },
+              "parseFormValues", // Keep in sync with input handler (line ~851)
               "updateUIAmount",
               "sendToBackgroundQuoterRefNewQuoteInput",
             ],
@@ -907,6 +920,7 @@ export const swapUIMachine = setup({
               {
                 type: "updateFormValuesWithQuoteData",
               },
+              "parseFormValues", // Keep in sync with input handler (line ~851)
               "updateUIAmount",
               "sendToBackground1csQuoterRefNewQuoteInput",
             ],
