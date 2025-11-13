@@ -5,7 +5,7 @@ import type {
   BaseTokenInfo,
   TokenInfo,
 } from "@src/components/DefuseSDK/types/base"
-import type { WhitelabelTemplateValue } from "@src/config/featureFlags"
+import type { WhitelabelTemplateValue } from "@src/config/domains"
 import { LIST_TOKENS, LIST_TOKENS_FLATTEN } from "@src/constants/tokens"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useTokenList } from "@src/hooks/useTokenList"

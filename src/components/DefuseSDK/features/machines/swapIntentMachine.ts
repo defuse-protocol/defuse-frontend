@@ -11,7 +11,6 @@ import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { messageFactory } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { secp256k1 } from "@noble/curves/secp256k1"
-import { APP_FEE_RECIPIENT } from "@src/utils/environment"
 import { logger } from "@src/utils/logger"
 import type { providers } from "near-api-js"
 import { assign, fromPromise, setup } from "xstate"
@@ -96,6 +95,7 @@ type Context = {
   slippageBasisPoints: number
   nearClient: providers.Provider
   intentOperationParams: IntentOperationParams
+  appFeeRecipient: string
   // The best quote that was actually published or will be published
   quoteToPublish: AggregatedQuote | null
   // Queue stores all quotes coming from the background quoter
@@ -136,6 +136,7 @@ type Input = {
   slippageBasisPoints: number
   nearClient: providers.Provider
   intentOperationParams: IntentOperationParams
+  appFeeRecipient: string
 }
 
 export type Output =
@@ -221,7 +222,7 @@ export const swapIntentMachine = setup({
           deadlineTimestamp: Date.now() + settings.swapExpirySec * 1000,
           referral: context.referral,
           appFee: context.intentOperationParams.quote.appFee,
-          appFeeRecipient: APP_FEE_RECIPIENT,
+          appFeeRecipient: context.appFeeRecipient,
         })
 
         return {

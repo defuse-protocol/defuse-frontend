@@ -13,10 +13,10 @@ import { LIST_TOKENS } from "@src/constants/tokens"
 import { referralMap } from "@src/hooks/useIntentsReferral"
 import {
   APP_FEE_BPS,
-  APP_FEE_RECIPIENT,
   ONE_CLICK_API_KEY,
   ONE_CLICK_URL,
 } from "@src/utils/environment"
+import { getAppFeeRecipient } from "@src/utils/getAppFeeRecipient"
 import { logger } from "@src/utils/logger"
 import { unstable_cache } from "next/cache"
 import z from "zod"
@@ -97,15 +97,17 @@ export async function getQuote(
       return { err: `Token out ${quoteRequest.destinationAsset} not found` }
     }
 
+    const appFeeRecipient = getAppFeeRecipient(await whitelabelTemplateFlag())
+
     const appFeeBps = computeAppFeeBps(
       APP_FEE_BPS,
       tokenIn,
       tokenOut,
-      APP_FEE_RECIPIENT,
+      appFeeRecipient,
       { identifier: userAddress, method: authMethod }
     )
 
-    if (appFeeBps > 0 && !APP_FEE_RECIPIENT) {
+    if (appFeeBps > 0 && !appFeeRecipient) {
       return { err: "App fee recipient is not configured" }
     }
 
@@ -124,14 +126,14 @@ export async function getQuote(
       quoteWaitingTimeMs: 0, // means the fastest quote
       referral: referralMap[await whitelabelTemplateFlag()],
       ...(appFeeBps > 0
-        ? { appFees: [{ recipient: APP_FEE_RECIPIENT, fee: appFeeBps }] }
+        ? { appFees: [{ recipient: appFeeRecipient, fee: appFeeBps }] }
         : {}),
     }
 
     return {
       ok: {
         ...(await OneClickService.getQuote(req)),
-        appFee: appFeeBps > 0 ? [[APP_FEE_RECIPIENT, BigInt(appFeeBps)]] : [],
+        appFee: appFeeBps > 0 ? [[appFeeRecipient, BigInt(appFeeBps)]] : [],
       },
     }
   } catch (error) {
