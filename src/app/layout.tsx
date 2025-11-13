@@ -96,6 +96,20 @@ export async function generateMetadata(): Promise<Metadata> {
           "Swap $TRUMP directly from BTC, XRP, DOGE and 50+ other cryptocurrencies. Powered by NEAR Intents.",
       },
     })
+  } else if (templ === "rabitswap") {
+    Object.assign(metadata, {
+      title: "RabitSwap: The Rabbit Hole of Swaps",
+      description: "Fast, easy cross-chain swaps and more with RabitSwap.",
+      openGraph: {
+        type: "website",
+        images: `/favicons/${templ}/og-image.jpg`,
+      },
+      twitter: {
+        images: `/favicons/${templ}/og-image.jpg`,
+        title: "RabitSwap: The Rabbit Hole of Swaps",
+        description: "Fast, easy cross-chain swaps and more with RabitSwap.",
+      },
+    })
   }
 
   return {

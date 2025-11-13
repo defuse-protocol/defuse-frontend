@@ -195,6 +195,14 @@
           "type": "string"
         },
         {
+          "const": "litecoin",
+          "type": "string"
+        },
+        {
+          "const": "layerx",
+          "type": "string"
+        },
+        {
           "$ref": "#/definitions/VirtualChains"
         },
         {

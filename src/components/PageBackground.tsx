@@ -66,6 +66,21 @@ const PageBackground = () => {
     )
   }
 
+  if (whitelabelTemplate === "rabitswap") {
+    return (
+      <div className="absolute bottom-0 w-full h-full -z-[1]">
+        <Image
+          src="/static/templates/rabitswap/bg.png"
+          alt="RabbitSwap background"
+          className="object-cover object-bottom"
+          fill
+          unoptimized
+          priority
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="absolute bottom-0 w-full h-full -z-[1] bg-gray-50 dark:bg-black-900">
       <div className="w-full h-full bg-no-repeat bg-bottom bg-page-light--mobile md:bg-page-light dark:bg-page-dark--mobile dark:md:bg-page-dark" />

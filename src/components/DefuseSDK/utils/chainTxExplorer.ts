@@ -15,7 +15,7 @@ export function chainTxExplorer(blockchain: SupportedChainName): string | null {
     case "bitcoin":
       return "https://blockchain.info/tx/"
     case "solana":
-      return "https://solscan.io/tx/"
+      return "https://orb.helius.dev/tx/"
     case "dogecoin":
       return "https://dogechain.info/tx/"
     case "aurora":
@@ -25,7 +25,7 @@ export function chainTxExplorer(blockchain: SupportedChainName): string | null {
     case "xrpledger":
       return "https://livenet.xrpl.org/transactions/"
     case "zcash":
-      return "https://mainnet.zcashexplorer.app/transactions/"
+      return "https://3xpl.com/zcash/transaction/"
     case "gnosis":
       return "https://gnosisscan.io/tx/"
     case "berachain":
@@ -60,6 +60,10 @@ export function chainTxExplorer(blockchain: SupportedChainName): string | null {
       return "https://explorer.aptoslabs.com/txn/"
     case "cardano":
       return "https://adastat.net/transactions/"
+    case "litecoin":
+      return "https://litecoinspace.org/tx/"
+    case "layerx":
+      return "https://layerxscan.io/tx/"
     default:
       blockchain satisfies never
       return null

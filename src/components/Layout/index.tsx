@@ -12,7 +12,6 @@ import { usePathLogging } from "@src/hooks/usePathLogging"
 import { WalletVerificationProvider } from "@src/providers/WalletVerificationProvider"
 
 import { NavbarDeposit, NavbarDesktop } from "../Navbar/NavbarDesktop"
-
 import Main from "./Main"
 
 const Layout: React.FC<PropsWithChildren> = ({ children }) => {

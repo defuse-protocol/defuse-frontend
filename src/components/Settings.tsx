@@ -35,10 +35,31 @@ const Settings = () => {
               </div>
             )}
 
-            <DarkMode />
-            <Separator orientation="horizontal" size="4" />
+            {whitelabelTemplate !== "rabitswap" && (
+              <>
+                <DarkMode />
+                <Separator orientation="horizontal" size="4" />
+              </>
+            )}
 
             <div className="flex flex-col justify-between items-center gap-1.5">
+              <a
+                href="https://explorer.near-intents.org"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex justify-between items-center gap-2"
+              >
+                <span className="flex items-center gap-2">
+                  <Text size="2" weight="medium">
+                    Explorer
+                  </Text>
+                  <span className="text-xs font-medium text-white bg-primary rounded-full px-2 py-0.5">
+                    new
+                  </span>
+                </span>
+                <ExternalLinkIcon width={16} height={16} />
+              </a>
+
               <a
                 href="https://docs.near-intents.org"
                 target="_blank"

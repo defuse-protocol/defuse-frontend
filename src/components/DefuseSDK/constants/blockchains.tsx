@@ -151,13 +151,24 @@ export const chainIcons: Record<
     dark: "/static/icons/network/cardano.svg",
     light: "/static/icons/network/cardano.svg",
   },
+  litecoin: {
+    dark: "/static/icons/network/litecoin_white.svg",
+    light: "/static/icons/network/litecoin.svg",
+  },
+  layerx: {
+    dark: "/static/icons/network/layerx_white.svg",
+    light: "/static/icons/network/layerx.svg",
+  },
 }
 
 export function getBlockchainsOptions(): Record<
   BlockchainEnum,
   BlockchainOption
 > {
-  const options: Record<BlockchainEnum, BlockchainOption> = {
+  const options: Record<
+    Exclude<BlockchainEnum, "eth:196">, // TODO: remove this once LayerX is supported
+    BlockchainOption
+  > = {
     [BlockchainEnum.NEAR]: {
       label: "Near",
       icon: <NetworkIcon chainIcon={chainIcons.near} chainName="near" />,
@@ -360,9 +371,26 @@ export function getBlockchainsOptions(): Record<
       value: BlockchainEnum.CARDANO,
       tags: [],
     },
+    [BlockchainEnum.LITECOIN]: {
+      label: "Litecoin",
+      icon: (
+        <NetworkIcon chainIcon={chainIcons.litecoin} chainName="Litecoin" />
+      ),
+      value: BlockchainEnum.LITECOIN,
+      tags: [],
+    },
+    // TODO: Uncomment this once LayerX is supported
+    // [BlockchainEnum.LAYERX]: {
+    //   label: "LayerX",
+    //   icon: <NetworkIcon chainIcon={chainIcons.layerx} chainName="LayerX" />,
+    //   value: BlockchainEnum.LAYERX,
+    //   tags: [],
+    // },
   }
 
-  return sortBlockchainOptionsByVolume(options)
+  return sortBlockchainOptionsByVolume(
+    options as Record<BlockchainEnum, BlockchainOption> // TODO: remove this once LayerX is supported
+  )
 }
 
 function sortBlockchainOptionsByVolume(
