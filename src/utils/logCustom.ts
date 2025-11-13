@@ -27,7 +27,7 @@ export function logNoLiquidity({
   tags?: Record<string, Primitive> | undefined
 }) {
   Sentry.captureMessage(
-    `No liquidity available for $${tokenIn?.symbol ?? "unknown"} (${tokenIn?.originChainName ?? "unknown"}) to $${tokenOut?.symbol ?? "unknown"} (${tokenOut?.originChainName ?? "unknown"})`,
+    `TEST!!! No liquidity available for $${tokenIn?.symbol ?? "unknown"} (${tokenIn?.originChainName ?? "unknown"}) to $${tokenOut?.symbol ?? "unknown"} (${tokenOut?.originChainName ?? "unknown"})`,
     {
       level: "warning",
       tags: { "liquidity-alerts": true, amount, ...tags },
