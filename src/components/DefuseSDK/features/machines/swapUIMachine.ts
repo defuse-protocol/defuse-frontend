@@ -317,7 +317,7 @@ export const swapUIMachine = setup({
         }
         const tokenDeltas = quote.value.tokenDeltas
         if (hasMatchingTokenKeys(tokenDeltas)) {
-          const amount = isExactInput ? tokenDeltas[0][1] : tokenDeltas[1][1]
+          const amount = isExactInput ? tokenDeltas[1][1] : tokenDeltas[0][1]
           return {
             ...context.formValues,
             ...{
