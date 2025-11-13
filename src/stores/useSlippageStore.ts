@@ -15,12 +15,12 @@ type Actions = {
 type Store = State & Actions
 
 const parseSlippageFromStorage = (value: unknown): number => {
-  if (typeof value === "number" && value > 0 && value <= 100) {
+  if (typeof value === "number" && value > 0) {
     return value
   }
   if (typeof value === "string") {
     const parsed = Number.parseFloat(value)
-    if (!Number.isNaN(parsed) && parsed > 0 && parsed <= 100) {
+    if (!Number.isNaN(parsed) && parsed > 0) {
       return parsed
     }
   }
@@ -32,7 +32,7 @@ export const useSlippageStore = create<Store>()(
     (set, get) => ({
       slippagePercent: DEFAULT_SLIPPAGE_PERCENT,
       setSlippagePercent: (percent: number) => {
-        if (percent > 0 && percent <= 100) {
+        if (percent > 0) {
           set({ slippagePercent: percent })
         }
       },
