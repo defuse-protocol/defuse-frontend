@@ -1,9 +1,14 @@
 import { AuthMethod, type authHandle } from "@defuse-protocol/internal-utils"
 import { authIdentity } from "@defuse-protocol/internal-utils"
+import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
+import type { Quote1csInput } from "@src/components/DefuseSDK/features/machines/background1csQuoterMachine"
 import { computeAppFeeBps } from "@src/components/DefuseSDK/utils/appFee"
+import { isBaseToken } from "@src/components/DefuseSDK/utils/token"
 import { APP_FEE_BPS, APP_FEE_RECIPIENT } from "@src/utils/environment"
+import { logNoLiquidity } from "@src/utils/logCustom"
 import { logger } from "@src/utils/logger"
 import type { providers } from "near-api-js"
+import { formatUnits } from "viem"
 import {
   type ActorRefFrom,
   assertEvent,
@@ -20,10 +25,13 @@ import type { TokenInfo } from "../../types/base"
 import { assert } from "../../utils/assert"
 import { parseUnits } from "../../utils/parse"
 import {
+  compareAmounts,
+  computeTotalBalanceDifferentDecimals,
   computeTotalDeltaDifferentDecimals,
   getAnyBaseTokenInfo,
   getTokenMaxDecimals,
   getUnderlyingBaseTokenInfos,
+  hasMatchingTokenKeys,
 } from "../../utils/tokenUtils"
 import {
   type Events as Background1csQuoterEvents,
@@ -35,10 +43,6 @@ import {
   type ParentEvents as BackgroundQuoterParentEvents,
   backgroundQuoterMachine,
 } from "./backgroundQuoterMachine"
-
-import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
-import { isBaseToken } from "@src/components/DefuseSDK/utils/token"
-import { formatUnits } from "viem"
 import {
   type BalanceMapping,
   type Events as DepositedBalanceEvents,
@@ -158,6 +162,7 @@ export const swapUIMachine = setup({
       | {
           type: "NEW_1CS_QUOTE"
           params: {
+            quoteInput: Quote1csInput
             result:
               | {
                   ok: {
@@ -169,7 +174,7 @@ export const swapUIMachine = setup({
                     appFee: [string, bigint][]
                   }
                 }
-              | { err: string }
+              | { err: string; originalRequest?: QuoteRequest | undefined }
             tokenInAssetId: string
             tokenOutAssetId: string
           }
@@ -310,6 +315,20 @@ export const swapUIMachine = setup({
             },
           }
         }
+        const tokenDeltas = quote.value.tokenDeltas
+        if (hasMatchingTokenKeys(tokenDeltas)) {
+          const amount = isExactInput ? tokenDeltas[1][1] : tokenDeltas[0][1]
+          return {
+            ...context.formValues,
+            ...{
+              [fieldNameToUpdate]: formatUnits(
+                amount < 0n ? -amount : amount,
+                context.parsedFormValues.tokenIn.decimals // same as tokenOut.decimals
+              ),
+            },
+          }
+        }
+
         const totalAmount = computeTotalDeltaDifferentDecimals(
           [
             isExactInput
@@ -546,6 +565,57 @@ export const swapUIMachine = setup({
     emitEventIntentPublished: emit(() => ({
       type: "INTENT_PUBLISHED" as const,
     })),
+
+    log1csNoLiquidity: ({ self, event }) => {
+      if (
+        event.type !== "NEW_1CS_QUOTE" ||
+        !("err" in event.params.result) ||
+        event.params.result.err !== "Failed to get quote" ||
+        event.params.result.originalRequest === undefined
+      ) {
+        return
+      }
+
+      // log only if we can be sure
+      // that the user has sufficient balance
+      const snapshot = self.getSnapshot()
+      const depositedBalanceRef:
+        | ActorRefFrom<typeof depositedBalanceMachine>
+        | undefined = snapshot.children.depositedBalanceRef
+      const balances = balancesSelector(depositedBalanceRef?.getSnapshot())
+
+      if (!balances) {
+        return
+      }
+
+      const tokenInBalance = computeTotalBalanceDifferentDecimals(
+        event.params.quoteInput.tokenIn,
+        balances
+      )
+
+      if (!tokenInBalance) {
+        return
+      }
+
+      const hasSufficientBalance =
+        compareAmounts(tokenInBalance, event.params.quoteInput.amount) !== -1
+
+      if (!hasSufficientBalance) {
+        return
+      }
+
+      logNoLiquidity({
+        tokenIn: event.params.quoteInput.tokenIn,
+        tokenOut: event.params.quoteInput.tokenOut,
+        amount: formatUnits(
+          event.params.quoteInput.amount.amount,
+          event.params.quoteInput.amount.decimals
+        ),
+        contexts: {
+          originalRequest: event.params.result.originalRequest,
+        },
+      })
+    },
 
     process1csQuote: assign({
       quote: ({ event }) => {
@@ -797,6 +867,7 @@ export const swapUIMachine = setup({
             "updateFormValuesWithQuoteData",
             "parseFormValues",
             "updateUIAmount",
+            "log1csNoLiquidity",
           ],
         },
       },
@@ -842,6 +913,7 @@ export const swapUIMachine = setup({
                 "updateFormValuesWithQuoteData",
                 "parseFormValues",
                 "updateUIAmount",
+                "log1csNoLiquidity",
               ],
             },
           },
@@ -1072,6 +1144,7 @@ export const swapUIMachine = setup({
             "process1csQuote",
             "updateFormValuesWithQuoteData",
             "updateUIAmount",
+            "log1csNoLiquidity",
           ],
         },
       },
