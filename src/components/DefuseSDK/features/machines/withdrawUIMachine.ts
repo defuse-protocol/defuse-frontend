@@ -57,6 +57,7 @@ export type Context = {
   preparationOutput: PreparationOutput | null
   referral?: string
   userAddress: string | null
+  appFeeRecipient: string
 }
 
 type PassthroughEvent = {
@@ -82,6 +83,7 @@ export const withdrawUIMachine = setup({
       tokenOut: BaseTokenInfo
       tokenList: TokenInfo[]
       referral?: string
+      appFeeRecipient: string
     },
     context: {} as Context,
     events: {} as
@@ -297,6 +299,7 @@ export const withdrawUIMachine = setup({
     nep141StorageQuote: null,
     preparationOutput: null,
     referral: input.referral,
+    appFeeRecipient: input.appFeeRecipient,
   }),
 
   entry: ["fetchPOABridgeInfo"],
@@ -505,6 +508,7 @@ export const withdrawUIMachine = setup({
                 context.preparationOutput.value.withdrawalParams,
               nearIntentsNetwork: isNearIntentsNetwork(formValues.blockchain),
             },
+            appFeeRecipient: context.appFeeRecipient,
           }
         },
 

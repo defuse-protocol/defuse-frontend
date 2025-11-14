@@ -1,6 +1,11 @@
 "use client"
 import { messageFactory } from "@defuse-protocol/internal-utils"
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
+import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
+import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
+import { getAppFeeRecipient } from "@src/utils/getAppFeeRecipient"
 import { useSelector } from "@xstate/react"
+import { useContext } from "react"
 import { assign, fromPromise } from "xstate"
 import {
   TokenListUpdater,
@@ -15,14 +20,12 @@ import { isBaseToken } from "../../../utils/token"
 import { swapIntentMachine } from "../../machines/swapIntentMachine"
 import { withdrawUIMachine } from "../../machines/withdrawUIMachine"
 import { WithdrawUIMachineContext } from "../WithdrawUIMachineContext"
-
-import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
-import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
-import { APP_FEE_RECIPIENT } from "@src/utils/environment"
 import { WithdrawForm } from "./WithdrawForm"
 
 export const WithdrawWidget = (props: WithdrawWidgetProps) => {
   const is1cs = useIs1CsEnabled()
+  const { whitelabelTemplate } = useContext(FeatureFlagsContext)
+  const appFeeRecipient = getAppFeeRecipient(whitelabelTemplate)
   const initialTokenIn =
     props.presetTokenSymbol !== undefined
       ? (props.tokenList.find(
@@ -53,6 +56,7 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
               tokenOut: initialTokenOut,
               tokenList: props.tokenList,
               referral: props.referral,
+              appFeeRecipient,
             },
           }}
           logic={withdrawUIMachine.provide({
@@ -80,7 +84,7 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
                         signerId: context.defuseUserId,
                         tokenDeltas: quote?.tokenDeltas ?? [],
                         appFee: quote?.appFee ?? [],
-                        appFeeRecipient: APP_FEE_RECIPIENT,
+                        appFeeRecipient: context.appFeeRecipient,
                       })
 
                       innerMessage.intents ??= []
