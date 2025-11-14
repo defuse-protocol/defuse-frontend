@@ -10,7 +10,7 @@ import {
   formatUsdAmount,
 } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
-import { getTokenId } from "@src/components/DefuseSDK/utils/token"
+import { getDefuseAssetId } from "@src/components/DefuseSDK/utils/token"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useThrottledValue } from "@src/hooks/useThrottledValue"
 import { useSelector } from "@xstate/react"
@@ -180,7 +180,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             newAmountOut = amountOut
             valueToReset = "amountIn"
           }
-          if (getTokenId(tokenOut) === getTokenId(token)) {
+          if (getDefuseAssetId(tokenOut) === getDefuseAssetId(token)) {
             // Don't need to switch amounts, when token selected from dialog
             swapUIActorRef.send({
               type: "input",
@@ -216,7 +216,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             } else {
               newAmountOut = amountOut
             }
-            if (getTokenId(tokenIn) === getTokenId(token)) {
+            if (getDefuseAssetId(tokenIn) === getDefuseAssetId(token)) {
               // Don't need to switch amounts, when token selected from dialog
               swapUIActorRef.send({
                 type: "input",
@@ -241,7 +241,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             setValue(valueToReset, "")
           } else {
             // legacy flow for non 1cs
-            if (getTokenId(tokenIn) === getTokenId(token)) {
+            if (getDefuseAssetId(tokenIn) === getDefuseAssetId(token)) {
               // Don't need to switch amounts, when token selected from dialog
               swapUIActorRef.send({
                 type: "input",
