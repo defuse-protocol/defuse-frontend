@@ -207,8 +207,9 @@ function LongRunningStatusLabel({ retryCount }: { retryCount: number }) {
         </Text>
       </TooltipTrigger>
       <TooltipContent side="top" className="z-50 max-w-xs" sideOffset={5}>
-        This withdrawal is taking longer than usual. We’ve checked the bridge{" "}
-        {retryCount} times for settlement.
+        This withdrawal is taking longer than usual. We’ve checked the progress{" "}
+        {retryCount} {retryCount === 1 ? "time" : "times"} so far and will keep
+        checking until it completes.
       </TooltipContent>
     </Tooltip>
   )
