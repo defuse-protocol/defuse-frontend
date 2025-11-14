@@ -5,7 +5,8 @@ import type {
   BaseTokenInfo,
   TokenInfo,
 } from "@src/components/DefuseSDK/types/base"
-import type { WhitelabelTemplateValue } from "@src/config/domains"
+
+import type { WhitelabelTemplateValue } from "@src/config/featureFlags"
 import { LIST_TOKENS, LIST_TOKENS_FLATTEN } from "@src/constants/tokens"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useTokenList } from "@src/hooks/useTokenList"
@@ -39,7 +40,7 @@ const pairs: Record<WhitelabelTemplateValue, [string, string]> = {
   ],
   rabitswap: [
     "nep141:eth-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.omft.near",
-    "nep141:wrap.near",
+    "nep141:wrap.near", // Shoult be ADI token on NEAR
   ],
 }
 
