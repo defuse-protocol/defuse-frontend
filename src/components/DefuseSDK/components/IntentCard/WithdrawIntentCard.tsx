@@ -6,6 +6,7 @@ import { assert } from "../../utils/assert"
 import { blockExplorerTxLinkFactory } from "../../utils/chainTxExplorer"
 import { formatTokenValue } from "../../utils/format"
 import { AssetComboIcon } from "../Asset/AssetComboIcon"
+import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip"
 import { CopyButton } from "./CopyButton"
 
 type WithdrawIntentCardProps = {
@@ -61,9 +62,7 @@ export function WithdrawIntentCard({
             {retryCount > 0 &&
               (state.matches("waitingForBridge") ||
                 state.matches("retryDelay")) && (
-                <Text size="1" color="gray">
-                  Retried {retryCount} times
-                </Text>
+                <LongRunningStatusLabel retryCount={retryCount} />
               )}
 
             {(state.matches("pending") ||
@@ -197,4 +196,20 @@ export function renderStatusLabel(
 
 function truncateHash(hash: string) {
   return `${hash.slice(0, 5)}...${hash.slice(-5)}`
+}
+
+function LongRunningStatusLabel({ retryCount }: { retryCount: number }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Text size="1" color="gray">
+          Long-running bridge ({retryCount})
+        </Text>
+      </TooltipTrigger>
+      <TooltipContent side="top" className="z-50 max-w-xs" sideOffset={5}>
+        This withdrawal is taking longer than usual. We’ve checked the bridge{" "}
+        {retryCount} times for settlement.
+      </TooltipContent>
+    </Tooltip>
+  )
 }
