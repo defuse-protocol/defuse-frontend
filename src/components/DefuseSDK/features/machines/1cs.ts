@@ -78,7 +78,8 @@ type GetQuoteArgs = z.infer<typeof getQuoteArgsSchema>
 export async function getQuote(
   args: GetQuoteArgs
 ): Promise<
-  { ok: QuoteResponse & { appFee: [string, bigint][] } } | { err: string }
+  | { ok: QuoteResponse & { appFee: [string, bigint][] } }
+  | { err: string; originalRequest?: QuoteRequest | undefined }
 > {
   const parseResult = getQuoteArgsSchema.safeParse(args)
   if (!parseResult.success) {
@@ -86,6 +87,7 @@ export async function getQuote(
   }
 
   const { userAddress, authMethod, ...quoteRequest } = parseResult.data
+  let req: QuoteRequest | undefined = undefined
   try {
     const tokenIn = getTokenByAssetId(quoteRequest.originAsset)
     if (!tokenIn) {
@@ -116,7 +118,7 @@ export async function getQuote(
       authMethod
     )
 
-    const req: QuoteRequest = {
+    req = {
       ...quoteRequest,
       depositType: QuoteRequest.depositType.INTENTS,
       refundTo: intentsUserId,
@@ -139,7 +141,7 @@ export async function getQuote(
   } catch (error) {
     const err = unknownServerErrorToString(error)
     logger.error(`1cs: getQuote error: ${err}`)
-    return { err }
+    return { err, originalRequest: req }
   }
 }
 
