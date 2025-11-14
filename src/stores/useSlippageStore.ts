@@ -1,7 +1,8 @@
 import { create } from "zustand"
 import { createJSONStorage, persist } from "zustand/middleware"
 
-const DEFAULT_SLIPPAGE_PERCENT = 1 // 1%
+export const DEFAULT_SLIPPAGE_PERCENT = 1 // 1%
+export const MAX_SLIPPAGE_PERCENT = 99 // 99%
 
 type State = {
   slippagePercent: number
@@ -15,12 +16,12 @@ type Actions = {
 type Store = State & Actions
 
 const parseSlippageFromStorage = (value: unknown): number => {
-  if (typeof value === "number" && value > 0) {
+  if (typeof value === "number" && value > 0 && value <= MAX_SLIPPAGE_PERCENT) {
     return value
   }
   if (typeof value === "string") {
     const parsed = Number.parseFloat(value)
-    if (!Number.isNaN(parsed) && parsed > 0) {
+    if (!Number.isNaN(parsed) && parsed > 0 && parsed <= MAX_SLIPPAGE_PERCENT) {
       return parsed
     }
   }
@@ -32,7 +33,7 @@ export const useSlippageStore = create<Store>()(
     (set, get) => ({
       slippagePercent: DEFAULT_SLIPPAGE_PERCENT,
       setSlippagePercent: (percent: number) => {
-        if (percent > 0) {
+        if (percent > 0 && percent <= MAX_SLIPPAGE_PERCENT) {
           set({ slippagePercent: percent })
         }
       },

@@ -1,8 +1,20 @@
 import { XIcon } from "@phosphor-icons/react"
 import * as RadioGroup from "@radix-ui/react-radio-group"
 import { Text } from "@radix-ui/themes"
-import { useSlippageStore } from "@src/stores/useSlippageStore"
-import { useEffect, useState } from "react"
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
+import type { TokenValue } from "@src/components/DefuseSDK/types/base"
+import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
+import {
+  accountSlippageExactIn,
+  computeTotalDeltaDifferentDecimals,
+  getAnyBaseTokenInfo,
+} from "@src/components/DefuseSDK/utils/tokenUtils"
+import {
+  DEFAULT_SLIPPAGE_PERCENT,
+  MAX_SLIPPAGE_PERCENT,
+  useSlippageStore,
+} from "@src/stores/useSlippageStore"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import type { Actor } from "xstate"
 import type { swapUIMachine } from "../../features/machines/swapUIMachine"
 import { useModalStore } from "../../providers/ModalStoreProvider"
@@ -17,12 +29,14 @@ const SLIPPAGE_OPTIONS = [
   { label: "3%", value: 30000 }, // 3% * 10_000
 ] as const
 
-const DEFAULT_SLIPPAGE = 10000 // 1%
+const DEFAULT_SLIPPAGE = DEFAULT_SLIPPAGE_PERCENT * 10000 // 1%
 
 export type ModalSlippageSettingsPayload = {
   modalType?: ModalType.MODAL_SLIPPAGE_SETTINGS
   actorRef: Actor<typeof swapUIMachine>
   currentSlippage: number
+  tokenDeltas?: [string, bigint][] | null
+  tokenOut?: TokenInfo
 }
 
 export function ModalSlippageSettings() {
@@ -31,6 +45,13 @@ export function ModalSlippageSettings() {
 
   const actorRef = modalPayload?.actorRef
   const currentSlippage = modalPayload?.currentSlippage ?? DEFAULT_SLIPPAGE
+  const tokenDeltas = modalPayload?.tokenDeltas ?? null
+  const tokenOut = modalPayload?.tokenOut
+
+  const tokenOutBase = useMemo(() => {
+    if (!tokenOut) return null
+    return getAnyBaseTokenInfo(tokenOut)
+  }, [tokenOut])
 
   const [selectedValue, setSelectedValue] = useState<string>("")
   const [customValue, setCustomValue] = useState<string>("")
@@ -51,7 +72,7 @@ export function ModalSlippageSettings() {
     }
   }, [currentSlippage])
 
-  const handleValueChange = (value: string) => {
+  const handleValueChange = useCallback((value: string) => {
     if (value === "custom") {
       setIsCustomSelected(true)
       setSelectedValue("custom")
@@ -60,38 +81,111 @@ export function ModalSlippageSettings() {
       setSelectedValue(value)
       setCustomValue("")
     }
-  }
+  }, [])
 
-  const handleCustomInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value
-    // Only allow positive numbers and decimal point
-    if (inputValue === "" || /^\d*\.?\d*$/.test(inputValue)) {
-      setCustomValue(inputValue)
-    }
-  }
+  const handleCustomInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const inputValue = e.target.value
+      // Only allow positive numbers and decimal point
+      if (inputValue === "" || /^\d*\.?\d*$/.test(inputValue)) {
+        setCustomValue(inputValue)
+      }
+    },
+    []
+  )
 
   const setSlippagePercent = useSlippageStore(
     (state) => state.setSlippagePercent
   )
 
-  const handleSave = () => {
-    if (!actorRef) {
+  const slippageBasisPoints = useMemo((): number | null => {
+    if (isCustomSelected) {
+      const customPercent = Number.parseFloat(customValue)
+      if (
+        Number.isNaN(customPercent) ||
+        customPercent <= 0 ||
+        customPercent > MAX_SLIPPAGE_PERCENT
+      ) {
+        return null
+      }
+      return Math.round(customPercent * 10_000)
+    }
+    const basisPoints = Number.parseInt(selectedValue, 10)
+    if (!basisPoints) {
+      return null
+    }
+    const percent = basisPoints / 10_000
+    if (percent > MAX_SLIPPAGE_PERCENT) {
+      return null
+    }
+    return basisPoints
+  }, [isCustomSelected, customValue, selectedValue])
+
+  const validationError = useMemo((): string | null => {
+    if (!isCustomSelected || !customValue) {
+      return null
+    }
+    const customPercent = Number.parseFloat(customValue)
+    if (Number.isNaN(customPercent)) {
+      return "Please enter a valid number"
+    }
+    if (customPercent <= 0) {
+      return "Please enter a valid positive number"
+    }
+    if (customPercent > MAX_SLIPPAGE_PERCENT) {
+      return `Max allowed slippage is ${MAX_SLIPPAGE_PERCENT}%`
+    }
+    return null
+  }, [isCustomSelected, customValue])
+
+  const isValid = useMemo(
+    () => slippageBasisPoints !== null,
+    [slippageBasisPoints]
+  )
+
+  const calculatedMinAmountOut = useMemo((): TokenValue | null => {
+    if (!tokenDeltas || !tokenOutBase || slippageBasisPoints === null) {
+      return null
+    }
+
+    try {
+      const deltasWithSlippage = accountSlippageExactIn(
+        tokenDeltas,
+        slippageBasisPoints
+      )
+      const minAmount = computeTotalDeltaDifferentDecimals(
+        [tokenOutBase],
+        deltasWithSlippage
+      )
+      return minAmount
+    } catch {
+      return null
+    }
+  }, [tokenDeltas, tokenOutBase, slippageBasisPoints])
+
+  const handleSave = useCallback(() => {
+    if (!actorRef || slippageBasisPoints === null) {
       return
     }
 
-    let slippageBasisPoints: number
     let slippagePercent: number
 
     if (isCustomSelected) {
       const customPercent = Number.parseFloat(customValue)
-      if (Number.isNaN(customPercent) || customPercent <= 0) {
+      if (
+        Number.isNaN(customPercent) ||
+        customPercent <= 0 ||
+        customPercent > MAX_SLIPPAGE_PERCENT
+      ) {
         return // Don't save invalid values
       }
       slippagePercent = customPercent
-      slippageBasisPoints = Math.round(customPercent * 10_000)
     } else {
-      slippageBasisPoints = Number.parseInt(selectedValue, 10)
       slippagePercent = slippageBasisPoints / 10_000
+      // Validate preset options (should already be valid, but double-check)
+      if (slippagePercent > MAX_SLIPPAGE_PERCENT) {
+        return
+      }
     }
 
     // Save to localStorage
@@ -103,20 +197,14 @@ export function ModalSlippageSettings() {
     })
 
     onCloseModal()
-  }
-
-  const getSlippageBasisPoints = (): number | null => {
-    if (isCustomSelected) {
-      const customPercent = Number.parseFloat(customValue)
-      if (Number.isNaN(customPercent) || customPercent <= 0) {
-        return null
-      }
-      return Math.round(customPercent * 10_000)
-    }
-    return Number.parseInt(selectedValue, 10) || null
-  }
-
-  const isValid = getSlippageBasisPoints() !== null
+  }, [
+    actorRef,
+    slippageBasisPoints,
+    isCustomSelected,
+    customValue,
+    setSlippagePercent,
+    onCloseModal,
+  ])
 
   return (
     <ModalDialog>
@@ -133,9 +221,27 @@ export function ModalSlippageSettings() {
         <div className="flex flex-col gap-3">
           <Text size="2" className="text-gray-11">
             Allowable difference between the expected and executed prices of a
-            trade. Your transaction will revert if price changes unfavorably by
-            more than this percentage.
+            trade. If the price slips any further, your intent will not be
+            executed. Below is the minimum amount you are guaranteed to receive.
           </Text>
+
+          {calculatedMinAmountOut != null && tokenOut && (
+            <div className="flex flex-col gap-2 p-2 rounded-md bg-gray-3 text-gray-11">
+              <div className="flex justify-between items-center">
+                <Text size="2" className="text-gray-11">
+                  Receive at least
+                </Text>
+                <Text size="2" className="text-gray-12 font-medium">
+                  {formatTokenValue(
+                    calculatedMinAmountOut.amount,
+                    calculatedMinAmountOut.decimals,
+                    { fractionDigits: 5 }
+                  )}{" "}
+                  {tokenOut.symbol}
+                </Text>
+              </div>
+            </div>
+          )}
 
           <RadioGroup.Root
             value={selectedValue}
@@ -180,9 +286,9 @@ export function ModalSlippageSettings() {
                   %
                 </span>
               </div>
-              {customValue && !isValid && (
+              {validationError && (
                 <Text size="1" className="text-red-9">
-                  Please enter a valid positive number
+                  {validationError}
                 </Text>
               )}
             </div>

@@ -1,12 +1,6 @@
 import { SlidersHorizontalIcon } from "@phosphor-icons/react"
-import { InfoCircledIcon } from "@radix-ui/react-icons"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { useReducer } from "react"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "../../../components/Popover"
 import {
   type TokenUsdPriceData,
   useTokensUsdPrices,
@@ -26,23 +20,25 @@ interface SwapRateInfoProps {
 }
 
 export function SwapRateInfo({ tokenIn, tokenOut }: SwapRateInfoProps) {
-  const {
-    minAmountOut,
-    slippageBasisPoints,
-    exchangeRate,
-    inverseExchangeRate,
-  } = useSwapRateData()
+  const { slippageBasisPoints, exchangeRate, inverseExchangeRate } =
+    useSwapRateData()
   const { data: tokensUsdPriceData } = useTokensUsdPrices()
   const [showBasePrice, toggleBasePrice] = useToggle()
   const { setModalType } = useModalStore((state) => state)
 
   const actorRef = SwapUIMachineContext.useActorRef()
+  const snapshot = SwapUIMachineContext.useSelector((state) => state)
+  const quote = snapshot.context.quote
+  const tokenDeltas =
+    quote != null && quote.tag === "ok" ? quote.value.tokenDeltas : null
 
   const handleOpenSlippageSettings = () => {
     setModalType(ModalType.MODAL_SLIPPAGE_SETTINGS, {
       modalType: ModalType.MODAL_SLIPPAGE_SETTINGS,
       actorRef,
       currentSlippage: slippageBasisPoints,
+      tokenDeltas,
+      tokenOut,
     })
   }
 
@@ -50,8 +46,8 @@ export function SwapRateInfo({ tokenIn, tokenOut }: SwapRateInfoProps) {
 
   return (
     <div className="flex flex-col gap-3.5 font-medium text-gray-11 text-xs">
-      {rateIsReady && (
-        <div className="flex justify-between items-center flex-1 text-gray-11">
+      <div className="flex flex-wrap justify-between items-center gap-2 text-gray-11">
+        {rateIsReady ? (
           <button
             type="button"
             onClick={toggleBasePrice}
@@ -73,51 +69,23 @@ export function SwapRateInfo({ tokenIn, tokenOut }: SwapRateInfoProps) {
                   tokensUsdPriceData,
                 })}
           </button>
-        </div>
-      )}
-
-      <div className="flex justify-between items-center">
-        <div className="flex gap-1 items-center">
-          <div>Max slippage</div>
-
-          <Popover>
-            <PopoverTrigger>
-              <InfoCircledIcon className="cursor-help" />
-            </PopoverTrigger>
-            <PopoverContent className="flex flex-col gap-2 text-xs">
-              <div className="text-gray-11">
-                If the price slips any further, your intent will not be
-                executed. Below is the minimum amount you are guaranteed to
-                receive.
-              </div>
-              {minAmountOut != null && (
-                <div className="flex justify-between p-2 rounded-md bg-gray-3 text-gray-11">
-                  <div>Receive at least</div>
-
-                  <div className="text-gray-12">
-                    {formatTokenValue(
-                      minAmountOut.amount,
-                      minAmountOut.decimals,
-                      { fractionDigits: 5 }
-                    )}{" "}
-                    {tokenOut.symbol}
-                  </div>
-                </div>
-              )}
-            </PopoverContent>
-          </Popover>
-        </div>
+        ) : (
+          <div />
+        )}
 
         <button
           type="button"
           onClick={handleOpenSlippageSettings}
           className="px-3 py-1.5 rounded-md border transition-all bg-gray-1 border-gray-6 hover:bg-gray-3 hover:border-gray-7 text-label font-medium text-xs cursor-pointer active:scale-[0.98] flex items-center gap-1.5"
         >
-          {Intl.NumberFormat(undefined, {
-            style: "percent",
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          }).format(slippageBasisPoints / Number(BASIS_POINTS_DENOMINATOR))}
+          <span>
+            Max slippage:{" "}
+            {Intl.NumberFormat(undefined, {
+              style: "percent",
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }).format(slippageBasisPoints / Number(BASIS_POINTS_DENOMINATOR))}
+          </span>
           <SlidersHorizontalIcon className="size-3.5" weight="regular" />
         </button>
       </div>
