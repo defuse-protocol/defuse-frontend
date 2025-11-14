@@ -10,6 +10,7 @@ import {
   sendTo,
   setup,
 } from "xstate"
+import z from "zod"
 import { bridgeSDK } from "../../constants/bridgeSdk"
 import type { TokenInfo } from "../../types/base"
 import { assert } from "../../utils/assert"
@@ -25,6 +26,12 @@ type ChildEvent = {
   }
 }
 type ParentActor = ActorRef<Snapshot<unknown>, ChildEvent>
+
+const getWaitForWithdrawalCompletionSchema = z.object({
+  result: z.object({
+    status: z.literal("PENDING"),
+  }),
+})
 
 export const intentStatusMachine = setup({
   types: {
@@ -43,6 +50,7 @@ export const intentStatusMachine = setup({
       txHash: string | null
       intentDescription: IntentDescription
       bridgeTransactionResult: null | { destinationTxHash: string | null }
+      bridgeRetryCount: number
     },
   },
   actions: {
@@ -60,6 +68,9 @@ export const intentStatusMachine = setup({
         _,
         v: null | { destinationTxHash: string | null }
       ) => v,
+    }),
+    incrementRetryCount: assign({
+      bridgeRetryCount: ({ context }) => context.bridgeRetryCount + 1,
     }),
   },
   actors: {
@@ -109,6 +120,12 @@ export const intentStatusMachine = setup({
     isWithdraw: ({ context }) => {
       return context.intentDescription.type === "withdraw"
     },
+    isPendingBridge: (_, event: { error: unknown }) => {
+      const parseResult = getWaitForWithdrawalCompletionSchema.safeParse(
+        event.error
+      )
+      return parseResult.success
+    },
   },
 }).createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QEsB2AXMGDK6CG6ArrAHQAOWEaUAxANoAMAuoqGQPazLrLuqsgAHogCMAFgBsJCQCYZDGQFYGigMwiJAdgCcEgDQgAnqIbaSikQ01WJFzQA5tMiQF8XBtJhz4ipAMYAFmB+ANbUNBB8YCRoAG7sIdGeWOi4BMQkgcFhqFAIcex+BLyojExlAhxcPHwCwgiKMvYk9oqKYqqOipoiMmIiBsYI9iIkqnLa4lr2qroybh4YKWm+mUGh4ZGoSajxiTFL3un+6zl5BUU1pcx0IixIIFXcJXWIjaMy6gwikx3WmoNRLoxt11DpGvYmmJ5u4QMkjqsshtcjQwAAnNHsNHkAA2BAAZliALYHLypHwZJFnfK7QrFPhlCoPJ5XV4IGSTEgMMHfEQ9bTctSA9nOEiaSSNVSKCQSSQSESKBZww7k44kdGYtE0ABKAFEACragCaTLYnGetQe9TEimkYgF9hmMk06jaimFqjEzU0zu6KgYDC9srcsNQ7AgcAE8NVvkq5tZVsQAFomiQnNzZo7OpoZbZhUnmo1nfYFPYOmIbfaldGVhkKKgqLk49UXomED8uToZbz5Z9VFLhZYZCQZOJIZ6bdMbdWVbWTtlqM2Lfw286pMpVD1VAwZpDdMKHC0A71xAwJLodNoZ2S5yRYIQ-H44PBmfHW6B6toRiQvWIrNpNxLBV9CMEwGDTCQSzLJx+ilL1r2WClSDDdAAH1YjwHFkAgJcEw-RBtB0H9pX9ewdHsWwxEHACR00Bw6P6SES0UewEIRDINSxXD3yERApVUcwVBlaFRw5ERPQ9L0xm0NpxE9TMfhDFwgA */
@@ -123,6 +140,7 @@ export const intentStatusMachine = setup({
       txHash: null,
       intentDescription: input.intentDescription,
       bridgeTransactionResult: null,
+      bridgeRetryCount: 0,
     }
   },
   states: {
@@ -170,6 +188,11 @@ export const intentStatusMachine = setup({
         },
       ],
     },
+    retryDelay: {
+      after: {
+        5000: "waitingForBridge", // Wait 5 seconds before retry
+      },
+    },
     waitingForBridge: {
       invoke: {
         src: "waitForBridgeActor",
@@ -182,13 +205,23 @@ export const intentStatusMachine = setup({
           }
         },
 
-        onError: {
-          target: "error",
-          actions: {
-            type: "logError",
-            params: ({ event }) => event,
+        onError: [
+          {
+            target: "retryDelay", // Retry with delay if bridge is still pending (long-running intent)
+            guard: {
+              type: "isPendingBridge",
+              params: ({ event }: { event: { error: unknown } }) => event,
+            },
+            actions: "incrementRetryCount",
           },
-        },
+          {
+            target: "error",
+            actions: {
+              type: "logError",
+              params: ({ event }) => event,
+            },
+          },
+        ],
 
         onDone: {
           target: "success",
