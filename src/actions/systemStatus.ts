@@ -29,11 +29,10 @@ async function fetchSystemStatus(): Promise<SystemStatusResponse> {
       }
     )
 
-    const parsedData = getSystemStatusesSchema.parse(await response.json())
-    if (!response.ok || !parsedData) {
+    if (!response.ok) {
       throw new Error("Failed to fetch system statuses")
     }
-
+    const parsedData = getSystemStatusesSchema.parse(await response.json())
     return parsedData
   } catch (error: unknown) {
     let errorMessage = "System statuses not fetched"

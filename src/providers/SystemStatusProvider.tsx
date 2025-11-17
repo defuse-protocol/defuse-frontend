@@ -4,7 +4,10 @@ import { createContext, useContext } from "react"
 
 export type SystemStatusType = "idle" | "maintenance"
 
-const SystemStatusContext = createContext<SystemStatusType | null>(null)
+// Use undefined as sentinel to distinguish "not in provider" from "status is null"
+const SystemStatusContext = createContext<SystemStatusType | null | undefined>(
+  undefined
+)
 
 type ProviderProps = {
   children: React.ReactNode
@@ -24,7 +27,7 @@ export function SystemStatusProvider({
 
 export function useSystemStatus() {
   const context = useContext(SystemStatusContext)
-  if (!context) {
+  if (context === undefined) {
     throw new Error(
       "useSystemStatus must be used within a SystemStatusProvider"
     )
