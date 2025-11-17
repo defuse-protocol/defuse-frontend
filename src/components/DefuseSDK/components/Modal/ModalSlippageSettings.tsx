@@ -220,9 +220,10 @@ export function ModalSlippageSettings() {
 
         <div className="flex flex-col gap-3">
           <Text size="2" className="text-gray-11">
-            Allowable difference between the expected and executed prices of a
-            trade. If the price slips any further, your intent will not be
-            executed. Below is the minimum amount you are guaranteed to receive.
+            Slippage is the maximum difference you allow between the quoted
+            price and the final execution price. If the execution price moves
+            against you by more than this %, the transaction will revert. Below
+            is the minimum amount you are guaranteed to receive.
           </Text>
 
           {calculatedMinAmountOut != null && tokenOut && (

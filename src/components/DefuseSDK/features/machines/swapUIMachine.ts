@@ -897,6 +897,7 @@ export const swapUIMachine = setup({
             guard: "isFormValidAndNot1cs",
             target: ".waiting_quote",
             actions: [
+              // resetting everything both 1cs and not 1cs just in case
               {
                 type: "setSlippage",
                 params: ({ event }) => ({
@@ -922,6 +923,7 @@ export const swapUIMachine = setup({
             guard: "isFormValidAnd1cs",
             target: ".waiting_quote",
             actions: [
+              // resetting everything both 1cs and not 1cs just in case
               {
                 type: "setSlippage",
                 params: ({ event }) => ({
@@ -943,6 +945,7 @@ export const swapUIMachine = setup({
               "sendToBackground1csQuoterRefNewQuoteInput",
             ],
           },
+          // this exists in case both guards are false, so we can still set the slippage
           {
             actions: {
               type: "setSlippage",
