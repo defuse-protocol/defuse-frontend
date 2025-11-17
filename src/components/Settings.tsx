@@ -147,9 +147,9 @@ const Settings = () => {
                 <ExternalLinkIcon width={16} height={16} />
               </a>
             </div>
-          </div>
 
-          <SystemStatus.Mobile />
+            <SystemStatus.Mobile />
+          </div>
         </Popover.Content>
       </Popover.Root>
     </div>
