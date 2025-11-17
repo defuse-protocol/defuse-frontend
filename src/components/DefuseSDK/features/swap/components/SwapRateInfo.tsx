@@ -31,6 +31,7 @@ export function SwapRateInfo({ tokenIn, tokenOut }: SwapRateInfoProps) {
   const quote = snapshot.context.quote
   const tokenDeltas =
     quote != null && quote.tag === "ok" ? quote.value.tokenDeltas : null
+  const swapType = snapshot.context.formValues.swapType
 
   const handleOpenSlippageSettings = () => {
     setModalType(ModalType.MODAL_SLIPPAGE_SETTINGS, {
@@ -39,6 +40,8 @@ export function SwapRateInfo({ tokenIn, tokenOut }: SwapRateInfoProps) {
       currentSlippage: slippageBasisPoints,
       tokenDeltas,
       tokenOut,
+      tokenIn,
+      swapType,
     })
   }
 

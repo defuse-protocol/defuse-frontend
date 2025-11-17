@@ -1,3 +1,4 @@
+import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import { XIcon } from "@phosphor-icons/react"
 import * as RadioGroup from "@radix-ui/react-radio-group"
 import { Text } from "@radix-ui/themes"
@@ -6,6 +7,7 @@ import type { TokenValue } from "@src/components/DefuseSDK/types/base"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import {
   accountSlippageExactIn,
+  accountSlippageExactOut,
   computeTotalDeltaDifferentDecimals,
   getAnyBaseTokenInfo,
 } from "@src/components/DefuseSDK/utils/tokenUtils"
@@ -37,6 +39,8 @@ export type ModalSlippageSettingsPayload = {
   currentSlippage: number
   tokenDeltas?: [string, bigint][] | null
   tokenOut?: TokenInfo
+  tokenIn?: TokenInfo
+  swapType?: QuoteRequest.swapType
 }
 
 export function ModalSlippageSettings() {
@@ -47,11 +51,20 @@ export function ModalSlippageSettings() {
   const currentSlippage = modalPayload?.currentSlippage ?? DEFAULT_SLIPPAGE
   const tokenDeltas = modalPayload?.tokenDeltas ?? null
   const tokenOut = modalPayload?.tokenOut
+  const tokenIn = modalPayload?.tokenIn
+  const swapType = modalPayload?.swapType ?? QuoteRequest.swapType.EXACT_INPUT
+
+  const isExactOut = swapType === QuoteRequest.swapType.EXACT_OUTPUT
 
   const tokenOutBase = useMemo(() => {
     if (!tokenOut) return null
     return getAnyBaseTokenInfo(tokenOut)
   }, [tokenOut])
+
+  const tokenInBase = useMemo(() => {
+    if (!tokenIn) return null
+    return getAnyBaseTokenInfo(tokenIn)
+  }, [tokenIn])
 
   const [selectedValue, setSelectedValue] = useState<string>("")
   const [customValue, setCustomValue] = useState<string>("")
@@ -143,12 +156,28 @@ export function ModalSlippageSettings() {
     [slippageBasisPoints]
   )
 
-  const calculatedMinAmountOut = useMemo((): TokenValue | null => {
-    if (!tokenDeltas || !tokenOutBase || slippageBasisPoints === null) {
+  const calculatedSlippageAmount = useMemo((): TokenValue | null => {
+    if (!tokenDeltas || slippageBasisPoints === null) {
       return null
     }
 
     try {
+      if (isExactOut) {
+        // For exact out, calculate max input amount (pay at most)
+        if (!tokenInBase) return null
+        const deltasWithSlippage = accountSlippageExactOut(
+          tokenDeltas,
+          slippageBasisPoints
+        )
+        const maxAmount = computeTotalDeltaDifferentDecimals(
+          [tokenInBase],
+          deltasWithSlippage
+        )
+        // Return absolute value since deltas are negative
+        return { amount: -maxAmount.amount, decimals: maxAmount.decimals }
+      }
+      // For exact in, calculate min output amount (receive at least)
+      if (!tokenOutBase) return null
       const deltasWithSlippage = accountSlippageExactIn(
         tokenDeltas,
         slippageBasisPoints
@@ -161,7 +190,7 @@ export function ModalSlippageSettings() {
     } catch {
       return null
     }
-  }, [tokenDeltas, tokenOutBase, slippageBasisPoints])
+  }, [tokenDeltas, tokenOutBase, tokenInBase, slippageBasisPoints, isExactOut])
 
   const handleSave = useCallback(() => {
     if (!actorRef || slippageBasisPoints === null) {
@@ -222,27 +251,34 @@ export function ModalSlippageSettings() {
           <Text size="2" className="text-gray-11">
             Slippage is the maximum difference you allow between the quoted
             price and the final execution price. If the execution price moves
-            against you by more than this %, the transaction will revert. Below
-            is the minimum amount you are guaranteed to receive.
+            against you by more than this %, the transaction will revert.{" "}
+            {isExactOut
+              ? "Below is the maximum amount you will pay."
+              : "Below is the minimum amount you are guaranteed to receive."}
           </Text>
 
-          {calculatedMinAmountOut != null && tokenOut && (
-            <div className="flex flex-col gap-2 p-2 rounded-md bg-gray-3 text-gray-11">
-              <div className="flex justify-between items-center">
-                <Text size="2" className="text-gray-11">
-                  Receive at least
-                </Text>
-                <Text size="2" className="text-gray-12 font-medium">
-                  {formatTokenValue(
-                    calculatedMinAmountOut.amount,
-                    calculatedMinAmountOut.decimals,
-                    { fractionDigits: 5 }
-                  )}{" "}
-                  {tokenOut.symbol}
-                </Text>
+          {calculatedSlippageAmount != null &&
+            ((isExactOut && tokenIn) || (!isExactOut && tokenOut)) && (
+              <div className="flex flex-col gap-2 p-2 rounded-md bg-gray-3 text-gray-11">
+                <div className="flex justify-between items-center">
+                  <Text size="2" className="text-gray-11">
+                    {isExactOut ? "Pay at most" : "Receive at least"}
+                  </Text>
+                  <Text size="2" className="text-gray-12 font-medium">
+                    {formatTokenValue(
+                      calculatedSlippageAmount.amount,
+                      calculatedSlippageAmount.decimals,
+                      { fractionDigits: 5 }
+                    )}{" "}
+                    {isExactOut && tokenIn
+                      ? tokenIn.symbol
+                      : !isExactOut && tokenOut
+                        ? tokenOut.symbol
+                        : ""}
+                  </Text>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           <RadioGroup.Root
             value={selectedValue}
