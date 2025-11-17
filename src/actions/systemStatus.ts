@@ -61,6 +61,7 @@ export const getCachedSystemStatus = unstable_cache(
         )
       ) {
         systemStatus = "maintenance"
+        logger.info("System status: maintenance")
       }
 
       return systemStatus
