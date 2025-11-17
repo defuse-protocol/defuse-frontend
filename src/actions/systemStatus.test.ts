@@ -1,0 +1,123 @@
+import { server } from "@src/tests/setup"
+import { http, HttpResponse } from "msw"
+import { describe, expect, it, vi } from "vitest"
+import { getCachedSystemStatus } from "./systemStatus"
+
+vi.mock("next/cache", () => ({
+  unstable_cache: vi.fn((fn) => fn),
+}))
+
+describe("systemStatus", () => {
+  it("should return idle when there are no posts", async () => {
+    server.use(
+      http.get("https://status.near-intents.org/api/posts", async () => {
+        return HttpResponse.json({ posts: [] })
+      })
+    )
+
+    const systemStatus = await getCachedSystemStatus()
+    expect(systemStatus).toBe("idle")
+  })
+
+  it("should return maintenance when there is an active maintenance post", async () => {
+    const now = Date.now()
+    server.use(
+      http.get("https://status.near-intents.org/api/posts", async () => {
+        return HttpResponse.json({
+          posts: [
+            {
+              id: "1",
+              starts_at: now - 1000,
+              ends_at: now + 1000,
+              post_type: "maintenance",
+              title: "Scheduled Maintenance",
+            },
+          ],
+        })
+      })
+    )
+
+    const systemStatus = await getCachedSystemStatus()
+    expect(systemStatus).toBe("maintenance")
+  })
+
+  it("should return idle when maintenance post has not started yet", async () => {
+    const now = Date.now()
+    server.use(
+      http.get("https://status.near-intents.org/api/posts", async () => {
+        return HttpResponse.json({
+          posts: [
+            {
+              id: "1",
+              starts_at: now + 1000,
+              ends_at: now + 2000,
+              post_type: "maintenance",
+              title: "Future Maintenance",
+            },
+          ],
+        })
+      })
+    )
+
+    const systemStatus = await getCachedSystemStatus()
+    expect(systemStatus).toBe("idle")
+  })
+
+  it("should return idle when maintenance post has already ended", async () => {
+    const now = Date.now()
+    server.use(
+      http.get("https://status.near-intents.org/api/posts", async () => {
+        return HttpResponse.json({
+          posts: [
+            {
+              id: "1",
+              starts_at: now - 2000,
+              ends_at: now - 1000,
+              post_type: "maintenance",
+              title: "Past Maintenance",
+            },
+          ],
+        })
+      })
+    )
+
+    const systemStatus = await getCachedSystemStatus()
+    expect(systemStatus).toBe("idle")
+  })
+
+  it("should return null when HTTP request fails with invalid response", async () => {
+    server.use(
+      http.get("https://status.near-intents.org/api/posts", async () => {
+        return HttpResponse.json(
+          { error: "Internal Server Error" },
+          { status: 500 }
+        )
+      })
+    )
+
+    const systemStatus = await getCachedSystemStatus()
+    expect(systemStatus).toBeNull()
+  })
+
+  it("should return null when response is not ok", async () => {
+    server.use(
+      http.get("https://status.near-intents.org/api/posts", async () => {
+        return HttpResponse.json({ posts: [] }, { status: 404 })
+      })
+    )
+
+    const systemStatus = await getCachedSystemStatus()
+    expect(systemStatus).toBeNull()
+  })
+
+  it("should return null when response schema is invalid", async () => {
+    server.use(
+      http.get("https://status.near-intents.org/api/posts", async () => {
+        return HttpResponse.json({ invalid: "data" })
+      })
+    )
+
+    const systemStatus = await getCachedSystemStatus()
+    expect(systemStatus).toBeNull()
+  })
+})
