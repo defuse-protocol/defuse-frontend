@@ -48,9 +48,9 @@ const NetworkOutageNotification: React.FC = () => {
           />
         </svg>
         <span>
-          <strong>Gnosis Network Issue:</strong> Deposits, swaps, and
-          withdrawals on Gnosis may not go through. Please use alternative
-          networks for transactions.
+          We are currently experiencing service disruption due to Cloudflare
+          instability. As a result, deposits and withdrawals may not work. The
+          team is actively working on mitigation.
         </span>
         <button
           type="button"
