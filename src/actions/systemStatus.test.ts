@@ -16,7 +16,7 @@ describe("systemStatus", () => {
     )
 
     const systemStatus = await getCachedSystemStatus()
-    expect(systemStatus).toBe("idle")
+    expect(systemStatus).toEqual([])
   })
 
   it("should return maintenance when there is an active maintenance post", async () => {
@@ -38,7 +38,9 @@ describe("systemStatus", () => {
     )
 
     const systemStatus = await getCachedSystemStatus()
-    expect(systemStatus).toBe("maintenance")
+    expect(systemStatus).toEqual([
+      { id: "1", status: "maintenance", message: "Scheduled Maintenance" },
+    ])
   })
 
   it("should return idle when maintenance post has not started yet", async () => {
@@ -60,7 +62,7 @@ describe("systemStatus", () => {
     )
 
     const systemStatus = await getCachedSystemStatus()
-    expect(systemStatus).toBe("idle")
+    expect(systemStatus).toEqual([])
   })
 
   it("should return idle when maintenance post has already ended", async () => {
@@ -82,7 +84,7 @@ describe("systemStatus", () => {
     )
 
     const systemStatus = await getCachedSystemStatus()
-    expect(systemStatus).toBe("idle")
+    expect(systemStatus).toEqual([])
   })
 
   it("should return incident when there is an incident post", async () => {
@@ -103,7 +105,9 @@ describe("systemStatus", () => {
     )
 
     const systemStatus = await getCachedSystemStatus()
-    expect(systemStatus).toBe("incident")
+    expect(systemStatus).toEqual([
+      { id: "1", status: "incident", message: "Service Incident" },
+    ])
   })
 
   it("should return null when HTTP request fails with invalid response", async () => {
@@ -117,10 +121,10 @@ describe("systemStatus", () => {
     )
 
     const systemStatus = await getCachedSystemStatus()
-    expect(systemStatus).toBeNull()
+    expect(systemStatus).toEqual([])
   })
 
-  it("should return null when response is not ok", async () => {
+  it("should return empty array when response is not ok", async () => {
     server.use(
       http.get("https://status.near-intents.org/api/posts", async () => {
         return HttpResponse.json({ posts: [] }, { status: 404 })
@@ -128,10 +132,10 @@ describe("systemStatus", () => {
     )
 
     const systemStatus = await getCachedSystemStatus()
-    expect(systemStatus).toBeNull()
+    expect(systemStatus).toEqual([])
   })
 
-  it("should return null when response schema is invalid", async () => {
+  it("should return empty array when response schema is invalid", async () => {
     server.use(
       http.get("https://status.near-intents.org/api/posts", async () => {
         return HttpResponse.json({ invalid: "data" })
@@ -139,6 +143,6 @@ describe("systemStatus", () => {
     )
 
     const systemStatus = await getCachedSystemStatus()
-    expect(systemStatus).toBeNull()
+    expect(systemStatus).toEqual([])
   })
 })
