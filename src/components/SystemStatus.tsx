@@ -55,19 +55,7 @@ SystemStatus.StatusIndicator = function StatusIndicator({
   systemStatus,
   mobile = false,
 }: { systemStatus: SystemStatusType; mobile?: boolean }) {
-  const findSystemStatusIncident = useMemo(
-    () => systemStatus.find((status) => status.status === "incident") || null,
-    [systemStatus]
-  )
-  const findSystemStatusMaintenance = useMemo(
-    () =>
-      systemStatus.find((status) => status.status === "maintenance") || null,
-    [systemStatus]
-  )
-
-  // Preorityse incident over maintenance
-  const prioritySystemStatus =
-    findSystemStatusIncident || findSystemStatusMaintenance
+  const prioritySystemStatus = getSystemStatusPriority(systemStatus)
 
   if (!prioritySystemStatus) {
     return null
@@ -109,4 +97,18 @@ function renderStatusText(systemStatus: SystemPostType) {
     return <span className="text-red-9">Incident detected</span>
   }
   return <span className="text-blue-400">"All systems operational."</span>
+}
+
+// Prioritise incident over maintenance
+export function getSystemStatusPriority(systemStatus: SystemStatusType) {
+  const findSystemStatusIncident = useMemo(
+    () => systemStatus.find((status) => status.status === "incident") || null,
+    [systemStatus]
+  )
+  const findSystemStatusMaintenance = useMemo(
+    () =>
+      systemStatus.find((status) => status.status === "maintenance") || null,
+    [systemStatus]
+  )
+  return findSystemStatusIncident || findSystemStatusMaintenance
 }
