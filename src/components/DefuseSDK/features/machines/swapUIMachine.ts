@@ -4,7 +4,7 @@ import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import type { Quote1csInput } from "@src/components/DefuseSDK/features/machines/background1csQuoterMachine"
 import { computeAppFeeBps } from "@src/components/DefuseSDK/utils/appFee"
 import { isBaseToken } from "@src/components/DefuseSDK/utils/token"
-import { APP_FEE_BPS, APP_FEE_RECIPIENT } from "@src/utils/environment"
+import { APP_FEE_BPS } from "@src/utils/environment"
 import { logNoLiquidity } from "@src/utils/logCustom"
 import { logger } from "@src/utils/logger"
 import type { providers } from "near-api-js"
@@ -94,6 +94,7 @@ export type Context = {
   referral?: string
   slippageBasisPoints: number
   is1cs: boolean
+  appFeeRecipient: string
   priceChangeDialog: null | {
     pendingNewOppositeAmount: { amount: bigint; decimals: number }
     previousOppositeAmount: { amount: bigint; decimals: number }
@@ -132,6 +133,7 @@ export const swapUIMachine = setup({
       tokenList: TokenInfo[]
       referral?: string
       is1cs: boolean
+      appFeeRecipient: string
     },
     context: {} as Context,
     events: {} as
@@ -439,7 +441,7 @@ export const swapUIMachine = setup({
               APP_FEE_BPS,
               context.formValues.tokenIn,
               context.formValues.tokenOut,
-              APP_FEE_RECIPIENT,
+              context.appFeeRecipient,
               context.user
             ),
           },
@@ -725,6 +727,7 @@ export const swapUIMachine = setup({
     referral: input.referral,
     slippageBasisPoints: 10_000, // 1% default, will be overridden from localStorage
     is1cs: input.is1cs,
+    appFeeRecipient: input.appFeeRecipient,
     priceChangeDialog: null,
   }),
 
@@ -1035,6 +1038,7 @@ export const swapUIMachine = setup({
               tokenOut: context.parsedFormValues.tokenOut,
               quote: quote.value,
             },
+            appFeeRecipient: context.appFeeRecipient,
           }
         },
 

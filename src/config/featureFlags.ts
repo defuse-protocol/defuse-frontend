@@ -1,9 +1,8 @@
+import { domains } from "@src/config/domains"
+import { logger } from "@src/utils/logger"
 import { get } from "@vercel/edge-config"
 import { flag } from "@vercel/flags/next"
 import { headers } from "next/headers"
-
-import { domains } from "@src/config/domains"
-import { logger } from "@src/utils/logger"
 
 export type WhitelabelTemplateValue =
   | "near-intents"

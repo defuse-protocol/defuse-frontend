@@ -3,10 +3,13 @@ import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
+import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { useSlippageStore } from "@src/stores/useSlippageStore"
+import { getAppFeeRecipient } from "@src/utils/getAppFeeRecipient"
 import { createActorContext } from "@xstate/react"
 import { useEffect } from "react"
 import type { PropsWithChildren, ReactElement, ReactNode } from "react"
+import { useContext } from "react"
 import { useFormContext } from "react-hook-form"
 import {
   type Actor,
@@ -69,6 +72,8 @@ export function SwapUIMachineProvider({
   referral,
 }: SwapUIMachineProviderProps) {
   const { setValue } = useFormContext<SwapFormValues>()
+  const { whitelabelTemplate } = useContext(FeatureFlagsContext)
+  const appFeeRecipient = getAppFeeRecipient(whitelabelTemplate)
   const tokenIn = initialTokenIn || tokenList[0]
   const tokenOut = initialTokenOut || tokenList[1]
   const is1cs = useIs1CsEnabled()
@@ -85,6 +90,7 @@ export function SwapUIMachineProvider({
           tokenList,
           referral,
           is1cs,
+          appFeeRecipient,
         },
       }}
       logic={swapUIMachine.provide({

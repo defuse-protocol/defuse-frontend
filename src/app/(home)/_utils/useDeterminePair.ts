@@ -1,10 +1,8 @@
-import { isBaseToken, isUnifiedToken } from "@src/components/DefuseSDK/utils"
-import { useContext, useMemo } from "react"
-
 import type {
   BaseTokenInfo,
   TokenInfo,
 } from "@src/components/DefuseSDK/types/base"
+import { isBaseToken, isUnifiedToken } from "@src/components/DefuseSDK/utils"
 import type { WhitelabelTemplateValue } from "@src/config/featureFlags"
 import { LIST_TOKENS, LIST_TOKENS_FLATTEN } from "@src/constants/tokens"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
@@ -15,6 +13,7 @@ import {
   type useRouter,
   useSearchParams,
 } from "next/navigation"
+import { useContext, useMemo } from "react"
 
 const pairs: Record<WhitelabelTemplateValue, [string, string]> = {
   "near-intents": [
@@ -39,7 +38,7 @@ const pairs: Record<WhitelabelTemplateValue, [string, string]> = {
   ],
   rabitswap: [
     "nep141:eth-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.omft.near",
-    "nep141:wrap.near",
+    "nep141:wrap.near", // Shoult be ADI token on NEAR
   ],
 }
 

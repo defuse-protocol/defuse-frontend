@@ -38,6 +38,10 @@ export const APP_FEE_RECIPIENT = v.parse(
   v.optional(v.string(), ""),
   process.env.NEXT_PUBLIC_APP_FEE_RECIPIENT
 )
+export const APP_FEE_RECIPIENT_RABITSWAP = v.parse(
+  v.optional(v.string(), ""),
+  process.env.NEXT_PUBLIC_APP_FEE_RECIPIENT_RABITSWAP
+)
 
 export const ONE_CLICK_SWAP_FRACTION =
   v.parse(
