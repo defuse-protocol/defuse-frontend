@@ -6,6 +6,7 @@ import {
   type SystemStatusType,
   useSystemStatus,
 } from "@src/providers/SystemStatusProvider"
+import { cn } from "@src/utils/cn"
 import Link from "next/link"
 
 const SYSTEM_STATUS_URL = "https://status.near-intents.org/posts/dashboard"
@@ -60,18 +61,34 @@ SystemStatus.StatusIndicator = function StatusIndicator({
   return (
     <div className="flex items-center gap-2">
       <span
-        className={`${
-          systemStatus === "maintenance" ? "bg-yellow-400" : "bg-blue-400"
-        } w-2 h-2 rounded-full`}
+        className={cn(
+          systemStatus === "maintenance" ? "bg-yellow-400" : "bg-blue-400",
+          systemStatus === "incident" && "bg-red-400",
+          "w-2 h-2 rounded-full"
+        )}
       />
-      <span className="text-blue-400">
-        {systemStatus === "maintenance"
-          ? mobile
-            ? "Maintenance in progress"
-            : "Maintenance in progress — some features may not work."
-          : "All systems operational."}
+      <span
+        className={cn(
+          systemStatus === "incident" ? "text-red-9" : "text-blue-400"
+        )}
+      >
+        {renderStatusText(systemStatus, mobile)}
       </span>
       {mobile && <ExternalLinkIcon width={16} height={16} />}
     </div>
   )
+}
+
+function renderStatusText(systemStatus: SystemStatusType, mobile: boolean) {
+  if (systemStatus === "maintenance") {
+    return mobile
+      ? "Maintenance in progress"
+      : "Maintenance in progress — some features may not work."
+  }
+  if (systemStatus === "incident") {
+    return mobile
+      ? "Active incident"
+      : "Active incident — deposits and withdrawals may not work."
+  }
+  return "All systems operational."
 }

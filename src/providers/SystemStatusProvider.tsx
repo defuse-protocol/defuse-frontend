@@ -2,7 +2,7 @@
 
 import { createContext, useContext } from "react"
 
-export type SystemStatusType = "idle" | "maintenance"
+export type SystemStatusType = "idle" | "maintenance" | "incident"
 
 // Use undefined as sentinel to distinguish "not in provider" from "status is null"
 const SystemStatusContext = createContext<SystemStatusType | null | undefined>(
