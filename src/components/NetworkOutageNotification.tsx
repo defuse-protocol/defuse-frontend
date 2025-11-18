@@ -7,7 +7,8 @@ import { useEffect, useState } from "react"
 import type React from "react"
 import { getSystemStatusPriority } from "./SystemStatus"
 
-const STORAGE_KEY = "polygon-outage-notification-dismissed"
+const STORAGE_KEY = "outage-notification-dismissed"
+const MESSAGE_LIMIT = 256
 
 const NetworkOutageNotification: React.FC = () => {
   const pathname = usePathname()
@@ -55,7 +56,11 @@ const NetworkOutageNotification: React.FC = () => {
             clipRule="evenodd"
           />
         </svg>
-        <span>{messageNotification}</span>
+        <span>
+          {messageNotification.length > MESSAGE_LIMIT
+            ? `${messageNotification.slice(0, MESSAGE_LIMIT)}...`
+            : messageNotification}
+        </span>
         <button
           type="button"
           onClick={handleClose}
