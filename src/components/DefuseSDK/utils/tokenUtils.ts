@@ -370,6 +370,30 @@ export function accountSlippageExactIn(
   })
 }
 
+/**
+ * For exact out swaps, slippage affects negative numbers (inputs).
+ * The user will pay at most this much more than the quoted amount
+ * depending on market conditions.
+ */
+export function accountSlippageExactOut(
+  delta: [string, bigint][],
+  slippageBasisPoints: number
+): [string, bigint][] {
+  return delta.map(([token, amount]) => {
+    if (amount < 0n) {
+      // For negative amounts, we need to increase the absolute value
+      // (user pays more), so we use grossUpAmount on the absolute value
+      const absoluteAmount = -amount
+      const amountWithSlippage = grossUpAmount(
+        absoluteAmount,
+        slippageBasisPoints
+      )
+      return [token, -amountWithSlippage]
+    }
+    return [token, amount]
+  })
+}
+
 export function getPoaBridgeTokenContractIds(token: TokenInfo): string[] {
   const defuseAssetIds = getUnderlyingBaseTokenInfos(token).filter((t) =>
     t.deployments.some((d) => d.bridge === "poa")

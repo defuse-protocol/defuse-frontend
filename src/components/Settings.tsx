@@ -8,6 +8,7 @@ import Themes from "@src/types/themes"
 import { useTheme } from "next-themes"
 import { useContext } from "react"
 import AddTurboChainButton from "./AddTurboChainButton"
+import { SystemStatus } from "./SystemStatus"
 
 const Settings = () => {
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
@@ -146,6 +147,8 @@ const Settings = () => {
                 <ExternalLinkIcon width={16} height={16} />
               </a>
             </div>
+
+            <SystemStatus.Mobile />
           </div>
         </Popover.Content>
       </Popover.Root>

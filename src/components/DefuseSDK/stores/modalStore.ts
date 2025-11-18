@@ -4,6 +4,7 @@ export enum ModalType {
   MODAL_SELECT_ASSETS = "modalSelectAssets",
   MODAL_CONFIRM_ADD_PUBKEY = "modalConfirmAddPubKey",
   MODAL_SELECT_NETWORK = "modalSelectNetwork",
+  MODAL_SLIPPAGE_SETTINGS = "modalSlippageSettings",
 }
 
 export type ModalState = {

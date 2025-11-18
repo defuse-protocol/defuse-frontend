@@ -356,7 +356,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const showPriceImpact = Boolean(
     usdAmountIn && usdAmountOut && !isLoadingQuote
   )
-  const showRateInfo = Boolean(tokenIn && tokenOut && !isLoadingQuote)
+  const showRateInfo = Boolean(tokenIn && tokenOut)
 
   const isLongLoading = useThrottledValue(
     isLoadingQuote,

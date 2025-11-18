@@ -4,8 +4,10 @@ import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
+import { useSlippageStore } from "@src/stores/useSlippageStore"
 import { getAppFeeRecipient } from "@src/utils/getAppFeeRecipient"
 import { createActorContext } from "@xstate/react"
+import { useEffect } from "react"
 import type { PropsWithChildren, ReactElement, ReactNode } from "react"
 import { useContext } from "react"
 import { useFormContext } from "react-hook-form"
@@ -131,10 +133,33 @@ export function SwapUIMachineProvider({
         },
       })}
     >
+      <SlippageInitializer />
       <TokenChangeNotifier tokenIn={tokenIn} tokenOut={tokenOut} />
       {children}
     </SwapUIMachineContext.Provider>
   )
+}
+
+function SlippageInitializer() {
+  const actorRef = SwapUIMachineContext.useActorRef()
+  const getSlippageBasisPoints = useSlippageStore(
+    (state) => state.getSlippageBasisPoints
+  )
+  const currentSlippage = SwapUIMachineContext.useSelector(
+    (state) => state.context.slippageBasisPoints
+  )
+
+  useEffect(() => {
+    const storedSlippage = getSlippageBasisPoints()
+    if (storedSlippage !== currentSlippage) {
+      actorRef.send({
+        type: "SET_SLIPPAGE",
+        params: { slippageBasisPoints: storedSlippage },
+      })
+    }
+  }, [actorRef, getSlippageBasisPoints, currentSlippage])
+
+  return null
 }
 
 function TokenChangeNotifier({
