@@ -1,14 +1,20 @@
 "use client"
 
+import { useSystemStatus } from "@src/providers/SystemStatusProvider"
+import { APP_NETWORK_OUTAGE_NOTIFICATION } from "@src/utils/environment"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 import type React from "react"
+import { getSystemStatusPriority } from "./SystemStatus"
 
-const STORAGE_KEY = "polygon-outage-notification-dismissed"
+const STORAGE_KEY = "outage-notification-dismissed"
+const MESSAGE_LIMIT = 256
 
 const NetworkOutageNotification: React.FC = () => {
   const pathname = usePathname()
   const [isVisible, setIsVisible] = useState(true)
+  const systemStatus = useSystemStatus()
+  const prioritySystemStatus = getSystemStatusPriority(systemStatus)
 
   // Only show on deposit, withdraw and swap pages
   const shouldShowNotification =
@@ -27,7 +33,10 @@ const NetworkOutageNotification: React.FC = () => {
     sessionStorage.setItem(STORAGE_KEY, "true")
   }
 
-  if (!isVisible || !shouldShowNotification) {
+  const messageNotification =
+    prioritySystemStatus?.message ?? APP_NETWORK_OUTAGE_NOTIFICATION
+
+  if (!isVisible || !shouldShowNotification || !messageNotification) {
     return null
   }
 
@@ -48,9 +57,9 @@ const NetworkOutageNotification: React.FC = () => {
           />
         </svg>
         <span>
-          We are currently experiencing service disruption due to Cloudflare
-          instability. As a result, deposits and withdrawals may not work. The
-          team is actively working on mitigation.
+          {messageNotification.length > MESSAGE_LIMIT
+            ? `${messageNotification.slice(0, MESSAGE_LIMIT)}...`
+            : messageNotification}
         </span>
         <button
           type="button"

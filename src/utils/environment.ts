@@ -62,3 +62,8 @@ export const ONE_CLICK_URL = process.env.ONE_CLICK_URL
 export const ONE_CLICK_API_KEY = process.env.ONE_CLICK_API_KEY
 
 export const CRON_SECRET = process.env.CRON_SECRET
+
+export const APP_NETWORK_OUTAGE_NOTIFICATION = v.parse(
+  v.optional(v.string(), ""),
+  process.env.NEXT_PUBLIC_APP_NETWORK_OUTAGE_NOTIFICATION
+)

@@ -16,7 +16,7 @@ describe("systemStatus", () => {
     )
 
     const systemStatus = await getCachedSystemStatus()
-    expect(systemStatus).toBe("idle")
+    expect(systemStatus).toEqual([])
   })
 
   it("should return maintenance when there is an active maintenance post", async () => {
@@ -38,7 +38,14 @@ describe("systemStatus", () => {
     )
 
     const systemStatus = await getCachedSystemStatus()
-    expect(systemStatus).toBe("maintenance")
+    expect(systemStatus).toEqual([
+      {
+        id: "1",
+        status: "maintenance",
+        message:
+          "We're performing scheduled maintenance. Deposits and withdrawals may be temporarily unavailable.",
+      },
+    ])
   })
 
   it("should return idle when maintenance post has not started yet", async () => {
@@ -60,7 +67,7 @@ describe("systemStatus", () => {
     )
 
     const systemStatus = await getCachedSystemStatus()
-    expect(systemStatus).toBe("idle")
+    expect(systemStatus).toEqual([])
   })
 
   it("should return idle when maintenance post has already ended", async () => {
@@ -82,10 +89,38 @@ describe("systemStatus", () => {
     )
 
     const systemStatus = await getCachedSystemStatus()
-    expect(systemStatus).toBe("idle")
+    expect(systemStatus).toEqual([])
   })
 
-  it("should return null when HTTP request fails with invalid response", async () => {
+  it("should return incident when there is an incident post", async () => {
+    server.use(
+      http.get("https://status.near-intents.org/api/posts", async () => {
+        return HttpResponse.json({
+          posts: [
+            {
+              id: "1",
+              starts_at: null,
+              ends_at: null,
+              post_type: "incident",
+              title: "Service Incident",
+            },
+          ],
+        })
+      })
+    )
+
+    const systemStatus = await getCachedSystemStatus()
+    expect(systemStatus).toEqual([
+      {
+        id: "1",
+        status: "incident",
+        message:
+          "We're experiencing service disruption affecting deposits and withdrawals. Our team is actively working on a resolution.",
+      },
+    ])
+  })
+
+  it("should return empty array when HTTP request fails with invalid response", async () => {
     server.use(
       http.get("https://status.near-intents.org/api/posts", async () => {
         return HttpResponse.json(
@@ -96,10 +131,10 @@ describe("systemStatus", () => {
     )
 
     const systemStatus = await getCachedSystemStatus()
-    expect(systemStatus).toBeNull()
+    expect(systemStatus).toEqual([])
   })
 
-  it("should return null when response is not ok", async () => {
+  it("should return empty array when response is not ok", async () => {
     server.use(
       http.get("https://status.near-intents.org/api/posts", async () => {
         return HttpResponse.json({ posts: [] }, { status: 404 })
@@ -107,10 +142,10 @@ describe("systemStatus", () => {
     )
 
     const systemStatus = await getCachedSystemStatus()
-    expect(systemStatus).toBeNull()
+    expect(systemStatus).toEqual([])
   })
 
-  it("should return null when response schema is invalid", async () => {
+  it("should return empty array when response schema is invalid", async () => {
     server.use(
       http.get("https://status.near-intents.org/api/posts", async () => {
         return HttpResponse.json({ invalid: "data" })
@@ -118,6 +153,6 @@ describe("systemStatus", () => {
     )
 
     const systemStatus = await getCachedSystemStatus()
-    expect(systemStatus).toBeNull()
+    expect(systemStatus).toEqual([])
   })
 })
