@@ -46,7 +46,7 @@ async function fetchSystemStatus(): Promise<SystemStatusResponse> {
 }
 
 export const getCachedSystemStatus = unstable_cache(
-  async (): Promise<SystemStatusType> => {
+  async (): Promise<SystemStatusType | null> => {
     try {
       const systemStatusData = await fetchSystemStatus()
       const now = Date.now()
@@ -85,7 +85,7 @@ export const getCachedSystemStatus = unstable_cache(
 
       return systemStatus
     } catch {
-      return []
+      return null
     }
   },
   ["system-status"],

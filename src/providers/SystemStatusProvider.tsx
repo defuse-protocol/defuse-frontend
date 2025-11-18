@@ -10,13 +10,13 @@ export type SystemPostType = {
 export type SystemStatusType = Array<SystemPostType>
 
 // Use undefined as sentinel to distinguish "not in provider" from "status is null"
-const SystemStatusContext = createContext<SystemStatusType | undefined>(
+const SystemStatusContext = createContext<SystemStatusType | null | undefined>(
   undefined
 )
 
 type ProviderProps = {
   children: React.ReactNode
-  systemStatus: SystemStatusType
+  systemStatus: SystemStatusType | null
 }
 
 export function SystemStatusProvider({

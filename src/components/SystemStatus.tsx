@@ -53,12 +53,10 @@ SystemStatus.Mobile = function Mobile() {
 SystemStatus.StatusIndicator = function StatusIndicator({
   systemStatus,
   mobile = false,
-}: { systemStatus: SystemStatusType; mobile?: boolean }) {
-  const prioritySystemStatus = getSystemStatusPriority(systemStatus)
-
-  if (!prioritySystemStatus) {
-    return null
-  }
+}: { systemStatus: SystemStatusType | null; mobile?: boolean }) {
+  const prioritySystemStatus = systemStatus
+    ? getSystemStatusPriority(systemStatus)
+    : null
 
   if (mobile) {
     return (
@@ -78,21 +76,21 @@ SystemStatus.StatusIndicator = function StatusIndicator({
   )
 }
 
-function renderStatusIcon(systemStatus: SystemPostType) {
-  if (systemStatus.status === "maintenance") {
+function renderStatusIcon(systemStatus: SystemPostType | null) {
+  if (systemStatus?.status === "maintenance") {
     return <span className="bg-yellow-400 w-2 h-2 rounded-full" />
   }
-  if (systemStatus.status === "incident") {
+  if (systemStatus?.status === "incident") {
     return <span className="bg-red-500 w-2 h-2 rounded-full" />
   }
   return <span className="bg-blue-400 w-2 h-2 rounded-full" />
 }
 
-function renderStatusText(systemStatus: SystemPostType) {
-  if (systemStatus.status === "maintenance") {
+function renderStatusText(systemStatus: SystemPostType | null) {
+  if (systemStatus?.status === "maintenance") {
     return <span className="text-blue-400">Maintenance in progress</span>
   }
-  if (systemStatus.status === "incident") {
+  if (systemStatus?.status === "incident") {
     return <span className="text-red-9">Incident detected</span>
   }
   return <span className="text-blue-400">All systems operational</span>
