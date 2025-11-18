@@ -8,7 +8,6 @@ import {
   useSystemStatus,
 } from "@src/providers/SystemStatusProvider"
 import Link from "next/link"
-import { useMemo } from "react"
 
 const SYSTEM_STATUS_URL = "https://status.near-intents.org/posts/dashboard"
 
@@ -91,24 +90,21 @@ function renderStatusIcon(systemStatus: SystemPostType) {
 
 function renderStatusText(systemStatus: SystemPostType) {
   if (systemStatus.status === "maintenance") {
-    return <span className="text-blue-400">"Maintenance in progress"</span>
+    return <span className="text-blue-400">Maintenance in progress</span>
   }
   if (systemStatus.status === "incident") {
     return <span className="text-red-9">Incident detected</span>
   }
-  return <span className="text-blue-400">"All systems operational."</span>
+  return <span className="text-blue-400">All systems operational</span>
 }
 
-// Prioritise incident over maintenance
+// Prioritize incident over maintenance
 export function getSystemStatusPriority(systemStatus: SystemStatusType) {
-  const findSystemStatusIncident = useMemo(
-    () => systemStatus.find((status) => status.status === "incident") || null,
-    [systemStatus]
+  const incident = systemStatus.find((status) => status.status === "incident")
+  if (incident) return incident
+
+  const maintenance = systemStatus.find(
+    (status) => status.status === "maintenance"
   )
-  const findSystemStatusMaintenance = useMemo(
-    () =>
-      systemStatus.find((status) => status.status === "maintenance") || null,
-    [systemStatus]
-  )
-  return findSystemStatusIncident || findSystemStatusMaintenance
+  return maintenance || null
 }
