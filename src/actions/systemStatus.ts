@@ -7,10 +7,10 @@ const getSystemStatusesSchema = z.object({
   posts: z.array(
     z.object({
       id: z.string(),
-      starts_at: z.number(),
+      starts_at: z.number().nullable(),
       post_type: z.literal("maintenance").or(z.literal("incident")),
       title: z.string(),
-      ends_at: z.number(),
+      ends_at: z.number().nullable(),
     })
   ),
 })
@@ -52,16 +52,27 @@ export const getCachedSystemStatus = unstable_cache(
       const now = Date.now()
 
       let systemStatus: SystemStatusType = "idle"
+      // maintenance
       if (
         systemStatusData.posts.some(
           (post) =>
+            post.post_type === "maintenance" &&
+            post.starts_at !== null &&
+            post.ends_at !== null &&
             now >= post.starts_at &&
-            now <= post.ends_at &&
-            post.post_type === "maintenance"
+            now <= post.ends_at
         )
       ) {
         systemStatus = "maintenance"
         logger.info("System status: maintenance")
+      }
+
+      // incident
+      if (
+        systemStatusData.posts.some((post) => post.post_type === "incident")
+      ) {
+        systemStatus = "incident"
+        logger.warn("System status: incident")
       }
 
       return systemStatus

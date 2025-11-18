@@ -9,6 +9,7 @@ import { usePathLogging } from "@src/hooks/usePathLogging"
 import { WalletVerificationProvider } from "@src/providers/WalletVerificationProvider"
 import type { PropsWithChildren } from "react"
 import { NavbarDeposit, NavbarDesktop } from "../Navbar/NavbarDesktop"
+import NetworkOutageNotification from "../NetworkOutageNotification"
 import { SystemStatus } from "../SystemStatus"
 import Main from "./Main"
 
@@ -30,6 +31,7 @@ const Layout: React.FC<PropsWithChildren> = ({ children }) => {
           </Header.DepositSlot>
         }
       />
+      <NetworkOutageNotification />
       <Main>{children}</Main>
       <Footer />
       <NavbarMobile />
