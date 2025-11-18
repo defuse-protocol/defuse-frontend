@@ -64,13 +64,19 @@ export const getCachedSystemStatus = unstable_cache(
             acc.push({
               id: post.id,
               status: "maintenance",
-              message: post.title,
+              message:
+                "We're performing scheduled maintenance. Deposits and withdrawals may be temporarily unavailable.",
             })
           }
 
           // incident
           if (post.post_type === "incident") {
-            acc.push({ id: post.id, status: "incident", message: post.title })
+            acc.push({
+              id: post.id,
+              status: "incident",
+              message:
+                "We're experiencing service disruption affecting deposits and withdrawals. Our team is actively working on a resolution.",
+            })
           }
           return acc
         },
