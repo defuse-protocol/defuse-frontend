@@ -120,7 +120,7 @@ describe("systemStatus", () => {
     ])
   })
 
-  it("should return null when HTTP request fails with invalid response", async () => {
+  it("should return empty array when HTTP request fails with invalid response", async () => {
     server.use(
       http.get("https://status.near-intents.org/api/posts", async () => {
         return HttpResponse.json(
