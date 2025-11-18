@@ -137,10 +137,6 @@ function validateZcashAddress(address: string) {
   // Unified address validation
   const uaHrp = "u"
   if (address.startsWith(`${uaHrp}1`)) {
-    // Unified addresses must be at least 128 characters
-    if (address.length < 128) {
-      return false
-    }
     try {
       const decoded = bech32m.decodeToBytes(address)
       return decoded.prefix === uaHrp
