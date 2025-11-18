@@ -2,16 +2,21 @@
 
 import { createContext, useContext } from "react"
 
-export type SystemStatusType = "idle" | "maintenance" | "incident"
+export type SystemPostType = {
+  id: string
+  status: "maintenance" | "incident"
+  message: string
+}
+export type SystemStatusType = Array<SystemPostType>
 
 // Use undefined as sentinel to distinguish "not in provider" from "status is null"
-const SystemStatusContext = createContext<SystemStatusType | null | undefined>(
+const SystemStatusContext = createContext<SystemStatusType | undefined>(
   undefined
 )
 
 type ProviderProps = {
   children: React.ReactNode
-  systemStatus: SystemStatusType | null
+  systemStatus: SystemStatusType
 }
 
 export function SystemStatusProvider({

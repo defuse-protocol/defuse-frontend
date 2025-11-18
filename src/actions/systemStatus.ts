@@ -46,38 +46,40 @@ async function fetchSystemStatus(): Promise<SystemStatusResponse> {
 }
 
 export const getCachedSystemStatus = unstable_cache(
-  async (): Promise<SystemStatusType | null> => {
+  async (): Promise<SystemStatusType> => {
     try {
       const systemStatusData = await fetchSystemStatus()
       const now = Date.now()
 
-      let systemStatus: SystemStatusType = "idle"
-      // maintenance
-      if (
-        systemStatusData.posts.some(
-          (post) =>
+      const systemStatus: SystemStatusType = systemStatusData.posts.reduce(
+        (acc: SystemStatusType, post) => {
+          // maintenance
+          if (
             post.post_type === "maintenance" &&
             post.starts_at !== null &&
             post.ends_at !== null &&
             now >= post.starts_at &&
             now <= post.ends_at
-        )
-      ) {
-        systemStatus = "maintenance"
-        logger.info("System status: maintenance")
-      }
+          ) {
+            acc.push({
+              id: post.id,
+              status: "maintenance",
+              message: post.title,
+            })
+          }
 
-      // incident
-      if (
-        systemStatusData.posts.some((post) => post.post_type === "incident")
-      ) {
-        systemStatus = "incident"
-        logger.warn("System status: incident")
-      }
+          // incident
+          if (post.post_type === "incident") {
+            acc.push({ id: post.id, status: "incident", message: post.title })
+          }
+          return acc
+        },
+        []
+      )
 
       return systemStatus
     } catch {
-      return null
+      return []
     }
   },
   ["system-status"],
