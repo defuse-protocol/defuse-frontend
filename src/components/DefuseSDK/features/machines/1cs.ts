@@ -100,7 +100,6 @@ export async function getQuote(
     }
 
     const appFeeRecipient = getAppFeeRecipient(await whitelabelTemplateFlag())
-
     const appFeeBps = computeAppFeeBps(
       APP_FEE_BPS,
       tokenIn,

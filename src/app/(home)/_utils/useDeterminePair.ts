@@ -1,11 +1,8 @@
-import { isBaseToken, isUnifiedToken } from "@src/components/DefuseSDK/utils"
-import { useContext, useMemo } from "react"
-
 import type {
   BaseTokenInfo,
   TokenInfo,
 } from "@src/components/DefuseSDK/types/base"
-
+import { isBaseToken, isUnifiedToken } from "@src/components/DefuseSDK/utils"
 import type { WhitelabelTemplateValue } from "@src/config/featureFlags"
 import { LIST_TOKENS, LIST_TOKENS_FLATTEN } from "@src/constants/tokens"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
@@ -16,6 +13,7 @@ import {
   type useRouter,
   useSearchParams,
 } from "next/navigation"
+import { useContext, useMemo } from "react"
 
 const pairs: Record<WhitelabelTemplateValue, [string, string]> = {
   "near-intents": [
