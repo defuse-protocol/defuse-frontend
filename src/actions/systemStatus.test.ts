@@ -85,6 +85,27 @@ describe("systemStatus", () => {
     expect(systemStatus).toBe("idle")
   })
 
+  it("should return incident when there is an incident post", async () => {
+    server.use(
+      http.get("https://status.near-intents.org/api/posts", async () => {
+        return HttpResponse.json({
+          posts: [
+            {
+              id: "1",
+              starts_at: null,
+              ends_at: null,
+              post_type: "incident",
+              title: "Service Incident",
+            },
+          ],
+        })
+      })
+    )
+
+    const systemStatus = await getCachedSystemStatus()
+    expect(systemStatus).toBe("incident")
+  })
+
   it("should return null when HTTP request fails with invalid response", async () => {
     server.use(
       http.get("https://status.near-intents.org/api/posts", async () => {
