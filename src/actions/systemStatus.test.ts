@@ -39,7 +39,12 @@ describe("systemStatus", () => {
 
     const systemStatus = await getCachedSystemStatus()
     expect(systemStatus).toEqual([
-      { id: "1", status: "maintenance", message: "Scheduled Maintenance" },
+      {
+        id: "1",
+        status: "maintenance",
+        message:
+          "We're performing scheduled maintenance. Deposits and withdrawals may be temporarily unavailable.",
+      },
     ])
   })
 
@@ -106,7 +111,12 @@ describe("systemStatus", () => {
 
     const systemStatus = await getCachedSystemStatus()
     expect(systemStatus).toEqual([
-      { id: "1", status: "incident", message: "Service Incident" },
+      {
+        id: "1",
+        status: "incident",
+        message:
+          "We're experiencing service disruption affecting deposits and withdrawals. Our team is actively working on a resolution.",
+      },
     ])
   })
 
