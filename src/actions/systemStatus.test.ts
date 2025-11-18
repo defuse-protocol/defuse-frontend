@@ -120,7 +120,7 @@ describe("systemStatus", () => {
     ])
   })
 
-  it("should return empty array when HTTP request fails with invalid response", async () => {
+  it("should return null when HTTP request fails with invalid response", async () => {
     server.use(
       http.get("https://status.near-intents.org/api/posts", async () => {
         return HttpResponse.json(
@@ -131,10 +131,10 @@ describe("systemStatus", () => {
     )
 
     const systemStatus = await getCachedSystemStatus()
-    expect(systemStatus).toEqual([])
+    expect(systemStatus).toEqual(null)
   })
 
-  it("should return empty array when response is not ok", async () => {
+  it("should return null when response is not ok", async () => {
     server.use(
       http.get("https://status.near-intents.org/api/posts", async () => {
         return HttpResponse.json({ posts: [] }, { status: 404 })
@@ -142,10 +142,10 @@ describe("systemStatus", () => {
     )
 
     const systemStatus = await getCachedSystemStatus()
-    expect(systemStatus).toEqual([])
+    expect(systemStatus).toEqual(null)
   })
 
-  it("should return empty array when response schema is invalid", async () => {
+  it("should return null when response schema is invalid", async () => {
     server.use(
       http.get("https://status.near-intents.org/api/posts", async () => {
         return HttpResponse.json({ invalid: "data" })
@@ -153,6 +153,6 @@ describe("systemStatus", () => {
     )
 
     const systemStatus = await getCachedSystemStatus()
-    expect(systemStatus).toEqual([])
+    expect(systemStatus).toEqual(null)
   })
 })

@@ -14,7 +14,9 @@ const NetworkOutageNotification: React.FC = () => {
   const pathname = usePathname()
   const [isVisible, setIsVisible] = useState(true)
   const systemStatus = useSystemStatus()
-  const prioritySystemStatus = getSystemStatusPriority(systemStatus)
+  const prioritySystemStatus = systemStatus
+    ? getSystemStatusPriority(systemStatus)
+    : null
 
   // Only show on deposit, withdraw and swap pages
   const shouldShowNotification =
