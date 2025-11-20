@@ -5,7 +5,10 @@ import {
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
 import { isUnifiedToken } from "@src/components/DefuseSDK/utils/token"
-import { getTokenByAssetId } from "@src/components/DefuseSDK/utils/tokenUtils"
+import {
+  getTokenByAssetId,
+  getUnderlyingBaseTokenInfos,
+} from "@src/components/DefuseSDK/utils/tokenUtils"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { INTENTS_API_KEY, INTENTS_ENV } from "@src/utils/environment"
 import { logger } from "@src/utils/logger"
@@ -121,16 +124,21 @@ async function validateQuoteRequest(requestBody: unknown): Promise<boolean> {
     return false
   }
 
-  const { defuse_asset_identifier_in, exact_amount_in } =
-    quoteParseResult.data.params[0]
-  const token = getTokenByAssetId(LIST_TOKENS, defuse_asset_identifier_in)
+  const {
+    defuse_asset_identifier_in,
+    defuse_asset_identifier_out,
+    exact_amount_in,
+  } = quoteParseResult.data.params[0]
 
-  if (!token) {
+  const tokenIn = getTokenByAssetId(LIST_TOKENS, defuse_asset_identifier_in)
+  const tokenOut = getTokenByAssetId(LIST_TOKENS, defuse_asset_identifier_out)
+
+  if (!tokenIn || !tokenOut) {
     return false
   }
 
-  if (isUnifiedToken(token)) {
-    // we need this on frontend
+  // Only if both tokens are unified tokens of the same type we allow this for our frontend
+  if (isUnifiedToken(tokenIn) && tokenIn === tokenOut) {
     return true
   }
 
@@ -142,9 +150,17 @@ async function validateQuoteRequest(requestBody: unknown): Promise<boolean> {
     return false
   }
 
+  const baseTokenIn = getUnderlyingBaseTokenInfos(tokenIn).find(
+    (t) => t.defuseAssetId === defuse_asset_identifier_in
+  )
+
+  if (!baseTokenIn) {
+    return false
+  }
+
   const usdValue = getTokenUsdPrice(
-    formatTokenValue(BigInt(exact_amount_in), token.decimals),
-    token,
+    formatTokenValue(BigInt(exact_amount_in), baseTokenIn.decimals),
+    tokenIn,
     tokensUsdPriceData
   )
 
@@ -164,8 +180,15 @@ const quoteRequestSchema = z.object({
   params: z
     .array(
       z.object({
+        defuse_asset_identifier_out: z.string(),
         defuse_asset_identifier_in: z.string(),
-        exact_amount_in: z.string(),
+        // Must be a decimal integer string so BigInt() cannot throw
+        exact_amount_in: z
+          .string()
+          .regex(
+            /^[0-9]+$/,
+            "exact_amount_in must be a decimal integer string"
+          ),
       })
     )
     .min(1),
