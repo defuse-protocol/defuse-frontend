@@ -23,7 +23,7 @@ export async function POST(request: Request) {
 
     const rpcMethod = new URL(request.url).searchParams.get("method")
 
-    if (!(await isValidRequest(request, rpcMethod))) {
+    if (!(await isValidRequest(request))) {
       return new NextResponse(null, { status: 400 })
     }
 
@@ -93,15 +93,7 @@ export async function POST(request: Request) {
   }
 }
 
-async function isValidRequest(
-  request: Request,
-  rpcMethod: string | null
-): Promise<boolean> {
-  // Only validate quote method - other methods are assumed to be validated by the upstream API
-  if (rpcMethod !== "quote") {
-    return true
-  }
-
+async function isValidRequest(request: Request): Promise<boolean> {
   const requestBody = await request
     .clone()
     .json()
@@ -111,18 +103,26 @@ async function isValidRequest(
     return false
   }
 
+  const isQuoteRequest = quoteMethodSchema.safeParse(requestBody).success
+  if (!isQuoteRequest) {
+    // allow non-quote requests
+    return true
+  }
+
   return await validateQuoteRequest(requestBody)
 }
 
+const MAX_FEE_USD_VALUE = 5
+
 async function validateQuoteRequest(requestBody: unknown): Promise<boolean> {
-  const parseResult = quoteRequestSchema.safeParse(requestBody)
-  if (!parseResult.success) {
+  const quoteParseResult = quoteRequestSchema.safeParse(requestBody)
+  if (!quoteParseResult.success) {
+    // reject quote requests that we don't use on frontend
     return false
   }
 
   const { defuse_asset_identifier_in, exact_amount_in } =
-    parseResult.data.params
-
+    quoteParseResult.data.params[0]
   const token = getTokenByAssetId(LIST_TOKENS, defuse_asset_identifier_in)
 
   if (!token) {
@@ -152,16 +152,23 @@ async function validateQuoteRequest(requestBody: unknown): Promise<boolean> {
     return false
   }
 
-  // reject if USD value is more than 1 USD
-  // (because the fees will not be more than 1 USD)
-  return usdValue <= 1
+  // reject if USD value is more than MAX_FEE_USD_VALUE
+  // (because the fees will not be more than MAX_FEE_USD_VALUE)
+  return usdValue <= MAX_FEE_USD_VALUE
 }
 
+const quoteMethodSchema = z.object({ method: z.literal("quote") })
+
 const quoteRequestSchema = z.object({
-  params: z.object({
-    defuse_asset_identifier_in: z.string(),
-    exact_amount_in: z.string(),
-  }),
+  method: z.literal("quote"),
+  params: z
+    .array(
+      z.object({
+        defuse_asset_identifier_in: z.string(),
+        exact_amount_in: z.string(),
+      })
+    )
+    .min(1),
 })
 
 const TOKEN_PRICE_CACHE_TTL_MS = 20_000 // 20 seconds
@@ -183,6 +190,14 @@ async function getCachedTokenPriceData(): Promise<TokenUsdPriceData> {
   }
 
   tokenPriceCacheTimestamp = Date.now()
-  tokenPriceCachePromise = tokensPriceDataInUsd()
+  const prevTokenPriceCachePromise = tokenPriceCachePromise
+  tokenPriceCachePromise = tokensPriceDataInUsd().catch(async (error) => {
+    logger.error("Failed to fetch token prices", { error })
+    const r = await prevTokenPriceCachePromise
+    if (r === undefined) {
+      throw error
+    }
+    return r
+  })
   return tokenPriceCachePromise
 }
