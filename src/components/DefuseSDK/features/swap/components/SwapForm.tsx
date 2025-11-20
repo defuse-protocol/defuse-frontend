@@ -14,15 +14,12 @@ import { getDefuseAssetId } from "@src/components/DefuseSDK/utils/token"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useThrottledValue } from "@src/hooks/useThrottledValue"
 import { useSelector } from "@xstate/react"
-import Link from "next/link"
-import { useSearchParams } from "next/navigation"
 import {
   Fragment,
   type ReactNode,
   useCallback,
   useContext,
   useEffect,
-  useMemo,
 } from "react"
 import { useFormContext } from "react-hook-form"
 import type { ActorRefFrom, SnapshotFrom } from "xstate"
@@ -657,32 +654,11 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 }
 
 function Quote1csError({ quote1csError }: { quote1csError: string }) {
-  const searchParams = useSearchParams()
-
-  const newSearchParams = useMemo(() => {
-    const newSearchParams = new URLSearchParams(searchParams)
-    newSearchParams.set("not1cs", "true")
-    newSearchParams.delete("1cs")
-    return newSearchParams
-  }, [searchParams])
-
   return (
-    <>
-      <div className="mb-5 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-700 dark:text-red-300">
-        <p className="font-medium">Error:</p>
-        <p>{quote1csError}</p>
-      </div>
-      <div className="text-center mb-5">
-        Try{" "}
-        <Link
-          href={`/?${newSearchParams.toString()}`}
-          className="underline text-blue-c11"
-        >
-          switching to legacy swap
-        </Link>{" "}
-        if the problem persists
-      </div>
-    </>
+    <div className="mb-5 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-700 dark:text-red-300">
+      <p className="font-medium">Error:</p>
+      <p>{quote1csError}</p>
+    </div>
   )
 }
 

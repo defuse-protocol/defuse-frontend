@@ -8,8 +8,8 @@ import {
   type QuoteResponse,
 } from "@defuse-protocol/one-click-sdk-typescript"
 import { computeAppFeeBps } from "@src/components/DefuseSDK/utils/appFee"
+import { getTokenByAssetId } from "@src/components/DefuseSDK/utils/tokenUtils"
 import { whitelabelTemplateFlag } from "@src/config/featureFlags"
-import { LIST_TOKENS } from "@src/constants/tokens"
 import { referralMap } from "@src/hooks/useIntentsReferral"
 import {
   APP_FEE_BPS,
@@ -20,7 +20,6 @@ import { getAppFeeRecipient } from "@src/utils/getAppFeeRecipient"
 import { logger } from "@src/utils/logger"
 import { unstable_cache } from "next/cache"
 import z from "zod"
-import { isBaseToken } from "../../utils/token"
 
 OpenAPI.BASE = z.string().parse(ONE_CLICK_URL)
 OpenAPI.TOKEN = z.string().parse(ONE_CLICK_API_KEY)
@@ -154,14 +153,6 @@ type ServerError = z.infer<typeof serverErrorSchema>
 
 function isServerError(error: unknown): error is ServerError {
   return serverErrorSchema.safeParse(error).success
-}
-
-function getTokenByAssetId(assetId: string) {
-  return LIST_TOKENS.find((token) =>
-    isBaseToken(token)
-      ? token.defuseAssetId === assetId
-      : token.groupedTokens.some((token) => token.defuseAssetId === assetId)
-  )
 }
 
 const getTxStatusArgSchema = z.string()
