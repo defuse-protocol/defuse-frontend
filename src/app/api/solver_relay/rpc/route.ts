@@ -6,6 +6,7 @@ import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
 import { isUnifiedToken } from "@src/components/DefuseSDK/utils/token"
 import { getTokenByAssetId } from "@src/components/DefuseSDK/utils/tokenUtils"
+import { LIST_TOKENS } from "@src/constants/tokens"
 import { INTENTS_API_KEY, INTENTS_ENV } from "@src/utils/environment"
 import { logger } from "@src/utils/logger"
 import { NextResponse } from "next/server"
@@ -122,7 +123,7 @@ async function validateQuoteRequest(requestBody: unknown): Promise<boolean> {
   const { defuse_asset_identifier_in, exact_amount_in } =
     parseResult.data.params
 
-  const token = getTokenByAssetId(defuse_asset_identifier_in)
+  const token = getTokenByAssetId(LIST_TOKENS, defuse_asset_identifier_in)
 
   if (!token) {
     return false

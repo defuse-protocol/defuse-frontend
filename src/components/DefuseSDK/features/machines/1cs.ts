@@ -10,6 +10,7 @@ import {
 import { computeAppFeeBps } from "@src/components/DefuseSDK/utils/appFee"
 import { getTokenByAssetId } from "@src/components/DefuseSDK/utils/tokenUtils"
 import { whitelabelTemplateFlag } from "@src/config/featureFlags"
+import { LIST_TOKENS } from "@src/constants/tokens"
 import { referralMap } from "@src/hooks/useIntentsReferral"
 import {
   APP_FEE_BPS,
@@ -88,12 +89,15 @@ export async function getQuote(
   const { userAddress, authMethod, ...quoteRequest } = parseResult.data
   let req: QuoteRequest | undefined = undefined
   try {
-    const tokenIn = getTokenByAssetId(quoteRequest.originAsset)
+    const tokenIn = getTokenByAssetId(LIST_TOKENS, quoteRequest.originAsset)
     if (!tokenIn) {
       return { err: `Token in ${quoteRequest.originAsset} not found` }
     }
 
-    const tokenOut = getTokenByAssetId(quoteRequest.destinationAsset)
+    const tokenOut = getTokenByAssetId(
+      LIST_TOKENS,
+      quoteRequest.destinationAsset
+    )
     if (!tokenOut) {
       return { err: `Token out ${quoteRequest.destinationAsset} not found` }
     }

@@ -1,6 +1,5 @@
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { utils } from "@defuse-protocol/internal-utils"
-import { LIST_TOKENS } from "@src/constants/tokens"
 import type { BalanceMapping } from "../features/machines/depositedBalanceMachine"
 import type {
   BaseTokenInfo,
@@ -481,9 +480,10 @@ export function* eachBaseTokenInfo(tokenList: TokenInfo[]) {
  * Returns the TokenInfo (which may be BaseTokenInfo or UnifiedTokenInfo).
  */
 export function getTokenByAssetId(
+  tokenList: TokenInfo[],
   defuseAssetId: string
 ): TokenInfo | undefined {
-  return LIST_TOKENS.find((token) =>
+  return tokenList.find((token) =>
     isBaseToken(token)
       ? token.defuseAssetId === defuseAssetId
       : token.groupedTokens.some((t) => t.defuseAssetId === defuseAssetId)
