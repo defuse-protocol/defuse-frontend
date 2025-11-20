@@ -62,55 +62,6 @@ export const AcknowledgementCheckbox = <
   )
 }
 
-type InternalTransferCheckboxProps<
-  T extends { isFundsLooseConfirmed?: boolean } = {
-    isFundsLooseConfirmed?: boolean
-  },
-> = {
-  control: Control<T>
-  errors: FieldErrors<T>
-}
-
-export const InternalTransferCheckbox = <
-  T extends { isFundsLooseConfirmed?: boolean },
->({
-  control,
-  errors,
-}: InternalTransferCheckboxProps<T>) => {
-  return (
-    <Flex gap="3" align="start">
-      <Controller
-        control={control}
-        name={"isFundsLooseConfirmed" as Path<T>}
-        rules={{ required: true }}
-        render={({ field }) => (
-          <Checkbox
-            id="internal-transfer-checkbox"
-            size="3"
-            checked={field.value}
-            onCheckedChange={field.onChange}
-            className="mt-0.5"
-          />
-        )}
-      />
-      <Flex direction="column" gap="2" className="flex-1">
-        <Text
-          as="label"
-          size="1"
-          weight="medium"
-          color={errors.isFundsLooseConfirmed ? "red" : "gray"}
-          htmlFor="internal-transfer-checkbox"
-          className="cursor-pointer leading-relaxed break-words"
-        >
-          I confirm that this is an{" "}
-          <strong className="font-bold">internal Near Intents address</strong>.
-          Withdrawals to external addresses may result in loss of funds.
-        </Text>
-      </Flex>
-    </Flex>
-  )
-}
-
 const TokenSpecificWarning = ({
   tokenOut,
 }: { tokenOut: BaseTokenInfo }): ReactElement | null => {

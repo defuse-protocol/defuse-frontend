@@ -49,10 +49,7 @@ import {
   ReceivedAmountAndFee,
   RecipientSubForm,
 } from "./components"
-import {
-  AcknowledgementCheckbox,
-  InternalTransferCheckbox,
-} from "./components/AcknowledgementCheckbox/AcknowledgementCheckbox"
+import { AcknowledgementCheckbox } from "./components/AcknowledgementCheckbox/AcknowledgementCheckbox"
 import { useMinWithdrawalAmountWithFeeEstimation } from "./hooks/useMinWithdrawalAmountWithFeeEstimation"
 import {
   balancesSelector,
@@ -468,10 +465,6 @@ export const WithdrawForm = ({
                 tokenOut={tokenOut}
               />
             )}
-
-          {isNearIntentsNetwork(blockchain) && (
-            <InternalTransferCheckbox control={control} errors={errors} />
-          )}
 
           <ReceivedAmountAndFee
             fee={withdtrawalFee}
