@@ -26,7 +26,10 @@ SystemStatus.Desktop = function Desktop() {
     <div className="hidden md:block fixed bottom-0 left-0 mx-3 my-6 z-10">
       <Link href={SYSTEM_STATUS_URL} target="_blank">
         <div className="flex items-center gap-2 rounded-lg px-3 py-2 w-fit hover:bg-gray-a3 dark:hover:bg-gray-800 text-sm">
-          <SystemStatus.StatusIndicator systemStatus={systemStatus} />
+          <SystemStatus.StatusIndicator
+            systemStatus={systemStatus}
+            hideOperationalStatus={true}
+          />
         </div>
       </Link>
     </div>
@@ -43,6 +46,7 @@ SystemStatus.Mobile = function Mobile() {
           <SystemStatus.StatusIndicator
             systemStatus={systemStatus}
             mobile={true}
+            hideOperationalStatus={true}
           />
         </div>
       </Link>
@@ -53,10 +57,19 @@ SystemStatus.Mobile = function Mobile() {
 SystemStatus.StatusIndicator = function StatusIndicator({
   systemStatus,
   mobile = false,
-}: { systemStatus: SystemStatusType | null; mobile?: boolean }) {
+  hideOperationalStatus = false,
+}: {
+  systemStatus: SystemStatusType | null
+  mobile?: boolean
+  hideOperationalStatus?: boolean
+}) {
   const prioritySystemStatus = systemStatus
     ? getSystemStatusPriority(systemStatus)
     : null
+
+  if (hideOperationalStatus && prioritySystemStatus === null) {
+    return null
+  }
 
   if (mobile) {
     return (
