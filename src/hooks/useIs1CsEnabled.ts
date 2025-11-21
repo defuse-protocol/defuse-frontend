@@ -1,7 +1,5 @@
-import { useSearchParams } from "next/navigation"
-import { useMemo } from "react"
-
 export function useIs1CsEnabled() {
-  const searchParams = useSearchParams()
-  return useMemo(() => !searchParams.has("not1cs"), [searchParams])
+  // Legacy swap is currently disabled - always use 1cs
+  // TODO: remove legacy swap entirely including this flag, environment variable, and all related code
+  return true
 }

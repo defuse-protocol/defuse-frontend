@@ -476,6 +476,21 @@ export function* eachBaseTokenInfo(tokenList: TokenInfo[]) {
 }
 
 /**
+ * Finds a token in the token list by its defuse asset ID.
+ * Returns the TokenInfo (which may be BaseTokenInfo or UnifiedTokenInfo).
+ */
+export function getTokenByAssetId(
+  tokenList: TokenInfo[],
+  defuseAssetId: string
+): TokenInfo | undefined {
+  return tokenList.find((token) =>
+    isBaseToken(token)
+      ? token.defuseAssetId === defuseAssetId
+      : token.groupedTokens.some((t) => t.defuseAssetId === defuseAssetId)
+  )
+}
+
+/**
  * Use this function before deltas computation to prevent wrong amount be taken.
  * @example
  * // [["token1", 1000000n], ["token1", -1000000n]]
