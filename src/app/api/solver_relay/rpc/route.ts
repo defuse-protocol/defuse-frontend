@@ -124,14 +124,16 @@ async function validateQuoteRequest(requestBody: unknown): Promise<boolean> {
     return false
   }
 
-  const {
-    defuse_asset_identifier_in,
-    defuse_asset_identifier_out,
-    exact_amount_in,
-  } = quoteParseResult.data.params[0]
+  const quoteRequest = quoteParseResult.data.params[0]
 
-  const tokenIn = getTokenByAssetId(LIST_TOKENS, defuse_asset_identifier_in)
-  const tokenOut = getTokenByAssetId(LIST_TOKENS, defuse_asset_identifier_out)
+  const tokenIn = getTokenByAssetId(
+    LIST_TOKENS,
+    quoteRequest.defuse_asset_identifier_in
+  )
+  const tokenOut = getTokenByAssetId(
+    LIST_TOKENS,
+    quoteRequest.defuse_asset_identifier_out
+  )
 
   if (!tokenIn || !tokenOut) {
     return false
@@ -150,17 +152,30 @@ async function validateQuoteRequest(requestBody: unknown): Promise<boolean> {
     return false
   }
 
-  const baseTokenIn = getUnderlyingBaseTokenInfos(tokenIn).find(
-    (t) => t.defuseAssetId === defuse_asset_identifier_in
+  const { token, defuseAssetId, amount } =
+    "exact_amount_out" in quoteRequest
+      ? {
+          token: tokenOut,
+          defuseAssetId: quoteRequest.defuse_asset_identifier_out,
+          amount: quoteRequest.exact_amount_out,
+        }
+      : {
+          token: tokenIn,
+          defuseAssetId: quoteRequest.defuse_asset_identifier_in,
+          amount: quoteRequest.exact_amount_in,
+        }
+
+  const baseToken = getUnderlyingBaseTokenInfos(token).find(
+    (t) => t.defuseAssetId === defuseAssetId
   )
 
-  if (!baseTokenIn) {
+  if (!baseToken) {
     return false
   }
 
   const usdValue = getTokenUsdPrice(
-    formatTokenValue(BigInt(exact_amount_in), baseTokenIn.decimals),
-    tokenIn,
+    formatTokenValue(BigInt(amount), baseToken.decimals),
+    baseToken,
     tokensUsdPriceData
   )
 
@@ -179,17 +194,30 @@ const quoteRequestSchema = z.object({
   method: z.literal("quote"),
   params: z
     .array(
-      z.object({
-        defuse_asset_identifier_out: z.string(),
-        defuse_asset_identifier_in: z.string(),
-        // Must be a decimal integer string so BigInt() cannot throw
-        exact_amount_in: z
-          .string()
-          .regex(
-            /^[0-9]+$/,
-            "exact_amount_in must be a decimal integer string"
-          ),
-      })
+      z.union([
+        z.object({
+          defuse_asset_identifier_out: z.string(),
+          defuse_asset_identifier_in: z.string(),
+          // Must be a decimal integer string so BigInt() cannot throw
+          exact_amount_in: z
+            .string()
+            .regex(
+              /^[0-9]+$/,
+              "exact_amount_in must be a decimal integer string"
+            ),
+        }),
+        z.object({
+          defuse_asset_identifier_out: z.string(),
+          defuse_asset_identifier_in: z.string(),
+          // Must be a decimal integer string so BigInt() cannot throw
+          exact_amount_out: z
+            .string()
+            .regex(
+              /^[0-9]+$/,
+              "exact_amount_in must be a decimal integer string"
+            ),
+        }),
+      ])
     )
     .min(1),
 })
