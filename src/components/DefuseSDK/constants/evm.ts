@@ -36,4 +36,5 @@ export const CHAIN_IDS: Record<SupportedChainName, number | undefined> = {
   cardano: undefined,
   litecoin: undefined,
   layerx: 196,
+  monad: 143,
 }

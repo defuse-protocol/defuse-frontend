@@ -82,7 +82,14 @@ export function useWalletAgnosticSignMessage() {
         )
         return {
           type: "TON_CONNECT",
-          signatureData,
+          signatureData: {
+            signature: signatureData.signature,
+            address: signatureData.address,
+            timestamp: signatureData.timestamp,
+            domain: signatureData.domain,
+            // @ts-expect-error it's fine, but should be fixed
+            payload: signatureData.payload,
+          },
           signedData: walletMessage.TON_CONNECT,
         }
       }

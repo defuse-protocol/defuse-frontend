@@ -2367,6 +2367,23 @@
         }
       ],
       "tags": []
+    },
+    {
+      "defuseAssetId": "nep245:v2_1.omni.hot.tg:143_11111111111111111111",
+      "symbol": "MON",
+      "name": "Monad",
+      "decimals": 18,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/30495.png",
+      "originChainName": "monad",
+      "deployments": [
+        {
+          "type": "native",
+          "decimals": 18,
+          "chainName": "monad",
+          "bridge": "hot_omni"
+        }
+      ],
+      "tags": ["mc:140"]
     }
   ]
 }

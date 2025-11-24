@@ -22,6 +22,7 @@ export type SupportedChainName =
   | "cardano"
   | "litecoin"
   | "layerx"
+  | "monad"
   | VirtualChains
   | MockedChains
 

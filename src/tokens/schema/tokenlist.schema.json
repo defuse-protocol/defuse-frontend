@@ -203,6 +203,10 @@
           "type": "string"
         },
         {
+          "const": "monad",
+          "type": "string"
+        },
+        {
           "$ref": "#/definitions/VirtualChains"
         },
         {
