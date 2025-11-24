@@ -31,6 +31,7 @@ const mapping: Record<RealChains, Chain> = {
   cardano: Chains.Cardano,
   litecoin: Chains.Litecoin,
   layerx: Chains.LayerX,
+  monad: Chains.Monad,
 }
 
 export function getCAIP2(chainName: SupportedChainName): Chain {

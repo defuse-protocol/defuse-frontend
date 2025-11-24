@@ -64,6 +64,8 @@ export function chainTxExplorer(blockchain: SupportedChainName): string | null {
       return "https://litecoinspace.org/tx/"
     case "layerx":
       return "https://layerxscan.io/tx/"
+    case "monad":
+      return "https://monadscan.com/tx/"
     default:
       blockchain satisfies never
       return null

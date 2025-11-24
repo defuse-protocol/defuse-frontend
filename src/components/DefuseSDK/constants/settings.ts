@@ -60,5 +60,6 @@ export const settings: Settings = {
     cardano: "",
     litecoin: "https://litecoinspace.org/api",
     layerx: "",
+    monad: "https://rpc.monad.xyz",
   },
 }

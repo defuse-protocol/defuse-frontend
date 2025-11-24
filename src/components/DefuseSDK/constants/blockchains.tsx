@@ -159,6 +159,10 @@ export const chainIcons: Record<
     dark: "/static/icons/network/layerx_white.svg",
     light: "/static/icons/network/layerx.svg",
   },
+  monad: {
+    dark: "/static/icons/network/monad_white.svg",
+    light: "/static/icons/network/monad.svg",
+  },
 }
 
 export function getBlockchainsOptions(): Record<
@@ -386,6 +390,12 @@ export function getBlockchainsOptions(): Record<
     //   value: BlockchainEnum.LAYERX,
     //   tags: [],
     // },
+    [BlockchainEnum.MONAD]: {
+      label: "Monad",
+      icon: <NetworkIcon chainIcon={chainIcons.monad} chainName="Monad" />,
+      value: BlockchainEnum.MONAD,
+      tags: [],
+    },
   }
 
   return sortBlockchainOptionsByVolume(
