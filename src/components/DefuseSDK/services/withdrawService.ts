@@ -3,6 +3,7 @@ import {
   type FeeEstimation,
   FeeExceedsAmountError,
   type RouteConfig,
+  RouteEnum,
   TrustlineNotFoundError,
   type WithdrawalParams,
   createDefaultRoute,
@@ -607,7 +608,9 @@ async function prepareNearIntentsWithdraw({
           feeEstimation: {
             amount: 0n,
             quote: null,
-            underlyingFees: {},
+            underlyingFees: {
+              [RouteEnum.InternalTransfer]: null,
+            },
           },
         })
       })
@@ -619,7 +622,13 @@ async function prepareNearIntentsWithdraw({
     value: {
       directWithdrawAvailable: formValues.parsedAmount,
       swap: null,
-      feeEstimation: { amount: 0n, quote: null, underlyingFees: {} },
+      feeEstimation: {
+        amount: 0n,
+        quote: null,
+        underlyingFees: {
+          [RouteEnum.InternalTransfer]: null,
+        },
+      },
       receivedAmount: formValues.parsedAmount,
       prebuiltWithdrawalIntents: intents,
       // biome-ignore lint/style/noNonNullAssertion: <explanation>
