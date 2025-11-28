@@ -146,6 +146,7 @@ const cspConfig = {
     "https://fullnode.mainnet.aptoslabs.com",
     "https://litecoinspace.org/api",
     "https://rpc.monad.xyz",
+    "https://rpc.xlayer.tech",
   ],
   "object-src": ["'none'"],
   "base-uri": ["'self'"],
