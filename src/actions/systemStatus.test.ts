@@ -114,8 +114,7 @@ describe("systemStatus", () => {
       {
         id: "1",
         status: "incident",
-        message:
-          "We're experiencing service disruption affecting deposits and withdrawals. Our team is actively working on a resolution.",
+        message: "Service Incident",
       },
     ])
   })

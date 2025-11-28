@@ -75,6 +75,7 @@ export const getCachedSystemStatus = unstable_cache(
               id: post.id,
               status: "incident",
               message:
+                post.title ??
                 "We're experiencing service disruption affecting deposits and withdrawals. Our team is actively working on a resolution.",
             })
           }
