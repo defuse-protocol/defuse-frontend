@@ -253,6 +253,23 @@
             }
           ],
           "tags": ["mc:7", "type:stablecoin", "tvol:4", "aid:usdc"]
+        },
+        {
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:196_2dK9kLNR7Ekq7su8FxNGiUW3djTw",
+          "symbol": "USDC",
+          "name": "USD Coin",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+          "originChainName": "layerx",
+          "deployments": [
+            {
+              "address": "0x74b7f16337b8972027f6196a17a631ac6de26d22",
+              "decimals": 6,
+              "chainName": "layerx",
+              "bridge": "hot_omni"
+            }
+          ],
+          "tags": ["mc:7", "type:stablecoin", "tvol:4", "aid:usdc"]
         }
       ],
       "tags": ["mc:7", "type:stablecoin", "tvol:4", "aid:usdc"]
@@ -628,6 +645,23 @@
               "decimals": 6,
               "chainName": "berachain",
               "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:3", "type:stablecoin", "tvol:3", "aid:usdt"]
+        },
+        {
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:196_RUbbJ8jon8R1ui3x9B5ZptJnCbe",
+          "symbol": "USDT",
+          "name": "Tether USD",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+          "originChainName": "layerx",
+          "deployments": [
+            {
+              "address": "0x1e4a5963abfd975d8c9021ce480b42188849d41d",
+              "decimals": 6,
+              "chainName": "layerx",
+              "bridge": "hot_omni"
             }
           ],
           "tags": ["mc:3", "type:stablecoin", "tvol:3", "aid:usdt"]
@@ -2383,7 +2417,24 @@
           "bridge": "hot_omni"
         }
       ],
-      "tags": ["mc:140"]
+      "tags": ["mc:117"]
+    },
+    {
+      "defuseAssetId": "nep245:v2_1.omni.hot.tg:196_11111111111111111111",
+      "symbol": "OKB",
+      "name": "OKB",
+      "decimals": 18,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/3897.png",
+      "originChainName": "layerx",
+      "deployments": [
+        {
+          "type": "native",
+          "decimals": 18,
+          "chainName": "layerx",
+          "bridge": "hot_omni"
+        }
+      ],
+      "tags": ["mc:39"]
     }
   ]
 }
