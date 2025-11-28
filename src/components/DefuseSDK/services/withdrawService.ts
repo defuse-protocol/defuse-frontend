@@ -607,6 +607,7 @@ async function prepareNearIntentsWithdraw({
           feeEstimation: {
             amount: 0n,
             quote: null,
+            underlyingFees: {},
           },
         })
       })
@@ -618,7 +619,7 @@ async function prepareNearIntentsWithdraw({
     value: {
       directWithdrawAvailable: formValues.parsedAmount,
       swap: null,
-      feeEstimation: { amount: 0n, quote: null },
+      feeEstimation: { amount: 0n, quote: null, underlyingFees: {} },
       receivedAmount: formValues.parsedAmount,
       prebuiltWithdrawalIntents: intents,
       // biome-ignore lint/style/noNonNullAssertion: <explanation>
