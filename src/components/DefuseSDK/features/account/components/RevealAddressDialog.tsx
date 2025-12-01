@@ -52,7 +52,7 @@ export function RevealAddressDialog({
           </Text>
         </div>
         <div className="flex items-center py-1 px-2 rounded-full bg-[#E1F9EA] text-[#17A615]">
-          <span className="text-xs">Accound ID</span>
+          <span className="text-xs">Account ID</span>
         </div>
       </div>
 
