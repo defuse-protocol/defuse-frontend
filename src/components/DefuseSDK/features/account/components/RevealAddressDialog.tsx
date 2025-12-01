@@ -2,9 +2,11 @@ import { CheckIcon, CopyIcon } from "@radix-ui/react-icons"
 import { Dialog } from "@radix-ui/themes"
 import { Button } from "@radix-ui/themes"
 import { Callout } from "@radix-ui/themes"
+import { Text } from "@radix-ui/themes"
 import { QRCodeSVG } from "qrcode.react"
 import { Copy } from "../../../components/IntentCard/CopyButton"
 import { BaseModalDialog } from "../../../components/Modal/ModalDialog"
+import { getNearIntentsOption } from "../../../constants/blockchains"
 import { IntentsIcon } from "./shared/IntentsIcon"
 
 type RevealAddressDialogProps = {
@@ -17,6 +19,7 @@ export function RevealAddressDialog({
   onClose,
 }: RevealAddressDialogProps) {
   const truncatedAddress = truncateAddress(internalUserAddress)
+  const nearIntentsOption = getNearIntentsOption().intents
 
   return (
     <BaseModalDialog open onClose={onClose} isDismissable>
@@ -38,6 +41,19 @@ export function RevealAddressDialog({
             <QRCodeSVG value={internalUserAddress} />
           </div>
         )}
+      </div>
+
+      {/* Network Select Section */}
+      <div className="flex justify-between items-center gap-3 p-2.5">
+        <div className="flex items-center gap-2">
+          {nearIntentsOption.icon}
+          <Text as="span" size="2" weight="medium">
+            {nearIntentsOption.label}
+          </Text>
+        </div>
+        <div className="flex items-center py-1 px-2 rounded-full bg-[#E1F9EA] text-[#17A615]">
+          <span className="text-xs">Accound ID</span>
+        </div>
       </div>
 
       {/* Visible Address Section */}
