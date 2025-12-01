@@ -200,7 +200,6 @@ const RevealAddress = ({
   internalUserAddress,
 }: { internalUserAddress: string }) => {
   const [isRevealed, setIsRevealed] = useState(false)
-  internalUserAddress
 
   return (
     <>
