@@ -52,7 +52,9 @@ const Settings = () => {
             {whitelabelTemplate !== "rabitswap" && (
               <>
                 <DarkMode />
-                <RevealAddress internalUserAddress={internalUserAddress} />
+                {internalUserAddress && (
+                  <RevealAddress internalUserAddress={internalUserAddress} />
+                )}
                 <Separator orientation="horizontal" size="4" />
               </>
             )}
@@ -196,13 +198,13 @@ const DarkMode = () => {
 
 const RevealAddress = ({
   internalUserAddress,
-}: { internalUserAddress: string | null }) => {
+}: { internalUserAddress: string }) => {
   const [isRevealed, setIsRevealed] = useState(false)
   internalUserAddress
 
   return (
     <>
-      {isRevealed && internalUserAddress != null && (
+      {isRevealed && (
         <RevealAddressDialog
           internalUserAddress={internalUserAddress}
           onClose={() => setIsRevealed(false)}
