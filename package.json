@@ -20,7 +20,7 @@
     "@clickhouse/client": "^1.12.1",
     "@creit.tech/stellar-wallets-kit": "1.9.5",
     "@defuse-protocol/contract-types": "0.4.2",
-    "@defuse-protocol/intents-sdk": "0.40.0",
+    "@defuse-protocol/intents-sdk": "0.40.2",
     "@defuse-protocol/internal-utils": "0.20.0",
     "@defuse-protocol/one-click-sdk-typescript": "^0.1.1-0.2",
     "@hot-labs/near-connect": "0.6.8",
