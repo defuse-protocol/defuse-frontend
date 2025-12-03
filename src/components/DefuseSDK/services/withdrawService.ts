@@ -2,6 +2,7 @@ import type { Intent } from "@defuse-protocol/contract-types"
 import {
   type FeeEstimation,
   FeeExceedsAmountError,
+  MinWithdrawalAmountError,
   type RouteConfig,
   RouteEnum,
   TrustlineNotFoundError,
@@ -262,6 +263,26 @@ export async function prepareWithdraw(
         tag: "err",
         value: {
           reason: "ERR_STELLAR_NO_TRUSTLINE",
+          token: formValues.tokenOut,
+        },
+      }
+    }
+    const minWithdrawalAmountError = findError(err, MinWithdrawalAmountError)
+    if (minWithdrawalAmountError != null) {
+      return {
+        tag: "err",
+        value: {
+          reason: "ERR_AMOUNT_TOO_LOW",
+          shortfall: {
+            amount:
+              minWithdrawalAmountError.minAmount -
+              minWithdrawalAmountError.requestedAmount,
+            decimals: formValues.tokenOut.decimals,
+          },
+          // todo: provide decimals too
+          receivedAmount: minWithdrawalAmountError.requestedAmount,
+          // todo: provide decimals too
+          minWithdrawalAmount: minWithdrawalAmountError.minAmount,
           token: formValues.tokenOut,
         },
       }
