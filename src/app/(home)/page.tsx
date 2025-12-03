@@ -73,11 +73,7 @@ export default function Swap() {
 
 // These tokens no longer tradable and might be removed in future.
 const TOKENS_WITHOUT_REF_AND_BRRR = LIST_TOKENS.filter(
-  (token) =>
-    token.symbol !== "REF" &&
-    token.symbol !== "BRRR" &&
-    // TMP FIX
-    token.symbol !== "NEAR"
+  (token) => token.symbol !== "REF" && token.symbol !== "BRRR"
 )
 
 function useTokenList1cs() {
