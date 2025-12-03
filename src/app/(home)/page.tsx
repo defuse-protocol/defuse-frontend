@@ -1,4 +1,5 @@
 "use client"
+import { Buffer } from "node:buffer"
 import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
 import { getTokens } from "@src/components/DefuseSDK/features/machines/1cs"
 import { SwapWidget } from "@src/components/DefuseSDK/features/swap/components/SwapWidget"
@@ -16,7 +17,6 @@ import { renderAppLink } from "@src/utils/renderAppLink"
 import { useQuery } from "@tanstack/react-query"
 import { useSearchParams } from "next/navigation"
 import { useEffect, useMemo } from "react"
-
 export default function Swap() {
   const { state } = useConnectWallet()
   const signMessage = useWalletAgnosticSignMessage()
@@ -32,7 +32,8 @@ export default function Swap() {
     const timer = setTimeout(() => {
       void prefetchMostTradableTokens()
     }, 3000)
-
+    const a = Buffer.from([0])
+    alert(a)
     return () => {
       clearTimeout(timer)
     }
