@@ -29,6 +29,7 @@ const nextConfig = {
         path: false,
         os: false,
         events: "events",
+        buffer: false,
       },
     }
 
