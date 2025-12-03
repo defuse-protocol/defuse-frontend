@@ -1,9 +1,8 @@
-import { solverRelay } from "@defuse-protocol/internal-utils"
 import { logger } from "@src/utils/logger"
 import { type ActorRef, type Snapshot, log } from "xstate"
 import { assign, fromPromise, not, setup } from "xstate"
 import type { TokenInfo } from "../../types/base"
-import { getTxStatus, submitTxHash } from "./1cs"
+import { getTxStatus } from "./1cs"
 
 type ChildEvent = {
   type: "ONE_CLICK_SETTLED"
@@ -31,7 +30,6 @@ export const oneClickStatusMachine = setup({
       parentRef: ParentActor
       intentHash: string
       depositAddress: string
-      txHash: string | null
       tokenIn: TokenInfo
       tokenOut: TokenInfo
       totalAmountIn: { amount: bigint; decimals: number }
@@ -44,9 +42,6 @@ export const oneClickStatusMachine = setup({
     logError: (_, params: { error: unknown }) => {
       logger.error(params.error)
     },
-    setTxHash: assign({
-      txHash: (_, txHash: string) => txHash,
-    }),
     setStatus: assign({
       status: (_, status: string) => status,
     }),
@@ -71,42 +66,6 @@ export const oneClickStatusMachine = setup({
     },
   },
   actors: {
-    waitIntentTxHash: fromPromise(
-      ({
-        input,
-        signal,
-      }: {
-        input: { intentHash: string }
-        signal: AbortSignal
-      }): Promise<string> => {
-        return new Promise<string>((resolve, reject) => {
-          return solverRelay
-            .waitForIntentSettlement({
-              signal,
-              intentHash: input.intentHash,
-              onTxHashKnown: (txHash) => {
-                resolve(txHash)
-              },
-            })
-            .then((result) => {
-              // Fallback in case `onTxHashKnown` is not called (but it should never happen)
-              resolve(result.txHash)
-            }, reject)
-        })
-      }
-    ),
-    submitTxHashActor: fromPromise(
-      async ({
-        input,
-      }: {
-        input: { depositAddress: string; txHash: string }
-      }) => {
-        return submitTxHash({
-          depositAddress: input.depositAddress,
-          txHash: input.txHash,
-        })
-      }
-    ),
     checkTxStatus: fromPromise(
       async ({
         input,
@@ -127,17 +86,16 @@ export const oneClickStatusMachine = setup({
     },
   },
   delays: {
-    pollInterval: 500, // 1 second
+    pollInterval: 500,
   },
 }).createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QHsB2YDCAbAlgYwGsBlAFwEMSBXWAOgAcxUIdUoBiAbQAYBdRUOslg4SONPxAAPRABYAnHJoAOAMwBWOQEYVKgEwB2fbq4yANCACeiY7pq61XR100A2OVw2alAX2-m0mLiEpBTUNHgAFmCELOwQATQsAG7IBGA0Adj4xORUtJHRBLEIych4FGKo3DzVEoLCouJIUrIKyupaOgZGJuZWCLryNPryCvqackq6E4a+-uhZwblhBTGsbGAATpvIm-RYFABmuwC2GQtBOaH5UWtQJagp5Y1VvLXN9SKVEtIIctN2UZuGQyNT6FSqPrWFy2OT6FxqNRTTTyGQwmRzECZS4hPI0ADuZC+63eAiEXyaoF+mn0ShoCjGuncLk03ShCBk+kULi5bmcmhRKk0YMx2OyuLChOJ7A4mj4H3JLx+iBpdIZcKZXBZbMssgm9KZbmMChhE1FF3Fy1ogiwuHWklguXSZEOJC2AAobVgAJKoN2bJJkLAASjYYqW13oyFtsVJIE+Suav1G7U8XUMxjMuo5+ppcmBKhkUw1KnNgUtka2O02bAASgBRAAqtYAmnGE98kyrHPoDfmeaoQeylJoaKMGSPxkW9L4-CBUMgIHAJOGrnk6orO1TEABaFzsvdlxZrsIMJixDcNLctBAqIypuQyEzTDQGYe9pE6O-yLjM39HnErXCW4ilYS8KVQZUEDcRQ1CFaZVA0JRQV0dkDBkMdDWQotJhRfQAIrPEpVEMCFSvSkbxkVDsxULUaFotEplUJklEfAiIzxL0LzIiCoPUXsdE8VRwRhFl2RkLwaDzFwlBZeFdCUNQZFLOdVwlWhYEoPA8DgeAeMTbdbwk1NWJcPQ1AROQ1HE+EaB5fMFCUx83BcdiT1oKtdnAgybwFfUXF-QsuCUZCdB5dl3BoYKdFBOQ7zw2ZZyAA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QHsB2YDCAbAlgYwGsBlAFwEMSBXWAOgAcxUIdUoBiAbQAYBdRUOslg4SONPxAAPRACYArHJoAWABwBmFQHYVAJgBsARm0BOLQBoQAT0QBaLWpoBOfWpNy1Wk7rkA2bQF9fCzRMXEJSCmoaAAswaggIGn4wKJYIADcwAhAAdkJiCmpaWNiMeIRk5DwKMVQAcS1RTWVhUUkZOS9vTV9Xfx8tX01XLUcvd0tzBEGvfRV3PQ95bQNnAYNPf0C0PLCI6NjsKIS2djYBYUlpaQAmkVKpFQrtIc8hlXH-TQm1Zz6tCrqDZacYGFSLeYDAKBdAQhZLFZrLDRHB4PB7djZA4qY5aDT9LRaVR+VwqX4aR5qR5nZzKbrUhJ9AFefTKZ5aIb6dFYHHLPGQTb4PYEK47W5FBQ3dR3IZ9ZxPbrOUGKZyuAVqBxqJ6KeFfJHfTwqV6uHq-DRGWkg0LLMDrGhJJLbeJJOUKI46F5qawuNwTTrqNXgsEUkwOMH6VEqIYW3WgvVeFTKRY0IA */
   id: "oneClickStatus",
-  initial: "pending",
+  initial: "checking",
   context: ({ input }) => ({
     parentRef: input.parentRef,
     intentHash: input.intentHash,
     depositAddress: input.depositAddress,
-    txHash: null,
     tokenIn: input.tokenIn,
     tokenOut: input.tokenOut,
     totalAmountIn: input.totalAmountIn,
@@ -146,57 +104,6 @@ export const oneClickStatusMachine = setup({
     error: null,
   }),
   states: {
-    pending: {
-      always: "intent_settling",
-    },
-    intent_settling: {
-      invoke: {
-        src: "waitIntentTxHash",
-        input: ({ context }) => ({ intentHash: context.intentHash }),
-        onDone: {
-          target: "SubmittingTxHash",
-          actions: [
-            log("Intent tx known"),
-            { type: "setTxHash", params: ({ event }) => event.output },
-          ],
-        },
-        onError: {
-          target: "error",
-          actions: [
-            {
-              type: "setError",
-              params: ({ event }) => new Error(String(event.error)),
-            },
-            {
-              type: "logError",
-              params: ({ event }) => event,
-            },
-          ],
-        },
-      },
-    },
-    SubmittingTxHash: {
-      invoke: {
-        src: "submitTxHashActor",
-        input: ({ context }) => ({
-          depositAddress: context.depositAddress,
-          txHash: context.txHash ?? "", // don't care if we submit bullshit
-        }),
-        onDone: {
-          target: "checking",
-          actions: log("Intent tx submitted"),
-        },
-        onError: {
-          target: "checking",
-          actions: [
-            {
-              type: "logError",
-              params: ({ event }) => event,
-            },
-          ],
-        },
-      },
-    },
     checking: {
       invoke: {
         src: "checkTxStatus",
@@ -249,7 +156,7 @@ export const oneClickStatusMachine = setup({
     },
     error: {
       on: {
-        RETRY: "pending",
+        RETRY: "checking",
       },
     },
   },

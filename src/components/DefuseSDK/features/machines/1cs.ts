@@ -2,10 +2,16 @@
 
 import { type AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
 import {
+  type GenerateIntentResponse,
+  GenerateSwapTransferIntentRequest,
+  IntentStandardEnum,
+  type MultiPayload,
   OneClickService,
   OpenAPI,
   QuoteRequest,
   type QuoteResponse,
+  type SubmitIntentResponse,
+  SubmitSwapTransferIntentRequest,
 } from "@defuse-protocol/one-click-sdk-typescript"
 import { computeAppFeeBps } from "@src/components/DefuseSDK/utils/appFee"
 import { getTokenByAssetId } from "@src/components/DefuseSDK/utils/tokenUtils"
@@ -221,4 +227,81 @@ function unknownServerErrorToString(error: unknown): string {
     : error instanceof Error
       ? error.message
       : String(error)
+}
+
+const intentStandardEnumSchema = z.nativeEnum(IntentStandardEnum)
+
+const generateIntentArgsSchema = z.object({
+  depositAddress: z.string(),
+  signerId: z.string(),
+  standard: intentStandardEnumSchema,
+})
+
+type GenerateIntentArgs = z.infer<typeof generateIntentArgsSchema>
+
+export async function generateIntent(
+  args: GenerateIntentArgs
+): Promise<{ ok: GenerateIntentResponse } | { err: string }> {
+  const parseResult = generateIntentArgsSchema.safeParse(args)
+  if (!parseResult.success) {
+    return { err: `Invalid arguments: ${parseResult.error.message}` }
+  }
+
+  const { depositAddress, signerId, standard } = parseResult.data
+
+  try {
+    const response = await OneClickService.generateIntent({
+      type: GenerateSwapTransferIntentRequest.type.SWAP_TRANSFER,
+      standard,
+      depositAddress,
+      signerId,
+    })
+
+    return { ok: response }
+  } catch (error) {
+    const err = unknownServerErrorToString(error)
+    logger.error(`1cs: generateIntent error: ${err}`)
+    return { err }
+  }
+}
+
+// Schema for MultiPayload - this is a union type that can be any of the supported payload formats
+// We use z.any() here because the actual validation is done by the SDK
+const multiPayloadSchema = z
+  .object({
+    standard: z.string(),
+    payload: z.any(),
+    signature: z.any().optional(),
+    public_key: z.string().optional(),
+  })
+  .passthrough()
+
+const submitIntentArgsSchema = z.object({
+  signedIntent: multiPayloadSchema,
+})
+
+type SubmitIntentArgs = {
+  signedIntent: MultiPayload
+}
+
+export async function submitIntent(
+  args: SubmitIntentArgs
+): Promise<{ ok: SubmitIntentResponse } | { err: string }> {
+  const parseResult = submitIntentArgsSchema.safeParse(args)
+  if (!parseResult.success) {
+    return { err: `Invalid arguments: ${parseResult.error.message}` }
+  }
+
+  try {
+    const response = await OneClickService.submitIntent({
+      type: SubmitSwapTransferIntentRequest.type.SWAP_TRANSFER,
+      signedIntent: args.signedIntent,
+    })
+
+    return { ok: response }
+  } catch (error) {
+    const err = unknownServerErrorToString(error)
+    logger.error(`1cs: submitIntent error: ${err}`)
+    return { err }
+  }
 }

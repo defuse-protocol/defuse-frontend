@@ -783,8 +783,12 @@ export function renderIntentCreationResult(
       content = "No deposit address in the quote"
       break
 
-    case "ERR_TRANSFER_MESSAGE_FAILED":
-      content = "Failed to create transfer message. Please try again."
+    case "ERR_GENERATE_INTENT_FAILED":
+      content = "Failed to generate intent. Please try again."
+      break
+
+    case "ERR_SUBMIT_INTENT_FAILED":
+      content = "Failed to submit intent. Please try again."
       break
 
     case "ERR_AMOUNT_IN_BALANCE_INSUFFICIENT_AFTER_NEW_1CS_QUOTE":

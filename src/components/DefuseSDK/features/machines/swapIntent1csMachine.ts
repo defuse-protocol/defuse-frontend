@@ -1,25 +1,31 @@
 import {
   errors,
-  solverRelay,
+  prepareBroadcastRequest,
   withTimeout,
 } from "@defuse-protocol/internal-utils"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
-import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
+import {
+  type GenerateIntentResponse,
+  type MultiPayload,
+  QuoteRequest,
+} from "@defuse-protocol/one-click-sdk-typescript"
 import { retry } from "@lifeomic/attempt"
 import { base64 } from "@scure/base"
-import { getQuote as get1csQuoteApi } from "@src/components/DefuseSDK/features/machines/1cs"
+import {
+  generateIntent as generateIntentApi,
+  getQuote as get1csQuoteApi,
+  submitIntent as submitIntentApi,
+} from "@src/components/DefuseSDK/features/machines/1cs"
 import type { ParentEvents as Background1csQuoterParentEvents } from "@src/components/DefuseSDK/features/machines/background1csQuoterMachine"
+import { AUTH_METHOD_TO_STANDARD } from "@src/components/DefuseSDK/utils/intentStandards"
 import { logger } from "@src/utils/logger"
 import type { providers } from "near-api-js"
 import { assign, fromPromise, log, setup } from "xstate"
 import { bridgeSDK } from "../../constants/bridgeSdk"
-import { createTransferMessage } from "../../core/messages"
-import { convertPublishIntentToLegacyFormat } from "../../sdk/solverRelay/utils/parseFailedPublishError"
+import { wrapPayloadAsWalletMessage } from "../../core/messages"
 import type { BaseTokenInfo } from "../../types/base"
-import type { IntentsUserId } from "../../types/intentsUserId"
 import { assert } from "../../utils/assert"
-import { verifyWalletSignature } from "../../utils/verifyWalletSignature"
 import {
   type WalletErrorCode,
   extractWalletErrorCode,
@@ -49,6 +55,7 @@ type Context = {
       }
     | { err: string; originalRequest?: QuoteRequest | undefined }
     | null
+  generateIntentResponse: GenerateIntentResponse | null
   walletMessage: walletMessage.WalletMessage | null
   signature: walletMessage.WalletSignatureResult | null
   intentHash: string | null
@@ -59,20 +66,18 @@ type Context = {
           reason:
             | "ERR_1CS_QUOTE_FAILED"
             | "ERR_NO_DEPOSIT_ADDRESS"
-            | "ERR_TRANSFER_MESSAGE_FAILED"
+            | "ERR_GENERATE_INTENT_FAILED"
+            | "ERR_SUBMIT_INTENT_FAILED"
             | "ERR_FAILED_TO_PREPARE_MESSAGE_TO_SIGN"
             | "ERR_USER_DIDNT_SIGN"
-            | "ERR_CANNOT_VERIFY_SIGNATURE"
-            | "ERR_SIGNED_DIFFERENT_ACCOUNT"
             | "ERR_PUBKEY_EXCEPTION"
-            | "ERR_CANNOT_PUBLISH_INTENT"
             | "ERR_AMOUNT_IN_BALANCE_INSUFFICIENT_AFTER_NEW_1CS_QUOTE"
             | WalletErrorCode
             | PublicKeyVerifierErrorCodes
           error: Error | null
         }
       | {
-          reason: "ERR_CANNOT_PUBLISH_INTENT"
+          reason: "ERR_SUBMIT_INTENT_FAILED"
           server_reason: string
         }
   }
@@ -138,6 +143,9 @@ export const swapIntent1csMachine = setup({
       quote1csResult: (_, result: NonNullable<Context["quote1csResult"]>) =>
         result,
     }),
+    setGenerateIntentResponse: assign({
+      generateIntentResponse: (_, response: GenerateIntentResponse) => response,
+    }),
     setWalletMessage: assign({
       walletMessage: (_, walletMessage: walletMessage.WalletMessage) =>
         walletMessage,
@@ -199,52 +207,30 @@ export const swapIntent1csMachine = setup({
         })
       }
     ),
-    createTransferMessageActor: fromPromise(
+    generateIntentActor: fromPromise(
       async ({
         input,
       }: {
         input: {
-          tokenIn: BaseTokenInfo
-          amountIn: { amount: bigint; decimals: number }
           depositAddress: string
           defuseUserId: string
-          deadline: string
+          userChainType: AuthMethod
         }
-      }): Promise<walletMessage.WalletMessage> => {
-        const { nonce, deadline } = await bridgeSDK
-          .intentBuilder()
-          .setDeadline(new Date(input.deadline))
-          .build()
+      }): Promise<GenerateIntentResponse> => {
+        const standard = AUTH_METHOD_TO_STANDARD[input.userChainType]
+        const result = await generateIntentApi({
+          depositAddress: input.depositAddress,
+          signerId: input.defuseUserId,
+          standard,
+        })
 
-        // Create the transfer message using createTransferMessage
-        const tokenInAssetId = input.tokenIn.defuseAssetId
+        if ("err" in result) {
+          throw new Error(result.err)
+        }
 
-        const walletMessage = createTransferMessage(
-          [[tokenInAssetId, input.amountIn.amount]], // tokenDeltas
-          {
-            signerId: input.defuseUserId as IntentsUserId, // signer
-            receiverId: input.depositAddress, // receiver (deposit address from 1CS)
-            deadlineTimestamp: Date.parse(deadline),
-            nonce: base64.decode(nonce),
-          }
-        )
-
-        return walletMessage
+        return result.ok
       }
     ),
-    verifySignatureActor: fromPromise(
-      ({
-        input,
-      }: {
-        input: {
-          signature: walletMessage.WalletSignatureResult
-          userAddress: string
-        }
-      }) => {
-        return verifyWalletSignature(input.signature, input.userAddress)
-      }
-    ),
-    publicKeyVerifierActor: publicKeyVerifierMachine,
     signMessage: fromPromise(
       async (_: {
         input: walletMessage.WalletMessage
@@ -252,7 +238,8 @@ export const swapIntent1csMachine = setup({
         throw new Error("signMessage actor must be provided by the parent")
       }
     ),
-    broadcastMessage: fromPromise(
+    publicKeyVerifierActor: publicKeyVerifierMachine,
+    submitIntentActor: fromPromise(
       async ({
         input,
       }: {
@@ -260,10 +247,24 @@ export const swapIntent1csMachine = setup({
           signatureData: walletMessage.WalletSignatureResult
           userInfo: { userAddress: string; userChainType: AuthMethod }
         }
-      }) =>
-        solverRelay
-          .publishIntent(input.signatureData, input.userInfo, [])
-          .then(convertPublishIntentToLegacyFormat)
+      }): Promise<
+        { tag: "ok"; value: string } | { tag: "err"; value: { reason: string } }
+      > => {
+        // Transform WalletSignatureResult to MultiPayload format
+        const signedIntent = prepareBroadcastRequest.prepareSwapSignedData(
+          input.signatureData,
+          input.userInfo
+        ) as MultiPayload
+
+        const result = await submitIntentApi({ signedIntent })
+
+        if ("err" in result) {
+          return { tag: "err", value: { reason: result.err } }
+        }
+
+        // The response should contain the intent hash
+        return { tag: "ok", value: result.ok.intentHash ?? "" }
+      }
     ),
   },
   guards: {
@@ -316,7 +317,7 @@ export const swapIntent1csMachine = setup({
     },
   },
 }).createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5SwO4EMAOBaAlgOwBcxCsBGAY1gDoAxMA8gC3ygtgEUBXAeyIGII3PGCr4AbtwDWI1JlyFiBMpVr0mLNl15gE47uTQEcQgNoAGALrmLiUBm6wcRobZAAPRACYAnAFYqACzewQAcIQDMZt4hZgBssQA0IACeXuGeVOG+pAEA7OEhpLmkwQGxAL7lSbLY+EQkbKoMzHislFr8YABOXdxdVBgANoYAZn0AtlQ18vVKjXTNGu08RLp4EgbOeNbWrvaOW64eCD7+QaERUTHxSakIhYGhsblhvrkBnr6+ldXotQoNFQANTQgxwEEMLA6YD4uyQIH2TmMeCOiFyZhCVDMZlyLxeZlInk+uVuiACRSopF8sVIsTM2Q+sWpPxA0zqimU1BBYIhRla0NhpBs8MRh3hx3RmOxuJC+MJxNJCGeUs+3lihR8uW8tJZbIBc2BoPBkP5KxhJk8wrsDiRLnFaIxWJxeJi8reis84ViVHRPgCIX9ZkisXCur+Mw5jQAgugka0AApdHDkMAAYUYaFaaaEIxwXXGkKEfHjACUAJKpgCiAH1UwAJKMAOQA4jXUwB5Rs0MslgCylYAInDrQdkaiEISAuFAqRwt5PHTSFTYgEAoqvv4zAuoivvFqAr4QmG5OzAdQY2g41BE8m0xms6mc3mC1ti+Wq7WGy2202qwAZP9B2HBEbTFUBjknadyTnbcl2pVdFXCXEqHnPxch8WJPAJT0AmPf5Zk5KhUy6MATSgAAVLpM1gEZul7OBYDQGABCEEQ9GkKZw1PA1qGI0i+Qoqi8BouiGKYnQ9E2ZEdksPZQLHe0JxCTxcioGJV3VbwPipdDFXRAIsRCOl4M8IIvW8PCIzPIiSLIyjqNorp6NgRjmO6Xp+iGUYJk4k99UIvi7KEkSnLEmA1g2QttksYDRQU8DEFIZTVPUsoQi0zwdM8ddMsCOIsO1alZ2iSzuMIgBlHAoDwFgWOEUR1ikGQqrwZzXLAWL5LtBKTg+DJMpCXwFyJIlikVQbpyS3J1VyN5wg+XxcKqVkuP8xpKuq2r3L6AZhgIMZ8ymFq2vEzrR269wvD6qgBqGzCRrGlJEGeb06W8GD8hxQpSrW4FuhwEZkhYDa8EMTgSLqtjGo4vUCMaIF-sB4GWrBkiIv0KKZKtEDzpRRTPDCMw1KnQ9-Uw9JfHCRUlxDQIiQJJLPWKDEfrhv6kyR1oQdRmFBHq9iZFWtmuURoGuZRghwYkxqpNMGKhTk3HxwJmJiayAMjM9T4qae+5wlINTCTeEN6T6zxWcjdmAbFqBucliHts8vaDsmWHLZFjmbbtqX0dl6KrFkkUurxnqVaJgN1bJrXKcVecDOmw9wkiXE4PN5a3eshHPZYeNOAAIzBcgAGkwGSRM4GIFNIYaiQOIwfPC5L5Is4BnBuhLMARjO20Q8uhAvS9H0g1nMw8nQ2lqdnVSMOCXw9x8DFvnToX3aoFvOevBvkyb8vYEr3nWJrpqBi34vS-Xtuug7ruFaDpXFIH710X1yIx8yxJdZyebMnpWk55eXw2JQzLz8sLNeosc6nx3iRPeeAq6O12t5Q69cC7b3PojS+19u5gT7o-IeL9R64nftTIa09SajUASUeaFtrIACFehoAgAYWAAkyz6mrgLXy+FV70O4Iw5hrD9S+0xjFQOI4e7jgWhkOI8R3joSMjrO4hI-DE28FuRaRJCi4hoTxKgvD+FoBYSwNhswOHQ0FqAnhDCmGGMEbMYRWwdi33ETg44Hwpw3SZAebIlN6a+EnsETIs0CYYgKjSYBvxLF0OsQI4x7CEFeX2j5DOuj9E2KMa0ExigHHSVEdjOKF03GmWnAuRaXwqTpCwv4z+OJvAoU0rOZ4tIXhHhAdw6y5V87jCcAJcibg6yGMYGY2uFj2m6M6XnbpBBen9MGTkuWAd8nB0kdEAymt8iegDDkamSEDZBCCMbQBKlR46Iql0npLA+kDNgEMhJztkkrw6ec6ZlzZk3Pmf7bB8U+5BADGpTCGyCjkjXJ-T40iwhahXDSHIKlKjLTwNwCAcBXApM5IrCRiksAfzuFip0BJVyrkGibbUpz5hqBaG0DgZp0WuLJNlGp08tx7iKPBF+pLDQ8jItCGl3zjh3RQgnL0ykYj6xBXcBcqlX5zypPKGkS1IljMIheK8N4UzpkzDAR8eBcz5iijywpiB3pSmdKPaIsoY66znAbNRNJoikHpG8IkESVpRN0YFXpwVHInRgPq3uEFsiqWCHuV4fh0ovHXHkSkUQCi0hiJlLI7LqAgxYL65WcEqCHmpJUmkuImR6S3JkI2TJPj+kWrkRN4Ds7i2qjzVN+MaQZEhbEbUq53iEkUYgQaeycglBXEGea+sK3rxtrnVBZ8y4wP3nWnq6RIj4KiItNUpk8iTx8HTLCMb3oBEIRWtJsTMn6mnbg6I049zxFNvSJdHaJxLkbcy7dhKpzOtRetZ5MzrmMCPW4jZalF3ZB7XI6mKlVJaiKHuLILL5UusVY0R84whj0EgF+xAQ0cjE30jEdK716VKJ8FBTNspsSfHiFBl9KhKw9D6MhhAZQ53zmpCKw8RkxWJSXJNdCl6kpMnSEtSoQA */
+  /** @xstate-layout N4IgpgJg5mDOIC5SwO4EMAOBaAlgOwBcxCsBGAY1gDoAxMA8gC3ygtgEUBXAeyIGII3PGCr4AbtwDWI1JlyFiBMpVr0mLNl15gE47uTQEcQgNoAGALrmLiUBm6wcRobZAAPRACYAnAFYqACzewQAcIQDMZt4hZgBssQA0IACeXuGeVOG+pAEA7OEhpLmkwQGxAL7lSbLY+EQkbKoMzHislFr8YABOXdxdVBgANoYAZn0AtlQ18vVKjXTNGu08RLp4EgbOeNbWrvaOW64eCD7+QaERUTHxSakIhYGhsblhvrkBnr6+ldXotQoNFQANTQgxwEEMLA6YD4uyQIH2TmMeCOiFyZhCVDMZlyLxeZlInk+uVuiACRSopF8sVIsTM2Q+sWpPxA0zqimU1BBYIhRla0NhpBs8MRh3hx3RmOxuJC+MJxNJCGeUs+3lihR8uW8tJZbIBc2BoPBkP5KxhJk8wrsDiRLnFaIxWJxeJi8vis84ViVHRPgCIX9ZkisXCur+Mw5OmPf5Zy5dLKLJ5HvCdI1P0W */
   id: "swap-intent-1cs",
 
   context: ({ input }) => ({
@@ -325,6 +326,7 @@ export const swapIntent1csMachine = setup({
     userChainType: input.userChainType,
     nearClient: input.nearClient,
     quote1csResult: null,
+    generateIntentResponse: null,
     walletMessage: null,
     signature: null,
     intentHash: null,
@@ -436,7 +438,7 @@ export const swapIntent1csMachine = setup({
           },
         },
         {
-          target: "CreatingTransferMessage",
+          target: "GeneratingIntent",
           guard: {
             type: "isQuoteSuccess",
           },
@@ -497,7 +499,7 @@ export const swapIntent1csMachine = setup({
       },
       on: {
         PRICE_CHANGE_CONFIRMED: {
-          target: "CreatingTransferMessage",
+          target: "GeneratingIntent",
         },
         PRICE_CHANGE_CANCELLED: {
           target: "Error",
@@ -512,46 +514,33 @@ export const swapIntent1csMachine = setup({
       },
     },
 
-    CreatingTransferMessage: {
+    GeneratingIntent: {
       invoke: {
-        src: "createTransferMessageActor",
+        src: "generateIntentActor",
         input: ({ context }) => {
           assert(
             context.quote1csResult != null && "ok" in context.quote1csResult
           )
           assert(context.quote1csResult.ok.quote.depositAddress != null)
-          // for EXACT_INPUT quote we use amountIn from input as it always changes
-          // for EXACT_OUTPUT quote we can't use initial amountIn from input as it is stale and changes after requoting, so we are using the input from the quote.
-          const isExactIn =
-            context.input.swapType === QuoteRequest.swapType.EXACT_INPUT
-          const amount = BigInt(
-            (isExactIn
-              ? context.input.amountIn.amount
-              : context.quote1csResult.ok.quote.amountIn) ?? "0"
-          )
-          assert(
-            amount > 0n,
-            isExactIn
-              ? "Invalid input amount, must be greater than 0"
-              : "Quote missing amountIn or amountIn is 0 for exact-out swap"
-          )
           return {
-            tokenIn: context.input.tokenIn,
-            amountIn: {
-              amount,
-              decimals: context.input.tokenIn.decimals,
-            },
             depositAddress: context.quote1csResult.ok.quote.depositAddress,
             defuseUserId: context.input.defuseUserId,
-            deadline: context.input.deadline,
+            userChainType: context.input.userChainType,
           }
         },
         onDone: {
           target: "Signing",
-          actions: {
-            type: "setWalletMessage",
-            params: ({ event }) => event.output,
-          },
+          actions: [
+            {
+              type: "setGenerateIntentResponse",
+              params: ({ event }) => event.output,
+            },
+            {
+              type: "setWalletMessage",
+              params: ({ event }) =>
+                wrapPayloadAsWalletMessage(event.output.intent),
+            },
+          ],
         },
         onError: {
           target: "Error",
@@ -563,7 +552,7 @@ export const swapIntent1csMachine = setup({
             {
               type: "setError",
               params: ({ event }) => ({
-                reason: "ERR_TRANSFER_MESSAGE_FAILED",
+                reason: "ERR_GENERATE_INTENT_FAILED",
                 error:
                   event.error instanceof Error
                     ? event.error
@@ -584,7 +573,7 @@ export const swapIntent1csMachine = setup({
           return context.walletMessage
         },
         onDone: {
-          target: "VerifyingSignature",
+          target: "VerifyingPublicKeyPresence",
           actions: {
             type: "setSignature",
             params: ({ event }) => event.output,
@@ -612,54 +601,6 @@ export const swapIntent1csMachine = setup({
       },
     },
 
-    VerifyingSignature: {
-      invoke: {
-        src: "verifySignatureActor",
-        input: ({ context }) => {
-          assert(context.signature != null, "Signature is not set")
-          return {
-            signature: context.signature,
-            userAddress: context.userAddress,
-          }
-        },
-        onDone: [
-          {
-            target: "VerifyingPublicKeyPresence",
-            guard: {
-              type: "isTrue",
-              params: ({ event }) => event.output,
-            },
-          },
-          {
-            target: "Error",
-            actions: {
-              type: "setError",
-              params: {
-                reason: "ERR_SIGNED_DIFFERENT_ACCOUNT",
-                error: null,
-              },
-            },
-          },
-        ],
-        onError: {
-          target: "Error",
-          actions: [
-            {
-              type: "logError",
-              params: ({ event }) => event,
-            },
-            {
-              type: "setError",
-              params: ({ event }) => ({
-                reason: "ERR_CANNOT_VERIFY_SIGNATURE",
-                error: errors.toError(event.error),
-              }),
-            },
-          ],
-        },
-      },
-    },
-
     VerifyingPublicKeyPresence: {
       invoke: {
         id: "publicKeyVerifierRef",
@@ -677,7 +618,7 @@ export const swapIntent1csMachine = setup({
         },
         onDone: [
           {
-            target: "BroadcastingIntent",
+            target: "SubmittingIntent",
             guard: {
               type: "isOk",
               params: ({ event }) => event.output,
@@ -716,9 +657,9 @@ export const swapIntent1csMachine = setup({
       },
     },
 
-    BroadcastingIntent: {
+    SubmittingIntent: {
       invoke: {
-        src: "broadcastMessage",
+        src: "submitIntentActor",
         input: ({ context }) => {
           assert(context.signature != null, "Signature is not set")
 
@@ -738,7 +679,7 @@ export const swapIntent1csMachine = setup({
               params: ({ event }) => event.output,
             },
             actions: [
-              log("Intent published"),
+              log("Intent submitted"),
               {
                 type: "setIntentHash",
                 params: ({ event }) => {
@@ -755,7 +696,7 @@ export const swapIntent1csMachine = setup({
               params: ({ event }) => {
                 assert(event.output.tag === "err")
                 return {
-                  reason: "ERR_CANNOT_PUBLISH_INTENT",
+                  reason: "ERR_SUBMIT_INTENT_FAILED",
                   server_reason: event.output.value.reason,
                 }
               },
@@ -772,7 +713,7 @@ export const swapIntent1csMachine = setup({
             {
               type: "setError",
               params: ({ event }) => ({
-                reason: "ERR_CANNOT_PUBLISH_INTENT",
+                reason: "ERR_SUBMIT_INTENT_FAILED",
                 error: errors.toError(event.error),
               }),
             },
