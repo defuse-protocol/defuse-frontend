@@ -1,8 +1,7 @@
 import withBundleAnalyzer from "@next/bundle-analyzer"
 import { withSentryConfig } from "@sentry/nextjs"
 import { DedupePlugin } from "@tinkoff/webpack-dedupe-plugin"
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   productionBrowserSourceMaps: true,
@@ -30,7 +29,7 @@ const nextConfig = {
         path: false,
         os: false,
         events: "events",
-        buffer: require.resolve("buffer/")
+        buffer: false
       },
     }
 
