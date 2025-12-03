@@ -115,6 +115,7 @@ export const backgroundBalanceActor = fromPromise(
       case BlockchainEnum.VERTEX:
       case BlockchainEnum.OPTIMA:
       case BlockchainEnum.EASYCHAIN:
+      case BlockchainEnum.HAKO:
       case BlockchainEnum.AURORA:
       case BlockchainEnum.AURORA_DEVNET:
       case BlockchainEnum.GNOSIS:

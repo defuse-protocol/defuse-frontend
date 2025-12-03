@@ -83,6 +83,10 @@ export const chainIcons: Record<
     dark: "/static/icons/network/easychain.svg",
     light: "/static/icons/network/easychain.svg",
   },
+  hako: {
+    dark: "/static/icons/network/hako-dark.svg",
+    light: "/static/icons/network/hako-light.svg",
+  },
   aurora: {
     dark: "/static/icons/network/aurora.svg",
     light: "/static/icons/network/aurora.svg",
@@ -303,6 +307,12 @@ export function getBlockchainsOptions(): Record<
       ),
       value: BlockchainEnum.EASYCHAIN,
       tags: ["vol:106"],
+    },
+    [BlockchainEnum.HAKO]: {
+      label: "Hako",
+      icon: <NetworkIcon chainIcon={chainIcons.hako} chainName="hako" />,
+      value: BlockchainEnum.HAKO,
+      tags: ["vol:107"],
     },
     [BlockchainEnum.POLYGON]: {
       label: "Polygon",

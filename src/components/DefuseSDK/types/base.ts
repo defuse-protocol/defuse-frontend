@@ -32,6 +32,7 @@ export type VirtualChains =
   | "vertex"
   | "optima"
   | "easychain"
+  | "hako"
   | "aurora"
   | "aurora_devnet"
 
