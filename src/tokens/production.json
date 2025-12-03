@@ -963,6 +963,23 @@
             }
           ],
           "tags": ["mc:462", "tvol:12", "aid:aurora"]
+        },
+        {
+          "defuseAssetId": "nep141:aaaaaa20d9e0e2461697782ef11675f668207961.factory.bridge.near",
+          "symbol": "AURORA",
+          "name": "Aurora",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/14803.png",
+          "originChainName": "bsc",
+          "deployments": [
+            {
+              "address": "0x1a6659d434482a2b1694098c6757a62a8619cf12",
+              "decimals": 18,
+              "chainName": "bsc",
+              "bridge": "near_omni"
+            }
+          ],
+          "tags": ["mc:462", "tvol:12", "aid:aurora"]
         }
       ],
       "tags": ["mc:462", "tvol:12", "aid:aurora"]

@@ -1,5 +1,5 @@
-import { Eye, Gift, PaperPlaneRight, Plus } from "@phosphor-icons/react"
-import { Button, Skeleton } from "@radix-ui/themes"
+import { Gift, PaperPlaneRight, Plus } from "@phosphor-icons/react"
+import { Skeleton } from "@radix-ui/themes"
 import { useState } from "react"
 import { AuthGate } from "../../../components/AuthGate"
 import { Island } from "../../../components/Island"
@@ -7,7 +7,6 @@ import { IslandHeader } from "../../../components/IslandHeader"
 import type { RenderHostAppLink } from "../../../types/hostAppLink"
 import { RevealAddressDialog } from "./RevealAddressDialog"
 import { FormattedCurrency } from "./shared/FormattedCurrency"
-import { IntentsIcon } from "./shared/IntentsIcon"
 import { NavButton } from "./shared/NavButton"
 
 export function SummaryIsland({
@@ -26,23 +25,7 @@ export function SummaryIsland({
 
   return (
     <Island className="flex flex-col gap-8">
-      <IslandHeader
-        heading="Account"
-        rightSlot={
-          isLoggedIn ? (
-            <Button
-              variant="soft"
-              color="gray"
-              radius="full"
-              className="font-bold text-gray-12"
-              onClick={() => setIsRevealed(true)}
-            >
-              <IntentsIcon className="rounded-full" />
-              Reveal address <Eye weight="bold" />
-            </Button>
-          ) : null
-        }
-      />
+      <IslandHeader heading="Account" />
 
       {isRevealed && internalUserAddress != null && (
         <RevealAddressDialog
