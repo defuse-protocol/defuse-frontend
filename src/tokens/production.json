@@ -650,8 +650,8 @@
           "tags": ["mc:3", "type:stablecoin", "tvol:3", "aid:usdt"]
         },
         {
-          "defuseAssetId": "nep245:v2_1.omni.hot.tg:196_RUbbJ8jon8R1ui3x9B5ZptJnCbe",
-          "symbol": "USDT",
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:196_2fezDCvVYRsG8wrK6deJ2VRPiAS1",
+          "symbol": "USDT0",
           "name": "Tether USD",
           "decimals": 6,
           "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
