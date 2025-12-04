@@ -10,6 +10,7 @@ import { isSupportedByBrowser } from "@src/features/webauthn/lib/webauthnService
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import useShortAccountId from "@src/hooks/useShortAccountId"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
+import { usePrivyWallet } from "@src/providers/PrivyWalletProvider"
 import { useSignInWindowOpenState } from "@src/stores/useSignInWindowOpenState"
 import { mapStringToEmojis } from "@src/utils/emoji"
 import { TonConnectButton } from "./TonConnectButton"
@@ -19,6 +20,7 @@ const ConnectWallet = () => {
   const { state, signIn, connectors } = useConnectWallet()
   const { shortAccountId } = useShortAccountId(state.displayAddress ?? "")
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
+  const privyWallet = usePrivyWallet()
 
   const handleNearWalletSelector = () => {
     return signIn({ id: ChainType.Near })
@@ -34,6 +36,10 @@ const ConnectWallet = () => {
 
   const handlePasskey = () => {
     return signIn({ id: ChainType.WebAuthn })
+  }
+
+  const handlePrivy = () => {
+    privyWallet.login()
   }
 
   if (!state.address) {
@@ -86,6 +92,27 @@ const ConnectWallet = () => {
                 </div>
               </Button>
             )}
+
+            <Button
+              onClick={() => handlePrivy()}
+              size="4"
+              radius="medium"
+              variant="soft"
+              color="gray"
+              className="px-2.5"
+            >
+              <div className="w-full flex items-center justify-start gap-2">
+                <Image
+                  src="/static/icons/wallets/privy.svg"
+                  alt="Privy"
+                  width={36}
+                  height={36}
+                />
+                <Text size="2" weight="bold">
+                  Email / Social Login
+                </Text>
+              </div>
+            </Button>
 
             {whitelabelTemplate === "turboswap" ? (
               <>

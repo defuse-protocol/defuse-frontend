@@ -18,6 +18,7 @@ import {
 } from "@src/features/webauthn/hooks/useWebAuthnStore"
 import { useSignInLogger } from "@src/hooks/useSignInLogger"
 import { useNearWallet } from "@src/providers/NearWalletProvider"
+import { usePrivyWallet } from "@src/providers/PrivyWalletProvider"
 import {
   signTransactionStellar,
   submitTransactionStellar,
@@ -125,6 +126,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
   const evmWalletAccount = useAccount()
   const evmWalletConnections = useConnections()
   const { sendTransactions } = useEVMWalletActions()
+  const privyWallet = usePrivyWallet()
 
   const handleSignInViaWagmi = async ({
     connector,
@@ -145,6 +147,10 @@ export const useConnectWallet = (): ConnectWalletAction => {
       return Promise.resolve(evmWalletDisconnect.disconnect({ connector }))
     })
     await Promise.all(evmWalletDisconnects)
+    // Also logout from Privy if authenticated
+    if (privyWallet.authenticated) {
+      await privyWallet.logout()
+    }
   }
 
   // We check `account.chainId` instead of `account.chain` to determine if

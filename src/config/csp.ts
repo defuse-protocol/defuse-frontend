@@ -14,6 +14,7 @@ const cspConfig = {
     "https://connect.solflare.com",
     "https://*.peersyst.tech",
     "https://wallet.intear.tech",
+    "https://auth.privy.io",
   ],
   "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
   "font-src": ["'self'", "https://fonts.gstatic.com"],
@@ -72,6 +73,7 @@ const cspConfig = {
     "https://h4n.app",
     "https://logout-bridge-service.intear.tech",
     "wss://logout-bridge-service.intear.tech",
+    "https://auth.privy.io",
 
     /** TON Wallets */
     "https://tonconnect.tonkeeper.com/wallets-v2.json",
