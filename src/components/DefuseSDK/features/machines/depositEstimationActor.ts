@@ -60,7 +60,8 @@ export const depositEstimateMaxValueActor = fromPromise(
       case BlockchainEnum.BSC:
       case BlockchainEnum.OPTIMISM:
       case BlockchainEnum.AVALANCHE:
-      case BlockchainEnum.MONAD: {
+      case BlockchainEnum.MONAD:
+      case BlockchainEnum.LAYERX: {
         if (
           !validateAddress(userAddress, blockchain) ||
           generateAddress == null ||
@@ -136,7 +137,6 @@ export const depositEstimateMaxValueActor = fromPromise(
       case BlockchainEnum.APTOS:
       case BlockchainEnum.CARDANO:
       case BlockchainEnum.LITECOIN:
-      case BlockchainEnum.LAYERX:
         return 0n
       default:
         networkToSolverFormat satisfies never
