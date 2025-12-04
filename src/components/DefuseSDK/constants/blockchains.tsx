@@ -381,7 +381,7 @@ export function getBlockchainsOptions(): Record<
       tags: [],
     },
     [BlockchainEnum.LAYERX]: {
-      label: "LayerX",
+      label: "X Layer",
       icon: <NetworkIcon chainIcon={chainIcons.layerx} chainName="LayerX" />,
       value: BlockchainEnum.LAYERX,
       tags: [],
