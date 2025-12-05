@@ -212,3 +212,59 @@ function unknownServerErrorToString(error: unknown): string {
       ? error.message
       : String(error)
 }
+
+const getWithdrawQuoteArgsSchema = z.object({
+  dry: z.boolean(),
+  slippageTolerance: z.number(),
+  originAsset: z.string(),
+  destinationAsset: z.string(),
+  amount: z.string(),
+  deadline: z.string(),
+  userAddress: z.string(),
+  authMethod: authMethodSchema,
+  swapType: swapTypeSchema,
+  recipient: z.string(),
+})
+
+export type GetWithdrawQuoteArgs = z.infer<typeof getWithdrawQuoteArgsSchema>
+
+export async function getWithdrawQuote(
+  args: GetWithdrawQuoteArgs
+): Promise<
+  | { ok: QuoteResponse }
+  | { err: string; originalRequest?: QuoteRequest | undefined }
+> {
+  const parseResult = getWithdrawQuoteArgsSchema.safeParse(args)
+  if (!parseResult.success) {
+    return { err: `Invalid arguments: ${parseResult.error.message}` }
+  }
+
+  const { userAddress, authMethod, recipient, ...quoteRequest } =
+    parseResult.data
+  let req: QuoteRequest | undefined = undefined
+  try {
+    const intentsUserId = authIdentity.authHandleToIntentsUserId(
+      userAddress,
+      authMethod
+    )
+
+    req = {
+      ...quoteRequest,
+      depositType: QuoteRequest.depositType.INTENTS,
+      refundTo: intentsUserId,
+      refundType: QuoteRequest.refundType.INTENTS,
+      recipient,
+      recipientType: QuoteRequest.recipientType.DESTINATION_CHAIN,
+      quoteWaitingTimeMs: 0,
+      referral: referralMap[await whitelabelTemplateFlag()],
+    }
+
+    return {
+      ok: await OneClickService.getQuote(req),
+    }
+  } catch (error) {
+    const err = unknownServerErrorToString(error)
+    logger.error(`1cs: getWithdrawQuote error: ${err}`)
+    return { err, originalRequest: req }
+  }
+}
