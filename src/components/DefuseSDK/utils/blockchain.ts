@@ -19,6 +19,7 @@ export function isAuroraVirtualChain(network: SupportedChainName): boolean {
     "vertex",
     "optima",
     "easychain",
+    "hako",
     "aurora_devnet",
   ]
   return virtualChains.includes(network)

@@ -41,6 +41,7 @@ export const settings: Settings = {
     vertex: "https://rpc-0x4e454173.aurora-cloud.dev",
     optima: "https://rpc-0x4e454161.aurora-cloud.dev",
     easychain: "https://0x4e454218.rpc.aurora-cloud.dev",
+    hako: "https://0x4e4542ad.rpc.aurora-cloud.dev",
     aurora: "https://mainnet.aurora.dev",
     aurora_devnet: "https://0x4e45426a.rpc.aurora-cloud.dev",
     xrpledger: "https://xrplcluster.com",
