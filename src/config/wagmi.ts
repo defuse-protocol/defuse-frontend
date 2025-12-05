@@ -86,6 +86,21 @@ export const coineasy = {
   },
 } as const satisfies Chain
 
+export const hako = {
+  id: 1313161901,
+  name: "Hako",
+  nativeCurrency: { name: "Ethereum", symbol: "ETH", decimals: 18 },
+  rpcUrls: {
+    default: { http: ["https://0x4e4542ad.rpc.aurora-cloud.dev"] },
+  },
+  blockExplorers: {
+    default: {
+      name: "Explorer",
+      url: "https://0x4e4542ad.explorer.aurora-cloud.dev",
+    },
+  },
+} as const satisfies Chain
+
 export const config = createConfig({
   chains: [
     mainnet,
@@ -101,6 +116,7 @@ export const config = createConfig({
     vertex,
     optima,
     coineasy,
+    hako,
   ],
   connectors: [
     PROJECT_ID != null &&
@@ -132,5 +148,6 @@ export const config = createConfig({
     [vertex.id]: http(),
     [optima.id]: http(),
     [coineasy.id]: http(),
+    [hako.id]: http(),
   },
 })

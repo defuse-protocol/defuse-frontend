@@ -82,13 +82,17 @@ export const depositGenerateAddressMachine = setup({
     isInputSufficient: ({ event }) => {
       assertEvent(event, "REQUEST_GENERATE_ADDRESS")
       if (
-        event.params.blockchain === "turbochain" ||
-        event.params.blockchain === "tuxappchain" ||
-        event.params.blockchain === "vertex" ||
-        event.params.blockchain === "optima" ||
-        event.params.blockchain === "easychain" ||
-        event.params.blockchain === "aurora" ||
-        event.params.blockchain === "aurora_devnet"
+        event.params.blockchain &&
+        [
+          "turbochain",
+          "tuxappchain",
+          "vertex",
+          "optima",
+          "easychain",
+          "hako",
+          "aurora",
+          "aurora_devnet",
+        ].includes(event.params.blockchain)
       ) {
         return false
       }

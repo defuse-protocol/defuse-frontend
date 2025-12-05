@@ -250,6 +250,7 @@ export const depositUIMachine = setup({
         "vertex",
         "optima",
         "easychain",
+        "hako",
         "aurora_devnet",
       ].includes(blockchain ?? "")
     },

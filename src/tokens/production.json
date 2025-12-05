@@ -77,6 +77,12 @@
             {
               "address": "0x368ebb46aca6b8d0787c96b2b20bd3cc3f2c45f7",
               "decimals": 6,
+              "chainName": "hako",
+              "bridge": "aurora_engine"
+            },
+            {
+              "address": "0x368ebb46aca6b8d0787c96b2b20bd3cc3f2c45f7",
+              "decimals": 6,
               "chainName": "optima",
               "bridge": "aurora_engine"
             }
@@ -371,6 +377,12 @@
             {
               "address": "0xC42C30aC6Cc15faC9bD938618BcaA1a1FaE8501d",
               "decimals": 24,
+              "chainName": "hako",
+              "bridge": "aurora_engine"
+            },
+            {
+              "address": "0xC42C30aC6Cc15faC9bD938618BcaA1a1FaE8501d",
+              "decimals": 24,
               "chainName": "optima",
               "bridge": "aurora_engine"
             }
@@ -468,6 +480,12 @@
               "address": "0x80Da25Da4D783E57d2FCdA0436873A193a4BEccF",
               "decimals": 6,
               "chainName": "easychain",
+              "bridge": "aurora_engine"
+            },
+            {
+              "address": "0x80Da25Da4D783E57d2FCdA0436873A193a4BEccF",
+              "decimals": 6,
+              "chainName": "hako",
               "bridge": "aurora_engine"
             },
             {
@@ -794,6 +812,12 @@
             {
               "address": "0x5a524251df27A25AC6b9964a93E1c23AD692688D",
               "decimals": 18,
+              "chainName": "hako",
+              "bridge": "aurora_engine"
+            },
+            {
+              "address": "0x5a524251df27A25AC6b9964a93E1c23AD692688D",
+              "decimals": 18,
               "chainName": "optima",
               "bridge": "aurora_engine"
             }
@@ -936,6 +960,12 @@
               "address": "0x8BEc47865aDe3B172A928df8f990Bc7f2A3b9f79",
               "decimals": 18,
               "chainName": "easychain",
+              "bridge": "aurora_engine"
+            },
+            {
+              "address": "0x8BEc47865aDe3B172A928df8f990Bc7f2A3b9f79",
+              "decimals": 18,
+              "chainName": "hako",
               "bridge": "aurora_engine"
             },
             {

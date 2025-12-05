@@ -529,6 +529,7 @@ export function createDepositFromSiloTransaction(
     getEVMChainId("vertex"),
     getEVMChainId("optima"),
     getEVMChainId("easychain"),
+    getEVMChainId("hako"),
     getEVMChainId("aurora_devnet"),
   ]
 
@@ -953,6 +954,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.VERTEX:
         case BlockchainEnum.OPTIMA:
         case BlockchainEnum.EASYCHAIN:
+        case BlockchainEnum.HAKO:
         case BlockchainEnum.AURORA:
         case BlockchainEnum.AURORA_DEVNET:
         case BlockchainEnum.HYPERLIQUID:
@@ -1008,6 +1010,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.VERTEX:
         case BlockchainEnum.OPTIMA:
         case BlockchainEnum.EASYCHAIN:
+        case BlockchainEnum.HAKO:
         case BlockchainEnum.AURORA:
         case BlockchainEnum.AURORA_DEVNET:
           return {
@@ -1069,6 +1072,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.VERTEX:
         case BlockchainEnum.OPTIMA:
         case BlockchainEnum.EASYCHAIN:
+        case BlockchainEnum.HAKO:
         case BlockchainEnum.AURORA:
         case BlockchainEnum.AURORA_DEVNET:
         case BlockchainEnum.HYPERLIQUID:
@@ -1118,6 +1122,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.VERTEX:
         case BlockchainEnum.OPTIMA:
         case BlockchainEnum.EASYCHAIN:
+        case BlockchainEnum.HAKO:
         case BlockchainEnum.AURORA:
         case BlockchainEnum.AURORA_DEVNET:
         case BlockchainEnum.HYPERLIQUID:
@@ -1173,6 +1178,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.VERTEX:
         case BlockchainEnum.OPTIMA:
         case BlockchainEnum.EASYCHAIN:
+        case BlockchainEnum.HAKO:
         case BlockchainEnum.AURORA:
         case BlockchainEnum.AURORA_DEVNET:
         case BlockchainEnum.HYPERLIQUID:
@@ -1228,6 +1234,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.VERTEX:
         case BlockchainEnum.OPTIMA:
         case BlockchainEnum.EASYCHAIN:
+        case BlockchainEnum.HAKO:
         case BlockchainEnum.AURORA:
         case BlockchainEnum.AURORA_DEVNET:
         case BlockchainEnum.HYPERLIQUID:
@@ -1283,6 +1290,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.VERTEX:
         case BlockchainEnum.OPTIMA:
         case BlockchainEnum.EASYCHAIN:
+        case BlockchainEnum.HAKO:
         case BlockchainEnum.AURORA:
         case BlockchainEnum.AURORA_DEVNET:
         case BlockchainEnum.HYPERLIQUID:
@@ -1341,6 +1349,8 @@ export function getWalletRpcUrl(network: BlockchainEnum): string {
       return settings.rpcUrls.optima
     case BlockchainEnum.EASYCHAIN:
       return settings.rpcUrls.easychain
+    case BlockchainEnum.HAKO:
+      return settings.rpcUrls.hako
     case BlockchainEnum.POLYGON:
       return settings.rpcUrls.polygon
     case BlockchainEnum.BSC:

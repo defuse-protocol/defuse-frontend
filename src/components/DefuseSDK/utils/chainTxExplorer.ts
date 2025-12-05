@@ -40,6 +40,8 @@ export function chainTxExplorer(blockchain: SupportedChainName): string | null {
       return "https://explorer.optima.aurora.dev/tx/"
     case "easychain":
       return "https://0x4e454218.explorer.aurora-cloud.dev/tx/"
+    case "hako":
+      return "https://0x4e4542ad.explorer.aurora-cloud.dev/tx/"
     case "polygon":
       return "https://polygonscan.com/tx/"
     case "bsc":
