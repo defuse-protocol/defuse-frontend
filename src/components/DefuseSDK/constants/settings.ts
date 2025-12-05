@@ -60,7 +60,7 @@ export const settings: Settings = {
     aptos: "https://fullnode.mainnet.aptoslabs.com",
     cardano: "",
     litecoin: "https://litecoinspace.org/api",
-    layerx: "",
+    layerx: "https://rpc.xlayer.tech",
     monad: "https://rpc.monad.xyz",
   },
 }

@@ -173,10 +173,7 @@ export function getBlockchainsOptions(): Record<
   BlockchainEnum,
   BlockchainOption
 > {
-  const options: Record<
-    Exclude<BlockchainEnum, "eth:196">, // TODO: remove this once LayerX is supported
-    BlockchainOption
-  > = {
+  const options: Record<BlockchainEnum, BlockchainOption> = {
     [BlockchainEnum.NEAR]: {
       label: "Near",
       icon: <NetworkIcon chainIcon={chainIcons.near} chainName="near" />,
@@ -393,13 +390,12 @@ export function getBlockchainsOptions(): Record<
       value: BlockchainEnum.LITECOIN,
       tags: [],
     },
-    // TODO: Uncomment this once LayerX is supported
-    // [BlockchainEnum.LAYERX]: {
-    //   label: "LayerX",
-    //   icon: <NetworkIcon chainIcon={chainIcons.layerx} chainName="LayerX" />,
-    //   value: BlockchainEnum.LAYERX,
-    //   tags: [],
-    // },
+    [BlockchainEnum.LAYERX]: {
+      label: "X Layer",
+      icon: <NetworkIcon chainIcon={chainIcons.layerx} chainName="LayerX" />,
+      value: BlockchainEnum.LAYERX,
+      tags: [],
+    },
     [BlockchainEnum.MONAD]: {
       label: "Monad",
       icon: <NetworkIcon chainIcon={chainIcons.monad} chainName="Monad" />,
@@ -408,9 +404,7 @@ export function getBlockchainsOptions(): Record<
     },
   }
 
-  return sortBlockchainOptionsByVolume(
-    options as Record<BlockchainEnum, BlockchainOption> // TODO: remove this once LayerX is supported
-  )
+  return sortBlockchainOptionsByVolume(options)
 }
 
 function sortBlockchainOptionsByVolume(

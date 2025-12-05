@@ -124,7 +124,8 @@ export const backgroundBalanceActor = fromPromise(
       case BlockchainEnum.BSC:
       case BlockchainEnum.OPTIMISM:
       case BlockchainEnum.AVALANCHE:
-      case BlockchainEnum.MONAD: {
+      case BlockchainEnum.MONAD:
+      case BlockchainEnum.LAYERX: {
         if (isNativeToken(tokenDeployment)) {
           const balance = await getEvmNativeBalance({
             userAddress: userWalletAddress as Address,
@@ -254,7 +255,6 @@ export const backgroundBalanceActor = fromPromise(
       case BlockchainEnum.APTOS:
       case BlockchainEnum.CARDANO:
       case BlockchainEnum.LITECOIN:
-      case BlockchainEnum.LAYERX:
         break
       default:
         networkToSolverFormat satisfies never

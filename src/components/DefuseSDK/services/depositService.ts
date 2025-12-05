@@ -942,6 +942,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.CARDANO:
         case BlockchainEnum.LITECOIN:
         case BlockchainEnum.MONAD:
+        case BlockchainEnum.LAYERX:
           return {
             activeDeposit: false,
             passiveDeposit: true,
@@ -957,7 +958,6 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.AURORA:
         case BlockchainEnum.AURORA_DEVNET:
         case BlockchainEnum.HYPERLIQUID:
-        case BlockchainEnum.LAYERX:
           return {
             activeDeposit: false,
             passiveDeposit: false,
@@ -979,6 +979,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.OPTIMISM:
         case BlockchainEnum.AVALANCHE:
         case BlockchainEnum.MONAD:
+        case BlockchainEnum.LAYERX:
           return {
             activeDeposit: true,
             passiveDeposit: true,
@@ -1012,7 +1013,6 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.HAKO:
         case BlockchainEnum.AURORA:
         case BlockchainEnum.AURORA_DEVNET:
-        case BlockchainEnum.LAYERX:
           return {
             activeDeposit: true,
             passiveDeposit: false,
@@ -1060,6 +1060,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.CARDANO:
         case BlockchainEnum.LITECOIN:
         case BlockchainEnum.MONAD:
+        case BlockchainEnum.LAYERX:
           return {
             activeDeposit: false,
             passiveDeposit: true,
@@ -1075,7 +1076,6 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.AURORA:
         case BlockchainEnum.AURORA_DEVNET:
         case BlockchainEnum.HYPERLIQUID:
-        case BlockchainEnum.LAYERX:
           return {
             activeDeposit: false,
             passiveDeposit: false,
@@ -1110,6 +1110,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.CARDANO:
         case BlockchainEnum.LITECOIN:
         case BlockchainEnum.MONAD:
+        case BlockchainEnum.LAYERX:
           return {
             activeDeposit: false,
             passiveDeposit: true,
@@ -1125,7 +1126,6 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.AURORA:
         case BlockchainEnum.AURORA_DEVNET:
         case BlockchainEnum.HYPERLIQUID:
-        case BlockchainEnum.LAYERX:
           return {
             activeDeposit: false,
             passiveDeposit: false,
@@ -1166,6 +1166,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.CARDANO:
         case BlockchainEnum.LITECOIN:
         case BlockchainEnum.MONAD:
+        case BlockchainEnum.LAYERX:
           return {
             activeDeposit: false,
             passiveDeposit: true,
@@ -1181,7 +1182,6 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.AURORA:
         case BlockchainEnum.AURORA_DEVNET:
         case BlockchainEnum.HYPERLIQUID:
-        case BlockchainEnum.LAYERX:
           return {
             activeDeposit: false,
             passiveDeposit: false,
@@ -1222,6 +1222,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.CARDANO:
         case BlockchainEnum.LITECOIN:
         case BlockchainEnum.MONAD:
+        case BlockchainEnum.LAYERX:
           return {
             activeDeposit: false,
             passiveDeposit: true,
@@ -1237,7 +1238,6 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.AURORA:
         case BlockchainEnum.AURORA_DEVNET:
         case BlockchainEnum.HYPERLIQUID:
-        case BlockchainEnum.LAYERX:
           return {
             activeDeposit: false,
             passiveDeposit: false,
@@ -1278,6 +1278,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.CARDANO:
         case BlockchainEnum.LITECOIN:
         case BlockchainEnum.MONAD:
+        case BlockchainEnum.LAYERX:
           return {
             activeDeposit: false,
             passiveDeposit: true,
@@ -1293,7 +1294,6 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.AURORA:
         case BlockchainEnum.AURORA_DEVNET:
         case BlockchainEnum.HYPERLIQUID:
-        case BlockchainEnum.LAYERX:
           return {
             activeDeposit: false,
             passiveDeposit: false,
