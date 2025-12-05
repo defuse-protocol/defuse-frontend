@@ -67,3 +67,6 @@ export const APP_NETWORK_OUTAGE_NOTIFICATION = v.parse(
   v.optional(v.string(), ""),
   process.env.NEXT_PUBLIC_APP_NETWORK_OUTAGE_NOTIFICATION
 )
+
+export const PRIVY_APP_ID =
+  process.env.NEXT_PUBLIC_PRIVY_APP_ID || "cmiryue22050zjx0c4jbunjft"

@@ -1,15 +1,11 @@
 import { GoogleAnalytics } from "@next/third-parties/google"
-import { QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import type { Metadata, Viewport } from "next"
 import type { ReactNode } from "react"
-import { WagmiProvider } from "wagmi"
 
 import { InitDefuseSDK } from "@src/components/InitDefuseSDK"
 import { SentryTracer } from "@src/components/SentryTracer"
 import { whitelabelTemplateFlag } from "@src/config/featureFlags"
-import { config } from "@src/config/wagmi"
-import queryClient from "@src/constants/queryClient"
 import { WebAuthnProvider } from "@src/features/webauthn/providers/WebAuthnProvider"
 import { initSDK } from "@src/libs/defuse-sdk/initSDK"
 import { SolanaWalletProvider } from "@src/providers/SolanaWalletProvider"
@@ -23,6 +19,10 @@ import { getCachedSystemStatus } from "@src/actions/systemStatus"
 import Helpscout from "@src/components/Helpscout"
 import { MixpanelProvider } from "@src/providers/MixpanelProvider"
 import { NearWalletProvider } from "@src/providers/NearWalletProvider"
+import {
+  PrivyWagmiWrapper,
+  PrivyWalletProvider,
+} from "@src/providers/PrivyWalletProvider"
 import { SystemStatusProvider } from "@src/providers/SystemStatusProvider"
 import { TronWalletProvider } from "@src/providers/TronWalletProvider"
 import {
@@ -141,8 +141,8 @@ const RootLayout = async ({
 
         <ThemeProvider>
           <SystemStatusProvider systemStatus={systemStatus}>
-            <WagmiProvider config={config}>
-              <QueryClientProvider client={queryClient}>
+            <PrivyWagmiWrapper>
+              <PrivyWalletProvider>
                 <NearWalletProvider>
                   <SolanaWalletProvider>
                     <StellarWalletProvider>
@@ -157,11 +157,11 @@ const RootLayout = async ({
                     </StellarWalletProvider>
                   </SolanaWalletProvider>
                 </NearWalletProvider>
-                {APP_ENV === "development" && (
-                  <ReactQueryDevtools initialIsOpen={false} />
-                )}
-              </QueryClientProvider>
-            </WagmiProvider>
+              </PrivyWalletProvider>
+              {APP_ENV === "development" && (
+                <ReactQueryDevtools initialIsOpen={false} />
+              )}
+            </PrivyWagmiWrapper>
           </SystemStatusProvider>
         </ThemeProvider>
       </body>
