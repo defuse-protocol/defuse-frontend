@@ -87,4 +87,10 @@ function balancesSelector_(
   return balancesSelector(state.context.depositedBalanceRef?.getSnapshot())
 }
 
+export function slippageBasisPointsSelector(
+  state: SnapshotFrom<typeof withdrawUIMachine>
+): number {
+  return state.context.slippageBasisPoints
+}
+
 export { balancesSelector_ as balancesSelector }

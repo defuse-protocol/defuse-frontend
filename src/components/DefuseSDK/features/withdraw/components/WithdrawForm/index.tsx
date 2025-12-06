@@ -1,6 +1,8 @@
+import { SlidersHorizontalIcon } from "@phosphor-icons/react"
 import { Flex } from "@radix-ui/themes"
 import { useModalController } from "@src/components/DefuseSDK/hooks/useModalController"
 import { useTokensUsdPrices } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
+import { useModalStore } from "@src/components/DefuseSDK/providers/ModalStoreProvider"
 import { ModalType } from "@src/components/DefuseSDK/stores/modalStore"
 import { isSupportedChainName } from "@src/components/DefuseSDK/utils/blockchain"
 import {
@@ -8,6 +10,7 @@ import {
   formatUsdAmount,
 } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
+import { BASIS_POINTS_DENOMINATOR } from "@src/components/DefuseSDK/utils/tokenUtils"
 import {
   getTokenMaxDecimals,
   isMinAmountNotRequired,
@@ -54,6 +57,7 @@ import {
   isLiquidityUnavailableSelector,
   isUnsufficientTokenInAmount,
   quote1csErrorSelector,
+  slippageBasisPointsSelector,
   totalAmountReceivedSelector,
   withdtrawalFeeSelector,
 } from "./selectors"
@@ -95,6 +99,8 @@ export const WithdrawForm = ({
     withdtrawalFee,
     is1csQuoteLoading,
     quote1csError,
+    slippageBasisPoints,
+    quote1cs,
   } = WithdrawUIMachineContext.useSelector((state) => {
     return {
       state,
@@ -111,6 +117,8 @@ export const WithdrawForm = ({
       balances: balancesSelector(state),
       is1csQuoteLoading: is1csQuoteLoadingSelector(state),
       quote1csError: quote1csErrorSelector(state),
+      slippageBasisPoints: slippageBasisPointsSelector(state),
+      quote1cs: state.context.quote1cs,
     }
   })
   const publicKeyVerifierRef = useSelector(swapRef, (state) => {
@@ -228,6 +236,31 @@ export const WithdrawForm = ({
     modalType: ModalType
     token: TokenInfo | undefined
   }>(ModalType.MODAL_SELECT_ASSETS)
+
+  const { setModalType: setSlippageModalType } = useModalStore((state) => state)
+
+  const handleOpenSlippageSettings = useCallback(() => {
+    const tokenDeltas =
+      quote1cs != null && quote1cs.tag === "ok"
+        ? quote1cs.value.tokenDeltas
+        : null
+
+    setSlippageModalType(ModalType.MODAL_SLIPPAGE_SETTINGS, {
+      modalType: ModalType.MODAL_SLIPPAGE_SETTINGS,
+      actorRef,
+      currentSlippage: slippageBasisPoints,
+      tokenDeltas,
+      tokenOut,
+      tokenIn: token,
+    })
+  }, [
+    setSlippageModalType,
+    actorRef,
+    slippageBasisPoints,
+    quote1cs,
+    tokenOut,
+    token,
+  ])
 
   const handleSelect = useCallback(() => {
     const fieldName = "token"
@@ -442,6 +475,28 @@ export const WithdrawForm = ({
             symbol={token.symbol}
             isLoading={is1csQuoteLoading}
           />
+
+          {!isNearIntentsNetwork(blockchain) && (
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={handleOpenSlippageSettings}
+                className="px-3 py-1.5 rounded-md border transition-all bg-gray-1 border-gray-6 hover:bg-gray-3 hover:border-gray-7 text-label font-medium text-xs cursor-pointer active:scale-[0.98] flex items-center gap-1.5"
+              >
+                <span>
+                  Max slippage:{" "}
+                  {Intl.NumberFormat(undefined, {
+                    style: "percent",
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  }).format(
+                    slippageBasisPoints / Number(BASIS_POINTS_DENOMINATOR)
+                  )}
+                </span>
+                <SlidersHorizontalIcon className="size-3.5" weight="regular" />
+              </button>
+            </div>
+          )}
 
           {quote1csError && (
             <div className="bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-700 dark:text-red-300">
