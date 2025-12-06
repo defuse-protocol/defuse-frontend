@@ -12,6 +12,7 @@ import type { WithdrawWidgetProps } from "../../../types/withdraw"
 import { assert } from "../../../utils/assert"
 import { isBaseToken } from "../../../utils/token"
 import { withdrawIntent1csMachine } from "../../machines/withdrawIntent1csMachine"
+import { withdrawIntentNearIntentsMachine } from "../../machines/withdrawIntentNearIntentsMachine"
 import { withdrawUIMachine } from "../../machines/withdrawUIMachine"
 import { WithdrawUIMachineContext } from "../WithdrawUIMachineContext"
 import { WithdrawForm } from "./WithdrawForm"
@@ -61,6 +62,14 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
                   }),
                 },
               }),
+              withdrawNearIntentsActor:
+                withdrawIntentNearIntentsMachine.provide({
+                  actors: {
+                    signMessage: fromPromise(({ input }) => {
+                      return props.signMessage(input)
+                    }),
+                  },
+                }),
             },
           })}
         >

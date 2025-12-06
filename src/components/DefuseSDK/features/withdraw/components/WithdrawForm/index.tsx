@@ -41,6 +41,7 @@ import {
 } from "../../../machines/depositedBalanceMachine"
 import { getPOABridgeInfo } from "../../../machines/poaBridgeInfoActor"
 import type { Output as WithdrawIntent1csMachineOutput } from "../../../machines/withdrawIntent1csMachine"
+import type { Output as WithdrawIntentNearIntentsMachineOutput } from "../../../machines/withdrawIntentNearIntentsMachine"
 import { usePublicKeyModalOpener } from "../../../swap/hooks/usePublicKeyModalOpener"
 import { WithdrawUIMachineContext } from "../../WithdrawUIMachineContext"
 import { isCexIncompatible } from "../../utils/cexCompatibility"
@@ -516,11 +517,15 @@ export const WithdrawForm = ({
               size="lg"
               disabled={
                 state.matches("submitting_1cs") ||
+                state.matches("submitting_near_intents") ||
                 is1csQuoteLoading ||
                 noLiquidity ||
                 insufficientTokenInAmount
               }
-              isLoading={state.matches("submitting_1cs")}
+              isLoading={
+                state.matches("submitting_1cs") ||
+                state.matches("submitting_near_intents")
+              }
             >
               {getWithdrawButtonText(noLiquidity, insufficientTokenInAmount)}
             </ButtonCustom>
@@ -557,7 +562,10 @@ export const WithdrawForm = ({
 }
 
 function renderWithdrawIntentCreationResult(
-  intentCreationResult: WithdrawIntent1csMachineOutput | null
+  intentCreationResult:
+    | WithdrawIntent1csMachineOutput
+    | WithdrawIntentNearIntentsMachineOutput
+    | null
 ): ReactNode {
   if (!intentCreationResult || intentCreationResult.tag === "ok") {
     return null

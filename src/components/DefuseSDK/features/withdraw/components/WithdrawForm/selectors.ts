@@ -5,10 +5,17 @@ import {
   balancesSelector,
 } from "../../../machines/depositedBalanceMachine"
 import type { withdrawUIMachine } from "../../../machines/withdrawUIMachine"
+import { isNearIntentsNetwork } from "./utils"
 
 export function isLiquidityUnavailableSelector(
   state: SnapshotFrom<typeof withdrawUIMachine>
 ): boolean {
+  const formContext = state.context.withdrawFormRef.getSnapshot().context
+  // Near Intents transfers don't need liquidity (direct transfer)
+  if (isNearIntentsNetwork(formContext.blockchain)) {
+    return false
+  }
+
   return (
     state.context.quote1cs?.tag === "err" &&
     state.context.quote1cs.value.reason === "ERR_NO_QUOTES_1CS"
@@ -21,12 +28,18 @@ export function isLiquidityUnavailableSelector(
 export function totalAmountReceivedSelector(
   state: SnapshotFrom<typeof withdrawUIMachine>
 ): TokenValue | null {
+  const formContext = state.context.withdrawFormRef.getSnapshot().context
+
+  // For Near Intents, received amount equals sent amount (no fees)
+  if (isNearIntentsNetwork(formContext.blockchain)) {
+    return formContext.parsedAmount
+  }
+
   const { quote1cs } = state.context
   if (quote1cs == null || quote1cs.tag !== "ok") {
     return null
   }
 
-  const formContext = state.context.withdrawFormRef.getSnapshot().context
   const amountOut = quote1cs.value.tokenDeltas[1][1]
 
   return {
@@ -41,6 +54,16 @@ export function totalAmountReceivedSelector(
 export function withdtrawalFeeSelector(
   state: SnapshotFrom<typeof withdrawUIMachine>
 ): TokenValue {
+  const formContext = state.context.withdrawFormRef.getSnapshot().context
+
+  // Near Intents transfers have no fees
+  if (isNearIntentsNetwork(formContext.blockchain)) {
+    return {
+      amount: 0n,
+      decimals: formContext.tokenOut.decimals,
+    }
+  }
+
   const { quote1cs } = state.context
   if (quote1cs == null || quote1cs.tag !== "ok") {
     return {
@@ -49,7 +72,6 @@ export function withdtrawalFeeSelector(
     }
   }
 
-  const formContext = state.context.withdrawFormRef.getSnapshot().context
   const amountIn = -quote1cs.value.tokenDeltas[0][1]
   const amountOut = quote1cs.value.tokenDeltas[1][1]
   const fee = amountIn - amountOut
@@ -63,6 +85,12 @@ export function withdtrawalFeeSelector(
 export function is1csQuoteLoadingSelector(
   state: SnapshotFrom<typeof withdrawUIMachine>
 ): boolean {
+  const formContext = state.context.withdrawFormRef.getSnapshot().context
+  // Near Intents transfers don't need 1cs quotes
+  if (isNearIntentsNetwork(formContext.blockchain)) {
+    return false
+  }
+
   return state.matches({ editing: "waiting_1cs_quote" })
 }
 

@@ -46,6 +46,10 @@ import {
   type Output as WithdrawIntent1csMachineOutput,
   withdrawIntent1csMachine,
 } from "./withdrawIntent1csMachine"
+import {
+  type Output as WithdrawIntentNearIntentsMachineOutput,
+  withdrawIntentNearIntentsMachine,
+} from "./withdrawIntentNearIntentsMachine"
 import { withdrawStatus1csMachine } from "./withdrawStatus1csMachine"
 
 export type Context = {
@@ -57,7 +61,10 @@ export type Context = {
   quote1cs: QuoteResult | null
   quote1csError: string | null
   slippageBasisPoints: number
-  intentCreationResult: WithdrawIntent1csMachineOutput | null
+  intentCreationResult:
+    | WithdrawIntent1csMachineOutput
+    | WithdrawIntentNearIntentsMachineOutput
+    | null
   intentRefs: ActorRefFrom<typeof withdrawStatus1csMachine>[]
   tokenList: TokenInfo[]
   depositedBalanceRef: ActorRefFrom<typeof depositedBalanceMachine>
@@ -136,6 +143,7 @@ export const withdrawUIMachine = setup({
 
     children: {} as {
       withdrawRef1cs: "withdraw1csActor"
+      withdrawRefNearIntents: "withdrawNearIntentsActor"
       background1csWithdrawQuoterRef: "background1csWithdrawQuoterActor"
     },
   },
@@ -143,6 +151,7 @@ export const withdrawUIMachine = setup({
     // biome-ignore lint/suspicious/noExplicitAny: bypass xstate+ts bloating; be careful when interacting with `depositedBalanceActor` string
     depositedBalanceActor: depositedBalanceMachine as any,
     withdraw1csActor: withdrawIntent1csMachine,
+    withdrawNearIntentsActor: withdrawIntentNearIntentsMachine,
     withdrawStatus1csActor: withdrawStatus1csMachine,
     withdrawFormActor: withdrawFormReducer,
     poaBridgeInfoActor: poaBridgeInfoActor,
@@ -167,7 +176,12 @@ export const withdrawUIMachine = setup({
       user: null,
     }),
     setIntentCreationResult: assign({
-      intentCreationResult: (_, value: WithdrawIntent1csMachineOutput) => value,
+      intentCreationResult: (
+        _,
+        value:
+          | WithdrawIntent1csMachineOutput
+          | WithdrawIntentNearIntentsMachineOutput
+      ) => value,
     }),
     clearIntentCreationResult: assign({ intentCreationResult: null }),
 
@@ -462,6 +476,20 @@ export const withdrawUIMachine = setup({
       )
     },
 
+    canSubmitNearIntents: ({ context }) => {
+      const formContext = context.withdrawFormRef.getSnapshot().context
+      return (
+        isNearIntentsNetwork(formContext.blockchain) &&
+        formContext.parsedAmount != null &&
+        formContext.parsedRecipient != null
+      )
+    },
+
+    isNearIntentsWithdraw: ({ context }) => {
+      const formContext = context.withdrawFormRef.getSnapshot().context
+      return isNearIntentsNetwork(formContext.blockchain)
+    },
+
     isOk: (_, a: { tag: "err" | "ok" }) => a.tag === "ok",
   },
 }).createMachine({
@@ -611,14 +639,24 @@ export const withdrawUIMachine = setup({
           actions: ["process1csWithdrawQuote", "updateMinReceivedAmount"],
         },
 
-        submit: {
-          target: ".done",
-          guard: "canSubmit1cs",
-          actions: [
-            "clearIntentCreationResult",
-            { type: "setSubmitDeps", params: ({ event }) => event.params },
-          ],
-        },
+        submit: [
+          {
+            target: ".done_near_intents",
+            guard: "canSubmitNearIntents",
+            actions: [
+              "clearIntentCreationResult",
+              { type: "setSubmitDeps", params: ({ event }) => event.params },
+            ],
+          },
+          {
+            target: ".done",
+            guard: "canSubmit1cs",
+            actions: [
+              "clearIntentCreationResult",
+              { type: "setSubmitDeps", params: ({ event }) => event.params },
+            ],
+          },
+        ],
 
         SET_SLIPPAGE: {
           target: ".reset_quote",
@@ -668,12 +706,23 @@ export const withdrawUIMachine = setup({
         done: {
           type: "final",
         },
+
+        done_near_intents: {
+          type: "final",
+        },
       },
 
-      onDone: {
-        target: "submitting_1cs",
-        actions: ["emitWithdrawalInitiated"],
-      },
+      onDone: [
+        {
+          target: "submitting_near_intents",
+          guard: "isNearIntentsWithdraw",
+          actions: ["emitWithdrawalInitiated"],
+        },
+        {
+          target: "submitting_1cs",
+          actions: ["emitWithdrawalInitiated"],
+        },
+      ],
     },
 
     submitting_1cs: {
@@ -748,6 +797,67 @@ export const withdrawUIMachine = setup({
                 type: "spawnWithdrawStatus1csActor",
                 params: ({ event }) => event.output,
               },
+              {
+                type: "setIntentCreationResult",
+                params: ({ event }) => event.output,
+              },
+              "emitEventIntentPublished",
+            ],
+          },
+          {
+            target: "editing",
+            actions: [
+              {
+                type: "setIntentCreationResult",
+                params: ({ event }) => event.output,
+              },
+            ],
+          },
+        ],
+
+        onError: {
+          target: "editing",
+          actions: {
+            type: "logError",
+            params: ({ event }) => event,
+          },
+        },
+      },
+    },
+
+    submitting_near_intents: {
+      invoke: {
+        id: "withdrawRefNearIntents",
+        src: "withdrawNearIntentsActor",
+
+        input: ({ context }) => {
+          assert(context.submitDeps, "submitDeps is null")
+
+          const formValues = context.withdrawFormRef.getSnapshot().context
+          const recipient = formValues.parsedRecipient
+          assert(recipient, "recipient is null")
+          assert(formValues.parsedAmount, "parsedAmount is null")
+
+          return {
+            tokenIn: getAnyBaseTokenInfo(formValues.tokenIn),
+            amountIn: formValues.parsedAmount,
+            defuseUserId: authIdentity.authHandleToIntentsUserId(
+              context.submitDeps.userAddress,
+              context.submitDeps.userChainType
+            ),
+            deadline: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+            userAddress: context.submitDeps.userAddress,
+            userChainType: context.submitDeps.userChainType,
+            nearClient: context.submitDeps.nearClient,
+            recipient,
+          }
+        },
+
+        onDone: [
+          {
+            target: "editing",
+            guard: { type: "isOk", params: ({ event }) => event.output },
+            actions: [
               {
                 type: "setIntentCreationResult",
                 params: ({ event }) => event.output,
