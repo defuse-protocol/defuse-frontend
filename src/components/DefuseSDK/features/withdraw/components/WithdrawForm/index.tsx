@@ -220,8 +220,7 @@ export const WithdrawForm = ({
 
   const minWithdrawalAmountWithFee = useMinWithdrawalAmountWithFeeEstimation(
     parsedAmountIn,
-    minWithdrawalAmount,
-    null // 1cs flow doesn't use preparationOutput
+    minWithdrawalAmount
   )
 
   const tokenInBalance = useSelector(

@@ -1,12 +1,31 @@
 import { Box, Button, Flex, Link, Spinner, Text } from "@radix-ui/themes"
 import { useSelector } from "@xstate/react"
-import type { ActorRefFrom } from "xstate"
+import type { ActorRefFrom, StateValueFrom } from "xstate"
 import type { intentStatusMachine } from "../../features/machines/intentStatusMachine"
 import { assert } from "../../utils/assert"
 import { formatTokenValue } from "../../utils/format"
 import { AssetComboIcon } from "../Asset/AssetComboIcon"
 import { CopyButton } from "./CopyButton"
-import { renderStatusLabel } from "./WithdrawIntentCard"
+
+function renderStatusLabel(val: StateValueFrom<typeof intentStatusMachine>) {
+  switch (val) {
+    case "pending":
+    case "checking":
+    case "settled":
+      return "Pending"
+    case "waitingForBridge":
+    case "retryDelay":
+      return "Transferring"
+    case "error":
+      return "Can't get status"
+    case "success":
+      return "Completed"
+    case "not_valid":
+      return "Failed"
+    default:
+      val satisfies never
+  }
+}
 
 type SwapIntentCardProps = {
   intentStatusActorRef: ActorRefFrom<typeof intentStatusMachine>
