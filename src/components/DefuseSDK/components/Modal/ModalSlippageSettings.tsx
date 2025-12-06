@@ -8,7 +8,6 @@ import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import {
   accountSlippageExactIn,
   accountSlippageExactOut,
-  computeTotalDeltaDifferentDecimals,
   getAnyBaseTokenInfo,
 } from "@src/components/DefuseSDK/utils/tokenUtils"
 import {
@@ -162,31 +161,29 @@ export function ModalSlippageSettings() {
     }
 
     try {
+      const deltasWithSlippage = isExactOut
+        ? accountSlippageExactOut(tokenDeltas, slippageBasisPoints)
+        : accountSlippageExactIn(tokenDeltas, slippageBasisPoints)
+
       if (isExactOut) {
         // For exact out, calculate max input amount (pay at most)
         if (!tokenInBase) return null
-        const deltasWithSlippage = accountSlippageExactOut(
-          tokenDeltas,
-          slippageBasisPoints
-        )
-        const maxAmount = computeTotalDeltaDifferentDecimals(
-          [tokenInBase],
-          deltasWithSlippage
-        )
-        // Return absolute value since deltas are negative
-        return { amount: -maxAmount.amount, decimals: maxAmount.decimals }
+        // Find the negative delta (input) and return its absolute value
+        const negativeDelta = deltasWithSlippage.find(([, amt]) => amt < 0n)
+        if (negativeDelta) {
+          return { amount: -negativeDelta[1], decimals: tokenInBase.decimals }
+        }
+        return null
       }
+
       // For exact in, calculate min output amount (receive at least)
       if (!tokenOutBase) return null
-      const deltasWithSlippage = accountSlippageExactIn(
-        tokenDeltas,
-        slippageBasisPoints
-      )
-      const minAmount = computeTotalDeltaDifferentDecimals(
-        [tokenOutBase],
-        deltasWithSlippage
-      )
-      return minAmount
+      // Find the positive delta (output)
+      const positiveDelta = deltasWithSlippage.find(([, amt]) => amt > 0n)
+      if (positiveDelta) {
+        return { amount: positiveDelta[1], decimals: tokenOutBase.decimals }
+      }
+      return null
     } catch {
       return null
     }
