@@ -10,16 +10,8 @@ export function isLiquidityUnavailableSelector(
   state: SnapshotFrom<typeof withdrawUIMachine>
 ): boolean {
   return (
-    state.context.preparationOutput?.tag === "err" &&
-    state.context.preparationOutput.value.reason === "ERR_NO_QUOTES"
-  )
-}
-export function isUnsufficientTokenInAmount(
-  state: SnapshotFrom<typeof withdrawUIMachine>
-): boolean {
-  return (
-    state.context.preparationOutput?.tag === "err" &&
-    state.context.preparationOutput.value.reason === "ERR_INSUFFICIENT_AMOUNT"
+    state.context.quote1cs?.tag === "err" &&
+    state.context.quote1cs.value.reason === "ERR_NO_QUOTES_1CS"
   )
 }
 
@@ -29,14 +21,18 @@ export function isUnsufficientTokenInAmount(
 export function totalAmountReceivedSelector(
   state: SnapshotFrom<typeof withdrawUIMachine>
 ): TokenValue | null {
-  if (
-    state.context.preparationOutput == null ||
-    state.context.preparationOutput.tag !== "ok"
-  ) {
+  const { quote1cs } = state.context
+  if (quote1cs == null || quote1cs.tag !== "ok") {
     return null
   }
 
-  return state.context.preparationOutput.value.receivedAmount
+  const formContext = state.context.withdrawFormRef.getSnapshot().context
+  const amountOut = quote1cs.value.tokenDeltas[1][1]
+
+  return {
+    amount: amountOut,
+    decimals: formContext.tokenOut.decimals,
+  }
 }
 
 /**
@@ -45,20 +41,35 @@ export function totalAmountReceivedSelector(
 export function withdtrawalFeeSelector(
   state: SnapshotFrom<typeof withdrawUIMachine>
 ): TokenValue {
-  if (
-    state.context.preparationOutput == null ||
-    state.context.preparationOutput.tag !== "ok"
-  ) {
+  const { quote1cs } = state.context
+  if (quote1cs == null || quote1cs.tag !== "ok") {
     return {
       amount: 0n,
       decimals: 0,
     }
   }
 
+  const formContext = state.context.withdrawFormRef.getSnapshot().context
+  const amountIn = -quote1cs.value.tokenDeltas[0][1]
+  const amountOut = quote1cs.value.tokenDeltas[1][1]
+  const fee = amountIn - amountOut
+
   return {
-    amount: state.context.preparationOutput.value.feeEstimation.amount,
-    decimals: state.context.preparationOutput.value.receivedAmount.decimals,
+    amount: fee > 0n ? fee : 0n,
+    decimals: formContext.tokenOut.decimals,
   }
+}
+
+export function is1csQuoteLoadingSelector(
+  state: SnapshotFrom<typeof withdrawUIMachine>
+): boolean {
+  return state.matches({ editing: "waiting_1cs_quote" })
+}
+
+export function quote1csErrorSelector(
+  state: SnapshotFrom<typeof withdrawUIMachine>
+): string | null {
+  return state.context.quote1csError
 }
 
 function balancesSelector_(
