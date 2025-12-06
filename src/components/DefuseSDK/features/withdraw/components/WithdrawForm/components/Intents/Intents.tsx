@@ -1,16 +1,16 @@
 import type { ActorRefFrom } from "xstate"
-import { WithdrawIntentCard } from "../../../../../../components/IntentCard/WithdrawIntentCard"
-import type { intentStatusMachine } from "../../../../../machines/intentStatusMachine"
+import { Withdraw1csCard } from "../../../../../../components/IntentCard/Withdraw1csCard"
+import type { withdrawStatus1csMachine } from "../../../../../machines/withdrawStatus1csMachine"
 
 export function Intents({
   intentRefs,
-}: { intentRefs: ActorRefFrom<typeof intentStatusMachine>[] }) {
+}: { intentRefs: ActorRefFrom<typeof withdrawStatus1csMachine>[] }) {
   return (
     <div>
       {intentRefs.map((intentRef) => (
-        <WithdrawIntentCard
+        <Withdraw1csCard
           key={intentRef.id}
-          intentStatusActorRef={intentRef}
+          withdrawStatusActorRef={intentRef}
         />
       ))}
     </div>
