@@ -244,7 +244,7 @@ export const getWithdrawButtonText = (
   noLiquidity: boolean,
   insufficientTokenInAmount: boolean
 ) => {
-  if (noLiquidity) return "No liquidity providers"
+  if (noLiquidity) return "Quote unavailable"
   if (insufficientTokenInAmount) return "Insufficient amount"
   return "Withdraw"
 }

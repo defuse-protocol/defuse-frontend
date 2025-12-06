@@ -304,8 +304,8 @@ describe("getMinAmountToken", () => {
 describe("getWithdrawButtonText", () => {
   it.each([
     // [noLiquidity, insufficientTokenInAmount, expectedText]
-    [true, false, "No liquidity providers"],
-    [true, true, "No liquidity providers"],
+    [true, false, "Quote unavailable"],
+    [true, true, "Quote unavailable"],
     [false, true, "Insufficient amount"],
     [false, false, "Withdraw"],
   ])(
