@@ -411,9 +411,6 @@ export const withdrawUIMachine = setup({
     })),
   },
   guards: {
-    isTrue: (_, value: boolean) => value,
-    isFalse: (_, value: boolean) => !value,
-
     isBalanceSufficientForQuote: (
       _,
       {
