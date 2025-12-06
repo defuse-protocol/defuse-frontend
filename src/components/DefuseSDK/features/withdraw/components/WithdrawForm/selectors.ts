@@ -72,6 +72,15 @@ export function quote1csErrorSelector(
   return state.context.quote1csError
 }
 
+export function isUnsufficientTokenInAmount(
+  state: SnapshotFrom<typeof withdrawUIMachine>
+): boolean {
+  return (
+    state.context.quote1cs?.tag === "err" &&
+    state.context.quote1cs.value.reason === "ERR_INSUFFICIENT_AMOUNT"
+  )
+}
+
 function balancesSelector_(
   state: SnapshotFrom<typeof withdrawUIMachine>
 ): BalanceMapping {

@@ -9,14 +9,12 @@ import {
 } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
 import {
-  addAmounts,
   getTokenMaxDecimals,
   isMinAmountNotRequired,
-  subtractAmounts,
 } from "@src/components/DefuseSDK/utils/tokenUtils"
 import { logger } from "@src/utils/logger"
 import { useSelector } from "@xstate/react"
-import { useCallback, useEffect } from "react"
+import { type ReactNode, useCallback, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { AuthGate } from "../../../../components/AuthGate"
 import { ButtonCustom } from "../../../../components/Button/ButtonCustom"
@@ -37,7 +35,7 @@ import {
   transitBalanceSelector,
 } from "../../../machines/depositedBalanceMachine"
 import { getPOABridgeInfo } from "../../../machines/poaBridgeInfoActor"
-import { renderIntentCreationResult } from "../../../swap/components/SwapForm"
+import type { Output as WithdrawIntent1csMachineOutput } from "../../../machines/withdrawIntent1csMachine"
 import { usePublicKeyModalOpener } from "../../../swap/hooks/usePublicKeyModalOpener"
 import { WithdrawUIMachineContext } from "../../WithdrawUIMachineContext"
 import { isCexIncompatible } from "../../utils/cexCompatibility"
@@ -45,7 +43,6 @@ import { getMinWithdrawalHyperliquidAmount } from "../../utils/hyperliquid"
 import {
   Intents,
   MinWithdrawalAmount,
-  PreparationResult,
   ReceivedAmountAndFee,
   RecipientSubForm,
 } from "./components"
@@ -53,8 +50,10 @@ import { AcknowledgementCheckbox } from "./components/AcknowledgementCheckbox/Ac
 import { useMinWithdrawalAmountWithFeeEstimation } from "./hooks/useMinWithdrawalAmountWithFeeEstimation"
 import {
   balancesSelector,
+  is1csQuoteLoadingSelector,
   isLiquidityUnavailableSelector,
   isUnsufficientTokenInAmount,
+  quote1csErrorSelector,
   totalAmountReceivedSelector,
   withdtrawalFeeSelector,
 } from "./selectors"
@@ -94,6 +93,8 @@ export const WithdrawForm = ({
     insufficientTokenInAmount,
     totalAmountReceived,
     withdtrawalFee,
+    is1csQuoteLoading,
+    quote1csError,
   } = WithdrawUIMachineContext.useSelector((state) => {
     return {
       state,
@@ -108,6 +109,8 @@ export const WithdrawForm = ({
       totalAmountReceived: totalAmountReceivedSelector(state),
       withdtrawalFee: withdtrawalFeeSelector(state),
       balances: balancesSelector(state),
+      is1csQuoteLoading: is1csQuoteLoadingSelector(state),
+      quote1csError: quote1csErrorSelector(state),
     }
   })
   const publicKeyVerifierRef = useSelector(swapRef, (state) => {
@@ -206,7 +209,7 @@ export const WithdrawForm = ({
   const minWithdrawalAmountWithFee = useMinWithdrawalAmountWithFeeEstimation(
     parsedAmountIn,
     minWithdrawalAmount,
-    state.context.preparationOutput
+    null // 1cs flow doesn't use preparationOutput
   )
 
   const tokenInBalance = useSelector(
@@ -320,38 +323,6 @@ export const WithdrawForm = ({
       )
     : null
 
-  const increaseAmount = (tokenValue: TokenValue) => {
-    if (parsedAmountIn == null) return
-
-    const newValue = addAmounts(parsedAmountIn, tokenValue)
-
-    const newFormattedValue = formatTokenValue(
-      newValue.amount,
-      newValue.decimals
-    )
-
-    actorRef.send({
-      type: "WITHDRAW_FORM.UPDATE_AMOUNT",
-      params: { amount: newFormattedValue, parsedAmount: newValue },
-    })
-  }
-
-  const decreaseAmount = (tokenValue: TokenValue) => {
-    if (parsedAmountIn == null) return
-
-    const newValue = subtractAmounts(parsedAmountIn, tokenValue)
-
-    const newFormattedValue = formatTokenValue(
-      newValue.amount,
-      newValue.decimals
-    )
-
-    actorRef.send({
-      type: "WITHDRAW_FORM.UPDATE_AMOUNT",
-      params: { amount: newFormattedValue, parsedAmount: newValue },
-    })
-  }
-
   /**
    * This is ModalSelectAssets "callback"
    */
@@ -443,10 +414,7 @@ export const WithdrawForm = ({
           <MinWithdrawalAmount
             minWithdrawalAmount={minWithdrawalAmountWithFee}
             tokenOut={tokenOut}
-            isLoading={
-              state.matches({ editing: "preparation" }) &&
-              state.context.preparationOutput == null
-            }
+            isLoading={is1csQuoteLoading}
           />
 
           <RecipientSubForm
@@ -472,11 +440,15 @@ export const WithdrawForm = ({
             feeUsd={feeUsd}
             totalAmountReceivedUsd={receivedAmountUsd}
             symbol={token.symbol}
-            isLoading={
-              state.matches({ editing: "preparation" }) &&
-              state.context.preparationOutput == null
-            }
+            isLoading={is1csQuoteLoading}
           />
+
+          {quote1csError && (
+            <div className="bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-700 dark:text-red-300">
+              <p className="font-medium">Error:</p>
+              <p>{quote1csError}</p>
+            </div>
+          )}
 
           <AuthGate
             renderHostAppLink={renderHostAppLink}
@@ -484,8 +456,13 @@ export const WithdrawForm = ({
           >
             <ButtonCustom
               size="lg"
-              disabled={state.matches("submitting") || noLiquidity}
-              isLoading={state.matches("submitting")}
+              disabled={
+                state.matches("submitting_1cs") ||
+                is1csQuoteLoading ||
+                noLiquidity ||
+                insufficientTokenInAmount
+              }
+              isLoading={state.matches("submitting_1cs")}
             >
               {getWithdrawButtonText(noLiquidity, insufficientTokenInAmount)}
             </ButtonCustom>
@@ -493,14 +470,90 @@ export const WithdrawForm = ({
         </Flex>
       </Form>
 
-      <PreparationResult
-        preparationOutput={state.context.preparationOutput}
-        increaseAmount={increaseAmount}
-        decreaseAmount={decreaseAmount}
-      />
-      {renderIntentCreationResult(intentCreationResult)}
+      {renderWithdrawIntentCreationResult(intentCreationResult)}
 
       {intentRefs.length !== 0 && <Intents intentRefs={intentRefs} />}
     </Island>
+  )
+}
+
+function renderWithdrawIntentCreationResult(
+  intentCreationResult: WithdrawIntent1csMachineOutput | null
+): ReactNode {
+  if (!intentCreationResult || intentCreationResult.tag === "ok") {
+    return null
+  }
+
+  let content: ReactNode = null
+
+  const status = intentCreationResult.value.reason
+  switch (status) {
+    case "ERR_USER_DIDNT_SIGN":
+      content =
+        "It seems the message wasn't signed in your wallet. Please try again."
+      break
+
+    case "ERR_CANNOT_VERIFY_SIGNATURE":
+      content =
+        "We couldn't verify your signature, please try again with another wallet."
+      break
+
+    case "ERR_SIGNED_DIFFERENT_ACCOUNT":
+      content =
+        "The message was signed with a different wallet. Please try again."
+      break
+
+    case "ERR_PUBKEY_ADDING_DECLINED":
+      content = null
+      break
+
+    case "ERR_PUBKEY_CHECK_FAILED":
+      content =
+        "We couldn't verify your key, possibly due to a connection issue."
+      break
+
+    case "ERR_PUBKEY_ADDING_FAILED":
+      content = "Transaction for adding public key is failed. Please try again."
+      break
+
+    case "ERR_PUBKEY_EXCEPTION":
+      content = "An error occurred while adding public key. Please try again."
+      break
+
+    case "ERR_1CS_QUOTE_FAILED":
+      content = "Failed to get a quote. Please try again."
+      break
+
+    case "ERR_NO_DEPOSIT_ADDRESS":
+      content = "No deposit address available. Please try again."
+      break
+
+    case "ERR_TRANSFER_MESSAGE_FAILED":
+      content = "Failed to create transfer message. Please try again."
+      break
+
+    case "ERR_CANNOT_PUBLISH_INTENT":
+      content =
+        "server_reason" in intentCreationResult.value
+          ? `Failed to publish intent: ${intentCreationResult.value.server_reason}`
+          : "Failed to publish intent. Please try again."
+      break
+
+    case "ERR_AMOUNT_IN_BALANCE_INSUFFICIENT_AFTER_NEW_1CS_QUOTE":
+      content = "Insufficient balance after price change. Please try again."
+      break
+
+    default:
+      content = `An error occurred: ${status}. Please try again.`
+  }
+
+  if (!content) {
+    return null
+  }
+
+  return (
+    <div className="mt-4 rounded-lg bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 p-4">
+      <p className="text-amber-800 dark:text-amber-200">{content}</p>
+    </div>
   )
 }
