@@ -789,8 +789,7 @@ export function renderIntentCreationResult(
       break
 
     default:
-      status satisfies never
-      content = `An error occurred. Please try again. ${status}`
+      content = `An error occurred: ${status}. Please try again.`
   }
 
   if (content == null) {
