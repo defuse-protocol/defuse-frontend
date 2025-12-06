@@ -1,3 +1,4 @@
+import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import { SlidersHorizontalIcon } from "@phosphor-icons/react"
 import { Flex } from "@radix-ui/themes"
 import { useModalController } from "@src/components/DefuseSDK/hooks/useModalController"
@@ -25,6 +26,7 @@ import { Form } from "../../../../components/Form"
 import { FieldComboInput } from "../../../../components/Form/FieldComboInput"
 import { Island } from "../../../../components/Island"
 import { IslandHeader } from "../../../../components/IslandHeader"
+import { PriceChangeDialog } from "../../../../components/PriceChangeDialog"
 import { nearClient } from "../../../../constants/nearClient"
 import type {
   SupportedChainName,
@@ -101,6 +103,7 @@ export const WithdrawForm = ({
     quote1csError,
     slippageBasisPoints,
     quote1cs,
+    priceChangeDialog,
   } = WithdrawUIMachineContext.useSelector((state) => {
     return {
       state,
@@ -119,6 +122,7 @@ export const WithdrawForm = ({
       quote1csError: quote1csErrorSelector(state),
       slippageBasisPoints: slippageBasisPointsSelector(state),
       quote1cs: state.context.quote1cs,
+      priceChangeDialog: state.context.priceChangeDialog,
     }
   })
   const publicKeyVerifierRef = useSelector(swapRef, (state) => {
@@ -528,6 +532,27 @@ export const WithdrawForm = ({
       {renderWithdrawIntentCreationResult(intentCreationResult)}
 
       {intentRefs.length !== 0 && <Intents intentRefs={intentRefs} />}
+
+      {priceChangeDialog && (
+        <PriceChangeDialog
+          open={true}
+          tokenIn={token}
+          tokenOut={tokenOut}
+          amountIn={{
+            amount: parsedAmountIn?.amount ?? 0n,
+            decimals: parsedAmountIn?.decimals ?? 0,
+          }}
+          amountOut={{
+            amount: totalAmountReceived?.amount ?? 0n,
+            decimals: totalAmountReceived?.decimals ?? 0,
+          }}
+          previousOppositeAmount={priceChangeDialog.previousOppositeAmount}
+          newOppositeAmount={priceChangeDialog.pendingNewOppositeAmount}
+          swapType={QuoteRequest.swapType.EXACT_INPUT}
+          onConfirm={() => actorRef.send({ type: "PRICE_CHANGE_CONFIRMED" })}
+          onCancel={() => actorRef.send({ type: "PRICE_CHANGE_CANCELLED" })}
+        />
+      )}
     </Island>
   )
 }
