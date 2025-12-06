@@ -1,29 +1,22 @@
 "use client"
-import { messageFactory } from "@defuse-protocol/internal-utils"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
-import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { getAppFeeRecipient } from "@src/utils/getAppFeeRecipient"
 import { useSelector } from "@xstate/react"
 import { useContext } from "react"
-import { assign, fromPromise } from "xstate"
-import {
-  TokenListUpdater,
-  TokenListUpdater1cs,
-} from "../../../components/TokenListUpdater"
+import { fromPromise } from "xstate"
+import { TokenListUpdater1cs } from "../../../components/TokenListUpdater"
 import { WidgetRoot } from "../../../components/WidgetRoot"
-import { settings } from "../../../constants/settings"
 import { WithdrawWidgetProvider } from "../../../providers/WithdrawWidgetProvider"
 import type { WithdrawWidgetProps } from "../../../types/withdraw"
 import { assert } from "../../../utils/assert"
 import { isBaseToken } from "../../../utils/token"
-import { swapIntentMachine } from "../../machines/swapIntentMachine"
+import { withdrawIntent1csMachine } from "../../machines/withdrawIntent1csMachine"
 import { withdrawUIMachine } from "../../machines/withdrawUIMachine"
 import { WithdrawUIMachineContext } from "../WithdrawUIMachineContext"
 import { WithdrawForm } from "./WithdrawForm"
 
 export const WithdrawWidget = (props: WithdrawWidgetProps) => {
-  const is1cs = useIs1CsEnabled()
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
   const appFeeRecipient = getAppFeeRecipient(whitelabelTemplate)
   const initialTokenIn =
@@ -61,56 +54,17 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
           }}
           logic={withdrawUIMachine.provide({
             actors: {
-              swapActor: swapIntentMachine.provide({
+              withdraw1csActor: withdrawIntent1csMachine.provide({
                 actors: {
                   signMessage: fromPromise(({ input }) => {
                     return props.signMessage(input)
-                  }),
-                },
-                actions: {
-                  assembleSignMessages: assign({
-                    messageToSign: ({ context }) => {
-                      assert(
-                        context.intentOperationParams.type === "withdraw",
-                        "Type must be withdraw"
-                      )
-
-                      const { quote } = context.intentOperationParams
-
-                      const innerMessage = messageFactory.makeInnerSwapMessage({
-                        deadlineTimestamp:
-                          Date.now() + settings.swapExpirySec * 1000,
-                        referral: context.referral,
-                        signerId: context.defuseUserId,
-                        tokenDeltas: quote?.tokenDeltas ?? [],
-                        appFee: quote?.appFee ?? [],
-                        appFeeRecipient: context.appFeeRecipient,
-                      })
-
-                      innerMessage.intents ??= []
-                      innerMessage.intents.push(
-                        ...context.intentOperationParams
-                          .prebuiltWithdrawalIntents
-                      )
-
-                      return {
-                        innerMessage,
-                        walletMessage: messageFactory.makeSwapMessage({
-                          innerMessage,
-                        }),
-                      }
-                    },
                   }),
                 },
               }),
             },
           })}
         >
-          {is1cs ? (
-            <TokenListUpdaterWithdraw tokenList={props.tokenList} />
-          ) : (
-            <TokenListUpdater tokenList={props.tokenList} />
-          )}
+          <TokenListUpdaterWithdraw tokenList={props.tokenList} />
           <WithdrawForm {...props} />
         </WithdrawUIMachineContext.Provider>
       </WithdrawWidgetProvider>
