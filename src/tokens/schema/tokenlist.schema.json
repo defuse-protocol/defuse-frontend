@@ -207,6 +207,10 @@
           "type": "string"
         },
         {
+          "const": "bitcoincash",
+          "type": "string"
+        },
+        {
           "$ref": "#/definitions/VirtualChains"
         },
         {

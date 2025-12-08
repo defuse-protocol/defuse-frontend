@@ -2482,6 +2482,23 @@
         }
       ],
       "tags": ["mc:39"]
+    },
+    {
+      "defuseAssetId": "nep141:bch.omft.near",
+      "symbol": "BCH",
+      "name": "Bitcoin Cash",
+      "decimals": 8,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1831.png",
+      "originChainName": "bitcoincash",
+      "deployments": [
+        {
+          "type": "native",
+          "decimals": 8,
+          "chainName": "bitcoincash",
+          "bridge": "poa"
+        }
+      ],
+      "tags": ["mc:1539"]
     }
   ]
 }

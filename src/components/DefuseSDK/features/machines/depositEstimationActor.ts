@@ -130,6 +130,7 @@ export const depositEstimateMaxValueActor = fromPromise(
       }
       // For next blockchains - active deposits are not supported, so no network fees
       case BlockchainEnum.BITCOIN:
+      case BlockchainEnum.BITCOINCASH:
       case BlockchainEnum.DOGECOIN:
       case BlockchainEnum.XRPLEDGER:
       case BlockchainEnum.ZCASH:
@@ -138,6 +139,8 @@ export const depositEstimateMaxValueActor = fromPromise(
       case BlockchainEnum.APTOS:
       case BlockchainEnum.CARDANO:
       case BlockchainEnum.LITECOIN:
+      case BlockchainEnum.ADI:
+      case BlockchainEnum.STARKNET:
         return 0n
       default:
         networkToSolverFormat satisfies never

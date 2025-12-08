@@ -247,6 +247,7 @@ export const backgroundBalanceActor = fromPromise(
       }
       // Active deposits through Bitcoin and other blockchains are not supported, so we don't need to check balances
       case BlockchainEnum.BITCOIN:
+      case BlockchainEnum.BITCOINCASH:
       case BlockchainEnum.DOGECOIN:
       case BlockchainEnum.XRPLEDGER:
       case BlockchainEnum.ZCASH:
@@ -255,6 +256,8 @@ export const backgroundBalanceActor = fromPromise(
       case BlockchainEnum.APTOS:
       case BlockchainEnum.CARDANO:
       case BlockchainEnum.LITECOIN:
+      case BlockchainEnum.ADI:
+      case BlockchainEnum.STARKNET:
         break
       default:
         networkToSolverFormat satisfies never

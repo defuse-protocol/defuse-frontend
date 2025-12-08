@@ -38,4 +38,7 @@ export const CHAIN_IDS: Record<SupportedChainName, number | undefined> = {
   litecoin: undefined,
   layerx: 196,
   monad: 143,
+  bitcoincash: undefined,
+  adi: undefined,
+  starknet: undefined,
 }
