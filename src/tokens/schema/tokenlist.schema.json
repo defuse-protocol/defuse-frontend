@@ -131,6 +131,10 @@
           "type": "string"
         },
         {
+          "const": "bitcoincash",
+          "type": "string"
+        },
+        {
           "const": "solana",
           "type": "string"
         },
@@ -207,7 +211,11 @@
           "type": "string"
         },
         {
-          "const": "bitcoincash",
+          "const": "adi",
+          "type": "string"
+        },
+        {
+          "const": "starknet",
           "type": "string"
         },
         {
