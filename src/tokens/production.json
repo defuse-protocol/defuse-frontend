@@ -2510,10 +2510,10 @@
               "bridge": "near_omni"
             }
           ],
-          "tags": ["mc:4794"]
+          "tags": ["mc:4794", "aid:cfi"]
         }
       ],
-      "tags": ["mc:4794"]
+      "tags": ["mc:4794", "aid:cfi"]
     }
   ]
 }
