@@ -2484,6 +2484,38 @@
       "tags": ["mc:39"]
     },
     {
+      "unifiedAssetId": "cfi",
+      "symbol": "CFI",
+      "name": "ConsumerFi Protocol",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/39057.png",
+      "groupedTokens": [
+        {
+          "defuseAssetId": "nep141:cfi.consumer-fi.near",
+          "symbol": "CFI",
+          "name": "ConsumerFi Protocol",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/39057.png",
+          "originChainName": "near",
+          "deployments": [
+            {
+              "address": "cfi.consumer-fi.near",
+              "decimals": 18,
+              "chainName": "near",
+              "bridge": "direct"
+            },
+            {
+              "address": "0x0382e3fee4a420bd446367d468a6f00225853420",
+              "decimals": 18,
+              "chainName": "base",
+              "bridge": "near_omni"
+            }
+          ],
+          "tags": ["mc:4794", "aid:cfi"]
+        }
+      ],
+      "tags": ["mc:4794", "aid:cfi"]
+    },
+    {
       "defuseAssetId": "nep141:bch.omft.near",
       "symbol": "BCH",
       "name": "Bitcoin Cash",
