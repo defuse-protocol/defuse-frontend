@@ -71,7 +71,7 @@ export function chainTxExplorer(blockchain: SupportedChainName): string | null {
     case "monad":
       return "https://monadscan.com/tx/"
     case "adi":
-      return ""
+      return null
     case "starknet":
       return "https://starkscan.co/tx/"
     default:
