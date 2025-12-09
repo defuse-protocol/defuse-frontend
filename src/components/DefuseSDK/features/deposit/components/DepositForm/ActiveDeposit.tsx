@@ -44,6 +44,7 @@ export function ActiveDeposit({
     preparationOutput,
     depositTokenBalanceRef,
     isLoading,
+    isPreparing,
   } = DepositUIMachineContext.useSelector((snapshot) => {
     const amount = snapshot.context.depositFormRef.getSnapshot().context.amount
     const parsedAmount =
@@ -60,6 +61,10 @@ export function ActiveDeposit({
         snapshot.matches("submittingSolanaTx") ||
         snapshot.matches("submittingTurboTx") ||
         snapshot.matches("submittingStellarTx"),
+      isPreparing:
+        typeof snapshot.value === "object" &&
+        "editing" in snapshot.value &&
+        snapshot.value.editing === "preparation",
     }
   })
 
@@ -157,7 +162,8 @@ export function ActiveDeposit({
         disabled={
           !Number(watch("amount")) ||
           balanceInsufficient ||
-          !isDepositAmountHighEnough
+          !isDepositAmountHighEnough ||
+          isPreparing
         }
         isLoading={isLoading}
         data-testid="deposit-button"
@@ -171,7 +177,8 @@ export function ActiveDeposit({
           tokenDeployment,
           minDepositAmount,
           isDepositAmountHighEnough,
-          isLoading
+          isLoading,
+          isPreparing
         )}
       </ButtonCustom>
 
@@ -251,7 +258,8 @@ function renderDepositButtonText(
   tokenDeployment: TokenDeployment,
   minDepositAmount: bigint | null,
   isDepositAmountHighEnough: boolean,
-  isLoading: boolean
+  isLoading: boolean,
+  isPreparing: boolean
 ) {
   if (isLoading) {
     return "Processing..."
@@ -264,6 +272,9 @@ function renderDepositButtonText(
   }
   if (isBalanceInsufficient) {
     return "Insufficient balance"
+  }
+  if (isPreparing) {
+    return "Preparing deposit..."
   }
   if (!!network && !!token) {
     return "Deposit"
