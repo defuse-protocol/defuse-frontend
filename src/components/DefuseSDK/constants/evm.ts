@@ -39,6 +39,6 @@ export const CHAIN_IDS: Record<SupportedChainName, number | undefined> = {
   layerx: 196,
   monad: 143,
   bitcoincash: undefined,
-  adi: undefined,
+  adi: 36900,
   starknet: undefined,
 }
