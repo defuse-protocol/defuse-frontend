@@ -147,6 +147,8 @@ const cspConfig = {
     "https://litecoinspace.org/api",
     "https://rpc.monad.xyz",
     "https://rpc.xlayer.tech",
+    "https://rpc.adifoundation.ai",
+    "https://svc.blockdaemon.com/bitcoincash/mainnet/native",
   ],
   "object-src": ["'none'"],
   "base-uri": ["'self'"],
