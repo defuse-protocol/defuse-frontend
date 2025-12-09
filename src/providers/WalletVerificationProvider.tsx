@@ -5,6 +5,7 @@ import { useActor } from "@xstate/react"
 import { useEffect, useRef } from "react"
 import { fromPromise } from "xstate"
 
+import { WalletBannedAddressDialog } from "@src/components/WalletBannedAddressDialog"
 import { WalletBannedDialog } from "@src/components/WalletBannedDialog"
 import { WalletVerificationDialog } from "@src/components/WalletVerificationDialog"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
@@ -34,6 +35,15 @@ export function WalletVerificationProvider() {
   const { addWalletAddress } = useVerifiedWalletsStore()
   const { addBypassedWalletAddress, isWalletBypassed } =
     useBypassedWalletsStore()
+
+  // HOT-FIX: Blocking particular address
+  if (
+    state.address != null &&
+    state.address.toLowerCase() ===
+      "0x230de5414ff81a06dc742a7abfd7a706e6f74282".toLowerCase()
+  ) {
+    return <WalletBannedAddressDialog open={true} />
+  }
 
   if (
     state.address != null &&
