@@ -70,5 +70,5 @@ export const APP_NETWORK_OUTAGE_NOTIFICATION = v.parse(
 
 export const BANNED_ACCOUNT_IDS = v.parse(
   v.optional(v.array(v.string()), []),
-  process.env.NEXT_PUBLIC_BANNED_ACCOUNT_IDS?.split(",")
+  process.env.NEXT_PUBLIC_BANNED_ACCOUNT_IDS?.split(",").filter(Boolean)
 )

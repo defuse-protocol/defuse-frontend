@@ -1,6 +1,5 @@
 "use client"
 
-import { authIdentity } from "@defuse-protocol/internal-utils"
 import { WalletBannedDialog } from "@src/components/WalletBannedDialog"
 import { WalletVerificationDialog } from "@src/components/WalletVerificationDialog"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
@@ -8,14 +7,13 @@ import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMe
 import { walletVerificationMachine } from "@src/machines/walletVerificationMachine"
 import { useBypassedWalletsStore } from "@src/stores/useBypassedWalletsStore"
 import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
-import { BANNED_ACCOUNT_IDS } from "@src/utils/environment"
 import {
   verifyWalletSignature,
   walletVerificationMessageFactory,
 } from "@src/utils/walletMessage"
 import { useQuery } from "@tanstack/react-query"
 import { useActor } from "@xstate/react"
-import { redirect } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useRef } from "react"
 import { fromPromise } from "xstate"
 import { useMixpanel } from "./MixpanelProvider"
@@ -23,6 +21,28 @@ import { useMixpanel } from "./MixpanelProvider"
 export function WalletVerificationProvider() {
   const { state, signOut } = useConnectWallet()
   const mixPanel = useMixpanel()
+  const router = useRouter()
+  const pathname = usePathname()
+
+  const bannedAccountCheck = useQuery({
+    queryKey: ["banned_account", state.address, state.chainType],
+    queryFn: async () => {
+      if (!state.address || !state.chainType) {
+        return { isBanned: false }
+      }
+      const response = await fetch(
+        `/api/account/validate-banned?address=${encodeURIComponent(state.address)}&chainType=${encodeURIComponent(state.chainType)}`
+      )
+      if (!response.ok) {
+        throw new Error("Failed to validate banned account")
+      }
+      return response.json() as Promise<{
+        isBanned: boolean
+        accountId: string | null
+      }>
+    },
+    enabled: state.address != null && state.chainType != null,
+  })
 
   const safetyCheck = useQuery({
     queryKey: ["address_safety", state.address],
@@ -37,13 +57,9 @@ export function WalletVerificationProvider() {
   const { addBypassedWalletAddress, isWalletBypassed } =
     useBypassedWalletsStore()
 
-  const accountId =
-    state.address != null && state.chainType != null
-      ? authIdentity.authHandleToIntentsUserId(state.address, state.chainType)
-      : null
-  // Blocked suspicious accounts ids
-  if (accountId != null && BANNED_ACCOUNT_IDS.includes(accountId)) {
-    return redirect("/wallet/banned")
+  if (bannedAccountCheck.data?.isBanned && pathname !== "/account") {
+    router.push("/wallet/banned")
+    return null
   }
 
   if (
