@@ -1,6 +1,10 @@
 import type { MultiPayload } from "@defuse-protocol/contract-types"
+import { VersionedNonceBuilder } from "@defuse-protocol/intents-sdk"
 import { solverRelay } from "@defuse-protocol/internal-utils"
 import { authIdentity } from "@defuse-protocol/internal-utils"
+import { base64 } from "@scure/base"
+import { nearClient } from "@src/components/DefuseSDK/constants/nearClient"
+import { salt } from "@src/components/DefuseSDK/services/intentsContractService"
 import { useMutation } from "@tanstack/react-query"
 import { Err, type Result } from "@thames/monads"
 import { useContext } from "react"
@@ -8,7 +12,7 @@ import {
   type SignerCredentials,
   formatSignedIntent,
 } from "../../../core/formatters"
-import { createSwapIntentMessage } from "../../../core/messages"
+import { createSwapIntentMessage, minutesFromNow } from "../../../core/messages"
 import {
   type PublishIntentsErr,
   convertPublishIntentsToLegacyFormat,
@@ -66,11 +70,19 @@ export function useOtcTakerConfirmTrade({
       )
 
       const { quotes, quoteParams, tokenDelta } = preparation
-
+      const deadline = minutesFromNow(5)
+      const nonce = base64.decode(
+        VersionedNonceBuilder.encodeNonce(
+          await salt({ nearClient }),
+          new Date(deadline)
+        )
+      )
       const walletMessage = createSwapIntentMessage(tokenDelta, {
         signerId,
         referral,
         memo: "OTC_FILL",
+        nonce,
+        deadlineTimestamp: deadline,
       })
 
       const signatureResult = await signIntent({
