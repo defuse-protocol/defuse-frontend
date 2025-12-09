@@ -149,6 +149,7 @@ const cspConfig = {
     "https://rpc.xlayer.tech",
     "https://rpc.adifoundation.ai",
     "https://svc.blockdaemon.com/bitcoincash/mainnet/native",
+    "https://starknet-rpc.publicnode.com",
   ],
   "object-src": ["'none'"],
   "base-uri": ["'self'"],

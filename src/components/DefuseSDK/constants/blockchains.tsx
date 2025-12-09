@@ -186,7 +186,7 @@ export function getBlockchainsOptions(): Record<
   BlockchainOption
 > {
   const options: Record<
-    Exclude<BlockchainEnum, "starknet:mainnet">, // TODO: remove this once Starknet is supported
+    Exclude<BlockchainEnum, "starknet:mainnet">, // TODO: remove this exclude once Starknet is supported
     BlockchainOption
   > = {
     [BlockchainEnum.NEAR]: {
@@ -444,7 +444,7 @@ export function getBlockchainsOptions(): Record<
   }
 
   return sortBlockchainOptionsByVolume(
-    options as Record<BlockchainEnum, BlockchainOption> // TODO: remove this once Starknet and ADI are supported
+    options as Record<BlockchainEnum, BlockchainOption> // TODO: remove this cast once Starknet is supported
   )
 }
 

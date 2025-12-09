@@ -64,6 +64,6 @@ export const settings: Settings = {
     monad: "https://rpc.monad.xyz",
     bitcoincash: "https://svc.blockdaemon.com/bitcoincash/mainnet/native",
     adi: "https://rpc.adifoundation.ai",
-    starknet: "",
+    starknet: "https://starknet-rpc.publicnode.com",
   },
 }
