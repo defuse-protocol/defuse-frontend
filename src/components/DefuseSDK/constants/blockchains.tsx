@@ -186,7 +186,7 @@ export function getBlockchainsOptions(): Record<
   BlockchainOption
 > {
   const options: Record<
-    Exclude<BlockchainEnum, "starknet:mainnet" | "eth:36900">, // TODO: remove this once Starknet and ADI are supported
+    Exclude<BlockchainEnum, "starknet:mainnet">, // TODO: remove this once Starknet is supported
     BlockchainOption
   > = {
     [BlockchainEnum.NEAR]: {
@@ -435,13 +435,12 @@ export function getBlockchainsOptions(): Record<
     //   value: BlockchainEnum.STARKNET,
     //   tags: [],
     // },
-    // TODO: Uncomment this once ADI is supported
-    // [BlockchainEnum.ADI]: {
-    //   label: "ADI",
-    //   icon: <NetworkIcon chainIcon={chainIcons.adi} chainName="ADI" />,
-    //   value: BlockchainEnum.ADI,
-    //   tags: [],
-    // },
+    [BlockchainEnum.ADI]: {
+      label: "ADI",
+      icon: <NetworkIcon chainIcon={chainIcons.adi} chainName="ADI" />,
+      value: BlockchainEnum.ADI,
+      tags: [],
+    },
   }
 
   return sortBlockchainOptionsByVolume(

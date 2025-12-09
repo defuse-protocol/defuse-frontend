@@ -63,7 +63,7 @@ export const settings: Settings = {
     layerx: "https://rpc.xlayer.tech",
     monad: "https://rpc.monad.xyz",
     bitcoincash: "https://svc.blockdaemon.com/bitcoincash/mainnet/native",
-    adi: "",
+    adi: "https://rpc.adifoundation.ai",
     starknet: "",
   },
 }
