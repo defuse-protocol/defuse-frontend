@@ -38,7 +38,7 @@ const pairs: Record<WhitelabelTemplateValue, [string, string]> = {
   ],
   rabitswap: [
     "nep141:eth-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.omft.near",
-    "nep245:v2_1.omni.hot.tg:36900_11111111111111111111",
+    "nep141:eth-0x8b1484d57abbe239bb280661377363b03c89caea.omft.near",
   ],
 }
 
