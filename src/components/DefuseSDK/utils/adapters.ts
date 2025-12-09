@@ -7,6 +7,7 @@ export const assetNetworkAdapter: Record<SupportedChainName, BlockchainEnum> = {
   base: BlockchainEnum.BASE,
   arbitrum: BlockchainEnum.ARBITRUM,
   bitcoin: BlockchainEnum.BITCOIN,
+  bitcoincash: BlockchainEnum.BITCOINCASH,
   solana: BlockchainEnum.SOLANA,
   dogecoin: BlockchainEnum.DOGECOIN,
   turbochain: BlockchainEnum.TURBOCHAIN,
@@ -35,6 +36,8 @@ export const assetNetworkAdapter: Record<SupportedChainName, BlockchainEnum> = {
   litecoin: BlockchainEnum.LITECOIN,
   layerx: BlockchainEnum.LAYERX,
   monad: BlockchainEnum.MONAD,
+  adi: BlockchainEnum.ADI,
+  starknet: BlockchainEnum.STARKNET,
 }
 
 export const reverseAssetNetworkAdapter: Record<
@@ -46,6 +49,7 @@ export const reverseAssetNetworkAdapter: Record<
   [BlockchainEnum.BASE]: "base",
   [BlockchainEnum.ARBITRUM]: "arbitrum",
   [BlockchainEnum.BITCOIN]: "bitcoin",
+  [BlockchainEnum.BITCOINCASH]: "bitcoincash",
   [BlockchainEnum.SOLANA]: "solana",
   [BlockchainEnum.DOGECOIN]: "dogecoin",
   [BlockchainEnum.TURBOCHAIN]: "turbochain",
@@ -74,6 +78,8 @@ export const reverseAssetNetworkAdapter: Record<
   [BlockchainEnum.LITECOIN]: "litecoin",
   [BlockchainEnum.LAYERX]: "layerx",
   [BlockchainEnum.MONAD]: "monad",
+  [BlockchainEnum.ADI]: "adi",
+  [BlockchainEnum.STARKNET]: "starknet",
 }
 
 export function isValidBlockchainEnumKey(
