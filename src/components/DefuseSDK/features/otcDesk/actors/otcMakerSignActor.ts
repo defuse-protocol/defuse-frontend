@@ -6,13 +6,7 @@ import { nearClient } from "@src/components/DefuseSDK/constants/nearClient"
 import { salt } from "@src/components/DefuseSDK/services/intentsContractService"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { logger } from "@src/utils/logger"
-import {
-  type DoneActorEvent,
-  assertEvent,
-  assign,
-  fromPromise,
-  setup,
-} from "xstate"
+import { assertEvent, assign, fromPromise, setup } from "xstate"
 import {
   type SignerCredentials,
   formatSignedIntent,
@@ -30,6 +24,7 @@ import {
 import type { BalanceMapping } from "../../machines/depositedBalanceMachine"
 import {
   type Errors as SignIntentErrors,
+  type Output as SignIntentMachineOutput,
   signIntentMachine,
 } from "../../machines/signIntentMachine"
 import type { SignMessage } from "../types/sharedTypes"
@@ -47,11 +42,6 @@ export type OTCMakerSignActorInput = {
   signerCredentials: SignerCredentials
   signMessage: SignMessage
   referral: string | undefined
-}
-
-type PrepareDataResult = {
-  nonce: Uint8Array
-  walletMessage: walletMessage.WalletMessage
 }
 
 export type OTCMakerSignActorOutput =
@@ -79,15 +69,20 @@ export const otcMakerSignMachine = setup({
     context: {} as OTCMakerSignActorContext,
     events: {} as
       | { type: "xstate.init"; input: OTCMakerSignActorInput }
-      | { type: "COMPLETE"; output: OTCMakerSignActorOutput }
-      | DoneActorEvent<PrepareDataResult>,
+      | { type: "COMPLETE"; output: SignIntentMachineOutput },
+    children: {} as {
+      signRef: "signActor"
+    },
   },
   actors: {
     signActor: signIntentMachine,
-    prepareSignDataActor: fromPromise(
+    prepareSignData: fromPromise(
       async ({
         input,
-      }: { input: OTCMakerSignActorContext }): Promise<PrepareDataResult> => {
+      }: { input: OTCMakerSignActorContext }): Promise<{
+        nonce: Uint8Array
+        walletMessage: walletMessage.WalletMessage
+      }> => {
         const deadline =
           Date.now() + expiryToSeconds(input.parsed.expiry) * 1000
         const nonce = base64.decode(
@@ -154,7 +149,7 @@ export const otcMakerSignMachine = setup({
     logError: (_, event: { error: unknown }) => {
       logger.error(event.error)
     },
-    complete: ({ self }, output: OTCMakerSignActorOutput) => {
+    complete: ({ self }, output: SignIntentMachineOutput) => {
       self.send({ type: "COMPLETE", output })
     },
   },
@@ -176,7 +171,7 @@ export const otcMakerSignMachine = setup({
   states: {
     prepareData: {
       invoke: {
-        src: "prepareSignDataActor",
+        src: "prepareSignData",
         input: ({ context }) => context,
         onDone: {
           target: "signing",
@@ -214,7 +209,10 @@ export const otcMakerSignMachine = setup({
             { type: "logError", params: ({ event }) => event },
             {
               type: "complete",
-              params: { tag: "err", value: { reason: "EXCEPTION" } },
+              params: {
+                tag: "err",
+                value: { reason: "EXCEPTION", error: null },
+              },
             },
           ],
         },
@@ -223,7 +221,7 @@ export const otcMakerSignMachine = setup({
           actions: [
             {
               type: "complete",
-              params: ({ event }) => event.output as OTCMakerSignActorOutput,
+              params: ({ event }) => event.output,
             },
           ],
         },
