@@ -1,5 +1,6 @@
 "use client"
 
+import { authIdentity } from "@defuse-protocol/internal-utils"
 import { WalletBannedDialog } from "@src/components/WalletBannedDialog"
 import { WalletVerificationDialog } from "@src/components/WalletVerificationDialog"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
@@ -7,6 +8,7 @@ import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMe
 import { walletVerificationMachine } from "@src/machines/walletVerificationMachine"
 import { useBypassedWalletsStore } from "@src/stores/useBypassedWalletsStore"
 import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
+import { BANNED_ACCOUNT_IDS } from "@src/utils/environment"
 import {
   verifyWalletSignature,
   walletVerificationMessageFactory,
@@ -35,12 +37,12 @@ export function WalletVerificationProvider() {
   const { addBypassedWalletAddress, isWalletBypassed } =
     useBypassedWalletsStore()
 
-  // HOT-FIX: Blocking particular address
-  if (
-    state.address != null &&
-    state.address.toLowerCase() ===
-      "0x230de5414ff81a06dc742a7abfd7a706e6f74282".toLowerCase()
-  ) {
+  const accountId =
+    state.address != null && state.chainType != null
+      ? authIdentity.authHandleToIntentsUserId(state.address, state.chainType)
+      : null
+  // Blocked suspicious accounts ids
+  if (accountId != null && BANNED_ACCOUNT_IDS.includes(accountId)) {
     return redirect("/wallet/banned")
   }
 
