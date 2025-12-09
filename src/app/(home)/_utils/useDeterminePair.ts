@@ -38,7 +38,7 @@ const pairs: Record<WhitelabelTemplateValue, [string, string]> = {
   ],
   rabitswap: [
     "nep141:eth-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.omft.near",
-    "nep141:wrap.near", // Shoult be ADI token on NEAR
+    "nep245:v2_1.omni.hot.tg:36900_11111111111111111111",
   ],
 }
 

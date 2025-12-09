@@ -125,7 +125,8 @@ export const backgroundBalanceActor = fromPromise(
       case BlockchainEnum.OPTIMISM:
       case BlockchainEnum.AVALANCHE:
       case BlockchainEnum.MONAD:
-      case BlockchainEnum.LAYERX: {
+      case BlockchainEnum.LAYERX:
+      case BlockchainEnum.ADI: {
         if (isNativeToken(tokenDeployment)) {
           const balance = await getEvmNativeBalance({
             userAddress: userWalletAddress as Address,
@@ -247,6 +248,7 @@ export const backgroundBalanceActor = fromPromise(
       }
       // Active deposits through Bitcoin and other blockchains are not supported, so we don't need to check balances
       case BlockchainEnum.BITCOIN:
+      case BlockchainEnum.BITCOINCASH:
       case BlockchainEnum.DOGECOIN:
       case BlockchainEnum.XRPLEDGER:
       case BlockchainEnum.ZCASH:
@@ -255,6 +257,7 @@ export const backgroundBalanceActor = fromPromise(
       case BlockchainEnum.APTOS:
       case BlockchainEnum.CARDANO:
       case BlockchainEnum.LITECOIN:
+      case BlockchainEnum.STARKNET:
         break
       default:
         networkToSolverFormat satisfies never

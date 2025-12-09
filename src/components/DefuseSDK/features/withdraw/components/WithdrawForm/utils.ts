@@ -53,6 +53,7 @@ export function chainTypeSatisfiesChainName(
     case chainType === AuthMethod.EVM && chainName === "avalanche":
     case chainType === AuthMethod.EVM && chainName === "monad":
     case chainType === AuthMethod.EVM && chainName === "layerx":
+    case chainType === AuthMethod.EVM && chainName === "adi":
     case chainType === AuthMethod.Solana && chainName === "solana":
     case chainType === AuthMethod.Stellar && chainName === "stellar":
     case chainType === AuthMethod.Ton && chainName === "ton":

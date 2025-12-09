@@ -62,5 +62,8 @@ export const settings: Settings = {
     litecoin: "https://litecoinspace.org/api",
     layerx: "https://rpc.xlayer.tech",
     monad: "https://rpc.monad.xyz",
+    bitcoincash: "https://svc.blockdaemon.com/bitcoincash/mainnet/native",
+    adi: "https://rpc.adifoundation.ai",
+    starknet: "https://starknet-rpc.publicnode.com",
   },
 }

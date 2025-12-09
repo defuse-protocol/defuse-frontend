@@ -14,6 +14,8 @@ export function chainTxExplorer(blockchain: SupportedChainName): string | null {
       return "https://explorer.turbo.aurora.dev/tx/"
     case "bitcoin":
       return "https://blockchain.info/tx/"
+    case "bitcoincash":
+      return "https://blockchair.com/bitcoin-cash/transaction/"
     case "solana":
       return "https://orb.helius.dev/tx/"
     case "dogecoin":
@@ -68,6 +70,10 @@ export function chainTxExplorer(blockchain: SupportedChainName): string | null {
       return "https://www.oklink.com/x-layer/tx/"
     case "monad":
       return "https://monadscan.com/tx/"
+    case "adi":
+      return "https://explorer.adifoundation.ai/tx/"
+    case "starknet":
+      return "https://starkscan.co/tx/"
     default:
       blockchain satisfies never
       return null
