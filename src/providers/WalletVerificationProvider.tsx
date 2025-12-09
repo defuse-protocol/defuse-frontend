@@ -1,11 +1,5 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
-import { useActor } from "@xstate/react"
-import { useEffect, useRef } from "react"
-import { fromPromise } from "xstate"
-
-import { WalletBannedAddressDialog } from "@src/components/WalletBannedAddressDialog"
 import { WalletBannedDialog } from "@src/components/WalletBannedDialog"
 import { WalletVerificationDialog } from "@src/components/WalletVerificationDialog"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
@@ -17,6 +11,11 @@ import {
   verifyWalletSignature,
   walletVerificationMessageFactory,
 } from "@src/utils/walletMessage"
+import { useQuery } from "@tanstack/react-query"
+import { useActor } from "@xstate/react"
+import { redirect } from "next/navigation"
+import { useEffect, useRef } from "react"
+import { fromPromise } from "xstate"
 import { useMixpanel } from "./MixpanelProvider"
 
 export function WalletVerificationProvider() {
@@ -42,7 +41,7 @@ export function WalletVerificationProvider() {
     state.address.toLowerCase() ===
       "0x230de5414ff81a06dc742a7abfd7a706e6f74282".toLowerCase()
   ) {
-    return <WalletBannedAddressDialog open={true} />
+    return redirect("/wallet/banned")
   }
 
   if (
