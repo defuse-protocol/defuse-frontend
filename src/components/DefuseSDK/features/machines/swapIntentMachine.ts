@@ -438,7 +438,7 @@ export const swapIntentMachine = setup({
               }),
             },
             onError: {
-              target: "Generic Error",
+              target: "#swap-intent.Generic Error",
               description: "FAILED_TO_PREPARE_MESSAGE_TO_SIGN",
 
               actions: [
@@ -473,7 +473,7 @@ export const swapIntentMachine = setup({
             },
 
             onDone: {
-              target: "Verifying Signature",
+              target: "#swap-intent.Verifying Signature",
 
               actions: {
                 type: "setSignature",
@@ -482,7 +482,7 @@ export const swapIntentMachine = setup({
             },
 
             onError: {
-              target: "Generic Error",
+              target: "#swap-intent.Generic Error",
               description: "USER_DIDNT_SIGN",
 
               actions: [
