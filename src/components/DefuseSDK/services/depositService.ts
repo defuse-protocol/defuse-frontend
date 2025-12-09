@@ -983,6 +983,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.AVALANCHE:
         case BlockchainEnum.MONAD:
         case BlockchainEnum.LAYERX:
+        case BlockchainEnum.ADI:
           return {
             activeDeposit: true,
             passiveDeposit: true,
@@ -1003,7 +1004,6 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.APTOS:
         case BlockchainEnum.CARDANO:
         case BlockchainEnum.LITECOIN:
-        case BlockchainEnum.ADI:
           return {
             activeDeposit: false,
             passiveDeposit: true,
