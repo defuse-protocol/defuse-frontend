@@ -101,6 +101,21 @@ export const hako = {
   },
 } as const satisfies Chain
 
+export const adi = {
+  id: 36900,
+  name: "ADI_Chain",
+  nativeCurrency: { name: "ADI", symbol: "ADI", decimals: 18 },
+  rpcUrls: {
+    default: { http: ["https://rpc.adifoundation.ai"] },
+  },
+  blockExplorers: {
+    default: {
+      name: "Explorer",
+      url: "https://explorer.adifoundation.ai",
+    },
+  },
+} as const satisfies Chain
+
 export const config = createConfig({
   chains: [
     mainnet,
@@ -117,6 +132,7 @@ export const config = createConfig({
     optima,
     coineasy,
     hako,
+    adi,
   ],
   connectors: [
     PROJECT_ID != null &&
@@ -149,5 +165,6 @@ export const config = createConfig({
     [optima.id]: http(),
     [coineasy.id]: http(),
     [hako.id]: http(),
+    [adi.id]: http(),
   },
 })
