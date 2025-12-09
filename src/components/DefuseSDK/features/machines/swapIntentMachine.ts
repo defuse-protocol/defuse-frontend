@@ -2,21 +2,25 @@ import type {
   Intent,
   Nep413DefuseMessageFor_DefuseIntents,
 } from "@defuse-protocol/contract-types"
-import type {
-  FeeEstimation,
-  WithdrawalParams,
+import {
+  type FeeEstimation,
+  VersionedNonceBuilder,
+  type WithdrawalParams,
 } from "@defuse-protocol/intents-sdk"
 import { errors, solverRelay } from "@defuse-protocol/internal-utils"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { messageFactory } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { secp256k1 } from "@noble/curves/secp256k1"
+import { base64 } from "@scure/base"
 import { logger } from "@src/utils/logger"
 import type { providers } from "near-api-js"
 import { assign, fromPromise, setup } from "xstate"
+import { nearClient } from "../../constants/nearClient"
 import { settings } from "../../constants/settings"
 import { convertPublishIntentToLegacyFormat } from "../../sdk/solverRelay/utils/parseFailedPublishError"
 import { emitEvent } from "../../services/emitter"
+import { salt } from "../../services/intentsContractService"
 import type { AggregatedQuote } from "../../services/quoteService"
 import type {
   BaseTokenInfo,
@@ -112,6 +116,7 @@ type Context = {
       | {
           reason:
             | "ERR_USER_DIDNT_SIGN"
+            | "ERR_FAILED_TO_PREPARE_MESSAGE_TO_SIGN"
             | "ERR_CANNOT_VERIFY_SIGNATURE"
             | "ERR_SIGNED_DIFFERENT_ACCOUNT"
             | "ERR_PUBKEY_EXCEPTION"
@@ -277,6 +282,45 @@ export const swapIntentMachine = setup({
           .publishIntent(input.signatureData, input.userInfo, input.quoteHashes)
           .then(convertPublishIntentToLegacyFormat)
     ),
+    prepareSignMessages: fromPromise(
+      async ({
+        input,
+      }: {
+        input: Context
+      }) => {
+        assert(
+          input.intentOperationParams.type === "swap",
+          "Operation must be swap"
+        )
+        const deadline = Date.now() + settings.swapExpirySec * 1000
+        const nonce = base64.decode(
+          VersionedNonceBuilder.encodeNonce(
+            await salt({ nearClient }),
+            new Date(deadline)
+          )
+        )
+
+        const innerMessage = messageFactory.makeInnerSwapMessage({
+          tokenDeltas: accountSlippageExactIn(
+            input.intentOperationParams.quote.tokenDeltas,
+            input.slippageBasisPoints
+          ),
+          signerId: input.defuseUserId,
+          deadlineTimestamp: deadline,
+          referral: input.referral,
+          appFee: input.intentOperationParams.quote.appFee,
+          appFeeRecipient: input.appFeeRecipient,
+        })
+
+        return {
+          innerMessage,
+          walletMessage: messageFactory.makeSwapMessage({
+            innerMessage,
+            nonce,
+          }),
+        }
+      }
+    ),
   },
   guards: {
     isSettled: (
@@ -403,47 +447,87 @@ export const swapIntentMachine = setup({
     },
 
     Signing: {
-      entry: ["assembleSignMessages", "emitSwapInitiated"],
-
-      invoke: {
-        id: "signMessage",
-
-        src: "signMessage",
-
-        input: ({ context }) => {
-          assert(context.messageToSign != null, "Sign message is not set")
-          return context.messageToSign.walletMessage
-        },
-
-        onDone: {
-          target: "Verifying Signature",
-
-          actions: {
-            type: "setSignature",
-            params: ({ event }) => event.output,
-          },
-        },
-
-        onError: {
-          target: "Generic Error",
-          description: "USER_DIDNT_SIGN",
-
-          actions: [
-            {
-              type: "logError",
-              params: ({ event }) => event,
-            },
-            {
-              type: "setError",
-              params: ({ event }) => ({
-                reason: extractWalletErrorCode(
-                  event.error,
-                  "ERR_USER_DIDNT_SIGN"
-                ),
-                error: errors.toError(event.error),
+      initial: "prepareWalletMessage",
+      states: {
+        prepareWalletMessage: {
+          invoke: {
+            src: "prepareSignMessages",
+            input: ({ context }) => context,
+            onDone: {
+              target: "beginSigning",
+              actions: assign(({ event, context }) => {
+                return {
+                  ...context,
+                  messageToSign: event.output,
+                }
               }),
             },
-          ],
+            onError: {
+              target: "Generic Error",
+              description: "FAILED_TO_PREPARE_MESSAGE_TO_SIGN",
+
+              actions: [
+                {
+                  type: "logError",
+                  params: ({ event }) => event,
+                },
+                {
+                  type: "setError",
+                  params: ({ event }) => ({
+                    reason: extractWalletErrorCode(
+                      event.error,
+                      "ERR_FAILED_TO_PREPARE_MESSAGE_TO_SIGN"
+                    ),
+                    error: errors.toError(event.error),
+                  }),
+                },
+              ],
+            },
+          },
+        },
+        beginSigning: {
+          entry: ["emitSwapInitiated"],
+          invoke: {
+            id: "signMessage",
+
+            src: "signMessage",
+
+            input: ({ context }) => {
+              assert(context.messageToSign != null, "Sign message is not set")
+              return context.messageToSign.walletMessage
+            },
+
+            onDone: {
+              target: "Verifying Signature",
+
+              actions: {
+                type: "setSignature",
+                params: ({ event }) => event.output,
+              },
+            },
+
+            onError: {
+              target: "Generic Error",
+              description: "USER_DIDNT_SIGN",
+
+              actions: [
+                {
+                  type: "logError",
+                  params: ({ event }) => event,
+                },
+                {
+                  type: "setError",
+                  params: ({ event }) => ({
+                    reason: extractWalletErrorCode(
+                      event.error,
+                      "ERR_USER_DIDNT_SIGN"
+                    ),
+                    error: errors.toError(event.error),
+                  }),
+                },
+              ],
+            },
+          },
         },
       },
     },

@@ -62,6 +62,7 @@ type Context = {
             | "ERR_1CS_QUOTE_FAILED"
             | "ERR_NO_DEPOSIT_ADDRESS"
             | "ERR_TRANSFER_MESSAGE_FAILED"
+            | "ERR_FAILED_TO_PREPARE_MESSAGE_TO_SIGN"
             | "ERR_USER_DIDNT_SIGN"
             | "ERR_CANNOT_VERIFY_SIGNATURE"
             | "ERR_SIGNED_DIFFERENT_ACCOUNT"
