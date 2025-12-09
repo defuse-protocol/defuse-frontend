@@ -211,31 +211,6 @@ export const swapIntentMachine = setup({
         })
       }
     },
-    assembleSignMessages: assign({
-      messageToSign: ({ context }) => {
-        assert(
-          context.intentOperationParams.type === "swap",
-          "Operation must be swap"
-        )
-
-        const innerMessage = messageFactory.makeInnerSwapMessage({
-          tokenDeltas: accountSlippageExactIn(
-            context.intentOperationParams.quote.tokenDeltas,
-            context.slippageBasisPoints
-          ),
-          signerId: context.defuseUserId,
-          deadlineTimestamp: Date.now() + settings.swapExpirySec * 1000,
-          referral: context.referral,
-          appFee: context.intentOperationParams.quote.appFee,
-          appFeeRecipient: context.appFeeRecipient,
-        })
-
-        return {
-          innerMessage,
-          walletMessage: messageFactory.makeSwapMessage({ innerMessage }),
-        }
-      },
-    }),
     setSignature: assign({
       signature: (_, signature: walletMessage.WalletSignatureResult | null) =>
         signature,
