@@ -1,6 +1,10 @@
+import { VersionedNonceBuilder } from "@defuse-protocol/intents-sdk"
 import { authIdentity, messageFactory } from "@defuse-protocol/internal-utils"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { base64 } from "@scure/base"
+import { nearClient } from "@src/components/DefuseSDK/constants/nearClient"
+import { minutesFromNow } from "@src/components/DefuseSDK/core/messages"
+import { salt } from "@src/components/DefuseSDK/services/intentsContractService"
 import { KeyPair } from "near-api-js"
 import type { IntentsUserId, SignerCredentials } from "../../../core/formatters"
 import { formatUserIdentity } from "../../../core/formatters"
@@ -16,7 +20,10 @@ export async function signGiftTakerMessage({
   giftInfo,
   signerCredentials,
 }: GiftTakerMessage): Promise<walletMessage.NEP413SignatureData> {
-  const walletMessage = assembleWalletMessage({ giftInfo, signerCredentials })
+  const walletMessage = await assembleWalletMessage({
+    giftInfo,
+    signerCredentials,
+  })
   const keyPair = KeyPair.fromString(giftInfo.secretKey)
 
   // Claimed message should be NEP-413 within same standard as escrow account
@@ -37,11 +44,17 @@ export async function signGiftTakerMessage({
   }
 }
 
-function assembleWalletMessage({
+async function assembleWalletMessage({
   giftInfo,
   signerCredentials,
 }: GiftTakerMessage) {
-  const nonce = messageFactory.randomDefuseNonce()
+  const deadline = minutesFromNow(5)
+  const nonce = base64.decode(
+    VersionedNonceBuilder.encodeNonce(
+      await salt({ nearClient }),
+      new Date(deadline)
+    )
+  )
 
   // Signer should be with `near` credential type as we use ED25519 signing
   const signerId = resolveSignerId(
@@ -51,7 +64,7 @@ function assembleWalletMessage({
   const innerMessage = messageFactory.makeInnerTransferMessage({
     tokenDeltas: [...Object.entries(giftInfo.tokenDiff)],
     signerId,
-    deadlineTimestamp: minutesFromNow(5),
+    deadlineTimestamp: deadline,
     receiverId: authIdentity.authHandleToIntentsUserId(
       signerCredentials.credential,
       signerCredentials.credentialType
@@ -61,10 +74,6 @@ function assembleWalletMessage({
     innerMessage,
     nonce: nonce,
   })
-}
-
-function minutesFromNow(minutes: number): number {
-  return Date.now() + minutes * 60 * 1000
 }
 
 function resolveSignerId(

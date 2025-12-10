@@ -1,9 +1,12 @@
 import type { MultiPayload } from "@defuse-protocol/contract-types"
+import { VersionedNonceBuilder } from "@defuse-protocol/intents-sdk"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
-import { messageFactory } from "@defuse-protocol/internal-utils"
 import { base64 } from "@scure/base"
+import { nearClient } from "@src/components/DefuseSDK/constants/nearClient"
+import { salt } from "@src/components/DefuseSDK/services/intentsContractService"
+import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { logger } from "@src/utils/logger"
-import { assertEvent, setup } from "xstate"
+import { assertEvent, assign, fromPromise, setup } from "xstate"
 import {
   type SignerCredentials,
   formatSignedIntent,
@@ -21,6 +24,7 @@ import {
 import type { BalanceMapping } from "../../machines/depositedBalanceMachine"
 import {
   type Errors as SignIntentErrors,
+  type Output as SignIntentMachineOutput,
   signIntentMachine,
 } from "../../machines/signIntentMachine"
 import type { SignMessage } from "../types/sharedTypes"
@@ -51,11 +55,9 @@ export type OTCMakerSignActorSuccess = {
   usedNonceBase64: string
 }
 
-export type OTCMakerSignActorContext = {
-  nonce: Uint8Array
-  parsed: OTCMakerSignActorInput["parsed"]
-  signerCredentials: OTCMakerSignActorInput["signerCredentials"]
-  walletMessage: walletMessage.WalletMessage
+export type OTCMakerSignActorContext = OTCMakerSignActorInput & {
+  nonce: Uint8Array | null
+  walletMessage: walletMessage.WalletMessage | null
 }
 
 export type OTCMakerSignActorErrors = SignIntentErrors | { reason: "EXCEPTION" }
@@ -67,78 +69,98 @@ export const otcMakerSignMachine = setup({
     context: {} as OTCMakerSignActorContext,
     events: {} as
       | { type: "xstate.init"; input: OTCMakerSignActorInput }
-      | { type: "COMPLETE"; output: OTCMakerSignActorOutput },
+      | { type: "COMPLETE"; output: SignIntentMachineOutput },
+    children: {} as {
+      signRef: "signActor"
+    },
   },
   actors: {
     signActor: signIntentMachine,
+    prepareSignData: fromPromise(
+      async ({
+        input,
+      }: { input: OTCMakerSignActorContext }): Promise<{
+        nonce: Uint8Array
+        walletMessage: walletMessage.WalletMessage
+      }> => {
+        const deadline =
+          Date.now() + expiryToSeconds(input.parsed.expiry) * 1000
+        const nonce = base64.decode(
+          VersionedNonceBuilder.encodeNonce(
+            await salt({ nearClient }),
+            new Date(deadline)
+          )
+        )
+
+        let tokenInDiff: Record<BaseTokenInfo["defuseAssetId"], bigint>
+
+        try {
+          tokenInDiff = calculateSplitAmounts(
+            getUnderlyingBaseTokenInfos(input.parsed.tokenIn),
+            input.parsed.amountIn,
+            input.balances
+          )
+
+          for (const [assetId, amount] of Object.entries(tokenInDiff)) {
+            // We need to negate the amount, as the balance is being reduced
+            tokenInDiff[assetId] = -amount
+          }
+        } catch (err: unknown) {
+          if (!findError(err, AmountMismatchError)) {
+            throw err
+          }
+
+          /**
+           * If user has insufficient balance, we will generate a message with the full amount,
+           * and let the user know that they have insufficient balance.
+           */
+          const tokenIn = getAnyBaseTokenInfo(input.parsed.tokenIn)
+          tokenInDiff = {
+            [tokenIn.defuseAssetId]: adjustDecimals(
+              // We need to negate the amount, as the balance is being reduced
+              -input.parsed.amountIn.amount,
+              input.parsed.amountIn.decimals,
+              tokenIn.decimals
+            ),
+          }
+        }
+
+        const walletMessage = createSwapIntentMessage(
+          [
+            ...Object.entries(tokenInDiff),
+            [
+              input.parsed.tokenOut.defuseAssetId,
+              input.parsed.amountOut.amount,
+            ],
+          ],
+          {
+            signerId: input.signerCredentials,
+            nonce,
+            referral: input.referral,
+            memo: "OTC_CREATE",
+            deadlineTimestamp: deadline,
+          }
+        )
+        return { nonce, walletMessage }
+      }
+    ),
   },
   actions: {
     logError: (_, event: { error: unknown }) => {
       logger.error(event.error)
     },
-    complete: ({ self }, output: OTCMakerSignActorOutput) => {
+    complete: ({ self }, output: SignIntentMachineOutput) => {
       self.send({ type: "COMPLETE", output })
     },
   },
 }).createMachine({
-  initial: "signing",
+  initial: "prepareData",
 
   context: ({ input }) => {
-    const nonce = messageFactory.randomDefuseNonce()
-
-    let tokenInDiff: Record<BaseTokenInfo["defuseAssetId"], bigint>
-
-    try {
-      tokenInDiff = calculateSplitAmounts(
-        getUnderlyingBaseTokenInfos(input.parsed.tokenIn),
-        input.parsed.amountIn,
-        input.balances
-      )
-
-      for (const [assetId, amount] of Object.entries(tokenInDiff)) {
-        // We need to negate the amount, as the balance is being reduced
-        tokenInDiff[assetId] = -amount
-      }
-    } catch (err: unknown) {
-      if (!findError(err, AmountMismatchError)) {
-        throw err
-      }
-
-      /**
-       * If user has insufficient balance, we will generate a message with the full amount,
-       * and let the user know that they have insufficient balance.
-       */
-      const tokenIn = getAnyBaseTokenInfo(input.parsed.tokenIn)
-      tokenInDiff = {
-        [tokenIn.defuseAssetId]: adjustDecimals(
-          // We need to negate the amount, as the balance is being reduced
-          -input.parsed.amountIn.amount,
-          input.parsed.amountIn.decimals,
-          tokenIn.decimals
-        ),
-      }
-    }
-
-    const walletMessage = createSwapIntentMessage(
-      [
-        ...Object.entries(tokenInDiff),
-        [input.parsed.tokenOut.defuseAssetId, input.parsed.amountOut.amount],
-      ],
-      {
-        signerId: input.signerCredentials,
-        nonce: nonce,
-        referral: input.referral,
-        memo: "OTC_CREATE",
-        deadlineTimestamp:
-          Date.now() + expiryToSeconds(input.parsed.expiry) * 1000,
-      }
-    )
-
     return {
-      nonce,
-      walletMessage,
-      parsed: input.parsed,
-      signerCredentials: input.signerCredentials,
+      ...input,
+      nonce: null,
+      walletMessage: null,
     }
   },
 
@@ -147,17 +169,36 @@ export const otcMakerSignMachine = setup({
   },
 
   states: {
+    prepareData: {
+      invoke: {
+        src: "prepareSignData",
+        input: ({ context }) => context,
+        onDone: {
+          target: "signing",
+          actions: assign(({ event, context }) => {
+            return {
+              ...context,
+              nonce: event.output.nonce,
+              walletMessage: event.output.walletMessage,
+            }
+          }),
+        },
+        onError: {
+          actions: [{ type: "logError", params: ({ event }) => event }],
+        },
+      },
+    },
+
     signing: {
       invoke: {
         id: "signRef",
         src: "signActor",
 
-        input: ({ event, context }) => {
-          assertEvent(event, "xstate.init")
-          const input = event.input as OTCMakerSignActorInput
+        input: ({ context }) => {
+          assert(context.walletMessage !== null)
 
           return {
-            signMessage: input.signMessage,
+            signMessage: context.signMessage,
             signerCredentials: context.signerCredentials,
             walletMessage: context.walletMessage,
           }
@@ -168,12 +209,14 @@ export const otcMakerSignMachine = setup({
             { type: "logError", params: ({ event }) => event },
             {
               type: "complete",
-              params: { tag: "err", value: { reason: "EXCEPTION" } },
+              params: {
+                tag: "err",
+                value: { reason: "EXCEPTION", error: null },
+              },
             },
           ],
         },
 
-        // @ts-expect-error wtf???
         onDone: {
           actions: [
             {
@@ -193,6 +236,7 @@ export const otcMakerSignMachine = setup({
       type: "final",
       output: ({ context, event }): OTCMakerSignActorOutput => {
         assertEvent(event, "COMPLETE")
+        assert(context.nonce !== null)
 
         if (event.output.tag === "err") {
           return event.output

@@ -1,5 +1,8 @@
+import { VersionedNonceBuilder } from "@defuse-protocol/intents-sdk"
 import { messageFactory, solverRelay } from "@defuse-protocol/internal-utils"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
+import { base64 } from "@scure/base"
+import { salt } from "@src/components/DefuseSDK/services/intentsContractService"
 import { logger } from "@src/utils/logger"
 import { assign, fromPromise, setup } from "xstate"
 import { config } from "../../../config"
@@ -28,6 +31,7 @@ export const tokenMigrationMachine = setup({
       signMessage: SignMessage
       tokensToMigrate: TokenBalances
       signature: null | walletMessage.WalletSignatureResult
+      walletMessage: null | walletMessage.WalletMessage
       intentHash: null | string
       error: null | string
       intentStatus: null | solverRelay.WaitForIntentSettlementReturnType
@@ -46,6 +50,40 @@ export const tokenMigrationMachine = setup({
             Object.entries(balances).filter(([, amount]) => amount !== 0n)
           )
         })
+      }
+    ),
+    prepareWalletMessage: fromPromise(
+      async ({
+        input,
+      }: {
+        input: { userId: IntentsUserId; tokensToMigrate: TokenBalances }
+      }): Promise<walletMessage.WalletMessage> => {
+        const deadline = new Date(Date.now() + 5 * 60 * 1000).toISOString()
+        const nonce = base64.decode(
+          VersionedNonceBuilder.encodeNonce(
+            await salt({ nearClient }),
+            new Date(deadline)
+          )
+        )
+
+        const walletMessage = messageFactory.makeSwapMessage({
+          innerMessage: {
+            signer_id: input.userId,
+            deadline,
+            intents: Object.entries(input.tokensToMigrate).map(
+              ([tokenId, amount]) => ({
+                intent: "ft_withdraw",
+                token: getTokenAccountId(tokenId),
+                receiver_id: config.env.contractID,
+                amount: amount.toString(),
+                memo: "Migrate ETH: aurora -> eth.bridge.near",
+                msg: input.userId,
+              })
+            ),
+          },
+          nonce,
+        })
+        return walletMessage
       }
     ),
 
@@ -88,6 +126,7 @@ export const tokenMigrationMachine = setup({
     intentHash: null,
     error: null,
     intentStatus: null,
+    walletMessage: null,
   }),
 
   states: {
@@ -135,32 +174,50 @@ export const tokenMigrationMachine = setup({
           },
         },
 
+        prepareWalletMessageToSign: {
+          invoke: {
+            src: "prepareWalletMessage",
+
+            input: ({ context }) => {
+              return {
+                userId: context.userId,
+                tokensToMigrate: context.tokensToMigrate,
+              }
+            },
+
+            onDone: [
+              {
+                target: "signing",
+                actions: assign({
+                  walletMessage: ({ event }) => event.output,
+                }),
+              },
+            ],
+
+            onError: {
+              target: "idle",
+              actions: [
+                ({ event }) => {
+                  logger.error(event.error)
+                },
+                assign({
+                  error: "EXCEPTION",
+                }),
+              ],
+            },
+          },
+        },
+
         signing: {
           invoke: {
             src: "signIntent",
 
             input: ({ context }) => {
-              const walletMessage = messageFactory.makeSwapMessage({
-                innerMessage: {
-                  signer_id: context.userId,
-                  deadline: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
-                  intents: Object.entries(context.tokensToMigrate).map(
-                    ([tokenId, amount]) => ({
-                      intent: "ft_withdraw",
-                      token: getTokenAccountId(tokenId),
-                      receiver_id: config.env.contractID,
-                      amount: amount.toString(),
-                      memo: "Migrate ETH: aurora -> eth.bridge.near",
-                      msg: context.userId,
-                    })
-                  ),
-                },
-              })
-
+              assert(context.walletMessage !== null)
               return {
                 signerCredentials: context.signerCredentials,
                 signMessage: context.signMessage,
-                walletMessage: walletMessage,
+                walletMessage: context.walletMessage,
               }
             },
 

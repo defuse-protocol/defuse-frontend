@@ -1,12 +1,16 @@
 "use client"
+import { VersionedNonceBuilder } from "@defuse-protocol/intents-sdk"
 import { messageFactory } from "@defuse-protocol/internal-utils"
+import { base64 } from "@scure/base"
+import { nearClient } from "@src/components/DefuseSDK/constants/nearClient"
+import { salt } from "@src/components/DefuseSDK/services/intentsContractService"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { getAppFeeRecipient } from "@src/utils/getAppFeeRecipient"
 import { useSelector } from "@xstate/react"
 import { useContext } from "react"
-import { assign, fromPromise } from "xstate"
+import { fromPromise } from "xstate"
 import {
   TokenListUpdater,
   TokenListUpdater1cs,
@@ -66,40 +70,41 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
                   signMessage: fromPromise(({ input }) => {
                     return props.signMessage(input)
                   }),
-                },
-                actions: {
-                  assembleSignMessages: assign({
-                    messageToSign: ({ context }) => {
-                      assert(
-                        context.intentOperationParams.type === "withdraw",
-                        "Type must be withdraw"
+                  prepareSignMessages: fromPromise(async ({ input }) => {
+                    assert(
+                      input.intentOperationParams.type === "withdraw",
+                      "Type must be withdraw"
+                    )
+                    const deadline = Date.now() + settings.swapExpirySec * 1000
+                    const nonce = base64.decode(
+                      VersionedNonceBuilder.encodeNonce(
+                        await salt({ nearClient }),
+                        new Date(deadline)
                       )
+                    )
+                    const { quote } = input.intentOperationParams
 
-                      const { quote } = context.intentOperationParams
+                    const innerMessage = messageFactory.makeInnerSwapMessage({
+                      deadlineTimestamp: deadline,
+                      referral: input.referral,
+                      signerId: input.defuseUserId,
+                      tokenDeltas: quote?.tokenDeltas ?? [],
+                      appFee: quote?.appFee ?? [],
+                      appFeeRecipient: input.appFeeRecipient,
+                    })
 
-                      const innerMessage = messageFactory.makeInnerSwapMessage({
-                        deadlineTimestamp:
-                          Date.now() + settings.swapExpirySec * 1000,
-                        referral: context.referral,
-                        signerId: context.defuseUserId,
-                        tokenDeltas: quote?.tokenDeltas ?? [],
-                        appFee: quote?.appFee ?? [],
-                        appFeeRecipient: context.appFeeRecipient,
-                      })
+                    innerMessage.intents ??= []
+                    innerMessage.intents.push(
+                      ...input.intentOperationParams.prebuiltWithdrawalIntents
+                    )
 
-                      innerMessage.intents ??= []
-                      innerMessage.intents.push(
-                        ...context.intentOperationParams
-                          .prebuiltWithdrawalIntents
-                      )
-
-                      return {
+                    return {
+                      innerMessage,
+                      walletMessage: messageFactory.makeSwapMessage({
                         innerMessage,
-                        walletMessage: messageFactory.makeSwapMessage({
-                          innerMessage,
-                        }),
-                      }
-                    },
+                        nonce,
+                      }),
+                    }
                   }),
                 },
               }),
