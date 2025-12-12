@@ -276,6 +276,23 @@
             }
           ],
           "tags": ["mc:7", "type:stablecoin", "tvol:4", "aid:usdc"]
+        },
+        {
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:143_2dmLwYWkCQKyTjeUPAsGJuiVLbFx",
+          "symbol": "USDC",
+          "name": "USD Coin",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+          "originChainName": "monad",
+          "deployments": [
+            {
+              "address": "0x754704Bc059F8C67012fEd69BC8A327a5aafb603",
+              "decimals": 6,
+              "chainName": "monad",
+              "bridge": "hot_omni"
+            }
+          ],
+          "tags": ["mc:7", "type:stablecoin", "tvol:4", "aid:usdc"]
         }
       ],
       "tags": ["mc:7", "type:stablecoin", "tvol:4", "aid:usdc"]
@@ -680,6 +697,23 @@
               "decimals": 6,
               "chainName": "layerx",
               "bridge": "hot_omni"
+            }
+          ],
+          "tags": ["mc:3", "type:stablecoin", "tvol:3", "aid:usdt"]
+        },
+        {
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:143_4EJiJxSALvGoTZbnc8K7Ft9533et",
+          "symbol": "USDT",
+          "name": "Tether USD",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+          "originChainName": "monad",
+          "deployments": [
+            {
+              "address": "0xe7cd86e13AC4309349F30B3435a9d337750fC82D",
+              "decimals": 6,
+              "chainName": "monad",
+              "bridge": "poa"
             }
           ],
           "tags": ["mc:3", "type:stablecoin", "tvol:3", "aid:usdt"]
