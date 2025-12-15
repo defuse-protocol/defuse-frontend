@@ -14,7 +14,6 @@ export async function GET(
     const { address } = await params
     const normalizedAddress = address.toLowerCase()
 
-    await nearClient.status()
     const isPredecessorIdEnabled = await utils.queryContract({
       nearClient,
       contractId: config.env.contractID,
