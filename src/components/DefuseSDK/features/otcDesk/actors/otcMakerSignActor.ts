@@ -249,12 +249,12 @@ export const otcMakerSignMachine = setup({
       type: "final",
       output: ({ context, event }): OTCMakerSignActorOutput => {
         assertEvent(event, "COMPLETE")
-        assert(context.nonce !== null)
 
         if (event.output.tag === "err") {
           return event.output
         }
 
+        assert(context.nonce !== null)
         const multiPayload = formatSignedIntent(
           event.output.value.signatureResult,
           context.signerCredentials
