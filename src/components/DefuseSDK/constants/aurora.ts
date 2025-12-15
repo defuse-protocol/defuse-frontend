@@ -11,6 +11,7 @@ export const siloToSiloAddress: Record<VirtualChains, string> = {
   vertex: "0xA50fFd8a0953B3965E70C4F7F880B00BcdB9A313",
   optima: "0xA50fFd8a0953B3965E70C4F7F880B00BcdB9A313",
   easychain: "0xA50fFd8a0953B3965E70C4F7F880B00BcdB9A313",
+  hako: "", // This chain uses Advanced Withdrawals and doesn't need the siloToSilo contract
 }
 
 /**
@@ -25,6 +26,7 @@ export const auroraEngineContractId: Record<VirtualChains, string> = {
   vertex: "0x4e454173.c.aurora",
   optima: "0x4e454161.c.aurora",
   easychain: "0x4e454218.c.aurora",
+  hako: "0x4e4542ad.c.aurora",
 }
 
 export function getAuroraEngineContractId(chainName: string) {

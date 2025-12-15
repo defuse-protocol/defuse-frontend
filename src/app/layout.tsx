@@ -19,9 +19,11 @@ import { TonConnectUIProvider } from "@src/providers/TonConnectUIProvider"
 
 import "@radix-ui/themes/styles.css"
 import "../styles/global.scss"
+import { getCachedSystemStatus } from "@src/actions/systemStatus"
 import Helpscout from "@src/components/Helpscout"
 import { MixpanelProvider } from "@src/providers/MixpanelProvider"
 import { NearWalletProvider } from "@src/providers/NearWalletProvider"
+import { SystemStatusProvider } from "@src/providers/SystemStatusProvider"
 import { TronWalletProvider } from "@src/providers/TronWalletProvider"
 import {
   APP_ENV,
@@ -96,6 +98,20 @@ export async function generateMetadata(): Promise<Metadata> {
           "Swap $TRUMP directly from BTC, XRP, DOGE and 50+ other cryptocurrencies. Powered by NEAR Intents.",
       },
     })
+  } else if (templ === "rabitswap") {
+    Object.assign(metadata, {
+      title: "RabitSwap: The Rabbit Hole of Swaps",
+      description: "Fast, easy cross-chain swaps and more with RabitSwap.",
+      openGraph: {
+        type: "website",
+        images: `/favicons/${templ}/og-image.jpg`,
+      },
+      twitter: {
+        images: `/favicons/${templ}/og-image.jpg`,
+        title: "RabitSwap: The Rabbit Hole of Swaps",
+        description: "Fast, easy cross-chain swaps and more with RabitSwap.",
+      },
+    })
   }
 
   return {
@@ -116,6 +132,7 @@ const RootLayout = async ({
 }>) => {
   const tmpl = await whitelabelTemplateFlag()
   initSDK()
+  const systemStatus = await getCachedSystemStatus()
 
   return (
     <html lang="en" suppressHydrationWarning className={`tmpl-${tmpl}`}>
@@ -123,27 +140,29 @@ const RootLayout = async ({
         <InitDefuseSDK />
 
         <ThemeProvider>
-          <WagmiProvider config={config}>
-            <QueryClientProvider client={queryClient}>
-              <NearWalletProvider>
-                <SolanaWalletProvider>
-                  <StellarWalletProvider>
-                    <TonConnectUIProvider>
-                      <TronWalletProvider>
-                        <WebAuthnProvider>
-                          <MixpanelProvider>{children}</MixpanelProvider>
-                        </WebAuthnProvider>
-                        <SentryTracer />
-                      </TronWalletProvider>
-                    </TonConnectUIProvider>
-                  </StellarWalletProvider>
-                </SolanaWalletProvider>
-              </NearWalletProvider>
-              {APP_ENV === "development" && (
-                <ReactQueryDevtools initialIsOpen={false} />
-              )}
-            </QueryClientProvider>
-          </WagmiProvider>
+          <SystemStatusProvider systemStatus={systemStatus}>
+            <WagmiProvider config={config}>
+              <QueryClientProvider client={queryClient}>
+                <NearWalletProvider>
+                  <SolanaWalletProvider>
+                    <StellarWalletProvider>
+                      <TonConnectUIProvider>
+                        <TronWalletProvider>
+                          <WebAuthnProvider>
+                            <MixpanelProvider>{children}</MixpanelProvider>
+                          </WebAuthnProvider>
+                          <SentryTracer />
+                        </TronWalletProvider>
+                      </TonConnectUIProvider>
+                    </StellarWalletProvider>
+                  </SolanaWalletProvider>
+                </NearWalletProvider>
+                {APP_ENV === "development" && (
+                  <ReactQueryDevtools initialIsOpen={false} />
+                )}
+              </QueryClientProvider>
+            </WagmiProvider>
+          </SystemStatusProvider>
         </ThemeProvider>
       </body>
       <GoogleAnalytics gaId="G-WNE3NB46KM" />

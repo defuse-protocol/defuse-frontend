@@ -370,6 +370,30 @@ export function accountSlippageExactIn(
   })
 }
 
+/**
+ * For exact out swaps, slippage affects negative numbers (inputs).
+ * The user will pay at most this much more than the quoted amount
+ * depending on market conditions.
+ */
+export function accountSlippageExactOut(
+  delta: [string, bigint][],
+  slippageBasisPoints: number
+): [string, bigint][] {
+  return delta.map(([token, amount]) => {
+    if (amount < 0n) {
+      // For negative amounts, we need to increase the absolute value
+      // (user pays more), so we use grossUpAmount on the absolute value
+      const absoluteAmount = -amount
+      const amountWithSlippage = grossUpAmount(
+        absoluteAmount,
+        slippageBasisPoints
+      )
+      return [token, -amountWithSlippage]
+    }
+    return [token, amount]
+  })
+}
+
 export function getPoaBridgeTokenContractIds(token: TokenInfo): string[] {
   const defuseAssetIds = getUnderlyingBaseTokenInfos(token).filter((t) =>
     t.deployments.some((d) => d.bridge === "poa")
@@ -449,4 +473,33 @@ export function* eachBaseTokenInfo(tokenList: TokenInfo[]) {
       yield tt
     }
   }
+}
+
+/**
+ * Finds a token in the token list by its defuse asset ID.
+ * Returns the TokenInfo (which may be BaseTokenInfo or UnifiedTokenInfo).
+ */
+export function getTokenByAssetId(
+  tokenList: TokenInfo[],
+  defuseAssetId: string
+): TokenInfo | undefined {
+  return tokenList.find((token) =>
+    isBaseToken(token)
+      ? token.defuseAssetId === defuseAssetId
+      : token.groupedTokens.some((t) => t.defuseAssetId === defuseAssetId)
+  )
+}
+
+/**
+ * Use this function before deltas computation to prevent wrong amount be taken.
+ * @example
+ * // [["token1", 1000000n], ["token1", -1000000n]]
+ * hasMatchingTokenKeys([["token1", 1000000n], ["token1", -1000000n]]) == true
+ */
+export function hasMatchingTokenKeys(tokenDeltas: [string, bigint][]): boolean {
+  return (
+    Array.isArray(tokenDeltas) &&
+    tokenDeltas.length >= 2 &&
+    tokenDeltas[0][0] === tokenDeltas[1][0]
+  )
 }

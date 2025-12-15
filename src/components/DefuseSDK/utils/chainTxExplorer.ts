@@ -14,8 +14,10 @@ export function chainTxExplorer(blockchain: SupportedChainName): string | null {
       return "https://explorer.turbo.aurora.dev/tx/"
     case "bitcoin":
       return "https://blockchain.info/tx/"
+    case "bitcoincash":
+      return "https://blockchair.com/bitcoin-cash/transaction/"
     case "solana":
-      return "https://solscan.io/tx/"
+      return "https://orb.helius.dev/tx/"
     case "dogecoin":
       return "https://dogechain.info/tx/"
     case "aurora":
@@ -25,7 +27,7 @@ export function chainTxExplorer(blockchain: SupportedChainName): string | null {
     case "xrpledger":
       return "https://livenet.xrpl.org/transactions/"
     case "zcash":
-      return "https://mainnet.zcashexplorer.app/transactions/"
+      return "https://3xpl.com/zcash/transaction/"
     case "gnosis":
       return "https://gnosisscan.io/tx/"
     case "berachain":
@@ -40,6 +42,8 @@ export function chainTxExplorer(blockchain: SupportedChainName): string | null {
       return "https://explorer.optima.aurora.dev/tx/"
     case "easychain":
       return "https://0x4e454218.explorer.aurora-cloud.dev/tx/"
+    case "hako":
+      return "https://0x4e4542ad.explorer.aurora-cloud.dev/tx/"
     case "polygon":
       return "https://polygonscan.com/tx/"
     case "bsc":
@@ -60,6 +64,16 @@ export function chainTxExplorer(blockchain: SupportedChainName): string | null {
       return "https://explorer.aptoslabs.com/txn/"
     case "cardano":
       return "https://adastat.net/transactions/"
+    case "litecoin":
+      return "https://litecoinspace.org/tx/"
+    case "layerx":
+      return "https://www.oklink.com/x-layer/tx/"
+    case "monad":
+      return "https://monadscan.com/tx/"
+    case "adi":
+      return "https://explorer.adifoundation.ai/tx/"
+    case "starknet":
+      return "https://starkscan.co/tx/"
     default:
       blockchain satisfies never
       return null

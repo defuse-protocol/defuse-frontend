@@ -1,9 +1,14 @@
 import { AuthMethod, type authHandle } from "@defuse-protocol/internal-utils"
 import { authIdentity } from "@defuse-protocol/internal-utils"
+import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
+import type { Quote1csInput } from "@src/components/DefuseSDK/features/machines/background1csQuoterMachine"
 import { computeAppFeeBps } from "@src/components/DefuseSDK/utils/appFee"
-import { APP_FEE_BPS, APP_FEE_RECIPIENT } from "@src/utils/environment"
+import { isBaseToken } from "@src/components/DefuseSDK/utils/token"
+import { APP_FEE_BPS } from "@src/utils/environment"
+import { logNoLiquidity } from "@src/utils/logCustom"
 import { logger } from "@src/utils/logger"
 import type { providers } from "near-api-js"
+import { formatUnits } from "viem"
 import {
   type ActorRefFrom,
   assertEvent,
@@ -20,10 +25,13 @@ import type { TokenInfo } from "../../types/base"
 import { assert } from "../../utils/assert"
 import { parseUnits } from "../../utils/parse"
 import {
+  compareAmounts,
+  computeTotalBalanceDifferentDecimals,
   computeTotalDeltaDifferentDecimals,
   getAnyBaseTokenInfo,
   getTokenMaxDecimals,
   getUnderlyingBaseTokenInfos,
+  hasMatchingTokenKeys,
 } from "../../utils/tokenUtils"
 import {
   type Events as Background1csQuoterEvents,
@@ -35,10 +43,6 @@ import {
   type ParentEvents as BackgroundQuoterParentEvents,
   backgroundQuoterMachine,
 } from "./backgroundQuoterMachine"
-
-import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
-import { isBaseToken } from "@src/components/DefuseSDK/utils/token"
-import { formatUnits } from "viem"
 import {
   type BalanceMapping,
   type Events as DepositedBalanceEvents,
@@ -90,6 +94,7 @@ export type Context = {
   referral?: string
   slippageBasisPoints: number
   is1cs: boolean
+  appFeeRecipient: string
   priceChangeDialog: null | {
     pendingNewOppositeAmount: { amount: bigint; decimals: number }
     previousOppositeAmount: { amount: bigint; decimals: number }
@@ -128,6 +133,7 @@ export const swapUIMachine = setup({
       tokenList: TokenInfo[]
       referral?: string
       is1cs: boolean
+      appFeeRecipient: string
     },
     context: {} as Context,
     events: {} as
@@ -158,6 +164,7 @@ export const swapUIMachine = setup({
       | {
           type: "NEW_1CS_QUOTE"
           params: {
+            quoteInput: Quote1csInput
             result:
               | {
                   ok: {
@@ -169,7 +176,7 @@ export const swapUIMachine = setup({
                     appFee: [string, bigint][]
                   }
                 }
-              | { err: string }
+              | { err: string; originalRequest?: QuoteRequest | undefined }
             tokenInAssetId: string
             tokenOutAssetId: string
           }
@@ -186,6 +193,12 @@ export const swapUIMachine = setup({
         }
       | { type: "PRICE_CHANGE_CONFIRMED" }
       | { type: "PRICE_CHANGE_CANCELLED" }
+      | {
+          type: "SET_SLIPPAGE"
+          params: {
+            slippageBasisPoints: number
+          }
+        }
       | PassthroughEvent,
 
     emitted: {} as EmittedEvents,
@@ -310,6 +323,20 @@ export const swapUIMachine = setup({
             },
           }
         }
+        const tokenDeltas = quote.value.tokenDeltas
+        if (hasMatchingTokenKeys(tokenDeltas)) {
+          const amount = isExactInput ? tokenDeltas[1][1] : tokenDeltas[0][1]
+          return {
+            ...context.formValues,
+            ...{
+              [fieldNameToUpdate]: formatUnits(
+                amount < 0n ? -amount : amount,
+                context.parsedFormValues.tokenIn.decimals // same as tokenOut.decimals
+              ),
+            },
+          }
+        }
+
         const totalAmount = computeTotalDeltaDifferentDecimals(
           [
             isExactInput
@@ -350,6 +377,10 @@ export const swapUIMachine = setup({
     clearQuote: assign({ quote: null }),
     clearError: assign({ error: null }),
     clear1csError: assign({ quote1csError: null }),
+    setSlippage: assign({
+      slippageBasisPoints: (_, params: { slippageBasisPoints: number }) =>
+        params.slippageBasisPoints,
+    }),
     setIntentCreationResult: assign({
       intentCreationResult: (
         _,
@@ -410,7 +441,7 @@ export const swapUIMachine = setup({
               APP_FEE_BPS,
               context.formValues.tokenIn,
               context.formValues.tokenOut,
-              APP_FEE_RECIPIENT,
+              context.appFeeRecipient,
               context.user
             ),
           },
@@ -547,6 +578,57 @@ export const swapUIMachine = setup({
       type: "INTENT_PUBLISHED" as const,
     })),
 
+    log1csNoLiquidity: ({ self, event }) => {
+      if (
+        event.type !== "NEW_1CS_QUOTE" ||
+        !("err" in event.params.result) ||
+        event.params.result.err !== "Failed to get quote" ||
+        event.params.result.originalRequest === undefined
+      ) {
+        return
+      }
+
+      // log only if we can be sure
+      // that the user has sufficient balance
+      const snapshot = self.getSnapshot()
+      const depositedBalanceRef:
+        | ActorRefFrom<typeof depositedBalanceMachine>
+        | undefined = snapshot.children.depositedBalanceRef
+      const balances = balancesSelector(depositedBalanceRef?.getSnapshot())
+
+      if (!balances) {
+        return
+      }
+
+      const tokenInBalance = computeTotalBalanceDifferentDecimals(
+        event.params.quoteInput.tokenIn,
+        balances
+      )
+
+      if (!tokenInBalance) {
+        return
+      }
+
+      const hasSufficientBalance =
+        compareAmounts(tokenInBalance, event.params.quoteInput.amount) !== -1
+
+      if (!hasSufficientBalance) {
+        return
+      }
+
+      logNoLiquidity({
+        tokenIn: event.params.quoteInput.tokenIn,
+        tokenOut: event.params.quoteInput.tokenOut,
+        amount: formatUnits(
+          event.params.quoteInput.amount.amount,
+          event.params.quoteInput.amount.decimals
+        ),
+        contexts: {
+          originalRequest: event.params.result.originalRequest,
+        },
+      })
+    },
+
     process1csQuote: assign({
       quote: ({ event }) => {
         if (event.type !== "NEW_1CS_QUOTE") {
@@ -618,7 +700,7 @@ export const swapUIMachine = setup({
     },
   },
 }).createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5SwO4EMAOBaArgSwGIBJAOQBUBRcgfQGUKyyAZCgEQG0AGAXUVAwD2sPABc8AgHZ8QAD0RYArAoAcAOgCMAdgWcALJ04BOZZoBMCgDQgAnvMO7Nq5ac6b1B07oWfDAX19WqJi4hADyJBTUAMJMRFEA0nQMzGxcvEgggsJiktJyCOqmhgDMGsXlxQBs9pqGhuq6VrYIWIaaapWemsXenJXq9er+gejY+AQAQgCCTFMkUZFRABJzAOKpPNJZouJSGfnFuqXKnAqFuvp9CkdNdqaVqoYKVVXeJZpuwyBBY4TTs-NFisSOsOOp0vwhDtcvtEOozqpKppOMVlDVlAN1LcWpViuonHV3B8epU0covj8QgQmKFVqQ0lsoTk9qB8riCQ17kddFojJpsa1dIZVMU3MpxTVilcKaMqTTVqEAKpkBkZbbMvLyUzqB4NIzmbXKBSaSqkgX2YWi9TitEOKWVBQy4LjAAKACU4kC1otwgAxIhugCyUzIRHC1DdFAAioqKLQVZs1UzdpqCpUDIj6uV2uodcbGjZ5OpSm1jKLOLmvEp4U7fgR3Z7osD1tE-QHAxsIZlkzDWXDrqZVNX0-0kbpTGjsUVhUjCrjvJ5XKZirWqQ2Fk3vdE5gsmCwOInIdkU7CCgpSUOjmYLoc+j1scX8ZxTC5lDzlEjyqv8KpIDsJFABCwDgABGAC2oiqke0IsrIcJaKotR6A69TIsoxSGA+GZ6IcL4OmYhikro354L+ED-oBwHgZB4KMsevZwQUz6qM+uhovcWiot0BbNFg+hPhOzzoa49hvo6ATfLKP5-mIAEEHgEgYDgIhQd29GwfkWDmA81SGHohQYWizwCocDwnL07hZkilQkWRFEEBEADq1AxqElCqeqJ59i0dqPCUzzGEh+jFAKlReBo2lhd41omEMEmUtJ5GyYBTnUOoUS0C5ipuRQHk9hpWrFqoPIYfcE71NcmGFji4WFOeUWGrFtkyQpUCqAAbmgAA2eAQGgyUEHl6mplgxSeI8z4NOKDoGNmU7tIiQposYbElBhNnxVJpEtQBHXdb1-WtYNtFJsNp58UVnSitUpIqMW-LVfCajdAYCiEW4L7Pium3OttSWtXtPV9QN7CmF2nkMZpPSDpwJx4ToJJPNiCh+YRRz9LDubtKczX-bt6AUdQACOOACCIYAORQzmue5h5qTBI16Y4b0ThWZhcaiJkIjymLpqKeLeLjFGqATyXE6T5OU856WZTTuV0xDBUtDoDz6CzSImM4ljVVprgaG4uZjSYk0bSMv2qFREEiANECSGAqgKe1AgANb2z8bpgAAZkNDOntUg7aLUuFtEahECsug63e4HHaBU4lm78FugVbNt2w7EhO67FujB73sndBGqnhh+JHMYE4vPonSVAKH6PD0JpnAaPRjbZluiANYAAE6dwIneqBgXX9Z7vdgdnmC5z7hfeV4jjuDd-RGum2u8dOjzdNczhaA01zET9idt9bR2pXLk9eYxzhqIJ7Qb20WjKKFzGku946eMWsOt8n7etWlADGsAELbCQ9tHYuzdjnL26g-6n0hogZEOlKyaF0P0dot9sT6EcLiI4RhRT1HMMaD+1FD4AV-v-QBwCM6gLHhgXOkDYDsHzvTKejFUT4lKsYISz5xRaGRhWIcpxrT6HLsiUUBCU7f1oQQLuPc+4DyHiPKhNCoEK3yqmI4g56gnHLKiN6KIHxPEQgZWKRRjRmHjpJc2B8xYSNSjLLKOVoFKyeMKARbFTSuE5NXHW44RQ6kIlyG8phtCiK-sQiR64vQgh9CQf0QZOx0V9t5XMtdxRmEXpWF899HonEeEaD8Oh4TImMMEohUASH1g9BuZYW4og7goHuOJp0EmMRqD460iDPCuIGNiKUugnAfHnEoIUbhCL+AkhIAQEA4DSASngeJTDNLuBREOQwrMtDLhMJzHW6F8SdHquOJQTU94hDsslOZZ9NJPBRizE4ayOaZN4mxFGgx7CFCxmxckRzErC16l1MAZyYE+WNMVI23g8QrNqA9FeelVDakMuYEqFwShC2SoDA6pzGnzKLCYEUbEXxtBeOYPQAprjFQdC4B0mDtT1FNuYxOO02qi2-iTMmfyMXnPkKSUo90PzLiODcyFiAkQinsDyHQ7RXFvWKeigu7KECkk4CxZaK0Mm4ixF4klLClAvjOCsqV4i-7-KVqSNQhxnBjTGsaCs9z4KsNQlUVmBgtDiX8EAA */
+  /** @xstate-layout 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 */
   id: "swap-ui",
 
   context: ({ input }) => ({
@@ -643,8 +725,9 @@ export const swapUIMachine = setup({
     intentRefs: [],
     tokenList: input.tokenList,
     referral: input.referral,
-    slippageBasisPoints: 10_000, // 1%
+    slippageBasisPoints: 10_000, // 1% default, will be overridden from localStorage
     is1cs: input.is1cs,
+    appFeeRecipient: input.appFeeRecipient,
     priceChangeDialog: null,
   }),
 
@@ -738,6 +821,14 @@ export const swapUIMachine = setup({
         { type: "sendToSwapRef1csCancel" },
       ],
     },
+    SET_SLIPPAGE: {
+      actions: {
+        type: "setSlippage",
+        params: ({ event }) => ({
+          slippageBasisPoints: event.params.slippageBasisPoints,
+        }),
+      },
+    },
   },
 
   states: {
@@ -761,6 +852,9 @@ export const swapUIMachine = setup({
           },
         ],
 
+        // input: When form input changes, reset quote and parse new values.
+        // NOTE: The SET_SLIPPAGE handler (line ~886) follows a similar pattern.
+        // If you modify the action sequence here, consider if SET_SLIPPAGE needs the same changes.
         input: {
           target: ".validating",
           actions: [
@@ -775,7 +869,7 @@ export const swapUIMachine = setup({
               type: "setFormValues",
               params: ({ event }) => ({ data: event.params }),
             },
-            "parseFormValues",
+            "parseFormValues", // Keep in sync with SET_SLIPPAGE handler (line ~901, ~920)
           ],
         },
 
@@ -797,8 +891,73 @@ export const swapUIMachine = setup({
             "updateFormValuesWithQuoteData",
             "parseFormValues",
             "updateUIAmount",
+            "log1csNoLiquidity",
           ],
         },
+
+        SET_SLIPPAGE: [
+          {
+            guard: "isFormValidAndNot1cs",
+            target: ".waiting_quote",
+            actions: [
+              // resetting everything both 1cs and not 1cs just in case
+              {
+                type: "setSlippage",
+                params: ({ event }) => ({
+                  slippageBasisPoints: event.params.slippageBasisPoints,
+                }),
+              },
+              "sendToBackgroundQuoterRefPause",
+              "sendToBackground1csQuoterRefPause",
+              "cancelSendToBackgroundQuoterRefNewQuoteInput",
+              "cancelSendToBackground1csQuoterRefNewQuoteInput",
+              "clearQuote",
+              "clearError",
+              "clear1csError",
+              {
+                type: "updateFormValuesWithQuoteData",
+              },
+              "parseFormValues",
+              "updateUIAmount",
+              "sendToBackgroundQuoterRefNewQuoteInput",
+            ],
+          },
+          {
+            guard: "isFormValidAnd1cs",
+            target: ".waiting_quote",
+            actions: [
+              // resetting everything both 1cs and not 1cs just in case
+              {
+                type: "setSlippage",
+                params: ({ event }) => ({
+                  slippageBasisPoints: event.params.slippageBasisPoints,
+                }),
+              },
+              "sendToBackgroundQuoterRefPause",
+              "sendToBackground1csQuoterRefPause",
+              "cancelSendToBackgroundQuoterRefNewQuoteInput",
+              "cancelSendToBackground1csQuoterRefNewQuoteInput",
+              "clearQuote",
+              "clearError",
+              "clear1csError",
+              {
+                type: "updateFormValuesWithQuoteData",
+              },
+              "parseFormValues",
+              "updateUIAmount",
+              "sendToBackground1csQuoterRefNewQuoteInput",
+            ],
+          },
+          // this exists in case both guards are false, so we can still set the slippage
+          {
+            actions: {
+              type: "setSlippage",
+              params: ({ event }) => ({
+                slippageBasisPoints: event.params.slippageBasisPoints,
+              }),
+            },
+          },
+        ],
       },
 
       states: {
@@ -842,6 +1001,7 @@ export const swapUIMachine = setup({
                 "updateFormValuesWithQuoteData",
                 "parseFormValues",
                 "updateUIAmount",
+                "log1csNoLiquidity",
               ],
             },
           },
@@ -878,6 +1038,7 @@ export const swapUIMachine = setup({
               tokenOut: context.parsedFormValues.tokenOut,
               quote: quote.value,
             },
+            appFeeRecipient: context.appFeeRecipient,
           }
         },
 
@@ -1072,6 +1233,7 @@ export const swapUIMachine = setup({
             "process1csQuote",
             "updateFormValuesWithQuoteData",
             "updateUIAmount",
+            "log1csNoLiquidity",
           ],
         },
       },

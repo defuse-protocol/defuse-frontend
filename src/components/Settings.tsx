@@ -1,18 +1,32 @@
 "use client"
 
+import { authIdentity } from "@defuse-protocol/internal-utils"
 import { ShieldCheckIcon } from "@phosphor-icons/react"
+import { EyeIcon, EyeSlashIcon } from "@phosphor-icons/react"
 import { ExternalLinkIcon } from "@radix-ui/react-icons"
-import { Popover, Separator, Switch, Text } from "@radix-ui/themes"
+import { Button, Popover, Separator, Switch, Text } from "@radix-ui/themes"
+import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import Themes from "@src/types/themes"
 import { useTheme } from "next-themes"
-import { useContext } from "react"
+import { useContext, useState } from "react"
 import AddTurboChainButton from "./AddTurboChainButton"
+import { RevealAddressDialog } from "./DefuseSDK/features/account/components/RevealAddressDialog"
+import { IntentsIcon } from "./DefuseSDK/features/account/components/shared/IntentsIcon"
+import { SystemStatus } from "./SystemStatus"
 
 const Settings = () => {
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
   const elementCircleStyle =
     "bg-black w-[3px] h-[3px] rounded-full dark:bg-gray-100"
+
+  const { state } = useConnectWallet()
+  const { address: userAddress, chainType: userChainType } = state
+  const internalUserAddress =
+    userAddress != null && userChainType != null
+      ? authIdentity.authHandleToIntentsUserId(userAddress, userChainType)
+      : null
+
   return (
     <div>
       <Popover.Root>
@@ -35,8 +49,19 @@ const Settings = () => {
               </div>
             )}
 
-            <DarkMode />
-            <Separator orientation="horizontal" size="4" />
+            {whitelabelTemplate === "rabitswap" && internalUserAddress && (
+              <RevealAddress internalUserAddress={internalUserAddress} />
+            )}
+
+            {whitelabelTemplate !== "rabitswap" && (
+              <>
+                <DarkMode />
+                {internalUserAddress && (
+                  <RevealAddress internalUserAddress={internalUserAddress} />
+                )}
+                <Separator orientation="horizontal" size="4" />
+              </>
+            )}
 
             <div className="flex flex-col justify-between items-center gap-1.5">
               <a
@@ -142,6 +167,8 @@ const Settings = () => {
                 <ExternalLinkIcon width={16} height={16} />
               </a>
             </div>
+
+            <SystemStatus.Mobile />
           </div>
         </Popover.Content>
       </Popover.Root>
@@ -171,6 +198,38 @@ const DarkMode = () => {
   )
 
   return darkModeSwitch
+}
+
+const RevealAddress = ({
+  internalUserAddress,
+}: { internalUserAddress: string }) => {
+  const [isRevealed, setIsRevealed] = useState(false)
+
+  return (
+    <>
+      {isRevealed && (
+        <RevealAddressDialog
+          internalUserAddress={internalUserAddress}
+          onClose={() => setIsRevealed(false)}
+        />
+      )}
+      <Button
+        variant="soft"
+        color="gray"
+        radius="full"
+        className="text-gray-12"
+        onClick={() => setIsRevealed(true)}
+      >
+        <IntentsIcon className="rounded-full w-4 h-4" />
+        Reveal Address{" "}
+        {isRevealed ? (
+          <EyeIcon weight="bold" />
+        ) : (
+          <EyeSlashIcon weight="bold" />
+        )}
+      </Button>
+    </>
+  )
 }
 
 export default Settings

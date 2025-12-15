@@ -7,7 +7,7 @@ export type TokenUsdPriceData = Record<
   TokenUsdPriceInfo["defuse_asset_id"],
   TokenUsdPriceInfo
 >
-async function tokensPriceDataInUsd(): Promise<TokenUsdPriceData> {
+export async function tokensPriceDataInUsd(): Promise<TokenUsdPriceData> {
   const data = await tokens()
   const result: TokenUsdPriceData = {}
   for (const token of data.items) {

@@ -4,6 +4,7 @@ export type SupportedChainName =
   | "base"
   | "arbitrum"
   | "bitcoin"
+  | "bitcoincash"
   | "solana"
   | "dogecoin"
   | "xrpledger"
@@ -20,6 +21,11 @@ export type SupportedChainName =
   | "stellar"
   | "aptos"
   | "cardano"
+  | "litecoin"
+  | "layerx"
+  | "monad"
+  | "adi"
+  | "starknet"
   | VirtualChains
   | MockedChains
 
@@ -29,6 +35,7 @@ export type VirtualChains =
   | "vertex"
   | "optima"
   | "easychain"
+  | "hako"
   | "aurora"
   | "aurora_devnet"
 

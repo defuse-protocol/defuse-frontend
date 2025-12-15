@@ -56,8 +56,13 @@ export const depositGenerateAddressMachine = setup({
     ),
   },
   actions: {
-    logError: (_, { error }: { error: unknown }) => {
-      logger.error(error)
+    logError: (_, params: { context: Context; error: unknown }) => {
+      logger.error(
+        `generateDepositAddress error: network ${params.context.blockchain}`,
+        {
+          cause: params.error,
+        }
+      )
     },
     setInputParams: assign(({ event }) => {
       assertEvent(event, "REQUEST_GENERATE_ADDRESS")
@@ -77,13 +82,17 @@ export const depositGenerateAddressMachine = setup({
     isInputSufficient: ({ event }) => {
       assertEvent(event, "REQUEST_GENERATE_ADDRESS")
       if (
-        event.params.blockchain === "turbochain" ||
-        event.params.blockchain === "tuxappchain" ||
-        event.params.blockchain === "vertex" ||
-        event.params.blockchain === "optima" ||
-        event.params.blockchain === "easychain" ||
-        event.params.blockchain === "aurora" ||
-        event.params.blockchain === "aurora_devnet"
+        event.params.blockchain &&
+        [
+          "turbochain",
+          "tuxappchain",
+          "vertex",
+          "optima",
+          "easychain",
+          "hako",
+          "aurora",
+          "aurora_devnet",
+        ].includes(event.params.blockchain)
       ) {
         return false
       }
@@ -151,7 +160,13 @@ export const depositGenerateAddressMachine = setup({
           actions: [
             {
               type: "logError",
-              params: ({ event }) => event,
+              params: ({
+                event,
+                context,
+              }: { event: { error: unknown }; context: Context }) => ({
+                context,
+                error: event.error,
+              }),
             },
             assign({
               preparationOutput: () => {

@@ -1,19 +1,16 @@
 "use client"
 
-import type React from "react"
-import type { PropsWithChildren } from "react"
-
 import Footer from "@src/components/Layout/Footer"
 import { Header } from "@src/components/Layout/Header"
 import { NavbarMobile } from "@src/components/Navbar/NavbarMobile"
-import NetworkOutageNotification from "@src/components/NetworkOutageNotification"
 import PageBackground from "@src/components/PageBackground"
 import { useMixpanelBus } from "@src/hooks/useMixpanelBus"
 import { usePathLogging } from "@src/hooks/usePathLogging"
 import { WalletVerificationProvider } from "@src/providers/WalletVerificationProvider"
-
+import type { PropsWithChildren } from "react"
 import { NavbarDeposit, NavbarDesktop } from "../Navbar/NavbarDesktop"
-
+import NetworkOutageNotification from "../NetworkOutageNotification"
+import { SystemStatus } from "../SystemStatus"
 import Main from "./Main"
 
 const Layout: React.FC<PropsWithChildren> = ({ children }) => {
@@ -40,6 +37,7 @@ const Layout: React.FC<PropsWithChildren> = ({ children }) => {
       <NavbarMobile />
       <PageBackground />
       <WalletVerificationProvider />
+      <SystemStatus.Desktop />
     </div>
   )
 }

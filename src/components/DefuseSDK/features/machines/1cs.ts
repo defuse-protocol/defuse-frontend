@@ -8,19 +8,19 @@ import {
   type QuoteResponse,
 } from "@defuse-protocol/one-click-sdk-typescript"
 import { computeAppFeeBps } from "@src/components/DefuseSDK/utils/appFee"
+import { getTokenByAssetId } from "@src/components/DefuseSDK/utils/tokenUtils"
 import { whitelabelTemplateFlag } from "@src/config/featureFlags"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { referralMap } from "@src/hooks/useIntentsReferral"
 import {
   APP_FEE_BPS,
-  APP_FEE_RECIPIENT,
   ONE_CLICK_API_KEY,
   ONE_CLICK_URL,
 } from "@src/utils/environment"
+import { getAppFeeRecipient } from "@src/utils/getAppFeeRecipient"
 import { logger } from "@src/utils/logger"
 import { unstable_cache } from "next/cache"
 import z from "zod"
-import { isBaseToken } from "../../utils/token"
 
 OpenAPI.BASE = z.string().parse(ONE_CLICK_URL)
 OpenAPI.TOKEN = z.string().parse(ONE_CLICK_API_KEY)
@@ -78,7 +78,8 @@ type GetQuoteArgs = z.infer<typeof getQuoteArgsSchema>
 export async function getQuote(
   args: GetQuoteArgs
 ): Promise<
-  { ok: QuoteResponse & { appFee: [string, bigint][] } } | { err: string }
+  | { ok: QuoteResponse & { appFee: [string, bigint][] } }
+  | { err: string; originalRequest?: QuoteRequest | undefined }
 > {
   const parseResult = getQuoteArgsSchema.safeParse(args)
   if (!parseResult.success) {
@@ -86,26 +87,31 @@ export async function getQuote(
   }
 
   const { userAddress, authMethod, ...quoteRequest } = parseResult.data
+  let req: QuoteRequest | undefined = undefined
   try {
-    const tokenIn = getTokenByAssetId(quoteRequest.originAsset)
+    const tokenIn = getTokenByAssetId(LIST_TOKENS, quoteRequest.originAsset)
     if (!tokenIn) {
       return { err: `Token in ${quoteRequest.originAsset} not found` }
     }
 
-    const tokenOut = getTokenByAssetId(quoteRequest.destinationAsset)
+    const tokenOut = getTokenByAssetId(
+      LIST_TOKENS,
+      quoteRequest.destinationAsset
+    )
     if (!tokenOut) {
       return { err: `Token out ${quoteRequest.destinationAsset} not found` }
     }
 
+    const appFeeRecipient = getAppFeeRecipient(await whitelabelTemplateFlag())
     const appFeeBps = computeAppFeeBps(
       APP_FEE_BPS,
       tokenIn,
       tokenOut,
-      APP_FEE_RECIPIENT,
+      appFeeRecipient,
       { identifier: userAddress, method: authMethod }
     )
 
-    if (appFeeBps > 0 && !APP_FEE_RECIPIENT) {
+    if (appFeeBps > 0 && !appFeeRecipient) {
       return { err: "App fee recipient is not configured" }
     }
 
@@ -114,7 +120,7 @@ export async function getQuote(
       authMethod
     )
 
-    const req: QuoteRequest = {
+    req = {
       ...quoteRequest,
       depositType: QuoteRequest.depositType.INTENTS,
       refundTo: intentsUserId,
@@ -124,20 +130,20 @@ export async function getQuote(
       quoteWaitingTimeMs: 0, // means the fastest quote
       referral: referralMap[await whitelabelTemplateFlag()],
       ...(appFeeBps > 0
-        ? { appFees: [{ recipient: APP_FEE_RECIPIENT, fee: appFeeBps }] }
+        ? { appFees: [{ recipient: appFeeRecipient, fee: appFeeBps }] }
         : {}),
     }
 
     return {
       ok: {
         ...(await OneClickService.getQuote(req)),
-        appFee: appFeeBps > 0 ? [[APP_FEE_RECIPIENT, BigInt(appFeeBps)]] : [],
+        appFee: appFeeBps > 0 ? [[appFeeRecipient, BigInt(appFeeBps)]] : [],
       },
     }
   } catch (error) {
     const err = unknownServerErrorToString(error)
     logger.error(`1cs: getQuote error: ${err}`)
-    return { err }
+    return { err, originalRequest: req }
   }
 }
 
@@ -151,14 +157,6 @@ type ServerError = z.infer<typeof serverErrorSchema>
 
 function isServerError(error: unknown): error is ServerError {
   return serverErrorSchema.safeParse(error).success
-}
-
-function getTokenByAssetId(assetId: string) {
-  return LIST_TOKENS.find((token) =>
-    isBaseToken(token)
-      ? token.defuseAssetId === assetId
-      : token.groupedTokens.some((token) => token.defuseAssetId === assetId)
-  )
 }
 
 const getTxStatusArgSchema = z.string()

@@ -1,4 +1,4 @@
-import type { WhitelabelTemplateValue } from "@src/config/featureFlags"
+import type { WhitelabelTemplateValue } from "./featureFlags"
 
 export const domains: Record<string, WhitelabelTemplateValue> = {
   "near-intents.org": "near-intents",
@@ -6,4 +6,5 @@ export const domains: Record<string, WhitelabelTemplateValue> = {
   "dogecoinswap.org": "dogecoinswap",
   "turboswap.org": "turboswap",
   "trump-swap.org": "trumpswap",
+  "rabitswap.org": "rabitswap",
 }

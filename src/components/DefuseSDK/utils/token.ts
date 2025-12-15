@@ -7,6 +7,7 @@ import type {
   TokenInfo,
   UnifiedTokenInfo,
 } from "../types/base"
+import { getAnyBaseTokenInfo } from "./tokenUtils"
 
 export function isBaseToken(token: TokenInfo): token is BaseTokenInfo {
   return "defuseAssetId" in token
@@ -28,6 +29,8 @@ export function isNativeToken(
   return "type" in token && token.type === "native"
 }
 
+// Note: Use this function only when you need either the unified or base token ID
+/** @deprecated We should migrate to getDefuseAssetId instead */
 export function getTokenId(token: TokenInfo) {
   if (isBaseToken(token)) {
     return token.defuseAssetId
@@ -36,6 +39,13 @@ export function getTokenId(token: TokenInfo) {
     return token.unifiedAssetId
   }
   throw new Error("Invalid token type")
+}
+
+export function getDefuseAssetId(token: TokenInfo) {
+  if (isUnifiedToken(token)) {
+    return getAnyBaseTokenInfo(token).defuseAssetId
+  }
+  return token.defuseAssetId
 }
 
 /**

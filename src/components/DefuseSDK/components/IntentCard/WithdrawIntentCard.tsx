@@ -6,6 +6,7 @@ import { assert } from "../../utils/assert"
 import { blockExplorerTxLinkFactory } from "../../utils/chainTxExplorer"
 import { formatTokenValue } from "../../utils/format"
 import { AssetComboIcon } from "../Asset/AssetComboIcon"
+import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip"
 import { CopyButton } from "./CopyButton"
 
 type WithdrawIntentCardProps = {
@@ -38,6 +39,8 @@ export function WithdrawIntentCard({
         )
       : undefined
 
+  const retryCount = state.context.bridgeRetryCount
+
   return (
     <Flex p="2" gap="3">
       <Box pt="2">
@@ -56,9 +59,16 @@ export function WithdrawIntentCard({
           </Box>
 
           <Flex gap="1" align="center">
+            {retryCount > 0 &&
+              (state.matches("waitingForBridge") ||
+                state.matches("retryDelay")) && (
+                <LongRunningStatusLabel retryCount={retryCount} />
+              )}
+
             {(state.matches("pending") ||
               state.matches("checking") ||
-              state.matches("waitingForBridge")) && <Spinner size="1" />}
+              state.matches("waitingForBridge") ||
+              state.matches("retryDelay")) && <Spinner size="1" />}
 
             <Text
               size="1"
@@ -171,6 +181,7 @@ export function renderStatusLabel(
     case "settled":
       return "Pending"
     case "waitingForBridge":
+    case "retryDelay":
       return "Transferring"
     case "error":
       return "Can't get status"
@@ -185,4 +196,21 @@ export function renderStatusLabel(
 
 function truncateHash(hash: string) {
   return `${hash.slice(0, 5)}...${hash.slice(-5)}`
+}
+
+function LongRunningStatusLabel({ retryCount }: { retryCount: number }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Text size="1" color="gray">
+          Long-running bridge ({retryCount})
+        </Text>
+      </TooltipTrigger>
+      <TooltipContent side="top" className="z-50 max-w-xs" sideOffset={5}>
+        This withdrawal is taking longer than usual. We’ve checked the progress{" "}
+        {retryCount} {retryCount === 1 ? "time" : "times"} so far and will keep
+        checking until it completes.
+      </TooltipContent>
+    </Tooltip>
+  )
 }

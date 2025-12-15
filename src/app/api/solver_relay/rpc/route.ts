@@ -1,6 +1,19 @@
+import {
+  type TokenUsdPriceData,
+  tokensPriceDataInUsd,
+} from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
+import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
+import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
+import { isUnifiedToken } from "@src/components/DefuseSDK/utils/token"
+import {
+  getTokenByAssetId,
+  getUnderlyingBaseTokenInfos,
+} from "@src/components/DefuseSDK/utils/tokenUtils"
+import { LIST_TOKENS } from "@src/constants/tokens"
 import { INTENTS_API_KEY, INTENTS_ENV } from "@src/utils/environment"
 import { logger } from "@src/utils/logger"
 import { NextResponse } from "next/server"
+import { z } from "zod"
 
 const TIMEOUT_MS = 30_000
 
@@ -12,6 +25,10 @@ export async function POST(request: Request) {
     }
 
     const rpcMethod = new URL(request.url).searchParams.get("method")
+
+    if (!(await isValidRequest(request))) {
+      return new NextResponse(null, { status: 400 })
+    }
 
     const upstreamResponse = await fetch(
       INTENTS_ENV === "production"
@@ -77,4 +94,161 @@ export async function POST(request: Request) {
       { status: statusCode }
     )
   }
+}
+
+async function isValidRequest(request: Request): Promise<boolean> {
+  const requestBody = await request
+    .clone()
+    .json()
+    .catch(() => null)
+
+  if (!requestBody) {
+    return false
+  }
+
+  const isQuoteRequest = quoteMethodSchema.safeParse(requestBody).success
+  if (!isQuoteRequest) {
+    // allow non-quote requests
+    return true
+  }
+
+  return await validateQuoteRequest(requestBody)
+}
+
+const MAX_FEE_USD_VALUE = 5
+
+async function validateQuoteRequest(requestBody: unknown): Promise<boolean> {
+  const quoteParseResult = quoteRequestSchema.safeParse(requestBody)
+  if (!quoteParseResult.success) {
+    // reject quote requests that we don't use on frontend
+    return false
+  }
+
+  const quoteRequest = quoteParseResult.data.params[0]
+
+  const tokenIn = getTokenByAssetId(
+    LIST_TOKENS,
+    quoteRequest.defuse_asset_identifier_in
+  )
+  const tokenOut = getTokenByAssetId(
+    LIST_TOKENS,
+    quoteRequest.defuse_asset_identifier_out
+  )
+
+  if (!tokenIn || !tokenOut) {
+    return false
+  }
+
+  // Only if both tokens are unified tokens of the same type we allow this for our frontend
+  if (isUnifiedToken(tokenIn) && tokenIn === tokenOut) {
+    return true
+  }
+
+  let tokensUsdPriceData: TokenUsdPriceData
+  try {
+    tokensUsdPriceData = await getCachedTokenPriceData()
+  } catch (error) {
+    logger.error("Failed to fetch token prices", { error })
+    return false
+  }
+
+  const { token, defuseAssetId, amount } =
+    "exact_amount_out" in quoteRequest
+      ? {
+          token: tokenOut,
+          defuseAssetId: quoteRequest.defuse_asset_identifier_out,
+          amount: quoteRequest.exact_amount_out,
+        }
+      : {
+          token: tokenIn,
+          defuseAssetId: quoteRequest.defuse_asset_identifier_in,
+          amount: quoteRequest.exact_amount_in,
+        }
+
+  const baseToken = getUnderlyingBaseTokenInfos(token).find(
+    (t) => t.defuseAssetId === defuseAssetId
+  )
+
+  if (!baseToken) {
+    return false
+  }
+
+  const usdValue = getTokenUsdPrice(
+    formatTokenValue(BigInt(amount), baseToken.decimals),
+    baseToken,
+    tokensUsdPriceData
+  )
+
+  if (usdValue == null) {
+    return false
+  }
+
+  // reject if USD value is more than MAX_FEE_USD_VALUE
+  // (because the fees will not be more than MAX_FEE_USD_VALUE)
+  return usdValue <= MAX_FEE_USD_VALUE
+}
+
+const quoteMethodSchema = z.object({ method: z.literal("quote") })
+
+const quoteRequestSchema = z.object({
+  method: z.literal("quote"),
+  params: z
+    .array(
+      z.union([
+        z.object({
+          defuse_asset_identifier_out: z.string(),
+          defuse_asset_identifier_in: z.string(),
+          // Must be a decimal integer string so BigInt() cannot throw
+          exact_amount_in: z
+            .string()
+            .regex(
+              /^[0-9]+$/,
+              "exact_amount_in must be a decimal integer string"
+            ),
+        }),
+        z.object({
+          defuse_asset_identifier_out: z.string(),
+          defuse_asset_identifier_in: z.string(),
+          // Must be a decimal integer string so BigInt() cannot throw
+          exact_amount_out: z
+            .string()
+            .regex(
+              /^[0-9]+$/,
+              "exact_amount_in must be a decimal integer string"
+            ),
+        }),
+      ])
+    )
+    .min(1),
+})
+
+const TOKEN_PRICE_CACHE_TTL_MS = 20_000 // 20 seconds
+
+// In-memory cache for token price data
+let tokenPriceCacheTimestamp: number | null = null
+let tokenPriceCachePromise: Promise<TokenUsdPriceData> | undefined = undefined
+
+async function getCachedTokenPriceData(): Promise<TokenUsdPriceData> {
+  const now = Date.now()
+
+  // Check if cached data is still valid
+  if (
+    tokenPriceCacheTimestamp !== null &&
+    tokenPriceCachePromise &&
+    now - tokenPriceCacheTimestamp < TOKEN_PRICE_CACHE_TTL_MS
+  ) {
+    return tokenPriceCachePromise
+  }
+
+  tokenPriceCacheTimestamp = Date.now()
+  const prevTokenPriceCachePromise = tokenPriceCachePromise
+  tokenPriceCachePromise = tokensPriceDataInUsd().catch(async (error) => {
+    logger.error("Failed to fetch token prices", { error })
+    const r = await prevTokenPriceCachePromise
+    if (r === undefined) {
+      throw error
+    }
+    return r
+  })
+  return tokenPriceCachePromise
 }

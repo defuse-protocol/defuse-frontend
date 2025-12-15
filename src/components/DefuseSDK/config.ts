@@ -32,7 +32,7 @@ const configsByEnvironment: Record<NearIntentsEnv, EnvConfig> = {
     poaBridgeBaseURL: "https://bridge.chaindefuser.com",
     solverRelayBaseURL: getSolverRelayURL(),
     managerConsoleBaseURL: "https://api-mng-console.chaindefuser.com/api/",
-    nearIntentsBaseURL: "https://near-intents.org/api/",
+    nearIntentsBaseURL: getNearIntentsBaseURL(),
   },
   stage: {
     contractID: "staging-intents.near",
@@ -40,7 +40,7 @@ const configsByEnvironment: Record<NearIntentsEnv, EnvConfig> = {
     poaBridgeBaseURL: "https://poa-stage.intents-near.org",
     solverRelayBaseURL: getSolverRelayURL(),
     managerConsoleBaseURL: "https://mng-console-stage.intents-near.org/api/",
-    nearIntentsBaseURL: "https://stage.near-intents.org/api/",
+    nearIntentsBaseURL: getNearIntentsBaseURL(),
   },
 }
 
@@ -98,4 +98,10 @@ function getSolverRelayURL(): string {
     : typeof window !== "undefined"
       ? `${window.origin}/api/solver_relay/`
       : `${BASE_URL}/api/solver_relay/`
+}
+
+function getNearIntentsBaseURL(): string {
+  return typeof window !== "undefined"
+    ? `${window.origin}/api/`
+    : `${BASE_URL}/api/`
 }

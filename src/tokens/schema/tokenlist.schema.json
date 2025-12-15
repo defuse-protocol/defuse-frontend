@@ -131,6 +131,10 @@
           "type": "string"
         },
         {
+          "const": "bitcoincash",
+          "type": "string"
+        },
+        {
           "const": "solana",
           "type": "string"
         },
@@ -192,6 +196,26 @@
         },
         {
           "const": "cardano",
+          "type": "string"
+        },
+        {
+          "const": "litecoin",
+          "type": "string"
+        },
+        {
+          "const": "layerx",
+          "type": "string"
+        },
+        {
+          "const": "monad",
+          "type": "string"
+        },
+        {
+          "const": "adi",
+          "type": "string"
+        },
+        {
+          "const": "starknet",
           "type": "string"
         },
         {
@@ -278,6 +302,7 @@
         "vertex",
         "optima",
         "easychain",
+        "hako",
         "aurora",
         "aurora_devnet"
       ],

@@ -92,6 +92,27 @@ const Logo = () => {
     )
   }
 
+  if (whitelabelTemplate === "rabitswap") {
+    return (
+      <Link href={navigation.home}>
+        <Image
+          src="/static/templates/rabitswap/logo_dark.svg"
+          alt="RabitSwap Logo"
+          width={126}
+          height={32}
+          className="hidden dark:block"
+        />
+        <Image
+          src="/static/templates/rabitswap/logo.svg"
+          alt="RabitSwap Logo"
+          width={126}
+          height={32}
+          className="dark:hidden"
+        />
+      </Link>
+    )
+  }
+
   return (
     <Link href={navigation.home}>
       <Image

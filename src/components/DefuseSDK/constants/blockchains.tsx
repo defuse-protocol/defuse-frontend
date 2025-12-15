@@ -83,6 +83,10 @@ export const chainIcons: Record<
     dark: "/static/icons/network/easychain.svg",
     light: "/static/icons/network/easychain.svg",
   },
+  hako: {
+    dark: "/static/icons/network/hako-dark.svg",
+    light: "/static/icons/network/hako-light.svg",
+  },
   aurora: {
     dark: "/static/icons/network/aurora.svg",
     light: "/static/icons/network/aurora.svg",
@@ -151,13 +155,40 @@ export const chainIcons: Record<
     dark: "/static/icons/network/cardano.svg",
     light: "/static/icons/network/cardano.svg",
   },
+  litecoin: {
+    dark: "/static/icons/network/litecoin_white.svg",
+    light: "/static/icons/network/litecoin.svg",
+  },
+  layerx: {
+    dark: "/static/icons/network/layerx_white.svg",
+    light: "/static/icons/network/layerx.svg",
+  },
+  monad: {
+    dark: "/static/icons/network/monad_white.svg",
+    light: "/static/icons/network/monad.svg",
+  },
+  bitcoincash: {
+    dark: "/static/icons/network/bitcoincash.svg",
+    light: "/static/icons/network/bitcoincash.svg",
+  },
+  adi: {
+    dark: "/static/icons/network/adi.svg",
+    light: "/static/icons/network/adi.svg",
+  },
+  starknet: {
+    dark: "/static/icons/network/starknet.svg",
+    light: "/static/icons/network/starknet.svg",
+  },
 }
 
 export function getBlockchainsOptions(): Record<
   BlockchainEnum,
   BlockchainOption
 > {
-  const options: Record<BlockchainEnum, BlockchainOption> = {
+  const options: Record<
+    Exclude<BlockchainEnum, "starknet:mainnet" | "bch:mainnet">, // TODO: remove this exclude once Starknet and Bitcoin Cash are supported
+    BlockchainOption
+  > = {
     [BlockchainEnum.NEAR]: {
       label: "Near",
       icon: <NetworkIcon chainIcon={chainIcons.near} chainName="near" />,
@@ -289,6 +320,12 @@ export function getBlockchainsOptions(): Record<
       value: BlockchainEnum.EASYCHAIN,
       tags: ["vol:106"],
     },
+    [BlockchainEnum.HAKO]: {
+      label: "Hako",
+      icon: <NetworkIcon chainIcon={chainIcons.hako} chainName="hako" />,
+      value: BlockchainEnum.HAKO,
+      tags: ["vol:107"],
+    },
     [BlockchainEnum.POLYGON]: {
       label: "Polygon",
       icon: <NetworkIcon chainIcon={chainIcons.polygon} chainName="Polygon" />,
@@ -360,9 +397,56 @@ export function getBlockchainsOptions(): Record<
       value: BlockchainEnum.CARDANO,
       tags: [],
     },
+    [BlockchainEnum.LITECOIN]: {
+      label: "Litecoin",
+      icon: (
+        <NetworkIcon chainIcon={chainIcons.litecoin} chainName="Litecoin" />
+      ),
+      value: BlockchainEnum.LITECOIN,
+      tags: [],
+    },
+    [BlockchainEnum.LAYERX]: {
+      label: "X Layer",
+      icon: <NetworkIcon chainIcon={chainIcons.layerx} chainName="LayerX" />,
+      value: BlockchainEnum.LAYERX,
+      tags: [],
+    },
+    [BlockchainEnum.MONAD]: {
+      label: "Monad",
+      icon: <NetworkIcon chainIcon={chainIcons.monad} chainName="Monad" />,
+      value: BlockchainEnum.MONAD,
+      tags: [],
+    },
+    // TODO: Uncomment this once Bitcoin Cash is supported
+    // [BlockchainEnum.BITCOINCASH]: {
+    //   label: "Bitcoin Cash",
+    //   icon: (
+    //     <NetworkIcon
+    //       chainIcon={chainIcons.bitcoincash}
+    //       chainName="Bitcoin Cash"
+    //     />
+    //   ),
+    //   value: BlockchainEnum.BITCOINCASH,
+    //   tags: [],
+    // },
+    // TODO: Uncomment this once Starknet is supported
+    // [BlockchainEnum.STARKNET]: {
+    //   label: "Starknet",
+    //   icon: <NetworkIcon chainIcon={chainIcons.starknet} chainName="Starknet" />,
+    //   value: BlockchainEnum.STARKNET,
+    //   tags: [],
+    // },
+    [BlockchainEnum.ADI]: {
+      label: "ADI",
+      icon: <NetworkIcon chainIcon={chainIcons.adi} chainName="ADI" />,
+      value: BlockchainEnum.ADI,
+      tags: [],
+    },
   }
 
-  return sortBlockchainOptionsByVolume(options)
+  return sortBlockchainOptionsByVolume(
+    options as Record<BlockchainEnum, BlockchainOption> // TODO: remove this cast once Starknet and Bitcoin Cash are supported
+  )
 }
 
 function sortBlockchainOptionsByVolume(
