@@ -158,7 +158,7 @@ export const giftMakerSignActor = setup({
   },
 }).createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QAoC2BDAxgCwJYDswBKAOllynwKgGIIB7QkggN3oGswyL8AlMAGYBtAAwBdRKAAO9cgBdcjSSAAeiAIwBOACwkRADk36ArIZEA2Y+pFGANCACeicyQDsr9Sc0XjAZm3mNgBMAL4h9mhYeISk5JTUNGAATkn0SSRSADbocgJpqNyU-MLiyjLyivjKaggAtMZBJL6uxiK++tqaQa3mHeb2Tggu7p7G3pb+gV1hERg4BMSFVPi0AMIA8gCyAAoAMgCiACr7ohJIIOW4CkrnNdoiriTm6kFB5r6+xla+mv2OiLVzI99J8gq4ROogQZ9OpXGFwiB8PQIHBlJF5jEyrIrpVqgDrCImi02h0uj0TAMAUFISRtOp6a8Gi9-O0ZiB0dFFnFllAsRUbqA7oSwZpfD4Ya5tGNjH9BrUXvoSJp6S9lWLtPpXB02RyFqRMPRUFkwHJIHycQLVIgfroglKHi8ZR9PpSEPdaZLNK5la11L4Xq5zPCQkA */
-  initial: "signing",
+  initial: "prepareData",
 
   context: ({ input }) => {
     return {
