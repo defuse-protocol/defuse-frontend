@@ -47,10 +47,18 @@ export function WalletVerificationProvider() {
   const safetyCheck = useQuery({
     queryKey: ["address_safety", state.address],
     queryFn: async () => {
-      const response = await fetch(`/api/addresses/${state.address}/safety`)
-      return response.json() as Promise<{ safetyStatus: "safe" | "unsafe" }>
+      if (state.chainType === "evm") {
+        const response = await fetch(`/api/addresses/${state.address}/safety`)
+        if (!response.ok) {
+          throw new Error("Failed to check safety status")
+        }
+        return response.json() as Promise<{ safetyStatus: "safe" | "unsafe" }>
+      }
+      // For non-EVM wallets, skip the safety API check
+      return { safetyStatus: "safe" }
     },
-    enabled: state.address != null,
+    enabled: state.address != null && state.chainType !== undefined,
+    staleTime: 1000 * 60 * 60, // 1 hour,
   })
 
   const { addWalletAddress } = useVerifiedWalletsStore()
@@ -59,6 +67,10 @@ export function WalletVerificationProvider() {
 
   if (bannedAccountCheck.data?.isBanned && pathname !== "/account") {
     router.push("/wallet/banned")
+    return null
+  }
+
+  if (safetyCheck.isLoading) {
     return null
   }
 
