@@ -186,7 +186,13 @@ export const giftMakerSignActor = setup({
           }),
         },
         onError: {
-          actions: [{ type: "logError", params: ({ event }) => event }],
+          actions: [
+            { type: "logError", params: ({ event }) => event },
+            {
+              type: "complete",
+              params: { tag: "err", value: { reason: "ERR_GIFT_SIGNING" } },
+            },
+          ],
         },
       },
     },
@@ -274,3 +280,4 @@ export const giftMakerSignActor = setup({
     },
   },
 })
+git
