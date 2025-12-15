@@ -195,6 +195,9 @@ export const giftMakerSignActor = setup({
           ],
         },
       },
+      on: {
+        COMPLETE: "completed",
+      },
     },
     signing: {
       invoke: {
@@ -280,4 +283,3 @@ export const giftMakerSignActor = setup({
     },
   },
 })
-git
