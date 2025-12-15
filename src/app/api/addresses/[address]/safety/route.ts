@@ -1,6 +1,5 @@
 import { config, utils } from "@defuse-protocol/internal-utils"
 import { nearClient } from "@src/components/DefuseSDK/constants/nearClient"
-import { isBannedNearAddress } from "@src/utils/bannedNearAddress"
 import { logger } from "@src/utils/logger"
 import { NextResponse } from "next/server"
 import * as v from "valibot"
@@ -26,11 +25,8 @@ export async function GET(
       schema: v.boolean(),
     })
 
-    // TODO: isBannedNearAddress check might be removed once the blacklist is added to the protocol
-    const isFakeEVM = isBannedNearAddress(normalizedAddress)
-
     return NextResponse.json({
-      safetyStatus: isPredecessorIdEnabled && !isFakeEVM ? "safe" : "unsafe",
+      safetyStatus: isPredecessorIdEnabled ? "safe" : "unsafe",
     })
   } catch (error) {
     logger.error(error)
