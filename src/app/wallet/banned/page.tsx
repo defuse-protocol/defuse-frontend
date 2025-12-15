@@ -1,23 +1,38 @@
+"use client"
+
 import {
   ExclamationTriangleIcon,
   MagnifyingGlassIcon,
 } from "@radix-ui/react-icons"
-import { Box, Callout, Container, Flex, Heading, Text } from "@radix-ui/themes"
-import type { Metadata } from "next"
+import {
+  Box,
+  Button,
+  Callout,
+  Container,
+  Flex,
+  Heading,
+  Text,
+} from "@radix-ui/themes"
+import { useRouter } from "next/navigation"
 
+import { CopyIconButton } from "@src/components/CopyToClipboard"
 import PageBackground from "@src/components/PageBackground"
-import { PreloadFeatureFlags } from "@src/components/PreloadFeatureFlags"
+import { useConnectWallet } from "@src/hooks/useConnectWallet"
 
-export const metadata: Metadata = {
-  title: "Wallet Address Blocked",
-}
+export default function BannedWalletPage() {
+  const { state, signOut } = useConnectWallet()
+  const router = useRouter()
 
-export default async function BannedWalletPage() {
+  const handleDisconnect = async () => {
+    if (state.chainType != null) {
+      await signOut({ id: state.chainType })
+      router.push("/")
+    }
+  }
+
   return (
     <Box className="min-h-screen flex items-center justify-center relative">
-      <PreloadFeatureFlags>
-        <PageBackground />
-      </PreloadFeatureFlags>
+      <PageBackground />
 
       <Container size="1" className="flex-1 max-w-[500px] mx-4 md:mx-auto">
         <Flex
@@ -42,13 +57,41 @@ export default async function BannedWalletPage() {
               weight="bold"
               className="text-gray-900 dark:text-gray-100"
             >
-              Wallet Address is Blocked
+              Account ID is Blocked
             </Heading>
             <Text size={{ initial: "2", md: "3" }} className="text-gray-11">
-              For your safety, your wallet address is blocked from using this
-              app.
+              For your safety, your account ID is blocked from using this app.
             </Text>
           </Flex>
+
+          {/* Blocked Address Display */}
+          {state.address && (
+            <Box className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 w-full">
+              <Flex direction="column" gap="2">
+                <Text size="1" weight="medium" className="text-gray-11">
+                  Blocked Account ID:
+                </Text>
+                <Flex align="start" gap="2">
+                  <Text
+                    size="3"
+                    weight="medium"
+                    className="font-mono text-gray-12 break-all flex-1"
+                  >
+                    {state.displayAddress || state.address}
+                  </Text>
+                  <CopyIconButton
+                    copyValue={state.displayAddress || state.address}
+                  />
+                </Flex>
+                {state.displayAddress &&
+                  state.displayAddress !== state.address && (
+                    <Text size="1" className="text-gray-10 font-mono break-all">
+                      {state.address}
+                    </Text>
+                  )}
+              </Flex>
+            </Box>
+          )}
 
           {/* Info List */}
           <Box className="bg-gray-50 dark:bg-gray-800 text-gray-11 rounded-lg p-4 w-full">
@@ -58,7 +101,8 @@ export default async function BannedWalletPage() {
                   <MagnifyingGlassIcon className="w-3 h-3 text-amber-600 dark:text-amber-400" />
                 </div>
                 <Text size="2" className="flex-1">
-                  Wallet address is blocked from using this app
+                  Wallet address associated with this account ID is blocked from
+                  using this app
                 </Text>
               </Flex>
             </Flex>
@@ -70,6 +114,18 @@ export default async function BannedWalletPage() {
               Please use a different wallet to continue.
             </Callout.Text>
           </Callout.Root>
+
+          {/* Disconnect Button */}
+          <Button
+            size="4"
+            type="button"
+            variant="soft"
+            color="gray"
+            onClick={handleDisconnect}
+            className="w-full"
+          >
+            Disconnect
+          </Button>
         </Flex>
       </Container>
     </Box>
