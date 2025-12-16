@@ -1,10 +1,8 @@
-import { VersionedNonceBuilder } from "@defuse-protocol/intents-sdk"
 import { authIdentity, messageFactory } from "@defuse-protocol/internal-utils"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { base64 } from "@scure/base"
-import { nearClient } from "@src/components/DefuseSDK/constants/nearClient"
+import { bridgeSDK } from "@src/components/DefuseSDK/constants/bridgeSdk"
 import { minutesFromNow } from "@src/components/DefuseSDK/core/messages"
-import { salt } from "@src/components/DefuseSDK/services/intentsContractService"
 import { KeyPair } from "near-api-js"
 import type { IntentsUserId, SignerCredentials } from "../../../core/formatters"
 import { formatUserIdentity } from "../../../core/formatters"
@@ -48,13 +46,10 @@ async function assembleWalletMessage({
   giftInfo,
   signerCredentials,
 }: GiftTakerMessage) {
-  const deadline = minutesFromNow(5)
-  const nonce = base64.decode(
-    VersionedNonceBuilder.encodeNonce(
-      await salt({ nearClient }),
-      new Date(deadline)
-    )
-  )
+  const { nonce, deadline } = await bridgeSDK
+    .intentBuilder()
+    .setDeadline(new Date(minutesFromNow(5)))
+    .build()
 
   // Signer should be with `near` credential type as we use ED25519 signing
   const signerId = resolveSignerId(
@@ -64,7 +59,7 @@ async function assembleWalletMessage({
   const innerMessage = messageFactory.makeInnerTransferMessage({
     tokenDeltas: [...Object.entries(giftInfo.tokenDiff)],
     signerId,
-    deadlineTimestamp: deadline,
+    deadlineTimestamp: Date.parse(deadline),
     receiverId: authIdentity.authHandleToIntentsUserId(
       signerCredentials.credential,
       signerCredentials.credentialType
@@ -72,7 +67,7 @@ async function assembleWalletMessage({
   })
   return messageFactory.makeSwapMessage({
     innerMessage,
-    nonce: nonce,
+    nonce: base64.decode(nonce),
   })
 }
 

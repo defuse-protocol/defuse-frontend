@@ -1,9 +1,7 @@
 import type { MultiPayload } from "@defuse-protocol/contract-types"
-import { VersionedNonceBuilder } from "@defuse-protocol/intents-sdk"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { base64 } from "@scure/base"
-import { nearClient } from "@src/components/DefuseSDK/constants/nearClient"
-import { salt } from "@src/components/DefuseSDK/services/intentsContractService"
+import { bridgeSDK } from "@src/components/DefuseSDK/constants/bridgeSdk"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { logger } from "@src/utils/logger"
 import {
@@ -94,13 +92,10 @@ export const giftMakerSignActor = setup({
       async ({
         input,
       }: { input: GiftMakerSignActorContext }): Promise<PrepareDataResult> => {
-        const deadline = minutesFromNow(5)
-        const nonce = base64.decode(
-          VersionedNonceBuilder.encodeNonce(
-            await salt({ nearClient }),
-            new Date(deadline)
-          )
-        )
+        const { nonce, deadline } = await bridgeSDK
+          .intentBuilder()
+          .setDeadline(new Date(minutesFromNow(5)))
+          .build()
 
         let tokenDiff: Record<BaseTokenInfo["defuseAssetId"], bigint>
 
@@ -138,8 +133,8 @@ export const giftMakerSignActor = setup({
           referral: input.referral,
           memo: "GIFT_CREATE",
           receiverId: input.escrowCredentials.credential,
-          deadlineTimestamp: deadline,
-          nonce,
+          deadlineTimestamp: Date.parse(deadline),
+          nonce: base64.decode(nonce),
         })
 
         return {

@@ -1,8 +1,8 @@
-import { VersionedNonceBuilder } from "@defuse-protocol/intents-sdk"
 import { messageFactory, solverRelay } from "@defuse-protocol/internal-utils"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { base64 } from "@scure/base"
-import { salt } from "@src/components/DefuseSDK/services/intentsContractService"
+import { bridgeSDK } from "@src/components/DefuseSDK/constants/bridgeSdk"
+import { minutesFromNow } from "@src/components/DefuseSDK/core/messages"
 import { logger } from "@src/utils/logger"
 import { assign, fromPromise, setup } from "xstate"
 import { config } from "../../../config"
@@ -58,13 +58,10 @@ export const tokenMigrationMachine = setup({
       }: {
         input: { userId: IntentsUserId; tokensToMigrate: TokenBalances }
       }): Promise<walletMessage.WalletMessage> => {
-        const deadline = new Date(Date.now() + 5 * 60 * 1000).toISOString()
-        const nonce = base64.decode(
-          VersionedNonceBuilder.encodeNonce(
-            await salt({ nearClient }),
-            new Date(deadline)
-          )
-        )
+        const { nonce, deadline } = await bridgeSDK
+          .intentBuilder()
+          .setDeadline(new Date(minutesFromNow(5)))
+          .build()
 
         const walletMessage = messageFactory.makeSwapMessage({
           innerMessage: {
@@ -81,7 +78,7 @@ export const tokenMigrationMachine = setup({
               })
             ),
           },
-          nonce,
+          nonce: base64.decode(nonce),
         })
         return walletMessage
       }

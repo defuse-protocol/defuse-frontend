@@ -1,4 +1,3 @@
-import { VersionedNonceBuilder } from "@defuse-protocol/intents-sdk"
 import {
   errors,
   solverRelay,
@@ -14,10 +13,9 @@ import type { ParentEvents as Background1csQuoterParentEvents } from "@src/compo
 import { logger } from "@src/utils/logger"
 import type { providers } from "near-api-js"
 import { assign, fromPromise, log, setup } from "xstate"
-import { nearClient } from "../../constants/nearClient"
+import { bridgeSDK } from "../../constants/bridgeSdk"
 import { createTransferMessage } from "../../core/messages"
 import { convertPublishIntentToLegacyFormat } from "../../sdk/solverRelay/utils/parseFailedPublishError"
-import { salt } from "../../services/intentsContractService"
 import type { BaseTokenInfo } from "../../types/base"
 import type { IntentsUserId } from "../../types/intentsUserId"
 import { assert } from "../../utils/assert"
@@ -213,13 +211,10 @@ export const swapIntent1csMachine = setup({
           deadline: string
         }
       }): Promise<walletMessage.WalletMessage> => {
-        const deadline = new Date(input.deadline).getTime()
-        const nonce = base64.decode(
-          VersionedNonceBuilder.encodeNonce(
-            await salt({ nearClient }),
-            new Date(deadline)
-          )
-        )
+        const { nonce, deadline } = await bridgeSDK
+          .intentBuilder()
+          .setDeadline(new Date(input.deadline))
+          .build()
 
         // Create the transfer message using createTransferMessage
         const tokenInAssetId = input.tokenIn.defuseAssetId
@@ -229,8 +224,8 @@ export const swapIntent1csMachine = setup({
           {
             signerId: input.defuseUserId as IntentsUserId, // signer
             receiverId: input.depositAddress, // receiver (deposit address from 1CS)
-            deadlineTimestamp: deadline,
-            nonce,
+            deadlineTimestamp: Date.parse(deadline),
+            nonce: base64.decode(nonce),
           }
         )
 

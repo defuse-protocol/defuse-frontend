@@ -1,9 +1,7 @@
 import type { MultiPayload } from "@defuse-protocol/contract-types"
-import { VersionedNonceBuilder } from "@defuse-protocol/intents-sdk"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { base64 } from "@scure/base"
-import { nearClient } from "@src/components/DefuseSDK/constants/nearClient"
-import { salt } from "@src/components/DefuseSDK/services/intentsContractService"
+import { bridgeSDK } from "@src/components/DefuseSDK/constants/bridgeSdk"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { logger } from "@src/utils/logger"
 import { assertEvent, assign, fromPromise, setup } from "xstate"
@@ -83,14 +81,12 @@ export const otcMakerSignMachine = setup({
         nonce: Uint8Array
         walletMessage: walletMessage.WalletMessage
       }> => {
-        const deadline =
-          Date.now() + expiryToSeconds(input.parsed.expiry) * 1000
-        const nonce = base64.decode(
-          VersionedNonceBuilder.encodeNonce(
-            await salt({ nearClient }),
-            new Date(deadline)
+        const { nonce, deadline } = await bridgeSDK
+          .intentBuilder()
+          .setDeadline(
+            new Date(Date.now() + expiryToSeconds(input.parsed.expiry) * 1000)
           )
-        )
+          .build()
 
         let tokenInDiff: Record<BaseTokenInfo["defuseAssetId"], bigint>
 
@@ -124,7 +120,7 @@ export const otcMakerSignMachine = setup({
             ),
           }
         }
-
+        const decodedNonce = base64.decode(nonce)
         const walletMessage = createSwapIntentMessage(
           [
             ...Object.entries(tokenInDiff),
@@ -135,13 +131,13 @@ export const otcMakerSignMachine = setup({
           ],
           {
             signerId: input.signerCredentials,
-            nonce,
+            nonce: decodedNonce,
             referral: input.referral,
             memo: "OTC_CREATE",
-            deadlineTimestamp: deadline,
+            deadlineTimestamp: Date.parse(deadline),
           }
         )
-        return { nonce, walletMessage }
+        return { nonce: decodedNonce, walletMessage }
       }
     ),
   },

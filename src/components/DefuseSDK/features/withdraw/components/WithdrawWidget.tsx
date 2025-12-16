@@ -1,9 +1,7 @@
 "use client"
-import { VersionedNonceBuilder } from "@defuse-protocol/intents-sdk"
 import { messageFactory } from "@defuse-protocol/internal-utils"
 import { base64 } from "@scure/base"
-import { nearClient } from "@src/components/DefuseSDK/constants/nearClient"
-import { salt } from "@src/components/DefuseSDK/services/intentsContractService"
+import { bridgeSDK } from "@src/components/DefuseSDK/constants/bridgeSdk"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
@@ -75,17 +73,17 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
                       input.intentOperationParams.type === "withdraw",
                       "Type must be withdraw"
                     )
-                    const deadline = Date.now() + settings.swapExpirySec * 1000
-                    const nonce = base64.decode(
-                      VersionedNonceBuilder.encodeNonce(
-                        await salt({ nearClient }),
-                        new Date(deadline)
+                    const { nonce, deadline } = await bridgeSDK
+                      .intentBuilder()
+                      .setDeadline(
+                        new Date(Date.now() + settings.swapExpirySec * 1000)
                       )
-                    )
+                      .build()
+
                     const { quote } = input.intentOperationParams
 
                     const innerMessage = messageFactory.makeInnerSwapMessage({
-                      deadlineTimestamp: deadline,
+                      deadlineTimestamp: Date.parse(deadline),
                       referral: input.referral,
                       signerId: input.defuseUserId,
                       tokenDeltas: quote?.tokenDeltas ?? [],
@@ -102,7 +100,7 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
                       innerMessage,
                       walletMessage: messageFactory.makeSwapMessage({
                         innerMessage,
-                        nonce,
+                        nonce: base64.decode(nonce),
                       }),
                     }
                   }),
