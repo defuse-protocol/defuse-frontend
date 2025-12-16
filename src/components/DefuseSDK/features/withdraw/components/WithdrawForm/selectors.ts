@@ -61,6 +61,37 @@ export function withdtrawalFeeSelector(
   }
 }
 
+/**
+ * @return null | TokenValue - Direction fee for Near to Solana withdrawals (1% additional fee)
+ */
+export function directionFeeSelector(
+  state: SnapshotFrom<typeof withdrawUIMachine>
+): TokenValue | null {
+  if (
+    state.context.preparationOutput == null ||
+    state.context.preparationOutput.tag !== "ok"
+  ) {
+    return null
+  }
+
+  const { feeEstimation, baseBridgeFee, receivedAmount } =
+    state.context.preparationOutput.value
+
+  if (baseBridgeFee == null) {
+    return null
+  }
+
+  const directionFee = feeEstimation.amount - baseBridgeFee
+  if (directionFee <= 0n) {
+    return null
+  }
+
+  return {
+    amount: directionFee,
+    decimals: receivedAmount.decimals,
+  }
+}
+
 function balancesSelector_(
   state: SnapshotFrom<typeof withdrawUIMachine>
 ): BalanceMapping {

@@ -42,6 +42,7 @@ import {
   getUnderlyingBaseTokenInfos,
   maxAmounts,
   minAmounts,
+  netDownAmount,
   subtractAmounts,
   truncateTokenValue,
 } from "../utils/tokenUtils"
@@ -87,6 +88,7 @@ export type PreparedWithdrawReturnType = {
   receivedAmount: TokenValue
   prebuiltWithdrawalIntents: Intent[]
   withdrawalParams: WithdrawalParams
+  baseBridgeFee?: bigint // Base bridge fee before additional direction fee
 }
 
 export type PreparationOutput =
@@ -98,10 +100,12 @@ export async function prepareWithdraw(
     formValues,
     depositedBalanceRef,
     poaBridgeInfoRef,
+    appFeeRecipient,
   }: {
     formValues: WithdrawFormContext
     depositedBalanceRef: ActorRefFrom<typeof depositedBalanceMachine>
     poaBridgeInfoRef: ActorRefFrom<typeof poaBridgeInfoActor>
+    appFeeRecipient?: string
   },
   { signal }: { signal: AbortSignal }
 ): Promise<PreparationOutput> {
@@ -222,8 +226,29 @@ export async function prepareWithdraw(
     return { tag: "err", value: feeEstimation.unwrapErr() }
   }
 
+  // Add 1% additional fee for Near to Solana withdrawals
+  // Check if token originated from Near and is being withdrawn to Solana
+  const isNearToSolana =
+    formValues.tokenOut.originChainName === "near" &&
+    formValues.tokenOutDeployment.chainName === "solana"
+  const isZecToSolana =
+    formValues.tokenOut.originChainName === "zcash" &&
+    formValues.tokenOutDeployment.chainName === "solana"
+
+  const baseFeeEstimation = feeEstimation.unwrap()
+  const baseBridgeFeeAmount = baseFeeEstimation.amount
+  let totalFeeAmount = baseBridgeFeeAmount
+  if (isNearToSolana || isZecToSolana) {
+    // Calculate 1% fee (10,000 basis points) on totalWithdrawn
+    const onePercentFeeBps = 10_000 // 1% = 10,000 basis points
+    const additionalFee =
+      totalWithdrawn.amount -
+      netDownAmount(totalWithdrawn.amount, onePercentFeeBps)
+    totalFeeAmount += additionalFee
+  }
+
   const receivedAmount = subtractAmounts(totalWithdrawn, {
-    amount: feeEstimation.unwrap().amount,
+    amount: totalFeeAmount,
     // Fee estimations are always in the decimals of the token on NEAR chain,
     // even if on the destination chain the token has different decimals.
     decimals: formValues.tokenOut.decimals,
@@ -253,7 +278,7 @@ export async function prepareWithdraw(
   try {
     withdrawalIntents = await bridgeSDK.createWithdrawalIntents({
       withdrawalParams,
-      feeEstimation: feeEstimation.unwrap(),
+      feeEstimation: baseFeeEstimation,
     })
   } catch (err: unknown) {
     const trustlineNotFoundErr = findError(err, TrustlineNotFoundError)
@@ -273,16 +298,41 @@ export async function prepareWithdraw(
       value: { reason: "ERR_CANNOT_MAKE_WITHDRAWAL_INTENT" },
     }
   }
+  // Create a separate transfer intent for the 1% fee for Near to Solana withdrawals
+  if ((isNearToSolana || isZecToSolana) && appFeeRecipient) {
+    const additionalFee = totalFeeAmount - baseBridgeFeeAmount
+    if (additionalFee > 0n) {
+      const feeIntent: Intent = {
+        intent: "transfer",
+        receiver_id: appFeeRecipient,
+        tokens: {
+          [formValues.tokenOut.defuseAssetId]: additionalFee.toString(),
+        },
+      }
+      withdrawalIntents.push(feeIntent)
+    }
+  }
+
+  // Update fee estimation to include additional fee for Near to Solana withdrawals
+  const finalFeeEstimation =
+    isNearToSolana || isZecToSolana
+      ? {
+          ...baseFeeEstimation,
+          amount: totalFeeAmount,
+        }
+      : baseFeeEstimation
 
   return {
     tag: "ok",
     value: {
       directWithdrawAvailable: directWithdrawAvailable,
       swap: swapRequirement,
-      feeEstimation: feeEstimation.unwrap(),
+      feeEstimation: finalFeeEstimation,
       receivedAmount: receivedAmount,
       prebuiltWithdrawalIntents: withdrawalIntents,
       withdrawalParams,
+      baseBridgeFee:
+        isNearToSolana || isZecToSolana ? baseBridgeFeeAmount : undefined,
     },
   }
 }
