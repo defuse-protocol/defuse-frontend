@@ -1,5 +1,4 @@
 import { utils } from "@defuse-protocol/internal-utils"
-import { hex } from "@scure/base"
 import type { providers } from "near-api-js"
 import * as v from "valibot"
 import { config } from "../config"
@@ -89,19 +88,4 @@ export async function batchBalanceOf({
   })
 
   return data
-}
-
-export async function salt(
-  params: { nearClient: providers.Provider } & utils.OptionalBlockReference
-): Promise<Uint8Array> {
-  const value = await utils.queryContract({
-    contractId: config.env.contractID,
-    methodName: "current_salt",
-    args: {},
-    finality: "optimistic",
-    nearClient: params.nearClient,
-    schema: v.string(),
-  })
-
-  return hex.decode(value)
 }
