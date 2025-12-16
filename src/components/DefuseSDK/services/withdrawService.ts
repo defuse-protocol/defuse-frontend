@@ -240,7 +240,11 @@ export async function prepareWithdraw(
   let totalFeeAmount = baseBridgeFeeAmount
 
   // Only apply direction fee if env variable is set and conditions are met
-  if ((isNearToSolana || isZecToSolana) && WITHDRAW_DIRECTION_FEE_BPS != null) {
+  if (
+    (isNearToSolana || isZecToSolana) &&
+    WITHDRAW_DIRECTION_FEE_BPS != null &&
+    appFeeRecipient
+  ) {
     const additionalFee =
       totalWithdrawn.amount -
       netDownAmount(totalWithdrawn.amount, WITHDRAW_DIRECTION_FEE_BPS)
@@ -317,7 +321,7 @@ export async function prepareWithdraw(
     }
   }
 
-  // Update fee estimation to include additional fee for Near to Solana withdrawals
+  // Update fee estimation to include additional fee for Near/Zcash to Solana withdrawals
   const finalFeeEstimation = hasDirectionFee
     ? {
         ...baseFeeEstimation,
