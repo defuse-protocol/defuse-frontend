@@ -1,4 +1,3 @@
-import { GoogleAnalytics } from "@next/third-parties/google"
 import { QueryClientProvider } from "@tanstack/react-query"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
 import type { Metadata, Viewport } from "next"
@@ -19,16 +18,11 @@ import { TonConnectUIProvider } from "@src/providers/TonConnectUIProvider"
 
 import "../../styles/global.css"
 import { getCachedSystemStatus } from "@src/actions/systemStatus"
-import Helpscout from "@src/components/Helpscout"
 import { MixpanelProvider } from "@src/providers/MixpanelProvider"
 import { NearWalletProvider } from "@src/providers/NearWalletProvider"
 import { SystemStatusProvider } from "@src/providers/SystemStatusProvider"
 import { TronWalletProvider } from "@src/providers/TronWalletProvider"
-import {
-  APP_ENV,
-  HELPSCOUT_BEACON_ID,
-  VERCEL_PROJECT_PRODUCTION_URL,
-} from "@src/utils/environment"
+import { APP_ENV, VERCEL_PROJECT_PRODUCTION_URL } from "@src/utils/environment"
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -129,44 +123,39 @@ const AppRootLayout = async ({
 }: Readonly<{
   children?: ReactNode
 }>) => {
-  const tmpl = await whitelabelTemplateFlag()
   initSDK()
   const systemStatus = await getCachedSystemStatus()
 
   return (
-    <html lang="en" suppressHydrationWarning className={`tmpl-${tmpl}`}>
-      <body>
-        <InitDefuseSDK />
+    <>
+      <InitDefuseSDK />
 
-        <ThemeProvider>
-          <SystemStatusProvider systemStatus={systemStatus}>
-            <WagmiProvider config={config}>
-              <QueryClientProvider client={queryClient}>
-                <NearWalletProvider>
-                  <SolanaWalletProvider>
-                    <StellarWalletProvider>
-                      <TonConnectUIProvider>
-                        <TronWalletProvider>
-                          <WebAuthnProvider>
-                            <MixpanelProvider>{children}</MixpanelProvider>
-                          </WebAuthnProvider>
-                          <SentryTracer />
-                        </TronWalletProvider>
-                      </TonConnectUIProvider>
-                    </StellarWalletProvider>
-                  </SolanaWalletProvider>
-                </NearWalletProvider>
-                {APP_ENV === "development" && (
-                  <ReactQueryDevtools initialIsOpen={false} />
-                )}
-              </QueryClientProvider>
-            </WagmiProvider>
-          </SystemStatusProvider>
-        </ThemeProvider>
-      </body>
-      <GoogleAnalytics gaId="G-WNE3NB46KM" />
-      {HELPSCOUT_BEACON_ID && <Helpscout />}
-    </html>
+      <ThemeProvider>
+        <SystemStatusProvider systemStatus={systemStatus}>
+          <WagmiProvider config={config}>
+            <QueryClientProvider client={queryClient}>
+              <NearWalletProvider>
+                <SolanaWalletProvider>
+                  <StellarWalletProvider>
+                    <TonConnectUIProvider>
+                      <TronWalletProvider>
+                        <WebAuthnProvider>
+                          <MixpanelProvider>{children}</MixpanelProvider>
+                        </WebAuthnProvider>
+                        <SentryTracer />
+                      </TronWalletProvider>
+                    </TonConnectUIProvider>
+                  </StellarWalletProvider>
+                </SolanaWalletProvider>
+              </NearWalletProvider>
+              {APP_ENV === "development" && (
+                <ReactQueryDevtools initialIsOpen={false} />
+              )}
+            </QueryClientProvider>
+          </WagmiProvider>
+        </SystemStatusProvider>
+      </ThemeProvider>
+    </>
   )
 }
 
