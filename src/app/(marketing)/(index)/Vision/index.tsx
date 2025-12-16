@@ -2,9 +2,9 @@
 
 import { Button, Text } from "@radix-ui/themes"
 
-import CardVision from "@src/app/landing/Card/CardVision"
-import Section from "@src/app/landing/Section"
 import { settings } from "@src/config/settings"
+import CardVision from "../Card/CardVision"
+import Section from "../Section"
 
 const Vision = () => {
   return (

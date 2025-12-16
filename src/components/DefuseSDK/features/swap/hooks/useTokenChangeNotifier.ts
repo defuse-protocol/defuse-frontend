@@ -1,4 +1,4 @@
-import { updateURLParamsSwap } from "@src/app/(home)/_utils/useDeterminePair"
+import { updateURLParamsSwap } from "@src/app/(app)/swap/_utils/useDeterminePair"
 import { useTokensStore } from "@src/components/DefuseSDK/providers/TokensStoreProvider"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { useRouter, useSearchParams } from "next/navigation"

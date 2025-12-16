@@ -2,7 +2,7 @@
 import { CaretDownIcon } from "@radix-ui/react-icons"
 import type React from "react"
 
-import { hasChainIcon } from "@src/app/(home)/_utils/useDeterminePair"
+import { hasChainIcon } from "@src/app/(app)/swap/_utils/useDeterminePair"
 import { useIsFlatTokenListEnabled } from "@src/hooks/useIsFlatTokenListEnabled"
 import { useMemo } from "react"
 import { chainIcons } from "../constants/blockchains"

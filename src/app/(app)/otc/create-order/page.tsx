@@ -1,5 +1,4 @@
 "use client"
-import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
 import { OtcMakerWidget } from "@src/components/DefuseSDK/features/otcDesk/components/OtcMakerWidget"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
@@ -9,6 +8,7 @@ import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import { useNearWallet } from "@src/providers/NearWalletProvider"
 import { renderAppLink } from "@src/utils/renderAppLink"
+import { useDeterminePair } from "../../swap/_utils/useDeterminePair"
 import { createOtcOrder, createOtcOrderLink } from "../_utils/link"
 
 export default function CreateOrderPage() {

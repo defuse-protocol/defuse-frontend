@@ -7,8 +7,8 @@ import clsx from "clsx"
 import Image from "next/image"
 import { type PropsWithChildren, useState } from "react"
 
-import Section from "@src/app/landing/Section"
 import { settings } from "@src/config/settings"
+import Section from "../Section"
 
 const ButtonFAQ = ({
   children,

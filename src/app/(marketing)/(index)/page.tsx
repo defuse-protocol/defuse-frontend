@@ -1,16 +1,16 @@
 "use client"
 
-import Banner from "@src/app/landing/Banner"
-import CardSocial from "@src/app/landing/Card/CardSocial"
-import Evolution from "@src/app/landing/Evolution"
-import FAQ from "@src/app/landing/FAQ"
-import Infrastructure from "@src/app/landing/Infrastructure"
-import Interested from "@src/app/landing/Interested"
-import PaperHome from "@src/app/landing/PaperHome"
-import TryDefuse from "@src/app/landing/TryDefuse"
-// import InvestorLogo from "@src/app/landing/InvestorLogo"
-import Vision from "@src/app/landing/Vision"
 import { settings } from "@src/config/settings"
+import Banner from "./Banner"
+import CardSocial from "./Card/CardSocial"
+import Evolution from "./Evolution"
+import FAQ from "./FAQ"
+import Infrastructure from "./Infrastructure"
+import Interested from "./Interested"
+import PaperHome from "./PaperHome"
+import TryDefuse from "./TryDefuse"
+// import InvestorLogo from "./InvestorLogo"
+import Vision from "./Vision"
 
 export default function Home() {
   return (

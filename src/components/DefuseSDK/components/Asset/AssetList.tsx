@@ -6,7 +6,7 @@ import { type ReactNode, useCallback } from "react"
 import type { TokenValue } from "../../types/base"
 import type { SelectItemToken } from "../Modal/ModalSelectAssets"
 
-import { hasChainIcon } from "@src/app/(home)/_utils/useDeterminePair"
+import { hasChainIcon } from "@src/app/(app)/swap/_utils/useDeterminePair"
 import { chainIcons } from "@src/components/DefuseSDK/constants/blockchains"
 import { useTokensStore } from "@src/components/DefuseSDK/providers/TokensStoreProvider"
 import { useIsFlatTokenListEnabled } from "@src/hooks/useIsFlatTokenListEnabled"

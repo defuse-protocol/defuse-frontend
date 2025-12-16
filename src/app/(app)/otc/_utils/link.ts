@@ -1,12 +1,5 @@
 import { base64urlnopad } from "@scure/base"
 import {
-  decodeAES256Order,
-  decodeOrder,
-  deriveTradeIdFromIV,
-  encodeAES256Order,
-  encodeOrder,
-} from "@src/app/otc/_utils/encoder"
-import {
   genLocalTradeId,
   genPKey,
   getTrade,
@@ -15,6 +8,13 @@ import {
 import { logger } from "@src/utils/logger"
 import { useQuery } from "@tanstack/react-query"
 import { useSearchParams } from "next/navigation"
+import {
+  decodeAES256Order,
+  decodeOrder,
+  deriveTradeIdFromIV,
+  encodeAES256Order,
+  encodeOrder,
+} from "./encoder"
 
 export function createOtcOrderLink(
   /** @deprecated Required for backwards compatibility */

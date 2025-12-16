@@ -18,7 +18,7 @@ import { ThemeProvider } from "@src/providers/ThemeProvider"
 import { TonConnectUIProvider } from "@src/providers/TonConnectUIProvider"
 
 import "@radix-ui/themes/styles.css"
-import "../styles/global.scss"
+import "../../styles/global.scss"
 import { getCachedSystemStatus } from "@src/actions/systemStatus"
 import Helpscout from "@src/components/Helpscout"
 import { MixpanelProvider } from "@src/providers/MixpanelProvider"

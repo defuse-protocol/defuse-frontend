@@ -1,5 +1,5 @@
 "use client"
-import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
+
 import { getTokens } from "@src/components/DefuseSDK/features/machines/1cs"
 import { SwapWidget } from "@src/components/DefuseSDK/features/swap/components/SwapWidget"
 import { isBaseToken } from "@src/components/DefuseSDK/utils"
@@ -16,6 +16,7 @@ import { renderAppLink } from "@src/utils/renderAppLink"
 import { useQuery } from "@tanstack/react-query"
 import { useSearchParams } from "next/navigation"
 import { useEffect, useMemo } from "react"
+import { useDeterminePair } from "./_utils/useDeterminePair"
 
 export default function Swap() {
   const { state } = useConnectWallet()

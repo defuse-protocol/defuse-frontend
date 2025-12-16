@@ -1,5 +1,4 @@
 "use client"
-import { useDeterminePair } from "@src/app/(home)/_utils/useDeterminePair"
 import { GiftHistoryWidget } from "@src/components/DefuseSDK/features/gift/components/GiftHistoryWidget"
 import { GiftMakerWidget } from "@src/components/DefuseSDK/features/gift/components/GiftMakerWidget"
 import Paper from "@src/components/Paper"
@@ -10,6 +9,7 @@ import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import { useNearWallet } from "@src/providers/NearWalletProvider"
 import { renderAppLink } from "@src/utils/renderAppLink"
+import { useDeterminePair } from "../../swap/_utils/useDeterminePair"
 import { createGiftIntent, createGiftLink } from "../_utils/link"
 
 export default function CreateGiftPage() {

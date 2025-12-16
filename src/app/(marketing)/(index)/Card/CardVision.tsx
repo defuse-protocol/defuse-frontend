@@ -22,7 +22,7 @@ const CardVision = ({
   return (
     <div
       className={clsx(
-        "w-full h-[502px] md:h-[364px] flex flex-col md:flex-row flex-wrap shadow-card-multi bg-white rounded-[40px] overflow-hidden flex-wrap",
+        "w-full h-[502px] md:h-[364px] flex flex-col md:flex-row shadow-card-multi bg-white rounded-[40px] overflow-hidden flex-wrap",
         isReverse && "md:flex-row-reverse"
       )}
     >

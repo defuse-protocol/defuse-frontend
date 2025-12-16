@@ -1,10 +1,10 @@
 "use client"
 
 import { Text } from "@radix-ui/themes"
-import Section from "@src/app/landing/Section"
-import TableInfrastructure from "@src/app/landing/Table/TableInfrastructure"
-import { infrastructureData } from "@src/app/landing/mocks"
 import { useEffect, useRef, useState } from "react"
+import Section from "../Section"
+import TableInfrastructure from "../Table/TableInfrastructure"
+import { infrastructureData } from "../mocks"
 
 import { settings } from "@src/config/settings"
 

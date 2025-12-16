@@ -10,7 +10,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import {
   updateURLParamsDeposit,
   useDeterminePair,
-} from "../(home)/_utils/useDeterminePair"
+} from "../swap/_utils/useDeterminePair"
 
 export default function Deposit() {
   const { state, sendTransaction } = useConnectWallet()
