@@ -43,6 +43,15 @@ export const APP_FEE_RECIPIENT_RABITSWAP = v.parse(
   process.env.NEXT_PUBLIC_APP_FEE_RECIPIENT_RABITSWAP
 )
 
+export const WITHDRAW_DIRECTION_FEE_BPS = v.parse(
+  v.pipe(
+    v.optional(v.string()),
+    v.transform((val) => (val != null ? Number(val) : null)),
+    v.nullable(v.number())
+  ),
+  process.env.NEXT_PUBLIC_WITHDRAW_DIRECTION_FEE_BPS
+)
+
 export const ONE_CLICK_SWAP_FRACTION =
   v.parse(
     v.pipe(
