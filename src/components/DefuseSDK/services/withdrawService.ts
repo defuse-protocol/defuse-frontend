@@ -227,13 +227,12 @@ export async function prepareWithdraw(
     return { tag: "err", value: feeEstimation.unwrapErr() }
   }
 
-  // Add direction fee for Near/Zcash to Solana withdrawals (if configured)
-  // Check if token originated from Near/Zcash and is being withdrawn to Solana
+  // Add direction fee for Near/Zcash to Solana withdrawals
   const isNearToSolana =
-    formValues.tokenOut.originChainName === "near" &&
+    formValues.tokenOut.defuseAssetId === "nep141:wrap.near" &&
     formValues.tokenOutDeployment.chainName === "solana"
   const isZecToSolana =
-    formValues.tokenOut.originChainName === "zcash" &&
+    formValues.tokenOut.defuseAssetId === "nep141:zec.omft.near" &&
     formValues.tokenOutDeployment.chainName === "solana"
 
   const baseFeeEstimation = feeEstimation.unwrap()
