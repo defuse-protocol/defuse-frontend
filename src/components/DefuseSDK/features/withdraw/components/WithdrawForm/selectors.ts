@@ -62,7 +62,7 @@ export function withdtrawalFeeSelector(
 }
 
 /**
- * @return null | TokenValue - Direction fee for Near to Solana withdrawals (1% additional fee)
+ * @return null | TokenValue - Direction fee on withdrawals (configurable via WITHDRAW_DIRECTION_FEE_BPS)
  */
 export function directionFeeSelector(
   state: SnapshotFrom<typeof withdrawUIMachine>
