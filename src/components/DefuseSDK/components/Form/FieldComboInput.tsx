@@ -144,7 +144,7 @@ export const FieldComboInput = <T extends FieldValues>({
             disabled={disabled}
             autoComplete="off"
             className={clsx(
-              "w-full text-3xl font-medium border-transparent focus:border-transparent focus:ring-0 px-0 outline-none bg-transparent",
+              "w-full text-3xl font-medium border-transparent focus:border-transparent focus:ring-0 px-0 outline-hidden bg-transparent",
               disabled && "pointer-events-none",
               {
                 hidden: isLoading,
@@ -183,7 +183,7 @@ export const FieldComboInput = <T extends FieldValues>({
               {usdAmount}
             </span>
           ) : null}
-          <div className="pointer-events-none absolute top-0 right-0 bottom-0 w-12 bg-gradient-to-r from-transparent to-gray-2" />
+          <div className="pointer-events-none absolute top-0 right-0 bottom-0 w-12 bg-linear-to-r from-transparent to-gray-2" />
         </div>
 
         {balance != null && (

@@ -35,7 +35,7 @@ export function PriceChangeDialog({
 }: Props) {
   return (
     <AlertDialog.Root open={open}>
-      <themes_AlertDialog.Content className="max-w-md px-5 pt-5 pb-[max(env(safe-area-inset-bottom,0px),theme(spacing.5))] sm:animate-none animate-slide-up">
+      <themes_AlertDialog.Content className="max-w-md px-5 pt-5 pb-[max(env(safe-area-inset-bottom,0px),--spacing(5))] sm:animate-none animate-slide-up">
         <AlertDialog.Title className="text-xl font-semibold text-gray-12">
           The price has changed
         </AlertDialog.Title>
@@ -70,7 +70,7 @@ export function PriceChangeDialog({
               <ArrowDownIcon width={18} height={18} />
             </div>
           </div>
-          <div className="absolute left-0 right-0 top-1/2 h-[1px] bg-gray-4 w-full -translate-y-1/2 pointer-events-none" />
+          <div className="absolute left-0 right-0 top-1/2 h-px bg-gray-4 w-full -translate-y-1/2 pointer-events-none" />
         </div>
 
         <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">

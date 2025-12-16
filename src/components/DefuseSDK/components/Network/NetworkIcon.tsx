@@ -8,7 +8,7 @@ export function NetworkIcon({
   chainName: string
 }) {
   return (
-    <div className="relative flex size-7 items-center justify-center overflow-hidden rounded bg-white">
+    <div className="relative flex size-7 items-center justify-center overflow-hidden rounded-sm bg-white">
       <Image
         src={chainIcon.light}
         alt={chainName}

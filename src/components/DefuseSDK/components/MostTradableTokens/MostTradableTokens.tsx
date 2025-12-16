@@ -113,7 +113,7 @@ export function MostTradableTokens({
 
           <button
             type="button"
-            className="px-2 py-1 my-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            className="px-2 py-1 my-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             onClick={() => refetch()}
           >
             retry

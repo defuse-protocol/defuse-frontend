@@ -14,7 +14,7 @@ export function WebAuthnDialog() {
 
   return (
     <Dialog.Root open={webauthnUI.isOpen} onOpenChange={webauthnUI.close}>
-      <Dialog.Content className="max-w-full md:max-w-md pb-[max(env(safe-area-inset-bottom,0px),theme(spacing.6))] px-6 pt-7 md:pb-6 animate-slide-up md:animate-none">
+      <Dialog.Content className="max-w-full md:max-w-md pb-[max(env(safe-area-inset-bottom,0px),--spacing(6))] px-6 pt-7 md:pb-6 animate-slide-up md:animate-none">
         <Dialog.Close>
           <button
             type="button"
@@ -101,7 +101,7 @@ export function WebAuthnDialog() {
               name="passkeyName"
               placeholder="Passkey label (only visible to you)"
               required
-              className="border-0 rounded-lg py-2 px-4 bg-gray-3 !ring-accent-9 placeholder:font-medium placeholder:text-gray-11 font-medium text-accent-12 text-sm h-12 ease-in-out hover:bg-gray-4 focus:bg-gray-4 focus:ring-2 focus:ring-inset"
+              className="border-0 rounded-lg py-2 px-4 bg-gray-3 ring-accent-9! placeholder:font-medium placeholder:text-gray-11 font-medium text-accent-12 text-sm h-12 ease-in-out hover:bg-gray-4 focus:bg-gray-4 focus:ring-2 focus:ring-inset"
             />
 
             <Button

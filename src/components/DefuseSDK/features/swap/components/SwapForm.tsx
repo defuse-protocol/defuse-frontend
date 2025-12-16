@@ -424,7 +424,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               <BlockMultiBalances
                 balance={tokenInBalance?.amount ?? 0n}
                 decimals={tokenInBalance?.decimals ?? 0}
-                className={cn("!static", tokenInBalance == null && "invisible")}
+                className={cn("static!", tokenInBalance == null && "invisible")}
                 maxButtonSlot={
                   <BlockMultiBalances.DisplayMaxButton
                     onClick={handleSetMaxValue}
@@ -541,7 +541,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                 balance={balanceAmountOut}
                 decimals={tokenOutBalance?.decimals ?? 0}
                 className={cn(
-                  "!static",
+                  "static!",
                   tokenOutBalance == null && "invisible"
                 )}
               />

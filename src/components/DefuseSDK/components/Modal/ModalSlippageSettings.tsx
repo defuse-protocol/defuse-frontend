@@ -317,7 +317,7 @@ export function ModalSlippageSettings() {
                   value={customValue}
                   onChange={handleCustomInputChange}
                   placeholder="1.0"
-                  className="w-full h-10 px-3 pr-8 rounded-md border bg-gray-1 border-gray-6 focus:outline-none focus:ring-2 focus:ring-gray-6 text-sm"
+                  className="w-full h-10 px-3 pr-8 rounded-md border bg-gray-1 border-gray-6 focus:outline-hidden focus:ring-2 focus:ring-gray-6 text-sm"
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-11">
                   %

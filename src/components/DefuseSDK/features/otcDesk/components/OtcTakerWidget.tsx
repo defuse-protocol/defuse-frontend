@@ -62,7 +62,7 @@ export function OtcTakerWidget(props: OtcTakerWidgetProps) {
   return (
     <WidgetRoot>
       <SwapWidgetProvider>
-        <div className="widget-container rounded-2xl bg-gray-1 p-5 shadow">
+        <div className="widget-container rounded-2xl bg-gray-1 p-5 shadow-sm">
           <OtcTakerScreens {...props} />
         </div>
       </SwapWidgetProvider>

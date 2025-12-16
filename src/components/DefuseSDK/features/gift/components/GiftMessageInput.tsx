@@ -34,7 +34,7 @@ GiftMessageInput.Input = forwardRef<
       inputMode="text"
       autoComplete="off"
       placeholder="Enter your message (optional)"
-      className="w-full border-0 bg-transparent px-4 py-2 font-medium text-sm text-label focus:ring-0 outline-none"
+      className="w-full border-0 bg-transparent px-4 py-2 font-medium text-sm text-label focus:ring-0 outline-hidden"
       {...props}
     />
   )

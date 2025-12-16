@@ -324,7 +324,7 @@ export function GiftMakerForm({
               <BlockMultiBalances
                 balance={balanceAmount}
                 decimals={tokenBalance?.decimals ?? 0}
-                className={clsx("!static", tokenBalance == null && "invisible")}
+                className={clsx("static!", tokenBalance == null && "invisible")}
                 maxButtonSlot={
                   <BlockMultiBalances.DisplayMaxButton
                     onClick={handleSetMaxValue}

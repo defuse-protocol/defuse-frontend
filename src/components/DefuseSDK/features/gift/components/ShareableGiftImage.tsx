@@ -64,7 +64,7 @@ export function ShareableGiftImage({
             <PopoverTrigger asChild>
               <button
                 type="button"
-                className="flex items-center gap-2 text-white text-sm md:text-base font-bold text-center group focus:outline-none focus:ring-2 focus:ring-primary-500 rounded transition"
+                className="flex items-center gap-2 text-white text-sm md:text-base font-bold text-center group focus:outline-hidden focus:ring-2 focus:ring-primary-500 rounded-sm transition"
                 aria-label="Read full message"
                 title={message}
                 tabIndex={0}
@@ -78,7 +78,7 @@ export function ShareableGiftImage({
                 )}
               </button>
             </PopoverTrigger>
-            <PopoverContent className="flex flex-col gap-2 text-xs bg-white text-gray-11 shadow-lg rounded p-3 transition-all duration-150">
+            <PopoverContent className="flex flex-col gap-2 text-xs bg-white text-gray-11 shadow-lg rounded-sm p-3 transition-all duration-150">
               <div>{message}</div>
             </PopoverContent>
           </Popover>

@@ -174,7 +174,7 @@ export function ModalSelectAssets() {
   return (
     <ModalDialog>
       <div className="flex flex-col min-h-[680px] md:max-h-[680px] h-full">
-        <div className="z-20 h-auto flex-none -mt-[var(--inset-padding-top)] -mr-[var(--inset-padding-right)] -ml-[var(--inset-padding-left)] px-5 pt-7 pb-4 sticky -top-[var(--inset-padding-top)] bg-gray-1">
+        <div className="z-20 h-auto flex-none -mt-(--inset-padding-top) -mr-(--inset-padding-right) -ml-(--inset-padding-left) px-5 pt-7 pb-4 sticky -top-(--inset-padding-top) bg-gray-1">
           <div className="flex flex-col gap-4">
             <div className="flex flex-row justify-between items-center">
               <Text size="5" weight="bold">
@@ -193,7 +193,7 @@ export function ModalSelectAssets() {
             ) : null}
           </div>
         </div>
-        <div className="z-10 flex-1 overflow-y-auto border-b border-gray-1 dark:border-black-950 -mr-[var(--inset-padding-right)] pr-[var(--inset-padding-right)]">
+        <div className="z-10 flex-1 overflow-y-auto border-b border-gray-1 dark:border-black-950 -mr-(--inset-padding-right) pr-(--inset-padding-right)">
           {assetList.length ? (
             <AssetList
               assets={displayAssets}

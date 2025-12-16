@@ -78,7 +78,7 @@ TokenAmountInputCard.Input = forwardRef<
         disabled={disabled}
         aria-busy={isLoading || undefined}
         className={cn(
-          "w-full border-0 bg-transparent relative p-0 font-medium text-2xl md:text-3xl text-label focus:ring-0 outline-none",
+          "w-full border-0 bg-transparent relative p-0 font-medium text-2xl md:text-3xl text-label focus:ring-0 outline-hidden",
           isLoading && "z-[-1]",
           disabled && "opacity-50",
           className

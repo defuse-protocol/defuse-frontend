@@ -53,7 +53,7 @@ function SelectTriggerLike(
         {hint}
       </div>
 
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <ChevronDownIcon className="size-7" />
       </div>
     </button>

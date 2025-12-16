@@ -132,7 +132,7 @@ export default function JsonValidatorPage() {
           </h2>
           <textarea
             ref={textareaRef}
-            className="w-full h-64 p-2 border rounded font-mono"
+            className="w-full h-64 p-2 border rounded-sm font-mono"
             onChange={(e) => {
               validateJson(e.target.value)
             }}
@@ -143,23 +143,23 @@ export default function JsonValidatorPage() {
         <div>
           <h2 className="text-lg font-semibold mb-2">Validation Result</h2>
           {!validationResult ? (
-            <div className="h-64 p-2 border rounded flex items-center justify-center text-gray-500">
+            <div className="h-64 p-2 border rounded-sm flex items-center justify-center text-gray-500">
               Enter JSON to validate
             </div>
           ) : !validationResult.errors ? (
-            <div className="h-64 p-2 border rounded bg-green-50 overflow-auto">
+            <div className="h-64 p-2 border rounded-sm bg-green-50 overflow-auto">
               <div className="text-green-600 font-semibold mb-2">
                 ✓ Valid JSON
               </div>
             </div>
           ) : (
-            <div className="h-64 p-2 border rounded bg-red-50 overflow-auto">
+            <div className="h-64 p-2 border rounded-sm bg-red-50 overflow-auto">
               <div className="text-red-600 font-semibold mb-2">
                 ✗ Invalid JSON
               </div>
               {validationResult.errors.map((error, index) => (
                 // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-                <div key={index} className="mb-2 p-2 bg-red-100 rounded">
+                <div key={index} className="mb-2 p-2 bg-red-100 rounded-sm">
                   <strong>
                     {error.path ? `Path: ${error.path}` : "Error"}
                   </strong>

@@ -38,7 +38,7 @@ export default function GlobalError({
                 <div className="mb-6 rounded-md bg-gray-50 px-3 py-2 text-left">
                   <div className="text-xs text-gray-500">
                     Error ID:{" "}
-                    <code className="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs text-gray-700">
+                    <code className="rounded-sm bg-gray-100 px-1 py-0.5 font-mono text-xs text-gray-700">
                       {error.digest}
                     </code>
                   </div>

@@ -1,8 +1,5 @@
 @use "sass:meta";
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-@tailwind variants;
+@import "tailwindcss";
 
 /* Core imports - ordered by dependency */
 @include meta.load-css("fonts");
@@ -128,6 +125,6 @@ html.tmpl-rabitswap {
 }
 
 .radix-themes {
-	--cursor-button: pointer;
+  --cursor-button: pointer;
   --cursor-switch: pointer;
 }

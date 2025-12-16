@@ -23,7 +23,7 @@ export const SearchBar = ({
             el.focus()
           }
         }}
-        className="flex-1 border-transparent p-0 focus:border-transparent focus:ring-0 bg-gray-3 outline-none"
+        className="flex-1 border-transparent p-0 focus:border-transparent focus:ring-0 bg-gray-3 outline-hidden"
         placeholder={placeholder}
         value={query}
         onChange={(e) => setQuery(e.target.value)}

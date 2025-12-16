@@ -78,18 +78,18 @@ export function BaseModalDialog({
             }}
           >
             <div className="flex absolute bottom-0 left-0 right-0 md:inset-0 overflow-y-auto overflow-x-hidden">
-              <div className="flex-grow md:m-auto md:py-8 md:px-4">
+              <div className="grow md:m-auto md:py-8 md:px-4">
                 <Dialog.Content
                   className={clsx(
                     "relative m-auto w-full max-w-[100vw] md:w-[90vw] md:max-w-[472px] overflow-x-hidden min-w-0",
-                    "bg-gray-1 shadow-lg focus:outline-none",
+                    "bg-gray-1 shadow-lg focus:outline-hidden",
                     "rounded-t-2xl md:rounded-2xl",
                     "max-md:max-h-[70vh]",
-                    "[--inset-padding-top:theme(spacing.5)]",
-                    "[--inset-padding-right:theme(spacing.5)]",
-                    "[--inset-padding-bottom:max(env(safe-area-inset-bottom,0px),theme(spacing.5))]",
-                    "[--inset-padding-left:theme(spacing.5)]",
-                    "pt-[var(--inset-padding-top)] pr-[var(--inset-padding-right)] pb-[var(--inset-padding-bottom)] pl-[var(--inset-padding-left)]",
+                    "[--inset-padding-top:--spacing(5)]",
+                    "[--inset-padding-right:--spacing(5)]",
+                    "[--inset-padding-bottom:max(env(safe-area-inset-bottom,0px),--spacing(5))]",
+                    "[--inset-padding-left:--spacing(5)]",
+                    "pt-(--inset-padding-top) pr-(--inset-padding-right) pb-(--inset-padding-bottom) pl-(--inset-padding-left)",
 
                     // Animation
                     "data-[state=open]:animate-in data-[state=closed]:animate-out",

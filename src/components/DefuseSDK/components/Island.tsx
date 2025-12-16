@@ -6,7 +6,7 @@ export function Island({
   className,
 }: { children: ReactNode; className?: string }): ReactNode {
   return (
-    <div className={cn("rounded-2xl bg-gray-1 shadow p-5", className)}>
+    <div className={cn("rounded-2xl bg-gray-1 shadow-sm p-5", className)}>
       {children}
     </div>
   )

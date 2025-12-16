@@ -354,7 +354,7 @@ export function OtcMakerForm({
                 balance={balanceAmountIn}
                 decimals={tokenInBalance?.decimals ?? 0}
                 className={clsx(
-                  "!static",
+                  "static!",
                   tokenInBalance == null && "invisible"
                 )}
                 maxButtonSlot={
@@ -433,7 +433,7 @@ export function OtcMakerForm({
                 balance={balanceAmountOut}
                 decimals={tokenOutBalance?.decimals ?? 0}
                 className={clsx(
-                  "!static",
+                  "static!",
                   tokenOutBalance == null && "invisible"
                 )}
                 maxButtonSlot={
@@ -472,7 +472,7 @@ export function OtcMakerForm({
               onChange={(e) => {
                 formValuesRef.trigger.updateExpiry({ value: e.target.value })
               }}
-              className="bg-gray-1 border border-gray-7 rounded-full text-sm px-3 py-1 font-medium outline-none appearance-none cursor-pointer"
+              className="bg-gray-1 border border-gray-7 rounded-full text-sm px-3 py-1 font-medium outline-hidden appearance-none cursor-pointer"
             >
               <option value="5m">5 Minutes</option>
               <option value="30m">30 Minutes</option>

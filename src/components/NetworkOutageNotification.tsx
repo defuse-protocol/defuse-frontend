@@ -46,7 +46,7 @@ const NetworkOutageNotification: React.FC = () => {
     <div className="bg-yellow-500 text-yellow-900 px-3 py-2 text-center text-xs font-medium border-b border-yellow-600">
       <div className="flex items-center justify-center gap-2 relative">
         <svg
-          className="w-3 h-3 flex-shrink-0"
+          className="w-3 h-3 shrink-0"
           fill="currentColor"
           viewBox="0 0 20 20"
           aria-label="Warning"

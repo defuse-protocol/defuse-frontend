@@ -22,7 +22,7 @@ export default function Paper({ children }: PropsWithChildren) {
               href="https://auroralabs.dev"
               target="_blank"
               rel="noreferrer"
-              className="flex justify-center items-center gap-1.5 text-sm font-medium bg-white dark:bg-black px-3 py-1.5 rounded-full shadow"
+              className="flex justify-center items-center gap-1.5 text-sm font-medium bg-white dark:bg-black px-3 py-1.5 rounded-full shadow-sm"
             >
               <span className="text-secondary">Built by</span>
               <AuroraLogo className="text-black dark:text-white" />
@@ -43,7 +43,7 @@ export default function Paper({ children }: PropsWithChildren) {
           <div className="flex justify-center md:justify-start">{children}</div>
 
           <div className="w-full flex justify-center md:justify-start items-center pt-7">
-            <div className="flex justify-center items-center gap-1.5 text-sm font-medium bg-white dark:bg-black px-3 py-1.5 rounded-full shadow">
+            <div className="flex justify-center items-center gap-1.5 text-sm font-medium bg-white dark:bg-black px-3 py-1.5 rounded-full shadow-sm">
               <span className="text-secondary">Built by</span>
               <NearLogo className="text-black dark:text-white" />
               <span className="text-secondary">with love for</span>
