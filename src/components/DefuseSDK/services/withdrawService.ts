@@ -90,6 +90,7 @@ export type PreparedWithdrawReturnType = {
   prebuiltWithdrawalIntents: Intent[]
   withdrawalParams: WithdrawalParams
   baseBridgeFee?: bigint // Base bridge fee before additional direction fee
+  directionFeeAmount?: bigint // Direction fee amount (separate from bridge fee)
 }
 
 export type PreparationOutput =
@@ -245,6 +246,8 @@ export async function prepareWithdraw(
     WITHDRAW_DIRECTION_FEE_BPS != null &&
     appFeeRecipient
   ) {
+    // Calculate direction fee from the total withdrawal amount
+    // This is an additional fee on top of the bridge fee, so bridge fee remains unchanged
     const additionalFee =
       totalWithdrawn.amount -
       netDownAmount(totalWithdrawn.amount, WITHDRAW_DIRECTION_FEE_BPS)
@@ -302,6 +305,7 @@ export async function prepareWithdraw(
       value: { reason: "ERR_CANNOT_MAKE_WITHDRAWAL_INTENT" },
     }
   }
+
   // Create a separate transfer intent for the direction fee (if configured)
   const hasDirectionFee =
     (isNearToSolana || isZecToSolana) &&
@@ -321,24 +325,22 @@ export async function prepareWithdraw(
     }
   }
 
-  // Update fee estimation to include additional fee for Near/Zcash to Solana withdrawals
-  const finalFeeEstimation = hasDirectionFee
-    ? {
-        ...baseFeeEstimation,
-        amount: totalFeeAmount,
-      }
-    : baseFeeEstimation
+  // Calculate direction fee amount separately (if applicable)
+  const directionFeeAmount = hasDirectionFee
+    ? totalFeeAmount - baseBridgeFeeAmount
+    : undefined
 
   return {
     tag: "ok",
     value: {
       directWithdrawAvailable: directWithdrawAvailable,
       swap: swapRequirement,
-      feeEstimation: finalFeeEstimation,
+      feeEstimation: baseFeeEstimation,
       receivedAmount: receivedAmount,
       prebuiltWithdrawalIntents: withdrawalIntents,
       withdrawalParams,
       baseBridgeFee: hasDirectionFee ? baseBridgeFeeAmount : undefined,
+      directionFeeAmount: directionFeeAmount,
     },
   }
 }

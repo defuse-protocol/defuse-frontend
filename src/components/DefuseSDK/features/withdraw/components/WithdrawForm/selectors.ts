@@ -74,20 +74,15 @@ export function directionFeeSelector(
     return null
   }
 
-  const { feeEstimation, baseBridgeFee, receivedAmount } =
+  const { directionFeeAmount, receivedAmount } =
     state.context.preparationOutput.value
 
-  if (baseBridgeFee == null) {
-    return null
-  }
-
-  const directionFee = feeEstimation.amount - baseBridgeFee
-  if (directionFee <= 0n) {
+  if (directionFeeAmount == null || directionFeeAmount <= 0n) {
     return null
   }
 
   return {
-    amount: directionFee,
+    amount: directionFeeAmount,
     decimals: receivedAmount.decimals,
   }
 }
