@@ -13,6 +13,7 @@ import {
   createVirtualChainRoute,
 } from "@defuse-protocol/intents-sdk"
 import { getCAIP2 } from "@src/components/DefuseSDK/utils/caip2"
+import { WITHDRAW_DIRECTION_FEE_BPS } from "@src/utils/environment"
 import { logger } from "@src/utils/logger"
 import { Err, Ok, type Result } from "@thames/monads"
 import { type ActorRefFrom, waitFor } from "xstate"
@@ -226,8 +227,8 @@ export async function prepareWithdraw(
     return { tag: "err", value: feeEstimation.unwrapErr() }
   }
 
-  // Add 1% additional fee for Near to Solana withdrawals
-  // Check if token originated from Near and is being withdrawn to Solana
+  // Add direction fee for Near/Zcash to Solana withdrawals (if configured)
+  // Check if token originated from Near/Zcash and is being withdrawn to Solana
   const isNearToSolana =
     formValues.tokenOut.originChainName === "near" &&
     formValues.tokenOutDeployment.chainName === "solana"
@@ -238,12 +239,12 @@ export async function prepareWithdraw(
   const baseFeeEstimation = feeEstimation.unwrap()
   const baseBridgeFeeAmount = baseFeeEstimation.amount
   let totalFeeAmount = baseBridgeFeeAmount
-  if (isNearToSolana || isZecToSolana) {
-    // Calculate 1% fee (10,000 basis points) on totalWithdrawn
-    const onePercentFeeBps = 10_000 // 1% = 10,000 basis points
+
+  // Only apply direction fee if env variable is set and conditions are met
+  if ((isNearToSolana || isZecToSolana) && WITHDRAW_DIRECTION_FEE_BPS != null) {
     const additionalFee =
       totalWithdrawn.amount -
-      netDownAmount(totalWithdrawn.amount, onePercentFeeBps)
+      netDownAmount(totalWithdrawn.amount, WITHDRAW_DIRECTION_FEE_BPS)
     totalFeeAmount += additionalFee
   }
 
@@ -298,8 +299,12 @@ export async function prepareWithdraw(
       value: { reason: "ERR_CANNOT_MAKE_WITHDRAWAL_INTENT" },
     }
   }
-  // Create a separate transfer intent for the 1% fee for Near to Solana withdrawals
-  if ((isNearToSolana || isZecToSolana) && appFeeRecipient) {
+  // Create a separate transfer intent for the direction fee (if configured)
+  const hasDirectionFee =
+    (isNearToSolana || isZecToSolana) &&
+    WITHDRAW_DIRECTION_FEE_BPS != null &&
+    appFeeRecipient
+  if (hasDirectionFee) {
     const additionalFee = totalFeeAmount - baseBridgeFeeAmount
     if (additionalFee > 0n) {
       const feeIntent: Intent = {
@@ -314,13 +319,12 @@ export async function prepareWithdraw(
   }
 
   // Update fee estimation to include additional fee for Near to Solana withdrawals
-  const finalFeeEstimation =
-    isNearToSolana || isZecToSolana
-      ? {
-          ...baseFeeEstimation,
-          amount: totalFeeAmount,
-        }
-      : baseFeeEstimation
+  const finalFeeEstimation = hasDirectionFee
+    ? {
+        ...baseFeeEstimation,
+        amount: totalFeeAmount,
+      }
+    : baseFeeEstimation
 
   return {
     tag: "ok",
@@ -331,8 +335,7 @@ export async function prepareWithdraw(
       receivedAmount: receivedAmount,
       prebuiltWithdrawalIntents: withdrawalIntents,
       withdrawalParams,
-      baseBridgeFee:
-        isNearToSolana || isZecToSolana ? baseBridgeFeeAmount : undefined,
+      baseBridgeFee: hasDirectionFee ? baseBridgeFeeAmount : undefined,
     },
   }
 }
