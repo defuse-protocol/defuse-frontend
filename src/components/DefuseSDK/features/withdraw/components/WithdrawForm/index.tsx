@@ -308,7 +308,9 @@ export const WithdrawForm = ({
   const receivedAmountUsd = totalAmountReceived?.amount
     ? getTokenUsdPrice(
         formatTokenValue(
-          totalAmountReceived.amount,
+          directionFee?.amount
+            ? subtractAmounts(totalAmountReceived, directionFee).amount
+            : totalAmountReceived.amount,
           totalAmountReceived.decimals
         ),
         tokenOut,
