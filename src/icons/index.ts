@@ -1,0 +1,8 @@
+export { default as AccountIcon } from "./account.svg"
+export { default as SwapIcon } from "./swap.svg"
+export { default as EarnIcon } from "./earn.svg"
+export { default as DealsIcon } from "./deal.svg"
+export { default as ActivityIcon } from "./activity.svg"
+export { default as ContactsIcon } from "./contacts.svg"
+export { default as DepositIcon } from "./deposit.svg"
+export { default as SendIcon } from "./send.svg"

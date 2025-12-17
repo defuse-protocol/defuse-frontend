@@ -1,4 +1,5 @@
 import Themes from "@src/types/themes"
+import clsx from "clsx"
 import { useTheme } from "next-themes"
 import Image from "next/image"
 import type React from "react"
@@ -20,19 +21,19 @@ export const AssetComboIcon = ({
   chainIcon,
   chainName,
   showChainIcon = false,
-  className = "",
+  className,
   style,
 }: AssetComboIconProps) => {
   const { resolvedTheme } = useTheme()
 
   return (
-    <div className={`relative inline-block ${className}`} style={style}>
-      <div className="relative overflow-hidden size-7 flex justify-center items-center rounded-full">
+    <div className={clsx("relative inline-block", className)} style={style}>
+      <div className="relative overflow-hidden size-10 flex justify-center items-center rounded-full">
         {icon ? (
           <img
             src={icon}
             alt={name || "Coin Logo"}
-            className="w-full h-full object-contain"
+            className="size-full object-contain"
           />
         ) : (
           <EmptyAssetComboIcon />
@@ -60,8 +61,8 @@ export const AssetComboIcon = ({
   )
 }
 
-const EmptyAssetComboIcon = () => {
-  return (
-    <div className="relative overflow-hidden size-7 flex justify-center items-center border border-silver-100 rounded-full" />
-  )
-}
+const EmptyAssetComboIcon = () => (
+  <div className="relative overflow-hidden size-10 flex justify-center items-center bg-gray-100 rounded-full">
+    <div className="size-5 rounded-full border-2 border-gray-500 border-dashed" />
+  </div>
+)

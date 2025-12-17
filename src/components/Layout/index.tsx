@@ -8,7 +8,7 @@ import { useMixpanelBus } from "@src/hooks/useMixpanelBus"
 import { usePathLogging } from "@src/hooks/usePathLogging"
 import { WalletVerificationProvider } from "@src/providers/WalletVerificationProvider"
 import type { PropsWithChildren } from "react"
-import { NavbarDeposit, NavbarDesktop } from "../Navbar/NavbarDesktop"
+import { NavbarDesktop } from "../Navbar/NavbarDesktop"
 import NetworkOutageNotification from "../NetworkOutageNotification"
 import { SystemStatus } from "../SystemStatus"
 import Main from "./Main"
@@ -24,11 +24,6 @@ const Layout: React.FC<PropsWithChildren> = ({ children }) => {
           <Header.DisplayNavbar>
             <NavbarDesktop />
           </Header.DisplayNavbar>
-        }
-        depositSlot={
-          <Header.DepositSlot>
-            <NavbarDeposit />
-          </Header.DepositSlot>
         }
       />
       <NetworkOutageNotification />

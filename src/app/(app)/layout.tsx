@@ -4,6 +4,7 @@ import type { Metadata, Viewport } from "next"
 import type { ReactNode } from "react"
 import { WagmiProvider } from "wagmi"
 
+import { UserIcon } from "@heroicons/react/24/solid"
 import { InitDefuseSDK } from "@src/components/InitDefuseSDK"
 import { SentryTracer } from "@src/components/SentryTracer"
 import { whitelabelTemplateFlag } from "@src/config/featureFlags"
@@ -18,6 +19,8 @@ import { TonConnectUIProvider } from "@src/providers/TonConnectUIProvider"
 
 import "../../styles/global.css"
 import { getCachedSystemStatus } from "@src/actions/systemStatus"
+import { NavbarDesktop } from "@src/components/Navbar/NavbarDesktop"
+import { PreloadFeatureFlags } from "@src/components/PreloadFeatureFlags"
 import { MixpanelProvider } from "@src/providers/MixpanelProvider"
 import { NearWalletProvider } from "@src/providers/NearWalletProvider"
 import { SystemStatusProvider } from "@src/providers/SystemStatusProvider"
@@ -140,7 +143,36 @@ const AppRootLayout = async ({
                     <TonConnectUIProvider>
                       <TronWalletProvider>
                         <WebAuthnProvider>
-                          <MixpanelProvider>{children}</MixpanelProvider>
+                          <MixpanelProvider>
+                            <PreloadFeatureFlags>
+                              <div className="relative isolate flex min-h-svh w-full bg-gray-25 lg:bg-gray-800">
+                                {/* Sidebar on desktop */}
+                                <div className="fixed inset-y-0 left-0 w-72 max-lg:hidden py-6 px-4">
+                                  <div className="bg-gray-900 rounded-2xl p-2 flex items-center gap-3">
+                                    <div className="size-8 flex items-center justify-center bg-orange-500 rounded-lg">
+                                      <UserIcon className="text-orange-100 size-5" />
+                                    </div>
+                                    <div className="text-gray-400 text-base font-medium">
+                                      @username123
+                                    </div>
+                                  </div>
+
+                                  <div className="my-6 border-t border-gray-700" />
+
+                                  <NavbarDesktop />
+                                </div>
+
+                                {/* Content */}
+                                <main className="flex flex-1 flex-col pb-2 lg:min-w-0 lg:pt-2 lg:pr-2 lg:pl-72">
+                                  <div className="grow p-6 lg:rounded-3xl lg:bg-gray-25 lg:p-10">
+                                    <div className="mx-auto max-w-[464px]">
+                                      {children}
+                                    </div>
+                                  </div>
+                                </main>
+                              </div>
+                            </PreloadFeatureFlags>
+                          </MixpanelProvider>
                         </WebAuthnProvider>
                         <SentryTracer />
                       </TronWalletProvider>
