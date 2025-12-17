@@ -185,10 +185,7 @@ export function getBlockchainsOptions(): Record<
   BlockchainEnum,
   BlockchainOption
 > {
-  const options: Record<
-    Exclude<BlockchainEnum, "bch:mainnet">, // TODO: remove this exclude once Bitcoin Cash is supported
-    BlockchainOption
-  > = {
+  const options: Record<BlockchainEnum, BlockchainOption> = {
     [BlockchainEnum.NEAR]: {
       label: "Near",
       icon: <NetworkIcon chainIcon={chainIcons.near} chainName="near" />,
@@ -417,18 +414,17 @@ export function getBlockchainsOptions(): Record<
       value: BlockchainEnum.MONAD,
       tags: [],
     },
-    // TODO: Uncomment this once Bitcoin Cash is supported
-    // [BlockchainEnum.BITCOINCASH]: {
-    //   label: "Bitcoin Cash",
-    //   icon: (
-    //     <NetworkIcon
-    //       chainIcon={chainIcons.bitcoincash}
-    //       chainName="Bitcoin Cash"
-    //     />
-    //   ),
-    //   value: BlockchainEnum.BITCOINCASH,
-    //   tags: [],
-    // },
+    [BlockchainEnum.BITCOINCASH]: {
+      label: "Bitcoin Cash",
+      icon: (
+        <NetworkIcon
+          chainIcon={chainIcons.bitcoincash}
+          chainName="Bitcoin Cash"
+        />
+      ),
+      value: BlockchainEnum.BITCOINCASH,
+      tags: [],
+    },
     [BlockchainEnum.STARKNET]: {
       label: "Starknet",
       icon: (
@@ -445,9 +441,7 @@ export function getBlockchainsOptions(): Record<
     },
   }
 
-  return sortBlockchainOptionsByVolume(
-    options as Record<BlockchainEnum, BlockchainOption> // TODO: remove this cast once Bitcoin Cash is supported
-  )
+  return sortBlockchainOptionsByVolume(options)
 }
 
 function sortBlockchainOptionsByVolume(
