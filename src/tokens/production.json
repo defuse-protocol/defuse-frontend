@@ -2599,7 +2599,7 @@
       "tags": []
     },
     {
-      "defuseAssetId": "nep141:strk.omft.near",
+      "defuseAssetId": "nep141:starknet.omft.near",
       "symbol": "STRK",
       "name": "Starknet",
       "decimals": 18,
