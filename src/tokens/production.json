@@ -2614,6 +2614,23 @@
         }
       ],
       "tags": ["mc:11"]
+    },
+    {
+      "defuseAssetId": "nep141:starknet.omft.near",
+      "symbol": "STRK",
+      "name": "Starknet",
+      "decimals": 18,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/22691.png",
+      "originChainName": "starknet",
+      "deployments": [
+        {
+          "type": "native",
+          "decimals": 18,
+          "chainName": "starknet",
+          "bridge": "poa"
+        }
+      ],
+      "tags": ["mc:95"]
     }
   ]
 }
