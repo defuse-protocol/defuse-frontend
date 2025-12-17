@@ -152,7 +152,7 @@ const AppRootLayout = async ({
                                     <div className="size-8 flex items-center justify-center bg-orange-500 rounded-lg">
                                       <UserIcon className="text-orange-100 size-5" />
                                     </div>
-                                    <div className="text-gray-400 text-base font-medium">
+                                    <div className="text-gray-400 text-sm font-medium">
                                       @username123
                                     </div>
                                   </div>

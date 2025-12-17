@@ -9,7 +9,7 @@ const Assets = ({ assets }: { assets: Holding[] | undefined }) => {
 
   return (
     <section className="mt-9">
-      <h2 className="text-base text-gray-400">Assets</h2>
+      <h2 className="text-base text-gray-500">Assets</h2>
       <div className="mt-2">
         {assets.map((asset) => (
           <Asset key={getTokenId(asset.token)} asset={asset} />
@@ -41,7 +41,7 @@ const Asset = ({ asset }: { asset: Holding }) => {
         <div className="text-base font-medium text-gray-900 leading-none">
           {token.name}
         </div>
-        <div className="text-sm leading-none text-gray-400">{token.symbol}</div>
+        <div className="text-sm leading-none text-gray-500">{token.symbol}</div>
       </div>
 
       <div className="flex flex-col items-end gap-1">
@@ -55,7 +55,7 @@ const Asset = ({ asset }: { asset: Holding }) => {
           />
         )}
         <div
-          className="text-sm leading-none text-gray-400 text-right"
+          className="text-sm leading-none text-gray-500 text-right"
           title={formatted}
         >
           {shortFormatted ?? "-"} {token.symbol}

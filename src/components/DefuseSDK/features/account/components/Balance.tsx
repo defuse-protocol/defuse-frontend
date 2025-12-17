@@ -3,7 +3,7 @@ import { FormattedCurrency } from "./shared/FormattedCurrency"
 
 const Balance = ({ balance }: { balance: number | undefined }) => (
   <section>
-    <h2 className="text-base text-gray-400">Account balance</h2>
+    <h2 className="text-base text-gray-500">Account balance</h2>
     <FormattedCurrency
       value={balance ?? 0}
       formatOptions={{ currency: "USD" }}

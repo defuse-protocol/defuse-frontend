@@ -50,14 +50,14 @@ export default function AccountPage() {
       <section className="grid grid-cols-2 gap-2 mt-6">
         <Link
           href="/deposit"
-          className="h-13 flex items-center justify-center rounded-2xl bg-gray-900 text-white text-base font-semibold tracking-tight gap-2"
+          className="h-13 flex items-center justify-center rounded-2xl bg-gray-900 text-white text-base font-medium gap-2"
         >
           <DepositIcon className="size-6 -mt-1.5" />
           Add funds
         </Link>
         <Link
           href="/send"
-          className="h-13 flex items-center justify-center rounded-2xl bg-gray-900 text-white text-base font-semibold tracking-tight gap-2"
+          className="h-13 flex items-center justify-center rounded-2xl bg-gray-900 text-white text-base font-medium gap-2"
         >
           <SendIcon className="size-6" />
           Send

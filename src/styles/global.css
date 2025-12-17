@@ -5,7 +5,7 @@
 
 @theme {
   --font-sans:
-    var(--font-circular), ui-sans-serif, system-ui, sans-serif,
+    var(--font-figtree), ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
   --color-green-50: oklch(0.979 0.021 166.113);
@@ -44,24 +44,6 @@
   --color-gray-800: oklch(0.269 0 0);
   --color-gray-900: oklch(0.205 0 0);
   --color-gray-950: oklch(0.145 0 0);
-
-  /* Circular font doesn't have all weights, so we need to map them to the closest weight for consistency */
-  --font-weight-thin: 400;
-  --font-weight-extralight: 400;
-  --font-weight-light: 400;
-  --font-weight-normal: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 500;
-  --font-weight-bold: 700;
-  --font-weight-extrabold: 700;
-  --font-weight-black: 900;
-
-  --tracking-tighter: -0.03em;
-  --tracking-tight: -0.02em;
-  --tracking-normal: 0em;
-  --tracking-wide: 0.02em;
-  --tracking-wider: 0.03em;
-  --tracking-widest: 0.05em;
 }
 
 @utility hide-scrollbar {

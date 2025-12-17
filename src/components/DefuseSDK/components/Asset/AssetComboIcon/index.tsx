@@ -43,7 +43,7 @@ export const AssetComboIcon = ({
         <Tooltip>
           <TooltipTrigger asChild>
             <Image
-              className="absolute -right-[7px] -bottom-[7px] bg-gray-1 rounded-[6px] p-0.5 shadow-xs h-4 w-4"
+              className="absolute -right-[7px] -bottom-[7px] bg-gray-1 rounded-md p-0.5 shadow-xs h-4 w-4"
               width={16}
               height={16}
               src={
