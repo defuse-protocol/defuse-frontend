@@ -402,6 +402,12 @@
               "decimals": 24,
               "chainName": "optima",
               "bridge": "aurora_engine"
+            },
+            {
+              "address": "3ZLekZYq2qkZiSpnSvabjit34tUkjSwD1JFuW9as9wBG",
+              "decimals": 9,
+              "chainName": "solana",
+              "bridge": "near_omni"
             }
           ],
           "tags": ["mc:31", "tvol:2", "aid:near"]
