@@ -431,6 +431,7 @@ export const withdrawUIMachine = setup({
                 formValues: context.withdrawFormRef.getSnapshot().context,
                 depositedBalanceRef: context.depositedBalanceRef,
                 poaBridgeInfoRef: context.poaBridgeInfoRef,
+                appFeeRecipient: context.appFeeRecipient,
               }
             },
             onDone: {
