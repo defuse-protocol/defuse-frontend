@@ -1,10 +1,5 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
-import { useActor } from "@xstate/react"
-import { useEffect, useRef } from "react"
-import { fromPromise } from "xstate"
-
 import { WalletBannedDialog } from "@src/components/WalletBannedDialog"
 import { WalletVerificationDialog } from "@src/components/WalletVerificationDialog"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
@@ -16,24 +11,68 @@ import {
   verifyWalletSignature,
   walletVerificationMessageFactory,
 } from "@src/utils/walletMessage"
+import { useQuery } from "@tanstack/react-query"
+import { useActor } from "@xstate/react"
+import { usePathname, useRouter } from "next/navigation"
+import { useEffect, useRef } from "react"
+import { fromPromise } from "xstate"
 import { useMixpanel } from "./MixpanelProvider"
 
 export function WalletVerificationProvider() {
   const { state, signOut } = useConnectWallet()
   const mixPanel = useMixpanel()
+  const router = useRouter()
+  const pathname = usePathname()
+
+  const bannedAccountCheck = useQuery({
+    queryKey: ["banned_account", state.address, state.chainType],
+    queryFn: async () => {
+      if (!state.address || !state.chainType) {
+        return { isBanned: false }
+      }
+      const response = await fetch(
+        `/api/account/validate-banned?address=${encodeURIComponent(state.address)}&chainType=${encodeURIComponent(state.chainType)}`
+      )
+      if (!response.ok) {
+        throw new Error("Failed to validate banned account")
+      }
+      return response.json() as Promise<{
+        isBanned: boolean
+        accountId: string | null
+      }>
+    },
+    enabled: state.address != null && state.chainType != null,
+  })
 
   const safetyCheck = useQuery({
     queryKey: ["address_safety", state.address],
     queryFn: async () => {
-      const response = await fetch(`/api/addresses/${state.address}/safety`)
-      return response.json() as Promise<{ safetyStatus: "safe" | "unsafe" }>
+      if (state.chainType === "evm") {
+        const response = await fetch(`/api/addresses/${state.address}/safety`)
+        if (!response.ok) {
+          throw new Error("Failed to check safety status")
+        }
+        return response.json() as Promise<{ safetyStatus: "safe" | "unsafe" }>
+      }
+      // For non-EVM wallets, skip the safety API check
+      return { safetyStatus: "safe" }
     },
-    enabled: state.address != null,
+    enabled: state.address != null && state.chainType !== undefined,
+    staleTime: 1000 * 60 * 60, // 1 hour,
   })
 
   const { addWalletAddress } = useVerifiedWalletsStore()
   const { addBypassedWalletAddress, isWalletBypassed } =
     useBypassedWalletsStore()
+
+  if (bannedAccountCheck.data?.isBanned && pathname !== "/account") {
+    router.push("/wallet/banned")
+    return null
+  }
+
+  if (safetyCheck.isLoading) {
+    return null
+  }
 
   if (
     state.address != null &&

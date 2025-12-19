@@ -167,6 +167,18 @@ export const chainIcons: Record<
     dark: "/static/icons/network/monad_white.svg",
     light: "/static/icons/network/monad.svg",
   },
+  bitcoincash: {
+    dark: "/static/icons/network/bitcoincash.svg",
+    light: "/static/icons/network/bitcoincash.svg",
+  },
+  adi: {
+    dark: "/static/icons/network/adi.svg",
+    light: "/static/icons/network/adi.svg",
+  },
+  starknet: {
+    dark: "/static/icons/network/starknet.svg",
+    light: "/static/icons/network/starknet.svg",
+  },
 }
 
 export function getBlockchainsOptions(): Record<
@@ -400,6 +412,31 @@ export function getBlockchainsOptions(): Record<
       label: "Monad",
       icon: <NetworkIcon chainIcon={chainIcons.monad} chainName="Monad" />,
       value: BlockchainEnum.MONAD,
+      tags: [],
+    },
+    [BlockchainEnum.BITCOINCASH]: {
+      label: "Bitcoin Cash",
+      icon: (
+        <NetworkIcon
+          chainIcon={chainIcons.bitcoincash}
+          chainName="Bitcoin Cash"
+        />
+      ),
+      value: BlockchainEnum.BITCOINCASH,
+      tags: [],
+    },
+    [BlockchainEnum.STARKNET]: {
+      label: "Starknet",
+      icon: (
+        <NetworkIcon chainIcon={chainIcons.starknet} chainName="Starknet" />
+      ),
+      value: BlockchainEnum.STARKNET,
+      tags: [],
+    },
+    [BlockchainEnum.ADI]: {
+      label: "ADI",
+      icon: <NetworkIcon chainIcon={chainIcons.adi} chainName="ADI" />,
+      value: BlockchainEnum.ADI,
       tags: [],
     },
   }

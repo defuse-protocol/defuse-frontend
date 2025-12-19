@@ -49,6 +49,10 @@ const Settings = () => {
               </div>
             )}
 
+            {whitelabelTemplate === "rabitswap" && internalUserAddress && (
+              <RevealAddress internalUserAddress={internalUserAddress} />
+            )}
+
             {whitelabelTemplate !== "rabitswap" && (
               <>
                 <DarkMode />
