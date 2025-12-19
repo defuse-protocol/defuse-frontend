@@ -5,6 +5,7 @@ import { logger } from "@src/utils/logger"
 export type WebauthnCredential = {
   publicKey: string
   rawId: string
+  hostname?: string
 }
 
 export async function signIn(): Promise<string> {
@@ -118,9 +119,11 @@ export async function signMessage(
   challenge: Uint8Array,
   credential_: WebauthnCredential
 ): Promise<AuthenticatorAssertionResponse> {
+  // Use the credential's original hostname for cross-domain passkey support (ROR)
+  const rpId = credential_.hostname ?? getRelayingPartyId()
   const assertion = await navigator.credentials.get({
     publicKey: {
-      rpId: getRelayingPartyId(),
+      rpId,
       challenge,
       allowCredentials: [
         {
