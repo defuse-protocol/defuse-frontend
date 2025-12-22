@@ -39,6 +39,8 @@ function renderErrorMessages(reason: string): string {
 
     case "ERR_GIFT_SIGNING":
       return "Unable to sign your gift. Please try again in a moment."
+    case "ERR_USER_DIDNT_SIGN":
+      return "It seems the message wasn’t signed in your wallet. Please try again."
 
     case "NOT_FOUND_OR_NOT_VALID":
     case "NO_TOKEN_OR_GIFT_HAS_BEEN_CLAIMED":
