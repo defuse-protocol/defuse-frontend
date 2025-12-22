@@ -61,6 +61,32 @@ export function withdtrawalFeeSelector(
   }
 }
 
+/**
+ * @return null | TokenValue - Direction fee on withdrawals (configurable via WITHDRAW_DIRECTION_FEE_BPS)
+ */
+export function directionFeeSelector(
+  state: SnapshotFrom<typeof withdrawUIMachine>
+): TokenValue | null {
+  if (
+    state.context.preparationOutput == null ||
+    state.context.preparationOutput.tag !== "ok"
+  ) {
+    return null
+  }
+
+  const { directionFeeAmount, receivedAmount } =
+    state.context.preparationOutput.value
+
+  if (directionFeeAmount == null || directionFeeAmount <= 0n) {
+    return null
+  }
+
+  return {
+    amount: directionFeeAmount,
+    decimals: receivedAmount.decimals,
+  }
+}
+
 function balancesSelector_(
   state: SnapshotFrom<typeof withdrawUIMachine>
 ): BalanceMapping {

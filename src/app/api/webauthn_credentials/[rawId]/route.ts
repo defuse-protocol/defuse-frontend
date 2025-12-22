@@ -28,7 +28,7 @@ export async function GET(
 
     const { data, error } = await supabase
       .from("webauthn_credentials")
-      .select("public_key")
+      .select("public_key, hostname")
       .eq("raw_id", rawId)
       .maybeSingle()
 
@@ -49,6 +49,7 @@ export async function GET(
 
     return NextResponse.json({
       public_key: data.public_key,
+      hostname: data.hostname,
     } satisfies GetCredentialResponse)
   } catch (error) {
     if (error instanceof z.ZodError) {

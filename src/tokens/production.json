@@ -1954,21 +1954,47 @@
       "tags": ["mc:266"]
     },
     {
-      "defuseAssetId": "nep141:gnosis-0x4d18815d14fe5c3304e87b3fa18318baa5c23820.omft.near",
+      "unifiedAssetId": "safe",
       "symbol": "SAFE",
       "name": "Safe",
-      "decimals": 18,
       "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/21585.png",
-      "originChainName": "gnosis",
-      "deployments": [
+      "groupedTokens": [
         {
-          "address": "0x4d18815d14fe5c3304e87b3fa18318baa5c23820",
+          "defuseAssetId": "nep141:gnosis-0x4d18815d14fe5c3304e87b3fa18318baa5c23820.omft.near",
+          "symbol": "SAFE",
+          "name": "Safe",
           "decimals": 18,
-          "chainName": "gnosis",
-          "bridge": "poa"
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/21585.png",
+          "originChainName": "gnosis",
+          "deployments": [
+            {
+              "address": "0x4d18815d14fe5c3304e87b3fa18318baa5c23820",
+              "decimals": 18,
+              "chainName": "gnosis",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:168", "aid:safe"]
+        },
+        {
+          "defuseAssetId": "nep141:eth-0x5afe3855358e112b5647b952709e6165e1c1eeee.omft.near",
+          "symbol": "SAFE",
+          "name": "Safe",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/21585.png",
+          "originChainName": "eth",
+          "deployments": [
+            {
+              "address": "0x5afe3855358e112b5647b952709e6165e1c1eeee",
+              "decimals": 18,
+              "chainName": "eth",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:168", "aid:safe"]
         }
       ],
-      "tags": ["mc:168"]
+      "tags": ["mc:168", "aid:safe"]
     },
     {
       "defuseAssetId": "nep141:score.aidols.near",
@@ -2597,6 +2623,40 @@
         }
       ],
       "tags": []
+    },
+    {
+      "defuseAssetId": "nep141:bch.omft.near",
+      "symbol": "BCH",
+      "name": "Bitcoin Cash",
+      "decimals": 8,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1831.png",
+      "originChainName": "bitcoincash",
+      "deployments": [
+        {
+          "type": "native",
+          "decimals": 8,
+          "chainName": "bitcoincash",
+          "bridge": "poa"
+        }
+      ],
+      "tags": ["mc:11"]
+    },
+    {
+      "defuseAssetId": "nep141:starknet.omft.near",
+      "symbol": "STRK",
+      "name": "Starknet",
+      "decimals": 18,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/22691.png",
+      "originChainName": "starknet",
+      "deployments": [
+        {
+          "type": "native",
+          "decimals": 18,
+          "chainName": "starknet",
+          "bridge": "poa"
+        }
+      ],
+      "tags": ["mc:95"]
     }
   ]
 }

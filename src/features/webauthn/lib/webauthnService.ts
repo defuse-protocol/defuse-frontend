@@ -2,34 +2,78 @@ import { base58 } from "@scure/base"
 import { domains } from "@src/config/domains"
 import { logger } from "@src/utils/logger"
 
+/**
+ * Related origins for cross-domain passkey support (ROR).
+ * Passkeys created on any of these domains can be used on any other.
+ * Note: Browser limit is 5 unique labels.
+ */
+const RELATED_ORIGINS = ["near-intents.org", "solswap.org"] as const
+
 export type WebauthnCredential = {
   publicKey: string
   rawId: string
+  hostname?: string
 }
 
 export async function signIn(): Promise<string> {
-  const assertion = await navigator.credentials.get({
-    publicKey: {
-      rpId: getRelayingPartyId(),
-      challenge: new Uint8Array(32),
-      allowCredentials: [],
-      timeout: 60000,
-    },
-  })
+  const currentRpId = getRelayingPartyId()
+  const rpIdsToTry = getSignInRpIds(currentRpId)
 
-  /**
-   * Some providers may return a plain object (e.g. 1Password),
-   * other can return a PublicKeyCredential instance (e.g. iCloud Keychain).
-   *
-   * All in all, the interface of `assertion` matches PublicKeyCredential,
-   * so we can safely cast it.
-   */
-  if (assertion == null || assertion.type !== "public-key") {
-    throw new Error("Invalid attestation type")
+  for (const rpId of rpIdsToTry) {
+    try {
+      const assertion = await navigator.credentials.get({
+        publicKey: {
+          rpId,
+          challenge: new Uint8Array(32),
+          allowCredentials: [],
+          timeout: 60000,
+        },
+      })
+
+      /**
+       * Some providers may return a plain object (e.g. 1Password),
+       * other can return a PublicKeyCredential instance (e.g. iCloud Keychain).
+       *
+       * All in all, the interface of `assertion` matches PublicKeyCredential,
+       * so we can safely cast it.
+       */
+      if (assertion == null || assertion.type !== "public-key") {
+        continue
+      }
+      const credential = assertion as PublicKeyCredential
+
+      return base58.encode(new Uint8Array(credential.rawId))
+    } catch (error) {
+      // If user explicitly cancelled, don't try other rpIds
+      if (error instanceof DOMException && error.name === "AbortError") {
+        throw error
+      }
+      // Try next rpId for other errors (e.g., no credentials found)
+      logger.info(`No passkey found for rpId: ${rpId}, trying next...`)
+    }
   }
-  const credential = assertion as PublicKeyCredential
 
-  return base58.encode(new Uint8Array(credential.rawId))
+  throw new Error("No passkey found for any related origin")
+}
+
+/**
+ * Get the list of rpIds to try for sign-in, with current domain first.
+ */
+function getSignInRpIds(currentRpId: string): string[] {
+  const rpIds = [currentRpId]
+
+  // Add related origins if current domain is part of the ROR group
+  if (
+    RELATED_ORIGINS.includes(currentRpId as (typeof RELATED_ORIGINS)[number])
+  ) {
+    for (const origin of RELATED_ORIGINS) {
+      if (origin !== currentRpId) {
+        rpIds.push(origin)
+      }
+    }
+  }
+
+  return rpIds
 }
 
 export async function createNew(
@@ -118,9 +162,11 @@ export async function signMessage(
   challenge: Uint8Array,
   credential_: WebauthnCredential
 ): Promise<AuthenticatorAssertionResponse> {
+  // Use the credential's original hostname for cross-domain passkey support (ROR)
+  const rpId = credential_.hostname ?? getRelayingPartyId()
   const assertion = await navigator.credentials.get({
     publicKey: {
-      rpId: getRelayingPartyId(),
+      rpId,
       challenge,
       allowCredentials: [
         {

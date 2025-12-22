@@ -50,13 +50,19 @@ describe("webauthnCredentials", () => {
         http.get(
           `${TEST_BASE_URL}/api/webauthn_credentials/:rawId`,
           async () => {
-            return HttpResponse.json({ public_key: "2Kc5WSg4kBsxQXBuBPjEH9" })
+            return HttpResponse.json({
+              public_key: "2Kc5WSg4kBsxQXBuBPjEH9",
+              hostname: "near-intents.org",
+            })
           }
         )
       )
 
       const result = await getWebauthnCredential("5VJs8P7bXCgYo1HhVnwuVQ")
-      expect(result).toEqual({ public_key: "2Kc5WSg4kBsxQXBuBPjEH9" })
+      expect(result).toEqual({
+        public_key: "2Kc5WSg4kBsxQXBuBPjEH9",
+        hostname: "near-intents.org",
+      })
     })
 
     it("should throw error on failure", async () => {

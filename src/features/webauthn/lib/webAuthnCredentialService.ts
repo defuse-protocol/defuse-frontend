@@ -8,7 +8,7 @@ export async function getCredential(
   rawId: string
 ): Promise<WebauthnCredential> {
   const response = await getWebauthnCredential(rawId)
-  return { rawId, publicKey: response.public_key }
+  return { rawId, publicKey: response.public_key, hostname: response.hostname }
 }
 
 export async function saveCredential(
