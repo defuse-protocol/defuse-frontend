@@ -164,7 +164,7 @@ export const tokenMigrationMachine = setup({
         idle: {
           on: {
             PROCEED: {
-              target: "signing",
+              target: "prepareWalletMessageToSign",
               actions: "clearError",
             },
             CANCEL: "#(machine).finished",
