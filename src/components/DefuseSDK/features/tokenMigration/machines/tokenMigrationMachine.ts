@@ -198,7 +198,7 @@ export const tokenMigrationMachine = setup({
                   logger.error(event.error)
                 },
                 assign({
-                  error: "EXCEPTION",
+                  error: "ERR_FAILED_TO_PREPARE_MESSAGE_TO_SIGN",
                 }),
               ],
             },
