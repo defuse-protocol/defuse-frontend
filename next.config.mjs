@@ -6,6 +6,19 @@ import * as path from "node:path"
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   productionBrowserSourceMaps: true,
+  async headers() {
+    return [
+      {
+        source: "/.well-known/webauthn",
+        headers: [
+          {
+            key: "Content-Type",
+            value: "application/json",
+          },
+        ],
+      },
+    ]
+  },
   turbopack: {
     rules: {
       "*.svg": {

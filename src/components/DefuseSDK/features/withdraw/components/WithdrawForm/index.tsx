@@ -53,6 +53,7 @@ import { AcknowledgementCheckbox } from "./components/AcknowledgementCheckbox/Ac
 import { useMinWithdrawalAmountWithFeeEstimation } from "./hooks/useMinWithdrawalAmountWithFeeEstimation"
 import {
   balancesSelector,
+  directionFeeSelector,
   isLiquidityUnavailableSelector,
   isUnsufficientTokenInAmount,
   totalAmountReceivedSelector,
@@ -94,6 +95,7 @@ export const WithdrawForm = ({
     insufficientTokenInAmount,
     totalAmountReceived,
     withdtrawalFee,
+    directionFee,
   } = WithdrawUIMachineContext.useSelector((state) => {
     return {
       state,
@@ -107,6 +109,7 @@ export const WithdrawForm = ({
       insufficientTokenInAmount: isUnsufficientTokenInAmount(state),
       totalAmountReceived: totalAmountReceivedSelector(state),
       withdtrawalFee: withdtrawalFeeSelector(state),
+      directionFee: directionFeeSelector(state),
       balances: balancesSelector(state),
     }
   })
@@ -305,7 +308,9 @@ export const WithdrawForm = ({
   const receivedAmountUsd = totalAmountReceived?.amount
     ? getTokenUsdPrice(
         formatTokenValue(
-          totalAmountReceived.amount,
+          directionFee?.amount
+            ? subtractAmounts(totalAmountReceived, directionFee).amount
+            : totalAmountReceived.amount,
           totalAmountReceived.decimals
         ),
         tokenOut,
@@ -472,6 +477,7 @@ export const WithdrawForm = ({
             feeUsd={feeUsd}
             totalAmountReceivedUsd={receivedAmountUsd}
             symbol={token.symbol}
+            directionFee={directionFee}
             isLoading={
               state.matches({ editing: "preparation" }) &&
               state.context.preparationOutput == null

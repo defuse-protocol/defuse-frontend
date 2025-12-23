@@ -24,7 +24,10 @@ describe("GET /api/webauthn_credentials/[rawId]", () => {
 
   it("should return credential when found", async () => {
     const mockSingle = vi.fn().mockResolvedValue({
-      data: { public_key: "2Kc5WSg4kBsxQXBuBPjEH9" },
+      data: {
+        public_key: "2Kc5WSg4kBsxQXBuBPjEH9",
+        hostname: "near-intents.org",
+      },
       error: null,
     })
     const mockEq = vi.fn().mockReturnValue({ maybeSingle: mockSingle })
@@ -41,6 +44,7 @@ describe("GET /api/webauthn_credentials/[rawId]", () => {
     expect(response.status).toBe(200)
     expect(await response.json()).toEqual({
       public_key: "2Kc5WSg4kBsxQXBuBPjEH9",
+      hostname: "near-intents.org",
     })
   })
 
