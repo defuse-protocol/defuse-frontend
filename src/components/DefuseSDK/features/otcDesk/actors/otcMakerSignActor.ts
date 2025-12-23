@@ -58,7 +58,14 @@ export type OTCMakerSignActorContext = OTCMakerSignActorInput & {
   walletMessage: walletMessage.WalletMessage | null
 }
 
-export type OTCMakerSignActorErrors = SignIntentErrors | { reason: "EXCEPTION" }
+type FailedToPrepareMessageToSignError = {
+  reason: "ERR_PREPARING_SIGNING_DATA"
+  error: null
+}
+
+export type OTCMakerSignActorErrors =
+  | SignIntentErrors
+  | FailedToPrepareMessageToSignError
 
 export const otcMakerSignMachine = setup({
   types: {
@@ -67,7 +74,12 @@ export const otcMakerSignMachine = setup({
     context: {} as OTCMakerSignActorContext,
     events: {} as
       | { type: "xstate.init"; input: OTCMakerSignActorInput }
-      | { type: "COMPLETE"; output: SignIntentMachineOutput },
+      | {
+          type: "COMPLETE"
+          output:
+            | SignIntentMachineOutput
+            | { tag: "err"; value: FailedToPrepareMessageToSignError }
+        },
     children: {} as {
       signRef: "signActor"
     },
@@ -145,7 +157,12 @@ export const otcMakerSignMachine = setup({
     logError: (_, event: { error: unknown }) => {
       logger.error(event.error)
     },
-    complete: ({ self }, output: SignIntentMachineOutput) => {
+    complete: (
+      { self },
+      output:
+        | SignIntentMachineOutput
+        | { tag: "err"; value: FailedToPrepareMessageToSignError }
+    ) => {
       self.send({ type: "COMPLETE", output })
     },
   },
@@ -186,7 +203,7 @@ export const otcMakerSignMachine = setup({
               type: "complete",
               params: {
                 tag: "err",
-                value: { reason: "EXCEPTION", error: null },
+                value: { reason: "ERR_PREPARING_SIGNING_DATA", error: null },
               },
             },
           ],
