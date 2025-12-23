@@ -51,9 +51,13 @@ export function HistoryIsland({
 
   const handleRefresh = useCallback(async () => {
     setRefreshState("refreshing")
-    await refetch()
-    setRefreshState("done")
-    setTimeout(() => setRefreshState("idle"), 1500)
+    try {
+      await refetch()
+      setRefreshState("done")
+      setTimeout(() => setRefreshState("idle"), 1500)
+    } catch {
+      setRefreshState("idle")
+    }
   }, [refetch])
 
   const items = data?.pages.flatMap((page) => page.data) ?? []

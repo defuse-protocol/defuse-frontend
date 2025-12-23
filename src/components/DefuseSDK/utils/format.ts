@@ -113,6 +113,8 @@ export function formatUsd(amount: string): string {
 
 export function formatRelativeTime(dateString: string): string {
   const date = new Date(dateString)
+  if (Number.isNaN(date.getTime())) return dateString
+
   const now = new Date()
   const diffMs = now.getTime() - date.getTime()
   const diffMins = Math.floor(diffMs / 60000)
@@ -132,6 +134,8 @@ export function formatRelativeTime(dateString: string): string {
 
 export function formatFullDate(dateString: string): string {
   const date = new Date(dateString)
+  if (Number.isNaN(date.getTime())) return dateString
+
   return date.toLocaleDateString(undefined, {
     month: "short",
     day: "numeric",

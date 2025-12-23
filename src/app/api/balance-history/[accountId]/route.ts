@@ -135,6 +135,6 @@ export async function GET(
     logger.error("Balance history query failed", {
       error: err instanceof Error ? err.message : "Unknown error",
     })
-    return emptyResponse(Number(page), Number(limit))
+    return errorResponse("Failed to load swap history", 500)
   }
 }
