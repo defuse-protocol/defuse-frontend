@@ -85,6 +85,8 @@ interface ConnectWalletAction {
   }) => Promise<string | FinalExecutionOutcome[] | SendTransactionResponse>
   connectors: Connector[]
   state: State
+  /** True when any wallet adapter is in a connecting/reconnecting state */
+  isLoading: boolean
 }
 
 const defaultState: State = {
@@ -308,6 +310,12 @@ export const useConnectWallet = (): ConnectWalletAction => {
     state.isVerified
   )
 
+  // Determine if any wallet adapter is still loading/connecting
+  const isLoading =
+    evmWalletAccount.isConnecting ||
+    evmWalletAccount.isReconnecting ||
+    solanaWallet.connecting
+
   return {
     async signIn(params: {
       id: ChainType
@@ -426,6 +434,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
 
     connectors: evmWalletConnect.connectors as Connector[],
     state,
+    isLoading,
   }
 }
 

@@ -1,6 +1,7 @@
 export const navigation = {
   home: "/",
   account: "/account",
+  history: "/history",
   deposit: "/deposit",
   withdraw: "/withdraw",
   otc: "/otc/create-order",
@@ -10,6 +11,7 @@ export const navigation = {
 export type AppRoutes =
   | "home"
   | "account"
+  | "history"
   | "deposit"
   | "withdraw"
   | "otc"
