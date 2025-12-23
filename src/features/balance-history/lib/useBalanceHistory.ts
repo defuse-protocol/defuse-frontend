@@ -1,34 +1,27 @@
 "use client"
 
-import type { BalanceHistoryParams } from "@src/features/balance-history/types"
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query"
-import { fetchBalanceHistory } from "./balanceHistoryAPI"
+import type { SwapHistoryParams } from "@src/features/balance-history/types"
+import { useInfiniteQuery } from "@tanstack/react-query"
+import { fetchSwapHistory } from "./balanceHistoryAPI"
 
-const BALANCE_HISTORY_QUERY_KEY = "balance_history"
+const SWAP_HISTORY_QUERY_KEY = "swap_history"
 
-export function useBalanceHistory(
-  params: Omit<BalanceHistoryParams, "page">,
-  options?: { enabled?: boolean }
-) {
-  return useQuery({
-    queryKey: [BALANCE_HISTORY_QUERY_KEY, params],
-    queryFn: () => fetchBalanceHistory({ ...params, page: 1 }),
-    enabled: options?.enabled ?? Boolean(params.accountId),
-  })
-}
+// Cache for 30 seconds, refetch in background after that
+const STALE_TIME = 30_000
 
-export function useInfiniteBalanceHistory(
-  params: Omit<BalanceHistoryParams, "page">,
+export function useSwapHistory(
+  params: Omit<SwapHistoryParams, "page">,
   options?: { enabled?: boolean }
 ) {
   return useInfiniteQuery({
-    queryKey: [BALANCE_HISTORY_QUERY_KEY, "infinite", params],
+    queryKey: [SWAP_HISTORY_QUERY_KEY, params],
     queryFn: ({ pageParam }) =>
-      fetchBalanceHistory({ ...params, page: pageParam }),
+      fetchSwapHistory({ ...params, page: pageParam }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.pagination.hasMore ? lastPage.pagination.page + 1 : undefined,
     enabled: options?.enabled ?? Boolean(params.accountId),
-    retry: false,
+    staleTime: STALE_TIME,
+    retry: 1,
   })
 }

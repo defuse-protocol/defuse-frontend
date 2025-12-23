@@ -1,14 +1,23 @@
 import {
-  ArrowDown,
-  ArrowSquareOut,
-  ArrowUp,
-  ArrowsLeftRight,
-  Clock,
+  ArrowRightIcon,
+  ArrowSquareOutIcon,
+  CheckCircleIcon,
+  ClockIcon,
+  SpinnerIcon,
+  WarningIcon,
 } from "@phosphor-icons/react"
 import { Skeleton } from "@radix-ui/themes"
-import type { BalanceChange } from "@src/features/balance-history/types"
+import type {
+  SwapTransaction,
+  TokenAmount,
+} from "@src/features/balance-history/types"
 import { useMemo } from "react"
 import { AssetComboIcon } from "../../../components/Asset/AssetComboIcon"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "../../../components/Tooltip"
 import { chainIcons } from "../../../constants/blockchains"
 import type {
   BaseTokenInfo,
@@ -17,178 +26,253 @@ import type {
 } from "../../../types/base"
 import { blockExplorerTxLinkFactory } from "../../../utils/chainTxExplorer"
 import { cn } from "../../../utils/cn"
+import {
+  formatAmount,
+  formatFullDate,
+  formatRelativeTime,
+  formatUsd,
+} from "../../../utils/format"
 
-interface HistoryItemProps {
-  item: BalanceChange
+interface SwapItemProps {
+  swap: SwapTransaction
   tokenList: TokenInfo[]
 }
 
-const CHANGE_TYPE_CONFIG: Record<
-  BalanceChange["change_type"],
-  { label: string; icon: typeof ArrowDown; color: string }
-> = {
-  deposit: { label: "Deposit", icon: ArrowDown, color: "text-green-11" },
-  withdrawal: { label: "Withdrawal", icon: ArrowUp, color: "text-red-11" },
-  swap_in: { label: "Swap In", icon: ArrowsLeftRight, color: "text-green-11" },
-  swap_out: { label: "Swap Out", icon: ArrowsLeftRight, color: "text-red-11" },
-  transfer_in: {
-    label: "Transfer In",
-    icon: ArrowDown,
+const STATUS_CONFIG = {
+  SUCCESS: {
+    icon: CheckCircleIcon,
     color: "text-green-11",
+    label: "Completed",
   },
-  transfer_out: {
-    label: "Transfer Out",
-    icon: ArrowUp,
+  PROCESSING: {
+    icon: SpinnerIcon,
+    color: "text-amber-11",
+    label: "Processing",
+  },
+  PENDING: {
+    icon: ClockIcon,
+    color: "text-blue-11",
+    label: "Pending",
+  },
+  FAILED: {
+    icon: WarningIcon,
     color: "text-red-11",
+    label: "Failed",
   },
-}
+} as const
 
-function formatDate(dateString: string): string {
-  const date = new Date(dateString)
-  return date.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  })
-}
+/**
+ * Creates a lookup map from token list for O(1) access.
+ * Cached by tokenList reference.
+ */
+const tokenMapCache = new WeakMap<TokenInfo[], Map<string, BaseTokenInfo>>()
 
-function formatAmount(amount: string, symbol: string): string {
-  const num = Number.parseFloat(amount)
-  if (Number.isNaN(num)) return `${amount} ${symbol}`
+function getTokenMap(tokenList: TokenInfo[]): Map<string, BaseTokenInfo> {
+  const cached = tokenMapCache.get(tokenList)
+  if (cached) return cached
 
-  const formatted = num.toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 6,
-  })
-  return `${formatted} ${symbol}`
-}
-
-function formatUsd(amount: string): string {
-  const num = Number.parseFloat(amount)
-  if (Number.isNaN(num)) return "-"
-
-  return num.toLocaleString(undefined, {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })
-}
-
-function findTokenBySymbol(
-  tokenList: TokenInfo[],
-  symbol: string
-): BaseTokenInfo | undefined {
+  const map = new Map<string, BaseTokenInfo>()
   for (const token of tokenList) {
     if ("groupedTokens" in token) {
-      const found = token.groupedTokens.find(
-        (t) => t.symbol.toLowerCase() === symbol.toLowerCase()
-      )
-      if (found) return found
-    } else if (token.symbol.toLowerCase() === symbol.toLowerCase()) {
-      return token
+      for (const t of token.groupedTokens) {
+        map.set(t.defuseAssetId, t)
+      }
+    } else {
+      map.set(token.defuseAssetId, token)
     }
   }
-  return undefined
+  tokenMapCache.set(tokenList, map)
+  return map
 }
 
-export function HistoryItem({ item, tokenList }: HistoryItemProps) {
-  const config = CHANGE_TYPE_CONFIG[item.change_type]
-  const Icon = config.icon
-  const isPositive = ["deposit", "swap_in", "transfer_in"].includes(
-    item.change_type
-  )
+function findTokenByAssetId(
+  tokenList: TokenInfo[],
+  tokenId: string
+): BaseTokenInfo | undefined {
+  return getTokenMap(tokenList).get(tokenId)
+}
 
+interface TokenDisplayProps {
+  tokenAmount: TokenAmount
+  tokenList: TokenInfo[]
+}
+
+function formatChainName(chain: string): string {
+  return chain.charAt(0).toUpperCase() + chain.slice(1).toLowerCase()
+}
+
+function TokenDisplay({ tokenAmount, tokenList }: TokenDisplayProps) {
   const token = useMemo(
-    () => findTokenBySymbol(tokenList, item.symbol),
-    [tokenList, item.symbol]
+    () => findTokenByAssetId(tokenList, tokenAmount.token_id),
+    [tokenList, tokenAmount.token_id]
   )
 
-  const chainIcon = useMemo(() => {
-    const blockchain = item.blockchain.toLowerCase()
-    return chainIcons[blockchain as keyof typeof chainIcons]
-  }, [item.blockchain])
-
-  const explorerUrl = useMemo(() => {
-    const blockchain = item.blockchain.toLowerCase() as SupportedChainName
-    return blockExplorerTxLinkFactory(blockchain, item.transaction_hash)
-  }, [item.blockchain, item.transaction_hash])
+  const swapChain = tokenAmount.blockchain.toLowerCase()
+  const originChain = token?.originChainName?.toLowerCase()
+  const chainIcon = useMemo(
+    () => chainIcons[swapChain as keyof typeof chainIcons],
+    [swapChain]
+  )
+  const hasDifferentOrigin = originChain && originChain !== swapChain
 
   return (
-    <div className="py-3 flex items-center gap-3 border-b border-gray-a3 last:border-b-0 group">
-      <AssetComboIcon
-        icon={token?.icon}
-        name={token?.name ?? item.symbol}
-        chainIcon={chainIcon}
-        chainName={item.blockchain}
-        showChainIcon={Boolean(chainIcon)}
-      />
-
-      <div className="flex-1 flex flex-col gap-0.5 min-w-0">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1.5">
-            <Icon
-              className={cn("size-4 flex-shrink-0", config.color)}
-              weight="bold"
-            />
-            <span className="text-sm font-bold truncate">{config.label}</span>
-          </div>
-          <div
-            className={cn(
-              "text-sm font-medium flex-shrink-0",
-              isPositive ? "text-green-11" : "text-red-11"
-            )}
-          >
-            {isPositive ? "+" : "-"}
-            {formatAmount(item.amount, item.symbol)}
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div className="flex items-center gap-2.5 cursor-default min-w-0">
+          <AssetComboIcon
+            icon={token?.icon}
+            name={token?.name ?? tokenAmount.symbol}
+            chainIcon={chainIcon}
+            chainName={swapChain}
+            showChainIcon={Boolean(chainIcon)}
+          />
+          <div className="flex flex-col min-w-0">
+            <span className="text-sm font-medium truncate">
+              {formatAmount(tokenAmount.amount)}
+            </span>
+            <span className="text-[11px] text-gray-11 truncate">
+              {token?.symbol ?? tokenAmount.symbol}
+            </span>
           </div>
         </div>
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1.5 text-xs text-gray-11 min-w-0">
-            <Clock className="size-3 flex-shrink-0" />
-            <span className="truncate">{formatDate(item.block_timestamp)}</span>
-            <span className="text-gray-8 flex-shrink-0">|</span>
-            <span className="capitalize truncate">{item.blockchain}</span>
-            {explorerUrl && (
-              <>
-                <span className="text-gray-8 flex-shrink-0">|</span>
-                <a
-                  href={explorerUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-0.5 text-accent-11 hover:text-accent-12 transition-colors flex-shrink-0"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <span>View</span>
-                  <ArrowSquareOut className="size-3" />
-                </a>
-              </>
-            )}
+      </TooltipTrigger>
+      <TooltipContent side="top" className="text-xs">
+        <div className="flex flex-col gap-0.5">
+          <span className="font-medium">
+            {token?.name ?? tokenAmount.symbol}
+          </span>
+          {hasDifferentOrigin ? (
+            <>
+              <span className="text-gray-9">
+                Origin: {formatChainName(originChain)}
+              </span>
+              <span className="text-gray-9">
+                Swapped on: {formatChainName(swapChain)}
+              </span>
+            </>
+          ) : (
+            <span className="text-gray-9">
+              Blockchain: {formatChainName(swapChain)}
+            </span>
+          )}
+        </div>
+      </TooltipContent>
+    </Tooltip>
+  )
+}
+
+export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
+  const statusConfig = STATUS_CONFIG[swap.status]
+  const StatusIcon = statusConfig.icon
+
+  const explorerUrl = useMemo(() => {
+    const blockchain = swap.from.blockchain.toLowerCase() as SupportedChainName
+    return blockExplorerTxLinkFactory(blockchain, swap.transaction_hash)
+  }, [swap.from.blockchain, swap.transaction_hash])
+
+  const usdValue = formatUsd(swap.from.amount_usd)
+
+  return (
+    <div className="py-3 px-2 flex items-center gap-3 border-b border-gray-a3 last:border-b-0 hover:bg-gray-2 rounded-lg transition-colors -mx-2">
+      <div className="flex items-center gap-2 flex-1 min-w-0">
+        <div className="w-[100px] flex-shrink-0">
+          <TokenDisplay tokenAmount={swap.from} tokenList={tokenList} />
+        </div>
+        <ArrowRightIcon
+          className="size-3.5 text-gray-9 flex-shrink-0"
+          weight="bold"
+        />
+        <div className="w-[100px] flex-shrink-0">
+          <TokenDisplay tokenAmount={swap.to} tokenList={tokenList} />
+        </div>
+      </div>
+
+      <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
+        {usdValue && (
+          <span className="text-sm font-semibold text-gray-12">{usdValue}</span>
+        )}
+        <div className="flex items-center gap-1.5 text-[11px]">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center gap-0.5 cursor-default sm:hidden">
+                <StatusIcon
+                  className={cn("size-3", statusConfig.color, {
+                    "animate-spin": swap.status === "PROCESSING",
+                  })}
+                  weight="fill"
+                />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="text-xs sm:hidden">
+              {statusConfig.label}
+            </TooltipContent>
+          </Tooltip>
+          <div className="hidden sm:flex items-center gap-0.5">
+            <StatusIcon
+              className={cn("size-3", statusConfig.color, {
+                "animate-spin": swap.status === "PROCESSING",
+              })}
+              weight="fill"
+            />
+            <span className={cn("font-medium", statusConfig.color)}>
+              {statusConfig.label}
+            </span>
           </div>
-          <div className="text-xs text-gray-11 flex-shrink-0">
-            {formatUsd(item.amount_usd)}
-          </div>
+          <span className="text-gray-10 hidden sm:inline">·</span>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="text-gray-10 cursor-default">
+                {formatRelativeTime(swap.timestamp)}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="text-xs">
+              {formatFullDate(swap.timestamp)}
+            </TooltipContent>
+          </Tooltip>
+          {explorerUrl && (
+            <>
+              <span className="text-gray-10">·</span>
+              <a
+                href={explorerUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-10 hover:text-accent-11 transition-colors"
+                onClick={(e) => e.stopPropagation()}
+                title="View on explorer"
+              >
+                <ArrowSquareOutIcon className="size-3" />
+              </a>
+            </>
+          )}
         </div>
       </div>
     </div>
   )
 }
 
-export function HistoryItemSkeleton() {
+export function SwapHistoryItemSkeleton() {
   return (
-    <div className="py-3 flex items-center gap-3 border-b border-gray-a3 last:border-b-0">
-      <Skeleton className="w-7 h-7 rounded-full" />
-
-      <div className="flex-1 flex flex-col gap-1">
-        <div className="flex items-center justify-between">
-          <Skeleton className="text-sm w-20">Deposit</Skeleton>
-          <Skeleton className="text-sm w-24">+100.00 USDC</Skeleton>
+    <div className="py-3 px-2 flex items-center gap-3 border-b border-gray-a3 last:border-b-0 -mx-2">
+      <div className="flex items-center gap-2 flex-1 min-w-0">
+        <div className="w-[100px] flex-shrink-0 flex items-center gap-2.5">
+          <Skeleton className="size-7 rounded-full flex-shrink-0" />
+          <div className="flex flex-col min-w-0">
+            <Skeleton className="h-[14px] w-10 mb-0.5" />
+            <Skeleton className="h-[11px] w-7" />
+          </div>
         </div>
-        <div className="flex items-center justify-between">
-          <Skeleton className="text-xs w-32">Jan 15, 10:30 AM | near</Skeleton>
-          <Skeleton className="text-xs w-16">$100.00</Skeleton>
+        <Skeleton className="size-3.5 rounded flex-shrink-0" />
+        <div className="w-[100px] flex-shrink-0 flex items-center gap-2.5">
+          <Skeleton className="size-7 rounded-full flex-shrink-0" />
+          <div className="flex flex-col min-w-0">
+            <Skeleton className="h-[14px] w-10 mb-0.5" />
+            <Skeleton className="h-[11px] w-7" />
+          </div>
         </div>
+      </div>
+      <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
+        <Skeleton className="h-[14px] w-12" />
+        <Skeleton className="h-[11px] w-16" />
       </div>
     </div>
   )

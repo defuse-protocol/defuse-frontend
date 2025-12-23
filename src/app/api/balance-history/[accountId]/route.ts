@@ -1,10 +1,13 @@
+import {
+  createSwapHistoryRepository,
+  transformSwapRecord,
+} from "@src/features/balance-history/repository"
 import type {
-  BalanceChange,
-  BalanceHistoryResponse,
   ErrorResponse,
+  SwapHistoryResponse,
+  SwapTransaction,
 } from "@src/features/balance-history/types"
-import { chQuery } from "@src/utils/clickhouse"
-import { CLICK_HOUSE_URL } from "@src/utils/environment"
+import { intentsDb } from "@src/libs/intentsDb"
 import { logger } from "@src/utils/logger"
 import { NextResponse } from "next/server"
 import * as v from "valibot"
@@ -12,6 +15,9 @@ import * as v from "valibot"
 const DEFAULT_PAGE = 1
 const DEFAULT_LIMIT = 50
 const MAX_LIMIT = 100
+
+const CACHE_MAX_AGE = 30
+const CACHE_STALE_WHILE_REVALIDATE = 60
 
 const queryParamsSchema = v.object({
   page: v.optional(
@@ -30,18 +36,57 @@ const queryParamsSchema = v.object({
   ),
   startDate: v.optional(v.string()),
   endDate: v.optional(v.string()),
-  tokenId: v.optional(v.string()),
-  changeType: v.optional(
-    v.picklist([
-      "deposit",
-      "withdrawal",
-      "swap_in",
-      "swap_out",
-      "transfer_in",
-      "transfer_out",
-    ])
-  ),
 })
+
+type QueryParams = v.InferOutput<typeof queryParamsSchema>
+
+function createCachedResponse(
+  data: SwapTransaction[],
+  pagination: SwapHistoryResponse["pagination"]
+): NextResponse<SwapHistoryResponse> {
+  const response = NextResponse.json({ data, pagination })
+
+  response.headers.set(
+    "Cache-Control",
+    `public, s-maxage=${CACHE_MAX_AGE}, stale-while-revalidate=${CACHE_STALE_WHILE_REVALIDATE}`
+  )
+
+  return response
+}
+
+function emptyResponse(
+  page: number,
+  limit: number
+): NextResponse<SwapHistoryResponse> {
+  return createCachedResponse([], { page, limit, total: 0, hasMore: false })
+}
+
+function errorResponse(
+  message: string,
+  status: number
+): NextResponse<ErrorResponse> {
+  return NextResponse.json({ error: message }, { status })
+}
+
+function parseQueryParams(searchParams: URLSearchParams): QueryParams | null {
+  try {
+    return v.parse(queryParamsSchema, {
+      page: searchParams.get("page") ?? undefined,
+      limit: searchParams.get("limit") ?? undefined,
+      startDate: searchParams.get("startDate") ?? undefined,
+      endDate: searchParams.get("endDate") ?? undefined,
+    })
+  } catch {
+    return null
+  }
+}
+
+function parseDateFilter(dateString: string | undefined): Date | undefined {
+  if (!dateString) return undefined
+
+  const parsed = new Date(dateString)
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed
+}
 
 export async function GET(
   request: Request,
@@ -50,137 +95,46 @@ export async function GET(
   const { accountId } = await params
 
   if (!accountId) {
-    return NextResponse.json(
-      { error: "Account ID is required" } satisfies ErrorResponse,
-      { status: 400 }
-    )
+    return errorResponse("Account ID is required", 400)
   }
 
-  // Return empty data if ClickHouse is not configured (graceful degradation)
-  if (!CLICK_HOUSE_URL) {
-    logger.warn("Balance history: ClickHouse not configured")
-    return NextResponse.json({
-      data: [],
-      pagination: {
-        page: 1,
-        limit: 20,
-        total: 0,
-        hasMore: false,
-      },
-    } satisfies BalanceHistoryResponse)
+  if (!intentsDb) {
+    logger.warn("Balance history: INTENTS_DB_URL not configured")
+    return emptyResponse(DEFAULT_PAGE, DEFAULT_LIMIT)
   }
 
   const { searchParams } = new URL(request.url)
+  const queryParams = parseQueryParams(searchParams)
 
-  let validatedParams: v.InferOutput<typeof queryParamsSchema>
+  if (!queryParams) {
+    return errorResponse("Invalid query parameters", 400)
+  }
+
+  const { page, limit, startDate, endDate } = queryParams
+
   try {
-    validatedParams = v.parse(queryParamsSchema, {
-      page: searchParams.get("page") ?? undefined,
-      limit: searchParams.get("limit") ?? undefined,
-      startDate: searchParams.get("startDate") ?? undefined,
-      endDate: searchParams.get("endDate") ?? undefined,
-      tokenId: searchParams.get("tokenId") ?? undefined,
-      changeType: searchParams.get("changeType") ?? undefined,
+    const repository = createSwapHistoryRepository(intentsDb)
+
+    const result = await repository.findByAccount({
+      accountId,
+      page: Number(page),
+      limit: Number(limit),
+      startDate: parseDateFilter(startDate),
+      endDate: parseDateFilter(endDate),
+    })
+
+    const swaps = result.data.map(transformSwapRecord)
+
+    return createCachedResponse(swaps, {
+      page: Number(page),
+      limit: Number(limit),
+      total: result.total,
+      hasMore: result.hasMore,
     })
   } catch (err) {
-    logger.error(err)
-    return NextResponse.json(
-      { error: "Invalid query parameters" } satisfies ErrorResponse,
-      { status: 400 }
-    )
-  }
-
-  const { page, limit, startDate, endDate, tokenId, changeType } =
-    validatedParams
-  const offset = (Number(page) - 1) * Number(limit)
-
-  const whereConditions = ["account_id = {accountId:String}"]
-
-  if (startDate) {
-    whereConditions.push("block_timestamp >= {startDate:DateTime}")
-  }
-  if (endDate) {
-    whereConditions.push("block_timestamp <= {endDate:DateTime}")
-  }
-  if (tokenId) {
-    whereConditions.push("token_id = {tokenId:String}")
-  }
-  if (changeType) {
-    whereConditions.push("change_type = {changeType:String}")
-  }
-
-  const whereClause = whereConditions.join(" AND ")
-
-  const countQuery = `
-    SELECT count() as total
-    FROM near_intents_metrics.balance_changes
-    WHERE ${whereClause}
-  `
-
-  const dataQuery = `
-    SELECT
-      block_timestamp,
-      transaction_hash,
-      account_id,
-      token_id,
-      symbol,
-      blockchain,
-      amount,
-      amount_usd,
-      balance_before,
-      balance_after,
-      change_type
-    FROM near_intents_metrics.balance_changes
-    WHERE ${whereClause}
-    ORDER BY block_timestamp DESC
-    LIMIT {limit:UInt32}
-    OFFSET {offset:UInt32}
-  `
-
-  const queryParams = {
-    accountId,
-    limit: Number(limit),
-    offset,
-    ...(startDate && { startDate }),
-    ...(endDate && { endDate }),
-    ...(tokenId && { tokenId }),
-    ...(changeType && { changeType }),
-  }
-
-  try {
-    const [countResult, dataResult] = await Promise.all([
-      chQuery<{ total: number }>(countQuery, queryParams),
-      chQuery<BalanceChange>(dataQuery, queryParams),
-    ])
-
-    const total = countResult[0]?.total ?? 0
-    const hasMore = offset + Number(limit) < total
-
-    return NextResponse.json({
-      data: dataResult,
-      pagination: {
-        page: Number(page),
-        limit: Number(limit),
-        total,
-        hasMore,
-      },
-    } satisfies BalanceHistoryResponse)
-  } catch (err) {
-    // Log the error but return empty data for graceful degradation
-    // This handles cases like: table doesn't exist, connection issues, etc.
-    logger.error(
-      err instanceof Error ? err.message : "Balance history query failed"
-    )
-
-    // Return empty data instead of error for better UX
-    return NextResponse.json({
-      data: [],
-      pagination: {
-        page: Number(page),
-        limit: Number(limit),
-        total: 0,
-        hasMore: false,
-      },
-    } satisfies BalanceHistoryResponse)
+    logger.error("Balance history query failed", {
+      error: err instanceof Error ? err.message : "Unknown error",
+    })
+    return emptyResponse(Number(page), Number(limit))
   }
 }
