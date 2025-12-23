@@ -47,7 +47,8 @@ function renderErrorMessages(reason: string): string {
 
     case "INVALID_SECRET_KEY":
       return "This gift link is invalid. Please contact the gift creator for assistance."
-
+    case "ERR_USER_DIDNT_SIGN":
+      return "It seems the message wasn’t signed in your wallet. Please try again."
     default:
       return reason
   }
