@@ -60,12 +60,12 @@ export type OTCMakerSignActorContext = OTCMakerSignActorInput & {
 
 type FailedToPrepareMessageToSignError = {
   reason: "ERR_PREPARING_SIGNING_DATA"
-  error: null
 }
 
 export type OTCMakerSignActorErrors =
   | SignIntentErrors
   | FailedToPrepareMessageToSignError
+  | { reason: "EXCEPTION" }
 
 export const otcMakerSignMachine = setup({
   types: {
@@ -203,7 +203,7 @@ export const otcMakerSignMachine = setup({
               type: "complete",
               params: {
                 tag: "err",
-                value: { reason: "ERR_PREPARING_SIGNING_DATA", error: null },
+                value: { reason: "ERR_PREPARING_SIGNING_DATA" },
               },
             },
           ],
