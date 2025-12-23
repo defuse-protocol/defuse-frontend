@@ -721,6 +721,10 @@ export function renderIntentCreationResult(
 
   const status = intentCreationResult.value.reason
   switch (status) {
+    case "ERR_FAILED_TO_PREPARE_MESSAGE_TO_SIGN":
+      content =
+        "Failed to prepare message for your wallet to sign. Please try again."
+      break
     case "ERR_USER_DIDNT_SIGN":
       content =
         "It seems the message wasn’t signed in your wallet. Please try again."
