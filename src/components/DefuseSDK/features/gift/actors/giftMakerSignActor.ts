@@ -52,6 +52,7 @@ export type GiftMakerSignActorInput = {
 export type GiftMakerSignActorErrors =
   | SignIntentErrors
   | { reason: "ERR_GIFT_SIGNING" }
+  | { reason: "ERR_PREPARING_GIFT_SIGNING_DATA" }
 
 export type GiftMakerSignActorOutput =
   | { tag: "err"; value: GiftMakerSignActorErrors }
@@ -185,7 +186,10 @@ export const giftMakerSignActor = setup({
             { type: "logError", params: ({ event }) => event },
             {
               type: "complete",
-              params: { tag: "err", value: { reason: "ERR_GIFT_SIGNING" } },
+              params: {
+                tag: "err",
+                value: { reason: "ERR_PREPARING_GIFT_SIGNING_DATA" },
+              },
             },
           ],
         },

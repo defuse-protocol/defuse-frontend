@@ -39,6 +39,8 @@ function renderErrorMessages(reason: string): string {
 
     case "ERR_GIFT_SIGNING":
       return "Unable to sign your gift. Please try again in a moment."
+    case "ERR_PREPARING_GIFT_SIGNING_DATA":
+      return "Something went wrong while preparing data for signing."
 
     case "NOT_FOUND_OR_NOT_VALID":
     case "NO_TOKEN_OR_GIFT_HAS_BEEN_CLAIMED":
