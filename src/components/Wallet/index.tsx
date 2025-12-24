@@ -40,23 +40,19 @@ const ConnectWallet = () => {
     return (
       <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
         <Popover.Trigger>
-          <Button
-            type={"button"}
-            variant={"solid"}
-            size={"2"}
-            radius={"full"}
+          <button
+            type="button"
+            className="text-gray-400 text-sm font-medium"
             data-testid="sign-in-button"
           >
-            <Text weight="bold" wrap="nowrap">
-              Sign in
-            </Text>
-          </Button>
+            Sign in
+          </button>
         </Popover.Trigger>
         <Popover.Content
           maxWidth={{ initial: "90vw", xs: "480px" }}
           minWidth={{ initial: "300px", xs: "330px" }}
           maxHeight={{ initial: "70vh", sm: "90vh" }}
-          className="md:mr-[48px] dark:bg-black-800 rounded-2xl"
+          className="md:mr-[48px] dark:bg-black-800 rounded-2xl bg-white"
         >
           <Text size="1">How do you want to sign in?</Text>
           <div className="w-full grid grid-cols-1 gap-4 mt-4">
@@ -355,13 +351,9 @@ const ConnectWallet = () => {
     <div className="flex gap-2">
       <Popover.Root>
         <Popover.Trigger>
-          <Button
-            type={"button"}
-            variant={"soft"}
-            color={"gray"}
-            size={"2"}
-            radius={"full"}
-            className="font-bold text-gray-12"
+          <button
+            type="button"
+            className="text-gray-400 text-sm font-medium"
             data-testid="account-indicator"
           >
             {state.chainType !== "webauthn" ? (
@@ -374,7 +366,7 @@ const ConnectWallet = () => {
                     alt=""
                     width={24}
                     height={24}
-                    className="rounded-full size-6 bg-[#000]"
+                    className="rounded-full size-6 bg-black"
                     style={{
                       mask: "radial-gradient(13px at 31px 50%, transparent 99%, rgb(255, 255, 255) 100%)",
                     }}
@@ -387,11 +379,11 @@ const ConnectWallet = () => {
                 <div className="font-bold text-gray-12">passkey</div>
               </div>
             )}
-          </Button>
+          </button>
         </Popover.Trigger>
         <Popover.Content
           minWidth={{ initial: "300px", xs: "330px" }}
-          className="mt-1 md:mr-[48px] max-w-xs dark:bg-black-800 rounded-2xl"
+          className="mt-1 md:mr-[48px] max-w-xs dark:bg-black-800 rounded-2xl bg-white"
         >
           <div className="flex flex-col gap-5">
             <WalletConnections />

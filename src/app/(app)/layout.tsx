@@ -1,9 +1,3 @@
-import { QueryClientProvider } from "@tanstack/react-query"
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
-import type { Metadata, Viewport } from "next"
-import type { ReactNode } from "react"
-import { WagmiProvider } from "wagmi"
-
 import { UserIcon } from "@heroicons/react/24/solid"
 import { InitDefuseSDK } from "@src/components/InitDefuseSDK"
 import { SentryTracer } from "@src/components/SentryTracer"
@@ -16,11 +10,17 @@ import { SolanaWalletProvider } from "@src/providers/SolanaWalletProvider"
 import { StellarWalletProvider } from "@src/providers/StellarWalletProvider"
 import { ThemeProvider } from "@src/providers/ThemeProvider"
 import { TonConnectUIProvider } from "@src/providers/TonConnectUIProvider"
+import { QueryClientProvider } from "@tanstack/react-query"
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
+import type { Metadata, Viewport } from "next"
+import type { ReactNode } from "react"
+import { WagmiProvider } from "wagmi"
 
 import "../../styles/global.css"
 import { getCachedSystemStatus } from "@src/actions/systemStatus"
 import { NavbarDesktop } from "@src/components/Navbar/NavbarDesktop"
 import { PreloadFeatureFlags } from "@src/components/PreloadFeatureFlags"
+import ConnectWallet from "@src/components/Wallet"
 import { MixpanelProvider } from "@src/providers/MixpanelProvider"
 import { NearWalletProvider } from "@src/providers/NearWalletProvider"
 import { SystemStatusProvider } from "@src/providers/SystemStatusProvider"
@@ -152,9 +152,12 @@ const AppRootLayout = async ({
                                     <div className="size-8 flex items-center justify-center bg-orange-500 rounded-lg">
                                       <UserIcon className="text-orange-100 size-5" />
                                     </div>
-                                    <div className="text-gray-400 text-sm font-medium">
+
+                                    <ConnectWallet />
+
+                                    {/*<div className="text-gray-400 text-sm font-medium">
                                       @username123
-                                    </div>
+                                    </div> */}
                                   </div>
 
                                   <div className="my-6 border-t border-gray-700" />
