@@ -94,7 +94,7 @@ function OrderDialog({
       : null
 
   return (
-    <BaseModalDialog open={true} onClose={finish} isDismissable>
+    <BaseModalDialog open={true} onClose={finish} title="Your order is open">
       {/* Header Section */}
       <div className="flex flex-col items-center text-center mb-6">
         <div className="w-[64px] h-[64px] mt-5 mb-4 flex items-center justify-center rounded-full bg-yellow-300">

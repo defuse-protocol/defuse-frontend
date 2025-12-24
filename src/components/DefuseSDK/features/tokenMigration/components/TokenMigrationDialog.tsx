@@ -42,13 +42,10 @@ export function TokenMigrationDialog({
       open={state.matches("migrating")}
       onClose={() => send({ type: "CANCEL" })}
       onCloseAnimationEnd={onExit}
+      title="Update tokens?"
     >
       {!state.matches({ migrating: "settled" }) ? (
         <>
-          <Dialog.Title className="text-2xl font-black text-gray-12 mb-2">
-            Update tokens?
-          </Dialog.Title>
-
           <Dialog.Description className="text-sm font-medium text-gray-11">
             Some of your tokens are no longer supported. To continue using them,
             you’ll need to update to the latest version. This will require

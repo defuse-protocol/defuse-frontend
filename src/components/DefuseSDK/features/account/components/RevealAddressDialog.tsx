@@ -22,7 +22,7 @@ export function RevealAddressDialog({
   const nearIntentsOption = getNearIntentsOption().intents
 
   return (
-    <BaseModalDialog open onClose={onClose}>
+    <BaseModalDialog open onClose={onClose} title="Your internal address">
       <Dialog.Title className="text-2xl font-black text-gray-12 mb-2.5">
         <div className="min-h-11 flex items-center gap-4">
           <IntentsIcon className="rounded-full" />

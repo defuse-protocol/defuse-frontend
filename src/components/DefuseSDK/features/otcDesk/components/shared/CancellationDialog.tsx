@@ -33,7 +33,11 @@ export function CancellationDialog({
   }, [actorRef])
 
   return (
-    <BaseModalDialog open={!!actorRef} onClose={abortCancellation}>
+    <BaseModalDialog
+      open={!!actorRef}
+      onClose={abortCancellation}
+      title="Cancel order?"
+    >
       {snapshot?.matches("idleUncancellable") ? (
         <>
           <div className="flex justify-center mb-4">

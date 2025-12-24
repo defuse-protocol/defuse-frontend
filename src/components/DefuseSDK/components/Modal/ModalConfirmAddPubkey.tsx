@@ -18,6 +18,7 @@ export const ModalConfirmAddPubkey = () => {
       onClose={() => {
         onAbort()
       }}
+      title="Confirm Your Account"
     >
       <Flex direction="column" gap="4">
         <Flex>

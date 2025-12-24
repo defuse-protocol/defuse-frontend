@@ -5,6 +5,7 @@ import { cn } from "@src/utils/cn"
 import { type InputHTMLAttributes, type ReactNode, forwardRef } from "react"
 
 export function TokenAmountInputCard({
+  variant,
   tokenSlot,
   inputSlot,
   balanceSlot,
@@ -12,6 +13,7 @@ export function TokenAmountInputCard({
   labelSlot,
   infoSlot,
 }: {
+  variant?: "2"
   tokenSlot?: ReactNode
   inputSlot?: ReactNode
   balanceSlot?: ReactNode

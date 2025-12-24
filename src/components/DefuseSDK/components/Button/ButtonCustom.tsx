@@ -33,7 +33,7 @@ export const ButtonCustom = ({
       radixButtonVariant = undefined
       break
     case "secondary":
-      radixButtonVariant = "outline-solid"
+      radixButtonVariant = "outline"
       radixButtonColor = "gray"
       break
     case "base":
@@ -41,7 +41,7 @@ export const ButtonCustom = ({
       radixButtonColor = "gray"
       break
     case "danger":
-      radixButtonVariant = "outline-solid"
+      radixButtonVariant = "outline"
       radixButtonColor = "red"
       break
   }

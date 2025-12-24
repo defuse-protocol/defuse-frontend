@@ -96,7 +96,7 @@ function SuccessDialog({
   ])
 
   return (
-    <BaseModalDialog open onClose={finish} isDismissable>
+    <BaseModalDialog open onClose={finish} title="Share your gift">
       <GiftHeader title="Share your gift" className="mt-2 text-center">
         <GiftDescription
           description="Your funds are on-chain. The recipient can claim them via the link, or
@@ -184,7 +184,11 @@ export function CancellationDialog({
   }, [actorRef, giftInfo, signerCredentials])
 
   return (
-    <BaseModalDialog open={!!actorRef} onClose={abortCancellation}>
+    <BaseModalDialog
+      open={!!actorRef}
+      onClose={abortCancellation}
+      title="Cancel gift?"
+    >
       {snapshot?.matches("idleUnclaimable") ? (
         <>
           <div className="flex justify-center mb-4">
