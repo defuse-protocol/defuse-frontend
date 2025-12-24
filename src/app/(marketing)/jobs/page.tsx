@@ -2,8 +2,8 @@
 
 import { Text } from "@radix-ui/themes"
 
-import CardJob from "@src/app/jobs/Card/CardJob"
-import { jobsData } from "@src/app/jobs/mocks"
+import CardJob from "./Card/CardJob"
+import { jobsData } from "./mocks"
 
 export default function Jobs() {
   return (
