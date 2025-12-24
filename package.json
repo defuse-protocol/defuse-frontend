@@ -13,7 +13,7 @@
     "cache-e2e-wallet": "bun run test/cache-wallet.ts",
     "typecheck": "next typegen && tsc --noEmit",
     "check": "biome check",
-    "prepare": "husky && ./scripts/gen-banned-near-address.sh",
+    "prepare": "husky",
     "update-types": "supabase gen types --lang=typescript --local > src/types/database-generated.ts"
   },
   "dependencies": {

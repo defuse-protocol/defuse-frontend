@@ -185,10 +185,7 @@ export function getBlockchainsOptions(): Record<
   BlockchainEnum,
   BlockchainOption
 > {
-  const options: Record<
-    Exclude<BlockchainEnum, "starknet:mainnet" | "bch:mainnet">, // TODO: remove this exclude once Starknet and Bitcoin Cash are supported
-    BlockchainOption
-  > = {
+  const options: Record<BlockchainEnum, BlockchainOption> = {
     [BlockchainEnum.NEAR]: {
       label: "Near",
       icon: <NetworkIcon chainIcon={chainIcons.near} chainName="near" />,
@@ -417,25 +414,25 @@ export function getBlockchainsOptions(): Record<
       value: BlockchainEnum.MONAD,
       tags: [],
     },
-    // TODO: Uncomment this once Bitcoin Cash is supported
-    // [BlockchainEnum.BITCOINCASH]: {
-    //   label: "Bitcoin Cash",
-    //   icon: (
-    //     <NetworkIcon
-    //       chainIcon={chainIcons.bitcoincash}
-    //       chainName="Bitcoin Cash"
-    //     />
-    //   ),
-    //   value: BlockchainEnum.BITCOINCASH,
-    //   tags: [],
-    // },
-    // TODO: Uncomment this once Starknet is supported
-    // [BlockchainEnum.STARKNET]: {
-    //   label: "Starknet",
-    //   icon: <NetworkIcon chainIcon={chainIcons.starknet} chainName="Starknet" />,
-    //   value: BlockchainEnum.STARKNET,
-    //   tags: [],
-    // },
+    [BlockchainEnum.BITCOINCASH]: {
+      label: "Bitcoin Cash",
+      icon: (
+        <NetworkIcon
+          chainIcon={chainIcons.bitcoincash}
+          chainName="Bitcoin Cash"
+        />
+      ),
+      value: BlockchainEnum.BITCOINCASH,
+      tags: [],
+    },
+    [BlockchainEnum.STARKNET]: {
+      label: "Starknet",
+      icon: (
+        <NetworkIcon chainIcon={chainIcons.starknet} chainName="Starknet" />
+      ),
+      value: BlockchainEnum.STARKNET,
+      tags: [],
+    },
     [BlockchainEnum.ADI]: {
       label: "ADI",
       icon: <NetworkIcon chainIcon={chainIcons.adi} chainName="ADI" />,
@@ -444,9 +441,7 @@ export function getBlockchainsOptions(): Record<
     },
   }
 
-  return sortBlockchainOptionsByVolume(
-    options as Record<BlockchainEnum, BlockchainOption> // TODO: remove this cast once Starknet and Bitcoin Cash are supported
-  )
+  return sortBlockchainOptionsByVolume(options)
 }
 
 function sortBlockchainOptionsByVolume(

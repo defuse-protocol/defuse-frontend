@@ -10,6 +10,7 @@ export interface CreateCredentialResponse {
 
 export interface GetCredentialResponse {
   public_key: string
+  hostname: string
 }
 
 export interface ErrorResponse {
