@@ -1,11 +1,10 @@
-import { Skeleton } from "@radix-ui/themes"
+import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
+import { isBaseToken } from "@src/components/DefuseSDK/utils"
+import { cn } from "@src/utils/cn"
 import { type InputHTMLAttributes, type ReactNode, forwardRef } from "react"
-import { AssetComboIcon } from "../../../../components/Asset/AssetComboIcon"
-import type { TokenInfo } from "../../../../types/base"
-import { cn } from "../../../../utils/cn"
-import { isBaseToken } from "../../../../utils/token"
+
 export function TokenAmountInputCard({
-  variant = "1",
   tokenSlot,
   inputSlot,
   balanceSlot,
@@ -13,7 +12,6 @@ export function TokenAmountInputCard({
   labelSlot,
   infoSlot,
 }: {
-  variant?: "1" | "2"
   tokenSlot?: ReactNode
   inputSlot?: ReactNode
   balanceSlot?: ReactNode
@@ -64,28 +62,22 @@ TokenAmountInputCard.Input = forwardRef<
   InputHTMLAttributes<HTMLInputElement> & { isLoading?: boolean }
 >(function Input({ isLoading, className, disabled, ...rest }, ref) {
   return (
-    <>
-      {isLoading && (
-        <Skeleton className="w-full absolute inset-y-0" height="40px" />
+    <input
+      ref={ref}
+      type="text"
+      inputMode="decimal"
+      pattern="[0-9]*[.]?[0-9]*"
+      autoComplete="off"
+      placeholder="0"
+      disabled={disabled}
+      aria-busy={isLoading || undefined}
+      className={cn(
+        "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-4xl tracking-tight placeholder:text-gray-400 w-full",
+        disabled && "opacity-50",
+        className
       )}
-      <input
-        ref={ref}
-        type="text"
-        inputMode="decimal"
-        pattern="[0-9]*[.]?[0-9]*"
-        autoComplete="off"
-        placeholder="0"
-        disabled={disabled}
-        aria-busy={isLoading || undefined}
-        className={cn(
-          "w-full border-0 bg-transparent relative p-0 font-medium text-2xl md:text-3xl text-label focus:ring-0 outline-hidden",
-          isLoading && "z-[-1]",
-          disabled && "opacity-50",
-          className
-        )}
-        {...rest}
-      />
-    </>
+      {...rest}
+    />
   )
 })
 
@@ -107,16 +99,26 @@ TokenAmountInputCard.DisplayToken = function DisplayToken({
   )
 }
 
+TokenAmountInputCard.Label = function Label({
+  id,
+  children,
+}: {
+  id: string
+  children: ReactNode
+}) {
+  return (
+    <label htmlFor={id} className="text-base text-gray-500">
+      {children}
+    </label>
+  )
+}
+
 TokenAmountInputCard.DisplayPrice = function DisplayPrice({
   children,
 }: {
   children: ReactNode
 }) {
-  return (
-    <div className="font-medium text-gray-9 text-xs md:text-sm truncate">
-      {children}
-    </div>
-  )
+  return <div className="text-right text-base text-gray-500">{children}</div>
 }
 
 TokenAmountInputCard.DisplayInfo = function DisplayInfo({

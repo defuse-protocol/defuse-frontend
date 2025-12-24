@@ -1,4 +1,4 @@
-import { AssetComboIcon } from "../../../../components/Asset/AssetComboIcon"
+import AssetComboIcon from "../../../../components/Asset/AssetComboIcon"
 import type { TokenInfo, TokenValue } from "../../../../types/base"
 import { formatTokenValue } from "../../../../utils/format"
 

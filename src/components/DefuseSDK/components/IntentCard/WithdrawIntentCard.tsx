@@ -5,7 +5,7 @@ import type { intentStatusMachine } from "../../features/machines/intentStatusMa
 import { assert } from "../../utils/assert"
 import { blockExplorerTxLinkFactory } from "../../utils/chainTxExplorer"
 import { formatTokenValue } from "../../utils/format"
-import { AssetComboIcon } from "../Asset/AssetComboIcon"
+import AssetComboIcon from "../Asset/AssetComboIcon"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip"
 import { CopyButton } from "./CopyButton"
 

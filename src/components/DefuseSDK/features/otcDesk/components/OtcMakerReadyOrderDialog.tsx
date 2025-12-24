@@ -6,7 +6,7 @@ import {
 import { Dialog } from "@radix-ui/themes"
 import { useSelector } from "@xstate/react"
 import type { ActorRefFrom } from "xstate"
-import { AssetComboIcon } from "../../../components/Asset/AssetComboIcon"
+import AssetComboIcon from "../../../components/Asset/AssetComboIcon"
 import { ButtonCustom } from "../../../components/Button/ButtonCustom"
 import { Copy } from "../../../components/IntentCard/CopyButton"
 import { BaseModalDialog } from "../../../components/Modal/ModalDialog"

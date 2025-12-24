@@ -1,11 +1,7 @@
-import type { Metadata } from "next"
-import type React from "react"
-import type { PropsWithChildren } from "react"
-
-import Layout from "@src/components/Layout"
-import { PreloadFeatureFlags } from "@src/components/PreloadFeatureFlags"
 import { whitelabelTemplateFlag } from "@src/config/featureFlags"
 import { settings } from "@src/config/settings"
+import type { Metadata } from "next"
+import type { ReactNode } from "react"
 
 export async function generateMetadata(): Promise<Metadata> {
   const templ = await whitelabelTemplateFlag()
@@ -17,12 +13,6 @@ export async function generateMetadata(): Promise<Metadata> {
   return {}
 }
 
-const SwapLayout: React.FC<PropsWithChildren> = ({ children }) => {
-  return (
-    <PreloadFeatureFlags>
-      <Layout>{children}</Layout>
-    </PreloadFeatureFlags>
-  )
+export default function Layout({ children }: { children: ReactNode }) {
+  return children
 }
-
-export default SwapLayout

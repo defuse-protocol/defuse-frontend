@@ -13,30 +13,41 @@ type AssetComboIconProps = {
   showChainIcon?: boolean
   className?: React.HTMLAttributes<"div">["className"]
   style?: React.HTMLAttributes<"div">["style"]
+  size?: "sm" | "md"
 }
 
-export const AssetComboIcon = ({
+const AssetComboIcon = ({
   icon,
-  name,
   chainIcon,
   chainName,
   showChainIcon = false,
   className,
   style,
+  size = "md",
 }: AssetComboIconProps) => {
   const { resolvedTheme } = useTheme()
 
   return (
     <div className={clsx("relative inline-block", className)} style={style}>
-      <div className="relative overflow-hidden size-10 flex justify-center items-center rounded-full">
+      <div
+        className={clsx(
+          "relative overflow-hidden flex justify-center items-center rounded-full",
+          {
+            "size-7": size === "sm",
+            "size-10": size === "md",
+          }
+        )}
+      >
         {icon ? (
           <img
             src={icon}
-            alt={name || "Coin Logo"}
-            className="size-full object-contain"
+            alt=""
+            className="size-full object-contain bg-gray-100"
           />
         ) : (
-          <EmptyAssetComboIcon />
+          <div className="relative overflow-hidden size-full flex justify-center items-center bg-gray-100 rounded-full">
+            <div className="size-1/2 rounded-full border-2 border-gray-500 border-dashed" />
+          </div>
         )}
       </div>
       {showChainIcon && chainIcon && resolvedTheme && (
@@ -49,7 +60,7 @@ export const AssetComboIcon = ({
               src={
                 resolvedTheme === Themes.DARK ? chainIcon.dark : chainIcon.light
               }
-              alt={chainName || "Network Logo"}
+              alt=""
             />
           </TooltipTrigger>
           <TooltipContent side="left" className="z-50">
@@ -61,8 +72,4 @@ export const AssetComboIcon = ({
   )
 }
 
-const EmptyAssetComboIcon = () => (
-  <div className="relative overflow-hidden size-10 flex justify-center items-center bg-gray-100 rounded-full">
-    <div className="size-5 rounded-full border-2 border-gray-500 border-dashed" />
-  </div>
-)
+export default AssetComboIcon

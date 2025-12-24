@@ -1,5 +1,5 @@
 import type { ReactNode } from "react"
-import { AssetComboIcon } from "../../../components/Asset/AssetComboIcon"
+import AssetComboIcon from "../../../components/Asset/AssetComboIcon"
 import type { TokenInfo, TokenValue } from "../../../types/base"
 import { cn } from "../../../utils/cn"
 import { formatTokenValue } from "../../../utils/format"

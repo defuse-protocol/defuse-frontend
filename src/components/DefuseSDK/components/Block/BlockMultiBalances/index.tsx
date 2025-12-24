@@ -23,6 +23,7 @@ export function BlockMultiBalances({
   halfButtonSlot,
 }: BlockMultiBalancesProps) {
   const active = balance > 0n
+
   return (
     <div
       className={clsx(

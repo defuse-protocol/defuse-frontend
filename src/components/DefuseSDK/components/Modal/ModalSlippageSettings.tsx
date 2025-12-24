@@ -1,7 +1,6 @@
 import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
-import { XIcon } from "@phosphor-icons/react"
 import * as RadioGroup from "@radix-ui/react-radio-group"
-import { Text } from "@radix-ui/themes"
+import Button from "@src/components/Button"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import type { TokenValue } from "@src/components/DefuseSDK/types/base"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
@@ -16,6 +15,7 @@ import {
   MAX_SLIPPAGE_PERCENT,
   useSlippageStore,
 } from "@src/stores/useSlippageStore"
+import clsx from "clsx"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import type { Actor } from "xstate"
 import type { swapUIMachine } from "../../features/machines/swapUIMachine"
@@ -68,7 +68,6 @@ export function ModalSlippageSettings() {
 
   const [selectedValue, setSelectedValue] = useState<string>("")
   const [customValue, setCustomValue] = useState<string>("")
-  const [isCustomSelected, setIsCustomSelected] = useState(false)
 
   useEffect(() => {
     const matchingOption = SLIPPAGE_OPTIONS.find(
@@ -76,31 +75,31 @@ export function ModalSlippageSettings() {
     )
     if (matchingOption) {
       setSelectedValue(String(matchingOption.value))
-      setIsCustomSelected(false)
       setCustomValue("")
     } else {
       setSelectedValue("custom")
-      setIsCustomSelected(true)
       setCustomValue(String(currentSlippage / 10_000))
     }
   }, [currentSlippage])
 
   const handleValueChange = useCallback((value: string) => {
-    if (value === "custom") {
-      setIsCustomSelected(true)
-      setSelectedValue("custom")
-    } else {
-      setIsCustomSelected(false)
-      setSelectedValue(value)
-      setCustomValue("")
-    }
+    setSelectedValue(value)
+    setCustomValue("")
   }, [])
 
   const handleCustomInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const inputValue = e.target.value
+
+      if (inputValue === "") {
+        setCustomValue("")
+        setSelectedValue(String(DEFAULT_SLIPPAGE))
+        return
+      }
+
       // Only allow positive numbers and decimal point
-      if (inputValue === "" || /^\d*\.?\d*$/.test(inputValue)) {
+      if (/^\d*\.?\d*$/.test(inputValue)) {
+        setSelectedValue("custom")
         setCustomValue(inputValue)
       }
     },
@@ -112,7 +111,7 @@ export function ModalSlippageSettings() {
   )
 
   const slippageBasisPoints = useMemo((): number | null => {
-    if (isCustomSelected) {
+    if (customValue) {
       const customPercent = Number.parseFloat(customValue)
       if (
         Number.isNaN(customPercent) ||
@@ -132,13 +131,13 @@ export function ModalSlippageSettings() {
       return null
     }
     return basisPoints
-  }, [isCustomSelected, customValue, selectedValue])
+  }, [customValue, selectedValue])
 
   const validationError = useMemo((): string | null => {
-    if (!isCustomSelected || !customValue) {
-      return null
-    }
+    if (!customValue) return null
+
     const customPercent = Number.parseFloat(customValue)
+
     if (Number.isNaN(customPercent)) {
       return "Please enter a valid number"
     }
@@ -149,7 +148,7 @@ export function ModalSlippageSettings() {
       return `Max allowed slippage is ${MAX_SLIPPAGE_PERCENT}%`
     }
     return null
-  }, [isCustomSelected, customValue])
+  }, [customValue])
 
   const isValid = useMemo(
     () => slippageBasisPoints !== null,
@@ -199,7 +198,7 @@ export function ModalSlippageSettings() {
 
     let slippagePercent: number
 
-    if (isCustomSelected) {
+    if (customValue) {
       const customPercent = Number.parseFloat(customValue)
       if (
         Number.isNaN(customPercent) ||
@@ -229,130 +228,117 @@ export function ModalSlippageSettings() {
   }, [
     actorRef,
     slippageBasisPoints,
-    isCustomSelected,
     customValue,
     setSlippagePercent,
     onCloseModal,
   ])
 
   return (
-    <ModalDialog>
-      <div className="flex flex-col gap-6">
-        <div className="flex flex-row justify-between items-center">
-          <Text size="5" weight="bold">
-            Slippage tolerance
-          </Text>
-          <button type="button" onClick={onCloseModal} className="p-3">
-            <XIcon width={18} height={18} />
-          </button>
-        </div>
+    <ModalDialog title="Slippage tolerance">
+      <p className="text-sm text-gray-500 mt-1">
+        Slippage is the maximum difference you allow between the quoted price
+        and the final execution price. If the execution price moves against you
+        by more than this %, the transaction will revert.{" "}
+        {calculatedSlippageAmount != null
+          ? isExactOut
+            ? "Below is the maximum amount you will pay."
+            : "Below is the minimum amount you are guaranteed to receive."
+          : ""}
+      </p>
 
-        <div className="flex flex-col gap-3">
-          <Text size="2" className="text-gray-11">
-            Slippage is the maximum difference you allow between the quoted
-            price and the final execution price. If the execution price moves
-            against you by more than this %, the transaction will revert.{" "}
-            {isExactOut
-              ? "Below is the maximum amount you will pay."
-              : "Below is the minimum amount you are guaranteed to receive."}
-          </Text>
+      {calculatedSlippageAmount != null &&
+        ((isExactOut && tokenIn) || (!isExactOut && tokenOut)) && (
+          <dl className="flex items-center justify-between gap-2 px-3 py-3.5 rounded-2xl border border-gray-200 mt-4">
+            <dt className="text-gray-500 text-sm font-medium">
+              {isExactOut ? "Pay at most" : "Receive at least"}
+            </dt>
+            <dd className="text-sm font-semibold text-gray-900">
+              {formatTokenValue(
+                calculatedSlippageAmount.amount,
+                calculatedSlippageAmount.decimals,
+                { fractionDigits: 5 }
+              )}{" "}
+              {isExactOut && tokenIn
+                ? tokenIn.symbol
+                : !isExactOut && tokenOut
+                  ? tokenOut.symbol
+                  : ""}
+            </dd>
+          </dl>
+        )}
 
-          {calculatedSlippageAmount != null &&
-            ((isExactOut && tokenIn) || (!isExactOut && tokenOut)) && (
-              <div className="flex flex-col gap-2 p-2 rounded-md bg-gray-3 text-gray-11">
-                <div className="flex justify-between items-center">
-                  <Text size="2" className="text-gray-11">
-                    {isExactOut ? "Pay at most" : "Receive at least"}
-                  </Text>
-                  <Text size="2" className="text-gray-12 font-medium">
-                    {formatTokenValue(
-                      calculatedSlippageAmount.amount,
-                      calculatedSlippageAmount.decimals,
-                      { fractionDigits: 5 }
-                    )}{" "}
-                    {isExactOut && tokenIn
-                      ? tokenIn.symbol
-                      : !isExactOut && tokenOut
-                        ? tokenOut.symbol
-                        : ""}
-                  </Text>
-                </div>
-              </div>
-            )}
+      <RadioGroup.Root
+        value={selectedValue}
+        onValueChange={handleValueChange}
+        className="mt-6"
+      >
+        <div className="grid grid-cols-3 gap-1">
+          {SLIPPAGE_OPTIONS.map((option) => {
+            const value = String(option.value)
+            const selected = selectedValue === value
 
-          <RadioGroup.Root
-            value={selectedValue}
-            onValueChange={handleValueChange}
-            className="flex flex-col gap-3"
-          >
-            <div className="grid grid-cols-3 gap-2">
-              {SLIPPAGE_OPTIONS.map((option) => (
-                <RadioGroup.Item
-                  key={option.value}
-                  value={String(option.value)}
-                  className="flex items-center justify-center h-10 rounded-md border transition-colors hover:bg-gray-3 data-[state=checked]:bg-gray-3 data-[state=checked]:border-gray-6 border-gray-6 bg-gray-1"
-                >
-                  <Text size="2" weight="medium">
-                    {option.label}
-                  </Text>
-                </RadioGroup.Item>
-              ))}
-              <RadioGroup.Item
-                value="custom"
-                className="flex items-center justify-center h-10 rounded-md border transition-colors hover:bg-gray-3 data-[state=checked]:bg-gray-3 data-[state=checked]:border-gray-6 border-gray-6 bg-gray-1"
-              >
-                <Text size="2" weight="medium">
-                  Custom
-                </Text>
+            return (
+              <RadioGroup.Item key={option.value} value={value} asChild>
+                <Button variant={selected ? "primary" : "secondary"} size="sm">
+                  {option.label}
+                </Button>
               </RadioGroup.Item>
-            </div>
-          </RadioGroup.Root>
-
-          {isCustomSelected && (
-            <div className="flex flex-col gap-2">
-              <div className="relative">
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  value={customValue}
-                  onChange={handleCustomInputChange}
-                  placeholder="1.0"
-                  className="w-full h-10 px-3 pr-8 rounded-md border bg-gray-1 border-gray-6 focus:outline-hidden focus:ring-2 focus:ring-gray-6 text-sm"
-                />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-11">
-                  %
-                </span>
-              </div>
-              {validationError && (
-                <Text size="1" className="text-red-9">
-                  {validationError}
-                </Text>
+            )
+          })}
+          <div
+            className={clsx(
+              "flex items-center rounded-lg pl-2 pr-2 overflow-hidden focus-within:bg-white focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-gray-900",
+              customValue ? "bg-gray-900" : "bg-gray-100"
+            )}
+          >
+            <input
+              type="text"
+              inputMode="decimal"
+              value={customValue}
+              onChange={handleCustomInputChange}
+              placeholder="Custom"
+              className={clsx(
+                "block min-w-0 grow h-8 pr-2 pl-0 peer focus:text-gray-900 bg-transparent text-sm leading-none font-semibold focus:ring-0 border-0 placeholder:text-gray-400",
+                customValue ? "text-white" : "text-gray-500"
               )}
+            />
+            <div
+              className={clsx(
+                "shrink-0 text-sm font-semibold select-none leading-none",
+                customValue
+                  ? "text-white peer-focus:text-gray-500"
+                  : "text-gray-500"
+              )}
+            >
+              %
             </div>
-          )}
+          </div>
         </div>
+      </RadioGroup.Root>
 
-        <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={onCloseModal}
-            className="flex-1 h-10 rounded-md border border-gray-6 hover:bg-gray-3 transition-colors flex items-center justify-center"
-          >
-            <Text size="2" weight="medium">
-              Cancel
-            </Text>
-          </button>
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={!isValid}
-            className="flex-1 h-10 rounded-md bg-gray-12 text-gray-1 hover:bg-gray-11 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-          >
-            <Text size="2" weight="medium">
-              Save
-            </Text>
-          </button>
+      {validationError && (
+        <div className="text-red-600 text-sm mt-2 font-medium">
+          {validationError}
         </div>
+      )}
+
+      <div className="grid grid-cols-2 gap-1 mt-6">
+        <Button
+          type="button"
+          variant="secondary"
+          size="xl"
+          onClick={onCloseModal}
+        >
+          Cancel
+        </Button>
+        <Button
+          type="button"
+          size="xl"
+          onClick={handleSave}
+          disabled={!isValid}
+        >
+          Save
+        </Button>
       </div>
     </ModalDialog>
   )

@@ -184,6 +184,8 @@ export const swapUIMachine = setup({
       | BackgroundQuoterParentEvents
       | Background1csQuoterParentEvents
       | DepositedBalanceEvents
+      | { type: "REQUEST_REVIEW" }
+      | { type: "CANCEL_REVIEW" }
       | {
           type: "PRICE_CHANGE_CONFIRMATION_REQUEST"
           params: {
@@ -698,6 +700,24 @@ export const swapUIMachine = setup({
 
       return amount !== null && amount.amount > 0n
     },
+
+    canReview: ({ context }) => {
+      if (context.is1cs) {
+        return (
+          context.quote?.tag === "ok" &&
+          context.parsedFormValues.amountIn != null &&
+          context.parsedFormValues.amountIn.amount > 0n &&
+          context.parsedFormValues.amountOut != null &&
+          context.parsedFormValues.amountOut.amount > 0n
+        )
+      }
+
+      return (
+        context.quote?.tag === "ok" &&
+        context.parsedFormValues.amountIn != null &&
+        context.parsedFormValues.amountIn.amount > 0n
+      )
+    },
   },
 }).createMachine({
   /** @xstate-layout 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 */
@@ -834,6 +854,14 @@ export const swapUIMachine = setup({
   states: {
     editing: {
       on: {
+        REQUEST_REVIEW: {
+          target: ".reviewing",
+          guard: "canReview",
+        },
+        CANCEL_REVIEW: {
+          target: ".idle",
+        },
+
         submit: [
           {
             target: "submitting_1cs",
@@ -1006,6 +1034,8 @@ export const swapUIMachine = setup({
             },
           },
         },
+
+        reviewing: {},
       },
 
       initial: "idle",
@@ -1064,7 +1094,7 @@ export const swapUIMachine = setup({
             ],
           },
           {
-            target: "editing",
+            target: "editing.reviewing",
 
             actions: [
               {
@@ -1205,7 +1235,7 @@ export const swapUIMachine = setup({
             ],
           },
           {
-            target: "editing",
+            target: "editing.reviewing",
 
             actions: [
               {

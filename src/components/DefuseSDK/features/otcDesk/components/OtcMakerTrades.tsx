@@ -20,7 +20,7 @@ import {
   useState,
 } from "react"
 import { type ActorRefFrom, createActor, toPromise } from "xstate"
-import { AssetComboIcon } from "../../../components/Asset/AssetComboIcon"
+import AssetComboIcon from "../../../components/Asset/AssetComboIcon"
 import { Copy } from "../../../components/IntentCard/CopyButton"
 import type { IntentsUserId, SignerCredentials } from "../../../core/formatters"
 import { getDepositedBalances } from "../../../services/defuseBalanceService"

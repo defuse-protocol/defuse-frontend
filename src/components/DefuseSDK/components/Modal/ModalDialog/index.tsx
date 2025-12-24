@@ -1,16 +1,16 @@
-import { X as CrossIcon } from "@phosphor-icons/react"
-import * as Dialog from "@radix-ui/react-dialog"
-import { Theme } from "@radix-ui/themes"
+import { XMarkIcon } from "@heroicons/react/20/solid"
 import clsx from "clsx"
+import { Dialog } from "radix-ui"
 import { type PropsWithChildren, useCallback, useEffect, useState } from "react"
-
 import { useModalStore } from "../../../providers/ModalStoreProvider"
 
 export const ModalDialog = ({
+  title,
   children,
   onClose,
   isDismissable,
 }: PropsWithChildren<{
+  title: string
   onClose?: () => void
   isDismissable?: boolean
 }>) => {
@@ -35,6 +35,7 @@ export const ModalDialog = ({
         setOpen(false)
         handleCloseModal()
       }}
+      title={title}
       isDismissable={isDismissable}
     >
       {children}
@@ -44,12 +45,14 @@ export const ModalDialog = ({
 
 export function BaseModalDialog({
   open,
+  title,
   children,
   onClose,
   onCloseAnimationEnd,
-  isDismissable,
+  isDismissable = true,
 }: PropsWithChildren<{
   open: boolean
+  title: string
   onClose?: () => void
   onCloseAnimationEnd?: () => void
   isDismissable?: boolean
@@ -64,63 +67,59 @@ export function BaseModalDialog({
       }}
     >
       <Dialog.Portal>
-        <Theme asChild>
-          <Dialog.Overlay
-            className={clsx(
-              "fixed inset-0 z-50 bg-gray-a8",
-              // Backdrop animation forces the dialog to animate
-              "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
-            )}
-            onAnimationEnd={() => {
-              if (!open && onCloseAnimationEnd) {
-                onCloseAnimationEnd()
-              }
-            }}
-          >
-            <div className="flex absolute bottom-0 left-0 right-0 md:inset-0 overflow-y-auto overflow-x-hidden">
-              <div className="grow md:m-auto md:py-8 md:px-4">
-                <Dialog.Content
+        <Dialog.Overlay
+          className={clsx(
+            "fixed inset-0 bg-gray-900/80",
+            "data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:duration-300 data-[state=open]:ease-out",
+            "data-[state=closed]:animate-out data-[state=closed]:duration-200 data-[state=closed]:ease-in data-[state=closed]:fade-out"
+          )}
+          onAnimationEnd={() => {
+            if (!open && onCloseAnimationEnd) {
+              onCloseAnimationEnd()
+            }
+          }}
+        >
+          <div className="fixed inset-0 z-20 w-screen overflow-y-auto">
+            <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+              <Dialog.Content
+                className={clsx(
+                  "relative transform overflow-hidden rounded-3xl bg-white p-5 text-left shadow-xl",
+                  "sm:my-8 sm:w-full sm:max-w-sm sm:p-6",
+                  "data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-4 fade-in data-[state=open]:ease-out data-[state=open]:duration-200 data-[state=open]:zoom-in-95",
+                  "data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom-4 fade-out data-[state=closed]:ease-in data-[state=closed]:duration-1000 data-[state=closed]:zoom-in-95"
+                )}
+                onOpenAutoFocus={(e) => {
+                  // This is a workaround for focusing the first input in the modal
+                  // Focusing first input is annoying for mobile users
+                  e.preventDefault()
+                }}
+                // Suppressing the warning about missing aria-describedby
+                aria-describedby={undefined}
+              >
+                <div
                   className={clsx(
-                    "relative m-auto w-full max-w-[100vw] md:w-[90vw] md:max-w-[472px] overflow-x-hidden min-w-0",
-                    "bg-gray-1 shadow-lg focus:outline-hidden",
-                    "rounded-t-2xl md:rounded-2xl",
-                    "max-md:max-h-[70vh]",
-                    "[--inset-padding-top:--spacing(5)]",
-                    "[--inset-padding-right:--spacing(5)]",
-                    "[--inset-padding-bottom:max(env(safe-area-inset-bottom,0px),--spacing(5))]",
-                    "[--inset-padding-left:--spacing(5)]",
-                    "pt-(--inset-padding-top) pr-(--inset-padding-right) pb-(--inset-padding-bottom) pl-(--inset-padding-left)",
-
-                    // Animation
-                    "data-[state=open]:animate-in data-[state=closed]:animate-out",
-                    "data-[state=open]:duration-300 data-[state=closed]:duration-200",
-                    "data-[state=open]:slide-in-from-bottom-full data-[state=closed]:slide-out-to-bottom-full",
-                    "md:data-[state=open]:slide-in-from-top-4 md:data-[state=closed]:slide-out-to-bottom-4",
-                    "md:data-[state=open]:zoom-in-95 md:data-[state=closed]:zoom-out-95",
-                    "md:data-[state=open]:fade-in md:data-[state=closed]:fade-out"
+                    "flex items-center justify-between",
+                    isDismissable && "-mt-2.5 -mr-2.5"
                   )}
-                  onOpenAutoFocus={(e) => {
-                    // This is a workaround for focusing the first input in the modal
-                    // Focusing first input is annoying for mobile users
-                    e.preventDefault()
-                  }}
-                  // Suppressing the warning about missing aria-describedby
-                  aria-describedby={undefined}
                 >
-                  <Dialog.Title />
-
+                  <Dialog.Title className="text-base font-medium text-gray-900">
+                    {title}
+                  </Dialog.Title>
                   {isDismissable && (
-                    <Dialog.Close className="flex items-center justify-center absolute top-5 right-5 size-10 rounded-full hover:bg-gray-3 active:bg-gray-4">
-                      <CrossIcon weight="bold" className="size-5" />
+                    <Dialog.Close
+                      onClick={onClose}
+                      className="size-10 rounded-xl hover:bg-gray-100 text-gray-600 hover:text-gray-900 flex items-center justify-center"
+                    >
+                      <XMarkIcon className="size-5" />
                     </Dialog.Close>
                   )}
+                </div>
 
-                  <div>{children}</div>
-                </Dialog.Content>
-              </div>
+                {children}
+              </Dialog.Content>
             </div>
-          </Dialog.Overlay>
-        </Theme>
+          </div>
+        </Dialog.Overlay>
       </Dialog.Portal>
     </Dialog.Root>
   )

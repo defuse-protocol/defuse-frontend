@@ -1,5 +1,5 @@
 import * as Popover from "@radix-ui/react-popover"
-import { AssetComboIcon } from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
+import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import { getTokenId } from "@src/components/DefuseSDK/utils/token"
 import { SendIcon, SwapIcon } from "@src/icons"
@@ -10,6 +10,7 @@ import type { Holding } from "../types/sharedTypes"
 import { FormattedCurrency } from "./shared/FormattedCurrency"
 
 const Assets = ({ assets }: { assets: Holding[] | undefined }) => {
+  // TODO
   if (!assets) return <div>No assets</div>
 
   return (

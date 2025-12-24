@@ -184,11 +184,7 @@ export function CancellationDialog({
   }, [actorRef, giftInfo, signerCredentials])
 
   return (
-    <BaseModalDialog
-      open={!!actorRef}
-      onClose={abortCancellation}
-      isDismissable
-    >
+    <BaseModalDialog open={!!actorRef} onClose={abortCancellation}>
       {snapshot?.matches("idleUnclaimable") ? (
         <>
           <div className="flex justify-center mb-4">

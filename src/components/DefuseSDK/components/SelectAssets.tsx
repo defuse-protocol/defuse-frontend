@@ -1,14 +1,14 @@
 "use client"
-import { CaretDownIcon } from "@radix-ui/react-icons"
-import type React from "react"
 
+import { ChevronDownIcon } from "@heroicons/react/16/solid"
 import { hasChainIcon } from "@src/app/(app)/swap/_utils/useDeterminePair"
 import { useIsFlatTokenListEnabled } from "@src/hooks/useIsFlatTokenListEnabled"
+import type React from "react"
 import { useMemo } from "react"
 import { chainIcons } from "../constants/blockchains"
 import type { TokenInfo } from "../types/base"
 import { isBaseToken } from "../utils"
-import { AssetComboIcon } from "./Asset/AssetComboIcon"
+import AssetComboIcon from "./Asset/AssetComboIcon"
 
 type Props = {
   selected?: TokenInfo
@@ -20,13 +20,7 @@ type Props = {
   disabled?: boolean
 }
 
-const EmptyIcon = () => {
-  return (
-    <span className="relative min-w-[36px] min-h-[36px] bg-gray-200 rounded-full" />
-  )
-}
-
-export const SelectAssets = ({
+const SelectAssets = ({
   selected,
   handleSelect,
   tokens,
@@ -80,25 +74,29 @@ export const SelectAssets = ({
       onClick={handleAssetsSelect}
       data-testid={dataTestId}
       disabled={disabled}
-      className="max-w-[120px] sm:max-w-[148px] md:max-w-[210px] bg-gray-1 shadow-select-token rounded-full flex justify-between items-center p-1 gap-1.5 md:gap-2.5 dark:shadow-select-token-dark min-w-0"
+      className="rounded-full border border-gray-900/10 flex items-center gap-1.5 p-1"
     >
-      {selected?.icon ? (
-        <AssetComboIcon
-          icon={selected.icon as string}
-          name={selected.name as string}
-          chainName={
-            isBaseToken(selected) ? selected.originChainName : undefined
-          }
-          chainIcon={chainIcon}
-          showChainIcon={showChainIcon}
-        />
-      ) : (
-        <EmptyIcon />
-      )}
-      <span className="text-xs sm:text-sm uppercase truncate min-w-0">
-        {selected?.symbol ?? "select token"}
+      <AssetComboIcon
+        icon={selected?.icon}
+        name={selected?.name}
+        chainName={
+          selected && isBaseToken(selected)
+            ? selected.originChainName
+            : undefined
+        }
+        chainIcon={chainIcon}
+        showChainIcon={showChainIcon}
+        size="sm"
+      />
+
+      <span className="flex items-center gap-1">
+        <span className="text-base text-gray-900 font-medium leading-none">
+          {selected?.symbol ?? "Select token"}
+        </span>
+        <ChevronDownIcon className="size-4 text-gray-700" />
       </span>
-      <CaretDownIcon width={25} height={25} />
     </button>
   )
 }
+
+export default SelectAssets

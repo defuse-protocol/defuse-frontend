@@ -42,7 +42,6 @@ export function TokenMigrationDialog({
       open={state.matches("migrating")}
       onClose={() => send({ type: "CANCEL" })}
       onCloseAnimationEnd={onExit}
-      isDismissable
     >
       {!state.matches({ migrating: "settled" }) ? (
         <>

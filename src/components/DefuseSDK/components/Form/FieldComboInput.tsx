@@ -18,7 +18,7 @@ import {
   BlockMultiBalances,
   type BlockMultiBalancesProps,
 } from "../Block/BlockMultiBalances"
-import { SelectAssets } from "../SelectAssets"
+import SelectAssets from "../SelectAssets"
 
 interface Props<T extends FieldValues>
   extends Omit<BlockMultiBalancesProps, "decimals" | "balance"> {

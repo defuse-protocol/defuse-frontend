@@ -32,12 +32,12 @@ import type {
 } from "../../../../types/base"
 import type { WithdrawWidgetProps } from "../../../../types/withdraw"
 import { parseUnits } from "../../../../utils/parse"
+import IntentCreationResult from "../../../account/components/IntentCreationResult"
 import {
   balanceSelector,
   transitBalanceSelector,
 } from "../../../machines/depositedBalanceMachine"
 import { getPOABridgeInfo } from "../../../machines/poaBridgeInfoActor"
-import { renderIntentCreationResult } from "../../../swap/components/SwapForm"
 import { usePublicKeyModalOpener } from "../../../swap/hooks/usePublicKeyModalOpener"
 import { WithdrawUIMachineContext } from "../../WithdrawUIMachineContext"
 import { isCexIncompatible } from "../../utils/cexCompatibility"
@@ -498,7 +498,8 @@ export const WithdrawForm = ({
         increaseAmount={increaseAmount}
         decreaseAmount={decreaseAmount}
       />
-      {renderIntentCreationResult(intentCreationResult)}
+
+      <IntentCreationResult intentCreationResult={intentCreationResult} />
 
       {intentRefs.length !== 0 && <Intents intentRefs={intentRefs} />}
     </Island>

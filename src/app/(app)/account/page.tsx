@@ -1,6 +1,7 @@
 "use client"
 
 import { authIdentity } from "@defuse-protocol/internal-utils"
+import Button from "@src/components/Button"
 import Assets from "@src/components/DefuseSDK/features/account/components/Assets"
 import Balance from "@src/components/DefuseSDK/features/account/components/Balance"
 import { useWatchHoldings } from "@src/components/DefuseSDK/features/account/hooks/useWatchHoldings"
@@ -10,7 +11,6 @@ import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { DepositIcon, SendIcon } from "@src/icons"
-import Link from "next/link"
 import { useMemo } from "react"
 
 export default function AccountPage() {
@@ -48,20 +48,15 @@ export default function AccountPage() {
       <Balance balance={totalValueUsd} />
 
       <section className="grid grid-cols-2 gap-2 mt-6">
-        <Link
-          href="/deposit"
-          className="h-13 flex items-center justify-center rounded-2xl bg-gray-900 text-white text-base font-medium gap-2"
-        >
+        <Button href="/deposit" size="xl">
           <DepositIcon className="size-6 -mt-1.5" />
           Add funds
-        </Link>
-        <Link
-          href="/send"
-          className="h-13 flex items-center justify-center rounded-2xl bg-gray-900 text-white text-base font-medium gap-2"
-        >
+        </Button>
+
+        <Button href="/send" size="xl">
           <SendIcon className="size-6" />
           Send
-        </Link>
+        </Button>
       </section>
 
       <Assets assets={holdings} />

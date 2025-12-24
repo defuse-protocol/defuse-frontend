@@ -14,7 +14,7 @@ import { FormattedCurrency } from "../../features/account/components/shared/Form
 import type { TokenInfo } from "../../types/base"
 import { formatTokenValue } from "../../utils/format"
 import { getTokenId, isBaseToken } from "../../utils/token"
-import { AssetComboIcon } from "./AssetComboIcon"
+import AssetComboIcon from "./AssetComboIcon"
 
 type Props<T> = {
   assets: SelectItemToken<T>[]
