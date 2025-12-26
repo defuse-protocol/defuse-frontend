@@ -1,31 +1,22 @@
-import { Text } from "@radix-ui/themes"
-import clsx from "clsx"
+import { MagnifyingGlassIcon } from "@heroicons/react/20/solid"
+import Button from "@src/components/Button"
 
-type Props = {
-  className?: string
-}
-export const EmptyAssetList = ({ className }: Pick<Props, "className">) => {
-  return (
+const EmptyAssetList = () => (
+  <div className="flex justify-center items-center flex-col mt-12">
     <div
-      className={clsx(
-        "flex-1 w-full flex flex-col justify-center items-center text-center -mt-10",
-        className && className
-      )}
+      className="size-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600"
+      aria-hidden
     >
-      <div className="flex justify-center items-center rounded-full bg-gray-950 p-6 mb-4">
-        <img
-          src="/static/icons/cross-1.svg"
-          alt="Close"
-          width={32}
-          height={32}
-        />
-      </div>
-      <Text size="4" weight="bold">
-        Your token not found
-      </Text>
-      <Text size="2" weight="medium" className="text-gray-11">
-        Try depositing to your wallet.
-      </Text>
+      <MagnifyingGlassIcon className="size-5" />
     </div>
-  )
-}
+    <h3 className="font-medium text-base text-gray-900 mt-4">
+      No tokens found
+    </h3>
+    <p className="text-sm text-gray-500 mt-1">Try depositing to your wallet</p>
+    <Button href="/deposit" className="mt-4">
+      Deposit
+    </Button>
+  </div>
+)
+
+export default EmptyAssetList

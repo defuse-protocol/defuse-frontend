@@ -1,11 +1,10 @@
 import { authIdentity } from "@defuse-protocol/internal-utils"
-import { XIcon } from "@phosphor-icons/react"
-import { Text } from "@radix-ui/themes"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useSmartSearch } from "@src/hooks/useSmartSearch"
 import { type SearchableItem, createSearchData } from "@src/utils/smartSearch"
-import { useEffect, useState } from "react"
+import clsx from "clsx"
+import { useEffect, useRef, useState } from "react"
 import { useWatchHoldings } from "../../features/account/hooks/useWatchHoldings"
 import type { BalanceMapping } from "../../features/machines/depositedBalanceMachine"
 import { useModalStore } from "../../providers/ModalStoreProvider"
@@ -17,12 +16,12 @@ import {
   compareAmounts,
   computeTotalBalanceDifferentDecimals,
 } from "../../utils/tokenUtils"
-import { AssetList } from "../Asset/AssetList"
-import { EmptyAssetList } from "../Asset/EmptyAssetList"
+import AssetList from "../Asset/AssetList"
+import EmptyAssetList from "../Asset/EmptyAssetList"
 import { MostTradableTokens } from "../MostTradableTokens/MostTradableTokens"
-import { SearchBar } from "../SearchBar"
+import SearchBar from "../SearchBar"
 import { ModalDialog } from "./ModalDialog"
-import { ModalNoResults } from "./ModalNoResults"
+import ModalNoResults from "./ModalNoResults"
 
 export type ModalSelectAssetsPayload = {
   modalType?: ModalType.MODAL_SELECT_ASSETS
@@ -54,6 +53,8 @@ export function ModalSelectAssets() {
   const [notFilteredAssetList, setNotFilteredAssetList] = useState<
     SelectItemToken[]
   >([])
+  const [isScrolled, setIsScrolled] = useState(false)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
   const { onCloseModal, modalType, payload } = useModalStore((state) => state)
   const tokens = useTokensStore((state) => state.tokens)
   // TODO: how we can avoid this cast?
@@ -171,40 +172,47 @@ export function ModalSelectAssets() {
 
   const is1cs = useIs1CsEnabled()
 
+  const handleScroll = () => {
+    if (!scrollContainerRef.current) return
+
+    setIsScrolled(scrollContainerRef.current.scrollTop > 0)
+  }
+
   return (
-    <ModalDialog title="Select asset">
-      <div className="flex flex-col min-h-[680px] md:max-h-[680px] h-full">
-        <div className="z-20 h-auto flex-none -mt-(--inset-padding-top) -mr-(--inset-padding-right) -ml-(--inset-padding-left) px-5 pt-7 pb-4 sticky -top-(--inset-padding-top) bg-gray-1">
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-row justify-between items-center">
-              <Text size="5" weight="bold">
-                Select asset
-              </Text>
-              <button type="button" onClick={onCloseModal} className="p-3">
-                <XIcon width={18} height={18} />
-              </button>
-            </div>
-            <SearchBar query={searchValue} setQuery={setSearchValue} />
-            {modalPayload?.isMostTradableTokensEnabled && !searchValue ? (
-              <MostTradableTokens
-                tokenList={notFilteredAssetList}
-                onTokenSelect={handleSelectToken}
-              />
-            ) : null}
-          </div>
+    <ModalDialog title="Select token">
+      <div className="mt-2 h-[630px] flex flex-col">
+        <div
+          className={clsx(
+            "pb-5 border-b -mx-5 px-5 transition-colors",
+            isScrolled ? "border-gray-200" : "border-transparent"
+          )}
+        >
+          <SearchBar query={searchValue} setQuery={setSearchValue} />
         </div>
-        <div className="z-10 flex-1 overflow-y-auto border-b border-gray-1 dark:border-black-950 -mr-(--inset-padding-right) pr-(--inset-padding-right)">
+
+        <div
+          ref={scrollContainerRef}
+          onScroll={handleScroll}
+          className="overflow-y-auto -mx-5 px-5 -mb-5 pb-5"
+        >
+          {modalPayload?.isMostTradableTokensEnabled && !searchValue ? (
+            <MostTradableTokens
+              tokenList={notFilteredAssetList}
+              onTokenSelect={handleSelectToken}
+            />
+          ) : null}
+
           {assetList.length ? (
             <AssetList
               assets={displayAssets}
-              className="h-full"
               handleSelectToken={handleSelectToken}
               accountId={modalPayload?.accountId}
               showChain={is1cs}
             />
           ) : (
-            <EmptyAssetList className="h-full" />
+            <EmptyAssetList />
           )}
+
           {searchValue.trim() && searchResults.length === 0 && (
             <ModalNoResults handleSearchClear={handleSearchClear} />
           )}

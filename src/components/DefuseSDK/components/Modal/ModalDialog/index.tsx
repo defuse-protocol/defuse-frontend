@@ -80,13 +80,13 @@ export function BaseModalDialog({
           }}
         >
           <div className="fixed inset-0 z-20 w-screen overflow-y-auto">
-            <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-start sm:p-0 sm:pt-[10vh]">
               <Dialog.Content
                 className={clsx(
                   "relative transform overflow-hidden rounded-3xl bg-white p-5 text-left shadow-xl",
-                  "sm:my-8 sm:w-full sm:max-w-sm sm:p-6",
-                  "data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-4 fade-in data-[state=open]:ease-out data-[state=open]:duration-200 data-[state=open]:zoom-in-95",
-                  "data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom-4 fade-out data-[state=closed]:ease-in data-[state=closed]:duration-1000 data-[state=closed]:zoom-in-95"
+                  "sm:my-8 sm:w-full sm:max-w-sm",
+                  "data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-2 fade-in data-[state=open]:ease-out data-[state=open]:duration-200 data-[state=open]:zoom-in-97",
+                  "data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom-2 fade-out data-[state=closed]:ease-in data-[state=closed]:duration-1000 data-[state=closed]:zoom-in-97"
                 )}
                 onOpenAutoFocus={(e) => {
                   // This is a workaround for focusing the first input in the modal

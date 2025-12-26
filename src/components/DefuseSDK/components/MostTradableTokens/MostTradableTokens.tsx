@@ -1,4 +1,3 @@
-import { FireSimpleIcon } from "@phosphor-icons/react"
 import { hasChainIcon } from "@src/app/(app)/swap/_utils/useDeterminePair"
 import { useIsFlatTokenListEnabled } from "@src/hooks/useIsFlatTokenListEnabled"
 import { useMostTradableTokens } from "@src/hooks/useMostTradableTokens"
@@ -8,8 +7,7 @@ import type { TokenInfo } from "../../types/base"
 import { isBaseToken } from "../../utils"
 import AssetComboIcon from "../Asset/AssetComboIcon"
 import type { SelectItemToken } from "../Modal/ModalSelectAssets"
-import { Tooltip, TooltipContent, TooltipTrigger } from "../Tooltip"
-import styles from "./MostTradableTokens.module.css"
+import {} from "../Tooltip"
 
 interface MostTradableTokensProps {
   onTokenSelect: (selectItemToken: SelectItemToken) => void
@@ -20,7 +18,7 @@ export function MostTradableTokens({
   onTokenSelect,
   tokenList,
 }: MostTradableTokensProps) {
-  const { data, isLoading, isError, refetch } = useMostTradableTokens()
+  const { data, isLoading, isError } = useMostTradableTokens()
   const [hasDataOnMount] = useState(() => Boolean(data?.tokens?.length))
   const tradableTokenList = useMemo(() => {
     if (!data?.tokens || !tokenList.length) return []
@@ -77,49 +75,18 @@ export function MostTradableTokens({
       .slice(0, 5)
   }, [data?.tokens, tokenList])
 
-  if (isLoading || !hasDataOnMount || !tradableTokenList.length) return null
+  if (isLoading || !hasDataOnMount || !tradableTokenList.length || isError) {
+    return null
+  }
 
   return (
-    <div className="flex items-center justify-between gap-3 min-h-12 w-full  bg-gray-50 dark:bg-gray-900/50 rounded-xl px-4 py-2 border border-gray-200 dark:border-gray-700">
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="cursor-pointer flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 whitespace-nowrap shrink-0">
-            <FireSimpleIcon
-              className={`w-4 h-4 text-orange-500 transition-all duration-300 ${styles.fireIcon}`}
-              aria-hidden="true"
-              width={16}
-              height={16}
-            />
-            <span className="hidden sm:inline">Top 5 traded (24h)</span>
-            <span className="sm:hidden">Top 5 traded</span>
-          </div>
-        </TooltipTrigger>
-        <TooltipContent side="top" className="z-50 max-w-xs" sideOffset={5}>
-          These are the top-performing tokens based on their 24-hour trading
-          volume.
-        </TooltipContent>
-      </Tooltip>
+    <div className="mb-8">
+      <h3 className="text-gray-500 text-sm">Most traded tokens</h3>
 
       <TokenList
         tradableTokenList={tradableTokenList}
         onTokenSelect={onTokenSelect}
       />
-
-      {isError && (
-        <div className="flex gap-1 items-center">
-          <span className="text-xs font-medium text-red-500">
-            Failed to load tokens
-          </span>
-
-          <button
-            type="button"
-            className="px-2 py-1 my-1.5 text-xs border border-gray-300 dark:border-gray-600 rounded-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            onClick={() => refetch()}
-          >
-            retry
-          </button>
-        </div>
-      )}
     </div>
   )
 }
@@ -150,21 +117,21 @@ function TokenList({
   )
 
   return (
-    <div
-      className={`flex flex-nowrap overflow-x-auto overflow-y-hidden no-scrollbar min-w-0 gap-2 whitespace-nowrap ${styles.hideScrollbar}`}
-    >
+    <div className="grid grid-cols-5 gap-1 mt-3">
       {tradableTokenList.map((selectItemToken) => {
         const chainIcon = isBaseToken(selectItemToken.token)
           ? chainIcons[selectItemToken.token.originChainName]
           : undefined
+
         return (
           <button
             key={`${selectItemToken.token.symbol}-${isBaseToken(selectItemToken.token) ? selectItemToken.token.originChainName : "unified"}`}
             type="button"
             onClick={() => onTokenSelect(selectItemToken)}
-            className="group relative shrink-0 flex flex-none items-center justify-center p-1 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-700 transition-all duration-200 touch-manipulation w-10 h-10"
+            className="flex flex-col text-center items-center justify-center rounded-xl py-2 px-1.5 gap-1.5 hover:bg-gray-100 border border-gray-200"
           >
             <AssetComboIcon
+              size="sm"
               icon={selectItemToken.token.icon}
               name={selectItemToken.token.name}
               showChainIcon={showChainIcon(selectItemToken.token, chainIcon)}
@@ -174,12 +141,10 @@ function TokenList({
                   : undefined
               }
               chainIcon={chainIcon}
-              style={{
-                transform: showChainIcon(selectItemToken.token, chainIcon)
-                  ? "scale(0.8)"
-                  : "scale(1)",
-              }}
             />
+            <div className="text-sm font-medium text-gray-900 w-full min-w-0 truncate">
+              {selectItemToken.token.symbol}
+            </div>
           </button>
         )
       })}

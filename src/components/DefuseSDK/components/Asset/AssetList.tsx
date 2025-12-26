@@ -1,9 +1,5 @@
-import { CheckCircleIcon } from "@phosphor-icons/react"
-import { Text } from "@radix-ui/themes"
 import clsx from "clsx"
 import { type ReactNode, useCallback } from "react"
-
-import type { TokenValue } from "../../types/base"
 import type { SelectItemToken } from "../Modal/ModalSelectAssets"
 
 import { hasChainIcon } from "@src/app/(app)/swap/_utils/useDeterminePair"
@@ -25,7 +21,7 @@ type Props<T> = {
   showChain?: boolean
 }
 
-export function AssetList<T extends TokenInfo>({
+function AssetList<T extends TokenInfo>({
   assets,
   className,
   handleSelectToken,
@@ -38,94 +34,141 @@ export function AssetList<T extends TokenInfo>({
     (
       token: TokenInfo,
       chainIcon: { dark: string; light: string } | undefined
-    ) => {
-      return (
-        (isFlatTokenListEnabled && chainIcon !== undefined) ||
-        (showChain && chainIcon !== undefined && hasChainIcon(token, tokens))
-      )
-    },
+    ) =>
+      (isFlatTokenListEnabled && chainIcon !== undefined) ||
+      (showChain && chainIcon !== undefined && hasChainIcon(token, tokens)),
     [tokens, showChain, isFlatTokenListEnabled]
+  )
+
+  const [assetsWithBalance, assetsWithoutBalance] = assets.reduce<
+    [SelectItemToken<T>[], SelectItemToken<T>[]]
+  >(
+    (acc, asset) => {
+      acc[asset.value?.amount && asset.value.amount > 0n ? 0 : 1].push(asset)
+      return acc
+    },
+    [[], []]
   )
 
   return (
     <div
-      className={clsx("flex flex-col", className && className)}
+      className={clsx("flex flex-col space-y-8", className && className)}
       data-testid="asset-list"
     >
-      {assets.map(
-        ({ token, selected, isHoldingsEnabled, value, usdValue }, i) => {
-          const chainIcon = isBaseToken(token)
-            ? chainIcons[token.originChainName]
-            : undefined
+      {assetsWithBalance.length > 0 && (
+        <div>
+          <h3 className="text-gray-500 text-sm">Your tokens</h3>
 
-          return (
-            <button
-              key={getTokenId(token)}
-              type="button"
-              className={clsx(
-                "flex justify-between items-center gap-3 p-2.5 rounded-md hover:bg-gray-3",
-                { "bg-gray-3": selected }
-              )}
-              // biome-ignore lint/style/noNonNullAssertion: i is always within bounds
-              onClick={() => handleSelectToken?.(assets[i]!)}
-            >
-              <div className="relative">
-                <AssetComboIcon
-                  icon={token.icon}
-                  name={token.name}
-                  showChainIcon={showChainIcon(token, chainIcon)}
-                  chainName={
-                    isBaseToken(token) ? token.originChainName : undefined
-                  }
+          <div className="mt-2 flex flex-col gap-1">
+            {assetsWithBalance.map((asset, index) => {
+              const chainIcon = isBaseToken(asset.token)
+                ? chainIcons[asset.token.originChainName]
+                : undefined
+
+              return (
+                <AssetItem
+                  key={getTokenId(asset.token)}
+                  {...asset}
                   chainIcon={chainIcon}
+                  showChainIcon={showChainIcon(asset.token, chainIcon)}
+                  // biome-ignore lint/style/noNonNullAssertion: i is always within bounds
+                  onClick={() => handleSelectToken?.(assetsWithBalance[index]!)}
                 />
-                {selected && (
-                  <div className="absolute -top-[7px] -left-[4px] rounded-full">
-                    <CheckCircleIcon width={16} height={16} weight="fill" />
-                  </div>
-                )}
-              </div>
-              <div className="grow flex flex-col">
-                <div className="flex justify-between items-center">
-                  <Text as="span" size="2" weight="medium">
-                    {token.name}
-                  </Text>
-                  {isHoldingsEnabled && renderBalance({ value })}
-                </div>
-                <div className="flex justify-between items-center text-gray-11">
-                  <Text as="span" size="2">
-                    {token.symbol}
-                  </Text>
-                  {usdValue != null ? (
-                    <FormattedCurrency
-                      value={usdValue}
-                      formatOptions={{ currency: "USD" }}
-                      className="text-sm font-medium text-gray-11"
-                    />
-                  ) : (
-                    ""
-                  )}
-                </div>
-              </div>
-            </button>
-          )
-        }
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {assetsWithoutBalance.length > 0 && (
+        <div>
+          <h3 className="text-gray-500 text-sm">More tokens</h3>
+
+          <div className="mt-2 flex flex-col gap-1">
+            {assetsWithoutBalance.map((asset, index) => {
+              const chainIcon = isBaseToken(asset.token)
+                ? chainIcons[asset.token.originChainName]
+                : undefined
+
+              return (
+                <AssetItem
+                  key={getTokenId(asset.token)}
+                  {...asset}
+                  chainIcon={chainIcon}
+                  showChainIcon={showChainIcon(asset.token, chainIcon)}
+                  onClick={() =>
+                    // biome-ignore lint/style/noNonNullAssertion: i is always within bounds
+                    handleSelectToken?.(assetsWithoutBalance[index]!)
+                  }
+                />
+              )
+            })}
+          </div>
+        </div>
       )}
     </div>
   )
 }
 
-function renderBalance({ value }: { value: TokenValue | undefined }) {
-  const shortFormatted = value
-    ? formatTokenValue(value.amount, value.decimals, {
-        fractionDigits: 4,
-        min: 0.0001,
-      })
-    : undefined
+export default AssetList
 
-  return (
-    <Text as="span" size="2" weight="medium">
-      {shortFormatted ?? "0"}
-    </Text>
-  )
-}
+const AssetItem = ({
+  token,
+  value,
+  isHoldingsEnabled,
+  usdValue,
+  selected,
+  showChainIcon,
+  chainIcon,
+  onClick,
+}: SelectItemToken & {
+  showChainIcon: boolean
+  chainIcon: { dark: string; light: string } | undefined
+  onClick: () => void
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={clsx(
+      "relative py-2.5 text-left flex items-center gap-3 -mx-4 px-4 rounded-2xl overflow-hidden hover:bg-gray-100",
+      {
+        "bg-gray-100": selected,
+      }
+    )}
+  >
+    <AssetComboIcon
+      icon={token.icon}
+      name={token.name}
+      showChainIcon={showChainIcon}
+      chainName={isBaseToken(token) ? token.originChainName : undefined}
+      chainIcon={chainIcon}
+    />
+
+    <div className="grow flex flex-col gap-1">
+      <div className="text-base font-medium text-gray-900 leading-none">
+        {token.name}
+      </div>
+      <div className="text-sm leading-none text-gray-500">{token.symbol}</div>
+    </div>
+
+    <div className="flex flex-col gap-1">
+      {usdValue != null ? (
+        <>
+          <FormattedCurrency
+            value={usdValue}
+            formatOptions={{ currency: "USD" }}
+            className="text-base font-medium text-gray-900 text-right leading-none"
+          />
+        </>
+      ) : null}
+      <div className="text-sm leading-none text-gray-500 text-right">
+        {isHoldingsEnabled && value
+          ? formatTokenValue(value.amount, value.decimals, {
+              fractionDigits: 4,
+              min: 0.0001,
+            })
+          : null}
+      </div>
+    </div>
+  </button>
+)
