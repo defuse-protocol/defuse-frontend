@@ -1,4 +1,5 @@
 import Themes from "@src/types/themes"
+import clsx from "clsx"
 import { useTheme } from "next-themes"
 import Image from "next/image"
 import type React from "react"
@@ -12,43 +13,54 @@ type AssetComboIconProps = {
   showChainIcon?: boolean
   className?: React.HTMLAttributes<"div">["className"]
   style?: React.HTMLAttributes<"div">["style"]
+  size?: "sm" | "md"
 }
 
-export const AssetComboIcon = ({
+const AssetComboIcon = ({
   icon,
-  name,
   chainIcon,
   chainName,
   showChainIcon = false,
-  className = "",
+  className,
   style,
+  size = "md",
 }: AssetComboIconProps) => {
   const { resolvedTheme } = useTheme()
 
   return (
-    <div className={`relative inline-block ${className}`} style={style}>
-      <div className="relative overflow-hidden size-7 flex justify-center items-center rounded-full">
+    <div className={clsx("relative inline-block", className)} style={style}>
+      <div
+        className={clsx(
+          "relative overflow-hidden flex justify-center items-center rounded-full",
+          {
+            "size-7": size === "sm",
+            "size-10": size === "md",
+          }
+        )}
+      >
         {icon ? (
           <img
             src={icon}
-            alt={name || "Coin Logo"}
-            className="w-full h-full object-contain"
+            alt=""
+            className="size-full object-contain bg-gray-100"
           />
         ) : (
-          <EmptyAssetComboIcon />
+          <div className="relative overflow-hidden size-full flex justify-center items-center bg-gray-100 rounded-full">
+            <div className="size-1/2 rounded-full border-2 border-gray-500 border-dashed" />
+          </div>
         )}
       </div>
       {showChainIcon && chainIcon && resolvedTheme && (
         <Tooltip>
           <TooltipTrigger asChild>
             <Image
-              className="absolute -right-[7px] -bottom-[7px] bg-gray-1 rounded-[6px] p-0.5 shadow-sm h-4 w-4"
+              className="absolute -right-[7px] -bottom-[7px] bg-gray-1 rounded-md p-0.5 shadow-xs h-4 w-4"
               width={16}
               height={16}
               src={
                 resolvedTheme === Themes.DARK ? chainIcon.dark : chainIcon.light
               }
-              alt={chainName || "Network Logo"}
+              alt=""
             />
           </TooltipTrigger>
           <TooltipContent side="left" className="z-50">
@@ -60,8 +72,4 @@ export const AssetComboIcon = ({
   )
 }
 
-const EmptyAssetComboIcon = () => {
-  return (
-    <div className="relative overflow-hidden size-7 flex justify-center items-center border border-silver-100 rounded-full" />
-  )
-}
+export default AssetComboIcon

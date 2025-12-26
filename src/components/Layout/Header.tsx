@@ -33,20 +33,20 @@ export function Header({
   return (
     <>
       <header
-        className={`${styles.header} h-[56px] fixed top-0 left-0 w-full md:relative border-b-[1px] z-50 border-gray-a3`}
+        className={`${styles.header} h-[56px] fixed top-0 left-0 w-full md:relative border-b z-50 border-gray-a3`}
       >
         <div className="h-full flex justify-between items-center px-3">
-          <div className="flex-shrink-0">
+          <div className="shrink-0">
             <Logo />
           </div>
 
           {/* Navbar */}
-          <div className="flex-grow flex justify-between items-center pl-8 pr-4">
-            <div className="flex-shrink-0">{navbarSlot}</div>
-            <div className="flex-shrink-0">{depositSlot}</div>
+          <div className="grow flex justify-between items-center pl-8 pr-4">
+            <div className="shrink-0">{navbarSlot}</div>
+            <div className="shrink-0">{depositSlot}</div>
           </div>
 
-          <div className="flex justify-end items-center gap-4 flex-shrink-0">
+          <div className="flex justify-end items-center gap-4 shrink-0">
             {whitelabelTemplate === "turboswap" && (
               <div className="hidden md:block">
                 <AddTurboChainButton />
@@ -78,7 +78,7 @@ Header.DepositSlot = function DepositSlot({
   return (
     <div className="hidden md:flex items-center justify-between">
       {children}
-      <div className="h-[20px] w-[1px] bg-gray-5 ml-4" />
+      <div className="h-[20px] w-px bg-gray-5 ml-4" />
     </div>
   )
 }

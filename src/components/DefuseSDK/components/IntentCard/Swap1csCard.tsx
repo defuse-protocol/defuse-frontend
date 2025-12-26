@@ -7,7 +7,7 @@ import {
   statusesToTrack,
 } from "../../features/machines/oneClickStatusMachine"
 import { formatTokenValue } from "../../utils/format"
-import { AssetComboIcon } from "../Asset/AssetComboIcon"
+import AssetComboIcon from "../Asset/AssetComboIcon"
 import { CopyButton } from "./CopyButton"
 
 type Swap1csCardProps = {

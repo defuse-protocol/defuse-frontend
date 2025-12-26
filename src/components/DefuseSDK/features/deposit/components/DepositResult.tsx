@@ -1,5 +1,5 @@
 import { Box, Flex, Link, Text } from "@radix-ui/themes"
-import { AssetComboIcon } from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
+import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { chainTxExplorer } from "@src/components/DefuseSDK/utils/chainTxExplorer"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
