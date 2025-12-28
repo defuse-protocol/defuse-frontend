@@ -145,7 +145,7 @@ const ConnectWallet = () => {
                 >
                   <div className="w-full flex items-center justify-start gap-2">
                     <Image
-                      src="/static/icons/wallets/near-wallet-selector.svg"
+                      src="/static/icons/wallets/near-wallet.svg"
                       alt="Near Wallet Selector"
                       width={36}
                       height={36}
@@ -166,7 +166,7 @@ const ConnectWallet = () => {
                 >
                   <div className="w-full flex items-center justify-start gap-2">
                     <Image
-                      src="/static/icons/wallets/solana-logo-mark.svg"
+                      src="/static/icons/wallets/solana-wallet.svg"
                       alt="Solana Wallet Selector"
                       width={36}
                       height={36}
@@ -214,7 +214,7 @@ const ConnectWallet = () => {
                 >
                   <div className="w-full flex items-center justify-start gap-2">
                     <Image
-                      src="/static/icons/wallets/solana-logo-mark.svg"
+                      src="/static/icons/wallets/solana-wallet.svg"
                       alt="Solana Wallet Selector"
                       width={36}
                       height={36}
@@ -224,7 +224,6 @@ const ConnectWallet = () => {
                     </Text>
                   </div>
                 </Button>
-
                 {whitelabelTemplate !== "solswap" && (
                   <>
                     <Button
@@ -237,7 +236,7 @@ const ConnectWallet = () => {
                     >
                       <div className="w-full flex items-center justify-start gap-2">
                         <Image
-                          src="/static/icons/wallets/near-wallet-selector.svg"
+                          src="/static/icons/wallets/near-wallet.svg"
                           alt="Near Wallet Selector"
                           width={36}
                           height={36}

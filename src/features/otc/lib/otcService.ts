@@ -1,5 +1,5 @@
 import { base64urlnopad } from "@scure/base"
-import { deriveTradeIdFromIV } from "@src/app/(app)/otc/_utils/encoder"
+import { deriveTradeIdFromIV } from "@src/app/(app)/(dashboard)/otc/_utils/encoder"
 import type {
   CreateOtcTradeRequest,
   CreateOtcTradeResponse,

@@ -28,6 +28,10 @@ export type SendTransactionSolanaParams = {
 export type Settings = {
   appName: string
   metadata: {
+    signup: {
+      title: string
+      description: string
+    }
     [key: string]: {
       title: string
       description: string

@@ -1,7 +1,7 @@
 "use client"
 
 import { ChevronDownIcon } from "@heroicons/react/16/solid"
-import { hasChainIcon } from "@src/app/(app)/swap/_utils/useDeterminePair"
+import { hasChainIcon } from "@src/app/(app)/(dashboard)/swap/_utils/useDeterminePair"
 import { useIsFlatTokenListEnabled } from "@src/hooks/useIsFlatTokenListEnabled"
 import type React from "react"
 import { useMemo } from "react"

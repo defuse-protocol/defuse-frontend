@@ -1,4 +1,4 @@
-import { hasChainIcon } from "@src/app/(app)/swap/_utils/useDeterminePair"
+import { hasChainIcon } from "@src/app/(app)/(dashboard)/swap/_utils/useDeterminePair"
 import { useIsFlatTokenListEnabled } from "@src/hooks/useIsFlatTokenListEnabled"
 import { useMostTradableTokens } from "@src/hooks/useMostTradableTokens"
 import { useCallback, useMemo, useState } from "react"
