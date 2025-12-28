@@ -10,7 +10,7 @@ type Props = {
 const SearchBar = ({
   query,
   setQuery,
-  placeholder = "Search token",
+  placeholder = "Search tokens",
 }: Props) => {
   const ref = useRef<HTMLInputElement | null>(null)
 

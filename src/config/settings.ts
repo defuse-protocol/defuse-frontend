@@ -17,6 +17,10 @@ export const settings: Settings = {
       description:
         "We sent a verification code to your email. Please enter it below to login.",
     },
+    username: {
+      title: "NEAR Intents | Set your username",
+      description: "Set your NEAR Intents internal username.",
+    },
     home: {
       title: "NEAR Intents | The Smartest Way to Trade Across Chains",
       description:
@@ -84,6 +88,10 @@ export const settings: Settings = {
       title: "NEAR Intents | Multichain Account & Wallet Overview",
       description:
         "View balances and manage your wallet across chains. Your gateway to seamless swaps, deposits, and withdrawals in DeFi.",
+    },
+    settings: {
+      title: "NEAR Intents | Settings",
+      description: "Manage your NEAR Intents account settings.",
     },
     termsAndConditions: {
       title: "NEAR Intents | Terms & Conditions",

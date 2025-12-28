@@ -16,7 +16,7 @@ const Assets = ({ assets }: { assets: Holding[] | undefined }) => {
   return (
     <section className="mt-9">
       <h2 className="text-base text-gray-500">Assets</h2>
-      <div className="mt-2">
+      <div className="mt-2 flex flex-col gap-1">
         {assets.map((asset) => (
           <Asset key={getTokenId(asset.token)} asset={asset} />
         ))}

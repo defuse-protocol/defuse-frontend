@@ -112,6 +112,7 @@ export default function LoginPage() {
               id="email"
               type="email"
               placeholder="john@example.com"
+              autoComplete="email"
               className="pt-1.5 block w-full text-gray-900 font-medium placeholder:text-gray-400 focus:outline-none text-base leading-none ring-0 border-none p-0"
               {...register("email", {
                 required: "Enter your email address.",
