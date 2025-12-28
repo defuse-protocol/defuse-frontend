@@ -17,7 +17,9 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => (
             <UserIcon className="text-orange-100 size-5" />
           </div>
 
-          <div className="text-gray-400 text-sm font-medium">@username123</div>
+          <div className="text-gray-400 text-sm font-semibold">
+            @username123
+          </div>
         </DropdownMenu.Trigger>
 
         <DropdownMenu.Portal>
@@ -32,7 +34,7 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => (
             <DropdownMenu.Item asChild>
               <Link
                 href="/settings"
-                className="group rounded-xl focus:outline-hidden focus:bg-gray-100 focus:text-gray-900 px-3 py-2.5 text-left text-sm text-gray-700 flex items-center gap-2 hover:bg-gray-100 hover:text-gray-900 font-medium"
+                className="group rounded-xl focus:outline-hidden focus:bg-gray-100 focus:text-gray-900 px-3 py-2.5 text-left text-sm text-gray-700 flex items-center gap-2 hover:bg-gray-100 hover:text-gray-900 font-semibold"
               >
                 <Cog8ToothIcon className="size-4 text-gray-500 group-hover:text-gray-600 group-focus:text-gray-600" />
                 Settings

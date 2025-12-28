@@ -102,7 +102,7 @@ export function BaseModalDialog({
                     isDismissable && "-mt-2.5 -mr-2.5"
                   )}
                 >
-                  <Dialog.Title className="text-base font-medium text-gray-900">
+                  <Dialog.Title className="text-base font-semibold text-gray-900">
                     {title}
                   </Dialog.Title>
                   {isDismissable && (

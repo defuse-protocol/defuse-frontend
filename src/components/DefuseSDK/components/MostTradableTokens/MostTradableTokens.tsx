@@ -81,7 +81,7 @@ export function MostTradableTokens({
 
   return (
     <div className="mb-8">
-      <h3 className="text-gray-500 text-sm">Most traded tokens</h3>
+      <h3 className="text-gray-500 text-sm font-medium">Most traded tokens</h3>
 
       <TokenList
         tradableTokenList={tradableTokenList}
@@ -142,7 +142,7 @@ function TokenList({
               }
               chainIcon={chainIcon}
             />
-            <div className="text-sm font-medium text-gray-900 w-full min-w-0 truncate">
+            <div className="text-sm font-semibold text-gray-900 w-full min-w-0 truncate">
               {selectItemToken.token.symbol}
             </div>
           </button>

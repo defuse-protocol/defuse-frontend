@@ -9,6 +9,7 @@ import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
 import { getDefuseAssetId } from "@src/components/DefuseSDK/utils/token"
+import ErrorMessage from "@src/components/ErrorMessage"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useThrottledValue } from "@src/hooks/useThrottledValue"
 import { useSelector } from "@xstate/react"
@@ -324,7 +325,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   return (
     <>
       <div className="flex justify-between items-center">
-        <h1 className="text-gray-900 text-xl font-bold">Swap</h1>
+        <h1 className="text-gray-900 text-xl font-bold tracking-tight">Swap</h1>
         <SwapSettings tokenIn={tokenIn} tokenOut={tokenOut} />
       </div>
 
@@ -381,6 +382,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                 className="size-9 flex items-center justify-center bg-white border hover:border-gray-300 transition-colors duration-100 border-gray-200 rounded-lg text-gray-400 hover:text-gray-500"
                 data-testid="swap-form-switch-tokens-button"
                 disabled={amountOutLoading || isSubmitting || isSubmitting1cs}
+                aria-label="Switch tokens"
               >
                 <ArrowDownIcon className="size-5" />
               </button>
@@ -462,7 +464,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
           {isLongLoading && (
             <div className="flex items-center justify-center mt-4 gap-2 animate-in fade-in duration-200 slide-in-from-top-1 zoom-in-97">
               <MagnifyingGlassIcon className="size-4 shrink-0 text-gray-500" />
-              <p className="text-sm font-medium text-gray-500">
+              <p className="text-sm font-semibold text-gray-500">
                 Searching for more liquidity...
               </p>
             </div>
@@ -500,7 +502,7 @@ function Quote1csError({ quote1csError }: { quote1csError: string }) {
   return (
     <div className="mt-6 bg-red-50 pl-4 pr-6 py-4 rounded-2xl flex items-start gap-3">
       <XCircleIcon className="size-5 shrink-0 text-red-600" aria-hidden />
-      <p className="text-sm font-medium text-red-700">{quote1csError}</p>
+      <ErrorMessage>{quote1csError}</ErrorMessage>
     </div>
   )
 }

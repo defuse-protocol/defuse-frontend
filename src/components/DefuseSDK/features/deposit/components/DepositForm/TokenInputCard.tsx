@@ -5,6 +5,7 @@ import {
   formatTokenValue,
   formatUsdAmount,
 } from "@src/components/DefuseSDK/utils/format"
+import ErrorMessage from "@src/components/ErrorMessage"
 import Spinner from "@src/components/Spinner"
 import clsx from "clsx"
 import { Tooltip } from "radix-ui"
@@ -55,14 +56,13 @@ const TokenInputCard = ({
   return (
     <div className="bg-white border border-gray-200 rounded-3xl w-full p-6 flex flex-col gap-4">
       <div className="flex items-center justify-between gap-4">
-        <label htmlFor={id} className="text-base text-gray-500">
+        <label htmlFor={id} className="text-base text-gray-500 font-medium">
           {label}
         </label>
 
         <div className="flex items-center gap-2">
           {symbol && (
-            <div className="text-base text-gray-500 text-right">
-              Balance:{" "}
+            <div className="text-base text-gray-500 text-right font-medium">
               {formatTokenValue(balance, decimals, {
                 fractionDigits: 6,
               })}{" "}
@@ -138,12 +138,12 @@ const TokenInputCard = ({
           )}
           {...registration}
         />
-        <div className="text-right text-base text-gray-500">
+        <div className="text-right text-base text-gray-500 font-medium">
           {formatUsdAmount(usdAmount ?? 0)}
         </div>
       </div>
 
-      {error && <div className="text-sm font-medium text-red-600">{error}</div>}
+      {error && <ErrorMessage>{error}</ErrorMessage>}
     </div>
   )
 }

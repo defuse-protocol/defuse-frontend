@@ -9,10 +9,12 @@ const EmptyAssetList = () => (
     >
       <MagnifyingGlassIcon className="size-5" />
     </div>
-    <h3 className="font-medium text-base text-gray-900 mt-4">
+    <h3 className="font-semibold text-base text-gray-900 mt-4">
       No tokens found
     </h3>
-    <p className="text-sm text-gray-500 mt-1">Try depositing to your wallet</p>
+    <p className="text-sm text-gray-500 mt-1 font-medium">
+      Try depositing to your wallet
+    </p>
     <Button href="/deposit" className="mt-4">
       Deposit
     </Button>

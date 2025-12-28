@@ -36,20 +36,19 @@ const Button = forwardRef<Ref, Props>(function Button(
   const isDisabled = disabled || loading
 
   const classes = clsx(
-    "items-center justify-center relative flex shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:pointer-events-none",
+    "items-center justify-center relative flex shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:pointer-events-none leading-none tracking-tight",
     variant === "primary" &&
-      "bg-gray-900 text-white hover:bg-gray-800 outline-gray-900 disabled:bg-gray-200 disabled:text-gray-400",
+      "bg-gray-900 text-white hover:bg-gray-700 outline-gray-900 disabled:bg-gray-200 disabled:text-gray-400",
     variant === "secondary" &&
       "bg-gray-100 text-gray-700 hover:bg-gray-200 outline-gray-900 disabled:text-gray-300",
     variant === "destructive" &&
       "bg-red-600 text-white hover:bg-red-700 outline-red-600 disabled:opacity-30",
     variant === "destructive-soft" &&
       "bg-red-50 text-red-700 hover:bg-red-100 outline-red-600 disabled:text-red-300",
-    size === "xl" &&
-      "h-13 px-5 text-base leading-none font-semibold rounded-2xl",
-    size === "lg" && "h-10 px-4 text-sm leading-none font-semibold rounded-xl",
-    size === "md" && "h-9 px-3 text-sm leading-none font-semibold rounded-lg",
-    size === "sm" && "h-8 px-3 text-sm leading-none font-semibold rounded-lg",
+    size === "xl" && "h-13 px-5 text-base font-bold rounded-2xl",
+    size === "lg" && "h-10 px-4 text-sm font-bold rounded-xl",
+    size === "md" && "h-9 px-3 text-sm font-bold rounded-lg",
+    size === "sm" && "h-8 px-3 text-sm font-semibold rounded-lg",
     fullWidth && "w-full",
     className
   )

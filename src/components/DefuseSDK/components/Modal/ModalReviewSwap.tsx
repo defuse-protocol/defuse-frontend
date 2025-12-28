@@ -51,7 +51,7 @@ const ModalReviewSwap = ({
             <div className="text-2xl font-bold text-gray-900 tracking-tight leading-7">
               {formatDisplayAmount(amountIn)} {tokenIn.symbol}
             </div>
-            <div className="text-base leading-5 text-gray-500">
+            <div className="text-base/5 font-medium text-gray-500">
               {formatUsdAmount(usdAmountIn)}
             </div>
           </div>
@@ -65,7 +65,7 @@ const ModalReviewSwap = ({
             <div className="text-2xl font-bold text-gray-900 tracking-tight leading-7">
               {formatDisplayAmount(amountOut)} {tokenOut.symbol}
             </div>
-            <div className="text-base leading-5 text-gray-500">
+            <div className="text-base/5 font-medium text-gray-500">
               {formatUsdAmount(usdAmountOut)}
             </div>
           </div>
@@ -75,14 +75,14 @@ const ModalReviewSwap = ({
 
       <dl className="mt-5 pt-5 border-t border-gray-200 space-y-2">
         <div className="flex items-center justify-between">
-          <dt className="text-sm text-gray-500">Rate</dt>
+          <dt className="text-sm text-gray-500 font-medium">Rate</dt>
           <dd>
             <SwapRateInfo tokenIn={tokenIn} tokenOut={tokenOut} />
           </dd>
         </div>
 
         <div className="flex items-center justify-between">
-          <dt className="text-sm text-gray-500">Max slippage</dt>
+          <dt className="text-sm text-gray-500 font-medium">Max slippage</dt>
           <dd className="text-sm font-semibold text-gray-900">
             {Intl.NumberFormat(undefined, {
               style: "percent",
@@ -94,7 +94,7 @@ const ModalReviewSwap = ({
 
         {Boolean(priceImpact) && (
           <div className="flex items-center justify-between">
-            <dt className="text-sm text-gray-500">Price impact</dt>
+            <dt className="text-sm text-gray-500 font-medium">Price impact</dt>
             <dd
               className={clsx("text-sm font-semibold", {
                 "text-green-600": priceImpact?.status === "favorable",

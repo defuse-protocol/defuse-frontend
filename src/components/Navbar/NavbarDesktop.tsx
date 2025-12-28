@@ -82,7 +82,7 @@ function NavItem({
       )}
     >
       <Icon className="size-5 shrink-0" />
-      <span className="text-base font-medium leading-5">{label}</span>
+      <span className="text-base/5 font-semibold">{label}</span>
     </Link>
   )
 }

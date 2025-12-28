@@ -1,5 +1,6 @@
 "use client"
 import Button from "@src/components/Button"
+import ErrorMessage from "@src/components/ErrorMessage"
 import { PasskeyIcon } from "@src/icons"
 import clsx from "clsx"
 import Link from "next/link"
@@ -80,9 +81,9 @@ export default function LoginPage() {
         </Button>
 
         {passkeyError && (
-          <p className="mt-2 text-base text-red-600 font-medium text-center">
+          <ErrorMessage className="mt-2 text-center">
             {passkeyError}
-          </p>
+          </ErrorMessage>
         )}
 
         <div className="my-8 flex items-center gap-x-6 w-full">
@@ -120,9 +121,9 @@ export default function LoginPage() {
             />
           </div>
           {errors.email && (
-            <p className="mt-2 text-base text-red-600 font-medium text-center">
+            <ErrorMessage className="mt-2 text-center">
               {errors.email.message}
-            </p>
+            </ErrorMessage>
           )}
 
           <Button

@@ -1,6 +1,7 @@
 "use client"
 
 import Button from "@src/components/Button"
+import ErrorMessage from "@src/components/ErrorMessage"
 import clsx from "clsx"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
@@ -108,9 +109,9 @@ export default function SignupPage() {
             />
           </div>
           {errors.username && (
-            <p className="mt-2 text-base text-red-600 font-medium text-center">
+            <ErrorMessage className="mt-2 text-center">
               {errors.username.message}
-            </p>
+            </ErrorMessage>
           )}
 
           <Button

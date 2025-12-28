@@ -2,6 +2,7 @@
 
 import { ArrowLeftIcon } from "@heroicons/react/20/solid"
 import Button from "@src/components/Button"
+import ErrorMessage from "@src/components/ErrorMessage"
 import Spinner from "@src/components/Spinner"
 import clsx from "clsx"
 import { OTPInput } from "input-otp"
@@ -95,9 +96,9 @@ export default function VerifyPage() {
               <Spinner size="sm" />
             </div>
           ) : (
-            <p className="text-center text-base text-balance text-red-600 font-medium">
+            <ErrorMessage className="text-center text-balance">
               {verificationError}
-            </p>
+            </ErrorMessage>
           )}
         </div>
 

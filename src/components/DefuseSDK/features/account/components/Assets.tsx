@@ -1,10 +1,10 @@
 import * as Popover from "@radix-ui/react-popover"
+import Button from "@src/components/Button"
 import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import { getTokenId } from "@src/components/DefuseSDK/utils/token"
 import { SendIcon, SwapIcon } from "@src/icons"
 import clsx from "clsx"
-import Link from "next/link"
 import { useState } from "react"
 import type { Holding } from "../types/sharedTypes"
 import { FormattedCurrency } from "./shared/FormattedCurrency"
@@ -15,7 +15,7 @@ const Assets = ({ assets }: { assets: Holding[] | undefined }) => {
 
   return (
     <section className="mt-9">
-      <h2 className="text-base text-gray-500">Assets</h2>
+      <h2 className="text-base text-gray-500 font-medium">Assets</h2>
       <div className="mt-2 flex flex-col gap-1">
         {assets.map((asset) => (
           <Asset key={getTokenId(asset.token)} asset={asset} />
@@ -54,10 +54,10 @@ const Asset = ({ asset }: { asset: Holding }) => {
           <AssetComboIcon icon={token.icon} name={token.name} showChainIcon />
 
           <div className="flex-1 flex flex-col items-start gap-1">
-            <div className="text-base font-medium text-gray-900 leading-none">
+            <div className="text-base/none font-semibold text-gray-900">
               {token.name}
             </div>
-            <div className="text-sm leading-none text-gray-500">
+            <div className="text-sm/none font-medium text-gray-500">
               {token.symbol}
             </div>
           </div>
@@ -69,11 +69,11 @@ const Asset = ({ asset }: { asset: Holding }) => {
               <FormattedCurrency
                 value={usdValue ?? 0}
                 formatOptions={{ currency: "USD" }}
-                className="text-base font-medium text-gray-900 leading-none"
+                className="text-base/none font-semibold text-gray-900"
               />
             )}
             <div
-              className="text-sm leading-none text-gray-500 text-right"
+              className="text-sm/none font-medium text-gray-500 text-right"
               title={formatted}
             >
               {shortFormatted ?? "-"} {token.symbol}
@@ -93,20 +93,17 @@ const Asset = ({ asset }: { asset: Holding }) => {
           sideOffset={-5}
         >
           <Popover.Arrow />
-          <Link
-            href="/send"
-            className="flex items-center gap-1.5 px-3 h-8 text-white font-medium text-sm rounded-lg hover:bg-gray-700"
-          >
+          <Button size="sm" href="/send">
             <SendIcon className="size-4 shrink-0" />
             Send
-          </Link>
-          <Link
+          </Button>
+          <Button
+            size="sm"
             href={`/swap?from=${token.symbol}&to=${toTokenSymbol}`}
-            className="flex items-center gap-1.5 px-3 h-8 text-white font-medium text-sm rounded-lg hover:bg-gray-700"
           >
             <SwapIcon className="size-4 shrink-0" />
             Swap
-          </Link>
+          </Button>
         </Popover.Content>
       </Popover.Portal>
     </Popover.Root>

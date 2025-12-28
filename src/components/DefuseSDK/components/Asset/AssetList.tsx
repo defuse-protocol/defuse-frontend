@@ -57,7 +57,7 @@ function AssetList<T extends TokenInfo>({
     >
       {assetsWithBalance.length > 0 && (
         <div>
-          <h3 className="text-gray-500 text-sm">Your tokens</h3>
+          <h3 className="text-gray-500 text-sm font-medium">Your tokens</h3>
 
           <div className="mt-2 flex flex-col gap-1">
             {assetsWithBalance.map((asset, index) => {
@@ -82,7 +82,7 @@ function AssetList<T extends TokenInfo>({
 
       {assetsWithoutBalance.length > 0 && (
         <div>
-          <h3 className="text-gray-500 text-sm">More tokens</h3>
+          <h3 className="text-gray-500 text-sm font-medium">More tokens</h3>
 
           <div className="mt-2 flex flex-col gap-1">
             {assetsWithoutBalance.map((asset, index) => {
@@ -145,10 +145,12 @@ const AssetItem = ({
     />
 
     <div className="grow flex flex-col gap-1">
-      <div className="text-base font-medium text-gray-900 leading-none">
+      <div className="text-base/none font-semibold text-gray-900">
         {token.name}
       </div>
-      <div className="text-sm leading-none text-gray-500">{token.symbol}</div>
+      <div className="text-sm/none font-medium text-gray-500">
+        {token.symbol}
+      </div>
     </div>
 
     <div className="flex flex-col gap-1">
@@ -157,11 +159,11 @@ const AssetItem = ({
           <FormattedCurrency
             value={usdValue}
             formatOptions={{ currency: "USD" }}
-            className="text-base font-medium text-gray-900 text-right leading-none"
+            className="text-base/none font-semibold text-gray-900 text-right"
           />
         </>
       ) : null}
-      <div className="text-sm leading-none text-gray-500 text-right">
+      <div className="text-sm/none font-semibold text-gray-500 text-right">
         {isHoldingsEnabled && value
           ? formatTokenValue(value.amount, value.decimals, {
               fractionDigits: 4,

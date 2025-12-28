@@ -1,4 +1,5 @@
 import { XCircleIcon } from "@heroicons/react/20/solid"
+import ErrorMessage from "@src/components/ErrorMessage"
 import type { ReactNode } from "react"
 import type { Context } from "../../machines/swapUIMachine"
 
@@ -93,7 +94,7 @@ const IntentCreationResult = ({
   return (
     <div className="mt-2 bg-red-50 pl-3 pr-6 py-3 rounded-2xl flex items-start gap-3">
       <XCircleIcon className="size-5 shrink-0 text-red-600" aria-hidden />
-      <p className="text-sm font-medium text-red-700">{content}</p>
+      <ErrorMessage>{content}</ErrorMessage>
     </div>
   )
 }

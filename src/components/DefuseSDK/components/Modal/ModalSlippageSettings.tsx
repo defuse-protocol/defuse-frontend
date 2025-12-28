@@ -10,6 +10,7 @@ import {
   computeTotalDeltaDifferentDecimals,
   getAnyBaseTokenInfo,
 } from "@src/components/DefuseSDK/utils/tokenUtils"
+import ErrorMessage from "@src/components/ErrorMessage"
 import {
   DEFAULT_SLIPPAGE_PERCENT,
   MAX_SLIPPAGE_PERCENT,
@@ -235,7 +236,7 @@ export function ModalSlippageSettings() {
 
   return (
     <ModalDialog title="Slippage tolerance">
-      <p className="text-sm text-gray-500 mt-1">
+      <p className="text-sm text-gray-500 font-medium mt-1">
         Slippage is the maximum difference you allow between the quoted price
         and the final execution price. If the execution price moves against you
         by more than this %, the transaction will revert.{" "}
@@ -249,7 +250,7 @@ export function ModalSlippageSettings() {
       {calculatedSlippageAmount != null &&
         ((isExactOut && tokenIn) || (!isExactOut && tokenOut)) && (
           <dl className="flex items-center justify-between gap-2 px-3 py-3.5 rounded-2xl border border-gray-200 mt-4">
-            <dt className="text-gray-500 text-sm font-medium">
+            <dt className="text-gray-500 text-sm font-semibold">
               {isExactOut ? "Pay at most" : "Receive at least"}
             </dt>
             <dd className="text-sm font-semibold text-gray-900">
@@ -317,9 +318,9 @@ export function ModalSlippageSettings() {
       </RadioGroup.Root>
 
       {validationError && (
-        <div className="text-red-600 text-sm mt-2 font-medium">
+        <ErrorMessage className="mt-2 text-center">
           {validationError}
-        </div>
+        </ErrorMessage>
       )}
 
       <div className="grid grid-cols-2 gap-1 mt-6">
