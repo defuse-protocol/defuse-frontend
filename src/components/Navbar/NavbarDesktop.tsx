@@ -75,7 +75,7 @@ function NavItem({
       key={label}
       data-testid={dataTestId}
       className={cn(
-        "flex items-center gap-4 p-4 rounded-2xl",
+        "flex items-center gap-4 py-4 px-3.5 rounded-2xl",
         isActive(href)
           ? "text-white bg-gray-700"
           : "text-gray-400 hover:text-white hover:bg-gray-700"
