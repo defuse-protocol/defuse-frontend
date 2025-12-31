@@ -50,12 +50,14 @@ export function BaseModalDialog({
   onClose,
   onCloseAnimationEnd,
   isDismissable = true,
+  status = undefined,
 }: PropsWithChildren<{
   open: boolean
   title: string
   onClose?: () => void
   onCloseAnimationEnd?: () => void
   isDismissable?: boolean
+  status?: "success" | "error"
 }>) {
   return (
     <Dialog.Root
@@ -96,26 +98,39 @@ export function BaseModalDialog({
                 // Suppressing the warning about missing aria-describedby
                 aria-describedby={undefined}
               >
-                <div
-                  className={clsx(
-                    "flex items-center justify-between",
-                    isDismissable && "-mt-2.5 -mr-2.5"
-                  )}
-                >
-                  <Dialog.Title className="text-base font-semibold text-gray-900">
-                    {title}
-                  </Dialog.Title>
-                  {isDismissable && (
-                    <Dialog.Close
-                      onClick={onClose}
-                      className="size-10 rounded-xl hover:bg-gray-100 text-gray-600 hover:text-gray-900 flex items-center justify-center"
-                    >
-                      <XMarkIcon className="size-5" />
-                    </Dialog.Close>
-                  )}
-                </div>
+                {status && (
+                  <div
+                    className={clsx(
+                      "absolute top-0 inset-x-0 h-32 bg-linear-to-b from-green-50 to-green-50/0",
+                      {
+                        "from-green-50 to-green-50/0": status === "success",
+                        "from-red-50 to-red-50/0": status === "error",
+                      }
+                    )}
+                  />
+                )}
+                <div className="relative">
+                  <div
+                    className={clsx(
+                      "flex items-center justify-between",
+                      isDismissable && "-mt-2.5 -mr-2.5"
+                    )}
+                  >
+                    <Dialog.Title className="text-base font-semibold text-gray-900">
+                      {title}
+                    </Dialog.Title>
+                    {isDismissable && (
+                      <Dialog.Close
+                        onClick={onClose}
+                        className="size-10 rounded-xl hover:bg-gray-900/5 text-gray-600 hover:text-gray-900 flex items-center justify-center"
+                      >
+                        <XMarkIcon className="size-5" />
+                      </Dialog.Close>
+                    )}
+                  </div>
 
-                {children}
+                  {children}
+                </div>
               </Dialog.Content>
             </div>
           </div>

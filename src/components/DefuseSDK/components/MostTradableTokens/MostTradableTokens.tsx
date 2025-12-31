@@ -128,7 +128,7 @@ function TokenList({
             key={`${selectItemToken.token.symbol}-${isBaseToken(selectItemToken.token) ? selectItemToken.token.originChainName : "unified"}`}
             type="button"
             onClick={() => onTokenSelect(selectItemToken)}
-            className="flex flex-col text-center items-center justify-center rounded-xl py-2 px-1.5 gap-1.5 hover:bg-gray-100 border border-gray-200"
+            className="flex flex-col text-center items-center justify-center rounded-xl py-2 px-1.5 gap-1.5 hover:bg-gray-50 border border-gray-200 hover:border-gray-300"
           >
             <AssetComboIcon
               size="sm"
