@@ -18,8 +18,6 @@ const RootLayout = async ({
 }>) => {
   const tmpl = await whitelabelTemplateFlag()
 
-  // text-zinc-950 antialiased lg:bg-zinc-100 dark:bg-zinc-900 dark:text-white dark:lg:bg-zinc-950
-
   return (
     <html
       lang="en"

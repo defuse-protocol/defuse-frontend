@@ -68,6 +68,19 @@ export function truncateUserAddress(hash: string) {
   return `${hash.slice(0, 6)}...${hash.slice(-4)}`
 }
 
+export const midTruncate = (value = "", maxLength = 12) => {
+  if (!value) return value
+  if (value.length <= maxLength) return value
+
+  const charsToShow = maxLength - 3
+  const frontChars = Math.ceil(charsToShow / 2)
+  const backChars = Math.floor(charsToShow / 2)
+
+  return `${value.substring(0, frontChars)}…${value.substring(
+    value.length - backChars
+  )}`
+}
+
 /**
  * Converts a token amount to a human-readable number and scales it relative to a reference value (default: 1,000).
  *

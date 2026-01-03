@@ -109,8 +109,10 @@ export const ModalSelectNetwork = ({
             </div>
             <SearchBar
               placeholder="Search"
-              query={searchValue}
-              setQuery={setSearchValue}
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              onClear={() => setSearchValue("")}
+              autoFocus
             />
           </div>
         </div>

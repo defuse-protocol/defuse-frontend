@@ -1,20 +1,19 @@
-import clsx from "clsx"
-import { type ReactNode, useCallback } from "react"
-import type { SelectItemToken } from "../Modal/ModalSelectAssets"
-
 import { hasChainIcon } from "@src/app/(app)/(dashboard)/swap/_utils/useDeterminePair"
 import { chainIcons } from "@src/components/DefuseSDK/constants/blockchains"
 import { useTokensStore } from "@src/components/DefuseSDK/providers/TokensStoreProvider"
+import ListItem from "@src/components/ListItem"
 import { useIsFlatTokenListEnabled } from "@src/hooks/useIsFlatTokenListEnabled"
+import clsx from "clsx"
+import { useCallback } from "react"
 import { FormattedCurrency } from "../../features/account/components/shared/FormattedCurrency"
 import type { TokenInfo } from "../../types/base"
 import { formatTokenValue } from "../../utils/format"
 import { getTokenId, isBaseToken } from "../../utils/token"
+import type { SelectItemToken } from "../Modal/ModalSelectAssets"
 import AssetComboIcon from "./AssetComboIcon"
 
 type Props<T> = {
   assets: SelectItemToken<T>[]
-  emptyState?: ReactNode
   className?: string
   accountId?: string
   handleSelectToken?: (token: SelectItemToken<T>) => void
@@ -50,9 +49,11 @@ function AssetList<T extends TokenInfo>({
     [[], []]
   )
 
+  const hasAssetsWithBalance = assetsWithBalance.length > 0
+
   return (
     <div
-      className={clsx("flex flex-col space-y-8", className && className)}
+      className={clsx("flex flex-col space-y-8", className)}
       data-testid="asset-list"
     >
       {assetsWithBalance.length > 0 && (
@@ -82,7 +83,9 @@ function AssetList<T extends TokenInfo>({
 
       {assetsWithoutBalance.length > 0 && (
         <div>
-          <h3 className="text-gray-500 text-sm font-medium">More tokens</h3>
+          <h3 className="text-gray-500 text-sm font-medium">
+            {hasAssetsWithBalance ? "More tokens" : "All tokens"}
+          </h3>
 
           <div className="mt-2 flex flex-col gap-1">
             {assetsWithoutBalance.map((asset, index) => {
@@ -126,16 +129,7 @@ const AssetItem = ({
   chainIcon: { dark: string; light: string } | undefined
   onClick: () => void
 }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    className={clsx(
-      "relative py-2.5 text-left flex items-center gap-3 -mx-4 px-4 rounded-2xl overflow-hidden hover:bg-gray-100",
-      {
-        "bg-gray-100": selected,
-      }
-    )}
-  >
+  <ListItem onClick={onClick} highlight={selected}>
     <AssetComboIcon
       icon={token.icon}
       name={token.name}
@@ -144,33 +138,29 @@ const AssetItem = ({
       chainIcon={chainIcon}
     />
 
-    <div className="grow flex flex-col gap-1">
-      <div className="text-base/none font-semibold text-gray-900">
-        {token.name}
-      </div>
-      <div className="text-sm/none font-medium text-gray-500">
-        {token.symbol}
-      </div>
-    </div>
+    <ListItem.Content>
+      <ListItem.Title>{token.name}</ListItem.Title>
+      <ListItem.Subtitle>{token.symbol}</ListItem.Subtitle>
+    </ListItem.Content>
 
-    <div className="flex flex-col gap-1">
-      {usdValue != null ? (
-        <>
+    <ListItem.Content align="end">
+      {usdValue != null && (
+        <ListItem.Title>
           <FormattedCurrency
-            value={usdValue}
+            value={usdValue ?? 0}
             formatOptions={{ currency: "USD" }}
             className="text-base/none font-semibold text-gray-900 text-right"
           />
-        </>
-      ) : null}
-      <div className="text-sm/none font-semibold text-gray-500 text-right">
-        {isHoldingsEnabled && value
-          ? formatTokenValue(value.amount, value.decimals, {
-              fractionDigits: 4,
-              min: 0.0001,
-            })
-          : null}
-      </div>
-    </div>
-  </button>
+        </ListItem.Title>
+      )}
+      {isHoldingsEnabled && value && (
+        <ListItem.Subtitle>
+          {formatTokenValue(value.amount, value.decimals, {
+            fractionDigits: 4,
+            min: 0.0001,
+          })}
+        </ListItem.Subtitle>
+      )}
+    </ListItem.Content>
+  </ListItem>
 )

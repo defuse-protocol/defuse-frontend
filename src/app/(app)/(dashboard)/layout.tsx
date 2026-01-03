@@ -5,7 +5,10 @@ import ConnectWallet from "@src/components/Wallet"
 import type { ReactNode } from "react"
 
 const DashboardLayout = ({ children }: { children: ReactNode }) => (
-  <div className="relative isolate flex min-h-svh w-full bg-gray-25 lg:bg-gray-800">
+  <div
+    id="dashboard-layout"
+    className="relative isolate flex min-h-svh w-full bg-gray-25 lg:bg-gray-800"
+  >
     {/* Sidebar on desktop */}
     <div className="fixed inset-y-0 left-0 w-72 max-lg:hidden py-6 px-4">
       <UserMenu />

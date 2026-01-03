@@ -187,7 +187,12 @@ export function ModalSelectAssets() {
             isScrolled ? "border-gray-200" : "border-transparent"
           )}
         >
-          <SearchBar query={searchValue} setQuery={setSearchValue} />
+          <SearchBar
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            onClear={() => setSearchValue("")}
+            autoFocus
+          />
         </div>
 
         <div

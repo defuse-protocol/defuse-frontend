@@ -5,7 +5,8 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
-  --font-sans: var(--font-figtree), ui-sans-serif, system-ui, sans-serif,
+  --font-sans:
+    var(--font-figtree), ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
   --color-green-50: oklch(0.979 0.021 166.113);
@@ -68,4 +69,8 @@
     -webkit-appearance: none;
     margin: 0;
   }
+}
+
+html:has(#dashboard-layout, #auth-layout) {
+  @apply bg-gray-800;
 }

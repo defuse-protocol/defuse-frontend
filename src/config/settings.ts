@@ -89,6 +89,10 @@ export const settings: Settings = {
       description:
         "View balances and manage your wallet across chains. Your gateway to seamless swaps, deposits, and withdrawals in DeFi.",
     },
+    activity: {
+      title: "NEAR Intents | Activity",
+      description: "View your activity on NEAR Intents.",
+    },
     settings: {
       title: "NEAR Intents | Settings",
       description: "Manage your NEAR Intents account settings.",
