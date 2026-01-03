@@ -7,10 +7,12 @@ import useVerifyEmail from "@src/hooks/useVerifyEmail"
 import { useRouter, useSearchParams } from "next/navigation"
 
 export default function VerifyPage() {
-  const { verifyEmailAddress, verifying, error } = useVerifyEmail()
   const router = useRouter()
   const searchParams = useSearchParams()
   const email = searchParams.get("email")
+  const { verifyEmailAddress, verifying, error } = useVerifyEmail({
+    onSuccess: () => router.push("/account"),
+  })
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center">

@@ -1,6 +1,8 @@
 import { useState } from "react"
 
-const useVerifyEmail = ({ onSuccess }: { onSuccess: () => void }) => {
+const useVerifyEmail = ({
+  onSuccess,
+}: { onSuccess: () => void | Promise<void> }) => {
   const [verifying, setVerifying] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -11,7 +13,7 @@ const useVerifyEmail = ({ onSuccess }: { onSuccess: () => void }) => {
       setVerifying(true)
       setError(null)
       await new Promise((resolve) => setTimeout(resolve, 2000))
-      onSuccess()
+      onSuccess?.()
     } catch {
       setError("Verification failed.")
     } finally {
