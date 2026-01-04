@@ -38,8 +38,15 @@ export default function AccountPage() {
     return Array.from(map.values())
   }, [tokenList])
 
-  const holdings = useWatchHoldings({ userId, tokenList })
+  const {
+    data: holdings,
+    isPending,
+    isError,
+  } = useWatchHoldings({ userId, tokenList })
   const totalValueUsd = holdings ? computeTotalUsdValue(holdings) : undefined
+
+  const assetsLoaded = !isPending && !isError && Boolean(holdings)
+  const noAssets = assetsLoaded && holdings && holdings.length === 0
 
   return (
     <>
@@ -47,19 +54,21 @@ export default function AccountPage() {
 
       <Balance balance={totalValueUsd} />
 
-      <section className="grid grid-cols-2 gap-2 mt-6">
-        <Button href="/deposit" size="xl">
-          <DepositIcon className="size-6 -mt-1.5" />
-          Add funds
-        </Button>
+      {!noAssets && (
+        <section className="grid grid-cols-2 gap-2 mt-6">
+          <Button href="/deposit" size="xl">
+            <DepositIcon className="size-6 -mt-1.5" />
+            Add funds
+          </Button>
 
-        <Button href="/send" size="xl">
-          <SendIcon className="size-6" />
-          Send
-        </Button>
-      </section>
+          <Button href="/send" size="xl">
+            <SendIcon className="size-6" />
+            Send
+          </Button>
+        </section>
+      )}
 
-      <Assets assets={holdings} />
+      <Assets assets={holdings} isPending={isPending} isError={isError} />
     </>
   )
 }

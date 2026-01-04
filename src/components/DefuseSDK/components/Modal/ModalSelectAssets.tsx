@@ -65,7 +65,7 @@ export function ModalSelectAssets() {
     state.isVerified && state.address && state.chainType
       ? authIdentity.authHandleToIntentsUserId(state.address, state.chainType)
       : null
-  const holdings = useWatchHoldings({ userId, tokenList: tokens })
+  const { data: holdings } = useWatchHoldings({ userId, tokenList: tokens })
 
   const handleSearchClear = () => setSearchValue("")
 
