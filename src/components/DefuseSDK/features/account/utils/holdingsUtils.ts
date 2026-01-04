@@ -21,11 +21,15 @@ export function combineBalances(
     UseQueryResult<TokenUsdPriceData, Error>,
   ]
 ) {
-  if (!depositedBalanceQuery.isSuccess) {
-    return
+  if (depositedBalanceQuery.isPending || depositedBalanceQuery.isError) {
+    return {
+      data: undefined,
+      isPending: depositedBalanceQuery.isPending,
+      isError: depositedBalanceQuery.isError,
+    }
   }
 
-  return tokenList
+  const data = tokenList
     .map((token): Holding => {
       const value = computeTotalBalanceDifferentDecimals(
         token,
@@ -73,4 +77,10 @@ export function combineBalances(
       const totalValueB = (b.usdValue ?? 0) + (b.transitUsdValue ?? 0)
       return totalValueB - totalValueA
     })
+
+  return {
+    data,
+    isPending: depositedBalanceQuery.isPending,
+    isError: depositedBalanceQuery.isError,
+  }
 }

@@ -36,7 +36,7 @@ export function CancellationDialog({
     <BaseModalDialog
       open={!!actorRef}
       onClose={abortCancellation}
-      isDismissable
+      title="Cancel order?"
     >
       {snapshot?.matches("idleUncancellable") ? (
         <>

@@ -60,16 +60,44 @@ function trimEnd(s: string, char: string) {
 export function formatUsdAmount(value: number): string {
   try {
     let maximumFractionDigits = 2
-    // Omit cents for bigger USD values
-    if (value >= 500) maximumFractionDigits = 0
-    // Handle tiny amounts of USD to not show $0.00
-    else if (value < 1) maximumFractionDigits = 7
+    let notation: Intl.NumberFormatOptions["notation"] = "standard"
+
+    if (value < 1) {
+      // Handle tiny amounts of USD to not show $0.00
+      maximumFractionDigits = 7
+    } else if (value >= 1_000_000) {
+      // Use compact notation for larger values
+      notation = "compact"
+    } else if (value >= 500) {
+      // Omit cents for bigger USD values
+      maximumFractionDigits = 0
+    }
+
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
       maximumFractionDigits,
+      notation,
     }).format(value)
   } catch {
     return ""
   }
+}
+
+export function formatDisplayAmount(amount: string, maxDecimals = 5): string {
+  if (!amount) return "0"
+  const num = Number.parseFloat(amount)
+  if (Number.isNaN(num) || num === 0) return "0"
+
+  const absNum = Math.abs(num)
+  const minDisplayable = 1 / 10 ** maxDecimals // 0.00001 for 5 decimals
+
+  if (absNum > 0 && absNum < minDisplayable) {
+    return `<${minDisplayable}`
+  }
+
+  return num.toLocaleString("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: maxDecimals,
+  })
 }

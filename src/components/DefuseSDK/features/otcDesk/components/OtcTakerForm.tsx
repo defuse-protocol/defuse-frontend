@@ -221,7 +221,7 @@ export function OtcTakerForm({
               balance={balanceAmountIn}
               decimals={balances?.tokenIn?.decimals ?? 0}
               className={clsx(
-                "!static",
+                "static!",
                 balances?.tokenIn == null && "invisible"
               )}
               maxButtonSlot={
@@ -277,7 +277,7 @@ export function OtcTakerForm({
               balance={balanceAmountOut}
               decimals={balances?.tokenOut?.decimals ?? 0}
               className={clsx(
-                "!static",
+                "static!",
                 balances?.tokenOut == null && "invisible"
               )}
               maxButtonSlot={

@@ -17,7 +17,7 @@ export function NavbarMobile() {
 
   return (
     <>
-      <div className="fixed bottom-0 z-50 left-0 md:hidden w-full px-5 pt-3 pb-[max(env(safe-area-inset-bottom,0px),theme(spacing.3))] bg-gray-1 border-t-[1px] border-gray-a3">
+      <div className="fixed bottom-0 z-50 left-0 md:hidden w-full px-5 pt-3 pb-[max(env(safe-area-inset-bottom,0px),--spacing(3))] bg-gray-1 border-t border-gray-a3">
         <nav className="flex justify-around items-center gap-4">
           {/* Account */}
           <NavItem
@@ -71,7 +71,7 @@ export function NavbarMobile() {
           />
         </nav>
       </div>
-      <div className="block md:hidden h-[calc(44px+max(env(safe-area-inset-bottom,0px),theme(spacing.3)))]" />
+      <div className="block md:hidden h-[calc(44px+max(env(safe-area-inset-bottom,0px),--spacing(3)))]" />
     </>
   )
 }
@@ -114,7 +114,7 @@ function WalletIcon({ active }: { active: boolean }) {
   return (
     <div
       className={cn(
-        "w-4 h-4  [mask-image:url(/static/icons/wallet_no_active.svg)] bg-no-repeat bg-contain",
+        "w-4 h-4  mask-[url(/static/icons/wallet_no_active.svg)] bg-no-repeat bg-contain",
         active ? "bg-gray-12" : "bg-gray-11"
       )}
     />

@@ -8,7 +8,7 @@ import { AuthGate } from "../../../components/AuthGate"
 import { BlockMultiBalances } from "../../../components/Block/BlockMultiBalances"
 import { ButtonCustom } from "../../../components/Button/ButtonCustom"
 import type { ModalSelectAssetsPayload } from "../../../components/Modal/ModalSelectAssets"
-import { SelectAssets } from "../../../components/SelectAssets"
+import SelectAssets from "../../../components/SelectAssets"
 import type { SignerCredentials } from "../../../core/formatters"
 import { useTokensUsdPrices } from "../../../hooks/useTokensUsdPrices"
 import { useModalStore } from "../../../providers/ModalStoreProvider"
@@ -324,7 +324,7 @@ export function GiftMakerForm({
               <BlockMultiBalances
                 balance={balanceAmount}
                 decimals={tokenBalance?.decimals ?? 0}
-                className={clsx("!static", tokenBalance == null && "invisible")}
+                className={clsx("static!", tokenBalance == null && "invisible")}
                 maxButtonSlot={
                   <BlockMultiBalances.DisplayMaxButton
                     onClick={handleSetMaxValue}

@@ -4,7 +4,7 @@ import type { ActorRefFrom } from "xstate"
 import type { intentStatusMachine } from "../../features/machines/intentStatusMachine"
 import { assert } from "../../utils/assert"
 import { formatTokenValue } from "../../utils/format"
-import { AssetComboIcon } from "../Asset/AssetComboIcon"
+import AssetComboIcon from "../Asset/AssetComboIcon"
 import { CopyButton } from "./CopyButton"
 import { renderStatusLabel } from "./WithdrawIntentCard"
 

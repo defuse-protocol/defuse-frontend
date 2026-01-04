@@ -20,7 +20,7 @@ import {
 import { useSelector } from "@xstate/react"
 import { useEffect, useState } from "react"
 import { Controller, useFormContext } from "react-hook-form"
-import { AssetComboIcon } from "../../../../components/Asset/AssetComboIcon"
+import AssetComboIcon from "../../../../components/Asset/AssetComboIcon"
 import { AuthGate } from "../../../../components/AuthGate"
 import { EmptyIcon } from "../../../../components/EmptyIcon"
 import { Form } from "../../../../components/Form"

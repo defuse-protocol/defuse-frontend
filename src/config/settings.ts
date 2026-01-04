@@ -3,6 +3,24 @@ import type { Settings } from "@src/types/interfaces"
 export const settings: Settings = {
   appName: "NEAR Intents",
   metadata: {
+    signup: {
+      title: "NEAR Intents | Sign up",
+      description:
+        "Create a NEAR Intents account to start trading across chains. Secure your assets and access the best prices from solvers with secure, on-chain execution.",
+    },
+    login: {
+      title: "NEAR Intents | Login",
+      description: "Login to your NEAR Intents account.",
+    },
+    verify: {
+      title: "NEAR Intents | Check your email",
+      description:
+        "We sent a verification code to your email. Please enter it below to login.",
+    },
+    username: {
+      title: "NEAR Intents | Set your username",
+      description: "Set your NEAR Intents internal username.",
+    },
     home: {
       title: "NEAR Intents | The Smartest Way to Trade Across Chains",
       description:
@@ -70,6 +88,14 @@ export const settings: Settings = {
       title: "NEAR Intents | Multichain Account & Wallet Overview",
       description:
         "View balances and manage your wallet across chains. Your gateway to seamless swaps, deposits, and withdrawals in DeFi.",
+    },
+    activity: {
+      title: "NEAR Intents | Activity",
+      description: "View your activity on NEAR Intents.",
+    },
+    settings: {
+      title: "NEAR Intents | Settings",
+      description: "Manage your NEAR Intents account settings.",
     },
     termsAndConditions: {
       title: "NEAR Intents | Terms & Conditions",

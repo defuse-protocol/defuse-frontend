@@ -45,14 +45,14 @@ export function Select<T extends string>({
         disabled={disabled}
       >
         <div className="flex items-center justify-between gap-2">
-          <div className="hidden items-center gap-2 [[data-placeholder]_&]:flex">
+          <div className="hidden items-center gap-2 in-data-placeholder:flex">
             {placeholder?.icon && <div>{placeholder.icon}</div>}
             <div className="font-medium text-gray-11 text-sm">
               {placeholder?.label}
             </div>
           </div>
 
-          <div className="flex flex-1 items-center justify-between [[data-placeholder]_&]:hidden">
+          <div className="flex flex-1 items-center justify-between in-data-placeholder:hidden">
             <div className="font-bold text-sm">
               <RadixSelect.Value />
             </div>
@@ -70,7 +70,7 @@ export function Select<T extends string>({
       <RadixSelect.Portal>
         <Theme asChild>
           <RadixSelect.Content
-            className="box-border max-h-[var(--radix-select-content-available-height)] w-[var(--radix-select-trigger-width)] max-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-md border border-border bg-gray-1 shadow-2xl"
+            className="box-border max-h-(--radix-select-content-available-height) w-(--radix-select-trigger-width) max-w-(--radix-select-trigger-width) overflow-hidden rounded-md border border-border bg-gray-1 shadow-2xl"
             position="popper"
             side="bottom"
             sideOffset={8}
@@ -86,7 +86,7 @@ export function Select<T extends string>({
                     <div className="flex w-full items-center justify-between">
                       <div className="flex items-center gap-2">
                         {options[key as keyof typeof options]?.icon && (
-                          <div className="flex-shrink-0">
+                          <div className="shrink-0">
                             {options[key as keyof typeof options].icon}
                           </div>
                         )}
@@ -113,7 +113,7 @@ interface SelectItemProps {
 function SelectItem({ value, children, renderValueDetails }: SelectItemProps) {
   return (
     <RadixSelect.Item
-      className="relative flex w-full select-none items-center justify-between gap-3 self-stretch rounded-md p-2 font-bold text-gray-12 text-sm data-[disabled]:pointer-events-none data-[highlighted]:bg-gray-3 data-[state=checked]:bg-gray-3 data-[disabled]:text-gray-8 data-[highlighted]:outline-none"
+      className="relative flex w-full select-none items-center justify-between gap-3 self-stretch rounded-md p-2 font-bold text-gray-12 text-sm data-disabled:pointer-events-none data-highlighted:bg-gray-3 data-[state=checked]:bg-gray-3 data-disabled:text-gray-8 data-highlighted:outline-hidden"
       value={value}
     >
       <RadixSelect.ItemText>{children}</RadixSelect.ItemText>
@@ -124,7 +124,7 @@ function SelectItem({ value, children, renderValueDetails }: SelectItemProps) {
 
 Select.Hint = function Badge({ children }: { children: ReactNode }) {
   return (
-    <div className="rounded bg-gray-a3 px-2 py-1 font-medium text-gray-a11 text-xs">
+    <div className="rounded-sm bg-gray-a3 px-2 py-1 font-medium text-gray-a11 text-xs">
       {children}
     </div>
   )

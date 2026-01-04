@@ -41,7 +41,7 @@ export function PassiveDeposit({
         <>
           <div className="mb-6 flex flex-col items-center justify-center">
             <div className="w-full max-w-xs rounded-lg border border-red-500 bg-red-50 p-4 flex flex-col items-center">
-              <div className="flex items-center w-full justify-between bg-red-100 rounded px-3 py-2 mb-2">
+              <div className="flex items-center w-full justify-between bg-red-100 rounded-sm px-3 py-2 mb-2">
                 <span className="font-bold text-2xl text-black tracking-wider">
                   {memo}
                 </span>

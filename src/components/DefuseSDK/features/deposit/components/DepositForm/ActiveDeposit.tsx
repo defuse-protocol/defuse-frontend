@@ -210,7 +210,7 @@ function Balance({
       <BlockMultiBalances
         balance={balanceAmount}
         decimals={token.decimals}
-        className={clsx("!static", balance == null && "invisible")}
+        className={clsx("static!", balance == null && "invisible")}
         maxButtonSlot={
           <BlockMultiBalances.DisplayMaxButton
             onClick={handleSetMaxValue}

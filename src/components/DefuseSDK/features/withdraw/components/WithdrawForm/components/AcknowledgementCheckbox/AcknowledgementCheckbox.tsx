@@ -50,7 +50,7 @@ export const AcknowledgementCheckbox = <
           weight="medium"
           color={errors.isFundsLooseConfirmed ? "red" : "gray"}
           htmlFor="cex-funds-loose-checkbox"
-          className="cursor-pointer leading-relaxed break-words"
+          className="cursor-pointer leading-relaxed wrap-break-word"
         >
           I understand that withdrawing directly to an exchange address may
           result in loss of funds or other issues.
