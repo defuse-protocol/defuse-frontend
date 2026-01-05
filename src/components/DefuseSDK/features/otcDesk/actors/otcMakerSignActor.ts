@@ -65,7 +65,6 @@ type FailedToPrepareMessageToSignError = {
 export type OTCMakerSignActorErrors =
   | SignIntentErrors
   | FailedToPrepareMessageToSignError
-  | { reason: "EXCEPTION" }
 
 export const otcMakerSignMachine = setup({
   types: {
