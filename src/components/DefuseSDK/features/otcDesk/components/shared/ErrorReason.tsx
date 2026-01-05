@@ -20,6 +20,10 @@ function renderErrorMessages(reason: string): string {
   switch (reason) {
     case "ERR_STORE_FAILED":
       return "Cannot store OTC trade"
+    case "ERR_PREPARING_SIGNING_DATA":
+      return "Failed to prepare message for your wallet to sign. Please try again."
+    case "ERR_USER_DIDNT_SIGN":
+      return "It seems the message wasn’t signed in your wallet. Please try again."
     default:
       return reason
   }
