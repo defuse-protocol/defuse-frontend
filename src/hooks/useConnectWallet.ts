@@ -243,7 +243,12 @@ export const useConnectWallet = (): ConnectWalletAction => {
    * Stellar:
    * Down below are Stellar Wallet handlers and actions
    */
-  const { publicKey, connect, disconnect } = useStellarWallet()
+  const {
+    publicKey,
+    connect,
+    disconnect,
+    isLoading: isStellarLoading,
+  } = useStellarWallet()
 
   const handleSignInViaStellar = async (): Promise<void> => {
     await connect()
@@ -310,11 +315,14 @@ export const useConnectWallet = (): ConnectWalletAction => {
     state.isVerified
   )
 
-  // Determine if any wallet adapter is still loading/connecting
   const isLoading =
     evmWalletAccount.isConnecting ||
     evmWalletAccount.isReconnecting ||
-    solanaWallet.connecting
+    solanaWallet.connecting ||
+    isStellarLoading ||
+    tronWallet.isLoading ||
+    webAuthnUI.isSigningIn ||
+    webAuthnUI.isCreating
 
   return {
     async signIn(params: {

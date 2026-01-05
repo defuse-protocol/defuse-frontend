@@ -9,13 +9,19 @@ import {
 } from "@phosphor-icons/react"
 import { useSwapHistory } from "@src/features/balance-history/lib/useBalanceHistory"
 import type { SwapTransaction } from "@src/features/balance-history/types"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Island } from "../../../components/Island"
 import type { TokenInfo } from "../../../types/base"
 import { cn } from "../../../utils/cn"
 import { SwapHistoryItem, SwapHistoryItemSkeleton } from "./HistoryItem"
 
 type RefreshState = "idle" | "refreshing" | "done"
+
+const POLLING_INITIAL_DELAY_MS = 20_000
+const POLLING_INTERVAL_MS = 10_000
+const MAX_POLLING_ATTEMPTS = 20
+const RECENT_SWAP_THRESHOLD_MS = 2 * 60 * 60 * 1000
+const MIN_REFRESH_SPINNER_MS = 1000
 
 interface HistoryIslandProps {
   accountId: string | null
@@ -30,6 +36,12 @@ export function HistoryIsland({
 }: HistoryIslandProps) {
   const queryEnabled = Boolean(accountId) && !isWalletLoading
 
+  const [pollingAttempts, setPollingAttempts] = useState(0)
+  const [pollingEnabled, setPollingEnabled] = useState(false)
+  const initialDelayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  )
+
   const {
     data,
     isLoading: isQueryLoading,
@@ -39,31 +51,105 @@ export function HistoryIsland({
     fetchNextPage,
     isError,
     refetch,
+    dataUpdatedAt,
   } = useSwapHistory(
     { accountId: accountId ?? "", limit: 20 },
-    { enabled: queryEnabled }
+    {
+      enabled: queryEnabled,
+      refetchInterval: pollingEnabled ? POLLING_INTERVAL_MS : false,
+    }
   )
+
+  const items = useMemo(
+    () => data?.pages.flatMap((page) => page.data) ?? [],
+    [data]
+  )
+
+  const hasRecentPendingSwaps = useMemo(() => {
+    const now = Date.now()
+    return items.some((swap) => {
+      if (swap.status !== "PENDING" && swap.status !== "PROCESSING") {
+        return false
+      }
+      const swapTime = new Date(swap.timestamp).getTime()
+      return now - swapTime < RECENT_SWAP_THRESHOLD_MS
+    })
+  }, [items])
+
+  useEffect(() => {
+    if (initialDelayTimerRef.current) {
+      clearTimeout(initialDelayTimerRef.current)
+      initialDelayTimerRef.current = null
+    }
+
+    if (hasRecentPendingSwaps && pollingAttempts < MAX_POLLING_ATTEMPTS) {
+      if (!pollingEnabled) {
+        initialDelayTimerRef.current = setTimeout(() => {
+          setPollingEnabled(true)
+        }, POLLING_INITIAL_DELAY_MS)
+      }
+    } else {
+      setPollingEnabled(false)
+    }
+
+    return () => {
+      if (initialDelayTimerRef.current) {
+        clearTimeout(initialDelayTimerRef.current)
+      }
+    }
+  }, [hasRecentPendingSwaps, pollingAttempts, pollingEnabled])
+
+  useEffect(() => {
+    if (pollingEnabled && dataUpdatedAt) {
+      setPollingAttempts((prev) => prev + 1)
+    }
+  }, [dataUpdatedAt, pollingEnabled])
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reset on account change
+  useEffect(() => {
+    setPollingAttempts(0)
+    setPollingEnabled(false)
+  }, [accountId])
 
   const isLoading =
     isWalletLoading || isQueryLoading || (queryEnabled && !data && isFetching)
 
   const [refreshState, setRefreshState] = useState<RefreshState>("idle")
+  const prevIsFetchingRef = useRef(isFetching)
+
+  useEffect(() => {
+    const wasBackgroundFetching =
+      prevIsFetchingRef.current && !isLoading && !isFetchingNextPage
+    const fetchJustCompleted = !isFetching && wasBackgroundFetching
+
+    if (fetchJustCompleted && refreshState === "idle" && data) {
+      setRefreshState("done")
+      setTimeout(() => setRefreshState("idle"), 1500)
+    }
+
+    prevIsFetchingRef.current = isFetching
+  }, [isFetching, isLoading, isFetchingNextPage, refreshState, data])
 
   const handleRefresh = useCallback(async () => {
     setRefreshState("refreshing")
     try {
-      await refetch()
+      await Promise.all([
+        refetch(),
+        new Promise((resolve) => setTimeout(resolve, MIN_REFRESH_SPINNER_MS)),
+      ])
       setRefreshState("done")
       setTimeout(() => setRefreshState("idle"), 1500)
+      setPollingAttempts(0)
     } catch {
       setRefreshState("idle")
     }
   }, [refetch])
 
-  const items = data?.pages.flatMap((page) => page.data) ?? []
   const hasAttemptedLoad = !isLoading
   const isRefreshing = refreshState === "refreshing"
   const showDone = refreshState === "done"
+  const isAnyRefetchHappening =
+    isRefreshing || (isFetching && !isLoading && !isFetchingNextPage)
 
   return (
     <Island className="flex flex-col gap-6">
@@ -73,13 +159,13 @@ export function HistoryIsland({
           <button
             type="button"
             onClick={handleRefresh}
-            disabled={isRefreshing}
+            disabled={isAnyRefetchHappening}
             className={cn(
               "p-1.5 rounded-lg transition-all duration-200",
               showDone
                 ? "text-green-11 bg-green-3"
                 : "text-gray-11 hover:text-gray-12 hover:bg-gray-3 active:bg-gray-4",
-              isRefreshing && "opacity-70"
+              isAnyRefetchHappening && "opacity-70"
             )}
             title={showDone ? "Updated" : "Refresh"}
           >
@@ -88,7 +174,7 @@ export function HistoryIsland({
             ) : (
               <ArrowsClockwiseIcon
                 className={cn("size-4 transition-transform duration-200", {
-                  "animate-spin": isRefreshing,
+                  "animate-spin": isAnyRefetchHappening,
                 })}
                 weight="bold"
               />
@@ -134,10 +220,24 @@ function Content({
 }) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [prevItemCount, setPrevItemCount] = useState(0)
+  const wasLoadingMore = useRef(false)
 
+  // Track when "load more" starts
   useEffect(() => {
-    if (items.length > prevItemCount && prevItemCount > 0) {
+    if (isFetchingNextPage) {
+      wasLoadingMore.current = true
+    }
+  }, [isFetchingNextPage])
+
+  // Only scroll down when "load more" completes (not on refresh)
+  useEffect(() => {
+    if (
+      items.length > prevItemCount &&
+      prevItemCount > 0 &&
+      wasLoadingMore.current
+    ) {
       scrollContainerRef.current?.scrollBy({ top: 250, behavior: "smooth" })
+      wasLoadingMore.current = false
     }
     setPrevItemCount(items.length)
   }, [items.length, prevItemCount])
