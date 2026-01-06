@@ -2,10 +2,10 @@ import {
   ArrowRightIcon,
   ArrowSquareOutIcon,
   CheckCircleIcon,
-  ClockIcon,
   SpinnerIcon,
   WarningIcon,
 } from "@phosphor-icons/react"
+import { ReloadIcon } from "@radix-ui/react-icons"
 import { Skeleton } from "@radix-ui/themes"
 import type {
   SwapTransaction,
@@ -18,13 +18,11 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "../../../components/Tooltip"
-import { chainIcons } from "../../../constants/blockchains"
-import type {
-  BaseTokenInfo,
-  SupportedChainName,
-  TokenInfo,
-} from "../../../types/base"
-import { blockExplorerTxLinkFactory } from "../../../utils/chainTxExplorer"
+import {
+  INTENTS_EXPLORER_URL,
+  chainIcons,
+} from "../../../constants/blockchains"
+import type { BaseTokenInfo, TokenInfo } from "../../../types/base"
 import { cn } from "../../../utils/cn"
 import {
   formatAmount,
@@ -50,7 +48,7 @@ const STATUS_CONFIG = {
     label: "Processing",
   },
   PENDING: {
-    icon: ClockIcon,
+    icon: SpinnerIcon,
     color: "text-blue-11",
     label: "Pending",
   },
@@ -166,20 +164,20 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
   const StatusIcon = statusConfig.icon
 
   const explorerUrl = useMemo(() => {
-    const blockchain = swap.from.blockchain.toLowerCase() as SupportedChainName
-    return blockExplorerTxLinkFactory(blockchain, swap.transaction_hash)
-  }, [swap.from.blockchain, swap.transaction_hash])
+    if (!swap.transaction_hash) return null
+    return `${INTENTS_EXPLORER_URL}/transactions/${swap.transaction_hash}`
+  }, [swap.transaction_hash])
 
   const usdValue = formatUsd(swap.from.amount_usd)
 
   return (
     <div className="py-3 px-2 flex items-center gap-3 border-b border-gray-a3 last:border-b-0 hover:bg-gray-2 rounded-lg transition-colors -mx-2">
-      <div className="flex items-center gap-2 flex-1 min-w-0">
+      <div className="flex items-center gap-3 flex-1 min-w-0">
         <div className="w-[100px] flex-shrink-0">
           <TokenDisplay tokenAmount={swap.from} tokenList={tokenList} />
         </div>
         <ArrowRightIcon
-          className="size-3.5 text-gray-9 flex-shrink-0"
+          className="size-3.5 text-gray-9 flex-shrink-0 mr-3"
           weight="bold"
         />
         <div className="w-[100px] flex-shrink-0">
@@ -194,39 +192,19 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
         <div className="flex items-center gap-1.5 text-[11px]">
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="flex items-center gap-0.5 cursor-default sm:hidden">
-                <StatusIcon
-                  className={cn("size-3", statusConfig.color, {
-                    "animate-spin": swap.status === "PROCESSING",
-                  })}
-                  weight="fill"
-                />
+              <div className="flex items-center cursor-default">
+                {swap.status === "PENDING" || swap.status === "PROCESSING" ? (
+                  <ReloadIcon className="size-3 text-gray-11 animate-spin" />
+                ) : (
+                  <StatusIcon
+                    className={cn("size-3", statusConfig.color)}
+                    weight="fill"
+                  />
+                )}
               </div>
             </TooltipTrigger>
-            <TooltipContent side="top" className="text-xs sm:hidden">
-              {statusConfig.label}
-            </TooltipContent>
-          </Tooltip>
-          <div className="hidden sm:flex items-center gap-0.5">
-            <StatusIcon
-              className={cn("size-3", statusConfig.color, {
-                "animate-spin": swap.status === "PROCESSING",
-              })}
-              weight="fill"
-            />
-            <span className={cn("font-medium", statusConfig.color)}>
-              {statusConfig.label}
-            </span>
-          </div>
-          <span className="text-gray-10 hidden sm:inline">·</span>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span className="text-gray-10 cursor-default">
-                {formatRelativeTime(swap.timestamp)}
-              </span>
-            </TooltipTrigger>
             <TooltipContent side="top" className="text-xs">
-              {formatFullDate(swap.timestamp)}
+              {statusConfig.label}
             </TooltipContent>
           </Tooltip>
           {explorerUrl && (
@@ -244,6 +222,17 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
               </a>
             </>
           )}
+          <span className="text-gray-10">·</span>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="text-gray-10 cursor-default">
+                {formatRelativeTime(swap.timestamp)}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="text-xs">
+              {formatFullDate(swap.timestamp)}
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
     </div>

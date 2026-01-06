@@ -16,9 +16,6 @@ const DEFAULT_PAGE = 1
 const DEFAULT_LIMIT = 50
 const MAX_LIMIT = 100
 
-const CACHE_MAX_AGE = 30
-const CACHE_STALE_WHILE_REVALIDATE = 60
-
 const queryParamsSchema = v.object({
   page: v.optional(
     v.pipe(v.string(), v.transform(Number), v.number(), v.minValue(1)),
@@ -40,25 +37,18 @@ const queryParamsSchema = v.object({
 
 type QueryParams = v.InferOutput<typeof queryParamsSchema>
 
-function createCachedResponse(
+function createResponse(
   data: SwapTransaction[],
   pagination: SwapHistoryResponse["pagination"]
 ): NextResponse<SwapHistoryResponse> {
-  const response = NextResponse.json({ data, pagination })
-
-  response.headers.set(
-    "Cache-Control",
-    `public, s-maxage=${CACHE_MAX_AGE}, stale-while-revalidate=${CACHE_STALE_WHILE_REVALIDATE}`
-  )
-
-  return response
+  return NextResponse.json({ data, pagination })
 }
 
 function emptyResponse(
   page: number,
   limit: number
 ): NextResponse<SwapHistoryResponse> {
-  return createCachedResponse([], { page, limit, total: 0, hasMore: false })
+  return createResponse([], { page, limit, total: 0, hasMore: false })
 }
 
 function errorResponse(
@@ -125,7 +115,7 @@ export async function GET(
 
     const swaps = result.data.map(transformSwapRecord)
 
-    return createCachedResponse(swaps, {
+    return createResponse(swaps, {
       page: Number(page),
       limit: Number(limit),
       total: result.total,
