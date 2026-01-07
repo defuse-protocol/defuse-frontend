@@ -159,9 +159,17 @@ function TokenDisplay({ tokenAmount, tokenList }: TokenDisplayProps) {
   )
 }
 
+const STALE_PENDING_THRESHOLD_MS = 30 * 60 * 1000 // 30 minutes
+
 export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
   const statusConfig = STATUS_CONFIG[swap.status]
   const StatusIcon = statusConfig.icon
+
+  const isPendingStale = useMemo(() => {
+    if (swap.status !== "PENDING") return false
+    const age = Date.now() - new Date(swap.timestamp).getTime()
+    return age > STALE_PENDING_THRESHOLD_MS
+  }, [swap.status, swap.timestamp])
 
   const explorerUrl = useMemo(() => {
     if (!swap.transaction_hash) return null
@@ -194,7 +202,11 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
             <TooltipTrigger asChild>
               <div className="flex items-center cursor-default">
                 {swap.status === "PENDING" || swap.status === "PROCESSING" ? (
-                  <ReloadIcon className="size-3 text-gray-11 animate-spin" />
+                  <ReloadIcon
+                    className={cn("size-3 text-gray-11", {
+                      "animate-spin": !isPendingStale,
+                    })}
+                  />
                 ) : (
                   <StatusIcon
                     className={cn("size-3", statusConfig.color)}
