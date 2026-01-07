@@ -85,6 +85,8 @@ interface ConnectWalletAction {
   }) => Promise<string | FinalExecutionOutcome[] | SendTransactionResponse>
   connectors: Connector[]
   state: State
+  /** True when any wallet adapter is in a connecting/reconnecting state */
+  isLoading: boolean
 }
 
 const defaultState: State = {
@@ -241,7 +243,12 @@ export const useConnectWallet = (): ConnectWalletAction => {
    * Stellar:
    * Down below are Stellar Wallet handlers and actions
    */
-  const { publicKey, connect, disconnect } = useStellarWallet()
+  const {
+    publicKey,
+    connect,
+    disconnect,
+    isLoading: isStellarLoading,
+  } = useStellarWallet()
 
   const handleSignInViaStellar = async (): Promise<void> => {
     await connect()
@@ -307,6 +314,15 @@ export const useConnectWallet = (): ConnectWalletAction => {
     state.chainType,
     state.isVerified
   )
+
+  const isLoading =
+    evmWalletAccount.isConnecting ||
+    evmWalletAccount.isReconnecting ||
+    solanaWallet.connecting ||
+    isStellarLoading ||
+    tronWallet.isLoading ||
+    webAuthnUI.isSigningIn ||
+    webAuthnUI.isCreating
 
   return {
     async signIn(params: {
@@ -426,6 +442,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
 
     connectors: evmWalletConnect.connectors as Connector[],
     state,
+    isLoading,
   }
 }
 
