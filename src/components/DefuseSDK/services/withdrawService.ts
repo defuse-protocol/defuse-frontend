@@ -228,12 +228,15 @@ export async function prepareWithdraw(
     return { tag: "err", value: feeEstimation.unwrapErr() }
   }
 
-  // Add direction fee for Near/Zcash to Solana withdrawals
+  // Add direction fee for Near/Zcash/Strk to Solana withdrawals
   const isNearToSolana =
     formValues.tokenOut.defuseAssetId === "nep141:wrap.near" &&
     formValues.tokenOutDeployment.chainName === "solana"
   const isZecToSolana =
     formValues.tokenOut.defuseAssetId === "nep141:zec.omft.near" &&
+    formValues.tokenOutDeployment.chainName === "solana"
+  const isStrkToSolana =
+    formValues.tokenOut.defuseAssetId === "nep141:starknet.omft.near" &&
     formValues.tokenOutDeployment.chainName === "solana"
 
   const baseFeeEstimation = feeEstimation.unwrap()
@@ -242,7 +245,7 @@ export async function prepareWithdraw(
 
   // Only apply direction fee if env variable is set and conditions are met
   if (
-    (isNearToSolana || isZecToSolana) &&
+    (isNearToSolana || isZecToSolana || isStrkToSolana) &&
     WITHDRAW_DIRECTION_FEE_BPS != null &&
     appFeeRecipient
   ) {
@@ -308,7 +311,7 @@ export async function prepareWithdraw(
 
   // Create a separate transfer intent for the direction fee (if configured)
   const hasDirectionFee =
-    (isNearToSolana || isZecToSolana) &&
+    (isNearToSolana || isZecToSolana || isStrkToSolana) &&
     WITHDRAW_DIRECTION_FEE_BPS != null &&
     appFeeRecipient
   if (hasDirectionFee) {
