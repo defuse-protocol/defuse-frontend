@@ -36,6 +36,12 @@ interface SwapItemProps {
   tokenList: TokenInfo[]
 }
 
+const DEFAULT_STATUS_CONFIG = {
+  icon: SpinnerIcon,
+  color: "text-gray-11",
+  label: "Unknown",
+} as const
+
 const STATUS_CONFIG = {
   SUCCESS: {
     icon: CheckCircleIcon,
@@ -162,7 +168,9 @@ function TokenDisplay({ tokenAmount, tokenList }: TokenDisplayProps) {
 const STALE_PENDING_THRESHOLD_MS = 30 * 60 * 1000 // 30 minutes
 
 export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
-  const statusConfig = STATUS_CONFIG[swap.status]
+  const statusConfig =
+    STATUS_CONFIG[swap.status as keyof typeof STATUS_CONFIG] ??
+    DEFAULT_STATUS_CONFIG
   const StatusIcon = statusConfig.icon
 
   const isPendingStale = useMemo(() => {
@@ -172,9 +180,9 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
   }, [swap.status, swap.timestamp])
 
   const explorerUrl = useMemo(() => {
-    if (!swap.transaction_hash) return null
-    return `${INTENTS_EXPLORER_URL}/transactions/${swap.transaction_hash}`
-  }, [swap.transaction_hash])
+    if (!swap.deposit_address) return null
+    return `${INTENTS_EXPLORER_URL}/transactions/${swap.deposit_address}`
+  }, [swap.deposit_address])
 
   const usdValue = formatUsd(swap.from.amount_usd)
 

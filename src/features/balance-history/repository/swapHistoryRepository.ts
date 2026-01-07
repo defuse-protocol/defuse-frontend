@@ -29,6 +29,7 @@ export interface SwapRecord {
   createdAt: string
   intentHashes: string | null
   nearTxHashes: string | null
+  depositAddress: string
   amountInFormatted: string
   amountOutFormatted: string
   amountInUsd: string
@@ -75,6 +76,7 @@ export function createSwapHistoryRepository(db: IntentsDb) {
             createdAt: quotes.createdAt,
             intentHashes: quotes.intentHashes,
             nearTxHashes: quotes.nearTxHashes,
+            depositAddress: quotes.depositAddress,
             amountInFormatted: quotes.amountInFormatted,
             amountOutFormatted: quotes.amountOutFormatted,
             amountInUsd: quotes.amountInUsd,

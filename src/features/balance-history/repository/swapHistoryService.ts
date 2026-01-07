@@ -6,25 +6,22 @@ import type {
 
 import type { SwapRecord } from "./swapHistoryRepository"
 
-function extractTxHash(
-  nearTxHashes: string | null,
-  intentHashes: string | null
-): string {
-  if (nearTxHashes) {
-    if (nearTxHashes.startsWith("[")) {
-      try {
-        const parsed = JSON.parse(nearTxHashes)
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return String(parsed[0])
-        }
-      } catch {
-        // Not JSON, try comma-separated
+function extractIntentHash(intentHashes: string | null): string {
+  if (!intentHashes) return ""
+
+  if (intentHashes.startsWith("[")) {
+    try {
+      const parsed = JSON.parse(intentHashes)
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return String(parsed[0])
       }
+    } catch {
+      // Not JSON, try comma-separated
     }
-    const first = nearTxHashes.split(",")[0]
-    if (first) return first.trim()
   }
-  return intentHashes ?? ""
+
+  const first = intentHashes.split(",")[0]
+  return first?.trim() ?? ""
 }
 
 function normalizeStatus(status: string): SwapTransaction["status"] {
@@ -40,7 +37,7 @@ function normalizeStatus(status: string): SwapTransaction["status"] {
 }
 
 export function transformSwapRecord(swap: SwapRecord): SwapTransaction {
-  const txHash = extractTxHash(swap.nearTxHashes, swap.intentHashes)
+  const intentHash = extractIntentHash(swap.intentHashes)
 
   const from: TokenAmount = {
     token_id: swap.originAsset,
@@ -64,6 +61,7 @@ export function transformSwapRecord(swap: SwapRecord): SwapTransaction {
     status: normalizeStatus(swap.status),
     from,
     to,
-    transaction_hash: txHash,
+    transaction_hash: intentHash,
+    deposit_address: swap.depositAddress,
   }
 }

@@ -13,6 +13,7 @@ export interface SwapTransaction {
   from: TokenAmount
   to: TokenAmount
   transaction_hash: string
+  deposit_address: string
   slippage?: number
 }
 

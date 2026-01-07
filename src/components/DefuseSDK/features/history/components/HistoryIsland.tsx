@@ -37,10 +37,7 @@ export function HistoryIsland({
   const queryEnabled = Boolean(accountId) && !isWalletLoading
 
   const [pollingAttempts, setPollingAttempts] = useState(0)
-  const [pollingEnabled, setPollingEnabled] = useState(false)
-  const initialDelayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
-    null
-  )
+  const [delayPassed, setDelayPassed] = useState(false)
 
   const {
     data,
@@ -54,10 +51,7 @@ export function HistoryIsland({
     dataUpdatedAt,
   } = useSwapHistory(
     { accountId: accountId ?? "", limit: 20 },
-    {
-      enabled: queryEnabled,
-      refetchInterval: pollingEnabled ? POLLING_INTERVAL_MS : false,
-    }
+    { enabled: queryEnabled }
   )
 
   const items = useMemo(
@@ -76,40 +70,38 @@ export function HistoryIsland({
     })
   }, [items])
 
-  useEffect(() => {
-    if (initialDelayTimerRef.current) {
-      clearTimeout(initialDelayTimerRef.current)
-      initialDelayTimerRef.current = null
-    }
-
-    if (hasRecentPendingSwaps && pollingAttempts < MAX_POLLING_ATTEMPTS) {
-      if (!pollingEnabled) {
-        initialDelayTimerRef.current = setTimeout(() => {
-          setPollingEnabled(true)
-        }, POLLING_INITIAL_DELAY_MS)
-      }
-    } else {
-      setPollingEnabled(false)
-    }
-
-    return () => {
-      if (initialDelayTimerRef.current) {
-        clearTimeout(initialDelayTimerRef.current)
-      }
-    }
-  }, [hasRecentPendingSwaps, pollingAttempts, pollingEnabled])
-
-  useEffect(() => {
-    if (pollingEnabled && dataUpdatedAt) {
-      setPollingAttempts((prev) => prev + 1)
-    }
-  }, [dataUpdatedAt, pollingEnabled])
+  const shouldPoll =
+    hasRecentPendingSwaps &&
+    delayPassed &&
+    pollingAttempts < MAX_POLLING_ATTEMPTS
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: reset on account change
   useEffect(() => {
     setPollingAttempts(0)
-    setPollingEnabled(false)
+    setDelayPassed(false)
   }, [accountId])
+
+  useEffect(() => {
+    if (!hasRecentPendingSwaps) {
+      setDelayPassed(false)
+      return
+    }
+    if (delayPassed) return
+    const t = setTimeout(() => setDelayPassed(true), POLLING_INITIAL_DELAY_MS)
+    return () => clearTimeout(t)
+  }, [hasRecentPendingSwaps, delayPassed])
+
+  useEffect(() => {
+    if (!shouldPoll) return
+    const interval = setInterval(() => refetch(), POLLING_INTERVAL_MS)
+    return () => clearInterval(interval)
+  }, [shouldPoll, refetch])
+
+  useEffect(() => {
+    if (shouldPoll && dataUpdatedAt) {
+      setPollingAttempts((prev) => prev + 1)
+    }
+  }, [dataUpdatedAt, shouldPoll])
 
   const isLoading =
     isWalletLoading || isQueryLoading || (queryEnabled && !data && isFetching)
