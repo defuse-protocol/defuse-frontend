@@ -7,13 +7,11 @@ import { BASE_URL } from "@src/utils/environment"
 export async function fetchSwapHistory(
   params: SwapHistoryParams
 ): Promise<SwapHistoryResponse> {
-  const { accountId, page, limit, startDate, endDate } = params
+  const { accountId, page, limit } = params
 
   const searchParams = new URLSearchParams()
   if (page) searchParams.set("page", String(page))
   if (limit) searchParams.set("limit", String(limit))
-  if (startDate) searchParams.set("startDate", startDate)
-  if (endDate) searchParams.set("endDate", endDate)
 
   const queryString = searchParams.toString()
   const url = `${BASE_URL}/api/balance-history/${encodeURIComponent(accountId)}${queryString ? `?${queryString}` : ""}`

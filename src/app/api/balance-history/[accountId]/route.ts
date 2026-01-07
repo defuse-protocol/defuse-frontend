@@ -1,13 +1,10 @@
-import {
-  createSwapHistoryRepository,
-  transformSwapRecord,
-} from "@src/features/balance-history/repository"
+import { fetchIntentsExplorerTransactions } from "@src/features/balance-history/lib/intentsExplorerAPI"
+import { transformTransaction } from "@src/features/balance-history/lib/transformTransaction"
 import type {
   ErrorResponse,
   SwapHistoryResponse,
   SwapTransaction,
 } from "@src/features/balance-history/types"
-import { intentsDb } from "@src/libs/intentsDb"
 import { logger } from "@src/utils/logger"
 import { NextResponse } from "next/server"
 import * as v from "valibot"
@@ -31,8 +28,6 @@ const queryParamsSchema = v.object({
     ),
     String(DEFAULT_LIMIT)
   ),
-  startDate: v.optional(v.string()),
-  endDate: v.optional(v.string()),
 })
 
 type QueryParams = v.InferOutput<typeof queryParamsSchema>
@@ -42,13 +37,6 @@ function createResponse(
   pagination: SwapHistoryResponse["pagination"]
 ): NextResponse<SwapHistoryResponse> {
   return NextResponse.json({ data, pagination })
-}
-
-function emptyResponse(
-  page: number,
-  limit: number
-): NextResponse<SwapHistoryResponse> {
-  return createResponse([], { page, limit, total: 0, hasMore: false })
 }
 
 function errorResponse(
@@ -63,19 +51,10 @@ function parseQueryParams(searchParams: URLSearchParams): QueryParams | null {
     return v.parse(queryParamsSchema, {
       page: searchParams.get("page") ?? undefined,
       limit: searchParams.get("limit") ?? undefined,
-      startDate: searchParams.get("startDate") ?? undefined,
-      endDate: searchParams.get("endDate") ?? undefined,
     })
   } catch {
     return null
   }
-}
-
-function parseDateFilter(dateString: string | undefined): Date | undefined {
-  if (!dateString) return undefined
-
-  const parsed = new Date(dateString)
-  return Number.isNaN(parsed.getTime()) ? undefined : parsed
 }
 
 export async function GET(
@@ -88,11 +67,6 @@ export async function GET(
     return errorResponse("Account ID is required", 400)
   }
 
-  if (!intentsDb) {
-    logger.warn("Balance history: INTENTS_DB_URL not configured")
-    return emptyResponse(DEFAULT_PAGE, DEFAULT_LIMIT)
-  }
-
   const { searchParams } = new URL(request.url)
   const queryParams = parseQueryParams(searchParams)
 
@@ -100,26 +74,23 @@ export async function GET(
     return errorResponse("Invalid query parameters", 400)
   }
 
-  const { page, limit, startDate, endDate } = queryParams
+  const { page, limit } = queryParams
 
   try {
-    const repository = createSwapHistoryRepository(intentsDb)
-
-    const result = await repository.findByAccount({
-      accountId,
+    const result = await fetchIntentsExplorerTransactions({
+      recipient: accountId,
       page: Number(page),
-      limit: Number(limit),
-      startDate: parseDateFilter(startDate),
-      endDate: parseDateFilter(endDate),
+      perPage: Number(limit),
+      statuses: "SUCCESS,PROCESSING,PENDING_DEPOSIT,REFUNDED,FAILED",
     })
 
-    const swaps = result.data.map(transformSwapRecord)
+    const swaps = result.data.map(transformTransaction)
 
     return createResponse(swaps, {
-      page: Number(page),
-      limit: Number(limit),
-      total: result.total,
-      hasMore: result.hasMore,
+      page: result.pagination.page,
+      limit: result.pagination.perPage,
+      total: result.pagination.total,
+      hasMore: result.pagination.hasMore,
     })
   } catch (err) {
     logger.error("Balance history query failed", {

@@ -111,14 +111,6 @@ export function formatUsd(amount: string): string {
   })
 }
 
-export function toUtcIsoString(mysqlDatetime: string): string {
-  if (!mysqlDatetime) return mysqlDatetime
-  if (mysqlDatetime.includes("Z") || mysqlDatetime.includes("+")) {
-    return mysqlDatetime
-  }
-  return `${mysqlDatetime.replace(" ", "T")}Z`
-}
-
 export function formatRelativeTime(dateString: string): string {
   const date = new Date(dateString)
   if (Number.isNaN(date.getTime())) return dateString

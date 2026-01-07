@@ -14,7 +14,6 @@ export interface SwapTransaction {
   to: TokenAmount
   transaction_hash: string
   deposit_address: string
-  slippage?: number
 }
 
 export interface SwapHistoryResponse {
@@ -31,8 +30,6 @@ export interface SwapHistoryParams {
   accountId: string
   page?: number
   limit?: number
-  startDate?: string
-  endDate?: string
 }
 
 export interface ErrorResponse {
