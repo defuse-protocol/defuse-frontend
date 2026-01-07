@@ -402,6 +402,12 @@
               "decimals": 24,
               "chainName": "optima",
               "bridge": "aurora_engine"
+            },
+            {
+              "address": "3ZLekZYq2qkZiSpnSvabjit34tUkjSwD1JFuW9as9wBG",
+              "decimals": 9,
+              "chainName": "solana",
+              "bridge": "near_omni"
             }
           ],
           "tags": ["mc:31", "tvol:2", "aid:near"]
@@ -1948,21 +1954,47 @@
       "tags": ["mc:266"]
     },
     {
-      "defuseAssetId": "nep141:gnosis-0x4d18815d14fe5c3304e87b3fa18318baa5c23820.omft.near",
+      "unifiedAssetId": "safe",
       "symbol": "SAFE",
       "name": "Safe",
-      "decimals": 18,
       "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/21585.png",
-      "originChainName": "gnosis",
-      "deployments": [
+      "groupedTokens": [
         {
-          "address": "0x4d18815d14fe5c3304e87b3fa18318baa5c23820",
+          "defuseAssetId": "nep141:gnosis-0x4d18815d14fe5c3304e87b3fa18318baa5c23820.omft.near",
+          "symbol": "SAFE",
+          "name": "Safe",
           "decimals": 18,
-          "chainName": "gnosis",
-          "bridge": "poa"
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/21585.png",
+          "originChainName": "gnosis",
+          "deployments": [
+            {
+              "address": "0x4d18815d14fe5c3304e87b3fa18318baa5c23820",
+              "decimals": 18,
+              "chainName": "gnosis",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:168", "aid:safe"]
+        },
+        {
+          "defuseAssetId": "nep141:eth-0x5afe3855358e112b5647b952709e6165e1c1eeee.omft.near",
+          "symbol": "SAFE",
+          "name": "Safe",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/21585.png",
+          "originChainName": "eth",
+          "deployments": [
+            {
+              "address": "0x5afe3855358e112b5647b952709e6165e1c1eeee",
+              "decimals": 18,
+              "chainName": "eth",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:168", "aid:safe"]
         }
       ],
-      "tags": ["mc:168"]
+      "tags": ["mc:168", "aid:safe"]
     },
     {
       "defuseAssetId": "nep141:score.aidols.near",
@@ -2591,6 +2623,72 @@
         }
       ],
       "tags": ["aid:adi"]
+    },
+    {
+      "defuseAssetId": "nep141:npro.nearmobile.near",
+      "symbol": "NPRO",
+      "name": "NPRO",
+      "decimals": 24,
+      "icon": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODgiIGhlaWdodD0iODgiIHZpZXdCb3g9IjAgMCA4OCA4OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9Ijg4IiBoZWlnaHQ9Ijg4IiByeD0iNDQiIGZpbGw9InVybCgjcGFpbnQwX2xpbmVhcl8zMjQ1XzE3NTIpIi8+CjxwYXRoIGQ9Ik00OC4wOTM4IDE2LjIxMTlDNDguMzg5MiAxNS44OTk1IDQ4Ljg4ODIgMTUuOTM3NyA0OS4xMzQ4IDE2LjI5Mkw2Ny41ODUgNDIuODE0NUM2Ny44MjcgNDMuMDkzNiA2Ny45Njg5IDQzLjQ2ODcgNjcuOTk1MSA0My44NjA0QzY3Ljk5ODIgNDMuOTA3IDY4LjAwMDIgNDMuOTUzNiA2OCA0NEM2OC4wMDAyIDQ0LjA0NjQgNjcuOTk4MiA0NC4wOTMgNjcuOTk1MSA0NC4xMzk3QzY3Ljk2ODkgNDQuNTMxMyA2Ny44MjcgNDQuOTA2NCA2Ny41ODUgNDUuMTg1Nkw0OS4xMzQ4IDcxLjcwOEM0OC44ODgyIDcyLjA2MjMgNDguMzg5MiA3Mi4xMDA1IDQ4LjA5MzggNzEuNzg4MUM0Ny44NzQzIDcxLjU1NTggNDcuODM5MSA3MS4xOTg1IDQ4LjAwODggNzAuOTI1OEw2Mi4yNzI1IDQ4LjAwOThDNjIuMzg1MiA0Ny44Mjg2IDYyLjE5MTcgNDcuNjExMiA2Mi4wMDU5IDQ3LjcxTDU3LjAwODggNTAuMzcxMUw0Ny43NTQ5IDY1Ljc1MkM0Ny41OTM1IDY2LjAyMDEgNDcuMjU0NCA2Ni4xMTA2IDQ2Ljk4NjMgNjUuOTU3QzQ2LjcxODUgNjUuODAzNSA0Ni42MTU5IDY1LjQ2MDQgNDYuNzUyOSA2NS4xNzg3TDUzLjgzOTkgNTAuNjQ4NEgzNC4xNjAyTDQxLjI0NzEgNjUuMTc4N0M0MS4zODQyIDY1LjQ2MDQgNDEuMjgxNSA2NS44MDM1IDQxLjAxMzcgNjUuOTU3QzQwLjc0NTYgNjYuMTEwNiA0MC40MDY1IDY2LjAyMDEgNDAuMjQ1MSA2NS43NTJMMzAuOTkxMiA1MC4zNzExTDI1Ljk5NDIgNDcuNzFDMjUuODA4MyA0Ny42MTEyIDI1LjYxNDggNDcuODI4NyAyNS43Mjc1IDQ4LjAwOThMMzkuOTkxMiA3MC45MjU4QzQwLjE2MDkgNzEuMTk4NSA0MC4xMjU3IDcxLjU1NTggMzkuOTA2MyA3MS43ODgxQzM5LjYxMDkgNzIuMTAwNSAzOS4xMTE4IDcyLjA2MjMgMzguODY1MiA3MS43MDhMMjAuNDE1IDQ1LjE4NTZDMjAuMTczIDQ0LjkwNjQgMjAuMDMxMSA0NC41MzEzIDIwLjAwNDkgNDQuMTM5N0MyMC4wMDE4IDQ0LjA5MyAxOS45OTk4IDQ0LjA0NjQgMjAgNDRDMTkuOTk5OCA0My45NTM2IDIwLjAwMTggNDMuOTA3IDIwLjAwNDkgNDMuODYwNEMyMC4wMzExIDQzLjQ2ODcgMjAuMTczIDQzLjA5MzYgMjAuNDE1IDQyLjgxNDVMMzguODY1MiAxNi4yOTJDMzkuMTExOCAxNS45Mzc3IDM5LjYxMDkgMTUuODk5NSAzOS45MDYzIDE2LjIxMTlDNDAuMTI1NyAxNi40NDQyIDQwLjE2MDkgMTYuODAxNSAzOS45OTEyIDE3LjA3NDJMMjQuNjk5MiA0MS42NDI2QzI0LjIyOTggNDIuMzk2OSAyNC4xOTA4IDQyLjg5MzYgMjQuMjYzNyA0My4xODk1QzI0LjMzNjYgNDMuNDg1NSAyNC41Mzc0IDQzLjY0NjYgMjQuNjg3NSA0My43MDUxQzI0LjY5NzEgNDMuNzA4OCAyNC43MDY3IDQzLjcxMzEgMjQuNzE1OCA0My43MTc4TDMwLjgwMTggNDYuODI5MUw0MC4yMjQ2IDI1LjM3MTFDNDAuMzY5IDI1LjA0MjYgNDAuNzQzOCAyNC44OTM5IDQxLjA2NjQgMjUuMDM2MUM0MS4zNzkzIDI1LjE3NDQgNDEuNTMzNyAyNS41MzkyIDQxLjQxOCAyNS44NjgyTDMzLjg0NDcgNDcuNDA2M0g1NC4zMDg2TDQ2LjczNjMgMjUuODY4MkM0Ni42MjA2IDI1LjUzOSA0Ni43NzQ3IDI1LjE3NDIgNDcuMDg3OSAyNS4wMzYxQzQ3LjQxMDQgMjQuODk0IDQ3Ljc4NDMgMjUuMDQyNyA0Ny45Mjg3IDI1LjM3MTFMNTcuMzIyMyA0Ni43NjE3TDYzLjI4NDIgNDMuNzE3OEM2My4yOTY5IDQzLjcxMTMgNjMuMzEwNyA0My43MDU4IDYzLjMyNDIgNDMuNzAxMkM2My40Nzc3IDQzLjY0ODQgNjMuNjc4MyA0My40OTY5IDYzLjc1MSA0My4yMUM2My44MjQyIDQyLjkyMDQgNjMuNzg0OSA0Mi40MjA0IDYzLjMwMDggNDEuNjQyNkw0OC4wMDg4IDE3LjA3NDJDNDcuODM5MSAxNi44MDE1IDQ3Ljg3NDMgMTYuNDQ0MiA0OC4wOTM4IDE2LjIxMTlaIiBmaWxsPSJ3aGl0ZSIvPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJwYWludDBfbGluZWFyXzMyNDVfMTc1MiIgeDE9IjAiIHkxPSI0NC4wMDAzIiB4Mj0iODgiIHkyPSI0NC4wMDAzIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiM5Nzk3RkYiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMTdEOUQ0Ii8+CjwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPC9zdmc+Cg==",
+      "originChainName": "near",
+      "deployments": [
+        {
+          "address": "npro.nearmobile.near",
+          "decimals": 24,
+          "chainName": "near",
+          "bridge": "direct"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "defuseAssetId": "nep141:bch.omft.near",
+      "symbol": "BCH",
+      "name": "Bitcoin Cash",
+      "decimals": 8,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1831.png",
+      "originChainName": "bitcoincash",
+      "deployments": [
+        {
+          "type": "native",
+          "decimals": 8,
+          "chainName": "bitcoincash",
+          "bridge": "poa"
+        }
+      ],
+      "tags": ["mc:11"]
+    },
+    {
+      "unifiedAssetId": "strk",
+      "symbol": "STRK",
+      "name": "Starknet",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/22691.png",
+      "groupedTokens": [
+        {
+          "defuseAssetId": "nep141:starknet.omft.near",
+          "symbol": "STRK",
+          "name": "Starknet",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/22691.png",
+          "originChainName": "starknet",
+          "deployments": [
+            {
+              "type": "native",
+              "decimals": 18,
+              "chainName": "starknet",
+              "bridge": "poa"
+            },
+            {
+              "address": "HsRpHQn6VbyMs5b5j5SV6xQ2VvpvvCCzu19GjytVSCoz",
+              "decimals": 9,
+              "chainName": "solana",
+              "bridge": "near_omni"
+            }
+          ],
+          "tags": ["mc:95", "aid:strk"]
+        }
+      ],
+      "tags": ["mc:95", "aid:strk"]
     }
   ]
 }

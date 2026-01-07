@@ -13,6 +13,7 @@ import {
   createVirtualChainRoute,
 } from "@defuse-protocol/intents-sdk"
 import { getCAIP2 } from "@src/components/DefuseSDK/utils/caip2"
+import { WITHDRAW_DIRECTION_FEE_BPS } from "@src/utils/environment"
 import { logger } from "@src/utils/logger"
 import { Err, Ok, type Result } from "@thames/monads"
 import { type ActorRefFrom, waitFor } from "xstate"
@@ -42,6 +43,7 @@ import {
   getUnderlyingBaseTokenInfos,
   maxAmounts,
   minAmounts,
+  netDownAmount,
   subtractAmounts,
   truncateTokenValue,
 } from "../utils/tokenUtils"
@@ -87,6 +89,8 @@ export type PreparedWithdrawReturnType = {
   receivedAmount: TokenValue
   prebuiltWithdrawalIntents: Intent[]
   withdrawalParams: WithdrawalParams
+  baseBridgeFee?: bigint // Base bridge fee before additional direction fee
+  directionFeeAmount?: bigint // Direction fee amount (separate from bridge fee)
 }
 
 export type PreparationOutput =
@@ -98,10 +102,12 @@ export async function prepareWithdraw(
     formValues,
     depositedBalanceRef,
     poaBridgeInfoRef,
+    appFeeRecipient,
   }: {
     formValues: WithdrawFormContext
     depositedBalanceRef: ActorRefFrom<typeof depositedBalanceMachine>
     poaBridgeInfoRef: ActorRefFrom<typeof poaBridgeInfoActor>
+    appFeeRecipient?: string
   },
   { signal }: { signal: AbortSignal }
 ): Promise<PreparationOutput> {
@@ -222,8 +228,37 @@ export async function prepareWithdraw(
     return { tag: "err", value: feeEstimation.unwrapErr() }
   }
 
+  // Add direction fee for Near/Zcash/Strk to Solana withdrawals
+  const isNearToSolana =
+    formValues.tokenOut.defuseAssetId === "nep141:wrap.near" &&
+    formValues.tokenOutDeployment.chainName === "solana"
+  const isZecToSolana =
+    formValues.tokenOut.defuseAssetId === "nep141:zec.omft.near" &&
+    formValues.tokenOutDeployment.chainName === "solana"
+  const isStrkToSolana =
+    formValues.tokenOut.defuseAssetId === "nep141:starknet.omft.near" &&
+    formValues.tokenOutDeployment.chainName === "solana"
+
+  const baseFeeEstimation = feeEstimation.unwrap()
+  const baseBridgeFeeAmount = baseFeeEstimation.amount
+  let totalFeeAmount = baseBridgeFeeAmount
+
+  // Only apply direction fee if env variable is set and conditions are met
+  if (
+    (isNearToSolana || isZecToSolana || isStrkToSolana) &&
+    WITHDRAW_DIRECTION_FEE_BPS != null &&
+    appFeeRecipient
+  ) {
+    // Calculate direction fee from the total withdrawal amount
+    // This is an additional fee on top of the bridge fee, so bridge fee remains unchanged
+    const additionalFee =
+      totalWithdrawn.amount -
+      netDownAmount(totalWithdrawn.amount, WITHDRAW_DIRECTION_FEE_BPS)
+    totalFeeAmount += additionalFee
+  }
+
   const receivedAmount = subtractAmounts(totalWithdrawn, {
-    amount: feeEstimation.unwrap().amount,
+    amount: totalFeeAmount,
     // Fee estimations are always in the decimals of the token on NEAR chain,
     // even if on the destination chain the token has different decimals.
     decimals: formValues.tokenOut.decimals,
@@ -253,7 +288,7 @@ export async function prepareWithdraw(
   try {
     withdrawalIntents = await bridgeSDK.createWithdrawalIntents({
       withdrawalParams,
-      feeEstimation: feeEstimation.unwrap(),
+      feeEstimation: baseFeeEstimation,
     })
   } catch (err: unknown) {
     const trustlineNotFoundErr = findError(err, TrustlineNotFoundError)
@@ -274,15 +309,41 @@ export async function prepareWithdraw(
     }
   }
 
+  // Create a separate transfer intent for the direction fee (if configured)
+  const hasDirectionFee =
+    (isNearToSolana || isZecToSolana || isStrkToSolana) &&
+    WITHDRAW_DIRECTION_FEE_BPS != null &&
+    appFeeRecipient
+  if (hasDirectionFee) {
+    const additionalFee = totalFeeAmount - baseBridgeFeeAmount
+    if (additionalFee > 0n) {
+      const feeIntent: Intent = {
+        intent: "transfer",
+        receiver_id: appFeeRecipient,
+        tokens: {
+          [formValues.tokenOut.defuseAssetId]: additionalFee.toString(),
+        },
+      }
+      withdrawalIntents.push(feeIntent)
+    }
+  }
+
+  // Calculate direction fee amount separately (if applicable)
+  const directionFeeAmount = hasDirectionFee
+    ? totalFeeAmount - baseBridgeFeeAmount
+    : undefined
+
   return {
     tag: "ok",
     value: {
       directWithdrawAvailable: directWithdrawAvailable,
       swap: swapRequirement,
-      feeEstimation: feeEstimation.unwrap(),
+      feeEstimation: baseFeeEstimation,
       receivedAmount: receivedAmount,
       prebuiltWithdrawalIntents: withdrawalIntents,
       withdrawalParams,
+      baseBridgeFee: hasDirectionFee ? baseBridgeFeeAmount : undefined,
+      directionFeeAmount: directionFeeAmount,
     },
   }
 }

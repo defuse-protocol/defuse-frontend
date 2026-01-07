@@ -39,14 +39,16 @@ function renderErrorMessages(reason: string): string {
 
     case "ERR_GIFT_SIGNING":
       return "Unable to sign your gift. Please try again in a moment."
-
+    case "ERR_PREPARING_GIFT_SIGNING_DATA":
+      return "Failed to prepare message for your wallet to sign. Please try again."
     case "NOT_FOUND_OR_NOT_VALID":
     case "NO_TOKEN_OR_GIFT_HAS_BEEN_CLAIMED":
       return "This gift is no longer available. It may have been claimed by someone else or the link is invalid. Please contact the gift creator for assistance."
 
     case "INVALID_SECRET_KEY":
       return "This gift link is invalid. Please contact the gift creator for assistance."
-
+    case "ERR_USER_DIDNT_SIGN":
+      return "It seems the message wasn’t signed in your wallet. Please try again."
     default:
       return reason
   }
