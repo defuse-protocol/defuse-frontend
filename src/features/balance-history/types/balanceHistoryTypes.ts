@@ -1,7 +1,6 @@
 export interface TokenAmount {
   token_id: string
   symbol: string
-  blockchain: string
   amount: string
   amount_usd: string
 }

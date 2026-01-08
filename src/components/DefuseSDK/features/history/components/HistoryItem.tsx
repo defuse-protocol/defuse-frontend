@@ -101,23 +101,13 @@ interface TokenDisplayProps {
   tokenList: TokenInfo[]
 }
 
-function formatChainName(chain: string): string {
-  return chain.charAt(0).toUpperCase() + chain.slice(1).toLowerCase()
-}
-
 function TokenDisplay({ tokenAmount, tokenList }: TokenDisplayProps) {
   const token = useMemo(
     () => findTokenByAssetId(tokenList, tokenAmount.token_id),
     [tokenList, tokenAmount.token_id]
   )
 
-  const swapChain = tokenAmount.blockchain.toLowerCase()
-  const originChain = token?.originChainName?.toLowerCase()
-  const chainIcon = useMemo(
-    () => chainIcons[swapChain as keyof typeof chainIcons],
-    [swapChain]
-  )
-  const hasDifferentOrigin = originChain && originChain !== swapChain
+  const chainIcon = chainIcons.near
 
   return (
     <Tooltip>
@@ -127,8 +117,8 @@ function TokenDisplay({ tokenAmount, tokenList }: TokenDisplayProps) {
             icon={token?.icon}
             name={token?.name ?? tokenAmount.symbol}
             chainIcon={chainIcon}
-            chainName={swapChain}
-            showChainIcon={Boolean(chainIcon)}
+            chainName="near"
+            showChainIcon
           />
           <div className="flex flex-col min-w-0">
             <span className="text-sm font-medium truncate">
@@ -145,20 +135,7 @@ function TokenDisplay({ tokenAmount, tokenList }: TokenDisplayProps) {
           <span className="font-medium">
             {token?.name ?? tokenAmount.symbol}
           </span>
-          {hasDifferentOrigin ? (
-            <>
-              <span className="text-gray-9">
-                Origin: {formatChainName(originChain)}
-              </span>
-              <span className="text-gray-9">
-                Swapped on: {formatChainName(swapChain)}
-              </span>
-            </>
-          ) : (
-            <span className="text-gray-9">
-              Blockchain: {formatChainName(swapChain)}
-            </span>
-          )}
+          <span className="text-gray-9">Blockchain: Near</span>
         </div>
       </TooltipContent>
     </Tooltip>

@@ -30,14 +30,12 @@ export function transformTransaction(
     from: {
       token_id: tx.originAsset,
       symbol: "",
-      blockchain: "near",
       amount: tx.amountInFormatted,
       amount_usd: tx.amountInUsd,
     },
     to: {
       token_id: tx.destinationAsset,
       symbol: "",
-      blockchain: "near",
       amount: tx.amountOutFormatted,
       amount_usd: tx.amountOutUsd,
     },
