@@ -6,6 +6,7 @@ import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import { walletVerificationMachine } from "@src/machines/walletVerificationMachine"
 import { useBypassedWalletsStore } from "@src/stores/useBypassedWalletsStore"
+import { useSkippedVerificationStore } from "@src/stores/useSkippedVerificationStore"
 import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
 import {
   verifyWalletSignature,
@@ -17,6 +18,14 @@ import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useRef } from "react"
 import { fromPromise } from "xstate"
 import { useMixpanel } from "./MixpanelProvider"
+
+// Check if running on a Vercel preview deployment
+function isPreviewEnvironment(): boolean {
+  if (typeof window === "undefined") return false
+  const hostname = window.location.hostname
+  // Vercel preview URLs end with .vercel.app but aren't the production domain
+  return hostname.endsWith(".vercel.app") && !hostname.startsWith("app.")
+}
 
 export function WalletVerificationProvider() {
   const { state, signOut } = useConnectWallet()
@@ -64,6 +73,8 @@ export function WalletVerificationProvider() {
   const { addWalletAddress } = useVerifiedWalletsStore()
   const { addBypassedWalletAddress, isWalletBypassed } =
     useBypassedWalletsStore()
+  const { addSkippedWalletAddress, isVerificationSkipped } =
+    useSkippedVerificationStore()
 
   if (bannedAccountCheck.data?.isBanned && pathname !== "/account") {
     router.push("/wallet/banned")
@@ -99,11 +110,30 @@ export function WalletVerificationProvider() {
     )
   }
 
+  // On preview environments, auto-skip verification since wallet signing often doesn't work
+  const isPreview = isPreviewEnvironment()
+  const shouldAutoSkipOnPreview =
+    isPreview &&
+    state.address != null &&
+    !state.isVerified &&
+    !isVerificationSkipped(state.address)
+
+  useEffect(() => {
+    if (shouldAutoSkipOnPreview && state.address != null) {
+      addSkippedWalletAddress(state.address)
+    }
+  }, [shouldAutoSkipOnPreview, state.address, addSkippedWalletAddress])
+
+  if (shouldAutoSkipOnPreview) {
+    return null
+  }
+
   if (
     state.address != null &&
     (safetyCheck.data?.safetyStatus === "safe" ||
       isWalletBypassed(state.address)) &&
-    !state.isVerified
+    !state.isVerified &&
+    !isVerificationSkipped(state.address)
   ) {
     return (
       <WalletVerificationUI
@@ -115,6 +145,11 @@ export function WalletVerificationProvider() {
         onAbort={() => {
           if (state.chainType != null) {
             void signOut({ id: state.chainType })
+          }
+        }}
+        onSkip={() => {
+          if (state.address != null) {
+            addSkippedWalletAddress(state.address)
           }
         }}
       />
@@ -136,7 +171,8 @@ function WalletBannedUI({
 function WalletVerificationUI({
   onConfirm,
   onAbort,
-}: { onConfirm: () => void; onAbort: () => void }) {
+  onSkip,
+}: { onConfirm: () => void; onAbort: () => void; onSkip: () => void }) {
   const { state: unconfirmedWallet } = useConnectWallet()
 
   const signMessage = useWalletAgnosticSignMessage()
@@ -186,19 +222,30 @@ function WalletVerificationUI({
   onConfirmRef.current = onConfirm
   const onAbortRef = useRef(onAbort)
   onAbortRef.current = onAbort
+  const onSkipRef = useRef(onSkip)
+  onSkipRef.current = onSkip
 
   useEffect(
     () =>
-      serviceRef.subscribe((state) => {
-        if (state.matches("verified")) {
+      serviceRef.subscribe((snapshot) => {
+        if (snapshot.matches("verified")) {
           onConfirmRef.current()
           mixPanel?.track("wallet_verified", {
             wallet: unconfirmedWallet.address,
             wallet_type: unconfirmedWallet.chainType,
           })
         }
-        if (state.matches("aborted")) {
+        if (snapshot.matches("aborted")) {
           onAbortRef.current()
+        }
+        // Auto-skip verification when it fails (timeout or error)
+        // This prevents the dialog from blocking the page indefinitely
+        if (snapshot.matches("idle") && snapshot.context.hadError) {
+          onSkipRef.current()
+          mixPanel?.track("wallet_verification_auto_skipped", {
+            wallet: unconfirmedWallet.address,
+            wallet_type: unconfirmedWallet.chainType,
+          })
         }
       }).unsubscribe,
     [
@@ -217,6 +264,9 @@ function WalletVerificationUI({
       }}
       onCancel={() => {
         send({ type: "ABORT" })
+      }}
+      onSkip={() => {
+        onSkipRef.current()
       }}
       isVerifying={state.matches("verifying")}
       isFailure={state.context.hadError}

@@ -12,12 +12,14 @@ export function WalletVerificationDialog({
   open,
   onConfirm,
   onCancel,
+  onSkip,
   isVerifying,
   isFailure,
 }: {
   open: boolean
   onConfirm: () => void
   onCancel: () => void
+  onSkip?: () => void
   isVerifying: boolean
   isFailure: boolean
 }) {
@@ -29,6 +31,7 @@ export function WalletVerificationDialog({
             open={open}
             onConfirm={onConfirm}
             onCancel={onCancel}
+            onSkip={onSkip}
             isVerifying={isVerifying}
           />
         ) : (
@@ -36,6 +39,7 @@ export function WalletVerificationDialog({
             open={open}
             onConfirm={onConfirm}
             onCancel={onCancel}
+            onSkip={onSkip}
             isVerifying={isVerifying}
           />
         )}
@@ -48,11 +52,13 @@ function DefaultContent({
   open: _open,
   onConfirm,
   onCancel,
+  onSkip,
   isVerifying,
 }: {
   open: boolean
   onConfirm: () => void
   onCancel: () => void
+  onSkip?: () => void
   isVerifying: boolean
 }) {
   return (
@@ -116,6 +122,19 @@ function DefaultContent({
             Cancel
           </Button>
         </AlertDialog.Cancel>
+        {onSkip && (
+          <AlertDialog.Cancel>
+            <Button
+              size="4"
+              type="button"
+              variant="outline"
+              color="gray"
+              onClick={onSkip}
+            >
+              Skip for now
+            </Button>
+          </AlertDialog.Cancel>
+        )}
         <AlertDialog.Action>
           <Button size="4" type="button" onClick={onConfirm}>
             <Spinner loading={isVerifying} />
@@ -131,11 +150,13 @@ function FailureContent({
   open: _open,
   onConfirm,
   onCancel,
+  onSkip,
   isVerifying,
 }: {
   open: boolean
   onConfirm: () => void
   onCancel: () => void
+  onSkip?: () => void
   isVerifying: boolean
 }) {
   return (
@@ -194,6 +215,19 @@ function FailureContent({
             Sign out
           </Button>
         </AlertDialog.Cancel>
+        {onSkip && (
+          <AlertDialog.Cancel>
+            <Button
+              size="4"
+              type="button"
+              variant="outline"
+              color="gray"
+              onClick={onSkip}
+            >
+              Skip for now
+            </Button>
+          </AlertDialog.Cancel>
+        )}
         <AlertDialog.Action>
           <Button size="4" type="button" onClick={onConfirm}>
             <Spinner loading={isVerifying}>
