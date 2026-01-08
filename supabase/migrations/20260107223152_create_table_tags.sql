@@ -15,7 +15,9 @@ CREATE TABLE tags (
 	auth_identifier TEXT NOT NULL,
 	auth_method auth_method NOT NULL,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+	-- Validate that auth_tag starts with @ and contains exactly one @
+	CONSTRAINT auth_tag_format_check CHECK (auth_tag ~ '^@[^@]*$')
 );
 
 -- Create unique constraint on auth_tag (already enforced by PRIMARY KEY, but explicit for clarity)
@@ -45,7 +47,7 @@ CREATE TRIGGER update_tags_updated_at
 
 -- Add comment to table
 COMMENT ON TABLE tags IS 'Stores authentication identities with unique tags';
-COMMENT ON COLUMN tags.auth_tag IS 'Unique identifier for the auth identity (must start with @)';
+COMMENT ON COLUMN tags.auth_tag IS 'Unique identifier for the auth identity (must start with @ and contain exactly one @)';
 COMMENT ON COLUMN tags.auth_identifier IS 'The user identifier (blockchain address, account name, or public key)';
 COMMENT ON COLUMN tags.auth_method IS 'The type of authentication method used';
 
