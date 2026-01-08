@@ -54,10 +54,23 @@ export function HistoryIsland({
     { enabled: queryEnabled }
   )
 
-  const items = useMemo(
+  const currentItems = useMemo(
     () => data?.pages.flatMap((page) => page.data) ?? [],
     [data]
   )
+
+  const lastSuccessfulItems = useRef<SwapTransaction[]>([])
+
+  useEffect(() => {
+    if (currentItems.length > 0) {
+      lastSuccessfulItems.current = currentItems
+    }
+  }, [currentItems])
+
+  const items =
+    isError && lastSuccessfulItems.current.length > 0
+      ? lastSuccessfulItems.current
+      : currentItems
 
   const hasRecentPendingSwaps = useMemo(() => {
     const now = Date.now()
@@ -243,7 +256,6 @@ function Content({
   }
 
   if (items.length === 0) {
-    // Only show error screen if we have no cached data to display
     if (isError) {
       return <ErrorScreen onRetry={onRetry} />
     }
