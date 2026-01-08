@@ -153,12 +153,24 @@ function WalletVerificationUI({
             return false
           }
 
-          const walletSignature = await signMessage(
-            walletVerificationMessageFactory(
-              unconfirmedWallet.address,
-              unconfirmedWallet.chainType
+          // Add timeout to prevent hanging indefinitely
+          const timeoutPromise = new Promise<never>((_, reject) => {
+            setTimeout(
+              () =>
+                reject(new Error("Verification timed out. Please try again.")),
+              30000
             )
-          )
+          })
+
+          const walletSignature = await Promise.race([
+            signMessage(
+              walletVerificationMessageFactory(
+                unconfirmedWallet.address,
+                unconfirmedWallet.chainType
+              )
+            ),
+            timeoutPromise,
+          ])
 
           return verifyWalletSignature(
             walletSignature,
