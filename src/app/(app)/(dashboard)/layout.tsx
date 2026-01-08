@@ -2,6 +2,7 @@ import {} from "@heroicons/react/16/solid"
 import { NavbarDesktop } from "@src/components/Navbar/NavbarDesktop"
 import UserMenu from "@src/components/UserMenu"
 import ConnectWallet from "@src/components/Wallet"
+import { WalletVerificationProvider } from "@src/providers/WalletVerificationProvider"
 import type { ReactNode } from "react"
 
 const DashboardLayout = ({ children }: { children: ReactNode }) => (
@@ -25,6 +26,8 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => (
         <div className="mx-auto max-w-[464px]">{children}</div>
       </div>
     </main>
+
+    <WalletVerificationProvider />
   </div>
 )
 
