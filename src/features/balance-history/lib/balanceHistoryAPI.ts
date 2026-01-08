@@ -22,7 +22,10 @@ export async function fetchSwapHistory(
   const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
 
   try {
-    const response = await fetch(url, { signal: controller.signal })
+    const response = await fetch(url, {
+      signal: controller.signal,
+      cache: "no-store",
+    })
     clearTimeout(timeoutId)
 
     if (!response.ok) {
