@@ -1,26 +1,21 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
-import { InfoCircledIcon } from "@radix-ui/react-icons"
-import { Text, useThemeContext } from "@radix-ui/themes"
+import Button from "@src/components/Button"
+import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
+import { chainTxExplorer } from "@src/components/DefuseSDK/utils/chainTxExplorer"
+import { useActivityDock } from "@src/providers/ActivityDockProvider"
 import { useSelector } from "@xstate/react"
-import clsx from "clsx"
-import { useId } from "react"
+import { useEffect } from "react"
 import { useFormContext } from "react-hook-form"
-import { BlockMultiBalances } from "../../../../components/Block/BlockMultiBalances"
-import { ButtonCustom } from "../../../../components/Button/ButtonCustom"
-import { TooltipInfo } from "../../../../components/TooltipInfo"
 import { useTokensUsdPrices } from "../../../../hooks/useTokensUsdPrices"
-import { RESERVED_NEAR_BALANCE } from "../../../../services/blockchainBalanceService"
 import type { BaseTokenInfo, TokenDeployment } from "../../../../types/base"
 import { reverseAssetNetworkAdapter } from "../../../../utils/adapters"
-import { formatTokenValue, formatUsdAmount } from "../../../../utils/format"
+import { formatTokenValue } from "../../../../utils/format"
 import getTokenUsdPrice from "../../../../utils/getTokenUsdPrice"
-import { isFungibleToken } from "../../../../utils/token"
-import { DepositResult } from "../DepositResult"
+import { midTruncate } from "../../../withdraw/components/WithdrawForm/utils"
 import { DepositUIMachineContext } from "../DepositUIMachineProvider"
 import { DepositWarning } from "../DepositWarning"
-import { TokenAmountInputCard } from "./TokenAmountInputCard"
+import SelectedTokenInput from "./SelectedTokenInput"
 import type { DepositFormValues } from "./index"
-import { renderMinDepositAmountHint } from "./renderDepositHint"
 
 export type ActiveDepositProps = {
   network: BlockchainEnum
@@ -35,7 +30,10 @@ export function ActiveDeposit({
   tokenDeployment,
   minDepositAmount,
 }: ActiveDepositProps) {
-  const { setValue, watch } = useFormContext<DepositFormValues>()
+  const { addDockItem, hasDockItem } = useActivityDock()
+  const { register, setValue, watch } = useFormContext<DepositFormValues>()
+  const actorRef = DepositUIMachineContext.useActorRef()
+  const inputAmount = watch("amount")
 
   const {
     amount,
@@ -75,13 +73,58 @@ export function ActiveDeposit({
         : null,
   }))
 
+  useEffect(() => {
+    if (!depositOutput) return
+    if (depositOutput?.tag !== "ok") return
+    if (hasDockItem(depositOutput.value.txHash)) return
+
+    const explorerUrl = chainTxExplorer(reverseAssetNetworkAdapter[network])
+    const txHash = depositOutput.value.txHash
+
+    const txUrl = explorerUrl + txHash
+
+    addDockItem({
+      id: depositOutput.value.txHash,
+      title: "Deposit completed",
+      explorerUrl: txUrl,
+      icon: (
+        <AssetComboIcon
+          sizeClassName="size-8"
+          icon={depositOutput.value.depositDescription.derivedToken.icon}
+        />
+      ),
+      keyValueRows: [
+        {
+          label: "From",
+          value: midTruncate(
+            depositOutput.value.depositDescription.userAddress
+          ),
+        },
+        {
+          label: "Amount",
+          value: `${formatTokenValue(
+            depositOutput.value.depositDescription.amount,
+            depositOutput.value.depositDescription.tokenDeployment.decimals,
+            {
+              min: 0.0001,
+              fractionDigits: 4,
+            }
+          )} ${depositOutput.value.depositDescription.derivedToken.symbol}`,
+        },
+      ],
+    })
+
+    actorRef.send({ type: "CLEAR_DEPOSIT_OUTPUT" })
+  }, [depositOutput, network, addDockItem, hasDockItem, actorRef])
+
   const balanceInsufficient =
     balance != null
       ? isInsufficientBalance(amount, balance, tokenDeployment, network)
       : null
 
+  const hasUserEnteredAmount = Number(inputAmount) > 0
   const isDepositAmountHighEnough =
-    minDepositAmount != null && parsedAmount !== null && parsedAmount > 0n
+    minDepositAmount != null && parsedAmount !== null && hasUserEnteredAmount
       ? parsedAmount >= minDepositAmount
       : true
 
@@ -90,87 +133,56 @@ export function ActiveDeposit({
       ? preparationOutput.value.maxDepositValue
       : null
 
-  const handleSetMaxValue = async () => {
+  const handleSetPercentage = (percent: number) => {
     if (balance == null) return
+    const baseValue = maxDepositValue ?? balance
+    const scaledValue = (baseValue * BigInt(percent)) / 100n
     const amountToFormat = formatTokenValue(
-      maxDepositValue || balance,
+      scaledValue,
       tokenDeployment.decimals
     )
     setValue("amount", amountToFormat)
   }
-
-  const handleSetHalfValue = async () => {
-    if (balance == null) return
-    const amountToFormat = formatTokenValue(
-      (maxDepositValue || balance) / 2n,
-      tokenDeployment.decimals
-    )
-    setValue("amount", amountToFormat)
-  }
-
-  const inputId = useId()
 
   const { data: tokensUsdPriceData } = useTokensUsdPrices()
   const usdAmountToDeposit = getTokenUsdPrice(amount, token, tokensUsdPriceData)
 
   return (
-    <div className="flex flex-col gap-5">
-      <div className="flex flex-col gap-3">
-        <label htmlFor={inputId} className="font-bold text-label text-sm">
-          Enter amount
-        </label>
+    <div className="flex flex-col mt-6">
+      <SelectedTokenInput
+        label="Enter amount"
+        value={inputAmount}
+        symbol={token.symbol}
+        balance={balance ?? 0n}
+        usdAmount={usdAmountToDeposit}
+        token={tokenDeployment}
+        handleSetPercentage={handleSetPercentage}
+        registration={register("amount", {
+          required: true,
+          validate: (value) => {
+            if (!value) return true
+            const num = Number.parseFloat(value.replace(",", "."))
+            return (!Number.isNaN(num) && num > 0) || "Enter a valid amount"
+          },
+        })}
+      />
 
-        <TokenAmountInputCard
-          inputSlot={
-            <TokenAmountInputCard.Input
-              id={inputId}
-              name="amount"
-              value={watch("amount")}
-              onChange={(value) => setValue("amount", value.target.value)}
-              aria-labelledby={inputId}
-            />
-          }
-          tokenSlot={<TokenAmountInputCard.DisplayToken token={token} />}
-          balanceSlot={
-            <Balance
-              balance={balance}
-              token={tokenDeployment}
-              handleSetMaxValue={handleSetMaxValue}
-              handleSetHalfValue={handleSetHalfValue}
-            />
-          }
-          priceSlot={
-            <TokenAmountInputCard.DisplayPrice>
-              {usdAmountToDeposit !== null && usdAmountToDeposit > 0
-                ? formatUsdAmount(usdAmountToDeposit)
-                : null}
-            </TokenAmountInputCard.DisplayPrice>
-          }
-        />
-      </div>
-
-      {minDepositAmount != null && (
-        <div className="px-3">
-          {renderMinDepositAmountHint(minDepositAmount, token, tokenDeployment)}
-        </div>
-      )}
-
-      <DepositWarning depositWarning={depositOutput || preparationOutput} />
-
-      <ButtonCustom
-        size="lg"
+      <Button
+        className="mt-6"
+        type="submit"
+        size="xl"
+        fullWidth
+        loading={isLoading}
         disabled={
-          !Number(watch("amount")) ||
+          !Number(inputAmount) ||
           balanceInsufficient ||
           !isDepositAmountHighEnough ||
           isPreparing
         }
-        isLoading={isLoading}
-        data-testid="deposit-button"
       >
         {renderDepositButtonText(
-          watch("amount") === "",
-          Number(watch("amount")) > 0 &&
+          inputAmount === "",
+          Number(inputAmount) > 0 &&
             (balanceInsufficient !== null ? balanceInsufficient : false),
           network,
           token,
@@ -180,72 +192,11 @@ export function ActiveDeposit({
           isLoading,
           isPreparing
         )}
-      </ButtonCustom>
+      </Button>
 
-      <DepositResult
-        chainName={reverseAssetNetworkAdapter[network]}
-        depositResult={depositOutput}
-      />
-    </div>
-  )
-}
-
-function Balance({
-  balance,
-  token,
-  handleSetMaxValue,
-  handleSetHalfValue,
-}: {
-  balance: bigint | null
-  token: TokenDeployment
-  handleSetMaxValue: () => void
-  handleSetHalfValue: () => void
-}) {
-  const { accentColor } = useThemeContext()
-  const balanceAmount = balance ?? 0n
-  const disabled = balanceAmount === 0n
-
-  return (
-    <div className="flex items-center gap-1">
-      <BlockMultiBalances
-        balance={balanceAmount}
-        decimals={token.decimals}
-        className={clsx("static!", balance == null && "invisible")}
-        maxButtonSlot={
-          <BlockMultiBalances.DisplayMaxButton
-            onClick={handleSetMaxValue}
-            balance={balanceAmount}
-            disabled={disabled}
-          />
-        }
-        halfButtonSlot={
-          <BlockMultiBalances.DisplayHalfButton
-            onClick={handleSetHalfValue}
-            balance={balanceAmount}
-            disabled={disabled}
-          />
-        }
-      />
-
-      {isFungibleToken(token) && token.address === "wrap.near" && (
-        <TooltipInfo
-          icon={
-            <button type="button">
-              <Text asChild color={accentColor}>
-                <InfoCircledIcon />
-              </Text>
-            </button>
-          }
-        >
-          Combined balance of NEAR and wNEAR. NEAR will be automatically wrapped
-          to wNEAR if your wNEAR balance isn't sufficient for the swap.
-          <br />
-          <br />
-          Note that to cover network fees, we reserve
-          {` ${formatTokenValue(RESERVED_NEAR_BALANCE, token.decimals)} NEAR `}
-          in your wallet.
-        </TooltipInfo>
-      )}
+      <div className="mt-6">
+        <DepositWarning depositWarning={depositOutput || preparationOutput} />
+      </div>
     </div>
   )
 }
@@ -268,7 +219,7 @@ function renderDepositButtonText(
     return "Enter amount"
   }
   if (!isDepositAmountHighEnough && minDepositAmount != null) {
-    return `Minimal amount to deposit is ${formatTokenValue(minDepositAmount, tokenDeployment.decimals)} ${token.symbol}`
+    return `Minimum deposit is ${formatTokenValue(minDepositAmount, tokenDeployment.decimals)} ${token.symbol}`
   }
   if (isBalanceInsufficient) {
     return "Insufficient balance"

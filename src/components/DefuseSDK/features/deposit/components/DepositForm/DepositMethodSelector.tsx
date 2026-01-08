@@ -1,4 +1,5 @@
-import clsx from "clsx"
+import { ArrowDownTrayIcon, WalletIcon } from "@heroicons/react/16/solid"
+import Button from "@src/components/Button"
 
 type DepositMethod = "active" | "passive"
 
@@ -12,36 +13,23 @@ export function DepositMethodSelector({
   onSelectDepositOption,
 }: DepositMethodSelectorProps) {
   return (
-    <div className="flex flex-col gap-3">
-      <div className="font-bold text-label text-sm">Choose deposit method</div>
-
-      <div className="flex items-stretch gap-2">
-        <button
-          type="button"
-          onClick={() => onSelectDepositOption("passive")}
-          className={clsx(
-            "flex h-12 flex-1 items-center justify-center rounded-md font-bold text-sm",
-            selectedDepositOption === "passive"
-              ? "bg-accent-2 text-accent-a11 ring-2 ring-accent-a8 ring-inset dark:bg-accent-a2 dark:text-accent-10"
-              : "bg-transparent text-gray-11 ring-1 ring-border"
-          )}
-        >
-          Exchange
-        </button>
-
-        <button
-          type="button"
-          onClick={() => onSelectDepositOption("active")}
-          className={clsx(
-            "flex h-12 flex-1 items-center justify-center rounded-md font-bold text-sm",
-            selectedDepositOption === "active"
-              ? "bg-accent-2 text-accent-a11 ring-2 ring-accent-a8 ring-inset dark:bg-accent-a2 dark:text-accent-10"
-              : "bg-transparent text-gray-11 ring-1 ring-border"
-          )}
-        >
-          Wallet
-        </button>
-      </div>
+    <div className="bg-gray-100 rounded-2xl grid grid-cols-2 gap-1 border border-gray-200 p-1 mt-8">
+      <Button
+        variant={selectedDepositOption === "passive" ? "outline" : "secondary"}
+        onClick={() => onSelectDepositOption("passive")}
+        size="lg"
+      >
+        <ArrowDownTrayIcon className="size-4 shrink-0" />
+        Deposit
+      </Button>
+      <Button
+        variant={selectedDepositOption === "active" ? "outline" : "secondary"}
+        onClick={() => onSelectDepositOption("active")}
+        size="lg"
+      >
+        <WalletIcon className="size-4 shrink-0" />
+        Wallet
+      </Button>
     </div>
   )
 }

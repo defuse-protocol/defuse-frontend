@@ -18,6 +18,8 @@ type Props = {
   className?: string
   onClick?: React.MouseEventHandler<HTMLElement>
   href?: string
+  target?: React.AnchorHTMLAttributes<HTMLAnchorElement>["target"]
+  rel?: React.AnchorHTMLAttributes<HTMLAnchorElement>["rel"]
   children: ReactNode
 }
 
@@ -34,6 +36,8 @@ const Button = forwardRef<Ref, Props>(function Button(
     className = "",
     onClick,
     href,
+    target,
+    rel,
     children,
   },
   ref
@@ -54,7 +58,7 @@ const Button = forwardRef<Ref, Props>(function Button(
       "bg-red-50 text-red-700 hover:bg-red-100 outline-red-600 disabled:text-red-300 -outline-offset-2",
     size === "xl" && "h-13 px-5 text-base font-bold rounded-2xl",
     size === "lg" && "h-10 px-4 text-sm font-bold rounded-xl",
-    size === "md" && "h-9 px-3 text-sm font-bold rounded-lg",
+    size === "md" && "h-9 px-3 text-sm font-bold rounded-xl",
     size === "sm" && "h-8 px-3 text-sm font-semibold rounded-lg",
     fullWidth && "w-full",
     className
@@ -100,6 +104,8 @@ const Button = forwardRef<Ref, Props>(function Button(
           className={classes}
           ref={ref as React.Ref<HTMLAnchorElement>}
           onClick={onClick}
+          target={target}
+          rel={rel}
         >
           {content}
         </a>

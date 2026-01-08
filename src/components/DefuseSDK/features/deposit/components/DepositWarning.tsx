@@ -1,7 +1,8 @@
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
-import { Callout } from "@radix-ui/themes"
 import type { ReactNode } from "react"
 import type { Context } from "../../machines/depositUIMachine"
+
+import { XCircleIcon } from "@heroicons/react/20/solid"
+import ErrorMessage from "@src/components/ErrorMessage"
 
 export type DepositWarningOutput =
   | Context["depositOutput"]
@@ -54,11 +55,9 @@ export const DepositWarning = ({
   }
 
   return (
-    <Callout.Root size="1" color="red">
-      <Callout.Icon>
-        <ExclamationTriangleIcon />
-      </Callout.Icon>
-      <Callout.Text>{content}</Callout.Text>
-    </Callout.Root>
+    <div className="bg-red-50 pl-3 pr-6 py-3 rounded-2xl flex items-start gap-3">
+      <XCircleIcon className="size-5 shrink-0 text-red-600" aria-hidden />
+      <ErrorMessage>{content}</ErrorMessage>
+    </div>
   )
 }

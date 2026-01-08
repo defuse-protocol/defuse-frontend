@@ -1,6 +1,7 @@
 "use client"
 import { ArrowLeftIcon } from "@heroicons/react/20/solid"
 import Button from "@src/components/Button"
+import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useTonConnectUI } from "@tonconnect/ui-react"
 import Image from "next/image"
@@ -124,14 +125,9 @@ const getWalletIconSrc = (connector: Connector): string => {
   return src
 }
 
-const WalletIcon = ({ src }: { src?: string }) => {
-  if (!src) {
-    return (
-      <div className="relative overflow-hidden size-10 flex justify-center items-center bg-gray-100 rounded-full">
-        <div className="size-1/2 rounded-full border-2 border-gray-500 border-dashed" />
-      </div>
-    )
-  }
-
-  return <Image src={src} alt="" width={40} height={40} />
-}
+const WalletIcon = ({ src }: { src?: string }) =>
+  src ? (
+    <Image src={src} alt="" width={40} height={40} />
+  ) : (
+    <TokenIconPlaceholder className="size-10" />
+  )

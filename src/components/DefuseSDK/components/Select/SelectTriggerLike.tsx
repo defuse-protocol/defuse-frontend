@@ -1,4 +1,4 @@
-import { ChevronDownIcon } from "@radix-ui/react-icons"
+import { ChevronDownIcon } from "@heroicons/react/20/solid"
 import clsx from "clsx"
 import {
   type ButtonHTMLAttributes,
@@ -11,17 +11,18 @@ interface SelectTriggerLikeProps
   extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: ReactNode
   label: string
-  hint?: ReactNode
-  isPlaceholder?: boolean
+  value?: string
+  hint?: string
 }
 
 function SelectTriggerLike(
   {
     icon,
     label,
-    hint,
-    isPlaceholder = false,
+    value,
+    disabled,
     className,
+    hint,
     ...props
   }: SelectTriggerLikeProps,
   ref: ForwardedRef<HTMLButtonElement>
@@ -30,32 +31,33 @@ function SelectTriggerLike(
     <button
       ref={ref}
       type="button"
+      disabled={disabled}
       className={clsx(
-        "inline-flex h-12 items-center gap-2.5 rounded-lg bg-gray-3 px-4 text-gray-12 hover:bg-gray-4",
+        "rounded-3xl bg-white border border-gray-200 p-4 not-disabled:hover:border-gray-700 not-disabled:hover:outline not-disabled:hover:outline-gray-700 focus-visible:border-gray-700 focus-visible:outline focus-visible:outline-gray-700 text-left flex items-center gap-3",
         className
       )}
       {...props}
     >
-      <div className="flex flex-1 items-center justify-between">
-        <div className="flex items-center gap-2">
-          {icon}
-
-          <div
-            className={clsx(
-              "text-sm",
-              isPlaceholder ? "font-medium text-gray-11" : "font-bold"
-            )}
-          >
-            {label}
-          </div>
-        </div>
-
-        {hint}
-      </div>
-
-      <div className="shrink-0">
-        <ChevronDownIcon className="size-7" />
-      </div>
+      <span className="flex items-center gap-3 flex-1">
+        {icon}
+        <span className="flex flex-col items-start gap-1">
+          {value && (
+            <span className="text-sm/none font-medium text-gray-500">
+              {label}
+            </span>
+          )}
+          <span className="text-base/none font-semibold text-gray-700">
+            {value ?? label}
+          </span>
+        </span>
+      </span>
+      {hint && (
+        <span className="inline-flex items-center gap-x-1.5 rounded-lg bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-600">
+          <span className="size-1.5 rounded-full bg-gray-400 shrink-0" />
+          {hint}
+        </span>
+      )}
+      {!disabled && <ChevronDownIcon className="size-6 text-gray-500" />}
     </button>
   )
 }

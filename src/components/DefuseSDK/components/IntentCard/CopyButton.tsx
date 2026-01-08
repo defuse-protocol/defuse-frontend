@@ -47,8 +47,16 @@ export function Copy({
         abortCtrlRef.current?.abort()
         abortCtrlRef.current = new AbortController()
 
-        const t = typeof text === "function" ? text() : text
-        await navigator.clipboard.writeText(t)
+        try {
+          const t = typeof text === "function" ? text() : text
+          await navigator.clipboard.writeText(t)
+        } catch {
+          return
+        }
+
+        if (abortCtrlRef.current?.signal.aborted) {
+          return
+        }
 
         let timerId: ReturnType<typeof setTimeout>
         if (!copied) {

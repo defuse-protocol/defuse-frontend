@@ -1,30 +1,27 @@
-import { HoverPopover } from "./Popover"
+import TooltipNew from "./TooltipNew"
 
-export const PoweredByAuroraLabel = () => {
-  return (
-    <HoverPopover
-      trigger={
-        <div className="flex items-center py-1 px-2 rounded-full bg-[#E1F9EA]">
-          <svg
-            width="10"
-            height="10"
-            viewBox="0 0 10 10"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-label="Powered by Aurora"
-            aria-hidden="true"
-          >
-            <path
-              d="M5 0.97567C5.4025 0.97567 5.76428 1.19928 5.94424 1.55919L8.91297 7.49659C9.07775 7.82615 9.06045 8.21001 8.86692 8.5236C8.67312 8.83719 8.33743 9.02433 7.969 9.02433H2.03126C1.66283 9.02433 1.32715 8.83719 1.13335 8.5236C0.93955 8.21001 0.922246 7.82615 1.08703 7.49659L4.05576 1.55919C4.23572 1.19928 4.5975 0.97567 5 0.97567ZM5 0.25C4.32517 0.25 3.70863 0.631203 3.40675 1.23469L0.438016 7.17209C0.16196 7.72419 0.191509 8.38012 0.516015 8.90507C0.840521 9.43029 1.41393 9.75 2.03126 9.75H7.96874C8.58607 9.75 9.15948 9.43029 9.48399 8.90507C9.80849 8.37985 9.83804 7.72419 9.56198 7.17209L6.59325 1.23469C6.29164 0.631203 5.67483 0.25 5 0.25Z"
-              fill="#17A615"
-              stroke="#17A615"
-              strokeWidth="0.5"
-            />
-          </svg>
-        </div>
-      }
-    >
-      Powered by Aurora
-    </HoverPopover>
-  )
-}
+export const PoweredByAuroraLabel = () => (
+  <TooltipNew>
+    <TooltipNew.Trigger>
+      <button
+        type="button"
+        className="relative z-20 flex items-center justify-center size-6 rounded-full bg-[#101820]"
+        aria-label="Powered by Aurora"
+      >
+        <svg
+          fill="none"
+          viewBox="0 0 20 20"
+          aria-hidden="true"
+          className="size-3.5 -mt-px shrink-0"
+        >
+          <path
+            fill="#5deb5a"
+            stroke="#5deb5a"
+            d="M10 3.293c.67 0 1.274.372 1.574.972l4.947 9.896a1.75 1.75 0 0 1-.076 1.712 1.748 1.748 0 0 1-1.497.834H5.052a1.748 1.748 0 0 1-1.496-.834 1.748 1.748 0 0 1-.078-1.712l4.948-9.896c.3-.6.903-.972 1.574-.972Zm0-1.21a2.969 2.969 0 0 0-2.655 1.641L2.397 13.62a2.969 2.969 0 0 0 2.655 4.297h9.896a2.969 2.969 0 0 0 2.655-4.297l-4.948-9.896A2.968 2.968 0 0 0 10 2.084Z"
+          />
+        </svg>
+      </button>
+    </TooltipNew.Trigger>
+    <TooltipNew.Content side="left">Powered by Aurora</TooltipNew.Content>
+  </TooltipNew>
+)
