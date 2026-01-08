@@ -194,9 +194,10 @@ export function ActiveDeposit({
         )}
       </Button>
 
-      <div className="mt-6">
-        <DepositWarning depositWarning={depositOutput || preparationOutput} />
-      </div>
+      <DepositWarning
+        depositWarning={depositOutput || preparationOutput}
+        className="mt-6"
+      />
     </div>
   )
 }

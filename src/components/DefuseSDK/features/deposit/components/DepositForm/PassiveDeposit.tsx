@@ -183,9 +183,7 @@ export function PassiveDeposit({
       </div>
 
       {depositWarning != null && (
-        <div className="mt-6">
-          <DepositWarning depositWarning={depositWarning} />
-        </div>
+        <DepositWarning depositWarning={depositWarning} className="mt-6" />
       )}
     </>
   )

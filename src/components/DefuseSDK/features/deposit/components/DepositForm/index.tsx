@@ -1,7 +1,7 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { ChevronLeftIcon } from "@heroicons/react/16/solid"
-import { InformationCircleIcon } from "@heroicons/react/20/solid"
+import Alert from "@src/components/Alert"
 import { ModalSelectNetwork } from "@src/components/DefuseSDK/components/Network/ModalSelectNetwork"
 import { usePreparedNetworkLists } from "@src/components/DefuseSDK/hooks/useNetworkLists"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
@@ -322,16 +322,10 @@ export const DepositForm = ({
         />
 
         {userAddress && network && !isActiveDeposit && !isPassiveDeposit && (
-          <div className="mt-6 bg-blue-50 pl-3 pr-6 py-3 rounded-2xl flex items-start gap-3">
-            <InformationCircleIcon
-              className="size-5 shrink-0 text-blue-400"
-              aria-hidden
-            />
-            <div className="text-blue-700 text-sm/5 font-semibold">
-              Deposit is not supported for this wallet connection, please try
-              another token or network
-            </div>
-          </div>
+          <Alert variant="info" className="mt-6">
+            Deposit is not supported for this wallet connection, please try
+            another token or network
+          </Alert>
         )}
       </Form>
     </>
