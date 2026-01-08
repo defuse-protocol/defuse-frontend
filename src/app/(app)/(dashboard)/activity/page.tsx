@@ -5,7 +5,7 @@ import Button from "@src/components/Button"
 import ModalActivityFilters from "@src/components/DefuseSDK/components/Modal/ModalActivityFilters"
 import SearchBar from "@src/components/DefuseSDK/components/SearchBar"
 import {
-  SwapHistoryItem,
+  HistoryItem,
   SwapHistoryItemSkeleton,
 } from "@src/components/DefuseSDK/features/history/components/HistoryItem"
 import { LIST_TOKENS } from "@src/constants/tokens"
@@ -86,24 +86,24 @@ export default function ActivityPage({
     { enabled: Boolean(userAddress) }
   )
 
-  const swaps = useMemo(
+  const transactions = useMemo(
     () => data?.pages.flatMap((page) => page.data) ?? [],
     [data]
   )
 
-  const hasRecentPendingSwaps = useMemo(() => {
+  const hasRecentPendingTransactions = useMemo(() => {
     const now = Date.now()
-    return swaps.some((swap) => {
-      if (swap.status !== "PENDING" && swap.status !== "PROCESSING") {
+    return transactions.some((tx) => {
+      if (tx.status !== "PENDING" && tx.status !== "PROCESSING") {
         return false
       }
-      const swapTime = new Date(swap.timestamp).getTime()
-      return now - swapTime < RECENT_SWAP_THRESHOLD_MS
+      const txTime = new Date(tx.timestamp).getTime()
+      return now - txTime < RECENT_SWAP_THRESHOLD_MS
     })
-  }, [swaps])
+  }, [transactions])
 
   const shouldPoll =
-    hasRecentPendingSwaps &&
+    hasRecentPendingTransactions &&
     delayPassed &&
     pollingAttempts < MAX_POLLING_ATTEMPTS
 
@@ -116,14 +116,14 @@ export default function ActivityPage({
 
   // Initial delay before starting to poll
   useEffect(() => {
-    if (!hasRecentPendingSwaps) {
+    if (!hasRecentPendingTransactions) {
       setDelayPassed(false)
       return
     }
     if (delayPassed) return
     const t = setTimeout(() => setDelayPassed(true), POLLING_INITIAL_DELAY_MS)
     return () => clearTimeout(t)
-  }, [hasRecentPendingSwaps, delayPassed])
+  }, [hasRecentPendingTransactions, delayPassed])
 
   // Polling interval
   useEffect(() => {
@@ -139,9 +139,9 @@ export default function ActivityPage({
     }
   }, [dataUpdatedAt, shouldPoll])
 
-  const groupedSwaps = useMemo(
-    () => groupBy(swaps, (swap) => getDateGroupLabel(swap.timestamp)),
-    [swaps]
+  const groupedTransactions = useMemo(
+    () => groupBy(transactions, (tx) => getDateGroupLabel(tx.timestamp)),
+    [transactions]
   )
 
   const isWalletConnected = Boolean(userAddress)
@@ -207,22 +207,25 @@ export default function ActivityPage({
           <EmptyState message="Failed to load activity. Please try again." />
         )}
 
-        {isWalletConnected && !isLoading && !isError && swaps.length === 0 && (
-          <EmptyState message="No activity yet. Your swap history will appear here." />
-        )}
+        {isWalletConnected &&
+          !isLoading &&
+          !isError &&
+          transactions.length === 0 && (
+            <EmptyState message="No activity yet. Your transaction history will appear here." />
+          )}
 
         {isWalletConnected &&
           !isLoading &&
           !isError &&
-          swaps.length > 0 &&
-          Object.entries(groupedSwaps).map(([date, dateSwaps]) => (
+          transactions.length > 0 &&
+          Object.entries(groupedTransactions).map(([date, dateTxs]) => (
             <div key={date}>
               <h2 className="text-gray-900 text-base font-semibold">{date}</h2>
               <div className="mt-2 flex flex-col">
-                {dateSwaps.map((swap: SwapTransaction) => (
-                  <SwapHistoryItem
-                    key={swap.id}
-                    swap={swap}
+                {dateTxs.map((tx: SwapTransaction) => (
+                  <HistoryItem
+                    key={tx.id}
+                    transaction={tx}
                     tokenList={tokenList}
                   />
                 ))}

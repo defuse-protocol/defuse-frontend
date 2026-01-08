@@ -1,6 +1,35 @@
 import { logger } from "@src/utils/logger"
 
 const INTENTS_EXPLORER_API_URL = "https://explorer.near-intents.org/api/v0"
+const MAX_RETRIES = 3
+const INITIAL_RETRY_DELAY_MS = 1000
+
+async function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+async function fetchWithRetry(
+  url: string,
+  options: RequestInit,
+  retries = MAX_RETRIES
+): Promise<Response> {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const response = await fetch(url, options)
+
+    if (response.status === 429) {
+      // Rate limited - wait and retry with exponential backoff
+      const delay = INITIAL_RETRY_DELAY_MS * 2 ** attempt
+      logger.warn("Rate limited, retrying", { attempt, delay, url })
+      await sleep(delay)
+      continue
+    }
+
+    return response
+  }
+
+  // If all retries exhausted, throw error
+  throw new Error("Rate limit exceeded after retries")
+}
 
 export interface IntentsExplorerTransaction {
   originAsset: string
@@ -83,13 +112,13 @@ export async function fetchIntentsExplorerTransactions(
   const url = `${INTENTS_EXPLORER_API_URL}/transactions-pages?${searchParams}`
 
   try {
-    const response = await fetch(url, {
+    const response = await fetchWithRetry(url, {
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       next: { revalidate: 0 },
-    })
+    } as RequestInit)
 
     if (!response.ok) {
       logger.error("Intents Explorer API error", {
@@ -110,13 +139,15 @@ export async function fetchIntentsExplorerTransactions(
       totalPages: number
     }
 
+    const hasMore = json.totalPages > 0 && json.page < json.totalPages
+
     return {
       data: json.data,
       pagination: {
-        page: json.page,
+        page,
         perPage: json.perPage,
         total: json.total,
-        hasMore: json.page < json.totalPages,
+        hasMore,
       },
     }
   } catch (error) {

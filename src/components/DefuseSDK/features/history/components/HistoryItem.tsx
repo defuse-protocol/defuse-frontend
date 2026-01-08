@@ -9,6 +9,7 @@ import { Skeleton } from "@radix-ui/themes"
 import type {
   SwapTransaction,
   TokenAmount,
+  TransactionType,
 } from "@src/features/balance-history/types"
 import { useMemo } from "react"
 import AssetComboIcon from "../../../components/Asset/AssetComboIcon"
@@ -29,9 +30,10 @@ import {
   formatRelativeTime,
   formatUsd,
 } from "../../../utils/format"
+import type { TransactionType as BadgeType } from "../../account/types/sharedTypes"
 
-interface SwapItemProps {
-  swap: SwapTransaction
+interface HistoryItemProps {
+  transaction: SwapTransaction
   tokenList: TokenInfo[]
 }
 
@@ -103,30 +105,41 @@ function findTokenByAssetId(
 interface TokenDisplayProps {
   tokenAmount: TokenAmount
   tokenList: TokenInfo[]
-  showBadge?: boolean
+  badgeType?: BadgeType
 }
 
 function formatChainName(chain: string): string {
   return chain.charAt(0).toUpperCase() + chain.slice(1).toLowerCase()
 }
 
+function getBadgeTypeFromTransactionType(type: TransactionType): BadgeType {
+  switch (type) {
+    case "deposit":
+      return "receive"
+    case "withdrawal":
+      return "send"
+    default:
+      return "swap"
+  }
+}
+
 function TokenDisplay({
   tokenAmount,
   tokenList,
-  showBadge,
+  badgeType,
 }: TokenDisplayProps) {
   const token = useMemo(
     () => findTokenByAssetId(tokenList, tokenAmount.token_id),
     [tokenList, tokenAmount.token_id]
   )
 
-  const swapChain = tokenAmount.blockchain.toLowerCase()
+  const displayChain = tokenAmount.blockchain.toLowerCase()
   const originChain = token?.originChainName?.toLowerCase()
   const chainIcon = useMemo(
-    () => chainIcons[swapChain as keyof typeof chainIcons],
-    [swapChain]
+    () => chainIcons[displayChain as keyof typeof chainIcons],
+    [displayChain]
   )
-  const hasDifferentOrigin = originChain && originChain !== swapChain
+  const hasDifferentOrigin = originChain && originChain !== displayChain
 
   return (
     <Tooltip>
@@ -136,9 +149,9 @@ function TokenDisplay({
             icon={token?.icon}
             name={token?.name ?? tokenAmount.symbol}
             chainIcon={chainIcon}
-            chainName={swapChain}
+            chainName={displayChain}
             showChainIcon={Boolean(chainIcon)}
-            badgeType={showBadge ? "swap" : undefined}
+            badgeType={badgeType}
           />
           <div className="flex flex-col min-w-0">
             <span className="text-sm font-medium truncate">
@@ -159,12 +172,12 @@ function TokenDisplay({
                 Origin: {formatChainName(originChain)}
               </span>
               <span className="text-gray-400">
-                Swapped on: {formatChainName(swapChain)}
+                On: {formatChainName(displayChain)}
               </span>
             </>
           ) : (
             <span className="text-gray-400">
-              Blockchain: {formatChainName(swapChain)}
+              Blockchain: {formatChainName(displayChain)}
             </span>
           )}
         </div>
@@ -175,42 +188,62 @@ function TokenDisplay({
 
 const STALE_PENDING_THRESHOLD_MS = 30 * 60 * 1000 // 30 minutes
 
-export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
+export function HistoryItem({ transaction, tokenList }: HistoryItemProps) {
   const statusConfig =
-    STATUS_CONFIG[swap.status as keyof typeof STATUS_CONFIG] ??
+    STATUS_CONFIG[transaction.status as keyof typeof STATUS_CONFIG] ??
     DEFAULT_STATUS_CONFIG
   const StatusIcon = statusConfig.icon
 
   const isPendingStale = useMemo(() => {
-    if (swap.status !== "PENDING") return false
-    const age = Date.now() - new Date(swap.timestamp).getTime()
+    if (transaction.status !== "PENDING") return false
+    const age = Date.now() - new Date(transaction.timestamp).getTime()
     return age > STALE_PENDING_THRESHOLD_MS
-  }, [swap.status, swap.timestamp])
+  }, [transaction.status, transaction.timestamp])
 
   const explorerUrl = useMemo(() => {
-    if (!swap.deposit_address) return null
-    return `${INTENTS_EXPLORER_URL}/transactions/${swap.deposit_address}`
-  }, [swap.deposit_address])
+    if (!transaction.deposit_address) return null
+    return `${INTENTS_EXPLORER_URL}/transactions/${transaction.deposit_address}`
+  }, [transaction.deposit_address])
 
-  const usdValue = formatUsd(swap.from.amount_usd)
+  const usdValue = formatUsd(transaction.from.amount_usd)
+  const badgeType = getBadgeTypeFromTransactionType(transaction.type)
+  const isSwap = transaction.type === "swap"
+
+  const displayToken =
+    transaction.type === "deposit" ? transaction.to : transaction.from
 
   return (
     <div className="py-5 px-2 flex items-center gap-3 border-b border-gray-200 last:border-b-0 hover:bg-gray-2 transition-colors -mx-2">
       <div className="flex items-center gap-3 flex-1 min-w-0">
-        <div className="w-[100px] flex-shrink-0">
-          <TokenDisplay
-            tokenAmount={swap.from}
-            tokenList={tokenList}
-            showBadge
-          />
-        </div>
-        <ArrowRightIcon
-          className="size-3.5 text-gray-9 flex-shrink-0 mr-3"
-          weight="bold"
-        />
-        <div className="w-[100px] flex-shrink-0">
-          <TokenDisplay tokenAmount={swap.to} tokenList={tokenList} />
-        </div>
+        {isSwap ? (
+          <>
+            <div className="w-[100px] flex-shrink-0">
+              <TokenDisplay
+                tokenAmount={transaction.from}
+                tokenList={tokenList}
+                badgeType={badgeType}
+              />
+            </div>
+            <ArrowRightIcon
+              className="size-3.5 text-gray-9 flex-shrink-0 mr-3"
+              weight="bold"
+            />
+            <div className="w-[100px] flex-shrink-0">
+              <TokenDisplay
+                tokenAmount={transaction.to}
+                tokenList={tokenList}
+              />
+            </div>
+          </>
+        ) : (
+          <div className="flex items-center gap-2.5">
+            <TokenDisplay
+              tokenAmount={displayToken}
+              tokenList={tokenList}
+              badgeType={badgeType}
+            />
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
@@ -220,7 +253,8 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
         <div className="flex items-center gap-1.5 text-[11px]">
           <Tooltip>
             <TooltipTrigger asChild>
-              {swap.status === "PENDING" || swap.status === "PROCESSING" ? (
+              {transaction.status === "PENDING" ||
+              transaction.status === "PROCESSING" ? (
                 <div className="flex items-center cursor-pointer">
                   <ReloadIcon
                     className={cn("size-3 text-gray-400", {
@@ -264,17 +298,25 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
           <Tooltip>
             <TooltipTrigger asChild>
               <span className="text-gray-10 cursor-pointer hover:text-gray-12 transition-colors">
-                {formatRelativeTime(swap.timestamp)}
+                {formatRelativeTime(transaction.timestamp)}
               </span>
             </TooltipTrigger>
             <TooltipContent side="top" className="text-xs" theme="dark">
-              {formatFullDate(swap.timestamp)}
+              {formatFullDate(transaction.timestamp)}
             </TooltipContent>
           </Tooltip>
         </div>
       </div>
     </div>
   )
+}
+
+/** @deprecated Use HistoryItem instead */
+export function SwapHistoryItem({
+  swap,
+  tokenList,
+}: { swap: SwapTransaction; tokenList: TokenInfo[] }) {
+  return <HistoryItem transaction={swap} tokenList={tokenList} />
 }
 
 export function SwapHistoryItemSkeleton() {
