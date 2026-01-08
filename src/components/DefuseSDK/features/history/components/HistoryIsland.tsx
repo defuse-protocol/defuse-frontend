@@ -15,7 +15,13 @@ import type { TokenInfo } from "../../../types/base"
 import { cn } from "../../../utils/cn"
 import { SwapHistoryItem, SwapHistoryItemSkeleton } from "./HistoryItem"
 
-type RefreshState = "idle" | "refreshing" | "done"
+const RefreshState = {
+  IDLE: "idle",
+  REFRESHING: "refreshing",
+  DONE: "done",
+} as const
+
+type RefreshState = (typeof RefreshState)[keyof typeof RefreshState]
 
 const POLLING_INITIAL_DELAY_MS = 20_000
 const POLLING_INTERVAL_MS = 10_000
@@ -120,7 +126,9 @@ export function HistoryIsland({
   const isLoading =
     isWalletLoading || isQueryLoading || (queryEnabled && !data && isFetching)
 
-  const [refreshState, setRefreshState] = useState<RefreshState>("idle")
+  const [refreshState, setRefreshState] = useState<RefreshState>(
+    RefreshState.IDLE
+  )
   const prevIsFetchingRef = useRef(isFetching)
 
   useEffect(() => {
@@ -128,32 +136,32 @@ export function HistoryIsland({
       prevIsFetchingRef.current && !isLoading && !isFetchingNextPage
     const fetchJustCompleted = !isFetching && wasBackgroundFetching
 
-    if (fetchJustCompleted && refreshState === "idle" && data) {
-      setRefreshState("done")
-      setTimeout(() => setRefreshState("idle"), 1500)
+    if (fetchJustCompleted && refreshState === RefreshState.IDLE && data) {
+      setRefreshState(RefreshState.DONE)
+      setTimeout(() => setRefreshState(RefreshState.IDLE), 1500)
     }
 
     prevIsFetchingRef.current = isFetching
   }, [isFetching, isLoading, isFetchingNextPage, refreshState, data])
 
   const handleRefresh = useCallback(async () => {
-    setRefreshState("refreshing")
+    setRefreshState(RefreshState.REFRESHING)
     try {
       await Promise.all([
         refetch(),
         new Promise((resolve) => setTimeout(resolve, MIN_REFRESH_SPINNER_MS)),
       ])
-      setRefreshState("done")
-      setTimeout(() => setRefreshState("idle"), 1500)
+      setRefreshState(RefreshState.DONE)
+      setTimeout(() => setRefreshState(RefreshState.IDLE), 1500)
       setPollingAttempts(0)
     } catch {
-      setRefreshState("idle")
+      setRefreshState(RefreshState.IDLE)
     }
   }, [refetch])
 
   const hasAttemptedLoad = !isLoading
-  const isRefreshing = refreshState === "refreshing"
-  const showDone = refreshState === "done"
+  const isRefreshing = refreshState === RefreshState.REFRESHING
+  const showDone = refreshState === RefreshState.DONE
   const isAnyRefetchHappening =
     isRefreshing || (isFetching && !isLoading && !isFetchingNextPage)
 
