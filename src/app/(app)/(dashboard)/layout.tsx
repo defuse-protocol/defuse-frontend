@@ -1,4 +1,3 @@
-import {} from "@heroicons/react/16/solid"
 import ActivityDock from "@src/components/ActivityDock"
 import { NavbarDesktop } from "@src/components/Navbar/NavbarDesktop"
 import UserMenu from "@src/components/UserMenu"
