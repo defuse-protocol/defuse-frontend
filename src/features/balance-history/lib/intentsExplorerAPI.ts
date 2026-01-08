@@ -65,7 +65,12 @@ export async function fetchIntentsExplorerTransactions(
     logger.warn("INTENTS_EXPLORER_API_KEY not configured")
     return {
       data: [],
-      pagination: { page: 1, perPage: 50, total: 0, hasMore: false },
+      pagination: {
+        page: params.page ?? 1,
+        perPage: params.perPage ?? 50,
+        total: 0,
+        hasMore: false,
+      },
     }
   }
 
@@ -99,10 +104,6 @@ export async function fetchIntentsExplorerTransactions(
     clearTimeout(timeoutId)
 
     if (!response.ok) {
-      logger.error("Intents Explorer API error", {
-        status: response.status,
-        statusText: response.statusText,
-      })
       throw new Error(`API error: ${response.status} ${response.statusText}`)
     }
 

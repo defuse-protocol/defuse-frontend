@@ -92,6 +92,7 @@ export function HistoryIsland({
   useEffect(() => {
     setPollingAttempts(0)
     setDelayPassed(false)
+    lastSuccessfulItems.current = []
   }, [accountId])
 
   useEffect(() => {
