@@ -14,6 +14,7 @@ export const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? ""
 
 export const SUPABASE_URL = process.env.SUPABASE_URL
 export const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+export const DATABASE_URL = process.env.POSTGRES_PRISMA_URL
 
 export const INTENTS_ENV = v.parse(
   v.picklist(["production", "stage"]),
