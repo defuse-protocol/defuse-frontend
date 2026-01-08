@@ -4,6 +4,8 @@ import type {
 } from "@src/features/balance-history/types"
 import { BASE_URL } from "@src/utils/environment"
 
+const REQUEST_TIMEOUT_MS = 30_000
+
 export async function fetchSwapHistory(
   params: SwapHistoryParams
 ): Promise<SwapHistoryResponse> {
@@ -16,12 +18,27 @@ export async function fetchSwapHistory(
   const queryString = searchParams.toString()
   const url = `${BASE_URL}/api/balance-history/${encodeURIComponent(accountId)}${queryString ? `?${queryString}` : ""}`
 
-  const response = await fetch(url)
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}))
-    throw new Error(errorData.error ?? "Failed to fetch swap history")
+  try {
+    const response = await fetch(url, {
+      signal: controller.signal,
+      cache: "no-store",
+    })
+    clearTimeout(timeoutId)
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(errorData.error ?? "Failed to fetch swap history")
+    }
+
+    return response.json()
+  } catch (error) {
+    clearTimeout(timeoutId)
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error("Request timed out")
+    }
+    throw error
   }
-
-  return response.json()
 }

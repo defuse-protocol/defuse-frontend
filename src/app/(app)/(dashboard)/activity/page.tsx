@@ -1,7 +1,12 @@
 "use client"
 
+import { ArrowPathIcon, CheckIcon } from "@heroicons/react/16/solid"
 import { FunnelIcon } from "@heroicons/react/16/solid"
 import Button from "@src/components/Button"
+import type {
+  StatusFilter,
+  TypeFilter,
+} from "@src/components/DefuseSDK/components/Modal/ModalActivityFilters"
 import ModalActivityFilters from "@src/components/DefuseSDK/components/Modal/ModalActivityFilters"
 import SearchBar from "@src/components/DefuseSDK/components/SearchBar"
 import {
@@ -13,9 +18,43 @@ import { useSwapHistory } from "@src/features/balance-history/lib/useBalanceHist
 import type { SwapTransaction } from "@src/features/balance-history/types"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useTokenList } from "@src/hooks/useTokenList"
+import clsx from "clsx"
 import { format, isToday, isYesterday } from "date-fns"
 import { useRouter } from "next/navigation"
-import { use, useEffect, useMemo, useState, useTransition } from "react"
+import {
+  use,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react"
+
+const RefreshState = {
+  IDLE: "idle",
+  REFRESHING: "refreshing",
+  DONE: "done",
+} as const
+
+type RefreshState = (typeof RefreshState)[keyof typeof RefreshState]
+
+const MIN_REFRESH_SPINNER_MS = 1000
+
+const TYPE_MAP: Record<Exclude<TypeFilter, "All">, SwapTransaction["type"]> = {
+  Send: "withdrawal",
+  Receive: "deposit",
+  Swap: "swap",
+}
+
+const STATUS_MAP: Record<
+  Exclude<StatusFilter, "All">,
+  SwapTransaction["status"][]
+> = {
+  Success: ["SUCCESS"],
+  Pending: ["PENDING", "PROCESSING"],
+  Failed: ["FAILED"],
+}
 
 const POLLING_INITIAL_DELAY_MS = 20_000
 const POLLING_INTERVAL_MS = 10_000
@@ -61,8 +100,10 @@ export default function ActivityPage({
   }
 
   const search = currentSearchParams.get("search") ?? ""
-  const hasFilters =
-    currentSearchParams.has("type") || currentSearchParams.has("status")
+  const typeFilter = (currentSearchParams.get("type") as TypeFilter) || "All"
+  const statusFilter =
+    (currentSearchParams.get("status") as StatusFilter) || "All"
+  const hasFilters = typeFilter !== "All" || statusFilter !== "All"
 
   const [isPending, startTransition] = useTransition()
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout>()
@@ -75,6 +116,7 @@ export default function ActivityPage({
   const {
     data,
     isLoading,
+    isFetching,
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
@@ -83,38 +125,101 @@ export default function ActivityPage({
     dataUpdatedAt,
   } = useSwapHistory(
     { accountId: userAddress ?? "", limit: 20 },
-    { enabled: Boolean(userAddress) }
+    { enabled: Boolean(userAddress), refetchOnMount: "always" }
   )
 
-  const transactions = useMemo(
+  const [refreshState, setRefreshState] = useState<RefreshState>(
+    RefreshState.IDLE
+  )
+  const prevIsFetchingRef = useRef(isFetching)
+
+  useEffect(() => {
+    const wasBackgroundFetching =
+      prevIsFetchingRef.current && !isLoading && !isFetchingNextPage
+    const fetchJustCompleted = !isFetching && wasBackgroundFetching
+
+    if (fetchJustCompleted && refreshState === RefreshState.IDLE && data) {
+      setRefreshState(RefreshState.DONE)
+      setTimeout(() => setRefreshState(RefreshState.IDLE), 1500)
+    }
+
+    prevIsFetchingRef.current = isFetching
+  }, [isFetching, isLoading, isFetchingNextPage, refreshState, data])
+
+  const handleRefresh = useCallback(async () => {
+    setRefreshState(RefreshState.REFRESHING)
+    try {
+      await Promise.all([
+        refetch(),
+        new Promise((resolve) => setTimeout(resolve, MIN_REFRESH_SPINNER_MS)),
+      ])
+      setRefreshState(RefreshState.DONE)
+      setTimeout(() => setRefreshState(RefreshState.IDLE), 1500)
+      setPollingAttempts(0)
+    } catch {
+      setRefreshState(RefreshState.IDLE)
+    }
+  }, [refetch])
+
+  const isRefreshing = refreshState === RefreshState.REFRESHING
+  const showDone = refreshState === RefreshState.DONE
+  const isAnyRefetchHappening =
+    isRefreshing || (isFetching && !isLoading && !isFetchingNextPage)
+
+  const allTransactions = useMemo(
     () => data?.pages.flatMap((page) => page.data) ?? [],
     [data]
   )
 
+  const transactions = useMemo(() => {
+    let filtered = allTransactions
+
+    if (typeFilter !== "All") {
+      const targetType = TYPE_MAP[typeFilter]
+      filtered = filtered.filter((tx) => tx.type === targetType)
+    }
+
+    if (statusFilter !== "All") {
+      const targetStatuses = STATUS_MAP[statusFilter]
+      filtered = filtered.filter((tx) => targetStatuses.includes(tx.status))
+    }
+
+    if (search) {
+      const searchLower = search.toLowerCase()
+      filtered = filtered.filter(
+        (tx) =>
+          tx.from.symbol.toLowerCase().includes(searchLower) ||
+          tx.to.symbol.toLowerCase().includes(searchLower) ||
+          tx.transaction_hash.toLowerCase().includes(searchLower) ||
+          tx.deposit_address.toLowerCase().includes(searchLower)
+      )
+    }
+
+    return filtered
+  }, [allTransactions, typeFilter, statusFilter, search])
+
   const hasRecentPendingTransactions = useMemo(() => {
     const now = Date.now()
-    return transactions.some((tx) => {
+    return allTransactions.some((tx) => {
       if (tx.status !== "PENDING" && tx.status !== "PROCESSING") {
         return false
       }
       const txTime = new Date(tx.timestamp).getTime()
       return now - txTime < RECENT_SWAP_THRESHOLD_MS
     })
-  }, [transactions])
+  }, [allTransactions])
 
   const shouldPoll =
     hasRecentPendingTransactions &&
     delayPassed &&
     pollingAttempts < MAX_POLLING_ATTEMPTS
 
-  // Reset polling state on account change
   // biome-ignore lint/correctness/useExhaustiveDependencies: reset on account change
   useEffect(() => {
     setPollingAttempts(0)
     setDelayPassed(false)
   }, [userAddress])
 
-  // Initial delay before starting to poll
   useEffect(() => {
     if (!hasRecentPendingTransactions) {
       setDelayPassed(false)
@@ -125,14 +230,12 @@ export default function ActivityPage({
     return () => clearTimeout(t)
   }, [hasRecentPendingTransactions, delayPassed])
 
-  // Polling interval
   useEffect(() => {
     if (!shouldPoll) return
     const interval = setInterval(() => refetch(), POLLING_INTERVAL_MS)
     return () => clearInterval(interval)
   }, [shouldPoll, refetch])
 
-  // Track polling attempts
   useEffect(() => {
     if (shouldPoll && dataUpdatedAt) {
       setPollingAttempts((prev) => prev + 1)
@@ -148,9 +251,36 @@ export default function ActivityPage({
 
   return (
     <>
-      <h1 className="text-gray-900 text-xl font-bold tracking-tight">
-        Activity
-      </h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-gray-900 text-xl font-bold tracking-tight">
+          Activity
+        </h1>
+        {isWalletConnected && !isLoading && !isError && (
+          <button
+            type="button"
+            onClick={handleRefresh}
+            disabled={isAnyRefetchHappening}
+            className={clsx(
+              "p-1.5 rounded-lg transition-all duration-200",
+              showDone
+                ? "text-green-600 bg-green-50"
+                : "text-gray-500 hover:text-gray-700 hover:bg-gray-100 active:bg-gray-200",
+              isAnyRefetchHappening && "opacity-70"
+            )}
+            title={showDone ? "Updated" : "Refresh"}
+          >
+            {showDone ? (
+              <CheckIcon className="size-4" />
+            ) : (
+              <ArrowPathIcon
+                className={clsx("size-4", {
+                  "animate-spin": isAnyRefetchHappening,
+                })}
+              />
+            )}
+          </button>
+        )}
+      </div>
 
       <div className="mt-6 flex items-center gap-1">
         <SearchBar
@@ -211,7 +341,13 @@ export default function ActivityPage({
           !isLoading &&
           !isError &&
           transactions.length === 0 && (
-            <EmptyState message="No activity yet. Your transaction history will appear here." />
+            <EmptyState
+              message={
+                allTransactions.length > 0
+                  ? "No transactions match your filters"
+                  : "No activity yet. Your transaction history will appear here."
+              }
+            />
           )}
 
         {isWalletConnected &&

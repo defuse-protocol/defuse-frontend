@@ -211,28 +211,31 @@ function Content({
   onRetry: () => void
 }) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const [prevItemCount, setPrevItemCount] = useState(0)
+  const prevItemCountRef = useRef(0)
   const wasLoadingMore = useRef(false)
 
-  // Track when "load more" starts
   useEffect(() => {
     if (isFetchingNextPage) {
       wasLoadingMore.current = true
+    } else {
+      const timeoutId = setTimeout(() => {
+        wasLoadingMore.current = false
+      }, 100)
+      return () => clearTimeout(timeoutId)
     }
   }, [isFetchingNextPage])
 
-  // Only scroll down when "load more" completes (not on refresh)
   useEffect(() => {
     if (
-      items.length > prevItemCount &&
-      prevItemCount > 0 &&
+      items.length > prevItemCountRef.current &&
+      prevItemCountRef.current > 0 &&
       wasLoadingMore.current
     ) {
       scrollContainerRef.current?.scrollBy({ top: 250, behavior: "smooth" })
       wasLoadingMore.current = false
     }
-    setPrevItemCount(items.length)
-  }, [items.length, prevItemCount])
+    prevItemCountRef.current = items.length
+  }, [items.length])
 
   if (isLoading) {
     return <LoadingScreen />

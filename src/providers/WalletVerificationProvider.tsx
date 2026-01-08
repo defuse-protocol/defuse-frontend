@@ -76,6 +76,19 @@ export function WalletVerificationProvider() {
   const { addSkippedWalletAddress, isVerificationSkipped } =
     useSkippedVerificationStore()
 
+  const isPreview = isPreviewEnvironment()
+  const shouldAutoSkipOnPreview =
+    isPreview &&
+    state.address != null &&
+    !state.isVerified &&
+    !isVerificationSkipped(state.address)
+
+  useEffect(() => {
+    if (shouldAutoSkipOnPreview && state.address != null) {
+      addSkippedWalletAddress(state.address)
+    }
+  }, [shouldAutoSkipOnPreview, state.address, addSkippedWalletAddress])
+
   if (bannedAccountCheck.data?.isBanned && pathname !== "/account") {
     router.push("/wallet/banned")
     return null
@@ -109,20 +122,6 @@ export function WalletVerificationProvider() {
       />
     )
   }
-
-  // On preview environments, auto-skip verification since wallet signing often doesn't work
-  const isPreview = isPreviewEnvironment()
-  const shouldAutoSkipOnPreview =
-    isPreview &&
-    state.address != null &&
-    !state.isVerified &&
-    !isVerificationSkipped(state.address)
-
-  useEffect(() => {
-    if (shouldAutoSkipOnPreview && state.address != null) {
-      addSkippedWalletAddress(state.address)
-    }
-  }, [shouldAutoSkipOnPreview, state.address, addSkippedWalletAddress])
 
   if (shouldAutoSkipOnPreview) {
     return null
