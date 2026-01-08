@@ -1,8 +1,7 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { ChevronLeftIcon } from "@heroicons/react/16/solid"
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
-import { Callout } from "@radix-ui/themes"
+import { InformationCircleIcon } from "@heroicons/react/20/solid"
 import { ModalSelectNetwork } from "@src/components/DefuseSDK/components/Network/ModalSelectNetwork"
 import { usePreparedNetworkLists } from "@src/components/DefuseSDK/hooks/useNetworkLists"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
@@ -323,23 +322,18 @@ export const DepositForm = ({
         />
 
         {userAddress && network && !isActiveDeposit && !isPassiveDeposit && (
-          <NotSupportedDepositRoute />
+          <div className="mt-6 bg-blue-50 pl-3 pr-6 py-3 rounded-2xl flex items-start gap-3">
+            <InformationCircleIcon
+              className="size-5 shrink-0 text-blue-400"
+              aria-hidden
+            />
+            <div className="text-blue-700 text-sm/5 font-semibold">
+              Deposit is not supported for this wallet connection, please try
+              another token or network
+            </div>
+          </div>
         )}
       </Form>
     </>
-  )
-}
-
-function NotSupportedDepositRoute() {
-  return (
-    <Callout.Root size="1" color="yellow">
-      <Callout.Icon>
-        <ExclamationTriangleIcon />
-      </Callout.Icon>
-      <Callout.Text>
-        Deposit is not supported for this wallet connection, please try another
-        token or network
-      </Callout.Text>
-    </Callout.Root>
   )
 }
