@@ -1,4 +1,3 @@
-import * as AlertDialog from "@radix-ui/react-alert-dialog"
 import {
   CheckIcon,
   Cross2Icon,
@@ -7,12 +6,7 @@ import {
   MinusCircledIcon,
   ReloadIcon,
 } from "@radix-ui/react-icons"
-import {
-  Button,
-  Callout,
-  Spinner,
-  AlertDialog as themes_AlertDialog,
-} from "@radix-ui/themes"
+import { AlertDialog, Button, Callout, Spinner } from "@radix-ui/themes"
 
 export function WalletVerificationDialog({
   open,
@@ -29,7 +23,7 @@ export function WalletVerificationDialog({
 }) {
   return (
     <AlertDialog.Root open={open}>
-      <themes_AlertDialog.Content className="max-w-md px-5 pt-5 pb-[max(env(safe-area-inset-bottom,0px),--spacing(5))] sm:animate-none animate-slide-up">
+      <AlertDialog.Content className="max-w-md px-5 pt-5 pb-[max(env(safe-area-inset-bottom,0px),--spacing(5))] sm:animate-none animate-slide-up">
         {isFailure ? (
           <FailureContent
             open={open}
@@ -45,7 +39,7 @@ export function WalletVerificationDialog({
             isVerifying={isVerifying}
           />
         )}
-      </themes_AlertDialog.Content>
+      </AlertDialog.Content>
     </AlertDialog.Root>
   )
 }
@@ -71,7 +65,7 @@ function DefaultContent({
         <AlertDialog.Title className="text-xl font-semibold text-gray-900 dark:text-gray-100">
           Signature Check Required
         </AlertDialog.Title>
-        <AlertDialog.Description className="mt-2 text-gray-11">
+        <AlertDialog.Description className="mt-2 text-gray-11" size="2">
           Please verify your device compatibility with the platform
         </AlertDialog.Description>
       </div>
@@ -111,7 +105,7 @@ function DefaultContent({
       </Callout.Root>
 
       <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
-        <themes_AlertDialog.Cancel>
+        <AlertDialog.Cancel>
           <Button
             size="4"
             type="button"
@@ -121,13 +115,13 @@ function DefaultContent({
           >
             Cancel
           </Button>
-        </themes_AlertDialog.Cancel>
-        <themes_AlertDialog.Action>
+        </AlertDialog.Cancel>
+        <AlertDialog.Action>
           <Button size="4" type="button" onClick={onConfirm}>
             <Spinner loading={isVerifying} />
             {isVerifying ? "Checking..." : "Check Compatibility"}
           </Button>
-        </themes_AlertDialog.Action>
+        </AlertDialog.Action>
       </div>
     </>
   )
@@ -154,7 +148,7 @@ function FailureContent({
         <AlertDialog.Title className="text-xl font-semibold text-gray-900 dark:text-gray-100">
           Unable to Verify
         </AlertDialog.Title>
-        <AlertDialog.Description className="mt-2 text-gray-11">
+        <AlertDialog.Description className="mt-2 text-gray-11" size="2">
           The compatibility check couldn't be completed
         </AlertDialog.Description>
       </div>
@@ -189,7 +183,7 @@ function FailureContent({
       </Callout.Root>
 
       <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
-        <themes_AlertDialog.Cancel>
+        <AlertDialog.Cancel>
           <Button
             size="4"
             type="button"
@@ -199,15 +193,15 @@ function FailureContent({
           >
             Sign out
           </Button>
-        </themes_AlertDialog.Cancel>
-        <themes_AlertDialog.Action>
+        </AlertDialog.Cancel>
+        <AlertDialog.Action>
           <Button size="4" type="button" onClick={onConfirm}>
             <Spinner loading={isVerifying}>
               <ReloadIcon />
             </Spinner>
             Try again
           </Button>
-        </themes_AlertDialog.Action>
+        </AlertDialog.Action>
       </div>
     </>
   )
