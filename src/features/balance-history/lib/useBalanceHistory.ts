@@ -1,7 +1,7 @@
 "use client"
 
 import type { SwapHistoryParams } from "@src/features/balance-history/types"
-import { useInfiniteQuery } from "@tanstack/react-query"
+import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query"
 import { fetchSwapHistory } from "./balanceHistoryAPI"
 
 const SWAP_HISTORY_QUERY_KEY = "swap_history"
@@ -24,10 +24,10 @@ export function useSwapHistory(
     getNextPageParam: (lastPage) =>
       lastPage.pagination.hasMore ? lastPage.pagination.page + 1 : undefined,
     enabled: options?.enabled ?? Boolean(params.accountId),
-    staleTime: 0,
-    retry: 1,
+    staleTime: 30_000,
     refetchInterval: options?.refetchInterval,
     refetchOnMount: options?.refetchOnMount ?? "always",
     refetchOnWindowFocus: true,
+    placeholderData: keepPreviousData,
   })
 }

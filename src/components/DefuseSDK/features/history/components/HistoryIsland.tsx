@@ -242,11 +242,11 @@ function Content({
     return <EmptyScreen type="connect" />
   }
 
-  if (isError) {
-    return <ErrorScreen onRetry={onRetry} />
-  }
-
   if (items.length === 0) {
+    // Only show error screen if we have no cached data to display
+    if (isError) {
+      return <ErrorScreen onRetry={onRetry} />
+    }
     return <EmptyScreen type="empty" />
   }
 

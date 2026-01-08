@@ -1,6 +1,7 @@
 import { logger } from "@src/utils/logger"
 
 const INTENTS_EXPLORER_API_URL = "https://explorer.near-intents.org/api/v0"
+const REQUEST_TIMEOUT_MS = 30_000
 
 export interface IntentsExplorerTransaction {
   originAsset: string
@@ -82,24 +83,27 @@ export async function fetchIntentsExplorerTransactions(
 
   const url = `${INTENTS_EXPLORER_API_URL}/transactions-pages?${searchParams}`
 
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+
   try {
     const response = await fetch(url, {
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
+      signal: controller.signal,
       next: { revalidate: 0 },
     })
+
+    clearTimeout(timeoutId)
 
     if (!response.ok) {
       logger.error("Intents Explorer API error", {
         status: response.status,
         statusText: response.statusText,
       })
-      return {
-        data: [],
-        pagination: { page, perPage, total: 0, hasMore: false },
-      }
+      throw new Error(`API error: ${response.status} ${response.statusText}`)
     }
 
     const json = (await response.json()) as {
@@ -120,12 +124,19 @@ export async function fetchIntentsExplorerTransactions(
       },
     }
   } catch (error) {
+    clearTimeout(timeoutId)
+
+    const isTimeout = error instanceof Error && error.name === "AbortError"
+    const errorMessage = isTimeout
+      ? "Request timed out"
+      : error instanceof Error
+        ? error.message
+        : "Unknown error"
+
     logger.error("Failed to fetch from Intents Explorer API", {
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: errorMessage,
     })
-    return {
-      data: [],
-      pagination: { page, perPage, total: 0, hasMore: false },
-    }
+
+    throw new Error(errorMessage)
   }
 }
