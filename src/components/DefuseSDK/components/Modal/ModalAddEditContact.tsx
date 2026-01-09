@@ -60,6 +60,15 @@ const ModalAddEditContact = ({
   })
 
   useEffect(() => {
+    if (open) {
+      register("network", {
+        validate: (value) =>
+          value !== null || "Select a network for this contact.",
+      })
+    }
+  }, [open, register])
+
+  useEffect(() => {
     if (contact && open) {
       reset({
         name: contact.name,
@@ -140,7 +149,9 @@ const ModalAddEditContact = ({
               networkOptions={filteredNetworks}
               selectedNetwork={selectedNetwork}
               onChangeNetwork={(network) => {
-                setValue("network", assetNetworkAdapter[network])
+                setValue("network", assetNetworkAdapter[network], {
+                  shouldValidate: true,
+                })
                 setSelectNetworkOpen(false)
                 setSearchValue("")
                 setIsScrolled(false)
@@ -177,7 +188,7 @@ const ModalAddEditContact = ({
                 </div>
               </label>
               {errors.name && (
-                <ErrorMessage className="mt-2 mb-5">
+                <ErrorMessage className="mt-1 mb-5">
                   {errors.name.message}
                 </ErrorMessage>
               )}
@@ -209,35 +220,47 @@ const ModalAddEditContact = ({
                 </div>
               </label>
               {errors.address && (
-                <ErrorMessage className="mt-2 mb-5">
+                <ErrorMessage className="mt-1 mb-5">
                   {errors.address.message}
                 </ErrorMessage>
               )}
             </div>
 
-            <button
-              type="button"
-              onClick={() => setSelectNetworkOpen(true)}
-              className="w-full rounded-3xl bg-white border border-gray-200 p-3 text-left flex items-center gap-3 hover:border-gray-700 hover:outline hover:outline-gray-700 focus-visible:border-gray-700 focus-visible:outline focus-visible:outline-gray-700"
-            >
-              <span className="flex items-center gap-3 flex-1">
-                <div className="size-10 shrink-0">
-                  {networkData?.icon ?? (
-                    <TokenIconPlaceholder className="size-10" />
-                  )}
-                </div>
-                <span className="flex flex-col items-start gap-1">
-                  <span
-                    className={clsx(
-                      "text-base/none font-semibold",
-                      networkData ? "text-gray-900" : "text-gray-400"
+            <div>
+              <button
+                type="button"
+                onClick={() => setSelectNetworkOpen(true)}
+                className={clsx(
+                  "w-full rounded-3xl bg-white border p-3 text-left flex items-center gap-3 focus-visible:outline focus-visible:outline-gray-700",
+                  errors.network
+                    ? "border-red-500 focus-visible:border-red-500"
+                    : "border-gray-200 hover:border-gray-700 hover:outline hover:outline-gray-700 focus-visible:border-gray-700"
+                )}
+              >
+                <span className="flex items-center gap-3 flex-1">
+                  <div className="size-10 shrink-0">
+                    {networkData?.icon ?? (
+                      <TokenIconPlaceholder className="size-10" />
                     )}
-                  >
-                    {networkData?.label ?? "Select network"}
+                  </div>
+                  <span className="flex flex-col items-start gap-1">
+                    <span
+                      className={clsx(
+                        "text-base/none font-semibold",
+                        networkData ? "text-gray-900" : "text-gray-400"
+                      )}
+                    >
+                      {networkData?.label ?? "Select network"}
+                    </span>
                   </span>
                 </span>
-              </span>
-            </button>
+              </button>
+              {errors.network && (
+                <ErrorMessage className="mt-1 mb-5">
+                  {errors.network.message}
+                </ErrorMessage>
+              )}
+            </div>
           </div>
 
           <Button
