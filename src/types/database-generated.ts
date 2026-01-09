@@ -118,6 +118,30 @@ export type Database = {
         }
         Relationships: []
       }
+      tags: {
+        Row: {
+          auth_identifier: string
+          auth_method: Database["public"]["Enums"]["auth_method"]
+          auth_tag: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          auth_identifier: string
+          auth_method: Database["public"]["Enums"]["auth_method"]
+          auth_tag: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          auth_identifier?: string
+          auth_method?: Database["public"]["Enums"]["auth_method"]
+          auth_tag?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       webauthn_credentials: {
         Row: {
           created_at: string | null
@@ -150,7 +174,14 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      auth_method:
+        | "near"
+        | "evm"
+        | "solana"
+        | "webauthn"
+        | "ton"
+        | "stellar"
+        | "tron"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -280,7 +311,17 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      auth_method: [
+        "near",
+        "evm",
+        "solana",
+        "webauthn",
+        "ton",
+        "stellar",
+        "tron",
+      ],
+    },
   },
 } as const
 
