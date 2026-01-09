@@ -238,28 +238,31 @@ function Content({
   onRetry: () => void
 }) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const prevItemCountRef = useRef(0)
-  const wasLoadingMore = useRef(false)
+  const loadMoreTriggerRef = useRef<HTMLDivElement>(null)
+  const onLoadMoreRef = useRef(onLoadMore)
+  onLoadMoreRef.current = onLoadMore
 
-  // Track when "load more" starts
   useEffect(() => {
-    if (isFetchingNextPage) {
-      wasLoadingMore.current = true
-    }
-  }, [isFetchingNextPage])
+    const sentinel = loadMoreTriggerRef.current
+    const container = scrollContainerRef.current
+    if (!sentinel || !container || !hasNextPage) return
 
-  // Only scroll down when "load more" completes (not on refresh)
-  useEffect(() => {
-    if (
-      items.length > prevItemCountRef.current &&
-      prevItemCountRef.current > 0 &&
-      wasLoadingMore.current
-    ) {
-      scrollContainerRef.current?.scrollBy({ top: 250, behavior: "smooth" })
-      wasLoadingMore.current = false
-    }
-    prevItemCountRef.current = items.length
-  }, [items.length])
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isFetchingNextPage) {
+          onLoadMoreRef.current()
+        }
+      },
+      {
+        root: container,
+        rootMargin: "100px",
+        threshold: 0,
+      }
+    )
+
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [hasNextPage, isFetchingNextPage])
 
   if (isLoading) {
     return <LoadingScreen />
@@ -277,35 +280,18 @@ function Content({
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="relative">
-        <div
-          ref={scrollContainerRef}
-          className="max-h-[500px] overflow-y-auto scroll-smooth scrollbar-offset"
-        >
-          {items.map((swap) => (
-            <SwapHistoryItem key={swap.id} swap={swap} tokenList={tokenList} />
-          ))}
-        </div>
-      </div>
+    <div className="relative">
+      <div
+        ref={scrollContainerRef}
+        className="max-h-[500px] overflow-y-auto scroll-smooth scrollbar-offset"
+      >
+        {items.map((swap) => (
+          <SwapHistoryItem key={swap.id} swap={swap} tokenList={tokenList} />
+        ))}
 
-      {hasNextPage && (
-        <button
-          type="button"
-          onClick={onLoadMore}
-          disabled={isFetchingNextPage}
-          className="w-full py-2.5 px-4 text-sm font-medium text-gray-11 bg-gray-3 hover:bg-gray-4 active:bg-gray-5 rounded-xl border border-gray-a5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isFetchingNextPage ? (
-            <span className="flex items-center justify-center gap-2">
-              <span className="size-4 border-2 border-gray-8 border-t-gray-11 rounded-full animate-spin" />
-              Loading...
-            </span>
-          ) : (
-            "Load more"
-          )}
-        </button>
-      )}
+        {hasNextPage && <div ref={loadMoreTriggerRef} className="h-1" />}
+        {isFetchingNextPage && <LoadingMoreIndicator />}
+      </div>
     </div>
   )
 }
@@ -364,6 +350,24 @@ function LoadingScreen() {
       <SwapHistoryItemSkeleton />
       <SwapHistoryItemSkeleton />
       <SwapHistoryItemSkeleton />
+    </div>
+  )
+}
+
+function LoadingMoreIndicator() {
+  return (
+    <div className="flex justify-center py-4">
+      <div className="flex items-center gap-1.5">
+        <span className="size-1.5 bg-gray-9 rounded-full animate-pulse" />
+        <span
+          className="size-1.5 bg-gray-9 rounded-full animate-pulse"
+          style={{ animationDelay: "150ms" }}
+        />
+        <span
+          className="size-1.5 bg-gray-9 rounded-full animate-pulse"
+          style={{ animationDelay: "300ms" }}
+        />
+      </div>
     </div>
   )
 }
