@@ -16,26 +16,25 @@ import ListItem from "@src/components/ListItem"
 import { SendIcon, WalletIcon } from "@src/icons"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import ModalRemoveContact from "../../components/Modal/ModalRemoveContact"
 import { reverseAssetNetworkAdapter } from "../../utils/adapters"
+
+type ModalType = "edit" | "remove"
 
 const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
   const router = useRouter()
-  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [modalOpen, setModalOpen] = useState<ModalType | null>(null)
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
 
-  const handleEditContact = (contact: Contact) => {
-    setSelectedContact({
-      id: contact.id,
-      name: contact.name,
-      address: contact.address,
-      network: contact.network as BlockchainEnum,
-    })
-    setEditModalOpen(true)
-  }
-
-  const handleCloseModal = () => {
-    setEditModalOpen(false)
-    setSelectedContact(null)
+  const handleOpenModal = ({
+    type,
+    contact,
+  }: {
+    type: ModalType
+    contact: Contact
+  }) => {
+    setModalOpen(type)
+    setSelectedContact(contact)
   }
 
   if (contacts.length === 0) {
@@ -80,11 +79,17 @@ const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
                     <SendIcon className="size-4 shrink-0" />
                     Send
                   </Button>
-                  <Button size="sm" onClick={() => handleEditContact(contact)}>
+                  <Button
+                    size="sm"
+                    onClick={() => handleOpenModal({ type: "edit", contact })}
+                  >
                     <PencilSquareIcon className="size-4 shrink-0" />
                     Edit
                   </Button>
-                  <Button size="sm">
+                  <Button
+                    size="sm"
+                    onClick={() => handleOpenModal({ type: "remove", contact })}
+                  >
                     <XCircleIcon className="size-4 shrink-0" />
                     Remove
                   </Button>
@@ -112,9 +117,16 @@ const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
       </section>
 
       <ModalAddEditContact
-        open={editModalOpen}
-        onClose={handleCloseModal}
+        open={modalOpen === "edit"}
         contact={selectedContact}
+        onClose={() => setModalOpen(null)}
+        onCloseAnimationEnd={() => setSelectedContact(null)}
+      />
+      <ModalRemoveContact
+        open={modalOpen === "remove"}
+        contact={selectedContact}
+        onClose={() => setModalOpen(null)}
+        onCloseAnimationEnd={() => setSelectedContact(null)}
       />
     </>
   )

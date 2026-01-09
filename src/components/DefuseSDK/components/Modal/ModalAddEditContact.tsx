@@ -26,11 +26,17 @@ type FormData = {
 
 type ModalContactProps = {
   open: boolean
-  onClose: () => void
   contact?: Contact | null
+  onClose: () => void
+  onCloseAnimationEnd?: () => void
 }
 
-const ModalAddEditContact = ({ open, onClose, contact }: ModalContactProps) => {
+const ModalAddEditContact = ({
+  open,
+  onClose,
+  onCloseAnimationEnd,
+  contact,
+}: ModalContactProps) => {
   const [selectNetworkOpen, setSelectNetworkOpen] = useState(false)
   const [searchValue, setSearchValue] = useState("")
   const [isScrolled, setIsScrolled] = useState(false)
@@ -103,6 +109,7 @@ const ModalAddEditContact = ({ open, onClose, contact }: ModalContactProps) => {
       open={open}
       onClose={onClose}
       onCloseAnimationEnd={() => {
+        onCloseAnimationEnd?.()
         reset()
         setSelectNetworkOpen(false)
       }}

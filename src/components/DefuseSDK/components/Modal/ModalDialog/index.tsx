@@ -53,7 +53,7 @@ export function BaseModalDialog({
   status = undefined,
 }: PropsWithChildren<{
   open: boolean
-  title: string
+  title?: string
   onClose?: () => void
   onCloseAnimationEnd?: () => void
   isDismissable?: boolean
