@@ -1,5 +1,4 @@
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
-import { Callout } from "@radix-ui/themes"
+import Alert from "@src/components/Alert"
 import type { ReactNode } from "react"
 import type { Context } from "../../machines/depositUIMachine"
 
@@ -9,8 +8,10 @@ export type DepositWarningOutput =
 
 export const DepositWarning = ({
   depositWarning,
+  className,
 }: {
   depositWarning: DepositWarningOutput
+  className?: string
 }) => {
   let content: ReactNode = null
 
@@ -54,11 +55,8 @@ export const DepositWarning = ({
   }
 
   return (
-    <Callout.Root size="1" color="red">
-      <Callout.Icon>
-        <ExclamationTriangleIcon />
-      </Callout.Icon>
-      <Callout.Text>{content}</Callout.Text>
-    </Callout.Root>
+    <Alert variant="error" className={className}>
+      {content}
+    </Alert>
   )
 }

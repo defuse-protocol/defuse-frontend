@@ -53,12 +53,12 @@ function AssetList<T extends TokenInfo>({
 
   return (
     <div
-      className={clsx("flex flex-col space-y-8", className)}
+      className={clsx("flex flex-col gap-8", className)}
       data-testid="asset-list"
     >
       {assetsWithBalance.length > 0 && (
         <div>
-          <h3 className="text-gray-500 text-sm font-medium">Your tokens</h3>
+          <h3 className="text-gray-500 text-sm/6 font-medium">Your tokens</h3>
 
           <div className="mt-2 flex flex-col gap-1">
             {assetsWithBalance.map((asset, index) => {
@@ -72,7 +72,7 @@ function AssetList<T extends TokenInfo>({
                   {...asset}
                   chainIcon={chainIcon}
                   showChainIcon={showChainIcon(asset.token, chainIcon)}
-                  // biome-ignore lint/style/noNonNullAssertion: i is always within bounds
+                  // biome-ignore lint/style/noNonNullAssertion: index is always within bounds
                   onClick={() => handleSelectToken?.(assetsWithBalance[index]!)}
                 />
               )
@@ -83,7 +83,7 @@ function AssetList<T extends TokenInfo>({
 
       {assetsWithoutBalance.length > 0 && (
         <div>
-          <h3 className="text-gray-500 text-sm font-medium">
+          <h3 className="text-gray-500 text-sm/6 font-medium">
             {hasAssetsWithBalance ? "More tokens" : "All tokens"}
           </h3>
 
@@ -100,7 +100,7 @@ function AssetList<T extends TokenInfo>({
                   chainIcon={chainIcon}
                   showChainIcon={showChainIcon(asset.token, chainIcon)}
                   onClick={() =>
-                    // biome-ignore lint/style/noNonNullAssertion: i is always within bounds
+                    // biome-ignore lint/style/noNonNullAssertion: index is always within bounds
                     handleSelectToken?.(assetsWithoutBalance[index]!)
                   }
                 />

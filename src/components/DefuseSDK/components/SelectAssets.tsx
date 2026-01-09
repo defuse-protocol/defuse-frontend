@@ -86,7 +86,7 @@ const SelectAssets = ({
         }
         chainIcon={chainIcon}
         showChainIcon={showChainIcon}
-        size="sm"
+        sizeClassName="size-7"
       />
 
       <span className="flex items-center gap-1">

@@ -1,93 +1,114 @@
-"use client"
+import Button from "@src/components/Button"
+import DepositPromo from "@src/components/DepositPromo"
+import { EurIcon, UsdIcon } from "@src/icons"
+import clsx from "clsx"
+import Link from "next/link"
+import type { ReactNode } from "react"
 
-import { DepositWidget } from "@src/components/DefuseSDK/features/deposit/components/DepositWidget"
-import Paper from "@src/components/Paper"
-import { LIST_TOKENS } from "@src/constants/tokens"
-import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
-import { useTokenList } from "@src/hooks/useTokenList"
-import { renderAppLink } from "@src/utils/renderAppLink"
-import { useRouter, useSearchParams } from "next/navigation"
-import {
-  updateURLParamsDeposit,
-  useDeterminePair,
-} from "../swap/_utils/useDeterminePair"
+const Card = ({
+  children,
+  className,
+  disabled,
+}: {
+  children: ReactNode
+  className?: string
+  disabled?: boolean
+}) => (
+  <div
+    className={clsx(
+      "relative rounded-3xl bg-white border border-gray-200 p-4",
+      {
+        "hover:border-gray-700 hover:outline hover:outline-gray-700 has-focus-visible:border-gray-700 has-focus-visible:outline has-focus-visible:outline-gray-700":
+          !disabled,
+      },
+      className
+    )}
+  >
+    {children}
+  </div>
+)
 
-export default function Deposit() {
-  const { state, sendTransaction } = useConnectWallet()
-  const tokenList = useTokenList(LIST_TOKENS)
-  const { tokenIn } = useDeterminePair()
-  const router = useRouter()
-  const searchParams = useSearchParams()
+export default function DepositPage() {
+  const verified = false
 
   return (
-    <Paper>
-      <DepositWidget
-        tokenList={tokenList}
-        userAddress={state.isVerified ? state.address : undefined}
-        userWalletAddress={
-          state.isVerified &&
-          state.chainType !== ChainType.WebAuthn &&
-          state.displayAddress
-            ? state.displayAddress
-            : null
-        }
-        chainType={state.chainType}
-        sendTransactionNear={async (tx) => {
-          const result = await sendTransaction({
-            id: ChainType.Near,
-            tx,
-          })
-          return Array.isArray(result) ? result[0].transaction.hash : result
-        }}
-        sendTransactionEVM={async ({ from, ...tx }) => {
-          const result = await sendTransaction({
-            id: ChainType.EVM,
-            tx: {
-              ...tx,
-              account: from,
-            },
-          })
-          return Array.isArray(result) ? result[0].transaction.hash : result
-        }}
-        sendTransactionSolana={async (tx) => {
-          const result = await sendTransaction({
-            id: ChainType.Solana,
-            tx,
-          })
-          return Array.isArray(result) ? result[0].transaction.hash : result
-        }}
-        sendTransactionTon={async (tx) => {
-          const result = await sendTransaction({
-            id: ChainType.Ton,
-            tx,
-          })
-          return Array.isArray(result) ? result[0].transaction.hash : result
-        }}
-        sendTransactionStellar={async (tx) => {
-          const result = await sendTransaction({
-            id: ChainType.Stellar,
-            tx,
-          })
-          return Array.isArray(result) ? result[0].transaction.hash : result
-        }}
-        sendTransactionTron={async (tx) => {
-          const result = await sendTransaction({
-            id: ChainType.Tron,
-            tx,
-          })
-          return Array.isArray(result) ? result[0].transaction.hash : result
-        }}
-        renderHostAppLink={renderAppLink}
-        initialToken={tokenIn ?? undefined}
-        onTokenChange={(params) =>
-          updateURLParamsDeposit({
-            router,
-            searchParams,
-            tokenIn: params.token,
-            tokenOut: null,
-          })
-        }
-      />
-    </Paper>
+    <>
+      <h1 className="text-gray-900 text-xl font-semibold tracking-tight">
+        Add funds
+      </h1>
+
+      <section className="mt-6 space-y-2">
+        <Card>
+          <Link
+            href="/deposit/crypto"
+            className="text-gray-900 text-lg font-semibold focus-visible:outline-none"
+          >
+            <span className="absolute inset-0 rounded-3xl" />
+            Deposit crypto
+          </Link>
+          <p className="text-gray-500 text-sm font-medium mt-1">
+            Send crypto from an external wallet
+          </p>
+
+          <DepositPromo className="mt-9" />
+        </Card>
+
+        <div>
+          <Card
+            className="flex justify-between gap-3 items-start"
+            disabled={!verified}
+          >
+            <div
+              className={clsx({
+                "opacity-50": !verified,
+              })}
+            >
+              <div>
+                {verified ? (
+                  <Link
+                    href="/deposit/bank"
+                    className="text-gray-900 text-lg font-semibold focus-visible:outline-none"
+                  >
+                    <span className="absolute inset-0 rounded-3xl" />
+                    Deposit via bank transfer
+                  </Link>
+                ) : (
+                  <div className="text-gray-900 text-lg font-semibold">
+                    Deposit via bank transfer
+                  </div>
+                )}
+                <p className="text-gray-500 text-sm font-medium mt-1 text-balance">
+                  Send USD or EUR from your bank and receive stablecoins
+                </p>
+              </div>
+
+              <div className="flex -space-x-2 mt-9">
+                <UsdIcon className="size-10 shrink-0 ring-2 -ring-offset-2 ring-white rounded-full" />
+                <EurIcon className="size-10 shrink-0 ring-2 -ring-offset-2 ring-white rounded-full" />
+              </div>
+            </div>
+
+            <div className="rounded-md bg-red-100 px-2 py-1.5 flex items-center gap-1.5">
+              <span className="size-1.5 rounded-full bg-red-500 shrink-0" />
+              <span className="text-red-700 text-xs/none font-semibold whitespace-pre">
+                KYC required
+              </span>
+            </div>
+          </Card>
+
+          {!verified && (
+            <div className="p-4 pt-3 bg-gray-100 rounded-b-3xl border border-gray-200 -mt-6">
+              <p className="text-sm font-medium text-gray-500 text-balance mt-6">
+                Bank transfers require identity verification. This usually takes
+                3–5 minutes.
+              </p>
+              <Button size="md" className="mt-3">
+                Start verification
+              </Button>
+            </div>
+          )}
+        </div>
+      </section>
+    </>
   )
 }

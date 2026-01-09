@@ -1,7 +1,7 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
-import { Callout } from "@radix-ui/themes"
+import { ChevronLeftIcon } from "@heroicons/react/16/solid"
+import Alert from "@src/components/Alert"
 import { ModalSelectNetwork } from "@src/components/DefuseSDK/components/Network/ModalSelectNetwork"
 import { usePreparedNetworkLists } from "@src/components/DefuseSDK/hooks/useNetworkLists"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
@@ -17,19 +17,16 @@ import {
   getDerivedToken,
   isMinAmountNotRequired,
 } from "@src/components/DefuseSDK/utils/tokenUtils"
+import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
 import { useSelector } from "@xstate/react"
+import Link from "next/link"
 import { useEffect, useState } from "react"
 import { Controller, useFormContext } from "react-hook-form"
 import AssetComboIcon from "../../../../components/Asset/AssetComboIcon"
 import { AuthGate } from "../../../../components/AuthGate"
-import { EmptyIcon } from "../../../../components/EmptyIcon"
 import { Form } from "../../../../components/Form"
-import { Island } from "../../../../components/Island"
-import { IslandHeader } from "../../../../components/IslandHeader"
 import type { ModalSelectAssetsPayload } from "../../../../components/Modal/ModalSelectAssets"
-import { Select } from "../../../../components/Select/Select"
 import { SelectTriggerLike } from "../../../../components/Select/SelectTriggerLike"
-import { Separator } from "../../../../components/Separator"
 import { getBlockchainsOptions } from "../../../../constants/blockchains"
 import { useModalStore } from "../../../../providers/ModalStoreProvider"
 import { getAvailableDepositRoutes } from "../../../../services/depositService"
@@ -206,31 +203,36 @@ export const DepositForm = ({
   const networkEnum = assetNetworkAdapter[network as SupportedChainName]
   const singleNetwork = Object.keys(chainOptions).length === 1
   return (
-    <Island className="widget-container flex flex-col gap-4">
-      <IslandHeader heading="Deposit" condensed />
+    <>
+      <Link
+        href="/deposit"
+        className="inline-flex items-center gap-2 text-gray-500 text-sm/6 hover:text-gray-900"
+      >
+        <ChevronLeftIcon className="size-4" />
+        Back
+      </Link>
+
+      <h1 className="text-gray-900 text-xl font-semibold tracking-tight mt-4">
+        Deposit crypto
+      </h1>
 
       <Form<DepositFormValues>
         handleSubmit={handleSubmit(onSubmit)}
         register={register}
-        className="flex flex-col gap-5"
+        className="mt-6"
       >
-        <div className="flex flex-col gap-2.5">
-          <div className="font-bold text-label text-sm">
-            Select asset and network
-          </div>
-
+        <div className="flex flex-col gap-2">
           <SelectTriggerLike
             icon={
               token ? (
                 <AssetComboIcon icon={token?.icon} />
               ) : (
-                <EmptyIcon circle />
+                <TokenIconPlaceholder className="size-10" />
               )
             }
-            label={token?.name ?? "Select asset"}
+            label={token ? "Token" : "Select token"}
+            value={token?.name}
             onClick={() => openModalSelectAssets("token", token ?? undefined)}
-            isPlaceholder={!token}
-            hint={token ? <Select.Hint>Asset</Select.Hint> : null}
             data-testid="select-deposit-asset"
           />
 
@@ -241,19 +243,24 @@ export const DepositForm = ({
               render={({ field }) => (
                 <>
                   <SelectTriggerLike
-                    label={chainOptions[networkEnum]?.label ?? "Select network"}
-                    icon={chainOptions[networkEnum]?.icon ?? <EmptyIcon />}
-                    onClick={() => setIsNetworkModalOpen(true)}
-                    hint={
-                      <Select.Hint>
-                        {singleNetwork ? "This network only" : "Network"}
-                      </Select.Hint>
+                    label={
+                      chainOptions[networkEnum]?.label
+                        ? "Network"
+                        : "Select network"
                     }
+                    value={chainOptions[networkEnum]?.label}
+                    icon={
+                      chainOptions[networkEnum]?.icon ?? (
+                        <TokenIconPlaceholder className="size-10" />
+                      )
+                    }
+                    onClick={() => setIsNetworkModalOpen(true)}
                     disabled={
                       chainOptions &&
                       Object.keys(chainOptions).length === 1 &&
                       field.value === Object.values(chainOptions)[0]?.value
                     }
+                    hint={singleNetwork ? "This network only" : undefined}
                     data-testid="select-network-trigger"
                   />
 
@@ -274,33 +281,11 @@ export const DepositForm = ({
         {currentDepositOption != null && (
           <>
             {isActiveDeposit && isPassiveDeposit && (
-              <>
-                <div className="-mx-5">
-                  <Separator />
-                </div>
-
-                <DepositMethodSelector
-                  selectedDepositOption={currentDepositOption}
-                  onSelectDepositOption={setPreferredDepositOption}
-                />
-              </>
+              <DepositMethodSelector
+                selectedDepositOption={currentDepositOption}
+                onSelectDepositOption={setPreferredDepositOption}
+              />
             )}
-
-            <div className="-mx-5">
-              <Separator />
-            </div>
-
-            {currentDepositOption === "active" &&
-              network != null &&
-              derivedToken != null &&
-              tokenDeployment != null && (
-                <ActiveDeposit
-                  network={assetNetworkAdapter[network]}
-                  token={derivedToken}
-                  tokenDeployment={tokenDeployment}
-                  minDepositAmount={minDepositAmount}
-                />
-              )}
 
             {currentDepositOption === "passive" &&
               network != null &&
@@ -316,6 +301,18 @@ export const DepositForm = ({
                   network={network}
                 />
               )}
+
+            {currentDepositOption === "active" &&
+              network != null &&
+              derivedToken != null &&
+              tokenDeployment != null && (
+                <ActiveDeposit
+                  network={assetNetworkAdapter[network]}
+                  token={derivedToken}
+                  tokenDeployment={tokenDeployment}
+                  minDepositAmount={minDepositAmount}
+                />
+              )}
           </>
         )}
 
@@ -325,23 +322,12 @@ export const DepositForm = ({
         />
 
         {userAddress && network && !isActiveDeposit && !isPassiveDeposit && (
-          <NotSupportedDepositRoute />
+          <Alert variant="info" className="mt-6">
+            Deposit is not supported for this wallet connection, please try
+            another token or network
+          </Alert>
         )}
       </Form>
-    </Island>
-  )
-}
-
-function NotSupportedDepositRoute() {
-  return (
-    <Callout.Root size="1" color="yellow">
-      <Callout.Icon>
-        <ExclamationTriangleIcon />
-      </Callout.Icon>
-      <Callout.Text>
-        Deposit is not supported for this wallet connection, please try another
-        token or network
-      </Callout.Text>
-    </Callout.Root>
+    </>
   )
 }
