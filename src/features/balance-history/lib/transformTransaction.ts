@@ -34,31 +34,34 @@ function isNearChain(chain: string): boolean {
 }
 
 /**
- * Detects transaction type based on asset chain prefixes.
+ * Detects transaction type based on amounts and asset chain prefixes.
  *
- * Key rule: If BOTH assets are on NEAR (nep141:/near:), it's always a SWAP
- * regardless of internal chain tx hashes (those are system internals, not user actions).
+ * Primary rule: If both input and output have amounts, it's a SWAP.
+ * This handles cross-chain swaps (e.g., DOGE → XLM) that go through NEAR internally.
  *
+ * Fallback rules for single-sided transactions:
  * - Deposit: External chain asset → NEAR asset
  * - Withdrawal: NEAR asset → External chain asset
- * - Swap: NEAR asset → NEAR asset (same chain)
  */
 function detectTransactionType(
   originAsset: string,
   destinationAsset: string,
-  _originChainTxHashes: string[],
-  _destinationChainTxHashes: string[]
+  amountIn: string,
+  amountOut: string
 ): TransactionType {
-  const originChain = extractChainFromAssetId(originAsset)
-  const destChain = extractChainFromAssetId(destinationAsset)
+  const hasAmountIn = amountIn && amountIn !== "0" && amountIn !== ""
+  const hasAmountOut = amountOut && amountOut !== "0" && amountOut !== ""
 
-  const originIsNear = isNearChain(originChain)
-  const destIsNear = isNearChain(destChain)
-
-  // If both are on NEAR, it's a swap (regardless of internal chain tx hashes)
-  if (originIsNear && destIsNear) {
+  // If both sides have amounts, it's a swap (regardless of chains)
+  if (hasAmountIn && hasAmountOut) {
     return "swap"
   }
+
+  // Single-sided transactions: use chain detection
+  const originChain = extractChainFromAssetId(originAsset)
+  const destChain = extractChainFromAssetId(destinationAsset)
+  const originIsNear = isNearChain(originChain)
+  const destIsNear = isNearChain(destChain)
 
   // External → NEAR = Deposit
   if (!originIsNear && destIsNear) {
@@ -70,7 +73,7 @@ function detectTransactionType(
     return "withdrawal"
   }
 
-  // Both external (cross-chain bridge) - treat as swap
+  // Default to swap
   return "swap"
 }
 
@@ -85,8 +88,8 @@ export function transformTransaction(
     type: detectTransactionType(
       tx.originAsset,
       tx.destinationAsset,
-      tx.originChainTxHashes,
-      tx.destinationChainTxHashes
+      tx.amountInFormatted,
+      tx.amountOutFormatted
     ),
     timestamp: tx.createdAt,
     status: normalizeStatus(tx.status),
