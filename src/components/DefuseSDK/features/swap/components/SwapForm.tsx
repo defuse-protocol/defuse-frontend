@@ -325,7 +325,9 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   return (
     <>
       <div className="flex justify-between items-center">
-        <h1 className="text-gray-900 text-xl font-bold tracking-tight">Swap</h1>
+        <h1 className="text-gray-900 text-xl font-semibold tracking-tight">
+          Swap
+        </h1>
         <SwapSettings tokenIn={tokenIn} tokenOut={tokenOut} />
       </div>
 

@@ -3,16 +3,9 @@ import Button from "@src/components/Button"
 import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import { getTokenId } from "@src/components/DefuseSDK/utils/token"
+import DepositPromo from "@src/components/DepositPromo"
 import ListItem from "@src/components/ListItem"
-import {
-  BtcIcon,
-  DepositIcon,
-  EthIcon,
-  SendIcon,
-  SwapIcon,
-  UsdcIcon,
-  UsdtIcon,
-} from "@src/icons"
+import { DepositIcon, SendIcon, SwapIcon } from "@src/icons"
 import clsx from "clsx"
 import type { Holding } from "../types/sharedTypes"
 import { FormattedCurrency } from "./shared/FormattedCurrency"
@@ -118,18 +111,8 @@ const Assets = ({
             <DepositIcon className="size-4 shrink-0 -mt-1.5" />
             Add funds
           </Button>
-          <div className="flex items-center gap-2 mt-6">
-            <div className="flex -space-x-2">
-              <BtcIcon className="size-10 shrink-0 ring-2 -ring-offset-2 ring-gray-25 rounded-full" />
-              <EthIcon className="size-10 shrink-0 ring-2 -ring-offset-2 ring-gray-25 rounded-full" />
-              <UsdtIcon className="size-10 shrink-0 ring-2 -ring-offset-2 ring-gray-25 rounded-full" />
-              <UsdcIcon className="size-10 shrink-0 ring-2 -ring-offset-2 ring-gray-25 rounded-full" />
-            </div>
-            <p className="text-xs/4 text-gray-500 font-medium">
-              Deposit 100+ coins
-              <br /> across 30+ networks
-            </p>
-          </div>
+
+          <DepositPromo className="mt-6" />
         </div>
       </section>
     )

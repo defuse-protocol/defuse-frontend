@@ -18,6 +18,7 @@ import { WagmiProvider } from "wagmi"
 import "../../styles/global.css"
 import { getCachedSystemStatus } from "@src/actions/systemStatus"
 import { PreloadFeatureFlags } from "@src/components/PreloadFeatureFlags"
+import ActivityDockProvider from "@src/providers/ActivityDockProvider"
 import { MixpanelProvider } from "@src/providers/MixpanelProvider"
 import { NearWalletProvider } from "@src/providers/NearWalletProvider"
 import { SystemStatusProvider } from "@src/providers/SystemStatusProvider"
@@ -132,31 +133,33 @@ const AppRootLayout = async ({
 
       <ThemeProvider>
         <SystemStatusProvider systemStatus={systemStatus}>
-          <WagmiProvider config={config}>
-            <QueryClientProvider client={queryClient}>
-              <NearWalletProvider>
-                <SolanaWalletProvider>
-                  <StellarWalletProvider>
-                    <TonConnectUIProvider>
-                      <TronWalletProvider>
-                        <WebAuthnProvider>
-                          <MixpanelProvider>
-                            <PreloadFeatureFlags>
-                              {children}
-                            </PreloadFeatureFlags>
-                          </MixpanelProvider>
-                        </WebAuthnProvider>
-                        <SentryTracer />
-                      </TronWalletProvider>
-                    </TonConnectUIProvider>
-                  </StellarWalletProvider>
-                </SolanaWalletProvider>
-              </NearWalletProvider>
-              {APP_ENV === "development" && (
-                <ReactQueryDevtools initialIsOpen={false} />
-              )}
-            </QueryClientProvider>
-          </WagmiProvider>
+          <ActivityDockProvider>
+            <WagmiProvider config={config}>
+              <QueryClientProvider client={queryClient}>
+                <NearWalletProvider>
+                  <SolanaWalletProvider>
+                    <StellarWalletProvider>
+                      <TonConnectUIProvider>
+                        <TronWalletProvider>
+                          <WebAuthnProvider>
+                            <MixpanelProvider>
+                              <PreloadFeatureFlags>
+                                {children}
+                              </PreloadFeatureFlags>
+                            </MixpanelProvider>
+                          </WebAuthnProvider>
+                          <SentryTracer />
+                        </TronWalletProvider>
+                      </TonConnectUIProvider>
+                    </StellarWalletProvider>
+                  </SolanaWalletProvider>
+                </NearWalletProvider>
+                {APP_ENV === "development" && (
+                  <ReactQueryDevtools initialIsOpen={false} />
+                )}
+              </QueryClientProvider>
+            </WagmiProvider>
+          </ActivityDockProvider>
         </SystemStatusProvider>
       </ThemeProvider>
     </>

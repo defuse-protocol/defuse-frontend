@@ -1,4 +1,4 @@
-import {} from "@heroicons/react/16/solid"
+import ActivityDock from "@src/components/ActivityDock"
 import { NavbarDesktop } from "@src/components/Navbar/NavbarDesktop"
 import UserMenu from "@src/components/UserMenu"
 import ConnectWallet from "@src/components/Wallet"
@@ -10,13 +10,15 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => (
     className="relative isolate flex min-h-svh w-full bg-gray-25 lg:bg-gray-800"
   >
     {/* Sidebar on desktop */}
-    <div className="fixed inset-y-0 left-0 w-72 max-lg:hidden py-6 px-4">
+    <div className="fixed inset-y-0 left-0 w-72 max-lg:hidden py-6 px-4 flex flex-col">
       <UserMenu />
 
       <div className="my-6 border-t border-gray-700" />
 
       <NavbarDesktop />
       <ConnectWallet />
+
+      <ActivityDock />
     </div>
 
     {/* Content */}

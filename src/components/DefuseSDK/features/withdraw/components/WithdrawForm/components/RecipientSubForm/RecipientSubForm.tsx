@@ -11,7 +11,6 @@ import type { UseFormReturn } from "react-hook-form"
 import { Controller } from "react-hook-form"
 import { EmptyIcon } from "../../../../../../components/EmptyIcon"
 import { ModalSelectNetwork } from "../../../../../../components/Network/ModalSelectNetwork"
-import { Select } from "../../../../../../components/Select/Select"
 import { SelectTriggerLike } from "../../../../../../components/Select/SelectTriggerLike"
 import {
   getBlockchainsOptions,
@@ -197,11 +196,7 @@ export const RecipientSubForm = ({
               )}
               onClick={() => setIsNetworkModalOpen(true)}
               data-testid="select-trigger-like"
-              hint={
-                <Select.Hint>
-                  {determineBlockchainControllerHint(field.value)}
-                </Select.Hint>
-              }
+              hint={determineBlockchainControllerHint(field.value)}
               disabled={false}
             />
 

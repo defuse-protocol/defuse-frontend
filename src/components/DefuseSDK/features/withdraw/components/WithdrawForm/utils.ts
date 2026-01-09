@@ -422,3 +422,16 @@ export function isNearIntentsNetwork(
 ): boolean {
   return blockchain === "near_intents"
 }
+
+export function chainNameToNetworkName(chainName: SupportedChainName): string {
+  switch (chainName) {
+    case "eth":
+      return "ethereum"
+    case "xrpledger":
+      return "XRP Ledger"
+    case "bsc":
+      return "BNB Smart Chain"
+    default:
+      return chainName
+  }
+}
