@@ -1,12 +1,13 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import { UserCircleIcon } from "@heroicons/react/20/solid"
+import type { Contact } from "@src/app/(app)/(dashboard)/contacts/page"
 import Button from "@src/components/Button"
 import ErrorMessage from "@src/components/ErrorMessage"
 import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
 import useSearchNetworks from "@src/hooks/useFilterNetworks"
 import { WalletIcon } from "@src/icons"
 import clsx from "clsx"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import {
   assetNetworkAdapter,
@@ -17,23 +18,25 @@ import { NetworkList } from "../Network/NetworkList"
 import SearchBar from "../SearchBar"
 import { BaseModalDialog } from "./ModalDialog"
 
-interface FormData {
+type FormData = {
   address: string
   name: string
   network: BlockchainEnum | null
 }
 
-const ModalAddContact = ({
-  open,
-  onClose,
-}: {
+type ModalContactProps = {
   open: boolean
   onClose: () => void
-}) => {
+  contact?: Contact | null
+}
+
+const ModalAddEditContact = ({ open, onClose, contact }: ModalContactProps) => {
   const [selectNetworkOpen, setSelectNetworkOpen] = useState(false)
   const [searchValue, setSearchValue] = useState("")
   const [isScrolled, setIsScrolled] = useState(false)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
+
+  const isEditing = Boolean(contact)
 
   const {
     register,
@@ -42,7 +45,23 @@ const ModalAddContact = ({
     watch,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<FormData>()
+  } = useForm<FormData>({
+    defaultValues: {
+      name: "",
+      address: "",
+      network: null,
+    },
+  })
+
+  useEffect(() => {
+    if (contact && open) {
+      reset({
+        name: contact.name,
+        address: contact.address,
+        network: contact.network,
+      })
+    }
+  }, [contact, open, reset])
 
   const availableNetworks = allAvailableChains()
   const filteredNetworks = useSearchNetworks({
@@ -55,9 +74,13 @@ const ModalAddContact = ({
   const networkData = network ? availableNetworks[network] : null
 
   const onSubmit = async (_data: FormData) => {
-    // TODO: Handle form submission
-
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    if (isEditing) {
+      // TODO: Update contact
+      await new Promise((resolve) => setTimeout(resolve, 2000))
+    } else {
+      // TODO: Create contact
+      await new Promise((resolve) => setTimeout(resolve, 2000))
+    }
 
     onClose()
     // TODO: Add success toast
@@ -69,12 +92,20 @@ const ModalAddContact = ({
     setIsScrolled(scrollContainerRef.current.scrollTop > 0)
   }
 
+  const getModalTitle = () => {
+    if (selectNetworkOpen) return "Select network"
+    return isEditing ? "Edit contact" : "Create contact"
+  }
+
   return (
     <BaseModalDialog
-      title={selectNetworkOpen ? "Select network" : "Create contact"}
+      title={getModalTitle()}
       open={open}
       onClose={onClose}
-      onCloseAnimationEnd={() => reset()}
+      onCloseAnimationEnd={() => {
+        reset()
+        setSelectNetworkOpen(false)
+      }}
     >
       {selectNetworkOpen ? (
         <div className="mt-3 max-h-[630px] flex flex-col">
@@ -116,7 +147,7 @@ const ModalAddContact = ({
             <div>
               <label
                 className={clsx(
-                  "flex items-center gap-3 rounded-3xl bg-white p-3 outline-1 -outline-offset-1 focus-within:outline-2 focus-within:-outline-offset-2",
+                  "flex items-center gap-3 rounded-3xl bg-white p-3 cursor-text outline-1 -outline-offset-1 focus-within:outline-2 focus-within:-outline-offset-2",
                   errors.name
                     ? "outline-red-500 focus-within:outline-red-500"
                     : "outline-gray-200 focus-within:outline-gray-900"
@@ -148,7 +179,7 @@ const ModalAddContact = ({
             <div>
               <label
                 className={clsx(
-                  "flex items-center gap-3 rounded-3xl bg-white p-3 outline-1 -outline-offset-1 focus-within:outline-2 focus-within:-outline-offset-2",
+                  "flex items-center gap-3 rounded-3xl bg-white p-3 cursor-text outline-1 -outline-offset-1 focus-within:outline-2 focus-within:-outline-offset-2",
                   errors.address
                     ? "outline-red-500 focus-within:outline-red-500"
                     : "outline-gray-200 focus-within:outline-gray-900"
@@ -210,7 +241,7 @@ const ModalAddContact = ({
             className="mt-5"
             loading={isSubmitting}
           >
-            Save contact
+            {isEditing ? "Update contact" : "Save contact"}
           </Button>
         </form>
       )}
@@ -218,4 +249,4 @@ const ModalAddContact = ({
   )
 }
 
-export default ModalAddContact
+export default ModalAddEditContact

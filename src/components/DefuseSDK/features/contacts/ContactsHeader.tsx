@@ -5,7 +5,7 @@ import Button from "@src/components/Button"
 import SearchBar from "@src/components/DefuseSDK/components/SearchBar"
 import { useRouter } from "next/navigation"
 import { useState, useTransition } from "react"
-import ModalAddContact from "../../components/Modal/ModalAddContact"
+import ModalAddEditContact from "../../components/Modal/ModalAddEditContact"
 
 const ContactsHeader = ({
   search,
@@ -57,7 +57,7 @@ const ContactsHeader = ({
         </Button>
       </div>
 
-      <ModalAddContact open={open} onClose={() => setOpen(false)} />
+      <ModalAddEditContact open={open} onClose={() => setOpen(false)} />
     </>
   )
 }

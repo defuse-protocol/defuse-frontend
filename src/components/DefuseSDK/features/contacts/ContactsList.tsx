@@ -1,22 +1,42 @@
 "use client"
 
+import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import { PencilSquareIcon, XCircleIcon } from "@heroicons/react/16/solid"
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid"
 import type { Contact } from "@src/app/(app)/(dashboard)/contacts/page"
 import Button from "@src/components/Button"
+import ModalAddEditContact from "@src/components/DefuseSDK/components/Modal/ModalAddEditContact"
 import { NetworkIcon } from "@src/components/DefuseSDK/components/Network/NetworkIcon"
 import { chainIcons } from "@src/components/DefuseSDK/constants/blockchains"
 import {
   chainNameToNetworkName,
   midTruncate,
 } from "@src/components/DefuseSDK/features/withdraw/components/WithdrawForm/utils"
-import type { SupportedChainName } from "@src/components/DefuseSDK/types/base"
 import ListItem from "@src/components/ListItem"
 import { SendIcon, WalletIcon } from "@src/icons"
 import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { reverseAssetNetworkAdapter } from "../../utils/adapters"
 
 const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
   const router = useRouter()
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
+
+  const handleEditContact = (contact: Contact) => {
+    setSelectedContact({
+      id: contact.id,
+      name: contact.name,
+      address: contact.address,
+      network: contact.network as BlockchainEnum,
+    })
+    setEditModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setEditModalOpen(false)
+    setSelectedContact(null)
+  }
 
   if (contacts.length === 0) {
     return (
@@ -42,53 +62,61 @@ const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
   }
 
   return (
-    <section className="mt-6 space-y-1">
-      {contacts.map((contact) => {
-        const chainIcon = chainIcons[contact.network as SupportedChainName]
-        const chainName = chainNameToNetworkName(
-          contact.network as SupportedChainName
-        )
+    <>
+      <section className="mt-6 space-y-1">
+        {contacts.map((contact) => {
+          const chainKey =
+            reverseAssetNetworkAdapter[contact.network as BlockchainEnum]
+          const chainIcon = chainIcons[chainKey]
+          const chainName = chainNameToNetworkName(chainKey)
 
-        return (
-          <ListItem
-            key={contact.id}
-            popoverContent={
-              <>
-                <Button size="sm" href="/send">
-                  {/* TODO: Add send to contact functionality */}
-                  <SendIcon className="size-4 shrink-0" />
-                  Send
-                </Button>
-                <Button size="sm">
-                  <PencilSquareIcon className="size-4 shrink-0" />
-                  Edit
-                </Button>
-                <Button size="sm">
-                  <XCircleIcon className="size-4 shrink-0" />
-                  Remove
-                </Button>
-              </>
-            }
-          >
-            <div className="size-10 rounded-full bg-gray-200 flex items-center justify-center outline-1 -outline-offset-1 outline-gray-900/10">
-              <WalletIcon className="size-5 text-gray-500" />
-            </div>
-            <ListItem.Content>
-              <ListItem.Title>{contact.name}</ListItem.Title>
-              <ListItem.Subtitle>
-                {midTruncate(contact.address)}
-              </ListItem.Subtitle>
-            </ListItem.Content>
-            <ListItem.Content align="end">
-              <ListItem.Title className="flex items-center gap-1">
-                <NetworkIcon chainIcon={chainIcon} sizeClassName="size-4" />
-                <span className="capitalize">{chainName}</span>
-              </ListItem.Title>
-            </ListItem.Content>
-          </ListItem>
-        )
-      })}
-    </section>
+          return (
+            <ListItem
+              key={contact.id}
+              popoverContent={
+                <>
+                  <Button size="sm" href="/send">
+                    {/* TODO: Add send to contact functionality */}
+                    <SendIcon className="size-4 shrink-0" />
+                    Send
+                  </Button>
+                  <Button size="sm" onClick={() => handleEditContact(contact)}>
+                    <PencilSquareIcon className="size-4 shrink-0" />
+                    Edit
+                  </Button>
+                  <Button size="sm">
+                    <XCircleIcon className="size-4 shrink-0" />
+                    Remove
+                  </Button>
+                </>
+              }
+            >
+              <div className="size-10 rounded-full bg-gray-200 flex items-center justify-center outline-1 -outline-offset-1 outline-gray-900/10">
+                <WalletIcon className="size-5 text-gray-500" />
+              </div>
+              <ListItem.Content>
+                <ListItem.Title>{contact.name}</ListItem.Title>
+                <ListItem.Subtitle>
+                  {midTruncate(contact.address)}
+                </ListItem.Subtitle>
+              </ListItem.Content>
+              <ListItem.Content align="end">
+                <ListItem.Title className="flex items-center gap-1">
+                  <NetworkIcon chainIcon={chainIcon} sizeClassName="size-4" />
+                  <span className="capitalize">{chainName}</span>
+                </ListItem.Title>
+              </ListItem.Content>
+            </ListItem>
+          )
+        })}
+      </section>
+
+      <ModalAddEditContact
+        open={editModalOpen}
+        onClose={handleCloseModal}
+        contact={selectedContact}
+      />
+    </>
   )
 }
 

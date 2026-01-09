@@ -1,3 +1,4 @@
+import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import ContactsHeader from "@src/components/DefuseSDK/features/contacts/ContactsHeader"
 import ContactsList from "@src/components/DefuseSDK/features/contacts/ContactsList"
 import ListItemSkeleton from "@src/components/ListItemsSkeleton"
@@ -7,33 +8,33 @@ export type Contact = {
   id: number
   address: string
   name: string
-  network: string
+  network: BlockchainEnum | null
 }
 
-const contacts = [
+const contacts: Contact[] = [
   {
     id: 1,
     address: "0xAbC1234567890DeFabc1234567890abcdEf12345",
     name: "Michael's Wallet",
-    network: "eth",
+    network: "eth:1",
   },
   {
     id: 2,
     address: "0x1234567890abcdef1234567890abcdef12345678",
     name: "Nexo Savings",
-    network: "arbitrum",
+    network: "eth:43114",
   },
   {
     id: 3,
     address: "0xFAcE851C0EfEdEadcafe1234567890dEfAce1234",
-    name: "Ledger Cold Storage",
-    network: "avalanche",
+    name: "Base Staking",
+    network: "eth:8453",
   },
   {
     id: 4,
     address: "0xBeEfFAcedBabeFACE1234567890BeEfFacE00000",
     name: "Binance Main Account",
-    network: "base",
+    network: "eth:56",
   },
 ]
 
