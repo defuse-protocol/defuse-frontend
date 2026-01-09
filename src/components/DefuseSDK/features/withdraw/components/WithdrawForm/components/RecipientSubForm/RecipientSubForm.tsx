@@ -1,4 +1,8 @@
-import { assert, type BlockchainEnum } from "@defuse-protocol/internal-utils"
+import {
+  assert,
+  type BlockchainEnum,
+  authIdentity,
+} from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { MagicWandIcon, PersonIcon } from "@radix-ui/react-icons"
 import { Box, Flex, IconButton, Text, TextField } from "@radix-ui/themes"
@@ -252,6 +256,27 @@ export const RecipientSubForm = ({
               {...register("recipient", {
                 validate: {
                   pattern: async (value, formValues) => {
+                    // Handle user tags (e.g., @username)
+                    if (
+                      value &&
+                      typeof value === "string" &&
+                      value.startsWith("@")
+                    ) {
+                      const tagResult = await validateAndConvertTag(
+                        value,
+                        formValues.blockchain,
+                        userAddress ?? "",
+                        chainType,
+                        setValue,
+                        validationRecipientAddress,
+                        renderRecipientAddressError
+                      )
+                      if (tagResult !== undefined) {
+                        return tagResult
+                      }
+                    }
+
+                    // Regular address validation
                     const result = await validationRecipientAddress(
                       value,
                       formValues.blockchain,
@@ -265,7 +290,7 @@ export const RecipientSubForm = ({
                   },
                 },
               })}
-              placeholder="Enter wallet address"
+              placeholder="Enter wallet address or @username"
               data-testid="withdraw-target-account-field"
             >
               <TextField.Slot>
@@ -399,6 +424,76 @@ function determineBlockchainControllerHint(
     return "Internal network"
   }
   return "Network"
+}
+
+/**
+ * @experimental - POC implementation only. Not ready for production use.
+ */
+async function validateAndConvertTag(
+  tag: string,
+  blockchain: SupportedChainName | "near_intents",
+  userAddress: string,
+  chainType: AuthMethod | undefined,
+  setValue: (
+    name: "recipient",
+    value: string,
+    options?: { shouldValidate?: boolean }
+  ) => void,
+  validationRecipientAddress: (
+    recipientAddress: string,
+    chainName: SupportedChainName | "near_intents",
+    userAddress?: string,
+    chainType?: AuthMethod
+  ) => Promise<
+    import("@thames/monads").Result<boolean, ValidateRecipientAddressErrorType>
+  >,
+  renderRecipientAddressError: (
+    error: ValidateRecipientAddressErrorType
+  ) => string
+): Promise<string | boolean | undefined> {
+  try {
+    const encodedTag = encodeURIComponent(tag)
+    const response = await fetch(`/api/tags/${encodedTag}`)
+
+    if (response.status === 404) {
+      return "This username does not exist."
+    }
+
+    if (response.status === 200) {
+      const tagData = (await response.json()) as {
+        auth_identifier: string
+        auth_method: string
+      }
+
+      const address = authIdentity.authHandleToIntentsUserId(
+        tagData.auth_identifier,
+        tagData.auth_method as AuthMethod
+      )
+
+      setValue("recipient", address, {
+        shouldValidate: true,
+      })
+
+      const result = await validationRecipientAddress(
+        address,
+        blockchain,
+        userAddress,
+        chainType
+      )
+      if (result.isErr()) {
+        return renderRecipientAddressError(result.unwrapErr())
+      }
+      return result.unwrap()
+    }
+
+    if (response.status === 400) {
+      return "Invalid username format."
+    }
+
+    return "Unable to verify username. Please try again."
+  } catch {
+    return "Unable to verify username. Please try again."
+  }
 }
 
 function renderRecipientAddressError(error: ValidateRecipientAddressErrorType) {
