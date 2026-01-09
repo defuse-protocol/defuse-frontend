@@ -18,6 +18,7 @@ import { useSwapHistory } from "@src/features/balance-history/lib/useBalanceHist
 import type { SwapTransaction } from "@src/features/balance-history/types"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useTokenList } from "@src/hooks/useTokenList"
+import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
 import clsx from "clsx"
 import { format, isToday, isYesterday } from "date-fns"
 import { useRouter } from "next/navigation"
@@ -87,10 +88,22 @@ export default function ActivityPage({
 }) {
   const searchParamsData = use(searchParams)
   const router = useRouter()
-  const { state } = useConnectWallet()
+  const { state, isLoading: isWalletConnecting } = useConnectWallet()
   const tokenList = useTokenList(LIST_TOKENS)
+  const hasHydrated = useVerifiedWalletsStore((s) => s._hasHydrated)
+
+  const [hadPreviousSession, setHadPreviousSession] = useState(true)
+  useEffect(() => {
+    setHadPreviousSession(localStorage.getItem("chainType") !== null)
+  }, [])
 
   const userAddress = state.isVerified ? state.address : null
+  const isWaitingForReconnect = hadPreviousSession && !state.address
+  const isWalletHydrating =
+    !hasHydrated ||
+    isWalletConnecting ||
+    isWaitingForReconnect ||
+    Boolean(state.address && !state.isVerified)
 
   const currentSearchParams = new URLSearchParams()
   for (const [key, value] of Object.entries(searchParamsData)) {
@@ -327,59 +340,67 @@ export default function ActivityPage({
       </div>
 
       <section className="mt-10 space-y-10">
-        {!isWalletConnected && (
-          <EmptyState message="Connect your wallet to see your activity" />
-        )}
+        {isWalletHydrating ? (
+          <LoadingState />
+        ) : (
+          <>
+            {!isWalletConnected && (
+              <EmptyState message="Connect your wallet to see your activity" />
+            )}
 
-        {isWalletConnected && isLoading && <LoadingState />}
+            {isWalletConnected && isLoading && <LoadingState />}
 
-        {isWalletConnected && isError && (
-          <EmptyState message="Failed to load activity. Please try again." />
-        )}
+            {isWalletConnected && isError && (
+              <EmptyState message="Failed to load activity. Please try again." />
+            )}
 
-        {isWalletConnected &&
-          !isLoading &&
-          !isError &&
-          transactions.length === 0 && (
-            <EmptyState
-              message={
-                allTransactions.length > 0
-                  ? "No transactions match your filters"
-                  : "No activity yet. Your transaction history will appear here."
-              }
-            />
-          )}
+            {isWalletConnected &&
+              !isLoading &&
+              !isError &&
+              transactions.length === 0 && (
+                <EmptyState
+                  message={
+                    allTransactions.length > 0
+                      ? "No transactions match your filters"
+                      : "No activity yet. Your transaction history will appear here."
+                  }
+                />
+              )}
 
-        {isWalletConnected &&
-          !isLoading &&
-          !isError &&
-          transactions.length > 0 &&
-          Object.entries(groupedTransactions).map(([date, dateTxs]) => (
-            <div key={date}>
-              <h2 className="text-gray-900 text-base font-semibold">{date}</h2>
-              <div className="mt-2 flex flex-col">
-                {dateTxs.map((tx: SwapTransaction) => (
-                  <HistoryItem
-                    key={tx.id}
-                    transaction={tx}
-                    tokenList={tokenList}
-                  />
-                ))}
+            {isWalletConnected &&
+              !isLoading &&
+              !isError &&
+              transactions.length > 0 &&
+              Object.entries(groupedTransactions).map(([date, dateTxs]) => (
+                <div key={date}>
+                  <h2 className="text-gray-900 text-base font-semibold">
+                    {date}
+                  </h2>
+                  <div className="mt-2 flex flex-col">
+                    {dateTxs.map((tx: SwapTransaction) => (
+                      <HistoryItem
+                        key={tx.id}
+                        transaction={tx}
+                        tokenList={tokenList}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+            {isWalletConnected && hasNextPage && (
+              <div className="flex justify-center">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => fetchNextPage()}
+                  loading={isFetchingNextPage}
+                >
+                  Load more
+                </Button>
               </div>
-            </div>
-          ))}
-
-        {isWalletConnected && hasNextPage && (
-          <div className="flex justify-center">
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => fetchNextPage()}
-              loading={isFetchingNextPage}
-            >
-              Load more
-            </Button>
-          </div>
+            )}
+          </>
         )}
       </section>
 
