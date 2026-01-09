@@ -13,6 +13,7 @@ import {
   HistoryItem,
   SwapHistoryItemSkeleton,
 } from "@src/components/DefuseSDK/features/history/components/HistoryItem"
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useSwapHistory } from "@src/features/balance-history/lib/useBalanceHistory"
 import type { SwapTransaction } from "@src/features/balance-history/types"
@@ -370,36 +371,15 @@ export default function ActivityPage({
             {isWalletConnected &&
               !isLoading &&
               !isError &&
-              transactions.length > 0 &&
-              Object.entries(groupedTransactions).map(([date, dateTxs]) => (
-                <div key={date}>
-                  <h2 className="text-gray-900 text-base font-semibold">
-                    {date}
-                  </h2>
-                  <div className="mt-2 flex flex-col">
-                    {dateTxs.map((tx: SwapTransaction) => (
-                      <HistoryItem
-                        key={tx.id}
-                        transaction={tx}
-                        tokenList={tokenList}
-                      />
-                    ))}
-                  </div>
-                </div>
-              ))}
-
-            {isWalletConnected && hasNextPage && (
-              <div className="flex justify-center">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => fetchNextPage()}
-                  loading={isFetchingNextPage}
-                >
-                  Load more
-                </Button>
-              </div>
-            )}
+              transactions.length > 0 && (
+                <TransactionList
+                  groupedTransactions={groupedTransactions}
+                  tokenList={tokenList}
+                  hasNextPage={hasNextPage}
+                  isFetchingNextPage={isFetchingNextPage}
+                  onLoadMore={fetchNextPage}
+                />
+              )}
           </>
         )}
       </section>
@@ -438,6 +418,79 @@ function LoadingState() {
           <SwapHistoryItemSkeleton />
           <SwapHistoryItemSkeleton />
         </div>
+      </div>
+    </div>
+  )
+}
+
+interface TransactionListProps {
+  groupedTransactions: Record<string, SwapTransaction[]>
+  tokenList: TokenInfo[]
+  hasNextPage: boolean | undefined
+  isFetchingNextPage: boolean
+  onLoadMore: () => void
+}
+
+function TransactionList({
+  groupedTransactions,
+  tokenList,
+  hasNextPage,
+  isFetchingNextPage,
+  onLoadMore,
+}: TransactionListProps) {
+  const loadMoreTriggerRef = useRef<HTMLDivElement>(null)
+  const onLoadMoreRef = useRef(onLoadMore)
+  onLoadMoreRef.current = onLoadMore
+
+  useEffect(() => {
+    const sentinel = loadMoreTriggerRef.current
+    if (!sentinel || !hasNextPage) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isFetchingNextPage) {
+          onLoadMoreRef.current()
+        }
+      },
+      { rootMargin: "200px", threshold: 0 }
+    )
+
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [hasNextPage, isFetchingNextPage])
+
+  return (
+    <>
+      {Object.entries(groupedTransactions).map(([date, dateTxs]) => (
+        <div key={date}>
+          <h2 className="text-gray-900 text-base font-semibold">{date}</h2>
+          <div className="mt-2 flex flex-col">
+            {dateTxs.map((tx: SwapTransaction) => (
+              <HistoryItem key={tx.id} transaction={tx} tokenList={tokenList} />
+            ))}
+          </div>
+        </div>
+      ))}
+
+      {hasNextPage && <div ref={loadMoreTriggerRef} className="h-1" />}
+      {isFetchingNextPage && <LoadingMoreIndicator />}
+    </>
+  )
+}
+
+function LoadingMoreIndicator() {
+  return (
+    <div className="flex justify-center py-6">
+      <div className="flex items-center gap-1.5">
+        <span className="size-2 bg-gray-400 rounded-full animate-pulse" />
+        <span
+          className="size-2 bg-gray-400 rounded-full animate-pulse"
+          style={{ animationDelay: "150ms" }}
+        />
+        <span
+          className="size-2 bg-gray-400 rounded-full animate-pulse"
+          style={{ animationDelay: "300ms" }}
+        />
       </div>
     </div>
   )
