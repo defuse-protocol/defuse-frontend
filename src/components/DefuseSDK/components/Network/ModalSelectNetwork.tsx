@@ -1,7 +1,6 @@
-import { performSearch } from "@src/utils/smartSearch"
+import useSearchNetworks from "@src/hooks/useFilterNetworks"
 import clsx from "clsx"
-import { type ReactNode, useMemo, useRef, useState } from "react"
-import type { NetworkOption } from "../../constants/blockchains"
+import { type ReactNode, useRef, useState } from "react"
 import type { NetworkOptions } from "../../hooks/useNetworkLists"
 import type { SupportedChainName } from "../../types/base"
 import { BaseModalDialog } from "../Modal/ModalDialog"
@@ -20,14 +19,6 @@ interface ModalSelectNetworkProps {
   onIntentsSelect?: () => void
 }
 
-type SearchableNetwork = {
-  networkOption: NetworkOption
-  key: string
-  searchData: {
-    nameLower: string
-  }
-}
-
 export const ModalSelectNetwork = ({
   selectNetwork,
   selectedNetwork,
@@ -42,56 +33,23 @@ export const ModalSelectNetwork = ({
   const [isScrolled, setIsScrolled] = useState(false)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
-  // Create searchable items for available networks
-  const searchableAvailableNetworks: SearchableNetwork[] = useMemo(() => {
-    return Object.entries(availableNetworks).map(([key, networkOption]) => ({
-      key,
-      networkOption,
-      searchData: {
-        nameLower: networkOption.label.toLowerCase(),
-      },
-    }))
-  }, [availableNetworks])
+  const availableNetworkOptions = useSearchNetworks({
+    networks: availableNetworks,
+    searchValue,
+  })
 
-  const searchableDisabledNetworks: SearchableNetwork[] = useMemo(() => {
-    return Object.entries(disabledNetworks).map(([key, networkOption]) => ({
-      key,
-      networkOption,
-      searchData: {
-        nameLower: networkOption.label.toLowerCase(),
-      },
-    }))
-  }, [disabledNetworks])
+  const disabledNetworkOptions = useSearchNetworks({
+    networks: disabledNetworks,
+    searchValue,
+  })
 
-  // Filter networks with search
-  const filteredAvailableNetworks = useMemo(() => {
-    return filterNetworksWithSearch(searchableAvailableNetworks, searchValue)
-  }, [searchableAvailableNetworks, searchValue])
-
-  const filteredDisabledNetworks = useMemo(() => {
-    return filterNetworksWithSearch(searchableDisabledNetworks, searchValue)
-  }, [searchableDisabledNetworks, searchValue])
-
-  // Convert filtered networks to NetworkOptions format
-  const availableNetworksOptions = useMemo(() => {
-    return Object.fromEntries(
-      filteredAvailableNetworks.map((item) => [item.key, item.networkOption])
-    )
-  }, [filteredAvailableNetworks])
-
-  const disabledNetworksOptions = useMemo(() => {
-    return Object.fromEntries(
-      filteredDisabledNetworks.map((item) => [item.key, item.networkOption])
-    )
-  }, [filteredDisabledNetworks])
+  const availableNetworksValues = Object.keys(availableNetworkOptions)
+  const disabledNetworksValues = Object.keys(disabledNetworkOptions)
 
   const onChangeNetwork = (network: SupportedChainName) => {
     selectNetwork(network)
     onClose()
   }
-
-  const availableNetworksValues = Object.keys(availableNetworksOptions)
-  const disabledNetworksValues = Object.keys(disabledNetworksOptions)
 
   const handleScroll = () => {
     if (!scrollContainerRef.current) return
@@ -119,6 +77,7 @@ export const ModalSelectNetwork = ({
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             onClear={() => setSearchValue("")}
+            placeholder="Search networks"
             autoFocus
           />
         </div>
@@ -140,7 +99,7 @@ export const ModalSelectNetwork = ({
                 {availableNetworksValues.length > 0 && (
                   <NetworkList
                     title="Available networks"
-                    networkOptions={availableNetworksOptions}
+                    networkOptions={availableNetworkOptions}
                     selectedNetwork={selectedNetwork}
                     onChangeNetwork={onChangeNetwork}
                     renderValueDetails={renderValueDetails}
@@ -152,7 +111,7 @@ export const ModalSelectNetwork = ({
                     disabled
                     title="Unsupported networks"
                     additionalInfo="The selected asset is not supported on the following networks."
-                    networkOptions={disabledNetworksOptions}
+                    networkOptions={disabledNetworkOptions}
                     selectedNetwork={selectedNetwork}
                     onChangeNetwork={onChangeNetwork}
                     onIntentsSelect={onIntentsSelect}
@@ -165,23 +124,4 @@ export const ModalSelectNetwork = ({
       </div>
     </BaseModalDialog>
   )
-}
-
-function filterNetworksWithSearch(
-  networks: SearchableNetwork[],
-  searchValue: string,
-  options: {
-    maxFuzzyDistance?: number
-    maxResults?: number
-  } = {}
-): SearchableNetwork[] {
-  if (!searchValue.trim()) {
-    return networks
-  }
-  const { maxFuzzyDistance = 1, maxResults = 50 } = options
-  const { results } = performSearch(networks, searchValue, {
-    maxFuzzyDistance,
-    maxResults,
-  })
-  return results
 }

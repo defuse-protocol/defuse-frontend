@@ -17,7 +17,7 @@ const ModalNoResults = ({
     >
       <MagnifyingGlassIcon className="size-5" />
     </div>
-    <h3 className="font-medium text-base text-gray-900 mt-4">{text}</h3>
+    <h3 className="font-semibold text-base text-gray-900 mt-4">{text}</h3>
     <Button size="md" onClick={handleSearchClear} className="mt-4">
       Clear search
     </Button>

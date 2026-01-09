@@ -1,7 +1,9 @@
+"use client"
+
 import { MagnifyingGlassIcon, XCircleIcon } from "@heroicons/react/20/solid"
 import Spinner from "@src/components/Spinner"
 import clsx from "clsx"
-import { type ComponentProps, useEffect, useRef } from "react"
+import { type ComponentProps, useEffect, useId, useRef } from "react"
 
 type Props = ComponentProps<"input"> & {
   loading?: boolean
@@ -16,6 +18,7 @@ const SearchBar = ({
   loading,
   ...inputProps
 }: Props) => {
+  const id = useId()
   const ref = useRef<HTMLInputElement | null>(null)
 
   useEffect(() => {
@@ -35,11 +38,11 @@ const SearchBar = ({
 
   return (
     <div className={clsx("grid grid-cols-1", className)}>
-      <label htmlFor="search" className="sr-only">
+      <label htmlFor={id} className="sr-only">
         {placeholder}
       </label>
       <input
-        id="search"
+        id={id}
         ref={ref}
         className="col-start-1 row-start-1 block w-full rounded-xl text-sm bg-white py-2.5 px-9 text-gray-900 outline-1 -outline-offset-1 outline-gray-200 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-gray-900 ring-0 border-0 font-medium"
         placeholder={placeholder}

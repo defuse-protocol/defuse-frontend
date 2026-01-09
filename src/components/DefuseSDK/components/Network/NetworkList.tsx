@@ -16,7 +16,7 @@ import { PoweredByAuroraLabel } from "../PoweredByAuroraLabel"
 import TooltipNew from "../TooltipNew"
 
 interface NetworkListProps {
-  title: string
+  title?: string
   additionalInfo?: string
   networkOptions: NetworkOptions
   selectedNetwork: SupportedChainName | "near_intents" | null
@@ -38,7 +38,9 @@ export const NetworkList = ({
 }: NetworkListProps) => (
   <div>
     <div className="flex items-center gap-2">
-      <h3 className="text-gray-500 text-sm/6 font-medium">{title}</h3>
+      {title && (
+        <h3 className="text-gray-500 text-sm/6 font-medium">{title}</h3>
+      )}
 
       {additionalInfo && (
         <TooltipNew>
