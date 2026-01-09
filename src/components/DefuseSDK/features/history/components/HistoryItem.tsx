@@ -18,10 +18,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "../../../components/Tooltip"
-import {
-  INTENTS_EXPLORER_URL,
-  chainIcons,
-} from "../../../constants/blockchains"
+import { INTENTS_EXPLORER_URL } from "../../../constants/blockchains"
 import type { BaseTokenInfo, TokenInfo } from "../../../types/base"
 import { cn } from "../../../utils/cn"
 import {
@@ -107,38 +104,21 @@ function TokenDisplay({ tokenAmount, tokenList }: TokenDisplayProps) {
     [tokenList, tokenAmount.token_id]
   )
 
-  const chainIcon = chainIcons.near
-
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <div className="flex items-center gap-2.5 cursor-default min-w-0">
-          <AssetComboIcon
-            icon={token?.icon}
-            name={token?.name ?? tokenAmount.symbol}
-            chainIcon={chainIcon}
-            chainName="near"
-            showChainIcon
-          />
-          <div className="flex flex-col min-w-0">
-            <span className="text-sm font-medium truncate">
-              {formatAmount(tokenAmount.amount)}
-            </span>
-            <span className="text-[11px] text-gray-11 truncate">
-              {token?.symbol ?? tokenAmount.symbol}
-            </span>
-          </div>
-        </div>
-      </TooltipTrigger>
-      <TooltipContent side="top" className="text-xs">
-        <div className="flex flex-col gap-0.5">
-          <span className="font-medium">
-            {token?.name ?? tokenAmount.symbol}
-          </span>
-          <span className="text-gray-9">Blockchain: Near</span>
-        </div>
-      </TooltipContent>
-    </Tooltip>
+    <div className="flex items-center gap-2.5 min-w-0">
+      <AssetComboIcon
+        icon={token?.icon}
+        name={token?.name ?? tokenAmount.symbol}
+      />
+      <div className="flex flex-col min-w-0">
+        <span className="text-sm font-medium truncate">
+          {formatAmount(tokenAmount.amount)}
+        </span>
+        <span className="text-[11px] text-gray-11 truncate">
+          {token?.symbol ?? tokenAmount.symbol}
+        </span>
+      </div>
+    </div>
   )
 }
 
