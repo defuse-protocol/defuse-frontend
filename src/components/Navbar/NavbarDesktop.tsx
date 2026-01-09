@@ -12,6 +12,7 @@ export function NavbarDesktop() {
 
   const isAccountActive = isActive(navigation.account)
   const isTradeActive = isActive(navigation.home) || isActive(navigation.otc)
+  const isHistoryActive = isActive(navigation.history)
 
   return (
     <nav className="flex justify-between items-center gap-4">
@@ -29,6 +30,14 @@ export function NavbarDesktop() {
         isActive={isTradeActive}
         href={navigation.home}
         dataTestId="trade-tab"
+      />
+
+      {/* History */}
+      <NavItem
+        label="History"
+        isActive={isHistoryActive}
+        href={navigation.history}
+        dataTestId="history-tab"
       />
     </nav>
   )
@@ -53,8 +62,8 @@ function NavItem({
         highContrast
         variant={isActive ? "solid" : "soft"}
         className={cn(
-          "relative text-sm",
-          isActive ? "text-gray-1" : "bg-transparent"
+          "relative text-sm transition-colors",
+          isActive ? "text-gray-1" : "bg-transparent hover:bg-gray-a3"
         )}
         data-testid={dataTestId}
         asChild

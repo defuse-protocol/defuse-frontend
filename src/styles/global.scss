@@ -20,6 +20,31 @@
   .widget-container {
     @apply w-full max-w-[min(472px,100%)];
   }
+
+  /* Scrollbar offset - positions scrollbar outside the content area */
+  .scrollbar-offset {
+    scrollbar-gutter: stable;
+    margin-right: -10px;
+    padding-right: 10px;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+      margin: 4px 0;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--gray-a6);
+      border-radius: 3px;
+
+      &:hover {
+        background: var(--gray-a8);
+      }
+    }
+  }
 }
 
 /* Base styles */
