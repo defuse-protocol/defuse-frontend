@@ -11,6 +11,7 @@ import type {
   SendTransactionStellarParams,
   SendTransactionTronParams,
 } from "@src/components/DefuseSDK/types/deposit"
+import { useSafeTurnkey } from "@src/features/turnkey"
 import {
   useWebAuthnActions,
   useWebAuthnCurrentCredential,
@@ -100,6 +101,32 @@ export const useConnectWallet = (): ConnectWalletAction => {
   let state: State = defaultState
 
   /**
+   * Turnkey:
+   * Check for Turnkey session FIRST (before other wallets).
+   * Turnkey appears as ChainType.EVM to the rest of the app.
+   */
+  const {
+    logout: turnkeyLogout,
+    session: turnkeySession,
+    wallets: turnkeyWallets,
+  } = useSafeTurnkey()
+  const turnkeyAddress = turnkeyWallets?.[0]?.accounts?.[0]?.address
+  // Both session (active auth) and address (wallet exists) required
+  const isTurnkeyUser = !!(turnkeySession && turnkeyAddress)
+
+  if (isTurnkeyUser) {
+    state = {
+      address: turnkeyAddress,
+      displayAddress: turnkeyAddress,
+      network: "eth:1",
+      chainType: ChainType.EVM,
+      // Passkey auth already proves ownership - no signature verification needed
+      isVerified: true,
+      isFake: false,
+    }
+  }
+
+  /**
    * NEAR:
    * Down below are Near Wallet handlers and actions
    */
@@ -151,7 +178,12 @@ export const useConnectWallet = (): ConnectWalletAction => {
   // the user is connected. This is because the user might be connected to
   // an unsupported chain (so `.chain` will undefined), but we still want
   // to recognize that their wallet is connected.
-  if (evmWalletAccount.address != null && evmWalletAccount.chainId) {
+  // Skip if Turnkey user - Turnkey takes priority over external EVM wallets
+  if (
+    evmWalletAccount.address != null &&
+    evmWalletAccount.chainId &&
+    !isTurnkeyUser
+  ) {
     state = {
       address: evmWalletAccount.address,
       displayAddress: evmWalletAccount.address,
@@ -287,7 +319,9 @@ export const useConnectWallet = (): ConnectWalletAction => {
     }
   }
 
-  state.isVerified = useVerifiedWalletsStore(
+  // For Turnkey users, passkey auth already proves ownership - don't check the store
+  // For other wallets, check if the address is in the verified store
+  const isInVerifiedStore = useVerifiedWalletsStore(
     useCallback(
       (store) =>
         state.address != null
@@ -296,6 +330,10 @@ export const useConnectWallet = (): ConnectWalletAction => {
       [state.address]
     )
   )
+  // Preserve isVerified for Turnkey (already true from passkey auth)
+  if (!isTurnkeyUser) {
+    state.isVerified = isInVerifiedStore
+  }
 
   const impersonatedUser = useImpersonatedUser()
   if (impersonatedUser) {
@@ -333,7 +371,12 @@ export const useConnectWallet = (): ConnectWalletAction => {
       try {
         const strategies = {
           [ChainType.Near]: () => nearWallet.disconnect(),
-          [ChainType.EVM]: () => handleSignOutViaWagmi(),
+          [ChainType.EVM]: () => {
+            if (isTurnkeyUser) {
+              return turnkeyLogout()
+            }
+            return handleSignOutViaWagmi()
+          },
           [ChainType.Solana]: () => handleSignOutViaSolanaSelector(),
           [ChainType.WebAuthn]: () => webAuthnActions.signOut(),
           [ChainType.Ton]: () => tonConnectUI.disconnect(),

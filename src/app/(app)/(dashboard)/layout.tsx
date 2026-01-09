@@ -1,4 +1,3 @@
-import {} from "@heroicons/react/16/solid"
 import { NavbarDesktop } from "@src/components/Navbar/NavbarDesktop"
 import UserMenu from "@src/components/UserMenu"
 import ConnectWallet from "@src/components/Wallet"

@@ -61,6 +61,7 @@
     "@ton/ton": "^15.3.0",
     "@tonconnect/ui-react": "2.3.0",
     "@tronweb3/tronwallet-adapter-react-hooks": "1.1.10",
+    "@turnkey/react-wallet-kit": "^1.7.1",
     "@vercel/edge-config": "^1.4.0",
     "@vercel/flags": "^3.1.1",
     "@xstate/react": "^6.0.0",

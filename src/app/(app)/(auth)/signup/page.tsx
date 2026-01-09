@@ -3,88 +3,98 @@
 import Button from "@src/components/Button"
 import ErrorMessage from "@src/components/ErrorMessage"
 import { PasskeyIcon } from "@src/icons"
-import clsx from "clsx"
+import { useTurnkey } from "@turnkey/react-wallet-kit"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-
-interface SignupFormData {
-  email: string
-}
+import { useEffect, useState } from "react"
 
 export default function SignupPage() {
   const router = useRouter()
-  const [isAwaitingPasskey, setIsAwaitingPasskey] = useState(false)
-  const [passkeyError, setPasskeyError] = useState<string | null>(null)
-
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [passkeyName, setPasskeyName] = useState("")
   const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<SignupFormData>()
+    signUpWithPasskey,
+    loginWithPasskey,
+    createWallet,
+    session,
+    wallets,
+  } = useTurnkey()
 
-  const onEmailSubmit = async ({ email }: SignupFormData) => {
-    // TODO: Handle form submission
+  // Redirect if already logged in
+  const walletAddress = wallets?.[0]?.accounts?.[0]?.address
+  useEffect(() => {
+    if (session && walletAddress) {
+      router.push("/account")
+    }
+  }, [session, walletAddress, router])
 
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-
-    router.push(`/verify?email=${encodeURIComponent(email)}`)
-  }
-
-  const registerWithPasskey = async () => {
-    // TODO: Implement passkey flow
-
+  const handleSignup = async () => {
+    setIsLoading(true)
+    setError(null)
     try {
-      setIsAwaitingPasskey(true)
-      setPasskeyError(null)
-
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
+      await signUpWithPasskey({
+        passkeyDisplayName: passkeyName.trim() || undefined,
+      })
+      // Fresh signup always has 0 wallets - create one
+      await createWallet({
+        walletName: "Default Wallet",
+        accounts: ["ADDRESS_FORMAT_ETHEREUM"],
+      })
       router.push("/account")
     } catch {
-      setPasskeyError("Passkey failed.")
+      setError("Failed to create account.")
     } finally {
-      setIsAwaitingPasskey(false)
+      setIsLoading(false)
+    }
+  }
+
+  const handleLogin = async () => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      await loginWithPasskey()
+      // useEffect handles redirect when session/wallet updates
+    } catch {
+      setError("Failed to log in.")
+    } finally {
+      setIsLoading(false)
     }
   }
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center">
       <div className="max-w-sm w-full flex flex-col items-center">
-        <div className="flex items-center justify-center size-20 bg-gray-100 rounded-2xl mx-auto">
-          logo
-        </div>
-
-        <h1 className="mt-12 text-3xl font-bold text-gray-900 text-center text-balance leading-[1.1] tracking-tight">
-          Create account
+        <h1 className="text-3xl font-bold text-gray-900 text-center text-balance leading-[1.1] tracking-tight">
+          Welcome
         </h1>
 
         <p className="text-center text-base text-gray-500 text-balance mt-4">
-          Already have an account?{" "}
-          <Link
-            href="/login"
-            className="text-gray-500 hover:text-gray-900 underline"
-          >
-            Log in
-          </Link>
+          Create an account or log in with your passkey
         </p>
+
+        <input
+          type="text"
+          placeholder="Your username"
+          value={passkeyName}
+          onChange={(e) => setPasskeyName(e.target.value)}
+          disabled={isLoading}
+          className="w-full mt-12 px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-gray-900"
+        />
 
         <Button
           size="xl"
           fullWidth
-          className="mt-12"
-          disabled={isAwaitingPasskey}
-          onClick={registerWithPasskey}
+          className="mt-3"
+          disabled={isLoading}
+          onClick={handleSignup}
         >
           <PasskeyIcon className="size-5" />
-          Continue with passkey
+          Create account
         </Button>
 
-        {passkeyError && (
-          <ErrorMessage className="mt-2 text-center">
-            {passkeyError}
-          </ErrorMessage>
+        {error && (
+          <ErrorMessage className="mt-2 text-center">{error}</ErrorMessage>
         )}
 
         <div className="my-8 flex items-center gap-x-6 w-full">
@@ -95,66 +105,29 @@ export default function SignupPage() {
           <div className="w-full flex-1 border-t border-gray-200" />
         </div>
 
-        <form onSubmit={handleSubmit(onEmailSubmit)} className="w-full">
-          <div
-            className={clsx(
-              "rounded-2xl bg-white px-4 py-3 outline-1 -outline-offset-1 focus-within:outline-2 focus-within:-outline-offset-2",
-              errors.email
-                ? "outline-red-500 focus-within:outline-red-500"
-                : "outline-gray-200 focus-within:outline-gray-900"
-            )}
-          >
-            <label
-              htmlFor="email"
-              className="block text-sm text-gray-500 leading-none"
+        <Button
+          size="xl"
+          fullWidth
+          variant="secondary"
+          disabled={isLoading}
+          onClick={handleLogin}
+        >
+          <PasskeyIcon className="size-5" />
+          Log in
+        </Button>
+
+        <div className="rounded-2xl bg-gray-100 p-4 w-full mt-8">
+          <p className="text-sm text-gray-700 text-center">
+            Existing web3 wallet user?{" "}
+            <Link
+              href="/login/wallet"
+              className="font-medium whitespace-nowrap text-gray-700 hover:text-gray-900 underline"
             >
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              placeholder="john@example.com"
-              autoComplete="email"
-              className="pt-1.5 block w-full text-gray-900 font-medium placeholder:text-gray-400 focus:outline-none text-base leading-none ring-0 border-none p-0"
-              {...register("email", {
-                required: "Enter your email address.",
-              })}
-            />
-          </div>
-          {errors.email && (
-            <ErrorMessage className="mt-2 text-center">
-              {errors.email.message}
-            </ErrorMessage>
-          )}
-
-          <Button
-            type="submit"
-            size="xl"
-            fullWidth
-            className="mt-3"
-            loading={isSubmitting}
-          >
-            Continue with email
-          </Button>
-        </form>
-
-        <p className="mt-8 text-base text-gray-500 text-center text-balance">
-          By signing up, you agree to our{" "}
-          <Link
-            href="/terms-of-service"
-            className="text-gray-500 hover:text-gray-900 underline"
-          >
-            Terms of Service
-          </Link>{" "}
-          and{" "}
-          <Link
-            href="/privacy-policy"
-            className="text-gray-500 hover:text-gray-900 underline"
-          >
-            Privacy Policy
-          </Link>
-          .
-        </p>
+              Connect your wallet
+              <span aria-hidden="true"> &rarr;</span>
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   )

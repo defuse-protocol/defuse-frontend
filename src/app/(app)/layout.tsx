@@ -3,6 +3,7 @@ import { SentryTracer } from "@src/components/SentryTracer"
 import { whitelabelTemplateFlag } from "@src/config/featureFlags"
 import { config } from "@src/config/wagmi"
 import queryClient from "@src/constants/queryClient"
+import { TurnkeyProvider } from "@src/features/turnkey"
 import { WebAuthnProvider } from "@src/features/webauthn/providers/WebAuthnProvider"
 import { initSDK } from "@src/libs/defuse-sdk/initSDK"
 import { SolanaWalletProvider } from "@src/providers/SolanaWalletProvider"
@@ -15,6 +16,7 @@ import type { Metadata, Viewport } from "next"
 import type { ReactNode } from "react"
 import { WagmiProvider } from "wagmi"
 
+import "@turnkey/react-wallet-kit/styles.css"
 import "../../styles/global.css"
 import { getCachedSystemStatus } from "@src/actions/systemStatus"
 import { PreloadFeatureFlags } from "@src/components/PreloadFeatureFlags"
@@ -140,11 +142,13 @@ const AppRootLayout = async ({
                     <TonConnectUIProvider>
                       <TronWalletProvider>
                         <WebAuthnProvider>
-                          <MixpanelProvider>
-                            <PreloadFeatureFlags>
-                              {children}
-                            </PreloadFeatureFlags>
-                          </MixpanelProvider>
+                          <TurnkeyProvider>
+                            <MixpanelProvider>
+                              <PreloadFeatureFlags>
+                                {children}
+                              </PreloadFeatureFlags>
+                            </MixpanelProvider>
+                          </TurnkeyProvider>
                         </WebAuthnProvider>
                         <SentryTracer />
                       </TronWalletProvider>

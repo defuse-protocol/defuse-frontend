@@ -14,6 +14,7 @@ const cspConfig = {
     "https://connect.solflare.com",
     "https://*.peersyst.tech",
     "https://wallet.intear.tech",
+    "https://auth.turnkey.com",
   ],
   "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
   "font-src": ["'self'", "https://fonts.gstatic.com"],
@@ -110,6 +111,11 @@ const cspConfig = {
     "https://api.web3modal.org",
     "https://cca-lite.coinbase.com",
     "https://mainnet.sorobanrpc.com",
+
+    /** Turnkey */
+    "https://api.turnkey.com",
+    "https://auth.turnkey.com",
+    "https://authproxy.turnkey.com",
 
     /** RPCs */
     "https://*.aurora-cloud.dev",

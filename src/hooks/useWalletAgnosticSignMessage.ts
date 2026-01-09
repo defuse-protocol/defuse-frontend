@@ -1,5 +1,6 @@
 import type { walletMessage as walletMessage_ } from "@defuse-protocol/internal-utils"
 import { useWallet as useWalletSolana } from "@solana/wallet-adapter-react"
+import { signWithTurnkey, useSafeTurnkey } from "@src/features/turnkey"
 import { useWebAuthnActions } from "@src/features/webauthn/hooks/useWebAuthnStore"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useNearWallet } from "@src/providers/NearWalletProvider"
@@ -20,6 +21,11 @@ export function useWalletAgnosticSignMessage() {
   const { signMessage: signMessageWebAuthn } = useWebAuthnActions()
   const [tonConnectUi] = useTonConnectUI()
   const { signMessage: signMessageTron } = useTronWallet()
+  const {
+    signMessage: signMessageTurnkey,
+    wallets: turnkeyWallets,
+    session: turnkeySession,
+  } = useSafeTurnkey()
 
   return async (
     walletMessage: walletMessage_.WalletMessage
@@ -28,9 +34,19 @@ export function useWalletAgnosticSignMessage() {
 
     switch (chainType) {
       case ChainType.EVM: {
-        const signatureData = await signMessageAsyncWagmi({
-          message: walletMessage.ERC191.message,
-        })
+        const turnkeyAccount = turnkeyWallets?.[0]?.accounts?.[0]
+
+        const signatureData =
+          turnkeySession && turnkeyAccount
+            ? await signWithTurnkey(
+                walletMessage.ERC191.message,
+                signMessageTurnkey,
+                turnkeyAccount
+              )
+            : await signMessageAsyncWagmi({
+                message: walletMessage.ERC191.message,
+              })
+
         return {
           type: "ERC191",
           signatureData,

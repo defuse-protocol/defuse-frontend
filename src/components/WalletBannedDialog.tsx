@@ -1,13 +1,10 @@
-import * as AlertDialog from "@radix-ui/react-alert-dialog"
 import {
   ExclamationTriangleIcon,
   MagnifyingGlassIcon,
 } from "@radix-ui/react-icons"
-import {
-  Button,
-  Callout,
-  AlertDialog as themes_AlertDialog,
-} from "@radix-ui/themes"
+import { Button, Callout } from "@radix-ui/themes"
+import clsx from "clsx"
+import { AlertDialog } from "radix-ui"
 
 export function WalletBannedDialog({
   open,
@@ -20,9 +17,33 @@ export function WalletBannedDialog({
 }) {
   return (
     <AlertDialog.Root open={open}>
-      <themes_AlertDialog.Content className="max-w-md p-6 sm:animate-none animate-slide-up">
-        <FailureContent open={open} onCancel={onCancel} onBypass={onBypass} />
-      </themes_AlertDialog.Content>
+      <AlertDialog.Portal>
+        <AlertDialog.Overlay
+          className={clsx(
+            "fixed inset-0 bg-gray-900/80 z-50",
+            "data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:duration-300",
+            "data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:duration-200"
+          )}
+        />
+        <div className="fixed inset-0 z-50 w-screen overflow-y-auto">
+          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <AlertDialog.Content
+              className={clsx(
+                "relative transform overflow-hidden rounded-lg bg-white dark:bg-gray-800 text-left shadow-xl",
+                "max-w-md w-full p-6",
+                "data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-4 data-[state=open]:fade-in data-[state=open]:duration-200",
+                "data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom-4 data-[state=closed]:fade-out data-[state=closed]:duration-200"
+              )}
+            >
+              <FailureContent
+                open={open}
+                onCancel={onCancel}
+                onBypass={onBypass}
+              />
+            </AlertDialog.Content>
+          </div>
+        </div>
+      </AlertDialog.Portal>
     </AlertDialog.Root>
   )
 }
@@ -73,7 +94,7 @@ function FailureContent({
       </Callout.Root>
 
       <div className="flex flex-col justify-center gap-3 mt-6">
-        <themes_AlertDialog.Cancel>
+        <AlertDialog.Cancel asChild>
           <Button
             size="4"
             type="button"
@@ -83,12 +104,12 @@ function FailureContent({
           >
             Disconnect
           </Button>
-        </themes_AlertDialog.Cancel>
-        <themes_AlertDialog.Action>
+        </AlertDialog.Cancel>
+        <AlertDialog.Action asChild>
           <Button size="4" type="button" color="red" onClick={onBypass}>
-            Proceed anyway, I know what I’m doing
+            Proceed anyway, I know what I'm doing
           </Button>
-        </themes_AlertDialog.Action>
+        </AlertDialog.Action>
       </div>
     </>
   )

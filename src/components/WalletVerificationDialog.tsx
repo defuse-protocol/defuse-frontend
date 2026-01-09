@@ -1,4 +1,3 @@
-import * as AlertDialog from "@radix-ui/react-alert-dialog"
 import {
   CheckIcon,
   Cross2Icon,
@@ -7,12 +6,9 @@ import {
   MinusCircledIcon,
   ReloadIcon,
 } from "@radix-ui/react-icons"
-import {
-  Button,
-  Callout,
-  Spinner,
-  AlertDialog as themes_AlertDialog,
-} from "@radix-ui/themes"
+import { Button, Callout, Spinner } from "@radix-ui/themes"
+import clsx from "clsx"
+import { AlertDialog } from "radix-ui"
 
 export function WalletVerificationDialog({
   open,
@@ -29,23 +25,43 @@ export function WalletVerificationDialog({
 }) {
   return (
     <AlertDialog.Root open={open}>
-      <themes_AlertDialog.Content className="max-w-md px-5 pt-5 pb-[max(env(safe-area-inset-bottom,0px),--spacing(5))] sm:animate-none animate-slide-up">
-        {isFailure ? (
-          <FailureContent
-            open={open}
-            onConfirm={onConfirm}
-            onCancel={onCancel}
-            isVerifying={isVerifying}
-          />
-        ) : (
-          <DefaultContent
-            open={open}
-            onConfirm={onConfirm}
-            onCancel={onCancel}
-            isVerifying={isVerifying}
-          />
-        )}
-      </themes_AlertDialog.Content>
+      <AlertDialog.Portal>
+        <AlertDialog.Overlay
+          className={clsx(
+            "fixed inset-0 bg-gray-900/80 z-50",
+            "data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:duration-300",
+            "data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:duration-200"
+          )}
+        />
+        <div className="fixed inset-0 z-50 w-screen overflow-y-auto">
+          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <AlertDialog.Content
+              className={clsx(
+                "relative transform overflow-hidden rounded-lg bg-white dark:bg-gray-800 text-left shadow-xl",
+                "max-w-md w-full px-5 pt-5 pb-[max(env(safe-area-inset-bottom,0px),20px)]",
+                "data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-4 data-[state=open]:fade-in data-[state=open]:duration-200",
+                "data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom-4 data-[state=closed]:fade-out data-[state=closed]:duration-200"
+              )}
+            >
+              {isFailure ? (
+                <FailureContent
+                  open={open}
+                  onConfirm={onConfirm}
+                  onCancel={onCancel}
+                  isVerifying={isVerifying}
+                />
+              ) : (
+                <DefaultContent
+                  open={open}
+                  onConfirm={onConfirm}
+                  onCancel={onCancel}
+                  isVerifying={isVerifying}
+                />
+              )}
+            </AlertDialog.Content>
+          </div>
+        </div>
+      </AlertDialog.Portal>
     </AlertDialog.Root>
   )
 }
@@ -66,7 +82,7 @@ function DefaultContent({
       {/* Header Section */}
       <div className="flex flex-col items-center text-center mb-6">
         <div className="bg-blue-50 dark:bg-blue-950 p-3 rounded-full mb-4">
-          <LockClosedIcon className="w-6 h-6 text-blue-600 darkL:text-blue-400" />
+          <LockClosedIcon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
         </div>
         <AlertDialog.Title className="text-xl font-semibold text-gray-900 dark:text-gray-100">
           Signature Check Required
@@ -77,7 +93,7 @@ function DefaultContent({
       </div>
 
       {/* Features List */}
-      <div className="bg-gray-50 dark:bg-gray-800  text-gray-11 rounded-lg p-4 mb-5">
+      <div className="bg-gray-50 dark:bg-gray-800 text-gray-11 rounded-lg p-4 mb-5">
         <ul className="space-y-3">
           <li className="flex items-center gap-3">
             <div className="bg-blue-100 dark:bg-blue-900 rounded-full p-1">
@@ -111,7 +127,7 @@ function DefaultContent({
       </Callout.Root>
 
       <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
-        <themes_AlertDialog.Cancel>
+        <AlertDialog.Cancel asChild>
           <Button
             size="4"
             type="button"
@@ -121,13 +137,13 @@ function DefaultContent({
           >
             Cancel
           </Button>
-        </themes_AlertDialog.Cancel>
-        <themes_AlertDialog.Action>
+        </AlertDialog.Cancel>
+        <AlertDialog.Action asChild>
           <Button size="4" type="button" onClick={onConfirm}>
             <Spinner loading={isVerifying} />
             {isVerifying ? "Checking..." : "Check Compatibility"}
           </Button>
-        </themes_AlertDialog.Action>
+        </AlertDialog.Action>
       </div>
     </>
   )
@@ -189,7 +205,7 @@ function FailureContent({
       </Callout.Root>
 
       <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
-        <themes_AlertDialog.Cancel>
+        <AlertDialog.Cancel asChild>
           <Button
             size="4"
             type="button"
@@ -199,15 +215,15 @@ function FailureContent({
           >
             Sign out
           </Button>
-        </themes_AlertDialog.Cancel>
-        <themes_AlertDialog.Action>
+        </AlertDialog.Cancel>
+        <AlertDialog.Action asChild>
           <Button size="4" type="button" onClick={onConfirm}>
             <Spinner loading={isVerifying}>
               <ReloadIcon />
             </Spinner>
             Try again
           </Button>
-        </themes_AlertDialog.Action>
+        </AlertDialog.Action>
       </div>
     </>
   )
