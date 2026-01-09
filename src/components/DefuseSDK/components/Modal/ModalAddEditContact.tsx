@@ -17,6 +17,7 @@ import { allAvailableChains } from "../../utils/blockchain"
 import { NetworkList } from "../Network/NetworkList"
 import SearchBar from "../SearchBar"
 import { BaseModalDialog } from "./ModalDialog"
+import ModalNoResults from "./ModalNoResults"
 
 type FormData = {
   address: string
@@ -146,18 +147,25 @@ const ModalAddEditContact = ({
             onScroll={handleScroll}
             className="overflow-y-auto -mx-5 px-5 -mb-5 pb-5"
           >
-            <NetworkList
-              networkOptions={filteredNetworks}
-              selectedNetwork={selectedNetwork}
-              onChangeNetwork={(network) => {
-                setValue("network", assetNetworkAdapter[network], {
-                  shouldValidate: true,
-                })
-                setSelectNetworkOpen(false)
-                setSearchValue("")
-                setIsScrolled(false)
-              }}
-            />
+            {Object.keys(filteredNetworks).length === 0 ? (
+              <ModalNoResults
+                text="No networks found"
+                handleSearchClear={() => setSearchValue("")}
+              />
+            ) : (
+              <NetworkList
+                networkOptions={filteredNetworks}
+                selectedNetwork={selectedNetwork}
+                onChangeNetwork={(network) => {
+                  setValue("network", assetNetworkAdapter[network], {
+                    shouldValidate: true,
+                  })
+                  setSelectNetworkOpen(false)
+                  setSearchValue("")
+                  setIsScrolled(false)
+                }}
+              />
+            )}
           </div>
         </div>
       ) : (

@@ -10,7 +10,7 @@ const ModalNoResults = ({
   handleSearchClear,
   text = "No tokens found",
 }: ModalNoResultsProps) => (
-  <div className="flex justify-center items-center flex-col mt-12">
+  <div className="flex justify-center items-center flex-col my-8">
     <div
       className="size-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600"
       aria-hidden
