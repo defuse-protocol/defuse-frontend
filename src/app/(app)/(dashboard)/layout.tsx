@@ -20,6 +20,7 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => (
       <div className="my-6 border-t border-gray-700" />
 
       <NavbarDesktop />
+      <div className="h-5" />
       <ConnectWallet />
 
       <ActivityDock />

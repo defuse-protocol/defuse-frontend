@@ -106,6 +106,7 @@ interface TokenDisplayProps {
   tokenAmount: TokenAmount
   tokenList: TokenInfo[]
   badgeType?: BadgeType
+  hideChainInfo?: boolean
 }
 
 function formatChainName(chain: string): string {
@@ -127,6 +128,7 @@ function TokenDisplay({
   tokenAmount,
   tokenList,
   badgeType,
+  hideChainInfo,
 }: TokenDisplayProps) {
   const token = useMemo(
     () => findTokenByAssetId(tokenList, tokenAmount.token_id),
@@ -141,27 +143,35 @@ function TokenDisplay({
   )
   const hasDifferentOrigin = originChain && originChain !== displayChain
 
+  const content = (
+    <div className="flex items-center gap-2.5 min-w-0">
+      <AssetComboIcon
+        icon={token?.icon}
+        name={token?.name ?? tokenAmount.symbol}
+        chainIcon={chainIcon}
+        chainName={displayChain}
+        showChainIcon={!hideChainInfo && Boolean(chainIcon)}
+        badgeType={badgeType}
+      />
+      <div className="flex flex-col min-w-0">
+        <span className="text-sm font-medium truncate">
+          {formatAmount(tokenAmount.amount)}
+        </span>
+        <span className="text-[11px] text-gray-11 truncate">
+          {token?.symbol ?? tokenAmount.symbol}
+        </span>
+      </div>
+    </div>
+  )
+
+  if (hideChainInfo) {
+    return content
+  }
+
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <div className="flex items-center gap-2.5 cursor-pointer min-w-0">
-          <AssetComboIcon
-            icon={token?.icon}
-            name={token?.name ?? tokenAmount.symbol}
-            chainIcon={chainIcon}
-            chainName={displayChain}
-            showChainIcon={Boolean(chainIcon)}
-            badgeType={badgeType}
-          />
-          <div className="flex flex-col min-w-0">
-            <span className="text-sm font-medium truncate">
-              {formatAmount(tokenAmount.amount)}
-            </span>
-            <span className="text-[11px] text-gray-11 truncate">
-              {token?.symbol ?? tokenAmount.symbol}
-            </span>
-          </div>
-        </div>
+        <div className="cursor-pointer">{content}</div>
       </TooltipTrigger>
       <TooltipContent side="top" className="text-xs" theme="dark">
         <div className="flex flex-col gap-0.5">
@@ -222,6 +232,7 @@ export function HistoryItem({ transaction, tokenList }: HistoryItemProps) {
                 tokenAmount={transaction.from}
                 tokenList={tokenList}
                 badgeType={badgeType}
+                hideChainInfo
               />
             </div>
             <ArrowRightIcon
@@ -232,6 +243,7 @@ export function HistoryItem({ transaction, tokenList }: HistoryItemProps) {
               <TokenDisplay
                 tokenAmount={transaction.to}
                 tokenList={tokenList}
+                hideChainInfo
               />
             </div>
           </>
