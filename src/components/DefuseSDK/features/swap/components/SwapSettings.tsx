@@ -2,7 +2,6 @@ import { Cog6ToothIcon } from "@heroicons/react/20/solid"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { useModalStore } from "../../../providers/ModalStoreProvider"
 import { ModalType } from "../../../stores/modalStore"
-import {} from "../../../utils/format"
 import { useSwapRateData } from "../hooks/useSwapRateData"
 import { SwapUIMachineContext } from "./SwapUIMachineProvider"
 

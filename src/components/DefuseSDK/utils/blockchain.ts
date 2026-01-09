@@ -102,6 +102,20 @@ export function availableChainsForToken(
   return Object.fromEntries(res)
 }
 
+export function allAvailableChains(): Record<string, NetworkOption> {
+  const options = getBlockchainsOptions()
+
+  const allChainKeys = filterChainsByFeatureFlags(
+    Object.keys(options) as string[]
+  )
+
+  const res = Object.values(options)
+    .filter((option) => allChainKeys.includes(option.value))
+    .map((option) => [option.value, option])
+
+  return Object.fromEntries(res)
+}
+
 export function availableDisabledChainsForToken(
   chains: Record<string, NetworkOption>,
   filteredChains: Record<string, NetworkOption>

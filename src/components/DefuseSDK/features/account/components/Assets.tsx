@@ -5,57 +5,10 @@ import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import { getTokenId } from "@src/components/DefuseSDK/utils/token"
 import DepositPromo from "@src/components/DepositPromo"
 import ListItem from "@src/components/ListItem"
+import ListItemsSkeleton from "@src/components/ListItemsSkeleton"
 import { DepositIcon, SendIcon, SwapIcon } from "@src/icons"
-import clsx from "clsx"
 import type { Holding } from "../types/sharedTypes"
 import { FormattedCurrency } from "./shared/FormattedCurrency"
-
-const AssetsSkeleton = ({
-  count,
-  loading = false,
-  className,
-}: { count: number; loading?: boolean; className?: string }) => (
-  <div className={clsx("flex flex-col gap-1", className)}>
-    {[...Array(count).keys()].map((n) => (
-      <div key={n} className="flex items-center gap-3 py-3">
-        <div
-          className={clsx(
-            "size-10 rounded-full shrink-0",
-            loading ? "bg-gray-200 animate-pulse" : "bg-gray-100"
-          )}
-        />
-        <div className="flex-1 flex flex-col gap-1">
-          <div
-            className={clsx(
-              "h-4 w-12 rounded-sm",
-              loading ? "bg-gray-200 animate-pulse" : "bg-gray-100"
-            )}
-          />
-          <div
-            className={clsx(
-              "h-4 w-6 rounded-sm",
-              loading ? "bg-gray-200 animate-pulse" : "bg-gray-100"
-            )}
-          />
-        </div>
-        <div className="flex flex-col gap-1 items-end">
-          <div
-            className={clsx(
-              "h-4 w-12 rounded-sm",
-              loading ? "bg-gray-200 animate-pulse" : "bg-gray-100"
-            )}
-          />
-          <div
-            className={clsx(
-              "h-4 w-6 rounded-sm",
-              loading ? "bg-gray-200 animate-pulse" : "bg-gray-100"
-            )}
-          />
-        </div>
-      </div>
-    ))}
-  </div>
-)
 
 const Assets = ({
   assets,
@@ -66,7 +19,7 @@ const Assets = ({
     return (
       <section className="mt-9">
         <h2 className="text-base text-gray-500 font-medium">Assets</h2>
-        <AssetsSkeleton count={3} className="mt-2" loading />
+        <ListItemsSkeleton count={3} className="mt-2" loading />
       </section>
     )
   }
@@ -76,7 +29,7 @@ const Assets = ({
       <section className="mt-9">
         <h2 className="text-base text-gray-500 font-medium">Assets</h2>
         <div className="relative">
-          <AssetsSkeleton count={3} className="mt-2" />
+          <ListItemsSkeleton count={3} className="mt-2" />
         </div>
         <div className="max-w-96 mx-auto -mt-16 relative flex flex-col items-center">
           <div className="bg-red-100 flex items-center justify-center size-12 rounded-full shrink-0">
@@ -98,7 +51,7 @@ const Assets = ({
       <section className="mt-9">
         <h2 className="sr-only">Assets</h2>
         <div className="relative">
-          <AssetsSkeleton count={3} className="mt-2" />
+          <ListItemsSkeleton count={3} className="mt-2" />
         </div>
         <div className="max-w-72 mx-auto -mt-5 relative flex flex-col items-center">
           <h3 className="text-xl font-semibold text-gray-900 text-center tracking-tight">

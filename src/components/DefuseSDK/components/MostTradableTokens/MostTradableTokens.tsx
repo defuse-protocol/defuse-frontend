@@ -7,7 +7,6 @@ import type { TokenInfo } from "../../types/base"
 import { isBaseToken } from "../../utils"
 import AssetComboIcon from "../Asset/AssetComboIcon"
 import type { SelectItemToken } from "../Modal/ModalSelectAssets"
-import {} from "../Tooltip"
 
 interface MostTradableTokensProps {
   onTokenSelect: (selectItemToken: SelectItemToken) => void
