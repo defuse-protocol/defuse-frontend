@@ -1,6 +1,8 @@
 import { authIdentity, messageFactory } from "@defuse-protocol/internal-utils"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { base64 } from "@scure/base"
+import { bridgeSDK } from "@src/components/DefuseSDK/constants/bridgeSdk"
+import { minutesFromNow } from "@src/components/DefuseSDK/core/messages"
 import { KeyPair } from "near-api-js"
 import type { IntentsUserId, SignerCredentials } from "../../../core/formatters"
 import { formatUserIdentity } from "../../../core/formatters"
@@ -16,7 +18,10 @@ export async function signGiftTakerMessage({
   giftInfo,
   signerCredentials,
 }: GiftTakerMessage): Promise<walletMessage.NEP413SignatureData> {
-  const walletMessage = assembleWalletMessage({ giftInfo, signerCredentials })
+  const walletMessage = await assembleWalletMessage({
+    giftInfo,
+    signerCredentials,
+  })
   const keyPair = KeyPair.fromString(giftInfo.secretKey)
 
   // Claimed message should be NEP-413 within same standard as escrow account
@@ -37,11 +42,14 @@ export async function signGiftTakerMessage({
   }
 }
 
-function assembleWalletMessage({
+async function assembleWalletMessage({
   giftInfo,
   signerCredentials,
 }: GiftTakerMessage) {
-  const nonce = messageFactory.randomDefuseNonce()
+  const { nonce, deadline } = await bridgeSDK
+    .intentBuilder()
+    .setDeadline(new Date(minutesFromNow(5)))
+    .build()
 
   // Signer should be with `near` credential type as we use ED25519 signing
   const signerId = resolveSignerId(
@@ -51,7 +59,7 @@ function assembleWalletMessage({
   const innerMessage = messageFactory.makeInnerTransferMessage({
     tokenDeltas: [...Object.entries(giftInfo.tokenDiff)],
     signerId,
-    deadlineTimestamp: minutesFromNow(5),
+    deadlineTimestamp: Date.parse(deadline),
     receiverId: authIdentity.authHandleToIntentsUserId(
       signerCredentials.credential,
       signerCredentials.credentialType
@@ -59,12 +67,8 @@ function assembleWalletMessage({
   })
   return messageFactory.makeSwapMessage({
     innerMessage,
-    nonce: nonce,
+    nonce: base64.decode(nonce),
   })
-}
-
-function minutesFromNow(minutes: number): number {
-  return Date.now() + minutes * 60 * 1000
 }
 
 function resolveSignerId(

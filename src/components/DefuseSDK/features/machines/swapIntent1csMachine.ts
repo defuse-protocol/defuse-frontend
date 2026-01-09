@@ -7,11 +7,13 @@ import type { walletMessage } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import { retry } from "@lifeomic/attempt"
+import { base64 } from "@scure/base"
 import { getQuote as get1csQuoteApi } from "@src/components/DefuseSDK/features/machines/1cs"
 import type { ParentEvents as Background1csQuoterParentEvents } from "@src/components/DefuseSDK/features/machines/background1csQuoterMachine"
 import { logger } from "@src/utils/logger"
 import type { providers } from "near-api-js"
 import { assign, fromPromise, log, setup } from "xstate"
+import { bridgeSDK } from "../../constants/bridgeSdk"
 import { createTransferMessage } from "../../core/messages"
 import { convertPublishIntentToLegacyFormat } from "../../sdk/solverRelay/utils/parseFailedPublishError"
 import type { BaseTokenInfo } from "../../types/base"
@@ -58,6 +60,7 @@ type Context = {
             | "ERR_1CS_QUOTE_FAILED"
             | "ERR_NO_DEPOSIT_ADDRESS"
             | "ERR_TRANSFER_MESSAGE_FAILED"
+            | "ERR_FAILED_TO_PREPARE_MESSAGE_TO_SIGN"
             | "ERR_USER_DIDNT_SIGN"
             | "ERR_CANNOT_VERIFY_SIGNATURE"
             | "ERR_SIGNED_DIFFERENT_ACCOUNT"
@@ -208,6 +211,11 @@ export const swapIntent1csMachine = setup({
           deadline: string
         }
       }): Promise<walletMessage.WalletMessage> => {
+        const { nonce, deadline } = await bridgeSDK
+          .intentBuilder()
+          .setDeadline(new Date(input.deadline))
+          .build()
+
         // Create the transfer message using createTransferMessage
         const tokenInAssetId = input.tokenIn.defuseAssetId
 
@@ -216,7 +224,8 @@ export const swapIntent1csMachine = setup({
           {
             signerId: input.defuseUserId as IntentsUserId, // signer
             receiverId: input.depositAddress, // receiver (deposit address from 1CS)
-            deadlineTimestamp: new Date(input.deadline).getTime(),
+            deadlineTimestamp: Date.parse(deadline),
+            nonce: base64.decode(nonce),
           }
         )
 

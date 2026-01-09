@@ -2642,21 +2642,36 @@
       "tags": ["mc:11"]
     },
     {
-      "defuseAssetId": "nep141:starknet.omft.near",
+      "unifiedAssetId": "strk",
       "symbol": "STRK",
       "name": "Starknet",
-      "decimals": 18,
       "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/22691.png",
-      "originChainName": "starknet",
-      "deployments": [
+      "groupedTokens": [
         {
-          "type": "native",
+          "defuseAssetId": "nep141:starknet.omft.near",
+          "symbol": "STRK",
+          "name": "Starknet",
           "decimals": 18,
-          "chainName": "starknet",
-          "bridge": "poa"
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/22691.png",
+          "originChainName": "starknet",
+          "deployments": [
+            {
+              "type": "native",
+              "decimals": 18,
+              "chainName": "starknet",
+              "bridge": "poa"
+            },
+            {
+              "address": "HsRpHQn6VbyMs5b5j5SV6xQ2VvpvvCCzu19GjytVSCoz",
+              "decimals": 9,
+              "chainName": "solana",
+              "bridge": "near_omni"
+            }
+          ],
+          "tags": ["mc:95", "aid:strk"]
         }
       ],
-      "tags": ["mc:95"]
+      "tags": ["mc:95", "aid:strk"]
     }
   ]
 }

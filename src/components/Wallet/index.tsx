@@ -2,7 +2,7 @@
 
 import { Button, Popover, Text } from "@radix-ui/themes"
 import Image from "next/image"
-import { useContext } from "react"
+import { useContext, useEffect } from "react"
 import type { Connector } from "wagmi"
 
 import WalletConnections from "@src/components/Wallet/WalletConnections"
@@ -16,7 +16,7 @@ import { TonConnectButton } from "./TonConnectButton"
 
 const ConnectWallet = () => {
   const { isOpen, setIsOpen } = useSignInWindowOpenState()
-  const { state, signIn, connectors } = useConnectWallet()
+  const { state, signIn, connectors, isLoading } = useConnectWallet()
   const { shortAccountId } = useShortAccountId(state.displayAddress ?? "")
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
 
@@ -36,23 +36,51 @@ const ConnectWallet = () => {
     return signIn({ id: ChainType.WebAuthn })
   }
 
+  // Close sign-in popover when wallet gets connected
+  useEffect(() => {
+    if (state.address && isOpen) {
+      setIsOpen(false)
+    }
+  }, [state.address, isOpen, setIsOpen])
+
+  // Show loading spinner while wallet is connecting/reconnecting
+  if (isLoading) {
+    return (
+      <Button
+        type="button"
+        variant="soft"
+        color="gray"
+        size="2"
+        radius="full"
+        disabled
+      >
+        <span className="size-4 border-2 border-gray-8 border-t-gray-11 rounded-full animate-spin" />
+      </Button>
+    )
+  }
+
   if (!state.address) {
     return (
       <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
         <Popover.Trigger>
           <button
             type="button"
-            className="text-gray-400 text-sm font-medium"
+            className="flex items-center gap-4 py-4 px-3.5 rounded-2xl text-gray-400 hover:text-white hover:bg-gray-700 transition-colors w-full"
             data-testid="sign-in-button"
           >
-            Sign in
+            <div className="size-5 shrink-0" />
+            <span className="text-base/5 font-semibold">Sign in</span>
           </button>
         </Popover.Trigger>
         <Popover.Content
+          side="right"
+          align="start"
+          sideOffset={16}
+          collisionPadding={16}
           maxWidth={{ initial: "90vw", xs: "480px" }}
           minWidth={{ initial: "300px", xs: "330px" }}
           maxHeight={{ initial: "70vh", sm: "90vh" }}
-          className="md:mr-[48px] dark:bg-black-800 rounded-2xl bg-white"
+          className="dark:bg-black-800 bg-white rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700"
         >
           <Text size="1">How do you want to sign in?</Text>
           <div className="w-full grid grid-cols-1 gap-4 mt-4">
@@ -347,49 +375,52 @@ const ConnectWallet = () => {
   }
 
   return (
-    <div className="flex gap-2">
-      <Popover.Root>
-        <Popover.Trigger>
-          <button
-            type="button"
-            className="text-gray-400 text-sm font-medium"
-            data-testid="account-indicator"
-          >
-            {state.chainType !== "webauthn" ? (
-              shortAccountId
-            ) : (
-              <div className="flex items-center gap-2">
-                <div className="flex">
-                  <Image
-                    src="/static/icons/wallets/webauthn.svg"
-                    alt=""
-                    width={24}
-                    height={24}
-                    className="rounded-full size-6 bg-black"
-                    style={{
-                      mask: "radial-gradient(13px at 31px 50%, transparent 99%, rgb(255, 255, 255) 100%)",
-                    }}
-                  />
-                  <div className="-ml-1 rounded-full size-6 bg-white text-black text-base flex items-center justify-center">
-                    {mapStringToEmojis(state.address, { count: 1 }).join("")}
-                  </div>
-                </div>
-
-                <div className="font-bold text-gray-12">passkey</div>
-              </div>
-            )}
-          </button>
-        </Popover.Trigger>
-        <Popover.Content
-          minWidth={{ initial: "300px", xs: "330px" }}
-          className="mt-1 md:mr-[48px] max-w-xs dark:bg-black-800 rounded-2xl bg-white"
+    <Popover.Root>
+      <Popover.Trigger>
+        <button
+          type="button"
+          className="flex items-center gap-4 py-4 px-3.5 rounded-2xl text-gray-400 hover:text-white hover:bg-gray-700 transition-colors w-full"
+          data-testid="account-indicator"
         >
-          <div className="flex flex-col gap-5">
-            <WalletConnections />
-          </div>
-        </Popover.Content>
-      </Popover.Root>
-    </div>
+          {state.chainType !== "webauthn" ? (
+            <>
+              <div className="size-5 shrink-0 flex items-center justify-center">
+                <div className="size-2.5 rounded-full bg-green-500" />
+              </div>
+              <span className="text-base/5 font-semibold">
+                {shortAccountId}
+              </span>
+            </>
+          ) : (
+            <>
+              <div className="size-5 shrink-0 flex items-center justify-center relative">
+                <Image
+                  src="/static/icons/wallets/webauthn.svg"
+                  alt=""
+                  width={20}
+                  height={20}
+                  className="rounded-full size-5"
+                />
+                <div className="absolute -right-1 -bottom-1 rounded-full size-3 bg-white text-black text-[8px] flex items-center justify-center">
+                  {mapStringToEmojis(state.address, { count: 1 }).join("")}
+                </div>
+              </div>
+              <span className="text-base/5 font-semibold">Passkey</span>
+            </>
+          )}
+        </button>
+      </Popover.Trigger>
+      <Popover.Content
+        side="bottom"
+        align="start"
+        sideOffset={8}
+        collisionPadding={16}
+        minWidth={{ initial: "300px", xs: "330px" }}
+        className="!bg-white dark:!bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-0"
+      >
+        <WalletConnections />
+      </Popover.Content>
+    </Popover.Root>
   )
 }
 
