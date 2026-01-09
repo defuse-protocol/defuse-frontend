@@ -1,4 +1,4 @@
-import { XMarkIcon } from "@heroicons/react/20/solid"
+import { ArrowLeftIcon, XMarkIcon } from "@heroicons/react/20/solid"
 import clsx from "clsx"
 import { Dialog } from "radix-ui"
 import { type PropsWithChildren, useCallback, useEffect, useState } from "react"
@@ -46,6 +46,7 @@ export const ModalDialog = ({
 export function BaseModalDialog({
   open,
   title,
+  back,
   children,
   onClose,
   onCloseAnimationEnd,
@@ -54,6 +55,7 @@ export function BaseModalDialog({
 }: PropsWithChildren<{
   open: boolean
   title?: string
+  back?: () => void
   onClose?: () => void
   onCloseAnimationEnd?: () => void
   isDismissable?: boolean
@@ -111,11 +113,22 @@ export function BaseModalDialog({
                 )}
                 <div className="relative">
                   <div
-                    className={clsx(
-                      "flex items-center justify-between",
-                      isDismissable && "-mt-2.5 -mr-2.5"
-                    )}
+                    className={clsx("flex items-center justify-between", {
+                      "-mr-2.5": isDismissable,
+                      "-ml-2.5": back,
+                      "-mt-2.5": isDismissable || back,
+                    })}
                   >
+                    {back && (
+                      <button
+                        type="button"
+                        onClick={back}
+                        className="size-10 rounded-xl hover:bg-gray-900/5 text-gray-600 hover:text-gray-900 flex items-center justify-center"
+                      >
+                        <span className="sr-only">Back</span>
+                        <ArrowLeftIcon className="size-5" />
+                      </button>
+                    )}
                     <Dialog.Title className="text-base font-semibold text-gray-900">
                       {title}
                     </Dialog.Title>
