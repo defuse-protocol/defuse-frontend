@@ -1,18 +1,26 @@
-import { CheckIcon, CopyIcon } from "@radix-ui/react-icons"
-import { Button, Spinner } from "@radix-ui/themes"
+import {
+  ArrowUpCircleIcon,
+  ExclamationCircleIcon,
+  EyeIcon,
+} from "@heroicons/react/16/solid"
+import { CheckIcon, Square2StackIcon } from "@heroicons/react/24/outline"
+import Button from "@src/components/Button"
+import TooltipNew from "@src/components/DefuseSDK/components/TooltipNew"
+import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
+import { isFungibleToken } from "@src/components/DefuseSDK/utils/token"
+import Spinner from "@src/components/Spinner"
 import { QRCodeSVG } from "qrcode.react"
 import { Copy } from "../../../../components/IntentCard/CopyButton"
-import { Separator } from "../../../../components/Separator"
 import type {
   BaseTokenInfo,
   SupportedChainName,
   TokenDeployment,
 } from "../../../../types/base"
-import { DepositWarning, type DepositWarningOutput } from "../DepositWarning"
 import {
-  renderDepositHint,
-  renderMinDepositAmountHint,
-} from "./renderDepositHint"
+  chainNameToNetworkName,
+  midTruncate,
+} from "../../../withdraw/components/WithdrawForm/utils"
+import { DepositWarning, type DepositWarningOutput } from "../DepositWarning"
 
 export type PassiveDepositProps = {
   depositAddress: string | null
@@ -33,119 +41,167 @@ export function PassiveDeposit({
   depositWarning,
   network,
 }: PassiveDepositProps) {
-  const truncatedAddress = truncateAddress(depositAddress ?? "")
+  const truncatedAddress = midTruncate(depositAddress ?? "", 16)
 
   return (
-    <div className="flex flex-col items-stretch">
-      {memo != null && (
-        <>
-          <div className="mb-6 flex flex-col items-center justify-center">
-            <div className="w-full max-w-xs rounded-lg border border-red-500 bg-red-50 p-4 flex flex-col items-center">
-              <div className="flex items-center w-full justify-between bg-red-100 rounded-sm px-3 py-2 mb-2">
-                <span className="font-bold text-2xl text-black tracking-wider">
-                  {memo}
-                </span>
-                <Copy text={memo}>
-                  {(copied) => (
-                    <Button
-                      type="button"
-                      size="3"
-                      variant="solid"
-                      className="ml-2 box-border size-8 p-0 bg-red-200 hover:bg-red-300 text-red-600"
-                    >
-                      {copied ? <CheckIcon /> : <CopyIcon />}
-                    </Button>
-                  )}
-                </Copy>
-              </div>
-              <div className="text-red-500 text-sm text-center font-medium">
-                Include this MEMO to receive your funds!
-              </div>
-            </div>
+    <>
+      <div className="bg-white rounded-3xl border border-gray-200 p-4 mt-6 space-y-4">
+        <h2 className="flex flex-col items-start gap-1">
+          <span className="font-semibold text-base/none text-gray-900">
+            Deposit {token.name}
+          </span>
+          <span className="font-medium text-base/none text-gray-400">
+            on the{" "}
+            <span className="capitalize">
+              {chainNameToNetworkName(network)}
+            </span>{" "}
+            network
+          </span>
+        </h2>
+
+        <div className="flex items-center justify-center bg-gray-900/50 rounded-2xl p-4">
+          <div className="size-48 flex items-center justify-center border-5 rounded-3xl bg-white border-gray-900">
+            {depositAddress != null ? (
+              <QRCodeSVG
+                value={depositAddress}
+                size={160}
+                fgColor="#171717"
+                className="size-40"
+              />
+            ) : (
+              <Spinner />
+            )}
           </div>
-          <div className="-mx-5 mb-6">
-            <Separator />
-          </div>
-        </>
-      )}
-
-      <div className="font-bold text-label text-sm">
-        Use this deposit address
-      </div>
-
-      <div className="mt-1 text-gray-11 text-sm dark:text-gray-11">
-        Always double-check your deposit address — it may change without notice.
-      </div>
-
-      <div className="my-6 flex items-center justify-center">
-        <div className="flex size-36 items-center justify-center rounded-lg border border-border p-2">
-          {depositAddress != null ? (
-            <QRCodeSVG value={depositAddress} />
-          ) : (
-            <Spinner loading={true} />
-          )}
         </div>
+
+        <dl className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col items-start gap-1">
+              <dt className="font-semibold text-base/none text-gray-900">
+                Your deposit address
+              </dt>
+              {depositAddress != null ? (
+                <dd className="font-medium text-base/none text-gray-400">
+                  <span aria-hidden="true">{truncatedAddress}</span>
+                  <span className="sr-only">{depositAddress}</span>
+                </dd>
+              ) : (
+                <span className="w-32 h-4 bg-gray-200 rounded-sm animate-pulse" />
+              )}
+            </div>
+            <Copy text={depositAddress ?? ""}>
+              {(copied) => (
+                <Button variant="outline" size="lg" className="size-10!">
+                  <span className="sr-only">
+                    {copied ? "Deposit address copied" : "Copy deposit address"}
+                  </span>
+                  {copied ? (
+                    <CheckIcon className="size-5" />
+                  ) : (
+                    <Square2StackIcon className="size-5" />
+                  )}
+                </Button>
+              )}
+            </Copy>
+          </div>
+
+          {memo != null && (
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col items-start gap-1">
+                <dt className="font-semibold text-base/none text-gray-900">
+                  Transaction memo (required)
+                </dt>
+                <dd className="font-medium text-base/none text-gray-400">
+                  {memo}
+                </dd>
+              </div>
+              <Copy text={memo}>
+                {(copied) => (
+                  <Button variant="outline" size="lg" className="size-10!">
+                    <span className="sr-only">
+                      {copied ? "Memo copied" : "Copy memo"}
+                    </span>
+                    {copied ? (
+                      <CheckIcon className="size-5" />
+                    ) : (
+                      <Square2StackIcon className="size-5" />
+                    )}
+                  </Button>
+                )}
+              </Copy>
+            </div>
+          )}
+        </dl>
       </div>
 
-      <div className="mb-4 px-3">
-        {minDepositAmount != null &&
-          renderMinDepositAmountHint(minDepositAmount, token, tokenDeployment)}
-      </div>
-
-      <div className="mb-4 flex items-center rounded-lg bg-gray-3 px-4 py-2">
-        <div className="flex flex-1 justify-center">
-          <span className="relative">
-            {/* Visible truncated address */}
-            <span className="pointer-events-none font-medium font-mono text-label text-sm">
-              {truncatedAddress}
+      <div className="mt-6 space-y-4">
+        <div className="flex items-start gap-2">
+          <div className="flex items-center justify-center h-5 shrink-0">
+            <ExclamationCircleIcon className="size-4 text-gray-500" />
+          </div>
+          <span className="text-sm font-medium text-gray-500">
+            <span className="text-gray-900 font-semibold">
+              {network === "near" && token.defuseAssetId === "nep141:wrap.near"
+                ? `Only deposit ${token.symbol} or wNEAR `
+                : `Only deposit ${token.symbol} `}
+              {isFungibleToken(tokenDeployment) && (
+                <TokenDeploymentAddress address={tokenDeployment.address} />
+              )}{" "}
+              on the{" "}
+              <span className="capitalize">
+                {chainNameToNetworkName(tokenDeployment.chainName)}
+              </span>{" "}
+              network.{" "}
             </span>
-
-            {/* Hidden full address for copy functionality */}
-            <input
-              type="text"
-              value={depositAddress ?? ""}
-              readOnly
-              style={{
-                // It's easier to make the input transparent using CSS instead of Tailwind
-                all: "unset",
-                position: "absolute",
-                top: 0,
-                right: 0,
-                bottom: 0,
-                left: 0,
-                color: "transparent",
-                outline: "none",
-              }}
-            />
+            Depositing other assets or using a different network will result in
+            loss of funds.
           </span>
         </div>
 
-        <div className="shrink-0">
-          <Copy text={depositAddress ?? ""}>
-            {(copied) => (
-              <Button
-                type="button"
-                size="4"
-                variant="solid"
-                className="box-border size-8 p-0"
-              >
-                {copied ? <CheckIcon /> : <CopyIcon />}
-              </Button>
-            )}
-          </Copy>
+        <div className="flex items-start gap-2">
+          <div className="flex items-center justify-center h-5 shrink-0">
+            <EyeIcon className="size-4 text-gray-500" />
+          </div>
+          <span className="text-sm font-medium text-gray-500">
+            Always double-check your deposit address — it may change without
+            notice.
+          </span>
         </div>
+
+        {minDepositAmount != null && (
+          <div className="flex items-start gap-2">
+            <div className="flex items-center justify-center h-5 shrink-0">
+              <ArrowUpCircleIcon className="size-4 text-gray-500" />
+            </div>
+            <span className="text-sm font-medium text-gray-500">
+              Minimum deposit{" "}
+              {formatTokenValue(minDepositAmount, tokenDeployment.decimals)}{" "}
+              {token.symbol}
+            </span>
+          </div>
+        )}
       </div>
-      {renderDepositHint(token, tokenDeployment, network)}
 
       {depositWarning != null && (
-        <div className="mt-1.5">
-          <DepositWarning depositWarning={depositWarning} />
-        </div>
+        <DepositWarning depositWarning={depositWarning} className="mt-6" />
       )}
-    </div>
+    </>
   )
 }
 
-function truncateAddress(address: string) {
-  return `${address.slice(0, 6)}...${address.slice(-4)}`
+function TokenDeploymentAddress({ address }: { address: string }) {
+  const truncatedAddress = midTruncate(address)
+
+  if (truncatedAddress === address) {
+    return <span>({address})</span>
+  }
+
+  return (
+    <TooltipNew>
+      <TooltipNew.Trigger>
+        <span className="underline">({truncatedAddress})</span>
+      </TooltipNew.Trigger>
+      <TooltipNew.Content side="top">{address}</TooltipNew.Content>
+    </TooltipNew>
+  )
 }

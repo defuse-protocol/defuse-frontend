@@ -81,7 +81,9 @@ export function MostTradableTokens({
 
   return (
     <div className="mb-8">
-      <h3 className="text-gray-500 text-sm font-medium">Most traded tokens</h3>
+      <h3 className="text-gray-500 text-sm/6 font-medium">
+        Most traded tokens
+      </h3>
 
       <TokenList
         tradableTokenList={tradableTokenList}
@@ -131,7 +133,7 @@ function TokenList({
             className="flex flex-col text-center items-center justify-center rounded-xl py-2 px-1.5 gap-1.5 hover:bg-gray-50 border border-gray-200 hover:border-gray-300"
           >
             <AssetComboIcon
-              size="sm"
+              sizeClassName="size-7"
               icon={selectItemToken.token.icon}
               name={selectItemToken.token.name}
               showChainIcon={showChainIcon(selectItemToken.token, chainIcon)}

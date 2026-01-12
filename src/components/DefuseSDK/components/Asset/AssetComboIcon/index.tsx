@@ -6,6 +6,7 @@ import {
   XMarkIcon,
 } from "@heroicons/react/16/solid"
 import type { TransactionType } from "@src/components/DefuseSDK/features/account/types/sharedTypes"
+import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
 import Themes from "@src/types/themes"
 import clsx from "clsx"
 import { useTheme } from "next-themes"
@@ -21,7 +22,7 @@ type AssetComboIconProps = {
   showChainIcon?: boolean
   className?: React.HTMLAttributes<"div">["className"]
   style?: React.HTMLAttributes<"div">["style"]
-  size?: "sm" | "md"
+  sizeClassName?: string
   badgeType?: TransactionType
 }
 
@@ -32,7 +33,7 @@ const AssetComboIcon = ({
   showChainIcon = false,
   className,
   style,
-  size = "md",
+  sizeClassName = "size-10",
   badgeType,
 }: AssetComboIconProps) => {
   const { resolvedTheme } = useTheme()
@@ -42,10 +43,7 @@ const AssetComboIcon = ({
       <div
         className={clsx(
           "relative overflow-hidden flex justify-center items-center rounded-full outline-1 outline-gray-900/10 -outline-offset-1",
-          {
-            "size-7": size === "sm",
-            "size-10": size === "md",
-          }
+          sizeClassName
         )}
       >
         {icon ? (
@@ -55,9 +53,7 @@ const AssetComboIcon = ({
             className="size-full object-contain bg-white"
           />
         ) : (
-          <div className="relative overflow-hidden size-full flex justify-center items-center bg-gray-100 rounded-full">
-            <div className="size-1/2 rounded-full border-2 border-gray-500 border-dashed" />
-          </div>
+          <TokenIconPlaceholder />
         )}
       </div>
       {badgeType && (

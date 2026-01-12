@@ -20,7 +20,7 @@ export const MinWithdrawalAmount = ({
           <InfoCircledIcon />
         </Callout.Icon>
         <Callout.Text>
-          Minimal amount to withdraw is ~
+          Minimum withdrawal is ~
           <Text size="1" weight="bold">
             {isLoading ? (
               <Skeleton>0.000000</Skeleton>

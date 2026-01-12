@@ -73,6 +73,9 @@ export const depositUIMachine = setup({
       | {
           type: "LOGOUT"
         }
+      | {
+          type: "CLEAR_DEPOSIT_OUTPUT"
+        }
       | DepositFormEvents
       | DepositFormParentEvents,
     children: {} as {
@@ -334,6 +337,10 @@ export const depositUIMachine = setup({
         }),
         "requestClearAddress",
       ],
+    },
+
+    CLEAR_DEPOSIT_OUTPUT: {
+      actions: ["clearResults"],
     },
   },
 
