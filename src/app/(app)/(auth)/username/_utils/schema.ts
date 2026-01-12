@@ -1,6 +1,6 @@
 import { pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core"
 
-export const authMethodEnum = pgEnum("auth_method", [
+export const authMethodEnum = [
   "near",
   "evm",
   "solana",
@@ -8,12 +8,14 @@ export const authMethodEnum = pgEnum("auth_method", [
   "ton",
   "stellar",
   "tron",
-])
+] as const
+
+export const authMethodPgEnum = pgEnum("auth_method", authMethodEnum)
 
 export const tagsTable = pgTable("tags", {
   authTag: text("auth_tag").primaryKey(),
   authIdentifier: text("auth_identifier").notNull(),
-  authMethod: authMethodEnum("auth_method").notNull(),
+  authMethod: authMethodPgEnum("auth_method").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

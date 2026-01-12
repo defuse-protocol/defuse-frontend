@@ -1,4 +1,8 @@
-import { tagsTable } from "@src/app/(app)/(auth)/username/_utils/schema"
+import {
+  type Tag,
+  authMethodEnum,
+  tagsTable,
+} from "@src/app/(app)/(auth)/username/_utils/schema"
 import { db } from "@src/utils/drizzle"
 import { logger } from "@src/utils/logger"
 import { NextResponse } from "next/server"
@@ -15,23 +19,13 @@ const createTagSchema = z.object({
       message: "auth_tag must start with @ and contain exactly one @",
     }),
   auth_identifier: z.string().min(1, "auth_identifier is required"),
-  auth_method: z.enum(
-    ["near", "evm", "solana", "webauthn", "ton", "stellar", "tron"],
-    {
-      errorMap: () => ({ message: "Invalid auth_method" }),
-    }
-  ),
+  auth_method: z.enum(authMethodEnum, {
+    errorMap: () => ({ message: "Invalid auth_method" }),
+  }),
 }) as z.ZodType<{
   auth_tag: string
   auth_identifier: string
-  auth_method:
-    | "near"
-    | "evm"
-    | "solana"
-    | "webauthn"
-    | "ton"
-    | "stellar"
-    | "tron"
+  auth_method: Tag["authMethod"]
 }>
 
 export async function POST(request: Request) {
