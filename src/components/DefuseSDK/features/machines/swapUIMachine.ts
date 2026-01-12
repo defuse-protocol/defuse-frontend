@@ -172,6 +172,7 @@ export const swapUIMachine = setup({
                       amountIn: string
                       amountOut: string
                       deadline?: string
+                      timeEstimate?: number
                     }
                     appFee: [string, bigint][]
                   }
@@ -479,7 +480,7 @@ export const swapUIMachine = setup({
               user.identifier,
               user.method
             ),
-            deadline: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+            deadline: new Date(Date.now() + 10 * 60 * 1000).toISOString(), // 10 minutes
             userAddress: user.identifier,
             userChainType: user.method,
           },
@@ -649,6 +650,7 @@ export const swapUIMachine = setup({
                 [tokenOutAssetId, BigInt(result.ok.quote.amountOut)],
               ],
               appFee: result.ok.appFee,
+              timeEstimate: result.ok.quote.timeEstimate,
             },
           }
 
@@ -1138,6 +1140,10 @@ export const swapUIMachine = setup({
             amountInTokenBalance != null,
             "amountInTokenBalance is invalid"
           )
+          const deadlineMs = Math.min(
+            10 * 60 * 1000, // 10 minutes in milliseconds
+            (context.quote.value.timeEstimate ?? 600) * 1000 // timeEstimate in seconds, convert to milliseconds, default to 10 minutes
+          )
           return {
             tokenIn: context.parsedFormValues.tokenIn,
             tokenOut: context.parsedFormValues.tokenOut,
@@ -1150,7 +1156,7 @@ export const swapUIMachine = setup({
               context.user.identifier,
               context.user.method
             ),
-            deadline: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+            deadline: new Date(Date.now() + deadlineMs).toISOString(),
             referral: context.referral,
             userAddress: event.params.userAddress,
             userChainType: event.params.userChainType,
