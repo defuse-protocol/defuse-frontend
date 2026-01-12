@@ -465,10 +465,6 @@ async function validateAndConvertTag(
         tagData.auth_method as AuthMethod
       )
 
-      setValue("recipient", address, {
-        shouldValidate: true,
-      })
-
       const result = await validationRecipientAddress(
         address,
         blockchain,
@@ -478,6 +474,11 @@ async function validateAndConvertTag(
       if (result.isErr()) {
         return renderRecipientAddressError(result.unwrapErr())
       }
+
+      setValue("recipient", address, {
+        shouldValidate: false,
+      })
+
       return result.unwrap()
     }
 
