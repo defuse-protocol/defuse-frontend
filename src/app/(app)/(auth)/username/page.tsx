@@ -1,7 +1,10 @@
 "use client"
 
 import Button from "@src/components/Button"
+import { assert } from "@src/components/DefuseSDK/utils/assert"
 import ErrorMessage from "@src/components/ErrorMessage"
+import { useConnectWallet } from "@src/hooks/useConnectWallet"
+import { useMutation } from "@tanstack/react-query"
 import clsx from "clsx"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
@@ -10,6 +13,7 @@ import {
   nouns,
   uniqueUsernameGenerator,
 } from "unique-username-generator"
+import { createUsername, validateAndCacheUsername } from "./actions"
 
 interface UsernameFormData {
   username: string
@@ -17,22 +21,66 @@ interface UsernameFormData {
 
 export default function SignupPage() {
   const router = useRouter()
+  const { state } = useConnectWallet()
 
   const {
     register,
     handleSubmit,
     setValue,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<UsernameFormData>()
 
+  const createUsernameMutation = useMutation({
+    mutationFn: async ({
+      username,
+      authIdentifier,
+      authMethod,
+    }: {
+      username: string
+      authIdentifier: string
+      authMethod: string
+    }) => {
+      return await createUsername(username, authIdentifier, authMethod)
+    },
+    onSuccess: (result) => {
+      if (result.isOk()) {
+        router.push("/account")
+      } else {
+        setError("username", {
+          message: result.unwrapErr(),
+        })
+      }
+    },
+    onError: () => {
+      setError("username", {
+        message: "Unable to verify username. Please try again.",
+      })
+    },
+  })
+
   const onSubmit = async ({ username }: UsernameFormData) => {
-    // TODO: Handle form submission
+    const authIdentifier = state.address ?? null
+    const authMethod = state.chainType ?? null
+    const authTag = `@${username.trim()}`
 
-    username = username.trim()
+    assert(
+      authIdentifier != null && authMethod != null && authTag.length > 3,
+      "Invalid auth state"
+    )
 
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    const validationResult = await validateAndCacheUsername(authTag)
+    if (validationResult.isErr()) {
+      return setError("username", {
+        message: validationResult.unwrapErr(),
+      })
+    }
 
-    router.push("/account")
+    createUsernameMutation.mutate({
+      username,
+      authIdentifier: authIdentifier,
+      authMethod: authMethod,
+    })
   }
 
   const generateRandomUsername = () => {
@@ -92,19 +140,6 @@ export default function SignupPage() {
               className="pt-1.5 block w-full text-gray-900 font-medium placeholder:text-gray-400 focus:outline-none text-base leading-none ring-0 border-none p-0"
               {...register("username", {
                 required: "Enter your username.",
-                pattern: {
-                  value: /^[a-zA-Z0-9_]+$/,
-                  message:
-                    "Only letters, numbers, and underscores are allowed.",
-                },
-                minLength: {
-                  value: 3,
-                  message: "Must be between 3 and 20 characters long.",
-                },
-                maxLength: {
-                  value: 20,
-                  message: "Must be between 3 and 20 characters long.",
-                },
               })}
             />
           </div>
@@ -119,19 +154,11 @@ export default function SignupPage() {
             size="xl"
             fullWidth
             className="mt-3"
-            loading={isSubmitting}
+            loading={isSubmitting || createUsernameMutation.isPending}
           >
             Save username
           </Button>
         </form>
-
-        <div className="rounded-2xl bg-gray-100 p-4 w-full mt-8">
-          <ul className="list-disc space-y-1 pl-5 text-sm text-gray-700 font-medium">
-            <li>Your username is permanent and cannot be changed.</li>
-            <li>Only letters, numbers, and underscores are allowed.</li>
-            <li>Must be between 3 and 20 characters long.</li>
-          </ul>
-        </div>
       </div>
     </div>
   )

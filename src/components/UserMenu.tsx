@@ -24,14 +24,14 @@ const items = [
   },
 ]
 
-const UserMenu = () => (
+const UserMenu = ({ username = "@default" }: { username: string }) => (
   <DropdownMenu.Root>
     <DropdownMenu.Trigger className="bg-gray-900 rounded-2xl p-2 flex items-center gap-3 w-full">
       <div className="size-8 flex items-center justify-center bg-orange-500 rounded-lg">
         <UserIcon className="text-orange-100 size-5" />
       </div>
 
-      <div className="text-gray-400 text-sm font-semibold">@username123</div>
+      <div className="text-gray-400 text-sm font-semibold">{username}</div>
     </DropdownMenu.Trigger>
 
     <DropdownMenu.Portal>
