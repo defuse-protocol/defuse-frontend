@@ -1,20 +1,27 @@
 import { logger } from "@src/utils/logger"
 import { Err, Ok, type Result } from "@thames/monads"
 
-type ValidateUsernameErrorType =
-  | "This username is already taken."
-  | "Unable to verify username. Please try again."
-  | "Invalid username format."
-
 // Cache for validation results to prevent API spam
 const validationCache = new Map<
   string,
   {
-    result: Result<boolean, ValidateUsernameErrorType>
+    result: Result<boolean, string>
     timestamp: number
   }
 >()
 const CACHE_TTL = 60000 // 1 minute TTL
+
+async function parseErrorResponse(
+  response: Response
+): Promise<Result<string, null>> {
+  try {
+    const data = await response.json()
+    const message = data.error?.[0]?.message
+    return message ? Ok(message) : Err(null)
+  } catch {
+    return Err(null)
+  }
+}
 
 function cleanupExpiredCache() {
   const now = Date.now()
@@ -27,7 +34,7 @@ function cleanupExpiredCache() {
 
 export async function validateAndCacheUsername(
   username: string
-): Promise<Result<boolean, ValidateUsernameErrorType>> {
+): Promise<Result<boolean, string>> {
   const now = Date.now()
   const cacheKey = username.toLowerCase()
 
@@ -48,7 +55,7 @@ export async function validateAndCacheUsername(
 
 async function checkUsernameAvailability(
   username: string
-): Promise<Result<boolean, ValidateUsernameErrorType>> {
+): Promise<Result<boolean, string>> {
   try {
     // API expects tag to start with "@"
     const tag = username.startsWith("@") ? username : `@${username}`
@@ -67,7 +74,10 @@ async function checkUsernameAvailability(
     }
 
     if (response.status === 400) {
-      // Invalid username format
+      const parseResult = await parseErrorResponse(response)
+      if (parseResult.isOk()) {
+        return Err(parseResult.unwrap())
+      }
       return Err("Invalid username format.")
     }
 
@@ -90,7 +100,7 @@ export async function createUsername(
   username: string,
   authIdentifier: string,
   authMethod: string
-): Promise<Result<boolean, ValidateUsernameErrorType>> {
+): Promise<Result<boolean, string>> {
   try {
     const authTag = `@${username.trim()}`
     const validationResult = await validateAndCacheUsername(authTag)
@@ -115,9 +125,9 @@ export async function createUsername(
         return Err("This username is already taken.")
       }
       if (response.status === 400) {
-        const errorData = await response.json().catch(() => ({}))
-        if (errorData.error?.[0]?.message) {
-          return Err(errorData.error[0].message)
+        const parseResult = await parseErrorResponse(response)
+        if (parseResult.isOk()) {
+          return Err(parseResult.unwrap())
         }
         return Err("Invalid username format.")
       }

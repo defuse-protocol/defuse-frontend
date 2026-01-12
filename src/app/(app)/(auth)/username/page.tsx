@@ -140,19 +140,6 @@ export default function SignupPage() {
               className="pt-1.5 block w-full text-gray-900 font-medium placeholder:text-gray-400 focus:outline-none text-base leading-none ring-0 border-none p-0"
               {...register("username", {
                 required: "Enter your username.",
-                pattern: {
-                  value: /^[a-zA-Z0-9_]+$/,
-                  message:
-                    "Only letters, numbers, and underscores are allowed.",
-                },
-                minLength: {
-                  value: 3,
-                  message: "Must be between 3 and 20 characters long.",
-                },
-                maxLength: {
-                  value: 20,
-                  message: "Must be between 3 and 20 characters long.",
-                },
               })}
             />
           </div>
@@ -172,14 +159,6 @@ export default function SignupPage() {
             Save username
           </Button>
         </form>
-
-        <div className="rounded-2xl bg-gray-100 p-4 w-full mt-8">
-          <ul className="list-disc space-y-1 pl-5 text-sm text-gray-700 font-medium">
-            <li>Your username is permanent and cannot be changed.</li>
-            <li>Only letters, numbers, and underscores are allowed.</li>
-            <li>Must be between 3 and 20 characters long.</li>
-          </ul>
-        </div>
       </div>
     </div>
   )

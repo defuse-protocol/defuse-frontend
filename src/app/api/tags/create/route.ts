@@ -11,12 +11,9 @@ import { z } from "zod"
 const createTagSchema = z.object({
   auth_tag: z
     .string()
-    .min(1, "auth_tag is required")
-    .refine((val) => val.startsWith("@"), {
-      message: "auth_tag must start with @",
-    })
-    .refine((val) => val.match(/^@[^@]*$/) !== null, {
-      message: "auth_tag must start with @ and contain exactly one @",
+    .refine((val) => val.match(/^@[a-zA-Z0-9_]{3,30}$/) !== null, {
+      message:
+        "Must be between 3 and 30 characters. Only letters, numbers, and underscores are allowed.",
     }),
   auth_identifier: z.string().min(1, "auth_identifier is required"),
   auth_method: z.enum(authMethodEnum, {
