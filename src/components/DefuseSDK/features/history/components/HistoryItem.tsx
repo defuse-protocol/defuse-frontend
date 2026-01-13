@@ -24,7 +24,7 @@ import { cn } from "../../../utils/cn"
 import {
   formatAmount,
   formatFullDate,
-  formatRelativeTime,
+  formatSmartDate,
   formatUsd,
 } from "../../../utils/format"
 
@@ -144,7 +144,7 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
   const usdValue = formatUsd(swap.from.amount_usd)
 
   return (
-    <div className="py-3 px-2 flex items-center gap-3 border-b border-gray-a3 last:border-b-0 hover:bg-gray-2 rounded-lg transition-colors -mx-2">
+    <div className="py-3 px-2 flex items-center gap-3 border-b border-gray-a3 last:border-b-0 even:bg-gray-a3 transition-colors">
       <div className="flex items-center gap-3 flex-1 min-w-0">
         <div className="w-[100px] flex-shrink-0">
           <TokenDisplay tokenAmount={swap.from} tokenList={tokenList} />
@@ -163,6 +163,32 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
           <span className="text-sm font-semibold text-gray-12">{usdValue}</span>
         )}
         <div className="flex items-center gap-1.5 text-[11px]">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="text-gray-10 cursor-default">
+                {formatSmartDate(swap.timestamp)}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="text-xs">
+              {formatFullDate(swap.timestamp)}
+            </TooltipContent>
+          </Tooltip>
+          {explorerUrl && (
+            <>
+              <span className="text-gray-10">·</span>
+              <a
+                href={explorerUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-10 hover:text-accent-11 transition-colors"
+                onClick={(e) => e.stopPropagation()}
+                title="View on explorer"
+              >
+                <ArrowSquareOutIcon className="size-3" />
+              </a>
+            </>
+          )}
+          <span className="text-gray-10">·</span>
           <Tooltip>
             <TooltipTrigger asChild>
               <div className="flex items-center cursor-default">
@@ -184,32 +210,6 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
               {statusConfig.label}
             </TooltipContent>
           </Tooltip>
-          {explorerUrl && (
-            <>
-              <span className="text-gray-10">·</span>
-              <a
-                href={explorerUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-10 hover:text-accent-11 transition-colors"
-                onClick={(e) => e.stopPropagation()}
-                title="View on explorer"
-              >
-                <ArrowSquareOutIcon className="size-3" />
-              </a>
-            </>
-          )}
-          <span className="text-gray-10">·</span>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span className="text-gray-10 cursor-default">
-                {formatRelativeTime(swap.timestamp)}
-              </span>
-            </TooltipTrigger>
-            <TooltipContent side="top" className="text-xs">
-              {formatFullDate(swap.timestamp)}
-            </TooltipContent>
-          </Tooltip>
         </div>
       </div>
     </div>
@@ -218,7 +218,7 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
 
 export function SwapHistoryItemSkeleton() {
   return (
-    <div className="py-3 px-2 flex items-center gap-3 border-b border-gray-a3 last:border-b-0 -mx-2">
+    <div className="py-3 px-2 flex items-center gap-3 border-b border-gray-a3 last:border-b-0">
       <div className="flex items-center gap-2 flex-1 min-w-0">
         <div className="w-[100px] flex-shrink-0 flex items-center gap-2.5">
           <Skeleton className="size-7 rounded-full flex-shrink-0" />

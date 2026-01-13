@@ -144,3 +144,36 @@ export function formatFullDate(dateString: string): string {
     minute: "2-digit",
   })
 }
+
+export function formatDateISO(dateString: string): string {
+  const date = new Date(dateString)
+  if (Number.isNaN(date.getTime())) return dateString
+
+  const day = date.getDate().toString().padStart(2, "0")
+  const month = (date.getMonth() + 1).toString().padStart(2, "0")
+  const year = date.getFullYear()
+
+  return `${year}-${month}-${day}`
+}
+
+const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000
+
+export function formatSmartDate(dateString: string): string {
+  const date = new Date(dateString)
+  if (Number.isNaN(date.getTime())) return dateString
+
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+
+  // Within 24 hours: show relative time
+  if (diffMs < TWENTY_FOUR_HOURS_MS) {
+    const diffMins = Math.floor(diffMs / 60000)
+    if (diffMins < 1) return "now"
+    if (diffMins < 60) return `${diffMins}m ago`
+    const diffHours = Math.floor(diffMins / 60)
+    return `${diffHours}h ago`
+  }
+
+  // After 24 hours: show YYYY-MM-dd
+  return formatDateISO(dateString)
+}
