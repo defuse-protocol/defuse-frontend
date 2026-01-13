@@ -80,8 +80,11 @@ function getSelectedWalletId() {
 }
 
 export async function setWalletStellar(walletId: string) {
-  localStorage.setItem(STELLAR_SELECTED_WALLET_ID, walletId)
   await getKit().setWallet(walletId)
+  // Don't persist HOT wallet - it requires user interaction and can't auto-reconnect
+  if (walletId !== HOTWALLET_ID) {
+    localStorage.setItem(STELLAR_SELECTED_WALLET_ID, walletId)
+  }
 }
 
 export async function disconnectStellar() {
