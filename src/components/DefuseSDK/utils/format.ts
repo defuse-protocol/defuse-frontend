@@ -149,11 +149,7 @@ export function formatDateISO(dateString: string): string {
   const date = new Date(dateString)
   if (Number.isNaN(date.getTime())) return dateString
 
-  const day = date.getDate().toString().padStart(2, "0")
-  const month = (date.getMonth() + 1).toString().padStart(2, "0")
-  const year = date.getFullYear()
-
-  return `${year}-${month}-${day}`
+  return new Intl.DateTimeFormat("en-CA").format(date)
 }
 
 const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000

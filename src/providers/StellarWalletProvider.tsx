@@ -9,6 +9,10 @@ import {
   allowAllModules,
 } from "@creit.tech/stellar-wallets-kit"
 import { base64 } from "@scure/base"
+import {
+  createHotWalletCloseObserver,
+  raceFirst,
+} from "@src/utils/hotWalletIframe"
 import { logger } from "@src/utils/logger"
 import { Horizon, Networks, TransactionBuilder } from "@stellar/stellar-sdk"
 import { createContext, useContext, useEffect, useState } from "react"
@@ -92,18 +96,19 @@ export async function disconnectStellar() {
   await getKit().disconnect()
 }
 
-export async function connectStellar(): Promise<void> {
+export async function connectStellar(): Promise<string> {
   return new Promise((resolve, reject) => {
     getKit().openModal({
       onWalletSelected: async (option) => {
+        const walletId = option.id as string
         try {
-          await setWalletStellar(option.id as string)
-          resolve()
+          await setWalletStellar(walletId)
+          resolve(walletId)
         } catch (error) {
           logger.warn("Error connecting Stellar wallet")
           reject(error)
         }
-        return option.id
+        return walletId
       },
     })
   })
@@ -150,10 +155,20 @@ export function StellarWalletProvider({
     setError(null)
 
     try {
-      await connectStellar()
-      await fetchPublicKey()
+      const walletId = await connectStellar()
+      // Only HOT wallet needs race against close - it uses iframe that can be closed
+      const addressPromise = getKit().getAddress()
+      const { address } =
+        walletId === HOTWALLET_ID
+          ? await raceFirst(addressPromise, createHotWalletCloseObserver())
+          : await addressPromise
+      setPublicKey(address)
     } catch (err) {
-      setError(getErrorMessage(err))
+      // Don't show error for user-initiated close (HOT wallet)
+      const message = getErrorMessage(err)
+      if (!/cancelled/i.test(message)) {
+        setError(message)
+      }
     } finally {
       setIsLoading(false)
     }

@@ -2,6 +2,7 @@ import Themes from "@src/types/themes"
 import { useTheme } from "next-themes"
 import Image from "next/image"
 import type React from "react"
+import { Tooltip, TooltipContent, TooltipTrigger } from "../../Tooltip"
 
 type AssetComboIconProps = {
   icon?: string
@@ -38,13 +39,22 @@ export const AssetComboIcon = ({
         )}
       </div>
       {showChainIcon && chainIcon && resolvedTheme && (
-        <Image
-          className="absolute -right-[7px] -bottom-[7px] bg-gray-1 rounded-[6px] p-0.5 shadow-sm h-4 w-4"
-          width={16}
-          height={16}
-          src={resolvedTheme === Themes.DARK ? chainIcon.dark : chainIcon.light}
-          alt={chainName || "Network Logo"}
-        />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Image
+              className="absolute -right-[7px] -bottom-[7px] bg-gray-1 rounded-[6px] p-0.5 shadow-sm h-4 w-4 cursor-pointer"
+              width={16}
+              height={16}
+              src={
+                resolvedTheme === Themes.DARK ? chainIcon.dark : chainIcon.light
+              }
+              alt={chainName || "Network Logo"}
+            />
+          </TooltipTrigger>
+          <TooltipContent side="bottom" sideOffset={4} className="capitalize">
+            {chainName || "Network"}
+          </TooltipContent>
+        </Tooltip>
       )}
     </div>
   )
