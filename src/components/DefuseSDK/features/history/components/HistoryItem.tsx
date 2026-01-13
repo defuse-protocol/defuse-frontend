@@ -27,7 +27,7 @@ import { cn } from "../../../utils/cn"
 import {
   formatAmount,
   formatFullDate,
-  formatRelativeTime,
+  formatSmartDate,
   formatUsd,
 } from "../../../utils/format"
 import type { TransactionType as BadgeType } from "../../account/types/sharedTypes"
@@ -144,7 +144,7 @@ function TokenDisplay({
   const hasDifferentOrigin = originChain && originChain !== displayChain
 
   const content = (
-    <div className="flex items-center gap-2.5 min-w-0">
+    <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
       <AssetComboIcon
         icon={token?.icon}
         name={token?.name ?? tokenAmount.symbol}
@@ -152,12 +152,13 @@ function TokenDisplay({
         chainName={displayChain}
         showChainIcon={!hideChainInfo && Boolean(chainIcon)}
         badgeType={badgeType}
+        sizeClassName="size-7 sm:size-10"
       />
       <div className="flex flex-col min-w-0">
-        <span className="text-sm font-medium truncate">
+        <span className="text-xs sm:text-sm font-medium truncate">
           {formatAmount(tokenAmount.amount)}
         </span>
-        <span className="text-[11px] text-gray-11 truncate">
+        <span className="text-[10px] sm:text-[11px] text-gray-11 truncate">
           {token?.symbol ?? tokenAmount.symbol}
         </span>
       </div>
@@ -223,11 +224,11 @@ export function HistoryItem({ transaction, tokenList }: HistoryItemProps) {
     transaction.type === "deposit" ? transaction.to : transaction.from
 
   return (
-    <div className="py-5 px-2 flex items-center gap-3 border-b border-gray-200 last:border-b-0 hover:bg-gray-2 transition-colors -mx-2">
-      <div className="flex items-center gap-3 flex-1 min-w-0">
+    <div className="py-3 px-2 flex items-center gap-3 border-b border-gray-a3 last:border-b-0 even:bg-gray-a3 transition-colors">
+      <div className="flex items-center gap-1.5 sm:gap-3 flex-1 min-w-0">
         {isSwap ? (
           <>
-            <div className="w-[100px] flex-shrink-0">
+            <div className="w-[70px] sm:w-[100px] flex-shrink-0">
               <TokenDisplay
                 tokenAmount={transaction.from}
                 tokenList={tokenList}
@@ -236,10 +237,10 @@ export function HistoryItem({ transaction, tokenList }: HistoryItemProps) {
               />
             </div>
             <ArrowRightIcon
-              className="size-3.5 text-gray-9 flex-shrink-0 mr-3"
+              className="size-3 sm:size-3.5 text-gray-9 flex-shrink-0 mx-0.5 sm:mr-3"
               weight="bold"
             />
-            <div className="w-[100px] flex-shrink-0">
+            <div className="w-[70px] sm:w-[100px] flex-shrink-0">
               <TokenDisplay
                 tokenAmount={transaction.to}
                 tokenList={tokenList}
@@ -262,7 +263,7 @@ export function HistoryItem({ transaction, tokenList }: HistoryItemProps) {
         {usdValue && (
           <span className="text-sm font-semibold text-gray-12">{usdValue}</span>
         )}
-        <div className="flex items-center gap-1.5 text-[11px]">
+        <div className="flex items-center gap-1 sm:gap-1.5 text-[11px]">
           <Tooltip>
             <TooltipTrigger asChild>
               {transaction.status === "PENDING" ||
@@ -310,7 +311,7 @@ export function HistoryItem({ transaction, tokenList }: HistoryItemProps) {
           <Tooltip>
             <TooltipTrigger asChild>
               <span className="text-gray-10 cursor-pointer hover:text-gray-12 transition-colors">
-                {formatRelativeTime(transaction.timestamp)}
+                {formatSmartDate(transaction.timestamp)}
               </span>
             </TooltipTrigger>
             <TooltipContent side="top" className="text-xs" theme="dark">
@@ -333,27 +334,27 @@ export function SwapHistoryItem({
 
 export function SwapHistoryItemSkeleton() {
   return (
-    <div className="py-5 px-2 flex items-center gap-3 border-b border-gray-200 last:border-b-0 -mx-2">
-      <div className="flex items-center gap-3 flex-1 min-w-0">
-        <div className="w-[100px] flex-shrink-0 flex items-center gap-2.5">
-          <Skeleton className="size-10 rounded-full flex-shrink-0" />
+    <div className="py-3 px-2 flex items-center gap-1.5 sm:gap-3 border-b border-gray-a3 last:border-b-0">
+      <div className="flex items-center gap-1.5 sm:gap-3 flex-1 min-w-0">
+        <div className="w-[70px] sm:w-[100px] flex-shrink-0 flex items-center gap-1.5 sm:gap-2.5">
+          <Skeleton className="size-7 sm:size-10 rounded-full flex-shrink-0" />
           <div className="flex flex-col min-w-0">
-            <Skeleton className="h-[14px] w-12 mb-1" />
-            <Skeleton className="h-[11px] w-8" />
+            <Skeleton className="h-3 sm:h-[14px] w-8 sm:w-12 mb-0.5 sm:mb-1" />
+            <Skeleton className="h-2.5 sm:h-[11px] w-6 sm:w-8" />
           </div>
         </div>
-        <Skeleton className="size-3.5 rounded flex-shrink-0 mr-3" />
-        <div className="w-[100px] flex-shrink-0 flex items-center gap-2.5">
-          <Skeleton className="size-10 rounded-full flex-shrink-0" />
+        <Skeleton className="size-3 sm:size-3.5 rounded flex-shrink-0 mx-0.5 sm:mr-3" />
+        <div className="w-[70px] sm:w-[100px] flex-shrink-0 flex items-center gap-1.5 sm:gap-2.5">
+          <Skeleton className="size-7 sm:size-10 rounded-full flex-shrink-0" />
           <div className="flex flex-col min-w-0">
-            <Skeleton className="h-[14px] w-12 mb-1" />
-            <Skeleton className="h-[11px] w-8" />
+            <Skeleton className="h-3 sm:h-[14px] w-8 sm:w-12 mb-0.5 sm:mb-1" />
+            <Skeleton className="h-2.5 sm:h-[11px] w-6 sm:w-8" />
           </div>
         </div>
       </div>
       <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
-        <Skeleton className="h-[14px] w-14" />
-        <Skeleton className="h-[11px] w-20" />
+        <Skeleton className="h-3 sm:h-[14px] w-10 sm:w-14" />
+        <Skeleton className="h-2.5 sm:h-[11px] w-14 sm:w-20" />
       </div>
     </div>
   )
