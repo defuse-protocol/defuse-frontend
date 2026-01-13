@@ -24,19 +24,23 @@ export default function LoginPage() {
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center">
-      <div className="max-w-sm w-full flex flex-col items-center">
+      <div className="max-w-md w-full flex flex-col items-center">
         <div className="flex items-center justify-center size-20 bg-gray-100 rounded-2xl mx-auto">
           logo
         </div>
 
-        <h1 className="mt-12 text-3xl font-bold text-gray-900 text-center text-balance leading-[1.1] tracking-tight">
+        <h1 className="mt-8 text-3xl font-bold text-gray-900 text-center text-balance leading-[1.1] tracking-tight">
           Log in to your account
         </h1>
 
-        <div className="grid grid-cols-2 gap-2 mt-12 w-full">
+        <div className="grid grid-cols-2 gap-2 mt-8 w-full">
           <LoginButton
             name="Passkey"
-            icon={<PasskeyIcon className="size-10" />}
+            icon={
+              <div className="flex items-center justify-center size-10 bg-gray-100 rounded-full">
+                <PasskeyIcon className="size-5" />
+              </div>
+            }
             onClick={() => webauthnUI.open()}
           />
           <LoginButton
@@ -104,7 +108,7 @@ function LoginButton({
     <button
       type="button"
       onClick={onClick}
-      className="border border-gray-200 rounded-2xl p-4 text-left flex flex-col items-start gap-4 bg-white hover:bg-gray-50 hover:border-gray-300"
+      className="rounded-2xl p-4 text-left flex flex-col items-start gap-4 outline outline-gray-200 bg-white group hover:outline-2 hover:outline-gray-300 hover:border-gray-300 focus-visible:outline-2 focus-visible:outline-gray-900"
     >
       {icon ??
         (iconSrc ? (
