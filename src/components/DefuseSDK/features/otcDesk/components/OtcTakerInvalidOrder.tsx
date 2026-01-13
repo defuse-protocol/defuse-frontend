@@ -1,6 +1,4 @@
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Cross2Icon } from "@radix-ui/react-icons"
-import { Callout } from "@radix-ui/themes"
 import type { TokenInfo, TokenValue } from "../../../types/base"
 import { assert } from "../../../utils/assert"
 import {
@@ -9,6 +7,7 @@ import {
   negateTokenValue,
 } from "../../../utils/tokenUtils"
 import type { TradeTerms } from "../utils/deriveTradeTerms"
+import { ErrorReason } from "./shared/ErrorReason"
 import { SwapStrip } from "./shared/SwapStrip"
 
 export function OtcTakerInvalidOrder({
@@ -74,14 +73,7 @@ export function OtcTakerInvalidOrder({
       </div>
 
       {/* Error Section */}
-      {error != null && (
-        <Callout.Root size="1" color="red">
-          <Callout.Icon>
-            <ExclamationTriangleIcon />
-          </Callout.Icon>
-          <Callout.Text>{error}</Callout.Text>
-        </Callout.Root>
-      )}
+      {error != null && <ErrorReason reason={error} />}
 
       {/* Order Section */}
       {tradeTerms != null &&

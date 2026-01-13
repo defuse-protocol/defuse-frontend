@@ -109,7 +109,7 @@ export function createWalletVerificationMessage(
   return baseMessage
 }
 
-function minutesFromNow(minutes: number): number {
+export function minutesFromNow(minutes: number): number {
   return Date.now() + minutes * 60 * 1000
 }
 

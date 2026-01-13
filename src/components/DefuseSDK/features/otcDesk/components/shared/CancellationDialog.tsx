@@ -7,6 +7,7 @@ import { BaseModalDialog } from "../../../../components/Modal/ModalDialog"
 import type { SignerCredentials } from "../../../../core/formatters"
 import type { otcMakerOrderCancellationActor } from "../../actors/otcMakerOrderCancellationActor"
 import type { SignMessage } from "../../types/sharedTypes"
+import { ErrorReason } from "./ErrorReason"
 
 interface CancellationDialogProps {
   actorRef:
@@ -79,8 +80,8 @@ export function CancellationDialog({
           </Dialog.Description>
 
           {snapshot?.context.error != null && (
-            <div className="text-red-700">
-              {snapshot?.context.error?.reason}
+            <div className="mt-2">
+              <ErrorReason reason={snapshot?.context.error.reason} />
             </div>
           )}
 

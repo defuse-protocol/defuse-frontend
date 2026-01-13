@@ -58,7 +58,9 @@ export function TokenMigrationDialog({
               <Callout.Icon>
                 <ExclamationTriangleIcon />
               </Callout.Icon>
-              <Callout.Text>{state.context.error}</Callout.Text>
+              <Callout.Text>
+                {renderErrorMessages(state.context.error)}
+              </Callout.Text>
             </Callout.Root>
           )}
 
@@ -158,4 +160,15 @@ function renderTxDetails({
 
 function truncateHash(hash: string) {
   return `${hash.slice(0, 5)}...${hash.slice(-5)}`
+}
+
+function renderErrorMessages(reason: string): string {
+  switch (reason) {
+    case "ERR_USER_DIDNT_SIGN":
+      return "It seems the message wasn’t signed in your wallet. Please try again."
+    case "ERR_FAILED_TO_PREPARE_MESSAGE_TO_SIGN":
+      return "Failed to prepare message for your wallet to sign. Please try again."
+    default:
+      return reason
+  }
 }

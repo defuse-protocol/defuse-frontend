@@ -84,10 +84,6 @@ export const oneClickStatusMachine = setup({
             .waitForIntentSettlement({
               signal,
               intentHash: input.intentHash,
-              retryOptions: {
-                delay: 100,
-                maxAttempts: 50,
-              },
               onTxHashKnown: (txHash) => {
                 resolve(txHash)
               },
