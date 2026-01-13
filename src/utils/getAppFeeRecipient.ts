@@ -6,13 +6,15 @@ export type FeeRecipientSplit = {
   shareBps: number // share in basis points (out of 10_000)
 }
 
-const whitelabelTemplateToRecipient: Partial<
+function getWhitelabelTemplateToRecipient(): Partial<
   Record<WhitelabelTemplateValue, string>
-> = {
-  rabitswap: APP_FEE_RECIPIENT_RABITSWAP,
-  // Add more templates here as needed:
-  // solswap: APP_FEE_RECIPIENT_SOLSWAP,
-  // etc.
+> {
+  return {
+    rabitswap: APP_FEE_RECIPIENT_RABITSWAP,
+    // Add more templates here as needed:
+    // solswap: APP_FEE_RECIPIENT_SOLSWAP,
+    // etc.
+  }
 }
 
 /**
@@ -23,7 +25,7 @@ export function getAppFeeRecipients(
   template: WhitelabelTemplateValue
 ): FeeRecipientSplit[] {
   const main = APP_FEE_RECIPIENT
-  const templateSpecific = whitelabelTemplateToRecipient[template]
+  const templateSpecific = getWhitelabelTemplateToRecipient()[template]
 
   const hasMain = main && main.trim() !== ""
   const hasTemplateSpecific = templateSpecific && templateSpecific.trim() !== ""
