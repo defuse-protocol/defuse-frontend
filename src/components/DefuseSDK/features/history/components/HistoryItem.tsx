@@ -199,17 +199,48 @@ function TokenDisplay({
 
 const STALE_PENDING_THRESHOLD_MS = 30 * 60 * 1000 // 30 minutes
 
+function StatusBadge({
+  status,
+  timestamp,
+}: { status: SwapTransaction["status"]; timestamp: string }) {
+  const statusConfig =
+    STATUS_CONFIG[status as keyof typeof STATUS_CONFIG] ?? DEFAULT_STATUS_CONFIG
+  const StatusIcon = statusConfig.icon
+
+  const isPendingStale = useMemo(() => {
+    if (status !== "PENDING") return false
+    const age = Date.now() - new Date(timestamp).getTime()
+    return age > STALE_PENDING_THRESHOLD_MS
+  }, [status, timestamp])
+
+  if (status === "PENDING" || status === "PROCESSING") {
+    return (
+      <div className="flex items-center cursor-default">
+        <ReloadIcon
+          className={cn("size-3 text-gray-400", {
+            "animate-spin": !isPendingStale,
+          })}
+        />
+      </div>
+    )
+  }
+
+  return (
+    <div
+      className={cn(
+        "flex items-center justify-center size-3 rounded-full cursor-default",
+        statusConfig.bgColor
+      )}
+    >
+      <StatusIcon className={cn("size-1.5", statusConfig.iconColor)} />
+    </div>
+  )
+}
+
 export function HistoryItem({ transaction, tokenList }: HistoryItemProps) {
   const statusConfig =
     STATUS_CONFIG[transaction.status as keyof typeof STATUS_CONFIG] ??
     DEFAULT_STATUS_CONFIG
-  const StatusIcon = statusConfig.icon
-
-  const isPendingStale = useMemo(() => {
-    if (transaction.status !== "PENDING") return false
-    const age = Date.now() - new Date(transaction.timestamp).getTime()
-    return age > STALE_PENDING_THRESHOLD_MS
-  }, [transaction.status, transaction.timestamp])
 
   const explorerUrl = useMemo(() => {
     if (!transaction.deposit_address) return null
@@ -224,7 +255,7 @@ export function HistoryItem({ transaction, tokenList }: HistoryItemProps) {
     transaction.type === "deposit" ? transaction.to : transaction.from
 
   return (
-    <div className="py-3 px-2 flex items-center gap-3 border-b border-gray-a3 last:border-b-0 even:bg-gray-a3 transition-colors">
+    <div className="py-3 px-2 flex items-center gap-3 border-b border-gray-200 last:border-b-0 even:bg-gray-100 transition-colors">
       <div className="flex items-center gap-1.5 sm:gap-3 flex-1 min-w-0">
         {isSwap ? (
           <>
@@ -266,30 +297,12 @@ export function HistoryItem({ transaction, tokenList }: HistoryItemProps) {
         <div className="flex items-center gap-1 sm:gap-1.5 text-[11px]">
           <Tooltip>
             <TooltipTrigger asChild>
-              {transaction.status === "PENDING" ||
-              transaction.status === "PROCESSING" ? (
-                <div className="flex items-center cursor-pointer">
-                  <ReloadIcon
-                    className={cn("size-3 text-gray-400", {
-                      "animate-spin": !isPendingStale,
-                    })}
-                  />
-                </div>
-              ) : (
-                <div
-                  className={cn(
-                    "flex items-center justify-center size-3 rounded-full cursor-pointer",
-                    statusConfig.bgColor
-                  )}
-                >
-                  <StatusIcon
-                    className={cn("size-1.5", statusConfig.iconColor)}
-                  />
-                </div>
-              )}
+              <span className="text-gray-10 cursor-default">
+                {formatSmartDate(transaction.timestamp)}
+              </span>
             </TooltipTrigger>
             <TooltipContent side="top" className="text-xs" theme="dark">
-              {statusConfig.label}
+              {formatFullDate(transaction.timestamp)}
             </TooltipContent>
           </Tooltip>
           {explorerUrl && (
@@ -310,12 +323,13 @@ export function HistoryItem({ transaction, tokenList }: HistoryItemProps) {
           <span className="text-gray-10">·</span>
           <Tooltip>
             <TooltipTrigger asChild>
-              <span className="text-gray-10 cursor-pointer hover:text-gray-12 transition-colors">
-                {formatSmartDate(transaction.timestamp)}
-              </span>
+              <StatusBadge
+                status={transaction.status}
+                timestamp={transaction.timestamp}
+              />
             </TooltipTrigger>
             <TooltipContent side="top" className="text-xs" theme="dark">
-              {formatFullDate(transaction.timestamp)}
+              {statusConfig.label}
             </TooltipContent>
           </Tooltip>
         </div>
@@ -334,7 +348,7 @@ export function SwapHistoryItem({
 
 export function SwapHistoryItemSkeleton() {
   return (
-    <div className="py-3 px-2 flex items-center gap-1.5 sm:gap-3 border-b border-gray-a3 last:border-b-0">
+    <div className="py-3 px-2 flex items-center gap-1.5 sm:gap-3 border-b border-gray-200 last:border-b-0">
       <div className="flex items-center gap-1.5 sm:gap-3 flex-1 min-w-0">
         <div className="w-[70px] sm:w-[100px] flex-shrink-0 flex items-center gap-1.5 sm:gap-2.5">
           <Skeleton className="size-7 sm:size-10 rounded-full flex-shrink-0" />
