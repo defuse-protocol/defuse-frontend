@@ -105,16 +105,17 @@ function TokenDisplay({ tokenAmount, tokenList }: TokenDisplayProps) {
   )
 
   return (
-    <div className="flex items-center gap-2.5 min-w-0">
+    <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
       <AssetComboIcon
         icon={token?.icon}
         name={token?.name ?? tokenAmount.symbol}
+        iconSize="size-5 sm:size-7"
       />
       <div className="flex flex-col min-w-0">
-        <span className="text-sm font-medium truncate">
+        <span className="text-xs sm:text-sm font-medium truncate">
           {formatAmount(tokenAmount.amount)}
         </span>
-        <span className="text-[11px] text-gray-11 truncate">
+        <span className="text-[10px] sm:text-[11px] text-gray-11 truncate">
           {token?.symbol ?? tokenAmount.symbol}
         </span>
       </div>
@@ -145,15 +146,15 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
 
   return (
     <div className="py-3 px-2 flex items-center gap-3 border-b border-gray-a3 last:border-b-0 even:bg-gray-a3 transition-colors">
-      <div className="flex items-center gap-3 flex-1 min-w-0">
-        <div className="w-[100px] flex-shrink-0">
+      <div className="flex items-center gap-1.5 sm:gap-3 flex-1 min-w-0">
+        <div className="w-[70px] sm:w-[100px] flex-shrink-0">
           <TokenDisplay tokenAmount={swap.from} tokenList={tokenList} />
         </div>
         <ArrowRightIcon
-          className="size-3.5 text-gray-9 flex-shrink-0 mr-3"
+          className="size-3 sm:size-3.5 text-gray-9 flex-shrink-0 mx-0.5 sm:mr-3"
           weight="bold"
         />
-        <div className="w-[100px] flex-shrink-0">
+        <div className="w-[70px] sm:w-[100px] flex-shrink-0">
           <TokenDisplay tokenAmount={swap.to} tokenList={tokenList} />
         </div>
       </div>
@@ -162,7 +163,7 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
         {usdValue && (
           <span className="text-sm font-semibold text-gray-12">{usdValue}</span>
         )}
-        <div className="flex items-center gap-1.5 text-[11px]">
+        <div className="flex items-center gap-1 sm:gap-1.5 text-[11px]">
           <Tooltip>
             <TooltipTrigger asChild>
               <span className="text-gray-10 cursor-default">
@@ -218,27 +219,27 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
 
 export function SwapHistoryItemSkeleton() {
   return (
-    <div className="py-3 px-2 flex items-center gap-3 border-b border-gray-a3 last:border-b-0">
-      <div className="flex items-center gap-2 flex-1 min-w-0">
-        <div className="w-[100px] flex-shrink-0 flex items-center gap-2.5">
-          <Skeleton className="size-7 rounded-full flex-shrink-0" />
+    <div className="py-3 px-2 flex items-center gap-1.5 sm:gap-3 border-b border-gray-a3 last:border-b-0">
+      <div className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
+        <div className="w-[70px] sm:w-[100px] flex-shrink-0 flex items-center gap-1.5 sm:gap-2.5">
+          <Skeleton className="size-5 sm:size-7 rounded-full flex-shrink-0" />
           <div className="flex flex-col min-w-0">
-            <Skeleton className="h-[14px] w-10 mb-0.5" />
-            <Skeleton className="h-[11px] w-7" />
+            <Skeleton className="h-3 sm:h-[14px] w-8 sm:w-10 mb-0.5" />
+            <Skeleton className="h-2.5 sm:h-[11px] w-6 sm:w-7" />
           </div>
         </div>
-        <Skeleton className="size-3.5 rounded flex-shrink-0" />
-        <div className="w-[100px] flex-shrink-0 flex items-center gap-2.5">
-          <Skeleton className="size-7 rounded-full flex-shrink-0" />
+        <Skeleton className="size-3 sm:size-3.5 rounded flex-shrink-0 mx-0.5 sm:mx-0" />
+        <div className="w-[70px] sm:w-[100px] flex-shrink-0 flex items-center gap-1.5 sm:gap-2.5">
+          <Skeleton className="size-5 sm:size-7 rounded-full flex-shrink-0" />
           <div className="flex flex-col min-w-0">
-            <Skeleton className="h-[14px] w-10 mb-0.5" />
-            <Skeleton className="h-[11px] w-7" />
+            <Skeleton className="h-3 sm:h-[14px] w-8 sm:w-10 mb-0.5" />
+            <Skeleton className="h-2.5 sm:h-[11px] w-6 sm:w-7" />
           </div>
         </div>
       </div>
       <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
-        <Skeleton className="h-[14px] w-12" />
-        <Skeleton className="h-[11px] w-16" />
+        <Skeleton className="h-3 sm:h-[14px] w-10 sm:w-12" />
+        <Skeleton className="h-2.5 sm:h-[11px] w-12 sm:w-16" />
       </div>
     </div>
   )

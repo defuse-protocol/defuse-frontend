@@ -78,21 +78,32 @@ export async function getPublicKeyStellar() {
 }
 
 const STELLAR_SELECTED_WALLET_ID = "stellar-selected-wallet-id"
+const STELLAR_PUBLIC_KEY = "stellar-public-key"
 
 function getSelectedWalletId() {
   return localStorage.getItem(STELLAR_SELECTED_WALLET_ID)
 }
 
+function getCachedPublicKey() {
+  return localStorage.getItem(STELLAR_PUBLIC_KEY)
+}
+
+function setCachedPublicKey(publicKey: string) {
+  localStorage.setItem(STELLAR_PUBLIC_KEY, publicKey)
+}
+
+function clearCachedPublicKey() {
+  localStorage.removeItem(STELLAR_PUBLIC_KEY)
+}
+
 export async function setWalletStellar(walletId: string) {
   await getKit().setWallet(walletId)
-  // HOT wallet can't auto-reconnect, so don't persist it
-  if (walletId !== HOTWALLET_ID) {
-    localStorage.setItem(STELLAR_SELECTED_WALLET_ID, walletId)
-  }
+  localStorage.setItem(STELLAR_SELECTED_WALLET_ID, walletId)
 }
 
 export async function disconnectStellar() {
   localStorage.removeItem(STELLAR_SELECTED_WALLET_ID)
+  clearCachedPublicKey()
   await getKit().disconnect()
 }
 
@@ -160,6 +171,7 @@ export function StellarWalletProvider({
         walletId === HOTWALLET_ID
           ? await raceFirst(addressPromise, createHotWalletCloseObserver())
           : await addressPromise
+      setCachedPublicKey(address)
       setPublicKey(address)
     } catch (err) {
       const message = getErrorMessage(err)
@@ -184,34 +196,11 @@ export function StellarWalletProvider({
     }
   }
 
-  // Initialize wallet state on mount
+  // Initialize wallet state on mount using cached public key
   useEffect(() => {
-    let isMounted = true
-
-    const init = async () => {
-      if (!isMounted) return
-      setIsLoading(true)
-
-      try {
-        const key = await getPublicKeyStellar()
-        if (isMounted) {
-          setPublicKey(key)
-        }
-      } catch (err) {
-        if (isMounted) {
-          setError(getErrorMessage(err))
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false)
-        }
-      }
-    }
-
-    init()
-
-    return () => {
-      isMounted = false
+    const cachedKey = getCachedPublicKey()
+    if (cachedKey && getSelectedWalletId()) {
+      setPublicKey(cachedKey)
     }
   }, [])
 
