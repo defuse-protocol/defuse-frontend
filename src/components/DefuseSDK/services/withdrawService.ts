@@ -15,6 +15,7 @@ import {
 } from "@defuse-protocol/intents-sdk"
 import { getCAIP2 } from "@src/components/DefuseSDK/utils/caip2"
 import { WITHDRAW_DIRECTION_FEE_BPS } from "@src/utils/environment"
+import type { FeeRecipientSplit } from "@src/utils/getAppFeeRecipient"
 import { logger } from "@src/utils/logger"
 import { Err, Ok, type Result } from "@thames/monads"
 import { type ActorRefFrom, waitFor } from "xstate"
@@ -103,12 +104,12 @@ export async function prepareWithdraw(
     formValues,
     depositedBalanceRef,
     poaBridgeInfoRef,
-    appFeeRecipient,
+    appFeeRecipients,
   }: {
     formValues: WithdrawFormContext
     depositedBalanceRef: ActorRefFrom<typeof depositedBalanceMachine>
     poaBridgeInfoRef: ActorRefFrom<typeof poaBridgeInfoActor>
-    appFeeRecipient?: string
+    appFeeRecipients?: FeeRecipientSplit[]
   },
   { signal }: { signal: AbortSignal }
 ): Promise<PreparationOutput> {
@@ -248,7 +249,8 @@ export async function prepareWithdraw(
   if (
     (isNearToSolana || isZecToSolana || isStrkToSolana) &&
     WITHDRAW_DIRECTION_FEE_BPS != null &&
-    appFeeRecipient
+    appFeeRecipients &&
+    appFeeRecipients.length > 0
   ) {
     // Calculate direction fee from the total withdrawal amount
     // This is an additional fee on top of the bridge fee, so bridge fee remains unchanged
@@ -335,18 +337,17 @@ export async function prepareWithdraw(
   const hasDirectionFee =
     (isNearToSolana || isZecToSolana || isStrkToSolana) &&
     WITHDRAW_DIRECTION_FEE_BPS != null &&
-    appFeeRecipient
+    appFeeRecipients &&
+    appFeeRecipients.length > 0
   if (hasDirectionFee) {
     const additionalFee = totalFeeAmount - baseBridgeFeeAmount
     if (additionalFee > 0n) {
-      const feeIntent: Intent = {
-        intent: "transfer",
-        receiver_id: appFeeRecipient,
-        tokens: {
-          [formValues.tokenOut.defuseAssetId]: additionalFee.toString(),
-        },
-      }
-      withdrawalIntents.push(feeIntent)
+      addDirectionFeeToIntents(
+        additionalFee,
+        appFeeRecipients,
+        formValues.tokenOut.defuseAssetId,
+        withdrawalIntents
+      )
     }
   }
 
@@ -717,5 +718,78 @@ async function prepareNearIntentsWithdraw({
       // biome-ignore lint/style/noNonNullAssertion: <explanation>
       withdrawalParams: withdrawalParams[0]!,
     },
+  }
+}
+
+function addDirectionFeeToIntents(
+  directionFeeAmount: bigint,
+  appFeeRecipients: FeeRecipientSplit[],
+  tokenId: string,
+  withdrawalIntents: Intent[]
+): void {
+  if (directionFeeAmount <= 0n || appFeeRecipients.length === 0) {
+    return
+  }
+
+  const primaryRecipient = appFeeRecipients[0]
+  if (!primaryRecipient) {
+    return
+  }
+
+  // Calculate split: primary gets calculated share, secondary gets remainder
+  // This ensures we don't lose 1 yocto due to integer division
+  const primaryShare =
+    (directionFeeAmount * BigInt(primaryRecipient.shareBps)) / 10000n
+  const remainingAmount = directionFeeAmount - primaryShare
+
+  // Track intents by recipient to avoid repeated searches
+  const intentMap = new Map<
+    string,
+    { intent: "transfer"; receiver_id: string; tokens: Record<string, string> }
+  >()
+
+  for (const intent of withdrawalIntents) {
+    if (intent.intent === "transfer") {
+      intentMap.set(intent.receiver_id, intent)
+    }
+  }
+
+  // Add primary recipient's share
+  if (primaryShare > 0n) {
+    let primaryIntent = intentMap.get(primaryRecipient.recipient)
+    if (!primaryIntent) {
+      primaryIntent = {
+        intent: "transfer",
+        receiver_id: primaryRecipient.recipient,
+        tokens: {},
+      }
+      withdrawalIntents.push(primaryIntent)
+      intentMap.set(primaryRecipient.recipient, primaryIntent)
+    }
+
+    const currentAmount = BigInt(primaryIntent.tokens[tokenId] || "0")
+    primaryIntent.tokens[tokenId] = (currentAmount + primaryShare).toString()
+  }
+
+  // Add secondary recipient's remainder (for 50/50 split)
+  if (remainingAmount > 0n && appFeeRecipients.length > 1) {
+    const secondaryRecipient = appFeeRecipients[1]
+    if (secondaryRecipient) {
+      let secondaryIntent = intentMap.get(secondaryRecipient.recipient)
+      if (!secondaryIntent) {
+        secondaryIntent = {
+          intent: "transfer",
+          receiver_id: secondaryRecipient.recipient,
+          tokens: {},
+        }
+        withdrawalIntents.push(secondaryIntent)
+        intentMap.set(secondaryRecipient.recipient, secondaryIntent)
+      }
+
+      const currentAmount = BigInt(secondaryIntent.tokens[tokenId] || "0")
+      secondaryIntent.tokens[tokenId] = (
+        currentAmount + remainingAmount
+      ).toString()
+    }
   }
 }
