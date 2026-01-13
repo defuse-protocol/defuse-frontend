@@ -6,10 +6,17 @@ describe("getAppFeeRecipients", () => {
   const originalEnv = { ...process.env }
 
   beforeEach(() => {
-    process.env = { ...originalEnv }
+    process.env.NEXT_PUBLIC_APP_FEE_RECIPIENT = undefined
+    process.env.NEXT_PUBLIC_APP_FEE_RECIPIENT_RABITSWAP = undefined
+
     const cacheKeys = Object.keys(require.cache)
     for (const key of cacheKeys) {
-      if (key.includes("getAppFeeRecipient") || key.includes("environment")) {
+      const normalizedKey = key.replace(/\\/g, "/")
+      if (
+        normalizedKey.includes("getAppFeeRecipient") ||
+        normalizedKey.includes("environment.ts") ||
+        normalizedKey.includes("environment.js")
+      ) {
         delete require.cache[key]
       }
     }
