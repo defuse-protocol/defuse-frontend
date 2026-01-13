@@ -85,7 +85,7 @@ function getSelectedWalletId() {
 
 export async function setWalletStellar(walletId: string) {
   await getKit().setWallet(walletId)
-  // Don't persist HOT wallet - it requires user interaction and can't auto-reconnect
+  // HOT wallet can't auto-reconnect, so don't persist it
   if (walletId !== HOTWALLET_ID) {
     localStorage.setItem(STELLAR_SELECTED_WALLET_ID, walletId)
   }
@@ -156,7 +156,6 @@ export function StellarWalletProvider({
 
     try {
       const walletId = await connectStellar()
-      // Only HOT wallet needs race against close - it uses iframe that can be closed
       const addressPromise = getKit().getAddress()
       const { address } =
         walletId === HOTWALLET_ID
@@ -164,7 +163,6 @@ export function StellarWalletProvider({
           : await addressPromise
       setPublicKey(address)
     } catch (err) {
-      // Don't show error for user-initiated close (HOT wallet)
       const message = getErrorMessage(err)
       if (!/cancelled/i.test(message)) {
         setError(message)
