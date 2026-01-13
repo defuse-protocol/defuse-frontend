@@ -106,13 +106,12 @@ function LoginButton({
       onClick={onClick}
       className="border border-gray-200 rounded-2xl p-4 text-left flex flex-col items-start gap-4 bg-white hover:bg-gray-50 hover:border-gray-300"
     >
-      {icon ?? (
-        iconSrc ? (
+      {icon ??
+        (iconSrc ? (
           <Image src={iconSrc} alt="" width={40} height={40} />
         ) : (
           <TokenIconPlaceholder className="size-10" />
-        )
-      )}
+        ))}
       <span className="text-base font-medium text-gray-900">{name}</span>
     </button>
   )

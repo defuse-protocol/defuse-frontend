@@ -1,7 +1,6 @@
 import ActivityDock from "@src/components/ActivityDock"
 import { NavbarDesktop } from "@src/components/Navbar/NavbarDesktop"
 import UserMenu from "@src/components/UserMenu"
-import { WalletVerificationProvider } from "@src/providers/WalletVerificationProvider"
 import type { ReactNode } from "react"
 
 const DashboardLayout = ({ children }: { children: ReactNode }) => (
@@ -26,8 +25,6 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => (
         <div className="mx-auto max-w-[464px]">{children}</div>
       </div>
     </main>
-
-    <WalletVerificationProvider />
   </div>
 )
 
