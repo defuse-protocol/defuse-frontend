@@ -1,43 +1,82 @@
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it } from "vitest"
 
-describe("getAppFeeRecipient", () => {
-  const nearIntentsWhitelabelTemplate = "near-intents"
-  const rabitswapWhitelabelTemplate = "rabitswap"
+describe("getAppFeeRecipients", () => {
+  const nearIntentsTemplate = "near-intents"
+  const rabitswapTemplate = "rabitswap"
+  const originalEnv = { ...process.env }
 
   beforeEach(() => {
-    vi.resetModules()
+    process.env = { ...originalEnv }
+    // Clear module cache to ensure fresh imports with new env values
+    delete require.cache[require.resolve("@src/utils/getAppFeeRecipient")]
+    delete require.cache[require.resolve("@src/utils/environment")]
   })
 
-  it("should use rabitswap recipient for rabitswap domain if set", async () => {
-    vi.doMock("@src/utils/environment", () => ({
-      APP_FEE_RECIPIENT: "intents.near",
-      APP_FEE_RECIPIENT_RABITSWAP: "rabitswap.near",
-    }))
-
-    const { getAppFeeRecipient } = await import("@src/utils/getAppFeeRecipient")
-    const result = getAppFeeRecipient(rabitswapWhitelabelTemplate)
-    expect(result).toBe("rabitswap.near")
+  afterEach(() => {
+    process.env = originalEnv
   })
 
-  it("should use default recipient for non-rabitswap domains", async () => {
-    vi.doMock("@src/utils/environment", () => ({
-      APP_FEE_RECIPIENT: "intents.near",
-      APP_FEE_RECIPIENT_RABITSWAP: "rabitswap.near",
-    }))
+  it("returns 50/50 split when both recipients exist", async () => {
+    process.env.NEXT_PUBLIC_APP_FEE_RECIPIENT = "intents.near"
+    process.env.NEXT_PUBLIC_APP_FEE_RECIPIENT_RABITSWAP = "rabitswap.near"
 
-    const { getAppFeeRecipient } = await import("@src/utils/getAppFeeRecipient")
-    const result = getAppFeeRecipient(nearIntentsWhitelabelTemplate)
-    expect(result).toBe("intents.near")
+    const { getAppFeeRecipients } = await import(
+      "@src/utils/getAppFeeRecipient"
+    )
+    const result = getAppFeeRecipients(rabitswapTemplate)
+
+    expect(result).toHaveLength(2)
+    expect(result[0]).toEqual({
+      recipient: "intents.near",
+      shareBps: 5000,
+    })
+    expect(result[1]).toEqual({
+      recipient: "rabitswap.near",
+      shareBps: 5000,
+    })
   })
 
-  it("should use default recipient for rabitswap domain when APP_FEE_RECIPIENT_RABITSWAP is not defined", async () => {
-    vi.doMock("@src/utils/environment", () => ({
-      APP_FEE_RECIPIENT: "intents.near",
-      APP_FEE_RECIPIENT_RABITSWAP: undefined,
-    }))
+  it("returns single recipient for templates without template-specific configuration", async () => {
+    process.env.NEXT_PUBLIC_APP_FEE_RECIPIENT = "intents.near"
+    process.env.NEXT_PUBLIC_APP_FEE_RECIPIENT_RABITSWAP = "rabitswap.near"
 
-    const { getAppFeeRecipient } = await import("@src/utils/getAppFeeRecipient")
-    const result = getAppFeeRecipient(rabitswapWhitelabelTemplate)
-    expect(result).toBe("intents.near")
+    const { getAppFeeRecipients } = await import(
+      "@src/utils/getAppFeeRecipient"
+    )
+    const result = getAppFeeRecipients(nearIntentsTemplate)
+
+    expect(result).toHaveLength(1)
+    expect(result[0]).toEqual({
+      recipient: "intents.near",
+      shareBps: 10000,
+    })
+  })
+
+  it("returns available recipient when only one is configured", async () => {
+    process.env.NEXT_PUBLIC_APP_FEE_RECIPIENT = "intents.near"
+    process.env.NEXT_PUBLIC_APP_FEE_RECIPIENT_RABITSWAP = ""
+
+    const { getAppFeeRecipients } = await import(
+      "@src/utils/getAppFeeRecipient"
+    )
+    const result = getAppFeeRecipients(rabitswapTemplate)
+
+    expect(result).toHaveLength(1)
+    expect(result[0]).toEqual({
+      recipient: "intents.near",
+      shareBps: 10000,
+    })
+  })
+
+  it("returns empty array when no recipients configured", async () => {
+    process.env.NEXT_PUBLIC_APP_FEE_RECIPIENT = ""
+    process.env.NEXT_PUBLIC_APP_FEE_RECIPIENT_RABITSWAP = ""
+
+    const { getAppFeeRecipients } = await import(
+      "@src/utils/getAppFeeRecipient"
+    )
+    const result = getAppFeeRecipients(rabitswapTemplate)
+
+    expect(result).toHaveLength(0)
   })
 })
