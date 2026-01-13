@@ -55,7 +55,7 @@ export const AssetComboIcon = ({
               alt={chainName || "Network Logo"}
             />
           </TooltipTrigger>
-          <TooltipContent side="bottom" sideOffset={4} className="capitalize">
+          <TooltipContent side="top" sideOffset={4} className="capitalize">
             {chainName || "Network"}
           </TooltipContent>
         </Tooltip>
