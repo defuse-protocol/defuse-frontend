@@ -33,6 +33,7 @@ import {
   getUnderlyingBaseTokenInfos,
   hasMatchingTokenKeys,
 } from "../../utils/tokenUtils"
+import { getMinDeadlineMs } from "../otcDesk/utils/quoteUtils"
 import {
   type Events as Background1csQuoterEvents,
   type ParentEvents as Background1csQuoterParentEvents,
@@ -172,6 +173,7 @@ export const swapUIMachine = setup({
                       amountIn: string
                       amountOut: string
                       deadline?: string
+                      timeEstimate?: number
                     }
                     appFee: [string, bigint][]
                   }
@@ -479,7 +481,7 @@ export const swapUIMachine = setup({
               user.identifier,
               user.method
             ),
-            deadline: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+            deadline: getMinDeadlineMs(10 * 60 * 1000), // 10 minutes
             userAddress: user.identifier,
             userChainType: user.method,
           },
@@ -649,6 +651,7 @@ export const swapUIMachine = setup({
                 [tokenOutAssetId, BigInt(result.ok.quote.amountOut)],
               ],
               appFee: result.ok.appFee,
+              timeEstimate: result.ok.quote.timeEstimate,
             },
           }
 
@@ -1150,7 +1153,10 @@ export const swapUIMachine = setup({
               context.user.identifier,
               context.user.method
             ),
-            deadline: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+            deadline: getMinDeadlineMs(
+              10 * 60 * 1000, // 10 minutes
+              (context.quote.value.timeEstimate ?? 0) * 1000 // timeEstimate in seconds, convert to milliseconds
+            ),
             referral: context.referral,
             userAddress: event.params.userAddress,
             userChainType: event.params.userChainType,
