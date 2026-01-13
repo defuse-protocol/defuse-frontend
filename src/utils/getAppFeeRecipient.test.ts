@@ -7,9 +7,12 @@ describe("getAppFeeRecipients", () => {
 
   beforeEach(() => {
     process.env = { ...originalEnv }
-    // Clear module cache to ensure fresh imports with new env values
-    delete require.cache[require.resolve("@src/utils/getAppFeeRecipient")]
-    delete require.cache[require.resolve("@src/utils/environment")]
+    const cacheKeys = Object.keys(require.cache)
+    for (const key of cacheKeys) {
+      if (key.includes("getAppFeeRecipient") || key.includes("environment")) {
+        delete require.cache[key]
+      }
+    }
   })
 
   afterEach(() => {
