@@ -74,7 +74,7 @@ const SelectAssets = ({
       onClick={handleAssetsSelect}
       data-testid={dataTestId}
       disabled={disabled}
-      className="rounded-full border border-gray-900/10 flex items-center gap-1.5 p-1"
+      className="rounded-full border border-gray-900/10 flex items-center gap-1.5 p-1 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-gray-900"
     >
       <AssetComboIcon
         icon={selected?.icon}
