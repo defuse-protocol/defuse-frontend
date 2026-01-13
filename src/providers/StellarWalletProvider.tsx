@@ -108,7 +108,6 @@ export async function connectStellar(): Promise<string> {
           logger.warn("Error connecting Stellar wallet")
           reject(error)
         }
-        return walletId
       },
     })
   })
