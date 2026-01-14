@@ -1,6 +1,5 @@
 {
   "lockfileVersion": 1,
-  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "defuse-frontend",
@@ -8,8 +7,8 @@
         "@clickhouse/client": "^1.12.1",
         "@creit.tech/stellar-wallets-kit": "1.9.5",
         "@defuse-protocol/contract-types": "0.4.3",
-        "@defuse-protocol/intents-sdk": "0.44.0",
-        "@defuse-protocol/internal-utils": "0.22.0",
+        "@defuse-protocol/intents-sdk": "0.45.2",
+        "@defuse-protocol/internal-utils": "0.23.0",
         "@defuse-protocol/one-click-sdk-typescript": "^0.1.1-0.2",
         "@hot-labs/near-connect": "0.6.8",
         "@near-wallet-selector/core": "^9.1.0",
@@ -523,9 +522,9 @@
 
     "@defuse-protocol/contract-types": ["@defuse-protocol/contract-types@0.4.3", "", {}, "sha512-mxbFoTciNsx5rjosDlgSgheA02VXKHBJh4wNToO0MQcab7PK/tvwhD++/7ABZLxqGOENPyZfN82S4FlgtngSLA=="],
 
-    "@defuse-protocol/intents-sdk": ["@defuse-protocol/intents-sdk@0.44.0", "", { "dependencies": { "@defuse-protocol/contract-types": "0.4.3", "@defuse-protocol/internal-utils": "0.22.0", "@hot-labs/omni-sdk": "2.24.3", "@isaacs/ttlcache": "^1.0.0", "@lifeomic/attempt": "^3.0.0", "@near-js/accounts": "^2.0.1", "@near-js/client": "^2.0.1", "@near-js/keystores": "^2.0.1", "@noble/hashes": "^1.7.1", "@scure/base": "^1.0.0", "@solana/web3.js": "^1.0.0", "borsher": "^4.0.0", "lru-cache": "^11", "near-api-js": "^4.0.0 || ^5.0.0", "omni-bridge-sdk": "0.23.1", "ripple-address-codec": "^5.0.0", "valibot": "^1.0.0", "viem": "^2.0.0" }, "peerDependencies": { "typescript": "^5" } }, "sha512-xmS25FJjhXL5elss+F9Gjy3gG9BtIzFzy0KKX9p0nL71IMQGRKVyHY3PguoSGbu1JGzeu3WnaUD1gM40Yn6zKg=="],
+    "@defuse-protocol/intents-sdk": ["@defuse-protocol/intents-sdk@0.45.2", "", { "dependencies": { "@defuse-protocol/contract-types": "0.4.3", "@defuse-protocol/internal-utils": "0.23.0", "@hot-labs/omni-sdk": "2.24.3", "@isaacs/ttlcache": "^1.0.0", "@lifeomic/attempt": "^3.0.0", "@near-js/accounts": "^2.0.1", "@near-js/client": "^2.0.1", "@near-js/keystores": "^2.0.1", "@noble/hashes": "^1.7.1", "@scure/base": "^1.0.0", "@solana/web3.js": "^1.0.0", "borsher": "^4.0.0", "lru-cache": "^11", "near-api-js": "^4.0.0 || ^5.0.0", "omni-bridge-sdk": "0.23.1", "ripple-address-codec": "^5.0.0", "valibot": "^1.0.0", "viem": "^2.0.0" }, "peerDependencies": { "typescript": "^5" } }, "sha512-owXspCV9Lv1+XBr89DxCugh8XuxSqkQ/Srj9kT5cVfMht+mGiQbmGL4vXPxnkjCGYxXPbf7l5Ya1X2NWayaPug=="],
 
-    "@defuse-protocol/internal-utils": ["@defuse-protocol/internal-utils@0.22.0", "", { "dependencies": { "@defuse-protocol/contract-types": "0.4.3", "@lifeomic/attempt": "^3.0.0", "@noble/hashes": "^1.7.1", "@peculiar/asn1-ecc": "^2.0.0", "@peculiar/asn1-schema": "^2.0.0", "@scure/base": "^1.0.0", "@thames/monads": "^0.7.0", "near-api-js": "^4.0.0 || ^5.0.0", "tweetnacl": "^1.0.0", "valibot": "^1.0.0", "viem": "^2.0.0" } }, "sha512-POOXwSbv7B2VKpr2kQmByoTfmr2iaQ4Yz3AJZSt7KKlovJchHPtgCvMZGyF8iArX+U9anLUFGnRfhScJY7E54g=="],
+    "@defuse-protocol/internal-utils": ["@defuse-protocol/internal-utils@0.23.0", "", { "dependencies": { "@defuse-protocol/contract-types": "0.4.3", "@lifeomic/attempt": "^3.0.0", "@noble/hashes": "^1.7.1", "@peculiar/asn1-ecc": "^2.0.0", "@peculiar/asn1-schema": "^2.0.0", "@scure/base": "^1.0.0", "@thames/monads": "^0.7.0", "near-api-js": "^4.0.0 || ^5.0.0", "tweetnacl": "^1.0.0", "valibot": "^1.0.0", "viem": "^2.0.0" } }, "sha512-BX0sZHxfmL+qoyCMYesqEGOLWBLm3K2Q+hHTLhZ2t7GQ+F2pEsvkxEW7qoUAPqCl/sXPAhDjOFnJs+o/0XwdbQ=="],
 
     "@defuse-protocol/one-click-sdk-typescript": ["@defuse-protocol/one-click-sdk-typescript@0.1.10", "", { "dependencies": { "axios": "^1.6.8", "form-data": "^4.0.0" } }, "sha512-47BmNDC0THRViW0E8Tnb5jGRAXwZHe/e744IUYnnS4dGpKRKqSQKlkO0+XQThqV5J7aHTCLIUZ0SRxFs4R4Fdw=="],
 

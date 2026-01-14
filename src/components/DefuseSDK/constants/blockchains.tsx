@@ -19,6 +19,9 @@ type IntentsOption = {
 
 export type NetworkOption = BlockchainOption | IntentsOption
 
+// Temporal workaround for Scroll until it is added
+type SupportedBlockchain = Exclude<BlockchainEnum, typeof BlockchainEnum.SCROLL>
+
 export function isIntentsOption(
   option: NetworkOption
 ): option is IntentsOption {
@@ -179,13 +182,21 @@ export const chainIcons: Record<
     dark: "/static/icons/network/starknet.svg",
     light: "/static/icons/network/starknet.svg",
   },
+  plasma: {
+    dark: "/static/icons/network/plasma-white.svg",
+    light: "/static/icons/network/plasma.svg",
+  },
+  scroll: {
+    dark: "/static/icons/network/scroll-white.svg",
+    light: "/static/icons/network/scroll.svg",
+  },
 }
 
 export function getBlockchainsOptions(): Record<
-  BlockchainEnum,
+  SupportedBlockchain,
   BlockchainOption
 > {
-  const options: Record<BlockchainEnum, BlockchainOption> = {
+  const options: Record<SupportedBlockchain, BlockchainOption> = {
     [BlockchainEnum.NEAR]: {
       label: "Near",
       icon: <NetworkIcon chainIcon={chainIcons.near} chainName="near" />,
@@ -439,14 +450,27 @@ export function getBlockchainsOptions(): Record<
       value: BlockchainEnum.ADI,
       tags: [],
     },
+    [BlockchainEnum.PLASMA]: {
+      label: "Plasma",
+      icon: <NetworkIcon chainIcon={chainIcons.plasma} chainName="Plasma" />,
+      value: BlockchainEnum.PLASMA,
+      tags: [],
+    },
+    // Temporal workaround for Scroll until it is added
+    // [BlockchainEnum.SCROLL]: {
+    //   label: "Scroll",
+    //   icon: <NetworkIcon chainIcon={chainIcons.scroll} chainName="Scroll" />,
+    //   value: BlockchainEnum.SCROLL,
+    //   tags: [],
+    // },
   }
 
   return sortBlockchainOptionsByVolume(options)
 }
 
 function sortBlockchainOptionsByVolume(
-  options: Record<BlockchainEnum, BlockchainOption>
-): Record<BlockchainEnum, BlockchainOption> {
+  options: Record<SupportedBlockchain, BlockchainOption>
+): Record<SupportedBlockchain, BlockchainOption> {
   const sortedEntries = Object.entries(options).sort(([, a], [, b]) => {
     const volTagA = a.tags?.find((tag) => tag.startsWith("vol:"))
     const volTagB = b.tags?.find((tag) => tag.startsWith("vol:"))
@@ -458,7 +482,7 @@ function sortBlockchainOptionsByVolume(
   })
 
   return Object.fromEntries(sortedEntries) as Record<
-    BlockchainEnum,
+    SupportedBlockchain,
     BlockchainOption
   >
 }
