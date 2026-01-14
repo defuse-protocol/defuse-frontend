@@ -1,6 +1,9 @@
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
-import { Cross2Icon } from "@radix-ui/react-icons"
-import { Callout } from "@radix-ui/themes"
+import { ArrowLongRightIcon } from "@heroicons/react/16/solid"
+import { XMarkIcon } from "@heroicons/react/20/solid"
+import Alert from "@src/components/Alert"
+import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
+import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
+import ListItem from "@src/components/ListItem"
 import type { TokenInfo, TokenValue } from "../../../types/base"
 import { assert } from "../../../utils/assert"
 import {
@@ -9,7 +12,6 @@ import {
   negateTokenValue,
 } from "../../../utils/tokenUtils"
 import type { TradeTerms } from "../utils/deriveTradeTerms"
-import { SwapStrip } from "./shared/SwapStrip"
 
 export function OtcTakerInvalidOrder({
   error,
@@ -53,48 +55,72 @@ export function OtcTakerInvalidOrder({
   }
 
   return (
-    <div>
-      {/* Header Section */}
-      <div className="flex flex-row justify-between mb-5">
-        <div className="flex flex-col items-start gap-1.5">
-          <div className="text-2xl font-black text-gray-12 mb-2">Oops!</div>
-          <div className="text-sm font-medium text-gray-11">
-            Looks like this trade is no longer valid — either it expired or the
-            funds aren’t there.
-          </div>
-          <div className="text-sm font-medium text-gray-11">
-            Check back with the sender for an update.
-          </div>
+    <div className="relative rounded-3xl bg-white p-6 border border-gray-200 overflow-hidden">
+      <div className="absolute inset-x-0 top-0 h-24 bg-linear-to-b from-red-50/50 to-red-50/0" />
+
+      <div className="relative flex flex-col items-center justify-center mt-7">
+        <div className="size-13 rounded-full bg-red-100 flex justify-center items-center">
+          <XMarkIcon className="size-6 text-red-600" />
         </div>
-        <div className="flex justify-center items-start">
-          <div className="w-[64px] h-[64px] flex items-center justify-center rounded-full bg-red-4">
-            <Cross2Icon className="size-7 text-red-a11" />
-          </div>
-        </div>
+
+        <h2 className="mt-5 text-2xl/7 font-bold tracking-tight text-center">
+          Deal no longer valid!
+        </h2>
+        <p className="mt-2 text-base/5 font-medium text-gray-500 text-center text-balance">
+          This deal has either expired or the funds aren’t there. Check back
+          with the sender for an update.
+        </p>
       </div>
 
-      {/* Error Section */}
-      {error != null && (
-        <Callout.Root size="1" color="red">
-          <Callout.Icon>
-            <ExclamationTriangleIcon />
-          </Callout.Icon>
-          <Callout.Text>{error}</Callout.Text>
-        </Callout.Root>
-      )}
-
-      {/* Order Section */}
       {tradeTerms != null &&
         breakdown != null &&
         tokenIn != null &&
         tokenOut != null && (
-          <SwapStrip
-            tokenIn={tokenIn}
-            tokenOut={tokenOut}
-            amountIn={breakdown.takerSends}
-            amountOut={breakdown.takerReceives}
-          />
+          <ListItem className="mt-2">
+            <div className="flex items-center">
+              <AssetComboIcon {...tokenIn} />
+              <AssetComboIcon
+                {...tokenOut}
+                className="-ml-4 ring-3 ring-white rounded-full"
+              />
+            </div>
+            <ListItem.Content>
+              <ListItem.Title className="flex items-center gap-0.5">
+                {tokenIn.symbol}
+                <ArrowLongRightIcon className="size-4 text-gray-400 shrink-0" />
+                {tokenOut.symbol}
+              </ListItem.Title>
+            </ListItem.Content>
+            <ListItem.Content align="end">
+              <ListItem.Title>
+                {formatTokenValue(
+                  breakdown.takerReceives.amount,
+                  breakdown.takerReceives.decimals,
+                  {
+                    fractionDigits: 5,
+                  }
+                )}{" "}
+                {tokenOut.symbol}
+              </ListItem.Title>
+              <ListItem.Subtitle>
+                {formatTokenValue(
+                  breakdown.takerSends.amount,
+                  breakdown.takerSends.decimals,
+                  {
+                    fractionDigits: 5,
+                  }
+                )}{" "}
+                {tokenIn.symbol}
+              </ListItem.Subtitle>
+            </ListItem.Content>
+          </ListItem>
         )}
+
+      {error != null && (
+        <Alert variant="error" className="mt-2">
+          {error}
+        </Alert>
+      )}
     </div>
   )
 }

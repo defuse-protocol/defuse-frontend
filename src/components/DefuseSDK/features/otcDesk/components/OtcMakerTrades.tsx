@@ -77,7 +77,6 @@ export function OtcMakerTrades({
   if (trades == null || trades.length === 0) {
     return (
       <section className="mt-9">
-        <h2 className="sr-only">Assets</h2>
         <ListItemsSkeleton count={3} className="mt-2" />
         <div className="max-w-72 mx-auto -mt-5 relative flex flex-col items-center">
           <h3 className="text-xl font-semibold text-gray-900 text-center tracking-tight">

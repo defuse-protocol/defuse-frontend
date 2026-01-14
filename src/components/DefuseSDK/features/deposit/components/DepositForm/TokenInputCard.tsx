@@ -23,8 +23,8 @@ type BaseTokenInputCardProps = {
   disabled?: boolean
   loading?: boolean
   selectedToken: TokenInfo
-  tokens: TokenInfo[]
-  handleSelectToken: () => void
+  tokens?: TokenInfo[]
+  handleSelectToken?: () => void
   selectAssetsTestId?: string
   readOnly?: boolean
   error?: string
@@ -32,15 +32,23 @@ type BaseTokenInputCardProps = {
 
 type WithRegistration = BaseTokenInputCardProps & {
   registration: UseFormRegisterReturn
-  value?: string
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
+  value?: never
+  onChange?: never
 }
 
-type WithControlled = BaseTokenInputCardProps & {
-  registration?: undefined
-  value: string
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-}
+type WithControlled =
+  | (BaseTokenInputCardProps & {
+      registration?: undefined
+      readOnly?: false
+      value: string
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+    })
+  | (BaseTokenInputCardProps & {
+      registration?: undefined
+      readOnly: true
+      value: string
+      onChange?: never
+    })
 
 type TokenInputCardProps = WithRegistration | WithControlled
 
@@ -121,7 +129,7 @@ const TokenInputCard = ({
           selected={selectedToken ?? undefined}
           dataTestId={selectAssetsTestId}
           disabled={disabled}
-          handleSelect={handleSelectToken}
+          handleSelect={handleSelectToken ?? undefined}
           tokens={tokens}
         />
         {handleSetMax && (

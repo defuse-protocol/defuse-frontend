@@ -331,7 +331,7 @@ const ModalActiveDeal = ({
         (isUncancellable ? (
           <>
             <div className="flex flex-col items-center justify-center">
-              <div className="w-13 h-13 rounded-full bg-red-100 flex justify-center items-center">
+              <div className="size-13 rounded-full bg-red-100 flex justify-center items-center">
                 <XMarkIcon className="size-6 text-red-600" />
               </div>
 
