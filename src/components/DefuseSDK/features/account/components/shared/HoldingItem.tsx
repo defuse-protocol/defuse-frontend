@@ -6,9 +6,10 @@ import { FormattedCurrency } from "./FormattedCurrency"
 
 interface HoldingItemProps {
   holding: Holding
+  hideBalances?: boolean
 }
 
-export function HoldingItem({ holding }: HoldingItemProps) {
+export function HoldingItem({ holding, hideBalances }: HoldingItemProps) {
   const { token, value, usdValue } = holding
 
   const formatted = value
@@ -32,10 +33,12 @@ export function HoldingItem({ holding }: HoldingItemProps) {
       </div>
 
       <div className="flex flex-col items-end gap-0.5">
-        <div className="text-sm font-medium" title={formatted}>
-          {shortFormatted ?? "-"} {token.symbol}
+        <div className="text-sm font-medium" title={hideBalances ? undefined : formatted}>
+          {hideBalances ? "••••" : (shortFormatted ?? "-")} {token.symbol}
         </div>
-        {usdValue != null ? (
+        {hideBalances ? (
+          <span className="text-sm font-medium text-gray-11">••••</span>
+        ) : usdValue != null ? (
           <FormattedCurrency
             value={usdValue}
             formatOptions={{ currency: "USD" }}

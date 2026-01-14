@@ -1,4 +1,4 @@
-import { Gift, PaperPlaneRight, Plus } from "@phosphor-icons/react"
+import { Eye, EyeSlash, Gift, PaperPlaneRight, Plus } from "@phosphor-icons/react"
 import { Skeleton } from "@radix-ui/themes"
 import { useState } from "react"
 import { AuthGate } from "../../../components/AuthGate"
@@ -14,18 +14,40 @@ export function SummaryIsland({
   valueUsd,
   renderHostAppLink,
   internalUserAddress,
+  hideBalances = false,
+  onToggleHideBalances,
 }: {
   isLoggedIn: boolean
   valueUsd: number | undefined
   renderHostAppLink: RenderHostAppLink
   internalUserAddress: string | null
+  hideBalances?: boolean
+  onToggleHideBalances?: () => void
 }) {
   valueUsd = isLoggedIn ? valueUsd : 0
   const [isRevealed, setIsRevealed] = useState(false)
 
   return (
     <Island className="flex flex-col gap-8">
-      <IslandHeader heading="Account" />
+      <IslandHeader
+        heading="Account"
+        rightSlot={
+          onToggleHideBalances && (
+            <button
+              type="button"
+              onClick={onToggleHideBalances}
+              className="p-2 text-gray-11 hover:text-gray-12 transition-colors"
+              aria-label={hideBalances ? "Show balances" : "Hide balances"}
+            >
+              {hideBalances ? (
+                <EyeSlash weight="bold" className="size-5" />
+              ) : (
+                <Eye weight="bold" className="size-5" />
+              )}
+            </button>
+          )
+        }
+      />
 
       {isRevealed && internalUserAddress != null && (
         <RevealAddressDialog
@@ -36,12 +58,18 @@ export function SummaryIsland({
 
       <div className="flex flex-col gap-2">
         {valueUsd != null ? (
-          <FormattedCurrency
-            value={valueUsd}
-            formatOptions={{ currency: "USD" }}
-            className="text-[40px] leading-none tracking-tight font-black"
-            centsClassName="text-[32px]"
-          />
+          hideBalances ? (
+            <div className="text-[40px] leading-none tracking-tight font-black">
+              ••••••
+            </div>
+          ) : (
+            <FormattedCurrency
+              value={valueUsd}
+              formatOptions={{ currency: "USD" }}
+              className="text-[40px] leading-none tracking-tight font-black"
+              centsClassName="text-[32px]"
+            />
+          )
         ) : (
           <div>
             <Skeleton className="text-[40px] leading-none">$1000.00</Skeleton>

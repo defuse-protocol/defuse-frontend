@@ -1,6 +1,7 @@
 "use client"
 
 import { AccountWidget } from "@src/components/DefuseSDK/features/account/components/AccountWidget"
+import { useHideBalances } from "@src/components/DefuseSDK/hooks/useHideBalances"
 import { QueryClientProvider } from "@src/components/DefuseSDK/providers/QueryClientProvider"
 
 import Paper from "@src/components/Paper"
@@ -12,6 +13,7 @@ import { renderAppLink } from "@src/utils/renderAppLink"
 export default function AccountPage() {
   const { state } = useConnectWallet()
   const tokenList = useTokenList(LIST_TOKENS)
+  const hideBalances = useHideBalances()
 
   return (
     <Paper>
@@ -21,6 +23,7 @@ export default function AccountPage() {
           userAddress={(state.isVerified ? state.address : undefined) ?? null}
           userChainType={state.chainType ?? null}
           renderHostAppLink={renderAppLink}
+          hideBalances={hideBalances}
         />
       </QueryClientProvider>
     </Paper>

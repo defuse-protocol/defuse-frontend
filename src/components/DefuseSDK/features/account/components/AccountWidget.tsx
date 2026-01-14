@@ -4,6 +4,7 @@ import { authIdentity } from "@defuse-protocol/internal-utils"
 import { getTokenId } from "@src/components/DefuseSDK/utils/token"
 import { useMemo } from "react"
 import { WidgetRoot } from "../../../components/WidgetRoot"
+import type { HideBalancesConfig } from "../../../hooks/useHideBalances"
 import type { TokenInfo } from "../../../types/base"
 import type { RenderHostAppLink } from "../../../types/hostAppLink"
 import { useWatchHoldings } from "../hooks/useWatchHoldings"
@@ -18,6 +19,8 @@ export interface AccountWidgetProps {
   userChainType: AuthMethod | null | undefined
 
   renderHostAppLink: RenderHostAppLink
+
+  hideBalances?: HideBalancesConfig
 }
 
 export function AccountWidget({
@@ -25,6 +28,7 @@ export function AccountWidget({
   userAddress,
   userChainType,
   renderHostAppLink,
+  hideBalances,
 }: AccountWidgetProps) {
   const userId =
     userAddress != null && userChainType != null
@@ -60,9 +64,11 @@ export function AccountWidget({
           valueUsd={totalValueUsd}
           renderHostAppLink={renderHostAppLink}
           internalUserAddress={internalUserAddress}
+          hideBalances={hideBalances?.hidden}
+          onToggleHideBalances={hideBalances?.toggle}
         />
 
-        <HoldingsIsland isLoggedIn={userId != null} holdings={holdings} />
+        <HoldingsIsland isLoggedIn={userId != null} holdings={holdings} hideBalances={hideBalances?.hidden} />
       </div>
     </WidgetRoot>
   )
