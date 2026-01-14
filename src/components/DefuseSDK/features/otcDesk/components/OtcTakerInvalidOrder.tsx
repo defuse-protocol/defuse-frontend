@@ -76,7 +76,7 @@ export function OtcTakerInvalidOrder({
         breakdown != null &&
         tokenIn != null &&
         tokenOut != null && (
-          <ListItem className="mt-2">
+          <ListItem className="mt-3">
             <div className="flex items-center">
               <AssetComboIcon {...tokenIn} />
               <AssetComboIcon
@@ -117,7 +117,7 @@ export function OtcTakerInvalidOrder({
         )}
 
       {error != null && (
-        <Alert variant="error" className="mt-2">
+        <Alert variant="error" className="mt-5">
           {error}
         </Alert>
       )}

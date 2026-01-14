@@ -3,7 +3,7 @@ export const navigation = {
   account: "/account",
   deposit: "/deposit",
   withdraw: "/withdraw",
-  otc: "/otc/create-order",
+  otc: "/deals",
   jobs: "/jobs",
 } satisfies Record<AppRoutes, string>
 

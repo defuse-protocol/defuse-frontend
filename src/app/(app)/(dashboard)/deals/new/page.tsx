@@ -9,8 +9,8 @@ import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import { useNearWallet } from "@src/providers/NearWalletProvider"
 import { renderAppLink } from "@src/utils/renderAppLink"
-import { createOtcOrder, createOtcOrderLink } from "../../otc/_utils/link"
 import { useDeterminePair } from "../../swap/_utils/useDeterminePair"
+import { createOtcOrder, createOtcOrderLink } from "../_utils/link"
 
 const CreateDealPage = () => {
   const { state } = useConnectWallet()
