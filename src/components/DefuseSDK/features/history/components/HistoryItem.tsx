@@ -12,7 +12,7 @@ import type {
   TokenAmount,
 } from "@src/features/balance-history/types"
 import { useMemo } from "react"
-import { AssetComboIcon } from "../../../components/Asset/AssetComboIcon"
+import AssetComboIcon from "../../../components/Asset/AssetComboIcon"
 import {
   Tooltip,
   TooltipContent,
