@@ -1,9 +1,19 @@
 import type { QueryObserverOptions } from "@tanstack/react-query"
 import { nearClient } from "../constants/nearClient"
 import type { BalanceMapping } from "../features/machines/depositedBalanceMachine"
+import { queryClient } from "../providers/QueryClientProvider"
 import { getDepositedBalances } from "../services/defuseBalanceService"
 import type { IntentsUserId } from "../types/intentsUserId"
 import { assert } from "../utils/assert"
+
+export function invalidateBalanceQueries() {
+  void queryClient.invalidateQueries({
+    queryKey: ["intents_sdk.deposited_balance"],
+  })
+  void queryClient.invalidateQueries({
+    queryKey: ["intents_sdk.transit_balance"],
+  })
+}
 
 export function createDepositedBalanceQueryOptions(
   { userId, tokenIds }: { userId: null | IntentsUserId; tokenIds: string[] },

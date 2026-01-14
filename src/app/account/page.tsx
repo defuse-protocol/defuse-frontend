@@ -1,6 +1,7 @@
 "use client"
 
 import { AccountWidget } from "@src/components/DefuseSDK/features/account/components/AccountWidget"
+import { QueryClientProvider } from "@src/components/DefuseSDK/providers/QueryClientProvider"
 
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
@@ -14,12 +15,14 @@ export default function AccountPage() {
 
   return (
     <Paper>
-      <AccountWidget
-        tokenList={tokenList}
-        userAddress={(state.isVerified ? state.address : undefined) ?? null}
-        userChainType={state.chainType ?? null}
-        renderHostAppLink={renderAppLink}
-      />
+      <QueryClientProvider>
+        <AccountWidget
+          tokenList={tokenList}
+          userAddress={(state.isVerified ? state.address : undefined) ?? null}
+          userChainType={state.chainType ?? null}
+          renderHostAppLink={renderAppLink}
+        />
+      </QueryClientProvider>
     </Paper>
   )
 }
