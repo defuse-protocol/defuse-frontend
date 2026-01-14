@@ -2,13 +2,14 @@ import type { MultiPayload } from "@defuse-protocol/contract-types"
 import {
   ClipboardDocumentCheckIcon,
   ClipboardDocumentIcon,
-  ExclamationTriangleIcon,
+  XMarkIcon,
 } from "@heroicons/react/20/solid"
 import Alert from "@src/components/Alert"
 import Button from "@src/components/Button"
 import { CurvedArrowIcon } from "@src/icons"
 import { useQuery } from "@tanstack/react-query"
 import { useSelector } from "@xstate/react"
+import clsx from "clsx"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { type ActorRefFrom, createActor, toPromise } from "xstate"
 import { nearClient } from "../../constants/nearClient"
@@ -21,6 +22,7 @@ import type {
   SignMessage,
 } from "../../features/otcDesk/types/sharedTypes"
 import { computeTradeBreakdown } from "../../features/otcDesk/utils/otcMakerBreakdown"
+import { parseTradeTerms } from "../../features/otcDesk/utils/parseTradeTerms"
 import { usePublicKeyModalOpener } from "../../features/swap/hooks/usePublicKeyModalOpener"
 import { getProtocolFee } from "../../services/intentsContractService"
 import type { TokenInfo } from "../../types/base"
@@ -43,6 +45,11 @@ export type ModalActiveDealProps = {
   signerCredentials: SignerCredentials
   signMessage: SignMessage
   sendNearTransaction: SendNearTransaction
+  error?:
+    | "ORDER_EXPIRED"
+    | "NONCE_ALREADY_USED"
+    | "MAKER_INSUFFICIENT_FUNDS"
+    | null
 }
 
 const ModalActiveDeal = ({
@@ -59,9 +66,25 @@ const ModalActiveDeal = ({
   signerCredentials,
   signMessage,
   sendNearTransaction,
+  error,
 }: ModalActiveDealProps) => {
   const link = generateLink(tradeId, pKey, multiPayload, iv)
   const [view, setView] = useState<"details" | "confirmCancel">("details")
+
+  const expiredAt = useMemo(() => {
+    if (error !== "ORDER_EXPIRED") return null
+    const result = parseTradeTerms(multiPayload)
+    if (!result.isOk()) return null
+    const deadline = new Date(result.unwrap().deadline)
+    return new Intl.DateTimeFormat("en-US", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    }).format(deadline)
+  }, [multiPayload, error])
 
   const { data: protocolFee } = useQuery({
     queryKey: ["protocol_fee"],
@@ -178,48 +201,58 @@ const ModalActiveDeal = ({
               <AssetComboIcon {...tokenOut} sizeClassName="size-13" />
             </div>
 
-            <h2 className="mt-5 text-2xl/7 font-bold tracking-tight text-center">
-              Your deal is active
+            <h2 className="mt-5 text-2xl/7 font-bold tracking-tight text-center text-pretty">
+              {getTitle(error)}
             </h2>
-            <p className="mt-2 text-base/5 font-medium text-gray-500 text-center text-balance">
-              Share the link with the counterparty to finalize the deal
+            <p className="mt-2 text-base/5 font-medium text-gray-500 text-center text-balance max-w-72">
+              {getSubtitle({ error, expiredAt })}
             </p>
           </div>
 
-          <div className="flex items-center gap-4 rounded-2xl border border-gray-200 p-1 pl-4 mt-6">
-            <div className="text-sm/none font-semibold text-gray-900 truncate">
-              {link}
-            </div>
+          {!error && (
+            <div className="flex items-center gap-4 rounded-2xl border border-gray-200 p-1 pl-4 mt-6">
+              <div className="text-sm/none font-semibold text-gray-900 truncate">
+                {link}
+              </div>
 
-            <Copy text={link}>
-              {(copied) => (
-                <Button variant="primary" size="lg">
-                  {copied ? (
-                    <ClipboardDocumentCheckIcon className="size-5" />
-                  ) : (
-                    <ClipboardDocumentIcon className="size-5" />
-                  )}
-                  <span className="min-w-14.5">
-                    {copied ? "Copied!" : "Copy link"}
-                  </span>
-                </Button>
-              )}
-            </Copy>
-          </div>
+              <Copy text={link}>
+                {(copied) => (
+                  <Button variant="primary" size="lg">
+                    {copied ? (
+                      <ClipboardDocumentCheckIcon className="size-5" />
+                    ) : (
+                      <ClipboardDocumentIcon className="size-5" />
+                    )}
+                    <span className="min-w-14.5">
+                      {copied ? "Copied!" : "Copy link"}
+                    </span>
+                  </Button>
+                )}
+              </Copy>
+            </div>
+          )}
 
           {breakdown != null && (
-            <dl className="mt-5 space-y-2">
+            <dl
+              className={clsx(
+                "space-y-2",
+                error ? "mt-7 pt-5 border-t border-gray-200" : "mt-5"
+              )}
+            >
               <div className="flex items-center justify-between gap-2">
                 <dt className="text-sm/5 text-gray-500 font-medium">
                   You send
                 </dt>
-                <dd className="text-sm/5 text-gray-900 font-semibold">
-                  {formatTokenValue(
-                    breakdown.makerSends.amount,
-                    breakdown.makerSends.decimals,
-                    { fractionDigits: 4 }
-                  )}{" "}
-                  {tokenIn.symbol}
+                <dd className="flex items-center gap-1 justify-end">
+                  <span className="text-sm/5 text-gray-900 font-semibold">
+                    {formatTokenValue(
+                      breakdown.makerSends.amount,
+                      breakdown.makerSends.decimals,
+                      { fractionDigits: 4 }
+                    )}{" "}
+                    {tokenIn.symbol}
+                  </span>
+                  <AssetComboIcon {...tokenIn} sizeClassName="size-4" />
                 </dd>
               </div>
 
@@ -227,13 +260,16 @@ const ModalActiveDeal = ({
                 <dt className="text-sm/5 text-gray-500 font-medium">
                   You receive
                 </dt>
-                <dd className="text-sm/5 text-gray-900 font-semibold">
-                  {formatTokenValue(
-                    breakdown.makerReceives.amount,
-                    breakdown.makerReceives.decimals,
-                    { fractionDigits: 4 }
-                  )}{" "}
-                  {tokenOut.symbol}
+                <dd className="flex items-center gap-1 justify-end">
+                  <span className="text-sm/5 text-gray-900 font-semibold">
+                    {formatTokenValue(
+                      breakdown.makerReceives.amount,
+                      breakdown.makerReceives.decimals,
+                      { fractionDigits: 4 }
+                    )}{" "}
+                    {tokenOut.symbol}
+                  </span>
+                  <AssetComboIcon {...tokenOut} sizeClassName="size-4" />
                 </dd>
               </div>
 
@@ -241,13 +277,16 @@ const ModalActiveDeal = ({
                 <dt className="text-sm/5 text-gray-500 font-medium">
                   Processing fee
                 </dt>
-                <dd className="text-sm/5 text-gray-900 font-semibold">
-                  {formatTokenValue(
-                    breakdown.makerPaysFee.amount,
-                    breakdown.makerPaysFee.decimals,
-                    { fractionDigits: 4 }
-                  )}{" "}
-                  {tokenIn.symbol}
+                <dd className="flex items-center gap-1 justify-end">
+                  <span className="text-sm/5 text-gray-900 font-semibold">
+                    {formatTokenValue(
+                      breakdown.makerPaysFee.amount,
+                      breakdown.makerPaysFee.decimals,
+                      { fractionDigits: 4 }
+                    )}{" "}
+                    {tokenIn.symbol}
+                  </span>
+                  <AssetComboIcon {...tokenIn} sizeClassName="size-4" />
                 </dd>
               </div>
 
@@ -255,36 +294,36 @@ const ModalActiveDeal = ({
                 <dt className="text-sm/5 text-gray-500 font-medium">
                   Recipient receives
                 </dt>
-                <dd className="text-sm/5 text-gray-900 font-semibold">
-                  {formatTokenValue(
-                    breakdown.takerReceives.amount,
-                    breakdown.takerReceives.decimals,
-                    { fractionDigits: 4 }
-                  )}{" "}
-                  {tokenIn.symbol}
+                <dd className="flex items-center gap-1 justify-end">
+                  <span className="text-sm/5 text-gray-900 font-semibold">
+                    {formatTokenValue(
+                      breakdown.takerReceives.amount,
+                      breakdown.takerReceives.decimals,
+                      { fractionDigits: 4 }
+                    )}{" "}
+                    {tokenIn.symbol}
+                  </span>
+                  <AssetComboIcon {...tokenIn} sizeClassName="size-4" />
                 </dd>
               </div>
             </dl>
           )}
 
-          <Button
-            onClick={handleInitiateCancel}
-            variant="destructive-soft"
-            size="xl"
-            fullWidth
-            className="mt-5"
-          >
-            Cancel deal
-          </Button>
-          <Button
-            onClick={onClose}
-            variant="secondary"
-            size="xl"
-            fullWidth
-            className="mt-2"
-          >
-            Close
-          </Button>
+          <div className="mt-5 space-y-2">
+            {(!error || error === "MAKER_INSUFFICIENT_FUNDS") && (
+              <Button
+                onClick={handleInitiateCancel}
+                variant="destructive-soft"
+                size="xl"
+                fullWidth
+              >
+                Cancel deal
+              </Button>
+            )}
+            <Button onClick={onClose} variant="secondary" size="xl" fullWidth>
+              Close
+            </Button>
+          </div>
         </>
       )}
 
@@ -292,14 +331,12 @@ const ModalActiveDeal = ({
         (isUncancellable ? (
           <>
             <div className="flex flex-col items-center justify-center">
-              <div className="w-16 h-16 rounded-full bg-red-100 flex justify-center items-center">
-                <ExclamationTriangleIcon className="size-8 text-red-600" />
+              <div className="w-13 h-13 rounded-full bg-red-100 flex justify-center items-center">
+                <XMarkIcon className="size-6 text-red-600" />
               </div>
 
               <h2 className="mt-5 text-2xl/7 font-bold tracking-tight text-center">
-                Your deal is executed
-                <br />
-                or already cancelled
+                Your deal has been filled or already cancelled
               </h2>
               <p className="mt-2 text-base/5 font-medium text-gray-500 text-center text-balance">
                 This deal has either been successfully completed or was
@@ -314,7 +351,7 @@ const ModalActiveDeal = ({
               fullWidth
               className="mt-6"
             >
-              Ok
+              Continue
             </Button>
           </>
         ) : (
@@ -324,7 +361,7 @@ const ModalActiveDeal = ({
                 Cancel deal?
               </h2>
               <p className="mt-2 text-base/5 font-medium text-gray-500 text-center text-balance">
-                The funds will stay safely in your wallet, and the link will no
+                Your funds will stay safely in your wallet, and the link will no
                 longer work.
               </p>
             </div>
@@ -350,7 +387,7 @@ const ModalActiveDeal = ({
 
             {cancellationError && (
               <Alert variant="error" className="mt-2">
-                {cancellationError.reason}
+                {renderErrorMessage(cancellationError.reason)}
               </Alert>
             )}
           </>
@@ -360,3 +397,52 @@ const ModalActiveDeal = ({
 }
 
 export default ModalActiveDeal
+
+const getTitle = (error?: string | null) => {
+  if (error === "ORDER_EXPIRED") {
+    return "Deal expired"
+  }
+
+  if (error === "NONCE_ALREADY_USED") {
+    return "Deal filled or cancelled"
+  }
+
+  if (error === "MAKER_INSUFFICIENT_FUNDS") {
+    return "Your balance is too low"
+  }
+
+  return "Deal active"
+}
+
+const getSubtitle = ({
+  error,
+  expiredAt,
+}: { error?: string | null; expiredAt?: string | null }) => {
+  if (error === "MAKER_INSUFFICIENT_FUNDS") {
+    return "This deal cannot be filled. Please increase your balance or cancel the deal and create a new one."
+  }
+
+  if (error === "ORDER_EXPIRED") {
+    if (expiredAt) {
+      return `This deal expired on ${expiredAt}.`
+    }
+    return "This deal has already expired."
+  }
+
+  if (error === "NONCE_ALREADY_USED") {
+    return "No action needed — this deal was already completed or cancelled."
+  }
+
+  return "Share the link with the counterparty to finalize the deal"
+}
+
+function renderErrorMessage(reason: string): string {
+  switch (reason) {
+    case "ERR_PREPARING_SIGNING_DATA":
+      return "Failed to prepare message for your wallet to sign. Please try again."
+    case "ERR_USER_DIDNT_SIGN":
+      return "It seems the message wasn’t signed in your wallet. Please try again."
+    default:
+      return reason
+  }
+}
