@@ -30,6 +30,8 @@ export interface AggregatedQuote {
   expirationTime: string
   tokenDeltas: [string, bigint][]
   appFee: [string, bigint][]
+  /** Time estimate in seconds (only available for 1cs quotes) */
+  timeEstimate?: number
 }
 
 export type QuoteResult =
