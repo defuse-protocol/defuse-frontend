@@ -11,10 +11,11 @@ export type WhitelabelTemplateValue =
   | "turboswap"
   | "trumpswap"
   | "rabitswap"
+  | "omniswap"
 
 export const whitelabelTemplateFlag = flag<WhitelabelTemplateValue>({
   key: "whitelabelTemplate",
-  defaultValue: "near-intents" as WhitelabelTemplateValue,
+  defaultValue: "omniswap" as WhitelabelTemplateValue, // TODO: change back to "near-intents"
   options: [
     { label: "near-intents.org", value: "near-intents" },
     { label: "SolSwap.org", value: "solswap" },
@@ -22,6 +23,7 @@ export const whitelabelTemplateFlag = flag<WhitelabelTemplateValue>({
     { label: "TurboSwap.org", value: "turboswap" },
     { label: "trump-swap.org", value: "trumpswap" },
     { label: "rabitswap.org", value: "rabitswap" },
+    { label: "omniswap.org", value: "omniswap" },
   ],
   async decide(): Promise<WhitelabelTemplateValue> {
     const headers_ = await headers()
@@ -32,7 +34,7 @@ export const whitelabelTemplateFlag = flag<WhitelabelTemplateValue>({
       }
     }
 
-    return "near-intents"
+    return "omniswap" // TODO: change back to "near-intents"
   },
 })
 

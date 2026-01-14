@@ -53,5 +53,14 @@ export const getDomainMetadataParams = (
     ]
   }
 
+  if (whitelabelTemplate === "omniswap") {
+    params.metadata.name = "OmniSwap"
+    params.metadata.description = "OmniSwap"
+    params.metadata.url = "https://omniswap.org/"
+    params.metadata.icons = [
+      "https://omniswap.org/favicons/omniswap/favicon-32x32.png",
+    ]
+  }
+
   return params
 }

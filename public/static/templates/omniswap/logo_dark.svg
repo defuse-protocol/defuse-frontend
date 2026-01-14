@@ -1,0 +1,8 @@
+<svg width="120" height="32" viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<!-- Badge shape - extended -->
+<path d="M0 10C0 4.47715 4.47715 0 10 0H38C41.5 0 44.7 1.7762 46.5 4.70001L55 16L46.5 27.3C44.7 30.2238 41.5 32 38 32H10C4.47715 32 0 27.5228 0 22V10Z" fill="#ffffff"/>
+<!-- "omni" inside badge -->
+<text x="8" y="21" font-family="system-ui, -apple-system, BlinkMacSystemFont, sans-serif" font-size="15" font-weight="600" fill="#1a1a1a">omni</text>
+<!-- "swap" text -->
+<text x="60" y="21" font-family="system-ui, -apple-system, BlinkMacSystemFont, sans-serif" font-size="15" font-weight="600" fill="#ffffff">swap</text>
+</svg>

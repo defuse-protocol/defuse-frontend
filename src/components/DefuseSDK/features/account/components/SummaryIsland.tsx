@@ -57,6 +57,7 @@ export function SummaryIsland({
           <NavButton
             routeName="deposit"
             renderHostAppLink={renderHostAppLink}
+            dataTestId="deposit-button"
             className="flex-1"
             variant="primary"
             label="Deposit"

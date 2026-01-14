@@ -152,6 +152,112 @@ html.tmpl-rabitswap {
   /* Note: RabbitSwap doesn't have alpha variants defined, so we keep sand-a* for now */
 }
 
+/* OmniSwap dark monochromatic theme */
+html.tmpl-omniswap {
+  /* OmniSwap CSS variables (dark monochromatic) */
+  --os1d: #1a1a1a;
+  --os2d: #1f1f1f;
+  --os3d: #232323;
+  --os4d: #2a2a2a;
+  --os5d: #333333;
+  --os6d: #3a3a3a;
+  --os7d: #525252;
+  --os8d: #737373;
+  --os9d: #8a8a8a;
+  --os10d: #a3a3a3;
+  --os11d: #d4d4d4;
+  --os12d: #ffffff;
+
+  --sand-1-alias: var(--os1d);
+  --sand-2-alias: var(--os2d);
+  --sand-3-alias: var(--os3d);
+  --sand-4-alias: var(--os4d);
+  --sand-5-alias: var(--os5d);
+  --sand-6-alias: var(--os6d);
+  --sand-7-alias: var(--os7d);
+  --sand-8-alias: var(--os8d);
+  --sand-9-alias: var(--os9d);
+  --sand-10-alias: var(--os10d);
+  --sand-11-alias: var(--os11d);
+  --sand-12-alias: var(--os12d);
+
+  /* Override accent colors for white primary buttons */
+  --accent-1: #1a1a1a;
+  --accent-2: #232323;
+  --accent-3: #2a2a2a;
+  --accent-4: #333333;
+  --accent-5: #3a3a3a;
+  --accent-6: #4a4a4a;
+  --accent-7: #6a6a6a;
+  --accent-8: #8a8a8a;
+  --accent-9: #ffffff;
+  --accent-10: #f0f0f0;
+  --accent-11: #e0e0e0;
+  --accent-12: #ffffff;
+  --accent-a9: rgba(255, 255, 255, 0.95);
+  --accent-a10: rgba(255, 255, 255, 0.9);
+  --accent-contrast: #000000;
+}
+
+html.tmpl-omniswap,
+.tmpl-omniswap body {
+  background: #1a1a1a;
+}
+
+/* OmniSwap button overrides */
+/* Primary/solid buttons - white with black text */
+.tmpl-omniswap .rt-Button:where(.rt-variant-solid) {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+.tmpl-omniswap .rt-Button:where(.rt-variant-solid):hover {
+  background-color: #e8e8e8 !important;
+}
+/* Soft buttons - dark subtle style */
+.tmpl-omniswap .rt-Button:where(.rt-variant-soft) {
+  background-color: #2a2a2a !important;
+  color: #ffffff !important;
+}
+.tmpl-omniswap .rt-Button:where(.rt-variant-soft):hover {
+  background-color: #383838 !important;
+}
+/* Ghost/transparent buttons */
+.tmpl-omniswap .rt-Button:where(.rt-variant-ghost) {
+  color: #a3a3a3 !important;
+}
+.tmpl-omniswap .rt-Button:where(.rt-variant-ghost):hover {
+  background-color: #2a2a2a !important;
+  color: #ffffff !important;
+}
+
+/* Deposit button - muted green accent */
+.tmpl-omniswap [data-testid="deposit-tab"] .rt-Button {
+  background-color: rgba(52, 211, 153, 0.15) !important;
+  color: #34d399 !important;
+}
+.tmpl-omniswap [data-testid="deposit-tab"] .rt-Button:hover {
+  background-color: rgba(52, 211, 153, 0.25) !important;
+}
+.tmpl-omniswap [data-testid="deposit-tab"] .rt-Button * {
+  color: #34d399 !important;
+}
+/* Account page deposit button */
+.tmpl-omniswap [data-testid="deposit-button"] {
+  background-color: rgba(52, 211, 153, 0.15) !important;
+  color: #34d399 !important;
+}
+.tmpl-omniswap [data-testid="deposit-button"]:hover {
+  background-color: rgba(52, 211, 153, 0.25) !important;
+}
+.tmpl-omniswap [data-testid="deposit-button"] * {
+  color: #34d399 !important;
+}
+
+/* Card/Island styling - remove floating effect completely */
+.tmpl-omniswap .shadow {
+  box-shadow: none !important;
+}
+
 .radix-themes {
 	--cursor-button: pointer;
   --cursor-switch: pointer;

@@ -113,6 +113,27 @@ const Logo = () => {
     )
   }
 
+  if (whitelabelTemplate === "omniswap") {
+    return (
+      <Link href={navigation.home}>
+        <Image
+          src="/static/templates/omniswap/logo_dark.svg"
+          alt="OmniSwap Logo"
+          width={120}
+          height={32}
+          className="hidden dark:block"
+        />
+        <Image
+          src="/static/templates/omniswap/logo.svg"
+          alt="OmniSwap Logo"
+          width={120}
+          height={32}
+          className="dark:hidden"
+        />
+      </Link>
+    )
+  }
+
   return (
     <Link href={navigation.home}>
       <Image

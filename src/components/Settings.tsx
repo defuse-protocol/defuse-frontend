@@ -53,14 +53,19 @@ const Settings = () => {
               <RevealAddress internalUserAddress={internalUserAddress} />
             )}
 
-            {whitelabelTemplate !== "rabitswap" && (
-              <>
-                <DarkMode />
-                {internalUserAddress && (
-                  <RevealAddress internalUserAddress={internalUserAddress} />
-                )}
-                <Separator orientation="horizontal" size="4" />
-              </>
+            {whitelabelTemplate !== "rabitswap" &&
+              whitelabelTemplate !== "omniswap" && (
+                <>
+                  <DarkMode />
+                  {internalUserAddress && (
+                    <RevealAddress internalUserAddress={internalUserAddress} />
+                  )}
+                  <Separator orientation="horizontal" size="4" />
+                </>
+              )}
+
+            {whitelabelTemplate === "omniswap" && internalUserAddress && (
+              <RevealAddress internalUserAddress={internalUserAddress} />
             )}
 
             <div className="flex flex-col justify-between items-center gap-1.5">

@@ -17,6 +17,7 @@ const accentsColors: Record<
   turboswap: "amber",
   trumpswap: "tomato",
   rabitswap: "blue",
+  omniswap: "gray",
 }
 
 export async function ThemeProvider({ children }: { children: ReactNode }) {
@@ -26,7 +27,9 @@ export async function ThemeProvider({ children }: { children: ReactNode }) {
   return (
     <NextThemesThemeProvider
       attribute="class"
-      forcedTheme={tpl === "rabitswap" ? "dark" : undefined}
+      forcedTheme={
+        tpl === "rabitswap" || tpl === "omniswap" ? "dark" : undefined
+      }
     >
       <Theme accentColor={accentColor} hasBackground={false}>
         {children}

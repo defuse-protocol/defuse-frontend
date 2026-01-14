@@ -112,6 +112,25 @@ export async function generateMetadata(): Promise<Metadata> {
         description: "Fast, easy cross-chain swaps and more with RabitSwap.",
       },
     })
+  } else if (templ === "omniswap") {
+    Object.assign(metadata, {
+      title: "OmniSwap: Swap Any Token, Any Chain",
+      description:
+        "The universal cross-chain swap protocol. Trade seamlessly across 50+ blockchains with zero friction.",
+      openGraph: {
+        type: "website",
+        images: `/favicons/${templ}/og-image.jpg`,
+        title: "OmniSwap: Swap Any Token, Any Chain",
+        description:
+          "The universal cross-chain swap protocol. Trade seamlessly across 50+ blockchains with zero friction.",
+      },
+      twitter: {
+        images: `/favicons/${templ}/og-image.jpg`,
+        title: "OmniSwap: Swap Any Token, Any Chain",
+        description:
+          "The universal cross-chain swap protocol. Trade seamlessly across 50+ blockchains with zero friction.",
+      },
+    })
   }
 
   return {
