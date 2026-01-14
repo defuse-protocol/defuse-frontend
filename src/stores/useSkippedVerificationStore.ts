@@ -7,25 +7,28 @@ type State = {
 }
 
 type Actions = {
-  addWalletAddress: (address: string) => void
+  addSkippedWalletAddress: (address: string) => void
+  isVerificationSkipped: (address: string) => boolean
   setHasHydrated: (value: boolean) => void
 }
 
 type Store = State & Actions
 
-export const useVerifiedWalletsStore = create<Store>()(
+export const useSkippedVerificationStore = create<Store>()(
   persist(
     (set, get) => ({
       walletAddresses: [],
       _hasHydrated: false,
-      addWalletAddress: (address: string) =>
+      addSkippedWalletAddress: (address: string) =>
         set({
           walletAddresses: [...get().walletAddresses, address],
         }),
+      isVerificationSkipped: (address: string) =>
+        get().walletAddresses.includes(address),
       setHasHydrated: (value: boolean) => set({ _hasHydrated: value }),
     }),
     {
-      name: "app_wallets_verified_list",
+      name: "app_wallets_skipped_verification_list",
       storage: createJSONStorage(() => localStorage),
       onRehydrateStorage: (state) => (_persistedState, error) => {
         if (!error) {

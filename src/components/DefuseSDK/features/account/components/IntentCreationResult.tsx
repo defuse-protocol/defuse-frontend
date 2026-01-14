@@ -81,6 +81,10 @@ const IntentCreationResult = ({
         "Swap aborted: Insufficient token balance for the updated quote. Please try again."
       break
 
+    case "ERR_FAILED_TO_PREPARE_MESSAGE_TO_SIGN":
+      content = "Failed to prepare the message for signing. Please try again."
+      break
+
     default:
       status satisfies never
       content = `An error occurred. Please try again. ${status}`
