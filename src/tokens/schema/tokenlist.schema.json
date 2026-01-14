@@ -211,19 +211,19 @@
           "type": "string"
         },
         {
-          "const": "plasma",
-          "type": "string"
-        },
-        {
-          "const": "scroll",
-          "type": "string"
-        },
-        {
           "const": "adi",
           "type": "string"
         },
         {
           "const": "starknet",
+          "type": "string"
+        },
+        {
+          "const": "plasma",
+          "type": "string"
+        },
+        {
+          "const": "scroll",
           "type": "string"
         },
         {
