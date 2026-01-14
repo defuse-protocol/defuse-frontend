@@ -1,204 +1,67 @@
 "use client"
 
+import { ArrowPathIcon, CheckIcon } from "@heroicons/react/16/solid"
 import { FunnelIcon } from "@heroicons/react/16/solid"
 import Button from "@src/components/Button"
+import type {
+  StatusFilter,
+  TypeFilter,
+} from "@src/components/DefuseSDK/components/Modal/ModalActivityFilters"
 import ModalActivityFilters from "@src/components/DefuseSDK/components/Modal/ModalActivityFilters"
 import SearchBar from "@src/components/DefuseSDK/components/SearchBar"
-import type { Transaction } from "@src/components/DefuseSDK/features/account/types/sharedTypes"
-import TransactionItem from "@src/components/TransactionItem"
+import {
+  HistoryItem,
+  SwapHistoryItemSkeleton,
+} from "@src/components/DefuseSDK/features/history/components/HistoryItem"
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
+import { LIST_TOKENS } from "@src/constants/tokens"
+import { useSwapHistory } from "@src/features/balance-history/lib/useBalanceHistory"
+import type { SwapTransaction } from "@src/features/balance-history/types"
+import { useConnectWallet } from "@src/hooks/useConnectWallet"
+import { useTokenList } from "@src/hooks/useTokenList"
+import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
+import clsx from "clsx"
 import { format, isToday, isYesterday } from "date-fns"
 import { useRouter } from "next/navigation"
-import { use, useState, useTransition } from "react"
+import {
+  use,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react"
 
-const transactions: Transaction[] = [
-  {
-    id: "1",
-    type: "send",
-    date: "2025-12-31T14:30:00.000Z",
-    token: "BTC",
-    amount: 0.0033,
-    usdValue: 349.22,
-    address: "bc1pvvkj8m5anlxg7d2kg4t6qf5lu2pgrmxr9eqk",
-  },
-  {
-    id: "2",
-    type: "receive",
-    date: "2025-12-31T11:15:00.000Z",
-    token: "ETH",
-    amount: 1.02935,
-    usdValue: 3972.26,
-    address: "0xCE80a7a9C8E7bF54d2eA3D45c91bE56Ff2b3",
-  },
-  {
-    id: "3",
-    type: "swap",
-    date: "2025-12-31T09:45:00.000Z",
-    token: "USDT",
-    amount: 4039.39,
-    usdValue: 4039.39,
-    toToken: "USDC",
-    toAmount: 4039.85,
-  },
-  {
-    id: "4",
-    type: "receive",
-    date: "2025-12-30T18:20:00.000Z",
-    token: "SOL",
-    amount: 12.5,
-    usdValue: 2437.5,
-    address: "7xKXtQb3vR9mN2wL8pYcZ4aE6fH1jK5sMn9p",
-  },
-  {
-    id: "5",
-    type: "send",
-    date: "2025-12-30T15:00:00.000Z",
-    token: "BNB",
-    amount: 2.75,
-    usdValue: 1925.0,
-    address: "0x4F21bC7e9A3d82fE6c1B45D09a7F38c3D",
-  },
-  {
-    id: "6",
-    type: "swap",
-    date: "2025-12-30T10:30:00.000Z",
-    token: "ETH",
-    amount: 0.5,
-    usdValue: 1925.0,
-    toToken: "BTC",
-    toAmount: 0.0182,
-  },
-  {
-    id: "7",
-    type: "receive",
-    date: "2025-12-29T22:45:00.000Z",
-    token: "XRP",
-    amount: 1500,
-    usdValue: 3375.0,
-    address: "rN7n3GDi8XxqV5WmPK2tZ9rJ4hXq2z",
-  },
-  {
-    id: "8",
-    type: "send",
-    date: "2025-12-29T16:10:00.000Z",
-    token: "DOGE",
-    amount: 5000,
-    usdValue: 1750.0,
-    address: "DH5yaLpR7xWq9mKvN2bJ8cZtG4fkL9m",
-  },
-  {
-    id: "9",
-    type: "swap",
-    date: "2025-12-29T09:00:00.000Z",
-    token: "SOL",
-    amount: 8.25,
-    usdValue: 1608.75,
-    toToken: "ETH",
-    toAmount: 0.418,
-  },
-  {
-    id: "10",
-    type: "receive",
-    date: "2025-12-28T20:30:00.000Z",
-    token: "ADA",
-    amount: 3500,
-    usdValue: 3850.0,
-    address:
-      "addr1qx2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzer3n0d3vllmyqwsx5wktcd8cc3sq835lu7drv2xwl2wywfgs7n2x",
-  },
-  {
-    id: "11",
-    type: "send",
-    date: "2025-12-28T14:15:00.000Z",
-    token: "TON",
-    amount: 150,
-    usdValue: 825.0,
-    address: "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs",
-  },
-  {
-    id: "12",
-    type: "swap",
-    date: "2025-12-28T08:45:00.000Z",
-    token: "BTC",
-    amount: 0.015,
-    usdValue: 1587.0,
-    toToken: "USDC",
-    toAmount: 1587.0,
-  },
-  {
-    id: "13",
-    type: "receive",
-    date: "2025-12-27T19:20:00.000Z",
-    token: "USDC",
-    amount: 10000,
-    usdValue: 10000.0,
-    address: "0x9A3c7D2e5F18bB64aC90dE3f1A47b82Ce5F1",
-  },
-  {
-    id: "14",
-    type: "send",
-    date: "2025-12-27T12:00:00.000Z",
-    token: "ETH",
-    amount: 2.5,
-    usdValue: 9625.0,
-    address: "0x7B2d9E4c1A58fF37bD62cE80a9F15D34aE8",
-  },
-  {
-    id: "15",
-    type: "swap",
-    date: "2025-12-27T07:30:00.000Z",
-    token: "XRP",
-    amount: 2000,
-    usdValue: 4500.0,
-    toToken: "SOL",
-    toAmount: 23.08,
-  },
-  {
-    id: "16",
-    type: "receive",
-    date: "2025-12-26T21:45:00.000Z",
-    token: "BNB",
-    amount: 5.0,
-    usdValue: 3500.0,
-    address: "0x1C8eF5a2D73b94cE60fA21B87d3E96c9dB2",
-  },
-  {
-    id: "17",
-    type: "send",
-    date: "2025-12-26T15:30:00.000Z",
-    token: "SOL",
-    amount: 25,
-    usdValue: 4875.0,
-    address: "3xZYtRq8mN2vK5wL9pJcB7aD4fH6gE1spK7m",
-  },
-  {
-    id: "18",
-    type: "swap",
-    date: "2025-12-26T10:00:00.000Z",
-    token: "DOGE",
-    amount: 10000,
-    usdValue: 3500.0,
-    toToken: "BNB",
-    toAmount: 5.0,
-  },
-  {
-    id: "19",
-    type: "receive",
-    date: "2025-12-25T18:15:00.000Z",
-    token: "BTC",
-    amount: 0.05,
-    usdValue: 5290.0,
-    address: "bc1qxvk2m9n3p5w7r8t1y4u6i0o2a3s5d7z4p",
-  },
-  {
-    id: "20",
-    type: "send",
-    date: "2025-12-25T11:00:00.000Z",
-    token: "ADA",
-    amount: 2000,
-    usdValue: 2200.0,
-    address: "addr1v8yg7k5q2m3n6p4r7t9w1x8c5v2b0n3m6l9k2j5h8g4f1d4k8w",
-  },
-]
+const RefreshState = {
+  IDLE: "idle",
+  REFRESHING: "refreshing",
+  DONE: "done",
+} as const
+
+type RefreshState = (typeof RefreshState)[keyof typeof RefreshState]
+
+const MIN_REFRESH_SPINNER_MS = 1000
+
+const TYPE_MAP: Record<Exclude<TypeFilter, "All">, SwapTransaction["type"]> = {
+  Send: "withdrawal",
+  Receive: "deposit",
+  Swap: "swap",
+}
+
+const STATUS_MAP: Record<
+  Exclude<StatusFilter, "All">,
+  SwapTransaction["status"][]
+> = {
+  Success: ["SUCCESS"],
+  Pending: ["PENDING", "PROCESSING"],
+  Failed: ["FAILED"],
+}
+
+const POLLING_INITIAL_DELAY_MS = 20_000
+const POLLING_INTERVAL_MS = 10_000
+const MAX_POLLING_ATTEMPTS = 20
+const RECENT_SWAP_THRESHOLD_MS = 2 * 60 * 60 * 1000
 
 const getDateGroupLabel = (dateString: string): string => {
   const date = new Date(dateString)
@@ -219,10 +82,6 @@ function groupBy<T>(arr: T[], keyFn: (item: T) => string): Record<string, T[]> {
   )
 }
 
-const groupedTransactions = groupBy(transactions, (tx) =>
-  getDateGroupLabel(tx.date)
-)
-
 export default function ActivityPage({
   searchParams,
 }: {
@@ -230,6 +89,22 @@ export default function ActivityPage({
 }) {
   const searchParamsData = use(searchParams)
   const router = useRouter()
+  const { state, isLoading: isWalletConnecting } = useConnectWallet()
+  const tokenList = useTokenList(LIST_TOKENS)
+  const hasHydrated = useVerifiedWalletsStore((s) => s._hasHydrated)
+
+  const [hadPreviousSession, setHadPreviousSession] = useState(true)
+  useEffect(() => {
+    setHadPreviousSession(localStorage.getItem("chainType") !== null)
+  }, [])
+
+  const userAddress = state.isVerified ? state.address : null
+  const isWaitingForReconnect = hadPreviousSession && !state.address
+  const isWalletHydrating =
+    !hasHydrated ||
+    isWalletConnecting ||
+    isWaitingForReconnect ||
+    Boolean(state.address && !state.isVerified)
 
   const currentSearchParams = new URLSearchParams()
   for (const [key, value] of Object.entries(searchParamsData)) {
@@ -239,20 +114,187 @@ export default function ActivityPage({
   }
 
   const search = currentSearchParams.get("search") ?? ""
-  const hasFilters =
-    currentSearchParams.has("type") || currentSearchParams.has("status")
+  const typeFilter = (currentSearchParams.get("type") as TypeFilter) || "All"
+  const statusFilter =
+    (currentSearchParams.get("status") as StatusFilter) || "All"
+  const hasFilters = typeFilter !== "All" || statusFilter !== "All"
 
   const [isPending, startTransition] = useTransition()
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout>()
   const isSearching = Boolean(timeoutId || isPending)
 
   const [open, setOpen] = useState(false)
+  const [pollingAttempts, setPollingAttempts] = useState(0)
+  const [delayPassed, setDelayPassed] = useState(false)
+
+  const {
+    data,
+    isLoading,
+    isFetching,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+    isError,
+    refetch,
+    dataUpdatedAt,
+  } = useSwapHistory(
+    { accountId: userAddress ?? "", limit: 20 },
+    { enabled: Boolean(userAddress), refetchOnMount: "always" }
+  )
+
+  const [refreshState, setRefreshState] = useState<RefreshState>(
+    RefreshState.IDLE
+  )
+  const prevIsFetchingRef = useRef(isFetching)
+
+  useEffect(() => {
+    const wasBackgroundFetching =
+      prevIsFetchingRef.current && !isLoading && !isFetchingNextPage
+    const fetchJustCompleted = !isFetching && wasBackgroundFetching
+
+    if (fetchJustCompleted && refreshState === RefreshState.IDLE && data) {
+      setRefreshState(RefreshState.DONE)
+      setTimeout(() => setRefreshState(RefreshState.IDLE), 1500)
+    }
+
+    prevIsFetchingRef.current = isFetching
+  }, [isFetching, isLoading, isFetchingNextPage, refreshState, data])
+
+  const handleRefresh = useCallback(async () => {
+    setRefreshState(RefreshState.REFRESHING)
+    try {
+      await Promise.all([
+        refetch(),
+        new Promise((resolve) => setTimeout(resolve, MIN_REFRESH_SPINNER_MS)),
+      ])
+      setRefreshState(RefreshState.DONE)
+      setTimeout(() => setRefreshState(RefreshState.IDLE), 1500)
+      setPollingAttempts(0)
+    } catch {
+      setRefreshState(RefreshState.IDLE)
+    }
+  }, [refetch])
+
+  const isRefreshing = refreshState === RefreshState.REFRESHING
+  const showDone = refreshState === RefreshState.DONE
+  const isAnyRefetchHappening =
+    isRefreshing || (isFetching && !isLoading && !isFetchingNextPage)
+
+  const allTransactions = useMemo(
+    () => data?.pages.flatMap((page) => page.data) ?? [],
+    [data]
+  )
+
+  const transactions = useMemo(() => {
+    let filtered = allTransactions
+
+    if (typeFilter !== "All") {
+      const targetType = TYPE_MAP[typeFilter]
+      filtered = filtered.filter((tx) => tx.type === targetType)
+    }
+
+    if (statusFilter !== "All") {
+      const targetStatuses = STATUS_MAP[statusFilter]
+      filtered = filtered.filter((tx) => targetStatuses.includes(tx.status))
+    }
+
+    if (search) {
+      const searchLower = search.toLowerCase()
+      filtered = filtered.filter(
+        (tx) =>
+          tx.from.symbol.toLowerCase().includes(searchLower) ||
+          tx.to.symbol.toLowerCase().includes(searchLower) ||
+          tx.transaction_hash.toLowerCase().includes(searchLower) ||
+          tx.deposit_address.toLowerCase().includes(searchLower)
+      )
+    }
+
+    return filtered
+  }, [allTransactions, typeFilter, statusFilter, search])
+
+  const hasRecentPendingTransactions = useMemo(() => {
+    const now = Date.now()
+    return allTransactions.some((tx) => {
+      if (tx.status !== "PENDING" && tx.status !== "PROCESSING") {
+        return false
+      }
+      const txTime = new Date(tx.timestamp).getTime()
+      return now - txTime < RECENT_SWAP_THRESHOLD_MS
+    })
+  }, [allTransactions])
+
+  const shouldPoll =
+    hasRecentPendingTransactions &&
+    delayPassed &&
+    pollingAttempts < MAX_POLLING_ATTEMPTS
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reset on account change
+  useEffect(() => {
+    setPollingAttempts(0)
+    setDelayPassed(false)
+  }, [userAddress])
+
+  useEffect(() => {
+    if (!hasRecentPendingTransactions) {
+      setDelayPassed(false)
+      return
+    }
+    if (delayPassed) return
+    const t = setTimeout(() => setDelayPassed(true), POLLING_INITIAL_DELAY_MS)
+    return () => clearTimeout(t)
+  }, [hasRecentPendingTransactions, delayPassed])
+
+  useEffect(() => {
+    if (!shouldPoll) return
+    const interval = setInterval(() => refetch(), POLLING_INTERVAL_MS)
+    return () => clearInterval(interval)
+  }, [shouldPoll, refetch])
+
+  useEffect(() => {
+    if (shouldPoll && dataUpdatedAt) {
+      setPollingAttempts((prev) => prev + 1)
+    }
+  }, [dataUpdatedAt, shouldPoll])
+
+  const groupedTransactions = useMemo(
+    () => groupBy(transactions, (tx) => getDateGroupLabel(tx.timestamp)),
+    [transactions]
+  )
+
+  const isWalletConnected = Boolean(userAddress)
 
   return (
     <>
-      <h1 className="text-gray-900 text-xl font-semibold tracking-tight">
-        Activity
-      </h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-gray-900 text-xl font-bold tracking-tight">
+          Activity
+        </h1>
+        {isWalletConnected && !isLoading && !isError && (
+          <button
+            type="button"
+            onClick={handleRefresh}
+            disabled={isAnyRefetchHappening}
+            className={clsx(
+              "p-1.5 rounded-lg transition-all duration-200",
+              showDone
+                ? "text-green-600 bg-green-50"
+                : "text-gray-500 hover:text-gray-700 hover:bg-gray-100 active:bg-gray-200",
+              isAnyRefetchHappening && "opacity-70"
+            )}
+            title={showDone ? "Updated" : "Refresh"}
+          >
+            {showDone ? (
+              <CheckIcon className="size-4" />
+            ) : (
+              <ArrowPathIcon
+                className={clsx("size-4", {
+                  "animate-spin": isAnyRefetchHappening,
+                })}
+              />
+            )}
+          </button>
+        )}
+      </div>
 
       <div className="mt-6 flex items-center gap-1">
         <SearchBar
@@ -263,7 +305,6 @@ export default function ActivityPage({
 
             const id = setTimeout(() => {
               startTransition(() => {
-                // Clone currentSearchParams and only modify the search param
                 const newSearchParams = new URLSearchParams(currentSearchParams)
 
                 if (e.target.value) {
@@ -300,16 +341,47 @@ export default function ActivityPage({
       </div>
 
       <section className="mt-10 space-y-10">
-        {Object.entries(groupedTransactions).map(([date, transactions]) => (
-          <div key={date}>
-            <h2 className="text-gray-900 text-base font-semibold">{date}</h2>
-            <div className="mt-2 flex flex-col gap-1">
-              {transactions.map((transaction) => (
-                <TransactionItem key={transaction.id} {...transaction} />
-              ))}
-            </div>
-          </div>
-        ))}
+        {isWalletHydrating ? (
+          <LoadingState />
+        ) : (
+          <>
+            {!isWalletConnected && (
+              <EmptyState message="Connect your wallet to see your activity" />
+            )}
+
+            {isWalletConnected && isLoading && <LoadingState />}
+
+            {isWalletConnected && isError && (
+              <EmptyState message="Failed to load activity. Please try again." />
+            )}
+
+            {isWalletConnected &&
+              !isLoading &&
+              !isError &&
+              transactions.length === 0 && (
+                <EmptyState
+                  message={
+                    allTransactions.length > 0
+                      ? "No transactions match your filters"
+                      : "No activity yet. Your transaction history will appear here."
+                  }
+                />
+              )}
+
+            {isWalletConnected &&
+              !isLoading &&
+              !isError &&
+              transactions.length > 0 && (
+                <TransactionList
+                  groupedTransactions={groupedTransactions}
+                  tokenList={tokenList}
+                  hasNextPage={hasNextPage}
+                  isFetchingNextPage={isFetchingNextPage}
+                  onLoadMore={fetchNextPage}
+                />
+              )}
+          </>
+        )}
       </section>
 
       <ModalActivityFilters
@@ -318,5 +390,108 @@ export default function ActivityPage({
         currentSearchParams={currentSearchParams}
       />
     </>
+  )
+}
+
+function EmptyState({ message }: { message: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 text-center">
+      <p className="text-gray-500 text-sm">{message}</p>
+    </div>
+  )
+}
+
+function LoadingState() {
+  return (
+    <div className="space-y-10">
+      <div>
+        <div className="h-5 w-20 bg-gray-200 rounded animate-pulse mb-2" />
+        <div className="flex flex-col">
+          <SwapHistoryItemSkeleton />
+          <SwapHistoryItemSkeleton />
+          <SwapHistoryItemSkeleton />
+        </div>
+      </div>
+      <div>
+        <div className="h-5 w-24 bg-gray-200 rounded animate-pulse mb-2" />
+        <div className="flex flex-col">
+          <SwapHistoryItemSkeleton />
+          <SwapHistoryItemSkeleton />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+interface TransactionListProps {
+  groupedTransactions: Record<string, SwapTransaction[]>
+  tokenList: TokenInfo[]
+  hasNextPage: boolean | undefined
+  isFetchingNextPage: boolean
+  onLoadMore: () => void
+}
+
+function TransactionList({
+  groupedTransactions,
+  tokenList,
+  hasNextPage,
+  isFetchingNextPage,
+  onLoadMore,
+}: TransactionListProps) {
+  const loadMoreTriggerRef = useRef<HTMLDivElement>(null)
+  const onLoadMoreRef = useRef(onLoadMore)
+  onLoadMoreRef.current = onLoadMore
+
+  useEffect(() => {
+    const sentinel = loadMoreTriggerRef.current
+    if (!sentinel || !hasNextPage) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isFetchingNextPage) {
+          onLoadMoreRef.current()
+        }
+      },
+      { rootMargin: "200px", threshold: 0 }
+    )
+
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [hasNextPage, isFetchingNextPage])
+
+  return (
+    <>
+      {Object.entries(groupedTransactions).map(([date, dateTxs]) => (
+        <div key={date}>
+          <h2 className="text-gray-900 text-base font-semibold">{date}</h2>
+          <div className="mt-2 flex flex-col">
+            {dateTxs.map((tx: SwapTransaction) => (
+              <HistoryItem key={tx.id} transaction={tx} tokenList={tokenList} />
+            ))}
+          </div>
+        </div>
+      ))}
+
+      {hasNextPage && <div ref={loadMoreTriggerRef} className="h-1" />}
+      {isFetchingNextPage && <LoadingMoreIndicator />}
+    </>
+  )
+}
+
+function LoadingMoreIndicator() {
+  return (
+    <div className="flex justify-center py-6">
+      <div className="flex items-center gap-1.5">
+        <span className="size-2 bg-gray-400 rounded-full animate-pulse" />
+        <span
+          className="size-2 bg-gray-400 rounded-full animate-pulse"
+          style={{ animationDelay: "150ms" }}
+        />
+        <span
+          className="size-2 bg-gray-400 rounded-full animate-pulse"
+          style={{ animationDelay: "300ms" }}
+        />
+      </div>
+    </div>
   )
 }

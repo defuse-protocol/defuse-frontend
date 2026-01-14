@@ -12,7 +12,6 @@ import clsx from "clsx"
 import { useTheme } from "next-themes"
 import Image from "next/image"
 import type React from "react"
-import { Tooltip, TooltipContent, TooltipTrigger } from "../../Tooltip"
 
 type AssetComboIconProps = {
   icon?: string
@@ -91,26 +90,13 @@ const AssetComboIcon = ({
         </div>
       )}
       {showChainIcon && chainIcon && resolvedTheme && (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="absolute -right-1.5 -bottom-1.5 size-5 bg-white rounded-full flex items-center justify-center">
-              <Image
-                width={16}
-                height={16}
-                src={
-                  resolvedTheme === Themes.DARK
-                    ? chainIcon.dark
-                    : chainIcon.light
-                }
-                alt=""
-                className="size-4 object-contain"
-              />
-            </div>
-          </TooltipTrigger>
-          <TooltipContent className="z-50">
-            {chainName?.toUpperCase()}
-          </TooltipContent>
-        </Tooltip>
+        <Image
+          className="absolute -right-[7px] -bottom-[7px] bg-gray-1 rounded-[6px] p-0.5 shadow-sm h-4 w-4"
+          width={16}
+          height={16}
+          src={resolvedTheme === Themes.DARK ? chainIcon.dark : chainIcon.light}
+          alt={chainName || "Network Logo"}
+        />
       )}
     </div>
   )
