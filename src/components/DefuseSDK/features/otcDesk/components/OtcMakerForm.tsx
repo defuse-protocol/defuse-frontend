@@ -1,6 +1,7 @@
 import type { authHandle } from "@defuse-protocol/internal-utils"
 import { ArrowDownIcon } from "@heroicons/react/20/solid"
 import Button from "@src/components/Button"
+import ModalActiveDeal from "@src/components/DefuseSDK/components/Modal/ModalActiveDeal"
 import ModalReviewDeal from "@src/components/DefuseSDK/components/Modal/ModalReviewDeal"
 import type { ModalSelectAssetsPayload } from "@src/components/DefuseSDK/components/Modal/ModalSelectAssets"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
@@ -21,7 +22,6 @@ import TokenInputCard from "../../deposit/components/DepositForm/TokenInputCard"
 import { balanceAllSelector } from "../../machines/depositedBalanceMachine"
 import type { SendNearTransaction } from "../../machines/publicKeyVerifierMachine"
 import { usePublicKeyModalOpener } from "../../swap/hooks/usePublicKeyModalOpener"
-import type { otcMakerConfigLoadActor } from "../actors/otcMakerConfigLoadActor"
 import { formValuesSelector } from "../actors/otcMakerFormMachine"
 import type { otcMakerReadyOrderActor } from "../actors/otcMakerReadyOrderActor"
 import { otcMakerRootMachine } from "../actors/otcMakerRootMachine"
@@ -32,7 +32,6 @@ import type {
   SignMessage,
 } from "../types/sharedTypes"
 import { expiryToSeconds, parseExpiry } from "../utils/expiryUtils"
-import { OtcMakerReadyOrderDialog } from "./OtcMakerReadyOrderDialog"
 
 export type OtcMakerWidgetProps = {
   /** List of available tokens for trading */
@@ -124,14 +123,17 @@ export function OtcMakerForm({
   )
 
   const rootSnapshot = useSelector(rootActorRef, (s) => s)
-  const { configRef, readyOrderRef } = useSelector(rootActorRef, (s) => ({
-    configRef: s.context.otcMakerConfigLoadRef as unknown as
-      | undefined
-      | ActorRefFrom<typeof otcMakerConfigLoadActor>,
-    readyOrderRef: s.children.readyOrderRef as unknown as
-      | undefined
-      | ActorRefFrom<typeof otcMakerReadyOrderActor>,
-  }))
+  const readyOrderRef = useSelector(
+    rootActorRef,
+    (s) =>
+      s.children.readyOrderRef as unknown as
+        | undefined
+        | ActorRefFrom<typeof otcMakerReadyOrderActor>
+  )
+
+  const readyOrderContext = useSelector(readyOrderRef, (state) =>
+    state ? state.context : null
+  )
 
   const { data: tokensUsdPriceData } = useTokensUsdPrices()
   const usdAmountIn = getTokenUsdPrice(
@@ -303,19 +305,6 @@ export function OtcMakerForm({
   return (
     <>
       <section className="mt-5">
-        {rootSnapshot.matches("signed") &&
-          configRef != null &&
-          readyOrderRef != null &&
-          signerCredentials != null && (
-            <OtcMakerReadyOrderDialog
-              configRef={configRef}
-              readyOrderRef={readyOrderRef}
-              signerCredentials={signerCredentials}
-              signMessage={signMessage}
-              generateLink={generateLink}
-            />
-          )}
-
         <form
           onSubmit={(e) => {
             e.preventDefault()
@@ -459,6 +448,28 @@ export function OtcMakerForm({
         expiryDateString={expiryDateString}
         errorMessage={error ? renderErrorMessages(error.reason) : undefined}
       />
+
+      {rootSnapshot.matches("signed") &&
+        readyOrderContext != null &&
+        signerCredentials != null && (
+          <ModalActiveDeal
+            open={true}
+            onClose={() => {
+              readyOrderRef?.send({ type: "FINISH" })
+            }}
+            tokenIn={readyOrderContext.parsed.tokenIn}
+            tokenOut={readyOrderContext.parsed.tokenOut}
+            tradeId={readyOrderContext.tradeId}
+            pKey={readyOrderContext.pKey}
+            iv={readyOrderContext.iv}
+            multiPayload={readyOrderContext.multiPayload}
+            nonceBase64={readyOrderContext.usedNonceBase64}
+            generateLink={generateLink}
+            signerCredentials={signerCredentials}
+            signMessage={signMessage}
+            sendNearTransaction={sendNearTransaction}
+          />
+        )}
     </>
   )
 }
