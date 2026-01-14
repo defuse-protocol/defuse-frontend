@@ -37,7 +37,7 @@ export const assetNetworkAdapter: Record<SupportedChainName, BlockchainEnum> = {
   layerx: BlockchainEnum.LAYERX,
   monad: BlockchainEnum.MONAD,
   plasma: BlockchainEnum.PLASMA,
-  scroll: BlockchainEnum.MONAD,
+  scroll: BlockchainEnum.SCROLL,
   adi: BlockchainEnum.ADI,
   starknet: BlockchainEnum.STARKNET,
 }
