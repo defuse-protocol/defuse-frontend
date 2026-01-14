@@ -14,6 +14,7 @@ const cspConfig = {
     "https://connect.solflare.com",
     "https://*.peersyst.tech",
     "https://wallet.intear.tech",
+    "https://vercel.live",
   ],
   "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
   "font-src": ["'self'", "https://fonts.gstatic.com"],
@@ -36,6 +37,9 @@ const cspConfig = {
   ],
   "connect-src": [
     "'self'",
+    /** Vercel Preview */
+    "https://vercel.live",
+    "https://vercel.com",
     /** Services */
     "https://*.chaindefuser.com",
     "wss://*.chaindefuser.com",
