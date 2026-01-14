@@ -26,7 +26,7 @@ export default function LoginPage() {
     <div className="flex-1 flex flex-col items-center justify-center">
       <div className="max-w-md w-full flex flex-col items-center">
         <div className="flex items-center justify-center size-20 bg-gray-100 rounded-2xl mx-auto">
-          !logo
+          !logo - test!
         </div>
 
         <h1 className="mt-8 text-3xl font-bold text-gray-900 text-center text-balance leading-[1.1] tracking-tight">
