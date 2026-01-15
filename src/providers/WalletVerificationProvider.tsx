@@ -19,12 +19,16 @@ import { useEffect, useRef } from "react"
 import { fromPromise } from "xstate"
 import { useMixpanel } from "./MixpanelProvider"
 
-// Check if running on a Vercel preview deployment
+// Check if running on a Vercel preview deployment or localhost
 function isPreviewEnvironment(): boolean {
   if (typeof window === "undefined") return false
   const hostname = window.location.hostname
   // Vercel preview URLs end with .vercel.app but aren't the production domain
-  return hostname.endsWith(".vercel.app") && !hostname.startsWith("app.")
+  // Also allow localhost for local development
+  return (
+    (hostname.endsWith(".vercel.app") && !hostname.startsWith("app.")) ||
+    hostname === "localhost"
+  )
 }
 
 export function WalletVerificationProvider() {

@@ -5,11 +5,20 @@ import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useTonConnectUI } from "@tonconnect/ui-react"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
+import { useEffect } from "react"
 import type { Connector } from "wagmi"
 
 export default function LoginWalletPage() {
-  const { signIn, connectors } = useConnectWallet()
+  const router = useRouter()
+  const { signIn, connectors, state } = useConnectWallet()
   const [tonConnectUI] = useTonConnectUI()
+
+  useEffect(() => {
+    if (state.address) {
+      router.replace("/account")
+    }
+  }, [state.address, router])
 
   const handleNearWalletSelector = () => {
     return signIn({ id: ChainType.Near })

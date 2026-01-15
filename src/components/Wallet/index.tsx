@@ -416,7 +416,7 @@ const ConnectWallet = () => {
         sideOffset={8}
         collisionPadding={16}
         minWidth={{ initial: "300px", xs: "330px" }}
-        className="!bg-white dark:!bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-0"
+        className="!bg-white dark:!bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-0 w-[var(--radix-popover-trigger-width)]"
       >
         <WalletConnections />
       </Popover.Content>
