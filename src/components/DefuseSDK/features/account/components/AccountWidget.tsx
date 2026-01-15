@@ -68,7 +68,11 @@ export function AccountWidget({
           onToggleHideBalances={hideBalances?.toggle}
         />
 
-        <HoldingsIsland isLoggedIn={userId != null} holdings={holdings} hideBalances={hideBalances?.hidden} />
+        <HoldingsIsland
+          isLoggedIn={userId != null}
+          holdings={holdings}
+          hideBalances={hideBalances?.hidden}
+        />
       </div>
     </WidgetRoot>
   )

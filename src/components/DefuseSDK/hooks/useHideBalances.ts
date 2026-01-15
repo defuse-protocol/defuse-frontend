@@ -3,8 +3,10 @@ import { useState } from "react"
 const STORAGE_KEY = "defuse:hideBalances"
 
 export function useHideBalances() {
-  const [hidden, setHidden] = useState(() =>
-    typeof window !== "undefined" && localStorage.getItem(STORAGE_KEY) === "true"
+  const [hidden, setHidden] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      localStorage.getItem(STORAGE_KEY) === "true"
   )
 
   const toggle = () => {

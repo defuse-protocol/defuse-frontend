@@ -33,7 +33,10 @@ export function HoldingItem({ holding, hideBalances }: HoldingItemProps) {
       </div>
 
       <div className="flex flex-col items-end gap-0.5">
-        <div className="text-sm font-medium" title={hideBalances ? undefined : formatted}>
+        <div
+          className="text-sm font-medium"
+          title={hideBalances ? undefined : formatted}
+        >
           {hideBalances ? "••••" : (shortFormatted ?? "-")} {token.symbol}
         </div>
         {hideBalances ? (

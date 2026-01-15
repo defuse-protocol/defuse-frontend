@@ -10,10 +10,18 @@ interface HoldingsIslandProps {
   hideBalances?: boolean
 }
 
-export function HoldingsIsland({ isLoggedIn, holdings, hideBalances = false }: HoldingsIslandProps) {
+export function HoldingsIsland({
+  isLoggedIn,
+  holdings,
+  hideBalances = false,
+}: HoldingsIslandProps) {
   return (
     <Island className="py-4">
-      <Content isLoggedIn={isLoggedIn} holdings={holdings} hideBalances={hideBalances} />
+      <Content
+        isLoggedIn={isLoggedIn}
+        holdings={holdings}
+        hideBalances={hideBalances}
+      />
     </Island>
   )
 }
@@ -22,7 +30,11 @@ function Content({
   isLoggedIn,
   holdings,
   hideBalances,
-}: { isLoggedIn: boolean; holdings: Holding[] | undefined; hideBalances: boolean }) {
+}: {
+  isLoggedIn: boolean
+  holdings: Holding[] | undefined
+  hideBalances: boolean
+}) {
   if (holdings?.length === 0 || !isLoggedIn) {
     return <EmptyScreen />
   }
@@ -32,7 +44,11 @@ function Content({
   }
 
   return holdings.map((holding) => (
-    <HoldingItem key={getTokenId(holding.token)} holding={holding} hideBalances={hideBalances} />
+    <HoldingItem
+      key={getTokenId(holding.token)}
+      holding={holding}
+      hideBalances={hideBalances}
+    />
   ))
 }
 
