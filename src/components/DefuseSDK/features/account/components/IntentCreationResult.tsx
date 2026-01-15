@@ -65,7 +65,7 @@ const IntentCreationResult = ({
       break
 
     case "ERR_1CS_QUOTE_FAILED":
-      content = "We were unable to get a quote on your specified swap. Please try again."
+      content = "Failed to get quote"
       break
 
     case "ERR_NO_DEPOSIT_ADDRESS":
