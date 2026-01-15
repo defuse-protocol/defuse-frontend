@@ -770,7 +770,8 @@ function addDirectionFeeToIntents(
     return
   }
 
-  // Case 2: Two recipients - split direction fee 50/50 between primary and secondary recipients
+  // Case 2: Two recipients - split direction fee based on primary recipient's shareBps,
+  // secondary recipient receives the remainder
   const { primaryAmount, secondaryAmount } = splitShareAmount(
     directionFeeAmount,
     primaryRecipient.shareBps
