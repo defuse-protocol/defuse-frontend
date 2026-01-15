@@ -82,6 +82,20 @@
     --rs11d: rgba(116, 176, 206, 1);
     --rs12d: rgba(126, 207, 239, 1);
 
+    /* OmniSwap CSS variables (dark monochromatic) */
+    --os1d: #1a1a1a;
+    --os2d: #1f1f1f;
+    --os3d: #232323;
+    --os4d: #2a2a2a;
+    --os5d: #333333;
+    --os6d: #3a3a3a;
+    --os7d: #525252;
+    --os8d: #737373;
+    --os9d: #8a8a8a;
+    --os10d: #a3a3a3;
+    --os11d: #d4d4d4;
+    --os12d: #ffffff;
+
     /* CSS variable aliases - default to sand colors */
     --sand-1-alias: var(--sand-1);
     --sand-2-alias: var(--sand-2);
@@ -152,22 +166,7 @@ html.tmpl-rabitswap {
   /* Note: RabbitSwap doesn't have alpha variants defined, so we keep sand-a* for now */
 }
 
-/* OmniSwap dark monochromatic theme */
 html.tmpl-omniswap {
-  /* OmniSwap CSS variables (dark monochromatic) */
-  --os1d: #1a1a1a;
-  --os2d: #1f1f1f;
-  --os3d: #232323;
-  --os4d: #2a2a2a;
-  --os5d: #333333;
-  --os6d: #3a3a3a;
-  --os7d: #525252;
-  --os8d: #737373;
-  --os9d: #8a8a8a;
-  --os10d: #a3a3a3;
-  --os11d: #d4d4d4;
-  --os12d: #ffffff;
-
   --sand-1-alias: var(--os1d);
   --sand-2-alias: var(--os2d);
   --sand-3-alias: var(--os3d);
@@ -180,28 +179,29 @@ html.tmpl-omniswap {
   --sand-10-alias: var(--os10d);
   --sand-11-alias: var(--os11d);
   --sand-12-alias: var(--os12d);
-
-  /* Override accent colors for white primary buttons */
-  --accent-1: #1a1a1a;
-  --accent-2: #232323;
-  --accent-3: #2a2a2a;
-  --accent-4: #333333;
-  --accent-5: #3a3a3a;
-  --accent-6: #4a4a4a;
-  --accent-7: #6a6a6a;
-  --accent-8: #8a8a8a;
-  --accent-9: #ffffff;
-  --accent-10: #f0f0f0;
-  --accent-11: #e0e0e0;
-  --accent-12: #ffffff;
-  --accent-a9: rgba(255, 255, 255, 0.95);
-  --accent-a10: rgba(255, 255, 255, 0.9);
-  --accent-contrast: #000000;
 }
 
 html.tmpl-omniswap,
 .tmpl-omniswap body {
-  background: #1a1a1a;
+  background: var(--os1d);
+}
+
+html.tmpl-omniswap .radix-themes {
+  --accent-1: var(--os1d);
+  --accent-2: var(--os3d);
+  --accent-3: var(--os4d);
+  --accent-4: var(--os5d);
+  --accent-5: var(--os6d);
+  --accent-6: #4a4a4a;
+  --accent-7: #6a6a6a;
+  --accent-8: var(--os9d);
+  --accent-9: var(--os12d);
+  --accent-10: #f0f0f0;
+  --accent-11: #e0e0e0;
+  --accent-12: var(--os12d);
+  --accent-a9: rgba(255, 255, 255, 0.95);
+  --accent-a10: rgba(255, 255, 255, 0.9);
+  --accent-contrast: #000000;
 }
 
 .radix-themes {
