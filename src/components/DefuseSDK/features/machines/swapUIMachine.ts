@@ -584,7 +584,7 @@ export const swapUIMachine = setup({
       if (
         event.type !== "NEW_1CS_QUOTE" ||
         !("err" in event.params.result) ||
-        event.params.result.err !== "Failed to get quote" ||
+        event.params.result.err !== "We were unable to get a quote on your specified swap. Please try again." ||
         event.params.result.originalRequest === undefined
       ) {
         return
