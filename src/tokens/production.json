@@ -699,7 +699,7 @@
           "originChainName": "layerx",
           "deployments": [
             {
-              "address": "0x1e4a5963abfd975d8c9021ce480b42188849d41d",
+              "address": "0x779ded0c9e1022225f8e0630b35a9b54be713736",
               "decimals": 6,
               "chainName": "layerx",
               "bridge": "hot_omni"
