@@ -5,7 +5,7 @@ import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { useSlippageStore } from "@src/stores/useSlippageStore"
-import { getAppFeeRecipient } from "@src/utils/getAppFeeRecipient"
+import { getAppFeeRecipients } from "@src/utils/getAppFeeRecipient"
 import { createActorContext } from "@xstate/react"
 import { useEffect } from "react"
 import type { PropsWithChildren, ReactElement, ReactNode } from "react"
@@ -73,7 +73,7 @@ export function SwapUIMachineProvider({
 }: SwapUIMachineProviderProps) {
   const { setValue } = useFormContext<SwapFormValues>()
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
-  const appFeeRecipient = getAppFeeRecipient(whitelabelTemplate)
+  const appFeeRecipients = getAppFeeRecipients(whitelabelTemplate)
   const tokenIn = initialTokenIn || tokenList[0]
   const tokenOut = initialTokenOut || tokenList[1]
   const is1cs = useIs1CsEnabled()
@@ -90,7 +90,7 @@ export function SwapUIMachineProvider({
           tokenList,
           referral,
           is1cs,
-          appFeeRecipient,
+          appFeeRecipients,
         },
       }}
       logic={swapUIMachine.provide({
