@@ -17,6 +17,7 @@ import { getCAIP2 } from "@src/components/DefuseSDK/utils/caip2"
 import { WITHDRAW_DIRECTION_FEE_BPS } from "@src/utils/environment"
 import type { FeeRecipientSplit } from "@src/utils/getAppFeeRecipient"
 import { logger } from "@src/utils/logger"
+import { splitShareAmount } from "@src/utils/splitAppFee"
 import { Err, Ok, type Result } from "@thames/monads"
 import { type ActorRefFrom, waitFor } from "xstate"
 import { getAuroraEngineContractId } from "../constants/aurora"
@@ -736,11 +737,10 @@ function addDirectionFeeToIntents(
     return
   }
 
-  // Calculate split: primary gets calculated share, secondary gets remainder
-  // This ensures we don't lose 1 yocto due to integer division
-  const primaryShare =
-    (directionFeeAmount * BigInt(primaryRecipient.shareBps)) / 10000n
-  const remainingAmount = directionFeeAmount - primaryShare
+  const { primaryAmount, secondaryAmount } = splitShareAmount(
+    directionFeeAmount,
+    primaryRecipient.shareBps
+  )
 
   // Track intents by recipient to avoid repeated searches
   const intentMap = new Map<
@@ -755,7 +755,7 @@ function addDirectionFeeToIntents(
   }
 
   // Add primary recipient's share
-  if (primaryShare > 0n) {
+  if (primaryAmount > 0n) {
     let primaryIntent = intentMap.get(primaryRecipient.recipient)
     if (!primaryIntent) {
       primaryIntent = {
@@ -768,11 +768,11 @@ function addDirectionFeeToIntents(
     }
 
     const currentAmount = BigInt(primaryIntent.tokens[tokenId] || "0")
-    primaryIntent.tokens[tokenId] = (currentAmount + primaryShare).toString()
+    primaryIntent.tokens[tokenId] = (currentAmount + primaryAmount).toString()
   }
 
   // Add secondary recipient's remainder (for 50/50 split)
-  if (remainingAmount > 0n && appFeeRecipients.length > 1) {
+  if (secondaryAmount > 0n && appFeeRecipients.length > 1) {
     const secondaryRecipient = appFeeRecipients[1]
     if (secondaryRecipient) {
       let secondaryIntent = intentMap.get(secondaryRecipient.recipient)
@@ -788,7 +788,7 @@ function addDirectionFeeToIntents(
 
       const currentAmount = BigInt(secondaryIntent.tokens[tokenId] || "0")
       secondaryIntent.tokens[tokenId] = (
-        currentAmount + remainingAmount
+        currentAmount + secondaryAmount
       ).toString()
     }
   }

@@ -41,25 +41,25 @@ export function splitAppFeeBps(
   }
 
   const secondaryRecipient = recipients[1]
-
-  // Calculate primary share, secondary gets remainder to avoid rounding loss
-  const primaryBps = Math.round((appFeeBps * primaryRecipient.shareBps) / 10000)
-  const remainingBps = appFeeBps - primaryBps
+  const { primaryFee, secondaryFee } = splitShareAppFee(
+    appFeeBps,
+    primaryRecipient.shareBps
+  )
 
   const result: Array<{ recipient: string; fee: number }> = []
 
-  if (primaryBps > 0) {
+  if (primaryFee > 0) {
     result.push({
       recipient: primaryRecipient.recipient,
-      fee: primaryBps,
+      fee: primaryFee,
     })
   }
 
   // Secondary gets all remainder to avoid rounding loss
-  if (remainingBps > 0) {
+  if (secondaryFee > 0) {
     result.push({
       recipient: secondaryRecipient.recipient,
-      fee: remainingBps,
+      fee: secondaryFee,
     })
   }
 
@@ -120,17 +120,16 @@ export function splitAppFee(
     | undefined
 
   for (const [tokenId, totalFeeAmount] of appFee) {
-    // Calculate split: primary gets calculated share, secondary gets remainder
-    // This ensures we don't lose 1 yocto due to integer division
-    const primaryAmount =
-      (totalFeeAmount * BigInt(primaryRecipient.shareBps)) / 10000n
-    const remainingAmount = totalFeeAmount - primaryAmount
+    const { primaryAmount, secondaryAmount } = splitShareAmount(
+      totalFeeAmount,
+      primaryRecipient.shareBps
+    )
 
     if (primaryAmount > 0n) {
       primaryAppFee.push([tokenId, primaryAmount])
     }
 
-    if (remainingAmount > 0n) {
+    if (secondaryAmount > 0n) {
       if (!secondaryIntent) {
         secondaryIntent = {
           intent: "transfer",
@@ -142,7 +141,7 @@ export function splitAppFee(
 
       const currentAmount = BigInt(secondaryIntent.tokens[tokenId] || "0")
       secondaryIntent.tokens[tokenId] = (
-        currentAmount + remainingAmount
+        currentAmount + secondaryAmount
       ).toString()
     }
   }
@@ -152,4 +151,40 @@ export function splitAppFee(
     primaryRecipient: primaryRecipient.recipient,
     transferIntents,
   }
+}
+
+/**
+ * Splits an amount between primary and secondary recipients.
+ * Primary gets the calculated share, secondary gets the remainder.
+ * This ensures we don't lose 1 yocto for bigint.
+ *
+ * @param amount - The total amount to split
+ * @param shareBps - The primary recipient's share percentage in basis points
+ * @returns Object with primary and secondary shares
+ */
+export function splitShareAmount(
+  amount: bigint,
+  shareBps: number
+): { primaryAmount: bigint; secondaryAmount: bigint } {
+  const primaryAmount = (amount * BigInt(shareBps)) / 10000n
+  const secondaryAmount = amount - primaryAmount
+  return { primaryAmount, secondaryAmount }
+}
+
+/**
+ * Splits an app fee BPS between primary and secondary recipients.
+ * Primary gets the calculated share, secondary gets the remainder.
+ * This ensures we don't lose 1 BPS for rounding.
+ *
+ * @param appFeeBps - The total app fee BPS to split
+ * @param shareBps - The primary recipient's share percentage in basis points
+ * @returns Object with primary and secondary BPS
+ */
+export function splitShareAppFee(
+  appFeeBps: number,
+  shareBps: number
+): { primaryFee: number; secondaryFee: number } {
+  const primaryFee = Math.round((appFeeBps * shareBps) / 10000)
+  const secondaryFee = appFeeBps - primaryFee
+  return { primaryFee, secondaryFee }
 }
