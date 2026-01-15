@@ -729,7 +729,7 @@
           "symbol": "USDT0",
           "name": "Tether USD",
           "decimals": 6,
-          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/38517.png",
           "originChainName": "plasma",
           "deployments": [
             {
