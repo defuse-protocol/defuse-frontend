@@ -737,11 +737,6 @@ function addDirectionFeeToIntents(
     return
   }
 
-  const { primaryAmount, secondaryAmount } = splitShareAmount(
-    directionFeeAmount,
-    primaryRecipient.shareBps
-  )
-
   // Track intents by recipient to avoid repeated searches
   const intentMap = new Map<
     string,
@@ -754,7 +749,33 @@ function addDirectionFeeToIntents(
     }
   }
 
-  // Add primary recipient's share
+  // Case 1: Single recipient - entire direction fee goes to the primary recipient
+  if (appFeeRecipients.length === 1) {
+    let primaryIntent = intentMap.get(primaryRecipient.recipient)
+    if (!primaryIntent) {
+      primaryIntent = {
+        intent: "transfer",
+        receiver_id: primaryRecipient.recipient,
+        tokens: {},
+      }
+      withdrawalIntents.push(primaryIntent)
+      intentMap.set(primaryRecipient.recipient, primaryIntent)
+    }
+
+    const currentAmount = BigInt(primaryIntent.tokens[tokenId] || "0")
+    primaryIntent.tokens[tokenId] = (
+      currentAmount + directionFeeAmount
+    ).toString()
+
+    return
+  }
+
+  // Case 2: Two recipients - split direction fee 50/50 between primary and secondary recipients
+  const { primaryAmount, secondaryAmount } = splitShareAmount(
+    directionFeeAmount,
+    primaryRecipient.shareBps
+  )
+
   if (primaryAmount > 0n) {
     let primaryIntent = intentMap.get(primaryRecipient.recipient)
     if (!primaryIntent) {
@@ -771,7 +792,6 @@ function addDirectionFeeToIntents(
     primaryIntent.tokens[tokenId] = (currentAmount + primaryAmount).toString()
   }
 
-  // Add secondary recipient's remainder (for 50/50 split)
   if (secondaryAmount > 0n && appFeeRecipients.length > 1) {
     const secondaryRecipient = appFeeRecipients[1]
     if (secondaryRecipient) {
