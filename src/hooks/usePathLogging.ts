@@ -14,7 +14,7 @@ export const usePathLogging = () => {
       "/deposit": "deposit",
       "/gift-card/create-gift": "gift-card-create-gift",
       "/gift-card/view-gift": "gift-card-view-gift",
-      "/otc/create-order": "otc-create-order",
+      "/deals/new": "otc-create-order",
       "/otc/order": "otc-order",
       "/withdraw": "withdraw",
     }

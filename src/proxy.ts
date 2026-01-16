@@ -55,12 +55,18 @@ export async function proxy(request: NextRequest) {
 function handleLegacyRedirects(request: NextRequest): NextResponse | null {
   const url = new URL(request.url)
 
-  if (url.pathname === "/otc-desk/create-order") {
-    return NextResponse.redirect(new URL("/otc/create-order", request.url))
+  if (
+    url.pathname === "/otc-desk/create-order" ||
+    url.pathname === "/otc/create-order"
+  ) {
+    return NextResponse.redirect(new URL("/deals/new", request.url))
   }
 
-  if (url.pathname === "/otc-desk/view-order") {
-    const newUrl = new URL("/otc/order", request.url)
+  if (
+    url.pathname === "/otc-desk/view-order" ||
+    url.pathname === "/otc/order"
+  ) {
+    const newUrl = new URL("/deal", request.url)
 
     const orderParam = url.searchParams.get("order")
     if (orderParam) {

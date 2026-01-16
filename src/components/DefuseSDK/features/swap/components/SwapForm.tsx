@@ -1,6 +1,7 @@
 import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import { MagnifyingGlassIcon } from "@heroicons/react/16/solid"
-import { ArrowDownIcon, XCircleIcon } from "@heroicons/react/20/solid"
+import { ArrowDownIcon } from "@heroicons/react/20/solid"
+import Alert from "@src/components/Alert"
 import Button from "@src/components/Button"
 import ModalReviewSwap from "@src/components/DefuseSDK/components/Modal/ModalReviewSwap"
 import { useTokensUsdPrices } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
@@ -9,7 +10,6 @@ import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
 import { getDefuseAssetId } from "@src/components/DefuseSDK/utils/token"
-import ErrorMessage from "@src/components/ErrorMessage"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useThrottledValue } from "@src/hooks/useThrottledValue"
 import { useSelector } from "@xstate/react"
@@ -472,7 +472,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             </div>
           )}
 
-          {quote1csError && <Quote1csError quote1csError={quote1csError} />}
+          {quote1csError && <Alert variant="error">{quote1csError}</Alert>}
         </form>
 
         {/* TODO: Move to sidebar */}
@@ -497,15 +497,6 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
         />
       </section>
     </>
-  )
-}
-
-function Quote1csError({ quote1csError }: { quote1csError: string }) {
-  return (
-    <div className="mt-6 bg-red-50 pl-4 pr-6 py-4 rounded-2xl flex items-start gap-3">
-      <XCircleIcon className="size-5 shrink-0 text-red-600" aria-hidden />
-      <ErrorMessage>{quote1csError}</ErrorMessage>
-    </div>
   )
 }
 

@@ -1,6 +1,10 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
-import { ChevronLeftIcon } from "@heroicons/react/16/solid"
+import {
+  ArrowDownTrayIcon,
+  ChevronLeftIcon,
+  WalletIcon,
+} from "@heroicons/react/16/solid"
 import Alert from "@src/components/Alert"
 import { ModalSelectNetwork } from "@src/components/DefuseSDK/components/Network/ModalSelectNetwork"
 import { usePreparedNetworkLists } from "@src/components/DefuseSDK/hooks/useNetworkLists"
@@ -17,6 +21,7 @@ import {
   getDerivedToken,
   isMinAmountNotRequired,
 } from "@src/components/DefuseSDK/utils/tokenUtils"
+import TabSwitcher from "@src/components/TabSwitcher"
 import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
 import { useSelector } from "@xstate/react"
 import Link from "next/link"
@@ -36,7 +41,6 @@ import type { RenderHostAppLink } from "../../../../types/hostAppLink"
 import { getPOABridgeInfo } from "../../../machines/poaBridgeInfoActor"
 import { DepositUIMachineContext } from "../DepositUIMachineProvider"
 import { ActiveDeposit } from "./ActiveDeposit"
-import { DepositMethodSelector } from "./DepositMethodSelector"
 import { PassiveDeposit } from "./PassiveDeposit"
 
 export type DepositFormValues = {
@@ -281,9 +285,21 @@ export const DepositForm = ({
         {currentDepositOption != null && (
           <>
             {isActiveDeposit && isPassiveDeposit && (
-              <DepositMethodSelector
-                selectedDepositOption={currentDepositOption}
-                onSelectDepositOption={setPreferredDepositOption}
+              <TabSwitcher
+                tabs={[
+                  {
+                    label: "Deposit",
+                    icon: <ArrowDownTrayIcon className="size-4 shrink-0" />,
+                    onClick: () => setPreferredDepositOption("passive"),
+                    selected: currentDepositOption === "passive",
+                  },
+                  {
+                    label: "Wallet",
+                    icon: <WalletIcon className="size-4 shrink-0" />,
+                    onClick: () => setPreferredDepositOption("active"),
+                    selected: currentDepositOption === "active",
+                  },
+                ]}
               />
             )}
 

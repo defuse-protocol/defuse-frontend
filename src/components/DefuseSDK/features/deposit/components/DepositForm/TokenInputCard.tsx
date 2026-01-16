@@ -12,7 +12,7 @@ import { Tooltip } from "radix-ui"
 import { useId } from "react"
 import type { UseFormRegisterReturn } from "react-hook-form"
 
-type TokenInputCardProps = {
+type BaseTokenInputCardProps = {
   label: string
   balance: bigint
   decimals: number
@@ -22,14 +22,35 @@ type TokenInputCardProps = {
   usdAmount: number | null
   disabled?: boolean
   loading?: boolean
-  registration: UseFormRegisterReturn
   selectedToken: TokenInfo
-  tokens: TokenInfo[]
-  handleSelectToken: () => void
+  tokens?: TokenInfo[]
+  handleSelectToken?: () => void
   selectAssetsTestId?: string
   readOnly?: boolean
   error?: string
 }
+
+type WithRegistration = BaseTokenInputCardProps & {
+  registration: UseFormRegisterReturn
+  value?: never
+  onChange?: never
+}
+
+type WithControlled =
+  | (BaseTokenInputCardProps & {
+      registration?: undefined
+      readOnly?: false
+      value: string
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+    })
+  | (BaseTokenInputCardProps & {
+      registration?: undefined
+      readOnly: true
+      value: string
+      onChange?: never
+    })
+
+type TokenInputCardProps = WithRegistration | WithControlled
 
 const TokenInputCard = ({
   label,
@@ -48,6 +69,8 @@ const TokenInputCard = ({
   selectAssetsTestId,
   readOnly,
   error,
+  value,
+  onChange,
 }: TokenInputCardProps) => {
   const id = useId()
   const noBalance = balance === 0n
@@ -106,7 +129,7 @@ const TokenInputCard = ({
           selected={selectedToken ?? undefined}
           dataTestId={selectAssetsTestId}
           disabled={disabled}
-          handleSelect={handleSelectToken}
+          handleSelect={handleSelectToken ?? undefined}
           tokens={tokens}
         />
         {handleSetMax && (
@@ -136,7 +159,9 @@ const TokenInputCard = ({
             "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-4xl tracking-tight placeholder:text-gray-400 w-full",
             disabled && "opacity-50"
           )}
-          {...registration}
+          {...(registration ?? { value, onChange })}
+          {...(registration && value !== undefined ? { value } : {})}
+          {...(registration && onChange !== undefined ? { onChange } : {})}
         />
         <div className="text-right text-base text-gray-500 font-medium">
           {formatUsdAmount(usdAmount ?? 0)}

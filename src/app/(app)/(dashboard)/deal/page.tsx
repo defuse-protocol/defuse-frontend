@@ -1,6 +1,6 @@
 "use client"
-import { OtcMakerWidget } from "@src/components/DefuseSDK/features/otcDesk/components/OtcMakerWidget"
-import Paper from "@src/components/Paper"
+
+import { OtcTakerWidget } from "@src/components/DefuseSDK/features/otcDesk/components/OtcTakerWidget"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
@@ -8,26 +8,31 @@ import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import { useNearWallet } from "@src/providers/NearWalletProvider"
 import { renderAppLink } from "@src/utils/renderAppLink"
-import { useDeterminePair } from "../../swap/_utils/useDeterminePair"
-import { createOtcOrder, createOtcOrderLink } from "../_utils/link"
+import { useOtcOrder } from "../deals/_utils/link"
 
-export default function CreateOrderPage() {
+export default function DealPage() {
   const { state } = useConnectWallet()
   const tokenList = useTokenList(LIST_TOKENS)
   const signMessage = useWalletAgnosticSignMessage()
-  const { tokenIn, tokenOut } = useDeterminePair()
+  const { multiPayload, tradeId } = useOtcOrder()
   const { signAndSendTransactions } = useNearWallet()
   const referral = useIntentsReferral()
 
-  const userAddress = state.isVerified ? state.address : undefined
-  const userChainType = state.chainType
-
   return (
-    <Paper>
-      <OtcMakerWidget
+    <>
+      <h1 className="text-gray-900 text-xl font-semibold tracking-tight">
+        Accept a deal offer
+      </h1>
+      <p className="mt-1 text-gray-500 text-base/5 font-medium">
+        Pay the specified amount to finalize the transaction.
+      </p>
+
+      <OtcTakerWidget
+        tradeId={tradeId}
+        multiPayload={multiPayload}
         tokenList={tokenList}
-        userAddress={userAddress}
-        chainType={userChainType}
+        userAddress={state.isVerified ? state.address : undefined}
+        userChainType={state.chainType}
         signMessage={signMessage}
         sendNearTransaction={async (tx) => {
           const result = await signAndSendTransactions({ transactions: [tx] })
@@ -43,17 +48,9 @@ export default function CreateOrderPage() {
 
           return { txHash: outcome.transaction.hash }
         }}
-        createOtcTrade={async (multiPayload) => {
-          return createOtcOrder(multiPayload)
-        }}
-        generateLink={(tradeId, pKey, multiPayload, iv) => {
-          return createOtcOrderLink(tradeId, pKey, multiPayload, iv)
-        }}
-        initialTokenIn={tokenIn ?? undefined}
-        initialTokenOut={tokenOut ?? undefined}
-        renderHostAppLink={renderAppLink}
         referral={referral}
+        renderHostAppLink={renderAppLink}
       />
-    </Paper>
+    </>
   )
 }
