@@ -132,7 +132,7 @@ function renderTokenUsdPrice(
   const price = getTokenUsdPrice(amount, token, tokensUsdPriceData)
 
   if (price != null) {
-    return <span className="text-gray-a9">({formatUsdAmount(price)})</span>
+    return <span className="text-gray-5">({formatUsdAmount(price)})</span>
   }
 
   return null

@@ -40,6 +40,10 @@ const pairs: Record<WhitelabelTemplateValue, [string, string]> = {
     "nep141:eth-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.omft.near",
     "nep141:eth-0x8b1484d57abbe239bb280661377363b03c89caea.omft.near",
   ],
+  omniswap: [
+    "nep141:eth-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.omft.near",
+    "nep141:wrap.near",
+  ],
 }
 
 export function useDeterminePair(supports1cs = false) {

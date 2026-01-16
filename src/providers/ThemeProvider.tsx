@@ -17,6 +17,7 @@ const accentsColors: Record<
   turboswap: "amber",
   trumpswap: "tomato",
   rabitswap: "blue",
+  omniswap: "green",
 }
 
 export async function ThemeProvider({ children }: { children: ReactNode }) {
