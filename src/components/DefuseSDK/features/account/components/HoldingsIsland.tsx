@@ -7,12 +7,21 @@ import { HoldingItem, HoldingItemSkeleton } from "./shared/HoldingItem"
 interface HoldingsIslandProps {
   isLoggedIn: boolean
   holdings: Holding[] | undefined
+  hideBalances?: boolean
 }
 
-export function HoldingsIsland({ isLoggedIn, holdings }: HoldingsIslandProps) {
+export function HoldingsIsland({
+  isLoggedIn,
+  holdings,
+  hideBalances = false,
+}: HoldingsIslandProps) {
   return (
     <Island className="py-4">
-      <Content isLoggedIn={isLoggedIn} holdings={holdings} />
+      <Content
+        isLoggedIn={isLoggedIn}
+        holdings={holdings}
+        hideBalances={hideBalances}
+      />
     </Island>
   )
 }
@@ -20,7 +29,12 @@ export function HoldingsIsland({ isLoggedIn, holdings }: HoldingsIslandProps) {
 function Content({
   isLoggedIn,
   holdings,
-}: { isLoggedIn: boolean; holdings: Holding[] | undefined }) {
+  hideBalances,
+}: {
+  isLoggedIn: boolean
+  holdings: Holding[] | undefined
+  hideBalances: boolean
+}) {
   if (holdings?.length === 0 || !isLoggedIn) {
     return <EmptyScreen />
   }
@@ -30,7 +44,11 @@ function Content({
   }
 
   return holdings.map((holding) => (
-    <HoldingItem key={getTokenId(holding.token)} holding={holding} />
+    <HoldingItem
+      key={getTokenId(holding.token)}
+      holding={holding}
+      hideBalances={hideBalances}
+    />
   ))
 }
 
