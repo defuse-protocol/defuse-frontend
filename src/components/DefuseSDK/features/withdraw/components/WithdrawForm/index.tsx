@@ -1,29 +1,27 @@
-// import { Flex } from "@radix-ui/themes"
-// import Button from "@src/components/Button"
+import Button from "@src/components/Button"
 import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
 import { SelectTriggerLike } from "@src/components/DefuseSDK/components/Select/SelectTriggerLike"
+import TooltipNew from "@src/components/DefuseSDK/components/TooltipNew"
 import { useModalController } from "@src/components/DefuseSDK/hooks/useModalController"
 import { useTokensUsdPrices } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
 import { ModalType } from "@src/components/DefuseSDK/stores/modalStore"
 import { isSupportedChainName } from "@src/components/DefuseSDK/utils/blockchain"
-import {
-  formatTokenValue,
-  formatUsdAmount,
-} from "@src/components/DefuseSDK/utils/format"
+import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
 import {
-  // addAmounts,
+  addAmounts,
   getTokenMaxDecimals,
   isMinAmountNotRequired,
   subtractAmounts,
 } from "@src/components/DefuseSDK/utils/tokenUtils"
+import Spinner from "@src/components/Spinner"
 import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
 import { logger } from "@src/utils/logger"
 import { useSelector } from "@xstate/react"
 import { useCallback, useEffect } from "react"
 import { FormProvider, useForm } from "react-hook-form"
-// import { AuthGate } from "../../../../components/AuthGate"
-import { FieldComboInput } from "../../../../components/Form/FieldComboInput"
+import { formatUnits } from "viem"
+import { AuthGate } from "../../../../components/AuthGate"
 import { nearClient } from "../../../../constants/nearClient"
 import type {
   SupportedChainName,
@@ -32,7 +30,8 @@ import type {
 } from "../../../../types/base"
 import type { WithdrawWidgetProps } from "../../../../types/withdraw"
 import { parseUnits } from "../../../../utils/parse"
-// import IntentCreationResult from "../../../account/components/IntentCreationResult"
+import IntentCreationResult from "../../../account/components/IntentCreationResult"
+import SelectedTokenInput from "../../../deposit/components/DepositForm/SelectedTokenInput"
 import {
   balanceSelector,
   transitBalanceSelector,
@@ -43,9 +42,9 @@ import { WithdrawUIMachineContext } from "../../WithdrawUIMachineContext"
 import { isCexIncompatible } from "../../utils/cexCompatibility"
 import { getMinWithdrawalHyperliquidAmount } from "../../utils/hyperliquid"
 import {
-  // Intents,
+  Intents,
   MinWithdrawalAmount,
-  // PreparationResult,
+  PreparationResult,
   ReceivedAmountAndFee,
   RecipientSubForm,
 } from "./components"
@@ -59,10 +58,7 @@ import {
   totalAmountReceivedSelector,
   withdtrawalFeeSelector,
 } from "./selectors"
-import {
-  // getWithdrawButtonText,
-  isNearIntentsNetwork,
-} from "./utils"
+import { getWithdrawButtonText, isNearIntentsNetwork } from "./utils"
 
 export type WithdrawFormNearValues = {
   amountIn: string
@@ -82,9 +78,9 @@ export const WithdrawForm = ({
   presetNetwork,
   presetRecipient,
   sendNearTransaction,
-  // renderHostAppLink,
+  renderHostAppLink,
 }: WithdrawFormProps) => {
-  // const isLoggedIn = userAddress != null
+  const isLoggedIn = userAddress != null
   const actorRef = WithdrawUIMachineContext.useActorRef()
   const {
     state,
@@ -92,10 +88,10 @@ export const WithdrawForm = ({
     swapRef,
     depositedBalanceRef,
     poaBridgeInfoRef,
-    // intentCreationResult,
-    // intentRefs,
-    // noLiquidity,
-    // insufficientTokenInAmount,
+    intentCreationResult,
+    intentRefs,
+    noLiquidity,
+    insufficientTokenInAmount,
     totalAmountReceived,
     withdtrawalFee,
     directionFee,
@@ -337,37 +333,45 @@ export const WithdrawForm = ({
       )
     : null
 
-  // const increaseAmount = (tokenValue: TokenValue) => {
-  //   if (parsedAmountIn == null) return
+  const increaseAmount = (tokenValue: TokenValue) => {
+    if (parsedAmountIn == null) return
 
-  //   const newValue = addAmounts(parsedAmountIn, tokenValue)
+    const newValue = addAmounts(parsedAmountIn, tokenValue)
 
-  //   const newFormattedValue = formatTokenValue(
-  //     newValue.amount,
-  //     newValue.decimals
-  //   )
+    const newFormattedValue = formatTokenValue(
+      newValue.amount,
+      newValue.decimals
+    )
 
-  //   actorRef.send({
-  //     type: "WITHDRAW_FORM.UPDATE_AMOUNT",
-  //     params: { amount: newFormattedValue, parsedAmount: newValue },
-  //   })
-  // }
+    actorRef.send({
+      type: "WITHDRAW_FORM.UPDATE_AMOUNT",
+      params: { amount: newFormattedValue, parsedAmount: newValue },
+    })
+  }
 
-  // const decreaseAmount = (tokenValue: TokenValue) => {
-  //   if (parsedAmountIn == null) return
+  const decreaseAmount = (tokenValue: TokenValue) => {
+    if (parsedAmountIn == null) return
 
-  //   const newValue = subtractAmounts(parsedAmountIn, tokenValue)
+    const newValue = subtractAmounts(parsedAmountIn, tokenValue)
 
-  //   const newFormattedValue = formatTokenValue(
-  //     newValue.amount,
-  //     newValue.decimals
-  //   )
+    const newFormattedValue = formatTokenValue(
+      newValue.amount,
+      newValue.decimals
+    )
 
-  //   actorRef.send({
-  //     type: "WITHDRAW_FORM.UPDATE_AMOUNT",
-  //     params: { amount: newFormattedValue, parsedAmount: newValue },
-  //   })
-  // }
+    actorRef.send({
+      type: "WITHDRAW_FORM.UPDATE_AMOUNT",
+      params: { amount: newFormattedValue, parsedAmount: newValue },
+    })
+  }
+
+  const handleSetPercentage = (percent: number) => {
+    if (tokenInBalance == null) return
+    const scaledValue = (tokenInBalance.amount * BigInt(percent)) / 100n
+    setValue("amountIn", formatUnits(scaledValue, tokenInBalance.decimals), {
+      shouldValidate: true,
+    })
+  }
 
   /**
    * This is ModalSelectAssets "callback"
@@ -410,228 +414,154 @@ export const WithdrawForm = ({
   }
 
   return (
-    <FormProvider {...form}>
-      <form onSubmit={handleSubmit(onSubmit)} className="mt-6">
-        <div className="flex flex-col gap-2">
-          <SelectTriggerLike
-            icon={
-              token ? (
-                <AssetComboIcon icon={token?.icon} />
-              ) : (
-                <TokenIconPlaceholder className="size-10" />
-              )
-            }
-            label={token ? "Token" : "Select token"}
-            value={token?.name}
-            onClick={handleSelect}
-          />
+    <>
+      <FormProvider {...form}>
+        <form onSubmit={handleSubmit(onSubmit)} className="mt-6">
+          <div className="flex flex-col gap-2">
+            <SelectTriggerLike
+              icon={
+                token ? (
+                  <AssetComboIcon icon={token?.icon} />
+                ) : (
+                  <TokenIconPlaceholder className="size-10" />
+                )
+              }
+              label={token ? "Token" : "Select token"}
+              value={token?.name}
+              onClick={handleSelect}
+            />
 
-          <RecipientSubForm
-            form={form}
-            chainType={chainType}
-            userAddress={userAddress}
-            displayAddress={displayAddress}
-            tokenInBalance={tokenInBalance}
-          />
+            <RecipientSubForm
+              form={form}
+              chainType={chainType}
+              userAddress={userAddress}
+              displayAddress={displayAddress}
+              tokenInBalance={tokenInBalance}
+            />
 
-          <FieldComboInput<WithdrawFormNearValues>
-            fieldName="amountIn"
-            dataTestId="withdraw-form-amount-in"
-            selected={token}
-            tokenIn={token}
-            handleSelect={handleSelect}
-            className="border border-gray-4 rounded-xl"
-            required
-            min={
-              minWithdrawalAmount != null
-                ? {
-                    value: formatTokenValue(
-                      minWithdrawalAmount.amount,
-                      minWithdrawalAmount.decimals
-                    ),
-                    message: "Amount is too low",
-                  }
-                : undefined
-            }
-            max={
-              tokenInBalance != null
-                ? {
-                    value: formatTokenValue(
-                      tokenInBalance.amount,
-                      tokenInBalance.decimals
-                    ),
-                    message: "Insufficient balance",
-                  }
-                : undefined
-            }
-            balance={tokenInBalance}
-            transitBalance={tokenInTransitBalance}
-            usdAmount={
-              tokenToWithdrawUsdAmount !== null && tokenToWithdrawUsdAmount > 0
-                ? `~${formatUsdAmount(tokenToWithdrawUsdAmount)}`
-                : null
-            }
-          />
+            <SelectedTokenInput
+              value={getValues().amountIn}
+              label="Enter amount"
+              registration={form.register("amountIn", {
+                required: "This field is required",
+                pattern: {
+                  value: /^[0-9]*[,.]?[0-9]*$/,
+                  message: "Please enter a valid number",
+                },
+                min:
+                  minWithdrawalAmount != null
+                    ? {
+                        value: formatTokenValue(
+                          minWithdrawalAmount.amount,
+                          minWithdrawalAmount.decimals
+                        ),
+                        message: "Amount is too low",
+                      }
+                    : undefined,
+                max:
+                  tokenInBalance != null
+                    ? {
+                        value: formatTokenValue(
+                          tokenInBalance.amount,
+                          tokenInBalance.decimals
+                        ),
+                        message: "Insufficient balance",
+                      }
+                    : undefined,
+              })}
+              error={errors.amountIn?.message}
+              balance={tokenInBalance?.amount ?? 0n}
+              decimals={tokenInBalance?.decimals ?? 0}
+              symbol={token.symbol}
+              usdAmount={tokenToWithdrawUsdAmount}
+              handleSetPercentage={handleSetPercentage}
+              additionalInfo={
+                tokenInTransitBalance ? (
+                  <TooltipNew>
+                    <TooltipNew.Trigger>
+                      <button
+                        type="button"
+                        className="flex items-center justify-center size-6 rounded-lg shrink-0 text-gray-400 hover:bg-gray-200 hover:text-gray-700"
+                      >
+                        <Spinner size="sm" />
+                      </button>
+                    </TooltipNew.Trigger>
+                    <TooltipNew.Content className="max-w-64 text-center text-balance">
+                      Deposit of{" "}
+                      {formatTokenValue(
+                        tokenInTransitBalance.amount,
+                        tokenInTransitBalance.decimals,
+                        {
+                          min: 0.0001,
+                          fractionDigits: 4,
+                        }
+                      )}{" "}
+                      {token.symbol} is in progress and will be available
+                      shortly.
+                    </TooltipNew.Content>
+                  </TooltipNew>
+                ) : null
+              }
+            />
 
-          <MinWithdrawalAmount
-            minWithdrawalAmount={minWithdrawalAmountWithFee}
-            tokenOut={tokenOut}
-            isLoading={
-              state.matches({ editing: "preparation" }) &&
-              state.context.preparationOutput == null
-            }
-          />
+            <MinWithdrawalAmount
+              minWithdrawalAmount={minWithdrawalAmountWithFee}
+              tokenOut={tokenOut}
+              isLoading={
+                state.matches({ editing: "preparation" }) &&
+                state.context.preparationOutput == null
+              }
+            />
 
-          {!isNearIntentsNetwork(blockchain) &&
-            isCexIncompatible(tokenOutDeployment) && (
-              <AcknowledgementCheckbox
-                control={control}
-                errors={errors}
-                tokenOut={tokenOut}
-              />
-            )}
+            {!isNearIntentsNetwork(blockchain) &&
+              isCexIncompatible(tokenOutDeployment) && (
+                <AcknowledgementCheckbox
+                  control={control}
+                  errors={errors}
+                  tokenOut={tokenOut}
+                />
+              )}
 
-          <ReceivedAmountAndFee
-            fee={withdtrawalFee}
-            totalAmountReceived={totalAmountReceived}
-            feeUsd={feeUsd}
-            totalAmountReceivedUsd={receivedAmountUsd}
-            symbol={token.symbol}
-            directionFee={directionFee}
-            isLoading={
-              state.matches({ editing: "preparation" }) &&
-              state.context.preparationOutput == null
-            }
-          />
-        </div>
-      </form>
-    </FormProvider>
+            <ReceivedAmountAndFee
+              fee={withdtrawalFee}
+              totalAmountReceived={totalAmountReceived}
+              feeUsd={feeUsd}
+              totalAmountReceivedUsd={receivedAmountUsd}
+              symbol={token.symbol}
+              directionFee={directionFee}
+              isLoading={
+                state.matches({ editing: "preparation" }) &&
+                state.context.preparationOutput == null
+              }
+            />
+
+            <AuthGate
+              renderHostAppLink={renderHostAppLink}
+              shouldRender={isLoggedIn}
+            >
+              <Button
+                size="xl"
+                fullWidth
+                type="submit"
+                disabled={state.matches("submitting") || noLiquidity}
+                loading={state.matches("submitting")}
+              >
+                {getWithdrawButtonText(noLiquidity, insufficientTokenInAmount)}
+              </Button>
+            </AuthGate>
+          </div>
+        </form>
+      </FormProvider>
+
+      <PreparationResult
+        preparationOutput={state.context.preparationOutput}
+        increaseAmount={increaseAmount}
+        decreaseAmount={decreaseAmount}
+      />
+
+      <IntentCreationResult intentCreationResult={intentCreationResult} />
+
+      {intentRefs.length !== 0 && <Intents intentRefs={intentRefs} />}
+    </>
   )
-
-  // return (
-  //   <>
-  //     <Form<WithdrawFormNearValues>
-  //       handleSubmit={handleSubmit(() => {
-  //         if (userAddress == null || chainType == null) {
-  //           logger.warn("No user address provided")
-  //           return
-  //         }
-
-  //         actorRef.send({
-  //           type: "submit",
-  //           params: {
-  //             userAddress,
-  //             userChainType: chainType,
-  //             nearClient,
-  //           },
-  //         })
-  //       })}
-  //       form={form}
-  //     >
-  //       <Flex direction="column" gap="5">
-  //         <FieldComboInput<WithdrawFormNearValues>
-  //           // fieldName="amountIn"
-  //           dataTestId="withdraw-form-amount-in"
-  //           selected={token}
-  //           tokenIn={token}
-  //           handleSelect={handleSelect}
-  //           className="border border-gray-4 rounded-xl"
-  //           required
-  //           min={
-  //             minWithdrawalAmount != null
-  //               ? {
-  //                   value: formatTokenValue(
-  //                     minWithdrawalAmount.amount,
-  //                     minWithdrawalAmount.decimals
-  //                   ),
-  //                   message: "Amount is too low",
-  //                 }
-  //               : undefined
-  //           }
-  //           max={
-  //             tokenInBalance != null
-  //               ? {
-  //                   value: formatTokenValue(
-  //                     tokenInBalance.amount,
-  //                     tokenInBalance.decimals
-  //                   ),
-  //                   message: "Insufficient balance",
-  //                 }
-  //               : undefined
-  //           }
-  //           balance={tokenInBalance}
-  //           transitBalance={tokenInTransitBalance}
-  //           usdAmount={
-  //             tokenToWithdrawUsdAmount !== null && tokenToWithdrawUsdAmount > 0
-  //               ? `~${formatUsdAmount(tokenToWithdrawUsdAmount)}`
-  //               : null
-  //           }
-  //         />
-
-  //         <MinWithdrawalAmount
-  //           minWithdrawalAmount={minWithdrawalAmountWithFee}
-  //           tokenOut={tokenOut}
-  //           isLoading={
-  //             state.matches({ editing: "preparation" }) &&
-  //             state.context.preparationOutput == null
-  //           }
-  //         />
-
-  //         <RecipientSubForm
-  //           form={form}
-  //           chainType={chainType}
-  //           userAddress={userAddress}
-  //           displayAddress={displayAddress}
-  //           tokenInBalance={tokenInBalance}
-  //         />
-
-  //         {!isNearIntentsNetwork(blockchain) &&
-  //           isCexIncompatible(tokenOutDeployment) && (
-  //             <AcknowledgementCheckbox
-  //               control={control}
-  //               errors={errors}
-  //               tokenOut={tokenOut}
-  //             />
-  //           )}
-
-  //         <ReceivedAmountAndFee
-  //           fee={withdtrawalFee}
-  //           totalAmountReceived={totalAmountReceived}
-  //           feeUsd={feeUsd}
-  //           totalAmountReceivedUsd={receivedAmountUsd}
-  //           symbol={token.symbol}
-  //           directionFee={directionFee}
-  //           isLoading={
-  //             state.matches({ editing: "preparation" }) &&
-  //             state.context.preparationOutput == null
-  //           }
-  //         />
-
-  //         <AuthGate
-  //           renderHostAppLink={renderHostAppLink}
-  //           shouldRender={isLoggedIn}
-  //         >
-  //           <Button
-  //             size="xl"
-  //             fullWidth
-  //             disabled={state.matches("submitting") || noLiquidity}
-  //             loading={state.matches("submitting")}
-  //           >
-  //             {getWithdrawButtonText(noLiquidity, insufficientTokenInAmount)}
-  //           </Button>
-  //         </AuthGate>
-  //       </Flex>
-  //     </Form>
-
-  //     <PreparationResult
-  //       preparationOutput={state.context.preparationOutput}
-  //       increaseAmount={increaseAmount}
-  //       decreaseAmount={decreaseAmount}
-  //     />
-
-  //     <IntentCreationResult intentCreationResult={intentCreationResult} />
-
-  //     {intentRefs.length !== 0 && <Intents intentRefs={intentRefs} />}
-  //   </>
-  // )
 }

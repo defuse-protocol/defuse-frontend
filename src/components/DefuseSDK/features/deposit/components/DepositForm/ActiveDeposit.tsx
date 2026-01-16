@@ -1,7 +1,11 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
+import { InformationCircleIcon } from "@heroicons/react/16/solid"
 import Button from "@src/components/Button"
 import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
+import TooltipNew from "@src/components/DefuseSDK/components/TooltipNew"
+import { RESERVED_NEAR_BALANCE } from "@src/components/DefuseSDK/services/blockchainBalanceService"
 import { chainTxExplorer } from "@src/components/DefuseSDK/utils/chainTxExplorer"
+import { isFungibleToken } from "@src/components/DefuseSDK/utils/token"
 import { useActivityDock } from "@src/providers/ActivityDockProvider"
 import { useSelector } from "@xstate/react"
 import { useEffect } from "react"
@@ -155,7 +159,7 @@ export function ActiveDeposit({
         symbol={token.symbol}
         balance={balance ?? 0n}
         usdAmount={usdAmountToDeposit}
-        token={tokenDeployment}
+        decimals={tokenDeployment.decimals}
         handleSetPercentage={handleSetPercentage}
         registration={register("amount", {
           required: true,
@@ -165,6 +169,32 @@ export function ActiveDeposit({
             return (!Number.isNaN(num) && num > 0) || "Enter a valid amount"
           },
         })}
+        additionalInfo={
+          isFungibleToken(tokenDeployment) &&
+          tokenDeployment.address === "wrap.near" ? (
+            <TooltipNew>
+              <TooltipNew.Trigger>
+                <button
+                  type="button"
+                  className="flex items-center justify-center size-6 rounded-lg shrink-0 text-gray-400 hover:bg-gray-200 hover:text-gray-700"
+                  aria-label="Additional information"
+                >
+                  <InformationCircleIcon className="size-4" />
+                </button>
+              </TooltipNew.Trigger>
+              <TooltipNew.Content className="max-w-72 text-center text-balance">
+                Combined balance of NEAR and wNEAR. NEAR will be automatically
+                wrapped to wNEAR if your wNEAR balance isn't sufficient for the
+                swap.
+                <br />
+                <br />
+                Note that to cover network fees, we reserve
+                {` ${formatTokenValue(RESERVED_NEAR_BALANCE, tokenDeployment.decimals)} NEAR `}
+                in your wallet.
+              </TooltipNew.Content>
+            </TooltipNew>
+          ) : null
+        }
       />
 
       <Button

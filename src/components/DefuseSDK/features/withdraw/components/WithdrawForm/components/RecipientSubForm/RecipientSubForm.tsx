@@ -1,7 +1,6 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { TagIcon } from "@heroicons/react/20/solid"
-import {} from "@radix-ui/themes"
 import ModalSelectRecipient from "@src/components/DefuseSDK/components/Modal/ModalSelectRecipient"
 import { getMinWithdrawalHyperliquidAmount } from "@src/components/DefuseSDK/features/withdraw/utils/hyperliquid"
 import { usePreparedNetworkLists } from "@src/components/DefuseSDK/hooks/useNetworkLists"
@@ -81,8 +80,9 @@ export const RecipientSubForm = ({
       }
     })
 
-  const { token, tokenOut, tokenOutDeployment, parsedAmountIn, recipient } =
-    useSelector(formRef, (state) => {
+  const { token, tokenOut, tokenOutDeployment, parsedAmountIn } = useSelector(
+    formRef,
+    (state) => {
       return {
         token: state.context.tokenIn,
         tokenOut: state.context.tokenOut,
@@ -90,7 +90,8 @@ export const RecipientSubForm = ({
         parsedAmountIn: state.context.parsedAmount,
         recipient: state.context.recipient,
       }
-    })
+    }
+  )
 
   const isChainTypeSatisfiesChainName = chainTypeSatisfiesChainName(
     chainType,
@@ -229,15 +230,25 @@ export const RecipientSubForm = ({
         )}
       />
 
-      <SelectTriggerLike
-        label={recipient ? "Recipient" : "Select recipient"}
-        value={midTruncate(recipient, 16)}
-        icon={
-          <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
-            <WalletIcon className="text-gray-500 size-5" />
-          </div>
-        }
-        onClick={() => setModalType("recipient")}
+      <Controller
+        name="recipient"
+        control={control}
+        rules={{
+          required: "Recipient is required",
+        }}
+        render={({ field, fieldState }) => (
+          <SelectTriggerLike
+            label={field.value ? "Recipient" : "Select recipient"}
+            value={midTruncate(field.value, 16)}
+            error={fieldState.error?.message}
+            icon={
+              <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                <WalletIcon className="text-gray-500 size-5" />
+              </div>
+            }
+            onClick={() => setModalType("recipient")}
+          />
+        )}
       />
 
       <ModalSelectRecipient
