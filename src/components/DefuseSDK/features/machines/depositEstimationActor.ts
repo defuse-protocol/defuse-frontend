@@ -63,6 +63,8 @@ export const depositEstimateMaxValueActor = fromPromise(
       case BlockchainEnum.AVALANCHE:
       case BlockchainEnum.MONAD:
       case BlockchainEnum.LAYERX:
+      case BlockchainEnum.PLASMA:
+      case BlockchainEnum.SCROLL:
       case BlockchainEnum.ADI: {
         if (
           !validateAddress(userAddress, blockchain) ||

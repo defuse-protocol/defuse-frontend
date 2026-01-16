@@ -36,6 +36,8 @@ export const assetNetworkAdapter: Record<SupportedChainName, BlockchainEnum> = {
   litecoin: BlockchainEnum.LITECOIN,
   layerx: BlockchainEnum.LAYERX,
   monad: BlockchainEnum.MONAD,
+  plasma: BlockchainEnum.PLASMA,
+  scroll: BlockchainEnum.SCROLL,
   adi: BlockchainEnum.ADI,
   starknet: BlockchainEnum.STARKNET,
 }
@@ -78,6 +80,8 @@ export const reverseAssetNetworkAdapter: Record<
   [BlockchainEnum.LITECOIN]: "litecoin",
   [BlockchainEnum.LAYERX]: "layerx",
   [BlockchainEnum.MONAD]: "monad",
+  [BlockchainEnum.PLASMA]: "plasma",
+  [BlockchainEnum.SCROLL]: "scroll",
   [BlockchainEnum.ADI]: "adi",
   [BlockchainEnum.STARKNET]: "starknet",
 }
