@@ -2,6 +2,7 @@ import type { Intent } from "@defuse-protocol/contract-types"
 import {
   type FeeEstimation,
   FeeExceedsAmountError,
+  MinWithdrawalAmountError,
   type RouteConfig,
   RouteEnum,
   TrustlineNotFoundError,
@@ -228,12 +229,15 @@ export async function prepareWithdraw(
     return { tag: "err", value: feeEstimation.unwrapErr() }
   }
 
-  // Add direction fee for Near/Zcash to Solana withdrawals
+  // Add direction fee for Near/Zcash/Strk to Solana withdrawals
   const isNearToSolana =
     formValues.tokenOut.defuseAssetId === "nep141:wrap.near" &&
     formValues.tokenOutDeployment.chainName === "solana"
   const isZecToSolana =
     formValues.tokenOut.defuseAssetId === "nep141:zec.omft.near" &&
+    formValues.tokenOutDeployment.chainName === "solana"
+  const isStrkToSolana =
+    formValues.tokenOut.defuseAssetId === "nep141:starknet.omft.near" &&
     formValues.tokenOutDeployment.chainName === "solana"
 
   const baseFeeEstimation = feeEstimation.unwrap()
@@ -242,7 +246,7 @@ export async function prepareWithdraw(
 
   // Only apply direction fee if env variable is set and conditions are met
   if (
-    (isNearToSolana || isZecToSolana) &&
+    (isNearToSolana || isZecToSolana || isStrkToSolana) &&
     WITHDRAW_DIRECTION_FEE_BPS != null &&
     appFeeRecipient
   ) {
@@ -298,6 +302,27 @@ export async function prepareWithdraw(
         },
       }
     }
+    const minWithdrawalAmountError = findError(err, MinWithdrawalAmountError)
+    if (minWithdrawalAmountError != null) {
+      return {
+        tag: "err",
+        value: {
+          reason: "ERR_AMOUNT_TOO_LOW",
+          shortfall: subtractAmounts(
+            {
+              amount: minWithdrawalAmountError.minAmount,
+              decimals: formValues.tokenOut.decimals,
+            },
+            receivedAmount
+          ),
+          // todo: provide decimals too
+          receivedAmount: receivedAmount.amount,
+          // todo: provide decimals too
+          minWithdrawalAmount: minWithdrawalAmountError.minAmount,
+          token: formValues.tokenOut,
+        },
+      }
+    }
 
     logger.error(err)
     return {
@@ -308,7 +333,7 @@ export async function prepareWithdraw(
 
   // Create a separate transfer intent for the direction fee (if configured)
   const hasDirectionFee =
-    (isNearToSolana || isZecToSolana) &&
+    (isNearToSolana || isZecToSolana || isStrkToSolana) &&
     WITHDRAW_DIRECTION_FEE_BPS != null &&
     appFeeRecipient
   if (hasDirectionFee) {

@@ -27,6 +27,7 @@ import { useOtcTakerConfirmTrade } from "../hooks/useOtcTakerConfirmTrade"
 import { useOtcTakerPreparation } from "../hooks/useOtcTakerPreparation"
 import type { SignMessage } from "../types/sharedTypes"
 import type { TradeTerms } from "../utils/deriveTradeTerms"
+import { ErrorReason } from "./shared/ErrorReason"
 
 export type OtcTakerFormProps = {
   tradeId: string
@@ -189,11 +190,6 @@ export function OtcTakerForm({
         </div>
       </div>
 
-      {confirmTradeMutation.data?.match({
-        ok: () => <div>Swapped!</div>,
-        err: (err) => <div className="text-red-700">{err.reason}</div>,
-      })}
-
       <div className="flex flex-col items-center">
         <TokenAmountInputCard
           variant="2"
@@ -334,6 +330,12 @@ export function OtcTakerForm({
             : "Confirm swap"}
         </ButtonCustom>
       </AuthGate>
+
+      {confirmTradeMutation.data?.isErr() && (
+        <div className="mt-2">
+          <ErrorReason reason={confirmTradeMutation.data.unwrapErr().reason} />
+        </div>
+      )}
     </div>
   )
 }
