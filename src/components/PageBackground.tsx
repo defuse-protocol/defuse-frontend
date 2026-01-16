@@ -83,7 +83,16 @@ const PageBackground = () => {
 
   if (whitelabelTemplate === "omniswap") {
     return (
-      <div className="absolute bottom-0 w-full h-full -z-[1] bg-[#1a1a1a]" />
+      <div className="absolute bottom-0 w-full h-full -z-[1] bg-[var(--sand-2-alias)]">
+        <div className="relative h-full w-full overflow-hidden">
+          <div
+            className="absolute bottom-0 sm:-bottom-4 md:-bottom-20 lg:-bottom-24 left-1/2 text-center text-transparent -translate-x-1/2 bg-clip-text bg-gradient-to-b from-black/[0.02] to-black/5 text-[12rem]/none sm:text-[18rem]/none md:text-[24rem]/none lg:text-[30rem]/none tracking-tighter font-bold"
+            aria-hidden
+          >
+            omni
+          </div>
+        </div>
+      </div>
     )
   }
 

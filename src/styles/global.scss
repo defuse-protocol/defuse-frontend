@@ -82,19 +82,61 @@
     --rs11d: rgba(116, 176, 206, 1);
     --rs12d: rgba(126, 207, 239, 1);
 
-    /* OmniSwap CSS variables (dark monochromatic) */
-    --os1d: #1a1a1a;
-    --os2d: #1f1f1f;
-    --os3d: #232323;
-    --os4d: #2a2a2a;
-    --os5d: #333333;
-    --os6d: #3a3a3a;
-    --os7d: #525252;
-    --os8d: #737373;
-    --os9d: #8a8a8a;
-    --os10d: #a3a3a3;
-    --os11d: #d4d4d4;
-    --os12d: #ffffff;
+    /* OmniSwap grays */
+    --os12d: #fcfdfc;
+    --os11d: #e9edec;
+    --os10d: #dadedc;
+    --os9d: #cacecc;
+    --os8d: #9b9f9e;
+    --os7d: #6e7270;
+    --os6d: #4e5251;
+    --os5d: #3d4140;
+    --os4d: #252927;
+    --os3d: #1b1f1d;
+    --os2d: #121614;
+    --os1d: #080c0a;
+
+    /* OmniSwap grays (reversed) */
+    --os1l: var(--os12d);
+    --os2l: var(--os11d);
+    --os3l: var(--os10d);
+    --os4l: var(--os9d);
+    --os5l: var(--os8d);
+    --os6l: var(--os7d);
+    --os7l: var(--os6d);
+    --os8l: var(--os5d);
+    --os9l: var(--os4d);
+    --os10l: var(--os3d);
+    --os11l: var(--os2d);
+    --os12l: var(--os1d);
+
+    /* OmniSwap accents */
+    --osa1l: #edfcf3;
+    --osa2l: #d3f8df;
+    --osa3l: #aaf0c5;
+    --osa4l: #73e2a5;
+    --osa5l: #3bcc81;
+    --osa6l: #17b267;
+    --osa7l: #0b9053;
+    --osa8l: #097345;
+    --osa9l: #0a5b38;
+    --osa10l: #094b30;
+    --osa11l: #042a1b;
+    --osa12l: #031c12;
+
+    /* OmniSwap accents (reversed) */
+    --osa1d: var(--osa12l);
+    --osa2d: var(--osa11l);
+    --osa3d: var(--osa10l);
+    --osa4d: var(--osa9l);
+    --osa5d: var(--osa8l);
+    --osa6d: var(--osa7l);
+    --osa7d: var(--osa6l);
+    --osa8d: var(--osa5l);
+    --osa9d: var(--osa4l);
+    --osa10d: var(--osa3l);
+    --osa11d: var(--osa2l);
+    --osa12d: var(--osa1l);
 
     /* CSS variable aliases - default to sand colors */
     --sand-1-alias: var(--sand-1);
@@ -166,7 +208,29 @@ html.tmpl-rabitswap {
   /* Note: RabbitSwap doesn't have alpha variants defined, so we keep sand-a* for now */
 }
 
+/* OmniSwap font */
+html.tmpl-omniswap .radix-themes {
+  --default-font-family: "Space Grotesk", sans-serif;
+}
+
+/* OmniSwap light mode */
 html.tmpl-omniswap {
+  --sand-1-alias: var(--os1l);
+  --sand-2-alias: var(--os2l);
+  --sand-3-alias: var(--os3l);
+  --sand-4-alias: var(--os4l);
+  --sand-5-alias: var(--os5l);
+  --sand-6-alias: var(--os6l);
+  --sand-7-alias: var(--os7l);
+  --sand-8-alias: var(--os8l);
+  --sand-9-alias: var(--os9l);
+  --sand-10-alias: var(--os10l);
+  --sand-11-alias: var(--os11l);
+  --sand-12-alias: var(--os12l);
+}
+
+/* OmniSwap dark mode */
+html.tmpl-omniswap.dark {
   --sand-1-alias: var(--os1d);
   --sand-2-alias: var(--os2d);
   --sand-3-alias: var(--os3d);
@@ -181,30 +245,43 @@ html.tmpl-omniswap {
   --sand-12-alias: var(--os12d);
 }
 
-html.tmpl-omniswap,
-.tmpl-omniswap body {
-  background: var(--os1d);
+/* OmniSwap accent colors - light mode */
+html.tmpl-omniswap .radix-themes {
+  --accent-1: var(--osa1l);
+  --accent-2: var(--osa2l);
+  --accent-3: var(--osa3l);
+  --accent-4: var(--osa4l);
+  --accent-5: var(--osa5l);
+  --accent-6: var(--osa6l);
+  --accent-7: var(--osa7l);
+  --accent-8: var(--osa8l);
+  --accent-9: var(--osa9l);
+  --accent-10: var(--osa10l);
+  --accent-11: var(--osa11l);
+  --accent-12: var(--osa12l);
+
+  --accent-contrast: var(--osa12d);
 }
 
-html.tmpl-omniswap .radix-themes {
-  --accent-1: var(--os1d);
-  --accent-2: var(--os3d);
-  --accent-3: var(--os4d);
-  --accent-4: var(--os5d);
-  --accent-5: var(--os6d);
-  --accent-6: #4a4a4a;
-  --accent-7: #6a6a6a;
-  --accent-8: var(--os9d);
-  --accent-9: var(--os12d);
-  --accent-10: #f0f0f0;
-  --accent-11: #e0e0e0;
-  --accent-12: var(--os12d);
-  --accent-a9: rgba(255, 255, 255, 0.95);
-  --accent-a10: rgba(255, 255, 255, 0.9);
-  --accent-contrast: #000000;
+/* OmniSwap accent colors - dark mode */
+html.tmpl-omniswap.dark .radix-themes {
+  --accent-1: var(--osa1d);
+  --accent-2: var(--osa2d);
+  --accent-3: var(--osa3d);
+  --accent-4: var(--osa4d);
+  --accent-5: var(--osa5d);
+  --accent-6: var(--osa6d);
+  --accent-7: var(--osa7d);
+  --accent-8: var(--osa8d);
+  --accent-9: var(--osa9d);
+  --accent-10: var(--osa10d);
+  --accent-11: var(--osa11d);
+  --accent-12: var(--osa12d);
+
+  --accent-contrast: var(--osa1d);
 }
 
 .radix-themes {
-	--cursor-button: pointer;
+  --cursor-button: pointer;
   --cursor-switch: pointer;
 }
