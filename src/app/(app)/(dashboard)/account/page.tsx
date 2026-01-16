@@ -45,28 +45,23 @@ export default function AccountPage() {
   } = useWatchHoldings({ userId, tokenList })
   const totalValueUsd = holdings ? computeTotalUsdValue(holdings) : undefined
 
-  const assetsLoaded = !isPending && !isError && Boolean(holdings)
-  const noAssets = assetsLoaded && holdings && holdings.length === 0
-
   return (
     <>
       <h1 className="sr-only">Account</h1>
 
       <Balance balance={totalValueUsd} />
 
-      {!noAssets && (
-        <section className="grid grid-cols-2 gap-2 mt-6">
-          <Button href="/deposit" size="xl">
-            <DepositIcon className="size-6 -mt-1.5" />
-            Add funds
-          </Button>
+      <section className="grid grid-cols-2 gap-2 mt-6">
+        <Button href="/deposit" size="xl">
+          <DepositIcon className="size-6 -mt-1.5" />
+          Add funds
+        </Button>
 
-          <Button href="/send" size="xl">
-            <SendIcon className="size-6" />
-            Send
-          </Button>
-        </section>
-      )}
+        <Button href="/send" size="xl">
+          <SendIcon className="size-6" />
+          Send
+        </Button>
+      </section>
 
       <Assets assets={holdings} isPending={isPending} isError={isError} />
     </>

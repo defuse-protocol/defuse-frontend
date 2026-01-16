@@ -15,6 +15,7 @@ import {
   setup,
 } from "xstate"
 import { queryClient } from "../../providers/QueryClientProvider"
+import { invalidateBalanceQueries } from "../../queries/balanceQueries"
 import { getDepositedBalances } from "../../services/defuseBalanceService"
 import { getTransitBalance } from "../../services/getTransitBalance"
 import type { BaseTokenInfo, TokenInfo, TokenValue } from "../../types/base"
@@ -341,7 +342,7 @@ export const depositedBalanceMachine = setup({
         },
 
         REQUEST_BALANCE_REFRESH: {
-          actions: "refetch",
+          actions: ["refetch", invalidateBalanceQueries],
         },
 
         UPDATE_BALANCE_SLICE: {

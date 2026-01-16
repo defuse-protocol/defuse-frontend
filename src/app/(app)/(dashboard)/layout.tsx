@@ -1,7 +1,6 @@
 import ActivityDock from "@src/components/ActivityDock"
 import { NavbarDesktop } from "@src/components/Navbar/NavbarDesktop"
 import UserMenu from "@src/components/UserMenu"
-import ConnectWallet from "@src/components/Wallet"
 import type { ReactNode } from "react"
 
 const DashboardLayout = ({ children }: { children: ReactNode }) => (
@@ -16,7 +15,6 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => (
       <div className="my-6 border-t border-gray-700" />
 
       <NavbarDesktop />
-      <ConnectWallet />
 
       <ActivityDock />
     </div>

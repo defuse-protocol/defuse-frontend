@@ -315,7 +315,10 @@ export const otcMakerRootMachine = setup({
             },
             {
               type: "setError",
-              params: { tag: "err", value: { reason: "EXCEPTION" } },
+              params: {
+                tag: "err",
+                value: { reason: "EXCEPTION", error: null },
+              },
             },
           ],
         },
@@ -366,7 +369,10 @@ export const otcMakerRootMachine = setup({
             },
             {
               type: "setError",
-              params: { tag: "err", value: { reason: "EXCEPTION" } },
+              params: {
+                tag: "err",
+                value: { reason: "EXCEPTION", error: null },
+              },
             },
           ],
         },

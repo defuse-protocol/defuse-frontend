@@ -1,6 +1,10 @@
 "use client"
 
-import { ArrowsLeftRight, Plus } from "@phosphor-icons/react"
+import {
+  ArrowsLeftRight,
+  ClockCounterClockwise,
+  Plus,
+} from "@phosphor-icons/react"
 import { navigation } from "@src/constants/routes"
 import { useIsActiveLink } from "@src/hooks/useIsActiveLink"
 import { cn } from "@src/utils/cn"
@@ -13,6 +17,7 @@ export function NavbarMobile() {
 
   const isAccountActive = isActive(navigation.account)
   const isTradeActive = isActive(navigation.home) || isActive(navigation.otc)
+  const isHistoryActive = isActive(navigation.history)
   const isDepositActive = isActive(navigation.deposit)
 
   return (
@@ -42,6 +47,24 @@ export function NavbarMobile() {
                   className={cn(
                     "size-4",
                     isTradeActive ? "text-gray-12" : "text-gray-11"
+                  )}
+                  weight="bold"
+                />
+              </NavItem.DisplayIcon>
+            }
+          />
+
+          {/* History */}
+          <NavItem
+            href={navigation.history}
+            label="History"
+            isActive={isHistoryActive}
+            iconSlot={
+              <NavItem.DisplayIcon>
+                <ClockCounterClockwise
+                  className={cn(
+                    "size-4",
+                    isHistoryActive ? "text-gray-12" : "text-gray-11"
                   )}
                   weight="bold"
                 />
