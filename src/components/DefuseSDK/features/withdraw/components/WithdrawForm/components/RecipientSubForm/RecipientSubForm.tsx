@@ -1,11 +1,15 @@
-import { assert, type BlockchainEnum } from "@defuse-protocol/internal-utils"
+import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
-import { MagicWandIcon, PersonIcon } from "@radix-ui/react-icons"
-import { Box, Flex, IconButton, Text, TextField } from "@radix-ui/themes"
+import { TagIcon } from "@heroicons/react/20/solid"
+import {} from "@radix-ui/themes"
+import ModalSelectRecipient from "@src/components/DefuseSDK/components/Modal/ModalSelectRecipient"
 import { getMinWithdrawalHyperliquidAmount } from "@src/components/DefuseSDK/features/withdraw/utils/hyperliquid"
 import { usePreparedNetworkLists } from "@src/components/DefuseSDK/hooks/useNetworkLists"
 import { isSupportedChainName } from "@src/components/DefuseSDK/utils/blockchain"
+import ErrorMessage from "@src/components/ErrorMessage"
+import { WalletIcon } from "@src/icons"
 import { useSelector } from "@xstate/react"
+import clsx from "clsx"
 import { type ReactNode, useEffect, useState } from "react"
 import type { UseFormReturn } from "react-hook-form"
 import { Controller } from "react-hook-form"
@@ -33,14 +37,10 @@ import {
   getBlockchainSelectItems,
   getFastWithdrawals,
   isNearIntentsNetwork,
+  midTruncate,
 } from "../../utils"
-import { truncateUserAddress } from "../../utils"
 import { HotBalance } from "../HotBalance/HotBalance"
 import { LongWithdrawWarning } from "../LongWithdrawWarning"
-import {
-  type ValidateRecipientAddressErrorType,
-  validationRecipientAddress,
-} from "./validationRecipientAddress"
 
 type RecipientSubFormProps = {
   form: UseFormReturn<WithdrawFormNearValues>
@@ -64,7 +64,13 @@ export const RecipientSubForm = ({
   displayAddress,
   tokenInBalance,
 }: RecipientSubFormProps) => {
-  const [isNetworkModalOpen, setIsNetworkModalOpen] = useState(false)
+  const [modalType, setModalType] = useState<"network" | "recipient" | null>(
+    null
+  )
+  const isSelectNetworkModalOpen = modalType === "network"
+  const isSelectRecipientModalOpen = modalType === "recipient"
+  const closeModal = () => setModalType(null)
+
   const actorRef = WithdrawUIMachineContext.useActorRef()
   const { formRef, balances: balancesData } =
     WithdrawUIMachineContext.useSelector((state) => {
@@ -109,8 +115,6 @@ export const RecipientSubForm = ({
   // temporary disable it, it's not working properly
   const showHotBalances = false && Object.keys(maxWithdrawals).length > 0
 
-  const onCloseNetworkModal = () => setIsNetworkModalOpen(false)
-
   const onChangeNetwork = (network: SupportedChainName) => {
     setValue("blockchain", network)
     actorRef.send({
@@ -119,12 +123,12 @@ export const RecipientSubForm = ({
         minReceivedAmount: getMinWithdrawalHyperliquidAmount(network, token),
       },
     })
-    onCloseNetworkModal()
+    closeModal()
   }
 
   const onIntentsNetworkSelect = () => {
     setValue("blockchain", "near_intents")
-    onCloseNetworkModal()
+    closeModal()
   }
 
   const { data: hyperliquidDepositAddress } = useCreateHLDepositAddress(
@@ -166,12 +170,7 @@ export const RecipientSubForm = ({
   }, [watch, actorRef])
 
   return (
-    <Flex direction="column" gap="2">
-      <Box px="2" asChild>
-        <Text size="1" weight="bold">
-          Recipient
-        </Text>
-      </Box>
+    <>
       <Controller
         name="blockchain"
         control={control}
@@ -182,7 +181,8 @@ export const RecipientSubForm = ({
         render={({ field }) => (
           <>
             <SelectTriggerLike
-              label={determineBlockchainControllerLabel(
+              label={field.value ? "Network" : "Select network"}
+              value={determineBlockchainControllerLabel(
                 field.value,
                 isSupportedChainName(field.value) // filter out virtual "near_intents" chain
                   ? blockchainSelectItems[field.value]?.label
@@ -194,7 +194,7 @@ export const RecipientSubForm = ({
                   ? blockchainSelectItems[field.value]?.icon
                   : undefined
               )}
-              onClick={() => setIsNetworkModalOpen(true)}
+              onClick={() => setModalType("network")}
               data-testid="select-trigger-like"
               hint={determineBlockchainControllerHint(field.value)}
               disabled={false}
@@ -203,8 +203,8 @@ export const RecipientSubForm = ({
             <ModalSelectNetwork
               selectNetwork={onChangeNetwork}
               selectedNetwork={getValues("blockchain")}
-              isOpen={isNetworkModalOpen}
-              onClose={() => setIsNetworkModalOpen(false)}
+              isOpen={isSelectNetworkModalOpen}
+              onClose={closeModal}
               availableNetworks={availableNetworks}
               disabledNetworks={disabledNetworks}
               onIntentsSelect={onIntentsNetworkSelect}
@@ -229,6 +229,91 @@ export const RecipientSubForm = ({
         )}
       />
 
+      <SelectTriggerLike
+        label={recipient ? "Recipient" : "Select recipient"}
+        value={midTruncate(recipient, 16)}
+        icon={
+          <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+            <WalletIcon className="text-gray-500 size-5" />
+          </div>
+        }
+        onClick={() => setModalType("recipient")}
+      />
+
+      <ModalSelectRecipient
+        open={isSelectRecipientModalOpen}
+        onClose={closeModal}
+        chainType={chainType}
+        userAddress={userAddress}
+        displayAddress={displayAddress}
+        availableNetworks={availableNetworks}
+        displayOwnAddress={
+          isChainTypeSatisfiesChainName &&
+          !isNearIntentsNetwork(getValues("blockchain")) &&
+          userAddress != null &&
+          getValues("blockchain") !== "hyperliquid"
+        }
+      />
+
+      <Controller
+        name="blockchain"
+        control={control}
+        render={({ field }) =>
+          field.value === "xrpledger" ? (
+            <>
+              <div>
+                <label
+                  className={clsx(
+                    "flex items-center gap-3 rounded-3xl border bg-white p-4 cursor-text hover:outline focus-within:outline",
+                    errors.destinationMemo
+                      ? "border-red-500 hover:border-red-500 hover:outline-red-500 focus-within:border-red-500 focus-within:outline-red-500"
+                      : "border-gray-200 hover:border-gray-700 hover:outline-gray-700 focus-within:border-gray-700 focus-within:outline-gray-700"
+                  )}
+                >
+                  <div className="bg-gray-100 rounded-full size-10 shrink-0 flex items-center justify-center">
+                    <TagIcon className="text-gray-500 size-5" />
+                  </div>
+                  <div className="flex flex-col items-start gap-1">
+                    <span className="text-sm/none font-medium text-gray-500">
+                      Destination Tag (optional)
+                    </span>
+                    <input
+                      id="destinationMemo"
+                      type="text"
+                      className="block w-full text-base/none font-semibold text-gray-700 placeholder:text-gray-400 focus:outline-none leading-none ring-0 border-none p-0"
+                      {...register("destinationMemo", {
+                        validate: {
+                          uint32: (value) => {
+                            if (value == null || value === "") return
+
+                            if (
+                              parseDestinationMemo(
+                                value,
+                                tokenOutDeployment.chainName
+                              ) == null
+                            ) {
+                              return "Should be a number"
+                            }
+                          },
+                        },
+                      })}
+                    />
+                  </div>
+                </label>
+
+                {errors.destinationMemo && (
+                  <ErrorMessage className="mt-1">
+                    {errors.destinationMemo?.message}
+                  </ErrorMessage>
+                )}
+              </div>
+            </>
+          ) : (
+            <></>
+          )
+        }
+      />
+
       {tokenOutDeployment.bridge === "poa" && showHotBalances && (
         <LongWithdrawWarning
           amountIn={parsedAmountIn}
@@ -238,121 +323,7 @@ export const RecipientSubForm = ({
           }
         />
       )}
-
-      <Flex direction="column" gap="1">
-        <Flex gap="2" align="center">
-          <Box asChild flexGrow="1">
-            <TextField.Root
-              size="3"
-              {...register("recipient", {
-                validate: {
-                  pattern: async (value, formValues) => {
-                    const result = await validationRecipientAddress(
-                      value,
-                      formValues.blockchain,
-                      userAddress ?? "",
-                      chainType
-                    )
-                    if (result.isErr()) {
-                      return renderRecipientAddressError(result.unwrapErr())
-                    }
-                    return result.unwrap()
-                  },
-                },
-              })}
-              placeholder="Enter wallet address"
-              data-testid="withdraw-target-account-field"
-            >
-              <TextField.Slot>
-                <PersonIcon height="16" width="16" />
-              </TextField.Slot>
-            </TextField.Root>
-          </Box>
-
-          {isChainTypeSatisfiesChainName &&
-            !isNearIntentsNetwork(getValues("blockchain")) &&
-            userAddress != null &&
-            recipient !== userAddress &&
-            getValues("blockchain") !== "hyperliquid" && (
-              <IconButton
-                type="button"
-                onClick={() => {
-                  assert(
-                    displayAddress,
-                    "Display address could not be retrieved from the wallet provider"
-                  )
-                  setValue("recipient", displayAddress, {
-                    shouldValidate: true,
-                  })
-                }}
-                variant="outline"
-                size="3"
-                title={`Autofill with your address ${truncateUserAddress(
-                  userAddress
-                )}`}
-                aria-label={`Autofill with your address ${truncateUserAddress(
-                  userAddress
-                )}`}
-              >
-                <MagicWandIcon />
-              </IconButton>
-            )}
-        </Flex>
-
-        {errors.recipient && (
-          <Box px="2" asChild>
-            <Text size="1" color="red" weight="medium">
-              {errors.recipient.message}
-            </Text>
-          </Box>
-        )}
-      </Flex>
-
-      <Controller
-        name="blockchain"
-        control={control}
-        render={({ field }) =>
-          field.value === "xrpledger" ? (
-            <Flex direction="column" gap="1">
-              <Box px="2" asChild>
-                <Text size="1" weight="bold">
-                  Destination Tag (optional)
-                </Text>
-              </Box>
-              <TextField.Root
-                size="3"
-                {...register("destinationMemo", {
-                  validate: {
-                    uint32: (value) => {
-                      if (value == null || value === "") return
-
-                      if (
-                        parseDestinationMemo(
-                          value,
-                          tokenOutDeployment.chainName
-                        ) == null
-                      ) {
-                        return "Should be a number"
-                      }
-                    },
-                  },
-                })}
-                placeholder="Enter destination tag"
-              />
-              {errors.destinationMemo && (
-                <Box px="2" asChild>
-                  <Text size="1" color="red" weight="medium">
-                    {errors.destinationMemo.message}
-                  </Text>
-                </Box>
-              )}
-            </Flex>
-          ) : (
-            <></>
-          )
-        }
-      />
-    </Flex>
+    </>
   )
 }
 
@@ -392,21 +363,5 @@ function determineBlockchainControllerHint(
 ) {
   if (isNearIntentsNetwork(blockchain)) {
     return "Internal network"
-  }
-  return "Network"
-}
-
-function renderRecipientAddressError(error: ValidateRecipientAddressErrorType) {
-  switch (error) {
-    case "SELF_WITHDRAWAL":
-      return "You cannot withdraw to your own address. Please enter a different recipient address."
-    case "ADDRESS_INVALID":
-      return "Please enter a valid address for the selected blockchain."
-    case "NEAR_ACCOUNT_DOES_NOT_EXIST":
-      return "The account doesn't exist on NEAR. Please enter a different recipient address."
-    case "USER_ADDRESS_REQUIRED":
-      return "Near Intents network requires your address. Try signing in again."
-    default:
-      return "An unexpected error occurred. Please enter a different recipient address."
   }
 }

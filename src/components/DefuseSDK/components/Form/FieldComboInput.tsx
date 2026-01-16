@@ -3,13 +3,12 @@ import { useTokensStore } from "@src/components/DefuseSDK/providers/TokensStoreP
 import { useThrottledValue } from "@src/hooks/useThrottledValue"
 import clsx from "clsx"
 import { useRef } from "react"
-import type {
-  FieldError,
-  FieldErrors,
-  FieldValues,
-  Path,
-  RegisterOptions,
-  UseFormRegister,
+import {
+  type FieldError,
+  type FieldValues,
+  type Path,
+  type RegisterOptions,
+  useFormContext,
 } from "react-hook-form"
 import { formatUnits } from "viem"
 import useMergedRef from "../../hooks/useMergedRef"
@@ -25,7 +24,6 @@ interface Props<T extends FieldValues>
   fieldName: Path<T>
   tokenIn: TokenInfo
   tokenOut?: TokenInfo
-  register?: UseFormRegister<T>
   required?: boolean
   min?: RegisterOptions["min"]
   max?: RegisterOptions["max"]
@@ -35,20 +33,16 @@ interface Props<T extends FieldValues>
   selected?: TokenInfo
   handleSelect?: () => void
   className?: string
-  errors?: FieldErrors
   usdAmount?: string | null
   disabled?: boolean
   isLoading?: boolean
   dataTestId?: string
 }
 
-export const FieldComboInputRegistryName = "FieldComboInput"
-
 export const FieldComboInput = <T extends FieldValues>({
   fieldName,
   tokenIn,
   tokenOut,
-  register,
   required,
   min,
   max,
@@ -58,16 +52,15 @@ export const FieldComboInput = <T extends FieldValues>({
   selected,
   handleSelect,
   className,
-  errors,
   usdAmount,
   disabled,
   isLoading,
   dataTestId,
 }: Props<T>) => {
-  if (!register) {
-    return null
-  }
-
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext<T>()
   const inputRef = useRef<HTMLInputElement>(null)
 
   const setInputValue = (
@@ -212,5 +205,3 @@ export const FieldComboInput = <T extends FieldValues>({
     </div>
   )
 }
-
-FieldComboInput.displayName = FieldComboInputRegistryName

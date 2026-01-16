@@ -24,7 +24,6 @@ import { useEffect, useState } from "react"
 import { Controller, useFormContext } from "react-hook-form"
 import AssetComboIcon from "../../../../components/Asset/AssetComboIcon"
 import { AuthGate } from "../../../../components/AuthGate"
-import { Form } from "../../../../components/Form"
 import type { ModalSelectAssetsPayload } from "../../../../components/Modal/ModalSelectAssets"
 import { SelectTriggerLike } from "../../../../components/Select/SelectTriggerLike"
 import { getBlockchainsOptions } from "../../../../constants/blockchains"
@@ -56,7 +55,7 @@ export const DepositForm = ({
   renderHostAppLink: RenderHostAppLink
 }) => {
   const [isNetworkModalOpen, setIsNetworkModalOpen] = useState(false)
-  const { handleSubmit, register, control, setValue, watch } =
+  const { handleSubmit, control, setValue, watch } =
     useFormContext<DepositFormValues>()
 
   const depositUIActorRef = DepositUIMachineContext.useActorRef()
@@ -216,11 +215,7 @@ export const DepositForm = ({
         Deposit crypto
       </h1>
 
-      <Form<DepositFormValues>
-        handleSubmit={handleSubmit(onSubmit)}
-        register={register}
-        className="mt-6"
-      >
+      <form onSubmit={handleSubmit(onSubmit)} className="mt-6">
         <div className="flex flex-col gap-2">
           <SelectTriggerLike
             icon={
@@ -327,7 +322,7 @@ export const DepositForm = ({
             another token or network
           </Alert>
         )}
-      </Form>
+      </form>
     </>
   )
 }

@@ -1,4 +1,7 @@
-import { Flex } from "@radix-ui/themes"
+// import { Flex } from "@radix-ui/themes"
+// import Button from "@src/components/Button"
+import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
+import { SelectTriggerLike } from "@src/components/DefuseSDK/components/Select/SelectTriggerLike"
 import { useModalController } from "@src/components/DefuseSDK/hooks/useModalController"
 import { useTokensUsdPrices } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
 import { ModalType } from "@src/components/DefuseSDK/stores/modalStore"
@@ -9,21 +12,18 @@ import {
 } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
 import {
-  addAmounts,
+  // addAmounts,
   getTokenMaxDecimals,
   isMinAmountNotRequired,
   subtractAmounts,
 } from "@src/components/DefuseSDK/utils/tokenUtils"
+import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
 import { logger } from "@src/utils/logger"
 import { useSelector } from "@xstate/react"
 import { useCallback, useEffect } from "react"
-import { useForm } from "react-hook-form"
-import { AuthGate } from "../../../../components/AuthGate"
-import { ButtonCustom } from "../../../../components/Button/ButtonCustom"
-import { Form } from "../../../../components/Form"
+import { FormProvider, useForm } from "react-hook-form"
+// import { AuthGate } from "../../../../components/AuthGate"
 import { FieldComboInput } from "../../../../components/Form/FieldComboInput"
-import { Island } from "../../../../components/Island"
-import { IslandHeader } from "../../../../components/IslandHeader"
 import { nearClient } from "../../../../constants/nearClient"
 import type {
   SupportedChainName,
@@ -32,7 +32,7 @@ import type {
 } from "../../../../types/base"
 import type { WithdrawWidgetProps } from "../../../../types/withdraw"
 import { parseUnits } from "../../../../utils/parse"
-import IntentCreationResult from "../../../account/components/IntentCreationResult"
+// import IntentCreationResult from "../../../account/components/IntentCreationResult"
 import {
   balanceSelector,
   transitBalanceSelector,
@@ -43,9 +43,9 @@ import { WithdrawUIMachineContext } from "../../WithdrawUIMachineContext"
 import { isCexIncompatible } from "../../utils/cexCompatibility"
 import { getMinWithdrawalHyperliquidAmount } from "../../utils/hyperliquid"
 import {
-  Intents,
+  // Intents,
   MinWithdrawalAmount,
-  PreparationResult,
+  // PreparationResult,
   ReceivedAmountAndFee,
   RecipientSubForm,
 } from "./components"
@@ -59,7 +59,10 @@ import {
   totalAmountReceivedSelector,
   withdtrawalFeeSelector,
 } from "./selectors"
-import { getWithdrawButtonText, isNearIntentsNetwork } from "./utils"
+import {
+  // getWithdrawButtonText,
+  isNearIntentsNetwork,
+} from "./utils"
 
 export type WithdrawFormNearValues = {
   amountIn: string
@@ -79,9 +82,9 @@ export const WithdrawForm = ({
   presetNetwork,
   presetRecipient,
   sendNearTransaction,
-  renderHostAppLink,
+  // renderHostAppLink,
 }: WithdrawFormProps) => {
-  const isLoggedIn = userAddress != null
+  // const isLoggedIn = userAddress != null
   const actorRef = WithdrawUIMachineContext.useActorRef()
   const {
     state,
@@ -89,10 +92,10 @@ export const WithdrawForm = ({
     swapRef,
     depositedBalanceRef,
     poaBridgeInfoRef,
-    intentCreationResult,
-    intentRefs,
-    noLiquidity,
-    insufficientTokenInAmount,
+    // intentCreationResult,
+    // intentRefs,
+    // noLiquidity,
+    // insufficientTokenInAmount,
     totalAmountReceived,
     withdtrawalFee,
     directionFee,
@@ -176,7 +179,6 @@ export const WithdrawForm = ({
   })
   const {
     handleSubmit,
-    register,
     control,
     watch,
     formState: { errors },
@@ -256,6 +258,16 @@ export const WithdrawForm = ({
           params: { amount, parsedAmount },
         })
       }
+      if (name === "recipient") {
+        const recipientValue = value[name] ?? ""
+
+        if (recipientValue) {
+          actorRef.send({
+            type: "WITHDRAW_FORM.RECIPIENT",
+            params: { recipient: recipientValue, proxyRecipient: null },
+          })
+        }
+      }
       if (name === "destinationMemo") {
         actorRef.send({
           type: "WITHDRAW_FORM.UPDATE_DESTINATION_MEMO",
@@ -325,37 +337,37 @@ export const WithdrawForm = ({
       )
     : null
 
-  const increaseAmount = (tokenValue: TokenValue) => {
-    if (parsedAmountIn == null) return
+  // const increaseAmount = (tokenValue: TokenValue) => {
+  //   if (parsedAmountIn == null) return
 
-    const newValue = addAmounts(parsedAmountIn, tokenValue)
+  //   const newValue = addAmounts(parsedAmountIn, tokenValue)
 
-    const newFormattedValue = formatTokenValue(
-      newValue.amount,
-      newValue.decimals
-    )
+  //   const newFormattedValue = formatTokenValue(
+  //     newValue.amount,
+  //     newValue.decimals
+  //   )
 
-    actorRef.send({
-      type: "WITHDRAW_FORM.UPDATE_AMOUNT",
-      params: { amount: newFormattedValue, parsedAmount: newValue },
-    })
-  }
+  //   actorRef.send({
+  //     type: "WITHDRAW_FORM.UPDATE_AMOUNT",
+  //     params: { amount: newFormattedValue, parsedAmount: newValue },
+  //   })
+  // }
 
-  const decreaseAmount = (tokenValue: TokenValue) => {
-    if (parsedAmountIn == null) return
+  // const decreaseAmount = (tokenValue: TokenValue) => {
+  //   if (parsedAmountIn == null) return
 
-    const newValue = subtractAmounts(parsedAmountIn, tokenValue)
+  //   const newValue = subtractAmounts(parsedAmountIn, tokenValue)
 
-    const newFormattedValue = formatTokenValue(
-      newValue.amount,
-      newValue.decimals
-    )
+  //   const newFormattedValue = formatTokenValue(
+  //     newValue.amount,
+  //     newValue.decimals
+  //   )
 
-    actorRef.send({
-      type: "WITHDRAW_FORM.UPDATE_AMOUNT",
-      params: { amount: newFormattedValue, parsedAmount: newValue },
-    })
-  }
+  //   actorRef.send({
+  //     type: "WITHDRAW_FORM.UPDATE_AMOUNT",
+  //     params: { amount: newFormattedValue, parsedAmount: newValue },
+  //   })
+  // }
 
   /**
    * This is ModalSelectAssets "callback"
@@ -381,29 +393,47 @@ export const WithdrawForm = ({
     }
   }, [modalSelectAssetsData, actorRef, amountIn])
 
+  const onSubmit = () => {
+    if (userAddress == null || chainType == null) {
+      logger.warn("No user address provided")
+      return
+    }
+
+    actorRef.send({
+      type: "submit",
+      params: {
+        userAddress,
+        userChainType: chainType,
+        nearClient,
+      },
+    })
+  }
+
   return (
-    <Island className="widget-container flex flex-col gap-4">
-      <IslandHeader heading="Withdraw" condensed />
+    <FormProvider {...form}>
+      <form onSubmit={handleSubmit(onSubmit)} className="mt-6">
+        <div className="flex flex-col gap-2">
+          <SelectTriggerLike
+            icon={
+              token ? (
+                <AssetComboIcon icon={token?.icon} />
+              ) : (
+                <TokenIconPlaceholder className="size-10" />
+              )
+            }
+            label={token ? "Token" : "Select token"}
+            value={token?.name}
+            onClick={handleSelect}
+          />
 
-      <Form<WithdrawFormNearValues>
-        handleSubmit={handleSubmit(() => {
-          if (userAddress == null || chainType == null) {
-            logger.warn("No user address provided")
-            return
-          }
+          <RecipientSubForm
+            form={form}
+            chainType={chainType}
+            userAddress={userAddress}
+            displayAddress={displayAddress}
+            tokenInBalance={tokenInBalance}
+          />
 
-          actorRef.send({
-            type: "submit",
-            params: {
-              userAddress,
-              userChainType: chainType,
-              nearClient,
-            },
-          })
-        })}
-        register={register}
-      >
-        <Flex direction="column" gap="5">
           <FieldComboInput<WithdrawFormNearValues>
             fieldName="amountIn"
             dataTestId="withdraw-form-amount-in"
@@ -434,10 +464,8 @@ export const WithdrawForm = ({
                   }
                 : undefined
             }
-            errors={errors}
             balance={tokenInBalance}
             transitBalance={tokenInTransitBalance}
-            register={register}
             usdAmount={
               tokenToWithdrawUsdAmount !== null && tokenToWithdrawUsdAmount > 0
                 ? `~${formatUsdAmount(tokenToWithdrawUsdAmount)}`
@@ -452,14 +480,6 @@ export const WithdrawForm = ({
               state.matches({ editing: "preparation" }) &&
               state.context.preparationOutput == null
             }
-          />
-
-          <RecipientSubForm
-            form={form}
-            chainType={chainType}
-            userAddress={userAddress}
-            displayAddress={displayAddress}
-            tokenInBalance={tokenInBalance}
           />
 
           {!isNearIntentsNetwork(blockchain) &&
@@ -483,31 +503,135 @@ export const WithdrawForm = ({
               state.context.preparationOutput == null
             }
           />
-
-          <AuthGate
-            renderHostAppLink={renderHostAppLink}
-            shouldRender={isLoggedIn}
-          >
-            <ButtonCustom
-              size="lg"
-              disabled={state.matches("submitting") || noLiquidity}
-              isLoading={state.matches("submitting")}
-            >
-              {getWithdrawButtonText(noLiquidity, insufficientTokenInAmount)}
-            </ButtonCustom>
-          </AuthGate>
-        </Flex>
-      </Form>
-
-      <PreparationResult
-        preparationOutput={state.context.preparationOutput}
-        increaseAmount={increaseAmount}
-        decreaseAmount={decreaseAmount}
-      />
-
-      <IntentCreationResult intentCreationResult={intentCreationResult} />
-
-      {intentRefs.length !== 0 && <Intents intentRefs={intentRefs} />}
-    </Island>
+        </div>
+      </form>
+    </FormProvider>
   )
+
+  // return (
+  //   <>
+  //     <Form<WithdrawFormNearValues>
+  //       handleSubmit={handleSubmit(() => {
+  //         if (userAddress == null || chainType == null) {
+  //           logger.warn("No user address provided")
+  //           return
+  //         }
+
+  //         actorRef.send({
+  //           type: "submit",
+  //           params: {
+  //             userAddress,
+  //             userChainType: chainType,
+  //             nearClient,
+  //           },
+  //         })
+  //       })}
+  //       form={form}
+  //     >
+  //       <Flex direction="column" gap="5">
+  //         <FieldComboInput<WithdrawFormNearValues>
+  //           // fieldName="amountIn"
+  //           dataTestId="withdraw-form-amount-in"
+  //           selected={token}
+  //           tokenIn={token}
+  //           handleSelect={handleSelect}
+  //           className="border border-gray-4 rounded-xl"
+  //           required
+  //           min={
+  //             minWithdrawalAmount != null
+  //               ? {
+  //                   value: formatTokenValue(
+  //                     minWithdrawalAmount.amount,
+  //                     minWithdrawalAmount.decimals
+  //                   ),
+  //                   message: "Amount is too low",
+  //                 }
+  //               : undefined
+  //           }
+  //           max={
+  //             tokenInBalance != null
+  //               ? {
+  //                   value: formatTokenValue(
+  //                     tokenInBalance.amount,
+  //                     tokenInBalance.decimals
+  //                   ),
+  //                   message: "Insufficient balance",
+  //                 }
+  //               : undefined
+  //           }
+  //           balance={tokenInBalance}
+  //           transitBalance={tokenInTransitBalance}
+  //           usdAmount={
+  //             tokenToWithdrawUsdAmount !== null && tokenToWithdrawUsdAmount > 0
+  //               ? `~${formatUsdAmount(tokenToWithdrawUsdAmount)}`
+  //               : null
+  //           }
+  //         />
+
+  //         <MinWithdrawalAmount
+  //           minWithdrawalAmount={minWithdrawalAmountWithFee}
+  //           tokenOut={tokenOut}
+  //           isLoading={
+  //             state.matches({ editing: "preparation" }) &&
+  //             state.context.preparationOutput == null
+  //           }
+  //         />
+
+  //         <RecipientSubForm
+  //           form={form}
+  //           chainType={chainType}
+  //           userAddress={userAddress}
+  //           displayAddress={displayAddress}
+  //           tokenInBalance={tokenInBalance}
+  //         />
+
+  //         {!isNearIntentsNetwork(blockchain) &&
+  //           isCexIncompatible(tokenOutDeployment) && (
+  //             <AcknowledgementCheckbox
+  //               control={control}
+  //               errors={errors}
+  //               tokenOut={tokenOut}
+  //             />
+  //           )}
+
+  //         <ReceivedAmountAndFee
+  //           fee={withdtrawalFee}
+  //           totalAmountReceived={totalAmountReceived}
+  //           feeUsd={feeUsd}
+  //           totalAmountReceivedUsd={receivedAmountUsd}
+  //           symbol={token.symbol}
+  //           directionFee={directionFee}
+  //           isLoading={
+  //             state.matches({ editing: "preparation" }) &&
+  //             state.context.preparationOutput == null
+  //           }
+  //         />
+
+  //         <AuthGate
+  //           renderHostAppLink={renderHostAppLink}
+  //           shouldRender={isLoggedIn}
+  //         >
+  //           <Button
+  //             size="xl"
+  //             fullWidth
+  //             disabled={state.matches("submitting") || noLiquidity}
+  //             loading={state.matches("submitting")}
+  //           >
+  //             {getWithdrawButtonText(noLiquidity, insufficientTokenInAmount)}
+  //           </Button>
+  //         </AuthGate>
+  //       </Flex>
+  //     </Form>
+
+  //     <PreparationResult
+  //       preparationOutput={state.context.preparationOutput}
+  //       increaseAmount={increaseAmount}
+  //       decreaseAmount={decreaseAmount}
+  //     />
+
+  //     <IntentCreationResult intentCreationResult={intentCreationResult} />
+
+  //     {intentRefs.length !== 0 && <Intents intentRefs={intentRefs} />}
+  //   </>
+  // )
 }

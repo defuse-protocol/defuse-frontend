@@ -1,6 +1,6 @@
 "use client"
+
 import { WithdrawWidget } from "@src/components/DefuseSDK/features/withdraw/components/WithdrawWidget"
-import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
@@ -10,7 +10,7 @@ import { useNearWallet } from "@src/providers/NearWalletProvider"
 import { renderAppLink } from "@src/utils/renderAppLink"
 import { useSearchParams } from "next/navigation"
 
-export default function Withdraw() {
+export default function SendPage() {
   const { state } = useConnectWallet()
   const signMessage = useWalletAgnosticSignMessage()
   const { signAndSendTransactions } = useNearWallet()
@@ -26,7 +26,11 @@ export default function Withdraw() {
   const userChainType = state.chainType
 
   return (
-    <Paper>
+    <>
+      <h1 className="text-gray-900 text-xl font-semibold tracking-tight">
+        Send
+      </h1>
+
       <WithdrawWidget
         presetAmount={amount}
         presetNetwork={network}
@@ -54,6 +58,6 @@ export default function Withdraw() {
         renderHostAppLink={renderAppLink}
         referral={referral}
       />
-    </Paper>
+    </>
   )
 }

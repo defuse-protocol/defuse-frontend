@@ -25,7 +25,7 @@ function ListItem({
   const content = (
     <div
       className={clsx(
-        "relative -mx-4 px-4 rounded-2xl",
+        "relative -mx-4 px-4 rounded-2xl group",
         highlight && "bg-gray-100",
         isInteractive && (isOpen ? "bg-gray-100" : "hover:bg-gray-100"),
         className
@@ -74,15 +74,18 @@ function ListItem({
 
 const Content = ({
   align = "start",
+  className,
   children,
 }: {
   align?: "start" | "end"
+  className?: string
   children: ReactNode
 }) => (
   <div
     className={clsx(
       "flex flex-col gap-1",
-      align === "start" ? "items-start flex-1" : "items-end text-right"
+      align === "start" ? "items-start flex-1 min-w-0" : "items-end text-right",
+      className
     )}
   >
     {children}
@@ -97,7 +100,10 @@ const Title = ({
   className?: string
 }) => (
   <div
-    className={clsx("text-base/none font-semibold text-gray-900", className)}
+    className={clsx(
+      "text-base/none font-semibold text-gray-900 max-w-full",
+      className
+    )}
   >
     {children}
   </div>
