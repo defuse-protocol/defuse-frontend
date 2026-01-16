@@ -9,6 +9,10 @@ import {
   allowAllModules,
 } from "@creit.tech/stellar-wallets-kit"
 import { base64 } from "@scure/base"
+import {
+  createHotWalletCloseObserver,
+  raceFirst,
+} from "@src/utils/hotWalletIframe"
 import { logger } from "@src/utils/logger"
 import { Horizon, Networks, TransactionBuilder } from "@stellar/stellar-sdk"
 import { createContext, useContext, useEffect, useState } from "react"
@@ -74,33 +78,47 @@ export async function getPublicKeyStellar() {
 }
 
 const STELLAR_SELECTED_WALLET_ID = "stellar-selected-wallet-id"
+const STELLAR_PUBLIC_KEY = "stellar-public-key"
 
 function getSelectedWalletId() {
   return localStorage.getItem(STELLAR_SELECTED_WALLET_ID)
 }
 
+function getCachedPublicKey() {
+  return localStorage.getItem(STELLAR_PUBLIC_KEY)
+}
+
+function setCachedPublicKey(publicKey: string) {
+  localStorage.setItem(STELLAR_PUBLIC_KEY, publicKey)
+}
+
+function clearCachedPublicKey() {
+  localStorage.removeItem(STELLAR_PUBLIC_KEY)
+}
+
 export async function setWalletStellar(walletId: string) {
-  localStorage.setItem(STELLAR_SELECTED_WALLET_ID, walletId)
   await getKit().setWallet(walletId)
+  localStorage.setItem(STELLAR_SELECTED_WALLET_ID, walletId)
 }
 
 export async function disconnectStellar() {
   localStorage.removeItem(STELLAR_SELECTED_WALLET_ID)
+  clearCachedPublicKey()
   await getKit().disconnect()
 }
 
-export async function connectStellar(): Promise<void> {
+export async function connectStellar(): Promise<string> {
   return new Promise((resolve, reject) => {
     getKit().openModal({
       onWalletSelected: async (option) => {
+        const walletId = option.id as string
         try {
-          await setWalletStellar(option.id as string)
-          resolve()
+          await setWalletStellar(walletId)
+          resolve(walletId)
         } catch (error) {
           logger.warn("Error connecting Stellar wallet")
           reject(error)
         }
-        return option.id
       },
     })
   })
@@ -147,10 +165,19 @@ export function StellarWalletProvider({
     setError(null)
 
     try {
-      await connectStellar()
-      await fetchPublicKey()
+      const walletId = await connectStellar()
+      const addressPromise = getKit().getAddress()
+      const { address } =
+        walletId === HOTWALLET_ID
+          ? await raceFirst(addressPromise, createHotWalletCloseObserver())
+          : await addressPromise
+      setCachedPublicKey(address)
+      setPublicKey(address)
     } catch (err) {
-      setError(getErrorMessage(err))
+      const message = getErrorMessage(err)
+      if (!/cancelled/i.test(message)) {
+        setError(message)
+      }
     } finally {
       setIsLoading(false)
     }
@@ -169,34 +196,11 @@ export function StellarWalletProvider({
     }
   }
 
-  // Initialize wallet state on mount
+  // Initialize wallet state on mount using cached public key
   useEffect(() => {
-    let isMounted = true
-
-    const init = async () => {
-      if (!isMounted) return
-      setIsLoading(true)
-
-      try {
-        const key = await getPublicKeyStellar()
-        if (isMounted) {
-          setPublicKey(key)
-        }
-      } catch (err) {
-        if (isMounted) {
-          setError(getErrorMessage(err))
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false)
-        }
-      }
-    }
-
-    init()
-
-    return () => {
-      isMounted = false
+    const cachedKey = getCachedPublicKey()
+    if (cachedKey && getSelectedWalletId()) {
+      setPublicKey(cachedKey)
     }
   }, [])
 
