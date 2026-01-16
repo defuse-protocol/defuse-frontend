@@ -1,8 +1,8 @@
 "use client"
 
-import { CopyIcon, EnterIcon } from "@radix-ui/react-icons"
-import { Callout, Separator, Text } from "@radix-ui/themes"
-import clsx from "clsx"
+import { CheckIcon } from "@heroicons/react/16/solid"
+import { CopyIcon, ExitIcon } from "@radix-ui/react-icons"
+import { Callout } from "@radix-ui/themes"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 import { CopyToClipboard } from "react-copy-to-clipboard"
@@ -49,49 +49,52 @@ const WalletConnectionsConnector = ({
 }: WalletConnectionState & WalletConnectionActions) => {
   const { shortAccountId } = useShortAccountId(accountId ?? "")
   return (
-    <div className="flex flex-col justify-between items-center gap-2.5">
-      <div className="w-full flex justify-between items-center">
-        <div className="flex justify-center items-center gap-4">
-          <NetworkIcon
-            chainIcon={chainIcon}
-            chainName={chainName}
-            isConnect={!!accountId}
-          />
+    <div className="px-4 py-3.5">
+      <div className="flex items-center gap-3">
+        <NetworkIcon
+          chainIcon={chainIcon}
+          chainName={chainName}
+          isConnect={!!accountId}
+        />
 
-          <div className="flex flex-col">
-            <Text size="2" weight="medium">
-              {shortAccountId}
-            </Text>
-            <Text size="2" weight="medium" color="gray">
-              {chainLabel}
-            </Text>
-          </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">
+            {shortAccountId}
+          </p>
+          <p className="text-xs text-gray-600 dark:text-gray-400">
+            {chainLabel}
+          </p>
         </div>
 
-        <div className="flex justify-center items-center gap-2.5">
+        <div className="flex items-center">
           {/* @ts-ignore this is a valid use case */}
           <CopyToClipboard onCopy={onCopy} text={accountId ?? ""}>
             <button
               type="button"
-              className={clsx(
-                "w-[32px] h-[32px] flex justify-center items-center rounded-full border border-gray-a7",
-                isCopied && "bg-primary border-primary text-white"
-              )}
+              className={`size-7 flex items-center justify-center rounded-md transition-colors ${
+                isCopied
+                  ? "text-green-500"
+                  : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10"
+              }`}
+              title="Copy address"
             >
-              <CopyIcon width={16} height={16} />
+              {isCopied ? (
+                <CheckIcon className="size-4" />
+              ) : (
+                <CopyIcon width={15} height={15} />
+              )}
             </button>
           </CopyToClipboard>
           <button
             type="button"
             onClick={onDisconnect}
-            className="w-[32px] h-[32px] flex justify-center items-center rounded-full bg-gray-a3"
+            className="size-7 flex items-center justify-center rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+            title="Disconnect"
           >
-            <EnterIcon width={16} height={16} />
+            <ExitIcon width={15} height={15} />
           </button>
         </div>
       </div>
-
-      <Separator orientation="horizontal" size="4" />
     </div>
   )
 }
@@ -113,13 +116,11 @@ const WalletConnections = () => {
 
   return (
     <div className="flex flex-col">
-      <Text
-        size="1"
-        weight="medium"
-        className="text-gray-a11 dark:text-gray-a11 pb-2"
-      >
-        Connected with
-      </Text>
+      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+        <p className="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">
+          Connected Wallet
+        </p>
+      </div>
 
       {connections.map((connector, i) => {
         let chainIcon = ""
@@ -269,38 +270,46 @@ function PasskeyConnectionInfo({
   onSignOut,
 }: { credential: string; onSignOut: () => void }) {
   return (
-    <div className="flex flex-col justify-between gap-2.5">
-      <div className="flex items-center gap-3">
-        <Image
-          src="/static/icons/wallets/webauthn.svg"
-          alt=""
-          width={36}
-          height={36}
-        />
+    <div className="flex flex-col">
+      <div className="px-4 py-3.5">
+        <div className="flex items-center gap-3">
+          <div className="size-9 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+            <Image
+              src="/static/icons/wallets/webauthn.svg"
+              alt=""
+              width={20}
+              height={20}
+            />
+          </div>
 
-        <div className="flex-1">
-          <div className="text-sm font-medium text-gray-12">passkey</div>
-          <div className="text-xs font-medium text-gray-11">{`${credential.slice(0, 6)}...${credential.slice(-6)}`}</div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+              Passkey
+            </p>
+            <p className="text-xs text-gray-600 dark:text-gray-400 font-mono">
+              {`${credential.slice(0, 8)}...${credential.slice(-6)}`}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={onSignOut}
+            className="size-7 flex items-center justify-center rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+            title="Disconnect"
+          >
+            <ExitIcon width={15} height={15} />
+          </button>
         </div>
-
-        <button
-          type="button"
-          onClick={onSignOut}
-          className="w-[32px] h-[32px] flex justify-center items-center rounded-full bg-gray-a3"
-        >
-          <EnterIcon width={16} height={16} />
-        </button>
       </div>
 
-      <Separator orientation="horizontal" size="4" />
-
-      <Callout.Root className="bg-warning px-3 py-2 text-warning-foreground">
-        <Callout.Text className="text-xs font-medium">
-          <span className="font-bold">Store your passkeys securely.</span>{" "}
-          Losing your passkey means losing access to your account and any
-          associated funds permanently.
-        </Callout.Text>
-      </Callout.Root>
+      <div className="px-4 pb-4">
+        <Callout.Root className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 px-3 py-2.5 rounded-lg">
+          <Callout.Text className="text-xs text-amber-700 dark:text-amber-400">
+            <span className="font-semibold">Keep your passkeys safe.</span>{" "}
+            Losing access means permanent loss of your account and funds.
+          </Callout.Text>
+        </Callout.Root>
+      </div>
     </div>
   )
 }

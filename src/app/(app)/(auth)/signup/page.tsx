@@ -1,4 +1,5 @@
 "use client"
+
 import Button from "@src/components/Button"
 import ErrorMessage from "@src/components/ErrorMessage"
 import { PasskeyIcon } from "@src/icons"
@@ -8,11 +9,11 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 
-interface LoginFormData {
+interface SignupFormData {
   email: string
 }
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter()
   const [isAwaitingPasskey, setIsAwaitingPasskey] = useState(false)
   const [passkeyError, setPasskeyError] = useState<string | null>(null)
@@ -21,9 +22,9 @@ export default function LoginPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormData>()
+  } = useForm<SignupFormData>()
 
-  const onEmailSubmit = async ({ email }: LoginFormData) => {
+  const onEmailSubmit = async ({ email }: SignupFormData) => {
     // TODO: Handle form submission
 
     await new Promise((resolve) => setTimeout(resolve, 2000))
@@ -31,7 +32,7 @@ export default function LoginPage() {
     router.push(`/verify?email=${encodeURIComponent(email)}`)
   }
 
-  const loginWithPasskey = async () => {
+  const registerWithPasskey = async () => {
     // TODO: Implement passkey flow
 
     try {
@@ -42,7 +43,7 @@ export default function LoginPage() {
 
       router.push("/account")
     } catch {
-      setPasskeyError("Passkey authentication failed.")
+      setPasskeyError("Passkey failed.")
     } finally {
       setIsAwaitingPasskey(false)
     }
@@ -56,16 +57,16 @@ export default function LoginPage() {
         </div>
 
         <h1 className="mt-12 text-3xl font-bold text-gray-900 text-center text-balance leading-[1.1] tracking-tight">
-          Log in to your account
+          Create account
         </h1>
 
         <p className="text-center text-base text-gray-500 text-balance mt-4">
-          Don't have an account?{" "}
+          Already have an account?{" "}
           <Link
-            href="/signup"
+            href="/login"
             className="text-gray-500 hover:text-gray-900 underline"
           >
-            Sign up
+            Log in
           </Link>
         </p>
 
@@ -74,7 +75,7 @@ export default function LoginPage() {
           fullWidth
           className="mt-12"
           disabled={isAwaitingPasskey}
-          onClick={loginWithPasskey}
+          onClick={registerWithPasskey}
         >
           <PasskeyIcon className="size-5" />
           Continue with passkey
@@ -137,18 +138,23 @@ export default function LoginPage() {
           </Button>
         </form>
 
-        <div className="rounded-2xl bg-gray-100 p-4 w-full mt-8">
-          <p className="text-sm text-gray-700 text-center">
-            Existing web3 wallet user?{" "}
-            <Link
-              href="/login/wallet"
-              className="font-medium whitespace-nowrap text-gray-700 hover:text-gray-900 underline"
-            >
-              Connect your wallet
-              <span aria-hidden="true"> &rarr;</span>
-            </Link>
-          </p>
-        </div>
+        <p className="mt-8 text-base text-gray-500 text-center text-balance">
+          By signing up, you agree to our{" "}
+          <Link
+            href="/terms-of-service"
+            className="text-gray-500 hover:text-gray-900 underline"
+          >
+            Terms of Service
+          </Link>{" "}
+          and{" "}
+          <Link
+            href="/privacy-policy"
+            className="text-gray-500 hover:text-gray-900 underline"
+          >
+            Privacy Policy
+          </Link>
+          .
+        </p>
       </div>
     </div>
   )
