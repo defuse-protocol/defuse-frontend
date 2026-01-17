@@ -34,7 +34,7 @@ export default function DepositPage() {
   return (
     <>
       <h1 className="text-gray-900 text-xl font-semibold tracking-tight">
-        Add funds
+        Add funds to your NEAR Intents account
       </h1>
 
       <section className="mt-6 space-y-2">
@@ -47,7 +47,7 @@ export default function DepositPage() {
             Deposit crypto
           </Link>
           <p className="text-gray-500 text-sm font-medium mt-1">
-            Send crypto from an external wallet
+            Send crypto from an external wallet or exchange
           </p>
 
           <DepositPromo className="mt-9" />

@@ -21,7 +21,7 @@ const IntentCreationResult = ({
 
     case "ERR_USER_DIDNT_SIGN":
       content =
-        "It seems the message wasn’t signed in your wallet. Please try again."
+        "The transaction confirmation was either cancelled or failed. Please try again, or contact support if necessary."
       break
 
     case "ERR_CANNOT_VERIFY_SIGNATURE":
@@ -70,7 +70,7 @@ const IntentCreationResult = ({
       break
 
     case "ERR_1CS_QUOTE_FAILED":
-      content = "Failed to get quote. Please try again."
+      content = "Failed to get quote"
       break
 
     case "ERR_NO_DEPOSIT_ADDRESS":
