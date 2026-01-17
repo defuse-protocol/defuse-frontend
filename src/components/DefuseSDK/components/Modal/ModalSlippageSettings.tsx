@@ -235,11 +235,12 @@ export function ModalSlippageSettings() {
   ])
 
   return (
-    <ModalDialog title="Slippage tolerance">
+    <ModalDialog title="Slippage">
       <p className="text-sm text-gray-500 font-medium mt-1">
-        Slippage is the maximum difference you allow between the quoted price
-        and the final execution price. If the execution price moves against you
-        by more than this %, the transaction will revert.{" "}
+        Slippage is a safety mechanism to protect you from getting
+        a final price that is very different than the quoted price. 
+        If the specified slippage would be exceeded, your swap will be 
+        cancelled.{" "}
         {calculatedSlippageAmount != null
           ? isExactOut
             ? "Below is the maximum amount you will pay."
