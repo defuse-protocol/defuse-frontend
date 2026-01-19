@@ -119,15 +119,15 @@ const Logo = () => {
         <Image
           src="/static/templates/omniswap/logo_dark.svg"
           alt="OmniSwap Logo"
-          width={120}
-          height={32}
+          width={140}
+          height={30}
           className="hidden dark:block"
         />
         <Image
           src="/static/templates/omniswap/logo.svg"
           alt="OmniSwap Logo"
-          width={120}
-          height={32}
+          width={140}
+          height={30}
           className="dark:hidden"
         />
       </Link>

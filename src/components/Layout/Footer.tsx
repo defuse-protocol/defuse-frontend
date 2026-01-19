@@ -78,7 +78,7 @@ const Footer = () => {
 
   if (whitelabelTemplate === "omniswap") {
     return (
-      <footer className="w-full flex justify-center items-center py-7">
+      <footer className="w-full flex justify-center sm:justify-start items-center p-7">
         <div className="flex justify-center items-center gap-1.5 text-sm font-medium bg-[#1a1a1a] border border-[#2a2a2a] px-3 py-1.5 rounded-full">
           <span className="text-neutral-400">Powered by</span>
           <NearLogo className="text-white" />
