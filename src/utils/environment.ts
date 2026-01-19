@@ -81,3 +81,5 @@ export const BANNED_ACCOUNT_IDS = v.parse(
   v.optional(v.array(v.string()), []),
   process.env.NEXT_PUBLIC_BANNED_ACCOUNT_IDS?.split(",").filter(Boolean)
 )
+
+export const APP_AUTH_JWT_SECRET_KEY = process.env.APP_AUTH_JWT_SECRET_KEY

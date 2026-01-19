@@ -16,6 +16,7 @@ import {
   useWebAuthnCurrentCredential,
   useWebAuthnUIStore,
 } from "@src/features/webauthn/hooks/useWebAuthnStore"
+import { useAppAuthToken } from "@src/hooks/useAppAuthToken"
 import { useSignInLogger } from "@src/hooks/useSignInLogger"
 import { useNearWallet } from "@src/providers/NearWalletProvider"
 import {
@@ -303,6 +304,8 @@ export const useConnectWallet = (): ConnectWalletAction => {
       [state.address]
     )
   )
+
+  useAppAuthToken(state.address, state.chainType)
 
   const impersonatedUser = useImpersonatedUser()
   if (impersonatedUser) {
