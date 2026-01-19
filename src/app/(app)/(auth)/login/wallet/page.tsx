@@ -20,18 +20,6 @@ export default function LoginWalletPage() {
     }
   }, [state.address, router])
 
-  const handleNearWalletSelector = () => {
-    return signIn({ id: ChainType.Near })
-  }
-
-  const handleWalletConnect = (connector: Connector) => {
-    return signIn({ id: ChainType.EVM, connector })
-  }
-
-  const handleSolanaWalletSelector = () => {
-    return signIn({ id: ChainType.Solana })
-  }
-
   return (
     <div className="flex-1 flex flex-col items-center justify-center">
       <div className="max-w-sm w-full">
@@ -43,19 +31,19 @@ export default function LoginWalletPage() {
           <WalletButton
             name="Solana Wallet"
             iconSrc="/static/icons/wallets/solana-wallet.svg"
-            onClick={handleSolanaWalletSelector}
+            onClick={() => signIn({ id: ChainType.Solana })}
           />
           <WalletButton
             name="NEAR Wallet"
             iconSrc="/static/icons/wallets/near-wallet.svg"
-            onClick={handleNearWalletSelector}
+            onClick={() => signIn({ id: ChainType.Near })}
           />
           {connectors.slice(0, 1).map((connector) => (
             <WalletButton
               key={connector.uid}
               name={connector.name}
               iconSrc={getWalletIconSrc(connector)}
-              onClick={() => handleWalletConnect(connector)}
+              onClick={() => signIn({ id: ChainType.EVM, connector })}
             />
           ))}
           <WalletButton
@@ -81,7 +69,7 @@ export default function LoginWalletPage() {
                 key={connector.uid}
                 name={connector.name}
                 iconSrc={getWalletIconSrc(connector)}
-                onClick={() => handleWalletConnect(connector)}
+                onClick={() => signIn({ id: ChainType.EVM, connector })}
                 testId={connector.name}
               />
             ))}

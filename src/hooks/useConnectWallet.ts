@@ -24,7 +24,6 @@ import {
   useStellarWallet,
 } from "@src/providers/StellarWalletProvider"
 import { useTronWallet } from "@src/providers/TronWalletProvider"
-import { useSkippedVerificationStore } from "@src/stores/useSkippedVerificationStore"
 import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
 import type {
   SendTransactionEVMParams,
@@ -305,17 +304,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
     )
   )
 
-  const isVerificationSkipped = useSkippedVerificationStore(
-    useCallback(
-      (store) =>
-        state.address != null
-          ? store.walletAddresses.includes(state.address)
-          : false,
-      [state.address]
-    )
-  )
-
-  state.isVerified = isVerifiedFromStore || isVerificationSkipped
+  state.isVerified = isVerifiedFromStore
 
   const impersonatedUser = useImpersonatedUser()
   if (impersonatedUser) {

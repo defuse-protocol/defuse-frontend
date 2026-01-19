@@ -29,8 +29,7 @@ import {
   transitBalanceSelector,
 } from "../../machines/depositedBalanceMachine"
 import type { swapUIMachine } from "../../machines/swapUIMachine"
-import { useUsdInputMode } from "../hooks/useUsdInputMode"
-import { useUsdOutputMode } from "../hooks/useUsdOutputMode"
+import { useUsdMode } from "../hooks/useUsdMode"
 import SwapSettings from "./SwapSettings"
 import { SwapSubmitterContext } from "./SwapSubmitter"
 import { SwapUIMachineContext } from "./SwapUIMachineProvider"
@@ -291,13 +290,14 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const {
     isUsdMode: isUsdModeIn,
     usdValue: usdValueIn,
-    tokenInPrice,
+    tokenPrice: tokenInPrice,
     handleToggle: handleToggleUsdModeIn,
-    handleInputChange: handleUsdInputChange,
-  } = useUsdInputMode({
+    handleInputChange: handleUsdInputChangeRaw,
+    clearUsdValue: clearUsdValueIn,
+  } = useUsdMode({
+    direction: "input",
     tokenIn,
     tokenOut,
-    usdAmountIn,
     tokensUsdPriceData,
     setValue,
     swapUIActorRef,
@@ -306,17 +306,35 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const {
     isUsdMode: isUsdModeOut,
     usdValue: usdValueOut,
-    tokenOutPrice,
+    tokenPrice: tokenOutPrice,
     handleToggle: handleToggleUsdModeOut,
-    handleInputChange: handleUsdOutputChange,
-  } = useUsdOutputMode({
+    handleInputChange: handleUsdOutputChangeRaw,
+    clearUsdValue: clearUsdValueOut,
+  } = useUsdMode({
+    direction: "output",
     tokenIn,
     tokenOut,
-    usdAmountOut,
     tokensUsdPriceData,
     setValue,
     swapUIActorRef,
   })
+
+  // Wrap handlers to clear the other side's USD value
+  const handleUsdInputChange = useCallback(
+    (value: string) => {
+      clearUsdValueOut()
+      handleUsdInputChangeRaw(value)
+    },
+    [clearUsdValueOut, handleUsdInputChangeRaw]
+  )
+
+  const handleUsdOutputChange = useCallback(
+    (value: string) => {
+      clearUsdValueIn()
+      handleUsdOutputChangeRaw(value)
+    },
+    [clearUsdValueIn, handleUsdOutputChangeRaw]
+  )
 
   const is1cs = useIs1CsEnabled()
   const isSubmitting = snapshot.matches("submitting")
@@ -394,32 +412,38 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                       },
                       onBlur: () => {},
                       ref: () => {},
-                      value: usdValueIn,
+                      // Show user-entered value, or calculated USD from quote if empty
+                      value:
+                        usdValueIn ||
+                        (usdAmountIn ? usdAmountIn.toFixed(2) : ""),
                     }
-                  : register("amountIn", {
-                      required: true,
-                      validate: (value) => {
-                        if (!value) return true
-                        const num = Number.parseFloat(value.replace(",", "."))
-                        return (
-                          (!Number.isNaN(num) && num > 0) ||
-                          "Enter a valid amount"
-                        )
-                      },
-                      onChange: (e) => {
-                        setValue("amountOut", "")
-                        swapUIActorRef.send({
-                          type: "input",
-                          params: {
-                            tokenIn,
-                            tokenOut,
-                            swapType: QuoteRequest.swapType.EXACT_INPUT,
-                            amountIn: e.target.value,
-                            amountOut: "",
-                          },
-                        })
-                      },
-                    })
+                  : {
+                      ...register("amountIn", {
+                        required: true,
+                        validate: (value) => {
+                          if (!value) return true
+                          const num = Number.parseFloat(value.replace(",", "."))
+                          return (
+                            (!Number.isNaN(num) && num > 0) ||
+                            "Enter a valid amount"
+                          )
+                        },
+                        onChange: (e) => {
+                          setValue("amountOut", "")
+                          swapUIActorRef.send({
+                            type: "input",
+                            params: {
+                              tokenIn,
+                              tokenOut,
+                              swapType: QuoteRequest.swapType.EXACT_INPUT,
+                              amountIn: e.target.value,
+                              amountOut: "",
+                            },
+                          })
+                        },
+                      }),
+                      value: amountIn,
+                    }
               }
               error={errors.amountIn ? errors.amountIn.message : undefined}
             />
@@ -465,32 +489,38 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                       },
                       onBlur: () => {},
                       ref: () => {},
-                      value: usdValueOut,
+                      // Show user-entered value, or calculated USD from quote if empty
+                      value:
+                        usdValueOut ||
+                        (usdAmountOut ? usdAmountOut.toFixed(2) : ""),
                     }
-                  : register("amountOut", {
-                      required: true,
-                      validate: (value) => {
-                        if (!value) return true
-                        const num = Number.parseFloat(value.replace(",", "."))
-                        return (
-                          (!Number.isNaN(num) && num > 0) ||
-                          "Enter a valid amount"
-                        )
-                      },
-                      onChange: (e) => {
-                        setValue("amountIn", "")
-                        swapUIActorRef.send({
-                          type: "input",
-                          params: {
-                            tokenIn,
-                            tokenOut,
-                            swapType: QuoteRequest.swapType.EXACT_OUTPUT,
-                            amountOut: e.target.value,
-                            amountIn: "",
-                          },
-                        })
-                      },
-                    })
+                  : {
+                      ...register("amountOut", {
+                        required: true,
+                        validate: (value) => {
+                          if (!value) return true
+                          const num = Number.parseFloat(value.replace(",", "."))
+                          return (
+                            (!Number.isNaN(num) && num > 0) ||
+                            "Enter a valid amount"
+                          )
+                        },
+                        onChange: (e) => {
+                          setValue("amountIn", "")
+                          swapUIActorRef.send({
+                            type: "input",
+                            params: {
+                              tokenIn,
+                              tokenOut,
+                              swapType: QuoteRequest.swapType.EXACT_OUTPUT,
+                              amountOut: e.target.value,
+                              amountIn: "",
+                            },
+                          })
+                        },
+                      }),
+                      value: amountOut,
+                    }
               }
               readOnly={!is1cs}
               error={
