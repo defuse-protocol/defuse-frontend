@@ -104,6 +104,7 @@ export const NearWalletProvider: FC<{ children: ReactNode }> = ({
   const disconnect = useCallback(async () => {
     if (!connector) return
     await connector.disconnect()
+    localStorage.removeItem("chainType")
   }, [connector])
 
   const signMessage = useCallback(

@@ -2,7 +2,7 @@
 
 import { Button, Popover, Text } from "@radix-ui/themes"
 import Image from "next/image"
-import { useContext, useEffect } from "react"
+import { useContext } from "react"
 import type { Connector } from "wagmi"
 
 import WalletConnections from "@src/components/Wallet/WalletConnections"
@@ -35,13 +35,6 @@ const ConnectWallet = () => {
   const handlePasskey = () => {
     return signIn({ id: ChainType.WebAuthn })
   }
-
-  // Close sign-in popover when wallet gets connected
-  useEffect(() => {
-    if (state.address && isOpen) {
-      setIsOpen(false)
-    }
-  }, [state.address, isOpen, setIsOpen])
 
   // Show loading spinner while wallet is connecting/reconnecting
   if (isLoading) {
