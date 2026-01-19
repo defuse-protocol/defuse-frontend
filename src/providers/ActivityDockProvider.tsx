@@ -14,17 +14,32 @@ type KeyValueRow = {
   value: ReactNode
 }
 
-export type DockItem = {
+export type DockItemBase = {
   id: string
   title: string
   icon: ReactNode
   explorerUrl?: string
+}
+
+export type StaticDockItem = DockItemBase & {
+  type?: "static"
   keyValueRows: KeyValueRow[]
 }
+
+export type CustomDockItem = DockItemBase & {
+  type: "custom"
+  /** Custom content renderer - receives `updateItem` to update title/icon/explorerUrl */
+  renderContent: (
+    updateItem: (updates: Partial<DockItemBase>) => void
+  ) => ReactNode
+}
+
+export type DockItem = StaticDockItem | CustomDockItem
 
 type ActivityDockContextType = {
   dockItems: DockItem[]
   addDockItem: (item: DockItem) => void
+  updateDockItem: (id: string, updates: Partial<DockItemBase>) => void
   removeDockItem: (id: string) => void
   hasDockItem: (id: string) => boolean
 }
@@ -43,6 +58,15 @@ function ActivityDockProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
+  const updateDockItem = useCallback(
+    (id: string, updates: Partial<DockItemBase>) => {
+      setDockItems((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, ...updates } : item))
+      )
+    },
+    []
+  )
+
   const removeDockItem = useCallback(
     (id: string) =>
       setDockItems((prev) => prev.filter((item) => item.id !== id)),
@@ -55,8 +79,14 @@ function ActivityDockProvider({ children }: { children: ReactNode }) {
   )
 
   const value = useMemo(
-    () => ({ dockItems, addDockItem, removeDockItem, hasDockItem }),
-    [dockItems, addDockItem, removeDockItem, hasDockItem]
+    () => ({
+      dockItems,
+      addDockItem,
+      updateDockItem,
+      removeDockItem,
+      hasDockItem,
+    }),
+    [dockItems, addDockItem, updateDockItem, removeDockItem, hasDockItem]
   )
 
   return (

@@ -256,8 +256,10 @@ export const mapDepositBalancesToDecimals = (
 
 export const getWithdrawButtonText = (
   noLiquidity: boolean,
-  insufficientTokenInAmount: boolean
+  insufficientTokenInAmount: boolean,
+  hasNoAmount: boolean
 ) => {
+  if (hasNoAmount) return "Enter amount"
   if (noLiquidity) return "No liquidity providers"
   if (insufficientTokenInAmount) return "Insufficient amount"
   return "Review send"

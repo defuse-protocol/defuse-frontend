@@ -78,7 +78,6 @@ const SelectAssets = ({
     >
       <AssetComboIcon
         icon={selected?.icon}
-        name={selected?.name}
         chainName={
           selected && isBaseToken(selected)
             ? selected.originChainName

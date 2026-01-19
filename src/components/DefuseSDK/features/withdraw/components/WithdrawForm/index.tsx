@@ -25,6 +25,7 @@ import { FormProvider, useForm } from "react-hook-form"
 import { formatUnits } from "viem"
 import { AuthGate } from "../../../../components/AuthGate"
 import { nearClient } from "../../../../constants/nearClient"
+import { useWithdrawIntentDock } from "../../../../hooks/useWithdrawIntentDock"
 import type {
   SupportedChainName,
   TokenInfo,
@@ -43,7 +44,6 @@ import { WithdrawUIMachineContext } from "../../WithdrawUIMachineContext"
 import { isCexIncompatible } from "../../utils/cexCompatibility"
 import { getMinWithdrawalHyperliquidAmount } from "../../utils/hyperliquid"
 import {
-  Intents,
   MinWithdrawalAmount,
   PreparationResult,
   RecipientSubForm,
@@ -127,6 +127,9 @@ export const WithdrawForm = ({
 
   // biome-ignore lint/suspicious/noExplicitAny: types should've been correct, but `publicKeyVerifierRef` is commented out
   usePublicKeyModalOpener(publicKeyVerifierRef as any, sendNearTransaction)
+
+  // Sync withdraw intents to the ActivityDock sidebar
+  useWithdrawIntentDock(intentRefs)
 
   useEffect(() => {
     if (userAddress != null && chainType != null) {
@@ -533,11 +536,19 @@ export const WithdrawForm = ({
                 fullWidth
                 type="submit"
                 disabled={
-                  state.matches("submitting") || noLiquidity || isPreparing
+                  state.matches("submitting") ||
+                  noLiquidity ||
+                  isPreparing ||
+                  !amountIn ||
+                  Number(amountIn) <= 0
                 }
                 loading={state.matches("submitting") || isPreparing}
               >
-                {getWithdrawButtonText(noLiquidity, insufficientTokenInAmount)}
+                {getWithdrawButtonText(
+                  noLiquidity,
+                  insufficientTokenInAmount,
+                  !amountIn || Number(amountIn) <= 0
+                )}
               </Button>
             </AuthGate>
           </div>
@@ -560,8 +571,6 @@ export const WithdrawForm = ({
         increaseAmount={increaseAmount}
         decreaseAmount={decreaseAmount}
       />
-
-      {intentRefs.length !== 0 && <Intents intentRefs={intentRefs} />}
 
       <ModalReviewSend
         open={isReviewOpen}
