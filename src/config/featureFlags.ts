@@ -15,7 +15,7 @@ export type WhitelabelTemplateValue =
 
 export const whitelabelTemplateFlag = flag<WhitelabelTemplateValue>({
   key: "whitelabelTemplate",
-  defaultValue: "omniswap" as WhitelabelTemplateValue, // TODO: change back to "near-intents"
+  defaultValue: "near-intents" as WhitelabelTemplateValue,
   options: [
     { label: "near-intents.org", value: "near-intents" },
     { label: "SolSwap.org", value: "solswap" },
@@ -34,7 +34,7 @@ export const whitelabelTemplateFlag = flag<WhitelabelTemplateValue>({
       }
     }
 
-    return "omniswap" // TODO: change back to "near-intents"
+    return "near-intents"
   },
 })
 
