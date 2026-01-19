@@ -16,7 +16,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../../Tooltip"
 
 type AssetComboIconProps = {
   icon?: string
-  name?: string
   chainIcon?: { dark: string; light: string }
   chainName?: string
   showChainIcon?: boolean

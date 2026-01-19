@@ -101,7 +101,9 @@ export const withdrawUIMachine = setup({
       | DepositedBalanceEvents
       | WithdrawFormEvents
       | WithdrawFormParentEvents
-      | PassthroughEvent,
+      | PassthroughEvent
+      | { type: "REQUEST_REVIEW" }
+      | { type: "CANCEL_REVIEW" },
 
     emitted: {} as EmittedEvents,
 
@@ -388,6 +390,15 @@ export const withdrawUIMachine = setup({
 
         WITHDRAW_FORM_FIELDS_CHANGED: ".reset_previous_preparation",
 
+        REQUEST_REVIEW: {
+          target: ".reviewing",
+          guard: "isPreparationOk",
+        },
+
+        CANCEL_REVIEW: {
+          target: ".idle",
+        },
+
         submit: {
           target: ".done",
           guard: "isPreparationOk",
@@ -450,6 +461,8 @@ export const withdrawUIMachine = setup({
             },
           },
         },
+
+        reviewing: {},
 
         done: {
           type: "final",
@@ -515,7 +528,7 @@ export const withdrawUIMachine = setup({
 
         onDone: [
           {
-            target: "editing",
+            target: "editing.reviewing",
             guard: { type: "isOk", params: ({ event }) => event.output },
             actions: [
               {
@@ -530,7 +543,7 @@ export const withdrawUIMachine = setup({
             ],
           },
           {
-            target: "editing",
+            target: "editing.reviewing",
             actions: [
               {
                 type: "setIntentCreationResult",
@@ -541,7 +554,7 @@ export const withdrawUIMachine = setup({
         ],
 
         onError: {
-          target: "editing",
+          target: "editing.reviewing",
 
           actions: {
             type: "logError",

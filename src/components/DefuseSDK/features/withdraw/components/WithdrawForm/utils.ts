@@ -260,7 +260,7 @@ export const getWithdrawButtonText = (
 ) => {
   if (noLiquidity) return "No liquidity providers"
   if (insufficientTokenInAmount) return "Insufficient amount"
-  return "Withdraw"
+  return "Review send"
 }
 
 /**

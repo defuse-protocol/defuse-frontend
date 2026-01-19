@@ -1,5 +1,4 @@
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
-import { Button, Callout } from "@radix-ui/themes"
+import Alert from "@src/components/Alert"
 import type { TokenValue } from "@src/components/DefuseSDK/types/base"
 import type { ReactNode } from "react"
 import type { PreparationOutput } from "../../../../../../services/withdrawService"
@@ -30,17 +29,17 @@ export const PreparationResult = ({
     case "ERR_AMOUNT_TOO_LOW":
       content = (
         <>
-          Need add{" "}
-          <Button
+          Add{" "}
+          <button
+            type="button"
             onClick={() => {
               increaseAmount(err.shortfall)
             }}
-            variant="ghost"
-            className="underline"
+            className="text-left underline"
           >
             {formatTokenValue(err.shortfall.amount, err.shortfall.decimals)}{" "}
             {err.token.symbol}
-          </Button>{" "}
+          </button>{" "}
           more to withdraw
         </>
       )
@@ -60,28 +59,28 @@ export const PreparationResult = ({
     case "ERR_UNFULFILLABLE_AMOUNT":
       content = (
         <>
-          Specified amount cannot be withdrawn. Please,{" "}
-          <Button
+          Specified amount cannot be withdrawn. Please{" "}
+          <button
+            type="button"
             onClick={() => {
               decreaseAmount(err.shortfall)
             }}
-            variant="ghost"
-            className="underline"
+            className="text-left underline"
           >
             decrease
-          </Button>
+          </button>
           {" or "}
-          <Button
+          <button
+            type="button"
             onClick={() => {
               if (err.overage != null) {
                 increaseAmount(err.overage)
               }
             }}
-            variant="ghost"
-            className="underline"
+            className="text-left underline"
           >
             increase
-          </Button>
+          </button>
           {" for slight amount."}
         </>
       )
@@ -103,11 +102,8 @@ export const PreparationResult = ({
   if (content == null) return null
 
   return (
-    <Callout.Root size="1" color="red">
-      <Callout.Icon>
-        <ExclamationTriangleIcon />
-      </Callout.Icon>
-      <Callout.Text>{content}</Callout.Text>
-    </Callout.Root>
+    <Alert variant="error" className="mt-2">
+      {content}
+    </Alert>
   )
 }

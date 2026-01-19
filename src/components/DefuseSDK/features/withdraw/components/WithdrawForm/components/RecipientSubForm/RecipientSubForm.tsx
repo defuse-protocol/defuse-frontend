@@ -359,7 +359,7 @@ function determineBlockchainControllerLabel(
   return blockchainSelectedLabel ?? "Select network"
 }
 
-function determineBlockchainControllerIcon(
+export function determineBlockchainControllerIcon(
   blockchain: SupportedChainName | "near_intents",
   blockchainSelectedIcon?: ReactNode
 ) {

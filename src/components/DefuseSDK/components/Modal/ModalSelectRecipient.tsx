@@ -36,7 +36,7 @@ type Contact = {
 const FAKE_CONTACTS: Contact[] = [
   {
     id: 1,
-    address: "0xAbC1234567890DeFabc1234567890abcdEf12345",
+    address: "0x2EB2128a3F062824638e7C23e9Ad6d9bbBB4B6bC",
     name: "Michael's Wallet",
     network: "eth:1",
   },

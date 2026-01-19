@@ -1,5 +1,6 @@
 import Button from "@src/components/Button"
 import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
+import ModalReviewSend from "@src/components/DefuseSDK/components/Modal/ModalReviewSend"
 import { SelectTriggerLike } from "@src/components/DefuseSDK/components/Select/SelectTriggerLike"
 import TooltipNew from "@src/components/DefuseSDK/components/TooltipNew"
 import { useModalController } from "@src/components/DefuseSDK/hooks/useModalController"
@@ -10,6 +11,7 @@ import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
 import {
   addAmounts,
+  compareAmounts,
   getTokenMaxDecimals,
   isMinAmountNotRequired,
   subtractAmounts,
@@ -30,7 +32,6 @@ import type {
 } from "../../../../types/base"
 import type { WithdrawWidgetProps } from "../../../../types/withdraw"
 import { parseUnits } from "../../../../utils/parse"
-import IntentCreationResult from "../../../account/components/IntentCreationResult"
 import SelectedTokenInput from "../../../deposit/components/DepositForm/SelectedTokenInput"
 import {
   balanceSelector,
@@ -45,7 +46,6 @@ import {
   Intents,
   MinWithdrawalAmount,
   PreparationResult,
-  ReceivedAmountAndFee,
   RecipientSubForm,
 } from "./components"
 import { AcknowledgementCheckbox } from "./components/AcknowledgementCheckbox/AcknowledgementCheckbox"
@@ -117,6 +117,13 @@ export const WithdrawForm = ({
       return state.children.publicKeyVerifierRef
     }
   })
+
+  const isReviewOpen =
+    state.matches({ editing: "reviewing" }) || state.matches("submitting")
+
+  const isPreparing =
+    state.matches({ editing: "preparation" }) &&
+    state.context.preparationOutput == null
 
   // biome-ignore lint/suspicious/noExplicitAny: types should've been correct, but `publicKeyVerifierRef` is commented out
   usePublicKeyModalOpener(publicKeyVerifierRef as any, sendNearTransaction)
@@ -397,7 +404,11 @@ export const WithdrawForm = ({
     }
   }, [modalSelectAssetsData, actorRef, amountIn])
 
-  const onSubmit = () => {
+  const onRequestReview = () => {
+    actorRef.send({ type: "REQUEST_REVIEW" })
+  }
+
+  const handleConfirmSubmit = () => {
     if (userAddress == null || chainType == null) {
       logger.warn("No user address provided")
       return
@@ -416,7 +427,7 @@ export const WithdrawForm = ({
   return (
     <>
       <FormProvider {...form}>
-        <form onSubmit={handleSubmit(onSubmit)} className="mt-6">
+        <form onSubmit={handleSubmit(onRequestReview)} className="mt-6">
           <div className="flex flex-col gap-2">
             <SelectTriggerLike
               icon={
@@ -504,15 +515,6 @@ export const WithdrawForm = ({
               }
             />
 
-            <MinWithdrawalAmount
-              minWithdrawalAmount={minWithdrawalAmountWithFee}
-              tokenOut={tokenOut}
-              isLoading={
-                state.matches({ editing: "preparation" }) &&
-                state.context.preparationOutput == null
-              }
-            />
-
             {!isNearIntentsNetwork(blockchain) &&
               isCexIncompatible(tokenOutDeployment) && (
                 <AcknowledgementCheckbox
@@ -522,19 +524,6 @@ export const WithdrawForm = ({
                 />
               )}
 
-            <ReceivedAmountAndFee
-              fee={withdtrawalFee}
-              totalAmountReceived={totalAmountReceived}
-              feeUsd={feeUsd}
-              totalAmountReceivedUsd={receivedAmountUsd}
-              symbol={token.symbol}
-              directionFee={directionFee}
-              isLoading={
-                state.matches({ editing: "preparation" }) &&
-                state.context.preparationOutput == null
-              }
-            />
-
             <AuthGate
               renderHostAppLink={renderHostAppLink}
               shouldRender={isLoggedIn}
@@ -543,8 +532,10 @@ export const WithdrawForm = ({
                 size="xl"
                 fullWidth
                 type="submit"
-                disabled={state.matches("submitting") || noLiquidity}
-                loading={state.matches("submitting")}
+                disabled={
+                  state.matches("submitting") || noLiquidity || isPreparing
+                }
+                loading={state.matches("submitting") || isPreparing}
               >
                 {getWithdrawButtonText(noLiquidity, insufficientTokenInAmount)}
               </Button>
@@ -553,15 +544,42 @@ export const WithdrawForm = ({
         </form>
       </FormProvider>
 
+      {minWithdrawalAmountWithFee != null &&
+        minWithdrawalAmountWithFee.amount > 1n &&
+        parsedAmountIn != null &&
+        parsedAmountIn.amount > 0n &&
+        compareAmounts(parsedAmountIn, minWithdrawalAmountWithFee) === -1 && (
+          <MinWithdrawalAmount
+            minWithdrawalAmount={minWithdrawalAmountWithFee}
+            tokenOut={tokenOut}
+          />
+        )}
+
       <PreparationResult
         preparationOutput={state.context.preparationOutput}
         increaseAmount={increaseAmount}
         decreaseAmount={decreaseAmount}
       />
 
-      <IntentCreationResult intentCreationResult={intentCreationResult} />
-
       {intentRefs.length !== 0 && <Intents intentRefs={intentRefs} />}
+
+      <ModalReviewSend
+        open={isReviewOpen}
+        onClose={() => actorRef.send({ type: "CANCEL_REVIEW" })}
+        onConfirm={handleConfirmSubmit}
+        loading={state.matches("submitting")}
+        intentCreationResult={intentCreationResult}
+        tokenIn={token}
+        amountIn={amountIn}
+        usdAmountIn={tokenToWithdrawUsdAmount ?? 0}
+        recipient={recipient}
+        network={blockchain}
+        fee={withdtrawalFee}
+        totalAmountReceived={totalAmountReceived}
+        feeUsd={feeUsd}
+        totalAmountReceivedUsd={receivedAmountUsd}
+        directionFee={directionFee}
+      />
     </>
   )
 }
