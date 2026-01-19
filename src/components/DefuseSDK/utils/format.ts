@@ -35,7 +35,7 @@ export function formatTokenValue(
   if (min != null && Number(formatted) < min) {
     const decimalPlaces = min < 1 ? -Math.floor(Math.log10(min)) : 0
     const minFormatted = min.toFixed(decimalPlaces)
-    return `<${signStr}${minFormatted}`
+    return `< ${signStr}${minFormatted}`
   }
 
   return `${signStr}${formatted}`
