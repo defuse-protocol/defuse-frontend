@@ -1,23 +1,38 @@
 import { contactsTable } from "@src/app/(app)/(auth)/contacts/_utils/schema"
 import { db } from "@src/utils/drizzle"
+import { getAccountIdFromToken } from "@src/utils/dummyAuth"
 import { logger } from "@src/utils/logger"
 import { eq } from "drizzle-orm"
 import { NextResponse } from "next/server"
 import { z } from "zod"
 
 const updateContactSchema = z.object({
-  // TODO: Later we might be able to get account_id from Bearer token
-  account_id: z.string().min(1, "account_id is required"),
   contactId: z.string().uuid("contactId must be a valid UUID"),
   address: z.string().min(1, "address is required"),
   name: z.string().min(1, "name is required"),
   network: z.string().min(1, "network is required"),
 })
 
-// TODO: This request should be authenticated same as in delete route.
-//       Enable it once we have authentication system in place
 export async function PUT(request: Request) {
   try {
+    const authHeader = request.headers.get("authorization")
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json(
+        { error: "Authentication required: Bearer token missing" },
+        { status: 401 }
+      )
+    }
+
+    const token = authHeader.substring(7) // Remove "Bearer " prefix
+    const account_id = await getAccountIdFromToken(token)
+    if (!account_id) {
+      return NextResponse.json(
+        { error: "Invalid or expired token" },
+        { status: 401 }
+      )
+    }
+
     const body = await request.json()
     const validatedData = updateContactSchema.parse(body)
 
@@ -32,7 +47,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Contact not found" }, { status: 404 })
     }
 
-    if (existingContact.account_id !== validatedData.account_id) {
+    if (existingContact.account_id !== account_id) {
       return NextResponse.json(
         { error: "Unauthorized: Contact does not belong to this account" },
         { status: 403 }
