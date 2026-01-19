@@ -145,7 +145,6 @@ const ActualAmountBlock = ({
       {token.icon && (
         <AssetComboIcon
           icon={token.icon as string}
-          name={(token.name as string | undefined) ?? token.symbol}
           chainName={isBaseToken(token) ? token.originChainName : undefined}
         />
       )}
@@ -192,7 +191,6 @@ const ChangedAmounts = ({
       {token.icon && (
         <AssetComboIcon
           icon={token.icon as string}
-          name={(token.name as string | undefined) ?? token.symbol}
           chainName={isBaseToken(token) ? token.originChainName : undefined}
         />
       )}

@@ -135,7 +135,6 @@ function TokenList({
             <AssetComboIcon
               sizeClassName="size-7"
               icon={selectItemToken.token.icon}
-              name={selectItemToken.token.name}
               showChainIcon={showChainIcon(selectItemToken.token, chainIcon)}
               chainName={
                 isBaseToken(selectItemToken.token)
