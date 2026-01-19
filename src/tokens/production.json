@@ -692,7 +692,7 @@
         },
         {
           "defuseAssetId": "nep245:v2_1.omni.hot.tg:196_2fezDCvVYRsG8wrK6deJ2VRPiAS1",
-          "symbol": "USDT0",
+          "symbol": "USDT",
           "name": "Tether USD",
           "decimals": 6,
           "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
@@ -720,6 +720,23 @@
               "decimals": 6,
               "chainName": "monad",
               "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:3", "type:stablecoin", "tvol:3", "aid:usdt"]
+        },
+        {
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:9745_3aL9skCy1yhPoDB8oKMmRHRN7SJW",
+          "symbol": "USDT",
+          "name": "Tether USD",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+          "originChainName": "plasma",
+          "deployments": [
+            {
+              "address": "0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb",
+              "decimals": 6,
+              "chainName": "plasma",
+              "bridge": "hot_omni"
             }
           ],
           "tags": ["mc:3", "type:stablecoin", "tvol:3", "aid:usdt"]
@@ -2511,6 +2528,23 @@
           "decimals": 24,
           "chainName": "near",
           "bridge": "direct"
+        }
+      ],
+      "tags": []
+    },
+    {
+      "defuseAssetId": "nep245:v2_1.omni.hot.tg:9745_11111111111111111111",
+      "symbol": "XPL",
+      "name": "XPL",
+      "decimals": 18,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/36645.png",
+      "originChainName": "plasma",
+      "deployments": [
+        {
+          "type": "native",
+          "decimals": 18,
+          "chainName": "plasma",
+          "bridge": "hot_omni"
         }
       ],
       "tags": []

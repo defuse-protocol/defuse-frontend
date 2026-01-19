@@ -26,6 +26,8 @@ export type SupportedChainName =
   | "monad"
   | "adi"
   | "starknet"
+  | "plasma"
+  | "scroll"
   | VirtualChains
   | MockedChains
 

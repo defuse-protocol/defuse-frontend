@@ -12,7 +12,9 @@ import { messageFactory } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { secp256k1 } from "@noble/curves/secp256k1"
 import { base64 } from "@scure/base"
+import type { FeeRecipientSplit } from "@src/utils/getAppFeeRecipient"
 import { logger } from "@src/utils/logger"
+import { splitAppFee } from "@src/utils/splitAppFee"
 import type { providers } from "near-api-js"
 import { assign, fromPromise, setup } from "xstate"
 import { bridgeSDK } from "../../constants/bridgeSdk"
@@ -97,7 +99,7 @@ type Context = {
   slippageBasisPoints: number
   nearClient: providers.Provider
   intentOperationParams: IntentOperationParams
-  appFeeRecipient: string
+  appFeeRecipients?: FeeRecipientSplit[]
   // The best quote that was actually published or will be published
   quoteToPublish: AggregatedQuote | null
   // Queue stores all quotes coming from the background quoter
@@ -139,7 +141,7 @@ type Input = {
   slippageBasisPoints: number
   nearClient: providers.Provider
   intentOperationParams: IntentOperationParams
-  appFeeRecipient: string
+  appFeeRecipients?: FeeRecipientSplit[]
 }
 
 export type Output =
@@ -271,6 +273,16 @@ export const swapIntentMachine = setup({
           .setDeadline(new Date(Date.now() + settings.swapExpirySec * 1000))
           .build()
 
+        const recipients = input.appFeeRecipients ?? []
+        const { primaryAppFee, primaryRecipient, transferIntents } =
+          recipients.length > 0
+            ? splitAppFee(input.intentOperationParams.quote.appFee, recipients)
+            : {
+                primaryAppFee: [],
+                primaryRecipient: "",
+                transferIntents: [],
+              }
+
         const innerMessage = messageFactory.makeInnerSwapMessage({
           tokenDeltas: accountSlippageExactIn(
             input.intentOperationParams.quote.tokenDeltas,
@@ -279,9 +291,15 @@ export const swapIntentMachine = setup({
           signerId: input.defuseUserId,
           deadlineTimestamp: Date.parse(deadline),
           referral: input.referral,
-          appFee: input.intentOperationParams.quote.appFee,
-          appFeeRecipient: input.appFeeRecipient,
+          appFee: primaryAppFee,
+          appFeeRecipient: primaryRecipient,
         })
+
+        // Add transfer intents for secondary recipients
+        if (transferIntents.length > 0) {
+          innerMessage.intents ??= []
+          innerMessage.intents.push(...transferIntents)
+        }
 
         return {
           innerMessage,

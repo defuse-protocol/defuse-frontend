@@ -74,6 +74,10 @@ export function chainTxExplorer(blockchain: SupportedChainName): string | null {
       return "https://explorer.adifoundation.ai/tx/"
     case "starknet":
       return "https://starkscan.co/tx/"
+    case "plasma":
+      return "https://plasmascan.to/tx/"
+    case "scroll":
+      return "https://scrollscan.com/tx/"
     default:
       blockchain satisfies never
       return null
