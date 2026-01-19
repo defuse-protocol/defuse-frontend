@@ -84,6 +84,7 @@ export function formatUsdAmount(value: number): string {
   }
 }
 
+// From new-frontend
 export function formatDisplayAmount(amount: string, maxDecimals = 5): string {
   if (!amount) return "0"
   const num = Number.parseFloat(amount)

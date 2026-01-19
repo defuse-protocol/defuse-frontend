@@ -14,6 +14,11 @@ const IntentCreationResult = ({
   const status = intentCreationResult.value.reason
 
   switch (status) {
+    case "ERR_FAILED_TO_PREPARE_MESSAGE_TO_SIGN":
+      content =
+        "Failed to prepare message for your wallet to sign. Please try again."
+      break
+
     case "ERR_USER_DIDNT_SIGN":
       content =
         "It seems the message wasn’t signed in your wallet. Please try again."
@@ -79,10 +84,6 @@ const IntentCreationResult = ({
     case "ERR_AMOUNT_IN_BALANCE_INSUFFICIENT_AFTER_NEW_1CS_QUOTE":
       content =
         "Swap aborted: Insufficient token balance for the updated quote. Please try again."
-      break
-
-    case "ERR_FAILED_TO_PREPARE_MESSAGE_TO_SIGN":
-      content = "Failed to prepare the message for signing. Please try again."
       break
 
     default:

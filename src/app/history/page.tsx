@@ -1,5 +1,6 @@
 "use client"
 
+import { authIdentity } from "@defuse-protocol/internal-utils"
 import { HistoryWidget } from "@src/components/DefuseSDK/features/history/components"
 import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
@@ -15,10 +16,16 @@ export default function HistoryPage() {
   // Prevents "Connect wallet" flash while wallets like NEAR reconnect async
   const [hadPreviousSession, setHadPreviousSession] = useState(true)
   useEffect(() => {
-    setHadPreviousSession(localStorage.getItem("chainType") !== null)
-  }, [])
-
-  const userAddress = state.isVerified ? (state.address ?? null) : null
+    // Sync with localStorage when disconnected (on mount or after logout)
+    if (state.address == null) {
+      setHadPreviousSession(localStorage.getItem("chainType") !== null)
+    }
+  }, [state.address])
+  const { address: walletAddress, chainType } = state
+  const userAddress =
+    state.isVerified && walletAddress != null && chainType != null
+      ? authIdentity.authHandleToIntentsUserId(walletAddress, chainType)
+      : null
   const isWaitingForReconnect = hadPreviousSession && !state.address
   const isWalletLoading =
     !hasHydrated ||

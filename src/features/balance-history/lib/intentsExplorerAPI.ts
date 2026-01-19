@@ -3,6 +3,7 @@ import { logger } from "@src/utils/logger"
 const INTENTS_EXPLORER_API_URL = "https://explorer.near-intents.org/api/v0"
 const MAX_RETRIES = 3
 const INITIAL_RETRY_DELAY_MS = 1000
+const REQUEST_TIMEOUT_MS = 30_000
 
 async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -13,22 +14,34 @@ async function fetchWithRetry(
   options: RequestInit,
   retries = MAX_RETRIES
 ): Promise<Response> {
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    const response = await fetch(url, options)
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
 
-    if (response.status === 429) {
-      // Rate limited - wait and retry with exponential backoff
-      const delay = INITIAL_RETRY_DELAY_MS * 2 ** attempt
-      logger.warn("Rate limited, retrying", { attempt, delay, url })
-      await sleep(delay)
-      continue
+  try {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+      })
+
+      if (response.status === 429) {
+        // Rate limited - wait and retry with exponential backoff
+        const delay = INITIAL_RETRY_DELAY_MS * 2 ** attempt
+        logger.warn("Rate limited, retrying", { attempt, delay, url })
+        await sleep(delay)
+        continue
+      }
+
+      clearTimeout(timeoutId)
+      return response
     }
 
-    return response
+    // If all retries exhausted, throw error
+    throw new Error("Rate limit exceeded after retries")
+  } catch (error) {
+    clearTimeout(timeoutId)
+    throw error
   }
-
-  // If all retries exhausted, throw error
-  throw new Error("Rate limit exceeded after retries")
 }
 
 export interface IntentsExplorerTransaction {
@@ -93,7 +106,12 @@ export async function fetchIntentsExplorerTransactions(
     logger.warn("INTENTS_EXPLORER_API_KEY not configured")
     return {
       data: [],
-      pagination: { page: 1, perPage: 50, total: 0, hasMore: false },
+      pagination: {
+        page: params.page ?? 1,
+        perPage: params.perPage ?? 50,
+        total: 0,
+        hasMore: false,
+      },
     }
   }
 
@@ -144,16 +162,24 @@ export async function fetchIntentsExplorerTransactions(
     return {
       data: json.data,
       pagination: {
-        page,
+        page: json.page,
         perPage: json.perPage,
         total: json.total,
         hasMore,
       },
     }
   } catch (error) {
+    const isTimeout = error instanceof Error && error.name === "AbortError"
+    const errorMessage = isTimeout
+      ? "Request timed out"
+      : error instanceof Error
+        ? error.message
+        : "Unknown error"
+
     logger.error("Failed to fetch from Intents Explorer API", {
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: errorMessage,
     })
+
     return {
       data: [],
       pagination: { page, perPage, total: 0, hasMore: false },

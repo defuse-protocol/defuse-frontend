@@ -1,8 +1,9 @@
-import { CheckIcon, ExclamationTriangleIcon } from "@heroicons/react/16/solid"
 import {
   ArrowRightIcon,
   ArrowSquareOutIcon,
+  CheckCircleIcon,
   SpinnerIcon,
+  WarningIcon,
 } from "@phosphor-icons/react"
 import { ReloadIcon } from "@radix-ui/react-icons"
 import { Skeleton } from "@radix-ui/themes"
@@ -32,41 +33,36 @@ import {
 } from "../../../utils/format"
 import type { TransactionType as BadgeType } from "../../account/types/sharedTypes"
 
-interface HistoryItemProps {
-  transaction: SwapTransaction
+interface SwapItemProps {
+  swap: SwapTransaction
   tokenList: TokenInfo[]
 }
 
 const DEFAULT_STATUS_CONFIG = {
   icon: SpinnerIcon,
-  iconColor: "text-white",
-  bgColor: "bg-gray-500",
+  color: "text-gray-11",
   label: "Unknown",
 } as const
 
 const STATUS_CONFIG = {
   SUCCESS: {
-    icon: CheckIcon,
-    iconColor: "text-white",
-    bgColor: "bg-green-500",
+    icon: CheckCircleIcon,
+    color: "text-green-600",
     label: "Completed",
   },
   PROCESSING: {
     icon: SpinnerIcon,
-    iconColor: "text-white",
-    bgColor: "bg-amber-500",
+    color: "text-amber-500",
     label: "Processing",
   },
   PENDING: {
     icon: SpinnerIcon,
-    iconColor: "text-white",
-    bgColor: "bg-blue-500",
+    color: "text-blue-500",
     label: "Pending",
   },
   FAILED: {
-    icon: ExclamationTriangleIcon,
-    iconColor: "text-white",
-    bgColor: "bg-red-500",
+    icon: WarningIcon,
+    color: "text-red-500",
     label: "Failed",
   },
 } as const
@@ -199,69 +195,37 @@ function TokenDisplay({
 
 const STALE_PENDING_THRESHOLD_MS = 30 * 60 * 1000 // 30 minutes
 
-function StatusBadge({
-  status,
-  timestamp,
-}: { status: SwapTransaction["status"]; timestamp: string }) {
+export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
   const statusConfig =
-    STATUS_CONFIG[status as keyof typeof STATUS_CONFIG] ?? DEFAULT_STATUS_CONFIG
+    STATUS_CONFIG[swap.status as keyof typeof STATUS_CONFIG] ??
+    DEFAULT_STATUS_CONFIG
   const StatusIcon = statusConfig.icon
 
   const isPendingStale = useMemo(() => {
-    if (status !== "PENDING") return false
-    const age = Date.now() - new Date(timestamp).getTime()
+    if (swap.status !== "PENDING") return false
+    const age = Date.now() - new Date(swap.timestamp).getTime()
     return age > STALE_PENDING_THRESHOLD_MS
-  }, [status, timestamp])
-
-  if (status === "PENDING" || status === "PROCESSING") {
-    return (
-      <div className="flex items-center cursor-default">
-        <ReloadIcon
-          className={cn("size-3 text-gray-400", {
-            "animate-spin": !isPendingStale,
-          })}
-        />
-      </div>
-    )
-  }
-
-  return (
-    <div
-      className={cn(
-        "flex items-center justify-center size-3 rounded-full cursor-default",
-        statusConfig.bgColor
-      )}
-    >
-      <StatusIcon className={cn("size-1.5", statusConfig.iconColor)} />
-    </div>
-  )
-}
-
-export function HistoryItem({ transaction, tokenList }: HistoryItemProps) {
-  const statusConfig =
-    STATUS_CONFIG[transaction.status as keyof typeof STATUS_CONFIG] ??
-    DEFAULT_STATUS_CONFIG
+  }, [swap.status, swap.timestamp])
 
   const explorerUrl = useMemo(() => {
-    if (!transaction.deposit_address) return null
-    return `${INTENTS_EXPLORER_URL}/transactions/${transaction.deposit_address}`
-  }, [transaction.deposit_address])
+    if (!swap.deposit_address) return null
+    return `${INTENTS_EXPLORER_URL}/transactions/${swap.deposit_address}`
+  }, [swap.deposit_address])
 
-  const usdValue = formatUsd(transaction.from.amount_usd)
-  const badgeType = getBadgeTypeFromTransactionType(transaction.type)
-  const isSwap = transaction.type === "swap"
+  const usdValue = formatUsd(swap.from.amount_usd)
+  const badgeType = getBadgeTypeFromTransactionType(swap.type)
+  const isSwap = swap.type === "swap"
 
-  const displayToken =
-    transaction.type === "deposit" ? transaction.to : transaction.from
+  const displayToken = swap.type === "deposit" ? swap.to : swap.from
 
   return (
-    <div className="py-3 px-2 flex items-center gap-3 border-b border-gray-200 last:border-b-0 even:bg-gray-100 transition-colors">
+    <div className="py-3 px-2 flex items-center gap-1.5 sm:gap-3 border-b border-gray-200 last:border-b-0 even:bg-gray-50 transition-colors">
       <div className="flex items-center gap-1.5 sm:gap-3 flex-1 min-w-0">
         {isSwap ? (
           <>
-            <div className="w-[70px] sm:w-[100px] flex-shrink-0">
+            <div className="w-[85px] sm:w-[120px] flex-shrink-0">
               <TokenDisplay
-                tokenAmount={transaction.from}
+                tokenAmount={swap.from}
                 tokenList={tokenList}
                 badgeType={badgeType}
                 hideChainInfo
@@ -271,9 +235,9 @@ export function HistoryItem({ transaction, tokenList }: HistoryItemProps) {
               className="size-3 sm:size-3.5 text-gray-9 flex-shrink-0 mx-0.5 sm:mr-3"
               weight="bold"
             />
-            <div className="w-[70px] sm:w-[100px] flex-shrink-0">
+            <div className="w-[85px] sm:w-[120px] flex-shrink-0">
               <TokenDisplay
-                tokenAmount={transaction.to}
+                tokenAmount={swap.to}
                 tokenList={tokenList}
                 hideChainInfo
               />
@@ -294,15 +258,15 @@ export function HistoryItem({ transaction, tokenList }: HistoryItemProps) {
         {usdValue && (
           <span className="text-sm font-semibold text-gray-12">{usdValue}</span>
         )}
-        <div className="flex items-center gap-1 sm:gap-1.5 text-[11px]">
+        <div className="flex items-center gap-1.5 text-[11px]">
           <Tooltip>
             <TooltipTrigger asChild>
               <span className="text-gray-10 cursor-default">
-                {formatSmartDate(transaction.timestamp)}
+                {formatSmartDate(swap.timestamp)}
               </span>
             </TooltipTrigger>
             <TooltipContent side="top" className="text-xs" theme="dark">
-              {formatFullDate(transaction.timestamp)}
+              {formatFullDate(swap.timestamp)}
             </TooltipContent>
           </Tooltip>
           {explorerUrl && (
@@ -323,10 +287,20 @@ export function HistoryItem({ transaction, tokenList }: HistoryItemProps) {
           <span className="text-gray-10">·</span>
           <Tooltip>
             <TooltipTrigger asChild>
-              <StatusBadge
-                status={transaction.status}
-                timestamp={transaction.timestamp}
-              />
+              <div className="flex items-center cursor-default">
+                {swap.status === "PENDING" || swap.status === "PROCESSING" ? (
+                  <ReloadIcon
+                    className={cn("size-3.5 text-gray-11", {
+                      "animate-spin": !isPendingStale,
+                    })}
+                  />
+                ) : (
+                  <StatusIcon
+                    className={cn("size-3.5", statusConfig.color)}
+                    weight="fill"
+                  />
+                )}
+              </div>
             </TooltipTrigger>
             <TooltipContent side="top" className="text-xs" theme="dark">
               {statusConfig.label}
@@ -338,19 +312,19 @@ export function HistoryItem({ transaction, tokenList }: HistoryItemProps) {
   )
 }
 
-/** @deprecated Use HistoryItem instead */
-export function SwapHistoryItem({
-  swap,
+/** Alias for activity page compatibility */
+export function HistoryItem({
+  transaction,
   tokenList,
-}: { swap: SwapTransaction; tokenList: TokenInfo[] }) {
-  return <HistoryItem transaction={swap} tokenList={tokenList} />
+}: { transaction: SwapTransaction; tokenList: TokenInfo[] }) {
+  return <SwapHistoryItem swap={transaction} tokenList={tokenList} />
 }
 
 export function SwapHistoryItemSkeleton() {
   return (
     <div className="py-3 px-2 flex items-center gap-1.5 sm:gap-3 border-b border-gray-200 last:border-b-0">
       <div className="flex items-center gap-1.5 sm:gap-3 flex-1 min-w-0">
-        <div className="w-[70px] sm:w-[100px] flex-shrink-0 flex items-center gap-1.5 sm:gap-2.5">
+        <div className="w-[85px] sm:w-[120px] flex-shrink-0 flex items-center gap-1.5 sm:gap-2.5">
           <Skeleton className="size-7 sm:size-10 rounded-full flex-shrink-0" />
           <div className="flex flex-col min-w-0">
             <Skeleton className="h-3 sm:h-[14px] w-8 sm:w-12 mb-0.5 sm:mb-1" />
@@ -358,7 +332,7 @@ export function SwapHistoryItemSkeleton() {
           </div>
         </div>
         <Skeleton className="size-3 sm:size-3.5 rounded flex-shrink-0 mx-0.5 sm:mr-3" />
-        <div className="w-[70px] sm:w-[100px] flex-shrink-0 flex items-center gap-1.5 sm:gap-2.5">
+        <div className="w-[85px] sm:w-[120px] flex-shrink-0 flex items-center gap-1.5 sm:gap-2.5">
           <Skeleton className="size-7 sm:size-10 rounded-full flex-shrink-0" />
           <div className="flex flex-col min-w-0">
             <Skeleton className="h-3 sm:h-[14px] w-8 sm:w-12 mb-0.5 sm:mb-1" />

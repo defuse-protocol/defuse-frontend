@@ -24,11 +24,11 @@ export function useSwapHistory(
     getNextPageParam: (lastPage) =>
       lastPage.pagination.hasMore ? lastPage.pagination.page + 1 : undefined,
     enabled: options?.enabled ?? Boolean(params.accountId),
-    staleTime: 30_000, // 30 seconds - prevents unnecessary refetches
+    staleTime: 30_000,
     retry: 1,
     refetchInterval: options?.refetchInterval,
     refetchOnMount: options?.refetchOnMount ?? "always",
     refetchOnWindowFocus: true,
-    placeholderData: keepPreviousData, // Keep showing previous data while refetching
+    placeholderData: keepPreviousData,
   })
 }

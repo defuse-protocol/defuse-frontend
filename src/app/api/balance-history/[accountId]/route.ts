@@ -81,7 +81,8 @@ export async function GET(
       recipient: accountId,
       page: Number(page),
       perPage: Number(limit),
-      statuses: "SUCCESS,PROCESSING,PENDING_DEPOSIT,REFUNDED,FAILED",
+      statuses:
+        "SUCCESS,PROCESSING,PENDING_DEPOSIT,INCOMPLETE_DEPOSIT,REFUNDED,FAILED",
     })
 
     const swaps = result.data.map(transformTransaction)
