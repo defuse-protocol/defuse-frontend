@@ -2,6 +2,7 @@ import type { authHandle } from "@defuse-protocol/internal-utils"
 import { useSelector } from "@xstate/react"
 import { type PropsWithChildren, useEffect, useRef } from "react"
 import { useFormContext } from "react-hook-form"
+import { queryClient } from "../../../providers/QueryClientProvider"
 import type { SwapWidgetProps } from "../../../types/swap"
 import { usePublicKeyModalOpener } from "../hooks/usePublicKeyModalOpener"
 import type { SwapFormValues } from "./SwapForm"
@@ -40,11 +41,13 @@ export function SwapUIMachineFormSyncProvider({
     const sub = actorRef.on("*", (event) => {
       switch (event.type) {
         case "INTENT_PUBLISHED": {
+          queryClient.invalidateQueries({ queryKey: ["swap_history"] })
           reset()
           break
         }
 
         case "INTENT_SETTLED": {
+          queryClient.invalidateQueries({ queryKey: ["swap_history"] })
           onSuccessSwapRef.current({
             amountIn: 0n, // todo: remove amount fields, as they may not exist for all types of intents
             amountOut: 0n,

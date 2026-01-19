@@ -119,3 +119,21 @@ export async function getFreshQuoteHashes(
   const quoteHashes = quotes.flatMap((q) => q.quoteHashes)
   return Ok(quoteHashes)
 }
+
+/**
+ * Returns the maximum of minDeadlineMs and timeEstimateMs as an ISO string.
+ * @param minDeadlineMs - The minimum deadline in milliseconds.
+ * @param timeEstimateMs - The time estimate in milliseconds. Optional.
+ * @returns ISO string of the deadline (current time + the greater of the two values).
+ * @example
+ * getMinDeadlineMs(600000) // "2026-01-01T12:10:00.000Z" (10 min from now)
+ * getMinDeadlineMs(600000, 10000) // "2026-01-01T12:10:00.000Z" (10 min from now)
+ * getMinDeadlineMs(600000, 1260000) // "2026-01-01T12:21:00.000Z" (21 min from now)
+ */
+export function getMinDeadlineMs(
+  minDeadlineMs: number,
+  timeEstimateMs?: number
+): string {
+  const deadlineMs = Math.max(minDeadlineMs, timeEstimateMs ?? 0)
+  return new Date(Date.now() + deadlineMs).toISOString()
+}

@@ -431,6 +431,8 @@ export const intentsChainIcon = {
   light: "/static/icons/network/intents.svg",
 }
 
+export const INTENTS_EXPLORER_URL = "https://explorer.near-intents.org"
+
 export function getNearIntentsOption(): Record<"intents", IntentsOption> {
   return {
     intents: {
