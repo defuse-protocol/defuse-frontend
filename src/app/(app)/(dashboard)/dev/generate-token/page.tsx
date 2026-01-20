@@ -36,8 +36,7 @@ export default function GenerateTokenPage() {
     }
   }
 
-  const isConnected =
-    state.isVerified && state.address != null && state.chainType != null
+  const isConnected = state.address != null && state.chainType != null
 
   return (
     <div className="container mx-auto p-6">
@@ -52,8 +51,8 @@ export default function GenerateTokenPage() {
               Wallet not connected
             </p>
             <p className="text-sm text-gray-600">
-              Use the wallet button in the header to connect your wallet, then
-              return here to generate a test authentication token.
+              Please connect your wallet using the wallet button in the navbar
+              to generate a test authentication token.
             </p>
           </div>
         ) : (
