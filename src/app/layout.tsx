@@ -39,6 +39,9 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 }
 
+const GA_NEAR_INTENTS_ID = "G-WNE3NB46KM"
+const GA_OMNI_SWAP_ID = "G-91C1EKE2JM"
+
 export async function generateMetadata(): Promise<Metadata> {
   const templ = await whitelabelTemplateFlag()
 
@@ -202,7 +205,9 @@ const RootLayout = async ({
           </SystemStatusProvider>
         </ThemeProvider>
       </body>
-      <GoogleAnalytics gaId="G-WNE3NB46KM" />
+      <GoogleAnalytics
+        gaId={tmpl === "omniswap" ? GA_OMNI_SWAP_ID : GA_NEAR_INTENTS_ID}
+      />
       {HELPSCOUT_BEACON_ID && <Helpscout />}
     </html>
   )
