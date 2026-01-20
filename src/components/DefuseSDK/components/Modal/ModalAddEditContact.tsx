@@ -1,12 +1,17 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import { UserCircleIcon } from "@heroicons/react/20/solid"
-import type { Contact } from "@src/app/(app)/(dashboard)/contacts/page"
+import {
+  type Contact,
+  createContact,
+  updateContact,
+} from "@src/app/(app)/(auth)/contacts/actions"
 import Button from "@src/components/Button"
 import ErrorMessage from "@src/components/ErrorMessage"
 import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
 import useSearchNetworks from "@src/hooks/useFilterNetworks"
 import { WalletIcon } from "@src/icons"
 import clsx from "clsx"
+import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import {
@@ -38,9 +43,11 @@ const ModalAddEditContact = ({
   onCloseAnimationEnd,
   contact,
 }: ModalContactProps) => {
+  const router = useRouter()
   const [selectNetworkOpen, setSelectNetworkOpen] = useState(false)
   const [searchValue, setSearchValue] = useState("")
   const [isScrolled, setIsScrolled] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   const isEditing = Boolean(contact)
@@ -89,17 +96,53 @@ const ModalAddEditContact = ({
   const selectedNetwork = network ? reverseAssetNetworkAdapter[network] : null
   const networkData = network ? availableNetworks[network] : null
 
-  const onSubmit = async (_data: FormData) => {
-    if (isEditing) {
-      // TODO: Update contact
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-    } else {
-      // TODO: Create contact
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+  const onSubmit = async (data: FormData) => {
+    if (!data.network) {
+      return
     }
 
-    onClose()
-    // TODO: Add success toast
+    setSubmitError(null)
+
+    try {
+      if (isEditing && contact) {
+        if (!contact.contactId) {
+          setSubmitError("Contact ID is missing. Please try again.")
+          return
+        }
+
+        const result = await updateContact({
+          contactId: contact.contactId,
+          name: data.name,
+          address: data.address,
+          network: data.network,
+        })
+
+        if (!result.ok) {
+          setSubmitError(result.error)
+          return
+        }
+      } else {
+        const result = await createContact({
+          name: data.name,
+          address: data.address,
+          network: data.network,
+        })
+
+        if (!result.ok) {
+          setSubmitError(result.error)
+          return
+        }
+      }
+
+      onClose()
+      router.refresh()
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred. Please try again."
+      )
+    }
   }
 
   const handleScroll = () => {
@@ -271,6 +314,10 @@ const ModalAddEditContact = ({
               )}
             </div>
           </div>
+
+          {submitError && (
+            <ErrorMessage className="mt-3">{submitError}</ErrorMessage>
+          )}
 
           <Button
             type="submit"
