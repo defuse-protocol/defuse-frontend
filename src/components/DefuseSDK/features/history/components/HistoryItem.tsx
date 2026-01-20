@@ -19,10 +19,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "../../../components/Tooltip"
-import {
-  INTENTS_EXPLORER_URL,
-  chainIcons,
-} from "../../../constants/blockchains"
+import { INTENTS_EXPLORER_URL } from "../../../constants/blockchains"
 import type { TokenInfo } from "../../../types/base"
 import { cn } from "../../../utils/cn"
 import {
@@ -72,11 +69,6 @@ interface TokenDisplayProps {
   tokenAmount: TokenAmount
   tokenList: TokenInfo[]
   badgeType?: BadgeType
-  hideChainInfo?: boolean
-}
-
-function formatChainName(chain: string): string {
-  return chain.charAt(0).toUpperCase() + chain.slice(1).toLowerCase()
 }
 
 function getBadgeTypeFromTransactionType(type: TransactionType): BadgeType {
@@ -94,29 +86,17 @@ function TokenDisplay({
   tokenAmount,
   tokenList,
   badgeType,
-  hideChainInfo,
 }: TokenDisplayProps) {
   const token = useMemo(
     () => findTokenByAssetId(tokenList, tokenAmount.token_id),
     [tokenList, tokenAmount.token_id]
   )
 
-  const displayChain = tokenAmount.blockchain.toLowerCase()
-  const originChain = token?.originChainName?.toLowerCase()
-  const chainIcon = useMemo(
-    () => chainIcons[displayChain as keyof typeof chainIcons],
-    [displayChain]
-  )
-  const hasDifferentOrigin = originChain && originChain !== displayChain
-
-  const content = (
+  return (
     <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
       <AssetComboIcon
         icon={token?.icon}
         name={token?.name ?? tokenAmount.symbol}
-        chainIcon={chainIcon}
-        chainName={displayChain}
-        showChainIcon={!hideChainInfo && Boolean(chainIcon)}
         badgeType={badgeType}
         sizeClassName="size-7 sm:size-10"
       />
@@ -129,37 +109,6 @@ function TokenDisplay({
         </span>
       </div>
     </div>
-  )
-
-  if (hideChainInfo) {
-    return content
-  }
-
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <div className="cursor-pointer">{content}</div>
-      </TooltipTrigger>
-      <TooltipContent side="top" className="text-xs" theme="dark">
-        <div className="flex flex-col gap-0.5">
-          <span className="font-bold">{token?.name ?? tokenAmount.symbol}</span>
-          {hasDifferentOrigin ? (
-            <>
-              <span className="text-gray-400">
-                Origin: {formatChainName(originChain)}
-              </span>
-              <span className="text-gray-400">
-                On: {formatChainName(displayChain)}
-              </span>
-            </>
-          ) : (
-            <span className="text-gray-400">
-              Blockchain: {formatChainName(displayChain)}
-            </span>
-          )}
-        </div>
-      </TooltipContent>
-    </Tooltip>
   )
 }
 
@@ -198,7 +147,6 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
                 tokenAmount={swap.from}
                 tokenList={tokenList}
                 badgeType={badgeType}
-                hideChainInfo
               />
             </div>
             <ArrowRightIcon
@@ -206,11 +154,7 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
               weight="bold"
             />
             <div className="w-[85px] sm:w-[120px] flex-shrink-0">
-              <TokenDisplay
-                tokenAmount={swap.to}
-                tokenList={tokenList}
-                hideChainInfo
-              />
+              <TokenDisplay tokenAmount={swap.to} tokenList={tokenList} />
             </div>
           </>
         ) : (
