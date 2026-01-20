@@ -5,7 +5,7 @@ import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useState } from "react"
 import { generateToken } from "./actions"
 
-const AUTH_TOKEN_KEY = "defuse_auth_token"
+export const AUTH_TOKEN_KEY = "defuse_auth_token"
 
 /**
  * Test-only page for generating JWT authentication tokens.
@@ -23,9 +23,8 @@ export default function GenerateTokenPage() {
     setIsGenerating(true)
     setStatus("")
     try {
-      const token = await generateToken(state.address, state.chainType)
-      localStorage.setItem(AUTH_TOKEN_KEY, token)
-      setStatus("Token generated and saved to localStorage!")
+      await generateToken(state.address, state.chainType)
+      setStatus("Token generated and saved to cookies!")
       setIsGenerating(false)
     } catch (error) {
       setStatus(

@@ -1,10 +1,25 @@
 "use server"
 
 import { generateAppAuthToken } from "@src/utils/dummyAuth"
+import { cookies } from "next/headers"
+
+const AUTH_TOKEN_KEY = "defuse_auth_token"
 
 export async function generateToken(
   authIdentifier: string,
   authMethod: string
 ): Promise<string> {
-  return generateAppAuthToken(authIdentifier, authMethod)
+  const token = await generateAppAuthToken(authIdentifier, authMethod)
+
+  // Set the token in cookies so server actions can access it
+  const cookieStore = await cookies()
+  cookieStore.set(AUTH_TOKEN_KEY, token, {
+    httpOnly: false, // Allow client-side access if needed
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 60 * 60 * 24 * 30, // 30 days
+    path: "/",
+  })
+
+  return token
 }
