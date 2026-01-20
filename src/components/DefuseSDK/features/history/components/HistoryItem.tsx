@@ -1,11 +1,11 @@
 import {
   ArrowRightIcon,
   ArrowSquareOutIcon,
+  ArrowsClockwise,
   CheckCircleIcon,
   SpinnerIcon,
   WarningIcon,
 } from "@phosphor-icons/react"
-import { ReloadIcon } from "@radix-ui/react-icons"
 import { Skeleton } from "@radix-ui/themes"
 import type {
   SwapTransaction,
@@ -193,7 +193,7 @@ function TokenDisplay({
   )
 }
 
-const STALE_PENDING_THRESHOLD_MS = 30 * 60 * 1000 // 30 minutes
+const STALE_PENDING_THRESHOLD_MS = 4 * 60 * 1000 // 4 minutes
 
 export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
   const statusConfig =
@@ -289,7 +289,7 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
             <TooltipTrigger asChild>
               <div className="flex items-center cursor-default">
                 {swap.status === "PENDING" || swap.status === "PROCESSING" ? (
-                  <ReloadIcon
+                  <ArrowsClockwise
                     className={cn("size-3.5 text-gray-11", {
                       "animate-spin": !isPendingStale,
                     })}

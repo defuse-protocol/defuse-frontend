@@ -2,7 +2,6 @@ import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import type { TokenUsdPriceData } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import {
-  getDefuseAssetId,
   isBaseToken,
   isUnifiedToken,
 } from "@src/components/DefuseSDK/utils/token"
@@ -33,45 +32,53 @@ function getTokenPrice(
   return null
 }
 
-interface UseUsdInputModeParams {
+type UsdModeDirection = "input" | "output"
+
+interface UseUsdModeParams {
+  direction: UsdModeDirection
   tokenIn: TokenInfo
   tokenOut: TokenInfo
-  usdAmountIn: number | null
   tokensUsdPriceData?: TokenUsdPriceData
   setValue: UseFormSetValue<SwapFormValues>
   swapUIActorRef: ActorRefFrom<typeof swapUIMachine>
 }
 
-export function useUsdInputMode({
+export function useUsdMode({
+  direction,
   tokenIn,
   tokenOut,
-  usdAmountIn,
   tokensUsdPriceData,
   setValue,
   swapUIActorRef,
-}: UseUsdInputModeParams) {
-  const tokenInPrice = getTokenPrice(tokenIn, tokensUsdPriceData)
+}: UseUsdModeParams) {
+  const isInput = direction === "input"
+  const token = isInput ? tokenIn : tokenOut
+  const tokenPrice = getTokenPrice(token, tokensUsdPriceData)
   const [isUsdMode, setIsUsdMode] = useState(false)
   const [usdValue, setUsdValue] = useState("")
 
+  const swapType = isInput
+    ? QuoteRequest.swapType.EXACT_INPUT
+    : QuoteRequest.swapType.EXACT_OUTPUT
+
   const handleToggle = useCallback(() => {
-    if (!tokenInPrice || tokenInPrice <= 0) return
+    if (!tokenPrice || tokenPrice <= 0) return
 
     if (isUsdMode) {
       setIsUsdMode(false)
       setUsdValue("")
     } else {
-      const currentUsd = usdAmountIn ?? 0
-      setUsdValue(currentUsd > 0 ? currentUsd.toString() : "")
+      // Don't prefill - let the calculated USD from quote show through
+      setUsdValue("")
       setIsUsdMode(true)
     }
-  }, [isUsdMode, usdAmountIn, tokenInPrice])
+  }, [isUsdMode, tokenPrice])
 
   const handleInputChange = useCallback(
     (usdInputValue: string) => {
       setUsdValue(usdInputValue)
 
-      if (!tokenInPrice || tokenInPrice <= 0) return
+      if (!tokenPrice || tokenPrice <= 0) return
 
       const usdNum = Number.parseFloat(usdInputValue.replace(",", "."))
       const isEmpty = Number.isNaN(usdNum) || usdNum <= 0
@@ -84,7 +91,7 @@ export function useUsdInputMode({
           params: {
             tokenIn,
             tokenOut,
-            swapType: QuoteRequest.swapType.EXACT_INPUT,
+            swapType,
             amountIn: "",
             amountOut: "",
           },
@@ -92,37 +99,58 @@ export function useUsdInputMode({
         return
       }
 
-      const tokenAmount = usdNum / tokenInPrice
+      const tokenAmount = usdNum / tokenPrice
       const formattedAmount = tokenAmount.toFixed(8).replace(/\.?0+$/, "")
 
-      setValue("amountIn", formattedAmount)
-      setValue("amountOut", "")
-      swapUIActorRef.send({
-        type: "input",
-        params: {
-          tokenIn,
-          tokenOut,
-          swapType: QuoteRequest.swapType.EXACT_INPUT,
-          amountIn: formattedAmount,
-          amountOut: "",
-        },
-      })
+      if (isInput) {
+        setValue("amountIn", formattedAmount)
+        setValue("amountOut", "")
+        swapUIActorRef.send({
+          type: "input",
+          params: {
+            tokenIn,
+            tokenOut,
+            swapType,
+            amountIn: formattedAmount,
+            amountOut: "",
+          },
+        })
+      } else {
+        setValue("amountOut", formattedAmount)
+        setValue("amountIn", "")
+        swapUIActorRef.send({
+          type: "input",
+          params: {
+            tokenIn,
+            tokenOut,
+            swapType,
+            amountOut: formattedAmount,
+            amountIn: "",
+          },
+        })
+      }
     },
-    [tokenInPrice, tokenIn, tokenOut, setValue, swapUIActorRef]
+    [tokenPrice, tokenIn, tokenOut, setValue, swapUIActorRef, swapType, isInput]
   )
 
-  const tokenInId = getDefuseAssetId(tokenIn)
-  // biome-ignore lint/correctness/useExhaustiveDependencies: reset when token changes
+  // Reset USD mode when the relevant token changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Effect intentionally triggers on token change, not on using the value
   useEffect(() => {
     setIsUsdMode(false)
     setUsdValue("")
-  }, [tokenInId])
+  }, [isInput ? tokenIn : tokenOut])
+
+  // Clear the user-entered value so calculated value shows through
+  const clearUsdValue = useCallback(() => {
+    setUsdValue("")
+  }, [])
 
   return {
     isUsdMode,
     usdValue,
-    tokenInPrice,
+    tokenPrice,
     handleToggle,
     handleInputChange,
+    clearUsdValue,
   }
 }
