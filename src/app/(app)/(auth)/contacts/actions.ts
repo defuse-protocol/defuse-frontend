@@ -2,12 +2,12 @@
 
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import {
-  createContact as createContactRepo,
-  deleteContact as deleteContactRepo,
+  createContact as createContactRepository,
+  deleteContact as deleteContactRepository,
   getContactByAccountAddressAndNetwork,
   getContactById,
   getContactsByAccountId,
-  updateContact as updateContactRepo,
+  updateContact as updateContactRepository,
 } from "@src/app/(app)/(auth)/contacts/_utils/contacts-repository"
 import type { Contact as ContactSchema } from "@src/app/(app)/(auth)/contacts/_utils/schema"
 import { getAccountIdFromToken } from "@src/utils/dummyAuth"
@@ -146,7 +146,7 @@ export async function createContact(input: {
     return { ok: false, error: "Contact already exists" }
   }
 
-  const entity = await createContactRepo({
+  const entity = await createContactRepository({
     account_id,
     address: data.output.address,
     name: data.output.name,
@@ -241,7 +241,7 @@ export async function updateContact(input: {
     return { ok: false, error: "Permission denied" }
   }
 
-  const updatedContact = await updateContactRepo(data.output.contactId, {
+  const updatedContact = await updateContactRepository(data.output.contactId, {
     address: data.output.address,
     name: data.output.name,
     network: data.output.network,
@@ -333,7 +333,7 @@ export async function deleteContact(input: {
     return { ok: false, error: "Permission denied" }
   }
 
-  await deleteContactRepo(data.output.contactId)
+  await deleteContactRepository(data.output.contactId)
 
   return { ok: true, value: null }
 }
