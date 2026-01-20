@@ -20,6 +20,10 @@ export type DockItem = {
   icon: ReactNode
   explorerUrl?: string
   keyValueRows: KeyValueRow[]
+  // Optional custom render content for swap tracking, etc.
+  renderContent?: () => ReactNode
+  // If true, render icon without the circle container
+  rawIcon?: boolean
 }
 
 type ActivityDockContextType = {

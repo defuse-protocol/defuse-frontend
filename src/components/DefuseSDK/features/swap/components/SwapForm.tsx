@@ -12,8 +12,9 @@ import { getDefuseAssetId } from "@src/components/DefuseSDK/utils/token"
 import ErrorMessage from "@src/components/ErrorMessage"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useThrottledValue } from "@src/hooks/useThrottledValue"
+import { useSwapTracker } from "@src/providers/SwapTrackerProvider"
 import { useSelector } from "@xstate/react"
-import { useCallback, useContext, useEffect } from "react"
+import { useCallback, useContext, useEffect, useRef, useState } from "react"
 import { useFormContext } from "react-hook-form"
 import type { SnapshotFrom } from "xstate"
 import { AuthGate } from "../../../components/AuthGate"
@@ -30,6 +31,7 @@ import {
 } from "../../machines/depositedBalanceMachine"
 import type { swapUIMachine } from "../../machines/swapUIMachine"
 import SwapSettings from "./SwapSettings"
+import { SwapStatusView } from "./SwapStatusView"
 import { SwapSubmitterContext } from "./SwapSubmitter"
 import { SwapUIMachineContext } from "./SwapUIMachineProvider"
 
@@ -57,6 +59,19 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const snapshot = SwapUIMachineContext.useSelector((snapshot) => snapshot)
   const intentCreationResult = snapshot.context.intentCreationResult
   const { data: tokensUsdPriceData } = useTokensUsdPrices()
+
+  const { trackedSwaps, dismissSwap } = useSwapTracker()
+  const [showInlineStatus, setShowInlineStatus] = useState(true)
+  const prevSwapIdRef = useRef<string | null>(null)
+
+  const mostRecentSwap = trackedSwaps[0]
+
+  if (mostRecentSwap?.id !== prevSwapIdRef.current) {
+    prevSwapIdRef.current = mostRecentSwap?.id ?? null
+    if (mostRecentSwap && !showInlineStatus) {
+      setShowInlineStatus(true)
+    }
+  }
 
   const formValuesRef = useSelector(swapUIActorRef, formValuesSelector)
   const { tokenIn, tokenOut } = formValuesRef
@@ -322,6 +337,16 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const amountOutEmpty = amountOut === ""
   const amountOutLoading = isLoadingQuote && amountOutEmpty
 
+  if (showInlineStatus && mostRecentSwap) {
+    return (
+      <SwapStatusView
+        swap={mostRecentSwap}
+        onDismiss={() => setShowInlineStatus(false)}
+        onSwapAgain={() => dismissSwap(mostRecentSwap.id)}
+      />
+    )
+  }
+
   return (
     <>
       <div className="flex justify-between items-center">
@@ -475,13 +500,6 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
           {quote1csError && <Quote1csError quote1csError={quote1csError} />}
         </form>
 
-        {/* TODO: Move to sidebar */}
-        {/* {snapshot.context.intentRefs.length > 0 && (
-          <Box className="mt-5">
-            <Intents intentRefs={snapshot.context.intentRefs} />
-          </Box>
-        )} */}
-
         <ModalReviewSwap
           open={isReviewOpen}
           onClose={() => swapUIActorRef.send({ type: "CANCEL_REVIEW" })}
@@ -508,41 +526,6 @@ function Quote1csError({ quote1csError }: { quote1csError: string }) {
     </div>
   )
 }
-
-// function Intents({
-//   intentRefs,
-// }: {
-//   intentRefs: (
-//     | ActorRefFrom<typeof intentStatusMachine>
-//     | ActorRefFrom<typeof oneClickStatusMachine>
-//   )[]
-// }) {
-//   return (
-//     <div>
-//       {intentRefs.map((intentRef) => {
-//         const isOneClick = intentRef.id?.startsWith(ONE_CLICK_PREFIX)
-
-//         return (
-//           <Fragment key={intentRef.id}>
-//             {isOneClick ? (
-//               <Swap1csCard
-//                 oneClickStatusActorRef={
-//                   intentRef as ActorRefFrom<typeof oneClickStatusMachine>
-//                 }
-//               />
-//             ) : (
-//               <SwapIntentCard
-//                 intentStatusActorRef={
-//                   intentRef as ActorRefFrom<typeof intentStatusMachine>
-//                 }
-//               />
-//             )}
-//           </Fragment>
-//         )
-//       })}
-//     </div>
-//   )
-// }
 
 function renderSwapButtonText(
   amountInEmpty: boolean,

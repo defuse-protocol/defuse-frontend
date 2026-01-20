@@ -1,9 +1,11 @@
 import type { authHandle } from "@defuse-protocol/internal-utils"
+import { useSwapTracker } from "@src/providers/SwapTrackerProvider"
 import { useSelector } from "@xstate/react"
 import { type PropsWithChildren, useEffect, useRef } from "react"
 import { useFormContext } from "react-hook-form"
 import { queryClient } from "../../../providers/QueryClientProvider"
 import type { SwapWidgetProps } from "../../../types/swap"
+import type { IntentDescription } from "../../machines/swapIntentMachine"
 import { usePublicKeyModalOpener } from "../hooks/usePublicKeyModalOpener"
 import type { SwapFormValues } from "./SwapForm"
 import { SwapUIMachineContext } from "./SwapUIMachineProvider"
@@ -24,6 +26,7 @@ export function SwapUIMachineFormSyncProvider({
 }: SwapUIMachineFormSyncProviderProps) {
   const { reset } = useFormContext<SwapFormValues>()
   const actorRef = SwapUIMachineContext.useActorRef()
+  const { registerSwap, hasActiveSwap } = useSwapTracker()
 
   // Make `onSuccessSwap` stable reference, waiting for `useEvent` hook to come out
   const onSuccessSwapRef = useRef(onSuccessSwap)
@@ -43,6 +46,32 @@ export function SwapUIMachineFormSyncProvider({
         case "INTENT_PUBLISHED": {
           queryClient.invalidateQueries({ queryKey: ["swap_history"] })
           reset()
+
+          const snapshot = actorRef.getSnapshot()
+          const intentCreationResult = snapshot.context.intentCreationResult
+          const { tokenIn, tokenOut } = snapshot.context.formValues
+          const is1cs = snapshot.context.is1cs
+
+          if (intentCreationResult?.tag === "ok") {
+            const { intentHash, intentDescription } = intentCreationResult.value
+            const depositAddress =
+              "depositAddress" in intentCreationResult.value
+                ? intentCreationResult.value.depositAddress
+                : undefined
+
+            const swapId = depositAddress ?? intentHash
+            if (!hasActiveSwap(swapId)) {
+              registerSwap({
+                intentHash,
+                depositAddress,
+                tokenIn,
+                tokenOut,
+                intentDescription: intentDescription as IntentDescription,
+                is1cs,
+                parentRef: actorRef,
+              })
+            }
+          }
           break
         }
 
@@ -64,7 +93,7 @@ export function SwapUIMachineFormSyncProvider({
     return () => {
       sub.unsubscribe()
     }
-  }, [actorRef, reset])
+  }, [actorRef, reset, registerSwap, hasActiveSwap])
 
   const swapRef = useSelector(
     actorRef,
