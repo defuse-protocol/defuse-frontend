@@ -84,7 +84,7 @@ function TokenDisplay({
     <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
       <AssetComboIcon
         icon={token?.icon}
-        name={token?.name ?? tokenAmount.symbol}
+        name={token?.name ?? "Unknown"}
         badgeType={badgeType}
         sizeClassName="size-7 sm:size-10"
       />
@@ -93,7 +93,7 @@ function TokenDisplay({
           {formatAmount(tokenAmount.amount)}
         </span>
         <span className="text-[10px] sm:text-[11px] text-gray-11 truncate">
-          {token?.symbol ?? tokenAmount.symbol}
+          {token?.symbol ?? "Unknown"}
         </span>
       </div>
     </div>

@@ -125,6 +125,7 @@ export default function ActivityPage({
   const [open, setOpen] = useState(false)
   const [pollingAttempts, setPollingAttempts] = useState(0)
   const [delayPassed, setDelayPassed] = useState(false)
+  const [shouldPoll, setShouldPoll] = useState(false)
 
   const {
     data,
@@ -138,7 +139,11 @@ export default function ActivityPage({
     dataUpdatedAt,
   } = useSwapHistory(
     { accountId: userAddress ?? "", limit: 20 },
-    { enabled: Boolean(userAddress), refetchOnMount: "always" }
+    {
+      enabled: Boolean(userAddress),
+      refetchOnMount: "always",
+      refetchInterval: shouldPoll ? POLLING_INTERVAL_MS : false,
+    }
   )
 
   const [refreshState, setRefreshState] = useState<RefreshState>(
@@ -230,15 +235,11 @@ export default function ActivityPage({
     })
   }, [allTransactions])
 
-  const shouldPoll =
-    hasRecentPendingTransactions &&
-    delayPassed &&
-    pollingAttempts < MAX_POLLING_ATTEMPTS
-
   // biome-ignore lint/correctness/useExhaustiveDependencies: reset on account change
   useEffect(() => {
     setPollingAttempts(0)
     setDelayPassed(false)
+    setShouldPoll(false)
   }, [userAddress])
 
   useEffect(() => {
@@ -252,10 +253,12 @@ export default function ActivityPage({
   }, [hasRecentPendingTransactions, delayPassed])
 
   useEffect(() => {
-    if (!shouldPoll) return
-    const interval = setInterval(() => refetch(), POLLING_INTERVAL_MS)
-    return () => clearInterval(interval)
-  }, [shouldPoll, refetch])
+    const newShouldPoll =
+      hasRecentPendingTransactions &&
+      delayPassed &&
+      pollingAttempts < MAX_POLLING_ATTEMPTS
+    setShouldPoll(newShouldPoll)
+  }, [hasRecentPendingTransactions, delayPassed, pollingAttempts])
 
   useEffect(() => {
     if (shouldPoll && dataUpdatedAt) {

@@ -20,22 +20,9 @@ function normalizeStatus(
   }
 }
 
-function extractChainFromAssetId(assetId: string): string {
-  const colonIndex = assetId.indexOf(":")
-  if (colonIndex === -1) return "unknown"
-  return assetId.substring(0, colonIndex).toLowerCase()
-}
-
-function isNearChain(chain: string): boolean {
-  return chain === "near" || chain === "nep141"
-}
-
 export function transformTransaction(
   tx: IntentsExplorerTransaction
 ): SwapTransaction {
-  const originChain = extractChainFromAssetId(tx.originAsset)
-  const destChain = extractChainFromAssetId(tx.destinationAsset)
-
   return {
     id: tx.depositAddress,
     type: "swap",
@@ -43,15 +30,11 @@ export function transformTransaction(
     status: normalizeStatus(tx.status),
     from: {
       token_id: tx.originAsset,
-      symbol: "",
-      blockchain: isNearChain(originChain) ? "near" : originChain,
       amount: tx.amountInFormatted,
       amount_usd: tx.amountInUsd,
     },
     to: {
       token_id: tx.destinationAsset,
-      symbol: "",
-      blockchain: isNearChain(destChain) ? "near" : destChain,
       amount: tx.amountOutFormatted,
       amount_usd: tx.amountOutUsd,
     },
