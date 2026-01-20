@@ -10,7 +10,6 @@ import { Skeleton } from "@radix-ui/themes"
 import type {
   SwapTransaction,
   TokenAmount,
-  TransactionType,
 } from "@src/features/balance-history/types"
 import { useMemo } from "react"
 import AssetComboIcon from "../../../components/Asset/AssetComboIcon"
@@ -71,17 +70,6 @@ interface TokenDisplayProps {
   badgeType?: BadgeType
 }
 
-function getBadgeTypeFromTransactionType(type: TransactionType): BadgeType {
-  switch (type) {
-    case "deposit":
-      return "receive"
-    case "withdrawal":
-      return "send"
-    default:
-      return "swap"
-  }
-}
-
 function TokenDisplay({
   tokenAmount,
   tokenList,
@@ -132,40 +120,25 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
   }, [swap.deposit_address])
 
   const usdValue = formatUsd(swap.from.amount_usd)
-  const badgeType = getBadgeTypeFromTransactionType(swap.type)
-  const isSwap = swap.type === "swap"
-
-  const displayToken = swap.type === "deposit" ? swap.to : swap.from
+  const badgeType: BadgeType = "swap"
 
   return (
     <div className="py-3 px-2 flex items-center gap-1.5 sm:gap-3 border-b border-gray-200 last:border-b-0 even:bg-gray-50 transition-colors">
       <div className="flex items-center gap-1.5 sm:gap-3 flex-1 min-w-0">
-        {isSwap ? (
-          <>
-            <div className="w-[85px] sm:w-[120px] flex-shrink-0">
-              <TokenDisplay
-                tokenAmount={swap.from}
-                tokenList={tokenList}
-                badgeType={badgeType}
-              />
-            </div>
-            <ArrowRightIcon
-              className="size-3 sm:size-3.5 text-gray-9 flex-shrink-0 mx-0.5 sm:mr-3"
-              weight="bold"
-            />
-            <div className="w-[85px] sm:w-[120px] flex-shrink-0">
-              <TokenDisplay tokenAmount={swap.to} tokenList={tokenList} />
-            </div>
-          </>
-        ) : (
-          <div className="flex items-center gap-2.5">
-            <TokenDisplay
-              tokenAmount={displayToken}
-              tokenList={tokenList}
-              badgeType={badgeType}
-            />
-          </div>
-        )}
+        <div className="w-[85px] sm:w-[120px] flex-shrink-0">
+          <TokenDisplay
+            tokenAmount={swap.from}
+            tokenList={tokenList}
+            badgeType={badgeType}
+          />
+        </div>
+        <ArrowRightIcon
+          className="size-3 sm:size-3.5 text-gray-9 flex-shrink-0 mx-0.5 sm:mr-3"
+          weight="bold"
+        />
+        <div className="w-[85px] sm:w-[120px] flex-shrink-0">
+          <TokenDisplay tokenAmount={swap.to} tokenList={tokenList} />
+        </div>
       </div>
 
       <div className="flex flex-col items-end gap-0.5 flex-shrink-0">

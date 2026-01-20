@@ -45,8 +45,6 @@ type RefreshState = (typeof RefreshState)[keyof typeof RefreshState]
 const MIN_REFRESH_SPINNER_MS = 1000
 
 const TYPE_MAP: Record<Exclude<TypeFilter, "All">, SwapTransaction["type"]> = {
-  Send: "withdrawal",
-  Receive: "deposit",
   Swap: "swap",
 }
 

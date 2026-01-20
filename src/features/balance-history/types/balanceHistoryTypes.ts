@@ -1,4 +1,4 @@
-export type TransactionType = "swap" | "deposit" | "withdrawal"
+export type TransactionType = "swap"
 
 export interface TokenAmount {
   token_id: string
