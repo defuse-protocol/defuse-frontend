@@ -163,8 +163,7 @@
     "use-sync-external-store": "^1.2.0",
     "near-api-js": "^5.1.1",
     "@types/react": "19.2.7",
-    "@types/react-dom": "19.2.3",
-    "tslib": "^2.6.0"
+    "@types/react-dom": "19.2.3"
   },
   "husky": {
     "hooks": {
