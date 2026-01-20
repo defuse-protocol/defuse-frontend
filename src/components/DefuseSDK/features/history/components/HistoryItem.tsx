@@ -23,7 +23,7 @@ import {
   INTENTS_EXPLORER_URL,
   chainIcons,
 } from "../../../constants/blockchains"
-import type { BaseTokenInfo, TokenInfo } from "../../../types/base"
+import type { TokenInfo } from "../../../types/base"
 import { cn } from "../../../utils/cn"
 import {
   formatAmount,
@@ -31,6 +31,7 @@ import {
   formatSmartDate,
   formatUsd,
 } from "../../../utils/format"
+import { findTokenByAssetId } from "../../../utils/token"
 import type { TransactionType as BadgeType } from "../../account/types/sharedTypes"
 
 interface SwapItemProps {
@@ -66,37 +67,6 @@ const STATUS_CONFIG = {
     label: "Failed",
   },
 } as const
-
-/**
- * Creates a lookup map from token list for O(1) access.
- * Cached by tokenList reference.
- */
-const tokenMapCache = new WeakMap<TokenInfo[], Map<string, BaseTokenInfo>>()
-
-function getTokenMap(tokenList: TokenInfo[]): Map<string, BaseTokenInfo> {
-  const cached = tokenMapCache.get(tokenList)
-  if (cached) return cached
-
-  const map = new Map<string, BaseTokenInfo>()
-  for (const token of tokenList) {
-    if ("groupedTokens" in token) {
-      for (const t of token.groupedTokens) {
-        map.set(t.defuseAssetId, t)
-      }
-    } else {
-      map.set(token.defuseAssetId, token)
-    }
-  }
-  tokenMapCache.set(tokenList, map)
-  return map
-}
-
-function findTokenByAssetId(
-  tokenList: TokenInfo[],
-  tokenId: string
-): BaseTokenInfo | undefined {
-  return getTokenMap(tokenList).get(tokenId)
-}
 
 interface TokenDisplayProps {
   tokenAmount: TokenAmount
@@ -193,7 +163,7 @@ function TokenDisplay({
   )
 }
 
-const STALE_PENDING_THRESHOLD_MS = 4 * 60 * 1000 // 4 minutes
+const STALE_PENDING_THRESHOLD_MS = 3 * 60 * 1000 // 3 minutes
 
 export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
   const statusConfig =

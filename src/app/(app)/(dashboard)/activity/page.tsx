@@ -14,6 +14,7 @@ import {
   SwapHistoryItemSkeleton,
 } from "@src/components/DefuseSDK/features/history/components/HistoryItem"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
+import { findTokenByAssetId } from "@src/components/DefuseSDK/utils/token"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useSwapHistory } from "@src/features/balance-history/lib/useBalanceHistory"
 import type { SwapTransaction } from "@src/features/balance-history/types"
@@ -200,17 +201,25 @@ export default function ActivityPage({
 
     if (search) {
       const searchLower = search.toLowerCase()
-      filtered = filtered.filter(
-        (tx) =>
-          tx.from.symbol.toLowerCase().includes(searchLower) ||
-          tx.to.symbol.toLowerCase().includes(searchLower) ||
+      filtered = filtered.filter((tx) => {
+        const fromToken = findTokenByAssetId(tokenList, tx.from.token_id)
+        const toToken = findTokenByAssetId(tokenList, tx.to.token_id)
+
+        return (
+          fromToken?.symbol.toLowerCase().includes(searchLower) ||
+          toToken?.symbol.toLowerCase().includes(searchLower) ||
+          fromToken?.name?.toLowerCase().includes(searchLower) ||
+          toToken?.name?.toLowerCase().includes(searchLower) ||
+          tx.from.token_id.toLowerCase().includes(searchLower) ||
+          tx.to.token_id.toLowerCase().includes(searchLower) ||
           tx.transaction_hash.toLowerCase().includes(searchLower) ||
           tx.deposit_address.toLowerCase().includes(searchLower)
-      )
+        )
+      })
     }
 
     return filtered
-  }, [allTransactions, typeFilter, statusFilter, search])
+  }, [allTransactions, typeFilter, statusFilter, search, tokenList])
 
   const hasRecentPendingTransactions = useMemo(() => {
     const now = Date.now()

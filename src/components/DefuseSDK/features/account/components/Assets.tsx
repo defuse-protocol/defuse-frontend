@@ -1,12 +1,12 @@
 import { XMarkIcon } from "@heroicons/react/24/solid"
 import Button from "@src/components/Button"
 import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
-import type {
-  BaseTokenInfo,
-  TokenInfo,
-} from "@src/components/DefuseSDK/types/base"
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
-import { getTokenId } from "@src/components/DefuseSDK/utils/token"
+import {
+  findTokenByAssetId,
+  getTokenId,
+} from "@src/components/DefuseSDK/utils/token"
 import DepositPromo from "@src/components/DepositPromo"
 import ListItem from "@src/components/ListItem"
 import type { SwapTransaction } from "@src/features/balance-history/types"
@@ -15,22 +15,6 @@ import clsx from "clsx"
 import { useMemo } from "react"
 import type { Holding } from "../types/sharedTypes"
 import { FormattedCurrency } from "./shared/FormattedCurrency"
-
-function findTokenByAssetId(
-  tokenList: TokenInfo[],
-  tokenId: string
-): BaseTokenInfo | undefined {
-  for (const token of tokenList) {
-    if ("groupedTokens" in token) {
-      for (const t of token.groupedTokens) {
-        if (t.defuseAssetId === tokenId) return t
-      }
-    } else if (token.defuseAssetId === tokenId) {
-      return token
-    }
-  }
-  return undefined
-}
 
 const AssetsSkeleton = ({
   count,
