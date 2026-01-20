@@ -6,6 +6,7 @@ import { NavbarMobile } from "@src/components/Navbar/NavbarMobile"
 import PageBackground from "@src/components/PageBackground"
 import { useMixpanelBus } from "@src/hooks/useMixpanelBus"
 import { usePathLogging } from "@src/hooks/usePathLogging"
+import { WalletVerificationProvider } from "@src/providers/WalletVerificationProvider"
 import type { PropsWithChildren } from "react"
 import { NavbarDesktop } from "../Navbar/NavbarDesktop"
 import NetworkOutageNotification from "../NetworkOutageNotification"
@@ -30,6 +31,7 @@ const Layout: React.FC<PropsWithChildren> = ({ children }) => {
       <Footer />
       <NavbarMobile />
       <PageBackground />
+      <WalletVerificationProvider />
       <SystemStatus.Desktop />
     </div>
   )

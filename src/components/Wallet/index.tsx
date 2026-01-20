@@ -58,22 +58,17 @@ const ConnectWallet = () => {
         <Popover.Trigger>
           <button
             type="button"
-            className="flex items-center gap-4 py-4 px-3.5 rounded-2xl text-gray-400 hover:text-white hover:bg-gray-700 transition-colors w-full"
+            className="text-gray-400 text-sm font-medium"
             data-testid="sign-in-button"
           >
-            <div className="size-5 shrink-0" />
-            <span className="text-base/5 font-semibold">Sign in</span>
+            Sign in
           </button>
         </Popover.Trigger>
         <Popover.Content
-          side="right"
-          align="start"
-          sideOffset={16}
-          collisionPadding={16}
           maxWidth={{ initial: "90vw", xs: "480px" }}
           minWidth={{ initial: "300px", xs: "330px" }}
           maxHeight={{ initial: "70vh", sm: "90vh" }}
-          className="dark:bg-black-800 bg-white rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700"
+          className="md:mr-[48px] dark:bg-black-800 rounded-2xl bg-white"
         >
           <Text size="1">How do you want to sign in?</Text>
           <div className="w-full grid grid-cols-1 gap-4 mt-4">
@@ -368,52 +363,49 @@ const ConnectWallet = () => {
   }
 
   return (
-    <Popover.Root>
-      <Popover.Trigger>
-        <button
-          type="button"
-          className="flex items-center gap-4 py-4 px-3.5 rounded-2xl text-gray-400 hover:text-white hover:bg-gray-700 transition-colors w-full"
-          data-testid="account-indicator"
-        >
-          {state.chainType !== "webauthn" ? (
-            <>
-              <div className="size-5 shrink-0 flex items-center justify-center">
-                <div className="size-2.5 rounded-full bg-green-500" />
-              </div>
-              <span className="text-base/5 font-semibold">
-                {shortAccountId}
-              </span>
-            </>
-          ) : (
-            <>
-              <div className="size-5 shrink-0 flex items-center justify-center relative">
-                <Image
-                  src="/static/icons/wallets/webauthn.svg"
-                  alt=""
-                  width={20}
-                  height={20}
-                  className="rounded-full size-5"
-                />
-                <div className="absolute -right-1 -bottom-1 rounded-full size-3 bg-white text-black text-[8px] flex items-center justify-center">
-                  {mapStringToEmojis(state.address, { count: 1 }).join("")}
+    <div className="flex gap-2">
+      <Popover.Root>
+        <Popover.Trigger>
+          <button
+            type="button"
+            className="text-gray-400 text-sm font-medium"
+            data-testid="account-indicator"
+          >
+            {state.chainType !== "webauthn" ? (
+              shortAccountId
+            ) : (
+              <div className="flex items-center gap-2">
+                <div className="flex">
+                  <Image
+                    src="/static/icons/wallets/webauthn.svg"
+                    alt=""
+                    width={24}
+                    height={24}
+                    className="rounded-full size-6 bg-black"
+                    style={{
+                      mask: "radial-gradient(13px at 31px 50%, transparent 99%, rgb(255, 255, 255) 100%)",
+                    }}
+                  />
+                  <div className="-ml-1 rounded-full size-6 bg-white text-black text-base flex items-center justify-center">
+                    {mapStringToEmojis(state.address, { count: 1 }).join("")}
+                  </div>
                 </div>
+
+                <div className="font-bold text-gray-12">passkey</div>
               </div>
-              <span className="text-base/5 font-semibold">Passkey</span>
-            </>
-          )}
-        </button>
-      </Popover.Trigger>
-      <Popover.Content
-        side="bottom"
-        align="start"
-        sideOffset={8}
-        collisionPadding={16}
-        minWidth={{ initial: "300px", xs: "330px" }}
-        className="!bg-white dark:!bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-0 w-[var(--radix-popover-trigger-width)]"
-      >
-        <WalletConnections />
-      </Popover.Content>
-    </Popover.Root>
+            )}
+          </button>
+        </Popover.Trigger>
+        <Popover.Content
+          minWidth={{ initial: "300px", xs: "330px" }}
+          className="mt-1 md:mr-[48px] max-w-xs dark:bg-black-800 rounded-2xl bg-white"
+        >
+          <div className="flex flex-col gap-5">
+            <WalletConnections />
+          </div>
+        </Popover.Content>
+      </Popover.Root>
+    </div>
   )
 }
 

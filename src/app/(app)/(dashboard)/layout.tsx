@@ -1,17 +1,12 @@
-"use client"
-
-import {} from "@heroicons/react/16/solid"
 import ActivityDock from "@src/components/ActivityDock"
 import { NavbarDesktop } from "@src/components/Navbar/NavbarDesktop"
 import UserMenu from "@src/components/UserMenu"
-import ConnectWallet from "@src/components/Wallet"
-import { WalletVerificationProvider } from "@src/providers/WalletVerificationProvider"
 import type { ReactNode } from "react"
 
 const DashboardLayout = ({ children }: { children: ReactNode }) => (
   <div
     id="dashboard-layout"
-    className="relative flex min-h-svh w-full bg-gray-25 lg:bg-gray-800"
+    className="relative isolate flex min-h-svh w-full bg-gray-25 lg:bg-gray-800"
   >
     {/* Sidebar on desktop */}
     <div className="fixed inset-y-0 left-0 w-72 max-lg:hidden py-6 px-4 flex flex-col">
@@ -20,8 +15,6 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => (
       <div className="my-6 border-t border-gray-700" />
 
       <NavbarDesktop />
-      <div className="h-5" />
-      <ConnectWallet />
 
       <ActivityDock />
     </div>
@@ -32,8 +25,6 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => (
         <div className="mx-auto max-w-[464px]">{children}</div>
       </div>
     </main>
-
-    <WalletVerificationProvider />
   </div>
 )
 
