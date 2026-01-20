@@ -34,6 +34,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      contacts: {
+        Row: {
+          account_id: string
+          address: string
+          contact_id: string
+          created_at: string | null
+          name: string
+          network: string
+          updated_at: string | null
+        }
+        Insert: {
+          account_id: string
+          address: string
+          contact_id?: string
+          created_at?: string | null
+          name: string
+          network: string
+          updated_at?: string | null
+        }
+        Update: {
+          account_id?: string
+          address?: string
+          contact_id?: string
+          created_at?: string | null
+          name?: string
+          network?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       gifts: {
         Row: {
           created_at: string | null
