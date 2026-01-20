@@ -1,5 +1,5 @@
 import { db } from "@src/utils/drizzle"
-import { and, eq } from "drizzle-orm"
+import { and, eq, ilike, or } from "drizzle-orm"
 import { type Contact, type NewContact, contactsTable } from "./schema"
 
 /**
@@ -28,15 +28,29 @@ export async function getContactById(
 }
 
 /**
- * Get contacts by account_id
+ * Get contacts by account_id with optional search
  */
 export async function getContactsByAccountId(
-  accountId: string
+  accountId: string,
+  search?: string
 ): Promise<Contact[]> {
+  const conditions = [eq(contactsTable.account_id, accountId)]
+
+  if (search?.trim()) {
+    const searchPattern = `%${search.trim()}%`
+    const searchCondition = or(
+      ilike(contactsTable.name, searchPattern),
+      ilike(contactsTable.address, searchPattern)
+    )
+    if (searchCondition) {
+      conditions.push(searchCondition)
+    }
+  }
+
   return db
     .select()
     .from(contactsTable)
-    .where(eq(contactsTable.account_id, accountId))
+    .where(and(...conditions))
 }
 
 /**
