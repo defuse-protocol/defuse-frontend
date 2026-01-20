@@ -113,6 +113,12 @@ export const NearWalletProvider: FC<{ children: ReactNode }> = ({
         throw new Error("Connector not initialized")
       }
       const wallet = await connector.wallet()
+      const accounts = await wallet.getAccounts()
+      if (accounts.length === 0) {
+        throw new Error(
+          "No accounts available for signing. Please reconnect your wallet."
+        )
+      }
       const signatureData = await wallet.signMessage(message)
       return { signatureData, signedData: message }
     },

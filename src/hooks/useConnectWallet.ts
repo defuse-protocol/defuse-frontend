@@ -294,7 +294,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
     }
   }
 
-  state.isVerified = useVerifiedWalletsStore(
+  const isVerifiedFromStore = useVerifiedWalletsStore(
     useCallback(
       (store) =>
         state.address != null
@@ -303,6 +303,8 @@ export const useConnectWallet = (): ConnectWalletAction => {
       [state.address]
     )
   )
+
+  state.isVerified = isVerifiedFromStore
 
   const impersonatedUser = useImpersonatedUser()
   if (impersonatedUser) {
