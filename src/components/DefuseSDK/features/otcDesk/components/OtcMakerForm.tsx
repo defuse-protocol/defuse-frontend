@@ -324,12 +324,12 @@ export function OtcMakerForm({
             handleSelectToken={() =>
               openModalSelectAssets(SWAP_TOKEN_FLAGS.IN, formValues.tokenIn)
             }
-            value={formValues.amountIn}
-            onChange={(e) =>
-              formValuesRef.trigger.updateAmountIn({
-                value: e.target.value,
-              })
-            }
+            registration={{
+              name: "amountIn",
+              value: formValues.amountIn,
+              onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+                formValuesRef.trigger.updateAmountIn({ value: e.target.value }),
+            }}
           />
 
           <div className="flex items-center justify-center -my-3.5">
@@ -358,12 +358,14 @@ export function OtcMakerForm({
             handleSelectToken={() =>
               openModalSelectAssets(SWAP_TOKEN_FLAGS.OUT, formValues.tokenOut)
             }
-            value={formValues.amountOut}
-            onChange={(e) =>
-              formValuesRef.trigger.updateAmountOut({
-                value: e.target.value,
-              })
-            }
+            registration={{
+              name: "amountOut",
+              value: formValues.amountOut,
+              onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+                formValuesRef.trigger.updateAmountOut({
+                  value: e.target.value,
+                }),
+            }}
           />
 
           <div className="mt-5 flex justify-between items-center">
