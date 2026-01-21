@@ -180,20 +180,9 @@ export function OtcTakerForm({
   const balanceAmountIn = balances?.tokenIn?.amount ?? 0n
   const balanceAmountOut = balances?.tokenOut?.amount ?? 0n
 
-  const tradeSuccess = confirmTradeMutation.data?.isOk() ?? false
   const tradeError = confirmTradeMutation.data?.isErr()
     ? confirmTradeMutation.data.unwrapErr().reason
     : undefined
-
-  if (tradeSuccess) {
-    return (
-      <div className="text-center py-8">
-        <div className="text-green-600 text-xl font-semibold">
-          Trade completed successfully!
-        </div>
-      </div>
-    )
-  }
 
   return (
     <form
