@@ -1,4 +1,7 @@
-import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
+import type {
+  AuthMethod,
+  BlockchainEnum,
+} from "@defuse-protocol/internal-utils"
 import { UserCircleIcon } from "@heroicons/react/20/solid"
 import {
   type Contact,
@@ -8,6 +11,7 @@ import {
 import Button from "@src/components/Button"
 import ErrorMessage from "@src/components/ErrorMessage"
 import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
+import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import useSearchNetworks from "@src/hooks/useFilterNetworks"
 import { WalletIcon } from "@src/icons"
 import clsx from "clsx"
@@ -49,6 +53,10 @@ const ModalAddEditContact = ({
   const [isScrolled, setIsScrolled] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const { state } = useConnectWallet()
+  const userAddress = state.address
+  // ChainType enum values match AuthMethod values, so we can safely cast
+  const chainType = state.chainType as AuthMethod | undefined
 
   const isEditing = Boolean(contact)
 
@@ -117,6 +125,8 @@ const ModalAddEditContact = ({
           name: data.name,
           address: data.address,
           blockchain: data.blockchain,
+          userAddress,
+          chainType,
         })
 
         if (!result.ok) {
@@ -128,6 +138,8 @@ const ModalAddEditContact = ({
           name: data.name,
           address: data.address,
           blockchain: data.blockchain,
+          userAddress,
+          chainType,
         })
 
         if (!result.ok) {

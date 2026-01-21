@@ -1,6 +1,9 @@
 "use server"
 
-import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
+import type {
+  AuthMethod,
+  BlockchainEnum,
+} from "@defuse-protocol/internal-utils"
 import {
   createContact as createContactRepository,
   deleteContact as deleteContactRepository,
@@ -10,6 +13,16 @@ import {
   updateContact as updateContactRepository,
 } from "@src/app/(app)/(auth)/contacts/_utils/contacts-repository"
 import type { Contact as ContactSchema } from "@src/app/(app)/(auth)/contacts/_utils/schema"
+import {
+  renderRecipientAddressError,
+  validationRecipientAddress,
+} from "@src/components/DefuseSDK/features/withdraw/components/WithdrawForm/components/RecipientSubForm/validationRecipientAddress"
+import type { SupportedChainName } from "@src/components/DefuseSDK/types/base"
+import {
+  assetNetworkAdapter,
+  reverseAssetNetworkAdapter,
+} from "@src/components/DefuseSDK/utils/adapters"
+import { isSupportedChainName } from "@src/components/DefuseSDK/utils/blockchain"
 import { getAccountIdFromToken } from "@src/utils/dummyAuth"
 import { logger } from "@src/utils/logger"
 import { cookies } from "next/headers"
@@ -22,14 +35,12 @@ const AUTH_TOKEN_KEY = "defuse_auth_token"
 const CreateContactFormSchema = v.object({
   address: v.pipe(v.string(), v.nonEmpty("Address is required")),
   name: v.pipe(v.string(), v.nonEmpty("Name is required")),
-  blockchain: v.pipe(v.string(), v.nonEmpty("Blockchain is required")),
 })
 
 const UpdateContactFormSchema = v.object({
   contactId: v.pipe(v.string(), v.uuid("Contact ID must be a valid UUID")),
   address: v.pipe(v.string(), v.nonEmpty("Address is required")),
   name: v.pipe(v.string(), v.nonEmpty("Name is required")),
-  blockchain: v.pipe(v.string(), v.nonEmpty("Blockchain is required")),
 })
 
 const DeleteContactFormSchema = v.object({
@@ -72,14 +83,24 @@ export async function getContacts(input?: {
 
     const contactsData = await getContactsByAccountId(account_id, input?.search)
 
-    const contacts: Array<Contact> = contactsData.map((contact) => ({
-      contactId: contact.contactId,
-      account_id: contact.account_id,
-      address: contact.address,
-      name: contact.name,
-      blockchain: contact.blockchain as BlockchainEnum,
-      id: contact.contactId,
-    }))
+    const contacts: Array<Contact> = contactsData
+      .map((contact) => {
+        if (!isSupportedChainName(contact.blockchain)) {
+          return null
+        }
+
+        const blockchain: SupportedChainName = contact.blockchain
+        const blockchainEnum = assetNetworkAdapter[blockchain]
+        return {
+          contactId: contact.contactId,
+          account_id: contact.account_id,
+          address: contact.address,
+          name: contact.name,
+          blockchain: blockchainEnum,
+          id: contact.contactId,
+        }
+      })
+      .filter((contact): contact is Contact => contact !== null)
 
     return { ok: true, value: contacts }
   } catch (error) {
@@ -91,7 +112,9 @@ export async function getContacts(input?: {
 export async function createContact(input: {
   name: string
   address: string
-  blockchain: string
+  blockchain: BlockchainEnum
+  userAddress?: string
+  chainType?: AuthMethod
 }): Promise<ActionResult<ContactEntity>> {
   const cookieStore = await cookies()
   const token = cookieStore.get(AUTH_TOKEN_KEY)?.value
@@ -129,10 +152,33 @@ export async function createContact(input: {
     return { ok: false, error: errorMessage }
   }
 
+  const blockchain = reverseAssetNetworkAdapter[input.blockchain]
+
+  const validationResult = await validationRecipientAddress(
+    data.output.address,
+    blockchain,
+    input.userAddress ?? "",
+    input.chainType
+  )
+
+  if (validationResult.isErr()) {
+    logger.warn("Contact address validation failed", {
+      source: "create-contact",
+      action: "address-validation-error",
+      address: data.output.address,
+      blockchain,
+      error: validationResult.unwrapErr(),
+    })
+    return {
+      ok: false,
+      error: renderRecipientAddressError(validationResult.unwrapErr()),
+    }
+  }
+
   const existingContact = await getContactByAccountAddressAndBlockchain(
     account_id,
     data.output.address,
-    data.output.blockchain
+    blockchain
   )
 
   if (existingContact) {
@@ -141,7 +187,7 @@ export async function createContact(input: {
       action: "duplicate-contact",
       account_id,
       address: data.output.address,
-      blockchain: data.output.blockchain,
+      blockchain,
     })
     return { ok: false, error: "Contact already exists" }
   }
@@ -150,7 +196,7 @@ export async function createContact(input: {
     account_id,
     address: data.output.address,
     name: data.output.name,
-    blockchain: data.output.blockchain,
+    blockchain,
   })
 
   if (!entity) {
@@ -179,7 +225,9 @@ export async function updateContact(input: {
   contactId: string
   name: string
   address: string
-  blockchain: string
+  blockchain: BlockchainEnum
+  userAddress?: string
+  chainType?: AuthMethod
 }): Promise<ActionResult<ContactEntity>> {
   const cookieStore = await cookies()
   const token = cookieStore.get(AUTH_TOKEN_KEY)?.value
@@ -217,7 +265,28 @@ export async function updateContact(input: {
     return { ok: false, error: errorMessage }
   }
 
-  // TODO: Add wallet address validation same as in recipient form on withdraw
+  const blockchain = reverseAssetNetworkAdapter[input.blockchain]
+
+  const validationResult = await validationRecipientAddress(
+    data.output.address,
+    blockchain,
+    input.userAddress ?? "",
+    input.chainType
+  )
+
+  if (validationResult.isErr()) {
+    logger.warn("Contact address validation failed", {
+      source: "update-contact",
+      action: "address-validation-error",
+      address: data.output.address,
+      blockchain,
+      error: validationResult.unwrapErr(),
+    })
+    return {
+      ok: false,
+      error: renderRecipientAddressError(validationResult.unwrapErr()),
+    }
+  }
 
   // Check if contact exists and belongs to the account
   const existingContact = await getContactById(data.output.contactId)
@@ -246,7 +315,7 @@ export async function updateContact(input: {
   const updatedContact = await updateContactRepository(data.output.contactId, {
     address: data.output.address,
     name: data.output.name,
-    blockchain: data.output.blockchain,
+    blockchain,
   })
 
   if (!updatedContact) {
