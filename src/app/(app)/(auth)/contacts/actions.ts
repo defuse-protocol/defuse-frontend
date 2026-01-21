@@ -13,16 +13,14 @@ import {
   updateContact as updateContactRepository,
 } from "@src/app/(app)/(auth)/contacts/_utils/contacts-repository"
 import type { Contact as ContactSchema } from "@src/app/(app)/(auth)/contacts/_utils/schema"
-import {
-  renderRecipientAddressError,
-  validationRecipientAddress,
-} from "@src/components/DefuseSDK/features/withdraw/components/WithdrawForm/components/RecipientSubForm/validationRecipientAddress"
+import { validationRecipientAddress } from "@src/components/DefuseSDK/features/withdraw/components/WithdrawForm/components/RecipientSubForm/validationRecipientAddress"
 import type { SupportedChainName } from "@src/components/DefuseSDK/types/base"
 import {
   assetNetworkAdapter,
   reverseAssetNetworkAdapter,
 } from "@src/components/DefuseSDK/utils/adapters"
 import { isSupportedChainName } from "@src/components/DefuseSDK/utils/blockchain"
+import { renderRecipientAddressError } from "@src/components/DefuseSDK/utils/validationErrors"
 import { getAccountIdFromToken } from "@src/utils/dummyAuth"
 import { logger } from "@src/utils/logger"
 import { cookies } from "next/headers"
