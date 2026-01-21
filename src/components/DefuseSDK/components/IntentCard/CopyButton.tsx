@@ -1,5 +1,5 @@
-import { CheckIcon, CopyIcon } from "@radix-ui/react-icons"
-import { IconButton, Slot } from "@radix-ui/themes"
+import { CheckIcon, Square2StackIcon } from "@heroicons/react/16/solid"
+import { Slot } from "radix-ui"
 import { type ReactNode, useEffect, useRef, useState } from "react"
 
 interface CopyButtonProps {
@@ -11,15 +11,17 @@ export function CopyButton({ text, ariaLabel }: CopyButtonProps) {
   return (
     <Copy text={text}>
       {(copied) => (
-        <IconButton
+        <button
           type="button"
-          size="1"
-          variant="ghost"
-          color="gray"
           aria-label={ariaLabel}
+          className="flex items-center justify-center size-5 text-gray-400 hover:text-gray-700"
         >
-          {copied ? <CheckIcon /> : <CopyIcon />}
-        </IconButton>
+          {copied ? (
+            <CheckIcon className="size-4" />
+          ) : (
+            <Square2StackIcon className="size-4" />
+          )}
+        </button>
       )}
     </Copy>
   )
@@ -42,7 +44,7 @@ export function Copy({
   }, [])
 
   return (
-    <Slot
+    <Slot.Root
       onClick={async () => {
         abortCtrlRef.current?.abort()
         abortCtrlRef.current = new AbortController()
@@ -81,6 +83,6 @@ export function Copy({
       }}
     >
       {children(copied)}
-    </Slot>
+    </Slot.Root>
   )
 }

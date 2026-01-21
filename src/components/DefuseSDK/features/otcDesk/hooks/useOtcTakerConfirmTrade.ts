@@ -1,6 +1,8 @@
 import type { MultiPayload } from "@defuse-protocol/contract-types"
 import { solverRelay } from "@defuse-protocol/internal-utils"
 import { authIdentity } from "@defuse-protocol/internal-utils"
+import { base64 } from "@scure/base"
+import { bridgeSDK } from "@src/components/DefuseSDK/constants/bridgeSdk"
 import { useMutation } from "@tanstack/react-query"
 import { Err, type Result } from "@thames/monads"
 import { useContext } from "react"
@@ -8,7 +10,7 @@ import {
   type SignerCredentials,
   formatSignedIntent,
 } from "../../../core/formatters"
-import { createSwapIntentMessage } from "../../../core/messages"
+import { createSwapIntentMessage, minutesFromNow } from "../../../core/messages"
 import {
   type PublishIntentsErr,
   convertPublishIntentsToLegacyFormat,
@@ -66,11 +68,17 @@ export function useOtcTakerConfirmTrade({
       )
 
       const { quotes, quoteParams, tokenDelta } = preparation
+      const { nonce, deadline } = await bridgeSDK
+        .intentBuilder()
+        .setDeadline(new Date(minutesFromNow(5)))
+        .build()
 
       const walletMessage = createSwapIntentMessage(tokenDelta, {
         signerId,
         referral,
         memo: "OTC_FILL",
+        nonce: base64.decode(nonce),
+        deadlineTimestamp: Date.parse(deadline),
       })
 
       const signatureResult = await signIntent({

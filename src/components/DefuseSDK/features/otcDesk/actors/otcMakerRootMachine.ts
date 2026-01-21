@@ -70,6 +70,8 @@ type EventType =
   | {
       type: "START_OVER"
     }
+  | { type: "REQUEST_REVIEW" }
+  | { type: "CANCEL_REVIEW" }
   | {
       type: "REQUEST_SIGN"
       signerCredentials: SignerCredentials
@@ -251,10 +253,25 @@ export const otcMakerRootMachine = setup({
   states: {
     editing: {
       on: {
+        REQUEST_REVIEW: {
+          target: ".reviewing",
+          guard: "isFormValid",
+        },
+        CANCEL_REVIEW: {
+          target: ".idle",
+          actions: "clearError",
+        },
         REQUEST_SIGN: {
           target: "signing",
           guard: "isFormValid",
         },
+      },
+
+      initial: "idle",
+
+      states: {
+        idle: {},
+        reviewing: {},
       },
     },
     signing: {
@@ -298,7 +315,10 @@ export const otcMakerRootMachine = setup({
             },
             {
               type: "setError",
-              params: { tag: "err", value: { reason: "EXCEPTION" } },
+              params: {
+                tag: "err",
+                value: { reason: "EXCEPTION", error: null },
+              },
             },
           ],
         },
@@ -349,7 +369,10 @@ export const otcMakerRootMachine = setup({
             },
             {
               type: "setError",
-              params: { tag: "err", value: { reason: "EXCEPTION" } },
+              params: {
+                tag: "err",
+                value: { reason: "EXCEPTION", error: null },
+              },
             },
           ],
         },

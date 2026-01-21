@@ -2,7 +2,7 @@ import { XMarkIcon } from "@heroicons/react/24/solid"
 import Button from "@src/components/Button"
 import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
-import { getTokenId } from "@src/components/DefuseSDK/utils/token"
+import { getDefuseAssetId } from "@src/components/DefuseSDK/utils/token"
 import DepositPromo from "@src/components/DepositPromo"
 import ListItem from "@src/components/ListItem"
 import ListItemsSkeleton from "@src/components/ListItemsSkeleton"
@@ -14,7 +14,11 @@ const Assets = ({
   assets,
   isPending,
   isError,
-}: { assets: Holding[] | undefined; isPending: boolean; isError: boolean }) => {
+}: {
+  assets: Holding[] | undefined
+  isPending: boolean
+  isError: boolean
+}) => {
   if (isPending) {
     return (
       <section className="mt-9">
@@ -87,7 +91,7 @@ const Assets = ({
 
           return (
             <ListItem
-              key={getTokenId(token)}
+              key={getDefuseAssetId(token)}
               popoverContent={
                 <>
                   <Button size="sm" href="/send">

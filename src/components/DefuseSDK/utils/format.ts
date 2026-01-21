@@ -84,6 +84,7 @@ export function formatUsdAmount(value: number): string {
   }
 }
 
+// From new-frontend
 export function formatDisplayAmount(amount: string, maxDecimals = 5): string {
   if (!amount) return "0"
   const num = Number.parseFloat(amount)
@@ -100,4 +101,104 @@ export function formatDisplayAmount(amount: string, maxDecimals = 5): string {
     minimumFractionDigits: 0,
     maximumFractionDigits: maxDecimals,
   })
+}
+
+export function formatAmount(amount: string): string {
+  const num = Number.parseFloat(amount)
+  if (Number.isNaN(num)) return amount
+
+  if (num >= 1000) {
+    return num.toLocaleString(undefined, { maximumFractionDigits: 0 })
+  }
+  if (num >= 1) {
+    return num.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })
+  }
+  if (num >= 0.0001) {
+    return num.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 4,
+    })
+  }
+  return num.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 6,
+  })
+}
+
+export function formatUsd(amount: string): string {
+  const num = Number.parseFloat(amount)
+  if (Number.isNaN(num) || num === 0) return ""
+
+  return num.toLocaleString(undefined, {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
+}
+
+export function formatRelativeTime(dateString: string): string {
+  const date = new Date(dateString)
+  if (Number.isNaN(date.getTime())) return dateString
+
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  const diffMins = Math.floor(diffMs / 60000)
+  const diffHours = Math.floor(diffMs / 3600000)
+  const diffDays = Math.floor(diffMs / 86400000)
+
+  if (diffMins < 1) return "Just now"
+  if (diffMins < 60) return `${diffMins}m ago`
+  if (diffHours < 24) return `${diffHours}h ago`
+  if (diffDays < 7) return `${diffDays}d ago`
+
+  return date.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  })
+}
+
+export function formatFullDate(dateString: string): string {
+  const date = new Date(dateString)
+  if (Number.isNaN(date.getTime())) return dateString
+
+  return date.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  })
+}
+
+export function formatDateISO(dateString: string): string {
+  const date = new Date(dateString)
+  if (Number.isNaN(date.getTime())) return dateString
+
+  return new Intl.DateTimeFormat("en-CA").format(date)
+}
+
+const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000
+
+export function formatSmartDate(dateString: string): string {
+  const date = new Date(dateString)
+  if (Number.isNaN(date.getTime())) return dateString
+
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+
+  // Within 24 hours: show relative time
+  if (diffMs < TWENTY_FOUR_HOURS_MS) {
+    const diffMins = Math.floor(diffMs / 60000)
+    if (diffMins < 1) return "now"
+    if (diffMins < 60) return `${diffMins}m ago`
+    const diffHours = Math.floor(diffMins / 60)
+    return `${diffHours}h ago`
+  }
+
+  // After 24 hours: show YYYY-MM-dd
+  return formatDateISO(dateString)
 }

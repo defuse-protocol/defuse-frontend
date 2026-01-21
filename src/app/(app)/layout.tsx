@@ -23,6 +23,7 @@ import { MixpanelProvider } from "@src/providers/MixpanelProvider"
 import { NearWalletProvider } from "@src/providers/NearWalletProvider"
 import { SystemStatusProvider } from "@src/providers/SystemStatusProvider"
 import { TronWalletProvider } from "@src/providers/TronWalletProvider"
+import { WalletVerificationProvider } from "@src/providers/WalletVerificationProvider"
 import { APP_ENV, VERCEL_PROJECT_PRODUCTION_URL } from "@src/utils/environment"
 
 export const viewport: Viewport = {
@@ -146,6 +147,7 @@ const AppRootLayout = async ({
                               <PreloadFeatureFlags>
                                 {children}
                               </PreloadFeatureFlags>
+                              <WalletVerificationProvider />
                             </MixpanelProvider>
                           </WebAuthnProvider>
                           <SentryTracer />

@@ -31,6 +31,14 @@ export const settings: Settings = {
       description:
         "Deposit tokens from any chain into NEAR Intents. Kick off cross-chain transactions, DeFi automation, and smart settlements.",
     },
+    deals: {
+      title: "NEAR Intents | Deals",
+      description: "View your private deals on NEAR Intents.",
+    },
+    deal: {
+      title: "NEAR Intents | Accept a Deal Offer",
+      description: "Review and accept a deal offer from a counterparty.",
+    },
     contacts: {
       title: "NEAR Intents | Contacts",
       description: "View your contacts on NEAR Intents.",

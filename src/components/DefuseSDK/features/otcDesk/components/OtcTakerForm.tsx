@@ -1,12 +1,11 @@
 import type { MultiPayload } from "@defuse-protocol/contract-types"
 import { authIdentity } from "@defuse-protocol/internal-utils"
-import { ArrowDown } from "@phosphor-icons/react"
+import { ArrowDownIcon } from "@heroicons/react/20/solid"
+import Alert from "@src/components/Alert"
+import Button from "@src/components/Button"
 import { useQuery } from "@tanstack/react-query"
 import { None } from "@thames/monads"
-import clsx from "clsx"
 import { AuthGate } from "../../../components/AuthGate"
-import { BlockMultiBalances } from "../../../components/Block/BlockMultiBalances"
-import { ButtonCustom } from "../../../components/Button/ButtonCustom"
 import { nearClient } from "../../../constants/nearClient"
 import type { SignerCredentials } from "../../../core/formatters"
 import { useTokensUsdPrices } from "../../../hooks/useTokensUsdPrices"
@@ -14,7 +13,7 @@ import { getDepositedBalances } from "../../../services/defuseBalanceService"
 import type { TokenInfo } from "../../../types/base"
 import type { RenderHostAppLink } from "../../../types/hostAppLink"
 import { assert } from "../../../utils/assert"
-import { formatTokenValue, formatUsdAmount } from "../../../utils/format"
+import { formatTokenValue } from "../../../utils/format"
 import getTokenUsdPrice from "../../../utils/getTokenUsdPrice"
 import {
   computeTotalBalanceDifferentDecimals,
@@ -22,7 +21,7 @@ import {
   getUnderlyingBaseTokenInfos,
   negateTokenValue,
 } from "../../../utils/tokenUtils"
-import { TokenAmountInputCard } from "../../deposit/components/DepositForm/TokenAmountInputCard"
+import TokenInputCard from "../../deposit/components/DepositForm/TokenInputCard"
 import { useOtcTakerConfirmTrade } from "../hooks/useOtcTakerConfirmTrade"
 import { useOtcTakerPreparation } from "../hooks/useOtcTakerPreparation"
 import type { SignMessage } from "../types/sharedTypes"
@@ -113,6 +112,10 @@ export function OtcTakerForm({
     takerId: signerId,
   })
 
+  const preparationError = preparation.data?.isErr()
+    ? preparation.data.unwrapErr().reason
+    : undefined
+
   const confirmTradeMutation = useOtcTakerConfirmTrade({
     tradeId,
     makerMultiPayload,
@@ -177,163 +180,114 @@ export function OtcTakerForm({
   const balanceAmountIn = balances?.tokenIn?.amount ?? 0n
   const balanceAmountOut = balances?.tokenOut?.amount ?? 0n
 
+  const tradeError = confirmTradeMutation.data?.isErr()
+    ? confirmTradeMutation.data.unwrapErr().reason
+    : undefined
+
   return (
-    <div className="flex flex-col">
-      {/* Header Section */}
-      <div className="flex flex-col items-start text-center mb-5">
-        <div className="text-2xl font-black text-gray-12 mb-1.5">
-          Complete swap
-        </div>
-        <div className="text-sm font-medium text-gray-11">
-          Pay the specified amount to finalize the transaction.
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+
+        if (
+          !confirmTradeMutation.isPending &&
+          signerCredentials != null &&
+          preparation.data != null &&
+          preparation.data.isOk()
+        ) {
+          confirmTradeMutation.mutate({
+            signerCredentials,
+            preparation: preparation.data.unwrap(),
+          })
+        }
+      }}
+    >
+      <TokenInputCard
+        label="You pay"
+        readOnly
+        balance={balanceAmountIn}
+        decimals={totalAmountIn.decimals}
+        symbol={tokenIn.symbol}
+        usdAmount={usdAmountIn}
+        selectedToken={tokenIn}
+        value={formatTokenValue(totalAmountIn.amount, totalAmountIn.decimals)}
+      />
+
+      <div className="flex items-center justify-center -my-3.5">
+        <div className="size-9 flex items-center justify-center bg-white border border-gray-200 rounded-lg text-gray-400">
+          <ArrowDownIcon className="size-5" />
         </div>
       </div>
 
-      {confirmTradeMutation.data?.match({
-        ok: () => <div>Swapped!</div>,
-        err: (err) => <div className="text-red-700">{err.reason}</div>,
-      })}
+      <TokenInputCard
+        label="You receive"
+        readOnly
+        balance={balanceAmountOut}
+        decimals={totalAmountOut.decimals}
+        symbol={tokenOut.symbol}
+        usdAmount={usdAmountOut}
+        selectedToken={tokenOut}
+        value={formatTokenValue(totalAmountOut.amount, totalAmountOut.decimals)}
+      />
 
-      <div className="flex flex-col items-center">
-        <TokenAmountInputCard
-          variant="2"
-          labelSlot={
-            <label
-              htmlFor="otc-maker-amount-out"
-              className="font-bold text-label text-sm"
-            >
-              Pay
-            </label>
-          }
-          inputSlot={
-            <TokenAmountInputCard.Input
-              readOnly
-              name="amount"
-              value={formatTokenValue(
-                totalAmountIn.amount,
-                totalAmountIn.decimals
-              )}
-            />
-          }
-          tokenSlot={<TokenAmountInputCard.DisplayToken token={tokenIn} />}
-          balanceSlot={
-            <BlockMultiBalances
-              balance={balanceAmountIn}
-              decimals={balances?.tokenIn?.decimals ?? 0}
-              className={clsx(
-                "static!",
-                balances?.tokenIn == null && "invisible"
-              )}
-              maxButtonSlot={
-                <BlockMultiBalances.DisplayMaxButton
-                  balance={balanceAmountIn}
-                  disabled
-                />
-              }
-              halfButtonSlot={
-                <BlockMultiBalances.DisplayHalfButton
-                  balance={balanceAmountIn}
-                  disabled
-                />
-              }
-            />
-          }
-          priceSlot={
-            <TokenAmountInputCard.DisplayPrice>
-              {usdAmountIn !== null && usdAmountIn > 0
-                ? formatUsdAmount(usdAmountIn)
-                : null}
-            </TokenAmountInputCard.DisplayPrice>
-          }
-        />
-
-        <div className="size-10 -my-3.5 rounded-[10px] bg-accent-1 flex items-center justify-center z-10">
-          <ArrowDown className="size-5" weight="bold" />
-        </div>
-
-        <TokenAmountInputCard
-          variant="2"
-          labelSlot={
-            <label
-              htmlFor="otc-maker-amount-out"
-              className="font-bold text-label text-sm"
-            >
-              Receive
-            </label>
-          }
-          inputSlot={
-            <TokenAmountInputCard.Input
-              readOnly
-              name="amount"
-              value={formatTokenValue(
-                totalAmountOut.amount,
-                totalAmountOut.decimals
-              )}
-            />
-          }
-          tokenSlot={<TokenAmountInputCard.DisplayToken token={tokenOut} />}
-          balanceSlot={
-            <BlockMultiBalances
-              balance={balanceAmountOut}
-              decimals={balances?.tokenOut?.decimals ?? 0}
-              className={clsx(
-                "static!",
-                balances?.tokenOut == null && "invisible"
-              )}
-              maxButtonSlot={
-                <BlockMultiBalances.DisplayMaxButton
-                  balance={balanceAmountOut}
-                  disabled
-                />
-              }
-              halfButtonSlot={
-                <BlockMultiBalances.DisplayHalfButton
-                  balance={balanceAmountOut}
-                  disabled
-                />
-              }
-            />
-          }
-          priceSlot={
-            <TokenAmountInputCard.DisplayPrice>
-              {usdAmountOut !== null && usdAmountOut > 0
-                ? formatUsdAmount(usdAmountOut)
-                : null}
-            </TokenAmountInputCard.DisplayPrice>
-          }
-        />
-      </div>
-
-      <AuthGate
-        renderHostAppLink={renderHostAppLink}
-        shouldRender={isLoggedIn}
-        className="mt-5"
-      >
-        <ButtonCustom
-          type="button"
-          size="lg"
-          className="mt-5"
+      <AuthGate renderHostAppLink={renderHostAppLink} shouldRender={isLoggedIn}>
+        <Button
+          type="submit"
+          size="xl"
+          className="mt-6"
+          fullWidth
           variant={confirmTradeMutation.isPending ? "secondary" : "primary"}
-          onClick={() => {
-            if (
-              !confirmTradeMutation.isPending &&
-              signerCredentials != null &&
-              preparation.data != null &&
-              preparation.data.isOk()
-            ) {
-              confirmTradeMutation.mutate({
-                signerCredentials,
-                preparation: preparation.data.unwrap(),
-              })
-            }
-          }}
-          isLoading={confirmTradeMutation.isPending}
+          loading={confirmTradeMutation.isPending}
+          disabled={Boolean(preparationError)}
         >
-          {confirmTradeMutation.isPending
-            ? "Confirm in your wallet..."
-            : "Confirm swap"}
-        </ButtonCustom>
+          {renderButtonText({
+            error: preparationError,
+            isPending: confirmTradeMutation.isPending,
+          })}
+        </Button>
       </AuthGate>
-    </div>
+
+      {tradeError && (
+        <Alert variant="error" className="mt-6">
+          {renderErrorMessage(tradeError)}
+        </Alert>
+      )}
+    </form>
   )
+}
+
+const renderButtonText = ({
+  isPending,
+  error,
+}: { isPending: boolean; error: string | undefined }) => {
+  if (isPending) {
+    return "Confirm in your wallet..."
+  }
+
+  if (error === "CANNOT_FILL_ORDER_DUE_TO_INSUFFICIENT_BALANCE") {
+    return "Insufficient balance"
+  }
+
+  if (error === "NO_QUOTES") {
+    return "No quotes available"
+  }
+
+  if (error === "INSUFFICIENT_AMOUNT") {
+    return "Amount too low"
+  }
+
+  if (error) {
+    return "Something went wrong"
+  }
+
+  return "Accept offer"
+}
+
+const renderErrorMessage = (error: string): string => {
+  switch (error) {
+    case "ERR_USER_DIDNT_SIGN":
+      return "It seems the message wasn’t signed in your wallet. Please try again."
+    default:
+      return error
+  }
 }

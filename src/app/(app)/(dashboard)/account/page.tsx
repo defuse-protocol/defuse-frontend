@@ -6,7 +6,7 @@ import Assets from "@src/components/DefuseSDK/features/account/components/Assets
 import Balance from "@src/components/DefuseSDK/features/account/components/Balance"
 import { useWatchHoldings } from "@src/components/DefuseSDK/features/account/hooks/useWatchHoldings"
 import { computeTotalUsdValue } from "@src/components/DefuseSDK/features/account/utils/holdingsUtils"
-import { getTokenId } from "@src/components/DefuseSDK/utils/token"
+import { getDefuseAssetId } from "@src/components/DefuseSDK/utils/token"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useTokenList } from "@src/hooks/useTokenList"
@@ -25,14 +25,11 @@ export default function AccountPage() {
       ? authIdentity.authHandleToIntentsUserId(userAddress, userChainType)
       : null
 
-  // This case for `flatTokenList=1`, where we combine all tokens into one list.
-  // So there might be tokens with the same `defuseAssetId`, so we need to remove them.
-  // Otherwise, we'll end up showing the same token multiple times.
   tokenList = useMemo(() => {
     const map = new Map()
     for (const t of tokenList) {
-      if (!map.has(getTokenId(t))) {
-        map.set(getTokenId(t), t)
+      if (!map.has(getDefuseAssetId(t))) {
+        map.set(getDefuseAssetId(t), t)
       }
     }
     return Array.from(map.values())
