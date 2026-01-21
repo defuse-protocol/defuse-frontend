@@ -1,6 +1,10 @@
-import type { Contact } from "@src/app/(app)/(dashboard)/contacts/page"
+import {
+  type Contact,
+  deleteContact,
+} from "@src/app/(app)/(auth)/contacts/actions"
 import Button from "@src/components/Button"
 import ErrorMessage from "@src/components/ErrorMessage"
+import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { BaseModalDialog } from "./ModalDialog"
 
@@ -17,6 +21,7 @@ const ModalRemoveContact = ({
   onCloseAnimationEnd,
   contact,
 }: ModalContactProps) => {
+  const router = useRouter()
   const {
     handleSubmit,
     setError,
@@ -25,15 +30,34 @@ const ModalRemoveContact = ({
   } = useForm()
 
   const onSubmit = async () => {
+    if (!contact?.contactId) {
+      setError("root", {
+        message: "Contact ID is missing. Please try again.",
+      })
+      return
+    }
+
     try {
-      // TODO: Remove contact
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      const result = await deleteContact({
+        contactId: contact.contactId,
+      })
+
+      if (!result.ok) {
+        setError("root", {
+          message: result.error,
+        })
+        return
+      }
 
       onClose()
-      // TODO: Add success toast
-    } catch {
+      router.refresh()
+      onCloseAnimationEnd?.()
+    } catch (error) {
       setError("root", {
-        message: "Failed to remove contact. Please try again.",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to remove contact. Please try again.",
       })
     }
   }

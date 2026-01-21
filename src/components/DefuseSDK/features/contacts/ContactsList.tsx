@@ -1,9 +1,7 @@
 "use client"
-
-import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import { PencilSquareIcon, XCircleIcon } from "@heroicons/react/16/solid"
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid"
-import type { Contact } from "@src/app/(app)/(dashboard)/contacts/page"
+import type { Contact } from "@src/app/(app)/(auth)/contacts/actions"
 import Button from "@src/components/Button"
 import ModalAddEditContact from "@src/components/DefuseSDK/components/Modal/ModalAddEditContact"
 import { NetworkIcon } from "@src/components/DefuseSDK/components/Network/NetworkIcon"
@@ -64,8 +62,7 @@ const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
     <>
       <section className="mt-6 space-y-1">
         {contacts.map((contact) => {
-          const chainKey =
-            reverseAssetNetworkAdapter[contact.network as BlockchainEnum]
+          const chainKey = reverseAssetNetworkAdapter[contact.blockchain]
           const chainIcon = chainIcons[chainKey]
           const chainName = chainNameToNetworkName(chainKey)
 

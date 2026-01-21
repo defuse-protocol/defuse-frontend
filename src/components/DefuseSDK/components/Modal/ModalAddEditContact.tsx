@@ -1,12 +1,21 @@
-import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
+import type {
+  AuthMethod,
+  BlockchainEnum,
+} from "@defuse-protocol/internal-utils"
 import { UserCircleIcon } from "@heroicons/react/20/solid"
-import type { Contact } from "@src/app/(app)/(dashboard)/contacts/page"
+import {
+  type Contact,
+  createContact,
+  updateContact,
+} from "@src/app/(app)/(auth)/contacts/actions"
 import Button from "@src/components/Button"
 import ErrorMessage from "@src/components/ErrorMessage"
 import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
+import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import useSearchNetworks from "@src/hooks/useFilterNetworks"
 import { WalletIcon } from "@src/icons"
 import clsx from "clsx"
+import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import {
@@ -22,7 +31,7 @@ import ModalNoResults from "./ModalNoResults"
 type FormData = {
   address: string
   name: string
-  network: BlockchainEnum | null
+  blockchain: BlockchainEnum | null
 }
 
 type ModalContactProps = {
@@ -38,10 +47,16 @@ const ModalAddEditContact = ({
   onCloseAnimationEnd,
   contact,
 }: ModalContactProps) => {
+  const router = useRouter()
   const [selectNetworkOpen, setSelectNetworkOpen] = useState(false)
   const [searchValue, setSearchValue] = useState("")
   const [isScrolled, setIsScrolled] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const { state } = useConnectWallet()
+  const userAddress = state.address
+  // ChainType enum values match AuthMethod values, so we can safely cast
+  const chainType = state.chainType as AuthMethod | undefined
 
   const isEditing = Boolean(contact)
 
@@ -56,13 +71,13 @@ const ModalAddEditContact = ({
     defaultValues: {
       name: "",
       address: "",
-      network: null,
+      blockchain: null,
     },
   })
 
   useEffect(() => {
     if (open) {
-      register("network", {
+      register("blockchain", {
         validate: (value) =>
           value !== null || "Select a network for this contact.",
       })
@@ -74,7 +89,7 @@ const ModalAddEditContact = ({
       reset({
         name: contact.name,
         address: contact.address,
-        network: contact.network,
+        blockchain: contact.blockchain,
       })
     }
   }, [contact, open, reset])
@@ -85,21 +100,63 @@ const ModalAddEditContact = ({
     searchValue,
   })
 
-  const network = watch("network")
-  const selectedNetwork = network ? reverseAssetNetworkAdapter[network] : null
-  const networkData = network ? availableNetworks[network] : null
+  const blockchain = watch("blockchain")
+  const selectedNetwork = blockchain
+    ? reverseAssetNetworkAdapter[blockchain]
+    : null
+  const networkData = blockchain ? availableNetworks[blockchain] : null
 
-  const onSubmit = async (_data: FormData) => {
-    if (isEditing) {
-      // TODO: Update contact
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-    } else {
-      // TODO: Create contact
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+  const onSubmit = async (data: FormData) => {
+    if (!data.blockchain) {
+      return
     }
 
-    onClose()
-    // TODO: Add success toast
+    setSubmitError(null)
+
+    try {
+      if (isEditing && contact) {
+        if (!contact.contactId) {
+          setSubmitError("Contact ID is missing. Please try again.")
+          return
+        }
+
+        const result = await updateContact({
+          contactId: contact.contactId,
+          name: data.name,
+          address: data.address,
+          blockchain: data.blockchain,
+          userAddress,
+          chainType,
+        })
+
+        if (!result.ok) {
+          setSubmitError(result.error)
+          return
+        }
+      } else {
+        const result = await createContact({
+          name: data.name,
+          address: data.address,
+          blockchain: data.blockchain,
+          userAddress,
+          chainType,
+        })
+
+        if (!result.ok) {
+          setSubmitError(result.error)
+          return
+        }
+      }
+
+      onClose()
+      router.refresh()
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred. Please try again."
+      )
+    }
   }
 
   const handleScroll = () => {
@@ -157,7 +214,7 @@ const ModalAddEditContact = ({
                 networkOptions={filteredNetworks}
                 selectedNetwork={selectedNetwork}
                 onChangeNetwork={(network) => {
-                  setValue("network", assetNetworkAdapter[network], {
+                  setValue("blockchain", assetNetworkAdapter[network], {
                     shouldValidate: true,
                   })
                   setSelectNetworkOpen(false)
@@ -241,7 +298,7 @@ const ModalAddEditContact = ({
                 onClick={() => setSelectNetworkOpen(true)}
                 className={clsx(
                   "w-full rounded-3xl bg-white border p-3 text-left flex items-center gap-3 focus-visible:outline focus-visible:outline-gray-700",
-                  errors.network
+                  errors.blockchain
                     ? "border-red-500 focus-visible:border-red-500"
                     : "border-gray-200 hover:border-gray-700 hover:outline hover:outline-gray-700 focus-visible:border-gray-700"
                 )}
@@ -264,13 +321,17 @@ const ModalAddEditContact = ({
                   </span>
                 </span>
               </button>
-              {errors.network && (
+              {errors.blockchain && (
                 <ErrorMessage className="mt-1 mb-5">
-                  {errors.network.message}
+                  {errors.blockchain.message}
                 </ErrorMessage>
               )}
             </div>
           </div>
+
+          {submitError && (
+            <ErrorMessage className="mt-3">{submitError}</ErrorMessage>
+          )}
 
           <Button
             type="submit"
