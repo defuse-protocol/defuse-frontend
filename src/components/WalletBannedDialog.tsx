@@ -1,13 +1,8 @@
-import * as AlertDialog from "@radix-ui/react-alert-dialog"
 import {
   ExclamationTriangleIcon,
   MagnifyingGlassIcon,
 } from "@radix-ui/react-icons"
-import {
-  Button,
-  Callout,
-  AlertDialog as themes_AlertDialog,
-} from "@radix-ui/themes"
+import { AlertDialog, Button, Callout } from "@radix-ui/themes"
 
 export function WalletBannedDialog({
   open,
@@ -20,9 +15,9 @@ export function WalletBannedDialog({
 }) {
   return (
     <AlertDialog.Root open={open}>
-      <themes_AlertDialog.Content className="max-w-md p-6 sm:animate-none animate-slide-up">
+      <AlertDialog.Content className="max-w-md p-6 sm:animate-none animate-slide-up">
         <FailureContent open={open} onCancel={onCancel} onBypass={onBypass} />
-      </themes_AlertDialog.Content>
+      </AlertDialog.Content>
     </AlertDialog.Root>
   )
 }
@@ -46,7 +41,7 @@ function FailureContent({
         <AlertDialog.Title className="text-xl font-semibold text-gray-900 dark:text-gray-100">
           Not Supported Wallet Address
         </AlertDialog.Title>
-        <AlertDialog.Description className="mt-2 text-gray-11">
+        <AlertDialog.Description className="mt-2 text-gray-11" size="2">
           For your safety, your wallet address can't be used with this app.
         </AlertDialog.Description>
       </div>
@@ -73,7 +68,7 @@ function FailureContent({
       </Callout.Root>
 
       <div className="flex flex-col justify-center gap-3 mt-6">
-        <themes_AlertDialog.Cancel>
+        <AlertDialog.Cancel>
           <Button
             size="4"
             type="button"
@@ -83,12 +78,12 @@ function FailureContent({
           >
             Disconnect
           </Button>
-        </themes_AlertDialog.Cancel>
-        <themes_AlertDialog.Action>
+        </AlertDialog.Cancel>
+        <AlertDialog.Action>
           <Button size="4" type="button" color="red" onClick={onBypass}>
-            Proceed anyway, I know what I’m doing
+            Proceed anyway, I know what I'm doing
           </Button>
-        </themes_AlertDialog.Action>
+        </AlertDialog.Action>
       </div>
     </>
   )

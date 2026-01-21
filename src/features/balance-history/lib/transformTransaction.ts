@@ -25,17 +25,16 @@ export function transformTransaction(
 ): SwapTransaction {
   return {
     id: tx.depositAddress,
+    type: "swap",
     timestamp: tx.createdAt,
     status: normalizeStatus(tx.status),
     from: {
       token_id: tx.originAsset,
-      symbol: "",
       amount: tx.amountInFormatted,
       amount_usd: tx.amountInUsd,
     },
     to: {
       token_id: tx.destinationAsset,
-      symbol: "",
       amount: tx.amountOutFormatted,
       amount_usd: tx.amountOutUsd,
     },
