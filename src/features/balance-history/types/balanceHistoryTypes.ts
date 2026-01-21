@@ -1,12 +1,14 @@
+export type TransactionType = "swap"
+
 export interface TokenAmount {
   token_id: string
-  symbol: string
   amount: string
   amount_usd: string
 }
 
 export interface SwapTransaction {
   id: string
+  type: TransactionType
   timestamp: string
   status: "SUCCESS" | "PROCESSING" | "PENDING" | "FAILED"
   from: TokenAmount
