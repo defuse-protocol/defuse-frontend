@@ -16,8 +16,9 @@ import useSearchNetworks from "@src/hooks/useFilterNetworks"
 import { WalletIcon } from "@src/icons"
 import clsx from "clsx"
 import { useRouter } from "next/navigation"
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useMemo, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
+import type { SupportedChainName } from "../../types/base"
 import {
   assetNetworkAdapter,
   reverseAssetNetworkAdapter,
@@ -60,6 +61,27 @@ const ModalAddEditContact = ({
 
   const isEditing = Boolean(contact)
 
+  const defaultValues = useMemo<FormData>(
+    () => ({
+      name: "",
+      address: "",
+      blockchain: null,
+    }),
+    []
+  )
+
+  const formValues = useMemo<FormData | undefined>(
+    () =>
+      open && contact
+        ? {
+            name: contact.name,
+            address: contact.address,
+            blockchain: contact.blockchain,
+          }
+        : undefined,
+    [contact, open]
+  )
+
   const {
     register,
     handleSubmit,
@@ -68,43 +90,33 @@ const ModalAddEditContact = ({
     reset,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
-    defaultValues: {
-      name: "",
-      address: "",
-      blockchain: null,
+    defaultValues,
+    values: formValues,
+    resetOptions: {
+      keepErrors: true,
+      keepIsSubmitted: false,
     },
   })
 
-  useEffect(() => {
-    if (open) {
-      register("blockchain", {
-        validate: (value) =>
-          value !== null || "Select a network for this contact.",
-      })
-    }
-  }, [open, register])
+  register("blockchain", {
+    validate: (value) => value !== null || "Select a network for this contact.",
+  })
 
-  useEffect(() => {
-    if (contact && open) {
-      reset({
-        name: contact.name,
-        address: contact.address,
-        blockchain: contact.blockchain,
-      })
-    }
-  }, [contact, open, reset])
-
-  const availableNetworks = allAvailableChains()
+  const availableNetworks = useMemo(() => allAvailableChains(), [])
   const filteredNetworks = useSearchNetworks({
     networks: availableNetworks,
     searchValue,
   })
 
   const blockchain = watch("blockchain")
-  const selectedNetwork = blockchain
-    ? reverseAssetNetworkAdapter[blockchain]
-    : null
-  const networkData = blockchain ? availableNetworks[blockchain] : null
+  const selectedNetwork = useMemo(
+    () => (blockchain ? reverseAssetNetworkAdapter[blockchain] : null),
+    [blockchain]
+  )
+  const networkData = useMemo(
+    () => (blockchain ? availableNetworks[blockchain] : null),
+    [blockchain, availableNetworks]
+  )
 
   const onSubmit = async (data: FormData) => {
     if (!data.blockchain) {
@@ -159,20 +171,32 @@ const ModalAddEditContact = ({
     }
   }
 
-  const handleScroll = () => {
+  const handleScroll = useCallback(() => {
     if (!scrollContainerRef.current) return
 
     setIsScrolled(scrollContainerRef.current.scrollTop > 0)
-  }
+  }, [])
 
-  const getModalTitle = () => {
+  const getModalTitle = useMemo(() => {
     if (selectNetworkOpen) return "Select network"
     return isEditing ? "Edit contact" : "Create contact"
-  }
+  }, [selectNetworkOpen, isEditing])
+
+  const onChangeNetwork = useCallback(
+    (network: SupportedChainName) => {
+      setValue("blockchain", assetNetworkAdapter[network] as BlockchainEnum, {
+        shouldValidate: true,
+      })
+      setSelectNetworkOpen(false)
+      setSearchValue("")
+      setIsScrolled(false)
+    },
+    [setValue]
+  )
 
   return (
     <BaseModalDialog
-      title={getModalTitle()}
+      title={getModalTitle}
       open={open}
       onClose={onClose}
       onCloseAnimationEnd={() => {
@@ -213,14 +237,7 @@ const ModalAddEditContact = ({
               <NetworkList
                 networkOptions={filteredNetworks}
                 selectedNetwork={selectedNetwork}
-                onChangeNetwork={(network) => {
-                  setValue("blockchain", assetNetworkAdapter[network], {
-                    shouldValidate: true,
-                  })
-                  setSelectNetworkOpen(false)
-                  setSearchValue("")
-                  setIsScrolled(false)
-                }}
+                onChangeNetwork={onChangeNetwork}
               />
             )}
           </div>

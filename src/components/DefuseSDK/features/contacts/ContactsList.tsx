@@ -13,7 +13,7 @@ import {
 import ListItem from "@src/components/ListItem"
 import { SendIcon, WalletIcon } from "@src/icons"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import ModalRemoveContact from "../../components/Modal/ModalRemoveContact"
 import { reverseAssetNetworkAdapter } from "../../utils/adapters"
 
@@ -34,6 +34,17 @@ const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
     setModalOpen(type)
     setSelectedContact(contact)
   }
+
+  const processedContacts = useMemo(
+    () =>
+      contacts.map((contact) => {
+        const chainKey = reverseAssetNetworkAdapter[contact.blockchain]
+        const chainIcon = chainIcons[chainKey]
+        const chainName = chainNameToNetworkName(chainKey)
+        return { contact, chainKey, chainIcon, chainName }
+      }),
+    [contacts]
+  )
 
   if (contacts.length === 0) {
     return (
@@ -61,11 +72,7 @@ const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
   return (
     <>
       <section className="mt-6 space-y-1">
-        {contacts.map((contact) => {
-          const chainKey = reverseAssetNetworkAdapter[contact.blockchain]
-          const chainIcon = chainIcons[chainKey]
-          const chainName = chainNameToNetworkName(chainKey)
-
+        {processedContacts.map(({ contact, chainIcon, chainName }) => {
           return (
             <ListItem
               key={contact.id}
