@@ -56,7 +56,7 @@ export type Contact = Omit<
 type ContactEntity = {
   id: string
   contactId: string
-  account_id: string
+  accountId: string
   address: string
   name: string
   blockchain: string
@@ -74,12 +74,12 @@ export async function getContacts(input?: {
       return { ok: false, error: "Authentication required" }
     }
 
-    const account_id = getAccountIdFromToken(token)
-    if (!account_id) {
+    const accountId = getAccountIdFromToken(token)
+    if (!accountId) {
       return { ok: false, error: "Invalid token" }
     }
 
-    const contactsData = await getContactsByAccountId(account_id, input?.search)
+    const contactsData = await getContactsByAccountId(accountId, input?.search)
 
     const contacts: Array<Contact> = contactsData
       .map((contact) => {
@@ -91,7 +91,7 @@ export async function getContacts(input?: {
         const blockchainEnum = assetNetworkAdapter[blockchain]
         return {
           contactId: contact.contactId,
-          account_id: contact.account_id,
+          accountId: contact.accountId,
           address: contact.address,
           name: contact.name,
           blockchain: blockchainEnum,
@@ -125,8 +125,8 @@ export async function createContact(input: {
     return { ok: false, error: "Authentication required" }
   }
 
-  const account_id = getAccountIdFromToken(token)
-  if (!account_id) {
+  const accountId = getAccountIdFromToken(token)
+  if (!accountId) {
     logger.warn("Invalid token when creating contact", {
       source: "create-contact",
       action: "invalid-token",
@@ -174,7 +174,7 @@ export async function createContact(input: {
   }
 
   const existingContact = await getContactByAccountAddressAndBlockchain(
-    account_id,
+    accountId,
     data.output.address,
     blockchain
   )
@@ -183,7 +183,7 @@ export async function createContact(input: {
     logger.warn("Contact already exists", {
       source: "create-contact",
       action: "duplicate-contact",
-      account_id,
+      accountId,
       address: data.output.address,
       blockchain,
     })
@@ -191,7 +191,7 @@ export async function createContact(input: {
   }
 
   const entity = await createContactRepository({
-    account_id,
+    accountId,
     address: data.output.address,
     name: data.output.name,
     blockchain,
@@ -201,7 +201,7 @@ export async function createContact(input: {
     logger.error("Failed to create contact in repository", {
       source: "create-contact",
       action: "repository-error",
-      account_id,
+      accountId,
     })
     return { ok: false, error: "Failed to create contact" }
   }
@@ -211,7 +211,7 @@ export async function createContact(input: {
     value: {
       id: entity.contactId,
       contactId: entity.contactId,
-      account_id: entity.account_id,
+      accountId: entity.accountId,
       address: entity.address,
       name: entity.name,
       blockchain: entity.blockchain,
@@ -238,8 +238,8 @@ export async function updateContact(input: {
     return { ok: false, error: "Authentication required" }
   }
 
-  const account_id = getAccountIdFromToken(token)
-  if (!account_id) {
+  const accountId = getAccountIdFromToken(token)
+  if (!accountId) {
     logger.warn("Invalid token when updating contact", {
       source: "update-contact",
       action: "invalid-token",
@@ -294,18 +294,18 @@ export async function updateContact(input: {
       source: "update-contact",
       action: "contact-not-found",
       contactId: data.output.contactId,
-      account_id,
+      accountId,
     })
     return { ok: false, error: "Contact not found" }
   }
 
-  if (existingContact.account_id !== account_id) {
+  if (existingContact.accountId !== accountId) {
     logger.error("Unauthorized attempt to update contact", {
       source: "update-contact",
       action: "permission-denied",
       contactId: data.output.contactId,
-      account_id,
-      contactAccountId: existingContact.account_id,
+      accountId,
+      contactAccountId: existingContact.accountId,
     })
     return { ok: false, error: "Permission denied" }
   }
@@ -321,7 +321,7 @@ export async function updateContact(input: {
       source: "update-contact",
       action: "repository-error",
       contactId: data.output.contactId,
-      account_id,
+      accountId,
     })
     return { ok: false, error: "Failed to update contact" }
   }
@@ -331,7 +331,7 @@ export async function updateContact(input: {
     value: {
       id: updatedContact.contactId,
       contactId: updatedContact.contactId,
-      account_id: updatedContact.account_id,
+      accountId: updatedContact.accountId,
       address: updatedContact.address,
       name: updatedContact.name,
       blockchain: updatedContact.blockchain,
@@ -353,8 +353,8 @@ export async function deleteContact(input: {
     return { ok: false, error: "Authentication required" }
   }
 
-  const account_id = getAccountIdFromToken(token)
-  if (!account_id) {
+  const accountId = getAccountIdFromToken(token)
+  if (!accountId) {
     logger.warn("Invalid token when deleting contact", {
       source: "delete-contact",
       action: "invalid-token",
@@ -386,18 +386,18 @@ export async function deleteContact(input: {
       source: "delete-contact",
       action: "contact-not-found",
       contactId: data.output.contactId,
-      account_id,
+      accountId,
     })
     return { ok: false, error: "Contact not found" }
   }
 
-  if (existingContact.account_id !== account_id) {
+  if (existingContact.accountId !== accountId) {
     logger.error("Unauthorized attempt to delete contact", {
       source: "delete-contact",
       action: "permission-denied",
       contactId: data.output.contactId,
-      account_id,
-      contactAccountId: existingContact.account_id,
+      accountId,
+      contactAccountId: existingContact.accountId,
     })
     return { ok: false, error: "Permission denied" }
   }

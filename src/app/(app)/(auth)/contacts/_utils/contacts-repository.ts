@@ -34,7 +34,7 @@ export async function getContactsByAccountId(
   accountId: string,
   search?: string
 ): Promise<Contact[]> {
-  const conditions = [eq(contactsTable.account_id, accountId)]
+  const conditions = [eq(contactsTable.accountId, accountId)]
 
   if (search?.trim()) {
     const searchPattern = `%${search.trim()}%`
@@ -66,7 +66,7 @@ export async function getContactByAccountAddressAndBlockchain(
     .from(contactsTable)
     .where(
       and(
-        eq(contactsTable.account_id, accountId),
+        eq(contactsTable.accountId, accountId),
         eq(contactsTable.address, address),
         eq(contactsTable.blockchain, blockchain)
       )
@@ -81,7 +81,7 @@ export async function getContactByAccountAddressAndBlockchain(
 export async function updateContact(
   contactId: string,
   updates: Partial<
-    Pick<Contact, "account_id" | "address" | "name" | "blockchain">
+    Pick<Contact, "accountId" | "address" | "name" | "blockchain">
   >
 ): Promise<Contact | null> {
   const [updatedContact] = await db
