@@ -1,17 +1,4 @@
-import { AuthMethod } from "@defuse-protocol/internal-utils"
-import { pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core"
-
-const authMethodEnum = [
-  AuthMethod.Near,
-  AuthMethod.EVM,
-  AuthMethod.Solana,
-  AuthMethod.WebAuthn,
-  AuthMethod.Ton,
-  AuthMethod.Stellar,
-  AuthMethod.Tron,
-] as const
-
-export const authMethodPgEnum = pgEnum("auth_method", authMethodEnum)
+import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core"
 
 export const contactsTable = pgTable("contacts", {
   contactId: uuid("contact_id").primaryKey().defaultRandom(),
