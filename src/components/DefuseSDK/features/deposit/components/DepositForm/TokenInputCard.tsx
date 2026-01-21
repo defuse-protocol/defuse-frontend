@@ -17,10 +17,50 @@ type InputRegistration =
   | {
       name: string
       onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-      onBlur: () => void
-      ref: (instance: HTMLInputElement | null) => void
       value: string
+      onBlur?: () => void
+      ref?: (instance: HTMLInputElement | null) => void
     }
+
+type BaseTokenInputCardProps = {
+  label: string
+  balance: bigint
+  decimals: number
+  symbol: string
+  balanceInTransit?: bigint
+  usdAmount: number | null
+  disabled?: boolean
+  loading?: boolean
+  selectedToken: TokenInfo
+  selectAssetsTestId?: string
+  error?: string
+  isUsdMode?: boolean
+  tokenPrice?: number | null
+  onToggleUsdMode?: () => void
+  tokenAmount?: string
+}
+
+type InteractiveTokenInputCardProps = BaseTokenInputCardProps & {
+  registration: InputRegistration
+  tokens: TokenInfo[]
+  handleSelectToken: () => void
+  handleSetMax?: () => void
+  readOnly?: boolean
+  value?: never
+}
+
+type DisplayOnlyTokenInputCardProps = BaseTokenInputCardProps & {
+  readOnly: true
+  value: string
+  registration?: never
+  tokens?: TokenInfo[]
+  handleSelectToken?: () => void
+  handleSetMax?: never
+}
+
+type TokenInputCardProps =
+  | InteractiveTokenInputCardProps
+  | DisplayOnlyTokenInputCardProps
 
 interface BalanceInTransitIndicatorProps {
   amount: bigint
@@ -121,51 +161,34 @@ function useUsdHint(canToggle: boolean) {
   return showHint
 }
 
-type TokenInputCardProps = {
-  label: string
-  balance: bigint
-  decimals: number
-  symbol: string
-  balanceInTransit?: bigint
-  handleSetMax?: () => void
-  usdAmount: number | null
-  disabled?: boolean
-  loading?: boolean
-  registration: InputRegistration
-  selectedToken: TokenInfo
-  tokens: TokenInfo[]
-  handleSelectToken: () => void
-  selectAssetsTestId?: string
-  readOnly?: boolean
-  error?: string
-  isUsdMode?: boolean
-  tokenPrice?: number | null
-  onToggleUsdMode?: () => void
-  tokenAmount?: string
-}
+const TokenInputCard = (props: TokenInputCardProps) => {
+  const {
+    label,
+    balance,
+    decimals,
+    symbol,
+    balanceInTransit,
+    usdAmount,
+    disabled,
+    loading,
+    selectedToken,
+    tokens,
+    handleSelectToken,
+    selectAssetsTestId,
+    readOnly,
+    error,
+    isUsdMode = false,
+    tokenPrice,
+    onToggleUsdMode,
+    tokenAmount = "",
+  } = props
 
-const TokenInputCard = ({
-  label,
-  balance,
-  decimals,
-  symbol,
-  balanceInTransit,
-  usdAmount,
-  handleSetMax,
-  disabled,
-  loading,
-  registration,
-  selectedToken,
-  tokens,
-  handleSelectToken,
-  selectAssetsTestId,
-  readOnly,
-  error,
-  isUsdMode = false,
-  tokenPrice,
-  onToggleUsdMode,
-  tokenAmount = "",
-}: TokenInputCardProps) => {
+  // Discriminate between interactive and display-only modes
+  const isDisplayOnly = "value" in props && props.value !== undefined
+  const handleSetMax = isDisplayOnly ? undefined : props.handleSetMax
+  const registration = isDisplayOnly ? undefined : props.registration
+  const value = isDisplayOnly ? props.value : undefined
+
   const id = useId()
   const noBalance = balance === 0n
   const hasBalanceInTransit = balanceInTransit != null && balanceInTransit > 0n
@@ -203,7 +226,7 @@ const TokenInputCard = ({
           selected={selectedToken ?? undefined}
           dataTestId={selectAssetsTestId}
           disabled={disabled}
-          handleSelect={handleSelectToken}
+          handleSelect={handleSelectToken ?? undefined}
           tokens={tokens}
         />
         {handleSetMax && (
@@ -225,22 +248,24 @@ const TokenInputCard = ({
               $
             </span>
           )}
-          <input
-            id={id}
-            type="text"
-            inputMode="decimal"
-            pattern="[0-9]*[.]?[0-9]*"
-            autoComplete="off"
-            placeholder="0"
-            disabled={disabled}
-            aria-busy={loading || undefined}
-            readOnly={readOnly}
-            className={clsx(
-              "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-4xl tracking-tight placeholder:text-gray-400 w-full",
-              disabled && "opacity-50"
-            )}
-            {...registration}
-          />
+          <div className="text-right text-base text-gray-500 font-medium">
+            <input
+              id={id}
+              type="text"
+              inputMode="decimal"
+              pattern="[0-9]*[.]?[0-9]*"
+              autoComplete="off"
+              placeholder="0"
+              disabled={disabled}
+              aria-busy={loading || undefined}
+              readOnly={readOnly}
+              className={clsx(
+                "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-4xl tracking-tight placeholder:text-gray-400 w-full",
+                disabled && "opacity-50"
+              )}
+              {...(registration ?? { value, readOnly: true })}
+            />
+          </div>
         </div>
 
         {canToggleUsd && onToggleUsdMode ? (

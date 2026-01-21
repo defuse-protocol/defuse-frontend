@@ -1,8 +1,14 @@
 import { solverRelay } from "@defuse-protocol/internal-utils"
-import { CheckIcon } from "@phosphor-icons/react"
-import { Button } from "@radix-ui/themes"
+import { ArrowLongRightIcon } from "@heroicons/react/16/solid"
+import { CheckIcon } from "@heroicons/react/20/solid"
+import Button from "@src/components/Button"
+import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
 import { CopyButton } from "@src/components/DefuseSDK/components/IntentCard/CopyButton"
+import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
+import ListItem from "@src/components/ListItem"
+import Spinner from "@src/components/Spinner"
 import { useQuery } from "@tanstack/react-query"
+import clsx from "clsx"
 import type { TokenInfo } from "../../../types/base"
 import type { RenderHostAppLink } from "../../../types/hostAppLink"
 import { assert } from "../../../utils/assert"
@@ -11,8 +17,8 @@ import {
   getUnderlyingBaseTokenInfos,
   negateTokenValue,
 } from "../../../utils/tokenUtils"
+import { midTruncate } from "../../withdraw/components/WithdrawForm/utils"
 import type { TradeTerms } from "../utils/deriveTradeTerms"
-import { SwapStrip } from "./shared/SwapStrip"
 
 const NEAR_EXPLORER = "https://nearblocks.io"
 
@@ -48,7 +54,7 @@ export function OtcTakerSuccessScreen({
     takerReceives: amountOut,
   }
 
-  const intentStatus = useQuery({
+  const { data, isPending } = useQuery({
     queryKey: ["intents_status", intentHashes],
     queryFn: async ({ signal }) => {
       const intentHash = intentHashes[0]
@@ -58,105 +64,132 @@ export function OtcTakerSuccessScreen({
   })
 
   const txUrl =
-    intentStatus.data?.txHash != null
-      ? `${NEAR_EXPLORER}/txns/${intentStatus.data.txHash}`
-      : null
+    data?.txHash != null ? `${NEAR_EXPLORER}/txns/${data.txHash}` : null
 
   return (
-    <div>
-      {/* Header Section */}
-      <div className="flex flex-row justify-between mb-5">
-        <div className="flex flex-col items-start gap-1.5">
-          <div className="text-2xl font-black text-gray-12 mb-2">
-            {intentStatus.isPending ? "Almost there" : "All done!"}
-          </div>
-          {intentStatus.isPending ? (
-            <div className="text-sm font-medium text-gray-11">
-              Your swap is being processed. You will receive your funds shortly.
-            </div>
-          ) : (
-            <div className="text-sm font-medium text-gray-11">
-              Your swap has been successfully completed, and the funds are now
-              available in your account.
-            </div>
-          )}
-        </div>
-        <div className="flex justify-center items-start">
-          <div className="w-[64px] h-[64px] flex items-center justify-center rounded-full bg-green-4">
-            <CheckIcon weight="bold" className="size-7 text-green-a11" />
-          </div>
-        </div>
-      </div>
-
-      {/* Order Section */}
-      <SwapStrip
-        tokenIn={tokenIn}
-        tokenOut={tokenOut}
-        amountIn={breakdown.takerSends}
-        amountOut={breakdown.takerReceives}
+    <div className="relative bg-white rounded-3xl p-6 border border-gray-200 overflow-hidden">
+      <div
+        className={clsx(
+          "absolute h-24 inset-x-0 top-0 bg-linear-to-b transition-colors duration-300 ease-in-out",
+          isPending
+            ? "from-transparent to-transparent"
+            : "from-green-50/50 to-green-50/0"
+        )}
       />
 
-      <div className="flex flex-col gap-3.5 px-4 text-xs mt-4">
-        <div className="flex justify-between items-center">
-          <div className="text-gray-11 font-medium">Intents</div>
-          <div className="flex gap-2.5">
+      <div className="relative flex flex-col items-center justify-center mt-7">
+        <div
+          className={clsx(
+            "size-13 rounded-full flex justify-center items-center text-gray-500",
+            isPending ? "bg-gray-100" : "bg-green-100"
+          )}
+        >
+          {isPending ? (
+            <Spinner />
+          ) : (
+            <CheckIcon className="size-6 text-green-600" />
+          )}
+        </div>
+
+        <h2 className="mt-5 text-2xl/7 font-bold tracking-tight text-center">
+          {isPending ? "Almost there..." : "All done!"}
+        </h2>
+        <p className="mt-2 text-base/5 font-medium text-gray-500 text-center text-balance">
+          {isPending
+            ? "The deal is being processed. You will receive your funds shortly."
+            : "The deal has been successfully completed, and the funds are now available in your account."}
+        </p>
+      </div>
+
+      <ListItem className="mt-5">
+        <div className="flex items-center">
+          <AssetComboIcon {...tokenIn} />
+          <AssetComboIcon
+            {...tokenOut}
+            className="-ml-4 ring-3 ring-white rounded-full"
+          />
+        </div>
+        <ListItem.Content>
+          <ListItem.Title className="flex items-center gap-0.5">
+            {tokenIn.symbol}
+            <ArrowLongRightIcon className="size-4 text-gray-400 shrink-0" />
+            {tokenOut.symbol}
+          </ListItem.Title>
+        </ListItem.Content>
+        <ListItem.Content align="end">
+          <ListItem.Title>
+            {formatTokenValue(
+              breakdown.takerReceives.amount,
+              breakdown.takerReceives.decimals,
+              {
+                fractionDigits: 5,
+              }
+            )}{" "}
+            {tokenOut.symbol}
+          </ListItem.Title>
+          <ListItem.Subtitle>
+            {formatTokenValue(
+              breakdown.takerSends.amount,
+              breakdown.takerSends.decimals,
+              {
+                fractionDigits: 5,
+              }
+            )}{" "}
+            {tokenIn.symbol}
+          </ListItem.Subtitle>
+        </ListItem.Content>
+      </ListItem>
+
+      <dl className="mt-5 pt-5 border-t border-gray-200 space-y-4">
+        <div className="flex justify-between">
+          <dt className="text-sm text-gray-500 font-medium">Intents</dt>
+          <dd className="flex flex-col items-end gap-1">
             {intentHashes.map((intentHash) => (
-              <div
-                key={intentHash}
-                className="flex flex-row items-center gap-1 text-gray-12 font-medium"
-              >
-                <span className="text-gray-12 font-medium">
-                  {truncateHash(intentHash)}
+              <div key={intentHash} className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-gray-900">
+                  {midTruncate(intentHash)}
                 </span>
                 <CopyButton text={intentHash} ariaLabel="Copy intent hash" />
               </div>
             ))}
-          </div>
+          </dd>
         </div>
+
         {txUrl != null && (
-          <div className="flex justify-between items-center">
-            <div className="text-gray-11 font-medium">Transaction hash</div>
-            {intentStatus.data?.txHash && (
-              <div className="flex flex-row items-center gap-1 text-blue-c11 font-medium">
-                <a href={txUrl} rel="noopener noreferrer" target="_blank">
-                  {truncateHash(intentStatus.data.txHash)}
-                </a>
-                <CopyButton
-                  text={intentStatus.data.txHash}
-                  ariaLabel="Copy intent hash"
-                />
-              </div>
-            )}
+          <div className="flex items-center justify-between">
+            <dt className="text-sm text-gray-500 font-medium">
+              Transaction hash
+            </dt>
+            <dd className="">
+              {data?.txHash && (
+                <div className="flex flex-row items-center gap-1 text-blue-c11 font-medium">
+                  <a
+                    href={txUrl}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    className="text-sm font-semibold text-gray-900 hover:underline"
+                  >
+                    {midTruncate(data.txHash)}
+                  </a>
+                  <CopyButton text={data.txHash} ariaLabel="Copy intent hash" />
+                </div>
+              )}
+            </dd>
           </div>
         )}
-      </div>
+      </dl>
 
-      <div className="flex flex-col justify-center gap-3 mt-5">
-        {renderHostAppLink(
-          "account",
-          <Button asChild size="4" className="w-full h-14 font-bold">
-            <div>Go to account</div>
-          </Button>,
-          { className: "w-full" }
-        )}
-        {renderHostAppLink(
-          "withdraw",
-          <Button
-            asChild
-            size="4"
-            className="w-full h-14 font-bold"
-            variant="outline"
-            color="gray"
-          >
-            <div>Withdraw</div>
-          </Button>,
-          { className: "w-full" }
-        )}
-      </div>
+      {!isPending && (
+        <div className="mt-5">
+          {renderHostAppLink(
+            "account",
+            <Button size="xl" variant="secondary" fullWidth>
+              Go to account
+            </Button>,
+            {}
+          )}
+        </div>
+      )}
     </div>
   )
-}
-
-function truncateHash(hash: string) {
-  return `${hash.slice(0, 5)}...${hash.slice(-5)}`
 }

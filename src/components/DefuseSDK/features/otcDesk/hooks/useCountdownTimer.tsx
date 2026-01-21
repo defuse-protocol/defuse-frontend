@@ -1,3 +1,4 @@
+import { formatDistanceToNowStrict, isPast } from "date-fns"
 import { useCallback, useEffect, useRef, useState } from "react"
 
 export function useCountdownTimer({ deadline }: { deadline: number | string }) {
@@ -5,25 +6,16 @@ export function useCountdownTimer({ deadline }: { deadline: number | string }) {
   const deadlineDate = useRef(new Date(deadline))
 
   const calculateTimeLeft = useCallback(() => {
-    const now = new Date()
-    const diff = deadlineDate.current.getTime() - now.getTime()
+    const expired = isPast(deadlineDate.current)
 
-    if (diff <= 0) {
-      setTimeLeft("Expired")
+    if (expired) {
+      setTimeLeft("Deal expired")
       return
     }
 
-    const hours = Math.floor(diff / (1000 * 60 * 60))
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000)
+    const formatted = formatDistanceToNowStrict(deadlineDate.current)
 
-    if (hours > 0) {
-      setTimeLeft(`${hours}h ${minutes}m`)
-    } else if (minutes > 0) {
-      setTimeLeft(`${minutes}m ${seconds}s`)
-    } else {
-      setTimeLeft(`${seconds}s`)
-    }
+    setTimeLeft(`Expires in ${formatted}`)
   }, [])
 
   useEffect(() => {
