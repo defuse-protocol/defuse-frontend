@@ -21,7 +21,7 @@ const IntentCreationResult = ({
 
     case "ERR_CANNOT_VERIFY_SIGNATURE":
       content =
-        "We couldn’t verify your authentication. Please try again, and contact support if this continues."
+        "We couldn’t verify your authentication. Please try again, or contact support if this continues."
       break
 
     case "ERR_SIGNED_DIFFERENT_ACCOUNT":
@@ -35,17 +35,17 @@ const IntentCreationResult = ({
 
     case "ERR_PUBKEY_CHECK_FAILED":
       content =
-        "We couldn’t verify your ’public key’, a tech problem likely caused by a network issue. Please try again, and contact support if this continues."
+        "We couldn’t verify your ’public key’, a tech problem likely caused by a network issue. Please try again, or contact support if this continues."
       break
 
     case "ERR_PUBKEY_ADDING_FAILED":
       content =
-        "We couldn’t add your ’public key’, a tech problem likely caused by a network issue. Please try again, and contact support if this continues."
+        "We couldn’t add your ’public key’, a tech problem likely caused by a network issue. Please try again, or contact support if this continues."
       break
 
     case "ERR_PUBKEY_EXCEPTION":
       content =
-        "We couldn’t add your ’public key’, a tech problem likely caused by a network issue. Please try again, and contact support if this continues."
+        "We couldn’t add your ’public key’, a tech problem likely caused by a network issue. Please try again, or contact support if this continues."
       break
 
     case "ERR_QUOTE_EXPIRED_RETURN_IS_LOWER":
@@ -54,7 +54,7 @@ const IntentCreationResult = ({
 
     case "ERR_CANNOT_PUBLISH_INTENT":
       content =
-        "We couldn’t process your request, likely caused by a network issue. Please try again, and contact support if this continues."
+        "We couldn’t process your request, likely caused by a network issue. Please try again, or contact support if this continues."
       break
 
     case "ERR_WALLET_POPUP_BLOCKED":
@@ -66,7 +66,8 @@ const IntentCreationResult = ({
       break
 
     case "ERR_1CS_QUOTE_FAILED":
-      content = "Failed to get quote"
+      content =
+        "We were unable to get a quote for your request. Please try again, or contact support if this continues."
       break
 
     case "ERR_NO_DEPOSIT_ADDRESS":
@@ -75,7 +76,7 @@ const IntentCreationResult = ({
 
     case "ERR_TRANSFER_MESSAGE_FAILED":
       content =
-        "We were unable to create a ’transfer message’, a tech problem on our side. Please try again, and contact support if this continues."
+        "We were unable to create a ’transfer message’, a tech problem on our side. Please try again, or contact support if this continues."
       break
 
     case "ERR_AMOUNT_IN_BALANCE_INSUFFICIENT_AFTER_NEW_1CS_QUOTE":
@@ -85,7 +86,7 @@ const IntentCreationResult = ({
 
     default:
       status satisfies never
-      content = `An error occurred. Please try again, and contact support and include this status data: ${status}`
+      content = `An error occurred. Please try again, or contact support and include this status data: ${status}`
   }
 
   if (content == null) {
