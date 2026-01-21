@@ -38,28 +38,28 @@ export type Database = {
         Row: {
           account_id: string
           address: string
+          blockchain: string
           contact_id: string
           created_at: string | null
           name: string
-          network: string
           updated_at: string | null
         }
         Insert: {
           account_id: string
           address: string
+          blockchain: string
           contact_id?: string
           created_at?: string | null
           name: string
-          network: string
           updated_at?: string | null
         }
         Update: {
           account_id?: string
           address?: string
+          blockchain?: string
           contact_id?: string
           created_at?: string | null
           name?: string
-          network?: string
           updated_at?: string | null
         }
         Relationships: []

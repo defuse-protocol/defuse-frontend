@@ -27,7 +27,7 @@ import ModalNoResults from "./ModalNoResults"
 type FormData = {
   address: string
   name: string
-  network: BlockchainEnum | null
+  blockchain: BlockchainEnum | null
 }
 
 type ModalContactProps = {
@@ -63,13 +63,13 @@ const ModalAddEditContact = ({
     defaultValues: {
       name: "",
       address: "",
-      network: null,
+      blockchain: null,
     },
   })
 
   useEffect(() => {
     if (open) {
-      register("network", {
+      register("blockchain", {
         validate: (value) =>
           value !== null || "Select a network for this contact.",
       })
@@ -81,7 +81,7 @@ const ModalAddEditContact = ({
       reset({
         name: contact.name,
         address: contact.address,
-        network: contact.network,
+        blockchain: contact.blockchain,
       })
     }
   }, [contact, open, reset])
@@ -92,12 +92,14 @@ const ModalAddEditContact = ({
     searchValue,
   })
 
-  const network = watch("network")
-  const selectedNetwork = network ? reverseAssetNetworkAdapter[network] : null
-  const networkData = network ? availableNetworks[network] : null
+  const blockchain = watch("blockchain")
+  const selectedNetwork = blockchain
+    ? reverseAssetNetworkAdapter[blockchain]
+    : null
+  const networkData = blockchain ? availableNetworks[blockchain] : null
 
   const onSubmit = async (data: FormData) => {
-    if (!data.network) {
+    if (!data.blockchain) {
       return
     }
 
@@ -114,7 +116,7 @@ const ModalAddEditContact = ({
           contactId: contact.contactId,
           name: data.name,
           address: data.address,
-          network: data.network,
+          blockchain: data.blockchain,
         })
 
         if (!result.ok) {
@@ -125,7 +127,7 @@ const ModalAddEditContact = ({
         const result = await createContact({
           name: data.name,
           address: data.address,
-          network: data.network,
+          blockchain: data.blockchain,
         })
 
         if (!result.ok) {
@@ -200,7 +202,7 @@ const ModalAddEditContact = ({
                 networkOptions={filteredNetworks}
                 selectedNetwork={selectedNetwork}
                 onChangeNetwork={(network) => {
-                  setValue("network", assetNetworkAdapter[network], {
+                  setValue("blockchain", assetNetworkAdapter[network], {
                     shouldValidate: true,
                   })
                   setSelectNetworkOpen(false)
@@ -284,7 +286,7 @@ const ModalAddEditContact = ({
                 onClick={() => setSelectNetworkOpen(true)}
                 className={clsx(
                   "w-full rounded-3xl bg-white border p-3 text-left flex items-center gap-3 focus-visible:outline focus-visible:outline-gray-700",
-                  errors.network
+                  errors.blockchain
                     ? "border-red-500 focus-visible:border-red-500"
                     : "border-gray-200 hover:border-gray-700 hover:outline hover:outline-gray-700 focus-visible:border-gray-700"
                 )}
@@ -307,9 +309,9 @@ const ModalAddEditContact = ({
                   </span>
                 </span>
               </button>
-              {errors.network && (
+              {errors.blockchain && (
                 <ErrorMessage className="mt-1 mb-5">
-                  {errors.network.message}
+                  {errors.blockchain.message}
                 </ErrorMessage>
               )}
             </div>

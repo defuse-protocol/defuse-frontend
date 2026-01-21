@@ -3,17 +3,17 @@ create table "public"."contacts" (
     "account_id" text NOT NULL,
     "address" text NOT NULL,
     "name" text NOT NULL,
-    "network" text NOT NULL,
+    "blockchain" text NOT NULL,
     "created_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
     "updated_at" timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT contacts_account_address_network_unique UNIQUE (account_id, address, network)
+    CONSTRAINT contacts_account_address_blockchain_unique UNIQUE (account_id, address, blockchain)
 );
 
 -- Create index for faster lookups by account_id
 CREATE INDEX contacts_account_id_idx ON public.contacts USING btree (account_id);
 
--- Create index for faster lookups by address and network
-CREATE INDEX contacts_address_network_idx ON public.contacts USING btree (address, network);
+-- Create index for faster lookups by address and blockchain
+CREATE INDEX contacts_address_blockchain_idx ON public.contacts USING btree (address, blockchain);
 
 -- Create the update trigger for updated_at
 CREATE TRIGGER contacts_set_updated_at 

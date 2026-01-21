@@ -4,7 +4,7 @@ import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import {
   createContact as createContactRepository,
   deleteContact as deleteContactRepository,
-  getContactByAccountAddressAndNetwork,
+  getContactByAccountAddressAndBlockchain,
   getContactById,
   getContactsByAccountId,
   updateContact as updateContactRepository,
@@ -22,14 +22,14 @@ const AUTH_TOKEN_KEY = "defuse_auth_token"
 const CreateContactFormSchema = v.object({
   address: v.pipe(v.string(), v.nonEmpty("Address is required")),
   name: v.pipe(v.string(), v.nonEmpty("Name is required")),
-  network: v.pipe(v.string(), v.nonEmpty("Network is required")),
+  blockchain: v.pipe(v.string(), v.nonEmpty("Blockchain is required")),
 })
 
 const UpdateContactFormSchema = v.object({
   contactId: v.pipe(v.string(), v.uuid("Contact ID must be a valid UUID")),
   address: v.pipe(v.string(), v.nonEmpty("Address is required")),
   name: v.pipe(v.string(), v.nonEmpty("Name is required")),
-  network: v.pipe(v.string(), v.nonEmpty("Network is required")),
+  blockchain: v.pipe(v.string(), v.nonEmpty("Blockchain is required")),
 })
 
 const DeleteContactFormSchema = v.object({
@@ -38,10 +38,10 @@ const DeleteContactFormSchema = v.object({
 
 export type Contact = Omit<
   ContactSchema,
-  "createdAt" | "updatedAt" | "network"
+  "createdAt" | "updatedAt" | "blockchain"
 > & {
   id: string
-  network: BlockchainEnum
+  blockchain: BlockchainEnum
 }
 
 type ContactEntity = {
@@ -50,7 +50,7 @@ type ContactEntity = {
   account_id: string
   address: string
   name: string
-  network: string
+  blockchain: string
 }
 
 export async function getContacts(input?: {
@@ -77,7 +77,7 @@ export async function getContacts(input?: {
       account_id: contact.account_id,
       address: contact.address,
       name: contact.name,
-      network: contact.network as BlockchainEnum,
+      blockchain: contact.blockchain as BlockchainEnum,
       id: contact.contactId,
     }))
 
@@ -91,7 +91,7 @@ export async function getContacts(input?: {
 export async function createContact(input: {
   name: string
   address: string
-  network: string
+  blockchain: string
 }): Promise<ActionResult<ContactEntity>> {
   const cookieStore = await cookies()
   const token = cookieStore.get(AUTH_TOKEN_KEY)?.value
@@ -129,10 +129,10 @@ export async function createContact(input: {
     return { ok: false, error: errorMessage }
   }
 
-  const existingContact = await getContactByAccountAddressAndNetwork(
+  const existingContact = await getContactByAccountAddressAndBlockchain(
     account_id,
     data.output.address,
-    data.output.network
+    data.output.blockchain
   )
 
   if (existingContact) {
@@ -141,7 +141,7 @@ export async function createContact(input: {
       action: "duplicate-contact",
       account_id,
       address: data.output.address,
-      network: data.output.network,
+      blockchain: data.output.blockchain,
     })
     return { ok: false, error: "Contact already exists" }
   }
@@ -150,7 +150,7 @@ export async function createContact(input: {
     account_id,
     address: data.output.address,
     name: data.output.name,
-    network: data.output.network,
+    blockchain: data.output.blockchain,
   })
 
   if (!entity) {
@@ -170,7 +170,7 @@ export async function createContact(input: {
       account_id: entity.account_id,
       address: entity.address,
       name: entity.name,
-      network: entity.network,
+      blockchain: entity.blockchain,
     },
   }
 }
@@ -179,7 +179,7 @@ export async function updateContact(input: {
   contactId: string
   name: string
   address: string
-  network: string
+  blockchain: string
 }): Promise<ActionResult<ContactEntity>> {
   const cookieStore = await cookies()
   const token = cookieStore.get(AUTH_TOKEN_KEY)?.value
@@ -217,6 +217,8 @@ export async function updateContact(input: {
     return { ok: false, error: errorMessage }
   }
 
+  // TODO: Add wallet address validation same as in recipient form on withdraw
+
   // Check if contact exists and belongs to the account
   const existingContact = await getContactById(data.output.contactId)
 
@@ -244,7 +246,7 @@ export async function updateContact(input: {
   const updatedContact = await updateContactRepository(data.output.contactId, {
     address: data.output.address,
     name: data.output.name,
-    network: data.output.network,
+    blockchain: data.output.blockchain,
   })
 
   if (!updatedContact) {
@@ -265,7 +267,7 @@ export async function updateContact(input: {
       account_id: updatedContact.account_id,
       address: updatedContact.address,
       name: updatedContact.name,
-      network: updatedContact.network,
+      blockchain: updatedContact.blockchain,
     },
   }
 }

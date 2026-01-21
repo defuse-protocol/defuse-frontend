@@ -54,12 +54,12 @@ export async function getContactsByAccountId(
 }
 
 /**
- * Get contact by account_id, address, and network
+ * Get contact by account_id, address, and blockchain
  */
-export async function getContactByAccountAddressAndNetwork(
+export async function getContactByAccountAddressAndBlockchain(
   accountId: string,
   address: string,
-  network: string
+  blockchain: string
 ): Promise<Contact | null> {
   const [contact] = await db
     .select()
@@ -68,7 +68,7 @@ export async function getContactByAccountAddressAndNetwork(
       and(
         eq(contactsTable.account_id, accountId),
         eq(contactsTable.address, address),
-        eq(contactsTable.network, network)
+        eq(contactsTable.blockchain, blockchain)
       )
     )
     .limit(1)
@@ -80,7 +80,9 @@ export async function getContactByAccountAddressAndNetwork(
  */
 export async function updateContact(
   contactId: string,
-  updates: Partial<Pick<Contact, "account_id" | "address" | "name" | "network">>
+  updates: Partial<
+    Pick<Contact, "account_id" | "address" | "name" | "blockchain">
+  >
 ): Promise<Contact | null> {
   const [updatedContact] = await db
     .update(contactsTable)

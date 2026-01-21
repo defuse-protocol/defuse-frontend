@@ -5,7 +5,7 @@ export const contactsTable = pgTable("contacts", {
   account_id: text("account_id").notNull(),
   address: text("address").notNull(),
   name: text("name").notNull(),
-  network: text("network").notNull(),
+  blockchain: text("blockchain").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
