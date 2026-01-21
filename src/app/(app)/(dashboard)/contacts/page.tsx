@@ -19,13 +19,6 @@ export default async function ContactsPage({
 
   return (
     <>
-      {/* TODO: Remove this before production */}
-      <div className="flex justify-end">
-        <a className="text-blue-500" href="/dev/generate-token">
-          {"> Generate test auth token"}
-        </a>
-      </div>
-
       <ContactsHeader search={search} />
       <ContactsList contacts={contacts} />
     </>
