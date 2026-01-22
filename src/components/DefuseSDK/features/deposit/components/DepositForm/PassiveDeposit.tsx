@@ -147,7 +147,7 @@ export function PassiveDeposit({
               {isFungibleToken(tokenDeployment) && (
                 <TokenDeploymentAddress address={tokenDeployment.address} />
               )}{" "}
-              on the{" "}
+              from the{" "}
               <span className="capitalize">
                 {chainNameToNetworkName(tokenDeployment.chainName)}
               </span>{" "}
