@@ -24,11 +24,12 @@ import type {
 import { computeTradeBreakdown } from "../../features/otcDesk/utils/otcMakerBreakdown"
 import { parseTradeTerms } from "../../features/otcDesk/utils/parseTradeTerms"
 import { usePublicKeyModalOpener } from "../../features/swap/hooks/usePublicKeyModalOpener"
+import { midTruncate } from "../../features/withdraw/components/WithdrawForm/utils"
 import { getProtocolFee } from "../../services/intentsContractService"
 import type { TokenInfo } from "../../types/base"
 import { formatTokenValue } from "../../utils/format"
 import AssetComboIcon from "../Asset/AssetComboIcon"
-import { Copy } from "../IntentCard/CopyButton"
+import { Copy, CopyButton } from "../IntentCard/CopyButton"
 import { BaseModalDialog } from "./ModalDialog"
 
 export type ModalActiveDealProps = {
@@ -308,6 +309,28 @@ const ModalActiveDeal = ({
               </div>
             </dl>
           )}
+
+          <dl className="mt-5 pt-5 border-t border-gray-200 space-y-4">
+            <div className="flex justify-between">
+              <dt className="text-sm text-gray-500 font-medium">Trade ID</dt>
+              <dd className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-gray-900">
+                  {midTruncate(tradeId, 16)}
+                </span>
+                <CopyButton text={tradeId} ariaLabel="Copy trade ID" />
+              </dd>
+            </div>
+
+            <div className="flex justify-between">
+              <dt className="text-sm text-gray-500 font-medium">Nonce</dt>
+              <dd className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-gray-900">
+                  {midTruncate(nonceBase64, 16)}
+                </span>
+                <CopyButton text={nonceBase64} ariaLabel="Copy nonce" />
+              </dd>
+            </div>
+          </dl>
 
           <div className="mt-5 space-y-2">
             {(!error || error === "MAKER_INSUFFICIENT_FUNDS") && (
