@@ -6,6 +6,7 @@ import {
   ChartBarIcon,
   ShieldCheckIcon,
 } from "@heroicons/react/24/outline"
+import AnimatedTokenPath from "@src/components/AnimatedTokenPath"
 import Button from "@src/components/Button"
 import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
 import { DiscordIcon, LogoIcon, NearLogoIcon, TwitterIcon } from "@src/icons"
@@ -78,7 +79,7 @@ export default function Home() {
       </header>
 
       <main className="flex-1 flex flex-col">
-        <section className="flex flex-col items-center justify-center pt-16 pb-24 bg-white rounded-b-3xl">
+        <section className="flex flex-col items-center justify-center pt-16 pb-24 bg-white rounded-b-3xl overflow-hidden">
           <div className="flex flex-col items-center justify-center px-4 max-w-lg">
             <div className="text-[#FD4B2B] text-sm/5 font-bold py-0.5 px-3 rounded-lg bg-[#FD4B2B]/[0.07] text-center">
               Over $10 billion swapped
@@ -89,8 +90,10 @@ export default function Home() {
             </h1>
           </div>
 
-          <div className="mt-16 flex flex-col items-center justify-center px-4 max-w-md">
-            <div className="bg-gray-100 rounded-[27px] p-2 border border-gray-200 flex flex-col gap-2">
+          <div className="relative z-10 mt-16 flex flex-col items-center justify-center px-4 max-w-md">
+            <AnimatedTokenPath />
+
+            <div className="relative z-10 bg-gray-100 rounded-[27px] p-2 border border-gray-200 flex flex-col gap-2">
               <div className="p-6 rounded-3xl bg-white border border-gray-200 flex flex-col gap-4">
                 <label htmlFor="sell">Sell</label>
                 <div className="flex items-center justify-between gap-4">
@@ -107,7 +110,6 @@ export default function Home() {
                     type="button"
                     className="rounded-full border border-gray-900/10 flex items-center gap-1.5 p-1 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-gray-900"
                   >
-                    {/* https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png */}
                     <AssetComboIcon
                       icon="https://s2.coinmarketcap.com/static/img/coins/128x128/1027.png"
                       sizeClassName="size-7"
