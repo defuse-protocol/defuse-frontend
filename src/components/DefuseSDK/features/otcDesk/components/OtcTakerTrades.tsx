@@ -4,7 +4,7 @@ import { ArrowLongRightIcon } from "@heroicons/react/16/solid"
 import { CheckIcon } from "@heroicons/react/20/solid"
 import ListItem from "@src/components/ListItem"
 import { useQuery } from "@tanstack/react-query"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import AssetComboIcon from "../../../components/Asset/AssetComboIcon"
 import { CopyButton } from "../../../components/IntentCard/CopyButton"
 import { BaseModalDialog } from "../../../components/Modal/ModalDialog"
@@ -62,13 +62,19 @@ function isCompletedTrade(trade: unknown): trade is CompletedTakerTrade {
 
 export function OtcTakerTrades({ tokenList }: OtcTakerTradesProps) {
   const [selectedTrade, setSelectedTrade] = useState<TakerTradeSelection>(null)
+  const [hasMounted, setHasMounted] = useState(false)
+
+  useEffect(() => {
+    setHasMounted(true)
+  }, [])
 
   const trades = useOtcTakerTrades(
     (s) =>
       Object.values(s.trades).filter(isCompletedTrade) as CompletedTakerTrade[]
   )
 
-  if (trades.length === 0) {
+  // Don't render until after hydration to avoid mismatch with localStorage data
+  if (!hasMounted || trades.length === 0) {
     return null
   }
 
