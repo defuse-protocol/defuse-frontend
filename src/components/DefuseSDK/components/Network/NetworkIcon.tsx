@@ -15,7 +15,6 @@ export function NetworkIcon({
         sizeClassName
       )}
     >
-      {" "}
       <Image
         src={chainIcon.light}
         alt=""

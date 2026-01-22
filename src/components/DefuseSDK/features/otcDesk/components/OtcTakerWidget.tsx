@@ -5,7 +5,6 @@ import { type ReactNode, useMemo, useState } from "react"
 
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { logger } from "@src/utils/logger"
-import { WidgetRoot } from "../../../components/WidgetRoot"
 import { nearClient } from "../../../constants/nearClient"
 import type { IntentsUserId, SignerCredentials } from "../../../core/formatters"
 import { SwapWidgetProvider } from "../../../providers/SwapWidgetProvider"
@@ -28,6 +27,7 @@ import {
   determineInvolvedTokens,
 } from "../utils/deriveTradeTerms"
 
+import Spinner from "@src/components/Spinner"
 import { OtcTakerForm } from "./OtcTakerForm"
 import { OtcTakerInvalidOrder } from "./OtcTakerInvalidOrder"
 import { OtcTakerSuccessScreen } from "./OtcTakerSuccessScreen"
@@ -60,13 +60,11 @@ export type OtcTakerWidgetProps = {
 
 export function OtcTakerWidget(props: OtcTakerWidgetProps) {
   return (
-    <WidgetRoot>
+    <section className="mt-6">
       <SwapWidgetProvider>
-        <div className="widget-container rounded-2xl bg-gray-1 p-5 shadow-sm">
-          <OtcTakerScreens {...props} />
-        </div>
+        <OtcTakerScreens {...props} />
       </SwapWidgetProvider>
-    </WidgetRoot>
+    </section>
   )
 }
 
@@ -81,8 +79,6 @@ function OtcTakerScreens({
   referral,
   renderHostAppLink,
 }: OtcTakerWidgetProps) {
-  const loading = <div>Loading...</div>
-
   const signerCredentials: SignerCredentials | null =
     userAddress != null && userChainType != null
       ? { credential: userAddress, credentialType: userChainType }
@@ -126,7 +122,7 @@ function OtcTakerScreens({
   )
 
   if (enrichedTradeTerms == null) {
-    return loading
+    return <LoadingView />
   }
 
   return enrichedTradeTerms.match({
@@ -152,7 +148,7 @@ function OtcTakerScreens({
           tradeTerms={tradeTerms}
           tokenIn={tokenIn}
           tokenOut={tokenOut}
-          fallback={loading}
+          fallback={<LoadingView />}
         >
           <SignIntentActorProvider sendNearTransaction={sendNearTransaction}>
             {tradeId != null && protocolFee != null && (
@@ -273,3 +269,17 @@ function OtcTakerValidationOrder({
 
   return children
 }
+
+const LoadingView = () => (
+  <div className="bg-white rounded-3xl p-6 border border-gray-200 overflow-hidden">
+    <div className="flex flex-col items-center justify-center my-7">
+      <div className="size-13 rounded-full flex justify-center items-center text-gray-500 bg-gray-100">
+        <Spinner />
+      </div>
+
+      <h2 className="mt-5 text-xl font-bold tracking-tight text-center">
+        Loading deal...
+      </h2>
+    </div>
+  </div>
+)

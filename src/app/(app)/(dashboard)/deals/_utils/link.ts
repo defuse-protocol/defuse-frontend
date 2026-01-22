@@ -25,7 +25,7 @@ export function createOtcOrderLink(
   multiPayload: unknown,
   iv: string
 ) {
-  const url = new URL("/otc/order", window.location.origin)
+  const url = new URL("/deal", window.location.origin)
   if (iv) {
     url.hash = iv
     return url.toString()

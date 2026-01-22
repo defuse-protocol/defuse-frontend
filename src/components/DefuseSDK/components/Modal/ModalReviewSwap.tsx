@@ -73,7 +73,7 @@ const ModalReviewSwap = ({
         </div>
       </div>
 
-      <dl className="mt-5 pt-5 border-t border-gray-200 space-y-2">
+      <dl className="mt-7 pt-5 border-t border-gray-200 space-y-2">
         <div className="flex items-center justify-between">
           <dt className="text-sm text-gray-500 font-medium">Rate</dt>
           <dd>

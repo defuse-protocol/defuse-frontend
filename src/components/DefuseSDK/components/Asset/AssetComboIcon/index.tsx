@@ -92,7 +92,7 @@ const AssetComboIcon = ({
       {showChainIcon && chainIcon && resolvedTheme && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="absolute -right-1.5 -bottom-1.5 size-5 bg-white rounded-full flex items-center justify-center">
+            <div className="absolute -right-1.5 -bottom-1.5 z-20 size-5 bg-white rounded-full flex items-center justify-center">
               <Image
                 width={16}
                 height={16}
@@ -106,7 +106,7 @@ const AssetComboIcon = ({
               />
             </div>
           </TooltipTrigger>
-          <TooltipContent className="z-50">
+          <TooltipContent className="z-50" theme="dark">
             {chainName?.toUpperCase()}
           </TooltipContent>
         </Tooltip>

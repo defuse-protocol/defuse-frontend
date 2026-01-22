@@ -104,3 +104,30 @@ export function getTokenAid<T extends { tags?: string[] }>(
   }
   return null
 }
+
+const tokenMapCache = new WeakMap<TokenInfo[], Map<string, BaseTokenInfo>>()
+
+function getTokenMap(tokenList: TokenInfo[]): Map<string, BaseTokenInfo> {
+  const cached = tokenMapCache.get(tokenList)
+  if (cached) return cached
+
+  const map = new Map<string, BaseTokenInfo>()
+  for (const token of tokenList) {
+    if ("groupedTokens" in token) {
+      for (const t of token.groupedTokens) {
+        map.set(t.defuseAssetId, t)
+      }
+    } else {
+      map.set(token.defuseAssetId, token)
+    }
+  }
+  tokenMapCache.set(tokenList, map)
+  return map
+}
+
+export function findTokenByAssetId(
+  tokenList: TokenInfo[],
+  tokenId: string
+): BaseTokenInfo | undefined {
+  return getTokenMap(tokenList).get(tokenId)
+}

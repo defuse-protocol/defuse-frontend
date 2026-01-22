@@ -9,6 +9,7 @@ type ListItemProps = {
   onClick?: () => void
   highlight?: boolean
   className?: string
+  dataTestId?: string
 }
 
 function ListItem({
@@ -17,6 +18,7 @@ function ListItem({
   onClick,
   highlight = false,
   className,
+  dataTestId,
 }: ListItemProps) {
   const [isOpen, setIsOpen] = useState(false)
   const hasPopover = popoverContent !== undefined
@@ -30,6 +32,7 @@ function ListItem({
         isInteractive && (isOpen ? "bg-gray-100" : "hover:bg-gray-100"),
         className
       )}
+      data-testid={dataTestId}
     >
       <div className="relative flex gap-3 items-center py-3">{children}</div>
 
