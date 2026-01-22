@@ -205,6 +205,9 @@ export function OtcMakerForm({
     const usdValue = amountInNum * tokenInPrice
     const calculatedAmountOut = usdValue / tokenOutPrice
 
+    // Guard against invalid calculations
+    if (!Number.isFinite(calculatedAmountOut) || calculatedAmountOut < 0) return
+
     // Format with reasonable precision (use balance decimals which handles both token types)
     const decimals = tokenOutBalance?.decimals ?? 8
     const precision = Math.min(decimals, 8)
@@ -212,10 +215,14 @@ export function OtcMakerForm({
       .toFixed(precision)
       .replace(/\.?0+$/, "")
 
+    // Only update if value actually changed to prevent loops
+    if (formatted === formValues.amountOut) return
+
     isProgrammaticUpdate.current = true
     formValuesRef.trigger.updateAmountOut({ value: formatted })
   }, [
     formValues.amountIn,
+    formValues.amountOut,
     formValues.tokenIn,
     formValues.tokenOut,
     tokensUsdPriceData,
