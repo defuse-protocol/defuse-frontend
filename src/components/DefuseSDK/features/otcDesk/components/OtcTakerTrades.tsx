@@ -41,11 +41,29 @@ type TakerTradeSelection = {
   intentHashes: string[]
 } | null
 
+function isCompletedTrade(trade: unknown): trade is {
+  tradeId: string
+  status: "completed"
+  makerMultiPayload: MultiPayload
+  takerMultiPayload: MultiPayload
+  intentHashes: string[]
+} {
+  return (
+    trade != null &&
+    typeof trade === "object" &&
+    "status" in trade &&
+    trade.status === "completed" &&
+    "takerMultiPayload" in trade &&
+    "intentHashes" in trade &&
+    Array.isArray((trade as { intentHashes: unknown }).intentHashes)
+  )
+}
+
 export function OtcTakerTrades({ tokenList }: OtcTakerTradesProps) {
   const [selectedTrade, setSelectedTrade] = useState<TakerTradeSelection>(null)
 
   const trades = useOtcTakerTrades((s) => {
-    return Object.values(s.trades).filter((t) => t.status === "completed")
+    return Object.values(s.trades).filter(isCompletedTrade)
   })
 
   if (trades.length === 0) {
@@ -58,21 +76,17 @@ export function OtcTakerTrades({ tokenList }: OtcTakerTradesProps) {
         Trades taken
       </h3>
       <div className="flex flex-col gap-1">
-        {trades.map((trade) => {
-          if (trade.status !== "completed") return null
-
-          return (
-            <OtcTakerTradeItem
-              key={trade.tradeId}
-              tradeId={trade.tradeId}
-              makerMultiPayload={trade.makerMultiPayload}
-              takerMultiPayload={trade.takerMultiPayload}
-              intentHashes={trade.intentHashes}
-              tokenList={tokenList}
-              onSelect={(tradeData) => setSelectedTrade(tradeData)}
-            />
-          )
-        })}
+        {trades.map((trade) => (
+          <OtcTakerTradeItem
+            key={trade.tradeId}
+            tradeId={trade.tradeId}
+            makerMultiPayload={trade.makerMultiPayload}
+            takerMultiPayload={trade.takerMultiPayload}
+            intentHashes={trade.intentHashes}
+            tokenList={tokenList}
+            onSelect={(tradeData) => setSelectedTrade(tradeData)}
+          />
+        ))}
       </div>
 
       {selectedTrade != null && (
