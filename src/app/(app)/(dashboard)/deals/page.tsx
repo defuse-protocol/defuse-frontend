@@ -1,7 +1,7 @@
 "use client"
 
 import { OtcMakerTrades } from "@src/components/DefuseSDK/features/otcDesk/components/OtcMakerTrades"
-// import { OtcTakerTrades } from "@src/components/DefuseSDK/features/otcDesk/components/OtcTakerTrades"
+import { OtcTakerTrades } from "@src/components/DefuseSDK/features/otcDesk/components/OtcTakerTrades"
 import { SwapWidgetProvider } from "@src/components/DefuseSDK/providers/SwapWidgetProvider"
 
 import DealsHeader from "@src/components/DealsHeader"
@@ -63,8 +63,7 @@ export default function DealsPage() {
                 return { txHash: outcome.transaction.hash }
               }}
             />
-            {/* Temporarily disabled to debug crash */}
-            {/* <OtcTakerTrades tokenList={tokenList} /> */}
+            <OtcTakerTrades tokenList={tokenList} />
           </>
         )}
       </SwapWidgetProvider>

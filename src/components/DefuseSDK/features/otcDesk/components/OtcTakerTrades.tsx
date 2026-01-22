@@ -5,6 +5,7 @@ import { CheckIcon } from "@heroicons/react/20/solid"
 import ListItem from "@src/components/ListItem"
 import { useQuery } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
+import { useShallow } from "zustand/shallow"
 import AssetComboIcon from "../../../components/Asset/AssetComboIcon"
 import { CopyButton } from "../../../components/IntentCard/CopyButton"
 import { BaseModalDialog } from "../../../components/Modal/ModalDialog"
@@ -69,8 +70,12 @@ export function OtcTakerTrades({ tokenList }: OtcTakerTradesProps) {
   }, [])
 
   const trades = useOtcTakerTrades(
-    (s) =>
-      Object.values(s.trades).filter(isCompletedTrade) as CompletedTakerTrade[]
+    useShallow(
+      (s) =>
+        Object.values(s.trades).filter(
+          isCompletedTrade
+        ) as CompletedTakerTrade[]
+    )
   )
 
   // Don't render until after hydration to avoid mismatch with localStorage data
