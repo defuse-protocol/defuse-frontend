@@ -64,9 +64,10 @@ function isCompletedTrade(trade: unknown): trade is CompletedTakerTrade {
 export function OtcTakerTrades({ tokenList }: OtcTakerTradesProps) {
   const [selectedTrade, setSelectedTrade] = useState<TakerTradeSelection>(null)
 
-  const trades: CompletedTakerTrade[] = useOtcTakerTrades((s) => {
-    return Object.values(s.trades).filter(isCompletedTrade)
-  })
+  const trades = useOtcTakerTrades(
+    (s) =>
+      Object.values(s.trades).filter(isCompletedTrade) as CompletedTakerTrade[]
+  )
 
   if (trades.length === 0) {
     return null
