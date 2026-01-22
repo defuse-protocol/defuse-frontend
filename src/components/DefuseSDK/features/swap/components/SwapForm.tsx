@@ -10,6 +10,7 @@ import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
 import { getDefuseAssetId } from "@src/components/DefuseSDK/utils/token"
 import ErrorMessage from "@src/components/ErrorMessage"
+import { SwapStatus } from "@src/components/SwapStatus"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useThrottledValue } from "@src/hooks/useThrottledValue"
 import { useSwapTracker } from "@src/providers/SwapTrackerProvider"
@@ -32,7 +33,6 @@ import {
 import type { swapUIMachine } from "../../machines/swapUIMachine"
 import { useUsdMode } from "../hooks/useUsdMode"
 import SwapSettings from "./SwapSettings"
-import { SwapStatusView } from "./SwapStatusView"
 import { SwapSubmitterContext } from "./SwapSubmitter"
 import { SwapUIMachineContext } from "./SwapUIMachineProvider"
 
@@ -389,7 +389,8 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
   if (showInlineStatus && mostRecentSwap) {
     return (
-      <SwapStatusView
+      <SwapStatus
+        variant="full"
         swap={mostRecentSwap}
         onDismiss={() => setShowInlineStatus(false)}
         onSwapAgain={() => dismissSwap(mostRecentSwap.id)}

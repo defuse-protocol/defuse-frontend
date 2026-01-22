@@ -6,7 +6,7 @@ import { oneClickStatusMachine } from "@src/components/DefuseSDK/features/machin
 import type { IntentDescription } from "@src/components/DefuseSDK/features/machines/swapIntentMachine"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
-import { SwapDockContent } from "@src/components/SwapDockContent"
+import { SwapStatus } from "@src/components/SwapStatus"
 import {
   type ReactNode,
   createContext,
@@ -155,7 +155,7 @@ export function SwapTrackerProvider({ children }: { children: ReactNode }) {
         ),
         rawIcon: true,
         keyValueRows: [],
-        renderContent: () => <SwapDockContent swap={trackedSwap} />,
+        renderContent: () => <SwapStatus variant="dock" swap={trackedSwap} />,
       })
     },
     [addDockItem]
