@@ -132,12 +132,11 @@ export function formatUsd(amount: string): string {
   const num = Number.parseFloat(amount)
   if (Number.isNaN(num) || num === 0) return ""
 
-  return num.toLocaleString(undefined, {
-    style: "currency",
-    currency: "USD",
+  const formatted = num.toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })
+  return `$${formatted}`
 }
 
 export function formatRelativeTime(dateString: string): string {

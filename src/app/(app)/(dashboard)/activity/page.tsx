@@ -22,7 +22,6 @@ import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
 import clsx from "clsx"
-import { format, isToday, isYesterday } from "date-fns"
 import { useRouter } from "next/navigation"
 import {
   use,
@@ -61,25 +60,6 @@ const POLLING_INITIAL_DELAY_MS = 20_000
 const POLLING_INTERVAL_MS = 10_000
 const MAX_POLLING_ATTEMPTS = 20
 const RECENT_SWAP_THRESHOLD_MS = 2 * 60 * 60 * 1000
-
-const getDateGroupLabel = (dateString: string): string => {
-  const date = new Date(dateString)
-  if (isToday(date)) return "Today"
-  if (isYesterday(date)) return "Yesterday"
-  return format(date, "MMM d, yyyy")
-}
-
-function groupBy<T>(arr: T[], keyFn: (item: T) => string): Record<string, T[]> {
-  return arr.reduce(
-    (acc, item) => {
-      const key = keyFn(item)
-      acc[key] = acc[key] || []
-      acc[key].push(item)
-      return acc
-    },
-    {} as Record<string, T[]>
-  )
-}
 
 export default function ActivityPage({
   searchParams,
@@ -266,11 +246,6 @@ export default function ActivityPage({
     }
   }, [dataUpdatedAt, shouldPoll])
 
-  const groupedTransactions = useMemo(
-    () => groupBy(transactions, (tx) => getDateGroupLabel(tx.timestamp)),
-    [transactions]
-  )
-
   const isWalletConnected = Boolean(userAddress)
 
   return (
@@ -350,7 +325,7 @@ export default function ActivityPage({
         </Button>
       </div>
 
-      <section className="mt-10 space-y-10">
+      <section className="mt-10">
         {isWalletHydrating ? (
           <LoadingState />
         ) : (
@@ -383,7 +358,7 @@ export default function ActivityPage({
               !isError &&
               transactions.length > 0 && (
                 <TransactionList
-                  groupedTransactions={groupedTransactions}
+                  transactions={transactions}
                   tokenList={tokenList}
                   hasNextPage={hasNextPage}
                   isFetchingNextPage={isFetchingNextPage}
@@ -413,28 +388,18 @@ function EmptyState({ message }: { message: string }) {
 
 function LoadingState() {
   return (
-    <div className="space-y-10">
-      <div>
-        <div className="h-5 w-20 bg-gray-200 rounded animate-pulse mb-2" />
-        <div className="flex flex-col">
-          <SwapHistoryItemSkeleton />
-          <SwapHistoryItemSkeleton />
-          <SwapHistoryItemSkeleton />
-        </div>
-      </div>
-      <div>
-        <div className="h-5 w-24 bg-gray-200 rounded animate-pulse mb-2" />
-        <div className="flex flex-col">
-          <SwapHistoryItemSkeleton />
-          <SwapHistoryItemSkeleton />
-        </div>
-      </div>
+    <div className="flex flex-col">
+      <SwapHistoryItemSkeleton />
+      <SwapHistoryItemSkeleton />
+      <SwapHistoryItemSkeleton />
+      <SwapHistoryItemSkeleton />
+      <SwapHistoryItemSkeleton />
     </div>
   )
 }
 
 interface TransactionListProps {
-  groupedTransactions: Record<string, SwapTransaction[]>
+  transactions: SwapTransaction[]
   tokenList: TokenInfo[]
   hasNextPage: boolean | undefined
   isFetchingNextPage: boolean
@@ -442,7 +407,7 @@ interface TransactionListProps {
 }
 
 function TransactionList({
-  groupedTransactions,
+  transactions,
   tokenList,
   hasNextPage,
   isFetchingNextPage,
@@ -471,16 +436,11 @@ function TransactionList({
 
   return (
     <>
-      {Object.entries(groupedTransactions).map(([date, dateTxs]) => (
-        <div key={date}>
-          <h2 className="text-gray-900 text-base font-semibold">{date}</h2>
-          <div className="mt-2 flex flex-col">
-            {dateTxs.map((tx: SwapTransaction) => (
-              <HistoryItem key={tx.id} transaction={tx} tokenList={tokenList} />
-            ))}
-          </div>
-        </div>
-      ))}
+      <div className="flex flex-col">
+        {transactions.map((tx: SwapTransaction) => (
+          <HistoryItem key={tx.id} transaction={tx} tokenList={tokenList} />
+        ))}
+      </div>
 
       {hasNextPage && <div ref={loadMoreTriggerRef} className="h-1" />}
       {isFetchingNextPage && <LoadingMoreIndicator />}
