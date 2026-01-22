@@ -122,7 +122,6 @@ export const useConnectWallet = (): ConnectWalletAction => {
    * EVM:
    * Down below are Wagmi Wallet handlers and actions
    */
-
   const evmWalletConnect = useConnect()
   const evmWalletDisconnect = useDisconnect()
   const evmWalletAccount = useAccount()
