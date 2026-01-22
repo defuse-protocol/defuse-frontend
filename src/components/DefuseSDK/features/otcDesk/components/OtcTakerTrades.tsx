@@ -9,7 +9,6 @@ import AssetComboIcon from "../../../components/Asset/AssetComboIcon"
 import { CopyButton } from "../../../components/IntentCard/CopyButton"
 import { BaseModalDialog } from "../../../components/Modal/ModalDialog"
 import type { TokenInfo } from "../../../types/base"
-import { assert } from "../../../utils/assert"
 import { formatTokenValue } from "../../../utils/format"
 import {
   computeTotalBalanceDifferentDecimals,
@@ -147,14 +146,16 @@ function OtcTakerTradeItem({
     tradeTerms.tokenDiff,
     { strict: false }
   )
-  assert(totalAmountIn)
 
   const totalAmountOut = computeTotalBalanceDifferentDecimals(
     tokenOut,
     tradeTerms.tokenDiff,
     { strict: false }
   )
-  assert(totalAmountOut)
+
+  if (!totalAmountIn || !totalAmountOut) {
+    return null
+  }
 
   const handleClick = () => {
     onSelect({
