@@ -241,7 +241,7 @@ const ModalActiveDeal = ({
             >
               <div className="flex items-center justify-between gap-2">
                 <dt className="text-sm/5 text-gray-500 font-medium">
-                  You send
+                  Token to trade
                 </dt>
                 <dd className="flex items-center gap-1 justify-end">
                   <span className="text-sm/5 text-gray-900 font-semibold">
@@ -258,7 +258,7 @@ const ModalActiveDeal = ({
 
               <div className="flex items-center justify-between gap-2">
                 <dt className="text-sm/5 text-gray-500 font-medium">
-                  You receive
+                  Token to receive
                 </dt>
                 <dd className="flex items-center gap-1 justify-end">
                   <span className="text-sm/5 text-gray-900 font-semibold">
