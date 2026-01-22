@@ -205,8 +205,9 @@ export function OtcMakerForm({
     const usdValue = amountInNum * tokenInPrice
     const calculatedAmountOut = usdValue / tokenOutPrice
 
-    // Format with reasonable precision
-    const precision = Math.min(formValues.tokenOut.decimals, 8)
+    // Format with reasonable precision (use balance decimals which handles both token types)
+    const decimals = tokenOutBalance?.decimals ?? 8
+    const precision = Math.min(decimals, 8)
     const formatted = calculatedAmountOut
       .toFixed(precision)
       .replace(/\.?0+$/, "")
@@ -220,6 +221,7 @@ export function OtcMakerForm({
     tokensUsdPriceData,
     userEditedAmountOut,
     formValuesRef,
+    tokenOutBalance,
   ])
 
   useEffect(() => {
