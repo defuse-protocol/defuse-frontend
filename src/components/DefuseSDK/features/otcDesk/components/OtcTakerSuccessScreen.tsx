@@ -97,7 +97,7 @@ export function OtcTakerSuccessScreen({
         <p className="mt-2 text-base/5 font-medium text-gray-500 text-center text-balance">
           {isPending
             ? "The deal is being processed. You will receive your funds shortly."
-            : "The deal has been successfully completed, and the funds are now available in your account."}
+            : "The transaction has been successfully executed. The funds are now available in your account."}
         </p>
       </div>
 

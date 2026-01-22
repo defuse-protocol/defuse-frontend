@@ -433,7 +433,7 @@ const getSubtitle = ({
     return "No action needed — this deal was already completed or cancelled."
   }
 
-  return "Share the link with the counterparty to finalize the deal"
+  return "Share the link with the counterparty to execute the deal"
 }
 
 function renderErrorMessage(reason: string): string {

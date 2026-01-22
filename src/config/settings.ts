@@ -33,7 +33,7 @@ export const settings: Settings = {
     },
     deals: {
       title: "NEAR Intents | Deals",
-      description: "View your private deals on NEAR Intents.",
+      description: "View your private trades on NEAR Intents.",
     },
     deal: {
       title: "NEAR Intents | Accept a Deal Offer",

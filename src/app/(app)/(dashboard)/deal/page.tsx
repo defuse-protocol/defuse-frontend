@@ -21,10 +21,11 @@ export default function DealPage() {
   return (
     <>
       <h1 className="text-gray-900 text-xl font-semibold tracking-tight">
-        Accept a deal offer
+        Execute a trustless trade
       </h1>
       <p className="mt-1 text-gray-500 text-base/5 font-medium">
-        Pay the specified amount to finalize the transaction.
+        A counterparty has offered you the following deal. Accept the offer to
+        execute the swap trustlessly.
       </p>
 
       <OtcTakerWidget
