@@ -7,11 +7,12 @@ import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMe
 import { walletVerificationMachine } from "@src/machines/walletVerificationMachine"
 import { useBypassedWalletsStore } from "@src/stores/useBypassedWalletsStore"
 import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
+import { getStoredToken, storeAppAuthToken, verifyJWT } from "@src/utils/jwt"
 import {
   verifyWalletSignature,
   walletVerificationMessageFactory,
 } from "@src/utils/walletMessage"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useActor } from "@xstate/react"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useRef } from "react"
@@ -23,6 +24,7 @@ export function WalletVerificationProvider() {
   const mixPanel = useMixpanel()
   const router = useRouter()
   const pathname = usePathname()
+  const queryClient = useQueryClient()
 
   const bannedAccountCheck = useQuery({
     queryKey: ["banned_account", state.address, state.chainType],
@@ -60,6 +62,75 @@ export function WalletVerificationProvider() {
     enabled: state.address != null && state.chainType !== undefined,
     staleTime: 1000 * 60 * 60, // 1 hour,
   })
+
+  const tokenValidityCheck = useQuery({
+    queryKey: ["token_validity", state.address, state.chainType],
+    queryFn: async () => {
+      const storedToken = getStoredToken()
+      if (!storedToken) {
+        return { isValid: false }
+      }
+
+      const payload = await verifyJWT(storedToken)
+      if (!payload) {
+        return { isValid: false }
+      }
+
+      const matchesWallet =
+        payload.auth_identifier === state.address &&
+        payload.auth_method === state.chainType
+
+      return { isValid: matchesWallet }
+    },
+    enabled:
+      state.address != null &&
+      state.chainType !== undefined &&
+      state.isVerified,
+    staleTime: 1000 * 60, // 1 minute
+  })
+
+  const isTokenValid = tokenValidityCheck.data?.isValid ?? false
+
+  const generateToken = useQuery({
+    queryKey: [
+      "generate_token",
+      state.address,
+      state.chainType,
+      state.isVerified,
+      isTokenValid,
+    ],
+    queryFn: async () => {
+      const response = await fetch("/api/auth/token", {
+        method: "POST",
+        body: JSON.stringify({
+          authIdentifier: state.address,
+          authMethod: state.chainType,
+        }),
+      })
+      if (!response.ok) {
+        throw new Error("Failed to generate token")
+      }
+      const data = (await response.json()) as { token: string }
+
+      if (data.token) {
+        storeAppAuthToken(data.token)
+        queryClient.invalidateQueries({
+          queryKey: ["token_validity", state.address, state.chainType],
+        })
+      }
+
+      return data
+    },
+    enabled:
+      state.address != null &&
+      state.chainType !== undefined &&
+      state.isVerified &&
+      !isTokenValid &&
+      !tokenValidityCheck.isLoading,
+    staleTime: 1000 * 60 * 5, // 5 minutes,
+  })
+
+  void generateToken
 
   const { addWalletAddress } = useVerifiedWalletsStore()
   const { addBypassedWalletAddress, isWalletBypassed } =
