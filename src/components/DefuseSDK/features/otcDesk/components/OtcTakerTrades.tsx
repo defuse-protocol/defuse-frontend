@@ -1,3 +1,4 @@
+import type { MultiPayload } from "@defuse-protocol/contract-types"
 import { solverRelay } from "@defuse-protocol/internal-utils"
 import { ArrowLongRightIcon } from "@heroicons/react/16/solid"
 import { CheckIcon } from "@heroicons/react/20/solid"
@@ -92,8 +93,8 @@ export function OtcTakerTrades({ tokenList }: OtcTakerTradesProps) {
 
 interface OtcTakerTradeItemProps {
   tradeId: string
-  makerMultiPayload: unknown
-  takerMultiPayload: unknown
+  makerMultiPayload: MultiPayload
+  takerMultiPayload: MultiPayload
   intentHashes: string[]
   tokenList: TokenInfo[]
   onSelect: (trade: TakerTradeSelection) => void
