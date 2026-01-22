@@ -45,7 +45,7 @@ export async function generateAppAuthToken(
   } satisfies JWTPayload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime("30d") // Token expires in 30 days
+    .setExpirationTime("1m") // Token expires in 1 minutes
     .sign(secret)
 
   return token
@@ -88,6 +88,15 @@ export function getStoredToken(): string | null {
     return null
   }
   return localStorage.getItem(TOKEN_STORAGE_KEY)
+}
+
+/**
+ * Stores the app auth token in localStorage
+ */
+export function storeAppAuthToken(token: string): void {
+  if (typeof window !== "undefined") {
+    localStorage.setItem(TOKEN_STORAGE_KEY, token)
+  }
 }
 
 /**
