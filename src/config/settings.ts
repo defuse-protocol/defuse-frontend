@@ -39,6 +39,10 @@ export const settings: Settings = {
       title: "NEAR Intents | Accept a Deal Offer",
       description: "Review and accept a deal offer from a counterparty.",
     },
+    contacts: {
+      title: "NEAR Intents | Contacts",
+      description: "View your contacts on NEAR Intents.",
+    },
     jobs: {
       title: "Careers - Join Our Team",
       description:

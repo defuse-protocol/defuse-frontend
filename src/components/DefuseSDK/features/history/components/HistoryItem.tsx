@@ -123,7 +123,7 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
   const badgeType: BadgeType = "swap"
 
   return (
-    <div className="py-3 px-2 flex items-center gap-1.5 sm:gap-3 border-b border-gray-200 last:border-b-0 even:bg-gray-50 transition-colors">
+    <div className="py-3 px-2 flex items-center gap-1.5 sm:gap-3 border-b border-gray-200 last:border-b-0 even:bg-gray-100 transition-colors">
       <div className="flex items-center gap-1.5 sm:gap-3 flex-1 min-w-0">
         <div className="w-[85px] sm:w-[120px] flex-shrink-0">
           <TokenDisplay
@@ -163,7 +163,7 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
                 href={explorerUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-10 hover:text-gray-12 transition-colors duration-150"
+                className="text-gray-10 hover:text-blue-600 transition-colors"
                 onClick={(e) => e.stopPropagation()}
                 title="View on explorer"
               >

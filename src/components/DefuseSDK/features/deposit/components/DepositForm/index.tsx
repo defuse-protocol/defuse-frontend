@@ -234,7 +234,7 @@ export const DepositForm = ({
                 <TokenIconPlaceholder className="size-10" />
               )
             }
-            label={token ? "Token" : "Select token"}
+            label={token ? "Deposit this token" : "Select token"}
             value={token?.name}
             onClick={() => openModalSelectAssets("token", token ?? undefined)}
             data-testid="select-deposit-asset"
@@ -249,7 +249,7 @@ export const DepositForm = ({
                   <SelectTriggerLike
                     label={
                       chainOptions[networkEnum]?.label
-                        ? "Network"
+                        ? "From this network"
                         : "Select network"
                     }
                     value={chainOptions[networkEnum]?.label}
