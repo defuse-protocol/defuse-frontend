@@ -41,13 +41,15 @@ type TakerTradeSelection = {
   intentHashes: string[]
 } | null
 
-function isCompletedTrade(trade: unknown): trade is {
+type CompletedTakerTrade = {
   tradeId: string
   status: "completed"
   makerMultiPayload: MultiPayload
   takerMultiPayload: MultiPayload
   intentHashes: string[]
-} {
+}
+
+function isCompletedTrade(trade: unknown): trade is CompletedTakerTrade {
   return (
     trade != null &&
     typeof trade === "object" &&
@@ -62,7 +64,7 @@ function isCompletedTrade(trade: unknown): trade is {
 export function OtcTakerTrades({ tokenList }: OtcTakerTradesProps) {
   const [selectedTrade, setSelectedTrade] = useState<TakerTradeSelection>(null)
 
-  const trades = useOtcTakerTrades((s) => {
+  const trades: CompletedTakerTrade[] = useOtcTakerTrades((s) => {
     return Object.values(s.trades).filter(isCompletedTrade)
   })
 
