@@ -6,22 +6,18 @@ import ModalReviewDeal from "@src/components/DefuseSDK/components/Modal/ModalRev
 import type { ModalSelectAssetsPayload } from "@src/components/DefuseSDK/components/Modal/ModalSelectAssets"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { useActorRef, useSelector } from "@xstate/react"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import type { ActorRefFrom, SnapshotFrom } from "xstate"
 import { AuthGate } from "../../../components/AuthGate"
 import { SWAP_TOKEN_FLAGS } from "../../../constants/swap"
 import type { SignerCredentials } from "../../../core/formatters"
-import {
-  type TokenUsdPriceData,
-  useTokensUsdPrices,
-} from "../../../hooks/useTokensUsdPrices"
+import { useTokensUsdPrices } from "../../../hooks/useTokensUsdPrices"
 import { useModalStore } from "../../../providers/ModalStoreProvider"
 import { ModalType } from "../../../stores/modalStore"
 import type { RenderHostAppLink } from "../../../types/hostAppLink"
 import { assert } from "../../../utils/assert"
 import { formatTokenValue } from "../../../utils/format"
 import getTokenUsdPrice from "../../../utils/getTokenUsdPrice"
-import { isBaseToken, isUnifiedToken } from "../../../utils/token"
 import TokenInputCard from "../../deposit/components/DepositForm/TokenInputCard"
 import { balanceAllSelector } from "../../machines/depositedBalanceMachine"
 import type { SendNearTransaction } from "../../machines/publicKeyVerifierMachine"
@@ -36,27 +32,6 @@ import type {
   SignMessage,
 } from "../types/sharedTypes"
 import { expiryToSeconds, parseExpiry } from "../utils/expiryUtils"
-
-function getTokenRawPrice(
-  token: TokenInfo | null,
-  tokensUsdPriceData?: TokenUsdPriceData
-): number | null {
-  if (!tokensUsdPriceData || !token) return null
-  if (isBaseToken(token) && tokensUsdPriceData[token.defuseAssetId]) {
-    return tokensUsdPriceData[token.defuseAssetId].price
-  }
-  if (isUnifiedToken(token)) {
-    for (const groupedToken of token.groupedTokens) {
-      if (
-        isBaseToken(groupedToken) &&
-        tokensUsdPriceData[groupedToken.defuseAssetId]
-      ) {
-        return tokensUsdPriceData[groupedToken.defuseAssetId].price
-      }
-    }
-  }
-  return null
-}
 
 export type OtcMakerWidgetProps = {
   /** List of available tokens for trading */
@@ -171,56 +146,6 @@ export function OtcMakerForm({
     formValues.tokenOut,
     tokensUsdPriceData
   )
-
-  // Track if user has manually edited amountOut (to avoid overwriting their input)
-  const [userEditedAmountOut, setUserEditedAmountOut] = useState(false)
-  const isProgrammaticUpdate = useRef(false)
-
-  // Reset userEditedAmountOut when tokens change
-  // biome-ignore lint/correctness/useExhaustiveDependencies: dependencies are intentional triggers
-  useEffect(() => {
-    setUserEditedAmountOut(false)
-  }, [formValues.tokenIn, formValues.tokenOut])
-
-  // Auto-calculate amountOut based on market prices
-  useEffect(() => {
-    if (userEditedAmountOut) return
-    if (!tokensUsdPriceData) return
-    if (!formValues.amountIn || !formValues.tokenIn || !formValues.tokenOut)
-      return
-
-    const amountInNum = Number(formValues.amountIn)
-    if (Number.isNaN(amountInNum) || amountInNum <= 0) return
-
-    const tokenInPrice = getTokenRawPrice(
-      formValues.tokenIn,
-      tokensUsdPriceData
-    )
-    const tokenOutPrice = getTokenRawPrice(
-      formValues.tokenOut,
-      tokensUsdPriceData
-    )
-    if (!tokenInPrice || !tokenOutPrice || tokenOutPrice === 0) return
-
-    const usdValue = amountInNum * tokenInPrice
-    const calculatedAmountOut = usdValue / tokenOutPrice
-
-    // Format with reasonable precision
-    const precision = Math.min(formValues.tokenOut.decimals, 8)
-    const formatted = calculatedAmountOut
-      .toFixed(precision)
-      .replace(/\.?0+$/, "")
-
-    isProgrammaticUpdate.current = true
-    formValuesRef.trigger.updateAmountOut({ value: formatted })
-  }, [
-    formValues.amountIn,
-    formValues.tokenIn,
-    formValues.tokenOut,
-    tokensUsdPriceData,
-    userEditedAmountOut,
-    formValuesRef,
-  ])
 
   useEffect(() => {
     if (signerCredentials == null) {
@@ -436,15 +361,10 @@ export function OtcMakerForm({
             registration={{
               name: "amountOut",
               value: formValues.amountOut,
-              onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-                if (!isProgrammaticUpdate.current) {
-                  setUserEditedAmountOut(true)
-                }
-                isProgrammaticUpdate.current = false
+              onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
                 formValuesRef.trigger.updateAmountOut({
                   value: e.target.value,
-                })
-              },
+                }),
             }}
           />
 
