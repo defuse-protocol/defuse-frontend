@@ -73,7 +73,6 @@ const SelectAssets = ({
       <div className="rounded-full border border-gray-900/10 flex items-center gap-1.5 p-1 pr-3">
         <AssetComboIcon
           icon={selected?.icon}
-          name={selected?.name}
           chainName={
             selected && isBaseToken(selected)
               ? selected.originChainName
