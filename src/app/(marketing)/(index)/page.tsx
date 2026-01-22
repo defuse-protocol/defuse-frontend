@@ -92,6 +92,7 @@ export default function Home() {
 
           <div className="relative z-10 mt-16 flex flex-col items-center justify-center px-4 max-w-md">
             <AnimatedTokenPath />
+            <AnimatedTokenPath side="right" />
 
             <div className="relative z-10 bg-gray-100 rounded-[27px] p-2 border border-gray-200 flex flex-col gap-2">
               <div className="p-6 rounded-3xl bg-white border border-gray-200 flex flex-col gap-4">
