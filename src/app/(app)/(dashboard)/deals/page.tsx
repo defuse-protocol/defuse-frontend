@@ -1,6 +1,7 @@
 "use client"
 
 import { OtcMakerTrades } from "@src/components/DefuseSDK/features/otcDesk/components/OtcMakerTrades"
+import { OtcTakerTrades } from "@src/components/DefuseSDK/features/otcDesk/components/OtcTakerTrades"
 import { SwapWidgetProvider } from "@src/components/DefuseSDK/providers/SwapWidgetProvider"
 
 import DealsHeader from "@src/components/DealsHeader"
@@ -37,30 +38,33 @@ export default function DealsPage() {
 
       <SwapWidgetProvider>
         {signerCredentials != null && (
-          <OtcMakerTrades
-            tokenList={tokenList}
-            signerCredentials={signerCredentials}
-            signMessage={signMessage}
-            generateLink={(tradeId, pKey, multiPayload, iv) => {
-              return createOtcOrderLink(tradeId, pKey, multiPayload, iv)
-            }}
-            sendNearTransaction={async (tx) => {
-              const result = await signAndSendTransactions({
-                transactions: [tx],
-              })
+          <>
+            <OtcMakerTrades
+              tokenList={tokenList}
+              signerCredentials={signerCredentials}
+              signMessage={signMessage}
+              generateLink={(tradeId, pKey, multiPayload, iv) => {
+                return createOtcOrderLink(tradeId, pKey, multiPayload, iv)
+              }}
+              sendNearTransaction={async (tx) => {
+                const result = await signAndSendTransactions({
+                  transactions: [tx],
+                })
 
-              if (typeof result === "string") {
-                return { txHash: result }
-              }
+                if (typeof result === "string") {
+                  return { txHash: result }
+                }
 
-              const outcome = result[0]
-              if (!outcome) {
-                throw new Error("No outcome")
-              }
+                const outcome = result[0]
+                if (!outcome) {
+                  throw new Error("No outcome")
+                }
 
-              return { txHash: outcome.transaction.hash }
-            }}
-          />
+                return { txHash: outcome.transaction.hash }
+              }}
+            />
+            <OtcTakerTrades tokenList={tokenList} />
+          </>
         )}
       </SwapWidgetProvider>
     </>
