@@ -16,7 +16,6 @@ import {
   useWebAuthnCurrentCredential,
   useWebAuthnUIStore,
 } from "@src/features/webauthn/hooks/useWebAuthnStore"
-import { useAppAuthToken } from "@src/hooks/useAppAuthToken"
 import { useSignInLogger } from "@src/hooks/useSignInLogger"
 import { useNearWallet } from "@src/providers/NearWalletProvider"
 import {
@@ -32,6 +31,7 @@ import type {
   SendTransactionTonParams,
   SignAndSendTransactionsParams,
 } from "@src/types/interfaces"
+import {} from "@src/utils/hotWalletIframe"
 import { parseTonAddress } from "@src/utils/parseTonAddress"
 import { Cell } from "@ton/ton"
 import {
@@ -123,10 +123,13 @@ export const useConnectWallet = (): ConnectWalletAction => {
    * EVM:
    * Down below are Wagmi Wallet handlers and actions
    */
-  const evmWalletConnect = useConnect()
-  const evmWalletDisconnect = useDisconnect()
+  // biome-ignore lint/suspicious/noExplicitAny: wagmi v2 API compatibility
+  const evmWalletConnect = useConnect() as any
+  // biome-ignore lint/suspicious/noExplicitAny: wagmi v2 API compatibility
+  const evmWalletDisconnect = useDisconnect() as any
   const evmWalletAccount = useAccount()
-  const evmWalletConnections = useConnections()
+  // biome-ignore lint/suspicious/noExplicitAny: wagmi v2 API compatibility
+  const evmWalletConnections = useConnections() as any
   const { sendTransactions } = useEVMWalletActions()
 
   const handleSignInViaWagmi = async ({
@@ -306,8 +309,6 @@ export const useConnectWallet = (): ConnectWalletAction => {
   )
 
   state.isVerified = isVerifiedFromStore
-
-  useAppAuthToken(state.address, state.chainType)
 
   const impersonatedUser = useImpersonatedUser()
   if (impersonatedUser) {
