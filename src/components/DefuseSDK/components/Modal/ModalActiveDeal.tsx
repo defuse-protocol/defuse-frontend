@@ -336,10 +336,10 @@ const ModalActiveDeal = ({
               </div>
 
               <h2 className="mt-5 text-2xl/7 font-bold tracking-tight text-center">
-                Your deal has been filled or already cancelled
+                Your trade has been executed or already cancelled
               </h2>
               <p className="mt-2 text-base/5 font-medium text-gray-500 text-center text-balance">
-                This deal has either been successfully completed or was
+                This trade has either been successfully completed or was
                 previously cancelled.
               </p>
             </div>
@@ -381,7 +381,7 @@ const ModalActiveDeal = ({
                 size="xl"
                 disabled={isCancelling}
               >
-                {isCancelling ? "Cancelling..." : "Cancel deal"}
+                {isCancelling ? "Cancelling..." : "Cancel trade"}
               </Button>
             </div>
 
@@ -400,18 +400,18 @@ export default ModalActiveDeal
 
 const getTitle = (error?: string | null) => {
   if (error === "ORDER_EXPIRED") {
-    return "Deal expired"
+    return "Trade expired"
   }
 
   if (error === "NONCE_ALREADY_USED") {
-    return "Deal filled or cancelled"
+    return "Trade executed or cancelled"
   }
 
   if (error === "MAKER_INSUFFICIENT_FUNDS") {
     return "Your balance is too low"
   }
 
-  return "Deal active"
+  return "Trade active"
 }
 
 const getSubtitle = ({
@@ -419,21 +419,21 @@ const getSubtitle = ({
   expiredAt,
 }: { error?: string | null; expiredAt?: string | null }) => {
   if (error === "MAKER_INSUFFICIENT_FUNDS") {
-    return "This deal cannot be filled. Please increase your balance or cancel the deal and create a new one."
+    return "This trade cannot be executed. Please increase your balance or cancel the trade and create a new one."
   }
 
   if (error === "ORDER_EXPIRED") {
     if (expiredAt) {
-      return `This deal expired on ${expiredAt}.`
+      return `This trade expired on ${expiredAt}.`
     }
-    return "This deal has already expired."
+    return "This trade has already expired."
   }
 
   if (error === "NONCE_ALREADY_USED") {
-    return "No action needed — this deal was already completed or cancelled."
+    return "No action needed — this trade was already completed or cancelled."
   }
 
-  return "Share the link with the counterparty to execute the deal"
+  return "Share the link with the counterparty to execute the trade"
 }
 
 function renderErrorMessage(reason: string): string {

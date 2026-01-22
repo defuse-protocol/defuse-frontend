@@ -497,6 +497,6 @@ function renderSubmitButtonText({
   hasValues: boolean
 }) {
   if (!hasValues) return "Enter amounts"
-  if (snapshot.matches("editing")) return "Review deal"
-  return "Review deal"
+  if (snapshot.matches("editing")) return "Review trade"
+  return "Review trade"
 }

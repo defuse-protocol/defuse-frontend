@@ -34,7 +34,7 @@ const ModalReviewDeal = ({
   errorMessage?: string
 }) => {
   return (
-    <BaseModalDialog title="Review deal" open={open} onClose={onClose}>
+    <BaseModalDialog title="Review trade" open={open} onClose={onClose}>
       <div className="flex flex-col gap-5 mt-4">
         <div className="flex items-center justify-between">
           <div>
@@ -80,7 +80,7 @@ const ModalReviewDeal = ({
         loading={loading}
         fullWidth
       >
-        Create deal
+        Create trade
       </Button>
 
       {errorMessage && (

@@ -219,9 +219,9 @@ function OtcMakerTradeItem({
         </ListItem.Title>
 
         {error === "ORDER_EXPIRED" ? (
-          <ListItem.Subtitle>Deal expired</ListItem.Subtitle>
+          <ListItem.Subtitle>Trade expired</ListItem.Subtitle>
         ) : error === "NONCE_ALREADY_USED" ? (
-          <ListItem.Subtitle>Deal filled or cancelled</ListItem.Subtitle>
+          <ListItem.Subtitle>Trade executed or cancelled</ListItem.Subtitle>
         ) : error === "MAKER_INSUFFICIENT_FUNDS" ? (
           <ListItem.Subtitle className="text-red-600">
             Your balance is too low
