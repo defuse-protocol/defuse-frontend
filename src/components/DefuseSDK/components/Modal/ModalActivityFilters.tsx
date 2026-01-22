@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { BaseModalDialog } from "./ModalDialog"
 
-export const TYPE_OPTIONS = ["All", "Send", "Receive", "Swap"] as const
+export const TYPE_OPTIONS = ["All", "Swap"] as const
 export const STATUS_OPTIONS = ["All", "Success", "Pending", "Failed"] as const
 
 export type TypeFilter = (typeof TYPE_OPTIONS)[number]

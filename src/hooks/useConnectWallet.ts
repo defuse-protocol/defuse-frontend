@@ -295,7 +295,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
     }
   }
 
-  state.isVerified = useVerifiedWalletsStore(
+  const isVerifiedFromStore = useVerifiedWalletsStore(
     useCallback(
       (store) =>
         state.address != null
@@ -304,6 +304,8 @@ export const useConnectWallet = (): ConnectWalletAction => {
       [state.address]
     )
   )
+
+  state.isVerified = isVerifiedFromStore
 
   useAppAuthToken(state.address, state.chainType)
 

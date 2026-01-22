@@ -60,7 +60,7 @@ export function renderAppLink(
       )
     case "otc":
       return (
-        <Link href="/otc/create-order" {...props}>
+        <Link href="/deals" {...props}>
           {children}
         </Link>
       )

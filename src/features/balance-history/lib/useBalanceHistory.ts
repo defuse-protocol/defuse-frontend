@@ -25,6 +25,7 @@ export function useSwapHistory(
       lastPage.pagination.hasMore ? lastPage.pagination.page + 1 : undefined,
     enabled: options?.enabled ?? Boolean(params.accountId),
     staleTime: 30_000,
+    retry: 1,
     refetchInterval: options?.refetchInterval,
     refetchOnMount: options?.refetchOnMount ?? "always",
     refetchOnWindowFocus: true,
