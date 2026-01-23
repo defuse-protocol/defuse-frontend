@@ -366,6 +366,7 @@ export function OtcMakerForm({
                   value: e.target.value,
                 }),
             }}
+            isOutputField
           />
 
           <div className="mt-5 flex justify-between items-center">

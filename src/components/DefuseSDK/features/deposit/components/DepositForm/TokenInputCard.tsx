@@ -38,6 +38,8 @@ type BaseTokenInputCardProps = {
   tokenPrice?: number | null
   onToggleUsdMode?: () => void
   tokenAmount?: string
+  /** Whether this is an output/destination field (shows "0" placeholder, no USD toggle) */
+  isOutputField?: boolean
 }
 
 type InteractiveTokenInputCardProps = BaseTokenInputCardProps & {
@@ -178,6 +180,7 @@ const TokenInputCard = (props: TokenInputCardProps) => {
     tokenPrice,
     onToggleUsdMode,
     tokenAmount = "",
+    isOutputField = false,
   } = props
 
   // Discriminate between interactive and display-only modes
@@ -194,8 +197,8 @@ const TokenInputCard = (props: TokenInputCardProps) => {
   const noBalance = balance === 0n
   const hasBalanceInTransit = balanceInTransit != null && balanceInTransit > 0n
 
-  // Only allow USD toggle on source token (not destination/readOnly)
-  const isSourceToken = !isDisplayOnly && !readOnly
+  // Only allow USD toggle on source token (not destination/readOnly/output)
+  const isSourceToken = !isDisplayOnly && !readOnly && !isOutputField
   const canToggleUsd = Boolean(
     isSourceToken && onToggleUsdMode && tokenPrice != null && tokenPrice > 0
   )
@@ -208,9 +211,9 @@ const TokenInputCard = (props: TokenInputCardProps) => {
 
   // Placeholder text following Kraken pattern:
   // - Source token: "Enter amount ETH" or "Enter amount USD"
-  // - Destination token (readOnly): "0"
+  // - Destination/output token: "0"
   const getPlaceholder = () => {
-    if (isDisplayOnly || readOnly) {
+    if (isDisplayOnly || readOnly || isOutputField) {
       return "0"
     }
     if (isUsdMode) {
