@@ -198,13 +198,12 @@ const ModalAddEditContact = ({
     <BaseModalDialog
       title={getModalTitle}
       open={open}
-      onClose={onClose}
+      onClose={selectNetworkOpen ? () => setSelectNetworkOpen(false) : onClose}
       onCloseAnimationEnd={() => {
         onCloseAnimationEnd?.()
         reset()
         setSelectNetworkOpen(false)
       }}
-      back={selectNetworkOpen ? () => setSelectNetworkOpen(false) : undefined}
     >
       {selectNetworkOpen ? (
         <div className="mt-3 max-h-[630px] flex flex-col">
