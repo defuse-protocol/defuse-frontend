@@ -1,3 +1,4 @@
+import { ArrowsUpDownIcon } from "@heroicons/react/16/solid"
 import SelectAssets from "@src/components/DefuseSDK/components/SelectAssets"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import {
@@ -8,7 +9,7 @@ import ErrorMessage from "@src/components/ErrorMessage"
 import Spinner from "@src/components/Spinner"
 import clsx from "clsx"
 import { Tooltip } from "radix-ui"
-import { useEffect, useId, useState } from "react"
+import { useId } from "react"
 import type { UseFormRegisterReturn } from "react-hook-form"
 
 type InputRegistration =
@@ -104,7 +105,6 @@ function BalanceInTransitIndicator({
 
 interface UsdToggleProps {
   isUsdMode: boolean
-  showHint: boolean
   usdAmount: number | null
   tokenAmount: string
   symbol: string
@@ -113,56 +113,29 @@ interface UsdToggleProps {
 
 function UsdToggle({
   isUsdMode,
-  showHint,
   usdAmount,
   tokenAmount,
   symbol,
   onToggle,
 }: UsdToggleProps) {
   return (
-    <div className="flex items-center gap-2">
-      {!isUsdMode && (
-        <span
-          className={clsx(
-            "text-xs text-gray-400 transition-opacity duration-500",
-            showHint ? "opacity-100" : "opacity-0"
-          )}
-        >
-          Enter USD
-        </span>
-      )}
-      <button
-        type="button"
-        onClick={onToggle}
-        className="text-sm text-gray-500 font-medium hover:text-gray-700 transition-colors"
-      >
+    <button
+      type="button"
+      onClick={onToggle}
+      className="flex items-center gap-1.5 text-sm text-gray-500 font-medium hover:text-gray-700 transition-colors"
+    >
+      <ArrowsUpDownIcon className="size-4" />
+      <span>
         {isUsdMode
           ? `${tokenAmount || "0"} ${symbol}`
           : formatUsdAmount(usdAmount ?? 0)}
-      </button>
-    </div>
+      </span>
+    </button>
   )
-}
-
-function useUsdHint(canToggle: boolean) {
-  const [showHint, setShowHint] = useState(false)
-  const [hasShown, setHasShown] = useState(false)
-
-  useEffect(() => {
-    if (canToggle && !hasShown) {
-      setShowHint(true)
-      setHasShown(true)
-      const timer = setTimeout(() => setShowHint(false), 3000)
-      return () => clearTimeout(timer)
-    }
-  }, [canToggle, hasShown])
-
-  return showHint
 }
 
 const TokenInputCard = (props: TokenInputCardProps) => {
   const {
-    label,
     balance,
     decimals,
     symbol,
@@ -194,12 +167,24 @@ const TokenInputCard = (props: TokenInputCardProps) => {
   const canToggleUsd = Boolean(
     onToggleUsdMode && tokenPrice != null && tokenPrice > 0
   )
-  const showUsdHint = useUsdHint(canToggleUsd)
 
   const handleBalanceClick = () => {
     if (handleSetMax && !disabled && !noBalance) {
       handleSetMax()
     }
+  }
+
+  // Placeholder text following Kraken pattern:
+  // - Source token: "Enter amount ETH" or "Enter amount USD"
+  // - Destination token (readOnly): "0"
+  const getPlaceholder = () => {
+    if (isDisplayOnly || readOnly) {
+      return "0"
+    }
+    if (isUsdMode) {
+      return "Enter amount USD"
+    }
+    return symbol ? `Enter amount ${symbol}` : "Enter amount"
   }
 
   return (
@@ -218,7 +203,7 @@ const TokenInputCard = (props: TokenInputCardProps) => {
             inputMode="decimal"
             pattern="[0-9]*[.]?[0-9]*"
             autoComplete="off"
-            placeholder={label}
+            placeholder={getPlaceholder()}
             disabled={disabled}
             aria-busy={loading || undefined}
             readOnly={readOnly}
@@ -244,7 +229,6 @@ const TokenInputCard = (props: TokenInputCardProps) => {
         {canToggleUsd && onToggleUsdMode ? (
           <UsdToggle
             isUsdMode={isUsdMode}
-            showHint={showUsdHint}
             usdAmount={usdAmount}
             tokenAmount={tokenAmount}
             symbol={symbol}
