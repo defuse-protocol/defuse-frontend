@@ -1,17 +1,24 @@
 import clsx from "clsx"
 import { motion } from "framer-motion"
-import type { ComponentType, SVGProps } from "react"
 import {
+  AaveIcon,
+  AdaIcon,
+  ArbIcon,
   AuroraIcon,
+  AvaxIcon,
+  BchIcon,
   BnbIcon,
   BtcIcon,
   DogeIcon,
   EthIcon,
+  LinkIcon,
   NearIcon,
   SolIcon,
+  TonIcon,
   TrxIcon,
   UsdcIcon,
   UsdtIcon,
+  XlmIcon,
   XrpIcon,
   ZecIcon,
 } from "../icons"
@@ -26,34 +33,91 @@ const TOKEN_PATH_TOP_RIGHT =
 const TOKEN_PATH_BOTTOM_RIGHT =
   "M 500 366 L 380 366 Q 360 366 360 346 L 360 316 Q 360 296 340 296 L 220 296 Q 200 296 200 276 L 200 228 Q 200 208 180 208 L 0 208"
 
-const CYCLE_TIME = 144
+const CYCLE_TIME = 100
+const RIGHT_SIDE_OFFSET = 2
 
 function getTokens(side: "left" | "right") {
   const pathTop = side === "left" ? TOKEN_PATH_TOP_LEFT : TOKEN_PATH_TOP_RIGHT
   const pathBottom =
     side === "left" ? TOKEN_PATH_BOTTOM_LEFT : TOKEN_PATH_BOTTOM_RIGHT
 
+  if (side === "left") {
+    return [
+      { path: pathTop, icon: BtcIcon, delay: 0, duration: 29 },
+      { path: pathBottom, icon: EthIcon, delay: 10, duration: 31 },
+      { path: pathTop, icon: DogeIcon, delay: 20, duration: 28 },
+      { path: pathBottom, icon: AdaIcon, delay: 30, duration: 30 },
+      { path: pathTop, icon: UsdtIcon, delay: 40, duration: 30 },
+      { path: pathBottom, icon: SolIcon, delay: 50, duration: 32 },
+      { path: pathTop, icon: AvaxIcon, delay: 60, duration: 29 },
+      { path: pathBottom, icon: TonIcon, delay: 70, duration: 31 },
+      { path: pathTop, icon: LinkIcon, delay: 80, duration: 28 },
+      { path: pathBottom, icon: ZecIcon, delay: 90, duration: 30 },
+    ]
+  }
+
   return [
-    // Top path tokens - slightly faster (27-29s)
-    { path: pathTop, icon: BtcIcon, delay: 0, duration: 28 },
-    { path: pathTop, icon: EthIcon, delay: 24, duration: 27 },
-    { path: pathTop, icon: UsdtIcon, delay: 48, duration: 29 },
-    { path: pathTop, icon: SolIcon, delay: 72, duration: 28 },
-    { path: pathTop, icon: XrpIcon, delay: 96, duration: 27 },
-    { path: pathTop, icon: DogeIcon, delay: 120, duration: 29 },
-    // Bottom path tokens - slightly slower (31-33s)
-    { path: pathBottom, icon: UsdcIcon, delay: 12, duration: 32 },
-    { path: pathBottom, icon: BnbIcon, delay: 36, duration: 31 },
-    { path: pathBottom, icon: NearIcon, delay: 60, duration: 33 },
-    { path: pathBottom, icon: TrxIcon, delay: 84, duration: 32 },
-    { path: pathBottom, icon: AuroraIcon, delay: 108, duration: 31 },
-    { path: pathBottom, icon: ZecIcon, delay: 132, duration: 33 },
-  ] as {
-    path: string
-    icon: ComponentType<SVGProps<SVGSVGElement>>
-    delay: number
-    duration: number
-  }[]
+    {
+      path: pathBottom,
+      icon: UsdcIcon,
+      delay: RIGHT_SIDE_OFFSET + 0,
+      duration: 31,
+    },
+    {
+      path: pathTop,
+      icon: BnbIcon,
+      delay: RIGHT_SIDE_OFFSET + 10,
+      duration: 29,
+    },
+    {
+      path: pathBottom,
+      icon: NearIcon,
+      delay: RIGHT_SIDE_OFFSET + 20,
+      duration: 30,
+    },
+    {
+      path: pathTop,
+      icon: TrxIcon,
+      delay: RIGHT_SIDE_OFFSET + 30,
+      duration: 28,
+    },
+    {
+      path: pathBottom,
+      icon: XrpIcon,
+      delay: RIGHT_SIDE_OFFSET + 40,
+      duration: 32,
+    },
+    {
+      path: pathTop,
+      icon: AuroraIcon,
+      delay: RIGHT_SIDE_OFFSET + 50,
+      duration: 30,
+    },
+    {
+      path: pathBottom,
+      icon: ArbIcon,
+      delay: RIGHT_SIDE_OFFSET + 60,
+      duration: 31,
+    },
+    {
+      path: pathTop,
+      icon: AaveIcon,
+      delay: RIGHT_SIDE_OFFSET + 70,
+      duration: 29,
+    },
+    {
+      path: pathBottom,
+      icon: XlmIcon,
+      delay: RIGHT_SIDE_OFFSET + 80,
+      duration: 30,
+    },
+    {
+      path: pathTop,
+      icon: BchIcon,
+      delay: RIGHT_SIDE_OFFSET + 90,
+      duration: 28,
+    },
+  ]
 }
 
 function AnimatedTokenPath({ side = "left" }: { side?: "left" | "right" }) {
@@ -130,16 +194,18 @@ function AnimatedTokenPath({ side = "left" }: { side?: "left" | "right" }) {
               filter: ["blur(6px)", "blur(0px)", "blur(0px)", "blur(0px)"],
             }}
             transition={{
+              // Path movement
               duration: token.duration,
               delay: token.delay,
-              ease: "linear",
+              ease: "easeOut",
               repeat: Number.POSITIVE_INFINITY,
               repeatDelay: CYCLE_TIME - token.duration,
+              // Entrance animations
               opacity: {
                 duration: token.duration,
                 delay: token.delay,
                 times: [0, 5 / token.duration, 0.5, 1],
-                ease: "linear",
+                ease: "easeOut",
                 repeat: Number.POSITIVE_INFINITY,
                 repeatDelay: CYCLE_TIME - token.duration,
               },
@@ -147,7 +213,7 @@ function AnimatedTokenPath({ side = "left" }: { side?: "left" | "right" }) {
                 duration: token.duration,
                 delay: token.delay,
                 times: [0, 5 / token.duration, 0.5, 1],
-                ease: "linear",
+                ease: "easeOut",
                 repeat: Number.POSITIVE_INFINITY,
                 repeatDelay: CYCLE_TIME - token.duration,
               },
@@ -155,7 +221,7 @@ function AnimatedTokenPath({ side = "left" }: { side?: "left" | "right" }) {
                 duration: token.duration,
                 delay: token.delay,
                 times: [0, 5 / token.duration, 0.5, 1],
-                ease: "linear",
+                ease: "easeOut",
                 repeat: Number.POSITIVE_INFINITY,
                 repeatDelay: CYCLE_TIME - token.duration,
               },
