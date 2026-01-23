@@ -283,7 +283,12 @@ const ModalActiveDeal = ({
                     {formatTokenValue(
                       breakdown.makerPaysFee.amount,
                       breakdown.makerPaysFee.decimals,
-                      { fractionDigits: breakdown.makerPaysFee.decimals }
+                      {
+                        fractionDigits: Math.min(
+                          breakdown.makerPaysFee.decimals,
+                          8
+                        ),
+                      }
                     )}{" "}
                     {tokenIn.symbol}
                   </span>
@@ -300,7 +305,12 @@ const ModalActiveDeal = ({
                     {formatTokenValue(
                       breakdown.takerReceives.amount,
                       breakdown.takerReceives.decimals,
-                      { fractionDigits: breakdown.takerReceives.decimals }
+                      {
+                        fractionDigits: Math.min(
+                          breakdown.takerReceives.decimals,
+                          8
+                        ),
+                      }
                     )}{" "}
                     {tokenIn.symbol}
                   </span>

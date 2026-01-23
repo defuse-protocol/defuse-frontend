@@ -6,7 +6,7 @@ import ModalReviewDeal from "@src/components/DefuseSDK/components/Modal/ModalRev
 import type { ModalSelectAssetsPayload } from "@src/components/DefuseSDK/components/Modal/ModalSelectAssets"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { useActorRef, useSelector } from "@xstate/react"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import type { ActorRefFrom, SnapshotFrom } from "xstate"
 import { AuthGate } from "../../../components/AuthGate"
 import { SWAP_TOKEN_FLAGS } from "../../../constants/swap"
@@ -174,7 +174,6 @@ export function OtcMakerForm({
 
   // Track if user has manually edited amountOut (to avoid overwriting their input)
   const [userEditedAmountOut, setUserEditedAmountOut] = useState(false)
-  const isProgrammaticUpdate = useRef(false)
 
   // Reset userEditedAmountOut when tokens change
   // biome-ignore lint/correctness/useExhaustiveDependencies: dependencies are intentional triggers
@@ -218,7 +217,6 @@ export function OtcMakerForm({
     // Only update if value actually changed to prevent loops
     if (formatted === formValues.amountOut) return
 
-    isProgrammaticUpdate.current = true
     formValuesRef.trigger.updateAmountOut({ value: formatted })
   }, [
     formValues.amountIn,
@@ -446,10 +444,7 @@ export function OtcMakerForm({
               name: "amountOut",
               value: formValues.amountOut,
               onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-                if (!isProgrammaticUpdate.current) {
-                  setUserEditedAmountOut(true)
-                }
-                isProgrammaticUpdate.current = false
+                setUserEditedAmountOut(true)
                 formValuesRef.trigger.updateAmountOut({
                   value: e.target.value,
                 })

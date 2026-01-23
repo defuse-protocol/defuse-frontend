@@ -147,7 +147,8 @@ function OtcTakerTradeItem({
     )
 
   if (tradeTermsResult.isErr()) {
-    return <div>Error: {tradeTermsResult.unwrapErr()}</div>
+    // Skip rendering if token is no longer in list (e.g., token was removed)
+    return null
   }
 
   const { tradeTerms, tokenIn, tokenOut } = tradeTermsResult.unwrap()

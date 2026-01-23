@@ -30,7 +30,7 @@ const navItems = [
     icon: EarnIcon,
   },
   {
-    label: "Private Trades",
+    label: "Private trades",
     href: "/deals",
     icon: DealsIcon,
   },
