@@ -81,12 +81,12 @@ export default function Home() {
       <main className="flex-1 flex flex-col">
         <section className="flex flex-col items-center justify-center pt-16 pb-24 bg-white rounded-b-3xl overflow-hidden">
           <div className="flex flex-col items-center justify-center px-4 max-w-lg">
-            <div className="text-[#FD4B2B] text-sm/5 font-bold py-0.5 px-3 rounded-lg bg-[#FD4B2B]/[0.07] text-center">
+            <div className="text-[#FB4D01] text-sm/5 font-bold py-0.5 px-3 rounded-lg bg-[#FB4D01]/[0.07] text-center">
               Over $10 billion swapped
             </div>
             <h1 className="mt-6 text-5xl/none text-balance font-bold tracking-tight text-center">
               Swap nearly anything to anything.{" "}
-              <span className="text-[#FD4B2B]">And fast.</span>
+              <span className="text-[#FB4D01]">And fast.</span>
             </h1>
           </div>
 
@@ -163,11 +163,11 @@ export default function Home() {
         </section>
 
         <section className="bg-gray-800 py-24 relative overflow-hidden">
-          <div className="absolute size-128 rounded-full bg-[#FD4B2B]/80 left-1/2 -translate-x-1/2 translate-y-1/4 blur-[150px]" />
+          <div className="absolute size-128 rounded-full bg-[#FB4D01]/80 left-1/2 -translate-x-1/2 translate-y-1/4 blur-[150px]" />
           <p className="relative text-center text-3xl/9 font-bold tracking-tight text-white">
             Over 70 assets, <br />
             across 35 networks. <br />
-            <span className="text-[#FD4B2B]">Seamless & secure.</span>
+            <span className="text-[#FB4D01]">Seamless & secure.</span>
           </p>
         </section>
 
@@ -176,10 +176,10 @@ export default function Home() {
             {features.map(
               ({ title, description, longDescription, icon: Icon }) => (
                 <div key={title} className="flex flex-col items-start">
-                  <div className="bg-[#FD4B2B] rounded-xl size-9 flex items-center justify-center">
+                  <div className="bg-[#FB4D01] rounded-xl size-9 flex items-center justify-center">
                     <Icon className="size-6 text-white" />
                   </div>
-                  <h3 className="mt-6 text-[#FD4B2B] text-sm/5 font-bold">
+                  <h3 className="mt-6 text-[#FB4D01] text-sm/5 font-bold">
                     {title}
                   </h3>
                   <p className="mt-2 font-bold text-gray-900 text-xl/7 text-balance">
