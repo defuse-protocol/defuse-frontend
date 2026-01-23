@@ -19,14 +19,14 @@ import "../../styles/global.css"
 import { getCachedSystemStatus } from "@src/actions/systemStatus"
 import { PreloadFeatureFlags } from "@src/components/PreloadFeatureFlags"
 import ActivityDockProvider from "@src/providers/ActivityDockProvider"
-import { DepositTrackerProvider } from "@src/providers/DepositTrackerProvider"
+import { DepositTrackerMachineProvider } from "@src/providers/DepositTrackerMachineProvider"
 import { MixpanelProvider } from "@src/providers/MixpanelProvider"
 import { NearWalletProvider } from "@src/providers/NearWalletProvider"
 import { SwapTrackerMachineProvider } from "@src/providers/SwapTrackerMachineProvider"
 import { SystemStatusProvider } from "@src/providers/SystemStatusProvider"
 import { TronWalletProvider } from "@src/providers/TronWalletProvider"
 import { WalletVerificationProvider } from "@src/providers/WalletVerificationProvider"
-import { WithdrawTrackerProvider } from "@src/providers/WithdrawTrackerProvider"
+import { WithdrawTrackerMachineProvider } from "@src/providers/WithdrawTrackerMachineProvider"
 import { APP_ENV, VERCEL_PROJECT_PRODUCTION_URL } from "@src/utils/environment"
 
 export const viewport: Viewport = {
@@ -139,8 +139,8 @@ const AppRootLayout = async ({
         <SystemStatusProvider systemStatus={systemStatus}>
           <ActivityDockProvider>
             <SwapTrackerMachineProvider>
-              <WithdrawTrackerProvider>
-                <DepositTrackerProvider>
+              <WithdrawTrackerMachineProvider>
+                <DepositTrackerMachineProvider>
                   <WagmiProvider config={config}>
                     <QueryClientProvider client={queryClient}>
                       <NearWalletProvider>
@@ -167,8 +167,8 @@ const AppRootLayout = async ({
                       )}
                     </QueryClientProvider>
                   </WagmiProvider>
-                </DepositTrackerProvider>
-              </WithdrawTrackerProvider>
+                </DepositTrackerMachineProvider>
+              </WithdrawTrackerMachineProvider>
             </SwapTrackerMachineProvider>
           </ActivityDockProvider>
         </SystemStatusProvider>

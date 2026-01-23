@@ -1,6 +1,6 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import Button from "@src/components/Button"
-import { useDepositTracker } from "@src/providers/DepositTrackerProvider"
+import { useDepositTrackerMachine } from "@src/providers/DepositTrackerMachineProvider"
 import { useSelector } from "@xstate/react"
 import { useEffect, useRef } from "react"
 import { useFormContext } from "react-hook-form"
@@ -27,7 +27,7 @@ export function ActiveDeposit({
   tokenDeployment,
   minDepositAmount,
 }: ActiveDepositProps) {
-  const { registerDeposit, updateDepositStage } = useDepositTracker()
+  const { registerDeposit, updateDepositStage } = useDepositTrackerMachine()
   const { register, setValue, watch } = useFormContext<DepositFormValues>()
   const actorRef = DepositUIMachineContext.useActorRef()
   const inputAmount = watch("amount")
@@ -72,7 +72,6 @@ export function ActiveDeposit({
         : null,
   }))
 
-  // Register deposit when loading starts
   useEffect(() => {
     if (isLoading && !wasLoadingRef.current && parsedAmount != null) {
       const snapshot = actorRef.getSnapshot()
@@ -100,7 +99,6 @@ export function ActiveDeposit({
     registerDeposit,
   ])
 
-  // Update deposit stage when output is received
   useEffect(() => {
     if (!depositOutput) return
 

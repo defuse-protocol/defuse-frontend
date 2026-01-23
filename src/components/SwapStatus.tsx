@@ -28,16 +28,10 @@ const NEAR_EXPLORER = "https://nearblocks.io"
 type SwapStatusProps = {
   swap: TrackedSwapIntent
   variant: "full" | "card" | "dock"
-  onDismiss?: () => void
   onSwapAgain?: () => void
 }
 
-export function SwapStatus({
-  swap,
-  variant,
-  onDismiss: _onDismiss,
-  onSwapAgain,
-}: SwapStatusProps) {
+export function SwapStatus({ swap, variant, onSwapAgain }: SwapStatusProps) {
   const {
     displayStage,
     displayIndex,
@@ -51,8 +45,6 @@ export function SwapStatus({
     getStageFromState,
   })
 
-  // Use correct error/success detection based on machine type
-  // Matches logic from Swap1csCard and SwapIntentCard
   const hasError = swap.is1cs
     ? is1csError(contextStatus)
     : isIntentError(stateValue)
@@ -98,8 +90,6 @@ export function SwapStatus({
   )
 }
 
-// --- Dock View (minimal horizontal dots) ---
-
 function DockView({
   displayStage,
   displayIndex,
@@ -122,8 +112,6 @@ function DockView({
     />
   )
 }
-
-// --- Full View (dialog/modal style) ---
 
 function FullView({
   swap,
@@ -223,8 +211,6 @@ function FullView({
     </div>
   )
 }
-
-// --- Card View (compact dock style) ---
 
 function CardView({
   swap,

@@ -52,10 +52,12 @@ export function SwapTrackerMachineProvider({
         { type: "swap" }
       >
 
-      const currentSwaps = actorRef.getSnapshot().context.swapRefs
-      if (currentSwaps.some((s) => s.id === id)) return
-
       actorRef.send({ type: "REGISTER_SWAP", params })
+
+      const swap = actorRef
+        .getSnapshot()
+        .context.swapRefs.find((s) => s.id === id)
+      if (!swap) return
 
       const formattedIn = formatTokenValue(
         swapDescription.totalAmountIn.amount,
@@ -67,11 +69,6 @@ export function SwapTrackerMachineProvider({
         swapDescription.totalAmountOut.decimals,
         { min: 0.0001, fractionDigits: 4 }
       )
-
-      const swap = actorRef
-        .getSnapshot()
-        .context.swapRefs.find((s) => s.id === id)
-      if (!swap) return
 
       addDockItem({
         id: `swap-${id}`,

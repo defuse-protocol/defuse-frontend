@@ -392,7 +392,6 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
       <SwapStatus
         variant="full"
         swap={mostRecentSwap}
-        onDismiss={() => setShowInlineStatus(false)}
         onSwapAgain={() => setShowInlineStatus(false)}
       />
     )

@@ -17,20 +17,9 @@ type UseMachineStageProgressResult<TStage extends string> = {
   canRetry: boolean
   txHash: string | null | undefined
   stateValue: string
-  /** The raw context.status from the XState machine (used for 1cs swap detection) */
   contextStatus: string | null | undefined
 }
 
-/**
- * Hook for tracking XState machine progress with display stage synchronization.
- * Used by SwapStatus and WithdrawStatus to manage progress indicator state.
- *
- * Features:
- * - Extracts state from XState actor
- * - Maps machine state to display stage
- * - Prevents backwards stage transitions unless retrying from terminal state
- * - Returns raw state values so components can compute error/success as needed
- */
 export function useMachineStageProgress<TStage extends string>({
   actorRef,
   stages,
@@ -51,7 +40,6 @@ export function useMachineStageProgress<TStage extends string>({
     const currentIndex = stages.indexOf(displayStage)
     const isAtTerminal = currentIndex === stages.length - 1
 
-    // Move forward, or allow reset when retrying from terminal state
     if (
       machineIndex > currentIndex ||
       (isAtTerminal && machineIndex < currentIndex)

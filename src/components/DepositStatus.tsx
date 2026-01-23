@@ -14,8 +14,8 @@ import {
 } from "@src/components/ProgressIndicator"
 import {
   type TrackedDeposit,
-  useDepositTracker,
-} from "@src/providers/DepositTrackerProvider"
+  useDepositTrackerMachine,
+} from "@src/providers/DepositTrackerMachineProvider"
 import Button from "./Button"
 
 type DepositStatusProps = {
@@ -24,7 +24,7 @@ type DepositStatusProps = {
 }
 
 export function DepositStatus({ depositId, variant }: DepositStatusProps) {
-  const { trackedDeposits } = useDepositTracker()
+  const { trackedDeposits } = useDepositTrackerMachine()
   const deposit = trackedDeposits.find((d) => d.id === depositId)
 
   if (!deposit) {

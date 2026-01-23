@@ -18,20 +18,18 @@ import {
   HorizontalProgressDots,
   ProgressSteps,
 } from "@src/components/ProgressIndicator"
-import type { TrackedWithdrawIntent } from "@src/providers/WithdrawTrackerProvider"
+import type { TrackedWithdrawIntent } from "@src/providers/WithdrawTrackerMachineProvider"
 import Button from "./Button"
 
 type WithdrawStatusProps = {
   withdraw: TrackedWithdrawIntent
   variant: "full" | "card" | "dock"
-  onDismiss?: () => void
   onWithdrawAgain?: () => void
 }
 
 export function WithdrawStatus({
   withdraw,
   variant,
-  onDismiss: _onDismiss,
   onWithdrawAgain,
 }: WithdrawStatusProps) {
   const { displayStage, displayIndex, canRetry, txHash, stateValue } =
