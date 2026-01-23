@@ -131,6 +131,10 @@
           "type": "string"
         },
         {
+          "const": "bitcoincash",
+          "type": "string"
+        },
+        {
           "const": "solana",
           "type": "string"
         },
@@ -204,6 +208,22 @@
         },
         {
           "const": "monad",
+          "type": "string"
+        },
+        {
+          "const": "adi",
+          "type": "string"
+        },
+        {
+          "const": "starknet",
+          "type": "string"
+        },
+        {
+          "const": "plasma",
+          "type": "string"
+        },
+        {
+          "const": "scroll",
           "type": "string"
         },
         {
@@ -290,6 +310,7 @@
         "vertex",
         "optima",
         "easychain",
+        "hako",
         "aurora",
         "aurora_devnet"
       ],

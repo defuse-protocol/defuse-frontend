@@ -43,6 +43,15 @@ export const APP_FEE_RECIPIENT_RABITSWAP = v.parse(
   process.env.NEXT_PUBLIC_APP_FEE_RECIPIENT_RABITSWAP
 )
 
+export const WITHDRAW_DIRECTION_FEE_BPS = v.parse(
+  v.pipe(
+    v.optional(v.string()),
+    v.transform((val) => (val != null ? Number(val) : null)),
+    v.nullable(v.number())
+  ),
+  process.env.NEXT_PUBLIC_WITHDRAW_DIRECTION_FEE_BPS
+)
+
 export const ONE_CLICK_SWAP_FRACTION =
   v.parse(
     v.pipe(
@@ -66,4 +75,9 @@ export const CRON_SECRET = process.env.CRON_SECRET
 export const APP_NETWORK_OUTAGE_NOTIFICATION = v.parse(
   v.optional(v.string(), ""),
   process.env.NEXT_PUBLIC_APP_NETWORK_OUTAGE_NOTIFICATION
+)
+
+export const BANNED_ACCOUNT_IDS = v.parse(
+  v.optional(v.array(v.string()), []),
+  process.env.NEXT_PUBLIC_BANNED_ACCOUNT_IDS?.split(",").filter(Boolean)
 )

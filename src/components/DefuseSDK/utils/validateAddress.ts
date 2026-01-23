@@ -1,3 +1,4 @@
+import { Chains, validateAddressFormat } from "@defuse-protocol/intents-sdk"
 import { utils } from "@defuse-protocol/internal-utils"
 import { sha256 } from "@noble/hashes/sha256"
 import { base58, bech32, bech32m, hex } from "@scure/base"
@@ -24,6 +25,7 @@ export function validateAddress(
     case "vertex":
     case "optima":
     case "easychain":
+    case "hako":
     case "aurora":
     case "aurora_devnet":
     case "gnosis":
@@ -35,6 +37,8 @@ export function validateAddress(
     case "avalanche":
     case "layerx":
     case "monad":
+    case "plasma":
+    case "scroll":
       return validateEthAddress(address)
     case "bitcoin":
       return validateBtcAddress(address)
@@ -71,6 +75,15 @@ export function validateAddress(
 
     case "litecoin":
       return validateLitecoinAddress(address)
+
+    case "bitcoincash":
+      return validateAddressFormat(address, Chains.BitcoinCash)
+
+    case "adi":
+      return validateAddressFormat(address, Chains.Adi)
+
+    case "starknet":
+      return validateAddressFormat(address, Chains.Starknet)
 
     default:
       blockchain satisfies never

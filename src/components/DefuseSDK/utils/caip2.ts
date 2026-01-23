@@ -9,6 +9,7 @@ type RealChains = Exclude<SupportedChainName, VirtualChains | MockedChains>
 
 const mapping: Record<RealChains, Chain> = {
   bitcoin: Chains.Bitcoin,
+  bitcoincash: Chains.BitcoinCash,
   eth: Chains.Ethereum,
   base: Chains.Base,
   arbitrum: Chains.Arbitrum,
@@ -32,6 +33,10 @@ const mapping: Record<RealChains, Chain> = {
   litecoin: Chains.Litecoin,
   layerx: Chains.LayerX,
   monad: Chains.Monad,
+  adi: Chains.Adi,
+  starknet: Chains.Starknet,
+  plasma: Chains.Plasma,
+  scroll: Chains.Scroll,
 }
 
 export function getCAIP2(chainName: SupportedChainName): Chain {

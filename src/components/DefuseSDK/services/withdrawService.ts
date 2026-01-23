@@ -14,7 +14,10 @@ import {
   createVirtualChainRoute,
 } from "@defuse-protocol/intents-sdk"
 import { getCAIP2 } from "@src/components/DefuseSDK/utils/caip2"
+import { WITHDRAW_DIRECTION_FEE_BPS } from "@src/utils/environment"
+import type { FeeRecipientSplit } from "@src/utils/getAppFeeRecipient"
 import { logger } from "@src/utils/logger"
+import { splitShareAmount } from "@src/utils/splitAppFee"
 import { Err, Ok, type Result } from "@thames/monads"
 import { type ActorRefFrom, waitFor } from "xstate"
 import { getAuroraEngineContractId } from "../constants/aurora"
@@ -43,6 +46,7 @@ import {
   getUnderlyingBaseTokenInfos,
   maxAmounts,
   minAmounts,
+  netDownAmount,
   subtractAmounts,
   truncateTokenValue,
 } from "../utils/tokenUtils"
@@ -88,6 +92,8 @@ export type PreparedWithdrawReturnType = {
   receivedAmount: TokenValue
   prebuiltWithdrawalIntents: Intent[]
   withdrawalParams: WithdrawalParams
+  baseBridgeFee?: bigint // Base bridge fee before additional direction fee
+  directionFeeAmount?: bigint // Direction fee amount (separate from bridge fee)
 }
 
 export type PreparationOutput =
@@ -99,10 +105,12 @@ export async function prepareWithdraw(
     formValues,
     depositedBalanceRef,
     poaBridgeInfoRef,
+    appFeeRecipients,
   }: {
     formValues: WithdrawFormContext
     depositedBalanceRef: ActorRefFrom<typeof depositedBalanceMachine>
     poaBridgeInfoRef: ActorRefFrom<typeof poaBridgeInfoActor>
+    appFeeRecipients?: FeeRecipientSplit[]
   },
   { signal }: { signal: AbortSignal }
 ): Promise<PreparationOutput> {
@@ -223,8 +231,38 @@ export async function prepareWithdraw(
     return { tag: "err", value: feeEstimation.unwrapErr() }
   }
 
+  // Add direction fee for Near/Zcash/Strk to Solana withdrawals
+  const isNearToSolana =
+    formValues.tokenOut.defuseAssetId === "nep141:wrap.near" &&
+    formValues.tokenOutDeployment.chainName === "solana"
+  const isZecToSolana =
+    formValues.tokenOut.defuseAssetId === "nep141:zec.omft.near" &&
+    formValues.tokenOutDeployment.chainName === "solana"
+  const isStrkToSolana =
+    formValues.tokenOut.defuseAssetId === "nep141:starknet.omft.near" &&
+    formValues.tokenOutDeployment.chainName === "solana"
+
+  const baseFeeEstimation = feeEstimation.unwrap()
+  const baseBridgeFeeAmount = baseFeeEstimation.amount
+  let totalFeeAmount = baseBridgeFeeAmount
+
+  // Only apply direction fee if env variable is set and conditions are met
+  if (
+    (isNearToSolana || isZecToSolana || isStrkToSolana) &&
+    WITHDRAW_DIRECTION_FEE_BPS != null &&
+    appFeeRecipients &&
+    appFeeRecipients.length > 0
+  ) {
+    // Calculate direction fee from the total withdrawal amount
+    // This is an additional fee on top of the bridge fee, so bridge fee remains unchanged
+    const additionalFee =
+      totalWithdrawn.amount -
+      netDownAmount(totalWithdrawn.amount, WITHDRAW_DIRECTION_FEE_BPS)
+    totalFeeAmount += additionalFee
+  }
+
   const receivedAmount = subtractAmounts(totalWithdrawn, {
-    amount: feeEstimation.unwrap().amount,
+    amount: totalFeeAmount,
     // Fee estimations are always in the decimals of the token on NEAR chain,
     // even if on the destination chain the token has different decimals.
     decimals: formValues.tokenOut.decimals,
@@ -254,7 +292,7 @@ export async function prepareWithdraw(
   try {
     withdrawalIntents = await bridgeSDK.createWithdrawalIntents({
       withdrawalParams,
-      feeEstimation: feeEstimation.unwrap(),
+      feeEstimation: baseFeeEstimation,
     })
   } catch (err: unknown) {
     const trustlineNotFoundErr = findError(err, TrustlineNotFoundError)
@@ -273,14 +311,15 @@ export async function prepareWithdraw(
         tag: "err",
         value: {
           reason: "ERR_AMOUNT_TOO_LOW",
-          shortfall: {
-            amount:
-              minWithdrawalAmountError.minAmount -
-              minWithdrawalAmountError.requestedAmount,
-            decimals: formValues.tokenOut.decimals,
-          },
+          shortfall: subtractAmounts(
+            {
+              amount: minWithdrawalAmountError.minAmount,
+              decimals: formValues.tokenOut.decimals,
+            },
+            receivedAmount
+          ),
           // todo: provide decimals too
-          receivedAmount: minWithdrawalAmountError.requestedAmount,
+          receivedAmount: receivedAmount.amount,
           // todo: provide decimals too
           minWithdrawalAmount: minWithdrawalAmountError.minAmount,
           token: formValues.tokenOut,
@@ -295,15 +334,40 @@ export async function prepareWithdraw(
     }
   }
 
+  // Create a separate transfer intent for the direction fee (if configured)
+  const hasDirectionFee =
+    (isNearToSolana || isZecToSolana || isStrkToSolana) &&
+    WITHDRAW_DIRECTION_FEE_BPS != null &&
+    appFeeRecipients &&
+    appFeeRecipients.length > 0
+  if (hasDirectionFee) {
+    const additionalFee = totalFeeAmount - baseBridgeFeeAmount
+    if (additionalFee > 0n) {
+      addDirectionFeeToIntents(
+        additionalFee,
+        appFeeRecipients,
+        formValues.tokenOut.defuseAssetId,
+        withdrawalIntents
+      )
+    }
+  }
+
+  // Calculate direction fee amount separately (if applicable)
+  const directionFeeAmount = hasDirectionFee
+    ? totalFeeAmount - baseBridgeFeeAmount
+    : undefined
+
   return {
     tag: "ok",
     value: {
       directWithdrawAvailable: directWithdrawAvailable,
       swap: swapRequirement,
-      feeEstimation: feeEstimation.unwrap(),
+      feeEstimation: baseFeeEstimation,
       receivedAmount: receivedAmount,
       prebuiltWithdrawalIntents: withdrawalIntents,
       withdrawalParams,
+      baseBridgeFee: hasDirectionFee ? baseBridgeFeeAmount : undefined,
+      directionFeeAmount: directionFeeAmount,
     },
   }
 }
@@ -655,5 +719,98 @@ async function prepareNearIntentsWithdraw({
       // biome-ignore lint/style/noNonNullAssertion: <explanation>
       withdrawalParams: withdrawalParams[0]!,
     },
+  }
+}
+
+function addDirectionFeeToIntents(
+  directionFeeAmount: bigint,
+  appFeeRecipients: FeeRecipientSplit[],
+  tokenId: string,
+  withdrawalIntents: Intent[]
+): void {
+  if (directionFeeAmount <= 0n || appFeeRecipients.length === 0) {
+    return
+  }
+
+  const primaryRecipient = appFeeRecipients[0]
+  if (!primaryRecipient) {
+    return
+  }
+
+  // Track intents by recipient to avoid repeated searches
+  const intentMap = new Map<
+    string,
+    { intent: "transfer"; receiver_id: string; tokens: Record<string, string> }
+  >()
+
+  for (const intent of withdrawalIntents) {
+    if (intent.intent === "transfer") {
+      intentMap.set(intent.receiver_id, intent)
+    }
+  }
+
+  // Case 1: Single recipient - entire direction fee goes to the primary recipient
+  if (appFeeRecipients.length === 1) {
+    let primaryIntent = intentMap.get(primaryRecipient.recipient)
+    if (!primaryIntent) {
+      primaryIntent = {
+        intent: "transfer",
+        receiver_id: primaryRecipient.recipient,
+        tokens: {},
+      }
+      withdrawalIntents.push(primaryIntent)
+      intentMap.set(primaryRecipient.recipient, primaryIntent)
+    }
+
+    const currentAmount = BigInt(primaryIntent.tokens[tokenId] || "0")
+    primaryIntent.tokens[tokenId] = (
+      currentAmount + directionFeeAmount
+    ).toString()
+
+    return
+  }
+
+  // Case 2: Two recipients - split direction fee based on primary recipient's shareBps,
+  // secondary recipient receives the remainder
+  const { primaryAmount, secondaryAmount } = splitShareAmount(
+    directionFeeAmount,
+    primaryRecipient.shareBps
+  )
+
+  if (primaryAmount > 0n) {
+    let primaryIntent = intentMap.get(primaryRecipient.recipient)
+    if (!primaryIntent) {
+      primaryIntent = {
+        intent: "transfer",
+        receiver_id: primaryRecipient.recipient,
+        tokens: {},
+      }
+      withdrawalIntents.push(primaryIntent)
+      intentMap.set(primaryRecipient.recipient, primaryIntent)
+    }
+
+    const currentAmount = BigInt(primaryIntent.tokens[tokenId] || "0")
+    primaryIntent.tokens[tokenId] = (currentAmount + primaryAmount).toString()
+  }
+
+  if (secondaryAmount > 0n && appFeeRecipients.length > 1) {
+    const secondaryRecipient = appFeeRecipients[1]
+    if (secondaryRecipient) {
+      let secondaryIntent = intentMap.get(secondaryRecipient.recipient)
+      if (!secondaryIntent) {
+        secondaryIntent = {
+          intent: "transfer",
+          receiver_id: secondaryRecipient.recipient,
+          tokens: {},
+        }
+        withdrawalIntents.push(secondaryIntent)
+        intentMap.set(secondaryRecipient.recipient, secondaryIntent)
+      }
+
+      const currentAmount = BigInt(secondaryIntent.tokens[tokenId] || "0")
+      secondaryIntent.tokens[tokenId] = (
+        currentAmount + secondaryAmount
+      ).toString()
+    }
   }
 }

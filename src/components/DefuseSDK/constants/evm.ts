@@ -17,6 +17,7 @@ export const CHAIN_IDS: Record<SupportedChainName, number | undefined> = {
   vertex: 1313161587,
   optima: 1313161569,
   easychain: 1313161752,
+  hako: 1313161901,
   aurora: 1313161554,
   aurora_devnet: 1313161834,
   xrpledger: undefined,
@@ -37,4 +38,9 @@ export const CHAIN_IDS: Record<SupportedChainName, number | undefined> = {
   litecoin: undefined,
   layerx: 196,
   monad: 143,
+  bitcoincash: undefined,
+  adi: 36900,
+  starknet: undefined,
+  plasma: 9745,
+  scroll: 534352,
 }

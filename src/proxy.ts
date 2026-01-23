@@ -10,7 +10,7 @@ export const config = {
     "/((?!api|.well-known/vercel|_next/static|_next/image|favicon.ico|favicons|static|maintenance).*)",
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   try {
     // Check for legacy redirects first
     const legacyRedirect = handleLegacyRedirects(request)

@@ -5,6 +5,7 @@ import type { Quote1csInput } from "@src/components/DefuseSDK/features/machines/
 import { computeAppFeeBps } from "@src/components/DefuseSDK/utils/appFee"
 import { isBaseToken } from "@src/components/DefuseSDK/utils/token"
 import { APP_FEE_BPS } from "@src/utils/environment"
+import type { FeeRecipientSplit } from "@src/utils/getAppFeeRecipient"
 import { logNoLiquidity } from "@src/utils/logCustom"
 import { logger } from "@src/utils/logger"
 import type { providers } from "near-api-js"
@@ -33,6 +34,7 @@ import {
   getUnderlyingBaseTokenInfos,
   hasMatchingTokenKeys,
 } from "../../utils/tokenUtils"
+import { getMinDeadlineMs } from "../otcDesk/utils/quoteUtils"
 import {
   type Events as Background1csQuoterEvents,
   type ParentEvents as Background1csQuoterParentEvents,
@@ -94,7 +96,7 @@ export type Context = {
   referral?: string
   slippageBasisPoints: number
   is1cs: boolean
-  appFeeRecipient: string
+  appFeeRecipients: FeeRecipientSplit[]
   priceChangeDialog: null | {
     pendingNewOppositeAmount: { amount: bigint; decimals: number }
     previousOppositeAmount: { amount: bigint; decimals: number }
@@ -133,7 +135,7 @@ export const swapUIMachine = setup({
       tokenList: TokenInfo[]
       referral?: string
       is1cs: boolean
-      appFeeRecipient: string
+      appFeeRecipients: FeeRecipientSplit[]
     },
     context: {} as Context,
     events: {} as
@@ -172,6 +174,7 @@ export const swapUIMachine = setup({
                       amountIn: string
                       amountOut: string
                       deadline?: string
+                      timeEstimate?: number
                     }
                     appFee: [string, bigint][]
                   }
@@ -441,7 +444,7 @@ export const swapUIMachine = setup({
               APP_FEE_BPS,
               context.formValues.tokenIn,
               context.formValues.tokenOut,
-              context.appFeeRecipient,
+              context.appFeeRecipients?.[0]?.recipient ?? "",
               context.user
             ),
           },
@@ -479,7 +482,7 @@ export const swapUIMachine = setup({
               user.identifier,
               user.method
             ),
-            deadline: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+            deadline: getMinDeadlineMs(10 * 60 * 1000), // 10 minutes
             userAddress: user.identifier,
             userChainType: user.method,
           },
@@ -649,6 +652,7 @@ export const swapUIMachine = setup({
                 [tokenOutAssetId, BigInt(result.ok.quote.amountOut)],
               ],
               appFee: result.ok.appFee,
+              timeEstimate: result.ok.quote.timeEstimate,
             },
           }
 
@@ -727,7 +731,7 @@ export const swapUIMachine = setup({
     referral: input.referral,
     slippageBasisPoints: 10_000, // 1% default, will be overridden from localStorage
     is1cs: input.is1cs,
-    appFeeRecipient: input.appFeeRecipient,
+    appFeeRecipients: input.appFeeRecipients,
     priceChangeDialog: null,
   }),
 
@@ -1038,7 +1042,7 @@ export const swapUIMachine = setup({
               tokenOut: context.parsedFormValues.tokenOut,
               quote: quote.value,
             },
-            appFeeRecipient: context.appFeeRecipient,
+            appFeeRecipients: context.appFeeRecipients,
           }
         },
 
@@ -1150,7 +1154,10 @@ export const swapUIMachine = setup({
               context.user.identifier,
               context.user.method
             ),
-            deadline: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+            deadline: getMinDeadlineMs(
+              10 * 60 * 1000, // 10 minutes
+              (context.quote.value.timeEstimate ?? 0) * 1000 // timeEstimate in seconds, convert to milliseconds
+            ),
             referral: context.referral,
             userAddress: event.params.userAddress,
             userChainType: event.params.userChainType,

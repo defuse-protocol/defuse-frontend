@@ -38,6 +38,7 @@ type EmittedEvents = {
               amountIn: string
               amountOut: string
               deadline?: string
+              timeEstimate?: number
             }
             appFee: [string, bigint][]
           }
@@ -113,6 +114,7 @@ async function get1csQuote(
             quote: {
               amountIn: string
               amountOut: string
+              timeEstimate?: number
             }
             appFee: [string, bigint][]
           }

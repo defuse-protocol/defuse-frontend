@@ -11,6 +11,7 @@ export const ReceivedAmountAndFee = ({
   feeUsd,
   totalAmountReceivedUsd,
   symbol,
+  directionFee,
   isLoading,
 }: {
   fee: TokenValue
@@ -18,6 +19,7 @@ export const ReceivedAmountAndFee = ({
   feeUsd: number | null
   totalAmountReceivedUsd: number | null
   symbol: string
+  directionFee: TokenValue | null
   isLoading: boolean
 }) => {
   const fee_ =
@@ -37,6 +39,17 @@ export const ReceivedAmountAndFee = ({
   }, [totalAmountReceived])
 
   const zeroFee = fee_ === "0"
+
+  // Calculate direction fee USD value proportionally to the regular fee
+  const directionFeeUsd = useMemo<number | null>(() => {
+    if (directionFee == null || feeUsd == null || fee.amount === 0n) {
+      return null
+    }
+    // Calculate proportion: directionFee / totalFee * feeUsd
+    const totalFeeAmount = fee.amount
+    if (totalFeeAmount === 0n) return null
+    return (Number(directionFee.amount) / Number(totalFeeAmount)) * feeUsd
+  }, [directionFee, feeUsd, fee.amount])
 
   return (
     <>
@@ -83,6 +96,31 @@ export const ReceivedAmountAndFee = ({
           )}
         </div>
       </Flex>
+
+      {directionFee != null && directionFee.amount > 0n && (
+        <Flex justify="between" px="2">
+          <Text size="1" weight="medium" color="gray">
+            Direction fee
+          </Text>
+          <div className="flex flex-col items-end gap-2 justify-end md:flex-row-reverse md:items-center">
+            <Text size="1" weight="bold">
+              {isLoading ? (
+                <Skeleton>100.000</Skeleton>
+              ) : (
+                <>
+                  {formatTokenValue(directionFee.amount, directionFee.decimals)}{" "}
+                  {symbol}
+                </>
+              )}
+            </Text>
+            {directionFee.amount > 0n &&
+              directionFeeUsd != null &&
+              directionFeeUsd > 0 && (
+                <ApproximateCurrency value={directionFeeUsd} />
+              )}
+          </div>
+        </Flex>
+      )}
     </>
   )
 }

@@ -33,7 +33,7 @@ const Settings = () => {
         <Popover.Trigger>
           <button
             type={"button"}
-            className="w-[32px] h-[32px] flex justify-center items-center rounded-full gap-1 bg-gray-a3"
+            className="w-[32px] h-[32px] flex justify-center items-center rounded-full gap-1 bg-gray-a3 hover:bg-gray-a4 transition-colors"
           >
             <span className={elementCircleStyle} />
             <span className={elementCircleStyle} />
@@ -47,6 +47,10 @@ const Settings = () => {
                 <AddTurboChainButton />
                 <Separator orientation="horizontal" size="4" className="mt-4" />
               </div>
+            )}
+
+            {whitelabelTemplate === "rabitswap" && internalUserAddress && (
+              <RevealAddress internalUserAddress={internalUserAddress} />
             )}
 
             {whitelabelTemplate !== "rabitswap" && (

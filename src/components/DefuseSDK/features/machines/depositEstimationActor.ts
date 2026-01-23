@@ -52,6 +52,7 @@ export const depositEstimateMaxValueActor = fromPromise(
       case BlockchainEnum.VERTEX:
       case BlockchainEnum.OPTIMA:
       case BlockchainEnum.EASYCHAIN:
+      case BlockchainEnum.HAKO:
       case BlockchainEnum.AURORA:
       case BlockchainEnum.AURORA_DEVNET:
       case BlockchainEnum.GNOSIS:
@@ -60,7 +61,11 @@ export const depositEstimateMaxValueActor = fromPromise(
       case BlockchainEnum.BSC:
       case BlockchainEnum.OPTIMISM:
       case BlockchainEnum.AVALANCHE:
-      case BlockchainEnum.MONAD: {
+      case BlockchainEnum.MONAD:
+      case BlockchainEnum.LAYERX:
+      case BlockchainEnum.PLASMA:
+      case BlockchainEnum.SCROLL:
+      case BlockchainEnum.ADI: {
         if (
           !validateAddress(userAddress, blockchain) ||
           generateAddress == null ||
@@ -128,6 +133,7 @@ export const depositEstimateMaxValueActor = fromPromise(
       }
       // For next blockchains - active deposits are not supported, so no network fees
       case BlockchainEnum.BITCOIN:
+      case BlockchainEnum.BITCOINCASH:
       case BlockchainEnum.DOGECOIN:
       case BlockchainEnum.XRPLEDGER:
       case BlockchainEnum.ZCASH:
@@ -136,7 +142,7 @@ export const depositEstimateMaxValueActor = fromPromise(
       case BlockchainEnum.APTOS:
       case BlockchainEnum.CARDANO:
       case BlockchainEnum.LITECOIN:
-      case BlockchainEnum.LAYERX:
+      case BlockchainEnum.STARKNET:
         return 0n
       default:
         networkToSolverFormat satisfies never

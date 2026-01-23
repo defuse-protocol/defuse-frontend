@@ -16,7 +16,7 @@ import { TonConnectButton } from "./TonConnectButton"
 
 const ConnectWallet = () => {
   const { isOpen, setIsOpen } = useSignInWindowOpenState()
-  const { state, signIn, connectors } = useConnectWallet()
+  const { state, signIn, connectors, isLoading } = useConnectWallet()
   const { shortAccountId } = useShortAccountId(state.displayAddress ?? "")
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
 
@@ -34,6 +34,22 @@ const ConnectWallet = () => {
 
   const handlePasskey = () => {
     return signIn({ id: ChainType.WebAuthn })
+  }
+
+  // Show loading spinner while wallet is connecting/reconnecting
+  if (isLoading) {
+    return (
+      <Button
+        type="button"
+        variant="soft"
+        color="gray"
+        size="2"
+        radius="full"
+        disabled
+      >
+        <span className="size-4 border-2 border-gray-8 border-t-gray-11 rounded-full animate-spin" />
+      </Button>
+    )
   }
 
   if (!state.address) {

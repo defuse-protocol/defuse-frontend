@@ -11,9 +11,13 @@ import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { messageFactory } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { secp256k1 } from "@noble/curves/secp256k1"
+import { base64 } from "@scure/base"
+import type { FeeRecipientSplit } from "@src/utils/getAppFeeRecipient"
 import { logger } from "@src/utils/logger"
+import { splitAppFee } from "@src/utils/splitAppFee"
 import type { providers } from "near-api-js"
 import { assign, fromPromise, setup } from "xstate"
+import { bridgeSDK } from "../../constants/bridgeSdk"
 import { settings } from "../../constants/settings"
 import { convertPublishIntentToLegacyFormat } from "../../sdk/solverRelay/utils/parseFailedPublishError"
 import { emitEvent } from "../../services/emitter"
@@ -95,7 +99,7 @@ type Context = {
   slippageBasisPoints: number
   nearClient: providers.Provider
   intentOperationParams: IntentOperationParams
-  appFeeRecipient: string
+  appFeeRecipients?: FeeRecipientSplit[]
   // The best quote that was actually published or will be published
   quoteToPublish: AggregatedQuote | null
   // Queue stores all quotes coming from the background quoter
@@ -112,6 +116,7 @@ type Context = {
       | {
           reason:
             | "ERR_USER_DIDNT_SIGN"
+            | "ERR_FAILED_TO_PREPARE_MESSAGE_TO_SIGN"
             | "ERR_CANNOT_VERIFY_SIGNATURE"
             | "ERR_SIGNED_DIFFERENT_ACCOUNT"
             | "ERR_PUBKEY_EXCEPTION"
@@ -136,7 +141,7 @@ type Input = {
   slippageBasisPoints: number
   nearClient: providers.Provider
   intentOperationParams: IntentOperationParams
-  appFeeRecipient: string
+  appFeeRecipients?: FeeRecipientSplit[]
 }
 
 export type Output =
@@ -206,31 +211,6 @@ export const swapIntentMachine = setup({
         })
       }
     },
-    assembleSignMessages: assign({
-      messageToSign: ({ context }) => {
-        assert(
-          context.intentOperationParams.type === "swap",
-          "Operation must be swap"
-        )
-
-        const innerMessage = messageFactory.makeInnerSwapMessage({
-          tokenDeltas: accountSlippageExactIn(
-            context.intentOperationParams.quote.tokenDeltas,
-            context.slippageBasisPoints
-          ),
-          signerId: context.defuseUserId,
-          deadlineTimestamp: Date.now() + settings.swapExpirySec * 1000,
-          referral: context.referral,
-          appFee: context.intentOperationParams.quote.appFee,
-          appFeeRecipient: context.appFeeRecipient,
-        })
-
-        return {
-          innerMessage,
-          walletMessage: messageFactory.makeSwapMessage({ innerMessage }),
-        }
-      },
-    }),
     setSignature: assign({
       signature: (_, signature: walletMessage.WalletSignatureResult | null) =>
         signature,
@@ -276,6 +256,59 @@ export const swapIntentMachine = setup({
         solverRelay
           .publishIntent(input.signatureData, input.userInfo, input.quoteHashes)
           .then(convertPublishIntentToLegacyFormat)
+    ),
+    prepareSignMessages: fromPromise(
+      async ({
+        input,
+      }: {
+        input: Context
+      }) => {
+        assert(
+          input.intentOperationParams.type === "swap",
+          "Operation must be swap"
+        )
+
+        const { nonce, deadline } = await bridgeSDK
+          .intentBuilder()
+          .setDeadline(new Date(Date.now() + settings.swapExpirySec * 1000))
+          .build()
+
+        const recipients = input.appFeeRecipients ?? []
+        const { primaryAppFee, primaryRecipient, transferIntents } =
+          recipients.length > 0
+            ? splitAppFee(input.intentOperationParams.quote.appFee, recipients)
+            : {
+                primaryAppFee: [],
+                primaryRecipient: "",
+                transferIntents: [],
+              }
+
+        const innerMessage = messageFactory.makeInnerSwapMessage({
+          tokenDeltas: accountSlippageExactIn(
+            input.intentOperationParams.quote.tokenDeltas,
+            input.slippageBasisPoints
+          ),
+          signerId: input.defuseUserId,
+          deadlineTimestamp: Date.parse(deadline),
+          referral: input.referral,
+          appFee: primaryAppFee,
+          appFeeRecipient: primaryRecipient,
+        })
+
+        // Add transfer intents for secondary recipients
+        if (transferIntents.length > 0) {
+          innerMessage.intents ??= []
+          innerMessage.intents.push(...transferIntents)
+        }
+
+        return {
+          innerMessage,
+          walletMessage: messageFactory.makeSwapMessage({
+            innerMessage,
+            nonce: base64.decode(nonce),
+          }),
+        }
+      }
     ),
   },
   guards: {
@@ -403,47 +436,87 @@ export const swapIntentMachine = setup({
     },
 
     Signing: {
-      entry: ["assembleSignMessages", "emitSwapInitiated"],
-
-      invoke: {
-        id: "signMessage",
-
-        src: "signMessage",
-
-        input: ({ context }) => {
-          assert(context.messageToSign != null, "Sign message is not set")
-          return context.messageToSign.walletMessage
-        },
-
-        onDone: {
-          target: "Verifying Signature",
-
-          actions: {
-            type: "setSignature",
-            params: ({ event }) => event.output,
-          },
-        },
-
-        onError: {
-          target: "Generic Error",
-          description: "USER_DIDNT_SIGN",
-
-          actions: [
-            {
-              type: "logError",
-              params: ({ event }) => event,
-            },
-            {
-              type: "setError",
-              params: ({ event }) => ({
-                reason: extractWalletErrorCode(
-                  event.error,
-                  "ERR_USER_DIDNT_SIGN"
-                ),
-                error: errors.toError(event.error),
+      initial: "prepareWalletMessage",
+      states: {
+        prepareWalletMessage: {
+          invoke: {
+            src: "prepareSignMessages",
+            input: ({ context }) => context,
+            onDone: {
+              target: "beginSigning",
+              actions: assign(({ event, context }) => {
+                return {
+                  ...context,
+                  messageToSign: event.output,
+                }
               }),
             },
-          ],
+            onError: {
+              target: "#swap-intent.Generic Error",
+              description: "FAILED_TO_PREPARE_MESSAGE_TO_SIGN",
+
+              actions: [
+                {
+                  type: "logError",
+                  params: ({ event }) => event,
+                },
+                {
+                  type: "setError",
+                  params: ({ event }) => ({
+                    reason: extractWalletErrorCode(
+                      event.error,
+                      "ERR_FAILED_TO_PREPARE_MESSAGE_TO_SIGN"
+                    ),
+                    error: errors.toError(event.error),
+                  }),
+                },
+              ],
+            },
+          },
+        },
+        beginSigning: {
+          entry: ["emitSwapInitiated"],
+          invoke: {
+            id: "signMessage",
+
+            src: "signMessage",
+
+            input: ({ context }) => {
+              assert(context.messageToSign != null, "Sign message is not set")
+              return context.messageToSign.walletMessage
+            },
+
+            onDone: {
+              target: "#swap-intent.Verifying Signature",
+
+              actions: {
+                type: "setSignature",
+                params: ({ event }) => event.output,
+              },
+            },
+
+            onError: {
+              target: "#swap-intent.Generic Error",
+              description: "USER_DIDNT_SIGN",
+
+              actions: [
+                {
+                  type: "logError",
+                  params: ({ event }) => event,
+                },
+                {
+                  type: "setError",
+                  params: ({ event }) => ({
+                    reason: extractWalletErrorCode(
+                      event.error,
+                      "ERR_USER_DIDNT_SIGN"
+                    ),
+                    error: errors.toError(event.error),
+                  }),
+                },
+              ],
+            },
+          },
         },
       },
     },

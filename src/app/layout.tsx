@@ -39,6 +39,9 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 }
 
+const GA_NEAR_INTENTS_ID = "G-WNE3NB46KM"
+const GA_OMNI_SWAP_ID = "G-91C1EKE2JM"
+
 export async function generateMetadata(): Promise<Metadata> {
   const templ = await whitelabelTemplateFlag()
 
@@ -112,6 +115,25 @@ export async function generateMetadata(): Promise<Metadata> {
         description: "Fast, easy cross-chain swaps and more with RabitSwap.",
       },
     })
+  } else if (templ === "omniswap") {
+    Object.assign(metadata, {
+      title: "OmniSwap: Swap Any Token, Any Chain",
+      description:
+        "The universal cross-chain swap protocol. Trade seamlessly across 50+ blockchains with zero friction.",
+      openGraph: {
+        type: "website",
+        images: `/favicons/${templ}/og-image.jpg`,
+        title: "OmniSwap: Swap Any Token, Any Chain",
+        description:
+          "The universal cross-chain swap protocol. Trade seamlessly across 50+ blockchains with zero friction.",
+      },
+      twitter: {
+        images: `/favicons/${templ}/og-image.jpg`,
+        title: "OmniSwap: Swap Any Token, Any Chain",
+        description:
+          "The universal cross-chain swap protocol. Trade seamlessly across 50+ blockchains with zero friction.",
+      },
+    })
   }
 
   return {
@@ -134,8 +156,26 @@ const RootLayout = async ({
   initSDK()
   const systemStatus = await getCachedSystemStatus()
 
+  const fontLink =
+    tmpl === "omniswap"
+      ? "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      : null
+
   return (
     <html lang="en" suppressHydrationWarning className={`tmpl-${tmpl}`}>
+      <head>
+        {fontLink && (
+          <>
+            <link rel="preconnect" href="https://fonts.googleapis.com" />
+            <link
+              rel="preconnect"
+              href="https://fonts.gstatic.com"
+              crossOrigin="anonymous"
+            />
+            <link href={fontLink} rel="stylesheet" />
+          </>
+        )}
+      </head>
       <body>
         <InitDefuseSDK />
 
@@ -165,7 +205,9 @@ const RootLayout = async ({
           </SystemStatusProvider>
         </ThemeProvider>
       </body>
-      <GoogleAnalytics gaId="G-WNE3NB46KM" />
+      <GoogleAnalytics
+        gaId={tmpl === "omniswap" ? GA_OMNI_SWAP_ID : GA_NEAR_INTENTS_ID}
+      />
       {HELPSCOUT_BEACON_ID && <Helpscout />}
     </html>
   )

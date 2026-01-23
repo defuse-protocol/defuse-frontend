@@ -10,7 +10,7 @@ import { settings } from "@src/config/settings"
 export async function generateMetadata(): Promise<Metadata> {
   const templ = await whitelabelTemplateFlag()
 
-  if (templ !== "dogecoinswap") {
+  if (!["dogecoinswap", "omniswap"].includes(templ)) {
     return settings.metadata.withdraw
   }
 

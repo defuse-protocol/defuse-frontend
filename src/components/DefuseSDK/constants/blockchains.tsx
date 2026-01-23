@@ -19,6 +19,9 @@ type IntentsOption = {
 
 export type NetworkOption = BlockchainOption | IntentsOption
 
+// Temporal workaround for Scroll until it is added
+type SupportedBlockchain = Exclude<BlockchainEnum, typeof BlockchainEnum.SCROLL>
+
 export function isIntentsOption(
   option: NetworkOption
 ): option is IntentsOption {
@@ -82,6 +85,10 @@ export const chainIcons: Record<
   easychain: {
     dark: "/static/icons/network/easychain.svg",
     light: "/static/icons/network/easychain.svg",
+  },
+  hako: {
+    dark: "/static/icons/network/hako-dark.svg",
+    light: "/static/icons/network/hako-light.svg",
   },
   aurora: {
     dark: "/static/icons/network/aurora.svg",
@@ -163,16 +170,33 @@ export const chainIcons: Record<
     dark: "/static/icons/network/monad_white.svg",
     light: "/static/icons/network/monad.svg",
   },
+  bitcoincash: {
+    dark: "/static/icons/network/bitcoincash.svg",
+    light: "/static/icons/network/bitcoincash.svg",
+  },
+  adi: {
+    dark: "/static/icons/network/adi.svg",
+    light: "/static/icons/network/adi.svg",
+  },
+  starknet: {
+    dark: "/static/icons/network/starknet.svg",
+    light: "/static/icons/network/starknet.svg",
+  },
+  plasma: {
+    dark: "/static/icons/network/plasma-white.svg",
+    light: "/static/icons/network/plasma.svg",
+  },
+  scroll: {
+    dark: "/static/icons/network/scroll-white.svg",
+    light: "/static/icons/network/scroll.svg",
+  },
 }
 
 export function getBlockchainsOptions(): Record<
-  BlockchainEnum,
+  SupportedBlockchain,
   BlockchainOption
 > {
-  const options: Record<
-    Exclude<BlockchainEnum, "eth:196">, // TODO: remove this once LayerX is supported
-    BlockchainOption
-  > = {
+  const options: Record<SupportedBlockchain, BlockchainOption> = {
     [BlockchainEnum.NEAR]: {
       label: "Near",
       icon: <NetworkIcon chainIcon={chainIcons.near} chainName="near" />,
@@ -304,6 +328,12 @@ export function getBlockchainsOptions(): Record<
       value: BlockchainEnum.EASYCHAIN,
       tags: ["vol:106"],
     },
+    [BlockchainEnum.HAKO]: {
+      label: "Hako",
+      icon: <NetworkIcon chainIcon={chainIcons.hako} chainName="hako" />,
+      value: BlockchainEnum.HAKO,
+      tags: ["vol:107"],
+    },
     [BlockchainEnum.POLYGON]: {
       label: "Polygon",
       icon: <NetworkIcon chainIcon={chainIcons.polygon} chainName="Polygon" />,
@@ -383,29 +413,64 @@ export function getBlockchainsOptions(): Record<
       value: BlockchainEnum.LITECOIN,
       tags: [],
     },
-    // TODO: Uncomment this once LayerX is supported
-    // [BlockchainEnum.LAYERX]: {
-    //   label: "LayerX",
-    //   icon: <NetworkIcon chainIcon={chainIcons.layerx} chainName="LayerX" />,
-    //   value: BlockchainEnum.LAYERX,
-    //   tags: [],
-    // },
+    [BlockchainEnum.LAYERX]: {
+      label: "X Layer",
+      icon: <NetworkIcon chainIcon={chainIcons.layerx} chainName="LayerX" />,
+      value: BlockchainEnum.LAYERX,
+      tags: [],
+    },
     [BlockchainEnum.MONAD]: {
       label: "Monad",
       icon: <NetworkIcon chainIcon={chainIcons.monad} chainName="Monad" />,
       value: BlockchainEnum.MONAD,
       tags: [],
     },
+    [BlockchainEnum.BITCOINCASH]: {
+      label: "Bitcoin Cash",
+      icon: (
+        <NetworkIcon
+          chainIcon={chainIcons.bitcoincash}
+          chainName="Bitcoin Cash"
+        />
+      ),
+      value: BlockchainEnum.BITCOINCASH,
+      tags: [],
+    },
+    [BlockchainEnum.STARKNET]: {
+      label: "Starknet",
+      icon: (
+        <NetworkIcon chainIcon={chainIcons.starknet} chainName="Starknet" />
+      ),
+      value: BlockchainEnum.STARKNET,
+      tags: [],
+    },
+    [BlockchainEnum.ADI]: {
+      label: "ADI",
+      icon: <NetworkIcon chainIcon={chainIcons.adi} chainName="ADI" />,
+      value: BlockchainEnum.ADI,
+      tags: [],
+    },
+    [BlockchainEnum.PLASMA]: {
+      label: "Plasma",
+      icon: <NetworkIcon chainIcon={chainIcons.plasma} chainName="Plasma" />,
+      value: BlockchainEnum.PLASMA,
+      tags: [],
+    },
+    // Temporal workaround for Scroll until it is added
+    // [BlockchainEnum.SCROLL]: {
+    //   label: "Scroll",
+    //   icon: <NetworkIcon chainIcon={chainIcons.scroll} chainName="Scroll" />,
+    //   value: BlockchainEnum.SCROLL,
+    //   tags: [],
+    // },
   }
 
-  return sortBlockchainOptionsByVolume(
-    options as Record<BlockchainEnum, BlockchainOption> // TODO: remove this once LayerX is supported
-  )
+  return sortBlockchainOptionsByVolume(options)
 }
 
 function sortBlockchainOptionsByVolume(
-  options: Record<BlockchainEnum, BlockchainOption>
-): Record<BlockchainEnum, BlockchainOption> {
+  options: Record<SupportedBlockchain, BlockchainOption>
+): Record<SupportedBlockchain, BlockchainOption> {
   const sortedEntries = Object.entries(options).sort(([, a], [, b]) => {
     const volTagA = a.tags?.find((tag) => tag.startsWith("vol:"))
     const volTagB = b.tags?.find((tag) => tag.startsWith("vol:"))
@@ -417,7 +482,7 @@ function sortBlockchainOptionsByVolume(
   })
 
   return Object.fromEntries(sortedEntries) as Record<
-    BlockchainEnum,
+    SupportedBlockchain,
     BlockchainOption
   >
 }
@@ -426,6 +491,8 @@ const intentsChainIcon = {
   dark: "/static/icons/network/intents_white.svg",
   light: "/static/icons/network/intents.svg",
 }
+
+export const INTENTS_EXPLORER_URL = "https://explorer.near-intents.org"
 
 export function getNearIntentsOption(): Record<"intents", IntentsOption> {
   return {

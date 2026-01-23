@@ -7,6 +7,7 @@ export const assetNetworkAdapter: Record<SupportedChainName, BlockchainEnum> = {
   base: BlockchainEnum.BASE,
   arbitrum: BlockchainEnum.ARBITRUM,
   bitcoin: BlockchainEnum.BITCOIN,
+  bitcoincash: BlockchainEnum.BITCOINCASH,
   solana: BlockchainEnum.SOLANA,
   dogecoin: BlockchainEnum.DOGECOIN,
   turbochain: BlockchainEnum.TURBOCHAIN,
@@ -21,6 +22,7 @@ export const assetNetworkAdapter: Record<SupportedChainName, BlockchainEnum> = {
   vertex: BlockchainEnum.VERTEX,
   optima: BlockchainEnum.OPTIMA,
   easychain: BlockchainEnum.EASYCHAIN,
+  hako: BlockchainEnum.HAKO,
   polygon: BlockchainEnum.POLYGON,
   bsc: BlockchainEnum.BSC,
   hyperliquid: BlockchainEnum.HYPERLIQUID,
@@ -34,6 +36,10 @@ export const assetNetworkAdapter: Record<SupportedChainName, BlockchainEnum> = {
   litecoin: BlockchainEnum.LITECOIN,
   layerx: BlockchainEnum.LAYERX,
   monad: BlockchainEnum.MONAD,
+  plasma: BlockchainEnum.PLASMA,
+  scroll: BlockchainEnum.SCROLL,
+  adi: BlockchainEnum.ADI,
+  starknet: BlockchainEnum.STARKNET,
 }
 
 export const reverseAssetNetworkAdapter: Record<
@@ -45,6 +51,7 @@ export const reverseAssetNetworkAdapter: Record<
   [BlockchainEnum.BASE]: "base",
   [BlockchainEnum.ARBITRUM]: "arbitrum",
   [BlockchainEnum.BITCOIN]: "bitcoin",
+  [BlockchainEnum.BITCOINCASH]: "bitcoincash",
   [BlockchainEnum.SOLANA]: "solana",
   [BlockchainEnum.DOGECOIN]: "dogecoin",
   [BlockchainEnum.TURBOCHAIN]: "turbochain",
@@ -59,6 +66,7 @@ export const reverseAssetNetworkAdapter: Record<
   [BlockchainEnum.VERTEX]: "vertex",
   [BlockchainEnum.OPTIMA]: "optima",
   [BlockchainEnum.EASYCHAIN]: "easychain",
+  [BlockchainEnum.HAKO]: "hako",
   [BlockchainEnum.POLYGON]: "polygon",
   [BlockchainEnum.BSC]: "bsc",
   [BlockchainEnum.HYPERLIQUID]: "hyperliquid",
@@ -72,6 +80,10 @@ export const reverseAssetNetworkAdapter: Record<
   [BlockchainEnum.LITECOIN]: "litecoin",
   [BlockchainEnum.LAYERX]: "layerx",
   [BlockchainEnum.MONAD]: "monad",
+  [BlockchainEnum.PLASMA]: "plasma",
+  [BlockchainEnum.SCROLL]: "scroll",
+  [BlockchainEnum.ADI]: "adi",
+  [BlockchainEnum.STARKNET]: "starknet",
 }
 
 export function isValidBlockchainEnumKey(

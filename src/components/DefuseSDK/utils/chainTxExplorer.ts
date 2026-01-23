@@ -14,6 +14,8 @@ export function chainTxExplorer(blockchain: SupportedChainName): string | null {
       return "https://explorer.turbo.aurora.dev/tx/"
     case "bitcoin":
       return "https://blockchain.info/tx/"
+    case "bitcoincash":
+      return "https://blockchair.com/bitcoin-cash/transaction/"
     case "solana":
       return "https://orb.helius.dev/tx/"
     case "dogecoin":
@@ -40,6 +42,8 @@ export function chainTxExplorer(blockchain: SupportedChainName): string | null {
       return "https://explorer.optima.aurora.dev/tx/"
     case "easychain":
       return "https://0x4e454218.explorer.aurora-cloud.dev/tx/"
+    case "hako":
+      return "https://0x4e4542ad.explorer.aurora-cloud.dev/tx/"
     case "polygon":
       return "https://polygonscan.com/tx/"
     case "bsc":
@@ -63,9 +67,17 @@ export function chainTxExplorer(blockchain: SupportedChainName): string | null {
     case "litecoin":
       return "https://litecoinspace.org/tx/"
     case "layerx":
-      return "https://layerxscan.io/tx/"
+      return "https://www.oklink.com/x-layer/tx/"
     case "monad":
       return "https://monadscan.com/tx/"
+    case "adi":
+      return "https://explorer.adifoundation.ai/tx/"
+    case "starknet":
+      return "https://starkscan.co/tx/"
+    case "plasma":
+      return "https://plasmascan.to/tx/"
+    case "scroll":
+      return "https://scrollscan.com/tx/"
     default:
       blockchain satisfies never
       return null
