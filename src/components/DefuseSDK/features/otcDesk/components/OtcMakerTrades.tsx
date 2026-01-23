@@ -20,7 +20,10 @@ import { formatTokenValue } from "../../../utils/format"
 import { computeTotalBalanceDifferentDecimals } from "../../../utils/tokenUtils"
 import type { SendNearTransaction } from "../../machines/publicKeyVerifierMachine"
 import { useCountdownTimer } from "../hooks/useCountdownTimer"
-import { useOtcMakerTrades } from "../stores/otcMakerTrades"
+import {
+  type OtcMakerTradeOutcome,
+  useOtcMakerTrades,
+} from "../stores/otcMakerTrades"
 import type { GenerateLink, SignMessage } from "../types/sharedTypes"
 import {
   type DetermineInvolvedTokensErr,
@@ -50,6 +53,8 @@ type TradeSelection = {
   nonceBase64: string
   error:
     | "ORDER_EXPIRED"
+    | "TRADE_EXECUTED"
+    | "TRADE_CANCELLED"
     | "NONCE_ALREADY_USED"
     | "MAKER_INSUFFICIENT_FUNDS"
     | null
@@ -109,6 +114,7 @@ export function OtcMakerTrades({
             generateLink={generateLink}
             signerCredentials={signerCredentials}
             onSelect={(tradeData) => setSelectedTrade(tradeData)}
+            outcome={trade.outcome}
           />
         ))}
       </div>
@@ -145,6 +151,7 @@ interface OtcMakerTradeItemProps {
   generateLink: GenerateLink
   signerCredentials: SignerCredentials
   onSelect: (trade: SelectedTrade) => void
+  outcome?: OtcMakerTradeOutcome
 }
 
 function OtcMakerTradeItem({
@@ -154,6 +161,7 @@ function OtcMakerTradeItem({
   multiPayload,
   tokenList,
   onSelect,
+  outcome,
 }: OtcMakerTradeItemProps) {
   const tradeTermsResult = parseTradeTerms(multiPayload)
     .mapErr<ParseTradeTermsErr | DetermineInvolvedTokensErr>((a) => a)
@@ -187,7 +195,7 @@ function OtcMakerTradeItem({
   )
   assert(totalAmountOut)
 
-  const err = useValidateTrade(tradeTerms)
+  const err = useValidateTrade(tradeTerms, outcome)
   const hasError = err.isSome()
   const error = hasError ? err.unwrap() : null
 
@@ -220,6 +228,12 @@ function OtcMakerTradeItem({
 
         {error === "ORDER_EXPIRED" ? (
           <ListItem.Subtitle>Trade expired</ListItem.Subtitle>
+        ) : error === "TRADE_EXECUTED" ? (
+          <ListItem.Subtitle className="text-green-600">
+            Trade executed
+          </ListItem.Subtitle>
+        ) : error === "TRADE_CANCELLED" ? (
+          <ListItem.Subtitle>Trade cancelled</ListItem.Subtitle>
         ) : error === "NONCE_ALREADY_USED" ? (
           <ListItem.Subtitle>Trade executed or cancelled</ListItem.Subtitle>
         ) : error === "MAKER_INSUFFICIENT_FUNDS" ? (
@@ -248,10 +262,26 @@ function OtcMakerTradeItem({
   )
 }
 
-function useValidateTrade(tradeTerms: TradeTerms) {
-  let error: Option<
-    "ORDER_EXPIRED" | "NONCE_ALREADY_USED" | "MAKER_INSUFFICIENT_FUNDS"
-  > = None
+type TradeValidationError =
+  | "ORDER_EXPIRED"
+  | "TRADE_EXECUTED"
+  | "TRADE_CANCELLED"
+  | "NONCE_ALREADY_USED"
+  | "MAKER_INSUFFICIENT_FUNDS"
+
+function useValidateTrade(
+  tradeTerms: TradeTerms,
+  outcome?: OtcMakerTradeOutcome
+) {
+  let error: Option<TradeValidationError> = None
+
+  // If we already know the outcome, use it directly
+  if (outcome === "executed") {
+    return Some<TradeValidationError>("TRADE_EXECUTED")
+  }
+  if (outcome === "cancelled") {
+    return Some<TradeValidationError>("TRADE_CANCELLED")
+  }
 
   if (new Date(tradeTerms.deadline) < new Date()) {
     error = Some("ORDER_EXPIRED")
@@ -315,8 +345,11 @@ const getBadgeType = (error?: string | null) => {
     case "ORDER_EXPIRED":
     case "MAKER_INSUFFICIENT_FUNDS":
       return "failed"
+    case "TRADE_EXECUTED":
     case "NONCE_ALREADY_USED":
       return "success"
+    case "TRADE_CANCELLED":
+      return "neutral"
     default:
       return "processing"
   }
