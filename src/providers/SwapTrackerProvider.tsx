@@ -1,6 +1,7 @@
 "use client"
 
 import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
+import { createNoopParentRef } from "@src/components/DefuseSDK/features/common/actorUtils"
 import { intentStatusMachine } from "@src/components/DefuseSDK/features/machines/intentStatusMachine"
 import { oneClickStatusMachine } from "@src/components/DefuseSDK/features/machines/oneClickStatusMachine"
 import type { IntentDescription } from "@src/components/DefuseSDK/features/machines/swapIntentMachine"
@@ -12,7 +13,9 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react"
 import { type ActorRefFrom, type AnyActorRef, createActor } from "xstate"
@@ -49,7 +52,6 @@ type SwapTrackerContextType = {
   trackedSwaps: TrackedSwapIntent[]
   registerSwap: (params: RegisterSwapParams) => void
   dismissSwap: (id: string) => void
-  getActiveSwaps: () => TrackedSwapIntent[]
   hasActiveSwap: (id: string) => boolean
 }
 
@@ -57,16 +59,29 @@ const SwapTrackerContext = createContext<SwapTrackerContextType | undefined>(
   undefined
 )
 
-function createNoopParentRef(): AnyActorRef {
-  return {
-    send: () => {},
-    getSnapshot: () => ({}),
-  } as unknown as AnyActorRef
-}
-
 export function SwapTrackerProvider({ children }: { children: ReactNode }) {
   const [trackedSwaps, setTrackedSwaps] = useState<TrackedSwapIntent[]>([])
   const { addDockItem, removeDockItem } = useActivityDock()
+  const actorRefsRef = useRef<Map<string, TrackedSwapIntent["actorRef"]>>(
+    new Map()
+  )
+  const trackedIdsRef = useRef<Set<string>>(new Set())
+
+  // Keep trackedIdsRef in sync with state for stable hasActiveSwap callback
+  useEffect(() => {
+    trackedIdsRef.current = new Set(trackedSwaps.map((s) => s.id))
+  }, [trackedSwaps])
+
+  // Cleanup: stop all actors when provider unmounts
+  useEffect(() => {
+    const actorRefs = actorRefsRef.current
+    return () => {
+      for (const actorRef of actorRefs.values()) {
+        actorRef.stop()
+      }
+      actorRefs.clear()
+    }
+  }, [])
 
   const registerSwap = useCallback(
     (params: RegisterSwapParams) => {
@@ -114,6 +129,7 @@ export function SwapTrackerProvider({ children }: { children: ReactNode }) {
             })
 
       actorRef.start()
+      actorRefsRef.current.set(id, actorRef as TrackedSwapIntent["actorRef"])
 
       const trackedSwap: TrackedSwapIntent = {
         id,
@@ -163,25 +179,22 @@ export function SwapTrackerProvider({ children }: { children: ReactNode }) {
 
   const dismissSwap = useCallback(
     (id: string) => {
-      setTrackedSwaps((prev) => {
-        const swap = prev.find((s) => s.id === id)
-        if (swap) {
-          swap.actorRef.stop()
-        }
-        return prev.filter((s) => s.id !== id)
-      })
+      // Stop actor outside of setState to avoid side effects in updater
+      const actorRef = actorRefsRef.current.get(id)
+      if (actorRef) {
+        actorRef.stop()
+        actorRefsRef.current.delete(id)
+      }
+
+      setTrackedSwaps((prev) => prev.filter((s) => s.id !== id))
       removeDockItem(`swap-${id}`)
     },
     [removeDockItem]
   )
 
-  const getActiveSwaps = useCallback(() => {
-    return trackedSwaps
-  }, [trackedSwaps])
-
   const hasActiveSwap = useCallback(
-    (id: string) => trackedSwaps.some((s) => s.id === id),
-    [trackedSwaps]
+    (id: string) => trackedIdsRef.current.has(id),
+    []
   )
 
   const value = useMemo(
@@ -189,10 +202,9 @@ export function SwapTrackerProvider({ children }: { children: ReactNode }) {
       trackedSwaps,
       registerSwap,
       dismissSwap,
-      getActiveSwaps,
       hasActiveSwap,
     }),
-    [trackedSwaps, registerSwap, dismissSwap, getActiveSwaps, hasActiveSwap]
+    [trackedSwaps, registerSwap, dismissSwap, hasActiveSwap]
   )
 
   return (

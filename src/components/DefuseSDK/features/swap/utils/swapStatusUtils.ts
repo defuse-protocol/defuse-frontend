@@ -1,11 +1,7 @@
-export type StatusActorSnapshot = {
-  value: string | object
-  context: {
-    txHash?: string | null
-    status?: string | null
-  }
-  can: (event: { type: string }) => boolean
-}
+export {
+  type StatusActorSnapshot,
+  extractStateValue,
+} from "@src/components/DefuseSDK/features/common/statusUtils"
 
 export const SWAP_STAGES = ["pending", "executing", "complete"] as const
 export type SwapStage = (typeof SWAP_STAGES)[number]
@@ -42,12 +38,6 @@ export function getStageFromState(stateValue: string): SwapStage {
     default:
       return "pending"
   }
-}
-
-export function extractStateValue(stateValue: string | object): string {
-  return typeof stateValue === "string"
-    ? stateValue
-    : Object.keys(stateValue)[0]
 }
 
 export function is1csError(status: string | null | undefined): boolean {
