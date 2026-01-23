@@ -20,16 +20,16 @@ export type DockItem = {
   icon: ReactNode
   explorerUrl?: string
   keyValueRows: KeyValueRow[]
-  // Optional custom render content for swap tracking, etc.
   renderContent?: () => ReactNode
-  // If true, render icon without the circle container
   rawIcon?: boolean
+  isSettled?: boolean
 }
 
 type ActivityDockContextType = {
   dockItems: DockItem[]
   addDockItem: (item: DockItem) => void
   removeDockItem: (id: string) => void
+  settleDockItem: (id: string) => void
   hasDockItem: (id: string) => boolean
 }
 
@@ -53,14 +53,30 @@ function ActivityDockProvider({ children }: { children: ReactNode }) {
     []
   )
 
+  const settleDockItem = useCallback(
+    (id: string) =>
+      setDockItems((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, isSettled: true } : item
+        )
+      ),
+    []
+  )
+
   const hasDockItem = useCallback(
     (id: string) => dockItems.some((item) => item.id === id),
     [dockItems]
   )
 
   const value = useMemo(
-    () => ({ dockItems, addDockItem, removeDockItem, hasDockItem }),
-    [dockItems, addDockItem, removeDockItem, hasDockItem]
+    () => ({
+      dockItems,
+      addDockItem,
+      removeDockItem,
+      settleDockItem,
+      hasDockItem,
+    }),
+    [dockItems, addDockItem, removeDockItem, settleDockItem, hasDockItem]
   )
 
   return (

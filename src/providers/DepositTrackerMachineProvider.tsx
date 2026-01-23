@@ -39,7 +39,7 @@ export function DepositTrackerMachineProvider({
   children,
 }: { children: ReactNode }) {
   const [actorRef] = useState(() => createActor(depositTrackerMachine).start())
-  const { addDockItem, removeDockItem } = useActivityDock()
+  const { addDockItem, removeDockItem, settleDockItem } = useActivityDock()
 
   const trackedDeposits = useSelector(actorRef, (s) => s.context.deposits)
 
@@ -78,8 +78,11 @@ export function DepositTrackerMachineProvider({
   const updateDepositStage = useCallback(
     (id: string, stage: DepositStage, txHash?: string) => {
       actorRef.send({ type: "UPDATE_STAGE", id, stage, txHash })
+      if (stage === "complete" || stage === "error") {
+        settleDockItem(`deposit-${id}`)
+      }
     },
-    [actorRef]
+    [actorRef, settleDockItem]
   )
 
   const dismissDeposit = useCallback(

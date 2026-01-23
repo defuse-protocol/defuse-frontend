@@ -15,6 +15,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from "react"
@@ -38,9 +39,16 @@ export function WithdrawTrackerMachineProvider({
   children,
 }: { children: ReactNode }) {
   const [actorRef] = useState(() => createActor(withdrawTrackerMachine).start())
-  const { addDockItem, removeDockItem } = useActivityDock()
+  const { addDockItem, removeDockItem, settleDockItem } = useActivityDock()
 
   const trackedWithdraws = useSelector(actorRef, (s) => s.context.withdrawRefs)
+
+  useEffect(() => {
+    const sub = actorRef.on("INTENT_SETTLED", (event) => {
+      settleDockItem(`withdraw-${event.data.intentHash}`)
+    })
+    return () => sub.unsubscribe()
+  }, [actorRef, settleDockItem])
 
   const registerWithdraw = useCallback(
     (params: RegisterWithdrawParams) => {

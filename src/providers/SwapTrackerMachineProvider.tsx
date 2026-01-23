@@ -15,6 +15,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from "react"
@@ -38,9 +39,22 @@ export function SwapTrackerMachineProvider({
   children,
 }: { children: ReactNode }) {
   const [actorRef] = useState(() => createActor(swapTrackerMachine).start())
-  const { addDockItem, removeDockItem } = useActivityDock()
+  const { addDockItem, removeDockItem, settleDockItem } = useActivityDock()
 
   const trackedSwaps = useSelector(actorRef, (s) => s.context.swapRefs)
+
+  useEffect(() => {
+    const sub1 = actorRef.on("INTENT_SETTLED", (event) => {
+      settleDockItem(`swap-${event.data.intentHash}`)
+    })
+    const sub2 = actorRef.on("ONE_CLICK_SETTLED", (event) => {
+      settleDockItem(`swap-${event.data.depositAddress}`)
+    })
+    return () => {
+      sub1.unsubscribe()
+      sub2.unsubscribe()
+    }
+  }, [actorRef, settleDockItem])
 
   const registerSwap = useCallback(
     (params: RegisterSwapParams) => {
