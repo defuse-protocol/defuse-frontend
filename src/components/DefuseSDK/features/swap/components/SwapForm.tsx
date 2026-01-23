@@ -428,7 +428,12 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                       value: amountIn,
                     }
               }
-              error={errors.amountIn ? errors.amountIn.message : undefined}
+              hasError={balanceInsufficient}
+              error={
+                balanceInsufficient
+                  ? "Amount entered exceeds available balance"
+                  : errors.amountIn?.message
+              }
             />
 
             <div className="flex items-center justify-center -my-3.5">
