@@ -1,5 +1,6 @@
 "use client"
 
+import { checkTokenValidity, generateAuthToken } from "@src/actions/auth"
 import { WalletBannedDialog } from "@src/components/WalletBannedDialog"
 import { WalletVerificationDialog } from "@src/components/WalletVerificationDialog"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
@@ -7,7 +8,6 @@ import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMe
 import { walletVerificationMachine } from "@src/machines/walletVerificationMachine"
 import { useBypassedWalletsStore } from "@src/stores/useBypassedWalletsStore"
 import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
-import { getStoredToken, storeAppAuthToken, verifyJWT } from "@src/utils/jwt"
 import {
   verifyWalletSignature,
   walletVerificationMessageFactory,
@@ -25,6 +25,19 @@ export function WalletVerificationProvider() {
   const router = useRouter()
   const pathname = usePathname()
   const queryClient = useQueryClient()
+
+  const tokenValidityCheck = useQuery({
+    queryKey: ["token_validity", state.address, state.chainType],
+    queryFn: async () => {
+      if (!state.address || !state.chainType) {
+        return { isValid: false }
+      }
+      return checkTokenValidity(state.address, state.chainType)
+    },
+    enabled: state.address != null && state.chainType != null,
+    refetchInterval: 30000, // Check every 30 seconds (token expires in 60 seconds)
+    refetchIntervalInBackground: true, // Continue checking even when tab is in background
+  })
 
   const bannedAccountCheck = useQuery({
     queryKey: ["banned_account", state.address, state.chainType],
@@ -62,75 +75,6 @@ export function WalletVerificationProvider() {
     enabled: state.address != null && state.chainType !== undefined,
     staleTime: 1000 * 60 * 60, // 1 hour,
   })
-
-  const tokenValidityCheck = useQuery({
-    queryKey: ["token_validity", state.address, state.chainType],
-    queryFn: async () => {
-      const storedToken = getStoredToken()
-      if (!storedToken) {
-        return { isValid: false }
-      }
-
-      const payload = await verifyJWT(storedToken)
-      if (!payload) {
-        return { isValid: false }
-      }
-
-      const matchesWallet =
-        payload.auth_identifier === state.address &&
-        payload.auth_method === state.chainType
-
-      return { isValid: matchesWallet }
-    },
-    enabled:
-      state.address != null &&
-      state.chainType !== undefined &&
-      state.isVerified,
-    staleTime: 1000 * 60, // 1 minute
-  })
-
-  const isTokenValid = tokenValidityCheck.data?.isValid ?? false
-
-  const generateToken = useQuery({
-    queryKey: [
-      "generate_token",
-      state.address,
-      state.chainType,
-      state.isVerified,
-      isTokenValid,
-    ],
-    queryFn: async () => {
-      const response = await fetch("/api/auth/token", {
-        method: "POST",
-        body: JSON.stringify({
-          authIdentifier: state.address,
-          authMethod: state.chainType,
-        }),
-      })
-      if (!response.ok) {
-        throw new Error("Failed to generate token")
-      }
-      const data = (await response.json()) as { token: string }
-
-      if (data.token) {
-        storeAppAuthToken(data.token)
-        queryClient.invalidateQueries({
-          queryKey: ["token_validity", state.address, state.chainType],
-        })
-      }
-
-      return data
-    },
-    enabled:
-      state.address != null &&
-      state.chainType !== undefined &&
-      state.isVerified &&
-      !isTokenValid &&
-      !tokenValidityCheck.isLoading,
-    staleTime: 1000 * 60 * 5, // 5 minutes,
-  })
-
-  void generateToken
 
   const { addWalletAddress } = useVerifiedWalletsStore()
   const { addBypassedWalletAddress, isWalletBypassed } =
@@ -170,17 +114,33 @@ export function WalletVerificationProvider() {
     )
   }
 
+  const needsVerification =
+    !state.isVerified ||
+    (tokenValidityCheck.data?.isValid === false && tokenValidityCheck.isSuccess)
+
   if (
     state.address != null &&
     (safetyCheck.data?.safetyStatus === "safe" ||
       isWalletBypassed(state.address)) &&
-    !state.isVerified
+    needsVerification
   ) {
+    // Show "Re-verify" message only if wallet was previously verified but token expired
+    const isTokenExpired =
+      state.isVerified &&
+      tokenValidityCheck.data?.isValid === false &&
+      tokenValidityCheck.isSuccess
+
     return (
       <WalletVerificationUI
-        onConfirm={() => {
-          if (state.address != null) {
+        isTokenExpired={isTokenExpired}
+        onConfirm={async () => {
+          if (state.address != null && state.chainType != null) {
+            await generateAuthToken(state.address, state.chainType)
             addWalletAddress(state.address)
+
+            await queryClient.invalidateQueries({
+              queryKey: ["token_validity", state.address, state.chainType],
+            })
           }
         }}
         onAbort={() => {
@@ -205,9 +165,14 @@ function WalletBannedUI({
 }
 
 function WalletVerificationUI({
+  isTokenExpired,
   onConfirm,
   onAbort,
-}: { onConfirm: () => void; onAbort: () => void }) {
+}: {
+  isTokenExpired: boolean
+  onConfirm: () => void
+  onAbort: () => void
+}) {
   const { state: unconfirmedWallet } = useConnectWallet()
 
   const signMessage = useWalletAgnosticSignMessage()
@@ -279,6 +244,7 @@ function WalletVerificationUI({
       }}
       isVerifying={state.matches("verifying")}
       isFailure={state.context.hadError}
+      isTokenExpired={isTokenExpired}
     />
   )
 }
