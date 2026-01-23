@@ -293,7 +293,6 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     tokenPrice: tokenInPrice,
     handleToggle: handleToggleUsdModeIn,
     handleInputChange: handleUsdInputChangeRaw,
-    clearUsdValue: clearUsdValueIn,
   } = useUsdMode({
     direction: "input",
     tokenIn,
@@ -303,13 +302,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     swapUIActorRef,
   })
 
-  const {
-    isUsdMode: isUsdModeOut,
-    usdValue: usdValueOut,
-    tokenPrice: tokenOutPrice,
-    handleInputChange: handleUsdOutputChangeRaw,
-    clearUsdValue: clearUsdValueOut,
-  } = useUsdMode({
+  const { tokenPrice: tokenOutPrice } = useUsdMode({
     direction: "output",
     tokenIn,
     tokenOut,
@@ -318,21 +311,12 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     swapUIActorRef,
   })
 
-  // Wrap handlers to clear the other side's USD value
+  // Wrap handler to clear the output USD value when input changes
   const handleUsdInputChange = useCallback(
     (value: string) => {
-      clearUsdValueOut()
       handleUsdInputChangeRaw(value)
     },
-    [clearUsdValueOut, handleUsdInputChangeRaw]
-  )
-
-  const handleUsdOutputChange = useCallback(
-    (value: string) => {
-      clearUsdValueIn()
-      handleUsdOutputChangeRaw(value)
-    },
-    [clearUsdValueIn, handleUsdOutputChangeRaw]
+    [handleUsdInputChangeRaw]
   )
 
   const is1cs = useIs1CsEnabled()
@@ -479,52 +463,19 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               tokenPrice={tokenOutPrice}
               tokenAmount={amountOut}
               isOutputField
-              registration={
-                isUsdModeOut
-                  ? {
-                      name: "usdAmountOut",
-                      onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-                        handleUsdOutputChange(e.target.value)
-                      },
-                      onBlur: () => {},
-                      ref: () => {},
-                      // Show user-entered value, or calculated USD from quote if empty
-                      value:
-                        usdValueOut ||
-                        (usdAmountOut ? usdAmountOut.toFixed(2) : ""),
-                    }
-                  : {
-                      ...register("amountOut", {
-                        required: true,
-                        validate: (value) => {
-                          if (!value) return true
-                          const num = Number.parseFloat(value.replace(",", "."))
-                          return (
-                            (!Number.isNaN(num) && num > 0) ||
-                            "Enter a valid amount"
-                          )
-                        },
-                        onChange: (e) => {
-                          setValue("amountIn", "")
-                          swapUIActorRef.send({
-                            type: "input",
-                            params: {
-                              tokenIn,
-                              tokenOut,
-                              swapType: QuoteRequest.swapType.EXACT_OUTPUT,
-                              amountOut: e.target.value,
-                              amountIn: "",
-                            },
-                          })
-                        },
-                      }),
-                      value: amountOut,
-                    }
-              }
-              readOnly={!is1cs}
-              error={
-                errors.amountOut && is1cs ? errors.amountOut.message : undefined
-              }
+              registration={{
+                name: "amountOut",
+                onChange: () => {},
+                onBlur: () => {},
+                ref: () => {},
+                // When source is in USD mode, show USD value; otherwise show token amount
+                value: isUsdModeIn
+                  ? usdAmountOut
+                    ? usdAmountOut.toFixed(2)
+                    : ""
+                  : amountOut,
+              }}
+              readOnly
             />
           </div>
 

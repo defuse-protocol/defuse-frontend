@@ -130,7 +130,7 @@ function UsdToggle({
     >
       <span>
         {isUsdMode
-          ? `${tokenAmount || "0"} ${symbol}`
+          ? `${truncateDisplayValue(tokenAmount) || "0"} ${symbol}`
           : formatUsdAmount(usdAmount ?? 0)}
       </span>
       <ArrowsUpDownIcon className="size-4" />
@@ -208,7 +208,6 @@ const TokenInputCard = (props: TokenInputCardProps) => {
       ...baseRegistration,
       value: truncateDisplayValue(val),
     }
-    // biome-ignore lint/correctness/useExhaustiveDependencies: Need to track value changes within baseRegistration
   }, [baseRegistration])
 
   const id = useId()
@@ -305,7 +304,7 @@ const TokenInputCard = (props: TokenInputCardProps) => {
           <div className="text-sm text-gray-500 font-medium">
             {/* Mirror source's USD mode: show token when source is USD, show USD when source is token */}
             {isUsdMode
-              ? `${tokenAmount || "0"} ${symbol}`
+              ? `${truncateDisplayValue(tokenAmount) || "0"} ${symbol}`
               : formatUsdAmount(usdAmount ?? 0)}
           </div>
         )}
