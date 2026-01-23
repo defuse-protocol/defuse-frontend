@@ -196,10 +196,9 @@ const TokenInputCard = (props: TokenInputCardProps) => {
   const value =
     isDisplayOnly && rawValue ? truncateDisplayValue(rawValue) : rawValue
 
-  // For output fields with registration, truncate the displayed value
+  // Always truncate long values to prevent overflow with token selector
   const registration = useMemo(() => {
     if (!baseRegistration) return baseRegistration
-    if (!isOutputField) return baseRegistration
     if (!("value" in baseRegistration)) return baseRegistration
 
     const val = baseRegistration.value
@@ -209,7 +208,8 @@ const TokenInputCard = (props: TokenInputCardProps) => {
       ...baseRegistration,
       value: truncateDisplayValue(val),
     }
-  }, [baseRegistration, isOutputField])
+    // biome-ignore lint/correctness/useExhaustiveDependencies: Need to track value changes within baseRegistration
+  }, [baseRegistration])
 
   const id = useId()
   const noBalance = balance === 0n

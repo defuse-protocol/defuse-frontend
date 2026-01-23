@@ -307,7 +307,6 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     isUsdMode: isUsdModeOut,
     usdValue: usdValueOut,
     tokenPrice: tokenOutPrice,
-    handleToggle: handleToggleUsdModeOut,
     handleInputChange: handleUsdOutputChangeRaw,
     clearUsdValue: clearUsdValueOut,
   } = useUsdMode({
@@ -476,10 +475,10 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               handleSelectToken={() =>
                 openModalSelectAssets(SWAP_TOKEN_FLAGS.OUT, tokenOut)
               }
-              isUsdMode={isUsdModeOut}
+              isUsdMode={isUsdModeIn}
               tokenPrice={tokenOutPrice}
-              onToggleUsdMode={is1cs ? handleToggleUsdModeOut : undefined}
               tokenAmount={amountOut}
+              isOutputField
               registration={
                 isUsdModeOut
                   ? {
