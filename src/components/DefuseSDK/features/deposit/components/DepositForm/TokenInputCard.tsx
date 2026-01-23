@@ -124,12 +124,12 @@ function UsdToggle({
       onClick={onToggle}
       className="flex items-center gap-1.5 text-sm text-gray-500 font-medium hover:text-gray-700 transition-colors"
     >
-      <ArrowsUpDownIcon className="size-4" />
       <span>
         {isUsdMode
           ? `${tokenAmount || "0"} ${symbol}`
           : formatUsdAmount(usdAmount ?? 0)}
       </span>
+      <ArrowsUpDownIcon className="size-4" />
     </button>
   )
 }
@@ -226,9 +226,9 @@ const TokenInputCard = (props: TokenInputCardProps) => {
 
   return (
     <div className="bg-white border border-gray-200 rounded-3xl w-full p-6 flex flex-col gap-3">
-      {/* Row 1: Amount input + toggle | Token selector */}
+      {/* Row 1: Amount input | Token selector */}
       <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2 flex-1 min-w-0">
+        <div className="flex items-center gap-1 flex-1 min-w-0">
           {isUsdMode && (
             <span className="font-bold text-gray-900 text-4xl tracking-tight shrink-0">
               $
@@ -253,15 +253,6 @@ const TokenInputCard = (props: TokenInputCardProps) => {
             )}
             {...(registration ?? { value, readOnly: true })}
           />
-          {canToggleUsd && onToggleUsdMode && (
-            <UsdToggle
-              isUsdMode={isUsdMode}
-              usdAmount={usdAmount}
-              tokenAmount={tokenAmount}
-              symbol={symbol}
-              onToggle={onToggleUsdMode}
-            />
-          )}
         </div>
 
         <SelectAssets
@@ -273,11 +264,21 @@ const TokenInputCard = (props: TokenInputCardProps) => {
         />
       </div>
 
-      {/* Row 2: USD amount | Balance */}
+      {/* Row 2: USD/token toggle | Balance */}
       <div className="flex items-center justify-between gap-4">
-        <div className="text-sm text-gray-500 font-medium">
-          {formatUsdAmount(usdAmount ?? 0)}
-        </div>
+        {canToggleUsd && onToggleUsdMode ? (
+          <UsdToggle
+            isUsdMode={isUsdMode}
+            usdAmount={usdAmount}
+            tokenAmount={tokenAmount}
+            symbol={symbol}
+            onToggle={onToggleUsdMode}
+          />
+        ) : (
+          <div className="text-sm text-gray-500 font-medium">
+            {formatUsdAmount(usdAmount ?? 0)}
+          </div>
+        )}
 
         <div className="flex items-center gap-2">
           {symbol && (
