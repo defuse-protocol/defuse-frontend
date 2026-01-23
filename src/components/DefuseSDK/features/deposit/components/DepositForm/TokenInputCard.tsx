@@ -34,6 +34,8 @@ type BaseTokenInputCardProps = {
   selectedToken: TokenInfo
   selectAssetsTestId?: string
   error?: string
+  /** Whether to show error styling (red border) on the card */
+  hasError?: boolean
   isUsdMode?: boolean
   tokenPrice?: number | null
   onToggleUsdMode?: () => void
@@ -137,7 +139,7 @@ function UsdToggle({
 }
 
 // Truncate display value to avoid clashing with token selector
-function truncateDisplayValue(value: string, maxLength = 10): string {
+function truncateDisplayValue(value: string, maxLength = 8): string {
   if (!value || value.length <= maxLength) return value
 
   const num = Number.parseFloat(value)
@@ -176,6 +178,7 @@ const TokenInputCard = (props: TokenInputCardProps) => {
     selectAssetsTestId,
     readOnly,
     error,
+    hasError = false,
     isUsdMode = false,
     tokenPrice,
     onToggleUsdMode,
@@ -186,12 +189,21 @@ const TokenInputCard = (props: TokenInputCardProps) => {
   // Discriminate between interactive and display-only modes
   const isDisplayOnly = "value" in props && props.value !== undefined
   const handleSetMax = isDisplayOnly ? undefined : props.handleSetMax
-  const registration = isDisplayOnly ? undefined : props.registration
+  const baseRegistration = isDisplayOnly ? undefined : props.registration
   const rawValue = isDisplayOnly ? props.value : undefined
 
-  // Truncate destination values to avoid overflow
+  // Truncate destination/output values to avoid overflow with token selector
   const value =
     isDisplayOnly && rawValue ? truncateDisplayValue(rawValue) : rawValue
+
+  // For output fields with registration, truncate the displayed value
+  const registration =
+    baseRegistration && isOutputField && "value" in baseRegistration
+      ? {
+          ...baseRegistration,
+          value: truncateDisplayValue(baseRegistration.value),
+        }
+      : baseRegistration
 
   const id = useId()
   const noBalance = balance === 0n
@@ -228,11 +240,16 @@ const TokenInputCard = (props: TokenInputCardProps) => {
   )
 
   return (
-    <div className="bg-white border border-gray-200 rounded-3xl w-full p-6 flex flex-col gap-3">
+    <div
+      className={clsx(
+        "bg-white border rounded-3xl w-full p-6 flex flex-col gap-3",
+        hasError ? "border-red-500" : "border-gray-200"
+      )}
+    >
       {/* Row 1: Amount input | Token selector */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-1 flex-1 min-w-0">
-          {isUsdMode && (
+          {isUsdMode && hasValue && (
             <span className="font-bold text-gray-900 text-4xl tracking-tight shrink-0">
               $
             </span>

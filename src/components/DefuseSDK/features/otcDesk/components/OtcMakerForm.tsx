@@ -261,6 +261,22 @@ export function OtcMakerForm({
   const hasAmountIn = Number(formValues.amountIn) > 0
   const hasAmountOut = Number(formValues.amountOut) > 0
 
+  // Check if entered amount exceeds available balance
+  const balanceInsufficient = useMemo(() => {
+    if (!tokenInBalance || !formValues.amountIn) return false
+    const amountInParsed = Number.parseFloat(formValues.amountIn)
+    if (Number.isNaN(amountInParsed) || amountInParsed <= 0) return false
+
+    // Convert amountIn string to bigint with proper decimals
+    const [intPart, decPart = ""] = formValues.amountIn.split(".")
+    const paddedDecimal = decPart
+      .slice(0, tokenInBalance.decimals)
+      .padEnd(tokenInBalance.decimals, "0")
+    const amountInBigInt = BigInt(intPart + paddedDecimal)
+
+    return amountInBigInt > tokenInBalance.amount
+  }, [formValues.amountIn, tokenInBalance])
+
   const error = rootSnapshot.context.error
 
   const isReviewOpen =
@@ -330,6 +346,12 @@ export function OtcMakerForm({
               onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
                 formValuesRef.trigger.updateAmountIn({ value: e.target.value }),
             }}
+            hasError={balanceInsufficient}
+            error={
+              balanceInsufficient
+                ? "Amount entered exceeds available balance"
+                : undefined
+            }
           />
 
           <div className="flex items-center justify-center -my-3.5">
