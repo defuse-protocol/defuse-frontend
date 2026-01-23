@@ -5,7 +5,7 @@ import {
   DEPOSIT_STAGES,
   DEPOSIT_STAGE_LABELS,
   DEPOSIT_STAGE_LABELS_SHORT,
-  type DepositStage,
+  type DepositDisplayStage,
 } from "@src/components/DefuseSDK/features/deposit/utils/depositStatusUtils"
 import { chainTxExplorer } from "@src/components/DefuseSDK/utils/chainTxExplorer"
 import {
@@ -60,12 +60,12 @@ export function DepositStatus({ depositId, variant }: DepositStatusProps) {
   )
 }
 
-function mapStageToDisplayStage(stage: TrackedDeposit["stage"]): DepositStage {
+function mapStageToDisplayStage(
+  stage: TrackedDeposit["stage"]
+): DepositDisplayStage {
   switch (stage) {
     case "submitting":
       return "submitting"
-    case "confirming":
-      return "confirming"
     case "complete":
     case "error":
       return "complete"
@@ -82,7 +82,7 @@ function CardView({
   isSuccess,
 }: {
   deposit: TrackedDeposit
-  displayStage: DepositStage
+  displayStage: DepositDisplayStage
   displayIndex: number
   hasError: boolean
   isSuccess: boolean

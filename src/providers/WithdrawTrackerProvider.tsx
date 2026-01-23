@@ -7,6 +7,7 @@ import type { IntentDescription } from "@src/components/DefuseSDK/features/machi
 import type {
   BaseTokenInfo,
   TokenInfo,
+  TokenValue,
 } from "@src/components/DefuseSDK/types/base"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import { WithdrawStatus } from "@src/components/WithdrawStatus"
@@ -22,8 +23,6 @@ import {
 } from "react"
 import { type ActorRefFrom, type AnyActorRef, createActor } from "xstate"
 import { useActivityDock } from "./ActivityDockProvider"
-
-export type TokenValue = { amount: bigint; decimals: number }
 
 export type TrackedWithdrawIntent = {
   id: string

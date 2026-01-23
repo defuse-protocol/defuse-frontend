@@ -28,7 +28,7 @@ type UseMachineStageProgressResult<TStage extends string> = {
  * Features:
  * - Extracts state from XState actor
  * - Maps machine state to display stage
- * - Prevents backwards stage transitions (only moves forward)
+ * - Prevents backwards stage transitions unless retrying from terminal state
  * - Returns raw state values so components can compute error/success as needed
  */
 export function useMachineStageProgress<TStage extends string>({
@@ -49,9 +49,13 @@ export function useMachineStageProgress<TStage extends string>({
   useEffect(() => {
     const machineIndex = stages.indexOf(machineStage)
     const currentIndex = stages.indexOf(displayStage)
+    const isAtTerminal = currentIndex === stages.length - 1
 
-    // Only move forward, never backward
-    if (machineIndex > currentIndex) {
+    // Move forward, or allow reset when retrying from terminal state
+    if (
+      machineIndex > currentIndex ||
+      (isAtTerminal && machineIndex < currentIndex)
+    ) {
       setDisplayStage(machineStage)
     }
   }, [machineStage, displayStage, stages])

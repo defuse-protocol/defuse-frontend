@@ -1,6 +1,7 @@
 "use client"
 
 import { CheckIcon } from "@heroicons/react/20/solid"
+import clsx from "clsx"
 
 export const STEP_SIZES = {
   sm: {
@@ -81,9 +82,12 @@ export function StepDot({
 
   return (
     <div
-      className={`size-3 rounded-full transition-colors duration-300 flex items-center justify-center ${
-        hasError ? "bg-red-500" : isComplete ? "bg-green-500" : "bg-gray-200"
-      }`}
+      className={clsx(
+        "size-3 rounded-full transition-colors duration-300 flex items-center justify-center",
+        hasError && "bg-red-500",
+        !hasError && isComplete && "bg-green-500",
+        !hasError && !isComplete && "bg-gray-200"
+      )}
     >
       {isComplete && !hasError && <CheckIcon className="size-2 text-white" />}
       {hasError && <span className="text-white text-[8px] font-bold">!</span>}
@@ -109,27 +113,28 @@ export function ProgressStep({
   const s = STEP_SIZES[size]
 
   return (
-    <div className={`flex items-start ${s.gap}`}>
+    <div className={clsx("flex items-start", s.gap)}>
       <div className="flex flex-col items-center">
         <div
-          className={`relative ${s.container} flex items-center justify-center`}
+          className={clsx(
+            "relative flex items-center justify-center",
+            s.container
+          )}
         >
           <div
-            className={`absolute inset-0 rounded-full transition-colors duration-500 ease-out ${
-              hasError && isActive
-                ? "bg-red-500"
-                : isComplete
-                  ? "bg-green-500"
-                  : isActive
-                    ? "bg-transparent"
-                    : "bg-gray-200"
-            }`}
+            className={clsx(
+              "absolute inset-0 rounded-full transition-colors duration-500 ease-out",
+              hasError && isActive && "bg-red-500",
+              !hasError && isComplete && "bg-green-500",
+              !hasError && !isComplete && isActive && "bg-transparent",
+              !hasError && !isComplete && !isActive && "bg-gray-200"
+            )}
           />
 
           {isActive && !isComplete && !hasError && (
             <svg
               aria-hidden="true"
-              className={`absolute inset-0 ${s.container} animate-spin`}
+              className={clsx("absolute inset-0 animate-spin", s.container)}
               style={{ animationDuration: "1s" }}
               viewBox={`0 0 ${s.svg.size} ${s.svg.size}`}
             >
@@ -156,30 +161,35 @@ export function ProgressStep({
 
           <div className="relative z-10">
             {isComplete && !hasError ? (
-              <CheckIcon className={`${s.icon} text-white`} />
+              <CheckIcon className={clsx(s.icon, "text-white")} />
             ) : hasError && isActive ? (
-              <span className={`text-white ${s.errorText} font-bold`}>!</span>
+              <span className={clsx("text-white font-bold", s.errorText)}>
+                !
+              </span>
             ) : null}
           </div>
         </div>
 
         {!isLast && (
           <div
-            className={`w-0.5 ${s.line} transition-colors duration-500 ease-out ${isComplete ? "bg-green-500" : "bg-gray-200"}`}
+            className={clsx(
+              "w-0.5 transition-colors duration-500 ease-out",
+              s.line,
+              isComplete ? "bg-green-500" : "bg-gray-200"
+            )}
           />
         )}
       </div>
 
       <p
-        className={`${s.text} transition-colors duration-300 ${
-          hasError && isActive
-            ? "text-red-600 font-medium"
-            : isComplete
-              ? "text-green-600 font-medium"
-              : isActive
-                ? "text-gray-900 font-medium"
-                : "text-gray-400"
-        }`}
+        className={clsx(
+          s.text,
+          "transition-colors duration-300",
+          hasError && isActive && "text-red-600 font-medium",
+          !hasError && isComplete && "text-green-600 font-medium",
+          !hasError && !isComplete && isActive && "text-gray-900 font-medium",
+          !hasError && !isComplete && !isActive && "text-gray-400"
+        )}
       >
         {label}
       </p>
@@ -261,14 +271,22 @@ export function HorizontalProgressDots<TStage extends string>({
             />
             {index < stages.length - 1 && (
               <div
-                className={`w-4 h-px transition-colors duration-300 ${isDone ? "bg-green-500" : "bg-gray-200"}`}
+                className={clsx(
+                  "w-4 h-px transition-colors duration-300",
+                  isDone ? "bg-green-500" : "bg-gray-200"
+                )}
               />
             )}
           </div>
         )
       })}
       <span
-        className={`ml-1 text-xs transition-colors duration-300 ${hasError ? "text-red-600" : isSuccess ? "text-green-600" : "text-gray-500"}`}
+        className={clsx(
+          "ml-1 text-xs transition-colors duration-300",
+          hasError && "text-red-600",
+          !hasError && isSuccess && "text-green-600",
+          !hasError && !isSuccess && "text-gray-500"
+        )}
       >
         {hasError ? "Failed" : stageLabelsShort[displayStage]}
       </span>

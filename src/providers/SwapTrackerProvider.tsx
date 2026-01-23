@@ -5,7 +5,10 @@ import { createNoopParentRef } from "@src/components/DefuseSDK/features/common/a
 import { intentStatusMachine } from "@src/components/DefuseSDK/features/machines/intentStatusMachine"
 import { oneClickStatusMachine } from "@src/components/DefuseSDK/features/machines/oneClickStatusMachine"
 import type { IntentDescription } from "@src/components/DefuseSDK/features/machines/swapIntentMachine"
-import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
+import type {
+  TokenInfo,
+  TokenValue,
+} from "@src/components/DefuseSDK/types/base"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import { SwapStatus } from "@src/components/SwapStatus"
 import {
@@ -20,8 +23,6 @@ import {
 } from "react"
 import { type ActorRefFrom, type AnyActorRef, createActor } from "xstate"
 import { useActivityDock } from "./ActivityDockProvider"
-
-export type TokenValue = { amount: bigint; decimals: number }
 
 export type TrackedSwapIntent = {
   id: string
