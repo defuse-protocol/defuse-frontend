@@ -56,67 +56,18 @@ function getTokens(side: "left" | "right") {
     ]
   }
 
+  // biome-ignore format: keep token definitions on single lines for readability
   return [
-    {
-      path: pathBottom,
-      icon: UsdcIcon,
-      delay: RIGHT_SIDE_OFFSET + 0,
-      duration: 31,
-    },
-    {
-      path: pathTop,
-      icon: BnbIcon,
-      delay: RIGHT_SIDE_OFFSET + 10,
-      duration: 29,
-    },
-    {
-      path: pathBottom,
-      icon: NearIcon,
-      delay: RIGHT_SIDE_OFFSET + 20,
-      duration: 30,
-    },
-    {
-      path: pathTop,
-      icon: TrxIcon,
-      delay: RIGHT_SIDE_OFFSET + 30,
-      duration: 28,
-    },
-    {
-      path: pathBottom,
-      icon: XrpIcon,
-      delay: RIGHT_SIDE_OFFSET + 40,
-      duration: 32,
-    },
-    {
-      path: pathTop,
-      icon: AuroraIcon,
-      delay: RIGHT_SIDE_OFFSET + 50,
-      duration: 30,
-    },
-    {
-      path: pathBottom,
-      icon: ArbIcon,
-      delay: RIGHT_SIDE_OFFSET + 60,
-      duration: 31,
-    },
-    {
-      path: pathTop,
-      icon: AaveIcon,
-      delay: RIGHT_SIDE_OFFSET + 70,
-      duration: 29,
-    },
-    {
-      path: pathBottom,
-      icon: XlmIcon,
-      delay: RIGHT_SIDE_OFFSET + 80,
-      duration: 30,
-    },
-    {
-      path: pathTop,
-      icon: BchIcon,
-      delay: RIGHT_SIDE_OFFSET + 90,
-      duration: 28,
-    },
+    { path: pathBottom, icon: UsdcIcon, delay: RIGHT_SIDE_OFFSET + 0, duration: 31 },
+    { path: pathTop, icon: BnbIcon, delay: RIGHT_SIDE_OFFSET + 10, duration: 29 },
+    { path: pathBottom, icon: NearIcon, delay: RIGHT_SIDE_OFFSET + 20, duration: 30 },
+    { path: pathTop, icon: TrxIcon, delay: RIGHT_SIDE_OFFSET + 30, duration: 28 },
+    { path: pathBottom, icon: XrpIcon, delay: RIGHT_SIDE_OFFSET + 40, duration: 32 },
+    { path: pathTop, icon: AuroraIcon, delay: RIGHT_SIDE_OFFSET + 50, duration: 30 },
+    { path: pathBottom, icon: ArbIcon, delay: RIGHT_SIDE_OFFSET + 60, duration: 31 },
+    { path: pathTop, icon: AaveIcon, delay: RIGHT_SIDE_OFFSET + 70, duration: 29 },
+    { path: pathBottom, icon: XlmIcon, delay: RIGHT_SIDE_OFFSET + 80, duration: 30 },
+    { path: pathTop, icon: BchIcon, delay: RIGHT_SIDE_OFFSET + 90, duration: 28 },
   ]
 }
 

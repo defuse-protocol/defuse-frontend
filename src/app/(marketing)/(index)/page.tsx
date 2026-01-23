@@ -162,8 +162,8 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="bg-gray-800 py-12 relative overflow-hidden">
-          <div className="absolute size-128 rounded-full bg-[#FD4B2B]/60 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 blur-[200px]" />
+        <section className="bg-gray-800 py-24 relative overflow-hidden">
+          <div className="absolute size-128 rounded-full bg-[#FD4B2B]/80 left-1/2 -translate-x-1/2 translate-y-1/4 blur-[150px]" />
           <p className="relative text-center text-3xl/9 font-bold tracking-tight text-white">
             Over 70 assets, <br />
             across 35 networks. <br />

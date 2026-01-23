@@ -15,7 +15,6 @@ export { default as LogoIcon } from "./logo.svg"
 export { default as NearLogoIcon } from "./near-logo.svg"
 export { default as DiscordIcon } from "./discord.svg"
 export { default as TwitterIcon } from "./twitter.svg"
-
 export { default as BtcIcon } from "./btc.svg"
 export { default as EthIcon } from "./eth.svg"
 export { default as UsdtIcon } from "./usdt.svg"
