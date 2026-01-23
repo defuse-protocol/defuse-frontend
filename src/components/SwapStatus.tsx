@@ -20,7 +20,7 @@ import {
   HorizontalProgressDots,
   ProgressSteps,
 } from "@src/components/ProgressIndicator"
-import type { TrackedSwapIntent } from "@src/providers/SwapTrackerProvider"
+import type { TrackedSwapIntent } from "@src/providers/SwapTrackerMachineProvider"
 import Button from "./Button"
 
 const NEAR_EXPLORER = "https://nearblocks.io"
