@@ -134,6 +134,31 @@ function UsdToggle({
   )
 }
 
+// Truncate display value to avoid clashing with token selector
+function truncateDisplayValue(value: string, maxLength = 10): string {
+  if (!value || value.length <= maxLength) return value
+
+  const num = Number.parseFloat(value)
+  if (Number.isNaN(num)) return value
+
+  // For large numbers, use compact notation
+  if (num >= 1_000_000) {
+    return num.toLocaleString("en-US", {
+      notation: "compact",
+      maximumFractionDigits: 2,
+    })
+  }
+
+  // For smaller numbers, limit decimal places
+  const [intPart, decPart] = value.split(".")
+  if (!decPart) return value
+
+  const availableDecimals = Math.max(0, maxLength - intPart.length - 1)
+  if (availableDecimals === 0) return intPart
+
+  return `${intPart}.${decPart.slice(0, availableDecimals)}`
+}
+
 const TokenInputCard = (props: TokenInputCardProps) => {
   const {
     balance,
@@ -159,13 +184,20 @@ const TokenInputCard = (props: TokenInputCardProps) => {
   const isDisplayOnly = "value" in props && props.value !== undefined
   const handleSetMax = isDisplayOnly ? undefined : props.handleSetMax
   const registration = isDisplayOnly ? undefined : props.registration
-  const value = isDisplayOnly ? props.value : undefined
+  const rawValue = isDisplayOnly ? props.value : undefined
+
+  // Truncate destination values to avoid overflow
+  const value =
+    isDisplayOnly && rawValue ? truncateDisplayValue(rawValue) : rawValue
 
   const id = useId()
   const noBalance = balance === 0n
   const hasBalanceInTransit = balanceInTransit != null && balanceInTransit > 0n
+
+  // Only allow USD toggle on source token (not destination/readOnly)
+  const isSourceToken = !isDisplayOnly && !readOnly
   const canToggleUsd = Boolean(
-    onToggleUsdMode && tokenPrice != null && tokenPrice > 0
+    isSourceToken && onToggleUsdMode && tokenPrice != null && tokenPrice > 0
   )
 
   const handleBalanceClick = () => {
@@ -187,13 +219,18 @@ const TokenInputCard = (props: TokenInputCardProps) => {
     return symbol ? `Enter amount ${symbol}` : "Enter amount"
   }
 
+  // Check if input has a value (for placeholder styling)
+  const hasValue = Boolean(
+    (registration && "value" in registration && registration.value) || value
+  )
+
   return (
     <div className="bg-white border border-gray-200 rounded-3xl w-full p-6 flex flex-col gap-3">
-      {/* Row 1: Amount input | Token selector */}
+      {/* Row 1: Amount input + toggle | Token selector */}
       <div className="flex items-center justify-between gap-4">
-        <div className="flex items-baseline gap-1 flex-1 min-w-0">
+        <div className="flex items-center gap-2 flex-1 min-w-0">
           {isUsdMode && (
-            <span className="font-bold text-gray-900 text-4xl tracking-tight">
+            <span className="font-bold text-gray-900 text-4xl tracking-tight shrink-0">
               $
             </span>
           )}
@@ -208,11 +245,23 @@ const TokenInputCard = (props: TokenInputCardProps) => {
             aria-busy={loading || undefined}
             readOnly={readOnly}
             className={clsx(
-              "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-4xl tracking-tight placeholder:text-gray-400 w-full",
+              "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-4xl tracking-tight w-full min-w-0",
+              // Smaller placeholder text, normal size for entered values
+              !hasValue && "placeholder:text-xl placeholder:font-medium",
+              hasValue && "placeholder:text-gray-400",
               disabled && "opacity-50"
             )}
             {...(registration ?? { value, readOnly: true })}
           />
+          {canToggleUsd && onToggleUsdMode && (
+            <UsdToggle
+              isUsdMode={isUsdMode}
+              usdAmount={usdAmount}
+              tokenAmount={tokenAmount}
+              symbol={symbol}
+              onToggle={onToggleUsdMode}
+            />
+          )}
         </div>
 
         <SelectAssets
@@ -224,21 +273,11 @@ const TokenInputCard = (props: TokenInputCardProps) => {
         />
       </div>
 
-      {/* Row 2: USD/token toggle | Balance */}
+      {/* Row 2: USD amount | Balance */}
       <div className="flex items-center justify-between gap-4">
-        {canToggleUsd && onToggleUsdMode ? (
-          <UsdToggle
-            isUsdMode={isUsdMode}
-            usdAmount={usdAmount}
-            tokenAmount={tokenAmount}
-            symbol={symbol}
-            onToggle={onToggleUsdMode}
-          />
-        ) : (
-          <div className="text-sm text-gray-500 font-medium">
-            {formatUsdAmount(usdAmount ?? 0)}
-          </div>
-        )}
+        <div className="text-sm text-gray-500 font-medium">
+          {formatUsdAmount(usdAmount ?? 0)}
+        </div>
 
         <div className="flex items-center gap-2">
           {symbol && (
