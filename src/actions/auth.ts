@@ -1,6 +1,6 @@
 "use server"
 
-import { generateAppAuthToken, verifyJWT } from "@src/utils/jwt"
+import { generateAppAuthToken, verifyJWT } from "@src/utils/appAuthJwt"
 import { logger } from "@src/utils/logger"
 import { revalidatePath } from "next/cache"
 import { cookies } from "next/headers"
