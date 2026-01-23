@@ -2,6 +2,7 @@
 
 import { generateAppAuthToken, verifyJWT } from "@src/utils/jwt"
 import { logger } from "@src/utils/logger"
+import { revalidatePath } from "next/cache"
 import { cookies } from "next/headers"
 import { z } from "zod"
 
@@ -109,6 +110,8 @@ export async function clearAuthToken(): Promise<void> {
   try {
     const cookieStore = await cookies()
     cookieStore.delete(AUTH_TOKEN_KEY)
+
+    revalidatePath("/", "layout")
   } catch (error) {
     logger.error("Failed to clear auth token", { error })
   }

@@ -6,6 +6,7 @@ import {
   useWallet as useSolanaWallet,
 } from "@solana/wallet-adapter-react"
 import { useWalletModal } from "@solana/wallet-adapter-react-ui"
+import { clearAuthToken } from "@src/actions/auth"
 import { BaseError } from "@src/components/DefuseSDK/errors/base"
 import type {
   SendTransactionStellarParams,
@@ -360,6 +361,8 @@ export const useConnectWallet = (): ConnectWalletAction => {
         }
 
         onSignOut()
+
+        await clearAuthToken()
         return strategies[params.id]()
       } catch (error) {
         const errorMessage =

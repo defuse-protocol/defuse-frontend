@@ -1,15 +1,6 @@
 import { APP_AUTH_JWT_SECRET_KEY } from "@src/utils/environment"
-import { logger } from "@src/utils/logger"
 import { SignJWT, jwtVerify } from "jose"
 import { z } from "zod"
-
-if (!APP_AUTH_JWT_SECRET_KEY) {
-  logger.warn(
-    "APP_AUTH_JWT_SECRET_KEY is not set. JWT tokens will not be secure. Please set APP_AUTH_JWT_SECRET_KEY in your environment variables."
-  )
-}
-
-const JWT_VERSION = "1.0"
 
 export const jwtPayloadSchema = z.object({
   version: z.string(),
@@ -18,8 +9,6 @@ export const jwtPayloadSchema = z.object({
 })
 
 export type JWTPayload = z.infer<typeof jwtPayloadSchema>
-
-const TOKEN_STORAGE_KEY = "defuse_auth_token"
 
 /**
  * Generates an app auth token (JWT) with authentication information
@@ -39,7 +28,7 @@ export async function generateAppAuthToken(
   const secret = new TextEncoder().encode(APP_AUTH_JWT_SECRET_KEY)
 
   const token = await new SignJWT({
-    version: JWT_VERSION,
+    version: "1.0",
     auth_identifier: authIdentifier,
     auth_method: authMethod,
   } satisfies JWTPayload)
@@ -77,42 +66,4 @@ export async function verifyJWT(token: string): Promise<JWTPayload | null> {
     // JWT verification failed - return null to indicate invalid token
     return null
   }
-}
-
-/**
- * Gets the stored JWT token from localStorage
- * @returns The stored token or null if not found
- */
-export function getStoredToken(): string | null {
-  if (typeof window === "undefined") {
-    return null
-  }
-  return localStorage.getItem(TOKEN_STORAGE_KEY)
-}
-
-/**
- * Stores the app auth token in localStorage
- */
-export function storeAppAuthToken(token: string): void {
-  if (typeof window !== "undefined") {
-    localStorage.setItem(TOKEN_STORAGE_KEY, token)
-  }
-}
-
-/**
- * Removes the app auth token from storage
- */
-export function removeAppAuthToken(): void {
-  if (typeof window !== "undefined") {
-    localStorage.removeItem(TOKEN_STORAGE_KEY)
-  }
-}
-
-/**
- * Gets the Bearer token string for use in Authorization headers
- * @returns Bearer token string or null if no token is stored
- */
-export function getBearerToken(): string | null {
-  const token = getStoredToken()
-  return token ? `Bearer ${token}` : null
 }
