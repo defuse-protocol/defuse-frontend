@@ -70,9 +70,9 @@ export default function Home() {
     <div className="p-1 flex flex-col bg-gray-800 min-h-screen">
       <header className="bg-white rounded-t-3xl flex justify-center items-center py-5">
         <div className="flex items-center justify-between w-full max-w-5xl px-4">
-          <Link href="/">
+          <Link href="/" className="shrink-0">
             <span className="sr-only">Home</span>
-            <LogoIcon className="h-6" />
+            <LogoIcon className="h-4" />
           </Link>
           <Button href="/login">Log in</Button>
         </div>
@@ -202,7 +202,7 @@ export default function Home() {
           <div className="">
             <div className="pt-24">
               <div className="flex items-center justify-between pb-8">
-                <LogoIcon className="h-6 shrink-0" />
+                <LogoIcon className="h-4 shrink-0" />
 
                 <div className="flex items-center justify-end gap-2">
                   {socialLinks.map(({ name, icon: Icon, link }) => (
