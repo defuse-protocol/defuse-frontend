@@ -38,6 +38,7 @@ import {
 } from "../actors/otcMakerOrderCancellationActor"
 import { useCountdownTimer } from "../hooks/useCountdownTimer"
 import {
+  type OtcMakerTradeOutcome,
   otcMakerTradesStore,
   useOtcMakerTrades,
 } from "../stores/otcMakerTrades"
@@ -101,6 +102,7 @@ export function OtcMakerTrades({
               tokenList={tokenList}
               generateLink={generateLink}
               signerCredentials={signerCredentials}
+              outcome={trade.outcome}
             />
           ))}
         </OtcMakerOrderCancellationProvider>
@@ -118,6 +120,7 @@ interface OtcMakerTradeItemProps {
   tokenList: TokenInfo[]
   generateLink: GenerateLink
   signerCredentials: SignerCredentials
+  outcome?: OtcMakerTradeOutcome
 }
 
 function OtcMakerTradeItem({
@@ -128,6 +131,7 @@ function OtcMakerTradeItem({
   tokenList,
   generateLink,
   signerCredentials,
+  outcome,
 }: OtcMakerTradeItemProps) {
   const tradeTermsResult = parseTradeTerms(multiPayload)
     .mapErr<ParseTradeTermsErr | DetermineInvolvedTokensErr>((a) => a)
@@ -161,12 +165,20 @@ function OtcMakerTradeItem({
   )
   assert(totalAmountOut)
 
-  const err = useValidateTrade(tradeTerms)
+  const err = useValidateTrade(tradeTerms, outcome)
   const errIsCritical = err
     .map((e) => e === "MAKER_INSUFFICIENT_FUNDS")
     .unwrapOr(false)
   const errIsSoft = err
-    .map((e) => e !== "MAKER_INSUFFICIENT_FUNDS")
+    .map(
+      (e) =>
+        e !== "MAKER_INSUFFICIENT_FUNDS" &&
+        e !== "TRADE_EXECUTED" &&
+        e !== "TRADE_CANCELLED"
+    )
+    .unwrapOr(false)
+  const isCompleted = err
+    .map((e) => e === "TRADE_EXECUTED" || e === "TRADE_CANCELLED")
     .unwrapOr(false)
 
   const { cancelOrder } = useContext(OtcMakerOrderCancellationContext)
@@ -232,7 +244,7 @@ function OtcMakerTradeItem({
             </Copy>
           )}
 
-          {errIsSoft ? (
+          {errIsSoft || isCompleted ? (
             <Button
               type="button"
               onClick={() => {
@@ -273,20 +285,34 @@ function OtcMakerTradeItem({
             <div
               className={clsx(
                 "rounded-br-lg rounded-bl-lg px-4 py-2 text-xs font-medium",
-                !errIsCritical ? "bg-gray-6" : "bg-red-9 text-gray-1"
+                err === "TRADE_EXECUTED"
+                  ? "bg-green-6"
+                  : !errIsCritical
+                    ? "bg-gray-6"
+                    : "bg-red-9 text-gray-1"
               )}
             >
-              {err === "ORDER_EXPIRED" && <div>The order is expired</div>}
+              {err === "ORDER_EXPIRED" && <div>The trade has expired</div>}
+
+              {err === "TRADE_EXECUTED" && (
+                <div>The trade has been executed</div>
+              )}
+
+              {err === "TRADE_CANCELLED" && (
+                <div>The trade has been cancelled</div>
+              )}
 
               {err === "NONCE_ALREADY_USED" && (
-                <div>The order has been cancelled or already filled</div>
+                <div>The trade has been cancelled or already executed</div>
               )}
 
               {err === "MAKER_INSUFFICIENT_FUNDS" && (
                 <div>
-                  <span className="font-bold">The order cannot be filled.</span>{" "}
-                  Your balance is incorrect. Please cancel the order and create
-                  new another one.
+                  <span className="font-bold">
+                    The trade cannot be executed.
+                  </span>{" "}
+                  Your balance is incorrect. Please cancel the trade and create
+                  a new one.
                 </div>
               )}
             </div>
@@ -297,10 +323,26 @@ function OtcMakerTradeItem({
   )
 }
 
-function useValidateTrade(tradeTerms: TradeTerms) {
-  let error: Option<
-    "ORDER_EXPIRED" | "NONCE_ALREADY_USED" | "MAKER_INSUFFICIENT_FUNDS"
-  > = None
+type TradeValidationError =
+  | "ORDER_EXPIRED"
+  | "TRADE_EXECUTED"
+  | "TRADE_CANCELLED"
+  | "NONCE_ALREADY_USED"
+  | "MAKER_INSUFFICIENT_FUNDS"
+
+function useValidateTrade(
+  tradeTerms: TradeTerms,
+  outcome?: OtcMakerTradeOutcome
+) {
+  let error: Option<TradeValidationError> = None
+
+  // If we already know the outcome, use it directly
+  if (outcome === "executed") {
+    return Some<TradeValidationError>("TRADE_EXECUTED")
+  }
+  if (outcome === "cancelled") {
+    return Some<TradeValidationError>("TRADE_CANCELLED")
+  }
 
   if (new Date(tradeTerms.deadline) < new Date()) {
     error = Some("ORDER_EXPIRED")

@@ -16,7 +16,10 @@ import {
   type Output as SignIntentOutput,
   signIntentMachine,
 } from "../../machines/signIntentMachine"
-import { otcMakerTradesStore } from "../stores/otcMakerTrades"
+import {
+  type OtcMakerTradeOutcome,
+  otcMakerTradesStore,
+} from "../stores/otcMakerTrades"
 import type { SignMessage } from "../types/sharedTypes"
 
 export type OTCMakerOrderCancellationActorInput = {
@@ -98,10 +101,17 @@ export const otcMakerOrderCancellationActor = setup({
       self.send({ type: "_INTERNAL_SIGNED", ...event.output.value })
     },
 
-    removeTrade: ({ context }) => {
+    updateTradeOutcome: (
+      { context },
+      params: { outcome: OtcMakerTradeOutcome }
+    ) => {
       otcMakerTradesStore
         .getState()
-        .removeTrade(context.tradeId, context.signerCredentials)
+        .updateTradeOutcome(
+          context.tradeId,
+          params.outcome,
+          context.signerCredentials
+        )
     },
   },
   guards: {
@@ -233,7 +243,10 @@ export const otcMakerOrderCancellationActor = setup({
                   type: "isOk",
                   params: ({ event }) => event.output,
                 },
-                actions: "removeTrade",
+                actions: {
+                  type: "updateTradeOutcome",
+                  params: { outcome: "cancelled" },
+                },
               },
               {
                 target: "#(machine).idleUncancellable",
@@ -241,7 +254,10 @@ export const otcMakerOrderCancellationActor = setup({
                   type: "isNonceUsedError",
                   params: ({ event }) => event,
                 },
-                actions: "removeTrade",
+                actions: {
+                  type: "updateTradeOutcome",
+                  params: { outcome: "executed" },
+                },
               },
               {
                 target: "#(machine).idle",
