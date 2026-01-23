@@ -69,7 +69,3 @@
     margin: 0;
   }
 }
-
-html:has(#dashboard-layout, #auth-layout) {
-  @apply bg-gray-800;
-}

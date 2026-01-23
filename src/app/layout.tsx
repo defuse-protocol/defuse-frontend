@@ -22,7 +22,7 @@ const RootLayout = async ({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`text-gray-900 antialiased tmpl-${tmpl} ${figtree.variable}`}
+      className={`text-gray-900 bg-gray-800 antialiased tmpl-${tmpl} ${figtree.variable}`}
     >
       <body className={figtree.className}>{children}</body>
       <GoogleAnalytics gaId="G-WNE3NB46KM" />
