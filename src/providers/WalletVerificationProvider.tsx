@@ -35,8 +35,8 @@ export function WalletVerificationProvider() {
       return checkTokenValidity(state.address, state.chainType)
     },
     enabled: state.address != null && state.chainType != null,
-    refetchInterval: 30000, // Check every 30 seconds (token expires in 60 seconds)
-    refetchIntervalInBackground: true, // Continue checking even when tab is in background
+    refetchInterval: 30000, // Check every 30 seconds
+    refetchIntervalInBackground: true,
   })
 
   const bannedAccountCheck = useQuery({
@@ -124,7 +124,6 @@ export function WalletVerificationProvider() {
       isWalletBypassed(state.address)) &&
     needsVerification
   ) {
-    // Show "Re-verify" message only if wallet was previously verified but token expired
     const isTokenExpired =
       state.isVerified &&
       tokenValidityCheck.data?.isValid === false &&

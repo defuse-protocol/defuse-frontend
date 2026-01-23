@@ -34,7 +34,6 @@ export async function generateAuthToken(
       validatedData.authMethod
     )
 
-    // Set the token in cookies
     const cookieStore = await cookies()
     cookieStore.set(AUTH_TOKEN_KEY, token, {
       httpOnly: true,
