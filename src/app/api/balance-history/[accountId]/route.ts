@@ -1,4 +1,7 @@
-import { fetchIntentsExplorerTransactions } from "@src/features/balance-history/lib/intentsExplorerAPI"
+import {
+  type IntentsExplorerTransaction,
+  fetchIntentsExplorerTransactions,
+} from "@src/features/balance-history/lib/intentsExplorerAPI"
 import { transformTransaction } from "@src/features/balance-history/lib/transformTransaction"
 import type {
   ErrorResponse,
@@ -12,6 +15,31 @@ import * as v from "valibot"
 const DEFAULT_PAGE = 1
 const DEFAULT_LIMIT = 50
 const MAX_LIMIT = 100
+const STALE_TRANSACTION_THRESHOLD_MS = 24 * 60 * 60 * 1000 // 24 hours
+
+const ALL_STATUSES: IntentsExplorerTransaction["status"][] = [
+  "SUCCESS",
+  "PROCESSING",
+  "PENDING_DEPOSIT",
+  "INCOMPLETE_DEPOSIT",
+  "REFUNDED",
+  "FAILED",
+]
+
+const STALE_STATUSES: IntentsExplorerTransaction["status"][] = [
+  "FAILED",
+  "REFUNDED",
+  "PENDING_DEPOSIT",
+  "INCOMPLETE_DEPOSIT",
+]
+
+function isStaleTransaction(tx: IntentsExplorerTransaction): boolean {
+  if (!STALE_STATUSES.includes(tx.status)) {
+    return false
+  }
+  const txAgeMs = Date.now() - tx.createdAtTimestamp * 1000
+  return txAgeMs > STALE_TRANSACTION_THRESHOLD_MS
+}
 
 const queryParamsSchema = v.object({
   page: v.optional(
@@ -81,11 +109,11 @@ export async function GET(
       recipient: accountId,
       page: Number(page),
       perPage: Number(limit),
-      statuses:
-        "SUCCESS,PROCESSING,PENDING_DEPOSIT,INCOMPLETE_DEPOSIT,REFUNDED,FAILED",
+      statuses: ALL_STATUSES.join(","),
     })
 
-    const swaps = result.data.map(transformTransaction)
+    const filteredData = result.data.filter((tx) => !isStaleTransaction(tx))
+    const swaps = filteredData.map(transformTransaction)
 
     return createResponse(swaps, {
       page: result.pagination.page,
