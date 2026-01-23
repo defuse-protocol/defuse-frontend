@@ -1,5 +1,5 @@
 import type { authHandle } from "@defuse-protocol/internal-utils"
-import { useSwapTracker } from "@src/providers/SwapTrackerProvider"
+import { useSwapTrackerMachine } from "@src/providers/SwapTrackerMachineProvider"
 import { useSelector } from "@xstate/react"
 import { type PropsWithChildren, useEffect, useRef } from "react"
 import { useFormContext } from "react-hook-form"
@@ -26,7 +26,7 @@ export function SwapUIMachineFormSyncProvider({
 }: SwapUIMachineFormSyncProviderProps) {
   const { reset } = useFormContext<SwapFormValues>()
   const actorRef = SwapUIMachineContext.useActorRef()
-  const { registerSwap, hasActiveSwap } = useSwapTracker()
+  const { registerSwap, hasActiveSwap } = useSwapTrackerMachine()
 
   // Make `onSuccessSwap` stable reference, waiting for `useEvent` hook to come out
   const onSuccessSwapRef = useRef(onSuccessSwap)
@@ -68,7 +68,6 @@ export function SwapUIMachineFormSyncProvider({
                 tokenOut,
                 intentDescription: intentDescription as IntentDescription,
                 is1cs,
-                parentRef: actorRef,
               })
             }
           }
@@ -99,11 +98,10 @@ export function SwapUIMachineFormSyncProvider({
     actorRef,
     (state) => state.children.swapRef ?? state.children.swapRef1cs
   )
-  const publicKeyVerifierRef = useSelector(swapRef, (state) => {
-    if (state) {
-      return state.children.publicKeyVerifierRef
-    }
-  })
+  const publicKeyVerifierRef = useSelector(
+    swapRef,
+    (state) => state?.children.publicKeyVerifierRef
+  )
 
   // biome-ignore lint/suspicious/noExplicitAny: types should've been correct, but `publicKeyVerifierRef` is commented out
   usePublicKeyModalOpener(publicKeyVerifierRef as any, sendNearTransaction)

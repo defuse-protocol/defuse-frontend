@@ -21,7 +21,7 @@ import { PreloadFeatureFlags } from "@src/components/PreloadFeatureFlags"
 import ActivityDockProvider from "@src/providers/ActivityDockProvider"
 import { MixpanelProvider } from "@src/providers/MixpanelProvider"
 import { NearWalletProvider } from "@src/providers/NearWalletProvider"
-import { SwapTrackerProvider } from "@src/providers/SwapTrackerProvider"
+import { SwapTrackerMachineProvider } from "@src/providers/SwapTrackerMachineProvider"
 import { SystemStatusProvider } from "@src/providers/SystemStatusProvider"
 import { TronWalletProvider } from "@src/providers/TronWalletProvider"
 import { WalletVerificationProvider } from "@src/providers/WalletVerificationProvider"
@@ -136,7 +136,7 @@ const AppRootLayout = async ({
       <ThemeProvider>
         <SystemStatusProvider systemStatus={systemStatus}>
           <ActivityDockProvider>
-            <SwapTrackerProvider>
+            <SwapTrackerMachineProvider>
               <WagmiProvider config={config}>
                 <QueryClientProvider client={queryClient}>
                   <NearWalletProvider>
@@ -163,7 +163,7 @@ const AppRootLayout = async ({
                   )}
                 </QueryClientProvider>
               </WagmiProvider>
-            </SwapTrackerProvider>
+            </SwapTrackerMachineProvider>
           </ActivityDockProvider>
         </SystemStatusProvider>
       </ThemeProvider>

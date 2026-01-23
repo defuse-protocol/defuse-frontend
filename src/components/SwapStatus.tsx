@@ -17,12 +17,34 @@ import {
   isIntentSuccess,
 } from "@src/components/DefuseSDK/features/swap/utils/swapStatusUtils"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
-import type { TrackedSwapIntent } from "@src/providers/SwapTrackerProvider"
+import type { TrackedSwapIntent } from "@src/providers/SwapTrackerMachineProvider"
 import { useSelector } from "@xstate/react"
 import { useEffect, useState } from "react"
 import Button from "./Button"
 
 const NEAR_EXPLORER = "https://nearblocks.io"
+
+function getStepBackgroundClass(
+  hasError: boolean,
+  isActive: boolean,
+  isComplete: boolean
+): string {
+  if (hasError && isActive) return "bg-red-500"
+  if (isComplete) return "bg-green-500"
+  if (isActive) return "bg-transparent"
+  return "bg-gray-200"
+}
+
+function getStepTextClass(
+  hasError: boolean,
+  isActive: boolean,
+  isComplete: boolean
+): string {
+  if (hasError && isActive) return "text-red-600 font-medium"
+  if (isComplete) return "text-green-600 font-medium"
+  if (isActive) return "text-gray-900 font-medium"
+  return "text-gray-400"
+}
 
 type SwapStatusProps = {
   swap: TrackedSwapIntent
@@ -484,15 +506,7 @@ function ProgressStep({
           className={`relative ${s.container} flex items-center justify-center`}
         >
           <div
-            className={`absolute inset-0 rounded-full transition-colors duration-500 ease-out ${
-              hasError && isActive
-                ? "bg-red-500"
-                : isComplete
-                  ? "bg-green-500"
-                  : isActive
-                    ? "bg-transparent"
-                    : "bg-gray-200"
-            }`}
+            className={`absolute inset-0 rounded-full transition-colors duration-500 ease-out ${getStepBackgroundClass(hasError, isActive, isComplete)}`}
           />
 
           {isActive && !isComplete && !hasError && (
@@ -540,15 +554,7 @@ function ProgressStep({
       </div>
 
       <p
-        className={`${s.text} transition-colors duration-300 ${
-          hasError && isActive
-            ? "text-red-600 font-medium"
-            : isComplete
-              ? "text-green-600 font-medium"
-              : isActive
-                ? "text-gray-900 font-medium"
-                : "text-gray-400"
-        }`}
+        className={`${s.text} transition-colors duration-300 ${getStepTextClass(hasError, isActive, isComplete)}`}
       >
         {label}
       </p>

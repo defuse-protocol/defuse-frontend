@@ -13,7 +13,7 @@ import ErrorMessage from "@src/components/ErrorMessage"
 import { SwapStatus } from "@src/components/SwapStatus"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useThrottledValue } from "@src/hooks/useThrottledValue"
-import { useSwapTracker } from "@src/providers/SwapTrackerProvider"
+import { useSwapTrackerMachine } from "@src/providers/SwapTrackerMachineProvider"
 import { useSelector } from "@xstate/react"
 import { useCallback, useContext, useEffect, useRef, useState } from "react"
 import { useFormContext } from "react-hook-form"
@@ -61,7 +61,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const intentCreationResult = snapshot.context.intentCreationResult
   const { data: tokensUsdPriceData } = useTokensUsdPrices()
 
-  const { trackedSwaps, dismissSwap } = useSwapTracker()
+  const { trackedSwaps } = useSwapTrackerMachine()
   const [showInlineStatus, setShowInlineStatus] = useState(true)
   const prevSwapIdRef = useRef<string | null>(null)
 
@@ -393,7 +393,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
         variant="full"
         swap={mostRecentSwap}
         onDismiss={() => setShowInlineStatus(false)}
-        onSwapAgain={() => dismissSwap(mostRecentSwap.id)}
+        onSwapAgain={() => setShowInlineStatus(false)}
       />
     )
   }
