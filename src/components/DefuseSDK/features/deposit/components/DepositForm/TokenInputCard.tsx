@@ -9,7 +9,7 @@ import ErrorMessage from "@src/components/ErrorMessage"
 import Spinner from "@src/components/Spinner"
 import clsx from "clsx"
 import { Tooltip } from "radix-ui"
-import { useId } from "react"
+import { useId, useMemo } from "react"
 import type { UseFormRegisterReturn } from "react-hook-form"
 
 type InputRegistration =
@@ -197,13 +197,19 @@ const TokenInputCard = (props: TokenInputCardProps) => {
     isDisplayOnly && rawValue ? truncateDisplayValue(rawValue) : rawValue
 
   // For output fields with registration, truncate the displayed value
-  const registration =
-    baseRegistration && isOutputField && "value" in baseRegistration
-      ? {
-          ...baseRegistration,
-          value: truncateDisplayValue(baseRegistration.value),
-        }
-      : baseRegistration
+  const registration = useMemo(() => {
+    if (!baseRegistration) return baseRegistration
+    if (!isOutputField) return baseRegistration
+    if (!("value" in baseRegistration)) return baseRegistration
+
+    const val = baseRegistration.value
+    if (typeof val !== "string") return baseRegistration
+
+    return {
+      ...baseRegistration,
+      value: truncateDisplayValue(val),
+    }
+  }, [baseRegistration, isOutputField])
 
   const id = useId()
   const noBalance = balance === 0n
