@@ -229,10 +229,10 @@ const TokenInputCard = (props: TokenInputCardProps) => {
 
   // Placeholder text following Kraken pattern:
   // - Source token: "Enter amount ETH" or "Enter amount USD"
-  // - Destination/output token: Always "0" (shows token amount, not USD)
+  // - Destination/output token: "0" or "$0" (mirrors source USD mode)
   const getPlaceholder = () => {
     if (isDisplayOnly || readOnly || isOutputField) {
-      return "0"
+      return isUsdMode ? "$0" : "0"
     }
     if (isUsdMode) {
       return "Enter amount USD"
@@ -255,8 +255,8 @@ const TokenInputCard = (props: TokenInputCardProps) => {
       {/* Row 1: Amount input | Token selector */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-1 flex-1 min-w-0">
-          {/* $ prefix only for source field in USD mode, never for output fields */}
-          {isUsdMode && hasValue && isSourceToken && (
+          {/* $ prefix when in USD mode and has value (source or output field mirrors source) */}
+          {isUsdMode && hasValue && (
             <span className="font-bold text-gray-900 text-4xl tracking-tight shrink-0">
               $
             </span>
@@ -303,7 +303,10 @@ const TokenInputCard = (props: TokenInputCardProps) => {
           />
         ) : (
           <div className="text-sm text-gray-500 font-medium">
-            {formatUsdAmount(usdAmount ?? 0)}
+            {/* Mirror source's USD mode: show token when source is USD, show USD when source is token */}
+            {isUsdMode
+              ? `${tokenAmount || "0"} ${symbol}`
+              : formatUsdAmount(usdAmount ?? 0)}
           </div>
         )}
 
