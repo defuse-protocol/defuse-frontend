@@ -18,7 +18,7 @@ import { Collapsible } from "radix-ui"
 const features = [
   {
     title: "Swap",
-    description: "Swap nearly anything to anything.",
+    description: "Swap without borders. Instantly.",
     longDescription:
       "Trade assets across 35+ networks with market makers competing to give you the best possible price. One click, best rate, done.",
     icon: ArrowPathRoundedSquareIcon,
@@ -128,8 +128,8 @@ export default function Home() {
               Over $10 billion swapped
             </div>
             <h1 className="mt-6 text-5xl/none text-balance font-bold tracking-tight text-center">
-              Swap nearly anything to anything.{" "}
-              <span className="text-[#FB4D01]">And fast.</span>
+              Swap without borders.{" "}
+              <span className="text-[#FB4D01]">Instantly.</span>
             </h1>
           </div>
 
