@@ -20,28 +20,28 @@ const features = [
     title: "Swap",
     description: "Swap nearly anything to anything.",
     longDescription:
-      "Suspendisse maximus felis lacus, sit amet vehicula ante vehicula a. Suspendisse feugiat cursus massa.",
+      "Trade assets across 35+ networks with market makers competing to give you the best possible price. One click, best rate, done.",
     icon: ArrowPathRoundedSquareIcon,
   },
   {
     title: "Private deals",
     description: "Swap with someone else. No escrow or trust required.",
     longDescription:
-      "Suspendisse maximus felis lacus, sit amet vehicula ante vehicula a. Suspendisse feugiat cursus massa.",
+      "Create peer-to-peer trades with anyone using a simple link. Fully trustless—the exchange is all-or-nothing, enforced by smart contracts. No escrow, no middleman.",
     icon: ArrowsRightLeftIcon,
   },
   {
     title: "Earn",
     description: "Earn yield on idle assets.",
     longDescription:
-      "Suspendisse maximus felis lacus, sit amet vehicula ante vehicula a. Suspendisse feugiat cursus massa.",
+      "Put your deposited assets to work. Earn yield with no lockups—withdraw back to your account anytime.",
     icon: ChartBarIcon,
   },
   {
     title: "Shield",
     description: "Shield your activity",
     longDescription:
-      "Suspendisse maximus felis lacus, sit amet vehicula ante vehicula a. Suspendisse feugiat cursus massa.",
+      "Coming soon—keep your on-chain activity private. Shield deposits, withdrawals, and trades so they aren't visible to anyone but you.",
     icon: ShieldCheckIcon,
   },
 ]
