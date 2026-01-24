@@ -110,7 +110,7 @@ const faqItems = [
   {
     question: "What if I need help?",
     answer:
-      "Just click the support icon in the lower right. We're here to help!",
+      "Just click the support icon in the lower right. We're here to assist!",
   },
 ]
 
