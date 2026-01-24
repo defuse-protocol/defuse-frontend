@@ -1,7 +1,7 @@
 "use client"
 
 import { CommandLineIcon } from "@heroicons/react/16/solid"
-import { PlusIcon, XMarkIcon } from "@heroicons/react/20/solid"
+import { ChevronDownIcon, PlusIcon, XMarkIcon } from "@heroicons/react/20/solid"
 import {
   ArrowPathRoundedSquareIcon,
   ArrowsRightLeftIcon,
@@ -134,9 +134,7 @@ export default function Home() {
               Over $10 billion swapped
             </div>
             <h1 className="mt-6 text-5xl/none text-balance font-bold tracking-tight text-center">
-              One account, no borders.
-              <br />
-              <span className="text-[#FB4D01]">Endless possibilities.</span>
+              One account, <span className="text-[#FB4D01]">no borders.</span>
             </h1>
           </div>
 
@@ -146,6 +144,8 @@ export default function Home() {
 
             <HomeSwapWidget />
           </div>
+
+          <ChevronDownIcon className="mt-8 size-6 text-gray-400 animate-bounce" />
         </section>
 
         <section className="bg-gray-800 py-24 relative overflow-hidden">
