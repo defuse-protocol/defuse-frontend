@@ -149,7 +149,7 @@ export default function Home() {
             Over 70 assets, <br />
             across 35 networks. <br />
             <span className="text-[#FB4D01]">
-              Think Binance or Kraken, but on-chain and permissionless.
+              Think Binance or Kraken, but permissionless.
             </span>
           </p>
         </section>
