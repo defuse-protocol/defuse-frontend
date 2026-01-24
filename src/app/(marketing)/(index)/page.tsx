@@ -107,6 +107,11 @@ const faqItems = [
     answer:
       "Yes! We've already helped Ledger, SwapKit, and many more to process over $10B in swaps. Interested? Reach out!",
   },
+  {
+    question: "What if I need help?",
+    answer:
+      "Just click the support icon in the lower right. We're here to help!",
+  },
 ]
 
 export default function Home() {
