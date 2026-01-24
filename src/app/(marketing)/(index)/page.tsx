@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronDownIcon, CommandLineIcon } from "@heroicons/react/16/solid"
+import { CommandLineIcon } from "@heroicons/react/16/solid"
 import { PlusIcon, XMarkIcon } from "@heroicons/react/20/solid"
 import {
   ArrowPathRoundedSquareIcon,
@@ -9,7 +9,7 @@ import {
 } from "@heroicons/react/24/outline"
 import AnimatedTokenPath from "@src/components/AnimatedTokenPath"
 import Button from "@src/components/Button"
-import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
+import { HomeSwapWidget } from "@src/components/HomeSwapWidget"
 import { DiscordIcon, LogoIcon, NearLogoIcon, TwitterIcon } from "@src/icons"
 import Link from "next/link"
 import { Collapsible } from "radix-ui"
@@ -129,71 +129,7 @@ export default function Home() {
             <AnimatedTokenPath />
             <AnimatedTokenPath side="right" />
 
-            <div className="relative z-10 bg-gray-100 rounded-[27px] p-2 border border-gray-200 flex flex-col gap-2">
-              <div className="p-6 rounded-3xl bg-white border border-gray-200 flex flex-col gap-4">
-                <label htmlFor="sell">Sell</label>
-                <div className="flex items-center justify-between gap-4">
-                  <input
-                    id="sell"
-                    type="text"
-                    inputMode="decimal"
-                    pattern="[0-9]*[.]?[0-9]*"
-                    autoComplete="off"
-                    placeholder="0"
-                    className="relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-4xl tracking-tight placeholder:text-gray-400 w-full"
-                  />
-                  <button
-                    type="button"
-                    className="rounded-full border border-gray-900/10 flex items-center gap-1.5 p-1 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-gray-900"
-                  >
-                    <AssetComboIcon
-                      icon="https://s2.coinmarketcap.com/static/img/coins/128x128/1027.png"
-                      sizeClassName="size-7"
-                    />
-                    <span className="flex items-center gap-1">
-                      <span className="text-base text-gray-900 font-semibold leading-none">
-                        ETH
-                      </span>
-                      <ChevronDownIcon className="size-4 text-gray-700" />
-                    </span>
-                  </button>
-                </div>
-              </div>
-
-              <div className="p-6 rounded-3xl bg-white border border-gray-200 flex flex-col gap-4">
-                <label htmlFor="buy">Buy</label>
-                <div className="flex items-center justify-between gap-4">
-                  <input
-                    id="buy"
-                    type="text"
-                    inputMode="decimal"
-                    pattern="[0-9]*[.]?[0-9]*"
-                    autoComplete="off"
-                    placeholder="0"
-                    className="relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-4xl tracking-tight placeholder:text-gray-400 w-full"
-                  />
-                  <button
-                    type="button"
-                    className="rounded-full border border-gray-900/10 flex items-center gap-1.5 p-1 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-gray-900"
-                  >
-                    <AssetComboIcon
-                      icon="https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png"
-                      sizeClassName="size-7"
-                    />
-                    <span className="flex items-center gap-1">
-                      <span className="text-base text-gray-900 font-semibold leading-none">
-                        ETH
-                      </span>
-                      <ChevronDownIcon className="size-4 text-gray-700" />
-                    </span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <Button size="xl" fullWidth className="mt-4">
-              Get started
-            </Button>
+            <HomeSwapWidget />
           </div>
         </section>
 
