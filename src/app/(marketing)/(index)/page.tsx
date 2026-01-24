@@ -103,9 +103,9 @@ const faqItems = [
       "Trade directly with a friend, business partner, or even someone you just met. Create a deal, set your terms, and share the link. They accept, and both sides get exactly what was agreed—guaranteed by smart contracts, no middlemen.",
   },
   {
-    question: "Is my money safe?",
+    question: "Can my business use Near Intents?",
     answer:
-      "Your assets stay on-chain and under your control. Your activities are enforced by smart contracts, not by trusting a centralized party. You can withdraw anytime.",
+      "Yes! We've already helped Ledger, SwapKit, and many more to process over $10B in swaps. Interested? Reach out!",
   },
 ]
 
