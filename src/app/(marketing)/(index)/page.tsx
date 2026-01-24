@@ -18,7 +18,8 @@ import { Collapsible } from "radix-ui"
 const features = [
   {
     title: "Swap",
-    description: "One account, no borders. Endless possibilities.",
+    description:
+      "One account, no borders. Swap fast, earn anywhere, trade privately.",
     longDescription:
       "Trade assets across 35+ networks with market makers competing to give you the best possible price. One click, best rate, done.",
     icon: ArrowPathRoundedSquareIcon,
@@ -146,7 +147,9 @@ export default function Home() {
           <p className="relative text-center text-4xl/10 font-bold tracking-tight text-white">
             Over 70 assets, <br />
             across 35 networks. <br />
-            <span className="text-[#FB4D01]">Seamless & secure.</span>
+            <span className="text-[#FB4D01]">
+              Think Binance or Kraken, but on-chain and permissionless.
+            </span>
           </p>
         </section>
 
