@@ -4,6 +4,7 @@ import { CommandLineIcon } from "@heroicons/react/16/solid"
 import { PlusIcon, XMarkIcon } from "@heroicons/react/20/solid"
 import {
   ArrowPathRoundedSquareIcon,
+  ArrowsRightLeftIcon,
   ChartBarIcon,
   ShieldCheckIcon,
 } from "@heroicons/react/24/outline"
@@ -16,11 +17,18 @@ import { Collapsible } from "radix-ui"
 
 const features = [
   {
+    title: "Swap",
+    description: "Swap nearly anything to anything.",
+    longDescription:
+      "Suspendisse maximus felis lacus, sit amet vehicula ante vehicula a. Suspendisse feugiat cursus massa.",
+    icon: ArrowPathRoundedSquareIcon,
+  },
+  {
     title: "Private deals",
     description: "Swap with someone else. No escrow or trust required.",
     longDescription:
       "Suspendisse maximus felis lacus, sit amet vehicula ante vehicula a. Suspendisse feugiat cursus massa.",
-    icon: ArrowPathRoundedSquareIcon,
+    icon: ArrowsRightLeftIcon,
   },
   {
     title: "Earn",
@@ -143,7 +151,7 @@ export default function Home() {
         </section>
 
         <section className="bg-white rounded-t-3xl pt-24 pb-16 flex items-center justify-center">
-          <div className="grid grid-cols-3 gap-8 max-w-5xl px-4 w-full">
+          <div className="grid grid-cols-2 gap-y-16 gap-x-12 max-w-5xl px-4 w-full">
             {features.map(
               ({ title, description, longDescription, icon: Icon }) => (
                 <div key={title} className="flex flex-col items-start">
@@ -156,7 +164,7 @@ export default function Home() {
                   <p className="mt-2 font-bold text-gray-900 text-xl/7 text-balance">
                     {description}
                   </p>
-                  <p className="mt-4 text-sm/6 font-medium text-gray-500">
+                  <p className="mt-4 text-sm/6 font-medium text-gray-500 text-balance">
                     {longDescription}
                   </p>
                 </div>
