@@ -1,7 +1,7 @@
 "use client"
 
 import { CommandLineIcon } from "@heroicons/react/16/solid"
-import { ChevronDownIcon, PlusIcon, XMarkIcon } from "@heroicons/react/20/solid"
+import { PlusIcon, XMarkIcon } from "@heroicons/react/20/solid"
 import {
   ArrowPathRoundedSquareIcon,
   ArrowsRightLeftIcon,
@@ -144,11 +144,11 @@ export default function Home() {
 
             <HomeSwapWidget />
           </div>
-
-          <ChevronDownIcon className="mt-8 size-6 text-gray-400 animate-bounce" />
         </section>
 
         <section className="bg-gray-800 py-24 relative overflow-hidden">
+          {/* Notch indicator */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 size-10 bg-gray-800 rounded-full" />
           <div className="absolute size-128 rounded-full bg-[#FB4D01]/80 left-1/2 -translate-x-1/2 translate-y-1/4 blur-[150px]" />
           <p className="relative text-center text-4xl/10 font-bold tracking-tight text-white">
             Over 70 assets, <br />
