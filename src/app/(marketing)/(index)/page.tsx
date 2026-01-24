@@ -134,7 +134,7 @@ export default function Home() {
               Over $10 billion swapped
             </div>
             <h1 className="mt-6 text-5xl/none text-balance font-bold tracking-tight text-center">
-              One account, <span className="text-[#FB4D01]">no borders.</span>
+              One account, no borders.
               <br />
               <span className="text-[#FB4D01]">Endless possibilities.</span>
             </h1>
