@@ -6,6 +6,7 @@ import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import { LogoIcon, PasskeyIcon } from "@src/icons"
 import { useTonConnectUI } from "@tonconnect/ui-react"
 import Image from "next/image"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import type { Connector } from "wagmi"
@@ -25,7 +26,10 @@ export default function LoginPage() {
   return (
     <div className="flex-1 flex flex-col items-center px-4 py-20">
       <div className="max-w-md w-full flex flex-col items-start">
-        <LogoIcon className="h-3.5 shrink-0" />
+        <Link href="/" className="shrink-0">
+          <span className="sr-only">Home</span>
+          <LogoIcon className="h-3.5" />
+        </Link>
 
         <h1 className="mt-10! text-2xl font-bold text-gray-900 tracking-tight">
           Log in

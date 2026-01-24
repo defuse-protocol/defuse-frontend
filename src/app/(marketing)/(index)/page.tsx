@@ -102,7 +102,7 @@ const faqItems = [
 
 export default function Home() {
   return (
-    <div className="p-1 flex flex-col bg-gray-800 min-h-screen">
+    <div className="p-2 flex flex-col bg-gray-800 min-h-screen">
       <header className="bg-white rounded-t-3xl flex justify-center items-center py-5">
         <div className="flex items-center justify-between w-full max-w-5xl px-4">
           <Link href="/" className="shrink-0">
