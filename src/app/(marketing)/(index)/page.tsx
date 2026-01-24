@@ -26,7 +26,7 @@ const features = [
   },
   {
     title: "Private deals",
-    description: "Swap with someone else. No escrow or trust required.",
+    description: "Trade with someone else. No escrow or trust required.",
     longDescription:
       "Create peer-to-peer trades with anyone using a simple link. Fully trustless—the exchange is all-or-nothing, enforced by smart contracts. No escrow, no middleman.",
     icon: ArrowsRightLeftIcon,
