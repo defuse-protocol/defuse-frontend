@@ -117,7 +117,7 @@ export default function Home() {
             <span className="sr-only">Home</span>
             <LogoIcon className="h-4" />
           </Link>
-          <Button href="/login">Log in</Button>
+          <Button href="/login">Sign up or Sign in</Button>
         </div>
       </header>
 

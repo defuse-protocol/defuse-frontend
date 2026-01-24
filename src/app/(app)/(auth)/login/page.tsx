@@ -32,14 +32,16 @@ export default function LoginPage() {
         </Link>
 
         <h1 className="mt-10! text-2xl font-bold text-gray-900 tracking-tight">
-          Log in
+          Sign up or Sign in
         </h1>
 
         <p className="mt-2! text-sm font-medium text-gray-500">
-          Near Intents is like a Binance or Kraken, but on-chain and
-          permissionless. Create an account, deposit some assets, and experience
-          blazingly fast cross-chain swapping, and other features made possible
-          by technology created at NEAR.
+          Think Binance or Kraken, but on-chain and permissionless. Pick your
+          wallet or passkey below—returning users{" "}
+          <span className="font-bold text-gray-700">sign in</span>, new users{" "}
+          <span className="font-bold text-gray-700">create an account</span>{" "}
+          instantly. Deposit assets and start swapping, earning yield, privately
+          trading, and more.
         </p>
 
         <button
