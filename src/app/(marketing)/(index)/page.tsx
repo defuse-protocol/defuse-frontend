@@ -29,7 +29,7 @@ const features = [
     title: "Trade",
     description: "Trade peer-to-peer. Set your terms, share a link, done.",
     longDescription:
-      "Create peer-to-peer trades with anyone using a simple link. Fully trustless—the exchange is all-or-nothing, enforced by smart contracts. No escrow, no middleman.",
+      "Fully trustless—the exchange is all-or-nothing, enforced by smart contracts. No escrow, no middleman.",
     icon: ArrowsRightLeftIcon,
   },
   {
