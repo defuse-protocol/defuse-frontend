@@ -134,7 +134,7 @@ export function HomeSwapWidget() {
         size="xl"
         fullWidth
         className="mt-4"
-        href="/swap"
+        href="/login"
         loading={loading}
         disabled={loading}
       >

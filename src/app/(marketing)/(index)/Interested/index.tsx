@@ -33,7 +33,7 @@ const Interested = () => {
         </div>
         <div className="flex-1 md:min-w-[170px] w-full">
           <Button
-            onClick={() => window.open("https://x.com/DefuseProtocol")}
+            onClick={() => window.open("https://x.com/near_intents")}
             color="orange"
             size="4"
             variant="outline"

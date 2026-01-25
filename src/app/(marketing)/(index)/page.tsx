@@ -1,5 +1,6 @@
 "use client"
 
+// Landing page for near-intents.org
 import { CommandLineIcon } from "@heroicons/react/16/solid"
 import { PlusIcon, XMarkIcon } from "@heroicons/react/20/solid"
 import {
@@ -25,22 +26,22 @@ const features = [
     icon: ArrowPathRoundedSquareIcon,
   },
   {
-    title: "Private deals",
-    description: "Trade with someone else. No escrow or trust required.",
+    title: "Trade",
+    description: "Trade peer-to-peer. Set your terms, share a link, done.",
     longDescription:
-      "Create peer-to-peer trades with anyone using a simple link. Fully trustless—the exchange is all-or-nothing, enforced by smart contracts. No escrow, no middleman.",
+      "Fully trustless—the exchange is all-or-nothing, enforced by smart contracts. No escrow, no middleman.",
     icon: ArrowsRightLeftIcon,
   },
   {
     title: "Earn",
-    description: "Earn yield on idle assets.",
+    description: "Put idle assets to work. Earn yield, withdraw anytime.",
     longDescription:
-      "Put your deposited assets to work. Earn yield with no lockups—withdraw back to your account anytime.",
+      "Turn idle balances into passive income. No lockups, no commitments. Withdraw whenever you want.",
     icon: ChartBarIcon,
   },
   {
     title: "Shield",
-    description: "Shield your activity",
+    description: "Go private. Shield your activity from everyone but you.",
     longDescription:
       "Coming soon—keep your on-chain activity private. Shield deposits, withdrawals, and trades so they aren't visible to anyone but you.",
     icon: ShieldCheckIcon,
@@ -51,7 +52,7 @@ const socialLinks = [
   {
     name: "X.com",
     icon: TwitterIcon,
-    link: "https://x.com/DefuseProtocol",
+    link: "https://x.com/near_intents",
   },
   {
     name: "Discord",
@@ -98,7 +99,7 @@ const faqItems = [
       "When you swap, market makers compete to fill your order at the best price. Trades settle within your Near Intents account in seconds—as fast as a centralized exchange.",
   },
   {
-    question: "What are Private deals?",
+    question: "What are Private trades?",
     answer:
       "Trade directly with a friend, business partner, or even someone you just met. Create a deal, set your terms, and share the link. They accept, and both sides get exactly what was agreed—guaranteed by smart contracts, no middlemen.",
   },
