@@ -1,5 +1,6 @@
 "use client"
 
+// Landing page for near-intents.org
 import { CommandLineIcon } from "@heroicons/react/16/solid"
 import { PlusIcon, XMarkIcon } from "@heroicons/react/20/solid"
 import {
