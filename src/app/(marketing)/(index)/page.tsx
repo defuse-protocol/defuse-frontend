@@ -27,22 +27,21 @@ const features = [
   },
   {
     title: "Trade",
-    description: "Trade directly. No escrow, no middleman, no trust required.",
+    description: "Trade peer-to-peer. Set your terms, share a link, done.",
     longDescription:
       "Create peer-to-peer trades with anyone using a simple link. Fully trustless—the exchange is all-or-nothing, enforced by smart contracts. No escrow, no middleman.",
     icon: ArrowsRightLeftIcon,
   },
   {
     title: "Earn",
-    description: "Earn while you wait. No lockups, withdraw anytime.",
+    description: "Put idle assets to work. Earn yield, withdraw anytime.",
     longDescription:
       "Put your deposited assets to work. Earn yield with no lockups—withdraw back to your account anytime.",
     icon: ChartBarIcon,
   },
   {
     title: "Shield",
-    description:
-      "Shield your moves. Private deposits, trades, and withdrawals.",
+    description: "Go private. Shield your activity from everyone but you.",
     longDescription:
       "Coming soon—keep your on-chain activity private. Shield deposits, withdrawals, and trades so they aren't visible to anyone but you.",
     icon: ShieldCheckIcon,
