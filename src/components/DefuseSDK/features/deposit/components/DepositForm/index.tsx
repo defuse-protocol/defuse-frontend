@@ -202,6 +202,7 @@ export const DepositForm = ({
   const { availableNetworks, disabledNetworks } = usePreparedNetworkLists({
     networks: getBlockchainsOptions(),
     token,
+    chainType,
   })
 
   const networkEnum = assetNetworkAdapter[network as SupportedChainName]
@@ -339,8 +340,8 @@ export const DepositForm = ({
 
         {userAddress && network && !isActiveDeposit && !isPassiveDeposit && (
           <Alert variant="info" className="mt-6">
-            Deposit is not supported for this wallet connection, please try
-            another token or network
+            Deposits are not supported on this network. Please select a
+            different network.
           </Alert>
         )}
       </Form>
