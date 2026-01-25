@@ -36,7 +36,7 @@ const features = [
     title: "Earn",
     description: "Put idle assets to work. Earn yield, withdraw anytime.",
     longDescription:
-      "Put your deposited assets to work. Earn yield with no lockups—withdraw back to your account anytime.",
+      "Your assets can generate yield automatically while sitting in your account. No lockups, no commitments. Withdraw whenever you want.",
     icon: ChartBarIcon,
   },
   {
