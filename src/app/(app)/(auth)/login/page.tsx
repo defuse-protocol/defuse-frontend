@@ -36,8 +36,7 @@ export default function LoginPage() {
         </h1>
 
         <p className="mt-2! text-sm font-medium text-gray-500">
-          Think Binance or Kraken, but on-chain and permissionless. Pick your
-          wallet or passkey below—returning users{" "}
+          Pick your wallet or passkey below—returning users{" "}
           <span className="font-bold text-gray-700">sign in</span>, new users{" "}
           <span className="font-bold text-gray-700">create an account</span>{" "}
           instantly. Deposit assets and start swapping, earning yield, privately
