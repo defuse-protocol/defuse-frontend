@@ -7,6 +7,7 @@ import {
   ContactsIcon,
   DealsIcon,
   EarnIcon,
+  GiftIcon,
   SwapIcon,
 } from "@src/icons"
 import { cn } from "@src/utils/cn"
@@ -28,6 +29,11 @@ const navItems = [
     label: "Earn",
     href: "/earn",
     icon: EarnIcon,
+  },
+  {
+    label: "Gifts",
+    href: "/gift-card/create-gift",
+    icon: GiftIcon,
   },
   {
     label: "Private deals",

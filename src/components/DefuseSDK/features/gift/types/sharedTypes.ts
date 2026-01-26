@@ -19,7 +19,8 @@ export type GiftSignedResult = {
 }
 
 export type CreateGiftIntent = (
-  payload: GiftLinkData
+  payload: GiftLinkData,
+  options?: { expiresAt?: number | null }
 ) => Promise<{ iv: string; giftId: string }>
 
 export type GenerateLink = (params: {

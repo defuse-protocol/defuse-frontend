@@ -29,6 +29,9 @@ export type GiftTakerWidgetProps = {
   theme?: "dark" | "light"
 
   renderHostAppLink: RenderHostAppLink
+
+  /** External error (e.g., gift expired) */
+  externalError?: string | null
 }
 
 export function GiftTakerWidget(props: GiftTakerWidgetProps) {
@@ -50,6 +53,7 @@ function GiftTakerScreens({
   userAddress,
   userChainType,
   renderHostAppLink,
+  externalError,
 }: GiftTakerWidgetProps) {
   const loading = <div>Loading...</div>
 
@@ -90,6 +94,10 @@ function GiftTakerScreens({
     userAddress != null && userChainType != null
       ? { credential: userAddress, credentialType: userChainType }
       : null
+
+  if (externalError != null) {
+    return <GiftTakerInvalidClaim error={externalError} />
+  }
 
   if (error != null) {
     return <GiftTakerInvalidClaim error={error.reason} />

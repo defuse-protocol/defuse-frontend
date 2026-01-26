@@ -35,6 +35,12 @@ const giftsSchema = z.object({
       return false
     }
   }, "Key must be exactly 32 bytes (AES-256)"),
+  expires_at: z
+    .number()
+    .int()
+    .refine((val) => val > Date.now(), "Expiration must be in the future")
+    .nullable()
+    .optional(),
 }) as z.ZodType<CreateGiftRequest>
 
 export async function POST(request: Request) {

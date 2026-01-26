@@ -1,12 +1,16 @@
+"use client"
+
 import type { authHandle } from "@defuse-protocol/internal-utils"
+import Button from "@src/components/Button"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
+import ErrorMessage from "@src/components/ErrorMessage"
 import { useActorRef, useSelector } from "@xstate/react"
 import clsx from "clsx"
 import { useEffect, useMemo } from "react"
 import type { ActorRefFrom, PromiseActorLogic } from "xstate"
 import { AuthGate } from "../../../components/AuthGate"
 import { BlockMultiBalances } from "../../../components/Block/BlockMultiBalances"
-import { ButtonCustom } from "../../../components/Button/ButtonCustom"
+import { BaseModalDialog } from "../../../components/Modal/ModalDialog"
 import type { ModalSelectAssetsPayload } from "../../../components/Modal/ModalSelectAssets"
 import SelectAssets from "../../../components/SelectAssets"
 import type { SignerCredentials } from "../../../core/formatters"
@@ -41,45 +45,27 @@ import { checkInsufficientBalance, getButtonText } from "../utils/makerForm"
 import { GiftExpirationInput } from "./GiftExpirationInput"
 import { GiftMakerReadyDialog } from "./GiftMakerReadyDialog"
 import { GiftMessageInput } from "./GiftMessageInput"
-import { ErrorReason } from "./shared/ErrorReason"
-import { GiftDescription } from "./shared/GiftDescription"
-import { GiftHeader } from "./shared/GiftHeader"
 
-export type GiftMakerWidgetProps = {
-  /** List of available tokens for trading */
+export type ModalCreateGiftProps = {
+  open: boolean
+  onClose: () => void
   tokenList: TokenInfo[]
-
-  /** User's wallet address */
   userAddress: authHandle.AuthHandle["identifier"] | undefined
   chainType: authHandle.AuthHandle["method"] | undefined
-
-  /** Initial tokens for pre-filling the form */
   initialToken?: TokenInfo
-
-  /** Sign message callback */
   signMessage: SignMessage
-
-  /** Send NEAR transaction callback */
   sendNearTransaction: SendNearTransaction
-
-  /** Create Gift in the database */
   createGiftIntent: CreateGiftIntent
-
-  /** Function to generate a shareable trade link */
   generateLink: GenerateLink
-
-  /** Theme selection */
-  theme?: "dark" | "light"
-
-  /** Frontend referral */
   referral?: string
-
   renderHostAppLink: RenderHostAppLink
 }
 
 const MAX_MESSAGE_LENGTH = 500
 
-export function GiftMakerForm({
+export function ModalCreateGift({
+  open,
+  onClose,
   tokenList,
   userAddress,
   chainType,
@@ -88,9 +74,10 @@ export function GiftMakerForm({
   sendNearTransaction,
   generateLink,
   referral,
-  renderHostAppLink,
   createGiftIntent,
-}: GiftMakerWidgetProps) {
+  renderHostAppLink,
+}: ModalCreateGiftProps) {
+  const isLoggedIn = userAddress != null && chainType != null
   const signerCredentials: SignerCredentials | null = useMemo(
     () =>
       userAddress != null && chainType != null
@@ -101,7 +88,6 @@ export function GiftMakerForm({
         : null,
     [userAddress, chainType]
   )
-  const isLoggedIn = signerCredentials != null
 
   const initialToken_ = initialToken ?? tokenList[0]
   assert(initialToken_ !== undefined, "Token list must not be empty")
@@ -189,6 +175,7 @@ export function GiftMakerForm({
     rootSnapshot.matches("settling") ||
     rootSnapshot.matches("removing")
 
+  const settled = rootSnapshot.matches("settled")
   const error = rootSnapshot.context.error
 
   const publicKeyVerifierRef = useSelector(
@@ -256,101 +243,91 @@ export function GiftMakerForm({
   const balanceAmount = tokenBalance?.amount ?? 0n
   const disabled = tokenBalance?.amount === 0n
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (signerCredentials != null) {
+      rootActorRef.send({
+        type: "REQUEST_SIGN",
+        signMessage,
+        signerCredentials,
+      })
+    }
+  }
+
   return (
-    <div className="flex flex-col">
-      {rootSnapshot.matches("settled") &&
-        readyGiftRef != null &&
-        signerCredentials != null && (
-          <GiftMakerReadyDialog
-            readyGiftRef={readyGiftRef}
-            generateLink={generateLink}
-            signerCredentials={signerCredentials}
-          />
-        )}
-
-      <GiftHeader title="Share gift">
-        <GiftDescription
-          description="Send assets to your friends and help them get started on NEAR
-            Intents, hassle-free."
-        />
-      </GiftHeader>
-
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-
-          if (signerCredentials != null) {
-            rootActorRef.send({
-              type: "REQUEST_SIGN",
-              signMessage,
-              signerCredentials,
-            })
-          }
-        }}
-        className="flex flex-col gap-5"
+    <>
+      <BaseModalDialog
+        title="Create gift"
+        open={open && !settled}
+        onClose={onClose}
       >
-        <div className="flex flex-col items-center">
-          <TokenAmountInputCard
-            variant="2"
-            labelSlot={
-              <label
-                htmlFor="gift-amount-in"
-                className="font-bold text-label text-sm"
-              >
-                Gift amount
-              </label>
-            }
-            inputSlot={
-              <TokenAmountInputCard.Input
-                id="gift-amount-in"
-                name="amount"
-                value={formValues.amount}
-                onChange={(e) =>
-                  formValuesRef.trigger.updateAmount({
-                    value: e.target.value,
-                  })
-                }
-                disabled={processing}
-              />
-            }
-            tokenSlot={
-              <SelectAssets
-                selected={formValues.token ?? undefined}
-                handleSelect={() =>
-                  openModalSelectAssets("token", formValues.token)
-                }
-              />
-            }
-            balanceSlot={
-              <BlockMultiBalances
-                balance={balanceAmount}
-                decimals={tokenBalance?.decimals ?? 0}
-                className={clsx("static!", tokenBalance == null && "invisible")}
-                maxButtonSlot={
-                  <BlockMultiBalances.DisplayMaxButton
-                    onClick={handleSetMaxValue}
-                    balance={balanceAmount}
-                    disabled={disabled}
-                  />
-                }
-                halfButtonSlot={
-                  <BlockMultiBalances.DisplayHalfButton
-                    onClick={handleSetHalfValue}
-                    balance={balanceAmount}
-                    disabled={disabled}
-                  />
-                }
-              />
-            }
-            priceSlot={
-              <TokenAmountInputCard.DisplayPrice>
-                {usdAmount !== null && usdAmount > 0
-                  ? formatUsdAmount(usdAmount)
-                  : null}
-              </TokenAmountInputCard.DisplayPrice>
-            }
-          />
-          <div className="w-full mt-4">
+        <form onSubmit={handleSubmit} className="mt-4">
+          <div className="space-y-4">
+            <TokenAmountInputCard
+              variant="2"
+              labelSlot={
+                <label
+                  htmlFor="gift-amount-in"
+                  className="font-bold text-label text-sm"
+                >
+                  Gift amount
+                </label>
+              }
+              inputSlot={
+                <TokenAmountInputCard.Input
+                  id="gift-amount-in"
+                  name="amount"
+                  value={formValues.amount}
+                  onChange={(e) =>
+                    formValuesRef.trigger.updateAmount({
+                      value: e.target.value,
+                    })
+                  }
+                  disabled={processing}
+                />
+              }
+              tokenSlot={
+                <SelectAssets
+                  selected={formValues.token ?? undefined}
+                  handleSelect={() =>
+                    openModalSelectAssets("token", formValues.token)
+                  }
+                />
+              }
+              balanceSlot={
+                <BlockMultiBalances
+                  balance={balanceAmount}
+                  decimals={tokenBalance?.decimals ?? 0}
+                  className={clsx(
+                    "static!",
+                    tokenBalance == null && "invisible"
+                  )}
+                  maxButtonSlot={
+                    <BlockMultiBalances.DisplayMaxButton
+                      onClick={handleSetMaxValue}
+                      balance={balanceAmount}
+                      disabled={disabled}
+                    />
+                  }
+                  halfButtonSlot={
+                    <BlockMultiBalances.DisplayHalfButton
+                      onClick={handleSetHalfValue}
+                      balance={balanceAmount}
+                      disabled={disabled}
+                    />
+                  }
+                />
+              }
+              priceSlot={
+                <TokenAmountInputCard.DisplayPrice>
+                  {usdAmount !== null && usdAmount > 0
+                    ? formatUsdAmount(usdAmount)
+                    : null}
+                </TokenAmountInputCard.DisplayPrice>
+              }
+            />
+
             <GiftMessageInput
               inputSlot={
                 <GiftMessageInput.Input
@@ -373,8 +350,7 @@ export function GiftMakerForm({
                 ) : null
               }
             />
-          </div>
-          <div className="w-full mt-4">
+
             <GiftExpirationInput
               value={formValues.expiresAt}
               onChange={(value) =>
@@ -383,28 +359,38 @@ export function GiftMakerForm({
               disabled={processing}
             />
           </div>
-        </div>
 
-        <AuthGate
-          renderHostAppLink={renderHostAppLink}
-          shouldRender={isLoggedIn}
-        >
-          <ButtonCustom
-            type="submit"
-            size="lg"
-            variant={processing ? "secondary" : "primary"}
-            isLoading={processing}
-            disabled={balanceInsufficient || processing}
+          {error != null && (
+            <ErrorMessage className="mt-4">{error.reason}</ErrorMessage>
+          )}
+
+          <AuthGate
+            renderHostAppLink={renderHostAppLink}
+            shouldRender={isLoggedIn}
           >
-            {getButtonText(balanceInsufficient, editing, processing)}
-          </ButtonCustom>
-        </AuthGate>
-      </form>
-      {error != null && (
-        <div className="mt-2">
-          <ErrorReason reason={error.reason} />
-        </div>
+            <Button
+              type="submit"
+              variant="primary"
+              size="xl"
+              fullWidth
+              className="mt-5"
+              loading={processing}
+              disabled={balanceInsufficient || processing}
+            >
+              {getButtonText(balanceInsufficient, editing, processing)}
+            </Button>
+          </AuthGate>
+        </form>
+      </BaseModalDialog>
+
+      {settled && readyGiftRef != null && signerCredentials != null && (
+        <GiftMakerReadyDialog
+          readyGiftRef={readyGiftRef}
+          generateLink={generateLink}
+          signerCredentials={signerCredentials}
+          onClose={onClose}
+        />
       )}
-    </div>
+    </>
   )
 }

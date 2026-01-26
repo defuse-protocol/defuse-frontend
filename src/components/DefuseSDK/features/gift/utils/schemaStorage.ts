@@ -66,6 +66,16 @@ const GiftMakerHistorySchemaV2 = v.object({
   updatedAt: v.number(),
 })
 
+const GiftMakerHistorySchemaV3 = v.object({
+  tokenDiff: v.record(v.string(), v.string()),
+  secretKey: v.string(),
+  message: v.string(),
+  intentHashes: v.array(v.string()),
+  createdAt: v.number(),
+  updatedAt: v.number(),
+  expiresAt: v.optional(v.nullable(v.number())),
+})
+
 export const GiftStorageSchemaV0 = v.object({
   state: v.object({
     gifts: v.record(v.string(), v.array(GiftMakerHistorySchemaV0)),
@@ -81,5 +91,11 @@ export const GiftStorageSchemaV1 = v.object({
 export const GiftStorageSchemaV2 = v.object({
   state: v.object({
     gifts: v.record(v.string(), v.array(GiftMakerHistorySchemaV2)),
+  }),
+})
+
+export const GiftStorageSchemaV3 = v.object({
+  state: v.object({
+    gifts: v.record(v.string(), v.array(GiftMakerHistorySchemaV3)),
   }),
 })

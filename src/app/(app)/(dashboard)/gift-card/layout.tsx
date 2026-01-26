@@ -1,14 +1,6 @@
-import Layout from "@src/components/Layout"
 import { PreloadFeatureFlags } from "@src/components/PreloadFeatureFlags"
-import type React from "react"
-import type { PropsWithChildren } from "react"
+import type { ReactNode } from "react"
 
-const GiftCardLayout: React.FC<PropsWithChildren> = ({ children }) => {
-  return (
-    <PreloadFeatureFlags>
-      <Layout>{children}</Layout>
-    </PreloadFeatureFlags>
-  )
+export default function GiftCardLayout({ children }: { children: ReactNode }) {
+  return <PreloadFeatureFlags>{children}</PreloadFeatureFlags>
 }
-
-export default GiftCardLayout

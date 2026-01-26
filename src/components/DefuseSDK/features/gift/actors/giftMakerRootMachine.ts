@@ -144,10 +144,13 @@ export const giftMakerRootMachine = setup({
           const giftInfo = assembleGiftInfo(input)
 
           // Create a record and generate an IV
-          const { iv, giftId } = await input.createGiftIntent({
-            secretKey: giftInfo.secretKey,
-            message: giftInfo.message,
-          })
+          const { iv, giftId } = await input.createGiftIntent(
+            {
+              secretKey: giftInfo.secretKey,
+              message: giftInfo.message,
+            },
+            { expiresAt: giftInfo.expiresAt }
+          )
 
           const result = await giftMakerHistoryStore.getState().addGift(
             {
