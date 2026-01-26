@@ -9,7 +9,7 @@ import ErrorMessage from "@src/components/ErrorMessage"
 import Spinner from "@src/components/Spinner"
 import clsx from "clsx"
 import { Tooltip } from "radix-ui"
-import { useId, useMemo } from "react"
+import { useId, useMemo, useState } from "react"
 import type { UseFormRegisterReturn } from "react-hook-form"
 
 type InputRegistration =
@@ -192,11 +192,18 @@ const TokenInputCard = (props: TokenInputCardProps) => {
   const baseRegistration = isDisplayOnly ? undefined : props.registration
   const rawValue = isDisplayOnly ? props.value : undefined
 
-  // Truncate destination/output values to avoid overflow with token selector
-  const value =
-    isDisplayOnly && rawValue ? truncateDisplayValue(rawValue) : rawValue
+  // Track focus state to show full value when editing
+  const [isFocused, setIsFocused] = useState(false)
 
-  // Always truncate long values to prevent overflow with token selector
+  // Truncate destination/output values to avoid overflow with token selector
+  // Only truncate when not focused, so users can see full value when editing
+  const value =
+    isDisplayOnly && rawValue && !isFocused
+      ? truncateDisplayValue(rawValue)
+      : rawValue
+
+  // Truncate long values to prevent overflow with token selector
+  // Only truncate when not focused, so users can see full value when editing
   const registration = useMemo(() => {
     if (!baseRegistration) return baseRegistration
     if (!("value" in baseRegistration)) return baseRegistration
@@ -204,11 +211,14 @@ const TokenInputCard = (props: TokenInputCardProps) => {
     const val = baseRegistration.value
     if (typeof val !== "string") return baseRegistration
 
+    // Don't truncate when focused - user needs to see full value to edit
+    if (isFocused) return baseRegistration
+
     return {
       ...baseRegistration,
       value: truncateDisplayValue(val),
     }
-  }, [baseRegistration])
+  }, [baseRegistration, isFocused])
 
   const id = useId()
   const noBalance = balance === 0n
@@ -270,6 +280,8 @@ const TokenInputCard = (props: TokenInputCardProps) => {
             disabled={disabled}
             aria-busy={loading || undefined}
             readOnly={readOnly}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
             className={clsx(
               "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-4xl tracking-tight w-full min-w-0",
               // Smaller placeholder text, normal size for entered values
