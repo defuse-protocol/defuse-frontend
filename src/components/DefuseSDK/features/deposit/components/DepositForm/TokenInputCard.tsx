@@ -23,7 +23,6 @@ type InputRegistration =
     }
 
 type BaseTokenInputCardProps = {
-  label: string
   balance: bigint
   decimals: number
   symbol: string
@@ -249,6 +248,17 @@ const TokenInputCard = (props: TokenInputCardProps) => {
     return symbol ? `Enter amount ${symbol}` : "Enter amount"
   }
 
+  // Aria label for screen readers
+  const getAriaLabel = () => {
+    if (isDisplayOnly || readOnly || isOutputField) {
+      return symbol ? `${symbol} amount to receive` : "Amount to receive"
+    }
+    if (isUsdMode) {
+      return "Enter amount in USD"
+    }
+    return symbol ? `Enter amount in ${symbol}` : "Enter amount"
+  }
+
   // Check if input has a value (for placeholder styling)
   const hasValue = Boolean(
     (registration && "value" in registration && registration.value) || value
@@ -277,6 +287,7 @@ const TokenInputCard = (props: TokenInputCardProps) => {
             pattern="[0-9]*[.]?[0-9]*"
             autoComplete="off"
             placeholder={getPlaceholder()}
+            aria-label={getAriaLabel()}
             disabled={disabled}
             aria-busy={loading || undefined}
             readOnly={readOnly}

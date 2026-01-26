@@ -332,7 +332,6 @@ export function OtcMakerForm({
           }}
         >
           <TokenInputCard
-            label="You send"
             balance={balanceAmountIn}
             decimals={tokenInBalance?.decimals ?? 0}
             symbol={formValues.tokenIn?.symbol}
@@ -373,7 +372,6 @@ export function OtcMakerForm({
           </div>
 
           <TokenInputCard
-            label="You receive"
             balance={balanceAmountOut}
             decimals={tokenOutBalance?.decimals ?? 0}
             symbol={formValues.tokenOut?.symbol}

@@ -368,7 +368,6 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
         <form onSubmit={handleSubmit(onRequestReview)}>
           <div>
             <TokenInputCard
-              label="Sell"
               balance={balanceAmountIn}
               decimals={tokenInBalance?.decimals ?? 0}
               symbol={tokenIn.symbol}
@@ -452,7 +451,6 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             </div>
 
             <TokenInputCard
-              label="Buy"
               balance={balanceAmountOut}
               decimals={tokenOutBalance?.decimals ?? 0}
               symbol={tokenOut.symbol}
