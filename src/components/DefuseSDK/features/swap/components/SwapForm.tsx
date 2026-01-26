@@ -523,7 +523,11 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             </div>
           )}
 
-          {quote1csError && <Alert variant="error">{quote1csError}</Alert>}
+          {quote1csError && (
+            <Alert variant="error" className="mt-4">
+              {quote1csError}
+            </Alert>
+          )}
         </form>
 
         <ModalReviewSwap
