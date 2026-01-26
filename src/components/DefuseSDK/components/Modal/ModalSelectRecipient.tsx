@@ -1,12 +1,11 @@
-import type {
-  AuthMethod,
-  BlockchainEnum,
-} from "@defuse-protocol/internal-utils"
+import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { assert } from "@defuse-protocol/internal-utils"
 import { UserCircleIcon } from "@heroicons/react/20/solid"
+import { getContacts } from "@src/app/(app)/(auth)/contacts/actions"
 import ErrorMessage from "@src/components/ErrorMessage"
 import ListItem from "@src/components/ListItem"
 import { ContactsIcon, WalletIcon } from "@src/icons"
+import { useQuery } from "@tanstack/react-query"
 import clsx from "clsx"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useFormContext } from "react-hook-form"
@@ -25,58 +24,6 @@ import { reverseAssetNetworkAdapter } from "../../utils/adapters"
 import { NetworkIcon } from "../Network/NetworkIcon"
 import SearchBar from "../SearchBar"
 import { BaseModalDialog } from "./ModalDialog"
-
-type Contact = {
-  id: number
-  address: string
-  name: string
-  network: BlockchainEnum
-}
-
-const FAKE_CONTACTS: Contact[] = [
-  {
-    id: 1,
-    address: "0x2EB2128a3F062824638e7C23e9Ad6d9bbBB4B6bC",
-    name: "Michael's Wallet",
-    network: "eth:1",
-  },
-  {
-    id: 2,
-    address: "0x1234567890abcdef1234567890abcdef12345678",
-    name: "Nexo Savings",
-    network: "eth:43114",
-  },
-  {
-    id: 3,
-    address: "0xFAcE851C0EfEdEadcafe1234567890dEfAce1234",
-    name: "Base Staking",
-    network: "eth:8453",
-  },
-  {
-    id: 4,
-    address: "0xBeEfFAcedBabeFACE1234567890BeEfFacE00000",
-    name: "Binance Main Account",
-    network: "eth:56",
-  },
-  {
-    id: 5,
-    address: "0xD3f4567890abcdef1234567890abcdef98765432",
-    name: "Ledger Account",
-    network: "eth:137",
-  },
-  {
-    id: 6,
-    address: "nearwallet.near",
-    name: "NEAR Donation",
-    network: "near:mainnet",
-  },
-  {
-    id: 7,
-    address: "0xfaB4e56790abCDEF1234567890aBcdef1234A678",
-    name: "Personal Avalanche",
-    network: "eth:43114",
-  },
-]
 
 type ModalSelectRecipientProps = {
   open: boolean
@@ -110,13 +57,20 @@ const ModalSelectRecipient = ({
 
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
+  const { data } = useQuery({
+    queryKey: ["contacts"],
+    queryFn: () => getContacts(),
+  })
+
+  const contacts = data?.ok ? data.value : []
+
   const availableContacts = useMemo(() => {
     const availableNetworksValues = Object.keys(availableNetworks)
 
-    return FAKE_CONTACTS.filter((contact) =>
-      availableNetworksValues.includes(contact.network)
+    return contacts.filter((contact) =>
+      availableNetworksValues.includes(contact.blockchain)
     )
-  }, [availableNetworks])
+  }, [availableNetworks, contacts])
 
   const visibleContacts = useMemo(() => {
     if (!inputValue) return availableContacts
@@ -251,46 +205,47 @@ const ModalSelectRecipient = ({
                   </h3>
 
                   <div className="mt-1 space-y-1">
-                    {visibleContacts.map(({ id, address, name, network }) => {
-                      const chainKey =
-                        reverseAssetNetworkAdapter[network as BlockchainEnum]
-                      const chainIcon = chainIcons[chainKey]
-                      const chainName = chainNameToNetworkName(chainKey)
+                    {visibleContacts.map(
+                      ({ id, address, name, blockchain }) => {
+                        const chainKey = reverseAssetNetworkAdapter[blockchain]
+                        const chainIcon = chainIcons[chainKey]
+                        const chainName = chainNameToNetworkName(chainKey)
 
-                      return (
-                        <ListItem
-                          key={id}
-                          onClick={() => {
-                            setValue("blockchain", chainKey)
-                            setValue("recipient", address, {
-                              shouldValidate: true,
-                            })
-                            onClose()
-                          }}
-                        >
-                          <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1">
-                            <WalletIcon className="text-gray-500 size-5" />
-                          </div>
-                          <ListItem.Content>
-                            <ListItem.Title className="truncate">
-                              {name}
-                            </ListItem.Title>
-                            <ListItem.Subtitle>
-                              {midTruncate(address, 16)}
-                            </ListItem.Subtitle>
-                          </ListItem.Content>
-                          <ListItem.Content align="end">
-                            <ListItem.Title className="flex items-center gap-1 pb-4.5">
-                              <NetworkIcon
-                                chainIcon={chainIcon}
-                                sizeClassName="size-4"
-                              />
-                              <span className="capitalize">{chainName}</span>
-                            </ListItem.Title>
-                          </ListItem.Content>
-                        </ListItem>
-                      )
-                    })}
+                        return (
+                          <ListItem
+                            key={id}
+                            onClick={() => {
+                              setValue("blockchain", chainKey)
+                              setValue("recipient", address, {
+                                shouldValidate: true,
+                              })
+                              onClose()
+                            }}
+                          >
+                            <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1">
+                              <WalletIcon className="text-gray-500 size-5" />
+                            </div>
+                            <ListItem.Content>
+                              <ListItem.Title className="truncate">
+                                {name}
+                              </ListItem.Title>
+                              <ListItem.Subtitle>
+                                {midTruncate(address, 16)}
+                              </ListItem.Subtitle>
+                            </ListItem.Content>
+                            <ListItem.Content align="end">
+                              <ListItem.Title className="flex items-center gap-1 pb-4.5">
+                                <NetworkIcon
+                                  chainIcon={chainIcon}
+                                  sizeClassName="size-4"
+                                />
+                                <span className="capitalize">{chainName}</span>
+                              </ListItem.Title>
+                            </ListItem.Content>
+                          </ListItem>
+                        )
+                      }
+                    )}
                   </div>
                 </div>
               )}
