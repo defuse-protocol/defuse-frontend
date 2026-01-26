@@ -112,8 +112,24 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: VERCEL_PROJECT_PRODUCTION_URL,
     icons: {
-      icon: `/favicons/${templ}/favicon-32x32.png`,
-      apple: `/favicons/${templ}/apple-touch-icon.png`,
+      icon: [
+        {
+          url: `/favicons/${templ}/favicon-16x16.png`,
+          sizes: "16x16",
+          type: "image/png",
+        },
+        {
+          url: `/favicons/${templ}/favicon-32x32.png`,
+          sizes: "32x32",
+          type: "image/png",
+        },
+      ],
+      shortcut: `/favicons/${templ}/favicon.ico`,
+      apple: {
+        url: `/favicons/${templ}/apple-touch-icon.png`,
+        sizes: "180x180",
+        type: "image/png",
+      },
     },
     manifest: `/favicons/${templ}/site.webmanifest`,
     ...metadata,

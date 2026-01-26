@@ -1,10 +1,8 @@
 import { CommandLineIcon } from "@heroicons/react/16/solid"
-import {} from "@heroicons/react/20/solid"
-import {} from "@heroicons/react/24/outline"
 import { getCachedSystemStatus } from "@src/actions/systemStatus"
 import Button from "@src/components/Button"
 import { whitelabelTemplateFlag } from "@src/config/featureFlags"
-import { DiscordIcon, LogoIcon, NearLogoIcon, TwitterIcon } from "@src/icons"
+import { DiscordIcon, NearIntentsLogoIcon, TwitterIcon } from "@src/icons"
 import { SystemStatusProvider } from "@src/providers/SystemStatusProvider"
 import { VERCEL_PROJECT_PRODUCTION_URL } from "@src/utils/environment"
 import type { Metadata, Viewport } from "next"
@@ -148,7 +146,7 @@ const RootLayout = async ({
           <div className="flex items-center justify-between w-full max-w-5xl px-4">
             <Link href="/" className="shrink-0">
               <span className="sr-only">Home</span>
-              <LogoIcon className="h-4" />
+              <NearIntentsLogoIcon className="h-4" />
             </Link>
             <Button href="/login">Sign up or Sign in</Button>
           </div>
@@ -163,7 +161,7 @@ const RootLayout = async ({
           <div className="flex w-full flex-col px-4 max-w-5xl">
             <div className="pt-16">
               <div className="flex items-center justify-between pb-8">
-                <LogoIcon className="h-4 shrink-0" />
+                <NearIntentsLogoIcon className="h-4 shrink-0" />
 
                 <div className="flex items-center justify-end gap-2">
                   {socialLinks.map(({ name, icon: Icon, link }) => (
@@ -187,7 +185,7 @@ const RootLayout = async ({
                     Powered by
                   </span>
                   <span className="sr-only">Near</span>
-                  <NearLogoIcon className="h-3 shrink-0" aria-hidden />
+                  <NearIntentsLogoIcon className="h-3 shrink-0" aria-hidden />
                 </div>
                 <div className="flex items-center justify-end gap-4">
                   {additionalLinks.map(({ name, link }) => (

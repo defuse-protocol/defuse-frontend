@@ -3,7 +3,7 @@
 import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
 import { useWebAuthnUIStore } from "@src/features/webauthn/hooks/useWebAuthnUiStore"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
-import { LogoIcon, PasskeyIcon } from "@src/icons"
+import { NearIntentsLogoIcon, PasskeyIcon } from "@src/icons"
 import { useTonConnectUI } from "@tonconnect/ui-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -28,7 +28,7 @@ export default function LoginPage() {
       <div className="max-w-md w-full flex flex-col items-start">
         <Link href="/" className="shrink-0">
           <span className="sr-only">Home</span>
-          <LogoIcon className="h-4" />
+          <NearIntentsLogoIcon className="h-4" />
         </Link>
 
         <h1 className="mt-10! text-2xl font-bold text-gray-900 tracking-tight">
