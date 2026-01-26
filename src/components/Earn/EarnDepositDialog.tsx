@@ -49,18 +49,26 @@ export default function EarnDepositDialog({
 
                 <div className="mt-4 bg-green-50 rounded-2xl p-4 flex items-center justify-between">
                   <div>
-                    <div className="text-xs text-green-600 font-medium uppercase tracking-wide">Current APY</div>
-                    <div className="text-2xl font-bold text-green-700">{vault.apy}%</div>
+                    <div className="text-xs text-green-600 font-medium uppercase tracking-wide">
+                      Current APY
+                    </div>
+                    <div className="text-2xl font-bold text-green-700">
+                      {vault.apy}%
+                    </div>
                   </div>
                   <div className="text-right">
                     <div className="text-xs text-gray-500">Vault</div>
-                    <div className="text-sm font-medium text-gray-700">{vault.name}</div>
+                    <div className="text-sm font-medium text-gray-700">
+                      {vault.name}
+                    </div>
                   </div>
                 </div>
 
                 <div className="mt-5 flex items-center justify-between text-sm">
                   <span className="text-gray-500">Your Balance</span>
-                  <span className="font-medium text-gray-900">{MOCK_USER_BALANCE} {vault.token}</span>
+                  <span className="font-medium text-gray-900">
+                    {MOCK_USER_BALANCE} {vault.token}
+                  </span>
                 </div>
 
                 <div className="mt-3 bg-gray-50 border border-gray-200 rounded-2xl p-4 focus-within:border-gray-300 focus-within:bg-white transition-colors">
@@ -70,25 +78,40 @@ export default function EarnDepositDialog({
                       inputMode="decimal"
                       placeholder="0"
                       value={amount}
-                      onChange={(e) => /^\d*\.?\d*$/.test(e.target.value) && setAmount(e.target.value)}
+                      onChange={(e) =>
+                        /^\d*\.?\d*$/.test(e.target.value) &&
+                        setAmount(e.target.value)
+                      }
                       className="flex-1 bg-transparent font-bold text-gray-900 text-3xl tracking-tight placeholder:text-gray-400 outline-none min-w-0"
                     />
-                    <Button variant="secondary" size="sm" onClick={() => setAmount(String(MOCK_USER_BALANCE))}>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setAmount(String(MOCK_USER_BALANCE))}
+                    >
                       Max
                     </Button>
                   </div>
-                  <div className="text-sm text-gray-500 mt-2">{formatUsdAmount(numericAmount)}</div>
+                  <div className="text-sm text-gray-500 mt-2">
+                    {formatUsdAmount(numericAmount)}
+                  </div>
                 </div>
 
                 <div className="mt-5 bg-gray-50 rounded-2xl p-4 space-y-3">
-                  <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">Projected Earnings</div>
+                  <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">
+                    Projected Earnings
+                  </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Monthly</span>
-                    <span className="font-semibold text-gray-900">{formatUsdAmount((numericAmount * vault.apy) / 100 / 12)}</span>
+                    <span className="font-semibold text-gray-900">
+                      {formatUsdAmount((numericAmount * vault.apy) / 100 / 12)}
+                    </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Yearly</span>
-                    <span className="font-semibold text-gray-900">{formatUsdAmount((numericAmount * vault.apy) / 100)}</span>
+                    <span className="font-semibold text-gray-900">
+                      {formatUsdAmount((numericAmount * vault.apy) / 100)}
+                    </span>
                   </div>
                 </div>
 
@@ -97,7 +120,9 @@ export default function EarnDepositDialog({
                     variant="primary"
                     size="xl"
                     fullWidth
-                    disabled={numericAmount <= 0 || numericAmount > MOCK_USER_BALANCE}
+                    disabled={
+                      numericAmount <= 0 || numericAmount > MOCK_USER_BALANCE
+                    }
                     onClick={() => console.log("Deposit:", amount, vault.token)}
                   >
                     Deposit {vault.token}

@@ -1,8 +1,8 @@
 "use client"
 
 import EarnDepositDialog from "@src/components/Earn/EarnDepositDialog"
-import type { Vault } from "@src/components/Earn/types"
 import VaultCard from "@src/components/Earn/VaultCard"
+import type { Vault } from "@src/components/Earn/types"
 import { useState } from "react"
 
 const VAULT: Vault = {
@@ -20,13 +20,21 @@ export default function EarnPage() {
   return (
     <>
       <h1 className="text-gray-900 text-xl font-bold tracking-tight">Earn</h1>
-      <p className="text-gray-500 text-sm mt-1">Deposit assets into vaults to earn yield</p>
+      <p className="text-gray-500 text-sm mt-1">
+        Deposit assets into vaults to earn yield
+      </p>
 
       <div className="mt-6">
         <VaultCard vault={VAULT} onClick={() => setSelected(VAULT)} />
       </div>
 
-      {selected && <EarnDepositDialog open={!!selected} onClose={() => setSelected(null)} vault={selected} />}
+      {selected && (
+        <EarnDepositDialog
+          open={!!selected}
+          onClose={() => setSelected(null)}
+          vault={selected}
+        />
+      )}
     </>
   )
 }
