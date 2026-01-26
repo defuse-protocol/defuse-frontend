@@ -86,13 +86,13 @@ export default function IndexPage() {
     <>
       <section className="flex flex-col items-center justify-center pt-16 pb-24 bg-white rounded-b-3xl overflow-hidden">
         <div className="flex flex-col items-center justify-center px-4 max-w-lg">
-          <div className="text-[#FB4D01] text-sm/5 font-bold py-0.5 px-3 rounded-lg bg-[#FB4D01]/[0.07] text-center">
+          <div className="text-brand text-sm/5 font-bold py-0.5 px-3 rounded-lg bg-brand/[0.07] text-center">
             Over $10 billion swapped
           </div>
           <h1 className="mt-6 text-5xl/none text-balance font-bold tracking-tight text-center">
             One account, no borders.
             <br />
-            <span className="text-[#FB4D01]">Endless possibilities.</span>
+            <span className="text-brand">Endless possibilities.</span>
           </h1>
         </div>
 
@@ -105,13 +105,11 @@ export default function IndexPage() {
       </section>
 
       <section className="bg-gray-800 py-24 relative overflow-hidden">
-        <div className="absolute size-128 rounded-full bg-[#FB4D01]/80 left-1/2 -translate-x-1/2 translate-y-1/4 blur-[150px]" />
+        <div className="absolute size-128 rounded-full bg-brand/80 left-1/2 -translate-x-1/2 translate-y-1/4 blur-[150px]" />
         <p className="relative text-center text-4xl/10 font-bold tracking-tight text-white">
           Over 70 assets, <br />
           across 35 networks. <br />
-          <span className="text-[#FB4D01]">
-            Think Binance, but permissionless.
-          </span>
+          <span className="text-brand">Think Binance, but permissionless.</span>
         </p>
       </section>
 
@@ -120,12 +118,10 @@ export default function IndexPage() {
           {features.map(
             ({ title, description, longDescription, icon: Icon }) => (
               <div key={title} className="flex flex-col items-start">
-                <div className="bg-[#FB4D01] rounded-xl size-9 flex items-center justify-center">
+                <div className="bg-brand rounded-xl size-9 flex items-center justify-center">
                   <Icon className="size-6 text-white" />
                 </div>
-                <h3 className="mt-6 text-[#FB4D01] text-sm/5 font-bold">
-                  {title}
-                </h3>
+                <h3 className="mt-6 text-brand text-sm/5 font-bold">{title}</h3>
                 <p className="mt-2 font-bold text-gray-900 text-xl/7 text-balance">
                   {description}
                 </p>

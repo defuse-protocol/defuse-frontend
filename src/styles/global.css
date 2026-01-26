@@ -8,6 +8,8 @@
   --font-sans: var(--font-figtree), ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
+  --color-brand: oklch(0.6611 0.2198 37.23); /* #FB4D01 */
+
   --color-green-50: oklch(0.979 0.021 166.113);
   --color-green-100: oklch(0.95 0.052 163.051);
   --color-green-200: oklch(0.905 0.093 164.15);
