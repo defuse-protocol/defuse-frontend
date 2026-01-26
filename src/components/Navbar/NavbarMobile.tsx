@@ -3,6 +3,7 @@
 import {
   ArrowsLeftRight,
   ClockCounterClockwise,
+  Handshake,
   Plus,
 } from "@phosphor-icons/react"
 import { navigation } from "@src/constants/routes"
@@ -16,7 +17,8 @@ export function NavbarMobile() {
   const { isActive } = useIsActiveLink()
 
   const isAccountActive = isActive(navigation.account)
-  const isTradeActive = isActive(navigation.home) || isActive(navigation.otc)
+  const isSwapActive = isActive(navigation.home)
+  const isOtcActive = isActive(navigation.otc)
   const isHistoryActive = isActive(navigation.history)
   const isDepositActive = isActive(navigation.deposit)
 
@@ -36,17 +38,35 @@ export function NavbarMobile() {
             }
           />
 
-          {/* Trade */}
+          {/* Swap */}
           <NavItem
             href={navigation.home}
-            label="Trade"
-            isActive={isTradeActive}
+            label="Swap"
+            isActive={isSwapActive}
             iconSlot={
               <NavItem.DisplayIcon>
                 <ArrowsLeftRight
                   className={cn(
                     "size-4",
-                    isTradeActive ? "text-gray-12" : "text-gray-11"
+                    isSwapActive ? "text-gray-12" : "text-gray-11"
+                  )}
+                  weight="bold"
+                />
+              </NavItem.DisplayIcon>
+            }
+          />
+
+          {/* OTC */}
+          <NavItem
+            href={navigation.otc}
+            label="OTC"
+            isActive={isOtcActive}
+            iconSlot={
+              <NavItem.DisplayIcon>
+                <Handshake
+                  className={cn(
+                    "size-4",
+                    isOtcActive ? "text-gray-12" : "text-gray-11"
                   )}
                   weight="bold"
                 />

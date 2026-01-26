@@ -13,7 +13,8 @@ export function NavbarDesktop() {
   const { isActive } = useIsActiveLink()
 
   const isAccountActive = isActive(navigation.account)
-  const isTradeActive = isActive(navigation.home) || isActive(navigation.otc)
+  const isSwapActive = isActive(navigation.home)
+  const isOtcActive = isActive(navigation.otc)
   const isHistoryActive = isActive(navigation.history)
 
   return (
@@ -26,12 +27,20 @@ export function NavbarDesktop() {
         dataTestId="account-tab"
       />
 
-      {/* Trade */}
+      {/* Swap */}
       <NavItem
-        label="Trade"
-        isActive={isTradeActive}
+        label="Swap"
+        isActive={isSwapActive}
         href={navigation.home}
-        dataTestId="trade-tab"
+        dataTestId="swap-tab"
+      />
+
+      {/* OTC */}
+      <NavItem
+        label="OTC"
+        isActive={isOtcActive}
+        href={navigation.otc}
+        dataTestId="otc-tab"
       />
 
       {/* History */}
@@ -78,7 +87,9 @@ function NavItem({
 
 export function NavbarDeposit() {
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
+  const { isActive } = useIsActiveLink()
   const isOmniswap = whitelabelTemplate === "omniswap"
+  const isDepositActive = isActive(navigation.deposit)
 
   return (
     <Link href={navigation.deposit} data-testid="deposit-tab">
@@ -86,13 +97,20 @@ export function NavbarDeposit() {
         radius="full"
         color={isOmniswap ? "grass" : "gray"}
         highContrast={!isOmniswap}
-        variant="soft"
-        className="flex items-center gap-2 text-sm"
+        variant={isDepositActive ? "solid" : "soft"}
+        className={cn(
+          "flex items-center gap-2 text-sm",
+          isDepositActive && !isOmniswap && "text-gray-1"
+        )}
       >
         <Plus
           className={cn(
             "size-3",
-            isOmniswap ? "text-grass-11" : "text-gray-12"
+            isDepositActive && !isOmniswap
+              ? "text-gray-1"
+              : isOmniswap
+                ? "text-grass-11"
+                : "text-gray-12"
           )}
           weight="bold"
         />

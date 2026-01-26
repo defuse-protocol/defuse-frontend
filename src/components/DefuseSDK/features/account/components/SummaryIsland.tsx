@@ -8,8 +8,8 @@ import {
 import { Skeleton } from "@radix-ui/themes"
 import { useState } from "react"
 import { AuthGate } from "../../../components/AuthGate"
+import { IntentsLogo } from "../../../components/IntentsLogo"
 import { Island } from "../../../components/Island"
-import { IslandHeader } from "../../../components/IslandHeader"
 import type { RenderHostAppLink } from "../../../types/hostAppLink"
 import { RevealAddressDialog } from "./RevealAddressDialog"
 import { FormattedCurrency } from "./shared/FormattedCurrency"
@@ -34,11 +34,37 @@ export function SummaryIsland({
   const [isRevealed, setIsRevealed] = useState(false)
 
   return (
-    <Island className="flex flex-col gap-8">
-      <IslandHeader
-        heading="Account"
-        rightSlot={
-          onToggleHideBalances && (
+    <Island className="flex flex-col gap-5">
+      <IntentsLogo />
+
+      {isRevealed && internalUserAddress != null && (
+        <RevealAddressDialog
+          internalUserAddress={internalUserAddress}
+          onClose={() => setIsRevealed(false)}
+        />
+      )}
+
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2">
+          {valueUsd != null ? (
+            hideBalances ? (
+              <div className="text-[40px] leading-none tracking-tight font-black">
+                ••••••
+              </div>
+            ) : (
+              <FormattedCurrency
+                value={valueUsd}
+                formatOptions={{ currency: "USD" }}
+                className="text-[40px] leading-none tracking-tight font-black"
+                centsClassName="text-[32px]"
+              />
+            )
+          ) : (
+            <div>
+              <Skeleton className="text-[40px] leading-none">$1000.00</Skeleton>
+            </div>
+          )}
+          {onToggleHideBalances && (
             <button
               type="button"
               onClick={onToggleHideBalances}
@@ -51,36 +77,8 @@ export function SummaryIsland({
                 <Eye weight="bold" className="size-5" />
               )}
             </button>
-          )
-        }
-      />
-
-      {isRevealed && internalUserAddress != null && (
-        <RevealAddressDialog
-          internalUserAddress={internalUserAddress}
-          onClose={() => setIsRevealed(false)}
-        />
-      )}
-
-      <div className="flex flex-col gap-2">
-        {valueUsd != null ? (
-          hideBalances ? (
-            <div className="text-[40px] leading-none tracking-tight font-black">
-              ••••••
-            </div>
-          ) : (
-            <FormattedCurrency
-              value={valueUsd}
-              formatOptions={{ currency: "USD" }}
-              className="text-[40px] leading-none tracking-tight font-black"
-              centsClassName="text-[32px]"
-            />
-          )
-        ) : (
-          <div>
-            <Skeleton className="text-[40px] leading-none">$1000.00</Skeleton>
-          </div>
-        )}
+          )}
+        </div>
         <div className="text-sm font-medium text-gray-11">
           Deposited balance
         </div>

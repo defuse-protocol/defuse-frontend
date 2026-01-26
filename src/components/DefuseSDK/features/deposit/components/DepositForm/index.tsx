@@ -24,8 +24,8 @@ import { AssetComboIcon } from "../../../../components/Asset/AssetComboIcon"
 import { AuthGate } from "../../../../components/AuthGate"
 import { EmptyIcon } from "../../../../components/EmptyIcon"
 import { Form } from "../../../../components/Form"
+import { IntentsLogo } from "../../../../components/IntentsLogo"
 import { Island } from "../../../../components/Island"
-import { IslandHeader } from "../../../../components/IslandHeader"
 import type { ModalSelectAssetsPayload } from "../../../../components/Modal/ModalSelectAssets"
 import { Select } from "../../../../components/Select/Select"
 import { SelectTriggerLike } from "../../../../components/Select/SelectTriggerLike"
@@ -206,8 +206,8 @@ export const DepositForm = ({
   const networkEnum = assetNetworkAdapter[network as SupportedChainName]
   const singleNetwork = Object.keys(chainOptions).length === 1
   return (
-    <Island className="widget-container flex flex-col gap-4">
-      <IslandHeader heading="Deposit" condensed />
+    <Island className="widget-container flex flex-col gap-5">
+      <IntentsLogo />
 
       <Form<DepositFormValues>
         handleSubmit={handleSubmit(onSubmit)}
@@ -216,7 +216,7 @@ export const DepositForm = ({
       >
         <div className="flex flex-col gap-2.5">
           <div className="font-bold text-label text-sm">
-            Select asset and network
+            Select asset and network for deposit
           </div>
 
           <SelectTriggerLike

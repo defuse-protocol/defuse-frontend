@@ -2,7 +2,6 @@
 
 import { Button, Text } from "@radix-ui/themes"
 import AddTurboChainButton from "@src/components/AddTurboChainButton"
-import Logo from "@src/components/Logo"
 import Settings from "@src/components/Settings"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import dynamic from "next/dynamic"
@@ -33,20 +32,20 @@ export function Header({
   return (
     <>
       <header
-        className={`${styles.header} h-[56px] fixed top-0 left-0 w-full md:relative border-b-[1px] z-50 border-gray-a3`}
+        className={`${styles.header} h-[56px] fixed top-0 left-0 w-full md:relative z-50`}
       >
         <div className="h-full flex justify-between items-center px-3">
-          <div className="flex-shrink-0">
-            <Logo />
-          </div>
+          {/* Left spacer for balance */}
+          <div className="flex-1" />
 
-          {/* Navbar */}
-          <div className="flex-grow flex justify-between items-center pl-8 pr-4">
+          {/* Navbar centered */}
+          <div className="flex items-center gap-4">
             <div className="flex-shrink-0">{navbarSlot}</div>
             <div className="flex-shrink-0">{depositSlot}</div>
           </div>
 
-          <div className="flex justify-end items-center gap-4 flex-shrink-0">
+          {/* Right side */}
+          <div className="flex-1 flex justify-end items-center gap-4">
             {whitelabelTemplate === "turboswap" && (
               <div className="hidden md:block">
                 <AddTurboChainButton />
@@ -75,10 +74,5 @@ Header.DepositSlot = function DepositSlot({
 }: {
   children: ReactNode
 }) {
-  return (
-    <div className="hidden md:flex items-center justify-between">
-      {children}
-      <div className="h-[20px] w-[1px] bg-gray-5 ml-4" />
-    </div>
-  )
+  return <div className="hidden md:flex items-center">{children}</div>
 }

@@ -10,6 +10,7 @@ import {
 import { useSwapHistory } from "@src/features/balance-history/lib/useBalanceHistory"
 import type { SwapTransaction } from "@src/features/balance-history/types"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { IntentsLogo } from "../../../components/IntentsLogo"
 import { Island } from "../../../components/Island"
 import type { TokenInfo } from "../../../types/base"
 import { cn } from "../../../utils/cn"
@@ -166,7 +167,8 @@ export function HistoryIsland({
     isRefreshing || (isFetching && !isLoading && !isFetchingNextPage)
 
   return (
-    <Island className="flex flex-col gap-6">
+    <Island className="flex flex-col gap-5">
+      <IntentsLogo />
       <div className="flex items-center justify-between">
         <h2 className="text-base font-bold">Swap History</h2>
         {hasAttemptedLoad && Boolean(accountId) && !isError && (

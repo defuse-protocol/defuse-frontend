@@ -1,6 +1,6 @@
 "use client"
 
-import { TradeNavigationLinks } from "@src/components/DefuseSDK/components/TradeNavigationLinks"
+import { IntentsLogo } from "@src/components/DefuseSDK/components/IntentsLogo"
 import { SwapWidgetProvider } from "@src/components/DefuseSDK/providers/SwapWidgetProvider"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
@@ -40,10 +40,7 @@ export const SwapWidget = ({
     <WidgetRoot>
       <SwapWidgetProvider>
         <Island className="widget-container flex flex-col gap-5">
-          <TradeNavigationLinks
-            currentRoute="swap"
-            renderHostAppLink={renderHostAppLink}
-          />
+          <IntentsLogo />
           <TokenMigration
             userAddress={userAddress}
             userChainType={userChainType}
