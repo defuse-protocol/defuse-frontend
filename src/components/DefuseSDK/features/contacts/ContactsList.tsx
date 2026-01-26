@@ -1,6 +1,6 @@
 "use client"
 import { PencilSquareIcon, XCircleIcon } from "@heroicons/react/16/solid"
-import { MagnifyingGlassIcon } from "@heroicons/react/20/solid"
+import { PlusIcon } from "@heroicons/react/20/solid"
 import type { Contact } from "@src/app/(app)/(auth)/contacts/actions"
 import Button from "@src/components/Button"
 import ModalAddEditContact from "@src/components/DefuseSDK/components/Modal/ModalAddEditContact"
@@ -11,8 +11,8 @@ import {
   midTruncate,
 } from "@src/components/DefuseSDK/features/withdraw/components/WithdrawForm/utils"
 import ListItem from "@src/components/ListItem"
+import ListItemsSkeleton from "@src/components/ListItemsSkeleton"
 import { SendIcon, WalletIcon } from "@src/icons"
-import { useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
 import ModalRemoveContact from "../../components/Modal/ModalRemoveContact"
 import { reverseAssetNetworkAdapter } from "../../utils/adapters"
@@ -20,7 +20,6 @@ import { reverseAssetNetworkAdapter } from "../../utils/adapters"
 type ModalType = "edit" | "remove"
 
 const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
-  const router = useRouter()
   const [modalOpen, setModalOpen] = useState<ModalType | null>(null)
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
 
@@ -29,7 +28,7 @@ const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
     contact,
   }: {
     type: ModalType
-    contact: Contact
+    contact: Contact | null
   }) => {
     setModalOpen(type)
     setSelectedContact(contact)
@@ -48,24 +47,33 @@ const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
 
   if (contacts.length === 0) {
     return (
-      <section className="mt-6 flex flex-col items-center justify-center pt-6">
-        <div
-          className="size-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600"
-          aria-hidden
-        >
-          <MagnifyingGlassIcon className="size-5" />
-        </div>
-        <h3 className="font-semibold text-base text-gray-900 mt-4">
-          No contacts found
-        </h3>
-        <Button
-          size="md"
-          onClick={() => router.push("/contacts")}
-          className="mt-4"
-        >
-          Clear search
-        </Button>
-      </section>
+      <>
+        <section className="mt-9">
+          <ListItemsSkeleton count={3} className="mt-2" />
+          <div className="max-w-72 mx-auto -mt-5 relative flex flex-col items-center">
+            <h3 className="text-xl font-semibold text-gray-900 text-center tracking-tight">
+              No contacts yet
+            </h3>
+            <p className="text-base text-gray-500 mt-1 font-medium text-center text-balance">
+              Add a contact to get started.
+            </p>
+            <Button
+              size="xl"
+              onClick={() => handleOpenModal({ type: "edit", contact: null })}
+              className="mt-4"
+            >
+              <PlusIcon className="size-5 shrink-0" />
+              Add contact
+            </Button>
+          </div>
+        </section>
+        <ModalAddEditContact
+          open={modalOpen === "edit"}
+          contact={selectedContact ?? null}
+          onClose={() => setModalOpen(null)}
+          onCloseAnimationEnd={() => setSelectedContact(null)}
+        />
+      </>
     )
   }
 
@@ -122,7 +130,7 @@ const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
 
       <ModalAddEditContact
         open={modalOpen === "edit"}
-        contact={selectedContact}
+        contact={selectedContact ?? null}
         onClose={() => setModalOpen(null)}
         onCloseAnimationEnd={() => setSelectedContact(null)}
       />
