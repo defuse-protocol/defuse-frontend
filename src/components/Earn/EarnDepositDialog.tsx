@@ -1,14 +1,19 @@
 "use client"
 
+import { authIdentity } from "@defuse-protocol/internal-utils"
 import { XMarkIcon } from "@heroicons/react/20/solid"
 import Button from "@src/components/Button"
-import { formatUsdAmount } from "@src/components/DefuseSDK/utils/format"
-import { UsdcIcon } from "@src/icons"
+import { useWatchHoldings } from "@src/components/DefuseSDK/features/account/hooks/useWatchHoldings"
+import {
+  formatTokenValue,
+  formatUsdAmount,
+} from "@src/components/DefuseSDK/utils/format"
+import { LIST_TOKENS } from "@src/constants/tokens"
+import { useConnectWallet } from "@src/hooks/useConnectWallet"
+import { useRouter } from "next/navigation"
 import { Dialog } from "radix-ui"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import type { Vault } from "./types"
-
-const MOCK_USER_BALANCE = 11.99
 
 export default function EarnDepositDialog({
   open,
@@ -19,8 +24,62 @@ export default function EarnDepositDialog({
   onClose: () => void
   vault: Vault
 }) {
+  const router = useRouter()
+  const { state } = useConnectWallet()
   const [amount, setAmount] = useState("")
+
+  // Find the token info for the vault's token (e.g., USDC)
+  const vaultToken = useMemo(
+    () => LIST_TOKENS.find((t) => t.symbol === vault.token),
+    [vault.token]
+  )
   const numericAmount = Number.parseFloat(amount) || 0
+
+  // Get user ID for balance fetching
+  const userId =
+    state.isVerified && state.address && state.chainType
+      ? authIdentity.authHandleToIntentsUserId(state.address, state.chainType)
+      : null
+
+  // Fetch balance for the vault token
+  const tokenListForBalance = useMemo(
+    () => (vaultToken ? [vaultToken] : []),
+    [vaultToken]
+  )
+  const { data: holdings } = useWatchHoldings({
+    userId,
+    tokenList: tokenListForBalance,
+  })
+
+  const vaultTokenBalance = holdings?.[0]
+  const balanceAmount = vaultTokenBalance?.value?.amount ?? 0n
+  const balanceDecimals = vaultTokenBalance?.value?.decimals ?? 6
+  const displayBalance = formatTokenValue(balanceAmount, balanceDecimals, {
+    fractionDigits: 4,
+  })
+  const numericBalance = Number(balanceAmount) / 10 ** balanceDecimals || 0
+
+  const handleSetMax = () => {
+    if (balanceAmount > 0n) {
+      setAmount(
+        formatTokenValue(balanceAmount, balanceDecimals, {
+          fractionDigits: balanceDecimals,
+        })
+      )
+    }
+  }
+
+  const handleDeposit = () => {
+    const params = new URLSearchParams({
+      from: vaultToken?.symbol ?? vault.token,
+      to: "smUSDC",
+    })
+    router.push(`/swap?${params.toString()}`)
+    onClose()
+  }
+
+  const canDeposit =
+    numericAmount > 0 && numericAmount <= numericBalance && state.isVerified
 
   return (
     <Dialog.Root open={open} onOpenChange={(o) => !o && onClose()}>
@@ -35,8 +94,14 @@ export default function EarnDepositDialog({
               >
                 <div className="flex items-center justify-between -mr-2.5 -mt-2.5">
                   <div className="flex items-center gap-3">
-                    <div className="size-8 rounded-full border border-gray-100 flex items-center justify-center shadow-sm">
-                      <UsdcIcon className="size-6" />
+                    <div className="size-8 rounded-full border border-gray-100 flex items-center justify-center shadow-sm overflow-hidden">
+                      {vaultToken?.icon && (
+                        <img
+                          src={vaultToken.icon}
+                          alt={vaultToken.symbol}
+                          className="size-6"
+                        />
+                      )}
                     </div>
                     <Dialog.Title className="text-base font-semibold text-gray-900">
                       Deposit {vault.token}
@@ -64,10 +129,12 @@ export default function EarnDepositDialog({
                   </div>
                 </div>
 
-                <div className="mt-5 flex items-center justify-between text-sm">
+                <div className="mt-4 flex items-center justify-between text-sm">
                   <span className="text-gray-500">Your Balance</span>
                   <span className="font-medium text-gray-900">
-                    {MOCK_USER_BALANCE} {vault.token}
+                    {state.isVerified
+                      ? `${displayBalance} ${vaultToken?.symbol}`
+                      : "Connect wallet"}
                   </span>
                 </div>
 
@@ -87,7 +154,8 @@ export default function EarnDepositDialog({
                     <Button
                       variant="secondary"
                       size="sm"
-                      onClick={() => setAmount(String(MOCK_USER_BALANCE))}
+                      onClick={handleSetMax}
+                      disabled={!state.isVerified || balanceAmount === 0n}
                     >
                       Max
                     </Button>
@@ -120,14 +188,23 @@ export default function EarnDepositDialog({
                     variant="primary"
                     size="xl"
                     fullWidth
-                    disabled={
-                      numericAmount <= 0 || numericAmount > MOCK_USER_BALANCE
-                    }
-                    onClick={() => console.log("Deposit:", amount, vault.token)}
+                    disabled={!canDeposit}
+                    onClick={handleDeposit}
                   >
-                    Deposit {vault.token}
+                    {!state.isVerified
+                      ? "Connect wallet"
+                      : numericAmount <= 0
+                        ? "Enter an amount"
+                        : numericAmount > numericBalance
+                          ? "Insufficient balance"
+                          : `Deposit ${vaultToken?.symbol}`}
                   </Button>
                 </div>
+
+                <p className="mt-3 text-xs text-gray-500 text-center">
+                  You will be redirected to swap your {vaultToken?.symbol} for
+                  smUSDC
+                </p>
               </Dialog.Content>
             </div>
           </div>
