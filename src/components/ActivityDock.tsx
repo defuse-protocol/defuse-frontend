@@ -1,10 +1,13 @@
 "use client"
 
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/16/solid"
-import { useActivityDock } from "@src/providers/ActivityDockProvider"
+import {
+  type DockItem,
+  useActivityDock,
+} from "@src/providers/ActivityDockProvider"
 import clsx from "clsx"
 import { AnimatePresence, motion } from "framer-motion"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import Button from "./Button"
 
 const MAX_VISIBLE = 3
@@ -12,90 +15,66 @@ const ACTIVE_DISMISS_DELAY_MS = 5_000
 const SETTLED_AUTO_DISMISS_DELAY_MS = 60_000
 const COUNTDOWN_SECONDS = 5
 
+function DismissButton({
+  item,
+  onDismiss,
+}: { item: DockItem; onDismiss: (id: string) => void }) {
+  const now = Date.now()
+  const canDismiss =
+    item.isSettled || now - item.createdAt > ACTIVE_DISMISS_DELAY_MS
+
+  if (!canDismiss) return null
+
+  const countdown = item.settledAt
+    ? Math.max(
+        0,
+        COUNTDOWN_SECONDS -
+          Math.floor(
+            (now - item.settledAt - SETTLED_AUTO_DISMISS_DELAY_MS) / 1000
+          )
+      )
+    : null
+
+  const showCountdown = countdown !== null && countdown < COUNTDOWN_SECONDS
+
+  return (
+    <Button
+      onClick={() => onDismiss(item.id)}
+      variant="secondary"
+      className="border border-gray-200"
+      fullWidth
+    >
+      {showCountdown ? (
+        <span className="tabular-nums">Dismissing in {countdown}</span>
+      ) : (
+        "Dismiss"
+      )}
+    </Button>
+  )
+}
+
 const ActivityDock = () => {
   const { dockItems, removeDockItem } = useActivityDock()
-  const [dismissEligible, setDismissEligible] = useState<Set<string>>(
-    () => new Set()
-  )
-  const [countdowns, setCountdowns] = useState<Map<string, number>>(
-    () => new Map()
-  )
-  const timersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(
-    new Map()
-  )
-  const intervalsRef = useRef<Map<string, ReturnType<typeof setInterval>>>(
-    new Map()
-  )
-  const settledIdsRef = useRef<Set<string>>(new Set())
+  const [, setTick] = useState(0)
 
   useEffect(() => {
-    const timers = timersRef.current
-    const intervals = intervalsRef.current
-    const settledIds = settledIdsRef.current
-
-    for (const item of dockItems) {
-      if (item.isSettled) {
-        if (settledIds.has(item.id)) continue
-        settledIds.add(item.id)
-
-        const existingTimer = timers.get(item.id)
-        if (existingTimer) {
-          clearTimeout(existingTimer)
-          timers.delete(item.id)
-        }
-
-        const timer = setTimeout(() => {
-          timers.delete(item.id)
-          setCountdowns((prev) => new Map(prev).set(item.id, COUNTDOWN_SECONDS))
-          const interval = setInterval(() => {
-            setCountdowns((prev) => {
-              const current = prev.get(item.id)
-              if (current == null || current <= 1) {
-                clearInterval(intervals.get(item.id))
-                intervals.delete(item.id)
-                removeDockItem(item.id)
-                const next = new Map(prev)
-                next.delete(item.id)
-                return next
-              }
-              return new Map(prev).set(item.id, current - 1)
-            })
-          }, 1000)
-          intervals.set(item.id, interval)
-        }, SETTLED_AUTO_DISMISS_DELAY_MS)
-        timers.set(item.id, timer)
-      } else {
-        if (timers.has(item.id)) continue
-        const timer = setTimeout(() => {
-          setDismissEligible((prev) => new Set(prev).add(item.id))
-          timers.delete(item.id)
-        }, ACTIVE_DISMISS_DELAY_MS)
-        timers.set(item.id, timer)
-      }
-    }
-
-    for (const [id, timer] of timers) {
-      if (!dockItems.some((item) => item.id === id)) {
-        clearTimeout(timer)
-        timers.delete(id)
-        settledIds.delete(id)
-        const interval = intervals.get(id)
-        if (interval) {
-          clearInterval(interval)
-          intervals.delete(id)
+    const interval = setInterval(() => {
+      setTick((t) => t + 1)
+      const now = Date.now()
+      for (const item of dockItems) {
+        if (item.settledAt) {
+          const elapsed = now - item.settledAt
+          if (
+            elapsed >=
+            SETTLED_AUTO_DISMISS_DELAY_MS + COUNTDOWN_SECONDS * 1000
+          ) {
+            removeDockItem(item.id)
+          }
         }
       }
-    }
+    }, 1000)
+    return () => clearInterval(interval)
   }, [dockItems, removeDockItem])
-
-  useEffect(() => {
-    const timers = timersRef.current
-    const intervals = intervalsRef.current
-    return () => {
-      for (const timer of timers.values()) clearTimeout(timer)
-      for (const interval of intervals.values()) clearInterval(interval)
-    }
-  }, [])
 
   const activeItems = dockItems.filter((i) => !i.isSettled)
   const settledItems = dockItems.filter((i) => i.isSettled)
@@ -188,22 +167,7 @@ const ActivityDock = () => {
                 </Button>
               )}
 
-              {(item.isSettled || dismissEligible.has(item.id)) && (
-                <Button
-                  onClick={() => removeDockItem(item.id)}
-                  variant="secondary"
-                  className="border border-gray-200"
-                  fullWidth
-                >
-                  {countdowns.has(item.id) ? (
-                    <span className="tabular-nums">
-                      Dismissing in {countdowns.get(item.id)}
-                    </span>
-                  ) : (
-                    "Dismiss"
-                  )}
-                </Button>
-              )}
+              <DismissButton item={item} onDismiss={removeDockItem} />
             </div>
           </motion.div>
         ))}

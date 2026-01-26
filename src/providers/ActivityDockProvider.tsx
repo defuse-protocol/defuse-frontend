@@ -23,11 +23,14 @@ export type DockItem = {
   renderContent?: () => ReactNode
   rawIcon?: boolean
   isSettled?: boolean
+  createdAt: number
+  settledAt?: number
 }
 
 type ActivityDockContextType = {
   dockItems: DockItem[]
-  addDockItem: (item: DockItem) => void
+  addDockItem: (item: Omit<DockItem, "createdAt" | "settledAt">) => void
+  updateDockItem: (id: string, updates: Partial<Omit<DockItem, "id">>) => void
   removeDockItem: (id: string) => void
   settleDockItem: (id: string) => void
   hasDockItem: (id: string) => boolean
@@ -40,12 +43,24 @@ const ActivityDockContext = createContext<ActivityDockContextType | undefined>(
 function ActivityDockProvider({ children }: { children: ReactNode }) {
   const [dockItems, setDockItems] = useState<DockItem[]>([])
 
-  const addDockItem = useCallback((item: DockItem) => {
-    setDockItems((prev) => {
-      if (prev.some((i) => i.id === item.id)) return prev
-      return [...prev, item]
-    })
-  }, [])
+  const addDockItem = useCallback(
+    (item: Omit<DockItem, "createdAt" | "settledAt">) => {
+      setDockItems((prev) => {
+        if (prev.some((i) => i.id === item.id)) return prev
+        return [...prev, { ...item, createdAt: Date.now() }]
+      })
+    },
+    []
+  )
+
+  const updateDockItem = useCallback(
+    (id: string, updates: Partial<Omit<DockItem, "id">>) => {
+      setDockItems((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, ...updates } : item))
+      )
+    },
+    []
+  )
 
   const removeDockItem = useCallback(
     (id: string) =>
@@ -57,7 +72,9 @@ function ActivityDockProvider({ children }: { children: ReactNode }) {
     (id: string) =>
       setDockItems((prev) =>
         prev.map((item) =>
-          item.id === id ? { ...item, isSettled: true } : item
+          item.id === id
+            ? { ...item, isSettled: true, settledAt: Date.now() }
+            : item
         )
       ),
     []
@@ -72,11 +89,19 @@ function ActivityDockProvider({ children }: { children: ReactNode }) {
     () => ({
       dockItems,
       addDockItem,
+      updateDockItem,
       removeDockItem,
       settleDockItem,
       hasDockItem,
     }),
-    [dockItems, addDockItem, removeDockItem, settleDockItem, hasDockItem]
+    [
+      dockItems,
+      addDockItem,
+      updateDockItem,
+      removeDockItem,
+      settleDockItem,
+      hasDockItem,
+    ]
   )
 
   return (

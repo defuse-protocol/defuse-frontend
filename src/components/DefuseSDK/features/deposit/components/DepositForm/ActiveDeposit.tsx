@@ -1,14 +1,21 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import Button from "@src/components/Button"
-import { useDepositTrackerMachine } from "@src/providers/DepositTrackerMachineProvider"
+import { HorizontalProgressDots } from "@src/components/ProgressIndicator"
+import { useActivityDock } from "@src/providers/ActivityDockProvider"
 import { useSelector } from "@xstate/react"
 import { useEffect, useRef } from "react"
 import { useFormContext } from "react-hook-form"
+import AssetComboIcon from "../../../../components/Asset/AssetComboIcon"
 import { useTokensUsdPrices } from "../../../../hooks/useTokensUsdPrices"
 import type { BaseTokenInfo, TokenDeployment } from "../../../../types/base"
 import { reverseAssetNetworkAdapter } from "../../../../utils/adapters"
+import { blockExplorerTxLinkFactory } from "../../../../utils/chainTxExplorer"
 import { formatTokenValue } from "../../../../utils/format"
 import getTokenUsdPrice from "../../../../utils/getTokenUsdPrice"
+import {
+  DEPOSIT_STAGES,
+  DEPOSIT_STAGE_LABELS_SHORT,
+} from "../../utils/depositStatusUtils"
 import { DepositUIMachineContext } from "../DepositUIMachineProvider"
 import { DepositWarning } from "../DepositWarning"
 import SelectedTokenInput from "./SelectedTokenInput"
@@ -27,7 +34,7 @@ export function ActiveDeposit({
   tokenDeployment,
   minDepositAmount,
 }: ActiveDepositProps) {
-  const { registerDeposit, updateDepositStage } = useDepositTrackerMachine()
+  const { addDockItem, updateDockItem, settleDockItem } = useActivityDock()
   const { register, setValue, watch } = useFormContext<DepositFormValues>()
   const actorRef = DepositUIMachineContext.useActorRef()
   const inputAmount = watch("amount")
@@ -74,49 +81,91 @@ export function ActiveDeposit({
 
   useEffect(() => {
     if (isLoading && !wasLoadingRef.current && parsedAmount != null) {
-      const snapshot = actorRef.getSnapshot()
-      const userAddress = snapshot.context.userAddress
+      const depositId = crypto.randomUUID()
+      currentDepositIdRef.current = depositId
 
-      if (userAddress) {
-        const depositId = registerDeposit({
-          token,
-          tokenDeployment,
-          amount: parsedAmount,
-          chainName: reverseAssetNetworkAdapter[network],
-          userAddress,
-        })
-        currentDepositIdRef.current = depositId
-      }
+      const formattedAmount = formatTokenValue(
+        parsedAmount,
+        tokenDeployment.decimals,
+        {
+          min: 0.0001,
+          fractionDigits: 4,
+        }
+      )
+      const chainName = reverseAssetNetworkAdapter[network]
+
+      addDockItem({
+        id: `deposit-${depositId}`,
+        title: `Deposit ${formattedAmount} ${token.symbol}`,
+        icon: (
+          <AssetComboIcon
+            sizeClassName="size-6"
+            icon={token.icon}
+            chainName={chainName}
+          />
+        ),
+        rawIcon: true,
+        keyValueRows: [],
+        renderContent: () => (
+          <HorizontalProgressDots
+            stages={DEPOSIT_STAGES}
+            stageLabelsShort={DEPOSIT_STAGE_LABELS_SHORT}
+            displayStage="submitting"
+            displayIndex={0}
+            hasError={false}
+            isSuccess={false}
+          />
+        ),
+      })
     }
     wasLoadingRef.current = isLoading
-  }, [
-    isLoading,
-    parsedAmount,
-    token,
-    tokenDeployment,
-    network,
-    actorRef,
-    registerDeposit,
-  ])
+  }, [isLoading, parsedAmount, token, tokenDeployment, network, addDockItem])
 
   useEffect(() => {
     if (!depositOutput) return
 
     if (currentDepositIdRef.current) {
+      const dockId = `deposit-${currentDepositIdRef.current}`
+      const chainName = reverseAssetNetworkAdapter[network]
+
       if (depositOutput.tag === "ok") {
-        updateDepositStage(
-          currentDepositIdRef.current,
-          "complete",
+        const explorerUrl = blockExplorerTxLinkFactory(
+          chainName,
           depositOutput.value.txHash
         )
+        updateDockItem(dockId, {
+          explorerUrl,
+          renderContent: () => (
+            <HorizontalProgressDots
+              stages={DEPOSIT_STAGES}
+              stageLabelsShort={DEPOSIT_STAGE_LABELS_SHORT}
+              displayStage="complete"
+              displayIndex={1}
+              hasError={false}
+              isSuccess={true}
+            />
+          ),
+        })
       } else {
-        updateDepositStage(currentDepositIdRef.current, "error")
+        updateDockItem(dockId, {
+          renderContent: () => (
+            <HorizontalProgressDots
+              stages={DEPOSIT_STAGES}
+              stageLabelsShort={DEPOSIT_STAGE_LABELS_SHORT}
+              displayStage="complete"
+              displayIndex={1}
+              hasError={true}
+              isSuccess={false}
+            />
+          ),
+        })
       }
+      settleDockItem(dockId)
       currentDepositIdRef.current = null
     }
 
     actorRef.send({ type: "CLEAR_DEPOSIT_OUTPUT" })
-  }, [depositOutput, actorRef, updateDepositStage])
+  }, [depositOutput, actorRef, network, updateDockItem, settleDockItem])
 
   const balanceInsufficient =
     balance != null
