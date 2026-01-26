@@ -71,23 +71,24 @@ export default function TermsPage() {
           Terms of Service
         </h1>
 
-        <p>Dated: November 25 2025</p>
+        <p>Dated: January 26, 2026</p>
 
         <p>
-          These Terms of Service (the &quot;<strong>Agreement</strong>&quot; or
-          the &ldquo;<strong>Terms</strong>&rdquo;) explain the terms and
+          These Terms of Service (the &ldquo;<strong>Agreement</strong>&rdquo;
+          or the &ldquo;<strong>Terms</strong>&rdquo;) explain the terms and
           conditions by which you (&ldquo;<strong>You</strong>&rdquo;, &ldquo;
           <strong>Yours</strong>&rdquo; or &ldquo;<strong>User</strong>&rdquo;)
           may access and use the interfaces, which is maintained by us,{" "}
           <strong>Polar Express Limited</strong> (referred to herein as the
-          &quot;<strong>Company</strong>&quot;, &quot;<strong>we</strong>&quot;,
-          &quot;<strong>our</strong>&quot;, or &quot;<strong>us</strong>&quot;)
-          (the &ldquo;<strong>Interfaces</strong>&rdquo;). The Interfaces enable
-          Users to interact with the Protocol (as defined below) and any third
-          party platforms, not owned by the Company. The Interfaces shall
-          include, but shall not necessarily be limited to,{" "}
+          &ldquo;<strong>Company</strong>&rdquo;, &ldquo;<strong>we</strong>
+          &rdquo;, &ldquo;<strong>our</strong>&rdquo;, or &ldquo;
+          <strong>us</strong>&rdquo;) (the &ldquo;<strong>Interfaces</strong>
+          &rdquo;). The Interfaces enable Users to interact with the Protocol
+          (as defined below) and any third party platforms, not owned by the
+          Company. The Interfaces shall include, but shall not necessarily be
+          limited to,{" "}
           <a
-            href="https://app.near-intents.org"
+            href="https://app.near-intents.org/"
             target="_blank"
             rel="noreferrer noopener"
           >
@@ -95,7 +96,7 @@ export default function TermsPage() {
           </a>{" "}
           a.k.a. &ldquo;near-intents&rdquo;{" "}
           <a
-            href="https://solswap.org"
+            href="https://solswap.org/"
             target="_blank"
             rel="noreferrer noopener"
           >
@@ -103,29 +104,29 @@ export default function TermsPage() {
           </a>{" "}
           a.k.a. &ldquo;solswap&rdquo;{" "}
           <a
-            href="https://dogecoinswap.org"
+            href="https://dogecoinswap.org/"
             target="_blank"
             rel="noreferrer noopener"
           >
             https://dogecoinswap.org/
           </a>{" "}
-          a.k.a. &quot;Dogecoinswap&quot;,{" "}
+          a.k.a. &ldquo;Dogecoinswap&rdquo;,{" "}
           <a
-            href="https://turboswap.org"
+            href="https://turboswap.org/"
             target="_blank"
             rel="noreferrer noopener"
           >
             https://turboswap.org/
           </a>{" "}
-          a.k.a. &quot;Turboswap&quot;,{" "}
+          a.k.a. &ldquo;Turboswap&rdquo;,{" "}
           <a
-            href="https://trump-swap.org"
+            href="https://trump-swap.org/"
             target="_blank"
             rel="noreferrer noopener"
           >
             https://trump-swap.org/
           </a>{" "}
-          a.k.a. &quot;Trumpswap&quot;, and the website-hosted user interfaces
+          a.k.a. &ldquo;Trumpswap&rdquo;, and the website-hosted user interfaces
           (and all features available via the Interfaces). The Interfaces
           provide access to the Protocol, which is not controlled or operated by
           the Company.
@@ -148,7 +149,7 @@ export default function TermsPage() {
         <h2>1. Definitions</h2>
 
         <p>
-          &ldquo;<strong>Intent</strong>&rdquo;: A User&rsquo;s declarative
+          <strong>&ldquo;Intent&rdquo;</strong>: A User&rsquo;s declarative
           instruction, expressed in a standardized format recognized by the
           Protocol, that specifies the desired outcome of a transaction or
           series of transactions without prescribing the method of execution. An
@@ -158,12 +159,12 @@ export default function TermsPage() {
         </p>
 
         <p>
-          &ldquo;<strong>Interface Fee</strong>&rdquo; as defined in clause 2.2.
+          <strong>&ldquo;Interface Fee&rdquo;</strong> as defined in clause 2.2.
         </p>
 
         <p>
-          &ldquo;<strong>Solver</strong>&rdquo;: Any service, software agent,
-          algorithmic or artificial intelligence&ndash;assisted system, or
+          <strong>&ldquo;Solver&rdquo;</strong>: Any service, software agent,
+          algorithmic or artificial intelligence–assisted system, or
           human-operated entity that, within the Solver Network and Protocol,
           receives an Intent and translates such Intent into one or more
           executable on-chain transactions. A Solver is responsible for
@@ -175,23 +176,23 @@ export default function TermsPage() {
         </p>
 
         <p>
-          &ldquo;<strong>Solver Bus API</strong>&rdquo;: A communication layer
+          <strong>&ldquo;Solver Bus API&rdquo;</strong>: A communication layer
           connecting Solvers to the Protocol.
         </p>
 
         <p>
-          &quot;<strong>Solver Network</strong>&quot;: The collective framework
-          of independent Solvers, whether software-based, algorithmic,
-          artificial intelligence&ndash;assisted systems, or human-operated
-          entities that participate within the Protocol to receive, compete for,
-          and fulfill Intents. The Solver Network functions as a marketplace of
+          <strong>&ldquo;Solver Network&rdquo;</strong>: The collective
+          framework of independent Solvers, whether software-based, algorithmic,
+          artificial intelligence–assisted systems, or human-operated entities
+          that participate within the Protocol to receive, compete for, and
+          fulfill Intents. The Solver Network functions as a marketplace of
           execution services, where Solvers may operate autonomously or under
           human supervision and are compensated or rewarded for the successful
           settlement of Intents on the applicable blockchain.
         </p>
 
         <p>
-          &ldquo;<strong>Slippage</strong>&rdquo;: The difference between the
+          <strong>&ldquo;Slippage&rdquo;</strong>: The difference between the
           displayed estimated price of a transaction and the actual price at
           which the transaction is executed. Slippage can occur due to market
           volatility, low liquidity, other market conditions, or delays in
@@ -199,12 +200,12 @@ export default function TermsPage() {
         </p>
 
         <p>
-          &ldquo;<strong>Verifier Contract</strong>&rdquo;: The NEAR-based smart
+          <strong>&ldquo;Verifier Contract&rdquo;</strong>: The NEAR-based smart
           contract that validates and authorizes Intent execution.
         </p>
 
         <p>
-          &ldquo;<strong>HOT Bridge</strong>&rdquo;: A cross-chain bridge
+          <strong>&ldquo;HOT Bridge&rdquo;</strong>: A cross-chain bridge
           enabling asset transfers between NEAR Protocol and other blockchains,
           leveraging Chain Signatures, known as the &ldquo;HOT Bridge&rdquo;,
           further details of which are available at{" "}
@@ -219,14 +220,14 @@ export default function TermsPage() {
         </p>
 
         <p>
-          &ldquo;<strong>IP Owner(s)</strong>&rdquo; means the respective rights
+          <strong>&ldquo;IP Owner(s)&rdquo;</strong> means the respective rights
           holders in the Interfaces and their proprietary elements, including,
           but not limited to, software, text, images, trademarks, service marks,
           copyrights, patents, and designs, other than open-source components.
         </p>
 
         <p>
-          &ldquo;<strong>PoA Bridge</strong>&rdquo;: A cross-chain bridge
+          <strong>&ldquo;PoA Bridge&rdquo;</strong>: A cross-chain bridge
           enabling asset transfers between NEAR Protocol and other blockchains,
           known as the &ldquo;PoA Bridge&rdquo; or &ldquo;Proof of Authority
           Bridge&rdquo;, according to its specific terms and conditions, which
@@ -241,7 +242,7 @@ export default function TermsPage() {
         </p>
 
         <p>
-          &ldquo;<strong>Omni Bridge</strong>&rdquo;: A cross-chain bridge
+          <strong>&ldquo;Omni Bridge&rdquo;</strong>: A cross-chain bridge
           enabling asset transfers between NEAR Protocol and other blockchains,
           leveraging Chain Signatures, known as the &ldquo;Omni Bridge&rdquo;,
           further details of which are available at{" "}
@@ -256,19 +257,19 @@ export default function TermsPage() {
         </p>
 
         <p>
-          &ldquo;<strong>Chain Signatures</strong>&rdquo;: A cryptographic
+          <strong>&ldquo;Chain Signatures&rdquo;</strong>: A cryptographic
           mechanism allowing NEAR accounts and contracts to sign transactions on
           and across multiple external blockchains by leveraging the MPC
           network.
         </p>
 
         <p>
-          &ldquo;<strong>Cross-Chain Settlement</strong>&rdquo;: The process of
+          <strong>&ldquo;Cross-Chain Settlement&rdquo;</strong>: The process of
           finalizing Intent execution across multiple blockchains.
         </p>
 
         <p>
-          &ldquo;<strong>MPC Network</strong>&rdquo; means the distributed
+          <strong>&ldquo;MPC Network&rdquo;</strong> means the distributed
           network of participants that collectively generate threshold
           signatures through multi-party computation in respect of Chain
           Signatures. Each participant holds a share of a private key, and a
@@ -278,12 +279,12 @@ export default function TermsPage() {
         </p>
 
         <p>
-          &ldquo;<strong>NEAR</strong>&rdquo;: The sharded, proof-of-stake,
+          <strong>&ldquo;NEAR&rdquo;</strong>: The sharded, proof-of-stake,
           layer one blockchain, known as &ldquo;NEAR Protocol&rdquo;.
         </p>
 
         <p>
-          &quot;<strong>Protocol</strong>&quot;: the smart contract/protocol
+          <strong>&ldquo;Protocol&rdquo;</strong>: the smart contract/protocol
           deployed on NEAR Protocol which enables users to post, match, and
           settle Intents, to be executed by the Solver Network. The Protocol
           does not include any frontends (including, without limitation, the
@@ -293,14 +294,14 @@ export default function TermsPage() {
         </p>
 
         <p>
-          &quot;<strong>Liquidity Provider</strong>&quot;: An individual or
+          <strong>&ldquo;Liquidity Provider&rdquo;</strong>: An individual or
           legal entity that supplies digital assets to decentralized protocols
           to facilitate trading, swapping, or other financial operations, and
           may receive fees or rewards in return.
         </p>
 
         <p>
-          &quot;<strong>Relayer</strong>&quot;: A service that broadcasts
+          <strong>&ldquo;Relayer&rdquo;</strong>: A service that broadcasts
           transactions to the blockchain networks on behalf of users, typically
           to optimize for gas costs or improve transaction success rates.
         </p>
@@ -331,6 +332,7 @@ export default function TermsPage() {
           from time to time. The Bridges are provided and operated by third
           parties and are not operated by the Company.
         </p>
+
         <h2>2. The Interfaces</h2>
 
         <p>
@@ -347,17 +349,17 @@ export default function TermsPage() {
         </p>
 
         <p>
-          Products and Features. The Interface integrates the Protocol, which in
-          turn integrates other protocols and offers you access to numerous
-          liquidity sources across multiple chains. The Interface may include
-          other products and/or features added for the purposes of user
-          experience, including those for the informational, security, and
-          entertainment purposes, which are not intended to affect the main
-          purpose of the Interface described above. We only provide you with
-          access to the relevant interface and neither have control over your
-          interactions with the blockchain or the Protocol nor do we encourage
-          you to perform any. Any interaction performed by you via the Interface
-          remains your sole responsibility.
+          <strong>Products and Features.</strong> The Interface integrates the
+          Protocol, which in turn integrates other protocols and offers you
+          access to numerous liquidity sources across multiple chains. The
+          Interface may include other products and/or features added for the
+          purposes of user experience, including those for the informational,
+          security, and entertainment purposes, which are not intended to affect
+          the main purpose of the Interface described above. We only provide you
+          with access to the relevant interface and neither have control over
+          your interactions with the blockchain or the Protocol nor do we
+          encourage you to perform any. Any interaction performed by you via the
+          Interface remains your sole responsibility.
         </p>
 
         <p>
@@ -378,19 +380,19 @@ export default function TermsPage() {
         </p>
 
         <p>
-          The Interfaces revolve around the concept of &quot;intents,&quot;
+          The Interfaces revolve around the concept of &ldquo;intents,&rdquo;
           which are structured declarations containing key details such as the
-          initiator&#39;s NEAR account ID, the type of intent (e.g., token swap,
-          transfer), source assets and amounts, desired outcomes, unique
+          initiator&rsquo;s NEAR account ID, the type of intent (e.g., token
+          swap, transfer), source assets and amounts, desired outcomes, unique
           identifiers for tracking, and optional constraints like deadlines or
           minimum outputs. These intents are broadcasted to a Solver Network,
           where Solvers analyze and compete to provide an execution plan. Once a
-          user approves a Solver&#39;s quote, the Intent is executed via a smart
-          contract on NEAR (intents.near) (being the Protocol), which handles
-          the transaction - including cross-chain operations if necessary -
-          while ensuring state changes are verified and reported back to the
-          originator. This abstraction streamlines complex blockchain processes
-          into an intuitive and efficient user experience.
+          user approves a Solver&rsquo;s quote, the Intent is executed via a
+          smart contract on NEAR (intents.near) (being the Protocol), which
+          handles the transaction - including cross-chain operations if
+          necessary - while ensuring state changes are verified and reported
+          back to the originator. This abstraction streamlines complex
+          blockchain processes into an intuitive and efficient user experience.
         </p>
 
         <p>
@@ -506,90 +508,94 @@ export default function TermsPage() {
 
         <h3>2.1 Interface Fee</h3>
 
-        <ol>
-          <li>
-            <strong>Interface Fee:</strong> In consideration for providing,
-            operating, and improving the Interfaces, we may charge a fee on
-            certain transactions routed through the Interfaces (the &ldquo;
-            <strong>Interface Fee</strong>&rdquo;). The applicability, amount,
-            or rate of any Interface Fee may vary depending on transaction type
-            or other factors and may change from time to time at our discretion.
-            The Interface Fee applies solely to use of the Interfaces and does
-            not alter or affect execution of the Protocol. The applicable
-            Interface Fee will be clearly disclosed through the Interface at or
-            before the time you authorise a transaction. You are solely
-            responsible for paying any Interface Fee associated with your
-            transactions. Interface Fees are generally non-refundable once a
-            transaction is submitted and may not be refundable if a transaction
-            fails, is reverted, or does not complete as expected, except where
-            required by applicable law.
-          </li>
-          <li>
-            <strong>Protocol and Solver Fees:</strong> Transactions routed
-            through Protocol may also be subject to additional protocol-level
-            charges, including (i) solver incentives, (ii) protocol fees, (iii)
-            liquidity pool or liquidity provider (LP) fees, and (iv) any other
-            protocol-level or execution-related fees. These fees are not
-            retained by us and form part of the protocol-driven execution costs.
-          </li>
-          <li>
-            <strong>Gas / Network Fees.</strong> All blockchain transactions
-            require network transaction fees (e.g., &ldquo;gas&rdquo;) paid to
-            the applicable network. You are solely responsible for gas and
-            related network costs. Gas is set by the network and is
-            non-refundable, including for transactions that fail or are reverted
-            by the network or smart contract.
-          </li>
-          <li>
-            <strong>Slippage:</strong> Where the Interface presents a
-            pre-transaction summary, it will show the estimated total amount
-            payable or receivable, inclusive of all applicable Interface Fees,
-            protocol fees, solver fees, and other execution-related fees, but{" "}
-            <strong>exclusive of slippage</strong>. You acknowledge and agree
-            that the final execution price may differ from the pre-transaction
-            quote due to market conditions and slippage (whether higher or
-            lower). You accept full responsibility for any slippage and
-            acknowledge that neither we nor the Interface can guarantee
-            execution at the quoted price.
-          </li>
-          <li>
-            <strong>Third-Party Fees:</strong> Your use of third-party services
-            (aggregators, bridges, wallets, payment processors, custodians) may
-            be subject to their separate fees, spreads, and terms. You are
-            responsible for all such amounts; we do not control those fees.
-          </li>
-          <li>
-            <strong>Changes to Fees:</strong> We may change, add, discount,
-            suspend, or waive the Interface Fee prospectively at any time. Where
-            a pre-transaction summary is shown, changes will apply to
-            transactions authorized after the change is effective; you will see
-            the applicable Interface Fee at preview/confirmation. We may also
-            run promotions (including zero-fee or reduced-fee offers) from time
-            to time.
-          </li>
-          <li>
-            <strong>Taxes:</strong> You are solely responsible for determining
-            and paying any taxes (including VAT/GST, sales, use, income, or
-            similar) arising from your use of the Interfaces or any transactions
-            you initiate.
-          </li>
-          <li>
-            <strong>No Fee-Avoidance:</strong> You agree not to circumvent,
-            disable, or interfere with any fee-calculation, metering, or
-            collection mechanism of the Interfaces (for example, by spoofing
-            requests, replaying signatures, or using unauthorized tools to strip
-            or divert the Interface Fee). We may limit, suspend, or terminate
-            access for fee-avoidance or attempted evasion.
-          </li>
-          <li>
-            <strong>Rounding and Minimums.</strong> For operational reasons, we
-            may apply rounding to the nearest display unit supported by the
-            relevant token or network and set minimum fee amounts; any such
-            rules will be reflected in the quote or post-trade details where
-            applicable. (This section does not affect your separate obligation
-            to pay network gas.)
-          </li>
-        </ol>
+        <p>
+          <strong>Interface Fee:</strong> In consideration for providing,
+          operating, and improving the Interfaces, we may charge a fee on
+          certain transactions routed through the Interfaces (the &ldquo;
+          <strong>Interface Fee</strong>&rdquo;). The applicability, amount, or
+          rate of any Interface Fee may vary depending on transaction type or
+          other factors and may change from time to time at our discretion. The
+          Interface Fee applies solely to use of the Interfaces and does not
+          alter or affect execution of the Protocol. The applicable Interface
+          Fee will be clearly disclosed through the Interface at or before the
+          time you authorise a transaction. You are solely responsible for
+          paying any Interface Fee associated with your transactions. Interface
+          Fees are generally non-refundable once a transaction is submitted and
+          may not be refundable if a transaction fails, is reverted, or does not
+          complete as expected, except where required by applicable law.
+        </p>
+
+        <p>
+          <strong>Protocol and Solver Fees:</strong> Transactions routed through
+          Protocol may also be subject to additional protocol-level charges,
+          including (i) solver incentives, (ii) protocol fees, (iii) liquidity
+          pool or liquidity provider (LP) fees, and (iv) any other
+          protocol-level or execution-related fees. These fees are not retained
+          by us and form part of the protocol-driven execution costs.
+        </p>
+
+        <p>
+          <strong>Gas / Network Fees:</strong> All blockchain transactions
+          require network transaction fees (e.g., &ldquo;gas&rdquo;) paid to the
+          applicable network. You are solely responsible for gas and related
+          network costs. Gas is set by the network and is non-refundable,
+          including for transactions that fail or are reverted by the network or
+          smart contract.
+        </p>
+
+        <p>
+          <strong>Slippage:</strong> Where the Interface presents a
+          pre-transaction summary, it will show the estimated total amount
+          payable or receivable, inclusive of all applicable Interface Fees,
+          protocol fees, solver fees, and other execution-related fees, but{" "}
+          <strong>exclusive of slippage</strong>. You acknowledge and agree that
+          the final execution price may differ from the pre-transaction quote
+          due to market conditions and slippage (whether higher or lower). You
+          accept full responsibility for any slippage and acknowledge that
+          neither we nor the Interface can guarantee execution at the quoted
+          price.
+        </p>
+
+        <p>
+          <strong>Third-Party Fees:</strong> Your use of third-party services
+          (aggregators, bridges, wallets, payment processors, custodians) may be
+          subject to their separate fees, spreads, and terms. You are
+          responsible for all such amounts; we do not control those fees.
+        </p>
+
+        <p>
+          <strong>Changes to Fees:</strong> We may change, add, discount,
+          suspend, or waive the Interface Fee prospectively at any time. Where a
+          pre-transaction summary is shown, changes will apply to transactions
+          authorized after the change is effective; you will see the applicable
+          Interface Fee at preview/confirmation. We may also run promotions
+          (including zero-fee or reduced-fee offers) from time to time.
+        </p>
+
+        <p>
+          <strong>Taxes:</strong> You are solely responsible for determining and
+          paying any taxes (including VAT/GST, sales, use, income, or similar)
+          arising from your use of the Interfaces or any transactions you
+          initiate.
+        </p>
+
+        <p>
+          <strong>No Fee-Avoidance:</strong> You agree not to circumvent,
+          disable, or interfere with any fee-calculation, metering, or
+          collection mechanism of the Interfaces (for example, by spoofing
+          requests, replaying signatures, or using unauthorized tools to strip
+          or divert the Interface Fee). We may limit, suspend, or terminate
+          access for fee-avoidance or attempted evasion.
+        </p>
+
+        <p>
+          <strong>Rounding and Minimums:</strong> For operational reasons, we
+          may apply rounding to the nearest display unit supported by the
+          relevant token or network and set minimum fee amounts; any such rules
+          will be reflected in the quote or post-trade details where applicable.
+          (This section does not affect your separate obligation to pay network
+          gas.)
+        </p>
 
         <h3>2.2 Third Party Services and Content</h3>
 
@@ -610,6 +616,7 @@ export default function TermsPage() {
           as used herein, regardless of whether such product is specifically
           defined in this Agreement.
         </p>
+
         <h2>3. Eligibility</h2>
 
         <p>
@@ -634,7 +641,7 @@ export default function TermsPage() {
         </p>
 
         <p>
-          <strong>Legality</strong>. You are solely responsible for adhering to
+          <strong>Legality.</strong> You are solely responsible for adhering to
           all laws and regulations applicable to you and your use or access to
           the Interface. Your use of the Interface is prohibited by and
           otherwise violate or facilitate the violation of any applicable laws
@@ -648,7 +655,7 @@ export default function TermsPage() {
         </p>
 
         <p>
-          &ldquo;<strong>Sanction Lists</strong>&rdquo; means any sanctions
+          <strong>&ldquo;Sanction Lists&rdquo;</strong> means any sanctions
           designations listed on economic/trade embargo lists and/or specially
           designated persons/blocked persons lists published by the
           international organisations, as well as any state and governmental
@@ -674,7 +681,7 @@ export default function TermsPage() {
         </p>
 
         <p>
-          <strong>Prohibited Localities</strong>. We do not interact with
+          <strong>Prohibited Localities.</strong> We do not interact with
           digital wallets or users located in, established in, or a resident of
           Afghanistan, Belarus, Central African Republic, Cuba, Democratic
           Republic of Congo, Guinea-Bissau, Haiti, Iran, Libya, Mali, Myanmar
@@ -693,7 +700,7 @@ export default function TermsPage() {
         </p>
 
         <p>
-          <strong>Restricted Persons</strong>. We do not interact with digital
+          <strong>Restricted Persons.</strong> We do not interact with digital
           wallets or users, which have been previously classified or otherwise
           identified by international organizations or any state and
           governmental authorities of any jurisdiction, as belonging or
@@ -718,7 +725,7 @@ export default function TermsPage() {
         </p>
 
         <p>
-          <strong>Third-Party Restrictions</strong>. As mentioned above, our
+          <strong>Third-Party Restrictions.</strong> As mentioned above, our
           Interface may include the third-party services. Your interaction with
           and use of the third-party services is governed by the respective
           terms and conditions of the third-party providers, including but not
@@ -738,6 +745,7 @@ export default function TermsPage() {
           Interface using any technology for the purposes of circumventing these
           Terms.
         </p>
+
         <h2>4. Modifications of this Agreement or the Interfaces</h2>
 
         <h3>4.1 Modifications of this Agreement</h3>
@@ -787,7 +795,7 @@ export default function TermsPage() {
         <p>
           The Protocol may undergo changes, updates, or modifications through
           technical upgrades, community governance decisions, or other processes
-          outside the Company&#39;s control. Such changes could affect
+          outside the Company&rsquo;s control. Such changes could affect
           functionality, compatibility, or availability of features accessible
           through the Interfaces, and the Company provides no guarantee of
           continued compatibility between the Interfaces and all Protocol
@@ -796,6 +804,7 @@ export default function TermsPage() {
           the user experience, and accept this as an inherent risk of
           interacting with evolving blockchain technology.
         </p>
+
         <h2>5. Intellectual Property Rights</h2>
 
         <h3>5.1 IP Rights Generally</h3>
@@ -824,8 +833,8 @@ export default function TermsPage() {
           Interfaces, including (without limitation) the software code, visual
           design, trademarks, logos, and any other branding, design features, or
           content. Users may fork and modify the open-source code in accordance
-          with the MIT License, but may not use the Company&#39;s trademarks or
-          branding in derivative works without permission. Your use of the
+          with the MIT License, but may not use the Company&rsquo;s trademarks
+          or branding in derivative works without permission. Your use of the
           hosted Interfaces provided by the Company is governed by these Terms,
           while any independent deployment of the open-source code is governed
           by the applicable open-source license. You will retain ownership of
@@ -900,108 +909,117 @@ export default function TermsPage() {
           and use of the Interfaces:
         </p>
 
-        <ol>
-          <li>
-            <strong>Intellectual Property Infringement.</strong> Activity that
-            infringes on or violates any copyright, trademark, service mark,
-            patent, right of publicity, right of privacy, or other proprietary
-            or intellectual property rights under applicable law in any
-            jurisdiction in the world.
-          </li>
-          <li>
-            <strong>Data Privacy.</strong> Activity that violates any applicable
-            laws, and contractual and fiduciary obligations relating to the
-            collection, storage, use, transfer and any other processing of any
-            personal information or any other sensitive or confidential
-            information.
-          </li>
-          <li>
-            <strong>Cyberattack.</strong> Activity that seeks to interfere with
-            or compromise the integrity, security, or proper functioning of any
-            computer, server, network, personal device, or other information
-            technology system, including, but not limited to, the deployment of
-            viruses and denial of service attacks. Activity that uses any robot,
-            spider, crawler, scraper or other automated means or interface not
-            provided by us to access the Interfaces to introduce any malware,
-            virus, Trojan horse, worm, logic bomb, drop-dead device, backdoor,
-            shutdown mechanism or other harmful material into the Interface or
-            the Interfaces.
-          </li>
-          <li>
-            <strong>Fraud and Misrepresentation.</strong> Activity that seeks to
-            defraud us or any other person or entity, including, but not limited
-            to, providing any false, inaccurate, or misleading information in
-            order to unlawfully obtain the property of another, or to defraud
-            Company, other users of the Interfaces or any other person.
-          </li>
-          <li>
-            <strong>Market Manipulation.</strong> Activity that violates any
-            applicable law, rule, or regulation concerning the integrity of
-            trading markets, including, but not limited to: the manipulative
-            tactics commonly known as &quot;rug pulls&quot;; pumping and
-            dumping; wash trading; front-running; accommodation trading;
-            fictitious transactions; pre-arranged or non-competitive
-            transactions; cornering or attempting cornering of digital assets;
-            violations of bids or offers; spoofing; knowingly making any bid or
-            offer for the purpose of making a market price that does not reflect
-            the true state of the market; entering orders for the purpose of
-            entering into transactions without a net change in either
-            party&rsquo;s open positions but a resulting profit to one party and
-            a loss to the other party, commonly known as a &ldquo;money
-            pass&rdquo;; any other manipulation or fraudulent act or scheme to
-            defraud, deceive, trick or mislead; or any other trading activity
-            that, in the reasonable judgment of Company, is abusive, improper or
-            disruptive to the operation of the Interfaces.
-          </li>
-          <li>
-            <strong>Securities and Derivatives Violations.</strong> Activity
-            that violates any applicable law, rule, or regulation concerning the
-            trading of securities or derivatives, including, but not limited to,
-            the unregistered offering of securities and the offering of
-            leveraged and margined commodity products to retail customers in the
-            United States.
-          </li>
-          <li>
-            <strong>Sale of Stolen Property.</strong> Buying, selling, or
-            transferring of stolen items, fraudulently obtained items, items
-            taken without authorization, and/or any other illegally obtained
-            items. Using or accessing the Interfaces to transmit or exchange
-            digital assets that are the direct or indirect proceeds of any
-            criminal or fraudulent activity, including terrorism or tax evasion.
-          </li>
-          <li>
-            <strong>Data Mining or Scraping.</strong> Activity that involves
-            data mining, robots, scraping, or similar data gathering or
-            extraction methods of content or information from any of the
-            Interfaces.
-          </li>
-          <li>
-            <strong>Objectionable Content.</strong> Activity that involves
-            soliciting information from anyone under the age of 18 or that is
-            otherwise harmful, threatening, abusive, harassing, tortious,
-            excessively violent, defamatory, vulgar, obscene, pornographic,
-            libelous, invasive of another&#39;s privacy, hateful,
-            discriminatory, or otherwise objectionable.
-          </li>
-          <li>
-            <strong>Disruptive Content.</strong> Activity that could interfere
-            with, disrupt, negatively affect, or inhibit other users from fully
-            enjoying the Interfaces, or that could damage, disable, overburden,
-            or impair the functioning of the Interfaces in any manner.
-          </li>
-          <li>
-            <strong>Intent Manipulation:</strong> Submitting Intents with
-            falsified parameters, spam, or economically unfeasible constraints.
-          </li>
-          <li>
-            <strong>Solver Abuse:</strong> Interfering with Solver operations
-            (e.g., front-running, quote spamming).
-          </li>
-          <li>
-            <strong>Cross-Chain Exploits:</strong> Leveraging settlement delays
-            or bridge vulnerabilities for arbitrage.
-          </li>
-        </ol>
+        <p>
+          1) <strong>Intellectual Property Infringement.</strong> Activity that
+          infringes on or violates any copyright, trademark, service mark,
+          patent, right of publicity, right of privacy, or other proprietary or
+          intellectual property rights under applicable law in any jurisdiction
+          in the world.
+        </p>
+
+        <p>
+          2) <strong>Data Privacy.</strong> Activity that violates any
+          applicable laws, and contractual and fiduciary obligations relating to
+          the collection, storage, use, transfer and any other processing of any
+          personal information or any other sensitive or confidential
+          information.
+        </p>
+
+        <p>
+          3) <strong>Cyberattack.</strong> Activity that seeks to interfere with
+          or compromise the integrity, security, or proper functioning of any
+          computer, server, network, personal device, or other information
+          technology system, including, but not limited to, the deployment of
+          viruses and denial of service attacks. Activity that uses any robot,
+          spider, crawler, scraper or other automated means or interface not
+          provided by us to access the Interfaces to introduce any malware,
+          virus, Trojan horse, worm, logic bomb, drop-dead device, backdoor,
+          shutdown mechanism or other harmful material into the Interface or the
+          Interfaces.
+        </p>
+
+        <p>
+          4) <strong>Fraud and Misrepresentation.</strong> Activity that seeks
+          to defraud us or any other person or entity, including, but not
+          limited to, providing any false, inaccurate, or misleading information
+          in order to unlawfully obtain the property of another, or to defraud
+          Company, other users of the Interfaces or any other person.
+        </p>
+
+        <p>
+          5) <strong>Market Manipulation.</strong> Activity that violates any
+          applicable law, rule, or regulation concerning the integrity of
+          trading markets, including, but not limited to: the manipulative
+          tactics commonly known as &ldquo;rug pulls&rdquo;; pumping and
+          dumping; wash trading; front-running; accommodation trading;
+          fictitious transactions; pre-arranged or non-competitive transactions;
+          cornering or attempting cornering of digital assets; violations of
+          bids or offers; spoofing; knowingly making any bid or offer for the
+          purpose of making a market price that does not reflect the true state
+          of the market; entering orders for the purpose of entering into
+          transactions without a net change in either party&rsquo;s open
+          positions but a resulting profit to one party and a loss to the other
+          party, commonly known as a &ldquo;money pass&rdquo;; any other
+          manipulation or fraudulent act or scheme to defraud, deceive, trick or
+          mislead; or any other trading activity that, in the reasonable
+          judgment of Company, is abusive, improper or disruptive to the
+          operation of the Interfaces.
+        </p>
+
+        <p>
+          6) <strong>Securities and Derivatives Violations.</strong> Activity
+          that violates any applicable law, rule, or regulation concerning the
+          trading of securities or derivatives, including, but not limited to,
+          the unregistered offering of securities and the offering of leveraged
+          and margined commodity products to retail customers in the United
+          States.
+        </p>
+
+        <p>
+          7) <strong>Sale of Stolen Property.</strong> Buying, selling, or
+          transferring of stolen items, fraudulently obtained items, items taken
+          without authorization, and/or any other illegally obtained items.
+          Using or accessing the Interfaces to transmit or exchange digital
+          assets that are the direct or indirect proceeds of any criminal or
+          fraudulent activity, including terrorism or tax evasion.
+        </p>
+
+        <p>
+          8) <strong>Data Mining or Scraping.</strong> Activity that involves
+          data mining, robots, scraping, or similar data gathering or extraction
+          methods of content or information from any of the Interfaces.
+        </p>
+
+        <p>
+          9) <strong>Objectionable Content.</strong> Activity that involves
+          soliciting information from anyone under the age of 18 or that is
+          otherwise harmful, threatening, abusive, harassing, tortious,
+          excessively violent, defamatory, vulgar, obscene, pornographic,
+          libelous, invasive of another&rsquo;s privacy, hateful,
+          discriminatory, or otherwise objectionable.
+        </p>
+
+        <p>
+          10) <strong>Disruptive Content.</strong> Activity that could interfere
+          with, disrupt, negatively affect, or inhibit other users from fully
+          enjoying the Interfaces, or that could damage, disable, overburden, or
+          impair the functioning of the Interfaces in any manner.
+        </p>
+
+        <p>
+          11) <strong>Intent Manipulation:</strong> Submitting Intents with
+          falsified parameters, spam, or economically unfeasible constraints.
+        </p>
+
+        <p>
+          12) <strong>Solver Abuse:</strong> Interfering with Solver operations
+          (e.g., front-running, quote spamming).
+        </p>
+
+        <p>
+          13) <strong>Cross-Chain Exploits:</strong> Leveraging settlement
+          delays or bridge vulnerabilities for arbitrage.
+        </p>
 
         <p>
           As a further condition to accessing or using the Interfaces, you
@@ -1010,6 +1028,7 @@ export default function TermsPage() {
           with the Interfaces are either owned by you or you are validly
           authorized to carry out actions using such digital assets.
         </p>
+
         <h3>6.2 Trading &ldquo;Swaps&rdquo;</h3>
 
         <p>
@@ -1118,15 +1137,15 @@ export default function TermsPage() {
         </p>
 
         <p>
-          Compliance Assessment. The Company reserves the right, but has no
-          obligation, to use publicly available and accessible information and
-          engage third-party providers to monitor and assess your and/or other
-          users&rsquo; wallet addresses, third-party links, domain names,
-          virtual currencies, smart contracts, and any other content available
-          via the Interface for the risks of money laundering, terrorism
-          financing, fraud and/or any other illicit or non-compliant activities.
-          No additional personal data is collected to perform such compliance
-          assessment.
+          <strong>Compliance Assessment.</strong> The Company reserves the
+          right, but has no obligation, to use publicly available and accessible
+          information and engage third-party providers to monitor and assess
+          your and/or other users&rsquo; wallet addresses, third-party links,
+          domain names, virtual currencies, smart contracts, and any other
+          content available via the Interface for the risks of money laundering,
+          terrorism financing, fraud and/or any other illicit or non-compliant
+          activities. No additional personal data is collected to perform such
+          compliance assessment.
         </p>
 
         <h3>6.5 Gas Fees, Price Estimates, and Slippage</h3>
@@ -1134,7 +1153,7 @@ export default function TermsPage() {
         <p>
           <strong>
             Blockchain transactions require the payment of transaction fees to
-            the appropriate network (&quot;Gas Fees&quot;).
+            the appropriate network (&ldquo;Gas Fees&rdquo;).
           </strong>{" "}
           Except as otherwise expressly set forth in the terms of another offer
           by the Company, you will be solely responsible to pay the Gas Fees for
@@ -1170,6 +1189,7 @@ export default function TermsPage() {
           by him or her, would have materially affected his or her settlement
           with the debtor or released party.&quot;
         </p>
+
         <h2>7. Disclaimers</h2>
 
         <h3>7.1 Assumption of Risk &mdash; Generally</h3>
@@ -1369,6 +1389,7 @@ export default function TermsPage() {
           contractors related to any of the risks set forth in this Section 7 or
           elsewhere in these terms.
         </p>
+
         <h3>7.2 No Warranties</h3>
 
         <p>
@@ -1465,6 +1486,7 @@ export default function TermsPage() {
           tolerance. You should seek professional advice before submitting a
           transaction.
         </p>
+
         <h2>8. Indemnification</h2>
 
         <p>
@@ -1557,37 +1579,58 @@ export default function TermsPage() {
           relating to these Terms exceed one hundred U.S. dollars (USD 100) or
           its equivalent in the local currency of the applicable jurisdiction.
         </p>
-        <h2>10. Governing Law, Dispute Resolution and Class Action Waivers</h2>
+
+        <h2>10. Governing Law, Arbitration and Class Action Waivers</h2>
 
         <h3>10.1 Governing Law and Jurisdiction</h3>
 
         <p>
-          All matters relating to the Interfaces and these Terms of Service, and
-          any dispute or claim arising therefrom or related thereto (in each
-          case, including non-contractual disputes or claims), shall be governed
-          by and construed in accordance with the law of Gibraltar.
+          These Terms of Service, the Interfaces, and any dispute, claim or
+          controversy arising out of or relating to them (including any
+          non-contractual obligations or claims) shall be governed by and
+          construed in accordance with the laws of the Republic of Seychelles,
+          without regard to its conflict of laws principles.
+        </p>
+
+        <h3>10.2 Mandatory Arbitration</h3>
+
+        <p>
+          Any dispute, controversy or claim arising out of, relating to or in
+          connection with these Terms of Service, the Interfaces, or the breach,
+          termination, interpretation, validity or enforceability thereof
+          (collectively, a &ldquo;<strong>Dispute</strong>&rdquo;) shall be
+          finally and exclusively resolved by binding arbitration.
+        </p>
+
+        <h3>10.3 Arbitration Rules and Seat</h3>
+
+        <p>
+          The arbitration shall be conducted in accordance with the UNCITRAL
+          Arbitration Rules (as in force at the time of the Dispute), except as
+          modified herein. The seat (legal place) of arbitration shall be
+          Seychelles. The arbitration shall be conducted in the English
+          language.
+        </p>
+
+        <h3>10.4 Arbitral Tribunal</h3>
+
+        <p>
+          The arbitral tribunal shall consist of one (1) arbitrator, unless
+          otherwise required by mandatory law.
         </p>
 
         <p>
-          Any legal suit, action, or proceeding arising out of, or related to,
-          the Interfaces and these Terms of Service shall be instituted
-          exclusively in the courts of the Gibraltar, although we retain the
-          right to bring any suit, action, or proceeding against you for breach
-          of these Terms of Service in your country of residence or any other
-          relevant country. You waive any and all objections to the exercise of
-          jurisdiction over you by such courts and to venue in such courts.
+          The arbitrator shall have the power to rule on their own jurisdiction,
+          including any objection with respect to the existence, validity or
+          enforceability of this arbitration agreement.
         </p>
 
-        <h3>10.2 Arbitration</h3>
+        <h3>10.5 Final and Binding</h3>
 
         <p>
-          At our sole discretion, as applicable, we may require you to submit
-          any disputes arising under these Terms of Service, or in connection
-          with your use of the Interfaces - including disputes concerning their
-          interpretation, violation, invalidity, non-performance, or termination
-          - to final and binding arbitration under the Rules of Arbitration of
-          the Gibraltar Arbitration Act of 1895 and any amendments or successor
-          legislation in force at the time of the dispute.
+          The arbitral award shall be final, binding and enforceable upon the
+          parties, and judgment upon the award may be entered in any court of
+          competent jurisdiction.
         </p>
 
         <p>
@@ -1605,7 +1648,7 @@ export default function TermsPage() {
           PRESIDE OVER ANY FORM OF A REPRESENTATIVE OR CLASS PROCEEDING.
         </p>
 
-        <h3>10.3 Limitation on Time to File Claims</h3>
+        <h3>10.6 Limitation on Time to File Claims</h3>
 
         <p>
           ANY CAUSE OF ACTION OR CLAIM YOU MAY HAVE ARISING OUT OF OR RELATING
@@ -1614,7 +1657,7 @@ export default function TermsPage() {
           ACTION OR CLAIM IS PERMANENTLY BARRED.
         </p>
 
-        <h3>10.4 Waiver and Severability</h3>
+        <h3>10.7 Waiver and Severability</h3>
 
         <p>
           No waiver by the Company of any term or condition set out in these
@@ -1632,6 +1675,7 @@ export default function TermsPage() {
           limited to the minimum extent such that the remaining provisions of
           the Terms of Service will continue in full force and effect.
         </p>
+
         <h2>11. Miscellaneous</h2>
 
         <h3>11.1 Entire Agreement</h3>
