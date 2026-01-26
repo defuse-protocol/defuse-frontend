@@ -4,6 +4,7 @@ import { whitelabelTemplateFlag } from "@src/config/featureFlags"
 import { HELPSCOUT_BEACON_ID } from "@src/utils/environment"
 import { Figtree } from "next/font/google"
 import type { ReactNode } from "react"
+import "../styles/global.css"
 
 const figtree = Figtree({
   subsets: ["latin"],

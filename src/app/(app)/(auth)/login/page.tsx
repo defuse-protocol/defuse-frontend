@@ -28,7 +28,7 @@ export default function LoginPage() {
       <div className="max-w-md w-full flex flex-col items-start">
         <Link href="/" className="shrink-0">
           <span className="sr-only">Home</span>
-          <LogoIcon className="h-3.5" />
+          <LogoIcon className="h-4" />
         </Link>
 
         <h1 className="mt-10! text-2xl font-bold text-gray-900 tracking-tight">

@@ -109,17 +109,12 @@ export const settings: Settings = {
       title: "NEAR Intents | Settings",
       description: "Manage your NEAR Intents account settings.",
     },
-    termsAndConditions: {
-      title: "NEAR Intents | Terms & Conditions",
-      description:
-        "Read our terms and conditions for using NEAR Intents. Your security and privacy are our top priorities.",
-    },
-    privacyPolicy: {
+    privacy: {
       title: "NEAR Intents | Privacy Policy",
       description:
         "Read our privacy policy for using NEAR Intents. Your security and privacy are our top priorities.",
     },
-    termsOfService: {
+    terms: {
       title: "NEAR Intents | Terms of Service",
       description:
         "Read our terms of service for using NEAR Intents. Your security and privacy are our top priorities.",

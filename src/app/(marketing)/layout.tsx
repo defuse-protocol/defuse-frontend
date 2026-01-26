@@ -1,28 +1,15 @@
-import { QueryClientProvider } from "@tanstack/react-query"
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
-import type { Metadata, Viewport } from "next"
-import type { ReactNode } from "react"
-import { WagmiProvider } from "wagmi"
-
-import { InitDefuseSDK } from "@src/components/InitDefuseSDK"
-import { SentryTracer } from "@src/components/SentryTracer"
-import { whitelabelTemplateFlag } from "@src/config/featureFlags"
-import { config } from "@src/config/wagmi"
-import queryClient from "@src/constants/queryClient"
-import { WebAuthnProvider } from "@src/features/webauthn/providers/WebAuthnProvider"
-import { initSDK } from "@src/libs/defuse-sdk/initSDK"
-import { SolanaWalletProvider } from "@src/providers/SolanaWalletProvider"
-import { StellarWalletProvider } from "@src/providers/StellarWalletProvider"
-import { ThemeProvider } from "@src/providers/ThemeProvider"
-import { TonConnectUIProvider } from "@src/providers/TonConnectUIProvider"
-
-import "../../styles/global.css"
+import { CommandLineIcon } from "@heroicons/react/16/solid"
+import {} from "@heroicons/react/20/solid"
+import {} from "@heroicons/react/24/outline"
 import { getCachedSystemStatus } from "@src/actions/systemStatus"
-import { MixpanelProvider } from "@src/providers/MixpanelProvider"
-import { NearWalletProvider } from "@src/providers/NearWalletProvider"
+import Button from "@src/components/Button"
+import { whitelabelTemplateFlag } from "@src/config/featureFlags"
+import { DiscordIcon, LogoIcon, NearLogoIcon, TwitterIcon } from "@src/icons"
 import { SystemStatusProvider } from "@src/providers/SystemStatusProvider"
-import { TronWalletProvider } from "@src/providers/TronWalletProvider"
-import { APP_ENV, VERCEL_PROJECT_PRODUCTION_URL } from "@src/utils/environment"
+import { VERCEL_PROJECT_PRODUCTION_URL } from "@src/utils/environment"
+import type { Metadata, Viewport } from "next"
+import Link from "next/link"
+import type { ReactNode } from "react"
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -118,44 +105,107 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
+const socialLinks = [
+  {
+    name: "X.com",
+    icon: TwitterIcon,
+    link: "https://x.com/near_intents",
+  },
+  {
+    name: "Discord",
+    icon: DiscordIcon,
+    link: "https://discord.gg/rdGAgDRs",
+  },
+  {
+    name: "Docs",
+    icon: CommandLineIcon,
+    link: "https://docs.near-intents.org",
+  },
+]
+
+const additionalLinks = [
+  {
+    name: "Terms",
+    link: "/terms",
+  },
+  {
+    name: "Privacy",
+    link: "/privacy",
+  },
+]
+
 const RootLayout = async ({
   children,
 }: Readonly<{
   children?: ReactNode
 }>) => {
-  initSDK()
   const systemStatus = await getCachedSystemStatus()
 
   return (
-    <>
-      <InitDefuseSDK />
+    <SystemStatusProvider systemStatus={systemStatus}>
+      <div className="p-2 flex flex-col bg-gray-800 min-h-screen">
+        <header className="bg-white rounded-t-3xl flex justify-center items-center py-5">
+          <div className="flex items-center justify-between w-full max-w-5xl px-4">
+            <Link href="/" className="shrink-0">
+              <span className="sr-only">Home</span>
+              <LogoIcon className="h-4" />
+            </Link>
+            <Button href="/login">Sign up or Sign in</Button>
+          </div>
+        </header>
 
-      <ThemeProvider>
-        <SystemStatusProvider systemStatus={systemStatus}>
-          <WagmiProvider config={config}>
-            <QueryClientProvider client={queryClient}>
-              <NearWalletProvider>
-                <SolanaWalletProvider>
-                  <StellarWalletProvider>
-                    <TonConnectUIProvider>
-                      <TronWalletProvider>
-                        <WebAuthnProvider>
-                          <MixpanelProvider>{children}</MixpanelProvider>
-                        </WebAuthnProvider>
-                        <SentryTracer />
-                      </TronWalletProvider>
-                    </TonConnectUIProvider>
-                  </StellarWalletProvider>
-                </SolanaWalletProvider>
-              </NearWalletProvider>
-              {APP_ENV === "development" && (
-                <ReactQueryDevtools initialIsOpen={false} />
-              )}
-            </QueryClientProvider>
-          </WagmiProvider>
-        </SystemStatusProvider>
-      </ThemeProvider>
-    </>
+        <main className="flex-1 flex flex-col">
+          {children}
+          <div className="flex-1 bg-white" />
+        </main>
+
+        <footer className="bg-white pb-16 flex justify-center items-center rounded-b-3xl">
+          <div className="flex w-full flex-col px-4 max-w-5xl">
+            <div className="pt-16">
+              <div className="flex items-center justify-between pb-8">
+                <LogoIcon className="h-4 shrink-0" />
+
+                <div className="flex items-center justify-end gap-2">
+                  {socialLinks.map(({ name, icon: Icon, link }) => (
+                    <Button
+                      key={name}
+                      variant="secondary"
+                      href={link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Icon className="size-4 shrink-0" />
+                      {name}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between border-t border-gray-200 pt-8">
+                <div className="flex items-center justify-center gap-1.5 rounded-lg bg-gray-50 px-2 py-1.5 border border-gray-200">
+                  <span className="text-gray-900 text-xs/none font-semibold">
+                    Powered by
+                  </span>
+                  <span className="sr-only">Near</span>
+                  <NearLogoIcon className="h-3 shrink-0" aria-hidden />
+                </div>
+                <div className="flex items-center justify-end gap-4">
+                  {additionalLinks.map(({ name, link }) => (
+                    <Link
+                      key={name}
+                      href={link}
+                      className="text-sm/5 font-medium text-gray-500 hover:underline hover:text-gray-900"
+                    >
+                      {name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </SystemStatusProvider>
   )
 }
 
