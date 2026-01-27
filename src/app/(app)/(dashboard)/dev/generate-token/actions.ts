@@ -1,13 +1,14 @@
 "use server"
 
-import { generateAppAuthToken } from "@src/utils/dummyAuth"
+import type { AuthMethod } from "@defuse-protocol/internal-utils"
+import { generateAppAuthToken } from "@src/utils/authJwt"
 import { cookies } from "next/headers"
 
 const AUTH_TOKEN_KEY = "defuse_auth_token"
 
 export async function generateToken(
   authIdentifier: string,
-  authMethod: string
+  authMethod: AuthMethod
 ): Promise<string> {
   const token = await generateAppAuthToken(authIdentifier, authMethod)
 
