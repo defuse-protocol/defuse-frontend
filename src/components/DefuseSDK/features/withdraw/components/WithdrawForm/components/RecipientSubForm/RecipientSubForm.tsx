@@ -31,7 +31,10 @@ import type {
   SupportedChainName,
   TokenValue,
 } from "../../../../../../types/base"
-import { reverseAssetNetworkAdapter } from "../../../../../../utils/adapters"
+import {
+  assetNetworkAdapter,
+  reverseAssetNetworkAdapter,
+} from "../../../../../../utils/adapters"
 import { parseDestinationMemo } from "../../../../../machines/withdrawFormReducer"
 import { WithdrawUIMachineContext } from "../../../../WithdrawUIMachineContext"
 import { useCreateHLDepositAddress } from "../../hooks/useCreateHLDepositAddress"
@@ -104,6 +107,31 @@ export const RecipientSubForm = ({
       }
     }
   }, [presetContactId, contacts])
+
+  // Watch for address+network combinations that match an existing contact
+  const currentRecipient = watch("recipient")
+  const currentBlockchain = watch("blockchain")
+
+  useEffect(() => {
+    // Only check in address mode (don't interfere when already in contact mode)
+    if (recipientMode !== "address") return
+    // Need both recipient and blockchain to match
+    if (!currentRecipient || !currentBlockchain) return
+    // Skip near_intents network (not a real blockchain for contacts)
+    if (!isSupportedChainName(currentBlockchain)) return
+
+    const blockchainEnum = assetNetworkAdapter[currentBlockchain]
+    const matchingContact = contacts.find(
+      (c) =>
+        c.address.toLowerCase() === currentRecipient.toLowerCase() &&
+        c.blockchain === blockchainEnum
+    )
+
+    if (matchingContact) {
+      setRecipientMode("contact")
+      setSelectedContact(matchingContact)
+    }
+  }, [currentRecipient, currentBlockchain, contacts, recipientMode])
 
   const actorRef = WithdrawUIMachineContext.useActorRef()
   const { formRef, balances: balancesData } =
@@ -367,20 +395,18 @@ export const RecipientSubForm = ({
           </button>
         )}
 
-      <ModalSaveContact
-        open={isSaveContactModalOpen}
-        address={watch("recipient")}
-        network={
-          isSupportedChainName(watch("blockchain"))
-            ? watch("blockchain")
-            : "eth"
-        }
-        onClose={() => setIsSaveContactModalOpen(false)}
-        onSuccess={(contact) => {
-          setRecipientMode("contact")
-          setSelectedContact(contact)
-        }}
-      />
+      {isSupportedChainName(currentBlockchain) && (
+        <ModalSaveContact
+          open={isSaveContactModalOpen}
+          address={currentRecipient}
+          network={currentBlockchain}
+          onClose={() => setIsSaveContactModalOpen(false)}
+          onSuccess={(contact) => {
+            setRecipientMode("contact")
+            setSelectedContact(contact)
+          }}
+        />
+      )}
 
       <Controller
         name="blockchain"
