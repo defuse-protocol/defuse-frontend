@@ -55,5 +55,5 @@ next-env.d.ts
 playwright-report
 test-results
 .cursor
-CLAUDE.md
+/CLAUDE.md
 .claude/

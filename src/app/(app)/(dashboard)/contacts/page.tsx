@@ -1,12 +1,26 @@
-export default function ContactsPage() {
+import { getContacts } from "@src/app/(app)/(auth)/contacts/actions"
+import ContactsHeader from "@src/components/DefuseSDK/features/contacts/ContactsHeader"
+import ContactsList from "@src/components/DefuseSDK/features/contacts/ContactsList"
+
+export default async function ContactsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const searchParamsData = await searchParams
+
+  const search =
+    typeof searchParamsData.search === "string"
+      ? searchParamsData.search
+      : undefined
+
+  const result = await getContacts({ search })
+  const contacts = result.ok ? result.value : []
+
   return (
     <>
-      <h1 className="text-gray-900 text-xl font-bold tracking-tight">
-        Contacts
-      </h1>
-      <div className="mt-10 flex flex-col items-center justify-center py-16 text-center">
-        <p className="text-gray-500 text-sm">Coming soon</p>
-      </div>
+      <ContactsHeader search={search} />
+      <ContactsList contacts={contacts} />
     </>
   )
 }

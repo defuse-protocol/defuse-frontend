@@ -103,7 +103,6 @@ export function formatDisplayAmount(amount: string, maxDecimals = 5): string {
   })
 }
 
-// From main
 export function formatAmount(amount: string): string {
   const num = Number.parseFloat(amount)
   if (Number.isNaN(num)) return amount
@@ -133,12 +132,11 @@ export function formatUsd(amount: string): string {
   const num = Number.parseFloat(amount)
   if (Number.isNaN(num) || num === 0) return ""
 
-  return num.toLocaleString(undefined, {
-    style: "currency",
-    currency: "USD",
+  const formatted = num.toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })
+  return `$${formatted}`
 }
 
 export function formatRelativeTime(dateString: string): string {
@@ -179,11 +177,7 @@ export function formatDateISO(dateString: string): string {
   const date = new Date(dateString)
   if (Number.isNaN(date.getTime())) return dateString
 
-  const day = date.getDate().toString().padStart(2, "0")
-  const month = (date.getMonth() + 1).toString().padStart(2, "0")
-  const year = date.getFullYear()
-
-  return `${year}-${month}-${day}`
+  return new Intl.DateTimeFormat("en-CA").format(date)
 }
 
 const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000

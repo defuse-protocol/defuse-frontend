@@ -65,7 +65,7 @@ export const getCachedSystemStatus = unstable_cache(
               id: post.id,
               status: "maintenance",
               message:
-                "We're performing scheduled maintenance. Deposits and withdrawals may be temporarily unavailable.",
+                "We’re performing scheduled maintenance. Deposits and withdrawals may be temporarily unavailable.",
             })
           }
 
@@ -76,7 +76,7 @@ export const getCachedSystemStatus = unstable_cache(
               status: "incident",
               message:
                 post.title ??
-                "We're experiencing service disruption affecting deposits and withdrawals. Our team is actively working on a resolution.",
+                "We’re experiencing service disruption affecting deposits and withdrawals. Our team is actively working on a resolution.",
             })
           }
           return acc

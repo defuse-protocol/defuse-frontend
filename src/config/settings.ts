@@ -31,6 +31,18 @@ export const settings: Settings = {
       description:
         "Deposit tokens from any chain into NEAR Intents. Kick off cross-chain transactions, DeFi automation, and smart settlements.",
     },
+    deals: {
+      title: "NEAR Intents | Deals",
+      description: "View your private deals on NEAR Intents.",
+    },
+    deal: {
+      title: "NEAR Intents | Accept a Deal Offer",
+      description: "Review and accept a deal offer from a counterparty.",
+    },
+    contacts: {
+      title: "NEAR Intents | Contacts",
+      description: "View your contacts on NEAR Intents.",
+    },
     jobs: {
       title: "Careers - Join Our Team",
       description:
@@ -97,20 +109,20 @@ export const settings: Settings = {
       title: "NEAR Intents | Settings",
       description: "Manage your NEAR Intents account settings.",
     },
-    termsAndConditions: {
-      title: "NEAR Intents | Terms & Conditions",
-      description:
-        "Read our terms and conditions for using NEAR Intents. Your security and privacy are our top priorities.",
-    },
-    privacyPolicy: {
+    privacy: {
       title: "NEAR Intents | Privacy Policy",
       description:
         "Read our privacy policy for using NEAR Intents. Your security and privacy are our top priorities.",
     },
-    termsOfService: {
+    terms: {
       title: "NEAR Intents | Terms of Service",
       description:
         "Read our terms of service for using NEAR Intents. Your security and privacy are our top priorities.",
+    },
+    maintenance: {
+      title: "NEAR Intents | Under maintenance",
+      description:
+        "We’re currently performing maintenance on our site. Please check back soon.",
     },
   },
 }

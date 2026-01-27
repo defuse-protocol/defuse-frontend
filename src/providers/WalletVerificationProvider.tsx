@@ -1,5 +1,6 @@
 "use client"
 
+import { checkTokenValidity, generateAuthToken } from "@src/actions/auth"
 import { WalletBannedDialog } from "@src/components/WalletBannedDialog"
 import { WalletVerificationDialog } from "@src/components/WalletVerificationDialog"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
@@ -11,7 +12,7 @@ import {
   verifyWalletSignature,
   walletVerificationMessageFactory,
 } from "@src/utils/walletMessage"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useActor } from "@xstate/react"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useRef } from "react"
@@ -23,6 +24,20 @@ export function WalletVerificationProvider() {
   const mixPanel = useMixpanel()
   const router = useRouter()
   const pathname = usePathname()
+  const queryClient = useQueryClient()
+
+  const tokenValidityCheck = useQuery({
+    queryKey: ["token_validity", state.address, state.chainType],
+    queryFn: async () => {
+      if (!state.address || !state.chainType) {
+        return { isValid: false }
+      }
+      return checkTokenValidity(state.address, state.chainType)
+    },
+    enabled: state.address != null && state.chainType != null,
+    refetchInterval: 30000, // Check every 30 seconds
+    refetchIntervalInBackground: true,
+  })
 
   const bannedAccountCheck = useQuery({
     queryKey: ["banned_account", state.address, state.chainType],
@@ -99,17 +114,32 @@ export function WalletVerificationProvider() {
     )
   }
 
+  const needsVerification =
+    !state.isVerified ||
+    (tokenValidityCheck.data?.isValid === false && tokenValidityCheck.isSuccess)
+
   if (
     state.address != null &&
     (safetyCheck.data?.safetyStatus === "safe" ||
       isWalletBypassed(state.address)) &&
-    !state.isVerified
+    needsVerification
   ) {
+    const isTokenExpired =
+      state.isVerified &&
+      tokenValidityCheck.data?.isValid === false &&
+      tokenValidityCheck.isSuccess
+
     return (
       <WalletVerificationUI
-        onConfirm={() => {
-          if (state.address != null) {
+        isTokenExpired={isTokenExpired}
+        onConfirm={async () => {
+          if (state.address != null && state.chainType != null) {
+            await generateAuthToken(state.address, state.chainType)
             addWalletAddress(state.address)
+
+            await queryClient.invalidateQueries({
+              queryKey: ["token_validity", state.address, state.chainType],
+            })
           }
         }}
         onAbort={() => {
@@ -134,9 +164,14 @@ function WalletBannedUI({
 }
 
 function WalletVerificationUI({
+  isTokenExpired,
   onConfirm,
   onAbort,
-}: { onConfirm: () => void; onAbort: () => void }) {
+}: {
+  isTokenExpired: boolean
+  onConfirm: () => void
+  onAbort: () => void
+}) {
   const { state: unconfirmedWallet } = useConnectWallet()
 
   const signMessage = useWalletAgnosticSignMessage()
@@ -208,6 +243,7 @@ function WalletVerificationUI({
       }}
       isVerifying={state.matches("verifying")}
       isFailure={state.context.hadError}
+      isTokenExpired={isTokenExpired}
     />
   )
 }

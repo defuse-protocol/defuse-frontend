@@ -67,8 +67,8 @@ const Button = forwardRef<Ref, Props>(function Button(
   const content = (
     <>
       <span
-        className={clsx("flex items-center gap-2", {
-          "gap-x-1": ["sm", "md"].includes(size),
+        className={clsx("flex items-center", {
+          "gap-x-1.5": ["sm", "md"].includes(size),
           "gap-x-2": ["lg", "xl"].includes(size),
           "opacity-0": loading,
         })}
