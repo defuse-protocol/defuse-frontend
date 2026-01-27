@@ -2,107 +2,10 @@ import { CommandLineIcon } from "@heroicons/react/16/solid"
 import { getCachedSystemStatus } from "@src/actions/systemStatus"
 import Button from "@src/components/Button"
 import SystemStatus from "@src/components/SystemStatus"
-import { whitelabelTemplateFlag } from "@src/config/featureFlags"
 import { DiscordIcon, NearIntentsLogoIcon, TwitterIcon } from "@src/icons"
 import { SystemStatusProvider } from "@src/providers/SystemStatusProvider"
-import { VERCEL_PROJECT_PRODUCTION_URL } from "@src/utils/environment"
-import type { Metadata, Viewport } from "next"
 import Link from "next/link"
 import type { ReactNode } from "react"
-
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  viewportFit: "cover",
-}
-
-export async function generateMetadata(): Promise<Metadata> {
-  const templ = await whitelabelTemplateFlag()
-
-  const metadata: Metadata = {}
-
-  if (templ === "dogecoinswap") {
-    Object.assign(metadata, {
-      title: "DogecoinSwap: Let Your Meme Coins Run Wild",
-      description: "Fast, easy cross-chain swaps for DOGE and more",
-      openGraph: {
-        type: "website",
-        images: `/favicons/${templ}/og-image.jpg`,
-        title: "DogecoinSwap: Let Your Meme Coins Run Wild",
-        description: "Fast, easy cross-chain swaps for DOGE and more",
-      },
-      twitter: {
-        images: `/favicons/${templ}/og-image.jpg`,
-        title: "DogecoinSwap: Let Your Meme Coins Run Wild",
-        description: "Fast, easy cross-chain swaps for DOGE and more",
-      },
-    })
-  } else if (templ === "turboswap") {
-    Object.assign(metadata, {
-      title: "TurboSwap: Revolutionizing Web3 Trading",
-      description:
-        "Experience zero-fee trading with TurboSwap. Powered by NEAR and Aurora Cloud, TurboSwap delivers unmatched speed and advanced functionality, setting a new standard for decentralized trading in the TURBO ecosystem.",
-      openGraph: {
-        type: "website",
-        images: `/favicons/${templ}/og-image.jpg`,
-        title: "TurboSwap: Revolutionizing Web3 Trading",
-        description:
-          "Experience zero-fee trading with TurboSwap. Powered by NEAR and Aurora Cloud, TurboSwap delivers unmatched speed and advanced functionality, setting a new standard for decentralized trading in the TURBO ecosystem.",
-      },
-      twitter: {
-        images: `/favicons/${templ}/og-image.jpg`,
-        title: "TurboSwap: Revolutionizing Web3 Trading",
-        description:
-          "Experience zero-fee trading with TurboSwap. Powered by NEAR and Aurora Cloud, TurboSwap delivers unmatched speed and advanced functionality, setting a new standard for decentralized trading in the TURBO ecosystem.",
-      },
-    })
-  } else if (templ === "trumpswap") {
-    Object.assign(metadata, {
-      title: "Trump-Swap: Make Swapping Great Again",
-      description:
-        "Swap $TRUMP directly from BTC, XRP, DOGE and 50+ other cryptocurrencies. Powered by NEAR Intents.",
-      openGraph: {
-        type: "website",
-        images: `/favicons/${templ}/og-image.jpg`,
-        title: "Trump-Swap: Make Swapping Great Again",
-        description:
-          "Swap $TRUMP directly from BTC, XRP, DOGE and 50+ other cryptocurrencies. Powered by NEAR Intents.",
-      },
-      twitter: {
-        images: `/favicons/${templ}/og-image.jpg`,
-        title: "Trump-Swap: Make Swapping Great Again",
-        description:
-          "Swap $TRUMP directly from BTC, XRP, DOGE and 50+ other cryptocurrencies. Powered by NEAR Intents.",
-      },
-    })
-  } else if (templ === "rabitswap") {
-    Object.assign(metadata, {
-      title: "RabitSwap: The Rabbit Hole of Swaps",
-      description: "Fast, easy cross-chain swaps and more with RabitSwap.",
-      openGraph: {
-        type: "website",
-        images: `/favicons/${templ}/og-image.jpg`,
-      },
-      twitter: {
-        images: `/favicons/${templ}/og-image.jpg`,
-        title: "RabitSwap: The Rabbit Hole of Swaps",
-        description: "Fast, easy cross-chain swaps and more with RabitSwap.",
-      },
-    })
-  }
-
-  return {
-    metadataBase: VERCEL_PROJECT_PRODUCTION_URL,
-    icons: {
-      icon: `/favicons/${templ}/favicon-32x32.png`,
-      apple: `/favicons/${templ}/apple-touch-icon.png`,
-    },
-    manifest: `/favicons/${templ}/site.webmanifest`,
-    ...metadata,
-  }
-}
 
 const socialLinks = [
   {
@@ -133,7 +36,7 @@ const additionalLinks = [
   },
 ]
 
-const RootLayout = async ({
+const MarketingRootLayout = async ({
   children,
 }: Readonly<{
   children?: ReactNode
@@ -210,4 +113,4 @@ const RootLayout = async ({
   )
 }
 
-export default RootLayout
+export default MarketingRootLayout
