@@ -61,7 +61,7 @@ const ConnectWallet = () => {
             className="text-gray-400 text-sm font-medium"
             data-testid="sign-in-button"
           >
-            Sign in
+            Sign in or Sign up
           </button>
         </Popover.Trigger>
         <Popover.Content
