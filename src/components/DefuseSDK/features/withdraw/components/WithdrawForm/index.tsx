@@ -18,6 +18,7 @@ import {
 } from "@src/components/DefuseSDK/utils/tokenUtils"
 import Spinner from "@src/components/Spinner"
 import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
+import { useWithdrawTrackerMachine } from "@src/providers/WithdrawTrackerMachineProvider"
 import { logger } from "@src/utils/logger"
 import { useSelector } from "@xstate/react"
 import { useCallback, useEffect } from "react"
@@ -101,7 +102,6 @@ export const WithdrawForm = ({
       depositedBalanceRef: state.context.depositedBalanceRef,
       poaBridgeInfoRef: state.context.poaBridgeInfoRef,
       intentCreationResult: state.context.intentCreationResult,
-      intentRefs: state.context.intentRefs,
       noLiquidity: isLiquidityUnavailableSelector(state),
       insufficientTokenInAmount: isUnsufficientTokenInAmount(state),
       totalAmountReceived: totalAmountReceivedSelector(state),
@@ -303,15 +303,33 @@ export const WithdrawForm = ({
     }
   }, [presetAmount, presetNetwork, presetRecipient, setValue])
 
+  const { registerWithdraw, hasActiveWithdraw } = useWithdrawTrackerMachine()
+
   useEffect(() => {
     const sub = actorRef.on("INTENT_PUBLISHED", () => {
       setValue("amountIn", "")
+
+      const snapshot = actorRef.getSnapshot()
+      const intentCreationResult = snapshot.context.intentCreationResult
+
+      if (intentCreationResult?.tag === "ok") {
+        const { intentHash, intentDescription } = intentCreationResult.value
+
+        if (!hasActiveWithdraw(intentHash)) {
+          registerWithdraw({
+            intentHash,
+            tokenIn: token,
+            tokenOut,
+            intentDescription,
+          })
+        }
+      }
     })
 
     return () => {
       sub.unsubscribe()
     }
-  }, [actorRef, setValue])
+  }, [actorRef, setValue, token, tokenOut, registerWithdraw, hasActiveWithdraw])
 
   const tokenToWithdrawUsdAmount = getTokenUsdPrice(
     getValues().amountIn,

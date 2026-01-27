@@ -1,7 +1,6 @@
 import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import { MagnifyingGlassIcon } from "@heroicons/react/16/solid"
-import { ArrowDownIcon } from "@heroicons/react/20/solid"
-import Alert from "@src/components/Alert"
+import { ArrowDownIcon, XCircleIcon } from "@heroicons/react/20/solid"
 import Button from "@src/components/Button"
 import ModalReviewSwap from "@src/components/DefuseSDK/components/Modal/ModalReviewSwap"
 import { useTokensUsdPrices } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
@@ -10,10 +9,13 @@ import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
 import { getDefuseAssetId } from "@src/components/DefuseSDK/utils/token"
+import ErrorMessage from "@src/components/ErrorMessage"
+import { SwapStatus } from "@src/components/SwapStatus"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useThrottledValue } from "@src/hooks/useThrottledValue"
+import { useSwapTrackerMachine } from "@src/providers/SwapTrackerMachineProvider"
 import { useSelector } from "@xstate/react"
-import { useCallback, useContext, useEffect } from "react"
+import { useCallback, useContext, useEffect, useRef, useState } from "react"
 import { useFormContext } from "react-hook-form"
 import type { SnapshotFrom } from "xstate"
 import { AuthGate } from "../../../components/AuthGate"
@@ -58,6 +60,19 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const snapshot = SwapUIMachineContext.useSelector((snapshot) => snapshot)
   const intentCreationResult = snapshot.context.intentCreationResult
   const { data: tokensUsdPriceData } = useTokensUsdPrices()
+
+  const { trackedSwaps } = useSwapTrackerMachine()
+  const [showInlineStatus, setShowInlineStatus] = useState(true)
+  const prevSwapIdRef = useRef<string | null>(null)
+
+  const mostRecentSwap = trackedSwaps[0]
+
+  if (mostRecentSwap?.id !== prevSwapIdRef.current) {
+    prevSwapIdRef.current = mostRecentSwap?.id ?? null
+    if (mostRecentSwap && !showInlineStatus) {
+      setShowInlineStatus(true)
+    }
+  }
 
   const formValuesRef = useSelector(swapUIActorRef, formValuesSelector)
   const { tokenIn, tokenOut } = formValuesRef
@@ -372,6 +387,16 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const amountOutEmpty = amountOut === ""
   const amountOutLoading = isLoadingQuote && amountOutEmpty
 
+  if (showInlineStatus && mostRecentSwap) {
+    return (
+      <SwapStatus
+        variant="full"
+        swap={mostRecentSwap}
+        onSwapAgain={() => setShowInlineStatus(false)}
+      />
+    )
+  }
+
   return (
     <>
       <div className="flex justify-between items-center">
@@ -568,7 +593,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             </div>
           )}
 
-          {quote1csError && <Alert variant="error">{quote1csError}</Alert>}
+          {quote1csError && <Quote1csError quote1csError={quote1csError} />}
         </form>
 
         <ModalReviewSwap
@@ -586,6 +611,15 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
         />
       </section>
     </>
+  )
+}
+
+function Quote1csError({ quote1csError }: { quote1csError: string }) {
+  return (
+    <div className="mt-6 bg-red-50 pl-4 pr-6 py-4 rounded-2xl flex items-start gap-3">
+      <XCircleIcon className="size-5 shrink-0 text-red-600" aria-hidden />
+      <ErrorMessage>{quote1csError}</ErrorMessage>
+    </div>
   )
 }
 
