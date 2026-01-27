@@ -1,9 +1,8 @@
+import { settings } from "@src/config/settings"
 import { NearIntentsLogoSymbolIcon } from "@src/icons"
 import type { Metadata } from "next"
 
-export const metadata: Metadata = {
-  title: "Under maintenance",
-}
+export const metadata: Metadata = settings.metadata.maintenance
 
 export default function MaintenancePage() {
   return (

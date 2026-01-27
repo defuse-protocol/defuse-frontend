@@ -1,6 +1,7 @@
 import { CommandLineIcon } from "@heroicons/react/16/solid"
 import { getCachedSystemStatus } from "@src/actions/systemStatus"
 import Button from "@src/components/Button"
+import SystemStatus from "@src/components/SystemStatus"
 import { whitelabelTemplateFlag } from "@src/config/featureFlags"
 import { DiscordIcon, NearIntentsLogoIcon, TwitterIcon } from "@src/icons"
 import { SystemStatusProvider } from "@src/providers/SystemStatusProvider"
@@ -142,6 +143,8 @@ const RootLayout = async ({
   return (
     <SystemStatusProvider systemStatus={systemStatus}>
       <div className="p-2 flex flex-col bg-gray-800 min-h-screen">
+        <SystemStatus className="mb-2" showOperationalStatus={false} />
+
         <header className="bg-white rounded-t-3xl flex justify-center items-center py-5">
           <div className="flex items-center justify-between w-full max-w-5xl px-4">
             <Link href="/" className="shrink-0">
@@ -154,7 +157,7 @@ const RootLayout = async ({
 
         <main className="flex-1 flex flex-col">
           {children}
-          <div className="flex-1 bg-white" />
+          <div className="grow bg-white" />
         </main>
 
         <footer className="bg-white pb-16 flex justify-center items-center rounded-b-3xl">

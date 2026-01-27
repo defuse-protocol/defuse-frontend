@@ -1,5 +1,7 @@
 import ActivityDock from "@src/components/ActivityDock"
 import { NavbarDesktop } from "@src/components/Navbar/NavbarDesktop"
+import NetworkOutageNotification from "@src/components/NetworkOutageNotification"
+import SystemStatus from "@src/components/SystemStatus"
 import UserMenu from "@src/components/UserMenu"
 import type { ReactNode } from "react"
 
@@ -17,7 +19,10 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => (
     </div>
 
     {/* Content */}
-    <main className="flex flex-1 flex-col pb-2 lg:min-w-0 lg:pt-2 lg:pr-2 lg:pl-72">
+    <main className="flex flex-1 flex-col pb-2 lg:min-w-0 lg:pt-2 lg:pr-2 lg:pl-72 gap-2">
+      <SystemStatus showOperationalStatus={false} />
+      <NetworkOutageNotification />
+
       <div className="grow p-6 lg:rounded-3xl lg:bg-gray-25 lg:p-10">
         <div className="mx-auto max-w-[464px]">{children}</div>
       </div>

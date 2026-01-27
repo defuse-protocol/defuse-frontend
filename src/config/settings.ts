@@ -119,5 +119,10 @@ export const settings: Settings = {
       description:
         "Read our terms of service for using NEAR Intents. Your security and privacy are our top priorities.",
     },
+    maintenance: {
+      title: "NEAR Intents | Under maintenance",
+      description:
+        "We’re currently performing maintenance on our site. Please check back soon.",
+    },
   },
 }
