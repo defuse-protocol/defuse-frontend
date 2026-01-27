@@ -77,6 +77,7 @@ export const WithdrawForm = ({
   presetAmount,
   presetNetwork,
   presetRecipient,
+  presetContactId,
   sendNearTransaction,
   renderHostAppLink,
 }: WithdrawFormProps) => {
@@ -464,6 +465,7 @@ export const WithdrawForm = ({
               userAddress={userAddress}
               displayAddress={displayAddress}
               tokenInBalance={tokenInBalance}
+              presetContactId={presetContactId}
             />
 
             <SelectedTokenInput

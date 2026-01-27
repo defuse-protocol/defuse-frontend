@@ -1,7 +1,10 @@
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { assert } from "@defuse-protocol/internal-utils"
-import { UserCircleIcon } from "@heroicons/react/20/solid"
-import { getContacts } from "@src/app/(app)/(auth)/contacts/actions"
+import { PencilIcon, UserCircleIcon } from "@heroicons/react/20/solid"
+import {
+  type Contact,
+  getContacts,
+} from "@src/app/(app)/(auth)/contacts/actions"
 import ErrorMessage from "@src/components/ErrorMessage"
 import ListItem from "@src/components/ListItem"
 import { ContactsIcon, WalletIcon } from "@src/icons"
@@ -23,6 +26,7 @@ import type { NetworkOptions } from "../../hooks/useNetworkLists"
 import { reverseAssetNetworkAdapter } from "../../utils/adapters"
 import { NetworkIcon } from "../Network/NetworkIcon"
 import SearchBar from "../SearchBar"
+import TooltipNew from "../TooltipNew"
 import { BaseModalDialog } from "./ModalDialog"
 
 type ModalSelectRecipientProps = {
@@ -33,6 +37,10 @@ type ModalSelectRecipientProps = {
   displayAddress: string | undefined
   displayOwnAddress: boolean
   availableNetworks: NetworkOptions
+  /** Callback when a contact is selected (switches to contact mode) */
+  onSelectContact?: (contact: Contact) => void
+  /** Callback when user wants to enter address manually (switches to address mode) */
+  onSwitchToAddressMode?: () => void
 }
 
 const VALIDATION_DEBOUNCE_MS = 500
@@ -45,6 +53,8 @@ const ModalSelectRecipient = ({
   displayAddress,
   displayOwnAddress,
   availableNetworks,
+  onSelectContact,
+  onSwitchToAddressMode,
 }: ModalSelectRecipientProps) => {
   const { setValue, watch } = useFormContext<WithdrawFormNearValues>()
   const blockchain = watch("blockchain")
@@ -64,21 +74,48 @@ const ModalSelectRecipient = ({
 
   const contacts = data?.ok ? data.value : []
 
-  const availableContacts = useMemo(() => {
+  // Split contacts into matching network and other networks
+  const { matchingNetworkContacts, otherNetworkContacts } = useMemo(() => {
     const availableNetworksValues = Object.keys(availableNetworks)
 
-    return contacts.filter((contact) =>
+    // Filter to only contacts on available networks
+    const availableContacts = contacts.filter((contact) =>
       availableNetworksValues.includes(contact.blockchain)
     )
-  }, [availableNetworks, contacts])
 
-  const visibleContacts = useMemo(() => {
-    if (!inputValue) return availableContacts
+    // Further filter by search input if any
+    const filteredContacts = inputValue
+      ? availableContacts.filter((contact) =>
+          contact.name.toLowerCase().includes(inputValue.toLowerCase())
+        )
+      : availableContacts
 
-    return availableContacts.filter((contact) =>
-      contact.name.toLowerCase().includes(inputValue.toLowerCase())
-    )
-  }, [availableContacts, inputValue])
+    // Split by whether they match the current network
+    const currentNetworkKey = blockchain
+    const matching: Contact[] = []
+    const other: Contact[] = []
+
+    for (const contact of filteredContacts) {
+      const contactNetworkKey = reverseAssetNetworkAdapter[contact.blockchain]
+      if (contactNetworkKey === currentNetworkKey) {
+        matching.push(contact)
+      } else {
+        other.push(contact)
+      }
+    }
+
+    // Sort alphabetically within each group
+    matching.sort((a, b) => a.name.localeCompare(b.name))
+    other.sort((a, b) => a.name.localeCompare(b.name))
+
+    return { matchingNetworkContacts: matching, otherNetworkContacts: other }
+  }, [contacts, availableNetworks, inputValue, blockchain])
+
+  // For backward compatibility with existing code that uses visibleContacts
+  const visibleContacts = useMemo(
+    () => [...matchingNetworkContacts, ...otherNetworkContacts],
+    [matchingNetworkContacts, otherNetworkContacts]
+  )
 
   useEffect(() => {
     if (!inputValue) {
@@ -197,55 +234,114 @@ const ModalSelectRecipient = ({
             </ListItem>
           ) : (
             <>
-              {visibleContacts.length > 0 && (
+              {/* Contacts matching current network (selectable) */}
+              {matchingNetworkContacts.length > 0 && (
                 <div>
                   <h3 className="flex items-center gap-1.5 text-gray-500 text-sm/6 font-medium">
                     <ContactsIcon className="size-4 shrink-0" />
-                    Contacts
+                    Contacts on {chainNameToNetworkName(blockchain)}
                   </h3>
 
                   <div className="mt-1 space-y-1">
-                    {visibleContacts.map(
-                      ({ id, address, name, blockchain }) => {
-                        const chainKey = reverseAssetNetworkAdapter[blockchain]
-                        const chainIcon = chainIcons[chainKey]
-                        const chainName = chainNameToNetworkName(chainKey)
+                    {matchingNetworkContacts.map((contact) => {
+                      const chainKey =
+                        reverseAssetNetworkAdapter[contact.blockchain]
+                      const chainIcon = chainIcons[chainKey]
+                      const chainName = chainNameToNetworkName(chainKey)
 
-                        return (
-                          <ListItem
-                            key={id}
-                            onClick={() => {
+                      return (
+                        <ListItem
+                          key={contact.id}
+                          onClick={() => {
+                            if (onSelectContact) {
+                              onSelectContact(contact)
+                            } else {
                               setValue("blockchain", chainKey)
-                              setValue("recipient", address, {
+                              setValue("recipient", contact.address, {
                                 shouldValidate: true,
                               })
-                              onClose()
-                            }}
-                          >
-                            <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1">
-                              <WalletIcon className="text-gray-500 size-5" />
+                            }
+                            onClose()
+                          }}
+                        >
+                          <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1">
+                            <WalletIcon className="text-gray-500 size-5" />
+                          </div>
+                          <ListItem.Content>
+                            <ListItem.Title className="truncate">
+                              {contact.name}
+                            </ListItem.Title>
+                            <ListItem.Subtitle>
+                              {midTruncate(contact.address, 16)}
+                            </ListItem.Subtitle>
+                          </ListItem.Content>
+                          <ListItem.Content align="end">
+                            <ListItem.Title className="flex items-center gap-1 pb-4.5">
+                              <NetworkIcon
+                                chainIcon={chainIcon}
+                                sizeClassName="size-4"
+                              />
+                              <span className="capitalize">{chainName}</span>
+                            </ListItem.Title>
+                          </ListItem.Content>
+                        </ListItem>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Contacts on other networks (greyed out with tooltip) */}
+              {otherNetworkContacts.length > 0 && (
+                <div>
+                  <h3 className="flex items-center gap-1.5 text-gray-500 text-sm/6 font-medium">
+                    <ContactsIcon className="size-4 shrink-0" />
+                    Other networks
+                  </h3>
+
+                  <div className="mt-1 space-y-1">
+                    {otherNetworkContacts.map((contact) => {
+                      const chainKey =
+                        reverseAssetNetworkAdapter[contact.blockchain]
+                      const chainIcon = chainIcons[chainKey]
+                      const chainName = chainNameToNetworkName(chainKey)
+
+                      return (
+                        <TooltipNew key={contact.id}>
+                          <TooltipNew.Trigger>
+                            <div className="w-full">
+                              <ListItem className="opacity-50 cursor-not-allowed">
+                                <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1">
+                                  <WalletIcon className="text-gray-500 size-5" />
+                                </div>
+                                <ListItem.Content>
+                                  <ListItem.Title className="truncate">
+                                    {contact.name}
+                                  </ListItem.Title>
+                                  <ListItem.Subtitle>
+                                    {midTruncate(contact.address, 16)}
+                                  </ListItem.Subtitle>
+                                </ListItem.Content>
+                                <ListItem.Content align="end">
+                                  <ListItem.Title className="flex items-center gap-1 pb-4.5">
+                                    <NetworkIcon
+                                      chainIcon={chainIcon}
+                                      sizeClassName="size-4"
+                                    />
+                                    <span className="capitalize">
+                                      {chainName}
+                                    </span>
+                                  </ListItem.Title>
+                                </ListItem.Content>
+                              </ListItem>
                             </div>
-                            <ListItem.Content>
-                              <ListItem.Title className="truncate">
-                                {name}
-                              </ListItem.Title>
-                              <ListItem.Subtitle>
-                                {midTruncate(address, 16)}
-                              </ListItem.Subtitle>
-                            </ListItem.Content>
-                            <ListItem.Content align="end">
-                              <ListItem.Title className="flex items-center gap-1 pb-4.5">
-                                <NetworkIcon
-                                  chainIcon={chainIcon}
-                                  sizeClassName="size-4"
-                                />
-                                <span className="capitalize">{chainName}</span>
-                              </ListItem.Title>
-                            </ListItem.Content>
-                          </ListItem>
-                        )
-                      }
-                    )}
+                          </TooltipNew.Trigger>
+                          <TooltipNew.Content>
+                            Switch to {chainName} to send to this contact
+                          </TooltipNew.Content>
+                        </TooltipNew>
+                      )
+                    })}
                   </div>
                 </div>
               )}
@@ -281,6 +377,28 @@ const ModalSelectRecipient = ({
                       </ListItem.Content>
                     </ListItem>
                   </div>
+                </div>
+              )}
+
+              {/* Enter address manually option */}
+              {onSwitchToAddressMode && !inputValue && (
+                <div className="border-t border-gray-200 pt-4 -mx-5 px-5">
+                  <ListItem
+                    onClick={() => {
+                      onSwitchToAddressMode()
+                      onClose()
+                    }}
+                  >
+                    <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1">
+                      <PencilIcon className="text-gray-500 size-5" />
+                    </div>
+                    <ListItem.Content>
+                      <ListItem.Title>Enter address manually</ListItem.Title>
+                      <ListItem.Subtitle>
+                        Send to any wallet address
+                      </ListItem.Subtitle>
+                    </ListItem.Content>
+                  </ListItem>
                 </div>
               )}
             </>

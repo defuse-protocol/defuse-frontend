@@ -72,52 +72,58 @@ const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
   return (
     <>
       <section className="mt-6 space-y-1">
-        {processedContacts.map(({ contact, chainIcon, chainName }) => {
-          return (
-            <ListItem
-              key={contact.id}
-              popoverContent={
-                <>
-                  <Button size="sm" href="/send">
-                    {/* TODO: Add send to contact functionality */}
-                    <SendIcon className="size-4 shrink-0" />
-                    Send
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => handleOpenModal({ type: "edit", contact })}
-                  >
-                    <PencilSquareIcon className="size-4 shrink-0" />
-                    Edit
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => handleOpenModal({ type: "remove", contact })}
-                  >
-                    <XCircleIcon className="size-4 shrink-0" />
-                    Remove
-                  </Button>
-                </>
-              }
-            >
-              <div className="size-10 rounded-full bg-gray-200 flex items-center justify-center outline-1 -outline-offset-1 outline-gray-900/10">
-                <WalletIcon className="size-5 text-gray-500" />
-              </div>
-              <ListItem.Content>
-                <ListItem.Title>{contact.name}</ListItem.Title>
-                <ListItem.Subtitle>
-                  {midTruncate(contact.address)}
-                </ListItem.Subtitle>
-              </ListItem.Content>
-              <ListItem.Content align="end">
-                <ListItem.Title className="flex items-center gap-1">
-                  <NetworkIcon chainIcon={chainIcon} sizeClassName="size-4" />
-                  <span className="capitalize">{chainName}</span>
-                </ListItem.Title>
-              </ListItem.Content>
-            </ListItem>
-          )
-        })}
+        {processedContacts.map(
+          ({ contact, chainKey, chainIcon, chainName }) => {
+            return (
+              <ListItem
+                key={contact.id}
+                popoverContent={
+                  <>
+                    <Button
+                      size="sm"
+                      href={`/send?contactId=${contact.id}&recipient=${encodeURIComponent(contact.address)}&network=${chainKey}`}
+                    >
+                      <SendIcon className="size-4 shrink-0" />
+                      Send
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => handleOpenModal({ type: "edit", contact })}
+                    >
+                      <PencilSquareIcon className="size-4 shrink-0" />
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() =>
+                        handleOpenModal({ type: "remove", contact })
+                      }
+                    >
+                      <XCircleIcon className="size-4 shrink-0" />
+                      Remove
+                    </Button>
+                  </>
+                }
+              >
+                <div className="size-10 rounded-full bg-gray-200 flex items-center justify-center outline-1 -outline-offset-1 outline-gray-900/10">
+                  <WalletIcon className="size-5 text-gray-500" />
+                </div>
+                <ListItem.Content>
+                  <ListItem.Title>{contact.name}</ListItem.Title>
+                  <ListItem.Subtitle>
+                    {midTruncate(contact.address)}
+                  </ListItem.Subtitle>
+                </ListItem.Content>
+                <ListItem.Content align="end">
+                  <ListItem.Title className="flex items-center gap-1">
+                    <NetworkIcon chainIcon={chainIcon} sizeClassName="size-4" />
+                    <span className="capitalize">{chainName}</span>
+                  </ListItem.Title>
+                </ListItem.Content>
+              </ListItem>
+            )
+          }
+        )}
       </section>
 
       <ModalAddEditContact
