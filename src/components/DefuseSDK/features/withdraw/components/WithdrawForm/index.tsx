@@ -25,7 +25,6 @@ import { FormProvider, useForm } from "react-hook-form"
 import { formatUnits } from "viem"
 import { AuthGate } from "../../../../components/AuthGate"
 import { nearClient } from "../../../../constants/nearClient"
-import { useWithdrawIntentDock } from "../../../../hooks/useWithdrawIntentDock"
 import type {
   SupportedChainName,
   TokenInfo,
@@ -89,7 +88,6 @@ export const WithdrawForm = ({
     depositedBalanceRef,
     poaBridgeInfoRef,
     intentCreationResult,
-    intentRefs,
     noLiquidity,
     insufficientTokenInAmount,
     totalAmountReceived,
@@ -127,9 +125,6 @@ export const WithdrawForm = ({
 
   // biome-ignore lint/suspicious/noExplicitAny: types should've been correct, but `publicKeyVerifierRef` is commented out
   usePublicKeyModalOpener(publicKeyVerifierRef as any, sendNearTransaction)
-
-  // Sync withdraw intents to the ActivityDock sidebar
-  useWithdrawIntentDock(intentRefs)
 
   useEffect(() => {
     if (userAddress != null && chainType != null) {
