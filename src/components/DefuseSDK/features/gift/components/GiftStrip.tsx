@@ -18,13 +18,10 @@ export function GiftStrip({ token, amountSlot, dateSlot }: GiftStripProps) {
         <AssetComboIcon {...token} />
       </div>
       <div className="flex flex-col">
-        {/* Amount */}
         <div className="relative overflow-hidden whitespace-nowrap">
           <div>{amountSlot}</div>
           <div className="pointer-events-none absolute top-0 right-0 bottom-0 w-12 bg-transparent" />
         </div>
-
-        {/* Date */}
         <div className="relative overflow-hidden whitespace-nowrap">
           <div>{dateSlot}</div>
           <div className="pointer-events-none absolute top-0 right-0 bottom-0 w-12 bg-transparent" />

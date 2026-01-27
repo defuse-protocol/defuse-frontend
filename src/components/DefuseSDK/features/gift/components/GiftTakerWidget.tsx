@@ -17,20 +17,11 @@ import { GiftTakerSuccessScreen } from "./GiftTakerSuccessScreen"
 export type GiftTakerWidgetProps = {
   giftId: string | null
   payload: string | null
-
-  /** List of available tokens for trading */
   tokenList: TokenInfo[]
-
-  /** User's wallet address */
   userAddress: string | null | undefined
   userChainType: AuthMethod | null | undefined
-
-  /** Theme selection */
   theme?: "dark" | "light"
-
   renderHostAppLink: RenderHostAppLink
-
-  /** External error (e.g., gift expired) */
   externalError?: string | null
 }
 

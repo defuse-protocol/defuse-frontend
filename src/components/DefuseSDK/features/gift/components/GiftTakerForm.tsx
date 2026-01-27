@@ -78,7 +78,6 @@ export function GiftTakerForm({
         <GiftDescription description="Sign in to claim it, no hidden fees or strings attached." />
       </GiftHeader>
 
-      {/* Image Section */}
       <ShareableGiftImage
         token={giftInfo.token}
         amount={amount}

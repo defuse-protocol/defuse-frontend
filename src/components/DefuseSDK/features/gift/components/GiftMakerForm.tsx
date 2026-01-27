@@ -48,34 +48,16 @@ import { GiftDescription } from "./shared/GiftDescription"
 import { GiftHeader } from "./shared/GiftHeader"
 
 export type GiftMakerWidgetProps = {
-  /** List of available tokens for trading */
   tokenList: TokenInfo[]
-
-  /** User's wallet address */
   userAddress: authHandle.AuthHandle["identifier"] | undefined
   chainType: authHandle.AuthHandle["method"] | undefined
-
-  /** Initial tokens for pre-filling the form */
   initialToken?: TokenInfo
-
-  /** Sign message callback */
   signMessage: SignMessage
-
-  /** Send NEAR transaction callback */
   sendNearTransaction: SendNearTransaction
-
-  /** Create Gift in the database */
   createGiftIntent: CreateGiftIntent
-
-  /** Function to generate a shareable trade link */
   generateLink: GenerateLink
-
-  /** Theme selection */
   theme?: "dark" | "light"
-
-  /** Frontend referral */
   referral?: string
-
   renderHostAppLink: RenderHostAppLink
 }
 
@@ -158,7 +140,7 @@ export function GiftMakerForm({
     tokenPrice,
     handleToggle: handleToggleUsdMode,
     handleUsdInputChange,
-    clearUsdValue,
+    exitUsdMode,
   } = useGiftUsdMode({
     token: formValues.token,
     tokensUsdPriceData,
@@ -272,7 +254,7 @@ export function GiftMakerForm({
           fractionDigits: 6,
         }),
       })
-      clearUsdValue()
+      exitUsdMode()
     }
   }
 
@@ -285,7 +267,7 @@ export function GiftMakerForm({
           { fractionDigits: 6 }
         ),
       })
-      clearUsdValue()
+      exitUsdMode()
     }
   }
 

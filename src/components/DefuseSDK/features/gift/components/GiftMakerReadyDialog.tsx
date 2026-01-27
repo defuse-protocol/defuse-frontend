@@ -105,7 +105,6 @@ function SuccessDialog({
         />
       </GiftHeader>
 
-      {/* Image Section */}
       <ShareableGiftImage
         link={copyGiftLink()}
         token={context.parsed.token}

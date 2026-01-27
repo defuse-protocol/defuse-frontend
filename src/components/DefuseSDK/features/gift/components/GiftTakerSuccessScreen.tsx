@@ -53,7 +53,6 @@ export function GiftTakerSuccessScreen({
         <GiftDescription description="The funds are now in your account. Use them for trading or withdraw to your wallet." />
       </GiftHeader>
 
-      {/* Gift Section */}
       <div className="flex flex-col text-xs mt-4 bg-gray-4 rounded-lg">
         <div className="flex flex-row border-b border-gray-6 p-3">
           <GiftStrip
@@ -103,7 +102,6 @@ export function GiftTakerSuccessScreen({
         </div>
       </div>
 
-      {/* Navigation Actions */}
       <div className="flex flex-col justify-center gap-3 mt-5">
         {renderHostAppLink(
           "account",
