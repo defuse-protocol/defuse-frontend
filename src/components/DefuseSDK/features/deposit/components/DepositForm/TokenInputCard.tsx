@@ -9,7 +9,7 @@ import ErrorMessage from "@src/components/ErrorMessage"
 import Spinner from "@src/components/Spinner"
 import clsx from "clsx"
 import { Tooltip } from "radix-ui"
-import { useId, useMemo, useState } from "react"
+import { useId } from "react"
 import type { UseFormRegisterReturn } from "react-hook-form"
 
 type InputRegistration =
@@ -182,25 +182,18 @@ const TokenInputCard = (props: TokenInputCardProps) => {
 
   const isDisplayOnly = "value" in props && props.value !== undefined
   const handleSetMax = isDisplayOnly ? undefined : props.handleSetMax
-  const baseRegistration = isDisplayOnly ? undefined : props.registration
-  const rawValue = isDisplayOnly ? props.value : undefined
+  const isOutput = isOutputField || readOnly
 
-  const [isFocused, setIsFocused] = useState(false)
+  // Truncate output values, never truncate input values
+  const registration = (() => {
+    const reg = isDisplayOnly ? undefined : props.registration
+    if (!reg || !isOutput || !("value" in reg)) return reg
+    return { ...reg, value: truncateDisplayValue(reg.value) }
+  })()
 
-  const value =
-    isDisplayOnly && rawValue && !isFocused
-      ? truncateDisplayValue(rawValue)
-      : rawValue
-
-  const registration = useMemo(() => {
-    if (!baseRegistration || !("value" in baseRegistration) || isFocused) {
-      return baseRegistration
-    }
-    return {
-      ...baseRegistration,
-      value: truncateDisplayValue(baseRegistration.value),
-    }
-  }, [baseRegistration, isFocused])
+  const value = isDisplayOnly
+    ? truncateDisplayValue(props.value ?? "")
+    : undefined
 
   const id = useId()
   const noBalance = balance === 0n
@@ -261,13 +254,12 @@ const TokenInputCard = (props: TokenInputCardProps) => {
             inputMode="decimal"
             pattern="[0-9]*[.]?[0-9]*"
             autoComplete="off"
+            maxLength={11}
             placeholder={getPlaceholder()}
             aria-label={getAriaLabel()}
             disabled={disabled}
             aria-busy={loading || undefined}
             readOnly={readOnly}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
             className={clsx(
               "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-4xl tracking-tight w-full min-w-0",
               !hasValue && "placeholder:text-xl placeholder:font-medium",
