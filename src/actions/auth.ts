@@ -39,7 +39,7 @@ export async function generateAuthToken(
       httpOnly: true,
       secure: true,
       sameSite: "lax",
-      maxAge: 60, // Tempoarty set to 1 minute for testing. It should be 7 days in production.
+      maxAge: 60 * 60 * 24 * 7, // 7 days
       path: "/",
     })
 
