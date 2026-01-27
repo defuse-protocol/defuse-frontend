@@ -25,6 +25,7 @@ import { SwapTrackerMachineProvider } from "@src/providers/SwapTrackerMachinePro
 import { SystemStatusProvider } from "@src/providers/SystemStatusProvider"
 import { TronWalletProvider } from "@src/providers/TronWalletProvider"
 import { WalletVerificationProvider } from "@src/providers/WalletVerificationProvider"
+import { WithdrawTrackerMachineProvider } from "@src/providers/WithdrawTrackerMachineProvider"
 import { APP_ENV, VERCEL_PROJECT_PRODUCTION_URL } from "@src/utils/environment"
 
 export const viewport: Viewport = {
@@ -137,32 +138,34 @@ const AppRootLayout = async ({
         <SystemStatusProvider systemStatus={systemStatus}>
           <ActivityDockProvider>
             <SwapTrackerMachineProvider>
-              <WagmiProvider config={config}>
-                <QueryClientProvider client={queryClient}>
-                  <NearWalletProvider>
-                    <SolanaWalletProvider>
-                      <StellarWalletProvider>
-                        <TonConnectUIProvider>
-                          <TronWalletProvider>
-                            <WebAuthnProvider>
-                              <MixpanelProvider>
-                                <PreloadFeatureFlags>
-                                  {children}
-                                </PreloadFeatureFlags>
-                                <WalletVerificationProvider />
-                              </MixpanelProvider>
-                            </WebAuthnProvider>
-                            <SentryTracer />
-                          </TronWalletProvider>
-                        </TonConnectUIProvider>
-                      </StellarWalletProvider>
-                    </SolanaWalletProvider>
-                  </NearWalletProvider>
-                  {APP_ENV === "development" && (
-                    <ReactQueryDevtools initialIsOpen={false} />
-                  )}
-                </QueryClientProvider>
-              </WagmiProvider>
+              <WithdrawTrackerMachineProvider>
+                <WagmiProvider config={config}>
+                  <QueryClientProvider client={queryClient}>
+                    <NearWalletProvider>
+                      <SolanaWalletProvider>
+                        <StellarWalletProvider>
+                          <TonConnectUIProvider>
+                            <TronWalletProvider>
+                              <WebAuthnProvider>
+                                <MixpanelProvider>
+                                  <PreloadFeatureFlags>
+                                    {children}
+                                  </PreloadFeatureFlags>
+                                  <WalletVerificationProvider />
+                                </MixpanelProvider>
+                              </WebAuthnProvider>
+                              <SentryTracer />
+                            </TronWalletProvider>
+                          </TonConnectUIProvider>
+                        </StellarWalletProvider>
+                      </SolanaWalletProvider>
+                    </NearWalletProvider>
+                    {APP_ENV === "development" && (
+                      <ReactQueryDevtools initialIsOpen={false} />
+                    )}
+                  </QueryClientProvider>
+                </WagmiProvider>
+              </WithdrawTrackerMachineProvider>
             </SwapTrackerMachineProvider>
           </ActivityDockProvider>
         </SystemStatusProvider>

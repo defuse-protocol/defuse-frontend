@@ -1,15 +1,14 @@
 "use client"
 
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/16/solid"
-import { ArrowRightIcon, CheckIcon } from "@heroicons/react/20/solid"
+import { ArrowRightIcon } from "@heroicons/react/20/solid"
 import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
+import { useMachineStageProgress } from "@src/components/DefuseSDK/features/common/useMachineStageProgress"
 import {
   SWAP_STAGES,
   SWAP_STAGE_LABELS,
   SWAP_STAGE_LABELS_SHORT,
-  type StatusActorSnapshot,
   type SwapStage,
-  extractStateValue,
   getStageFromState,
   is1csError,
   is1csSuccess,
@@ -17,80 +16,42 @@ import {
   isIntentSuccess,
 } from "@src/components/DefuseSDK/features/swap/utils/swapStatusUtils"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
+import {
+  HorizontalProgressDots,
+  ProgressSteps,
+} from "@src/components/ProgressIndicator"
 import type { TrackedSwapIntent } from "@src/providers/SwapTrackerMachineProvider"
-import { useSelector } from "@xstate/react"
-import { useEffect, useState } from "react"
 import Button from "./Button"
 
 const NEAR_EXPLORER = "https://nearblocks.io"
 
-function getStepBackgroundClass(
-  hasError: boolean,
-  isActive: boolean,
-  isComplete: boolean
-): string {
-  if (hasError && isActive) return "bg-red-500"
-  if (isComplete) return "bg-green-500"
-  if (isActive) return "bg-transparent"
-  return "bg-gray-200"
-}
-
-function getStepTextClass(
-  hasError: boolean,
-  isActive: boolean,
-  isComplete: boolean
-): string {
-  if (hasError && isActive) return "text-red-600 font-medium"
-  if (isComplete) return "text-green-600 font-medium"
-  if (isActive) return "text-gray-900 font-medium"
-  return "text-gray-400"
-}
-
 type SwapStatusProps = {
   swap: TrackedSwapIntent
   variant: "full" | "card" | "dock"
-  onDismiss?: () => void
   onSwapAgain?: () => void
 }
 
-export function SwapStatus({
-  swap,
-  variant,
-  onDismiss: _onDismiss,
-  onSwapAgain,
-}: SwapStatusProps) {
-  const state = useSelector(
-    swap.actorRef,
-    (s): StatusActorSnapshot => s as StatusActorSnapshot
-  )
-  const stateValue = extractStateValue(state.value)
-  const machineStage = getStageFromState(stateValue)
+export function SwapStatus({ swap, variant, onSwapAgain }: SwapStatusProps) {
+  const {
+    displayStage,
+    displayIndex,
+    canRetry,
+    txHash,
+    stateValue,
+    contextStatus,
+  } = useMachineStageProgress({
+    actorRef: swap.actorRef,
+    stages: SWAP_STAGES,
+    getStageFromState,
+  })
 
-  const [displayStage, setDisplayStage] = useState<SwapStage>(machineStage)
-
-  useEffect(() => {
-    const machineIndex = SWAP_STAGES.indexOf(machineStage)
-    const currentIndex = SWAP_STAGES.indexOf(displayStage)
-
-    if (machineIndex > currentIndex) {
-      setDisplayStage(machineStage)
-    }
-  }, [machineStage, displayStage])
-
-  const displayIndex = SWAP_STAGES.indexOf(displayStage)
-
-  // Use correct error/success detection based on machine type
-  // Matches logic from Swap1csCard and SwapIntentCard
   const hasError = swap.is1cs
-    ? is1csError(state.context.status)
+    ? is1csError(contextStatus)
     : isIntentError(stateValue)
 
   const isSuccess = swap.is1cs
-    ? is1csSuccess(state.context.status)
+    ? is1csSuccess(contextStatus)
     : isIntentSuccess(stateValue)
-
-  const canRetry = state.can({ type: "RETRY" })
-  const txHash = state.context.txHash
 
   if (variant === "dock") {
     return (
@@ -129,8 +90,6 @@ export function SwapStatus({
   )
 }
 
-// --- Dock View (minimal horizontal dots) ---
-
 function DockView({
   displayStage,
   displayIndex,
@@ -143,89 +102,16 @@ function DockView({
   isSuccess: boolean
 }) {
   return (
-    <div className="flex items-center gap-1.5">
-      {SWAP_STAGES.map((stage, index) => {
-        const isActive = displayStage === stage
-        const isDone = displayIndex > index
-        const isFailed = hasError && isActive && stage === "complete"
-
-        return (
-          <div key={stage} className="flex items-center gap-1.5">
-            <StepDot
-              isActive={isActive}
-              isComplete={isDone || (isSuccess && stage === "complete")}
-              hasError={isFailed}
-            />
-            {index < SWAP_STAGES.length - 1 && (
-              <div
-                className={`w-4 h-px transition-colors duration-300 ${isDone ? "bg-green-500" : "bg-gray-200"}`}
-              />
-            )}
-          </div>
-        )
-      })}
-      <span
-        className={`ml-1 text-xs transition-colors duration-300 ${hasError ? "text-red-600" : isSuccess ? "text-green-600" : "text-gray-500"}`}
-      >
-        {hasError ? "Failed" : SWAP_STAGE_LABELS_SHORT[displayStage]}
-      </span>
-    </div>
+    <HorizontalProgressDots
+      stages={SWAP_STAGES}
+      stageLabelsShort={SWAP_STAGE_LABELS_SHORT}
+      displayStage={displayStage}
+      displayIndex={displayIndex}
+      hasError={hasError}
+      isSuccess={isSuccess}
+    />
   )
 }
-
-function StepDot({
-  isActive,
-  isComplete,
-  hasError,
-}: {
-  isActive: boolean
-  isComplete: boolean
-  hasError: boolean
-}) {
-  if (isActive && !isComplete && !hasError) {
-    return (
-      <div className="relative size-3 flex items-center justify-center">
-        <svg
-          aria-hidden="true"
-          className="absolute inset-0 size-3 animate-spin"
-          style={{ animationDuration: "1s" }}
-        >
-          <circle
-            cx="6"
-            cy="6"
-            r="5"
-            fill="none"
-            stroke="#e5e7eb"
-            strokeWidth="1.5"
-          />
-          <circle
-            cx="6"
-            cy="6"
-            r="5"
-            fill="none"
-            stroke="#111827"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeDasharray="16 16"
-          />
-        </svg>
-      </div>
-    )
-  }
-
-  return (
-    <div
-      className={`size-3 rounded-full transition-colors duration-300 flex items-center justify-center ${
-        hasError ? "bg-red-500" : isComplete ? "bg-green-500" : "bg-gray-200"
-      }`}
-    >
-      {isComplete && !hasError && <CheckIcon className="size-2 text-white" />}
-      {hasError && <span className="text-white text-[8px] font-bold">!</span>}
-    </div>
-  )
-}
-
-// --- Full View (dialog/modal style) ---
 
 function FullView({
   swap,
@@ -291,6 +177,8 @@ function FullView({
         </div>
 
         <ProgressSteps
+          stages={SWAP_STAGES}
+          stageLabels={SWAP_STAGE_LABELS}
           displayStage={displayStage}
           displayIndex={displayIndex}
           hasError={hasError}
@@ -323,8 +211,6 @@ function FullView({
     </div>
   )
 }
-
-// --- Card View (compact dock style) ---
 
 function CardView({
   swap,
@@ -372,6 +258,8 @@ function CardView({
       </div>
 
       <ProgressSteps
+        stages={SWAP_STAGES}
+        stageLabels={SWAP_STAGE_LABELS}
         displayStage={displayStage}
         displayIndex={displayIndex}
         hasError={hasError}
@@ -402,162 +290,6 @@ function CardView({
           </Button>
         )}
       </div>
-    </div>
-  )
-}
-
-// --- Shared Progress Steps (vertical) ---
-
-function ProgressSteps({
-  displayStage,
-  displayIndex,
-  hasError,
-  isSuccess,
-  size,
-}: {
-  displayStage: SwapStage
-  displayIndex: number
-  hasError: boolean
-  isSuccess: boolean
-  size: "sm" | "md"
-}) {
-  return (
-    <div className={size === "md" ? "flex flex-col gap-0 mt-2" : "space-y-0"}>
-      {SWAP_STAGES.map((stage, i) => {
-        const isLastStep = i === SWAP_STAGES.length - 1
-        return (
-          <ProgressStep
-            key={stage}
-            size={size}
-            label={
-              stage === "complete" && hasError
-                ? "Failed"
-                : SWAP_STAGE_LABELS[stage]
-            }
-            isActive={displayStage === stage}
-            isComplete={isLastStep ? isSuccess : displayIndex > i}
-            hasError={stage === "complete" && hasError}
-            isLast={isLastStep}
-          />
-        )
-      })}
-    </div>
-  )
-}
-
-// --- Progress Step ---
-
-const STEP_SIZES = {
-  sm: {
-    container: "size-4",
-    icon: "size-2.5",
-    errorText: "text-[10px]",
-    line: "h-3",
-    text: "text-xs",
-    gap: "gap-2",
-    svg: {
-      size: 16,
-      cx: 8,
-      cy: 8,
-      r: 6.5,
-      strokeWidth: 1.5,
-      dasharray: "20 20",
-    },
-  },
-  md: {
-    container: "size-6",
-    icon: "size-3.5",
-    errorText: "text-xs",
-    line: "h-5",
-    text: "text-sm pt-1",
-    gap: "gap-3",
-    svg: {
-      size: 24,
-      cx: 12,
-      cy: 12,
-      r: 10,
-      strokeWidth: 2,
-      dasharray: "32 32",
-    },
-  },
-} as const
-
-function ProgressStep({
-  label,
-  isActive,
-  isComplete,
-  hasError,
-  isLast,
-  size,
-}: {
-  label: string
-  isActive: boolean
-  isComplete: boolean
-  hasError: boolean
-  isLast: boolean
-  size: "sm" | "md"
-}) {
-  const s = STEP_SIZES[size]
-
-  return (
-    <div className={`flex items-start ${s.gap}`}>
-      <div className="flex flex-col items-center">
-        <div
-          className={`relative ${s.container} flex items-center justify-center`}
-        >
-          <div
-            className={`absolute inset-0 rounded-full transition-colors duration-500 ease-out ${getStepBackgroundClass(hasError, isActive, isComplete)}`}
-          />
-
-          {isActive && !isComplete && !hasError && (
-            <svg
-              aria-hidden="true"
-              className={`absolute inset-0 ${s.container} animate-spin`}
-              style={{ animationDuration: "1s" }}
-              viewBox={`0 0 ${s.svg.size} ${s.svg.size}`}
-            >
-              <circle
-                cx={s.svg.cx}
-                cy={s.svg.cy}
-                r={s.svg.r}
-                fill="none"
-                stroke="#e5e7eb"
-                strokeWidth={s.svg.strokeWidth}
-              />
-              <circle
-                cx={s.svg.cx}
-                cy={s.svg.cy}
-                r={s.svg.r}
-                fill="none"
-                stroke="#111827"
-                strokeWidth={s.svg.strokeWidth}
-                strokeLinecap="round"
-                strokeDasharray={s.svg.dasharray}
-              />
-            </svg>
-          )}
-
-          <div className="relative z-10">
-            {isComplete && !hasError ? (
-              <CheckIcon className={`${s.icon} text-white`} />
-            ) : hasError && isActive ? (
-              <span className={`text-white ${s.errorText} font-bold`}>!</span>
-            ) : null}
-          </div>
-        </div>
-
-        {!isLast && (
-          <div
-            className={`w-0.5 ${s.line} transition-colors duration-500 ease-out ${isComplete ? "bg-green-500" : "bg-gray-200"}`}
-          />
-        )}
-      </div>
-
-      <p
-        className={`${s.text} transition-colors duration-300 ${getStepTextClass(hasError, isActive, isComplete)}`}
-      >
-        {label}
-      </p>
     </div>
   )
 }
