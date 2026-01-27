@@ -61,10 +61,7 @@ function ListItem({
       {content}
       <Popover.Portal>
         <Popover.Content
-          className={clsx(
-            "bg-gray-900 rounded-xl shadow-lg flex p-1 gap-1",
-            "data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:duration-100 data-[state=closed]:ease-in"
-          )}
+          className="bg-gray-900 rounded-xl shadow-lg flex p-1 gap-1"
           sideOffset={-5}
         >
           <Popover.Arrow />
@@ -84,8 +81,8 @@ const Content = ({
 }) => (
   <div
     className={clsx(
-      "flex flex-col gap-1",
-      align === "start" ? "items-start flex-1" : "items-end text-right"
+      "flex flex-col gap-0.5",
+      align === "start" ? "items-start flex-1 min-w-0" : "items-end text-right"
     )}
   >
     {children}
@@ -100,7 +97,10 @@ const Title = ({
   className?: string
 }) => (
   <div
-    className={clsx("text-base/none font-semibold text-gray-900", className)}
+    className={clsx(
+      "text-base/5 font-semibold text-gray-900 max-w-full",
+      className
+    )}
   >
     {children}
   </div>
@@ -113,7 +113,7 @@ const Subtitle = ({
   children: ReactNode
   className?: string
 }) => (
-  <div className={cn("text-sm/none font-medium text-gray-500", className)}>
+  <div className={cn("text-sm/4 font-medium text-gray-500", className)}>
     {children}
   </div>
 )
