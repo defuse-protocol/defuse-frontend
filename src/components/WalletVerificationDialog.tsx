@@ -20,32 +20,50 @@ export function WalletVerificationDialog({
   onCancel,
   isVerifying,
   isFailure,
+  isSessionExpired = false,
 }: {
   open: boolean
   onConfirm: () => void
   onCancel: () => void
   isVerifying: boolean
   isFailure: boolean
+  isSessionExpired?: boolean
 }) {
+  const getContent = () => {
+    if (isFailure) {
+      return (
+        <FailureContent
+          onConfirm={onConfirm}
+          onCancel={onCancel}
+          isVerifying={isVerifying}
+        />
+      )
+    }
+    if (isSessionExpired) {
+      return (
+        <SessionExpiredContent
+          onConfirm={onConfirm}
+          onCancel={onCancel}
+          isVerifying={isVerifying}
+        />
+      )
+    }
+    return (
+      <DefaultContent
+        onConfirm={onConfirm}
+        onCancel={onCancel}
+        isVerifying={isVerifying}
+      />
+    )
+  }
+
   return (
     <AlertDialog.Root open={open}>
       <AlertDialog.Portal>
         <AlertDialog.Overlay className="fixed inset-0 bg-black/60 z-50" />
         <AlertDialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-sm mx-4">
           <div className="rounded-3xl p-6 bg-white shadow-2xl">
-            {isFailure ? (
-              <FailureContent
-                onConfirm={onConfirm}
-                onCancel={onCancel}
-                isVerifying={isVerifying}
-              />
-            ) : (
-              <DefaultContent
-                onConfirm={onConfirm}
-                onCancel={onCancel}
-                isVerifying={isVerifying}
-              />
-            )}
+            {getContent()}
           </div>
         </AlertDialog.Content>
       </AlertDialog.Portal>
@@ -146,6 +164,54 @@ function FailureContent({ onConfirm, onCancel, isVerifying }: ContentProps) {
           Sign out
         </Button>
       </div>
+    </>
+  )
+}
+
+function SessionExpiredContent({
+  onConfirm,
+  onCancel,
+  isVerifying,
+}: ContentProps) {
+  return (
+    <>
+      <div className="flex flex-col items-center text-center">
+        <div className="bg-amber-100 p-3 rounded-2xl mb-4">
+          <ExclamationTriangleIcon className="w-6 h-6 text-amber-600" />
+        </div>
+        <AlertDialog.Title className="text-xl font-bold text-gray-900 tracking-tight">
+          Session expired
+        </AlertDialog.Title>
+        <AlertDialog.Description className="mt-2 text-sm text-gray-500 text-balance">
+          Your session has expired. Please verify your wallet again to continue
+          using all features.
+        </AlertDialog.Description>
+      </div>
+
+      <ul className="bg-gray-50 rounded-2xl p-4 mt-6 space-y-3">
+        <FeatureItem text="Secure transactions and transfers" />
+        <FeatureItem text="Full access to all features" />
+        <FeatureItem text="Protection of your funds" />
+      </ul>
+
+      <div className="flex flex-col gap-2 mt-6">
+        <Button size="xl" fullWidth onClick={onConfirm} loading={isVerifying}>
+          {isVerifying ? "Verifying..." : "Verify again"}
+        </Button>
+        <Button
+          size="xl"
+          fullWidth
+          variant="secondary"
+          onClick={onCancel}
+          disabled={isVerifying}
+        >
+          Cancel
+        </Button>
+      </div>
+
+      <p className="text-xs text-gray-400 text-center mt-4">
+        Canceling will sign you out
+      </p>
     </>
   )
 }

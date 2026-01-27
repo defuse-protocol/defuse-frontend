@@ -1,5 +1,6 @@
 "use client"
 
+import { generateAuthToken, setActiveWalletToken } from "@src/actions/auth"
 import { WalletBannedDialog } from "@src/components/WalletBannedDialog"
 import { WalletVerificationDialog } from "@src/components/WalletVerificationDialog"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
@@ -7,6 +8,7 @@ import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMe
 import { walletVerificationMachine } from "@src/machines/walletVerificationMachine"
 import { useBypassedWalletsStore } from "@src/stores/useBypassedWalletsStore"
 import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
+import { useWalletTokensStore } from "@src/stores/useWalletTokensStore"
 import {
   verifyWalletSignature,
   walletVerificationMessageFactory,
@@ -64,6 +66,11 @@ export function WalletVerificationProvider() {
   const { addWalletAddress } = useVerifiedWalletsStore()
   const { addBypassedWalletAddress, isWalletBypassed } =
     useBypassedWalletsStore()
+  const { setToken } = useWalletTokensStore()
+  const hasHydrated = useWalletTokensStore((store) => store._hasHydrated)
+  const hasValidToken = useWalletTokensStore((store) =>
+    state.address != null ? store.isTokenValid(state.address) : false
+  )
 
   if (bannedAccountCheck.data?.isBanned && pathname !== "/account") {
     router.push("/wallet/banned")
@@ -71,6 +78,11 @@ export function WalletVerificationProvider() {
   }
 
   if (safetyCheck.isLoading) {
+    return null
+  }
+
+  // Wait for token store to hydrate before showing verification dialog
+  if (!hasHydrated) {
     return null
   }
 
@@ -103,12 +115,20 @@ export function WalletVerificationProvider() {
     state.address != null &&
     (safetyCheck.data?.safetyStatus === "safe" ||
       isWalletBypassed(state.address)) &&
-    !state.isVerified
+    !hasValidToken
   ) {
     return (
       <WalletVerificationUI
-        onConfirm={() => {
-          if (state.address != null) {
+        isSessionExpired={state.isSessionExpired}
+        onConfirm={async () => {
+          if (state.address != null && state.chainType != null) {
+            const { token, expiresAt } = await generateAuthToken(
+              state.address,
+              state.chainType
+            )
+
+            setToken(state.address, token, expiresAt)
+            await setActiveWalletToken(token)
             addWalletAddress(state.address)
           }
         }}
@@ -134,9 +154,14 @@ function WalletBannedUI({
 }
 
 function WalletVerificationUI({
+  isSessionExpired,
   onConfirm,
   onAbort,
-}: { onConfirm: () => void; onAbort: () => void }) {
+}: {
+  isSessionExpired: boolean
+  onConfirm: () => void | Promise<void>
+  onAbort: () => void
+}) {
   const { state: unconfirmedWallet } = useConnectWallet()
 
   const signMessage = useWalletAgnosticSignMessage()
@@ -208,6 +233,7 @@ function WalletVerificationUI({
       }}
       isVerifying={state.matches("verifying")}
       isFailure={state.context.hadError}
+      isSessionExpired={isSessionExpired}
     />
   )
 }
