@@ -1,4 +1,3 @@
-import { Button } from "@radix-ui/themes"
 import { TooltipInfo } from "@src/components/DefuseSDK/components/TooltipInfo"
 import clsx from "clsx"
 import type { ReactNode } from "react"
@@ -27,15 +26,15 @@ export function BlockMultiBalances({
   return (
     <div
       className={clsx(
-        "flex items-center gap-1 md:gap-1.5 min-w-0 min-h-6",
+        "flex items-center gap-1.5 md:gap-2 min-w-0 min-h-6",
         className
       )}
     >
       {/* Balance */}
       <div
         className={clsx(
-          "text-xs font-bold truncate min-w-0",
-          active ? "text-gray-12" : "text-gray-8"
+          "text-xs font-semibold truncate min-w-0",
+          active ? "text-gray-600" : "text-gray-400"
         )}
       >
         {formatTokenValue(balance, decimals, {
@@ -44,11 +43,11 @@ export function BlockMultiBalances({
         })}
       </div>
 
-      {/* Full Balance Button */}
-      <div className="shrink-0">{maxButtonSlot}</div>
-
-      {/* 50% Balance Button */}
-      <div className="shrink-0">{halfButtonSlot}</div>
+      {/* Buttons container */}
+      <div className="flex items-center gap-1">
+        {halfButtonSlot}
+        {maxButtonSlot}
+      </div>
 
       {/* Transit Balance */}
       {transitBalance ? (
@@ -86,30 +85,38 @@ interface ButtonProps {
   onClick?: () => void
   disabled?: boolean
   balance: bigint
+  selected?: boolean
 }
 
 BlockMultiBalances.DisplayMaxButton = function DisplayMaxButton({
   onClick,
   balance,
   disabled,
+  selected,
 }: ButtonProps) {
   const active = balance > 0n && !disabled
   return (
-    <Button
-      variant="outline"
-      size="1"
-      color="gray"
-      radius="full"
+    <button
+      type="button"
       onClick={(e) => {
         e.stopPropagation()
         e.preventDefault()
         onClick?.()
       }}
-      className="text-xs font-bold leading-4 min-w-[32px] md:min-w-[36px]"
+      className={clsx(
+        "px-2.5 py-1 rounded-full text-xs font-semibold transition-all duration-150",
+        !active && "bg-gray-100 text-gray-400 cursor-not-allowed",
+        active &&
+          selected &&
+          "bg-gray-900 text-white hover:bg-gray-700 active:scale-95",
+        active &&
+          !selected &&
+          "bg-gray-100 text-gray-700 hover:bg-gray-200 active:scale-95"
+      )}
       disabled={!active}
     >
       Max
-    </Button>
+    </button>
   )
 }
 
@@ -117,23 +124,30 @@ BlockMultiBalances.DisplayHalfButton = function DisplayHalfButton({
   onClick,
   balance,
   disabled,
+  selected,
 }: ButtonProps) {
   const active = balance > 0n && !disabled
   return (
-    <Button
-      variant="outline"
-      size="1"
-      color="gray"
-      radius="full"
+    <button
+      type="button"
       onClick={(e) => {
         e.stopPropagation()
         e.preventDefault()
         onClick?.()
       }}
-      className="text-xs font-bold leading-4 min-w-[32px] md:min-w-[36px]"
+      className={clsx(
+        "px-2.5 py-1 rounded-full text-xs font-semibold transition-all duration-150",
+        !active && "bg-gray-100 text-gray-400 cursor-not-allowed",
+        active &&
+          selected &&
+          "bg-gray-900 text-white hover:bg-gray-700 active:scale-95",
+        active &&
+          !selected &&
+          "bg-gray-100 text-gray-700 hover:bg-gray-200 active:scale-95"
+      )}
       disabled={!active}
     >
       50%
-    </Button>
+    </button>
   )
 }

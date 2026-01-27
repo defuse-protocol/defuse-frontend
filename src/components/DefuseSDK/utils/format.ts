@@ -62,9 +62,9 @@ export function formatUsdAmount(value: number): string {
     let maximumFractionDigits = 2
     let notation: Intl.NumberFormatOptions["notation"] = "standard"
 
-    if (value < 1) {
+    if (value < 0.01 && value > 0) {
       // Handle tiny amounts of USD to not show $0.00
-      maximumFractionDigits = 7
+      maximumFractionDigits = 4
     } else if (value >= 1_000_000) {
       // Use compact notation for larger values
       notation = "compact"

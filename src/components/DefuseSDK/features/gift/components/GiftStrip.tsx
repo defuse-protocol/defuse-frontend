@@ -45,7 +45,8 @@ GiftStrip.Amount = function DisplayAmount({
 }) {
   return (
     <div className={cn("text-sm text-black font-bold", className)}>
-      {formatTokenValue(amount.amount, amount.decimals)} {token.symbol}
+      {formatTokenValue(amount.amount, amount.decimals, { fractionDigits: 6 })}{" "}
+      {token.symbol}
     </div>
   )
 }

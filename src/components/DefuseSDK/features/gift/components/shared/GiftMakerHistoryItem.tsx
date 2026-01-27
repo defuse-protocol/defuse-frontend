@@ -135,7 +135,7 @@ export function GiftMakerHistoryItem({
         <ListItem.Content>
           <ListItem.Title>
             {amount != null &&
-              `${formatTokenValue(amount.amount, amount.decimals)} ${giftInfo.token.symbol}`}
+              `${formatTokenValue(amount.amount, amount.decimals, { fractionDigits: 6 })} ${giftInfo.token.symbol}`}
           </ListItem.Title>
           <ListItem.Subtitle>
             {formatGiftDate(giftInfo.updatedAt)}

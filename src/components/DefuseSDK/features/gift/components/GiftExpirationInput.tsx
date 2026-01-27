@@ -237,11 +237,12 @@ export function GiftExpirationInput({
           min={getMinDateTime()}
           disabled={disabled}
           className={clsx(
-            "w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 transition-all",
+            "w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 transition-all cursor-pointer",
             "font-medium text-sm text-gray-900",
-            "hover:border-gray-400",
+            "hover:border-gray-400 hover:bg-gray-100",
             "focus:border-gray-900 focus:outline focus:outline-1 focus:outline-gray-900",
-            "disabled:cursor-not-allowed disabled:opacity-50"
+            "disabled:cursor-not-allowed disabled:opacity-50",
+            "[&::-webkit-calendar-picker-indicator]:cursor-pointer"
           )}
         />
       </div>

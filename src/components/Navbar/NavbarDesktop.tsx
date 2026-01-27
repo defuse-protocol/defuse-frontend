@@ -32,7 +32,7 @@ const navItems = [
   },
   {
     label: "Gifts",
-    href: "/gift-card/create-gift",
+    href: "/gift-card",
     icon: GiftIcon,
   },
   {
