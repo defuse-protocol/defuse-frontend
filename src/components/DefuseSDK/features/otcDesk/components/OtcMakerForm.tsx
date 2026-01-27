@@ -33,10 +33,6 @@ import type {
 } from "../types/sharedTypes"
 import { expiryToSeconds, parseExpiry } from "../utils/expiryUtils"
 
-// NOTE: Market rate pre-fill for destination field is implemented in the
-// copy-improvements branch. This branch should be merged after copy-improvements
-// to get that functionality.
-
 export type OtcMakerWidgetProps = {
   /** List of available tokens for trading */
   tokenList: TokenInfo[]
@@ -265,20 +261,20 @@ export function OtcMakerForm({
   const hasAmountIn = Number(formValues.amountIn) > 0
   const hasAmountOut = Number(formValues.amountOut) > 0
 
-  // Check if entered amount exceeds available balance
   const balanceInsufficient = useMemo(() => {
     if (!tokenInBalance || !formValues.amountIn) return false
-    const amountInParsed = Number.parseFloat(formValues.amountIn)
-    if (Number.isNaN(amountInParsed) || amountInParsed <= 0) return false
+    const parsed = Number.parseFloat(formValues.amountIn)
+    if (Number.isNaN(parsed) || parsed <= 0) return false
 
-    // Convert amountIn string to bigint with proper decimals
-    const [intPart, decPart = ""] = formValues.amountIn.split(".")
-    const paddedDecimal = decPart
-      .slice(0, tokenInBalance.decimals)
-      .padEnd(tokenInBalance.decimals, "0")
-    const amountInBigInt = BigInt(intPart + paddedDecimal)
-
-    return amountInBigInt > tokenInBalance.amount
+    try {
+      const [intPart, decPart = ""] = formValues.amountIn.split(".")
+      const paddedDecimal = decPart
+        .slice(0, tokenInBalance.decimals)
+        .padEnd(tokenInBalance.decimals, "0")
+      return BigInt(intPart + paddedDecimal) > tokenInBalance.amount
+    } catch {
+      return false
+    }
   }, [formValues.amountIn, tokenInBalance])
 
   const error = rootSnapshot.context.error

@@ -311,14 +311,6 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     swapUIActorRef,
   })
 
-  // Wrap handler to clear the output USD value when input changes
-  const handleUsdInputChange = useCallback(
-    (value: string) => {
-      handleUsdInputChangeRaw(value)
-    },
-    [handleUsdInputChangeRaw]
-  )
-
   const is1cs = useIs1CsEnabled()
   const isSubmitting = snapshot.matches("submitting")
   const isSubmitting1cs = is1cs && snapshot.matches("submitting_1cs")
@@ -390,11 +382,10 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                   ? {
                       name: "usdAmountIn",
                       onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-                        handleUsdInputChange(e.target.value)
+                        handleUsdInputChangeRaw(e.target.value)
                       },
                       onBlur: () => {},
                       ref: () => {},
-                      // Show user-entered value, or calculated USD from quote if empty
                       value:
                         usdValueIn ||
                         (usdAmountIn ? usdAmountIn.toFixed(2) : ""),
@@ -471,7 +462,6 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                 onChange: () => {},
                 onBlur: () => {},
                 ref: () => {},
-                // When source is in USD mode, show USD value; otherwise show token amount
                 value: isUsdModeIn
                   ? usdAmountOut
                     ? usdAmountOut.toFixed(2)

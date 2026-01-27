@@ -33,13 +33,11 @@ type BaseTokenInputCardProps = {
   selectedToken: TokenInfo
   selectAssetsTestId?: string
   error?: string
-  /** Whether to show error styling (red border) on the card */
   hasError?: boolean
   isUsdMode?: boolean
   tokenPrice?: number | null
   onToggleUsdMode?: () => void
   tokenAmount?: string
-  /** Whether this is an output/destination field (shows "0" placeholder, no USD toggle) */
   isOutputField?: boolean
 }
 
@@ -137,14 +135,12 @@ function UsdToggle({
   )
 }
 
-// Truncate display value to avoid clashing with token selector
 function truncateDisplayValue(value: string, maxLength = 8): string {
   if (!value || value.length <= maxLength) return value
 
   const num = Number.parseFloat(value)
   if (Number.isNaN(num)) return value
 
-  // For large numbers, use compact notation
   if (num >= 1_000_000) {
     return num.toLocaleString("en-US", {
       notation: "compact",
@@ -152,7 +148,6 @@ function truncateDisplayValue(value: string, maxLength = 8): string {
     })
   }
 
-  // For smaller numbers, limit decimal places
   const [intPart, decPart] = value.split(".")
   if (!decPart) return value
 
@@ -185,37 +180,25 @@ const TokenInputCard = (props: TokenInputCardProps) => {
     isOutputField = false,
   } = props
 
-  // Discriminate between interactive and display-only modes
   const isDisplayOnly = "value" in props && props.value !== undefined
   const handleSetMax = isDisplayOnly ? undefined : props.handleSetMax
   const baseRegistration = isDisplayOnly ? undefined : props.registration
   const rawValue = isDisplayOnly ? props.value : undefined
 
-  // Track focus state to show full value when editing
   const [isFocused, setIsFocused] = useState(false)
 
-  // Truncate destination/output values to avoid overflow with token selector
-  // Only truncate when not focused, so users can see full value when editing
   const value =
     isDisplayOnly && rawValue && !isFocused
       ? truncateDisplayValue(rawValue)
       : rawValue
 
-  // Truncate long values to prevent overflow with token selector
-  // Only truncate when not focused, so users can see full value when editing
   const registration = useMemo(() => {
-    if (!baseRegistration) return baseRegistration
-    if (!("value" in baseRegistration)) return baseRegistration
-
-    const val = baseRegistration.value
-    if (typeof val !== "string") return baseRegistration
-
-    // Don't truncate when focused - user needs to see full value to edit
-    if (isFocused) return baseRegistration
-
+    if (!baseRegistration || !("value" in baseRegistration) || isFocused) {
+      return baseRegistration
+    }
     return {
       ...baseRegistration,
-      value: truncateDisplayValue(val),
+      value: truncateDisplayValue(baseRegistration.value),
     }
   }, [baseRegistration, isFocused])
 
@@ -223,7 +206,6 @@ const TokenInputCard = (props: TokenInputCardProps) => {
   const noBalance = balance === 0n
   const hasBalanceInTransit = balanceInTransit != null && balanceInTransit > 0n
 
-  // Only allow USD toggle on source token (not destination/readOnly/output)
   const isSourceToken = !isDisplayOnly && !readOnly && !isOutputField
   const canToggleUsd = Boolean(
     isSourceToken && onToggleUsdMode && tokenPrice != null && tokenPrice > 0
@@ -235,9 +217,6 @@ const TokenInputCard = (props: TokenInputCardProps) => {
     }
   }
 
-  // Placeholder text following Kraken pattern:
-  // - Source token: "Enter amount ETH" or "Enter amount USD"
-  // - Destination/output token: Always "0" (shows token amount)
   const getPlaceholder = () => {
     if (isDisplayOnly || readOnly || isOutputField) {
       return "0"
@@ -248,7 +227,6 @@ const TokenInputCard = (props: TokenInputCardProps) => {
     return symbol ? `Enter amount ${symbol}` : "Enter amount"
   }
 
-  // Aria label for screen readers
   const getAriaLabel = () => {
     if (isDisplayOnly || readOnly || isOutputField) {
       return symbol ? `${symbol} amount to receive` : "Amount to receive"
@@ -259,7 +237,6 @@ const TokenInputCard = (props: TokenInputCardProps) => {
     return symbol ? `Enter amount in ${symbol}` : "Enter amount"
   }
 
-  // Check if input has a value (for placeholder styling)
   const hasValue = Boolean(
     (registration && "value" in registration && registration.value) || value
   )
@@ -271,10 +248,8 @@ const TokenInputCard = (props: TokenInputCardProps) => {
         hasError ? "border-red-500" : "border-gray-200"
       )}
     >
-      {/* Row 1: Amount input | Token selector */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-1 flex-1 min-w-0">
-          {/* $ prefix when in USD mode and has a value */}
           {isUsdMode && hasValue && (
             <span className="font-bold text-gray-900 text-4xl tracking-tight shrink-0">
               $
@@ -295,7 +270,6 @@ const TokenInputCard = (props: TokenInputCardProps) => {
             onBlur={() => setIsFocused(false)}
             className={clsx(
               "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-4xl tracking-tight w-full min-w-0",
-              // Smaller placeholder text, normal size for entered values
               !hasValue && "placeholder:text-xl placeholder:font-medium",
               hasValue && "placeholder:text-gray-400",
               disabled && "opacity-50"
@@ -313,7 +287,6 @@ const TokenInputCard = (props: TokenInputCardProps) => {
         />
       </div>
 
-      {/* Row 2: USD/token toggle | Balance */}
       <div className="flex items-center justify-between gap-4">
         {canToggleUsd && onToggleUsdMode ? (
           <UsdToggle
@@ -325,7 +298,6 @@ const TokenInputCard = (props: TokenInputCardProps) => {
           />
         ) : (
           <div className="text-sm text-gray-500 font-medium">
-            {/* Mirror source's USD mode: show token when source is USD, show USD when source is token */}
             {isUsdMode
               ? `${truncateDisplayValue(tokenAmount) || "0"} ${symbol}`
               : formatUsdAmount(usdAmount ?? 0)}
