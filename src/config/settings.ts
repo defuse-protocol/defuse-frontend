@@ -58,10 +58,10 @@ export const settings: Settings = {
       description:
         "Secure and easy access to your digital assets. Track balances, manage transactions, and more.",
     },
-    withdraw: {
+    send: {
       title: "NEAR Intents | Low Fees, Best Rates & Seamless Cross‑Chain Exits",
       description:
-        "Withdraw crypto from NEAR to any supported chain. Fast, secure, and powered by smart intent execution.",
+        "Send crypto from NEAR to any supported chain. Fast, secure, and powered by smart intent execution.",
     },
     giftCreate: {
       title: "NEAR Intents | Send a Multichain Crypto Gift",

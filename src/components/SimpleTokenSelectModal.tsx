@@ -123,10 +123,7 @@ export function SimpleTokenSelectModal({
                   onClick={() => handleSelect(item)}
                   highlight={isSelected}
                 >
-                  <AssetComboIcon
-                    icon={item.token.icon}
-                    name={item.token.name}
-                  />
+                  <AssetComboIcon icon={item.token.icon} />
 
                   <ListItem.Content>
                     <ListItem.Title>{item.token.name}</ListItem.Title>

@@ -1,30 +1,30 @@
-import { Flex } from "@radix-ui/themes"
+import Button from "@src/components/Button"
+import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
+import ModalReviewSend from "@src/components/DefuseSDK/components/Modal/ModalReviewSend"
+import { SelectTriggerLike } from "@src/components/DefuseSDK/components/Select/SelectTriggerLike"
+import TooltipNew from "@src/components/DefuseSDK/components/TooltipNew"
 import { useModalController } from "@src/components/DefuseSDK/hooks/useModalController"
 import { useTokensUsdPrices } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
 import { ModalType } from "@src/components/DefuseSDK/stores/modalStore"
 import { isSupportedChainName } from "@src/components/DefuseSDK/utils/blockchain"
-import {
-  formatTokenValue,
-  formatUsdAmount,
-} from "@src/components/DefuseSDK/utils/format"
+import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
 import {
   addAmounts,
+  compareAmounts,
   getTokenMaxDecimals,
   isMinAmountNotRequired,
   subtractAmounts,
 } from "@src/components/DefuseSDK/utils/tokenUtils"
+import Spinner from "@src/components/Spinner"
+import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
 import { useWithdrawTrackerMachine } from "@src/providers/WithdrawTrackerMachineProvider"
 import { logger } from "@src/utils/logger"
 import { useSelector } from "@xstate/react"
 import { useCallback, useEffect } from "react"
-import { useForm } from "react-hook-form"
+import { FormProvider, useForm } from "react-hook-form"
+import { formatUnits } from "viem"
 import { AuthGate } from "../../../../components/AuthGate"
-import { ButtonCustom } from "../../../../components/Button/ButtonCustom"
-import { Form } from "../../../../components/Form"
-import { FieldComboInput } from "../../../../components/Form/FieldComboInput"
-import { Island } from "../../../../components/Island"
-import { IslandHeader } from "../../../../components/IslandHeader"
 import { nearClient } from "../../../../constants/nearClient"
 import type {
   SupportedChainName,
@@ -33,7 +33,7 @@ import type {
 } from "../../../../types/base"
 import type { WithdrawWidgetProps } from "../../../../types/withdraw"
 import { parseUnits } from "../../../../utils/parse"
-import IntentCreationResult from "../../../account/components/IntentCreationResult"
+import SelectedTokenInput from "../../../deposit/components/DepositForm/SelectedTokenInput"
 import {
   balanceSelector,
   transitBalanceSelector,
@@ -46,7 +46,6 @@ import { getMinWithdrawalHyperliquidAmount } from "../../utils/hyperliquid"
 import {
   MinWithdrawalAmount,
   PreparationResult,
-  ReceivedAmountAndFee,
   RecipientSubForm,
 } from "./components"
 import { AcknowledgementCheckbox } from "./components/AcknowledgementCheckbox/AcknowledgementCheckbox"
@@ -117,6 +116,13 @@ export const WithdrawForm = ({
     }
   })
 
+  const isReviewOpen =
+    state.matches({ editing: "reviewing" }) || state.matches("submitting")
+
+  const isPreparing =
+    state.matches({ editing: "preparation" }) &&
+    state.context.preparationOutput == null
+
   // biome-ignore lint/suspicious/noExplicitAny: types should've been correct, but `publicKeyVerifierRef` is commented out
   usePublicKeyModalOpener(publicKeyVerifierRef as any, sendNearTransaction)
 
@@ -174,7 +180,6 @@ export const WithdrawForm = ({
   })
   const {
     handleSubmit,
-    register,
     control,
     watch,
     formState: { errors },
@@ -253,6 +258,16 @@ export const WithdrawForm = ({
           type: "WITHDRAW_FORM.UPDATE_AMOUNT",
           params: { amount, parsedAmount },
         })
+      }
+      if (name === "recipient") {
+        const recipientValue = value[name] ?? ""
+
+        if (recipientValue) {
+          actorRef.send({
+            type: "WITHDRAW_FORM.RECIPIENT",
+            params: { recipient: recipientValue, proxyRecipient: null },
+          })
+        }
       }
       if (name === "destinationMemo") {
         actorRef.send({
@@ -373,6 +388,14 @@ export const WithdrawForm = ({
     })
   }
 
+  const handleSetPercentage = (percent: number) => {
+    if (tokenInBalance == null) return
+    const scaledValue = (tokenInBalance.amount * BigInt(percent)) / 100n
+    setValue("amountIn", formatUnits(scaledValue, tokenInBalance.decimals), {
+      shouldValidate: true,
+    })
+  }
+
   /**
    * This is ModalSelectAssets "callback"
    */
@@ -397,123 +420,164 @@ export const WithdrawForm = ({
     }
   }, [modalSelectAssetsData, actorRef, amountIn])
 
+  const onRequestReview = () => {
+    actorRef.send({ type: "REQUEST_REVIEW" })
+  }
+
+  const handleConfirmSubmit = () => {
+    if (userAddress == null || chainType == null) {
+      logger.warn("No user address provided")
+      return
+    }
+
+    actorRef.send({
+      type: "submit",
+      params: {
+        userAddress,
+        userChainType: chainType,
+        nearClient,
+      },
+    })
+  }
+
   return (
-    <Island className="widget-container flex flex-col gap-4">
-      <IslandHeader heading="Withdraw" condensed />
+    <>
+      <FormProvider {...form}>
+        <form onSubmit={handleSubmit(onRequestReview)} className="mt-6">
+          <div className="flex flex-col gap-2">
+            <SelectTriggerLike
+              icon={
+                token ? (
+                  <AssetComboIcon icon={token?.icon} />
+                ) : (
+                  <TokenIconPlaceholder className="size-10" />
+                )
+              }
+              label={token ? "Token" : "Select token"}
+              value={token?.name}
+              onClick={handleSelect}
+            />
 
-      <Form<WithdrawFormNearValues>
-        handleSubmit={handleSubmit(() => {
-          if (userAddress == null || chainType == null) {
-            logger.warn("No user address provided")
-            return
-          }
+            <RecipientSubForm
+              form={form}
+              chainType={chainType}
+              userAddress={userAddress}
+              displayAddress={displayAddress}
+              tokenInBalance={tokenInBalance}
+            />
 
-          actorRef.send({
-            type: "submit",
-            params: {
-              userAddress,
-              userChainType: chainType,
-              nearClient,
-            },
-          })
-        })}
-        register={register}
-      >
-        <Flex direction="column" gap="5">
-          <FieldComboInput<WithdrawFormNearValues>
-            fieldName="amountIn"
-            dataTestId="withdraw-form-amount-in"
-            selected={token}
-            tokenIn={token}
-            handleSelect={handleSelect}
-            className="border border-gray-4 rounded-xl"
-            required
-            min={
-              minWithdrawalAmount != null
-                ? {
-                    value: formatTokenValue(
-                      minWithdrawalAmount.amount,
-                      minWithdrawalAmount.decimals
-                    ),
-                    message: "Amount is too low",
-                  }
-                : undefined
-            }
-            max={
-              tokenInBalance != null
-                ? {
-                    value: formatTokenValue(
-                      tokenInBalance.amount,
-                      tokenInBalance.decimals
-                    ),
-                    message: "Insufficient balance",
-                  }
-                : undefined
-            }
-            errors={errors}
-            balance={tokenInBalance}
-            transitBalance={tokenInTransitBalance}
-            register={register}
-            usdAmount={
-              tokenToWithdrawUsdAmount !== null && tokenToWithdrawUsdAmount > 0
-                ? `~${formatUsdAmount(tokenToWithdrawUsdAmount)}`
-                : null
-            }
-          />
+            <SelectedTokenInput
+              value={getValues().amountIn}
+              label="Enter amount"
+              registration={form.register("amountIn", {
+                required: "This field is required",
+                pattern: {
+                  value: /^[0-9]*[,.]?[0-9]*$/,
+                  message: "Please enter a valid number",
+                },
+                min:
+                  minWithdrawalAmount != null
+                    ? {
+                        value: formatTokenValue(
+                          minWithdrawalAmount.amount,
+                          minWithdrawalAmount.decimals
+                        ),
+                        message: "Amount is too low",
+                      }
+                    : undefined,
+                max:
+                  tokenInBalance != null
+                    ? {
+                        value: formatTokenValue(
+                          tokenInBalance.amount,
+                          tokenInBalance.decimals
+                        ),
+                        message: "Insufficient balance",
+                      }
+                    : undefined,
+              })}
+              error={errors.amountIn?.message}
+              balance={tokenInBalance?.amount ?? 0n}
+              decimals={tokenInBalance?.decimals ?? 0}
+              symbol={token.symbol}
+              usdAmount={tokenToWithdrawUsdAmount}
+              handleSetPercentage={handleSetPercentage}
+              additionalInfo={
+                tokenInTransitBalance ? (
+                  <TooltipNew>
+                    <TooltipNew.Trigger>
+                      <button
+                        type="button"
+                        className="flex items-center justify-center size-6 rounded-lg shrink-0 text-gray-400 hover:bg-gray-200 hover:text-gray-700"
+                      >
+                        <Spinner size="sm" />
+                      </button>
+                    </TooltipNew.Trigger>
+                    <TooltipNew.Content className="max-w-64 text-center text-balance">
+                      Deposit of{" "}
+                      {formatTokenValue(
+                        tokenInTransitBalance.amount,
+                        tokenInTransitBalance.decimals,
+                        {
+                          min: 0.0001,
+                          fractionDigits: 4,
+                        }
+                      )}{" "}
+                      {token.symbol} is in progress and will be available
+                      shortly.
+                    </TooltipNew.Content>
+                  </TooltipNew>
+                ) : null
+              }
+            />
 
+            {!isNearIntentsNetwork(blockchain) &&
+              isCexIncompatible(tokenOutDeployment) && (
+                <AcknowledgementCheckbox
+                  control={control}
+                  errors={errors}
+                  tokenOut={tokenOut}
+                />
+              )}
+
+            <AuthGate
+              renderHostAppLink={renderHostAppLink}
+              shouldRender={isLoggedIn}
+            >
+              <Button
+                size="xl"
+                fullWidth
+                type="submit"
+                disabled={
+                  state.matches("submitting") ||
+                  noLiquidity ||
+                  isPreparing ||
+                  !amountIn ||
+                  Number(amountIn) <= 0
+                }
+                loading={state.matches("submitting") || isPreparing}
+              >
+                {getWithdrawButtonText(
+                  noLiquidity,
+                  insufficientTokenInAmount,
+                  !amountIn || Number(amountIn) <= 0
+                )}
+              </Button>
+            </AuthGate>
+          </div>
+        </form>
+      </FormProvider>
+
+      {minWithdrawalAmountWithFee != null &&
+        minWithdrawalAmountWithFee.amount > 1n &&
+        parsedAmountIn != null &&
+        parsedAmountIn.amount > 0n &&
+        compareAmounts(parsedAmountIn, minWithdrawalAmountWithFee) === -1 && (
           <MinWithdrawalAmount
             minWithdrawalAmount={minWithdrawalAmountWithFee}
             tokenOut={tokenOut}
-            isLoading={
-              state.matches({ editing: "preparation" }) &&
-              state.context.preparationOutput == null
-            }
           />
-
-          <RecipientSubForm
-            form={form}
-            chainType={chainType}
-            userAddress={userAddress}
-            displayAddress={displayAddress}
-            tokenInBalance={tokenInBalance}
-          />
-
-          {!isNearIntentsNetwork(blockchain) &&
-            isCexIncompatible(tokenOutDeployment) && (
-              <AcknowledgementCheckbox
-                control={control}
-                errors={errors}
-                tokenOut={tokenOut}
-              />
-            )}
-
-          <ReceivedAmountAndFee
-            fee={withdtrawalFee}
-            totalAmountReceived={totalAmountReceived}
-            feeUsd={feeUsd}
-            totalAmountReceivedUsd={receivedAmountUsd}
-            symbol={token.symbol}
-            directionFee={directionFee}
-            isLoading={
-              state.matches({ editing: "preparation" }) &&
-              state.context.preparationOutput == null
-            }
-          />
-
-          <AuthGate
-            renderHostAppLink={renderHostAppLink}
-            shouldRender={isLoggedIn}
-          >
-            <ButtonCustom
-              size="lg"
-              disabled={state.matches("submitting") || noLiquidity}
-              isLoading={state.matches("submitting")}
-            >
-              {getWithdrawButtonText(noLiquidity, insufficientTokenInAmount)}
-            </ButtonCustom>
-          </AuthGate>
-        </Flex>
-      </Form>
+        )}
 
       <PreparationResult
         preparationOutput={state.context.preparationOutput}
@@ -521,7 +585,23 @@ export const WithdrawForm = ({
         decreaseAmount={decreaseAmount}
       />
 
-      <IntentCreationResult intentCreationResult={intentCreationResult} />
-    </Island>
+      <ModalReviewSend
+        open={isReviewOpen}
+        onClose={() => actorRef.send({ type: "CANCEL_REVIEW" })}
+        onConfirm={handleConfirmSubmit}
+        loading={state.matches("submitting")}
+        intentCreationResult={intentCreationResult}
+        tokenIn={token}
+        amountIn={amountIn}
+        usdAmountIn={tokenToWithdrawUsdAmount ?? 0}
+        recipient={recipient}
+        network={blockchain}
+        fee={withdtrawalFee}
+        totalAmountReceived={totalAmountReceived}
+        feeUsd={feeUsd}
+        totalAmountReceivedUsd={receivedAmountUsd}
+        directionFee={directionFee}
+      />
+    </>
   )
 }

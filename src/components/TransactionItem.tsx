@@ -19,12 +19,7 @@ const TransactionItem = ({
 
   return (
     <ListItem>
-      <AssetComboIcon
-        icon={tokenInfo?.icon}
-        name={tokenInfo?.name}
-        showChainIcon
-        badgeType={type}
-      />
+      <AssetComboIcon icon={tokenInfo?.icon} showChainIcon badgeType={type} />
 
       <ListItem.Content>
         <ListItem.Title className="capitalize">{type}</ListItem.Title>
