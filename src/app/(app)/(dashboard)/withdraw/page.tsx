@@ -22,7 +22,7 @@ export default function Withdraw() {
   const network = queryParams.get("network") ?? undefined
   const recipient = queryParams.get("recipient") ?? undefined
 
-  const userAddress = state.isVerified ? state.address : undefined
+  const userAddress = state.isAuthorized ? state.address : undefined
   const userChainType = state.chainType
 
   return (
@@ -34,7 +34,7 @@ export default function Withdraw() {
         presetTokenSymbol={tokenSymbol}
         tokenList={tokenList}
         userAddress={userAddress}
-        displayAddress={state.isVerified ? state.displayAddress : undefined}
+        displayAddress={state.isAuthorized ? state.displayAddress : undefined}
         chainType={userChainType}
         sendNearTransaction={async (tx) => {
           const result = await signAndSendTransactions({ transactions: [tx] })

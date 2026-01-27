@@ -77,13 +77,13 @@ export default function ActivityPage({
     setHadPreviousSession(localStorage.getItem("chainType") !== null)
   }, [])
 
-  const userAddress = state.isVerified ? state.address : null
+  const userAddress = state.isAuthorized ? state.address : null
   const isWaitingForReconnect = hadPreviousSession && !state.address
   const isWalletHydrating =
     !hasHydrated ||
     isWalletConnecting ||
     isWaitingForReconnect ||
-    Boolean(state.address && !state.isVerified)
+    Boolean(state.address && !state.isAuthorized)
 
   const currentSearchParams = new URLSearchParams()
   for (const [key, value] of Object.entries(searchParamsData)) {
