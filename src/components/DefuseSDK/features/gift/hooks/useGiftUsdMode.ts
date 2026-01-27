@@ -5,12 +5,14 @@ import { useCallback, useEffect, useState } from "react"
 
 interface UseGiftUsdModeParams {
   token: TokenInfo | null
+  tokenAmount: string
   tokensUsdPriceData?: TokenUsdPriceData
   onAmountChange: (value: string) => void
 }
 
 export function useGiftUsdMode({
   token,
+  tokenAmount,
   tokensUsdPriceData,
   onAmountChange,
 }: UseGiftUsdModeParams) {
@@ -25,10 +27,16 @@ export function useGiftUsdMode({
       setIsUsdMode(false)
       setUsdValue("")
     } else {
-      setUsdValue("")
+      const tokenNum = Number.parseFloat(tokenAmount.replace(",", "."))
+      if (!Number.isNaN(tokenNum) && tokenNum > 0) {
+        const usdEquivalent = tokenNum * tokenPrice
+        setUsdValue(usdEquivalent.toFixed(2).replace(/\.?0+$/, ""))
+      } else {
+        setUsdValue("")
+      }
       setIsUsdMode(true)
     }
-  }, [isUsdMode, tokenPrice])
+  }, [isUsdMode, tokenPrice, tokenAmount])
 
   const handleUsdInputChange = useCallback(
     (usdInputValue: string) => {
@@ -44,8 +52,8 @@ export function useGiftUsdMode({
         return
       }
 
-      const tokenAmount = usdNum / tokenPrice
-      const formattedAmount = tokenAmount.toFixed(8).replace(/\.?0+$/, "")
+      const tokenAmountCalc = usdNum / tokenPrice
+      const formattedAmount = tokenAmountCalc.toFixed(8).replace(/\.?0+$/, "")
       onAmountChange(formattedAmount)
     },
     [tokenPrice, onAmountChange]
@@ -58,14 +66,21 @@ export function useGiftUsdMode({
     setUsdValue("")
   }, [token])
 
-  const clearUsdValue = useCallback(() => {
-    setUsdValue("")
-  }, [])
-
-  const exitUsdMode = useCallback(() => {
-    setIsUsdMode(false)
-    setUsdValue("")
-  }, [])
+  const setTokenAmount = useCallback(
+    (newTokenAmount: string) => {
+      onAmountChange(newTokenAmount)
+      if (isUsdMode && tokenPrice && tokenPrice > 0) {
+        const tokenNum = Number.parseFloat(newTokenAmount.replace(",", "."))
+        if (!Number.isNaN(tokenNum) && tokenNum > 0) {
+          const usdEquivalent = tokenNum * tokenPrice
+          setUsdValue(usdEquivalent.toFixed(2).replace(/\.?0+$/, ""))
+        } else {
+          setUsdValue("")
+        }
+      }
+    },
+    [isUsdMode, tokenPrice, onAmountChange]
+  )
 
   return {
     isUsdMode,
@@ -73,7 +88,6 @@ export function useGiftUsdMode({
     tokenPrice,
     handleToggle,
     handleUsdInputChange,
-    clearUsdValue,
-    exitUsdMode,
+    setTokenAmount,
   }
 }

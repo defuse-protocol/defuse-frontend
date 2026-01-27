@@ -4,7 +4,7 @@ import Button from "@src/components/Button"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { useActorRef, useSelector } from "@xstate/react"
 import clsx from "clsx"
-import { useCallback, useEffect, useMemo } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import type { ActorRefFrom, PromiseActorLogic } from "xstate"
 import { AuthGate } from "../../../components/AuthGate"
 import { BlockMultiBalances } from "../../../components/Block/BlockMultiBalances"
@@ -140,9 +140,10 @@ export function GiftMakerForm({
     tokenPrice,
     handleToggle: handleToggleUsdMode,
     handleUsdInputChange,
-    exitUsdMode,
+    setTokenAmount,
   } = useGiftUsdMode({
     token: formValues.token,
+    tokenAmount: formValues.amount,
     tokensUsdPriceData,
     onAmountChange: handleAmountChange,
   })
@@ -247,32 +248,78 @@ export function GiftMakerForm({
 
   usePublicKeyModalOpener(publicKeyVerifierRef, sendNearTransaction)
 
-  const handleSetMaxValue = async () => {
+  const handleSetMaxValue = () => {
     if (tokenBalance != null) {
-      formValuesRef.trigger.updateAmount({
-        value: formatTokenValue(tokenBalance.amount, tokenBalance.decimals, {
+      setTokenAmount(
+        formatTokenValue(tokenBalance.amount, tokenBalance.decimals, {
           fractionDigits: 6,
-        }),
-      })
-      exitUsdMode()
+        })
+      )
     }
   }
 
-  const handleSetHalfValue = async () => {
+  const handleSetHalfValue = () => {
     if (tokenBalance != null) {
-      formValuesRef.trigger.updateAmount({
-        value: formatTokenValue(
-          tokenBalance.amount / 2n,
-          tokenBalance.decimals,
-          { fractionDigits: 6 }
-        ),
-      })
-      exitUsdMode()
+      setTokenAmount(
+        formatTokenValue(tokenBalance.amount / 2n, tokenBalance.decimals, {
+          fractionDigits: 6,
+        })
+      )
     }
   }
+
+  const [customPercent, setCustomPercent] = useState<number | null>(null)
+
+  const applyPercentToAmount = useCallback(
+    (percent: number) => {
+      if (tokenBalance != null) {
+        const amount =
+          (tokenBalance.amount * BigInt(Math.round(percent * 100))) / 10000n
+        setTokenAmount(
+          formatTokenValue(amount, tokenBalance.decimals, {
+            fractionDigits: 6,
+          })
+        )
+      }
+    },
+    [tokenBalance, setTokenAmount]
+  )
+
+  const handleSetCustomPercent = useCallback(
+    (percent: number) => {
+      setCustomPercent(percent)
+      applyPercentToAmount(percent)
+    },
+    [applyPercentToAmount]
+  )
+
+  const handleApplyCustomPercent = useCallback(() => {
+    if (customPercent != null) {
+      applyPercentToAmount(customPercent)
+    }
+  }, [customPercent, applyPercentToAmount])
 
   const balanceAmount = tokenBalance?.amount ?? 0n
   const disabled = tokenBalance?.amount === 0n
+
+  const isCustomPercentSelected = useMemo(() => {
+    if (
+      customPercent == null ||
+      !tokenBalance ||
+      tokenBalance.amount === 0n ||
+      !formValues.amount
+    ) {
+      return false
+    }
+    const expectedAmount =
+      (tokenBalance.amount * BigInt(Math.round(customPercent * 100))) / 10000n
+    const expectedFormatted = formatTokenValue(
+      expectedAmount,
+      tokenBalance.decimals,
+      { fractionDigits: 6 }
+    )
+    return formValues.amount === expectedFormatted
+  }, [customPercent, formValues.amount, tokenBalance])
 
   const isMaxSelected = useMemo(() => {
     if (!tokenBalance || tokenBalance.amount === 0n) return false
@@ -375,12 +422,15 @@ export function GiftMakerForm({
                 balance={balanceAmount}
                 decimals={tokenBalance?.decimals ?? 0}
                 className={clsx("static!", tokenBalance == null && "invisible")}
-                maxButtonSlot={
-                  <BlockMultiBalances.DisplayMaxButton
-                    onClick={handleSetMaxValue}
+                onBalanceClick={handleSetMaxValue}
+                customPercentButtonSlot={
+                  <BlockMultiBalances.DisplayCustomPercentButton
+                    onPercentChange={handleSetCustomPercent}
+                    onPercentApply={handleApplyCustomPercent}
                     balance={balanceAmount}
                     disabled={disabled}
-                    selected={isMaxSelected}
+                    customPercent={customPercent}
+                    isSelected={isCustomPercentSelected}
                   />
                 }
                 halfButtonSlot={
@@ -389,6 +439,14 @@ export function GiftMakerForm({
                     balance={balanceAmount}
                     disabled={disabled}
                     selected={isHalfSelected}
+                  />
+                }
+                maxButtonSlot={
+                  <BlockMultiBalances.DisplayMaxButton
+                    onClick={handleSetMaxValue}
+                    balance={balanceAmount}
+                    disabled={disabled}
+                    selected={isMaxSelected}
                   />
                 }
               />

@@ -43,6 +43,7 @@ export function GiftMakerHistoryItem({
 }) {
   const [showDialog, setShowDialog] = useState(false)
   const [showExpirationDialog, setShowExpirationDialog] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const amount = computeTotalBalanceDifferentDecimals(
     getUnderlyingBaseTokenInfos(giftInfo.token),
     giftInfo.tokenDiff,
@@ -80,10 +81,17 @@ export function GiftMakerHistoryItem({
     giftInfo.expiresAt != null && giftInfo.expiresAt < Date.now()
 
   const cancellationOrRemoval = useCallback(async () => {
-    if (giftInfo.status === "claimed") {
-      await removeClaimedGiftFromStore({ giftInfo, signerCredentials })
-    } else {
-      await cancelGift({ giftInfo, signerCredentials })
+    setIsDeleting(true)
+    try {
+      if (giftInfo.status === "claimed") {
+        await removeClaimedGiftFromStore({ giftInfo, signerCredentials })
+      } else {
+        await cancelGift({ giftInfo, signerCredentials })
+      }
+    } catch (err) {
+      logger.error(new Error("Failed to cancel/remove gift", { cause: err }))
+    } finally {
+      setIsDeleting(false)
     }
   }, [giftInfo, signerCredentials, cancelGift])
 
@@ -121,9 +129,13 @@ export function GiftMakerHistoryItem({
           </Copy>
         </>
       )}
-      <Button size="sm" onClick={cancellationOrRemoval}>
+      <Button size="sm" onClick={cancellationOrRemoval} disabled={isDeleting}>
         <TrashIcon weight="bold" className="size-4" />
-        {giftInfo.status === "claimed" ? "Remove" : "Cancel"}
+        {isDeleting
+          ? "..."
+          : giftInfo.status === "claimed"
+            ? "Remove"
+            : "Cancel"}
       </Button>
     </>
   )

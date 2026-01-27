@@ -66,7 +66,8 @@ export async function createGiftIntent(
       iv: encodedIv,
       giftId,
     }
-  } catch (_e) {
+  } catch (err) {
+    logger.error(new Error("Failed to create gift intent", { cause: err }))
     throw new Error("Failed to create order")
   }
 }
