@@ -308,7 +308,6 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     tokenPrice: tokenInPrice,
     handleToggle: handleToggleUsdModeIn,
     handleInputChange: handleUsdInputChangeRaw,
-    clearUsdValue: clearUsdValueIn,
   } = useUsdMode({
     direction: "input",
     tokenIn,
@@ -318,14 +317,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     swapUIActorRef,
   })
 
-  const {
-    isUsdMode: isUsdModeOut,
-    usdValue: usdValueOut,
-    tokenPrice: tokenOutPrice,
-    handleToggle: handleToggleUsdModeOut,
-    handleInputChange: handleUsdOutputChangeRaw,
-    clearUsdValue: clearUsdValueOut,
-  } = useUsdMode({
+  const { tokenPrice: tokenOutPrice } = useUsdMode({
     direction: "output",
     tokenIn,
     tokenOut,
@@ -333,23 +325,6 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     setValue,
     swapUIActorRef,
   })
-
-  // Wrap handlers to clear the other side's USD value
-  const handleUsdInputChange = useCallback(
-    (value: string) => {
-      clearUsdValueOut()
-      handleUsdInputChangeRaw(value)
-    },
-    [clearUsdValueOut, handleUsdInputChangeRaw]
-  )
-
-  const handleUsdOutputChange = useCallback(
-    (value: string) => {
-      clearUsdValueIn()
-      handleUsdOutputChangeRaw(value)
-    },
-    [clearUsdValueIn, handleUsdOutputChangeRaw]
-  )
 
   const is1cs = useIs1CsEnabled()
   const isSubmitting = snapshot.matches("submitting")
@@ -410,7 +385,6 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
         <form onSubmit={handleSubmit(onRequestReview)}>
           <div>
             <TokenInputCard
-              label="Sell"
               balance={balanceAmountIn}
               decimals={tokenInBalance?.decimals ?? 0}
               symbol={tokenIn.symbol}
@@ -433,11 +407,10 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                   ? {
                       name: "usdAmountIn",
                       onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-                        handleUsdInputChange(e.target.value)
+                        handleUsdInputChangeRaw(e.target.value)
                       },
                       onBlur: () => {},
                       ref: () => {},
-                      // Show user-entered value, or calculated USD from quote if empty
                       value:
                         usdValueIn ||
                         (usdAmountIn ? usdAmountIn.toFixed(2) : ""),
@@ -470,7 +443,12 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                       value: amountIn,
                     }
               }
-              error={errors.amountIn ? errors.amountIn.message : undefined}
+              hasError={balanceInsufficient}
+              error={
+                balanceInsufficient
+                  ? "Amount entered exceeds available balance"
+                  : errors.amountIn?.message
+              }
             />
 
             <div className="flex items-center justify-center -my-3.5">
@@ -489,7 +467,6 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             </div>
 
             <TokenInputCard
-              label="Buy"
               balance={balanceAmountOut}
               decimals={tokenOutBalance?.decimals ?? 0}
               symbol={tokenOut.symbol}
@@ -501,56 +478,22 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               handleSelectToken={() =>
                 openModalSelectAssets(SWAP_TOKEN_FLAGS.OUT, tokenOut)
               }
-              isUsdMode={isUsdModeOut}
+              isUsdMode={isUsdModeIn}
               tokenPrice={tokenOutPrice}
-              onToggleUsdMode={is1cs ? handleToggleUsdModeOut : undefined}
               tokenAmount={amountOut}
-              registration={
-                isUsdModeOut
-                  ? {
-                      name: "usdAmountOut",
-                      onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-                        handleUsdOutputChange(e.target.value)
-                      },
-                      onBlur: () => {},
-                      ref: () => {},
-                      // Show user-entered value, or calculated USD from quote if empty
-                      value:
-                        usdValueOut ||
-                        (usdAmountOut ? usdAmountOut.toFixed(2) : ""),
-                    }
-                  : {
-                      ...register("amountOut", {
-                        required: true,
-                        validate: (value) => {
-                          if (!value) return true
-                          const num = Number.parseFloat(value.replace(",", "."))
-                          return (
-                            (!Number.isNaN(num) && num > 0) ||
-                            "Enter a valid amount"
-                          )
-                        },
-                        onChange: (e) => {
-                          setValue("amountIn", "")
-                          swapUIActorRef.send({
-                            type: "input",
-                            params: {
-                              tokenIn,
-                              tokenOut,
-                              swapType: QuoteRequest.swapType.EXACT_OUTPUT,
-                              amountOut: e.target.value,
-                              amountIn: "",
-                            },
-                          })
-                        },
-                      }),
-                      value: amountOut,
-                    }
-              }
-              readOnly={!is1cs}
-              error={
-                errors.amountOut && is1cs ? errors.amountOut.message : undefined
-              }
+              isOutputField
+              registration={{
+                name: "amountOut",
+                onChange: () => {},
+                onBlur: () => {},
+                ref: () => {},
+                value: isUsdModeIn
+                  ? usdAmountOut
+                    ? usdAmountOut.toFixed(2)
+                    : ""
+                  : amountOut,
+              }}
+              readOnly
             />
           </div>
 
