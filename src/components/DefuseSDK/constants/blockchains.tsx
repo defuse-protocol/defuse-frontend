@@ -426,7 +426,7 @@ function sortBlockchainOptionsByVolume(
   >
 }
 
-const intentsChainIcon = {
+export const intentsChainIcon = {
   dark: "/static/icons/network/intents_white.svg",
   light: "/static/icons/network/intents.svg",
 }
