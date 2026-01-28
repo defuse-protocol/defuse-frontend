@@ -1,6 +1,10 @@
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { assert } from "@defuse-protocol/internal-utils"
-import { PencilIcon, UserCircleIcon } from "@heroicons/react/20/solid"
+import {
+  PencilIcon,
+  UserCircleIcon,
+  UserPlusIcon,
+} from "@heroicons/react/20/solid"
 import {
   type Contact,
   getContacts,
@@ -29,6 +33,7 @@ import { NetworkIcon } from "../Network/NetworkIcon"
 import SearchBar from "../SearchBar"
 import TooltipNew from "../TooltipNew"
 import { BaseModalDialog } from "./ModalDialog"
+import ModalSaveContact from "./ModalSaveContact"
 
 type ModalSelectRecipientProps = {
   open: boolean
@@ -65,6 +70,9 @@ const ModalSelectRecipient = ({
   const [isValidating, setIsValidating] = useState(false)
   const [validationError, setValidationError] = useState<string | null>(null)
   const [validatedAddress, setValidatedAddress] = useState<string | null>(null)
+  const [isSaveContactModalOpen, setIsSaveContactModalOpen] = useState(false)
+  // Track if modal was closed by selecting an address (don't clear input)
+  const [closedBySelection, setClosedBySelection] = useState(false)
 
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
@@ -186,6 +194,7 @@ const ModalSelectRecipient = ({
   }
 
   const handleSelectAddress = (address: string) => {
+    setClosedBySelection(true)
     setValue("recipient", address)
     onClose()
   }
@@ -207,7 +216,12 @@ const ModalSelectRecipient = ({
       onClose={onClose}
       onCloseAnimationEnd={() => {
         setIsScrolled(false)
-        handleClear()
+        // Only clear input if modal was dismissed (X button, click outside)
+        // Keep input if user selected an address so they can reopen and save as contact
+        if (!closedBySelection) {
+          handleClear()
+        }
+        setClosedBySelection(false)
       }}
     >
       <div className="mt-2 max-h-[580px] min-h-80 flex flex-col">
@@ -254,6 +268,21 @@ const ModalSelectRecipient = ({
                   {midTruncate(validatedAddress, 16)}
                 </ListItem.Title>
               </ListItem.Content>
+              <TooltipNew>
+                <TooltipNew.Trigger>
+                  <button
+                    type="button"
+                    className="size-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setIsSaveContactModalOpen(true)
+                    }}
+                  >
+                    <UserPlusIcon className="size-5" />
+                  </button>
+                </TooltipNew.Trigger>
+                <TooltipNew.Content>Save as a new contact</TooltipNew.Content>
+              </TooltipNew>
             </ListItem>
           ) : (
             <>
@@ -437,6 +466,23 @@ const ModalSelectRecipient = ({
           )}
         </div>
       </div>
+
+      {validatedAddress && isSupportedChainName(blockchain) && (
+        <ModalSaveContact
+          open={isSaveContactModalOpen}
+          onClose={() => setIsSaveContactModalOpen(false)}
+          address={validatedAddress}
+          network={blockchain}
+          onSuccess={(contact) => {
+            setIsSaveContactModalOpen(false)
+            setClosedBySelection(true)
+            if (onSelectContact) {
+              onSelectContact(contact)
+            }
+            onClose()
+          }}
+        />
+      )}
     </BaseModalDialog>
   )
 }
