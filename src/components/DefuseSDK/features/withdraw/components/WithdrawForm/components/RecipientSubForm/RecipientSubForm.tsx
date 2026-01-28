@@ -378,6 +378,15 @@ export const RecipientSubForm = ({
               </div>
             }
             onClick={() => setModalType("recipient")}
+            onClear={
+              recipientMode === "contact"
+                ? () => {
+                    setRecipientMode("address")
+                    setSelectedContact(null)
+                    setValue("recipient", "")
+                  }
+                : undefined
+            }
           />
         )}
       />
