@@ -294,36 +294,21 @@ export const WithdrawForm = ({
   }, [watch, actorRef, token])
 
   useEffect(() => {
-    // biome-ignore lint/suspicious/noConsole: temporary debug logging
-    console.log("[WithdrawForm] Preset effect:", {
-      presetAmount,
-      presetNetwork,
-      presetRecipient,
-      isSupportedChain: presetNetwork
-        ? isSupportedChainName(presetNetwork)
-        : null,
-    })
-
     if (presetAmount != null) {
       setValue("amountIn", presetAmount)
     }
+    // Token selection for presetNetwork is handled in WithdrawWidget.
+    // Here we just need to set the blockchain and recipient in the form/XState.
     if (presetNetwork != null && isSupportedChainName(presetNetwork)) {
       // Check if current token supports this network before updating
+      // (WithdrawWidget should have already selected a compatible token)
       const tokenSupportsNetwork = isBaseToken(token)
         ? token.deployments.some((d) => d.chainName === presetNetwork)
         : token.groupedTokens.some((gt) =>
             gt.deployments.some((d) => d.chainName === presetNetwork)
           )
 
-      // biome-ignore lint/suspicious/noConsole: temporary debug logging
-      console.log(
-        "[WithdrawForm] Token supports network:",
-        tokenSupportsNetwork
-      )
-
       if (tokenSupportsNetwork) {
-        // biome-ignore lint/suspicious/noConsole: temporary debug logging
-        console.log("[WithdrawForm] Setting blockchain to:", presetNetwork)
         setValue("blockchain", presetNetwork)
         // Also update XState machine so form values stay in sync
         actorRef.send({
