@@ -13,6 +13,7 @@ import { isBaseToken } from "@src/components/DefuseSDK/utils/token"
 import {
   addAmounts,
   compareAmounts,
+  computeTotalBalanceDifferentDecimals,
   getTokenMaxDecimals,
   isMinAmountNotRequired,
   subtractAmounts,
@@ -22,7 +23,7 @@ import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
 import { useWithdrawTrackerMachine } from "@src/providers/WithdrawTrackerMachineProvider"
 import { logger } from "@src/utils/logger"
 import { useSelector } from "@xstate/react"
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import { formatUnits } from "viem"
 import { AuthGate } from "../../../../components/AuthGate"
@@ -83,6 +84,7 @@ export const WithdrawForm = ({
   presetRecipient,
   presetContactId,
   noTokenForPresetNetwork,
+  tokenList,
   sendNearTransaction,
   renderHostAppLink,
 }: WithdrawFormProps) => {
@@ -100,6 +102,7 @@ export const WithdrawForm = ({
     totalAmountReceived,
     withdtrawalFee,
     directionFee,
+    balances,
   } = WithdrawUIMachineContext.useSelector((state) => {
     return {
       state,
@@ -330,6 +333,72 @@ export const WithdrawForm = ({
       })
     }
   }, [presetAmount, presetNetwork, presetRecipient, setValue, actorRef, token])
+
+  // Track if we've already corrected the token for presetNetwork
+  const hasAttemptedTokenCorrection = useRef(false)
+
+  // When balances are loaded, check if we need to switch to a token with balance
+  // This handles the case where WithdrawWidget selected a token by network compatibility
+  // but that token has no balance - we want to switch to one with balance instead
+  useEffect(() => {
+    // Only run if we have a preset network and haven't already corrected
+    if (
+      presetNetwork == null ||
+      !isSupportedChainName(presetNetwork) ||
+      hasAttemptedTokenCorrection.current
+    ) {
+      return
+    }
+
+    // Wait until balances are loaded (non-empty)
+    if (Object.keys(balances).length === 0) {
+      return
+    }
+
+    // Check if current token has balance
+    const currentTokenBalance = computeTotalBalanceDifferentDecimals(
+      token,
+      balances
+    )
+    if (currentTokenBalance != null && currentTokenBalance.amount > 0n) {
+      // Current token has balance, no need to switch
+      hasAttemptedTokenCorrection.current = true
+      return
+    }
+
+    // Current token has no balance - find one that does and supports the preset network
+    const tokenWithBalance = tokenList.find((t) => {
+      // Check if token supports the network
+      const supportsNetwork = isBaseToken(t)
+        ? t.deployments.some((d) => d.chainName === presetNetwork)
+        : t.groupedTokens.some((gt) =>
+            gt.deployments.some((d) => d.chainName === presetNetwork)
+          )
+
+      if (!supportsNetwork) return false
+
+      // Check if token has balance
+      const balance = computeTotalBalanceDifferentDecimals(t, balances)
+      return balance != null && balance.amount > 0n
+    })
+
+    hasAttemptedTokenCorrection.current = true
+
+    if (tokenWithBalance != null) {
+      // Switch to the token with balance
+      const parsedAmount = {
+        amount: 0n,
+        decimals: getTokenMaxDecimals(tokenWithBalance),
+      }
+      actorRef.send({
+        type: "WITHDRAW_FORM.UPDATE_TOKEN",
+        params: {
+          token: tokenWithBalance,
+          parsedAmount: parsedAmount,
+        },
+      })
+    }
+  }, [presetNetwork, balances, token, tokenList, actorRef])
 
   const { registerWithdraw, hasActiveWithdraw } = useWithdrawTrackerMachine()
 
