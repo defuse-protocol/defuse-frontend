@@ -442,7 +442,7 @@ export const INTENTS_EXPLORER_URL = "https://explorer.near-intents.org"
 export function getNearIntentsOption(): Record<"intents", IntentsOption> {
   return {
     intents: {
-      label: "Another Near Intents Account",
+      label: "Another Intents Account",
       icon: <NetworkIcon chainIcon={nearIntentsAccountIcon} />,
       value: "near_intents",
       tags: [],
