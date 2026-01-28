@@ -94,7 +94,7 @@ const Assets = ({
               key={getDefuseAssetId(token)}
               popoverContent={
                 <>
-                  <Button size="sm" href="/send">
+                  <Button size="sm" href={`/send?token=${token.symbol}`}>
                     <SendIcon className="size-4 shrink-0" />
                     Send
                   </Button>
