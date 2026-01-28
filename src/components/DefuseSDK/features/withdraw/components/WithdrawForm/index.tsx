@@ -69,7 +69,10 @@ export type WithdrawFormNearValues = {
   isFundsLooseConfirmed?: boolean
 }
 
-type WithdrawFormProps = WithdrawWidgetProps
+type WithdrawFormProps = WithdrawWidgetProps & {
+  /** Network that was requested but has no compatible tokens */
+  noTokenForPresetNetwork?: SupportedChainName | null
+}
 
 export const WithdrawForm = ({
   userAddress,
@@ -79,6 +82,7 @@ export const WithdrawForm = ({
   presetNetwork,
   presetRecipient,
   presetContactId,
+  noTokenForPresetNetwork,
   sendNearTransaction,
   renderHostAppLink,
 }: WithdrawFormProps) => {
@@ -489,6 +493,7 @@ export const WithdrawForm = ({
               displayAddress={displayAddress}
               tokenInBalance={tokenInBalance}
               presetContactId={presetContactId}
+              noTokenForPresetNetwork={noTokenForPresetNetwork}
             />
 
             <SelectedTokenInput

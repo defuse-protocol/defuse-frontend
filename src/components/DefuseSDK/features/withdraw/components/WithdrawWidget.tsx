@@ -2,7 +2,10 @@
 import { messageFactory } from "@defuse-protocol/internal-utils"
 import { base64 } from "@scure/base"
 import { bridgeSDK } from "@src/components/DefuseSDK/constants/bridgeSdk"
-import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
+import type {
+  SupportedChainName,
+  TokenInfo,
+} from "@src/components/DefuseSDK/types/base"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { getAppFeeRecipient } from "@src/utils/getAppFeeRecipient"
@@ -65,6 +68,9 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
     )
   }
 
+  // Track if we couldn't find a token for the preset network
+  let noTokenForPresetNetwork: SupportedChainName | null = null
+
   // If no token found by symbol, try to find one that supports the preset network
   if (
     initialTokenIn == null &&
@@ -72,6 +78,10 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
     isSupportedChainName(props.presetNetwork)
   ) {
     initialTokenIn = findTokenForNetwork(props.tokenList, props.presetNetwork)
+    if (initialTokenIn == null) {
+      // User has no tokens available for this network
+      noTokenForPresetNetwork = props.presetNetwork
+    }
   }
 
   // Fall back to first token in list
@@ -155,7 +165,10 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
         ) : (
           <TokenListUpdater tokenList={props.tokenList} />
         )}
-        <WithdrawForm {...props} />
+        <WithdrawForm
+          {...props}
+          noTokenForPresetNetwork={noTokenForPresetNetwork}
+        />
       </WithdrawUIMachineContext.Provider>
     </WithdrawWidgetProvider>
   )

@@ -1,6 +1,6 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
-import { TagIcon } from "@heroicons/react/20/solid"
+import { ExclamationTriangleIcon, TagIcon } from "@heroicons/react/20/solid"
 import {
   type Contact,
   getContacts,
@@ -42,6 +42,7 @@ import { useTokenBalances } from "../../hooks/useTokenBalances"
 import type { WithdrawFormNearValues } from "../../index"
 import { balancesSelector } from "../../selectors"
 import {
+  chainNameToNetworkName,
   chainTypeSatisfiesChainName,
   getBlockchainSelectItems,
   getFastWithdrawals,
@@ -59,6 +60,8 @@ type RecipientSubFormProps = {
   tokenInBalance: TokenValue | undefined
   /** Contact ID to pre-select, enabling contact mode */
   presetContactId: string | undefined
+  /** Network that was requested but has no compatible tokens */
+  noTokenForPresetNetwork?: SupportedChainName | null
 }
 
 export const RecipientSubForm = ({
@@ -75,6 +78,7 @@ export const RecipientSubForm = ({
   displayAddress,
   tokenInBalance,
   presetContactId,
+  noTokenForPresetNetwork,
 }: RecipientSubFormProps) => {
   const [modalType, setModalType] = useState<"network" | "recipient" | null>(
     null
@@ -244,7 +248,21 @@ export const RecipientSubForm = ({
         }}
         render={({ field }) => (
           <>
-            {recipientMode === "contact" ? (
+            {noTokenForPresetNetwork != null ? (
+              // Error state: user has no tokens for the requested network
+              <SelectTriggerLike
+                label="Network"
+                value={chainNameToNetworkName(noTokenForPresetNetwork)}
+                icon={
+                  <div className="size-10 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+                    <ExclamationTriangleIcon className="text-red-500 size-5" />
+                  </div>
+                }
+                data-testid="select-trigger-like"
+                error={`You have no assets available on ${chainNameToNetworkName(noTokenForPresetNetwork)}`}
+                disabled // Hide chevron to indicate non-interactive state
+              />
+            ) : recipientMode === "contact" ? (
               // In contact mode, network is locked (determined by contact)
               <TooltipNew>
                 <TooltipNew.Trigger>
