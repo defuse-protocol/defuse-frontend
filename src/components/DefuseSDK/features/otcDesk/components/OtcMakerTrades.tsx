@@ -80,14 +80,14 @@ export function OtcMakerTrades({
         <ListItemsSkeleton count={3} className="mt-2" />
         <div className="max-w-72 mx-auto -mt-5 relative flex flex-col items-center">
           <h3 className="text-xl font-semibold text-gray-900 text-center tracking-tight">
-            No deals yet
+            No trades yet
           </h3>
           <p className="text-base text-gray-500 mt-1 font-medium text-center text-balance">
-            Create a deal to get started.
+            Create a trade to get started.
           </p>
           <Button href="/deals/new" size="xl" className="mt-4">
             <PlusIcon className="size-5 shrink-0" />
-            Create a deal
+            Create a trade
           </Button>
         </div>
       </section>

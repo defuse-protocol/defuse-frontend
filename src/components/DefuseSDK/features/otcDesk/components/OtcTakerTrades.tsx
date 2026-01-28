@@ -93,7 +93,6 @@ export function OtcTakerTrades({ tokenList }: OtcTakerTradesProps) {
           <OtcTakerTradeItem
             key={trade.tradeId}
             tradeId={trade.tradeId}
-            makerMultiPayload={trade.makerMultiPayload}
             takerMultiPayload={trade.takerMultiPayload}
             intentHashes={trade.intentHashes}
             tokenList={tokenList}
@@ -120,7 +119,6 @@ export function OtcTakerTrades({ tokenList }: OtcTakerTradesProps) {
 
 interface OtcTakerTradeItemProps {
   tradeId: string
-  makerMultiPayload: MultiPayload
   takerMultiPayload: MultiPayload
   intentHashes: string[]
   tokenList: TokenInfo[]
