@@ -81,23 +81,9 @@ export async function getContacts(input?: {
 
     const contactsData = await getContactsByAccountId(accountId, input?.search)
 
-    logger.info("getContacts debug", {
-      accountId,
-      contactsDataCount: contactsData.length,
-      contactsData: contactsData.map((c) => ({
-        name: c.name,
-        blockchain: c.blockchain,
-        isSupportedChain: isSupportedChainName(c.blockchain),
-      })),
-    })
-
     const contacts: Array<Contact> = contactsData
       .map((contact) => {
         if (!isSupportedChainName(contact.blockchain)) {
-          logger.warn("Filtering out contact with unsupported chain", {
-            contactId: contact.contactId,
-            blockchain: contact.blockchain,
-          })
           return null
         }
 
