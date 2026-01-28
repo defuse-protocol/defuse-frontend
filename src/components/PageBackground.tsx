@@ -97,8 +97,15 @@ const PageBackground = () => {
   }
 
   return (
-    <div className="absolute bottom-0 w-full h-full -z-[1] bg-gray-50 dark:bg-black-900">
-      <div className="w-full h-full bg-no-repeat bg-bottom bg-page-light--mobile md:bg-page-light dark:bg-page-dark--mobile dark:md:bg-page-dark" />
+    <div className="absolute bottom-0 w-full h-full -z-[1]">
+      {/* Base gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#f5f0eb] via-[#ebe5df] to-[#e0d8d0] dark:from-[#0a0a0a] dark:via-[#0f0f0f] dark:to-[#0a0a0a]" />
+
+      {/* Subtle radial glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(255,120,40,0.18),transparent)] dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(255,140,50,0.12),transparent)]" />
+
+      {/* Bottom glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_50%_120%,rgba(255,100,30,0.12),transparent)] dark:bg-[radial-gradient(ellipse_60%_40%_at_50%_120%,rgba(255,140,50,0.08),transparent)]" />
     </div>
   )
 }
