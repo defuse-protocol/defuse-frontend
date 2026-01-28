@@ -298,11 +298,16 @@ export const WithdrawForm = ({
     }
     if (presetNetwork != null && isSupportedChainName(presetNetwork)) {
       setValue("blockchain", presetNetwork)
+      // Also update XState machine so form values stay in sync
+      actorRef.send({
+        type: "WITHDRAW_FORM.UPDATE_BLOCKCHAIN",
+        params: { blockchain: presetNetwork },
+      })
     }
     if (presetRecipient != null) {
       setValue("recipient", presetRecipient)
     }
-  }, [presetAmount, presetNetwork, presetRecipient, setValue])
+  }, [presetAmount, presetNetwork, presetRecipient, setValue, actorRef])
 
   const { registerWithdraw, hasActiveWithdraw } = useWithdrawTrackerMachine()
 
