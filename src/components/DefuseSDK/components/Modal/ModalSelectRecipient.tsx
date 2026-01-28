@@ -127,8 +127,28 @@ const ModalSelectRecipient = ({
     matching.sort((a, b) => a.name.localeCompare(b.name))
     other.sort((a, b) => a.name.localeCompare(b.name))
 
-    return { matchingNetworkContacts: matching, otherNetworkContacts: other }
-  }, [contacts, availableNetworks, inputValue, blockchain])
+    // Filter out the currently selected contact (it's shown separately at the top)
+    const filteredMatching =
+      selectedContact && !wasDeselected
+        ? matching.filter((c) => c.id !== selectedContact.id)
+        : matching
+    const filteredOther =
+      selectedContact && !wasDeselected
+        ? other.filter((c) => c.id !== selectedContact.id)
+        : other
+
+    return {
+      matchingNetworkContacts: filteredMatching,
+      otherNetworkContacts: filteredOther,
+    }
+  }, [
+    contacts,
+    availableNetworks,
+    inputValue,
+    blockchain,
+    selectedContact,
+    wasDeselected,
+  ])
 
   // For backward compatibility with existing code that uses visibleContacts
   const visibleContacts = useMemo(
@@ -276,7 +296,7 @@ const ModalSelectRecipient = ({
             }}
             loading={isValidating}
             onClear={handleClear}
-            autoFocus
+            autoFocus={!selectedContact}
             placeholder="Enter address manually"
             data-testid="withdraw-target-account-field"
           />
@@ -377,14 +397,14 @@ const ModalSelectRecipient = ({
                   <div className="mt-1 space-y-1">
                     <ListItem highlight>
                       <TooltipNew>
-                        <TooltipNew.Trigger>
+                        <TooltipNew.Trigger asChild>
                           <button
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation()
                               setWasDeselected(true)
                             }}
-                            className="size-10 rounded-full bg-primary-500 flex items-center justify-center shrink-0 hover:bg-primary-600 transition-colors"
+                            className="size-10 rounded-full bg-green-500 flex items-center justify-center shrink-0 hover:bg-green-600 transition-colors"
                           >
                             <CheckIcon className="text-white size-5" />
                           </button>
