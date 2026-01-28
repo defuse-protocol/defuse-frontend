@@ -24,6 +24,7 @@ import {
 } from "../../features/withdraw/components/WithdrawForm/utils"
 import type { NetworkOptions } from "../../hooks/useNetworkLists"
 import { reverseAssetNetworkAdapter } from "../../utils/adapters"
+import { isSupportedChainName } from "../../utils/blockchain"
 import { NetworkIcon } from "../Network/NetworkIcon"
 import SearchBar from "../SearchBar"
 import TooltipNew from "../TooltipNew"
@@ -235,61 +236,62 @@ const ModalSelectRecipient = ({
           ) : (
             <>
               {/* Contacts matching current network (selectable) */}
-              {matchingNetworkContacts.length > 0 && (
-                <div>
-                  <h3 className="flex items-center gap-1.5 text-gray-500 text-sm/6 font-medium">
-                    <ContactsIcon className="size-4 shrink-0" />
-                    Contacts on {chainNameToNetworkName(blockchain)}
-                  </h3>
+              {matchingNetworkContacts.length > 0 &&
+                isSupportedChainName(blockchain) && (
+                  <div>
+                    <h3 className="flex items-center gap-1.5 text-gray-500 text-sm/6 font-medium">
+                      <ContactsIcon className="size-4 shrink-0" />
+                      Contacts on {chainNameToNetworkName(blockchain)}
+                    </h3>
 
-                  <div className="mt-1 space-y-1">
-                    {matchingNetworkContacts.map((contact) => {
-                      const chainKey =
-                        reverseAssetNetworkAdapter[contact.blockchain]
-                      const chainIcon = chainIcons[chainKey]
-                      const chainName = chainNameToNetworkName(chainKey)
+                    <div className="mt-1 space-y-1">
+                      {matchingNetworkContacts.map((contact) => {
+                        const chainKey =
+                          reverseAssetNetworkAdapter[contact.blockchain]
+                        const chainIcon = chainIcons[chainKey]
+                        const chainName = chainNameToNetworkName(chainKey)
 
-                      return (
-                        <ListItem
-                          key={contact.id}
-                          onClick={() => {
-                            if (onSelectContact) {
-                              onSelectContact(contact)
-                            } else {
-                              setValue("blockchain", chainKey)
-                              setValue("recipient", contact.address, {
-                                shouldValidate: true,
-                              })
-                            }
-                            onClose()
-                          }}
-                        >
-                          <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1">
-                            <WalletIcon className="text-gray-500 size-5" />
-                          </div>
-                          <ListItem.Content>
-                            <ListItem.Title className="truncate">
-                              {contact.name}
-                            </ListItem.Title>
-                            <ListItem.Subtitle>
-                              {midTruncate(contact.address, 16)}
-                            </ListItem.Subtitle>
-                          </ListItem.Content>
-                          <ListItem.Content align="end">
-                            <ListItem.Title className="flex items-center gap-1 pb-4.5">
-                              <NetworkIcon
-                                chainIcon={chainIcon}
-                                sizeClassName="size-4"
-                              />
-                              <span className="capitalize">{chainName}</span>
-                            </ListItem.Title>
-                          </ListItem.Content>
-                        </ListItem>
-                      )
-                    })}
+                        return (
+                          <ListItem
+                            key={contact.id}
+                            onClick={() => {
+                              if (onSelectContact) {
+                                onSelectContact(contact)
+                              } else {
+                                setValue("blockchain", chainKey)
+                                setValue("recipient", contact.address, {
+                                  shouldValidate: true,
+                                })
+                              }
+                              onClose()
+                            }}
+                          >
+                            <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1">
+                              <WalletIcon className="text-gray-500 size-5" />
+                            </div>
+                            <ListItem.Content>
+                              <ListItem.Title className="truncate">
+                                {contact.name}
+                              </ListItem.Title>
+                              <ListItem.Subtitle>
+                                {midTruncate(contact.address, 16)}
+                              </ListItem.Subtitle>
+                            </ListItem.Content>
+                            <ListItem.Content align="end">
+                              <ListItem.Title className="flex items-center gap-1 pb-4.5">
+                                <NetworkIcon
+                                  chainIcon={chainIcon}
+                                  sizeClassName="size-4"
+                                />
+                                <span className="capitalize">{chainName}</span>
+                              </ListItem.Title>
+                            </ListItem.Content>
+                          </ListItem>
+                        )
+                      })}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
               {/* Contacts on other networks (greyed out with tooltip) */}
               {otherNetworkContacts.length > 0 && (

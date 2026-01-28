@@ -91,7 +91,17 @@ const ModalSaveContact = ({
       // Invalidate contacts query to refresh the list
       await queryClient.invalidateQueries({ queryKey: ["contacts"] })
 
-      onSuccess(result.value)
+      // Convert ContactEntity to Contact type (blockchain as BlockchainEnum)
+      const contact: Contact = {
+        id: result.value.id,
+        contactId: result.value.contactId,
+        accountId: result.value.accountId,
+        address: result.value.address,
+        name: result.value.name,
+        blockchain, // Use the BlockchainEnum we already have
+      }
+
+      onSuccess(contact)
       onClose()
     } catch (error) {
       setSubmitError(
