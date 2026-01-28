@@ -306,6 +306,11 @@ export const WithdrawForm = ({
     }
     if (presetRecipient != null) {
       setValue("recipient", presetRecipient)
+      // Also update XState machine (must be after blockchain update since that clears recipient)
+      actorRef.send({
+        type: "WITHDRAW_FORM.RECIPIENT",
+        params: { recipient: presetRecipient, proxyRecipient: null },
+      })
     }
   }, [presetAmount, presetNetwork, presetRecipient, setValue, actorRef])
 
