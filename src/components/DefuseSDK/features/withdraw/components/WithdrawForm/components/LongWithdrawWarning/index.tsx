@@ -1,4 +1,4 @@
-import { Callout } from "@radix-ui/themes"
+import Alert from "@src/components/Alert"
 import { formatUnits } from "viem"
 import type { TokenValue } from "../../../../../../types/base"
 import { adjustToScale } from "../../utils"
@@ -25,13 +25,11 @@ export const LongWithdrawWarning = ({
 
   const adjusted = adjustToScale(hotBalance)
   return (
-    <Callout.Root className="bg-warning px-3 py-2 text-warning-foreground">
-      <Callout.Text className="font-bold text-xs">
-        {`${adjusted.value}${adjusted.postfix}`} {symbol} is available for
-        instant withdrawal on selected network. Withdrawals above or close to
-        this amount may be delayed while we process them, or you can choose to
-        split the amount across multiple networks for faster access.
-      </Callout.Text>
-    </Callout.Root>
+    <Alert variant="info">
+      {`${adjusted.value}${adjusted.postfix}`} {symbol} is available for instant
+      send on selected network. Sending more than or close to this amount may be
+      delayed while we process them, or you can choose to split the amount
+      across multiple networks for faster access.
+    </Alert>
   )
 }

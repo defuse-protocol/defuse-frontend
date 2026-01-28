@@ -1,26 +1,23 @@
-import { InformationCircleIcon } from "@heroicons/react/16/solid"
 import Button from "@src/components/Button"
-import TooltipNew from "@src/components/DefuseSDK/components/TooltipNew"
-import { RESERVED_NEAR_BALANCE } from "@src/components/DefuseSDK/services/blockchainBalanceService"
-import type { TokenDeployment } from "@src/components/DefuseSDK/types/base"
 import {
   formatTokenValue,
   formatUsdAmount,
 } from "@src/components/DefuseSDK/utils/format"
-import { isFungibleToken } from "@src/components/DefuseSDK/utils/token"
+import ErrorMessage from "@src/components/ErrorMessage"
 import clsx from "clsx"
-import { useEffect, useRef, useState } from "react"
+import { type ReactNode, useEffect, useRef, useState } from "react"
 import type { UseFormRegisterReturn } from "react-hook-form"
 
 type SelectedTokenInputProps = {
   label: string
   value: string
-  token: TokenDeployment
   symbol: string
   balance: bigint
-  usdAmount: number | null
+  decimals: number
+  error?: string
   disabled?: boolean
-  isLoading?: boolean
+  usdAmount: number | null
+  additionalInfo?: ReactNode
   registration: UseFormRegisterReturn
   handleSetPercentage: (percent: number) => void
 }
@@ -28,19 +25,18 @@ type SelectedTokenInputProps = {
 const SelectedTokenInput = ({
   label,
   value,
-  token,
   symbol,
   balance,
-  usdAmount,
+  decimals,
+  error,
   disabled,
-  isLoading,
+  usdAmount,
+  additionalInfo,
   registration,
   handleSetPercentage,
 }: SelectedTokenInputProps) => {
   const valueRef = useRef<HTMLDivElement>(null)
   const [valueWidth, setValueWidth] = useState(0)
-
-  const { decimals } = token
 
   useEffect(() => {
     const element = valueRef.current
@@ -57,22 +53,27 @@ const SelectedTokenInput = ({
     return () => observer.disconnect()
   }, [])
 
+  const size = value.length > 12 ? "xs" : value.length > 9 ? "sm" : "md"
+
   const inputValueClasses = clsx("font-bold text-right tracking-tight", {
-    "text-6xl/15": value.length <= 9,
-    "text-5xl/15": value.length > 9 && value.length <= 12,
-    "text-4xl/15": value.length > 12,
+    "text-6xl/15": size === "md",
+    "text-5xl/15": size === "sm",
+    "text-4xl/15": size === "xs",
   })
 
   const hasBalance = balance > 0n
+  const hasUsdAmount = usdAmount !== null && usdAmount > 0
 
   return (
     <div className="bg-white border border-gray-200 rounded-3xl px-6 pt-10 pb-16 flex flex-col gap-2">
-      <div className="h-6">
-        {usdAmount !== null && usdAmount > 0 && (
-          <div className="text-base text-gray-500 font-medium text-center self-center">
+      <div className="min-h-6">
+        {error ? (
+          <ErrorMessage className="text-center">{error}</ErrorMessage>
+        ) : hasUsdAmount ? (
+          <div className="text-base text-gray-500 font-medium text-center">
             {formatUsdAmount(usdAmount)}
           </div>
-        )}
+        ) : null}
       </div>
 
       <label className="relative cursor-text overflow-hidden">
@@ -85,7 +86,6 @@ const SelectedTokenInput = ({
             autoComplete="off"
             placeholder="0"
             disabled={disabled}
-            aria-busy={isLoading || undefined}
             className={clsx(
               "bg-transparent p-0 outline-hidden border-0 outline-none focus:ring-0 text-gray-900 placeholder:text-gray-400 max-w-88",
               inputValueClasses
@@ -95,9 +95,9 @@ const SelectedTokenInput = ({
           />
           <span
             className={clsx("text-xl/none font-bold text-gray-500", {
-              "mb-3": value.length <= 9,
-              "mb-2.5": value.length > 9 && value.length <= 12,
-              "mb-3.5": value.length > 12,
+              "mb-3": size === "md",
+              "mb-2.5": size === "sm",
+              "mb-3.5": size === "xs",
             })}
           >
             {symbol}
@@ -115,8 +115,8 @@ const SelectedTokenInput = ({
         </span>
       </label>
 
-      {hasBalance && (
-        <div className="flex items-center justify-center gap-4">
+      <div className="flex items-center justify-center gap-4">
+        {hasBalance && (
           <div className="text-base text-gray-500 font-medium text-center">
             Balance:{" "}
             {formatTokenValue(balance, decimals, {
@@ -124,31 +124,11 @@ const SelectedTokenInput = ({
               fractionDigits: 4,
             })}
           </div>
+        )}
 
-          {isFungibleToken(token) && token.address === "wrap.near" && (
-            <TooltipNew>
-              <TooltipNew.Trigger>
-                <button
-                  type="button"
-                  className="flex items-center justify-center size-6 rounded-lg shrink-0 text-gray-400 hover:bg-gray-200 hover:text-gray-700"
-                  aria-label="Additional information"
-                >
-                  <InformationCircleIcon className="size-4" />
-                </button>
-              </TooltipNew.Trigger>
-              <TooltipNew.Content className="max-w-72 text-center text-balance">
-                Combined balance of NEAR and wNEAR. NEAR will be automatically
-                wrapped to wNEAR if your wNEAR balance isn't sufficient for the
-                swap.
-                <br />
-                <br />
-                Note that to cover network fees, we reserve
-                {` ${formatTokenValue(RESERVED_NEAR_BALANCE, decimals)} NEAR `}
-                in your wallet.
-              </TooltipNew.Content>
-            </TooltipNew>
-          )}
+        {additionalInfo && additionalInfo}
 
+        {hasBalance && (
           <div className="flex items-center gap-2">
             <Button
               variant="secondary"
@@ -165,8 +145,8 @@ const SelectedTokenInput = ({
               Max
             </Button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

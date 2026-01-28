@@ -34,7 +34,7 @@ export async function generateAppAuthToken(
   } satisfies JWTPayload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime("1m") // Token expires in 1 minutes
+    .setExpirationTime("7d") // Token expires in 7 days
     .sign(secret)
 
   return token

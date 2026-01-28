@@ -15,7 +15,7 @@ const ConnectWallet = dynamic(() => import("@src/components/Wallet"), {
   loading: () => (
     <Button type={"button"} variant={"solid"} size={"2"} radius={"full"}>
       <Text weight="bold" wrap="nowrap">
-        Sign in
+        Sign in or Sign up
       </Text>
     </Button>
   ),

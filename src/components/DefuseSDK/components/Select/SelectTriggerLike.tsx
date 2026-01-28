@@ -13,6 +13,7 @@ interface SelectTriggerLikeProps
   label: string
   value?: string
   hint?: string
+  error?: string
 }
 
 function SelectTriggerLike(
@@ -23,6 +24,7 @@ function SelectTriggerLike(
     disabled,
     className,
     hint,
+    error,
     ...props
   }: SelectTriggerLikeProps,
   ref: ForwardedRef<HTMLButtonElement>
@@ -42,18 +44,28 @@ function SelectTriggerLike(
         {icon}
         <span className="flex flex-col items-start gap-1">
           {value && (
-            <span className="text-sm/none font-medium text-gray-500">
-              {label}
+            <span
+              className={clsx(
+                "text-sm/none font-medium",
+                error ? "text-red-600" : "text-gray-500"
+              )}
+            >
+              {error || label}
             </span>
           )}
-          <span className="text-base/none font-semibold text-gray-700">
-            {value ?? label}
+          <span
+            className={clsx(
+              "text-base/none font-semibold",
+              error ? "text-red-600" : "text-gray-700"
+            )}
+          >
+            {value || error || label}
           </span>
         </span>
       </span>
       {hint && (
-        <span className="inline-flex items-center gap-x-1.5 rounded-lg bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-600">
-          <span className="size-1.5 rounded-full bg-gray-400 shrink-0" />
+        <span className="inline-flex items-center gap-x-1.5 rounded-lg bg-green-100 px-2 py-1 text-xs font-semibold text-green-700">
+          <span className="size-1.5 rounded-full bg-green-500 shrink-0" />
           {hint}
         </span>
       )}

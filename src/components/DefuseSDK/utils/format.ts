@@ -33,7 +33,9 @@ export function formatTokenValue(
       : `${integer}.${toFixed(roundedFraction.toString(), fractionDigits)}`
 
   if (min != null && Number(formatted) < min) {
-    return `< ${signStr}${min}`
+    const decimalPlaces = min < 1 ? -Math.floor(Math.log10(min)) : 0
+    const minFormatted = min.toFixed(decimalPlaces)
+    return `< ${signStr}${minFormatted}`
   }
 
   return `${signStr}${formatted}`
@@ -62,9 +64,13 @@ export function formatUsdAmount(value: number): string {
     let maximumFractionDigits = 2
     let notation: Intl.NumberFormatOptions["notation"] = "standard"
 
-    if (value < 0.01 && value > 0) {
-      // Handle tiny amounts of USD to not show $0.00
-      maximumFractionDigits = 4
+    if (value < 1) {
+      // Show ~2 significant figures
+      if (value > 0) {
+        const firstSigDigitPos = -Math.floor(Math.log10(value))
+        maximumFractionDigits = Math.max(2, Math.min(7, firstSigDigitPos + 1))
+      }
+      // For value === 0, keep default of 2
     } else if (value >= 1_000_000) {
       // Use compact notation for larger values
       notation = "compact"

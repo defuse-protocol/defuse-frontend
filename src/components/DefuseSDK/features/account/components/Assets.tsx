@@ -108,11 +108,7 @@ const Assets = ({
                 </>
               }
             >
-              <AssetComboIcon
-                icon={token.icon}
-                name={token.name}
-                showChainIcon
-              />
+              <AssetComboIcon icon={token.icon} showChainIcon />
 
               <ListItem.Content>
                 <ListItem.Title>{token.name}</ListItem.Title>
