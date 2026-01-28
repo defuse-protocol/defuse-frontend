@@ -5,6 +5,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from "react"
@@ -105,7 +106,25 @@ const FAKE_DOCK_ITEMS: DockItem[] = [
 ]
 
 function ActivityDockProvider({ children }: { children: ReactNode }) {
-  const [dockItems, setDockItems] = useState<DockItem[]>(FAKE_DOCK_ITEMS)
+  const [dockItems, setDockItems] = useState<DockItem[]>([])
+
+  // TODO: Remove this test timer after testing
+  useEffect(() => {
+    let index = 0
+
+    const interval = setInterval(() => {
+      if (index >= FAKE_DOCK_ITEMS.length) {
+        clearInterval(interval)
+        return
+      }
+
+      const itemToAdd = FAKE_DOCK_ITEMS[index]
+      setDockItems((prev) => [...prev, { ...itemToAdd, createdAt: Date.now() }])
+      index++
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [])
 
   const addDockItem = useCallback(
     (item: Omit<DockItem, "createdAt" | "settledAt">) => {
