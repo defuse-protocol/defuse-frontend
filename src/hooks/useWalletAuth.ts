@@ -5,16 +5,16 @@ import { useQuery } from "@tanstack/react-query"
 import { useCallback, useEffect } from "react"
 
 export interface UseWalletAuthResult {
-  isVerified: boolean
+  isAuthorized: boolean
   isSessionExpired: boolean
 }
 
 /**
  * Hook that manages wallet authentication state including token validation
- * and cookie synchronization. Determines if a wallet is verified based on:
+ * and cookie synchronization. Determines if a wallet is authorized based on:
  * - Legacy verified wallets store
  * - Valid JWT token (with server-side validation)
- * - Optimistic verification during token validation
+ * - Optimistic authorization during token validation
  */
 export function useWalletAuth(
   address: string | undefined,
@@ -68,7 +68,7 @@ export function useWalletAuth(
   const isTokenValidating =
     !hasHydrated || (storedToken != null && tokenValidation.isPending)
 
-  const isVerified =
+  const isAuthorized =
     isVerifiedFromStore ||
     tokenValidation.data?.valid === true ||
     (isTokenValidating && storedToken != null)
@@ -84,7 +84,7 @@ export function useWalletAuth(
   }, [address, storedToken])
 
   return {
-    isVerified,
+    isAuthorized,
     isSessionExpired,
   }
 }

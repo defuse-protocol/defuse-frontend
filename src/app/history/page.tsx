@@ -23,7 +23,7 @@ export default function HistoryPage() {
   }, [state.address])
   const { address: walletAddress, chainType } = state
   const userAddress =
-    state.isVerified && walletAddress != null && chainType != null
+    state.isAuthorized && walletAddress != null && chainType != null
       ? authIdentity.authHandleToIntentsUserId(walletAddress, chainType)
       : null
   const isWaitingForReconnect = hadPreviousSession && !state.address
@@ -31,7 +31,7 @@ export default function HistoryPage() {
     !hasHydrated ||
     isWalletConnecting ||
     isWaitingForReconnect ||
-    Boolean(state.address && !state.isVerified)
+    Boolean(state.address && !state.isAuthorized)
 
   return (
     <Paper>
