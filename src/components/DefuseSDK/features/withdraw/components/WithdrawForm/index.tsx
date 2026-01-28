@@ -9,6 +9,7 @@ import { ModalType } from "@src/components/DefuseSDK/stores/modalStore"
 import { isSupportedChainName } from "@src/components/DefuseSDK/utils/blockchain"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
+import { isBaseToken } from "@src/components/DefuseSDK/utils/token"
 import {
   addAmounts,
   compareAmounts,
@@ -307,14 +308,29 @@ export const WithdrawForm = ({
       setValue("amountIn", presetAmount)
     }
     if (presetNetwork != null && isSupportedChainName(presetNetwork)) {
+      // Check if current token supports this network before updating
+      const tokenSupportsNetwork = isBaseToken(token)
+        ? token.deployments.some((d) => d.chainName === presetNetwork)
+        : token.groupedTokens.some((gt) =>
+            gt.deployments.some((d) => d.chainName === presetNetwork)
+          )
+
       // biome-ignore lint/suspicious/noConsole: temporary debug logging
-      console.log("[WithdrawForm] Setting blockchain to:", presetNetwork)
-      setValue("blockchain", presetNetwork)
-      // Also update XState machine so form values stay in sync
-      actorRef.send({
-        type: "WITHDRAW_FORM.UPDATE_BLOCKCHAIN",
-        params: { blockchain: presetNetwork },
-      })
+      console.log(
+        "[WithdrawForm] Token supports network:",
+        tokenSupportsNetwork
+      )
+
+      if (tokenSupportsNetwork) {
+        // biome-ignore lint/suspicious/noConsole: temporary debug logging
+        console.log("[WithdrawForm] Setting blockchain to:", presetNetwork)
+        setValue("blockchain", presetNetwork)
+        // Also update XState machine so form values stay in sync
+        actorRef.send({
+          type: "WITHDRAW_FORM.UPDATE_BLOCKCHAIN",
+          params: { blockchain: presetNetwork },
+        })
+      }
     }
     if (presetRecipient != null) {
       setValue("recipient", presetRecipient)
@@ -324,7 +340,7 @@ export const WithdrawForm = ({
         params: { recipient: presetRecipient, proxyRecipient: null },
       })
     }
-  }, [presetAmount, presetNetwork, presetRecipient, setValue, actorRef])
+  }, [presetAmount, presetNetwork, presetRecipient, setValue, actorRef, token])
 
   const { registerWithdraw, hasActiveWithdraw } = useWithdrawTrackerMachine()
 
