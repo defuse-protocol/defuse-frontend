@@ -404,9 +404,9 @@ const ModalSelectRecipient = ({
                               e.stopPropagation()
                               setWasDeselected(true)
                             }}
-                            className="size-10 rounded-full bg-green-500 flex items-center justify-center shrink-0 hover:bg-green-600 transition-colors"
+                            className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1 hover:bg-gray-200 transition-colors"
                           >
-                            <CheckIcon className="text-white size-5" />
+                            <CheckIcon className="text-gray-500 size-5" />
                           </button>
                         </TooltipNew.Trigger>
                         <TooltipNew.Content>
