@@ -4,6 +4,7 @@ import {
   CheckIcon,
   UserCircleIcon,
   UserPlusIcon,
+  XMarkIcon,
 } from "@heroicons/react/20/solid"
 import {
   type Contact,
@@ -404,9 +405,10 @@ const ModalSelectRecipient = ({
                               e.stopPropagation()
                               setWasDeselected(true)
                             }}
-                            className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1 hover:bg-gray-200 transition-colors"
+                            className="group size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1 hover:bg-gray-200 transition-colors"
                           >
-                            <CheckIcon className="text-gray-500 size-5" />
+                            <CheckIcon className="text-gray-500 size-5 group-hover:hidden" />
+                            <XMarkIcon className="text-gray-500 size-5 hidden group-hover:block" />
                           </button>
                         </TooltipNew.Trigger>
                         <TooltipNew.Content>
