@@ -85,13 +85,13 @@ const ModalSelectRecipient = ({
 
   // Split contacts into matching network and other networks
   const { matchingNetworkContacts, otherNetworkContacts } = useMemo(() => {
+    // availableNetworks is keyed by BlockchainEnum (e.g., "ETHEREUM")
     const availableNetworksValues = Object.keys(availableNetworks)
 
     // Filter to only contacts on available networks
-    // Note: contact.blockchain is BlockchainEnum, availableNetworks uses SupportedChainName
+    // contact.blockchain is BlockchainEnum, which matches availableNetworks keys
     const availableContacts = contacts.filter((contact) => {
-      const contactNetworkKey = reverseAssetNetworkAdapter[contact.blockchain]
-      return availableNetworksValues.includes(contactNetworkKey)
+      return availableNetworksValues.includes(contact.blockchain)
     })
 
     // Further filter by search input if any
@@ -289,8 +289,12 @@ const ModalSelectRecipient = ({
               {/* No contacts message */}
               {hasNoContacts && (
                 <p className="text-sm text-gray-500 text-center py-4">
-                  You haven't created any contacts yet. Please enter your
-                  destination address manually in the field above.
+                  You haven't created any contacts on the{" "}
+                  {isSupportedChainName(blockchain)
+                    ? chainNameToNetworkName(blockchain)
+                    : blockchain}{" "}
+                  network yet. Please enter your destination address manually in
+                  the field above.
                 </p>
               )}
 
