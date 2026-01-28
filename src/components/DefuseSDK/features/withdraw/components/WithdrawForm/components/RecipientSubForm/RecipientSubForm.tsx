@@ -402,15 +402,6 @@ export const RecipientSubForm = ({
           setValue("blockchain", chainKey)
           setValue("recipient", contact.address, { shouldValidate: true })
         }}
-        onSwitchToAddressMode={
-          recipientMode === "contact"
-            ? () => {
-                setRecipientMode("address")
-                setSelectedContact(null)
-                setValue("recipient", "")
-              }
-            : undefined
-        }
       />
 
       {/* Save as contact option in address mode */}

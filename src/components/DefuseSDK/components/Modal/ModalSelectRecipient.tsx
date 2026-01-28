@@ -1,10 +1,6 @@
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { assert } from "@defuse-protocol/internal-utils"
-import {
-  PencilIcon,
-  UserCircleIcon,
-  UserPlusIcon,
-} from "@heroicons/react/20/solid"
+import { UserCircleIcon, UserPlusIcon } from "@heroicons/react/20/solid"
 import {
   type Contact,
   getContacts,
@@ -45,8 +41,6 @@ type ModalSelectRecipientProps = {
   availableNetworks: NetworkOptions
   /** Callback when a contact is selected (switches to contact mode) */
   onSelectContact?: (contact: Contact) => void
-  /** Callback when user wants to enter address manually (switches to address mode) */
-  onSwitchToAddressMode?: () => void
 }
 
 const VALIDATION_DEBOUNCE_MS = 500
@@ -60,7 +54,6 @@ const ModalSelectRecipient = ({
   displayOwnAddress,
   availableNetworks,
   onSelectContact,
-  onSwitchToAddressMode,
 }: ModalSelectRecipientProps) => {
   const { setValue, watch } = useFormContext<WithdrawFormNearValues>()
   const blockchain = watch("blockchain")
@@ -442,28 +435,6 @@ const ModalSelectRecipient = ({
                       </ListItem.Content>
                     </ListItem>
                   </div>
-                </div>
-              )}
-
-              {/* Enter address manually option */}
-              {onSwitchToAddressMode && !inputValue && (
-                <div className="border-t border-gray-200 pt-4 -mx-5 px-5">
-                  <ListItem
-                    onClick={() => {
-                      onSwitchToAddressMode()
-                      onClose()
-                    }}
-                  >
-                    <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1">
-                      <PencilIcon className="text-gray-500 size-5" />
-                    </div>
-                    <ListItem.Content>
-                      <ListItem.Title>Enter address manually</ListItem.Title>
-                      <ListItem.Subtitle>
-                        Send to any wallet address
-                      </ListItem.Subtitle>
-                    </ListItem.Content>
-                  </ListItem>
                 </div>
               )}
             </>

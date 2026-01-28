@@ -1,5 +1,6 @@
 import type { Contact } from "@src/app/(app)/(auth)/contacts/actions"
 import Button from "@src/components/Button"
+import { ContactsIcon } from "@src/icons"
 import { useMemo } from "react"
 import {
   chainIcons,
@@ -116,19 +117,25 @@ const ModalReviewSend = ({
           <dt className="text-sm text-gray-500 font-medium truncate">
             Recipient
           </dt>
-          <dd className="text-sm font-semibold text-gray-900">
+          <dd className="flex items-center gap-1 text-sm font-semibold text-gray-900">
             {contact ? (
-              <TooltipNew>
-                <TooltipNew.Trigger>
-                  <span className="cursor-default">{contact.name}</span>
-                </TooltipNew.Trigger>
-                <TooltipNew.Content className="flex items-center gap-2">
-                  <span>{midTruncate(recipient, 20)}</span>
-                  <CopyButton text={recipient} ariaLabel="Copy address" />
-                </TooltipNew.Content>
-              </TooltipNew>
+              <>
+                <TooltipNew>
+                  <TooltipNew.Trigger>
+                    <span className="cursor-default">{contact.name}</span>
+                  </TooltipNew.Trigger>
+                  <TooltipNew.Content className="flex items-center gap-2">
+                    <span>{midTruncate(recipient, 20)}</span>
+                    <CopyButton text={recipient} ariaLabel="Copy address" />
+                  </TooltipNew.Content>
+                </TooltipNew>
+                <ContactsIcon className="size-4 text-gray-500" />
+              </>
             ) : (
-              midTruncate(recipient, 16)
+              <>
+                {midTruncate(recipient, 16)}
+                <CopyButton text={recipient} ariaLabel="Copy address" />
+              </>
             )}
           </dd>
         </div>
