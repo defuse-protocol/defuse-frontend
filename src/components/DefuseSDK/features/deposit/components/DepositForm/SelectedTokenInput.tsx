@@ -155,23 +155,21 @@ const SelectedTokenInput = ({
         )}
 
         <div className="flex items-center gap-2">
-          {hasBalance && (
-            <button
-              type="button"
-              onClick={handleBalanceClick}
-              disabled={disabled}
-              className={clsx(
-                "text-sm text-gray-500 font-medium text-right",
-                !disabled && "hover:text-gray-700 cursor-pointer"
-              )}
-            >
-              {formatTokenValue(balance, decimals, {
-                min: 0.0001,
-                fractionDigits: 4,
-              })}{" "}
-              {symbol}
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={handleBalanceClick}
+            disabled={disabled || !hasBalance}
+            className={clsx(
+              "text-sm text-gray-500 font-medium text-right",
+              !disabled && hasBalance && "hover:text-gray-700 cursor-pointer"
+            )}
+          >
+            {formatTokenValue(balance, decimals, {
+              min: 0.0001,
+              fractionDigits: 4,
+            })}{" "}
+            {symbol}
+          </button>
           {additionalInfo}
         </div>
       </div>
