@@ -397,7 +397,7 @@ const ModalSelectRecipient = ({
                   <div className="mt-1 space-y-1">
                     <ListItem highlight>
                       <TooltipNew>
-                        <TooltipNew.Trigger asChild>
+                        <TooltipNew.Trigger>
                           <button
                             type="button"
                             onClick={(e) => {
