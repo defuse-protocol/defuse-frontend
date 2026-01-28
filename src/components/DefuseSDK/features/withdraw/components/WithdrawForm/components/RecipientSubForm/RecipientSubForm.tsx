@@ -358,13 +358,13 @@ export const RecipientSubForm = ({
         }}
         render={({ field, fieldState }) => (
           <SelectTriggerLike
-            label={
-              field.value ? "Recipient" : "Select a contact or enter an address"
-            }
+            label="Recipient"
             value={
               recipientMode === "contact" && selectedContact
                 ? selectedContact.name
-                : midTruncate(field.value, 16)
+                : field.value
+                  ? midTruncate(field.value, 16)
+                  : "Select a contact or enter an address"
             }
             subtitle={
               recipientMode === "contact" && selectedContact
