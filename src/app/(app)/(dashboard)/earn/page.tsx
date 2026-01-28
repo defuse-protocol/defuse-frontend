@@ -1,6 +1,7 @@
 "use client"
 
 import Button from "@src/components/Button"
+import { queryClient } from "@src/components/DefuseSDK/providers/QueryClientProvider"
 import {
   formatTokenValue,
   formatUsdAmount,
@@ -10,8 +11,10 @@ import EarnWithdrawDialog from "@src/components/Earn/EarnWithdrawDialog"
 import VaultCard from "@src/components/Earn/VaultCard"
 import type { Vault } from "@src/components/Earn/types"
 import { VAULT_METADATA } from "@src/constants/earn"
+import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useEarnTokens } from "@src/hooks/useEarnTokens"
-import { useState } from "react"
+import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
+import { useCallback, useState } from "react"
 
 const VAULT: Vault = VAULT_METADATA
 
@@ -19,10 +22,21 @@ export default function EarnPage() {
   const [selected, setSelected] = useState<Vault | null>(null)
   const [withdrawOpen, setWithdrawOpen] = useState(false)
   const { holdings, isConnected } = useEarnTokens()
+  const { state } = useConnectWallet()
+  const signMessage = useWalletAgnosticSignMessage()
 
   const smUsdcHolding = holdings?.[0]
   const smUsdcValue = smUsdcHolding?.value
   const hasPosition = smUsdcValue && smUsdcValue.amount > 0n
+
+  const userAddress = state.isVerified ? state.address : undefined
+  const userChainType = state.isVerified ? state.chainType : undefined
+
+  const handleSwapSuccess = useCallback(() => {
+    // Invalidate holdings queries to refresh balances
+    queryClient.invalidateQueries({ queryKey: ["watchHoldings"] })
+    queryClient.invalidateQueries({ queryKey: ["holdings"] })
+  }, [])
 
   return (
     <>
@@ -89,6 +103,10 @@ export default function EarnPage() {
           open={!!selected}
           onClose={() => setSelected(null)}
           vault={selected}
+          userAddress={userAddress}
+          userChainType={userChainType}
+          signMessage={signMessage}
+          onSuccess={handleSwapSuccess}
         />
       )}
 
@@ -96,6 +114,10 @@ export default function EarnPage() {
         open={withdrawOpen}
         onClose={() => setWithdrawOpen(false)}
         smUsdcBalance={smUsdcHolding?.value ?? null}
+        userAddress={userAddress}
+        userChainType={userChainType}
+        signMessage={signMessage}
+        onSuccess={handleSwapSuccess}
       />
     </>
   )

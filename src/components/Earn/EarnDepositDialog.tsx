@@ -1,85 +1,64 @@
 "use client"
 
-import { authIdentity } from "@defuse-protocol/internal-utils"
+import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { XMarkIcon } from "@heroicons/react/20/solid"
-import Button from "@src/components/Button"
-import { useWatchHoldings } from "@src/components/DefuseSDK/features/account/hooks/useWatchHoldings"
-import {
-  formatTokenValue,
-  formatUsdAmount,
-} from "@src/components/DefuseSDK/utils/format"
-import { LIST_TOKENS } from "@src/constants/tokens"
-import { useConnectWallet } from "@src/hooks/useConnectWallet"
-import { useRouter } from "next/navigation"
+import { formatUsdAmount } from "@src/components/DefuseSDK/utils/format"
 import { Dialog } from "radix-ui"
-import { useMemo, useState } from "react"
+import { useMemo } from "react"
+import { EarnSwapForm } from "./EarnSwapForm"
+import {
+  EarnFormProvider,
+  EarnUIMachineProvider,
+} from "./EarnUIMachineProvider"
+import { useEarnTokenList } from "./hooks/useEarnTokenList"
 import type { Vault } from "./types"
+
+interface EarnDepositDialogProps {
+  open: boolean
+  onClose: () => void
+  vault: Vault
+  userAddress: string | undefined
+  userChainType: string | undefined
+  signMessage: (
+    params: walletMessage.WalletMessage
+  ) => Promise<walletMessage.WalletSignatureResult | null>
+  onSuccess?: () => void
+}
 
 export default function EarnDepositDialog({
   open,
   onClose,
   vault,
-}: {
-  open: boolean
-  onClose: () => void
-  vault: Vault
-}) {
-  const router = useRouter()
-  const { state } = useConnectWallet()
-  const [amount, setAmount] = useState("")
+  userAddress,
+  userChainType,
+  signMessage,
+  onSuccess,
+}: EarnDepositDialogProps) {
+  const { smUsdcToken, selectableTokens } = useEarnTokenList()
 
   // Find the token info for the vault's token (e.g., USDC)
   const vaultToken = useMemo(
-    () => LIST_TOKENS.find((t) => t.symbol === vault.token),
-    [vault.token]
+    () => selectableTokens.find((t) => t.symbol === vault.token),
+    [vault.token, selectableTokens]
   )
-  const numericAmount = Number.parseFloat(amount) || 0
 
-  // Get user ID for balance fetching
-  const userId =
-    state.isVerified && state.address && state.chainType
-      ? authIdentity.authHandleToIntentsUserId(state.address, state.chainType)
-      : null
+  // Use vault token for deposits
+  const depositToken = vaultToken ?? selectableTokens[0]
 
-  // Fetch balance for the vault token
-  const tokenListForBalance = useMemo(
-    () => (vaultToken ? [vaultToken] : []),
-    [vaultToken]
-  )
-  const { data: holdings } = useWatchHoldings({
-    userId,
-    tokenList: tokenListForBalance,
-  })
+  // Build token list for the machine - include smUSDC and selectable tokens
+  const tokenList = useMemo(() => {
+    if (!smUsdcToken) return selectableTokens
+    return [smUsdcToken, ...selectableTokens]
+  }, [smUsdcToken, selectableTokens])
 
-  const vaultTokenBalance = holdings?.[0]
-  const balanceAmount = vaultTokenBalance?.value?.amount ?? 0n
-  const balanceDecimals = vaultTokenBalance?.value?.decimals ?? 6
-  const displayBalance = formatTokenValue(balanceAmount, balanceDecimals, {
-    fractionDigits: 4,
-  })
-  const numericBalance = Number(balanceAmount) / 10 ** balanceDecimals || 0
-
-  const handleSetMax = () => {
-    if (balanceAmount > 0n) {
-      setAmount(
-        formatTokenValue(balanceAmount, balanceDecimals, {
-          fractionDigits: balanceDecimals,
-        })
-      )
-    }
+  if (!smUsdcToken) {
+    return null
   }
 
-  const handleDeposit = () => {
-    const params = new URLSearchParams({
-      from: vaultToken?.symbol ?? vault.token,
-      to: "smUSDC",
-    })
-    router.push(`/swap?${params.toString()}`)
+  const handleSuccess = () => {
+    onSuccess?.()
     onClose()
   }
-
-  const canDeposit =
-    numericAmount > 0 && numericAmount <= numericBalance && state.isVerified
 
   return (
     <Dialog.Root open={open} onOpenChange={(o) => !o && onClose()}>
@@ -129,87 +108,64 @@ export default function EarnDepositDialog({
                   </div>
                 </div>
 
-                <div className="mt-4 flex items-center justify-between text-sm">
-                  <span className="text-gray-500">Your Balance</span>
-                  <span className="font-medium text-gray-900">
-                    {state.isVerified
-                      ? `${displayBalance} ${vaultToken?.symbol}`
-                      : "Connect wallet"}
-                  </span>
-                </div>
-
-                <div className="mt-3 bg-gray-50 border border-gray-200 rounded-2xl p-4 focus-within:border-gray-300 focus-within:bg-white transition-colors">
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="text"
-                      inputMode="decimal"
-                      placeholder="0"
-                      value={amount}
-                      onChange={(e) =>
-                        /^\d*\.?\d*$/.test(e.target.value) &&
-                        setAmount(e.target.value)
-                      }
-                      className="flex-1 bg-transparent font-bold text-gray-900 text-3xl tracking-tight placeholder:text-gray-400 outline-none min-w-0"
-                    />
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={handleSetMax}
-                      disabled={!state.isVerified || balanceAmount === 0n}
+                <div className="mt-4">
+                  <EarnFormProvider>
+                    <EarnUIMachineProvider
+                      mode="deposit"
+                      tokenList={tokenList}
+                      smUsdcToken={smUsdcToken}
+                      signMessage={signMessage}
                     >
-                      Max
-                    </Button>
-                  </div>
-                  <div className="text-sm text-gray-500 mt-2">
-                    {formatUsdAmount(numericAmount)}
-                  </div>
+                      <EarnSwapForm
+                        mode="deposit"
+                        userAddress={userAddress}
+                        userChainType={
+                          userChainType as
+                            | "near"
+                            | "evm"
+                            | "solana"
+                            | "webauthn"
+                            | "ton"
+                            | "stellar"
+                            | "tron"
+                            | undefined
+                        }
+                        onSuccess={handleSuccess}
+                        selectedToken={depositToken}
+                        submitLabel={`Deposit ${depositToken?.symbol ?? vault.token}`}
+                      />
+                    </EarnUIMachineProvider>
+                  </EarnFormProvider>
                 </div>
 
-                <div className="mt-5 bg-gray-50 rounded-2xl p-4 space-y-3">
-                  <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">
-                    Projected Earnings
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Monthly</span>
-                    <span className="font-semibold text-gray-900">
-                      {formatUsdAmount((numericAmount * vault.apy) / 100 / 12)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Yearly</span>
-                    <span className="font-semibold text-gray-900">
-                      {formatUsdAmount((numericAmount * vault.apy) / 100)}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="mt-5">
-                  <Button
-                    variant="primary"
-                    size="xl"
-                    fullWidth
-                    disabled={!canDeposit}
-                    onClick={handleDeposit}
-                  >
-                    {!state.isVerified
-                      ? "Connect wallet"
-                      : numericAmount <= 0
-                        ? "Enter an amount"
-                        : numericAmount > numericBalance
-                          ? "Insufficient balance"
-                          : `Deposit ${vaultToken?.symbol}`}
-                  </Button>
-                </div>
-
-                <p className="mt-3 text-xs text-gray-500 text-center">
-                  You will be redirected to swap your {vaultToken?.symbol} for
-                  smUSDC
-                </p>
+                <ProjectedEarnings apy={vault.apy} />
               </Dialog.Content>
             </div>
           </div>
         </Dialog.Overlay>
       </Dialog.Portal>
     </Dialog.Root>
+  )
+}
+
+function ProjectedEarnings({ apy }: { apy: number }) {
+  return (
+    <div className="mt-4 bg-gray-50 rounded-2xl p-4 space-y-3">
+      <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">
+        Projected Earnings on $1,000
+      </div>
+      <div className="flex justify-between text-sm">
+        <span className="text-gray-600">Monthly</span>
+        <span className="font-semibold text-gray-900">
+          {formatUsdAmount((1000 * apy) / 100 / 12)}
+        </span>
+      </div>
+      <div className="flex justify-between text-sm">
+        <span className="text-gray-600">Yearly</span>
+        <span className="font-semibold text-gray-900">
+          {formatUsdAmount((1000 * apy) / 100)}
+        </span>
+      </div>
+    </div>
   )
 }
