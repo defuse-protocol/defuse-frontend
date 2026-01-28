@@ -2,6 +2,7 @@
 
 import {
   ArrowRightStartOnRectangleIcon,
+  ChevronUpIcon,
   Cog8ToothIcon,
 } from "@heroicons/react/16/solid"
 import { UserIcon } from "@heroicons/react/24/solid"
@@ -52,14 +53,16 @@ const UserMenu = () => {
 
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Trigger className="bg-gray-900 rounded-2xl p-2 flex items-center gap-3 w-full">
-        <div className="size-8 flex items-center justify-center bg-brand rounded-lg">
+      <DropdownMenu.Trigger className="bg-gray-900 rounded-2xl px-3.5 py-3 flex items-center gap-3 w-full">
+        <div className="size-7 flex items-center justify-center bg-brand rounded-lg">
           <UserIcon className="text-white/80 size-5" />
         </div>
 
-        <div className="text-gray-400 text-sm font-semibold">
+        <div className="text-gray-400 text-sm font-semibold grow text-left">
           {truncateAddress(state.displayAddress ?? "")}
         </div>
+
+        <ChevronUpIcon className="size-5 text-gray-500 shrink-0" />
       </DropdownMenu.Trigger>
 
       <DropdownMenu.Portal>

@@ -3,19 +3,33 @@ import { NavbarDesktop } from "@src/components/Navbar/NavbarDesktop"
 import NetworkOutageNotification from "@src/components/NetworkOutageNotification"
 import SystemStatus from "@src/components/SystemStatus"
 import UserMenu from "@src/components/UserMenu"
+import { NearIntentsLogoIcon, NearIntentsLogoSymbolIcon } from "@src/icons"
+import Link from "next/link"
 import type { ReactNode } from "react"
+
+const Divider = () => <div className="my-5 -mx-4 border-t border-gray-700" />
 
 const DashboardLayout = ({ children }: { children: ReactNode }) => (
   <div className="relative isolate flex min-h-svh w-full bg-gray-25 lg:bg-gray-800">
     {/* Sidebar on desktop */}
-    <div className="fixed inset-y-0 left-0 w-72 max-lg:hidden py-6 px-4 flex flex-col">
-      <UserMenu />
+    <div className="fixed inset-y-0 left-0 w-72 max-lg:hidden py-5 px-4 flex flex-col">
+      <Link
+        href="/"
+        className="relative group flex items-center gap-4 rounded-2xl px-3.5 py-3 hover:bg-gray-700"
+      >
+        <NearIntentsLogoSymbolIcon className="h-5 shrink-0" />
+        <NearIntentsLogoIcon className="h-3.5 shrink-0 text-white" />
+      </Link>
 
-      <div className="my-6 border-t border-gray-700" />
+      <Divider />
 
       <NavbarDesktop />
 
       <ActivityDock />
+
+      <Divider />
+
+      <UserMenu />
     </div>
 
     {/* Content */}
