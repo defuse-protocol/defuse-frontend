@@ -400,9 +400,7 @@ export const RecipientSubForm = ({
           setSelectedContact(contact)
           // Handle near_intents contacts specially - they don't use reverseAssetNetworkAdapter
           if (contact.blockchain === "near_intents") {
-            // near_intents contacts should use "near" as the blockchain for the send form
-            // since they're internal transfers within Near
-            setValue("blockchain", "near")
+            setValue("blockchain", "near_intents")
           } else {
             const chainKey = reverseAssetNetworkAdapter[contact.blockchain]
             setValue("blockchain", chainKey)
