@@ -5,7 +5,10 @@ import type {
   CreateGiftResponse,
   ErrorResponse,
 } from "@src/features/gift/types/giftTypes"
-import { giftIdSchema } from "@src/features/gift/validation/giftIdSchema"
+import {
+  expiresAtSchema,
+  giftIdSchema,
+} from "@src/features/gift/validation/giftIdSchema"
 import { supabase } from "@src/libs/supabase"
 import { logger } from "@src/utils/logger"
 import { NextResponse } from "next/server"
@@ -30,12 +33,7 @@ const giftsSchema = z.object({
       return false
     }
   }, "Key must be exactly 32 bytes (AES-256)"),
-  expires_at: z
-    .number()
-    .int()
-    .refine((val) => val > Date.now(), "Expiration must be in the future")
-    .nullable()
-    .optional(),
+  expires_at: expiresAtSchema.nullable().optional(),
 }) as z.ZodType<CreateGiftRequest>
 
 export async function POST(request: Request) {

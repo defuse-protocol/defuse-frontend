@@ -2,6 +2,7 @@
 
 import { ArrowSquareOutIcon, CheckCircleIcon } from "@phosphor-icons/react"
 import type { TokenInfo } from "../../../types/base"
+import { blockExplorerTxLinkFactory } from "../../../utils/chainTxExplorer"
 import { formatTokenValue } from "../../../utils/format"
 import { GiftStrip } from "./GiftStrip"
 import { GiftDescription } from "./shared/GiftDescription"
@@ -70,7 +71,7 @@ export function GiftClaimedInfo({
           <div className="flex justify-between items-center">
             <span className="text-gray-500">Transaction</span>
             <a
-              href={`https://nearblocks.io/txns/${txHash}`}
+              href={blockExplorerTxLinkFactory("near", txHash)}
               target="_blank"
               rel="noopener noreferrer"
               className="font-mono text-blue-600 hover:text-blue-800 transition-colors duration-200 flex items-center gap-1"

@@ -1,5 +1,8 @@
 import type { GetGiftResponse } from "@src/features/gift/types/giftTypes"
-import { giftIdSchema } from "@src/features/gift/validation/giftIdSchema"
+import {
+  expiresAtSchema,
+  giftIdSchema,
+} from "@src/features/gift/validation/giftIdSchema"
 import { supabase } from "@src/libs/supabase"
 import { logger } from "@src/utils/logger"
 import { NextResponse } from "next/server"
@@ -51,13 +54,7 @@ export async function GET(
 
 const patchSchema = z.object({
   expires_at: z
-    .union([
-      z
-        .number()
-        .int()
-        .refine((val) => val > Date.now(), "Expiration must be in the future"),
-      z.null(),
-    ])
+    .union([expiresAtSchema, z.null()])
     .optional()
     .transform((val) => val ?? null),
 })
