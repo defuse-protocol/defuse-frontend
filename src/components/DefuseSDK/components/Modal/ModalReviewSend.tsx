@@ -5,8 +5,7 @@ import { useMemo } from "react"
 import {
   chainIcons,
   getBlockchainsOptions,
-  getNearIntentsOption,
-  intentsChainIcon,
+  nearIntentsAccountIcon,
 } from "../../constants/blockchains"
 import IntentCreationResult from "../../features/account/components/IntentCreationResult"
 import type { Context } from "../../features/machines/swapUIMachine"
@@ -30,7 +29,7 @@ import { BaseModalDialog } from "./ModalDialog"
 
 function getNetworkLabel(network: SupportedChainName | "near_intents"): string {
   if (network === "near_intents") {
-    return getNearIntentsOption().intents.label
+    return "Near Intents"
   }
   const blockchainEnum = assetNetworkAdapter[network]
   return getBlockchainsOptions()[blockchainEnum].label
@@ -70,7 +69,7 @@ const ModalReviewSend = ({
   contact?: Contact | null
 }) => {
   const chainIcon =
-    network === "near_intents" ? intentsChainIcon : chainIcons[network]
+    network === "near_intents" ? nearIntentsAccountIcon : chainIcons[network]
 
   const formattedFee =
     totalAmountReceived == null
