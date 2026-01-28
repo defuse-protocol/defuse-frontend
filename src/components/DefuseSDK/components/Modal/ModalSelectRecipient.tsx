@@ -23,7 +23,10 @@ import {
   midTruncate,
 } from "../../features/withdraw/components/WithdrawForm/utils"
 import type { NetworkOptions } from "../../hooks/useNetworkLists"
-import { reverseAssetNetworkAdapter } from "../../utils/adapters"
+import {
+  assetNetworkAdapter,
+  reverseAssetNetworkAdapter,
+} from "../../utils/adapters"
 import { isSupportedChainName } from "../../utils/blockchain"
 import { NetworkIcon } from "../Network/NetworkIcon"
 import SearchBar from "../SearchBar"
@@ -120,6 +123,19 @@ const ModalSelectRecipient = ({
     () => [...matchingNetworkContacts, ...otherNetworkContacts],
     [matchingNetworkContacts, otherNetworkContacts]
   )
+
+  // Check if validated address matches an existing contact on the current network
+  const matchingContactByAddress = useMemo(() => {
+    if (!validatedAddress || !isSupportedChainName(blockchain)) return null
+    const blockchainEnum = assetNetworkAdapter[blockchain]
+    return (
+      contacts.find(
+        (c) =>
+          c.address.toLowerCase() === validatedAddress.toLowerCase() &&
+          c.blockchain === blockchainEnum
+      ) ?? null
+    )
+  }, [validatedAddress, blockchain, contacts])
 
   useEffect(() => {
     if (!inputValue) {
@@ -252,31 +268,79 @@ const ModalSelectRecipient = ({
           className="flex flex-col overflow-y-auto -mx-5 px-5 -mb-5 pb-5 space-y-5"
         >
           {validatedAddress ? (
-            <ListItem onClick={() => handleSelectAddress(validatedAddress)}>
-              <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1">
-                <WalletIcon className="text-gray-500 size-5" />
-              </div>
-              <ListItem.Content>
-                <ListItem.Title>
-                  {midTruncate(validatedAddress, 16)}
-                </ListItem.Title>
-              </ListItem.Content>
-              <TooltipNew>
-                <TooltipNew.Trigger>
-                  <button
-                    type="button"
-                    className="size-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setIsSaveContactModalOpen(true)
-                    }}
-                  >
-                    <UserPlusIcon className="size-5" />
-                  </button>
-                </TooltipNew.Trigger>
-                <TooltipNew.Content>Save as a new contact</TooltipNew.Content>
-              </TooltipNew>
-            </ListItem>
+            matchingContactByAddress ? (
+              // Show matching contact instead of raw address
+              <ListItem
+                onClick={() => {
+                  if (onSelectContact) {
+                    onSelectContact(matchingContactByAddress)
+                  } else {
+                    handleSelectAddress(validatedAddress)
+                  }
+                  onClose()
+                }}
+              >
+                <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1">
+                  <WalletIcon className="text-gray-500 size-5" />
+                </div>
+                <ListItem.Content>
+                  <ListItem.Title className="truncate">
+                    {matchingContactByAddress.name}
+                  </ListItem.Title>
+                  <ListItem.Subtitle>
+                    {midTruncate(validatedAddress, 16)}
+                  </ListItem.Subtitle>
+                </ListItem.Content>
+                <ListItem.Content align="end">
+                  <ListItem.Title className="flex items-center gap-1 pb-4.5">
+                    <NetworkIcon
+                      chainIcon={
+                        chainIcons[
+                          reverseAssetNetworkAdapter[
+                            matchingContactByAddress.blockchain
+                          ]
+                        ]
+                      }
+                      sizeClassName="size-4"
+                    />
+                    <span className="capitalize">
+                      {chainNameToNetworkName(
+                        reverseAssetNetworkAdapter[
+                          matchingContactByAddress.blockchain
+                        ]
+                      )}
+                    </span>
+                  </ListItem.Title>
+                </ListItem.Content>
+              </ListItem>
+            ) : (
+              // Show raw address with option to save as contact
+              <ListItem onClick={() => handleSelectAddress(validatedAddress)}>
+                <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1">
+                  <WalletIcon className="text-gray-500 size-5" />
+                </div>
+                <ListItem.Content>
+                  <ListItem.Title>
+                    {midTruncate(validatedAddress, 16)}
+                  </ListItem.Title>
+                </ListItem.Content>
+                <TooltipNew>
+                  <TooltipNew.Trigger>
+                    <button
+                      type="button"
+                      className="relative z-20 size-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setIsSaveContactModalOpen(true)
+                      }}
+                    >
+                      <UserPlusIcon className="size-5" />
+                    </button>
+                  </TooltipNew.Trigger>
+                  <TooltipNew.Content>Save as a new contact</TooltipNew.Content>
+                </TooltipNew>
+              </ListItem>
+            )
           ) : (
             <>
               {/* No contacts message */}
