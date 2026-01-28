@@ -120,13 +120,19 @@ const ModalSelectRecipient = ({
 
   // Split contacts into matching network and other networks
   const { matchingNetworkContacts, otherNetworkContacts } = useMemo(() => {
-    // availableNetworks is keyed by BlockchainEnum (e.g., "ETHEREUM")
-    const availableNetworksValues = Object.keys(availableNetworks)
+    // availableNetworks is keyed by BlockchainEnum (e.g., "ETHEREUM") or "intents" for Near Intents
+    const availableNetworksKeys = Object.keys(availableNetworks)
+    // Check if Near Intents is available (key is "intents" in availableNetworks)
+    const nearIntentsAvailable = availableNetworksKeys.includes("intents")
 
     // Filter to only contacts on available networks
-    // contact.blockchain is BlockchainEnum, which matches availableNetworks keys
+    // contact.blockchain is BlockchainEnum or "near_intents"
     const availableContacts = contacts.filter((contact) => {
-      return availableNetworksValues.includes(contact.blockchain)
+      // Special case: near_intents contacts are available if "intents" key exists
+      if (contact.blockchain === "near_intents") {
+        return nearIntentsAvailable
+      }
+      return availableNetworksKeys.includes(contact.blockchain)
     })
 
     // Further filter by search input if any
