@@ -455,23 +455,13 @@ const ModalSelectRecipient = ({
                           {midTruncate(selectedContact.address, 16)}
                         </ListItem.Subtitle>
                       </ListItem.Content>
-                      <ListItem.Content align="end">
-                        <ListItem.Title className="flex items-center gap-1 pb-4.5">
-                          {(() => {
-                            const { chainIcon, chainName } =
-                              getContactChainInfo(selectedContact.blockchain)
-                            return (
-                              <>
-                                <NetworkIcon
-                                  chainIcon={chainIcon}
-                                  sizeClassName="size-4"
-                                />
-                                <span className="capitalize">{chainName}</span>
-                              </>
-                            )
-                          })()}
-                        </ListItem.Title>
-                      </ListItem.Content>
+                      <NetworkIcon
+                        chainIcon={
+                          getContactChainInfo(selectedContact.blockchain)
+                            .chainIcon
+                        }
+                        sizeClassName="size-8"
+                      />
                     </ListItem>
                   </div>
                 </div>
