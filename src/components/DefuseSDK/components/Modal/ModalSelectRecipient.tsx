@@ -155,7 +155,9 @@ const ModalSelectRecipient = ({
         setIsValidating(false)
 
         if (result.isErr()) {
-          setValidationError(renderRecipientAddressError(result.unwrapErr()))
+          setValidationError(
+            renderRecipientAddressError(result.unwrapErr(), blockchain)
+          )
           setValidatedAddress(null)
         } else {
           setValidationError(null)
@@ -220,6 +222,12 @@ const ModalSelectRecipient = ({
             name="address"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && validatedAddress) {
+                e.preventDefault()
+                handleSelectAddress(validatedAddress)
+              }
+            }}
             loading={isValidating}
             onClear={handleClear}
             autoFocus
@@ -435,12 +443,19 @@ const ModalSelectRecipient = ({
 
 export default ModalSelectRecipient
 
-function renderRecipientAddressError(error: ValidateRecipientAddressErrorType) {
+function renderRecipientAddressError(
+  error: ValidateRecipientAddressErrorType,
+  blockchain: string
+) {
+  const networkName = isSupportedChainName(blockchain)
+    ? chainNameToNetworkName(blockchain)
+    : blockchain
+
   switch (error) {
     case "SELF_WITHDRAWAL":
       return "You cannot withdraw to your own address. Please enter a different recipient address."
     case "ADDRESS_INVALID":
-      return "Please enter a valid address for the selected blockchain."
+      return `You have selected ${networkName} as the network, but have entered an invalid ${networkName} address. Please double-check and try again.`
     case "NEAR_ACCOUNT_DOES_NOT_EXIST":
       return "The account doesn't exist on NEAR. Please enter a different recipient address."
     case "USER_ADDRESS_REQUIRED":
