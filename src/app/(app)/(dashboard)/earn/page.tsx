@@ -1,5 +1,6 @@
 "use client"
 
+import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import Button from "@src/components/Button"
 import { queryClient } from "@src/components/DefuseSDK/providers/QueryClientProvider"
 import {
@@ -30,7 +31,10 @@ export default function EarnPage() {
   const hasPosition = smUsdcValue && smUsdcValue.amount > 0n
 
   const userAddress = state.isVerified ? state.address : undefined
-  const userChainType = state.isVerified ? state.chainType : undefined
+  // ChainType enum values match AuthMethod values, so we can safely cast
+  const userChainType = state.isVerified
+    ? (state.chainType as AuthMethod | undefined)
+    : undefined
 
   const handleSwapSuccess = useCallback(() => {
     // Invalidate holdings queries to refresh balances

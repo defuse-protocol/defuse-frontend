@@ -5,12 +5,15 @@ import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import Alert from "@src/components/Alert"
 import Button from "@src/components/Button"
 import ModalReviewSwap from "@src/components/DefuseSDK/components/Modal/ModalReviewSwap"
+import type { ModalSelectAssetsPayload } from "@src/components/DefuseSDK/components/Modal/ModalSelectAssets"
 import { nearClient } from "@src/components/DefuseSDK/constants/nearClient"
 import TokenInputCard from "@src/components/DefuseSDK/features/deposit/components/DepositForm/TokenInputCard"
 import { balanceSelector } from "@src/components/DefuseSDK/features/machines/depositedBalanceMachine"
 import type { swapUIMachine } from "@src/components/DefuseSDK/features/machines/swapUIMachine"
 import { useTokensUsdPrices } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
+import { useModalStore } from "@src/components/DefuseSDK/providers/ModalStoreProvider"
 import { queryClient } from "@src/components/DefuseSDK/providers/QueryClientProvider"
+import { ModalType } from "@src/components/DefuseSDK/stores/modalStore"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
@@ -30,7 +33,7 @@ interface EarnSwapFormProps {
   userAddress: authHandle.AuthHandle["identifier"] | undefined
   userChainType: authHandle.AuthHandle["method"] | undefined
   onSuccess?: () => void
-  selectedToken?: TokenInfo
+  selectableTokens: TokenInfo[]
   submitLabel: string
 }
 
@@ -39,7 +42,7 @@ export function EarnSwapForm({
   userAddress,
   userChainType,
   onSuccess,
-  selectedToken,
+  selectableTokens,
   submitLabel,
 }: EarnSwapFormProps) {
   const {
@@ -96,40 +99,47 @@ export function EarnSwapForm({
     }
   }, [actorRef, reset])
 
-  // Sync selected token with machine when it changes
-  useEffect(() => {
-    if (!selectedToken) return
+  // Modal for token selection
+  const setModalType = useModalStore((state) => state.setModalType)
 
-    if (mode === "deposit") {
-      // For deposits, selectedToken is tokenIn
-      if (tokenIn.symbol !== selectedToken.symbol) {
-        actorRef.send({
-          type: "input",
-          params: {
-            tokenIn: selectedToken,
-            amountIn,
-            amountOut: "",
-            swapType: QuoteRequest.swapType.EXACT_INPUT,
-          },
-        })
+  const handleSelectToken = useCallback(() => {
+    const fieldName = mode === "deposit" ? "tokenIn" : "tokenOut"
+    const currentToken = mode === "deposit" ? tokenIn : tokenOut
+
+    setModalType(ModalType.MODAL_SELECT_ASSETS, {
+      modalType: ModalType.MODAL_SELECT_ASSETS,
+      fieldName,
+      [fieldName]: currentToken,
+      isHoldingsEnabled: true,
+      onConfirm: (payload: ModalSelectAssetsPayload) => {
+        const selectedToken = payload[fieldName]
+        if (!selectedToken) return
+
+        if (mode === "deposit") {
+          actorRef.send({
+            type: "input",
+            params: {
+              tokenIn: selectedToken,
+              amountIn,
+              amountOut: "",
+              swapType: QuoteRequest.swapType.EXACT_INPUT,
+            },
+          })
+        } else {
+          actorRef.send({
+            type: "input",
+            params: {
+              tokenOut: selectedToken,
+              amountIn,
+              amountOut: "",
+              swapType: QuoteRequest.swapType.EXACT_INPUT,
+            },
+          })
+        }
         setValue("amountOut", "")
-      }
-    } else {
-      // For withdrawals, selectedToken is tokenOut
-      if (tokenOut.symbol !== selectedToken.symbol) {
-        actorRef.send({
-          type: "input",
-          params: {
-            tokenOut: selectedToken,
-            amountIn,
-            amountOut: "",
-            swapType: QuoteRequest.swapType.EXACT_INPUT,
-          },
-        })
-        setValue("amountOut", "")
-      }
-    }
-  }, [selectedToken, mode, tokenIn, tokenOut, actorRef, amountIn, setValue])
+      },
+    } satisfies ModalSelectAssetsPayload)
+  }, [mode, tokenIn, tokenOut, setModalType, actorRef, amountIn, setValue])
 
   const {
     noLiquidity,
@@ -234,10 +244,10 @@ export function EarnSwapForm({
   const amountInEmpty = amountIn === ""
   const amountOutEmpty = amountOut === ""
 
-  // Determine which token to display as "locked" vs "selectable"
-  const _lockedToken = mode === "deposit" ? tokenOut : tokenIn
-  const inputToken = mode === "deposit" ? tokenIn : tokenIn
-  const outputToken = mode === "deposit" ? tokenOut : tokenOut
+  // For deposits: user can select tokenIn, tokenOut is locked to smUSDC
+  // For withdrawals: tokenIn is locked to smUSDC, user can select tokenOut
+  const inputToken = tokenIn
+  const outputToken = tokenOut
 
   return (
     <>
@@ -250,8 +260,8 @@ export function EarnSwapForm({
         usdAmount={usdAmountIn}
         loading={isLoadingQuote && amountInEmpty}
         selectedToken={inputToken}
-        tokens={[]}
-        handleSelectToken={() => {}}
+        tokens={selectableTokens}
+        handleSelectToken={handleSelectToken}
         registration={{
           ...register("amountIn", {
             required: true,
