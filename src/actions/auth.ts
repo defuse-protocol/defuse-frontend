@@ -41,7 +41,7 @@ export async function setActiveWalletToken(token: string): Promise<void> {
   const cookieStore = await cookies()
   cookieStore.set(AUTH_TOKEN_COOKIE_NAME, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: true,
     sameSite: "lax",
     maxAge: COOKIE_MAX_AGE_SECONDS,
     path: "/",
