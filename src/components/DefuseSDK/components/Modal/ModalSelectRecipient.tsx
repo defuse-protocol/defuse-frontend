@@ -193,7 +193,21 @@ const ModalSelectRecipient = ({
 
   // Check if validated address matches an existing contact on the current network
   const matchingContactByAddress = useMemo(() => {
-    if (!validatedAddress || !isSupportedChainName(blockchain)) return null
+    if (!validatedAddress) return null
+
+    // For near_intents, check against contacts with blockchain === "near_intents"
+    if (blockchain === "near_intents") {
+      return (
+        contacts.find(
+          (c) =>
+            c.address.toLowerCase() === validatedAddress.toLowerCase() &&
+            c.blockchain === "near_intents"
+        ) ?? null
+      )
+    }
+
+    // For standard chains, convert to BlockchainEnum
+    if (!isSupportedChainName(blockchain)) return null
     const blockchainEnum = assetNetworkAdapter[blockchain]
     return (
       contacts.find(
