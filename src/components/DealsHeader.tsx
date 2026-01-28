@@ -10,19 +10,19 @@ const DealsHeader = () => {
   return (
     <>
       <h1 className="text-gray-900 text-xl font-semibold tracking-tight">
-        Private deals
+        Private trades
       </h1>
 
       <TabSwitcher
         tabs={[
           {
-            label: "My deals",
+            label: "My trades",
             icon: <ListBulletIcon className="size-4 shrink-0" />,
             href: "/deals",
             selected: pathname === "/deals",
           },
           {
-            label: "New deal",
+            label: "New trade",
             icon: <PlusIcon className="size-4 shrink-0" />,
             href: "/deals/new",
             selected: pathname === "/deals/new",

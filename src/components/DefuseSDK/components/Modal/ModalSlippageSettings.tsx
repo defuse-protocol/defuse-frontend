@@ -237,9 +237,9 @@ export function ModalSlippageSettings() {
   return (
     <ModalDialog title="Slippage">
       <p className="text-sm text-gray-500 font-medium mt-1">
-        Slippage is a safety mechanism to protect you from getting a final price
-        that is very different than the quoted price. If the specified slippage
-        would be exceeded, your swap will be cancelled.{" "}
+        The slippage setting is a safety mechanism to protect you from getting a
+        final price that is very different than the quoted price. If the
+        specified slippage would be exceeded, your swap will be cancelled.{" "}
         {calculatedSlippageAmount != null
           ? isExactOut
             ? "Below is the maximum amount you will pay."
