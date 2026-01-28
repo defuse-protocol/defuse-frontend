@@ -56,3 +56,4 @@ playwright-report
 test-results
 .cursor
 /CLAUDE.md
+.claude/

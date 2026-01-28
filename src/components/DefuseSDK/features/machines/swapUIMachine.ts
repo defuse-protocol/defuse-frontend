@@ -50,8 +50,6 @@ import {
   balancesSelector,
   depositedBalanceMachine,
 } from "./depositedBalanceMachine"
-import { intentStatusMachine } from "./intentStatusMachine"
-import { oneClickStatusMachine } from "./oneClickStatusMachine"
 import {
   type Output as SwapIntent1csMachineOutput,
   swapIntent1csMachine,
@@ -87,10 +85,6 @@ export type Context = {
     | SwapIntentMachineOutput
     | SwapIntent1csMachineOutput
     | null
-  intentRefs: (
-    | ActorRefFrom<typeof intentStatusMachine>
-    | ActorRefFrom<typeof oneClickStatusMachine>
-  )[]
   tokenList: TokenInfo[]
   referral?: string
   slippageBasisPoints: number
@@ -221,8 +215,6 @@ export const swapUIMachine = setup({
     depositedBalanceActor: depositedBalanceMachine,
     swapActor: swapIntentMachine,
     swap1csActor: swapIntent1csMachine,
-    intentStatusActor: intentStatusMachine,
-    oneClickStatusActor: oneClickStatusMachine,
   },
   actions: {
     setUser: assign({
@@ -535,49 +527,6 @@ export const swapUIMachine = setup({
       (_, event: BackgroundQuoterParentEvents) => event
     ),
 
-    spawnIntentStatusActor: assign({
-      intentRefs: (
-        { context, spawn, self },
-        output: SwapIntentMachineOutput | SwapIntent1csMachineOutput
-      ) => {
-        if (output.tag !== "ok") return context.intentRefs
-
-        if (context.is1cs && "depositAddress" in output.value) {
-          const swapDescription = output.value.intentDescription as Extract<
-            typeof output.value.intentDescription,
-            { type: "swap" }
-          >
-          const oneClickRef = spawn("oneClickStatusActor", {
-            id: `${ONE_CLICK_PREFIX}${output.value.depositAddress}`,
-            input: {
-              parentRef: self,
-              intentHash: output.value.intentHash,
-              depositAddress: output.value.depositAddress,
-              tokenIn: context.formValues.tokenIn,
-              tokenOut: context.formValues.tokenOut,
-              totalAmountIn: swapDescription.totalAmountIn,
-              totalAmountOut: swapDescription.totalAmountOut,
-            },
-          })
-
-          return [oneClickRef, ...context.intentRefs]
-        }
-
-        const intentRef = spawn("intentStatusActor", {
-          id: `intent-${output.value.intentHash}`,
-          input: {
-            parentRef: self,
-            intentHash: output.value.intentHash,
-            tokenIn: context.formValues.tokenIn,
-            tokenOut: context.formValues.tokenOut,
-            intentDescription: output.value.intentDescription,
-          },
-        })
-
-        return [intentRef, ...context.intentRefs]
-      },
-    }),
-
     emitEventIntentPublished: emit(() => ({
       type: "INTENT_PUBLISHED" as const,
     })),
@@ -745,7 +694,6 @@ export const swapUIMachine = setup({
       amountOut: null,
     },
     intentCreationResult: null,
-    intentRefs: [],
     tokenList: input.tokenList,
     referral: input.referral,
     slippageBasisPoints: 10_000, // 1% default, will be overridden from localStorage
@@ -1086,10 +1034,6 @@ export const swapUIMachine = setup({
               "resetParsedFormValueAmounts",
               "resetFormValueAmounts",
               {
-                type: "spawnIntentStatusActor",
-                params: ({ event }) => event.output,
-              },
-              {
                 type: "setIntentCreationResult",
                 params: ({ event }) => event.output,
               },
@@ -1215,10 +1159,6 @@ export const swapUIMachine = setup({
               "cancelSendToBackground1csQuoterRefNewQuoteInput",
               "resetParsedFormValueAmounts",
               "resetFormValueAmounts",
-              {
-                type: "spawnIntentStatusActor",
-                params: ({ event }) => event.output,
-              },
               {
                 type: "setIntentCreationResult",
                 params: ({ event }) => event.output,

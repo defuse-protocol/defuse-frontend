@@ -22,7 +22,6 @@ import {
   balancesSelector,
   depositedBalanceMachine,
 } from "./depositedBalanceMachine"
-import { intentStatusMachine } from "./intentStatusMachine"
 import {
   poaBridgeInfoActor,
   waitPOABridgeInfoActor,
@@ -44,7 +43,6 @@ import {
 export type Context = {
   error: Error | null
   intentCreationResult: SwapIntentMachineOutput | null
-  intentRefs: ActorRefFrom<typeof intentStatusMachine>[]
   tokenList: TokenInfo[]
   depositedBalanceRef: ActorRefFrom<typeof depositedBalanceMachine>
   withdrawFormRef: ActorRefFrom<typeof withdrawFormReducer>
@@ -66,10 +64,6 @@ type PassthroughEvent = {
     intentHash: string
     txHash: string
     tokenIn: TokenInfo
-    /**
-     * This is not true, because tokenOut should be `BaseTokenInfo`.
-     * It left `TokenInfo` for compatibility with `intentStatusActor`.
-     */
     tokenOut: TokenInfo
   }
 }
@@ -101,7 +95,9 @@ export const withdrawUIMachine = setup({
       | DepositedBalanceEvents
       | WithdrawFormEvents
       | WithdrawFormParentEvents
-      | PassthroughEvent,
+      | PassthroughEvent
+      | { type: "REQUEST_REVIEW" }
+      | { type: "CANCEL_REVIEW" },
 
     emitted: {} as EmittedEvents,
 
@@ -113,7 +109,6 @@ export const withdrawUIMachine = setup({
     // biome-ignore lint/suspicious/noExplicitAny: bypass xstate+ts bloating; be careful when interacting with `depositedBalanceActor` string
     depositedBalanceActor: depositedBalanceMachine as any,
     swapActor: swapIntentMachine,
-    intentStatusActor: intentStatusMachine,
     withdrawFormActor: withdrawFormReducer,
     poaBridgeInfoActor: poaBridgeInfoActor,
     waitPOABridgeInfoActor: waitPOABridgeInfoActor,
@@ -172,43 +167,23 @@ export const withdrawUIMachine = setup({
       type: "REQUEST_BALANCE_REFRESH",
     })),
 
-    spawnIntentStatusActor: assign({
-      intentRefs: (
-        { context, spawn, self },
-        output: SwapIntentMachineOutput
-      ) => {
-        if (output.tag !== "ok") return context.intentRefs
+    emitWithdrawalConfirmed: ({ context }, output: SwapIntentMachineOutput) => {
+      if (output.tag !== "ok") return
 
-        const formValues = context.withdrawFormRef.getSnapshot().context
+      const { preparationOutput, submitDeps } = context
 
-        const intentRef = spawn("intentStatusActor", {
-          id: `intent-${output.value.intentHash}`,
-          input: {
-            parentRef: self,
-            intentHash: output.value.intentHash,
-            tokenIn: formValues.tokenIn,
-            tokenOut: formValues.tokenOut,
-            intentDescription: output.value.intentDescription,
-          },
+      assert(preparationOutput != null)
+      assert(submitDeps != null)
+
+      if (preparationOutput.tag === "ok") {
+        emitEvent("withdrawal_confirmed", {
+          tx_hash: output.value.intentHash,
+          received_amount: preparationOutput.value.receivedAmount,
+          actual_fee: preparationOutput.value.feeEstimation.amount,
+          destination_chain: submitDeps.userChainType,
         })
-
-        const { preparationOutput, submitDeps } = context
-
-        assert(preparationOutput != null)
-        assert(submitDeps != null)
-
-        if (preparationOutput.tag === "ok") {
-          emitEvent("withdrawal_confirmed", {
-            tx_hash: output.value.intentHash,
-            received_amount: preparationOutput.value.receivedAmount,
-            actual_fee: preparationOutput.value.feeEstimation.amount,
-            destination_chain: submitDeps.userChainType,
-          })
-        }
-
-        return [intentRef, ...context.intentRefs]
-      },
-    }),
+      }
+    },
 
     relayToWithdrawFormRef: sendTo(
       "withdrawFormRef",
@@ -275,7 +250,6 @@ export const withdrawUIMachine = setup({
     error: null,
     quote: null,
     intentCreationResult: null,
-    intentRefs: [],
     tokenList: input.tokenList,
     withdrawalSpec: null,
     userAddress: null,
@@ -388,6 +362,15 @@ export const withdrawUIMachine = setup({
 
         WITHDRAW_FORM_FIELDS_CHANGED: ".reset_previous_preparation",
 
+        REQUEST_REVIEW: {
+          target: ".reviewing",
+          guard: "isPreparationOk",
+        },
+
+        CANCEL_REVIEW: {
+          target: ".idle",
+        },
+
         submit: {
           target: ".done",
           guard: "isPreparationOk",
@@ -450,6 +433,8 @@ export const withdrawUIMachine = setup({
             },
           },
         },
+
+        reviewing: {},
 
         done: {
           type: "final",
@@ -515,11 +500,11 @@ export const withdrawUIMachine = setup({
 
         onDone: [
           {
-            target: "editing",
+            target: "editing.reviewing",
             guard: { type: "isOk", params: ({ event }) => event.output },
             actions: [
               {
-                type: "spawnIntentStatusActor",
+                type: "emitWithdrawalConfirmed",
                 params: ({ event }) => event.output,
               },
               {
@@ -530,7 +515,7 @@ export const withdrawUIMachine = setup({
             ],
           },
           {
-            target: "editing",
+            target: "editing.reviewing",
             actions: [
               {
                 type: "setIntentCreationResult",
@@ -541,7 +526,7 @@ export const withdrawUIMachine = setup({
         ],
 
         onError: {
-          target: "editing",
+          target: "editing.reviewing",
 
           actions: {
             type: "logError",

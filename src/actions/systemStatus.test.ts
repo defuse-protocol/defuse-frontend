@@ -43,7 +43,7 @@ describe("systemStatus", () => {
         id: "1",
         status: "maintenance",
         message:
-          "We're performing scheduled maintenance. Deposits and withdrawals may be temporarily unavailable.",
+          "We’re performing scheduled maintenance. Deposits and withdrawals may be temporarily unavailable.",
       },
     ])
   })

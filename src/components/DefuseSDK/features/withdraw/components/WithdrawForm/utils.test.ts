@@ -307,13 +307,14 @@ describe("getWithdrawButtonText", () => {
     [true, false, "No liquidity providers"],
     [true, true, "No liquidity providers"],
     [false, true, "Insufficient amount"],
-    [false, false, "Withdraw"],
+    [false, false, "Review send"],
   ])(
     'with noLiquidity=%s and insufficientTokenInAmount=%s returns "%s"',
     (noLiquidity, insufficientTokenInAmount, expected) => {
       const result = getWithdrawButtonText(
         noLiquidity,
-        insufficientTokenInAmount
+        insufficientTokenInAmount,
+        false
       )
       expect(result).toBe(expected)
     }

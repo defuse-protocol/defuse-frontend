@@ -58,10 +58,10 @@ export const settings: Settings = {
       description:
         "Secure and easy access to your digital assets. Track balances, manage transactions, and more.",
     },
-    withdraw: {
+    send: {
       title: "NEAR Intents | Low Fees, Best Rates & Seamless Cross‑Chain Exits",
       description:
-        "Withdraw crypto from NEAR to any supported chain. Fast, secure, and powered by smart intent execution.",
+        "Send crypto from NEAR to any supported chain. Fast, secure, and powered by smart intent execution.",
     },
     giftCreate: {
       title: "NEAR Intents | Send a Multichain Crypto Gift",
@@ -109,20 +109,20 @@ export const settings: Settings = {
       title: "NEAR Intents | Settings",
       description: "Manage your NEAR Intents account settings.",
     },
-    termsAndConditions: {
-      title: "NEAR Intents | Terms & Conditions",
-      description:
-        "Read our terms and conditions for using NEAR Intents. Your security and privacy are our top priorities.",
-    },
-    privacyPolicy: {
+    privacy: {
       title: "NEAR Intents | Privacy Policy",
       description:
         "Read our privacy policy for using NEAR Intents. Your security and privacy are our top priorities.",
     },
-    termsOfService: {
+    terms: {
       title: "NEAR Intents | Terms of Service",
       description:
         "Read our terms of service for using NEAR Intents. Your security and privacy are our top priorities.",
+    },
+    maintenance: {
+      title: "NEAR Intents | Under maintenance",
+      description:
+        "We’re currently performing maintenance on our site. Please check back soon.",
     },
   },
 }
