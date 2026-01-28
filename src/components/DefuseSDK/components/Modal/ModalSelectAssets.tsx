@@ -41,6 +41,8 @@ export type ModalSelectAssetsPayload = {
   isMostTradableTokensEnabled?: boolean
   /** When set, only tokens that support this network are selectable */
   lockedNetwork?: SupportedChainName
+  /** When true, tokens with zero balance are disabled (for Send flow) */
+  disableZeroBalance?: boolean
 }
 
 export type SelectItemToken<T = TokenInfo> = SearchableItem & {
@@ -145,8 +147,6 @@ export function ModalSelectAssets() {
         modalPayload.lockedNetwork != null &&
         !tokenSupportsNetwork(token, modalPayload.lockedNetwork)
 
-      const disabled = isSelected || isNetworkIncompatible
-
       // TODO: remove this once we remove the legacy props
       const balance = computeTotalBalanceDifferentDecimals(token, balances)
 
@@ -154,12 +154,21 @@ export function ModalSelectAssets() {
         ? holdings?.find((holding) => getTokenId(holding.token) === tokenId)
         : undefined
 
+      const tokenValue = findHolding?.value ?? balance
+
+      // Disable if token has zero balance and disableZeroBalance is enabled
+      const hasZeroBalance =
+        modalPayload.disableZeroBalance === true &&
+        (tokenValue == null || tokenValue.amount === 0n)
+
+      const disabled = isSelected || isNetworkIncompatible || hasZeroBalance
+
       getAssetList.push({
         token,
         disabled,
         selected: isSelected,
         usdValue: findHolding?.usdValue,
-        value: findHolding?.value ?? balance,
+        value: tokenValue,
         isHoldingsEnabled,
         searchData: createSearchData(token), // Preprocess search data for performance
       })

@@ -257,6 +257,7 @@ export const WithdrawForm = ({
       [fieldName]: token,
       isHoldingsEnabled: true,
       lockedNetwork,
+      disableZeroBalance: true, // Can only send tokens you have
     })
   }, [token, setModalType, selectedContact, blockchain])
 
