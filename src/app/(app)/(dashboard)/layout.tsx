@@ -15,10 +15,10 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => (
     <div className="fixed inset-y-0 left-0 w-74 max-lg:hidden py-5 px-4 flex flex-col">
       <Link
         href="/"
-        className="relative group flex items-center gap-4 rounded-2xl px-3.5 py-3 hover:bg-gray-700"
+        className="relative group flex items-center gap-4 rounded-2xl px-3.5 py-3.5 bg-gray-900"
       >
-        <NearIntentsLogoSymbolIcon className="h-5 shrink-0" />
-        <NearIntentsLogoIcon className="h-3.5 shrink-0 text-white" />
+        <NearIntentsLogoSymbolIcon className="h-6 shrink-0" />
+        <NearIntentsLogoIcon className="h-3 shrink-0 text-white" />
       </Link>
 
       <Divider />
@@ -26,8 +26,6 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => (
       <NavbarDesktop />
 
       <ActivityDock />
-
-      <Divider />
 
       <UserMenu />
     </div>

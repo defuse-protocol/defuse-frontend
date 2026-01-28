@@ -24,9 +24,9 @@ const UserMenu = () => {
     return (
       <Link
         href="/login"
-        className="bg-gray-900 rounded-2xl p-2 flex items-center gap-3 w-full hover:bg-gray-800"
+        className="bg-gray-900 rounded-2xl px-3.5 py-3 flex items-center gap-3 w-full hover:bg-gray-800 mt-5"
       >
-        <div className="size-8 flex items-center justify-center bg-gray-700 rounded-lg">
+        <div className="size-7 flex items-center justify-center bg-gray-700 rounded-lg">
           <UserIcon className="text-gray-400 size-5" />
         </div>
         <div className="text-gray-400 text-sm font-semibold">Sign in</div>
@@ -53,7 +53,7 @@ const UserMenu = () => {
 
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Trigger className="bg-gray-900 rounded-2xl px-3.5 py-3 flex items-center gap-3 w-full">
+      <DropdownMenu.Trigger className="bg-gray-900 rounded-2xl px-3.5 py-3 flex items-center gap-3 w-full mt-5">
         <div className="size-7 flex items-center justify-center bg-brand rounded-lg">
           <UserIcon className="text-white/80 size-5" />
         </div>
@@ -70,7 +70,7 @@ const UserMenu = () => {
           align="start"
           sideOffset={8}
           className={clsx(
-            "min-w-64 flex flex-col gap-1 rounded-2xl p-1.5 isolate bg-white outline outline-transparent focus:outline-hidden shadow-lg ring-1 ring-gray-900/10",
+            "min-w-66 flex flex-col gap-1 rounded-2xl p-1.5 isolate bg-white outline outline-transparent focus:outline-hidden shadow-lg ring-1 ring-gray-900/10",
             "data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:duration-100 data-[state=closed]:ease-in"
           )}
         >

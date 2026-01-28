@@ -5,7 +5,6 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
 } from "react"
@@ -41,90 +40,8 @@ const ActivityDockContext = createContext<ActivityDockContextType | undefined>(
   undefined
 )
 
-// TODO: Remove fake data after testing
-const FAKE_DOCK_ITEMS: DockItem[] = [
-  {
-    id: "swap-1",
-    title: "Swapping ETH → USDC",
-    icon: "🔄",
-    keyValueRows: [
-      { label: "Amount", value: "0.5 ETH" },
-      { label: "Estimated", value: "~1,250 USDC" },
-      { label: "Status", value: "Pending..." },
-    ],
-    createdAt: Date.now() - 10_000, // 10 seconds ago
-  },
-  {
-    id: "swap-2",
-    title: "Swap Complete",
-    icon: "✅",
-    explorerUrl: "https://etherscan.io/tx/0x123",
-    keyValueRows: [
-      { label: "Received", value: "500 USDC" },
-      { label: "From", value: "0.2 ETH" },
-      { label: "Network", value: "Ethereum" },
-    ],
-    isSettled: true,
-    createdAt: Date.now() - 120_000, // 2 minutes ago
-    settledAt: Date.now() - 30_000, // settled 30 seconds ago
-  },
-  {
-    id: "deposit-1",
-    title: "Depositing NEAR",
-    icon: "📥",
-    keyValueRows: [
-      { label: "Amount", value: "100 NEAR" },
-      { label: "From", value: "near.wallet" },
-    ],
-    createdAt: Date.now() - 3_000, // 3 seconds ago (dismiss button hidden)
-  },
-  {
-    id: "withdraw-1",
-    title: "Withdrawing SOL",
-    icon: "📤",
-    keyValueRows: [
-      { label: "Amount", value: "25 SOL" },
-      { label: "To", value: "7xKXt...9Qm2" },
-      { label: "Fee", value: "0.001 SOL" },
-    ],
-    createdAt: Date.now() - 45_000, // 45 seconds ago
-  },
-  {
-    id: "bridge-1",
-    title: "Bridge Failed",
-    icon: "❌",
-    explorerUrl: "https://arbiscan.io/tx/0x456",
-    keyValueRows: [
-      { label: "Route", value: "Arbitrum → Base" },
-      { label: "Amount", value: "1,000 USDT" },
-      { label: "Error", value: "Slippage exceeded" },
-    ],
-    isSettled: true,
-    createdAt: Date.now() - 180_000, // 3 minutes ago
-    settledAt: Date.now() - 15_000, // settled 15 seconds ago
-  },
-]
-
 function ActivityDockProvider({ children }: { children: ReactNode }) {
   const [dockItems, setDockItems] = useState<DockItem[]>([])
-
-  // TODO: Remove this test timer after testing
-  useEffect(() => {
-    let index = 0
-
-    const interval = setInterval(() => {
-      if (index >= FAKE_DOCK_ITEMS.length) {
-        clearInterval(interval)
-        return
-      }
-
-      const itemToAdd = FAKE_DOCK_ITEMS[index]
-      setDockItems((prev) => [...prev, { ...itemToAdd, createdAt: Date.now() }])
-      index++
-    }, 1000)
-
-    return () => clearInterval(interval)
-  }, [])
 
   const addDockItem = useCallback(
     (item: Omit<DockItem, "createdAt" | "settledAt">) => {
