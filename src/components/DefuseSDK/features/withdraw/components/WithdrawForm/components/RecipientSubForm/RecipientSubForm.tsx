@@ -332,7 +332,9 @@ export const RecipientSubForm = ({
         }}
         render={({ field, fieldState }) => (
           <SelectTriggerLike
-            label={field.value ? "Recipient" : "Select recipient"}
+            label={
+              field.value ? "Recipient" : "Select a contact or enter an address"
+            }
             value={
               recipientMode === "contact" && selectedContact
                 ? selectedContact.name
@@ -374,11 +376,15 @@ export const RecipientSubForm = ({
           setValue("blockchain", chainKey)
           setValue("recipient", contact.address, { shouldValidate: true })
         }}
-        onSwitchToAddressMode={() => {
-          setRecipientMode("address")
-          setSelectedContact(null)
-          setValue("recipient", "")
-        }}
+        onSwitchToAddressMode={
+          recipientMode === "contact"
+            ? () => {
+                setRecipientMode("address")
+                setSelectedContact(null)
+                setValue("recipient", "")
+              }
+            : undefined
+        }
       />
 
       {/* Save as contact option in address mode */}

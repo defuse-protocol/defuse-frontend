@@ -80,9 +80,11 @@ const ModalSelectRecipient = ({
     const availableNetworksValues = Object.keys(availableNetworks)
 
     // Filter to only contacts on available networks
-    const availableContacts = contacts.filter((contact) =>
-      availableNetworksValues.includes(contact.blockchain)
-    )
+    // Note: contact.blockchain is BlockchainEnum, availableNetworks uses SupportedChainName
+    const availableContacts = contacts.filter((contact) => {
+      const contactNetworkKey = reverseAssetNetworkAdapter[contact.blockchain]
+      return availableNetworksValues.includes(contactNetworkKey)
+    })
 
     // Further filter by search input if any
     const filteredContacts = inputValue
@@ -140,23 +142,32 @@ const ModalSelectRecipient = ({
     setValidatedAddress(null)
 
     const timer = setTimeout(async () => {
-      const result = await validationRecipientAddress(
-        inputValue,
-        blockchain,
-        userAddress ?? "",
-        chainType
-      )
+      try {
+        const result = await validationRecipientAddress(
+          inputValue,
+          blockchain,
+          userAddress ?? "",
+          chainType
+        )
 
-      if (cancelled) return
+        if (cancelled) return
 
-      setIsValidating(false)
+        setIsValidating(false)
 
-      if (result.isErr()) {
-        setValidationError(renderRecipientAddressError(result.unwrapErr()))
+        if (result.isErr()) {
+          setValidationError(renderRecipientAddressError(result.unwrapErr()))
+          setValidatedAddress(null)
+        } else {
+          setValidationError(null)
+          setValidatedAddress(inputValue)
+        }
+      } catch {
+        if (cancelled) return
+        setIsValidating(false)
+        setValidationError(
+          "An unexpected error occurred. Please try a different address."
+        )
         setValidatedAddress(null)
-      } else {
-        setValidationError(null)
-        setValidatedAddress(inputValue)
       }
     }, VALIDATION_DEBOUNCE_MS)
 
@@ -164,7 +175,7 @@ const ModalSelectRecipient = ({
       cancelled = true
       clearTimeout(timer)
     }
-  }, [inputValue, blockchain, userAddress, chainType, visibleContacts])
+  }, [inputValue, blockchain, userAddress, chainType, visibleContacts.length])
 
   const handleScroll = () => {
     if (!scrollContainerRef.current) return
@@ -241,7 +252,8 @@ const ModalSelectRecipient = ({
               {/* No contacts message */}
               {hasNoContacts && (
                 <p className="text-sm text-gray-500 text-center py-4">
-                  You haven't created any contacts yet.
+                  You haven't created any contacts yet. Please enter your
+                  destination address manually in the field above.
                 </p>
               )}
 
