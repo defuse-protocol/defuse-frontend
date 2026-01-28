@@ -5,12 +5,17 @@ export const walletVerificationMachine = setup({
   types: {} as {
     context: {
       hadError: boolean
+      token: string | null
+      expiresAt: number | null
     }
+    output: { token: string; expiresAt: number }
   },
   actors: {
-    verifyWallet: fromPromise((): Promise<boolean> => {
-      throw new Error("not implemented")
-    }),
+    verifyWallet: fromPromise(
+      (): Promise<{ token: string; expiresAt: number } | null> => {
+        throw new Error("not implemented")
+      }
+    ),
   },
   actions: {
     logError: (_, { error }: { error: unknown }) => {
@@ -19,15 +24,23 @@ export const walletVerificationMachine = setup({
     setError: assign({
       hadError: (_, { hadError }: { hadError: true }) => hadError,
     }),
+    setToken: assign({
+      token: (_, { token }: { token: string; expiresAt: number }) => token,
+      expiresAt: (_, { expiresAt }: { token: string; expiresAt: number }) =>
+        expiresAt,
+    }),
   },
   guards: {
-    isTrue: (_, value: boolean) => value,
+    hasToken: (_, value: { token: string; expiresAt: number } | null) =>
+      value != null,
   },
 }).createMachine({
   id: "verify-wallet",
   initial: "idle",
   context: {
     hadError: false,
+    token: null,
+    expiresAt: null,
   },
   states: {
     idle: {
@@ -49,8 +62,17 @@ export const walletVerificationMachine = setup({
           {
             target: "verified",
             guard: {
-              type: "isTrue",
+              type: "hasToken",
               params: ({ event }) => event.output,
+            },
+            actions: {
+              type: "setToken",
+              params: ({ event }) => {
+                if (!event.output) {
+                  throw new Error("Expected token output")
+                }
+                return event.output
+              },
             },
           },
           {
@@ -86,6 +108,10 @@ export const walletVerificationMachine = setup({
     },
     verified: {
       type: "final",
+      output: ({ context }) => ({
+        token: context.token ?? "",
+        expiresAt: context.expiresAt ?? 0,
+      }),
     },
     aborted: {
       type: "final",

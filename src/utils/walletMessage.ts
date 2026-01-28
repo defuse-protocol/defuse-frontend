@@ -50,11 +50,13 @@ export async function verifyWalletSignature(
 
 export function walletVerificationMessageFactory(
   credential: string,
-  credentialType: ChainType
+  credentialType: ChainType,
+  nonce?: Uint8Array
 ) {
   return createWalletVerificationMessage(
     {
       signerId: { credential, credentialType },
+      nonce,
     },
     credentialType
   )
