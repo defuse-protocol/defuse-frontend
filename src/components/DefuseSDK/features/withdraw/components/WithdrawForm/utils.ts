@@ -428,12 +428,13 @@ export function isNearIntentsNetwork(
 export function chainNameToNetworkName(chainName: SupportedChainName): string {
   switch (chainName) {
     case "eth":
-      return "ethereum"
+      return "Ethereum"
     case "xrpledger":
       return "XRP Ledger"
     case "bsc":
       return "BNB Smart Chain"
     default:
-      return chainName
+      // Capitalize first letter of chain name
+      return chainName.charAt(0).toUpperCase() + chainName.slice(1)
   }
 }

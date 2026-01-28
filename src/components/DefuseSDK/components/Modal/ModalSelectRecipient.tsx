@@ -235,7 +235,7 @@ const ModalSelectRecipient = ({
             data-testid="withdraw-target-account-field"
           />
           {validationError && (
-            <ErrorMessage className="mt-1">{validationError}</ErrorMessage>
+            <ErrorMessage className="mt-3">{validationError}</ErrorMessage>
           )}
         </div>
 
