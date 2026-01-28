@@ -20,9 +20,10 @@ interface NetworkListProps {
   additionalInfo?: string
   networkOptions: NetworkOptions
   selectedNetwork: SupportedChainName | "near_intents" | null
-  onChangeNetwork: (network: SupportedChainName) => void
+  onChangeNetwork: (network: SupportedChainName | "near_intents") => void
   disabled?: boolean
   renderValueDetails?: (address: string) => ReactNode
+  /** Optional separate callback for Near Intents selection. If provided, this is called instead of onChangeNetwork */
   onIntentsSelect?: () => void
 }
 
@@ -76,7 +77,11 @@ export const NetworkList = ({
               {...networkInfo}
               selected={selectedNetwork === "near_intents"}
               disabled={disabled}
-              onClick={() => onIntentsSelect?.()}
+              onClick={() =>
+                onIntentsSelect
+                  ? onIntentsSelect()
+                  : onChangeNetwork("near_intents")
+              }
               isAuroraVirtualChain={false}
               renderValueDetails={() => (
                 <span className="inline-flex items-center gap-x-1.5 rounded-lg bg-green-100 px-2 py-1 text-xs font-semibold text-green-700">

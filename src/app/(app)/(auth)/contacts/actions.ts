@@ -45,12 +45,15 @@ const DeleteContactFormSchema = v.object({
   contactId: v.pipe(v.string(), v.uuid("Contact ID must be a valid UUID")),
 })
 
+/** Contact blockchain can be a BlockchainEnum or "near_intents" for internal transfers */
+export type ContactBlockchain = BlockchainEnum | "near_intents"
+
 export type Contact = Omit<
   ContactSchema,
   "createdAt" | "updatedAt" | "blockchain"
 > & {
   id: string
-  blockchain: BlockchainEnum
+  blockchain: ContactBlockchain
 }
 
 type ContactEntity = {
@@ -81,24 +84,36 @@ export async function getContacts(input?: {
 
     const contactsData = await getContactsByAccountId(accountId, input?.search)
 
-    const contacts: Array<Contact> = contactsData
-      .map((contact) => {
-        if (!isSupportedChainName(contact.blockchain)) {
-          return null
-        }
-
-        const blockchain: SupportedChainName = contact.blockchain
-        const blockchainEnum = assetNetworkAdapter[blockchain]
-        return {
+    const contacts: Array<Contact> = []
+    for (const contact of contactsData) {
+      // Handle near_intents as a special case
+      if (contact.blockchain === "near_intents") {
+        contacts.push({
           contactId: contact.contactId,
           accountId: contact.accountId,
           address: contact.address,
           name: contact.name,
-          blockchain: blockchainEnum,
+          blockchain: "near_intents",
           id: contact.contactId,
-        }
+        })
+        continue
+      }
+
+      if (!isSupportedChainName(contact.blockchain)) {
+        continue
+      }
+
+      const blockchain: SupportedChainName = contact.blockchain
+      const blockchainEnum = assetNetworkAdapter[blockchain]
+      contacts.push({
+        contactId: contact.contactId,
+        accountId: contact.accountId,
+        address: contact.address,
+        name: contact.name,
+        blockchain: blockchainEnum,
+        id: contact.contactId,
       })
-      .filter((contact): contact is Contact => contact !== null)
+    }
 
     return { ok: true, value: contacts }
   } catch (error) {
@@ -110,7 +125,7 @@ export async function getContacts(input?: {
 export async function createContact(input: {
   name: string
   address: string
-  blockchain: BlockchainEnum
+  blockchain: ContactBlockchain
   userAddress?: string
   chainType?: AuthMethod
 }): Promise<ActionResult<ContactEntity>> {
@@ -150,7 +165,11 @@ export async function createContact(input: {
     return { ok: false, error: errorMessage }
   }
 
-  const blockchain = reverseAssetNetworkAdapter[input.blockchain]
+  // Handle near_intents as a special case - it's not in reverseAssetNetworkAdapter
+  const blockchain =
+    input.blockchain === "near_intents"
+      ? "near_intents"
+      : reverseAssetNetworkAdapter[input.blockchain]
 
   const validationResult = await validationRecipientAddress(
     data.output.address,
@@ -223,7 +242,7 @@ export async function updateContact(input: {
   contactId: string
   name: string
   address: string
-  blockchain: BlockchainEnum
+  blockchain: ContactBlockchain
   userAddress?: string
   chainType?: AuthMethod
 }): Promise<ActionResult<ContactEntity>> {
@@ -263,7 +282,11 @@ export async function updateContact(input: {
     return { ok: false, error: errorMessage }
   }
 
-  const blockchain = reverseAssetNetworkAdapter[input.blockchain]
+  // Handle near_intents as a special case - it's not in reverseAssetNetworkAdapter
+  const blockchain =
+    input.blockchain === "near_intents"
+      ? "near_intents"
+      : reverseAssetNetworkAdapter[input.blockchain]
 
   const validationResult = await validationRecipientAddress(
     data.output.address,

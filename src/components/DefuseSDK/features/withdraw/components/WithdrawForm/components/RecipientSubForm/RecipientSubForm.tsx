@@ -396,10 +396,17 @@ export const RecipientSubForm = ({
           getValues("blockchain") !== "hyperliquid"
         }
         onSelectContact={(contact) => {
-          const chainKey = reverseAssetNetworkAdapter[contact.blockchain]
           setRecipientMode("contact")
           setSelectedContact(contact)
-          setValue("blockchain", chainKey)
+          // Handle near_intents contacts specially - they don't use reverseAssetNetworkAdapter
+          if (contact.blockchain === "near_intents") {
+            // near_intents contacts should use "near" as the blockchain for the send form
+            // since they're internal transfers within Near
+            setValue("blockchain", "near")
+          } else {
+            const chainKey = reverseAssetNetworkAdapter[contact.blockchain]
+            setValue("blockchain", chainKey)
+          }
           setValue("recipient", contact.address, { shouldValidate: true })
         }}
         selectedContact={recipientMode === "contact" ? selectedContact : null}

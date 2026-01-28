@@ -1,10 +1,8 @@
-import type {
-  AuthMethod,
-  BlockchainEnum,
-} from "@defuse-protocol/internal-utils"
+import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { UserCircleIcon } from "@heroicons/react/20/solid"
 import {
   type Contact,
+  type ContactBlockchain,
   createContact,
   updateContact,
 } from "@src/app/(app)/(auth)/contacts/actions"
@@ -21,6 +19,7 @@ import { useForm } from "react-hook-form"
 import type { SupportedChainName } from "../../types/base"
 import {
   assetNetworkAdapter,
+  isValidBlockchainEnumKey,
   reverseAssetNetworkAdapter,
 } from "../../utils/adapters"
 import { allAvailableChains } from "../../utils/blockchain"
@@ -32,7 +31,7 @@ import ModalNoResults from "./ModalNoResults"
 type FormData = {
   address: string
   name: string
-  blockchain: BlockchainEnum | null
+  blockchain: ContactBlockchain | null
 }
 
 type ModalContactProps = {
@@ -102,17 +101,25 @@ const ModalAddEditContact = ({
     validate: (value) => value !== null || "Select a network for this contact.",
   })
 
-  const availableNetworks = useMemo(() => allAvailableChains(), [])
+  // Include Near Intents as the first network option
+  const availableNetworks = useMemo(() => allAvailableChains(true), [])
   const filteredNetworks = useSearchNetworks({
     networks: availableNetworks,
     searchValue,
   })
 
   const blockchain = watch("blockchain")
-  const selectedNetwork = useMemo(
-    () => (blockchain ? reverseAssetNetworkAdapter[blockchain] : null),
-    [blockchain]
-  )
+  // Compute the selected network key for highlighting in the list
+  // For near_intents, pass through as-is
+  // For BlockchainEnum values, convert to SupportedChainName using reverseAssetNetworkAdapter
+  const selectedNetwork: SupportedChainName | "near_intents" | null =
+    blockchain === null
+      ? null
+      : blockchain === "near_intents"
+        ? "near_intents"
+        : isValidBlockchainEnumKey(blockchain)
+          ? reverseAssetNetworkAdapter[blockchain]
+          : null
   const networkData = useMemo(
     () => (blockchain ? availableNetworks[blockchain] : null),
     [blockchain, availableNetworks]
@@ -183,8 +190,13 @@ const ModalAddEditContact = ({
   }, [selectNetworkOpen, isEditing])
 
   const onChangeNetwork = useCallback(
-    (network: SupportedChainName) => {
-      setValue("blockchain", assetNetworkAdapter[network] as BlockchainEnum, {
+    (network: SupportedChainName | "near_intents") => {
+      // Handle near_intents specially - it's stored as "near_intents" not via adapter
+      const blockchainValue =
+        network === "near_intents"
+          ? "near_intents"
+          : assetNetworkAdapter[network]
+      setValue("blockchain", blockchainValue as ContactBlockchain, {
         shouldValidate: true,
       })
       setSelectNetworkOpen(false)

@@ -46,9 +46,12 @@ export const ModalSelectNetwork = ({
   const availableNetworksValues = Object.keys(availableNetworkOptions)
   const disabledNetworksValues = Object.keys(disabledNetworkOptions)
 
-  const onChangeNetwork = (network: SupportedChainName) => {
-    selectNetwork(network)
-    onClose()
+  const onChangeNetwork = (network: SupportedChainName | "near_intents") => {
+    // Near Intents is handled by onIntentsSelect, so this should only receive SupportedChainName
+    if (network !== "near_intents") {
+      selectNetwork(network)
+      onClose()
+    }
   }
 
   const handleScroll = () => {

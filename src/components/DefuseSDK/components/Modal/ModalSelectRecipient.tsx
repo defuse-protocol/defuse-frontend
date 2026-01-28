@@ -10,6 +10,7 @@ import {
   type Contact,
   getContacts,
 } from "@src/app/(app)/(auth)/contacts/actions"
+import type { ContactBlockchain } from "@src/app/(app)/(auth)/contacts/actions"
 import ErrorMessage from "@src/components/ErrorMessage"
 import ListItem from "@src/components/ListItem"
 import { ContactsIcon, WalletIcon } from "@src/icons"
@@ -17,7 +18,7 @@ import { useQuery } from "@tanstack/react-query"
 import clsx from "clsx"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useFormContext } from "react-hook-form"
-import { chainIcons } from "../../constants/blockchains"
+import { chainIcons, nearIntentsAccountIcon } from "../../constants/blockchains"
 import type { WithdrawFormNearValues } from "../../features/withdraw/components/WithdrawForm"
 import {
   type ValidateRecipientAddressErrorType,
@@ -28,11 +29,36 @@ import {
   midTruncate,
 } from "../../features/withdraw/components/WithdrawForm/utils"
 import type { NetworkOptions } from "../../hooks/useNetworkLists"
+import type { SupportedChainName } from "../../types/base"
 import {
   assetNetworkAdapter,
   reverseAssetNetworkAdapter,
 } from "../../utils/adapters"
 import { isSupportedChainName } from "../../utils/blockchain"
+
+/**
+ * Helper to get chain display info for a contact's blockchain.
+ * Handles both standard BlockchainEnum values and "near_intents".
+ */
+function getContactChainInfo(blockchain: ContactBlockchain): {
+  chainKey: SupportedChainName | "near_intents"
+  chainIcon: { dark: string; light: string }
+  chainName: string
+} {
+  if (blockchain === "near_intents") {
+    return {
+      chainKey: "near_intents",
+      chainIcon: nearIntentsAccountIcon,
+      chainName: "Near Intents",
+    }
+  }
+  const chainKey = reverseAssetNetworkAdapter[blockchain]
+  return {
+    chainKey,
+    chainIcon: chainIcons[chainKey],
+    chainName: chainNameToNetworkName(chainKey),
+  }
+}
 import { NetworkIcon } from "../Network/NetworkIcon"
 import SearchBar from "../SearchBar"
 import TooltipNew from "../TooltipNew"
@@ -116,7 +142,9 @@ const ModalSelectRecipient = ({
     const other: Contact[] = []
 
     for (const contact of filteredContacts) {
-      const contactNetworkKey = reverseAssetNetworkAdapter[contact.blockchain]
+      const { chainKey: contactNetworkKey } = getContactChainInfo(
+        contact.blockchain
+      )
       if (contactNetworkKey === currentNetworkKey) {
         matching.push(contact)
       } else {
@@ -338,23 +366,20 @@ const ModalSelectRecipient = ({
                 </ListItem.Content>
                 <ListItem.Content align="end">
                   <ListItem.Title className="flex items-center gap-1 pb-4.5">
-                    <NetworkIcon
-                      chainIcon={
-                        chainIcons[
-                          reverseAssetNetworkAdapter[
-                            matchingContactByAddress.blockchain
-                          ]
-                        ]
-                      }
-                      sizeClassName="size-4"
-                    />
-                    <span className="capitalize">
-                      {chainNameToNetworkName(
-                        reverseAssetNetworkAdapter[
-                          matchingContactByAddress.blockchain
-                        ]
-                      )}
-                    </span>
+                    {(() => {
+                      const { chainIcon, chainName } = getContactChainInfo(
+                        matchingContactByAddress.blockchain
+                      )
+                      return (
+                        <>
+                          <NetworkIcon
+                            chainIcon={chainIcon}
+                            sizeClassName="size-4"
+                          />
+                          <span className="capitalize">{chainName}</span>
+                        </>
+                      )
+                    })()}
                   </ListItem.Title>
                 </ListItem.Content>
               </ListItem>
@@ -426,23 +451,19 @@ const ModalSelectRecipient = ({
                       </ListItem.Content>
                       <ListItem.Content align="end">
                         <ListItem.Title className="flex items-center gap-1 pb-4.5">
-                          <NetworkIcon
-                            chainIcon={
-                              chainIcons[
-                                reverseAssetNetworkAdapter[
-                                  selectedContact.blockchain
-                                ]
-                              ]
-                            }
-                            sizeClassName="size-4"
-                          />
-                          <span className="capitalize">
-                            {chainNameToNetworkName(
-                              reverseAssetNetworkAdapter[
-                                selectedContact.blockchain
-                              ]
-                            )}
-                          </span>
+                          {(() => {
+                            const { chainIcon, chainName } =
+                              getContactChainInfo(selectedContact.blockchain)
+                            return (
+                              <>
+                                <NetworkIcon
+                                  chainIcon={chainIcon}
+                                  sizeClassName="size-4"
+                                />
+                                <span className="capitalize">{chainName}</span>
+                              </>
+                            )
+                          })()}
                         </ListItem.Title>
                       </ListItem.Content>
                     </ListItem>
@@ -473,10 +494,8 @@ const ModalSelectRecipient = ({
 
                     <div className="mt-1 space-y-1">
                       {matchingNetworkContacts.map((contact) => {
-                        const chainKey =
-                          reverseAssetNetworkAdapter[contact.blockchain]
-                        const chainIcon = chainIcons[chainKey]
-                        const chainName = chainNameToNetworkName(chainKey)
+                        const { chainKey, chainIcon, chainName } =
+                          getContactChainInfo(contact.blockchain)
 
                         return (
                           <ListItem
@@ -486,7 +505,10 @@ const ModalSelectRecipient = ({
                               if (onSelectContact) {
                                 onSelectContact(contact)
                               } else {
-                                setValue("blockchain", chainKey)
+                                // Only set blockchain for standard chains (near_intents contacts shouldn't appear in matchingNetworkContacts for standard blockchain)
+                                if (chainKey !== "near_intents") {
+                                  setValue("blockchain", chainKey)
+                                }
                                 setValue("recipient", contact.address, {
                                   shouldValidate: true,
                                 })
@@ -531,10 +553,9 @@ const ModalSelectRecipient = ({
 
                   <div className="mt-1 space-y-1">
                     {otherNetworkContacts.map((contact) => {
-                      const chainKey =
-                        reverseAssetNetworkAdapter[contact.blockchain]
-                      const chainIcon = chainIcons[chainKey]
-                      const chainName = chainNameToNetworkName(chainKey)
+                      const { chainIcon, chainName } = getContactChainInfo(
+                        contact.blockchain
+                      )
 
                       return (
                         <TooltipNew key={contact.id}>

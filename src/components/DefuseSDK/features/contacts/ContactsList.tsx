@@ -9,7 +9,10 @@ import type { Contact } from "@src/app/(app)/(auth)/contacts/actions"
 import Button from "@src/components/Button"
 import ModalAddEditContact from "@src/components/DefuseSDK/components/Modal/ModalAddEditContact"
 import { NetworkIcon } from "@src/components/DefuseSDK/components/Network/NetworkIcon"
-import { chainIcons } from "@src/components/DefuseSDK/constants/blockchains"
+import {
+  chainIcons,
+  nearIntentsAccountIcon,
+} from "@src/components/DefuseSDK/constants/blockchains"
 import {
   chainNameToNetworkName,
   midTruncate,
@@ -39,16 +42,29 @@ const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
     setSelectedContact(contact)
   }
 
-  const processedContacts = useMemo(
-    () =>
-      contacts.map((contact) => {
-        const chainKey = reverseAssetNetworkAdapter[contact.blockchain]
-        const chainIcon = chainIcons[chainKey]
-        const chainName = chainNameToNetworkName(chainKey)
-        return { contact, chainKey, chainIcon, chainName }
-      }),
-    [contacts]
-  )
+  const processedContacts = useMemo(() => {
+    const processed = contacts.map((contact) => {
+      // Handle near_intents as a special case
+      if (contact.blockchain === "near_intents") {
+        return {
+          contact,
+          chainKey: "near_intents" as const,
+          chainIcon: nearIntentsAccountIcon,
+          chainName: "Near Intents",
+        }
+      }
+
+      const chainKey = reverseAssetNetworkAdapter[contact.blockchain]
+      const chainIcon = chainIcons[chainKey]
+      const chainName = chainNameToNetworkName(chainKey)
+      return { contact, chainKey, chainIcon, chainName }
+    })
+
+    // Sort alphabetically by contact name
+    return processed.sort((a, b) =>
+      a.contact.name.localeCompare(b.contact.name)
+    )
+  }, [contacts])
 
   if (contacts.length === 0) {
     return (

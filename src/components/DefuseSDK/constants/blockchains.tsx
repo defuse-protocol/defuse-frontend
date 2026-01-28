@@ -431,13 +431,19 @@ export const intentsChainIcon = {
   light: "/static/icons/network/intents.svg",
 }
 
+/** Icon for Near Intents account option (the favicon) */
+export const nearIntentsAccountIcon = {
+  dark: "/static/icons/network/near-intents-account.svg",
+  light: "/static/icons/network/near-intents-account.svg",
+}
+
 export const INTENTS_EXPLORER_URL = "https://explorer.near-intents.org"
 
 export function getNearIntentsOption(): Record<"intents", IntentsOption> {
   return {
     intents: {
-      label: "Near Intents",
-      icon: <NetworkIcon chainIcon={intentsChainIcon} />,
+      label: "Another Near Intents Account",
+      icon: <NetworkIcon chainIcon={nearIntentsAccountIcon} />,
       value: "near_intents",
       tags: [],
     },
