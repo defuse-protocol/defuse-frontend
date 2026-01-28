@@ -1,7 +1,5 @@
 import { getContacts } from "@src/app/(app)/(auth)/contacts/actions"
-import ContactsHeader from "@src/components/DefuseSDK/features/contacts/ContactsHeader"
 import ContactsList from "@src/components/DefuseSDK/features/contacts/ContactsList"
-import NonContactsHeader from "@src/components/DefuseSDK/features/contacts/NonContactsHeader"
 
 export default async function ContactsPage({
   searchParams,
@@ -18,14 +16,5 @@ export default async function ContactsPage({
   const result = await getContacts({ search })
   const contacts = result.ok ? result.value : []
 
-  return (
-    <>
-      {contacts.length > 0 ? (
-        <ContactsHeader search={search} />
-      ) : (
-        <NonContactsHeader />
-      )}
-      <ContactsList contacts={contacts} />
-    </>
-  )
+  return <ContactsList contacts={contacts} search={search} />
 }
