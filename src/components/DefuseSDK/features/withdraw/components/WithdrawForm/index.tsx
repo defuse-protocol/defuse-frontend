@@ -293,10 +293,22 @@ export const WithdrawForm = ({
   }, [watch, actorRef, token])
 
   useEffect(() => {
+    // biome-ignore lint/suspicious/noConsole: temporary debug logging
+    console.log("[WithdrawForm] Preset effect:", {
+      presetAmount,
+      presetNetwork,
+      presetRecipient,
+      isSupportedChain: presetNetwork
+        ? isSupportedChainName(presetNetwork)
+        : null,
+    })
+
     if (presetAmount != null) {
       setValue("amountIn", presetAmount)
     }
     if (presetNetwork != null && isSupportedChainName(presetNetwork)) {
+      // biome-ignore lint/suspicious/noConsole: temporary debug logging
+      console.log("[WithdrawForm] Setting blockchain to:", presetNetwork)
       setValue("blockchain", presetNetwork)
       // Also update XState machine so form values stay in sync
       actorRef.send({
