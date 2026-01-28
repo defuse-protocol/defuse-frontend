@@ -52,9 +52,16 @@ export function EarnUIMachineProvider({
   const is1cs = useIs1CsEnabled()
 
   // For deposits: user sells a token -> gets smUSDC (tokenOut = smUSDC)
-  // For withdrawals: user sells smUSDC -> gets a token (tokenIn = smUSDC)
-  const defaultSelectableToken = tokenList[0]
-  assert(defaultSelectableToken, "Token list must have at least one token")
+  // For withdrawals: user sells smUSDC -> gets a token (tokenIn = smUsdcToken)
+  // Filter out earn-only tokens - can't use them as tokenIn for deposits or tokenOut for withdrawals
+  const selectableTokens = tokenList.filter(
+    (token) => !token.tags?.includes("category:earn-only")
+  )
+  const defaultSelectableToken = selectableTokens[0]
+  assert(
+    defaultSelectableToken,
+    "Token list must have at least one non-earn-only token"
+  )
 
   const tokenIn = mode === "deposit" ? defaultSelectableToken : smUsdcToken
   const tokenOut = mode === "deposit" ? smUsdcToken : defaultSelectableToken
