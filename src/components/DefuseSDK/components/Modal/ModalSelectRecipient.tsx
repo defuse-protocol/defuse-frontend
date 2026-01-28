@@ -481,9 +481,11 @@ const ModalSelectRecipient = ({
               {hasNoContacts && !(selectedContact && !wasDeselected) && (
                 <p className="text-sm text-gray-500 text-center py-4">
                   You haven't created any contacts on the{" "}
-                  {isSupportedChainName(blockchain)
-                    ? chainNameToNetworkName(blockchain)
-                    : blockchain}{" "}
+                  {blockchain === "near_intents"
+                    ? "Near Intents"
+                    : isSupportedChainName(blockchain)
+                      ? chainNameToNetworkName(blockchain)
+                      : blockchain}{" "}
                   network yet. Please enter your destination address manually in
                   the field above.
                 </p>
@@ -491,11 +493,15 @@ const ModalSelectRecipient = ({
 
               {/* Contacts matching current network (selectable) */}
               {matchingNetworkContacts.length > 0 &&
-                isSupportedChainName(blockchain) && (
+                (isSupportedChainName(blockchain) ||
+                  blockchain === "near_intents") && (
                   <div>
                     <h3 className="flex items-center gap-1.5 text-gray-500 text-sm/6 font-medium">
                       <ContactsIcon className="size-4 shrink-0" />
-                      Contacts on {chainNameToNetworkName(blockchain)}
+                      Contacts on{" "}
+                      {blockchain === "near_intents"
+                        ? "Near Intents"
+                        : chainNameToNetworkName(blockchain)}
                     </h3>
 
                     <div className="mt-1 space-y-1">
