@@ -36,7 +36,7 @@ export function renderAppLink(
       )
     case "gift":
       return (
-        <Link href="/gift-card" {...props}>
+        <Link href="/gifts" {...props}>
           {children}
         </Link>
       )

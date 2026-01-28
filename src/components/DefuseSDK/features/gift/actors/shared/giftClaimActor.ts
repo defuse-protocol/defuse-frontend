@@ -158,14 +158,11 @@ export const giftClaimActor = setup({
           })
           return { tag: "ok" as const }
         } catch (err) {
-          if (err instanceof solverRelay.IntentSettlementError) {
-            return {
-              tag: "err" as const,
-              value: { reason: "NOT_FOUND_OR_NOT_VALID" },
-            }
+          logger.error(new Error("Gift settling failed", { cause: err }))
+          return {
+            tag: "err" as const,
+            value: { reason: "NOT_FOUND_OR_NOT_VALID" },
           }
-          // Optionally handle/log other error types here
-          throw err
         }
       }
     ),
@@ -238,7 +235,7 @@ export const giftClaimActor = setup({
             },
 
             onError: {
-              target: "#(machine).claiming",
+              target: "#(machine).idle",
               actions: [
                 { type: "logError", params: ({ event }) => event },
                 { type: "setError", params: { reason: "ERR_ON_SIGN_GIFT" } },
@@ -299,7 +296,7 @@ export const giftClaimActor = setup({
             },
 
             onError: {
-              target: "#(machine).claiming",
+              target: "#(machine).idle",
               actions: [
                 { type: "logError", params: ({ event }) => event },
                 { type: "setError", params: { reason: "ERR_ON_PUBLISH_GIFT" } },
@@ -349,7 +346,7 @@ export const giftClaimActor = setup({
             },
 
             onError: {
-              target: "#(machine).claiming",
+              target: "#(machine).idle",
               actions: [
                 { type: "logError", params: ({ event }) => event },
                 {

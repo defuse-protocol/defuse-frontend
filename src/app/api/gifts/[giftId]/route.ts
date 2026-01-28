@@ -1,16 +1,9 @@
 import type { GetGiftResponse } from "@src/features/gift/types/giftTypes"
+import { giftIdSchema } from "@src/features/gift/validation/giftIdSchema"
 import { supabase } from "@src/libs/supabase"
 import { logger } from "@src/utils/logger"
 import { NextResponse } from "next/server"
 import { z } from "zod"
-
-const giftIdSchema = z
-  .string()
-  .uuid()
-  .refine((val) => {
-    // UUID v5 has version bits set to 5 (0101)
-    return val[14] === "5"
-  }, "Invalid gift_id format") as z.ZodType<string>
 
 export async function GET(
   _request: Request,
@@ -20,20 +13,11 @@ export async function GET(
     const { giftId } = await params
     const validatedData = giftIdSchema.parse(giftId)
 
-    // TODO: After running database migration, regenerate Supabase types and remove cast
-    const result = (await supabase
+    const { data, error } = await supabase
       .from("gifts")
       .select("encrypted_payload, p_key, expires_at")
       .eq("gift_id", validatedData)
-      .maybeSingle()) as {
-      data: {
-        encrypted_payload: string
-        p_key: string | null
-        expires_at: number | null
-      } | null
-      error: { message: string } | null
-    }
-    const { data, error } = result
+      .maybeSingle()
 
     if (error) {
       logger.error(error)
@@ -50,7 +34,7 @@ export async function GET(
     return NextResponse.json({
       encrypted_payload: data.encrypted_payload,
       p_key: data.p_key,
-      expires_at: data.expires_at,
+      expires_at: data.expires_at ? new Date(data.expires_at).getTime() : null,
     } satisfies GetGiftResponse)
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -89,13 +73,13 @@ export async function PATCH(
     const body = await request.json()
     const validatedData = patchSchema.parse(body)
 
-    // TODO: After running database migration, regenerate Supabase types and remove cast
     const { error } = await supabase
       .from("gifts")
-      .update({ expires_at: validatedData.expires_at } as Record<
-        string,
-        unknown
-      >)
+      .update({
+        expires_at: validatedData.expires_at
+          ? new Date(validatedData.expires_at).toISOString()
+          : null,
+      })
       .eq("gift_id", validatedGiftId)
 
     if (error) {

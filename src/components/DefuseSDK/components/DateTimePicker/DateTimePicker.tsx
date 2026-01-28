@@ -1,7 +1,4 @@
-import {
-  CaretLeft as ChevronLeftIcon,
-  CaretRight as ChevronRightIcon,
-} from "@phosphor-icons/react"
+import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react"
 import clsx from "clsx"
 import { format, setHours, setMinutes } from "date-fns"
 import { useCallback, useEffect, useMemo, useState } from "react"
@@ -148,7 +145,7 @@ export function DateTimePicker({
             onClick={handlePrevMonth}
             className="size-8 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
           >
-            <ChevronLeftIcon weight="bold" className="size-4 text-gray-600" />
+            <CaretLeftIcon weight="bold" className="size-4 text-gray-600" />
           </button>
 
           <div className="flex items-center gap-2">
@@ -184,7 +181,7 @@ export function DateTimePicker({
             onClick={handleNextMonth}
             className="size-8 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
           >
-            <ChevronRightIcon weight="bold" className="size-4 text-gray-600" />
+            <CaretRightIcon weight="bold" className="size-4 text-gray-600" />
           </button>
         </div>
 

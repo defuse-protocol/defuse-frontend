@@ -1,7 +1,7 @@
 import {
   ArrowRightIcon,
   ArrowSquareOutIcon,
-  ArrowsClockwise,
+  ArrowsClockwiseIcon,
   CheckCircleIcon,
   SpinnerIcon,
   WarningIcon,
@@ -176,7 +176,7 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
             <TooltipTrigger asChild>
               <div className="flex items-center cursor-default">
                 {swap.status === "PENDING" || swap.status === "PROCESSING" ? (
-                  <ArrowsClockwise
+                  <ArrowsClockwiseIcon
                     className={cn("size-3.5 text-gray-11", {
                       "animate-spin": !isPendingStale,
                     })}

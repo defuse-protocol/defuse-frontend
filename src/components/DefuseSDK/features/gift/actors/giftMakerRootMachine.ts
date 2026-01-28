@@ -271,6 +271,9 @@ export const giftMakerRootMachine = setup({
     clearIV: assign({
       iv: null,
     }),
+    resetForm: ({ context }) => {
+      context.formRef.getSnapshot().context.formValues.trigger.reset()
+    },
   },
   guards: {
     isOk: (_, params: { tag: "ok" | "err" }) => params.tag === "ok",
@@ -586,7 +589,7 @@ export const giftMakerRootMachine = setup({
         onDone: [
           {
             target: "editing",
-            actions: "sendToDepositedBalanceRefRefresh",
+            actions: ["sendToDepositedBalanceRefRefresh", "resetForm"],
             guard: { type: "isOk", params: ({ event }) => event.output },
           },
           {

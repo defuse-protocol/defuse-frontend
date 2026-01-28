@@ -5,19 +5,14 @@ import type {
   CreateGiftResponse,
   ErrorResponse,
 } from "@src/features/gift/types/giftTypes"
+import { giftIdSchema } from "@src/features/gift/validation/giftIdSchema"
 import { supabase } from "@src/libs/supabase"
 import { logger } from "@src/utils/logger"
 import { NextResponse } from "next/server"
 import { z } from "zod"
 
 const giftsSchema = z.object({
-  gift_id: z
-    .string()
-    .uuid()
-    .refine((val) => {
-      // UUID v5 has version bits set to 5 (0101)
-      return val[14] === "5"
-    }, "Invalid gift_id format"),
+  gift_id: giftIdSchema,
   encrypted_payload: z.string().refine((val) => {
     try {
       const decoded = base64.decode(val)
@@ -47,7 +42,12 @@ export async function POST(request: Request) {
   try {
     const body = await request.json()
     const validatedData = giftsSchema.parse(body)
-    const { error } = await supabase.from("gifts").insert(validatedData)
+    const { error } = await supabase.from("gifts").insert({
+      ...validatedData,
+      expires_at: validatedData.expires_at
+        ? new Date(validatedData.expires_at).toISOString()
+        : null,
+    })
 
     if (error) {
       logger.error(error)

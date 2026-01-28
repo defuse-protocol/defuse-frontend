@@ -1,10 +1,10 @@
 import {
-  CalendarBlank as CalendarIcon,
-  Check as CheckIcon,
-  Clock as ClockIcon,
-  PencilSimple as PencilIcon,
-  Trash as TrashIcon,
-  X as XIcon,
+  CalendarBlankIcon,
+  CheckIcon,
+  ClockIcon,
+  PencilSimpleIcon,
+  TrashIcon,
+  XIcon,
 } from "@phosphor-icons/react"
 import clsx from "clsx"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
@@ -31,6 +31,14 @@ function formatExpirationDisplay(timestamp: number): string {
     hour: "numeric",
     minute: "2-digit",
   })
+}
+
+function getTimezoneAbbreviation(): string {
+  const date = new Date()
+  const parts = new Intl.DateTimeFormat(undefined, { timeZoneName: "short" })
+    .formatToParts(date)
+    .find((part) => part.type === "timeZoneName")
+  return parts?.value ?? Intl.DateTimeFormat().resolvedOptions().timeZone
 }
 
 export function GiftExpirationInput({
@@ -137,7 +145,7 @@ export function GiftExpirationInput({
           "flex items-center gap-3 rounded-2xl bg-white p-3 border transition-all duration-200",
           hasValue
             ? "border-gray-900 outline outline-1 outline-gray-900"
-            : "border-gray-200 hover:border-gray-400",
+            : "border-gray-200 hover:border-gray-300",
           disabled && "opacity-50 cursor-not-allowed"
         )}
       >
@@ -164,7 +172,10 @@ export function GiftExpirationInput({
           <div className="flex-1 min-w-0">
             {hasValue ? (
               <span className="text-base font-semibold text-gray-900">
-                Expires {formatExpirationDisplay(value)}
+                Expires {formatExpirationDisplay(value)}{" "}
+                <span className="text-sm font-normal text-gray-400">
+                  {getTimezoneAbbreviation()}
+                </span>
               </span>
             ) : (
               <span className="text-base font-semibold text-gray-400">
@@ -182,7 +193,10 @@ export function GiftExpirationInput({
               disabled={disabled}
               className="size-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors disabled:cursor-not-allowed"
             >
-              <PencilIcon weight="bold" className="size-4 text-gray-500" />
+              <PencilSimpleIcon
+                weight="bold"
+                className="size-4 text-gray-500"
+              />
             </button>
             <button
               type="button"
@@ -199,7 +213,7 @@ export function GiftExpirationInput({
   }
 
   return (
-    <div className="rounded-2xl bg-white border border-gray-900 outline outline-1 outline-gray-900 p-4">
+    <div className="rounded-2xl bg-white border border-gray-400 outline outline-1 outline-gray-400 p-4 transition-all duration-200">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div
@@ -267,7 +281,11 @@ export function GiftExpirationInput({
             "disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
           )}
         >
-          <CalendarIcon weight="bold" className="size-4" />
+          {showCalendar ? (
+            <XIcon weight="bold" className="size-4" />
+          ) : (
+            <CalendarBlankIcon weight="bold" className="size-4" />
+          )}
           Custom
         </button>
       </div>
@@ -286,10 +304,26 @@ export function GiftExpirationInput({
       {hasValue && (
         <div className="flex items-center justify-between pt-3 border-t border-gray-200">
           <div className="flex items-center gap-2 text-sm text-gray-600">
-            <CalendarIcon weight="bold" className="size-4" />
+            <CalendarBlankIcon weight="bold" className="size-4" />
             <span className="font-medium">
               {formatExpirationDisplay(value)}
             </span>
+            <span className="text-xs text-gray-400">
+              {getTimezoneAbbreviation()}
+            </span>
+            {!showCalendar && (
+              <button
+                type="button"
+                onClick={() => setShowCalendar(true)}
+                disabled={disabled}
+                className="size-6 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors disabled:cursor-not-allowed"
+              >
+                <PencilSimpleIcon
+                  weight="bold"
+                  className="size-3.5 text-gray-500"
+                />
+              </button>
+            )}
           </div>
           <button
             type="button"

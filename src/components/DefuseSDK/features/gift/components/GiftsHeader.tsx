@@ -18,14 +18,14 @@ export function GiftsHeader() {
           {
             label: "My gifts",
             icon: <ListBulletIcon className="size-4 shrink-0" />,
-            href: "/gift-card",
-            selected: pathname === "/gift-card",
+            href: "/gifts",
+            selected: pathname === "/gifts",
           },
           {
             label: "New gift",
             icon: <PlusIcon className="size-4 shrink-0" />,
-            href: "/gift-card/new",
-            selected: pathname === "/gift-card/new",
+            href: "/gifts/create",
+            selected: pathname === "/gifts/create",
           },
         ]}
       />

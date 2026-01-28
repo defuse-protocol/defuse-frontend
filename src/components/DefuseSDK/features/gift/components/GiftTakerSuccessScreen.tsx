@@ -1,16 +1,17 @@
 import { solverRelay } from "@defuse-protocol/internal-utils"
-import { Button } from "@radix-ui/themes"
+import { ArrowSquareOutIcon, CheckCircleIcon } from "@phosphor-icons/react"
 import {
   computeTotalBalanceDifferentDecimals,
   getUnderlyingBaseTokenInfos,
 } from "@src/components/DefuseSDK/utils/tokenUtils"
 import { useQuery } from "@tanstack/react-query"
+import { useEffect } from "react"
 import { CopyButton } from "../../../components/IntentCard/CopyButton"
-import type { RenderHostAppLink } from "../../../types/hostAppLink"
 import { assert } from "../../../utils/assert"
+import { formatTokenValue } from "../../../utils/format"
 import type { GiftInfo } from "../actors/shared/getGiftInfo"
 import { GiftStrip } from "./GiftStrip"
-import { ActionIcon } from "./shared/ActionIcon"
+import { useTokenConfetti } from "./TokenConfetti"
 import { GiftDescription } from "./shared/GiftDescription"
 import { GiftHeader } from "./shared/GiftHeader"
 
@@ -19,12 +20,16 @@ const NEAR_EXPLORER = "https://nearblocks.io"
 export function GiftTakerSuccessScreen({
   giftInfo,
   intentHashes,
-  renderHostAppLink,
 }: {
   giftInfo: GiftInfo
   intentHashes: string[]
-  renderHostAppLink: RenderHostAppLink
 }) {
+  const { fireOnce } = useTokenConfetti()
+
+  useEffect(() => {
+    fireOnce()
+  }, [fireOnce])
+
   const amount = computeTotalBalanceDifferentDecimals(
     getUnderlyingBaseTokenInfos(giftInfo.token),
     giftInfo.tokenDiff,
@@ -48,83 +53,82 @@ export function GiftTakerSuccessScreen({
       : null
 
   return (
-    <>
-      <GiftHeader title="Gift claimed!" icon={<ActionIcon type="success" />}>
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <GiftHeader
+        title="Gift claimed!"
+        icon={
+          <div className="size-16 rounded-full bg-emerald-100 flex items-center justify-center animate-in zoom-in duration-300">
+            <CheckCircleIcon
+              weight="fill"
+              className="size-10 text-emerald-600"
+            />
+          </div>
+        }
+      >
         <GiftDescription description="The funds are now in your account. Use them for trading or withdraw to your wallet." />
       </GiftHeader>
 
-      <div className="flex flex-col text-xs mt-4 bg-gray-4 rounded-lg">
-        <div className="flex flex-row border-b border-gray-6 p-3">
+      <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden">
+        <div className="flex items-center justify-between p-4 border-b border-gray-100">
           <GiftStrip
             token={giftInfo.token}
             amountSlot={
               <GiftStrip.Amount
                 token={giftInfo.token}
                 amount={amount}
-                className="text-gray-12"
+                className="text-lg font-bold text-gray-900"
               />
             }
           />
+          <div className="text-right">
+            <div className="text-2xl font-bold text-emerald-600">
+              +
+              {formatTokenValue(amount.amount, amount.decimals, {
+                fractionDigits: 6,
+              })}
+            </div>
+            <div className="text-sm text-gray-500">{giftInfo.token.symbol}</div>
+          </div>
         </div>
-        <div className="flex flex-col gap-3.5 text-xs p-3">
+
+        <div className="flex flex-col gap-3 text-sm p-4 bg-gray-50">
           <div className="flex justify-between items-center">
-            <div className="text-gray-11 font-medium">Intents</div>
-            <div className="flex gap-2.5">
+            <span className="text-gray-500">Intent</span>
+            <div className="flex items-center gap-1.5">
               {intentHashes.map((intentHash) => (
                 <div
                   key={intentHash}
-                  className="flex flex-row items-center gap-1 text-gray-12 font-medium"
+                  className="flex items-center gap-1 text-gray-900 font-medium"
                 >
-                  <span className="text-gray-12 font-medium">
-                    {truncateHash(intentHash)}
-                  </span>
+                  <span className="font-mono">{truncateHash(intentHash)}</span>
                   <CopyButton text={intentHash} ariaLabel="Copy intent hash" />
                 </div>
               ))}
             </div>
           </div>
-          {txUrl != null && (
+          {txUrl != null && intentStatus.data?.txHash && (
             <div className="flex justify-between items-center">
-              <div className="text-gray-11 font-medium">Transaction hash</div>
-              {intentStatus.data?.txHash && (
-                <div className="flex flex-row items-center gap-1 text-blue-c11 font-medium">
-                  <a href={txUrl} rel="noopener noreferrer" target="_blank">
-                    {truncateHash(intentStatus.data.txHash)}
-                  </a>
-                  <CopyButton
-                    text={intentStatus.data.txHash}
-                    ariaLabel="Copy intent hash"
-                  />
-                </div>
-              )}
+              <span className="text-gray-500">Transaction</span>
+              <div className="flex items-center gap-1.5">
+                <a
+                  href={txUrl}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  className="font-mono text-blue-600 hover:text-blue-800 transition-colors duration-200 flex items-center gap-1"
+                >
+                  {truncateHash(intentStatus.data.txHash)}
+                  <ArrowSquareOutIcon className="size-3.5" />
+                </a>
+                <CopyButton
+                  text={intentStatus.data.txHash}
+                  ariaLabel="Copy transaction hash"
+                />
+              </div>
             </div>
           )}
         </div>
       </div>
-
-      <div className="flex flex-col justify-center gap-3 mt-5">
-        {renderHostAppLink(
-          "account",
-          <Button asChild size="4" className="w-full h-14 font-bold">
-            <div>Go to account</div>
-          </Button>,
-          { className: "w-full" }
-        )}
-        {renderHostAppLink(
-          "withdraw",
-          <Button
-            asChild
-            size="4"
-            className="w-full h-14 font-bold"
-            variant="outline"
-            color="gray"
-          >
-            <div>Withdraw</div>
-          </Button>,
-          { className: "w-full" }
-        )}
-      </div>
-    </>
+    </div>
   )
 }
 

@@ -1,5 +1,5 @@
 import { PlusIcon } from "@heroicons/react/20/solid"
-import { Gift, Wallet } from "@phosphor-icons/react"
+import { GiftIcon, WalletIcon } from "@phosphor-icons/react"
 import Button from "@src/components/Button"
 import ListItemsSkeleton from "@src/components/ListItemsSkeleton"
 
@@ -12,7 +12,7 @@ export function GiftHistoryEmpty() {
           className="size-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400"
           aria-hidden
         >
-          <Gift weight="bold" className="size-6" />
+          <GiftIcon weight="bold" className="size-6" />
         </div>
         <h3 className="text-xl font-semibold text-gray-900 text-center tracking-tight mt-3">
           No gifts yet
@@ -20,7 +20,7 @@ export function GiftHistoryEmpty() {
         <p className="text-base text-gray-500 mt-1 font-medium text-center text-balance">
           Create a gift and send it to your friends
         </p>
-        <Button href="/gift-card/new" size="xl" className="mt-4">
+        <Button href="/gifts/create" size="xl" className="mt-4">
           <PlusIcon className="size-5 shrink-0" />
           Create a gift
         </Button>
@@ -38,7 +38,7 @@ export function GiftHistoryNotLoggedIn() {
           className="size-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400"
           aria-hidden
         >
-          <Wallet weight="bold" className="size-6" />
+          <WalletIcon weight="bold" className="size-6" />
         </div>
         <h3 className="text-xl font-semibold text-gray-900 text-center tracking-tight mt-3">
           Connect your wallet

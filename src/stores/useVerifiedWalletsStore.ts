@@ -29,7 +29,7 @@ export const useVerifiedWalletsStore = create<Store>()(
       storage: createJSONStorage(() => localStorage),
       onRehydrateStorage: (state) => (_persistedState, error) => {
         if (!error) {
-          state.setHasHydrated(true)
+          queueMicrotask(() => state.setHasHydrated(true))
         }
       },
     }

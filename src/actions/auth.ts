@@ -37,7 +37,7 @@ export async function generateAuthToken(
     const cookieStore = await cookies()
     cookieStore.set(AUTH_TOKEN_KEY, token, {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: 60 * 60 * 24 * 7, // 7 days
       path: "/",

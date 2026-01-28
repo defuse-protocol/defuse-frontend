@@ -1,9 +1,9 @@
-import { Warning as WarningIcon } from "@phosphor-icons/react"
+import { WarningCircleIcon } from "@phosphor-icons/react"
+import AppButton from "@src/components/Button"
 import type { SignerCredentials } from "@src/components/DefuseSDK/core/formatters"
 import { deriveIdFromIV } from "@src/utils/deriveIdFromIV"
 import { logger } from "@src/utils/logger"
 import { useCallback, useMemo, useState } from "react"
-import { ButtonCustom } from "../../../components/Button/ButtonCustom"
 import { BaseModalDialog } from "../../../components/Modal/ModalDialog"
 import { giftMakerHistoryStore } from "../stores/giftMakerHistory"
 import type { GiftInfo } from "../utils/parseGiftInfos"
@@ -86,33 +86,36 @@ export function GiftExpirationEditDialog({
 
       {error && (
         <div className="mt-4 p-3 rounded-xl bg-red-3 flex items-center gap-2 animate-in fade-in slide-in-from-top-1 duration-200">
-          <WarningIcon weight="bold" className="size-4 text-red-11 shrink-0" />
+          <WarningCircleIcon
+            weight="bold"
+            className="size-4 text-red-11 shrink-0"
+          />
           <span className="text-sm font-medium text-red-11">{error}</span>
         </div>
       )}
 
       <div className="flex flex-col sm:flex-row gap-3 mt-6">
-        <ButtonCustom
+        <AppButton
           type="button"
-          variant="secondary"
-          size="lg"
+          variant="outline"
+          size="xl"
           onClick={onClose}
           disabled={isSubmitting}
-          fullWidth
+          className="w-full sm:flex-1"
         >
           Cancel
-        </ButtonCustom>
-        <ButtonCustom
+        </AppButton>
+        <AppButton
           type="button"
           variant="primary"
-          size="lg"
+          size="xl"
           onClick={handleSave}
-          isLoading={isSubmitting}
+          loading={isSubmitting}
           disabled={isSubmitting}
-          fullWidth
+          className="w-full sm:flex-1"
         >
           {isSubmitting ? "Saving..." : "Save"}
-        </ButtonCustom>
+        </AppButton>
       </div>
     </BaseModalDialog>
   )

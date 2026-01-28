@@ -1,12 +1,12 @@
 import {
-  CheckCircle,
-  Check as CheckIcon,
-  Clock as ClockIcon,
-  Copy as CopyIcon,
-  Eye as EyeIcon,
-  PencilSimple as PencilIcon,
-  Trash as TrashIcon,
-  Warning as WarningIcon,
+  CheckCircleIcon,
+  CheckIcon,
+  ClockIcon,
+  CopyIcon,
+  EyeIcon,
+  PencilSimpleIcon,
+  TrashIcon,
+  WarningCircleIcon,
 } from "@phosphor-icons/react"
 import Button from "@src/components/Button"
 import type { SignerCredentials } from "@src/components/DefuseSDK/core/formatters"
@@ -104,7 +104,7 @@ export function GiftMakerHistoryItem({
             View
           </Button>
           <Button size="sm" onClick={() => setShowExpirationDialog(true)}>
-            <PencilIcon weight="bold" className="size-4" />
+            <PencilSimpleIcon weight="bold" className="size-4" />
             Edit
           </Button>
           <Copy
@@ -155,24 +155,27 @@ export function GiftMakerHistoryItem({
         </ListItem.Content>
         <ListItem.Content align="end">
           {giftInfo.status === "claimed" ? (
-            <div className="flex items-center gap-1 text-green-600">
-              <CheckCircle weight="fill" className="size-4" />
-              <span className="text-sm font-medium">Claimed</span>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700">
+              <CheckCircleIcon weight="fill" className="size-3.5" />
+              <span className="text-xs font-semibold">Claimed</span>
             </div>
           ) : isExpired ? (
-            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-50 text-red-600">
-              <WarningIcon weight="bold" className="size-3" />
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-100 text-red-700">
+              <WarningCircleIcon weight="bold" className="size-3.5" />
               <span className="text-xs font-semibold">Expired</span>
             </div>
-          ) : giftInfo.expiresAt != null ? (
-            <div className="flex items-center gap-1 text-gray-500">
-              <ClockIcon weight="bold" className="size-3" />
-              <span className="text-xs">
-                Expires {formatGiftDate(giftInfo.expiresAt)}
-              </span>
-            </div>
           ) : (
-            <span className="text-xs text-gray-400">Pending</span>
+            <div className="flex flex-col items-end gap-1">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">
+                <ClockIcon weight="bold" className="size-3.5" />
+                <span className="text-xs font-semibold">Not revealed</span>
+              </div>
+              {giftInfo.expiresAt != null && (
+                <span className="text-[10px] text-gray-400">
+                  Expires {formatGiftDate(giftInfo.expiresAt)}
+                </span>
+              )}
+            </div>
           )}
         </ListItem.Content>
       </ListItem>

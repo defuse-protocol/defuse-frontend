@@ -1,4 +1,4 @@
-import { PencilSimple as PencilIcon } from "@phosphor-icons/react"
+import { PencilSimpleIcon } from "@phosphor-icons/react"
 import { TooltipInfo } from "@src/components/DefuseSDK/components/TooltipInfo"
 import clsx from "clsx"
 import { type ReactNode, useCallback, useRef, useState } from "react"
@@ -274,6 +274,24 @@ BlockMultiBalances.DisplayCustomPercentButton =
       }
     }, [inputValue, handleSubmit])
 
+    const handleSelectedKeyDown = useCallback(
+      (e: React.KeyboardEvent) => {
+        if (e.key === "ArrowUp") {
+          e.preventDefault()
+          const newVal = Math.min(100, (customPercent ?? 0) + 1)
+          onPercentChange(newVal)
+        } else if (e.key === "ArrowDown") {
+          e.preventDefault()
+          const newVal = Math.max(1, (customPercent ?? 0) - 1)
+          onPercentChange(newVal)
+        } else if (e.key === "Enter") {
+          e.preventDefault()
+          handleEditClick(e as unknown as React.MouseEvent)
+        }
+      },
+      [customPercent, onPercentChange, handleEditClick]
+    )
+
     if (isEditing) {
       return (
         <div className="flex items-center gap-0.5">
@@ -298,24 +316,6 @@ BlockMultiBalances.DisplayCustomPercentButton =
       )
     }
 
-    const handleSelectedKeyDown = useCallback(
-      (e: React.KeyboardEvent) => {
-        if (e.key === "ArrowUp") {
-          e.preventDefault()
-          const newVal = Math.min(100, (customPercent ?? 0) + 1)
-          onPercentChange(newVal)
-        } else if (e.key === "ArrowDown") {
-          e.preventDefault()
-          const newVal = Math.max(1, (customPercent ?? 0) - 1)
-          onPercentChange(newVal)
-        } else if (e.key === "Enter") {
-          e.preventDefault()
-          handleEditClick(e as unknown as React.MouseEvent)
-        }
-      },
-      [customPercent, onPercentChange, handleEditClick]
-    )
-
     if (hasStoredPercent && isSelected) {
       return (
         <button
@@ -326,7 +326,7 @@ BlockMultiBalances.DisplayCustomPercentButton =
           className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-gray-900 text-white text-xs font-semibold hover:bg-gray-700 active:scale-95 transition-all duration-150"
         >
           {customPercent}%
-          <PencilIcon weight="bold" className="size-3" />
+          <PencilSimpleIcon weight="bold" className="size-3" />
         </button>
       )
     }
@@ -336,7 +336,7 @@ BlockMultiBalances.DisplayCustomPercentButton =
         type="button"
         onClick={handleButtonClick}
         className={clsx(
-          "px-2 py-1 rounded-full text-xs font-semibold transition-all duration-150 flex items-center gap-1",
+          "px-2.5 py-1 rounded-full text-xs font-semibold transition-all duration-150 flex items-center justify-center gap-1 min-h-6",
           !active && "bg-gray-100 text-gray-400 cursor-not-allowed",
           active &&
             hasStoredPercent &&
@@ -350,7 +350,7 @@ BlockMultiBalances.DisplayCustomPercentButton =
         {hasStoredPercent ? (
           `${customPercent}%`
         ) : (
-          <PencilIcon weight="bold" className="size-3" />
+          <PencilSimpleIcon weight="bold" className="size-3" />
         )}
       </button>
     )

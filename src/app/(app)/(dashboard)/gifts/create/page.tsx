@@ -12,10 +12,12 @@ import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import { useNearWallet } from "@src/providers/NearWalletProvider"
 import { renderAppLink } from "@src/utils/renderAppLink"
+import { useRouter } from "next/navigation"
 import { useDeterminePair } from "../../swap/_utils/useDeterminePair"
 import { createGiftIntent, createGiftLink } from "../_utils/link"
 
 export default function NewGiftPage() {
+  const router = useRouter()
   const { state } = useConnectWallet()
   const tokenList = useTokenList(LIST_TOKENS)
   const signMessage = useWalletAgnosticSignMessage()
@@ -64,6 +66,7 @@ export default function NewGiftPage() {
             generateLink={(giftLinkData) => createGiftLink(giftLinkData)}
             initialToken={tokenIn ?? undefined}
             renderHostAppLink={renderAppLink}
+            onSuccess={() => router.push("/gifts")}
           />
         </div>
       </SwapWidgetProvider>

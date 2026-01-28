@@ -70,6 +70,7 @@ const GiftMakerHistorySchemaV3 = v.object({
   tokenDiff: v.record(v.string(), v.string()),
   secretKey: v.string(),
   message: v.string(),
+  iv: v.optional(v.string()),
   intentHashes: v.array(v.string()),
   createdAt: v.number(),
   updatedAt: v.number(),

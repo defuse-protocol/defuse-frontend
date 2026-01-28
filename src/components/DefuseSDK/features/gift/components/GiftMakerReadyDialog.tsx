@@ -1,15 +1,10 @@
-import {
-  Check as CheckIcon,
-  Copy as CopyIcon,
-  Warning as WarningIcon,
-} from "@phosphor-icons/react"
-import { Button, Dialog, Spinner } from "@radix-ui/themes"
+import { CheckIcon, CopyIcon, WarningCircleIcon } from "@phosphor-icons/react"
+import AppButton from "@src/components/Button"
 import type { SignerCredentials } from "@src/components/DefuseSDK/core/formatters"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { useSelector } from "@xstate/react"
 import { useCallback } from "react"
 import type { ActorRefFrom } from "xstate"
-import { ButtonCustom } from "../../../components/Button/ButtonCustom"
 import { Copy } from "../../../components/IntentCard/CopyButton"
 import { BaseModalDialog } from "../../../components/Modal/ModalDialog"
 import type { giftMakerReadyActor } from "../actors/giftMakerReadyActor"
@@ -96,8 +91,8 @@ function SuccessDialog({
   ])
 
   return (
-    <BaseModalDialog open onClose={finish} title="Share your gift">
-      <GiftHeader title="Share your gift" className="mt-2 text-center">
+    <BaseModalDialog open onClose={finish}>
+      <GiftHeader title="Share your gift" className="mt-4 text-center">
         <GiftDescription
           description="Your funds are on-chain. The recipient can claim them via the link, or
           you can reclaim them if needed."
@@ -119,32 +114,26 @@ function SuccessDialog({
       <div className="flex flex-col justify-center gap-3 mt-5">
         <Copy text={copyGiftLink()}>
           {(copied) => (
-            <ButtonCustom
-              type="button"
-              size="lg"
-              variant="primary"
-              variantRadix={copied ? "soft" : undefined}
-            >
-              <div className="flex gap-2 items-center">
-                {copied ? (
-                  <CheckIcon weight="bold" />
-                ) : (
-                  <CopyIcon weight="bold" />
-                )}
-                {copied ? "Copied" : "Copy link"}
-              </div>
-            </ButtonCustom>
+            <AppButton type="button" size="xl" variant="primary" fullWidth>
+              {copied ? (
+                <CheckIcon weight="bold" />
+              ) : (
+                <CopyIcon weight="bold" />
+              )}
+              {copied ? "Copied" : "Copy link"}
+            </AppButton>
           )}
         </Copy>
 
-        <ButtonCustom
+        <AppButton
           size="lg"
           type="button"
-          variant="danger"
+          variant="destructive-soft"
           onClick={cancelGift}
+          fullWidth
         >
           Cancel gift
-        </ButtonCustom>
+        </AppButton>
       </div>
     </BaseModalDialog>
   )
@@ -183,79 +172,75 @@ export function CancellationDialog({
   }, [actorRef, giftInfo, signerCredentials])
 
   return (
-    <BaseModalDialog
-      open={!!actorRef}
-      onClose={abortCancellation}
-      title="Cancel gift?"
-    >
+    <BaseModalDialog open={!!actorRef} onClose={abortCancellation}>
       {snapshot?.matches("idleUnclaimable") ? (
         <>
-          <div className="flex justify-center mb-4">
+          <div className="flex justify-center mt-4 mb-5">
             <div className="w-16 h-16 rounded-full bg-red-4 flex justify-center items-center">
-              <WarningIcon weight="bold" className="size-7 text-red-a11" />
+              <WarningCircleIcon
+                weight="bold"
+                className="size-7 text-red-a11"
+              />
             </div>
           </div>
-          <Dialog.Title className="text-2xl font-black text-gray-12 mb-2 text-center">
+          <h3 className="text-2xl font-black text-gray-900 mb-3 text-center">
             Your gift is claimed
             <br />
             or already cancelled
-          </Dialog.Title>
-          <Dialog.Description className="text-sm font-medium text-gray-11 text-center">
+          </h3>
+          <p className="text-sm font-medium text-gray-500 text-center">
             This gift has either been successfully claimed or was previously
-            cancelled. 
-          </Dialog.Description>
+            cancelled.
+          </p>
 
-          <div className="flex flex-col md:flex-row justify-center gap-3 mt-5">
-            <Button
+          <div className="flex flex-col md:flex-row justify-center gap-3 mt-6">
+            <AppButton
               type="button"
-              size="4"
-              className="w-full font-bold"
+              size="xl"
               variant="outline"
-              color="gray"
               onClick={ackCancellationImpossible}
+              fullWidth
             >
               Ok
-            </Button>
+            </AppButton>
           </div>
         </>
       ) : (
         <>
-          <Dialog.Title className="text-2xl font-black text-gray-12 mb-2">
+          <h3 className="text-2xl font-black text-gray-900 mt-4 mb-3">
             Cancel gift?
-          </Dialog.Title>
-          <Dialog.Description className="text-sm font-medium text-gray-11">
+          </h3>
+          <p className="text-sm font-medium text-gray-500">
             The funds will return to your account, and the link will no longer
             work.
-          </Dialog.Description>
+          </p>
 
           {snapshot?.context.error != null &&
             typeof snapshot.context.error?.reason === "string" && (
               <ErrorReason reason={snapshot.context.error?.reason} />
             )}
 
-          <div className="flex flex-col md:flex-row justify-center gap-3 mt-5">
-            <Button
+          <div className="flex flex-col md:flex-row justify-center gap-3 mt-6">
+            <AppButton
               type="button"
-              size="4"
+              size="xl"
               variant="outline"
-              color="gray"
-              className="md:flex-1 font-bold"
+              className="md:flex-1"
               onClick={abortCancellation}
             >
               Keep
-            </Button>
+            </AppButton>
 
-            <Button
+            <AppButton
               type="button"
-              size="4"
-              variant="solid"
-              color="red"
-              className="md:flex-1 font-bold"
+              size="xl"
+              variant="destructive"
+              className="md:flex-1"
               onClick={confirmCancellation}
+              loading={!!snapshot?.matches("claiming")}
             >
-              <Spinner loading={!!snapshot?.matches("claiming")} />
               {snapshot?.matches("claiming") ? "Cancelling..." : "Cancel gift"}
-            </Button>
+            </AppButton>
           </div>
         </>
       )}

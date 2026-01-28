@@ -1,4 +1,5 @@
 import Button from "@src/components/Button"
+import { useEffect, useState } from "react"
 import type { SignerCredentials } from "../../../../core/formatters"
 import type { TokenInfo } from "../../../../types/base"
 import { useGiftInfos } from "../../hooks/useGiftInfos"
@@ -23,15 +24,21 @@ export function GiftHistory({
   generateLink,
   gifts,
 }: GiftHistoryProps) {
+  const [mounted, setMounted] = useState(false)
   const { giftInfos, loading } = useGiftInfos(gifts, tokenList)
   const { visibleGiftItems, hasMore, showMore } = useGiftPagination(giftInfos)
 
-  if (!signerCredentials) {
-    return <GiftHistoryNotLoggedIn />
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Always show skeleton until mounted to prevent SSR/hydration mismatch
+  if (!mounted || loading) {
+    return <GiftHistorySkeleton />
   }
 
-  if (loading) {
-    return <GiftHistorySkeleton />
+  if (!signerCredentials) {
+    return <GiftHistoryNotLoggedIn />
   }
 
   if (giftInfos.length === 0) {
@@ -40,15 +47,21 @@ export function GiftHistory({
 
   return (
     <GiftClaimActorProvider signerCredentials={signerCredentials}>
-      <section className="mt-6 space-y-1">
-        {visibleGiftItems?.map((giftInfo) => (
-          <GiftMakerHistoryItem
-            key={giftInfo.secretKey ?? giftInfo.iv ?? crypto.randomUUID()}
-            giftInfo={giftInfo}
-            generateLink={generateLink}
-            signerCredentials={signerCredentials}
-          />
-        ))}
+      <section className="mt-6">
+        <div className="rounded-2xl border border-gray-200 overflow-hidden px-4">
+          {visibleGiftItems?.map((giftInfo, index) => (
+            <div
+              key={giftInfo.secretKey ?? giftInfo.iv ?? `gift-${index}`}
+              className="border-b border-gray-100 last:border-b-0"
+            >
+              <GiftMakerHistoryItem
+                giftInfo={giftInfo}
+                generateLink={generateLink}
+                signerCredentials={signerCredentials}
+              />
+            </div>
+          ))}
+        </div>
         {hasMore && (
           <Button
             type="button"

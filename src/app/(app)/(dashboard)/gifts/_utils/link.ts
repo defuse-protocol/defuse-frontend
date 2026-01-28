@@ -1,4 +1,5 @@
 import { base64urlnopad } from "@scure/base"
+import type { GiftLinkData } from "@src/components/DefuseSDK/features/gift/types/sharedTypes"
 import {
   genPKey,
   getGiftEncryptedIntent,
@@ -14,17 +15,12 @@ import {
   encodeGift,
 } from "./encoder"
 
-type GiftLinkData = {
-  secretKey: string
-  message: string
-}
-
 type GiftLinkPayload = {
-  iv: null | string
+  iv?: null | string
 } & GiftLinkData
 
 export function createGiftLink(payload: GiftLinkPayload): string {
-  const url = new URL("/gift-card/view-gift", window.location.origin)
+  const url = new URL("/gifts/view", window.location.origin)
   if (payload.iv) {
     url.hash = payload.iv
     return url.toString()

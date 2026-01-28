@@ -59,6 +59,7 @@ export type GiftMakerWidgetProps = {
   theme?: "dark" | "light"
   referral?: string
   renderHostAppLink: RenderHostAppLink
+  onSuccess?: () => void
 }
 
 const MAX_MESSAGE_LENGTH = 500
@@ -74,6 +75,7 @@ export function GiftMakerForm({
   referral,
   renderHostAppLink,
   createGiftIntent,
+  onSuccess,
 }: GiftMakerWidgetProps) {
   const signerCredentials: SignerCredentials | null = useMemo(
     () =>
@@ -103,8 +105,12 @@ export function GiftMakerForm({
   const formValuesRef = useSelector(formRef, formValuesSelector)
   const formValues = useSelector(formValuesRef, (s) => s.context)
 
+  const depositedBalanceRef = useSelector(
+    rootActorRef,
+    (s) => s.context.depositedBalanceRef
+  )
   const { tokenBalance } = useSelector(
-    useSelector(rootActorRef, (s) => s.context.depositedBalanceRef),
+    depositedBalanceRef,
     balanceAllSelector({
       tokenBalance: formValues.token,
     })
@@ -205,46 +211,42 @@ export function GiftMakerForm({
 
   const error = rootSnapshot.context.error
 
-  const publicKeyVerifierRef = useSelector(
-    useSelector(
-      useSelector(
-        rootActorRef,
-        (state) =>
-          state.children.signRef as
-            | undefined
-            | ActorRefFrom<typeof giftMakerSignActor>
-      ),
-      (state) => {
-        if (state) {
-          return (
-            state as unknown as {
-              children: {
-                signRef: ActorRefFrom<
-                  PromiseActorLogic<
-                    GiftMakerSignActorOutput,
-                    GiftMakerSignActorInput
-                  >
-                >
-              }
-            }
-          ).children.signRef
-        }
-      }
-    ),
-    (state) => {
-      if (state) {
-        return (
-          state as unknown as {
-            children: {
-              publicKeyVerifierRef: ActorRefFrom<
-                typeof publicKeyVerifierMachine
-              >
-            }
-          }
-        ).children.publicKeyVerifierRef
-      }
-    }
+  const signRef = useSelector(
+    rootActorRef,
+    (state) =>
+      state.children.signRef as
+        | undefined
+        | ActorRefFrom<typeof giftMakerSignActor>
   )
+
+  const innerSignRef = useSelector(signRef, (state) => {
+    if (state) {
+      return (
+        state as unknown as {
+          children: {
+            signRef: ActorRefFrom<
+              PromiseActorLogic<
+                GiftMakerSignActorOutput,
+                GiftMakerSignActorInput
+              >
+            >
+          }
+        }
+      ).children.signRef
+    }
+  })
+
+  const publicKeyVerifierRef = useSelector(innerSignRef, (state) => {
+    if (state) {
+      return (
+        state as unknown as {
+          children: {
+            publicKeyVerifierRef: ActorRefFrom<typeof publicKeyVerifierMachine>
+          }
+        }
+      ).children.publicKeyVerifierRef
+    }
+  })
 
   usePublicKeyModalOpener(publicKeyVerifierRef, sendNearTransaction)
 
@@ -350,6 +352,7 @@ export function GiftMakerForm({
             readyGiftRef={readyGiftRef}
             generateLink={generateLink}
             signerCredentials={signerCredentials}
+            onClose={onSuccess}
           />
         )}
 
@@ -474,6 +477,7 @@ export function GiftMakerForm({
           />
           <div className="w-full mt-4">
             <GiftMessageInput
+              hasValue={formValues.message.length > 0}
               inputSlot={
                 <GiftMessageInput.Input
                   id="gift-message"
