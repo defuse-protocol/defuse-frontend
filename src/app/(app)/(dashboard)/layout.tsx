@@ -7,8 +7,6 @@ import { NearIntentsLogoIcon, NearIntentsLogoSymbolIcon } from "@src/icons"
 import Link from "next/link"
 import type { ReactNode } from "react"
 
-const Divider = () => <div className="my-5 -mx-4 border-t border-gray-700" />
-
 const DashboardLayout = ({ children }: { children: ReactNode }) => (
   <div className="relative isolate flex min-h-svh w-full bg-gray-25 lg:bg-gray-800">
     {/* Sidebar on desktop */}
@@ -21,7 +19,7 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => (
         <NearIntentsLogoIcon className="h-3 shrink-0 text-white" />
       </Link>
 
-      <Divider />
+      <div className="my-5 -mx-4 border-t border-gray-700" />
 
       <NavbarDesktop />
 
