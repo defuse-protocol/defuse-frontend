@@ -506,8 +506,9 @@ const ModalSelectRecipient = ({
 
                     <div className="mt-1 space-y-1">
                       {matchingNetworkContacts.map((contact) => {
-                        const { chainKey, chainIcon, chainName } =
-                          getContactChainInfo(contact.blockchain)
+                        const { chainKey, chainIcon } = getContactChainInfo(
+                          contact.blockchain
+                        )
 
                         return (
                           <ListItem
@@ -539,15 +540,10 @@ const ModalSelectRecipient = ({
                                 {midTruncate(contact.address, 16)}
                               </ListItem.Subtitle>
                             </ListItem.Content>
-                            <ListItem.Content align="end">
-                              <ListItem.Title className="flex items-center gap-1 pb-4.5">
-                                <NetworkIcon
-                                  chainIcon={chainIcon}
-                                  sizeClassName="size-4"
-                                />
-                                <span className="capitalize">{chainName}</span>
-                              </ListItem.Title>
-                            </ListItem.Content>
+                            <NetworkIcon
+                              chainIcon={chainIcon}
+                              sizeClassName="size-8"
+                            />
                           </ListItem>
                         )
                       })}
@@ -585,17 +581,10 @@ const ModalSelectRecipient = ({
                                     {midTruncate(contact.address, 16)}
                                   </ListItem.Subtitle>
                                 </ListItem.Content>
-                                <ListItem.Content align="end">
-                                  <ListItem.Title className="flex items-center gap-1 pb-4.5">
-                                    <NetworkIcon
-                                      chainIcon={chainIcon}
-                                      sizeClassName="size-4"
-                                    />
-                                    <span className="capitalize">
-                                      {chainName}
-                                    </span>
-                                  </ListItem.Title>
-                                </ListItem.Content>
+                                <NetworkIcon
+                                  chainIcon={chainIcon}
+                                  sizeClassName="size-8"
+                                />
                               </ListItem>
                             </div>
                           </TooltipNew.Trigger>
