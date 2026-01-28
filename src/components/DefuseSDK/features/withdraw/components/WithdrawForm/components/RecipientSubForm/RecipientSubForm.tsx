@@ -295,7 +295,7 @@ export const RecipientSubForm = ({
                   />
                 </TooltipNew.Trigger>
                 <TooltipNew.Content>
-                  Contacts are network-specific
+                  The network is determined by the contact.
                 </TooltipNew.Content>
               </TooltipNew>
             ) : (
