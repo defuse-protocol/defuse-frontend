@@ -585,7 +585,6 @@ export const WithdrawForm = ({
               value={getValues().amountIn}
               label="Enter amount"
               registration={form.register("amountIn", {
-                required: "This field is required",
                 pattern: {
                   value: /^[0-9]*[,.]?[0-9]*$/,
                   message: "Please enter a valid number",
