@@ -1,3 +1,4 @@
+import type { Contact } from "@src/app/(app)/(auth)/contacts/actions"
 import Button from "@src/components/Button"
 import { useMemo } from "react"
 import {
@@ -21,7 +22,9 @@ import {
   formatUsdAmount,
 } from "../../utils/format"
 import AssetComboIcon from "../Asset/AssetComboIcon"
+import { CopyButton } from "../IntentCard/CopyButton"
 import { NetworkIcon } from "../Network/NetworkIcon"
+import TooltipNew from "../TooltipNew"
 import { BaseModalDialog } from "./ModalDialog"
 
 function getNetworkLabel(network: SupportedChainName | "near_intents"): string {
@@ -46,8 +49,8 @@ const ModalReviewSend = ({
   fee,
   totalAmountReceived,
   feeUsd,
-  totalAmountReceivedUsd,
   directionFee,
+  contact,
 }: {
   open: boolean
   onClose: () => void
@@ -62,8 +65,8 @@ const ModalReviewSend = ({
   fee: TokenValue
   feeUsd: number | null
   totalAmountReceived: TokenValue | null
-  totalAmountReceivedUsd: number | null
   directionFee: TokenValue | null
+  contact?: Contact | null
 }) => {
   const chainIcon =
     network === "near_intents" ? intentsChainIcon : chainIcons[network]
@@ -101,7 +104,7 @@ const ModalReviewSend = ({
       <div className="flex flex-col items-center justify-center mt-3">
         <AssetComboIcon icon={tokenIn.icon} sizeClassName="size-13" />
         <div className="mt-5 text-2xl/7 font-bold text-gray-900 tracking-tight">
-          Sending {formatDisplayAmount(amountIn)} {tokenIn.symbol}
+          {formatDisplayAmount(amountIn)} {tokenIn.symbol}
         </div>
         <div className="mt-1 text-base/5 font-medium text-gray-500">
           {formatUsdAmount(usdAmountIn)}
@@ -114,7 +117,19 @@ const ModalReviewSend = ({
             Recipient
           </dt>
           <dd className="text-sm font-semibold text-gray-900">
-            {midTruncate(recipient, 16)}
+            {contact ? (
+              <TooltipNew>
+                <TooltipNew.Trigger>
+                  <span className="cursor-default">{contact.name}</span>
+                </TooltipNew.Trigger>
+                <TooltipNew.Content className="flex items-center gap-2">
+                  <span>{midTruncate(recipient, 20)}</span>
+                  <CopyButton text={recipient} ariaLabel="Copy address" />
+                </TooltipNew.Content>
+              </TooltipNew>
+            ) : (
+              midTruncate(recipient, 16)
+            )}
           </dd>
         </div>
 
@@ -136,15 +151,12 @@ const ModalReviewSend = ({
           </dd>
         </div>
 
-        {receivedAmount !== "-" && totalAmountReceivedUsd && (
+        {receivedAmount !== "-" && (
           <div className="flex items-center justify-between gap-2">
             <dt className="text-sm text-gray-500 font-medium truncate">
               Recipient receives
             </dt>
             <dd className="flex items-center gap-1 text-sm font-semibold text-gray-900 whitespace-pre">
-              <span className="text-gray-500">
-                (~{formatUsdAmount(totalAmountReceivedUsd)})
-              </span>
               {receivedAmount} {tokenIn.symbol}
               <AssetComboIcon icon={tokenIn.icon} sizeClassName="size-4" />
             </dd>

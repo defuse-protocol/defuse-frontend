@@ -62,6 +62,8 @@ type RecipientSubFormProps = {
   presetContactId: string | undefined
   /** Network that was requested but has no compatible tokens */
   noTokenForPresetNetwork?: SupportedChainName | null
+  /** Called when the selected contact changes */
+  onContactChange?: (contact: Contact | null) => void
 }
 
 export const RecipientSubForm = ({
@@ -79,6 +81,7 @@ export const RecipientSubForm = ({
   tokenInBalance,
   presetContactId,
   noTokenForPresetNetwork,
+  onContactChange,
 }: RecipientSubFormProps) => {
   const [modalType, setModalType] = useState<"network" | "recipient" | null>(
     null
@@ -92,6 +95,11 @@ export const RecipientSubForm = ({
   const [recipientMode, setRecipientMode] = useState<RecipientMode>("address")
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
   const [isSaveContactModalOpen, setIsSaveContactModalOpen] = useState(false)
+
+  // Notify parent when selected contact changes
+  useEffect(() => {
+    onContactChange?.(selectedContact)
+  }, [selectedContact, onContactChange])
 
   // Fetch contacts for presetContactId lookup and recipient modal
   const { data: contactsData } = useQuery({

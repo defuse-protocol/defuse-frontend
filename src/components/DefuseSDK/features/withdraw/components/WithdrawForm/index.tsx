@@ -1,3 +1,4 @@
+import type { Contact } from "@src/app/(app)/(auth)/contacts/actions"
 import Button from "@src/components/Button"
 import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
 import ModalReviewSend from "@src/components/DefuseSDK/components/Modal/ModalReviewSend"
@@ -23,7 +24,7 @@ import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
 import { useWithdrawTrackerMachine } from "@src/providers/WithdrawTrackerMachineProvider"
 import { logger } from "@src/utils/logger"
 import { useSelector } from "@xstate/react"
-import { useCallback, useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import { formatUnits } from "viem"
 import { AuthGate } from "../../../../components/AuthGate"
@@ -236,6 +237,9 @@ export const WithdrawForm = ({
 
   const { data: tokensUsdPriceData } = useTokensUsdPrices()
 
+  // Track selected contact for the review modal
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
+
   const { setModalType, data: modalSelectAssetsData } = useModalController<{
     modalType: ModalType
     token: TokenInfo | undefined
@@ -433,18 +437,23 @@ export const WithdrawForm = ({
     token,
     tokensUsdPriceData
   )
-  const receivedAmountUsd = totalAmountReceived?.amount
-    ? getTokenUsdPrice(
-        formatTokenValue(
-          directionFee?.amount
-            ? subtractAmounts(totalAmountReceived, directionFee).amount
-            : totalAmountReceived.amount,
-          totalAmountReceived.decimals
-        ),
-        tokenOut,
-        tokensUsdPriceData
-      )
-    : null
+
+  // Get the raw token price for USD toggle functionality
+  const tokenPrice = (() => {
+    if (!tokensUsdPriceData || !token) return null
+    if (isBaseToken(token) && tokensUsdPriceData[token.defuseAssetId]) {
+      return tokensUsdPriceData[token.defuseAssetId].price
+    }
+    // For unified tokens, get price from first grouped token
+    if (!isBaseToken(token)) {
+      for (const groupedToken of token.groupedTokens) {
+        if (tokensUsdPriceData[groupedToken.defuseAssetId]) {
+          return tokensUsdPriceData[groupedToken.defuseAssetId].price
+        }
+      }
+    }
+    return null
+  })()
   const feeUsd = withdtrawalFee
     ? getTokenUsdPrice(
         formatTokenValue(withdtrawalFee.amount, withdtrawalFee.decimals),
@@ -563,6 +572,7 @@ export const WithdrawForm = ({
               tokenInBalance={tokenInBalance}
               presetContactId={presetContactId}
               noTokenForPresetNetwork={noTokenForPresetNetwork}
+              onContactChange={setSelectedContact}
             />
 
             <SelectedTokenInput
@@ -601,6 +611,9 @@ export const WithdrawForm = ({
               symbol={token.symbol}
               usdAmount={tokenToWithdrawUsdAmount}
               handleSetPercentage={handleSetPercentage}
+              selectedToken={token}
+              handleSelectToken={handleSelect}
+              tokenPrice={tokenPrice}
               additionalInfo={
                 tokenInTransitBalance ? (
                   <TooltipNew>
@@ -698,8 +711,8 @@ export const WithdrawForm = ({
         fee={withdtrawalFee}
         totalAmountReceived={totalAmountReceived}
         feeUsd={feeUsd}
-        totalAmountReceivedUsd={receivedAmountUsd}
         directionFee={directionFee}
+        contact={selectedContact}
       />
     </>
   )
