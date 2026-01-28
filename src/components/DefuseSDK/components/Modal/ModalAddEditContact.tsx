@@ -204,6 +204,7 @@ const ModalAddEditContact = ({
         reset()
         setSelectNetworkOpen(false)
       }}
+      back={selectNetworkOpen ? () => setSelectNetworkOpen(false) : undefined}
     >
       {selectNetworkOpen ? (
         <div className="mt-3 max-h-[630px] flex flex-col">
