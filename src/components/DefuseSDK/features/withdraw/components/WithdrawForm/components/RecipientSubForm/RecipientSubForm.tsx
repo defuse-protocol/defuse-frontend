@@ -288,10 +288,9 @@ export const RecipientSubForm = ({
                         ? blockchainSelectItems[field.value]?.icon
                         : undefined
                     )}
-                    onClick={() => {}} // No-op in contact mode
                     data-testid="select-trigger-like"
                     hint={determineBlockchainControllerHint(field.value)}
-                    disabled={false}
+                    disabled // Locked in contact mode - no hover, no chevron
                   />
                 </TooltipNew.Trigger>
                 <TooltipNew.Content>
