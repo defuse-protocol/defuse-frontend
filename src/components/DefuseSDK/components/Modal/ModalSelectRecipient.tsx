@@ -184,9 +184,12 @@ const ModalSelectRecipient = ({
     setValidatedAddress(null)
   }
 
+  const hasNoContacts =
+    visibleContacts.length === 0 && !displayOwnAddress && !inputValue
+
   return (
     <BaseModalDialog
-      title="Select recipient"
+      title="Enter recipient address or select contact"
       open={open}
       onClose={onClose}
       onCloseAnimationEnd={() => {
@@ -209,7 +212,7 @@ const ModalSelectRecipient = ({
             loading={isValidating}
             onClear={handleClear}
             autoFocus
-            placeholder="Enter wallet address"
+            placeholder="Enter address manually"
             data-testid="withdraw-target-account-field"
           />
           {validationError && (
@@ -235,6 +238,13 @@ const ModalSelectRecipient = ({
             </ListItem>
           ) : (
             <>
+              {/* No contacts message */}
+              {hasNoContacts && (
+                <p className="text-sm text-gray-500 text-center py-4">
+                  You haven't created any contacts yet.
+                </p>
+              )}
+
               {/* Contacts matching current network (selectable) */}
               {matchingNetworkContacts.length > 0 &&
                 isSupportedChainName(blockchain) && (
