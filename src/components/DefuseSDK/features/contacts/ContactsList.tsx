@@ -1,5 +1,9 @@
 "use client"
-import { PencilSquareIcon, XCircleIcon } from "@heroicons/react/16/solid"
+import {
+  PencilSquareIcon,
+  Square2StackIcon,
+  XCircleIcon,
+} from "@heroicons/react/16/solid"
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid"
 import type { Contact } from "@src/app/(app)/(auth)/contacts/actions"
 import Button from "@src/components/Button"
@@ -85,6 +89,15 @@ const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
                     >
                       <SendIcon className="size-4 shrink-0" />
                       Send
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        navigator.clipboard.writeText(contact.address)
+                      }}
+                    >
+                      <Square2StackIcon className="size-4 shrink-0" />
+                      Copy
                     </Button>
                     <Button
                       size="sm"
