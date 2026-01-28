@@ -2,8 +2,8 @@
 
 import {
   ArrowTopRightOnSquareIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
+  ChevronDoubleDownIcon,
+  ChevronDoubleUpIcon,
 } from "@heroicons/react/16/solid"
 import {
   type DockItem,
@@ -21,50 +21,68 @@ const ActivityDock = () => {
   const { dockItems, removeDockItem } = useActivityDock()
   const [expanded, setExpanded] = useState(false)
   const [topCardHeight, setTopCardHeight] = useState<number | null>(null)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+
+  // Scroll to bottom (which is scrollTop=0 with flex-col-reverse) when collapsing
+  useEffect(() => {
+    if (!expanded && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({ top: 0, behavior: "smooth" })
+    }
+  }, [expanded])
 
   if (dockItems.length === 0) return <div className="flex-1" />
 
   const showExpandButton = dockItems.length > 1
 
   return (
-    <div
-      className={clsx(
-        "mt-5 flex-1 flex flex-col-reverse w-full min-h-0 hide-scrollbar",
-        expanded ? "overflow-y-auto" : "overflow-hidden"
-      )}
-    >
+    <>
+      <motion.div
+        ref={scrollContainerRef}
+        className={clsx(
+          "relative mt-3 flex-1 flex flex-col-reverse min-h-0 hide-scrollbar transition-colors duration-300",
+          expanded
+            ? "overflow-y-auto bg-gray-600 px-2 -mx-2 outline-1 outline-gray-500 rounded-3xl"
+            : "overflow-hidden rounded-2xl"
+        )}
+        animate={{
+          paddingTop: expanded ? 8 : 0,
+          paddingBottom: expanded ? 8 : 0,
+        }}
+        transition={{ type: "spring", stiffness: 600, damping: 50 }}
+      >
+        <div className="relative flex flex-col" style={{ gap: CARD_GAP }}>
+          {[...dockItems].reverse().map((item) => {
+            const index = dockItems.indexOf(item)
+            return (
+              <DockCard
+                key={item.id}
+                item={item}
+                index={index}
+                expanded={expanded}
+                topCardHeight={topCardHeight}
+                onHeightChange={index === 0 ? setTopCardHeight : undefined}
+                onDismiss={removeDockItem}
+              />
+            )
+          })}
+        </div>
+      </motion.div>
+
       {showExpandButton && (
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          className="mt-3"
           onClick={() => setExpanded(!expanded)}
-          className="flex items-center justify-center gap-1.5 text-sm font-medium text-gray-400 hover:text-white transition-colors py-2 mb-2 shrink-0"
         >
           {expanded ? (
-            <ChevronDownIcon className="size-4" />
+            <ChevronDoubleDownIcon className="size-4" />
           ) : (
-            <ChevronUpIcon className="size-4" />
+            <ChevronDoubleUpIcon className="size-4" />
           )}
-          {expanded ? "Collapse" : "Expand"} ({dockItems.length})
-        </button>
+          {expanded ? "Collapse" : "Expand"}
+        </Button>
       )}
-
-      <div className="relative flex flex-col" style={{ gap: CARD_GAP }}>
-        {[...dockItems].reverse().map((item) => {
-          const index = dockItems.indexOf(item)
-          return (
-            <DockCard
-              key={item.id}
-              item={item}
-              index={index}
-              expanded={expanded}
-              topCardHeight={topCardHeight}
-              onHeightChange={index === 0 ? setTopCardHeight : undefined}
-              onDismiss={removeDockItem}
-            />
-          )
-        })}
-      </div>
-    </div>
+    </>
   )
 }
 
@@ -85,20 +103,17 @@ function DockCard({
 }) {
   const containerCardRef = useRef<HTMLDivElement>(null)
 
-  // Measure height and report to parent if this is the top card
   useEffect(() => {
     if (!onHeightChange || !containerCardRef.current) return
 
     const measureHeight = () => {
-      if (containerCardRef.current) {
-        onHeightChange(containerCardRef.current.offsetHeight)
-      }
+      if (!containerCardRef.current) return
+
+      onHeightChange(containerCardRef.current.offsetHeight)
     }
 
-    // Measure initially
     measureHeight()
 
-    // Re-measure on resize
     const resizeObserver = new ResizeObserver(measureHeight)
     resizeObserver.observe(containerCardRef.current)
 
@@ -106,7 +121,6 @@ function DockCard({
   }, [onHeightChange])
 
   const isTopCard = index === 0
-
   const cardHeight = topCardHeight ?? 0
   const collapsedY = index * (cardHeight + CARD_GAP) - index * STACK_OFFSET
 
