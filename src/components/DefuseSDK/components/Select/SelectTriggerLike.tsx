@@ -1,4 +1,4 @@
-import { ChevronDownIcon, XMarkIcon } from "@heroicons/react/20/solid"
+import { ChevronDownIcon } from "@heroicons/react/20/solid"
 import clsx from "clsx"
 import {
   type ButtonHTMLAttributes,
@@ -16,8 +16,6 @@ interface SelectTriggerLikeProps
   subtitle?: string
   hint?: string
   error?: string
-  /** Optional callback to clear the selection. When provided, shows a clear button. */
-  onClear?: () => void
 }
 
 function SelectTriggerLike(
@@ -30,7 +28,6 @@ function SelectTriggerLike(
     className,
     hint,
     error,
-    onClear,
     ...props
   }: SelectTriggerLikeProps,
   ref: ForwardedRef<HTMLButtonElement>
@@ -79,18 +76,6 @@ function SelectTriggerLike(
           <span className="size-1.5 rounded-full bg-green-500 shrink-0" />
           {hint}
         </span>
-      )}
-      {onClear && (
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation()
-            onClear()
-          }}
-          className="size-6 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-        >
-          <XMarkIcon className="size-5" />
-        </button>
       )}
       {!disabled && <ChevronDownIcon className="size-6 text-gray-500" />}
     </button>

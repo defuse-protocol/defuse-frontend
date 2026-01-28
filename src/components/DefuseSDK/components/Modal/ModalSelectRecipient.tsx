@@ -1,6 +1,10 @@
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { assert } from "@defuse-protocol/internal-utils"
-import { UserCircleIcon, UserPlusIcon } from "@heroicons/react/20/solid"
+import {
+  CheckIcon,
+  UserCircleIcon,
+  UserPlusIcon,
+} from "@heroicons/react/20/solid"
 import {
   type Contact,
   getContacts,
@@ -44,6 +48,10 @@ type ModalSelectRecipientProps = {
   availableNetworks: NetworkOptions
   /** Callback when a contact is selected (switches to contact mode) */
   onSelectContact?: (contact: Contact) => void
+  /** Currently selected contact (if in contact mode) */
+  selectedContact?: Contact | null
+  /** Callback when the selected contact is deselected (switches to address mode) */
+  onDeselectContact?: () => void
 }
 
 const VALIDATION_DEBOUNCE_MS = 500
@@ -57,6 +65,8 @@ const ModalSelectRecipient = ({
   displayOwnAddress,
   availableNetworks,
   onSelectContact,
+  selectedContact,
+  onDeselectContact,
 }: ModalSelectRecipientProps) => {
   const { setValue, watch } = useFormContext<WithdrawFormNearValues>()
   const blockchain = watch("blockchain")
@@ -69,6 +79,8 @@ const ModalSelectRecipient = ({
   const [isSaveContactModalOpen, setIsSaveContactModalOpen] = useState(false)
   // Track if modal was closed by selecting an address (don't clear input)
   const [closedBySelection, setClosedBySelection] = useState(false)
+  // Track if the selected contact was deselected within the modal session
+  const [wasDeselected, setWasDeselected] = useState(false)
 
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
@@ -231,6 +243,11 @@ const ModalSelectRecipient = ({
           handleClear()
         }
         setClosedBySelection(false)
+        // If the contact was deselected during this modal session, notify parent
+        if (wasDeselected) {
+          onDeselectContact?.()
+          setWasDeselected(false)
+        }
       }}
     >
       <div className="mt-2 max-h-[580px] min-h-80 flex flex-col">
@@ -244,7 +261,13 @@ const ModalSelectRecipient = ({
             icon={UserCircleIcon}
             name="address"
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={(e) => {
+              setInputValue(e.target.value)
+              // If there's a selected contact and user starts typing, deselect it
+              if (selectedContact && !wasDeselected) {
+                setWasDeselected(true)
+              }
+            }}
             onKeyDown={(e) => {
               if (e.key === "Enter" && validatedAddress) {
                 e.preventDefault()
@@ -343,8 +366,69 @@ const ModalSelectRecipient = ({
             )
           ) : (
             <>
+              {/* Currently selected contact (shown when in contact mode and not deselected) */}
+              {selectedContact && !wasDeselected && !inputValue && (
+                <div>
+                  <h3 className="flex items-center gap-1.5 text-gray-500 text-sm/6 font-medium">
+                    <ContactsIcon className="size-4 shrink-0" />
+                    Selected contact
+                  </h3>
+
+                  <div className="mt-1 space-y-1">
+                    <ListItem highlight>
+                      <TooltipNew>
+                        <TooltipNew.Trigger>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setWasDeselected(true)
+                            }}
+                            className="size-10 rounded-full bg-primary-500 flex items-center justify-center shrink-0 hover:bg-primary-600 transition-colors"
+                          >
+                            <CheckIcon className="text-white size-5" />
+                          </button>
+                        </TooltipNew.Trigger>
+                        <TooltipNew.Content>
+                          Unselect contact
+                        </TooltipNew.Content>
+                      </TooltipNew>
+                      <ListItem.Content>
+                        <ListItem.Title className="truncate">
+                          {selectedContact.name}
+                        </ListItem.Title>
+                        <ListItem.Subtitle>
+                          {midTruncate(selectedContact.address, 16)}
+                        </ListItem.Subtitle>
+                      </ListItem.Content>
+                      <ListItem.Content align="end">
+                        <ListItem.Title className="flex items-center gap-1 pb-4.5">
+                          <NetworkIcon
+                            chainIcon={
+                              chainIcons[
+                                reverseAssetNetworkAdapter[
+                                  selectedContact.blockchain
+                                ]
+                              ]
+                            }
+                            sizeClassName="size-4"
+                          />
+                          <span className="capitalize">
+                            {chainNameToNetworkName(
+                              reverseAssetNetworkAdapter[
+                                selectedContact.blockchain
+                              ]
+                            )}
+                          </span>
+                        </ListItem.Title>
+                      </ListItem.Content>
+                    </ListItem>
+                  </div>
+                </div>
+              )}
+
               {/* No contacts message */}
-              {hasNoContacts && (
+              {hasNoContacts && !(selectedContact && !wasDeselected) && (
                 <p className="text-sm text-gray-500 text-center py-4">
                   You haven't created any contacts on the{" "}
                   {isSupportedChainName(blockchain)
