@@ -1,7 +1,11 @@
 "use client"
 
-import type { walletMessage } from "@defuse-protocol/internal-utils"
+import type { AuthMethod, walletMessage } from "@defuse-protocol/internal-utils"
 import { XMarkIcon } from "@heroicons/react/20/solid"
+import { ModalContainer } from "@src/components/DefuseSDK/components/Modal/ModalContainer"
+import { TokenListUpdater } from "@src/components/DefuseSDK/components/TokenListUpdater"
+import { ModalStoreProvider } from "@src/components/DefuseSDK/providers/ModalStoreProvider"
+import { TokensStoreProvider } from "@src/components/DefuseSDK/providers/TokensStoreProvider"
 import { formatUsdAmount } from "@src/components/DefuseSDK/utils/format"
 import { Dialog } from "radix-ui"
 import { useMemo } from "react"
@@ -18,7 +22,7 @@ interface EarnDepositDialogProps {
   onClose: () => void
   vault: Vault
   userAddress: string | undefined
-  userChainType: string | undefined
+  userChainType: AuthMethod | undefined
   signMessage: (
     params: walletMessage.WalletMessage
   ) => Promise<walletMessage.WalletSignatureResult | null>
@@ -41,9 +45,6 @@ export default function EarnDepositDialog({
     () => selectableTokens.find((t) => t.symbol === vault.token),
     [vault.token, selectableTokens]
   )
-
-  // Use vault token for deposits
-  const depositToken = vaultToken ?? selectableTokens[0]
 
   // Build token list for the machine - include smUSDC and selectable tokens
   const tokenList = useMemo(() => {
@@ -71,74 +72,71 @@ export default function EarnDepositDialog({
                 onOpenAutoFocus={(e) => e.preventDefault()}
                 aria-describedby={undefined}
               >
-                <div className="flex items-center justify-between -mr-2.5 -mt-2.5">
-                  <div className="flex items-center gap-3">
-                    <div className="size-8 rounded-full border border-gray-100 flex items-center justify-center shadow-sm overflow-hidden">
-                      {vaultToken?.icon && (
-                        <img
-                          src={vaultToken.icon}
-                          alt={vaultToken.symbol}
-                          className="size-6"
-                        />
-                      )}
+                <ModalStoreProvider>
+                  <TokensStoreProvider>
+                    <TokenListUpdater tokenList={selectableTokens} />
+                    <div className="flex items-center justify-between -mr-2.5 -mt-2.5">
+                      <div className="flex items-center gap-3">
+                        <div className="size-8 rounded-full border border-gray-100 flex items-center justify-center shadow-sm overflow-hidden">
+                          {vaultToken?.icon && (
+                            <img
+                              src={vaultToken.icon}
+                              alt={vaultToken.symbol}
+                              className="size-6"
+                            />
+                          )}
+                        </div>
+                        <Dialog.Title className="text-base font-semibold text-gray-900">
+                          Deposit to Vault
+                        </Dialog.Title>
+                      </div>
+                      <Dialog.Close className="size-10 rounded-xl hover:bg-gray-100 text-gray-500 flex items-center justify-center">
+                        <XMarkIcon className="size-5" />
+                      </Dialog.Close>
                     </div>
-                    <Dialog.Title className="text-base font-semibold text-gray-900">
-                      Deposit {vault.token}
-                    </Dialog.Title>
-                  </div>
-                  <Dialog.Close className="size-10 rounded-xl hover:bg-gray-100 text-gray-500 flex items-center justify-center">
-                    <XMarkIcon className="size-5" />
-                  </Dialog.Close>
-                </div>
 
-                <div className="mt-4 bg-green-50 rounded-2xl p-4 flex items-center justify-between">
-                  <div>
-                    <div className="text-xs text-green-600 font-medium uppercase tracking-wide">
-                      Current APY
+                    <div className="mt-4 bg-green-50 rounded-2xl p-4 flex items-center justify-between">
+                      <div>
+                        <div className="text-xs text-green-600 font-medium uppercase tracking-wide">
+                          Current APY
+                        </div>
+                        <div className="text-2xl font-bold text-green-700">
+                          {vault.apy}%
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xs text-gray-500">Vault</div>
+                        <div className="text-sm font-medium text-gray-700">
+                          {vault.name}
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-2xl font-bold text-green-700">
-                      {vault.apy}%
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-xs text-gray-500">Vault</div>
-                    <div className="text-sm font-medium text-gray-700">
-                      {vault.name}
-                    </div>
-                  </div>
-                </div>
 
-                <div className="mt-4">
-                  <EarnFormProvider>
-                    <EarnUIMachineProvider
-                      mode="deposit"
-                      tokenList={tokenList}
-                      smUsdcToken={smUsdcToken}
-                      signMessage={signMessage}
-                    >
-                      <EarnSwapForm
-                        mode="deposit"
-                        userAddress={userAddress}
-                        userChainType={
-                          userChainType as
-                            | "near"
-                            | "evm"
-                            | "solana"
-                            | "webauthn"
-                            | "ton"
-                            | "stellar"
-                            | "tron"
-                            | undefined
-                        }
-                        onSuccess={handleSuccess}
-                        selectedToken={depositToken}
-                        submitLabel={`Deposit ${depositToken?.symbol ?? vault.token}`}
-                      />
-                    </EarnUIMachineProvider>
-                  </EarnFormProvider>
-                </div>
+                    <div className="mt-4">
+                      <EarnFormProvider>
+                        <EarnUIMachineProvider
+                          mode="deposit"
+                          tokenList={tokenList}
+                          smUsdcToken={smUsdcToken}
+                          signMessage={signMessage}
+                        >
+                          <EarnSwapForm
+                            mode="deposit"
+                            userAddress={userAddress}
+                            userChainType={userChainType}
+                            onSuccess={handleSuccess}
+                            selectableTokens={selectableTokens}
+                            submitLabel="Deposit"
+                          />
+                        </EarnUIMachineProvider>
+                      </EarnFormProvider>
+                    </div>
 
-                <ProjectedEarnings apy={vault.apy} />
+                    <ProjectedEarnings apy={vault.apy} />
+
+                    <ModalContainer />
+                  </TokensStoreProvider>
+                </ModalStoreProvider>
               </Dialog.Content>
             </div>
           </div>

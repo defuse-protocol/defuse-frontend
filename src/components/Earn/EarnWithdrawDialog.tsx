@@ -1,6 +1,6 @@
 "use client"
 
-import type { walletMessage } from "@defuse-protocol/internal-utils"
+import type { AuthMethod, walletMessage } from "@defuse-protocol/internal-utils"
 import { XMarkIcon } from "@heroicons/react/20/solid"
 import { ModalContainer } from "@src/components/DefuseSDK/components/Modal/ModalContainer"
 import { TokenListUpdater } from "@src/components/DefuseSDK/components/TokenListUpdater"
@@ -24,7 +24,7 @@ interface EarnWithdrawDialogProps {
     decimals: number
   } | null
   userAddress: string | undefined
-  userChainType: string | undefined
+  userChainType: AuthMethod | undefined
   signMessage: (
     params: walletMessage.WalletMessage
   ) => Promise<walletMessage.WalletSignatureResult | null>
@@ -113,17 +113,7 @@ export default function EarnWithdrawDialog({
                           <EarnSwapForm
                             mode="withdraw"
                             userAddress={userAddress}
-                            userChainType={
-                              userChainType as
-                                | "near"
-                                | "evm"
-                                | "solana"
-                                | "webauthn"
-                                | "ton"
-                                | "stellar"
-                                | "tron"
-                                | undefined
-                            }
+                            userChainType={userChainType}
                             onSuccess={handleSuccess}
                             selectableTokens={selectableTokens}
                             submitLabel="Withdraw"
