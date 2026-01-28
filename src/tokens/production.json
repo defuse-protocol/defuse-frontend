@@ -1109,6 +1109,12 @@
           "originChainName": "near",
           "deployments": [
             {
+              "type": "native",
+              "decimals": 8,
+              "chainName": "bitcoin",
+              "bridge": "near_omni"
+            },
+            {
               "address": "nbtc.bridge.near",
               "decimals": 8,
               "chainName": "near",
