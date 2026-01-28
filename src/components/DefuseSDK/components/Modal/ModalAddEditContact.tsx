@@ -120,10 +120,14 @@ const ModalAddEditContact = ({
         : isValidBlockchainEnumKey(blockchain)
           ? reverseAssetNetworkAdapter[blockchain]
           : null
-  const networkData = useMemo(
-    () => (blockchain ? availableNetworks[blockchain] : null),
-    [blockchain, availableNetworks]
-  )
+  const networkData = useMemo(() => {
+    if (!blockchain) return null
+    // Near intents is stored with key "intents" in availableNetworks, but value "near_intents"
+    if (blockchain === "near_intents") {
+      return availableNetworks.intents ?? null
+    }
+    return availableNetworks[blockchain] ?? null
+  }, [blockchain, availableNetworks])
 
   const onSubmit = async (data: FormData) => {
     if (!data.blockchain) {
