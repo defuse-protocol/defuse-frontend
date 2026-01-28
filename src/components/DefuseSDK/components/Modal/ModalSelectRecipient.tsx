@@ -384,24 +384,13 @@ const ModalSelectRecipient = ({
                     {midTruncate(validatedAddress, 16)}
                   </ListItem.Subtitle>
                 </ListItem.Content>
-                <ListItem.Content align="end">
-                  <ListItem.Title className="flex items-center gap-1 pb-4.5">
-                    {(() => {
-                      const { chainIcon, chainName } = getContactChainInfo(
-                        matchingContactByAddress.blockchain
-                      )
-                      return (
-                        <>
-                          <NetworkIcon
-                            chainIcon={chainIcon}
-                            sizeClassName="size-4"
-                          />
-                          <span className="capitalize">{chainName}</span>
-                        </>
-                      )
-                    })()}
-                  </ListItem.Title>
-                </ListItem.Content>
+                <NetworkIcon
+                  chainIcon={
+                    getContactChainInfo(matchingContactByAddress.blockchain)
+                      .chainIcon
+                  }
+                  sizeClassName="size-8"
+                />
               </ListItem>
             ) : (
               // Show raw address with option to save as contact
