@@ -2689,6 +2689,23 @@
         }
       ],
       "tags": ["mc:95", "aid:strk"]
+    },
+    {
+      "defuseAssetId": "nep141:base-0x833589fcd6edb6e08f4c7c32d4f71b54bda02913.omft.near",
+      "symbol": "smUSDC",
+      "name": "Seamless USDC",
+      "decimals": 6,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+      "originChainName": "near",
+      "deployments": [
+        {
+          "address": "base-0x833589fcd6edb6e08f4c7c32d4f71b54bda02913.omft.near",
+          "decimals": 6,
+          "chainName": "near",
+          "bridge": "direct"
+        }
+      ],
+      "tags": ["category:earn-only", "type:stablecoin"]
     }
   ]
 }

@@ -54,5 +54,12 @@ next-env.d.ts
 .cache-synpress
 playwright-report
 test-results
-.cursor
+
+# Agents AI
+# TODO: Remove AGENTS.md and CLAUDE.md once we have a proper documentation system
+/AGENTS.md
 /CLAUDE.md
+/docs
+.devcontainer
+.claude
+.cursor
