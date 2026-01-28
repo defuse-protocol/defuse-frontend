@@ -10,8 +10,12 @@ import type { BalanceMapping } from "../../features/machines/depositedBalanceMac
 import { useModalStore } from "../../providers/ModalStoreProvider"
 import { useTokensStore } from "../../providers/TokensStoreProvider"
 import { ModalType } from "../../stores/modalStore"
-import type { TokenInfo, TokenValue } from "../../types/base"
-import { getTokenId, isBaseToken } from "../../utils/token"
+import type {
+  SupportedChainName,
+  TokenInfo,
+  TokenValue,
+} from "../../types/base"
+import { getTokenId, isBaseToken, isUnifiedToken } from "../../utils/token"
 import {
   compareAmounts,
   computeTotalBalanceDifferentDecimals,
@@ -35,6 +39,8 @@ export type ModalSelectAssetsPayload = {
   onConfirm?: (payload: ModalSelectAssetsPayload) => void
   isHoldingsEnabled?: boolean
   isMostTradableTokensEnabled?: boolean
+  /** When set, only tokens that support this network are selectable */
+  lockedNetwork?: SupportedChainName
 }
 
 export type SelectItemToken<T = TokenInfo> = SearchableItem & {
@@ -114,9 +120,32 @@ export function ModalSelectAssets() {
 
     const getAssetList: SelectItemToken[] = []
 
+    // Helper to check if a token supports a specific network
+    const tokenSupportsNetwork = (
+      token: TokenInfo,
+      network: SupportedChainName
+    ): boolean => {
+      if (isBaseToken(token)) {
+        return token.deployments.some((d) => d.chainName === network)
+      }
+      if (isUnifiedToken(token)) {
+        return token.groupedTokens.some((gt) =>
+          gt.deployments.some((d) => d.chainName === network)
+        )
+      }
+      return false
+    }
+
     for (const token of tokens) {
       const tokenId = getTokenId(token)
-      const disabled = selectedTokenId != null && tokenId === selectedTokenId
+      const isSelected = selectedTokenId != null && tokenId === selectedTokenId
+
+      // Disable if token doesn't support the locked network
+      const isNetworkIncompatible =
+        modalPayload.lockedNetwork != null &&
+        !tokenSupportsNetwork(token, modalPayload.lockedNetwork)
+
+      const disabled = isSelected || isNetworkIncompatible
 
       // TODO: remove this once we remove the legacy props
       const balance = computeTotalBalanceDifferentDecimals(token, balances)
@@ -128,7 +157,7 @@ export function ModalSelectAssets() {
       getAssetList.push({
         token,
         disabled,
-        selected: disabled,
+        selected: isSelected,
         usdValue: findHolding?.usdValue,
         value: findHolding?.value ?? balance,
         isHoldingsEnabled,

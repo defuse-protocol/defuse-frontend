@@ -89,7 +89,12 @@ const SelectedTokenInput = ({
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-3xl w-full p-6 flex flex-col gap-3">
+    <div
+      className={clsx(
+        "bg-white border rounded-3xl w-full p-6 flex flex-col gap-3",
+        error ? "border-red-500" : "border-gray-200"
+      )}
+    >
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-1 flex-1 min-w-0">
           {isUsdMode && hasValue && (

@@ -247,12 +247,18 @@ export const WithdrawForm = ({
 
   const handleSelect = useCallback(() => {
     const fieldName = "token"
+    // When in contact mode, lock the network so only compatible tokens are selectable
+    const lockedNetwork =
+      selectedContact != null && isSupportedChainName(blockchain)
+        ? blockchain
+        : undefined
     setModalType(ModalType.MODAL_SELECT_ASSETS, {
       fieldName,
       [fieldName]: token,
       isHoldingsEnabled: true,
+      lockedNetwork,
     })
-  }, [token, setModalType])
+  }, [token, setModalType, selectedContact, blockchain])
 
   useEffect(() => {
     const sub = watch(async (value, { name }) => {
