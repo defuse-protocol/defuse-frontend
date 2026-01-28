@@ -316,6 +316,7 @@ const ModalSelectRecipient = ({
               // Show matching contact instead of raw address
               <ListItem
                 onClick={() => {
+                  setWasDeselected(false)
                   if (onSelectContact) {
                     onSelectContact(matchingContactByAddress)
                   } else {
@@ -481,6 +482,7 @@ const ModalSelectRecipient = ({
                           <ListItem
                             key={contact.id}
                             onClick={() => {
+                              setWasDeselected(false)
                               if (onSelectContact) {
                                 onSelectContact(contact)
                               } else {
@@ -621,6 +623,7 @@ const ModalSelectRecipient = ({
           onSuccess={(contact) => {
             setIsSaveContactModalOpen(false)
             setClosedBySelection(true)
+            setWasDeselected(false)
             if (onSelectContact) {
               onSelectContact(contact)
             }
