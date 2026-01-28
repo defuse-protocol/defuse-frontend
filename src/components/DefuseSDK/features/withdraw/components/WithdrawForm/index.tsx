@@ -334,6 +334,14 @@ export const WithdrawForm = ({
         })
       }
     }
+    // Handle near_intents preset network (special case, not a SupportedChainName)
+    if (presetNetwork === "near_intents") {
+      setValue("blockchain", "near_intents")
+      actorRef.send({
+        type: "WITHDRAW_FORM.UPDATE_BLOCKCHAIN",
+        params: { blockchain: "near_intents" },
+      })
+    }
     if (presetRecipient != null) {
       setValue("recipient", presetRecipient)
       // Also update XState machine (must be after blockchain update since that clears recipient)
