@@ -263,7 +263,26 @@ const ModalAddEditContact = ({
           onSubmit={handleSubmit(onSubmit)}
           className="mt-3"
           autoComplete="off"
+          data-1p-ignore
+          data-lpignore="true"
         >
+          {/* Hidden honeypot fields to trick autofill */}
+          <input
+            type="text"
+            name="username"
+            autoComplete="username"
+            className="hidden"
+            tabIndex={-1}
+            aria-hidden="true"
+          />
+          <input
+            type="password"
+            name="password"
+            autoComplete="current-password"
+            className="hidden"
+            tabIndex={-1}
+            aria-hidden="true"
+          />
           <div className="space-y-2">
             <div>
               <label
@@ -283,9 +302,10 @@ const ModalAddEditContact = ({
                     id="contact-name"
                     type="text"
                     placeholder="Enter name"
-                    autoComplete="nope"
-                    data-form-type="other"
+                    autoComplete="off"
+                    data-1p-ignore
                     data-lpignore="true"
+                    data-form-type="other"
                     className="block w-full text-gray-900 font-semibold placeholder:text-gray-400 focus:outline-none text-base leading-none ring-0 border-none p-0"
                     {...register("name", {
                       required: "Enter the name of the contact.",
@@ -318,9 +338,10 @@ const ModalAddEditContact = ({
                     id="contact-address"
                     type="text"
                     placeholder="Enter address"
-                    autoComplete="nope"
-                    data-form-type="other"
+                    autoComplete="off"
+                    data-1p-ignore
                     data-lpignore="true"
+                    data-form-type="other"
                     className="block w-full text-gray-900 font-semibold placeholder:text-gray-400 focus:outline-none text-base leading-none ring-0 border-none p-0"
                     {...register("address", {
                       required: "Enter the address of the contact.",
