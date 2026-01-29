@@ -1,7 +1,7 @@
 "use client"
 
 import { authIdentity } from "@defuse-protocol/internal-utils"
-import { ShieldCheckIcon } from "@heroicons/react/24/outline"
+import { LockClosedIcon, ShieldCheckIcon } from "@heroicons/react/24/outline"
 import { CheckIcon } from "@heroicons/react/24/solid"
 import Button from "@src/components/Button"
 import Assets from "@src/components/DefuseSDK/features/account/components/Assets"
@@ -127,28 +127,45 @@ const PLACEHOLDER_SHIELDED_ASSETS = [
     icon: "https://assets.coingecko.com/coins/images/6319/large/usdc.png",
     name: "USD Coin",
     symbol: "USDC",
+    value: "$5,230.00",
+    amount: "5,230",
   },
   {
     icon: "https://assets.coingecko.com/coins/images/279/large/ethereum.png",
     name: "Ethereum",
     symbol: "ETH",
+    value: "$3,842.50",
+    amount: "1.25",
   },
   {
     icon: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png",
     name: "Bitcoin",
     symbol: "BTC",
+    value: "$12,450.00",
+    amount: "0.15",
+  },
+  {
+    icon: "https://assets.coingecko.com/coins/images/10365/large/near.jpg",
+    name: "NEAR Protocol",
+    symbol: "NEAR",
+    value: "$890.40",
+    amount: "420",
+  },
+  {
+    icon: "https://assets.coingecko.com/coins/images/4128/large/solana.png",
+    name: "Solana",
+    symbol: "SOL",
+    value: "$1,560.00",
+    amount: "12",
+  },
+  {
+    icon: "https://assets.coingecko.com/coins/images/325/large/Tether.png",
+    name: "Tether",
+    symbol: "USDT",
+    value: "$2,100.00",
+    amount: "2,100",
   },
 ]
-
-function ShieldedAssetIcon({ icon }: { icon: string }) {
-  return (
-    <div className="relative size-10 rounded-full overflow-hidden bg-gray-100">
-      <img src={icon} alt="" className="size-full object-contain blur-[2px]" />
-      {/* Privacy bar across the icon */}
-      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-2.5 bg-gray-900/80" />
-    </div>
-  )
-}
 
 function ShieldedAccountPreview() {
   return (
@@ -167,24 +184,34 @@ function ShieldedAccountPreview() {
       {/* Placeholder shielded assets */}
       <section className="mt-6">
         <h2 className="text-base text-gray-500 font-medium">Shielded Assets</h2>
-        <div className="mt-2 flex flex-col gap-1 opacity-60 pointer-events-none select-none">
+        <div className="mt-2 flex flex-col gap-1 opacity-50 pointer-events-none select-none">
           {PLACEHOLDER_SHIELDED_ASSETS.map((asset) => (
             <div
               key={asset.symbol}
-              className="flex items-center gap-3 p-3 rounded-xl bg-white border border-gray-100"
+              className="relative flex items-center gap-3 p-3 rounded-xl bg-white border border-gray-100"
             >
-              <ShieldedAssetIcon icon={asset.icon} />
+              <div className="size-10 rounded-full overflow-hidden bg-gray-100">
+                <img
+                  src={asset.icon}
+                  alt=""
+                  className="size-full object-contain"
+                />
+              </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold text-gray-900 blur-[3px]">
+                <div className="text-sm font-semibold text-gray-900">
                   {asset.name}
                 </div>
                 <div className="text-sm text-gray-500">{asset.symbol}</div>
               </div>
               <div className="text-right">
-                <div className="text-sm font-semibold text-gray-900 blur-[4px]">
-                  $••••.••
+                <div className="text-sm font-semibold text-gray-900">
+                  {asset.value}
                 </div>
-                <div className="text-sm text-gray-500 blur-[3px]">••••</div>
+                <div className="text-sm text-gray-500">{asset.amount}</div>
+              </div>
+              {/* Lock icon in corner */}
+              <div className="absolute top-2 right-2">
+                <LockClosedIcon className="size-3.5 text-gray-400" />
               </div>
             </div>
           ))}
