@@ -5,7 +5,6 @@ import {
   type Contact,
   getContacts,
 } from "@src/app/(app)/(auth)/contacts/actions"
-import ModalSaveContact from "@src/components/DefuseSDK/components/Modal/ModalSaveContact"
 import ModalSelectRecipient from "@src/components/DefuseSDK/components/Modal/ModalSelectRecipient"
 import { getMinWithdrawalHyperliquidAmount } from "@src/components/DefuseSDK/features/withdraw/utils/hyperliquid"
 import { usePreparedNetworkLists } from "@src/components/DefuseSDK/hooks/useNetworkLists"
@@ -94,7 +93,6 @@ export const RecipientSubForm = ({
   type RecipientMode = "contact" | "address"
   const [recipientMode, setRecipientMode] = useState<RecipientMode>("address")
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
-  const [isSaveContactModalOpen, setIsSaveContactModalOpen] = useState(false)
 
   // Notify parent when selected contact changes
   useEffect(() => {
@@ -413,33 +411,6 @@ export const RecipientSubForm = ({
           setValue("recipient", "")
         }}
       />
-
-      {/* Save as contact option in address mode */}
-      {recipientMode === "address" &&
-        watch("recipient") &&
-        !errors.recipient &&
-        isSupportedChainName(watch("blockchain")) && (
-          <button
-            type="button"
-            onClick={() => setIsSaveContactModalOpen(true)}
-            className="text-sm font-medium text-blue-600 hover:text-blue-700 -mt-2"
-          >
-            Save as contact
-          </button>
-        )}
-
-      {isSupportedChainName(currentBlockchain) && (
-        <ModalSaveContact
-          open={isSaveContactModalOpen}
-          address={currentRecipient}
-          network={currentBlockchain}
-          onClose={() => setIsSaveContactModalOpen(false)}
-          onSuccess={(contact) => {
-            setRecipientMode("contact")
-            setSelectedContact(contact)
-          }}
-        />
-      )}
 
       <Controller
         name="blockchain"
