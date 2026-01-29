@@ -90,7 +90,6 @@ TokenAmountInputCard.DisplayToken = function DisplayToken({
     <div className="flex items-center gap-2 min-w-0">
       <AssetComboIcon
         icon={token.icon}
-        name={token.name}
         chainName={isBaseToken(token) ? token.originChainName : undefined}
       />
 

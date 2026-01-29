@@ -1,60 +1,22 @@
-import { Box, Container, Flex, Heading, Text } from "@radix-ui/themes"
-import type { Metadata, NextPage } from "next"
-import Image from "next/image"
+import { settings } from "@src/config/settings"
+import { NearIntentsLogoSymbolIcon } from "@src/icons"
+import type { Metadata } from "next"
 
-import PageBackground from "@src/components/PageBackground"
-import { PreloadFeatureFlags } from "@src/components/PreloadFeatureFlags"
-import { whitelabelTemplateFlag } from "@src/config/featureFlags"
+export const metadata: Metadata = settings.metadata.maintenance
 
-export const metadata: Metadata = {
-  title: "Site Maintenance",
-}
-
-const MaintenancePage: NextPage = async () => {
-  const templ = await whitelabelTemplateFlag()
-
+export default function MaintenancePage() {
   return (
-    <Box className="min-h-screen flex items-center justify-center relative">
-      <PreloadFeatureFlags>
-        <PageBackground />
-      </PreloadFeatureFlags>
-
-      <Container size="1" className="flex-1 max-w-[440px] mx-4 md:mx-auto">
-        <Flex
-          direction="column"
-          gap="5"
-          align="center"
-          className="bg-gray-1 rounded-[16px] md:rounded-[24px] shadow-paper dark:shadow-paper-dark p-5 md:p-8"
-        >
-          <Heading
-            as="h1"
-            size={{ initial: "7", md: "8" }}
-            weight="bold"
-            className="text-gray-11"
-          >
-            Site Maintenance
-          </Heading>
-
-          <Text
-            size={{ initial: "2", md: "3" }}
-            weight="medium"
-            className="text-gray-11"
-          >
-            We're currently performing maintenance on our site. Please check
-            back soon.
-          </Text>
-
-          <Image
-            src={`/favicons/${templ}/apple-touch-icon.png`}
-            alt="Site Logo"
-            width={60}
-            height={60}
-            className="rounded-xl"
-          />
-        </Flex>
-      </Container>
-    </Box>
+    <div className="bg-white flex flex-col items-center justify-center px-4 flex-1">
+      <div className="max-w-5xl w-full flex flex-col items-center justify-center">
+        <NearIntentsLogoSymbolIcon className="size-10 shrink-0" />
+        <h1 className="mt-6 text-3xl md:text-4xl font-bold tracking-tight text-gray-900 text-center">
+          Under maintenance
+        </h1>
+        <p className="text-gray-500 mt-4 md:mt-6 text-lg md:text-xl text-center">
+          We’re currently performing maintenance on our site.
+          <br className="hidden md:block" /> Please check back soon.
+        </p>
+      </div>
+    </div>
   )
 }
-
-export default MaintenancePage

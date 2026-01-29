@@ -1,4 +1,4 @@
-import Button from "@src/components/Button"
+import { ArrowsUpDownIcon } from "@heroicons/react/16/solid"
 import SelectAssets from "@src/components/DefuseSDK/components/SelectAssets"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import {
@@ -9,7 +9,7 @@ import ErrorMessage from "@src/components/ErrorMessage"
 import Spinner from "@src/components/Spinner"
 import clsx from "clsx"
 import { Tooltip } from "radix-ui"
-import { useEffect, useId, useState } from "react"
+import { useId } from "react"
 import type { UseFormRegisterReturn } from "react-hook-form"
 
 type InputRegistration =
@@ -23,7 +23,6 @@ type InputRegistration =
     }
 
 type BaseTokenInputCardProps = {
-  label: string
   balance: bigint
   decimals: number
   symbol: string
@@ -34,10 +33,12 @@ type BaseTokenInputCardProps = {
   selectedToken: TokenInfo
   selectAssetsTestId?: string
   error?: string
+  hasError?: boolean
   isUsdMode?: boolean
   tokenPrice?: number | null
   onToggleUsdMode?: () => void
   tokenAmount?: string
+  isOutputField?: boolean
 }
 
 type InteractiveTokenInputCardProps = BaseTokenInputCardProps & {
@@ -105,7 +106,6 @@ function BalanceInTransitIndicator({
 
 interface UsdToggleProps {
   isUsdMode: boolean
-  showHint: boolean
   usdAmount: number | null
   tokenAmount: string
   symbol: string
@@ -114,56 +114,51 @@ interface UsdToggleProps {
 
 function UsdToggle({
   isUsdMode,
-  showHint,
   usdAmount,
   tokenAmount,
   symbol,
   onToggle,
 }: UsdToggleProps) {
   return (
-    <div className="flex items-center gap-2">
-      {!isUsdMode && (
-        <span
-          className={clsx(
-            "text-xs text-gray-400 transition-opacity duration-500",
-            showHint ? "opacity-100" : "opacity-0"
-          )}
-        >
-          Enter USD
-        </span>
-      )}
-      <button
-        type="button"
-        onClick={onToggle}
-        className="text-right text-base text-gray-500 font-medium hover:text-gray-700 transition-colors"
-      >
+    <button
+      type="button"
+      onClick={onToggle}
+      className="flex items-center gap-1.5 text-sm text-gray-500 font-medium hover:text-gray-700 transition-colors"
+    >
+      <span>
         {isUsdMode
-          ? `${tokenAmount || "0"} ${symbol}`
+          ? `${truncateDisplayValue(tokenAmount) || "0"} ${symbol}`
           : formatUsdAmount(usdAmount ?? 0)}
-      </button>
-    </div>
+      </span>
+      <ArrowsUpDownIcon className="size-4" />
+    </button>
   )
 }
 
-function useUsdHint(canToggle: boolean) {
-  const [showHint, setShowHint] = useState(false)
-  const [hasShown, setHasShown] = useState(false)
+function truncateDisplayValue(value: string, maxLength = 8): string {
+  if (!value || value.length <= maxLength) return value
 
-  useEffect(() => {
-    if (canToggle && !hasShown) {
-      setShowHint(true)
-      setHasShown(true)
-      const timer = setTimeout(() => setShowHint(false), 3000)
-      return () => clearTimeout(timer)
-    }
-  }, [canToggle, hasShown])
+  const num = Number.parseFloat(value)
+  if (Number.isNaN(num)) return value
 
-  return showHint
+  if (num >= 1_000_000) {
+    return num.toLocaleString("en-US", {
+      notation: "compact",
+      maximumFractionDigits: 2,
+    })
+  }
+
+  const [intPart, decPart] = value.split(".")
+  if (!decPart) return value
+
+  const availableDecimals = Math.max(0, maxLength - intPart.length - 1)
+  if (availableDecimals === 0) return intPart
+
+  return `${intPart}.${decPart.slice(0, availableDecimals)}`
 }
 
 const TokenInputCard = (props: TokenInputCardProps) => {
   const {
-    label,
     balance,
     decimals,
     symbol,
@@ -177,39 +172,147 @@ const TokenInputCard = (props: TokenInputCardProps) => {
     selectAssetsTestId,
     readOnly,
     error,
+    hasError = false,
     isUsdMode = false,
     tokenPrice,
     onToggleUsdMode,
     tokenAmount = "",
+    isOutputField = false,
   } = props
 
-  // Discriminate between interactive and display-only modes
   const isDisplayOnly = "value" in props && props.value !== undefined
   const handleSetMax = isDisplayOnly ? undefined : props.handleSetMax
-  const registration = isDisplayOnly ? undefined : props.registration
-  const value = isDisplayOnly ? props.value : undefined
+  const isOutput = isOutputField || readOnly
+
+  // Truncate output values, never truncate input values
+  const registration = (() => {
+    const reg = isDisplayOnly ? undefined : props.registration
+    if (!reg || !isOutput || !("value" in reg)) return reg
+    return { ...reg, value: truncateDisplayValue(reg.value) }
+  })()
+
+  const value = isDisplayOnly
+    ? truncateDisplayValue(props.value ?? "")
+    : undefined
 
   const id = useId()
   const noBalance = balance === 0n
   const hasBalanceInTransit = balanceInTransit != null && balanceInTransit > 0n
+
+  const isSourceToken = !isDisplayOnly && !readOnly && !isOutputField
   const canToggleUsd = Boolean(
-    onToggleUsdMode && tokenPrice != null && tokenPrice > 0
+    isSourceToken && onToggleUsdMode && tokenPrice != null && tokenPrice > 0
   )
-  const showUsdHint = useUsdHint(canToggleUsd)
+
+  const handleBalanceClick = () => {
+    if (handleSetMax && !disabled && !noBalance) {
+      handleSetMax()
+    }
+  }
+
+  const getPlaceholder = () => {
+    if (isDisplayOnly || readOnly || isOutputField) {
+      return "0"
+    }
+    if (isUsdMode) {
+      return "Enter amount USD"
+    }
+    return symbol ? `Enter amount ${symbol}` : "Enter amount"
+  }
+
+  const getAriaLabel = () => {
+    if (isDisplayOnly || readOnly || isOutputField) {
+      return symbol ? `${symbol} amount to receive` : "Amount to receive"
+    }
+    if (isUsdMode) {
+      return "Enter amount in USD"
+    }
+    return symbol ? `Enter amount in ${symbol}` : "Enter amount"
+  }
+
+  const hasValue = Boolean(
+    (registration && "value" in registration && registration.value) || value
+  )
 
   return (
-    <div className="bg-white border border-gray-200 rounded-3xl w-full p-6 flex flex-col gap-4">
+    <div
+      className={clsx(
+        "bg-white border rounded-3xl w-full p-6 flex flex-col gap-3",
+        hasError ? "border-red-500" : "border-gray-200"
+      )}
+    >
       <div className="flex items-center justify-between gap-4">
-        <label htmlFor={id} className="text-base text-gray-500 font-medium">
-          {label}
-        </label>
+        <div className="flex items-center gap-1 flex-1 min-w-0">
+          {isUsdMode && hasValue && (
+            <span className="font-bold text-gray-900 text-4xl tracking-tight shrink-0">
+              $
+            </span>
+          )}
+          <input
+            id={id}
+            type="text"
+            inputMode="decimal"
+            pattern="[0-9]*[.]?[0-9]*"
+            autoComplete="off"
+            maxLength={11}
+            placeholder={getPlaceholder()}
+            aria-label={getAriaLabel()}
+            disabled={disabled}
+            aria-busy={loading || undefined}
+            readOnly={readOnly}
+            className={clsx(
+              "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-4xl tracking-tight w-full min-w-0",
+              !hasValue && "placeholder:text-xl placeholder:font-medium",
+              hasValue && "placeholder:text-gray-400",
+              disabled && "opacity-50"
+            )}
+            {...(registration ?? { value, readOnly: true })}
+          />
+        </div>
+
+        <SelectAssets
+          selected={selectedToken ?? undefined}
+          dataTestId={selectAssetsTestId}
+          disabled={disabled}
+          handleSelect={handleSelectToken ?? undefined}
+          tokens={tokens}
+        />
+      </div>
+
+      <div className="flex items-center justify-between gap-4">
+        {canToggleUsd && onToggleUsdMode ? (
+          <UsdToggle
+            isUsdMode={isUsdMode}
+            usdAmount={usdAmount}
+            tokenAmount={tokenAmount}
+            symbol={symbol}
+            onToggle={onToggleUsdMode}
+          />
+        ) : (
+          <div className="text-sm text-gray-500 font-medium">
+            {isUsdMode
+              ? `${truncateDisplayValue(tokenAmount) || "0"} ${symbol}`
+              : formatUsdAmount(usdAmount ?? 0)}
+          </div>
+        )}
 
         <div className="flex items-center gap-2">
           {symbol && (
-            <div className="text-base text-gray-500 text-right font-medium">
+            <button
+              type="button"
+              onClick={handleBalanceClick}
+              disabled={disabled || noBalance || !handleSetMax}
+              className={clsx(
+                "text-sm text-gray-500 font-medium text-right",
+                handleSetMax &&
+                  !disabled &&
+                  !noBalance &&
+                  "hover:text-gray-700 cursor-pointer"
+              )}
+            >
               {formatTokenValue(balance, decimals, { fractionDigits: 6 })}{" "}
               {symbol}
-            </div>
+            </button>
           )}
           {hasBalanceInTransit && balanceInTransit && (
             <BalanceInTransitIndicator
@@ -219,69 +322,6 @@ const TokenInputCard = (props: TokenInputCardProps) => {
             />
           )}
         </div>
-      </div>
-
-      <div className="flex items-center justify-between gap-4">
-        <SelectAssets
-          selected={selectedToken ?? undefined}
-          dataTestId={selectAssetsTestId}
-          disabled={disabled}
-          handleSelect={handleSelectToken ?? undefined}
-          tokens={tokens}
-        />
-        {handleSetMax && (
-          <Button
-            variant="secondary"
-            size="md"
-            onClick={handleSetMax}
-            disabled={disabled || noBalance}
-          >
-            Max
-          </Button>
-        )}
-      </div>
-
-      <div className="flex justify-between items-end gap-4">
-        <div className="flex items-baseline gap-1 flex-1 min-w-0">
-          {isUsdMode && (
-            <span className="font-bold text-gray-900 text-4xl tracking-tight">
-              $
-            </span>
-          )}
-          <div className="text-right text-base text-gray-500 font-medium">
-            <input
-              id={id}
-              type="text"
-              inputMode="decimal"
-              pattern="[0-9]*[.]?[0-9]*"
-              autoComplete="off"
-              placeholder="0"
-              disabled={disabled}
-              aria-busy={loading || undefined}
-              readOnly={readOnly}
-              className={clsx(
-                "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-4xl tracking-tight placeholder:text-gray-400 w-full",
-                disabled && "opacity-50"
-              )}
-              {...(registration ?? { value, readOnly: true })}
-            />
-          </div>
-        </div>
-
-        {canToggleUsd && onToggleUsdMode ? (
-          <UsdToggle
-            isUsdMode={isUsdMode}
-            showHint={showUsdHint}
-            usdAmount={usdAmount}
-            tokenAmount={tokenAmount}
-            symbol={symbol}
-            onToggle={onToggleUsdMode}
-          />
-        ) : (
-          <div className="text-right text-base text-gray-500 font-medium">
-            {formatUsdAmount(usdAmount ?? 0)}
-          </div>
-        )}
       </div>
 
       {error && <ErrorMessage>{error}</ErrorMessage>}

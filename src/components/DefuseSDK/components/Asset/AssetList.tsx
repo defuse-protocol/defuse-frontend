@@ -132,7 +132,6 @@ const AssetItem = ({
   <ListItem onClick={onClick} highlight={selected}>
     <AssetComboIcon
       icon={token.icon}
-      name={token.name}
       showChainIcon={showChainIcon}
       chainName={isBaseToken(token) ? token.originChainName : undefined}
       chainIcon={chainIcon}

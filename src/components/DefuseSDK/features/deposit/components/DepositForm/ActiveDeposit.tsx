@@ -1,17 +1,25 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
+import { InformationCircleIcon } from "@heroicons/react/16/solid"
 import Button from "@src/components/Button"
-import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
-import { chainTxExplorer } from "@src/components/DefuseSDK/utils/chainTxExplorer"
+import TooltipNew from "@src/components/DefuseSDK/components/TooltipNew"
+import { RESERVED_NEAR_BALANCE } from "@src/components/DefuseSDK/services/blockchainBalanceService"
+import { isFungibleToken } from "@src/components/DefuseSDK/utils/token"
+import { HorizontalProgressDots } from "@src/components/ProgressIndicator"
 import { useActivityDock } from "@src/providers/ActivityDockProvider"
 import { useSelector } from "@xstate/react"
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { useFormContext } from "react-hook-form"
+import AssetComboIcon from "../../../../components/Asset/AssetComboIcon"
 import { useTokensUsdPrices } from "../../../../hooks/useTokensUsdPrices"
 import type { BaseTokenInfo, TokenDeployment } from "../../../../types/base"
 import { reverseAssetNetworkAdapter } from "../../../../utils/adapters"
+import { blockExplorerTxLinkFactory } from "../../../../utils/chainTxExplorer"
 import { formatTokenValue } from "../../../../utils/format"
 import getTokenUsdPrice from "../../../../utils/getTokenUsdPrice"
-import { midTruncate } from "../../../withdraw/components/WithdrawForm/utils"
+import {
+  DEPOSIT_STAGES,
+  DEPOSIT_STAGE_LABELS_SHORT,
+} from "../../utils/depositStatusUtils"
 import { DepositUIMachineContext } from "../DepositUIMachineProvider"
 import { DepositWarning } from "../DepositWarning"
 import SelectedTokenInput from "./SelectedTokenInput"
@@ -30,10 +38,12 @@ export function ActiveDeposit({
   tokenDeployment,
   minDepositAmount,
 }: ActiveDepositProps) {
-  const { addDockItem, hasDockItem } = useActivityDock()
+  const { addDockItem, updateDockItem, settleDockItem } = useActivityDock()
   const { register, setValue, watch } = useFormContext<DepositFormValues>()
   const actorRef = DepositUIMachineContext.useActorRef()
   const inputAmount = watch("amount")
+  const currentDepositIdRef = useRef<string | null>(null)
+  const wasLoadingRef = useRef(false)
 
   const {
     amount,
@@ -74,48 +84,92 @@ export function ActiveDeposit({
   }))
 
   useEffect(() => {
+    if (isLoading && !wasLoadingRef.current && parsedAmount != null) {
+      const depositId = crypto.randomUUID()
+      currentDepositIdRef.current = depositId
+
+      const formattedAmount = formatTokenValue(
+        parsedAmount,
+        tokenDeployment.decimals,
+        {
+          min: 0.0001,
+          fractionDigits: 4,
+        }
+      )
+      const chainName = reverseAssetNetworkAdapter[network]
+
+      addDockItem({
+        id: `deposit-${depositId}`,
+        title: `Deposit ${formattedAmount} ${token.symbol}`,
+        icon: (
+          <AssetComboIcon
+            sizeClassName="size-6"
+            icon={token.icon}
+            chainName={chainName}
+          />
+        ),
+        rawIcon: true,
+        keyValueRows: [],
+        renderContent: () => (
+          <HorizontalProgressDots
+            stages={DEPOSIT_STAGES}
+            stageLabelsShort={DEPOSIT_STAGE_LABELS_SHORT}
+            displayStage="submitting"
+            displayIndex={0}
+            hasError={false}
+            isSuccess={false}
+          />
+        ),
+      })
+    }
+    wasLoadingRef.current = isLoading
+  }, [isLoading, parsedAmount, token, tokenDeployment, network, addDockItem])
+
+  useEffect(() => {
     if (!depositOutput) return
-    if (depositOutput?.tag !== "ok") return
-    if (hasDockItem(depositOutput.value.txHash)) return
 
-    const explorerUrl = chainTxExplorer(reverseAssetNetworkAdapter[network])
-    const txHash = depositOutput.value.txHash
+    if (currentDepositIdRef.current) {
+      const dockId = `deposit-${currentDepositIdRef.current}`
+      const chainName = reverseAssetNetworkAdapter[network]
 
-    const txUrl = explorerUrl + txHash
-
-    addDockItem({
-      id: depositOutput.value.txHash,
-      title: "Deposit completed",
-      explorerUrl: txUrl,
-      icon: (
-        <AssetComboIcon
-          sizeClassName="size-8"
-          icon={depositOutput.value.depositDescription.derivedToken.icon}
-        />
-      ),
-      keyValueRows: [
-        {
-          label: "From",
-          value: midTruncate(
-            depositOutput.value.depositDescription.userAddress
+      if (depositOutput.tag === "ok") {
+        const explorerUrl = blockExplorerTxLinkFactory(
+          chainName,
+          depositOutput.value.txHash
+        )
+        updateDockItem(dockId, {
+          explorerUrl,
+          renderContent: () => (
+            <HorizontalProgressDots
+              stages={DEPOSIT_STAGES}
+              stageLabelsShort={DEPOSIT_STAGE_LABELS_SHORT}
+              displayStage="complete"
+              displayIndex={1}
+              hasError={false}
+              isSuccess={true}
+            />
           ),
-        },
-        {
-          label: "Amount",
-          value: `${formatTokenValue(
-            depositOutput.value.depositDescription.amount,
-            depositOutput.value.depositDescription.tokenDeployment.decimals,
-            {
-              min: 0.0001,
-              fractionDigits: 4,
-            }
-          )} ${depositOutput.value.depositDescription.derivedToken.symbol}`,
-        },
-      ],
-    })
+        })
+      } else {
+        updateDockItem(dockId, {
+          renderContent: () => (
+            <HorizontalProgressDots
+              stages={DEPOSIT_STAGES}
+              stageLabelsShort={DEPOSIT_STAGE_LABELS_SHORT}
+              displayStage="complete"
+              displayIndex={1}
+              hasError={true}
+              isSuccess={false}
+            />
+          ),
+        })
+      }
+      settleDockItem(dockId)
+      currentDepositIdRef.current = null
+    }
 
     actorRef.send({ type: "CLEAR_DEPOSIT_OUTPUT" })
-  }, [depositOutput, network, addDockItem, hasDockItem, actorRef])
+  }, [depositOutput, actorRef, network, updateDockItem, settleDockItem])
 
   const balanceInsufficient =
     balance != null
@@ -155,7 +209,7 @@ export function ActiveDeposit({
         symbol={token.symbol}
         balance={balance ?? 0n}
         usdAmount={usdAmountToDeposit}
-        token={tokenDeployment}
+        decimals={tokenDeployment.decimals}
         handleSetPercentage={handleSetPercentage}
         registration={register("amount", {
           required: true,
@@ -165,6 +219,32 @@ export function ActiveDeposit({
             return (!Number.isNaN(num) && num > 0) || "Enter a valid amount"
           },
         })}
+        additionalInfo={
+          isFungibleToken(tokenDeployment) &&
+          tokenDeployment.address === "wrap.near" ? (
+            <TooltipNew>
+              <TooltipNew.Trigger>
+                <button
+                  type="button"
+                  className="flex items-center justify-center size-6 rounded-lg shrink-0 text-gray-400 hover:bg-gray-200 hover:text-gray-700"
+                  aria-label="Additional information"
+                >
+                  <InformationCircleIcon className="size-4" />
+                </button>
+              </TooltipNew.Trigger>
+              <TooltipNew.Content className="max-w-72 text-center text-balance">
+                Combined balance of NEAR and wNEAR. NEAR will be automatically
+                wrapped to wNEAR if your wNEAR balance isn't sufficient for the
+                swap.
+                <br />
+                <br />
+                Note that to cover network fees, we reserve
+                {` ${formatTokenValue(RESERVED_NEAR_BALANCE, tokenDeployment.decimals)} NEAR `}
+                in your wallet.
+              </TooltipNew.Content>
+            </TooltipNew>
+          ) : null
+        }
       />
 
       <Button

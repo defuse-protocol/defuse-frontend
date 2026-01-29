@@ -4,12 +4,6 @@ import type { Transaction as TransactionSolana } from "@solana/web3.js"
 import type { SendTransactionRequest } from "@tonconnect/ui-react"
 import type { SendTransactionParameters } from "viem"
 
-export type JobsDetails = {
-  team?: string
-  applicationLink?: boolean
-  position: string
-  link: string
-}
 export interface SignAndSendTransactionsParams {
   /**
    * NEAR Transactions(s) to sign and send to the network. You can find more information on `Transaction` {@link https://github.com/near/wallet-selector/blob/main/packages/core/docs/api/transactions.md | here}.

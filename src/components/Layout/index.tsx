@@ -10,7 +10,6 @@ import { WalletVerificationProvider } from "@src/providers/WalletVerificationPro
 import type { PropsWithChildren } from "react"
 import { NavbarDesktop } from "../Navbar/NavbarDesktop"
 import NetworkOutageNotification from "../NetworkOutageNotification"
-import { SystemStatus } from "../SystemStatus"
 import Main from "./Main"
 
 const Layout: React.FC<PropsWithChildren> = ({ children }) => {
@@ -32,7 +31,6 @@ const Layout: React.FC<PropsWithChildren> = ({ children }) => {
       <NavbarMobile />
       <PageBackground />
       <WalletVerificationProvider />
-      <SystemStatus.Desktop />
     </div>
   )
 }

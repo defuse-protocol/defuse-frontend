@@ -203,7 +203,6 @@ export function OtcTakerForm({
       }}
     >
       <TokenInputCard
-        label="You pay"
         readOnly
         balance={balanceAmountIn}
         decimals={totalAmountIn.decimals}
@@ -220,7 +219,6 @@ export function OtcTakerForm({
       </div>
 
       <TokenInputCard
-        label="You receive"
         readOnly
         balance={balanceAmountOut}
         decimals={totalAmountOut.decimals}
