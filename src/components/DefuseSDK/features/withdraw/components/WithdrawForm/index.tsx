@@ -415,10 +415,23 @@ export const WithdrawForm = ({
       )
     }
 
-    // Helper: get token balance
-    const getBalance = (t: TokenInfo): bigint => {
+    // Helper: get token balance info
+    const getBalanceInfo = (
+      t: TokenInfo
+    ): { amount: bigint; decimals: number } => {
       const balance = computeTotalBalanceDifferentDecimals(t, balances)
-      return balance?.amount ?? 0n
+      return {
+        amount: balance?.amount ?? 0n,
+        decimals: balance?.decimals ?? getTokenMaxDecimals(t),
+      }
+    }
+
+    // Helper: get token USD value
+    const getUsdValue = (t: TokenInfo): number => {
+      const { amount, decimals } = getBalanceInfo(t)
+      if (amount === 0n) return 0
+      const formattedAmount = formatUnits(amount, decimals)
+      return getTokenUsdPrice(formattedAmount, t, tokensUsdPriceData) ?? 0
     }
 
     // Get all tokens that support the network
@@ -434,7 +447,7 @@ export const WithdrawForm = ({
           t.symbol.toLowerCase().normalize() ===
           presetTokenSymbol.toLowerCase().normalize()
       )
-      if (presetToken != null && getBalance(presetToken) > 0n) {
+      if (presetToken != null && getBalanceInfo(presetToken).amount > 0n) {
         bestToken = presetToken
       }
     }
@@ -442,22 +455,17 @@ export const WithdrawForm = ({
     // Priority 2: Native token with balance
     if (bestToken == null) {
       const nativeToken = networkTokens.find(isNativeForNetwork)
-      if (nativeToken != null && getBalance(nativeToken) > 0n) {
+      if (nativeToken != null && getBalanceInfo(nativeToken).amount > 0n) {
         bestToken = nativeToken
       }
     }
 
-    // Priority 3: Highest-balance network token
+    // Priority 3: Highest USD value network token
     if (bestToken == null) {
       const tokensWithBalance = networkTokens
-        .map((t) => ({ token: t, balance: getBalance(t) }))
-        .filter(({ balance }) => balance > 0n)
-        .sort((a, b) => {
-          // Sort by balance descending (compare as bigint)
-          if (a.balance > b.balance) return -1
-          if (a.balance < b.balance) return 1
-          return 0
-        })
+        .map((t) => ({ token: t, usdValue: getUsdValue(t) }))
+        .filter(({ usdValue }) => usdValue > 0)
+        .sort((a, b) => b.usdValue - a.usdValue)
 
       if (tokensWithBalance.length > 0) {
         bestToken = tokensWithBalance[0].token
@@ -503,6 +511,7 @@ export const WithdrawForm = ({
     tokenList,
     actorRef,
     resolvedTokenSymbol,
+    tokensUsdPriceData,
   ])
 
   const { registerWithdraw, hasActiveWithdraw } = useWithdrawTrackerMachine()
