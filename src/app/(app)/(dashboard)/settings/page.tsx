@@ -3,6 +3,7 @@
 import { EnvelopeIcon } from "@heroicons/react/20/solid"
 import Button from "@src/components/Button"
 import ModalAddEmail from "@src/components/DefuseSDK/components/Modal/ModalAddEmail"
+import PageHeader from "@src/components/PageHeader"
 import { PasskeyIcon } from "@src/icons"
 import { useState } from "react"
 
@@ -14,9 +15,7 @@ export default function SettingsPage() {
 
   return (
     <>
-      <h1 className="text-gray-900 text-xl font-semibold tracking-tight">
-        Settings
-      </h1>
+      <PageHeader title="Settings" />
 
       <section className="mt-8">
         <h2 className="text-gray-900 text-base font-semibold">Email address</h2>

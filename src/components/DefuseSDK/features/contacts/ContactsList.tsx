@@ -81,29 +81,19 @@ const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
           return (
             <ListItem
               key={contact.id}
-              popoverContent={
-                <>
-                  <Button size="sm" href="/send">
-                    {/* TODO: Add send to contact functionality */}
-                    <SendIcon className="size-4 shrink-0" />
-                    Send
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => handleOpenModal({ type: "edit", contact })}
-                  >
-                    <PencilSquareIcon className="size-4 shrink-0" />
-                    Edit
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={() => handleOpenModal({ type: "remove", contact })}
-                  >
-                    <XCircleIcon className="size-4 shrink-0" />
-                    Remove
-                  </Button>
-                </>
-              }
+              dropdownMenuItems={[
+                { label: "Send", href: "/send", icon: SendIcon },
+                {
+                  label: "Edit",
+                  onClick: () => handleOpenModal({ type: "edit", contact }),
+                  icon: PencilSquareIcon,
+                },
+                {
+                  label: "Remove",
+                  onClick: () => handleOpenModal({ type: "remove", contact }),
+                  icon: XCircleIcon,
+                },
+              ]}
             >
               <div
                 className="size-10 rounded-full flex items-center justify-center shrink-0 outline-1 -outline-offset-1 outline-gray-900/10"
