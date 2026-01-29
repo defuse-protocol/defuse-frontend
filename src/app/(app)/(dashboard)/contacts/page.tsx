@@ -20,7 +20,7 @@ export default async function ContactsPage({
   return (
     <>
       <ContactsHeader search={search} />
-      <ContactsList contacts={contacts} />
+      <ContactsList contacts={contacts} hasSearch={Boolean(search)} />
     </>
   )
 }

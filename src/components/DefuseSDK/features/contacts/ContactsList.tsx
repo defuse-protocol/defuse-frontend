@@ -1,6 +1,6 @@
 "use client"
 import { PencilSquareIcon, XCircleIcon } from "@heroicons/react/16/solid"
-import { MagnifyingGlassIcon } from "@heroicons/react/20/solid"
+import { MagnifyingGlassIcon, PlusIcon } from "@heroicons/react/20/solid"
 import type { Contact } from "@src/app/(app)/(auth)/contacts/actions"
 import Button from "@src/components/Button"
 import ModalAddEditContact from "@src/components/DefuseSDK/components/Modal/ModalAddEditContact"
@@ -12,15 +12,19 @@ import {
 } from "@src/components/DefuseSDK/features/withdraw/components/WithdrawForm/utils"
 import { stringToColor } from "@src/components/DefuseSDK/utils/stringToColor"
 import ListItem from "@src/components/ListItem"
+import ListItemsSkeleton from "@src/components/ListItemsSkeleton"
 import { SendIcon, WalletIcon } from "@src/icons"
 import { useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
 import ModalRemoveContact from "../../components/Modal/ModalRemoveContact"
 import { reverseAssetNetworkAdapter } from "../../utils/adapters"
 
-type ModalType = "edit" | "remove"
+type ModalType = "edit" | "remove" | "add"
 
-const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
+const ContactsList = ({
+  contacts,
+  hasSearch,
+}: { contacts: Contact[]; hasSearch?: boolean }) => {
   const router = useRouter()
   const [modalOpen, setModalOpen] = useState<ModalType | null>(null)
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
@@ -30,10 +34,10 @@ const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
     contact,
   }: {
     type: ModalType
-    contact: Contact
+    contact?: Contact | null
   }) => {
     setModalOpen(type)
-    setSelectedContact(contact)
+    setSelectedContact(contact ?? null)
   }
 
   const processedContacts = useMemo(
@@ -48,25 +52,58 @@ const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
   )
 
   if (contacts.length === 0) {
+    // Show different empty state depending on whether user is searching
+    if (hasSearch) {
+      return (
+        <section className="mt-6 flex flex-col items-center justify-center pt-6">
+          <div
+            className="size-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600"
+            aria-hidden
+          >
+            <MagnifyingGlassIcon className="size-5" />
+          </div>
+          <h3 className="font-semibold text-base text-gray-900 mt-4">
+            No contacts found
+          </h3>
+          <Button
+            size="md"
+            onClick={() => router.push("/contacts")}
+            className="mt-4"
+          >
+            Clear search
+          </Button>
+        </section>
+      )
+    }
+
+    // Empty state with skeleton background (like Deals page)
     return (
-      <section className="mt-6 flex flex-col items-center justify-center pt-6">
-        <div
-          className="size-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600"
-          aria-hidden
-        >
-          <MagnifyingGlassIcon className="size-5" />
-        </div>
-        <h3 className="font-semibold text-base text-gray-900 mt-4">
-          No contacts found
-        </h3>
-        <Button
-          size="md"
-          onClick={() => router.push("/contacts")}
-          className="mt-4"
-        >
-          Clear search
-        </Button>
-      </section>
+      <>
+        <section className="mt-9">
+          <ListItemsSkeleton count={3} className="mt-2" />
+          <div className="max-w-72 mx-auto -mt-5 relative flex flex-col items-center">
+            <h3 className="text-xl font-semibold text-gray-900 text-center tracking-tight">
+              No contacts yet
+            </h3>
+            <p className="text-base text-gray-500 mt-1 font-medium text-center text-balance">
+              Create a contact to get started.
+            </p>
+            <Button
+              size="xl"
+              className="mt-4"
+              onClick={() => handleOpenModal({ type: "add" })}
+            >
+              <PlusIcon className="size-5 shrink-0" />
+              Create a contact
+            </Button>
+          </div>
+        </section>
+
+        <ModalAddEditContact
+          open={modalOpen === "add"}
+          onClose={() => setModalOpen(null)}
+        />
+      </>
     )
   }
 
