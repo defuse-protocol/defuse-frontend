@@ -81,12 +81,12 @@ export default function EarnPage() {
       <h1 className="text-gray-900 text-xl font-bold tracking-tight">Earn</h1>
 
       {/* Coming Soon Banner */}
-      <div className="mt-6 mb-4 text-center py-6 px-4 bg-gradient-to-b from-brand/10 to-white rounded-2xl border border-brand/20">
+      <div className="mt-6 mb-4 text-center py-6 px-4 bg-[linear-gradient(180deg,#191918_0%,#52471E_100%)] rounded-2xl">
         <div className="flex items-center justify-center gap-2 mb-2">
           <ChartBarIcon className="size-6 text-brand" />
-          <h2 className="text-xl font-bold text-gray-900">Coming Soon</h2>
+          <h2 className="text-xl font-bold text-white">Coming Soon</h2>
         </div>
-        <p className="text-gray-600 text-sm">
+        <p className="text-gray-400 text-sm">
           Put your idle assets to work. No lockups. Withdraw anytime.
         </p>
       </div>
