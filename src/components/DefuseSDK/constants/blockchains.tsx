@@ -40,8 +40,8 @@ export const chainIcons: Record<
     light: "/static/icons/network/ethereum.svg",
   },
   near: {
-    dark: "/static/icons/network/near.svg",
-    light: "/static/icons/network/near_dark.svg",
+    dark: "/static/icons/network/near_colored.svg",
+    light: "/static/icons/network/near_colored.svg",
   },
   base: {
     dark: "/static/icons/network/base.svg",
@@ -187,7 +187,7 @@ export function getBlockchainsOptions(): Record<
 > {
   const options: Record<BlockchainEnum, BlockchainOption> = {
     [BlockchainEnum.NEAR]: {
-      label: "Near",
+      label: "NEAR",
       icon: <NetworkIcon chainIcon={chainIcons.near} />,
       value: BlockchainEnum.NEAR,
       tags: ["vol:4"],
