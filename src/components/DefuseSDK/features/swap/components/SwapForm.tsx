@@ -31,7 +31,6 @@ import {
   transitBalanceSelector,
 } from "../../machines/depositedBalanceMachine"
 import type { swapUIMachine } from "../../machines/swapUIMachine"
-import { useSwapRateData } from "../hooks/useSwapRateData"
 import { useUsdMode } from "../hooks/useUsdMode"
 import SwapSettings from "./SwapSettings"
 import { SwapSubmitterContext } from "./SwapSubmitter"
@@ -264,35 +263,8 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   }, [payload, currentModalType, swapUIActorRef, getValues, setValue])
 
   const { onSubmit: submitSwap } = useContext(SwapSubmitterContext)
-  const { slippageBasisPoints } = useSwapRateData()
 
   const onRequestReview = () => swapUIActorRef.send({ type: "REQUEST_REVIEW" })
-
-  const quote = snapshot.context.quote
-  const tokenDeltas =
-    quote != null && quote.tag === "ok" ? quote.value.tokenDeltas : null
-  const swapType = snapshot.context.formValues.swapType
-
-  const handleOpenSlippageSettings = useCallback(() => {
-    setModalType(ModalType.MODAL_SLIPPAGE_SETTINGS, {
-      modalType: ModalType.MODAL_SLIPPAGE_SETTINGS,
-      actorRef: swapUIActorRef,
-      currentSlippage: slippageBasisPoints,
-      tokenDeltas,
-      tokenOut,
-      tokenIn,
-      swapType,
-      skipRequote: true, // Don't trigger re-quote when opened from review modal
-    })
-  }, [
-    setModalType,
-    swapUIActorRef,
-    slippageBasisPoints,
-    tokenDeltas,
-    tokenOut,
-    tokenIn,
-    swapType,
-  ])
 
   const isReviewOpen =
     snapshot.matches({ editing: "reviewing" }) ||
@@ -571,7 +543,6 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
           open={isReviewOpen}
           onClose={() => swapUIActorRef.send({ type: "CANCEL_REVIEW" })}
           onConfirm={submitSwap}
-          onOpenSlippageSettings={handleOpenSlippageSettings}
           loading={isSubmitting || isSubmitting1cs}
           intentCreationResult={intentCreationResult}
           tokenIn={tokenIn}

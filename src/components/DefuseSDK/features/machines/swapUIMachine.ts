@@ -197,12 +197,6 @@ export const swapUIMachine = setup({
             slippageBasisPoints: number
           }
         }
-      | {
-          type: "SET_SLIPPAGE_SILENT"
-          params: {
-            slippageBasisPoints: number
-          }
-        }
       | PassthroughEvent,
 
     emitted: {} as EmittedEvents,
@@ -799,16 +793,6 @@ export const swapUIMachine = setup({
       ],
     },
     SET_SLIPPAGE: {
-      actions: {
-        type: "setSlippage",
-        params: ({ event }) => ({
-          slippageBasisPoints: event.params.slippageBasisPoints,
-        }),
-      },
-    },
-    // Silent version that only updates slippage without triggering re-quote
-    // Used when changing slippage from the review modal
-    SET_SLIPPAGE_SILENT: {
       actions: {
         type: "setSlippage",
         params: ({ event }) => ({
