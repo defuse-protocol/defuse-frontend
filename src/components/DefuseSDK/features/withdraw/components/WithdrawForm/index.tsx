@@ -720,6 +720,8 @@ export const WithdrawForm = ({
           parsedAmount: parsedAmount,
         },
       })
+      // Update resolved token so loading state clears
+      setResolvedTokenSymbol(token.symbol)
     }
   }, [modalSelectAssetsData, actorRef, amountIn])
 
