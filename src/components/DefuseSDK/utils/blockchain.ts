@@ -3,7 +3,10 @@ import { resolveTokenFamily } from "@src/components/DefuseSDK/utils/tokenFamily"
 import { eachBaseTokenInfo } from "@src/components/DefuseSDK/utils/tokenUtils"
 import { LIST_TOKENS_FLATTEN, tokenFamilies } from "@src/constants/tokens"
 import { config } from "../config"
-import { getBlockchainsOptions } from "../constants/blockchains"
+import {
+  getBlockchainsOptions,
+  getNearIntentsOption,
+} from "../constants/blockchains"
 import type { NetworkOption } from "../constants/blockchains"
 import { CHAIN_IDS } from "../constants/evm"
 import type { SupportedChainName, TokenDeployment } from "../types/base"
@@ -102,18 +105,29 @@ export function availableChainsForToken(
   return Object.fromEntries(res)
 }
 
-export function allAvailableChains(): Record<string, NetworkOption> {
+export function allAvailableChains(
+  includeNearIntents = false
+): Record<string, NetworkOption> {
   const options = getBlockchainsOptions()
 
   const allChainKeys = filterChainsByFeatureFlags(
     Object.keys(options) as string[]
   )
 
-  const res = Object.values(options)
+  const blockchainEntries = Object.values(options)
     .filter((option) => allChainKeys.includes(option.value))
     .map((option) => [option.value, option])
 
-  return Object.fromEntries(res)
+  // Include Near Intents as the first option if requested
+  if (includeNearIntents) {
+    const nearIntentsOption = getNearIntentsOption()
+    return {
+      ...nearIntentsOption,
+      ...Object.fromEntries(blockchainEntries),
+    }
+  }
+
+  return Object.fromEntries(blockchainEntries)
 }
 
 export function availableDisabledChainsForToken(

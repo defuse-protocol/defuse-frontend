@@ -2,13 +2,16 @@
 
 import {
   ArrowRightStartOnRectangleIcon,
+  CheckIcon,
   Cog8ToothIcon,
+  DocumentDuplicateIcon,
 } from "@heroicons/react/16/solid"
 import { UserIcon } from "@heroicons/react/24/solid"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import clsx from "clsx"
 import Link from "next/link"
 import { DropdownMenu } from "radix-ui"
+import { useState } from "react"
 
 const truncateAddress = (address: string) => {
   if (address.length <= 12) return address
@@ -17,6 +20,15 @@ const truncateAddress = (address: string) => {
 
 const UserMenu = () => {
   const { state, signOut } = useConnectWallet()
+  const [copied, setCopied] = useState(false)
+
+  const handleCopyAddress = async () => {
+    if (state.address) {
+      await navigator.clipboard.writeText(state.address)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
+  }
 
   // If not connected, show a link to login
   if (!state.address) {
@@ -34,6 +46,11 @@ const UserMenu = () => {
   }
 
   const items = [
+    {
+      label: copied ? "Copied!" : "Copy account address",
+      onClick: handleCopyAddress,
+      icon: copied ? CheckIcon : DocumentDuplicateIcon,
+    },
     {
       label: "Settings",
       href: "/settings",

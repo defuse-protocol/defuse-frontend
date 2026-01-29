@@ -2,7 +2,10 @@
 import { messageFactory } from "@defuse-protocol/internal-utils"
 import { base64 } from "@scure/base"
 import { bridgeSDK } from "@src/components/DefuseSDK/constants/bridgeSdk"
-import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
+import type {
+  SupportedChainName,
+  TokenInfo,
+} from "@src/components/DefuseSDK/types/base"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { getAppFeeRecipient } from "@src/utils/getAppFeeRecipient"
@@ -17,24 +20,74 @@ import { settings } from "../../../constants/settings"
 import { WithdrawWidgetProvider } from "../../../providers/WithdrawWidgetProvider"
 import type { WithdrawWidgetProps } from "../../../types/withdraw"
 import { assert } from "../../../utils/assert"
+import { isSupportedChainName } from "../../../utils/blockchain"
 import { isBaseToken } from "../../../utils/token"
 import { swapIntentMachine } from "../../machines/swapIntentMachine"
 import { withdrawUIMachine } from "../../machines/withdrawUIMachine"
 import { WithdrawUIMachineContext } from "../WithdrawUIMachineContext"
 import { WithdrawForm } from "./WithdrawForm"
 
+/**
+ * Check if a token has a deployment on the specified network
+ */
+function tokenSupportsNetwork(token: TokenInfo, network: string): boolean {
+  if (isBaseToken(token)) {
+    return token.deployments.some((d) => d.chainName === network)
+  }
+  return token.groupedTokens.some((gt) =>
+    gt.deployments.some((d) => d.chainName === network)
+  )
+}
+
+/**
+ * Find a token from the list that supports the given network.
+ * Returns undefined if no token supports the network.
+ */
+function findTokenForNetwork(
+  tokenList: TokenInfo[],
+  network: string
+): TokenInfo | undefined {
+  return tokenList.find((token) => tokenSupportsNetwork(token, network))
+}
+
 export const WithdrawWidget = (props: WithdrawWidgetProps) => {
   const is1cs = useIs1CsEnabled()
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
   const appFeeRecipient = getAppFeeRecipient(whitelabelTemplate)
-  const initialTokenIn =
-    props.presetTokenSymbol !== undefined
-      ? (props.tokenList.find(
-          (el) =>
-            el.symbol.toLowerCase().normalize() ===
-            props.presetTokenSymbol?.toLowerCase().normalize()
-        ) ?? props.tokenList[0])
-      : props.tokenList[0]
+
+  // Determine initial token based on presets
+  // Priority: presetTokenSymbol > presetNetwork > first token in list
+  let initialTokenIn: TokenInfo | undefined
+
+  if (props.presetTokenSymbol !== undefined) {
+    // If a specific token is requested, use it
+    initialTokenIn = props.tokenList.find(
+      (el) =>
+        el.symbol.toLowerCase().normalize() ===
+        props.presetTokenSymbol?.toLowerCase().normalize()
+    )
+  }
+
+  // Track if we couldn't find a token for the preset network
+  let noTokenForPresetNetwork: SupportedChainName | null = null
+
+  // If no token found by symbol, try to find one that supports the preset network
+  if (
+    initialTokenIn == null &&
+    props.presetNetwork != null &&
+    isSupportedChainName(props.presetNetwork)
+  ) {
+    initialTokenIn = findTokenForNetwork(props.tokenList, props.presetNetwork)
+    if (initialTokenIn == null) {
+      // User has no tokens available for this network
+      noTokenForPresetNetwork = props.presetNetwork
+    }
+  }
+
+  // Fall back to first token in list
+  if (initialTokenIn == null) {
+    initialTokenIn = props.tokenList[0]
+  }
 
   assert(initialTokenIn, "Token list must have at least 1 token")
 
@@ -112,7 +165,10 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
         ) : (
           <TokenListUpdater tokenList={props.tokenList} />
         )}
-        <WithdrawForm {...props} />
+        <WithdrawForm
+          {...props}
+          noTokenForPresetNetwork={noTokenForPresetNetwork}
+        />
       </WithdrawUIMachineContext.Provider>
     </WithdrawWidgetProvider>
   )

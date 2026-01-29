@@ -1,3 +1,4 @@
+import type { Contact } from "@src/app/(app)/(auth)/contacts/actions"
 import Button from "@src/components/Button"
 import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
 import ModalReviewSend from "@src/components/DefuseSDK/components/Modal/ModalReviewSend"
@@ -10,8 +11,13 @@ import { isSupportedChainName } from "@src/components/DefuseSDK/utils/blockchain
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
 import {
+  isBaseToken,
+  isNativeToken,
+} from "@src/components/DefuseSDK/utils/token"
+import {
   addAmounts,
   compareAmounts,
+  computeTotalBalanceDifferentDecimals,
   getTokenMaxDecimals,
   isMinAmountNotRequired,
   subtractAmounts,
@@ -21,7 +27,7 @@ import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
 import { useWithdrawTrackerMachine } from "@src/providers/WithdrawTrackerMachineProvider"
 import { logger } from "@src/utils/logger"
 import { useSelector } from "@xstate/react"
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import { formatUnits } from "viem"
 import { AuthGate } from "../../../../components/AuthGate"
@@ -68,15 +74,22 @@ export type WithdrawFormNearValues = {
   isFundsLooseConfirmed?: boolean
 }
 
-type WithdrawFormProps = WithdrawWidgetProps
+type WithdrawFormProps = WithdrawWidgetProps & {
+  /** Network that was requested but has no compatible tokens */
+  noTokenForPresetNetwork?: SupportedChainName | null
+}
 
 export const WithdrawForm = ({
   userAddress,
   displayAddress,
   chainType,
+  presetTokenSymbol,
   presetAmount,
   presetNetwork,
   presetRecipient,
+  presetContactId,
+  noTokenForPresetNetwork,
+  tokenList,
   sendNearTransaction,
   renderHostAppLink,
 }: WithdrawFormProps) => {
@@ -94,6 +107,7 @@ export const WithdrawForm = ({
     totalAmountReceived,
     withdtrawalFee,
     directionFee,
+    balances,
   } = WithdrawUIMachineContext.useSelector((state) => {
     return {
       state,
@@ -227,6 +241,9 @@ export const WithdrawForm = ({
 
   const { data: tokensUsdPriceData } = useTokensUsdPrices()
 
+  // Track selected contact for the review modal
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
+
   const { setModalType, data: modalSelectAssetsData } = useModalController<{
     modalType: ModalType
     token: TokenInfo | undefined
@@ -234,12 +251,19 @@ export const WithdrawForm = ({
 
   const handleSelect = useCallback(() => {
     const fieldName = "token"
+    // When in contact mode, lock the network so only compatible tokens are selectable
+    const lockedNetwork =
+      selectedContact != null && isSupportedChainName(blockchain)
+        ? blockchain
+        : undefined
     setModalType(ModalType.MODAL_SELECT_ASSETS, {
       fieldName,
       [fieldName]: token,
       isHoldingsEnabled: true,
+      lockedNetwork,
+      disableZeroBalance: true, // Can only send tokens you have
     })
-  }, [token, setModalType])
+  }, [token, setModalType, selectedContact, blockchain])
 
   useEffect(() => {
     const sub = watch(async (value, { name }) => {
@@ -295,13 +319,287 @@ export const WithdrawForm = ({
     if (presetAmount != null) {
       setValue("amountIn", presetAmount)
     }
+    // Token selection for presetNetwork is handled in WithdrawWidget.
+    // Here we just need to set the blockchain and recipient in the form/XState.
     if (presetNetwork != null && isSupportedChainName(presetNetwork)) {
-      setValue("blockchain", presetNetwork)
+      // Check if current token supports this network before updating
+      // (WithdrawWidget should have already selected a compatible token)
+      const tokenSupportsNetwork = isBaseToken(token)
+        ? token.deployments.some((d) => d.chainName === presetNetwork)
+        : token.groupedTokens.some((gt) =>
+            gt.deployments.some((d) => d.chainName === presetNetwork)
+          )
+
+      if (tokenSupportsNetwork) {
+        setValue("blockchain", presetNetwork)
+        // Also update XState machine so form values stay in sync
+        actorRef.send({
+          type: "WITHDRAW_FORM.UPDATE_BLOCKCHAIN",
+          params: { blockchain: presetNetwork },
+        })
+      }
+    }
+    // Handle near_intents preset network (special case, not a SupportedChainName)
+    if (presetNetwork === "near_intents") {
+      setValue("blockchain", "near_intents")
+      actorRef.send({
+        type: "WITHDRAW_FORM.UPDATE_BLOCKCHAIN",
+        params: { blockchain: "near_intents" },
+      })
     }
     if (presetRecipient != null) {
       setValue("recipient", presetRecipient)
+      // Also update XState machine (must be after blockchain update since that clears recipient)
+      actorRef.send({
+        type: "WITHDRAW_FORM.RECIPIENT",
+        params: { recipient: presetRecipient, proxyRecipient: null },
+      })
     }
-  }, [presetAmount, presetNetwork, presetRecipient, setValue])
+  }, [presetAmount, presetNetwork, presetRecipient, setValue, actorRef, token])
+
+  // Track the resolved token for presetNetwork (null = not yet resolved)
+  const [resolvedTokenSymbol, setResolvedTokenSymbol] = useState<string | null>(
+    null
+  )
+
+  // Check if we have a valid preset network (either a supported chain or near_intents)
+  const hasValidPresetNetwork =
+    presetNetwork != null &&
+    (isSupportedChainName(presetNetwork) || presetNetwork === "near_intents")
+
+  // Determine if we're still waiting to determine the correct token
+  // Show loading until we've resolved which token to show AND the current token matches
+  // (the state machine update is async, so we need to wait for it to complete)
+  const isResolvingToken =
+    hasValidPresetNetwork &&
+    (resolvedTokenSymbol === null || resolvedTokenSymbol !== token.symbol)
+
+  // When balances are loaded, check if we need to switch to a better token
+  // Priority order:
+  // 1. presetTokenSymbol if provided and user has balance
+  // 2. Native/gas token of the network if user has balance (skip for near_intents)
+  // 3. Highest USD value network-relevant token
+  // 4. Native/gas token (even with zero balance) if it exists (skip for near_intents)
+  // 5. First available network-relevant token
+  useEffect(() => {
+    // Only run if we have a preset network and haven't already resolved
+    if (!hasValidPresetNetwork || resolvedTokenSymbol !== null) {
+      return
+    }
+
+    // Wait until balances are loaded (non-empty)
+    if (Object.keys(balances).length === 0) {
+      return
+    }
+
+    const isNearIntents = presetNetwork === "near_intents"
+
+    // Helper: check if token supports the network
+    // For near_intents, all tokens are supported
+    const supportsNetwork = (t: TokenInfo): boolean => {
+      if (isNearIntents) return true
+      return isBaseToken(t)
+        ? t.deployments.some((d) => d.chainName === presetNetwork)
+        : t.groupedTokens.some((gt) =>
+            gt.deployments.some((d) => d.chainName === presetNetwork)
+          )
+    }
+
+    // Helper: check if token is native for the network
+    // Not applicable for near_intents (no native token concept)
+    const isNativeForNetwork = (t: TokenInfo): boolean => {
+      if (isNearIntents) return false
+      if (isBaseToken(t)) {
+        return t.deployments.some(
+          (d) => d.chainName === presetNetwork && isNativeToken(d)
+        )
+      }
+      return t.groupedTokens.some((gt) =>
+        gt.deployments.some(
+          (d) => d.chainName === presetNetwork && isNativeToken(d)
+        )
+      )
+    }
+
+    // Helper: get token balance info
+    const getBalanceInfo = (
+      t: TokenInfo
+    ): { amount: bigint; decimals: number } => {
+      const balance = computeTotalBalanceDifferentDecimals(t, balances)
+      return {
+        amount: balance?.amount ?? 0n,
+        decimals: balance?.decimals ?? getTokenMaxDecimals(t),
+      }
+    }
+
+    // Helper: get token USD value
+    const getUsdValue = (t: TokenInfo): number => {
+      const { amount, decimals } = getBalanceInfo(t)
+      if (amount === 0n) return 0
+      const formattedAmount = formatUnits(amount, decimals)
+      return getTokenUsdPrice(formattedAmount, t, tokensUsdPriceData) ?? 0
+    }
+
+    // Get all tokens that support the network
+    const networkTokens = tokenList.filter(supportsNetwork)
+
+    // Find the best token based on priority
+    let bestToken: TokenInfo | null = null
+
+    // Priority 1: presetTokenSymbol if provided and has balance
+    if (presetTokenSymbol != null) {
+      const presetToken = networkTokens.find(
+        (t) =>
+          t.symbol.toLowerCase().normalize() ===
+          presetTokenSymbol.toLowerCase().normalize()
+      )
+      if (presetToken != null && getBalanceInfo(presetToken).amount > 0n) {
+        bestToken = presetToken
+      }
+    }
+
+    // Priority 2: Native token with balance
+    if (bestToken == null) {
+      const nativeToken = networkTokens.find(isNativeForNetwork)
+      if (nativeToken != null && getBalanceInfo(nativeToken).amount > 0n) {
+        bestToken = nativeToken
+      }
+    }
+
+    // Priority 3: Highest USD value network token
+    if (bestToken == null) {
+      const tokensWithBalance = networkTokens
+        .map((t) => ({ token: t, usdValue: getUsdValue(t) }))
+        .filter(({ usdValue }) => usdValue > 0)
+        .sort((a, b) => b.usdValue - a.usdValue)
+
+      if (tokensWithBalance.length > 0) {
+        bestToken = tokensWithBalance[0].token
+      }
+    }
+
+    // Priority 4: Native token (even with zero balance)
+    if (bestToken == null) {
+      const nativeToken = networkTokens.find(isNativeForNetwork)
+      if (nativeToken != null) {
+        bestToken = nativeToken
+      }
+    }
+
+    // Priority 5: First available network token
+    if (bestToken == null && networkTokens.length > 0) {
+      bestToken = networkTokens[0]
+    }
+
+    // If we found a better token, switch to it
+    if (bestToken != null && bestToken.symbol !== token.symbol) {
+      const parsedAmount = {
+        amount: 0n,
+        decimals: getTokenMaxDecimals(bestToken),
+      }
+      actorRef.send({
+        type: "WITHDRAW_FORM.UPDATE_TOKEN",
+        params: {
+          token: bestToken,
+          parsedAmount: parsedAmount,
+        },
+      })
+      setResolvedTokenSymbol(bestToken.symbol)
+    } else {
+      // Current token is the best choice, mark as resolved
+      setResolvedTokenSymbol(token.symbol)
+    }
+  }, [
+    hasValidPresetNetwork,
+    presetNetwork,
+    presetTokenSymbol,
+    balances,
+    token,
+    tokenList,
+    actorRef,
+    resolvedTokenSymbol,
+    tokensUsdPriceData,
+  ])
+
+  // Track if we've done initial token selection (for when there's no preset)
+  const [hasSelectedInitialToken, setHasSelectedInitialToken] = useState(false)
+
+  // When there's NO preset (network or token), select the highest USD value token once balances load
+  useEffect(() => {
+    // Only run if there's no preset and we haven't selected yet
+    // If user explicitly selected a token (presetTokenSymbol), respect their choice
+    if (
+      hasValidPresetNetwork ||
+      presetTokenSymbol != null ||
+      hasSelectedInitialToken
+    ) {
+      return
+    }
+
+    // Wait until balances are loaded (non-empty)
+    if (Object.keys(balances).length === 0) {
+      return
+    }
+
+    // Wait until price data is loaded
+    if (tokensUsdPriceData == null) {
+      return
+    }
+
+    // Helper: get token balance info
+    const getBalanceInfo = (
+      t: TokenInfo
+    ): { amount: bigint; decimals: number } => {
+      const balance = computeTotalBalanceDifferentDecimals(t, balances)
+      return {
+        amount: balance?.amount ?? 0n,
+        decimals: balance?.decimals ?? getTokenMaxDecimals(t),
+      }
+    }
+
+    // Helper: get token USD value
+    const getUsdValue = (t: TokenInfo): number => {
+      const { amount, decimals } = getBalanceInfo(t)
+      if (amount === 0n) return 0
+      const formattedAmount = formatUnits(amount, decimals)
+      return getTokenUsdPrice(formattedAmount, t, tokensUsdPriceData) ?? 0
+    }
+
+    // Find highest USD value token
+    const tokensWithValue = tokenList
+      .map((t) => ({ token: t, usdValue: getUsdValue(t) }))
+      .filter(({ usdValue }) => usdValue > 0)
+      .sort((a, b) => b.usdValue - a.usdValue)
+
+    if (tokensWithValue.length > 0) {
+      const bestToken = tokensWithValue[0].token
+      // Only switch if it's different from current token
+      if (bestToken.symbol !== token.symbol) {
+        const parsedAmount = {
+          amount: 0n,
+          decimals: getTokenMaxDecimals(bestToken),
+        }
+        actorRef.send({
+          type: "WITHDRAW_FORM.UPDATE_TOKEN",
+          params: {
+            token: bestToken,
+            parsedAmount: parsedAmount,
+          },
+        })
+      }
+    }
+
+    setHasSelectedInitialToken(true)
+  }, [
+    hasValidPresetNetwork,
+    presetTokenSymbol,
+    hasSelectedInitialToken,
+    balances,
+    token,
+    tokenList,
+    actorRef,
+    tokensUsdPriceData,
+  ])
 
   const { registerWithdraw, hasActiveWithdraw } = useWithdrawTrackerMachine()
 
@@ -336,18 +634,23 @@ export const WithdrawForm = ({
     token,
     tokensUsdPriceData
   )
-  const receivedAmountUsd = totalAmountReceived?.amount
-    ? getTokenUsdPrice(
-        formatTokenValue(
-          directionFee?.amount
-            ? subtractAmounts(totalAmountReceived, directionFee).amount
-            : totalAmountReceived.amount,
-          totalAmountReceived.decimals
-        ),
-        tokenOut,
-        tokensUsdPriceData
-      )
-    : null
+
+  // Get the raw token price for USD toggle functionality
+  const tokenPrice = (() => {
+    if (!tokensUsdPriceData || !token) return null
+    if (isBaseToken(token) && tokensUsdPriceData[token.defuseAssetId]) {
+      return tokensUsdPriceData[token.defuseAssetId].price
+    }
+    // For unified tokens, get price from first grouped token
+    if (!isBaseToken(token)) {
+      for (const groupedToken of token.groupedTokens) {
+        if (tokensUsdPriceData[groupedToken.defuseAssetId]) {
+          return tokensUsdPriceData[groupedToken.defuseAssetId].price
+        }
+      }
+    }
+    return null
+  })()
   const feeUsd = withdtrawalFee
     ? getTokenUsdPrice(
         formatTokenValue(withdtrawalFee.amount, withdtrawalFee.decimals),
@@ -464,13 +767,15 @@ export const WithdrawForm = ({
               userAddress={userAddress}
               displayAddress={displayAddress}
               tokenInBalance={tokenInBalance}
+              presetContactId={presetContactId}
+              noTokenForPresetNetwork={noTokenForPresetNetwork}
+              onContactChange={setSelectedContact}
             />
 
             <SelectedTokenInput
               value={getValues().amountIn}
               label="Enter amount"
               registration={form.register("amountIn", {
-                required: "This field is required",
                 pattern: {
                   value: /^[0-9]*[,.]?[0-9]*$/,
                   message: "Please enter a valid number",
@@ -502,6 +807,9 @@ export const WithdrawForm = ({
               symbol={token.symbol}
               usdAmount={tokenToWithdrawUsdAmount}
               handleSetPercentage={handleSetPercentage}
+              selectedToken={token}
+              tokenPrice={tokenPrice}
+              tokenLoading={isResolvingToken}
               additionalInfo={
                 tokenInTransitBalance ? (
                   <TooltipNew>
@@ -599,8 +907,8 @@ export const WithdrawForm = ({
         fee={withdtrawalFee}
         totalAmountReceived={totalAmountReceived}
         feeUsd={feeUsd}
-        totalAmountReceivedUsd={receivedAmountUsd}
         directionFee={directionFee}
+        contact={selectedContact}
       />
     </>
   )
