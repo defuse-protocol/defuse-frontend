@@ -40,30 +40,30 @@ export function GiftTakerWidget(props: GiftTakerWidgetProps) {
 export function GiftTakerLoadingSkeleton() {
   return (
     <div className="animate-in fade-in duration-300">
-      <div className="flex items-start justify-between mb-5">
-        <div className="flex flex-col gap-2">
-          <div className="h-8 w-48 bg-gray-200 rounded-lg animate-pulse" />
-          <div className="h-4 w-64 bg-gray-100 rounded animate-pulse" />
+      <div className="flex items-start justify-between gap-5 mb-6">
+        <div className="flex flex-col gap-3">
+          <div className="h-7 w-56 bg-gray-200 rounded-lg animate-pulse" />
+          <div className="h-5 w-72 bg-gray-100 rounded animate-pulse" />
         </div>
-        <div className="size-16 rounded-full bg-gray-200 animate-pulse flex items-center justify-center">
+        <div className="shrink-0 size-16 rounded-full bg-gray-200 animate-pulse flex items-center justify-center">
           <GiftIcon weight="fill" className="size-8 text-gray-300" />
         </div>
       </div>
 
       <div className="rounded-2xl border border-gray-200 bg-white p-5">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 pr-2.5">
             <div className="size-10 rounded-full bg-gray-200 animate-pulse" />
-            <div className="h-5 w-20 bg-gray-200 rounded animate-pulse" />
+            <div className="h-5 w-28 bg-gray-200 rounded animate-pulse" />
           </div>
           <div className="text-right">
-            <div className="h-8 w-24 bg-gray-200 rounded animate-pulse mb-1" />
-            <div className="h-4 w-12 bg-gray-100 rounded animate-pulse" />
+            <div className="h-7 w-20 bg-gray-200 rounded animate-pulse" />
+            <div className="h-4 w-12 bg-gray-100 rounded animate-pulse mt-1" />
           </div>
         </div>
       </div>
 
-      <div className="mt-5">
+      <div className="mt-6">
         <div className="h-13 w-full bg-gray-200 rounded-2xl animate-pulse" />
       </div>
     </div>

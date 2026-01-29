@@ -18,7 +18,6 @@ type TestMode =
   | "reveal"
   | "success"
   | "claimed"
-  | "expired"
   | "invalid"
   | "error"
 
@@ -27,7 +26,6 @@ const TEST_MODES: { mode: TestMode; label: string }[] = [
   { mode: "reveal", label: "Reveal" },
   { mode: "success", label: "Success" },
   { mode: "claimed", label: "Claimed" },
-  { mode: "expired", label: "Expired" },
   { mode: "invalid", label: "Invalid" },
   { mode: "error", label: "Error" },
 ]
@@ -89,7 +87,6 @@ function TestContent({
   onClaim: () => void
 }) {
   const mockAmount = { amount: 1000000000000000000n, decimals: 18 }
-  const mockExpirationDate = new Date("2025-01-20T15:00:00")
 
   switch (mode) {
     case "loading":
@@ -102,13 +99,6 @@ function TestContent({
       return token ? (
         <GiftClaimedInfo token={token} amount={mockAmount} />
       ) : null
-    case "expired":
-      return (
-        <GiftTakerInvalidClaim
-          error="GIFT_EXPIRED"
-          expirationDate={mockExpirationDate}
-        />
-      )
     case "invalid":
       return <GiftTakerInvalidClaim error="INVALID_PAYLOAD" />
     case "error":

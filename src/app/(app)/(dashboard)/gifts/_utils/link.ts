@@ -32,10 +32,7 @@ export function createGiftLink(payload: GiftLinkPayload): string {
   return url.toString()
 }
 
-export async function createGiftIntent(
-  payload: GiftLinkData,
-  options?: { expiresAt?: number | null }
-): Promise<{
+export async function createGiftIntent(payload: GiftLinkData): Promise<{
   iv: string
   giftId: string
 }> {
@@ -53,7 +50,6 @@ export async function createGiftIntent(
       gift_id: giftId,
       encrypted_payload: encrypted,
       p_key: pKey,
-      expires_at: options?.expiresAt,
     })
     if (!result.success) {
       throw new Error("Failed to save trade")
@@ -68,8 +64,6 @@ export async function createGiftIntent(
   }
 }
 
-export type GiftIntentError = "GIFT_EXPIRED" | null
-
 export function useGiftIntent() {
   const encodedGift = window.location.hash.slice(1)
 
@@ -78,24 +72,15 @@ export function useGiftIntent() {
     queryFn: async (): Promise<{
       payload: string
       giftId?: string
-      error?: GiftIntentError
     }> => {
       // 1. Attempt: Try to fetch and decrypt the order from the database
       if (encodedGift) {
         try {
           const gift = await getGiftEncryptedIntent(decodeGift(encodedGift))
           if (gift) {
-            const { encryptedPayload, pKey, iv, expiresAt } = gift
+            const { encryptedPayload, pKey, iv } = gift
             if (!iv || !pKey) {
               throw new Error("Invalid decoded params")
-            }
-
-            if (expiresAt != null && expiresAt < Date.now()) {
-              return {
-                payload: "",
-                giftId: deriveIdFromIV(iv),
-                error: "GIFT_EXPIRED",
-              }
             }
 
             const decrypted = await decodeAES256Gift(encryptedPayload, pKey, iv)
@@ -129,6 +114,5 @@ export function useGiftIntent() {
   return {
     payload: data?.payload ?? null,
     giftId: data?.giftId ?? null,
-    error: data?.error ?? null,
   }
 }

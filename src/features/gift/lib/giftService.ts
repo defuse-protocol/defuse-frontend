@@ -21,7 +21,6 @@ export async function getGiftEncryptedIntent(
     encryptedPayload: response.encrypted_payload,
     pKey: response.p_key,
     iv,
-    expiresAt: response.expires_at,
   }
 }
 
@@ -32,7 +31,6 @@ export async function saveGiftIntent(
     gift_id: trade.gift_id,
     encrypted_payload: trade.encrypted_payload,
     p_key: trade.p_key,
-    expires_at: trade.expires_at,
   })
   if (!response.success) {
     throw new Error("Failed to save gift")

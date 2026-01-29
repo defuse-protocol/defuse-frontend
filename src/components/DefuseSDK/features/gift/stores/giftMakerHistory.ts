@@ -21,7 +21,6 @@ export interface GiftMakerHistory {
   intentHashes: string[]
   createdAt: number
   updatedAt: number
-  expiresAt?: number | null
 }
 
 export type State = {
@@ -43,11 +42,6 @@ export type Actions = {
     secretKey: string,
     userId: IntentsUserId | SignerCredentials,
     intentHashes: string[]
-  ) => Promise<StorageOperationResult>
-  updateExpiration: (
-    secretKey: string,
-    userId: IntentsUserId | SignerCredentials,
-    expiresAt: number | null
   ) => Promise<StorageOperationResult>
   removeGift: (
     secretKey: string,
@@ -121,36 +115,6 @@ export const giftMakerHistoryStore = create<Store>()(
         }
       },
 
-      updateExpiration: async (secretKey, user, expiresAt) => {
-        const userId = getUserId(user)
-        const newState = {
-          gifts: {
-            ...get().gifts,
-            [userId]: (get().gifts[userId] ?? []).map((g) =>
-              g.secretKey === secretKey
-                ? { ...g, expiresAt, updatedAt: Date.now() }
-                : g
-            ),
-          },
-        }
-
-        try {
-          const result = await storage.updateItem(configDBStorage.dbName, {
-            state: newState,
-          })
-          if (result.tag === "err") {
-            return result
-          }
-          set(newState)
-          return result
-        } catch (error) {
-          logger.error(
-            new Error("Failed to update gift expiration", { cause: error })
-          )
-          return { tag: "err", reason: "ERR_UPDATE_ITEM_FAILED_TO_STORAGE" }
-        }
-      },
-
       removeGift: async (secretKey, user) => {
         const userId = getUserId(user)
         const newState = {
@@ -180,7 +144,7 @@ export const giftMakerHistoryStore = create<Store>()(
     {
       name: configDBStorage.dbName,
       storage,
-      version: 3,
+      version: 2,
       migrate: migrateGiftStorage,
     }
   )

@@ -60,9 +60,7 @@ export default function NewGiftPage() {
             signMessage={signMessage}
             sendNearTransaction={sendNearTransaction}
             referral={referral}
-            createGiftIntent={async (payload, options) =>
-              createGiftIntent(payload, options)
-            }
+            createGiftIntent={createGiftIntent}
             generateLink={(giftLinkData) => createGiftLink(giftLinkData)}
             initialToken={tokenIn ?? undefined}
             renderHostAppLink={renderAppLink}

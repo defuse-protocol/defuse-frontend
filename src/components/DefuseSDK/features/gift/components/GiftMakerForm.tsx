@@ -40,7 +40,6 @@ import type {
   SignMessage,
 } from "../types/sharedTypes"
 import { checkInsufficientBalance, getButtonText } from "../utils/makerForm"
-import { GiftExpirationInput } from "./GiftExpirationInput"
 import { GiftMakerReadyDialog } from "./GiftMakerReadyDialog"
 import { GiftMessageInput } from "./GiftMessageInput"
 import { ErrorReason } from "./shared/ErrorReason"
@@ -498,15 +497,6 @@ export function GiftMakerForm({
                   />
                 ) : null
               }
-            />
-          </div>
-          <div className="w-full mt-4">
-            <GiftExpirationInput
-              value={formValues.expiresAt}
-              onChange={(value) =>
-                formValuesRef.trigger.updateExpiresAt({ value })
-              }
-              disabled={processing}
             />
           </div>
         </div>

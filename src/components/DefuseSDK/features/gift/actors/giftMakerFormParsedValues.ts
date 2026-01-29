@@ -8,7 +8,6 @@ type State = {
   token: null | TokenInfo
   amount: null | TokenValue
   message: string
-  expiresAt: number | null
 }
 
 export const createGiftMakerFormParsedValuesStore = () =>
@@ -17,7 +16,6 @@ export const createGiftMakerFormParsedValuesStore = () =>
       amount: null,
       token: null,
       message: "",
-      expiresAt: null,
     } as State,
     emits: {
       valuesParsed: (_: { context: State }) => {},
@@ -33,7 +31,6 @@ export const createGiftMakerFormParsedValuesStore = () =>
           amount: parseTokenValue(formValues.token, formValues.amount),
           token: formValues.token,
           message: formValues.message,
-          expiresAt: formValues.expiresAt,
         }
         enqueue.emit.valuesParsed({ context: newContext })
         return newContext

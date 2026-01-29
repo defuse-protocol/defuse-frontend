@@ -3,7 +3,6 @@ import * as v from "valibot"
 import {
   GiftStorageSchemaV0,
   GiftStorageSchemaV1,
-  GiftStorageSchemaV2,
 } from "../utils/schemaStorage"
 import type { State } from "./giftMakerHistory"
 
@@ -52,24 +51,6 @@ export const migrateV1ToV2 = (
   }
 }
 
-export const migrateV2ToV3 = (
-  validatedV2: v.InferOutput<typeof GiftStorageSchemaV2>
-) => {
-  return {
-    state: {
-      gifts: Object.fromEntries(
-        Object.entries(validatedV2.state.gifts).map(([userId, gifts]) => [
-          userId,
-          gifts.map((gift) => ({
-            ...gift,
-            expiresAt: null,
-          })),
-        ])
-      ),
-    },
-  }
-}
-
 export const migrateGiftStorage = (
   persistedState: unknown,
   version: number
@@ -92,14 +73,6 @@ export const migrateGiftStorage = (
       const migratedStateToV2 = migrateV1ToV2(validatedV1)
       currentState = migratedStateToV2
       currentVersion = 2
-    }
-
-    // Migrate from v2 to v3 if needed
-    if (currentVersion === 2) {
-      const validatedV2 = v.parse(GiftStorageSchemaV2, currentState)
-      const migratedStateToV3 = migrateV2ToV3(validatedV2)
-      currentState = migratedStateToV3
-      currentVersion = 3
     }
 
     return currentState.state as State

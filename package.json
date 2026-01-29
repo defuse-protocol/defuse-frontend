@@ -88,7 +88,6 @@
     "qrcode.react": "^4.0.1",
     "react": "19.2.1",
     "react-copy-to-clipboard": "^5.1.0",
-    "react-day-picker": "^9.13.0",
     "react-dom": "19.2.1",
     "react-hook-form": ">=7.52.1 <7.55.0",
     "ripple-address-codec": "^5.0.0",

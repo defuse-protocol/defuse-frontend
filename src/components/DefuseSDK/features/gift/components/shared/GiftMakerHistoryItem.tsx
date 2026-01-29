@@ -4,9 +4,7 @@ import {
   ClockIcon,
   CopyIcon,
   EyeIcon,
-  PencilSimpleIcon,
   TrashIcon,
-  WarningCircleIcon,
 } from "@phosphor-icons/react"
 import Button from "@src/components/Button"
 import type { SignerCredentials } from "@src/components/DefuseSDK/core/formatters"
@@ -29,7 +27,6 @@ import { giftMakerHistoryStore } from "../../stores/giftMakerHistory"
 import type { GenerateLink } from "../../types/sharedTypes"
 import { formatGiftDate } from "../../utils/formattedDate"
 import type { GiftInfo } from "../../utils/parseGiftInfos"
-import { GiftExpirationEditDialog } from "../GiftExpirationEditDialog"
 import { GiftMakerReadyDialog } from "../GiftMakerReadyDialog"
 
 export function GiftMakerHistoryItem({
@@ -42,7 +39,6 @@ export function GiftMakerHistoryItem({
   signerCredentials: SignerCredentials
 }) {
   const [showDialog, setShowDialog] = useState(false)
-  const [showExpirationDialog, setShowExpirationDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const amount = computeTotalBalanceDifferentDecimals(
     getUnderlyingBaseTokenInfos(giftInfo.token),
@@ -73,13 +69,6 @@ export function GiftMakerHistoryItem({
     setShowDialog(false)
   }, [])
 
-  const handleCloseExpirationDialog = useCallback(() => {
-    setShowExpirationDialog(false)
-  }, [])
-
-  const isExpired =
-    giftInfo.expiresAt != null && giftInfo.expiresAt < Date.now()
-
   const cancellationOrRemoval = useCallback(async () => {
     setIsDeleting(true)
     try {
@@ -102,10 +91,6 @@ export function GiftMakerHistoryItem({
           <Button size="sm" onClick={() => setShowDialog(true)}>
             <EyeIcon weight="bold" className="size-4" />
             View
-          </Button>
-          <Button size="sm" onClick={() => setShowExpirationDialog(true)}>
-            <PencilSimpleIcon weight="bold" className="size-4" />
-            Edit
           </Button>
           <Copy
             text={() =>
@@ -159,22 +144,10 @@ export function GiftMakerHistoryItem({
               <CheckCircleIcon weight="fill" className="size-3.5" />
               <span className="text-xs font-semibold">Claimed</span>
             </div>
-          ) : isExpired ? (
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-100 text-red-700">
-              <WarningCircleIcon weight="bold" className="size-3.5" />
-              <span className="text-xs font-semibold">Expired</span>
-            </div>
           ) : (
-            <div className="flex flex-col items-end gap-1">
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">
-                <ClockIcon weight="bold" className="size-3.5" />
-                <span className="text-xs font-semibold">Not revealed</span>
-              </div>
-              {giftInfo.expiresAt != null && (
-                <span className="text-[10px] text-gray-400">
-                  Expires {formatGiftDate(giftInfo.expiresAt)}
-                </span>
-              )}
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">
+              <ClockIcon weight="bold" className="size-3.5" />
+              <span className="text-xs font-semibold">Not revealed</span>
             </div>
           )}
         </ListItem.Content>
@@ -185,13 +158,6 @@ export function GiftMakerHistoryItem({
           generateLink={generateLink}
           signerCredentials={signerCredentials}
           onClose={handleCloseDialog}
-        />
-      )}
-      {showExpirationDialog && (
-        <GiftExpirationEditDialog
-          giftInfo={giftInfo}
-          signerCredentials={signerCredentials}
-          onClose={handleCloseExpirationDialog}
         />
       )}
     </>

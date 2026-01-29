@@ -27,7 +27,6 @@ describe("GET /api/gifts/[giftId]", () => {
       data: {
         encrypted_payload: "2Kc5WSg4kBsxQXBuBPjEH9",
         p_key: "oNn2ERFTt5qfeqHeY8zKsO5CxfECNl8AhWvdRdD38sw",
-        expires_at: null,
       },
       error: null,
     })
@@ -50,7 +49,6 @@ describe("GET /api/gifts/[giftId]", () => {
     expect(await response.json()).toEqual({
       encrypted_payload: "2Kc5WSg4kBsxQXBuBPjEH9",
       p_key: "oNn2ERFTt5qfeqHeY8zKsO5CxfECNl8AhWvdRdD38sw",
-      expires_at: null,
     })
   })
 

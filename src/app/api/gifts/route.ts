@@ -5,14 +5,15 @@ import type {
   CreateGiftResponse,
   ErrorResponse,
 } from "@src/features/gift/types/giftTypes"
-import {
-  expiresAtSchema,
-  giftIdSchema,
-} from "@src/features/gift/validation/giftIdSchema"
 import { supabase } from "@src/libs/supabase"
 import { logger } from "@src/utils/logger"
 import { NextResponse } from "next/server"
 import { z } from "zod"
+
+const giftIdSchema = z
+  .string()
+  .uuid()
+  .refine((val) => val[14] === "5", "Invalid gift_id format")
 
 const giftsSchema = z.object({
   gift_id: giftIdSchema,
@@ -33,19 +34,13 @@ const giftsSchema = z.object({
       return false
     }
   }, "Key must be exactly 32 bytes (AES-256)"),
-  expires_at: expiresAtSchema.nullable().optional(),
 }) as z.ZodType<CreateGiftRequest>
 
 export async function POST(request: Request) {
   try {
     const body = await request.json()
     const validatedData = giftsSchema.parse(body)
-    const { error } = await supabase.from("gifts").insert({
-      ...validatedData,
-      expires_at: validatedData.expires_at
-        ? new Date(validatedData.expires_at).toISOString()
-        : null,
-    })
+    const { error } = await supabase.from("gifts").insert(validatedData)
 
     if (error) {
       logger.error(error)

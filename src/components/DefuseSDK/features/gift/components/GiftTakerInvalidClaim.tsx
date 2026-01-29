@@ -1,52 +1,18 @@
-import {
-  ClockIcon,
-  GiftIcon,
-  WarningCircleIcon,
-  XCircleIcon,
-} from "@phosphor-icons/react"
+import { GiftIcon, WarningCircleIcon, XCircleIcon } from "@phosphor-icons/react"
 import { GiftDescription } from "./shared/GiftDescription"
 import { GiftHeader } from "./shared/GiftHeader"
 
-type ErrorType = "expired" | "claimed" | "invalid" | "unknown"
+type ErrorType = "claimed" | "invalid" | "unknown"
 
 function getErrorType(error: string): ErrorType {
-  if (error === "GIFT_EXPIRED") return "expired"
   if (error === "NO_TOKEN_OR_GIFT_HAS_BEEN_CLAIMED") return "claimed"
   if (error === "INVALID_PAYLOAD" || error === "INVALID_SECRET")
     return "invalid"
   return "unknown"
 }
 
-function formatExpirationDate(date: Date): string {
-  return new Intl.DateTimeFormat("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(date)
-}
-
-function getErrorConfig(errorType: ErrorType, expirationDate?: Date) {
+function getErrorConfig(errorType: ErrorType) {
   switch (errorType) {
-    case "expired":
-      return {
-        title: "This Gift Has Expired",
-        icon: (
-          <div className="size-16 rounded-full bg-amber-100 flex items-center justify-center">
-            <ClockIcon weight="fill" className="size-8 text-amber-600" />
-          </div>
-        ),
-        descriptions: expirationDate
-          ? [
-              `This gift expired on ${formatExpirationDate(expirationDate)} and can no longer be claimed.`,
-              "Ask the sender for a new gift link if you'd like to receive this gift.",
-            ]
-          : [
-              "This gift has expired and can no longer be claimed.",
-              "Ask the sender for a new gift link if you'd like to receive this gift.",
-            ],
-      }
     case "claimed":
       return {
         title: "Gift Unavailable",
@@ -91,15 +57,11 @@ function getErrorConfig(errorType: ErrorType, expirationDate?: Date) {
 
 type GiftTakerInvalidClaimProps = {
   error: string
-  expirationDate?: Date
 }
 
-export function GiftTakerInvalidClaim({
-  error,
-  expirationDate,
-}: GiftTakerInvalidClaimProps) {
+export function GiftTakerInvalidClaim({ error }: GiftTakerInvalidClaimProps) {
   const errorType = getErrorType(error)
-  const config = getErrorConfig(errorType, expirationDate)
+  const config = getErrorConfig(errorType)
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">

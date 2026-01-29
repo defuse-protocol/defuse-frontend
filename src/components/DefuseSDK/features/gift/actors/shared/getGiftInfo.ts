@@ -30,22 +30,13 @@ export type GiftInfo = {
   secretKey: KeyPairString
   accountId: string
   message: string
-  expiresAt?: number | null
 }
 
 export type GiftInfoErr =
   | {
       reason: "NO_TOKEN_OR_GIFT_HAS_BEEN_CLAIMED"
     }
-  | {
-      reason: "GIFT_EXPIRED"
-    }
   | GiftSecretError
-
-// TODO: Decide on expired gift behavior:
-// Option A: Expired gifts auto-refund to creator (requires background job)
-// Option B: Expired gifts become unclaimable (funds locked until creator cancels)
-// Current: Option B - creator can still cancel manually
 
 export const getGiftInfo = fromPromise(
   async ({

@@ -5,7 +5,6 @@ export type GiftMakerFormValuesState = {
   amount: string
   token: null | TokenInfo
   message: string
-  expiresAt: number | null
 }
 
 export const createGiftMakerFormValuesStore = ({
@@ -18,7 +17,6 @@ export const createGiftMakerFormValuesStore = ({
       amount: "",
       token: initialToken,
       message: "",
-      expiresAt: null as number | null,
     } satisfies GiftMakerFormValuesState,
     emits: {
       changed: (_: { context: GiftMakerFormValuesState }) => {},
@@ -48,20 +46,11 @@ export const createGiftMakerFormValuesStore = ({
         enqueue.emit.changed({ context: newContext })
         return newContext
       },
-      updateExpiresAt: (context, event: { value: number | null }, enqueue) => {
-        const newContext = {
-          ...context,
-          expiresAt: event.value,
-        }
-        enqueue.emit.changed({ context: newContext })
-        return newContext
-      },
       reset: (context, _event, enqueue) => {
         const newContext = {
           ...context,
           amount: "",
           message: "",
-          expiresAt: null,
         }
         enqueue.emit.changed({ context: newContext })
         return newContext
