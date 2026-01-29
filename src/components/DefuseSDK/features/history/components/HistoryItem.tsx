@@ -1,11 +1,4 @@
-import {
-  ArrowRightIcon,
-  ArrowSquareOutIcon,
-  ArrowsClockwise,
-  CheckCircleIcon,
-  SpinnerIcon,
-  WarningIcon,
-} from "@phosphor-icons/react"
+import { ArrowRightIcon, ArrowSquareOutIcon } from "@phosphor-icons/react"
 import { Skeleton } from "@radix-ui/themes"
 import ListItem from "@src/components/ListItem"
 import type {
@@ -21,7 +14,6 @@ import {
 } from "../../../components/Tooltip"
 import { INTENTS_EXPLORER_URL } from "../../../constants/blockchains"
 import type { TokenInfo } from "../../../types/base"
-import { cn } from "../../../utils/cn"
 import {
   formatAmount,
   formatFullDate,
@@ -35,35 +27,6 @@ interface SwapItemProps {
   swap: SwapTransaction
   tokenList: TokenInfo[]
 }
-
-const DEFAULT_STATUS_CONFIG = {
-  icon: SpinnerIcon,
-  color: "text-gray-11",
-  label: "Unknown",
-} as const
-
-const STATUS_CONFIG = {
-  SUCCESS: {
-    icon: CheckCircleIcon,
-    color: "text-green-600",
-    label: "Completed",
-  },
-  PROCESSING: {
-    icon: SpinnerIcon,
-    color: "text-amber-500",
-    label: "Processing",
-  },
-  PENDING: {
-    icon: SpinnerIcon,
-    color: "text-blue-500",
-    label: "Pending",
-  },
-  FAILED: {
-    icon: WarningIcon,
-    color: "text-red-500",
-    label: "Failed",
-  },
-} as const
 
 interface TokenDisplayProps {
   tokenAmount: TokenAmount
@@ -96,20 +59,7 @@ function TokenDisplay({
   )
 }
 
-const STALE_PENDING_THRESHOLD_MS = 3 * 60 * 1000 // 3 minutes
-
 export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
-  const statusConfig =
-    STATUS_CONFIG[swap.status as keyof typeof STATUS_CONFIG] ??
-    DEFAULT_STATUS_CONFIG
-  const StatusIcon = statusConfig.icon
-
-  const isPendingStale = useMemo(() => {
-    if (swap.status !== "PENDING") return false
-    const age = Date.now() - new Date(swap.timestamp).getTime()
-    return age > STALE_PENDING_THRESHOLD_MS
-  }, [swap.status, swap.timestamp])
-
   const explorerUrl = useMemo(() => {
     if (!swap.deposit_address) return null
     return `${INTENTS_EXPLORER_URL}/transactions/${swap.deposit_address}`
@@ -163,28 +113,6 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
               </a>
             </>
           )}
-          <span>·</span>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="flex items-center cursor-default">
-                {swap.status === "PENDING" || swap.status === "PROCESSING" ? (
-                  <ArrowsClockwise
-                    className={cn("size-4 text-gray-500", {
-                      "animate-spin": !isPendingStale,
-                    })}
-                  />
-                ) : (
-                  <StatusIcon
-                    className={cn("size-4", statusConfig.color)}
-                    weight="fill"
-                  />
-                )}
-              </div>
-            </TooltipTrigger>
-            <TooltipContent side="top" className="text-xs" theme="dark">
-              {statusConfig.label}
-            </TooltipContent>
-          </Tooltip>
         </div>
       </ListItem.Content>
     </ListItem>
