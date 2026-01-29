@@ -1,9 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <circle cx="16" cy="16" r="16" fill="#627EEA"/>
-  <path fill="#C1CCF8" d="M16 4l-.1.37v10.56l.1.11 4.85-2.87L16 4z"/>
-  <path fill="#fff" d="M16 4l-4.85 8.03L16 14.9V4z"/>
-  <path fill="#C1CCF8" d="M16 18.02l-.06.07v3.72l.06.18 4.85-6.84L16 18.02z"/>
-  <path fill="#fff" d="M16 22v-3.98l-4.85-2.87L16 22z"/>
-  <path fill="#8197EE" d="M16 16.91l4.85-2.87L16 11.18v5.73z"/>
-  <path fill="#C1CCF8" d="M11.15 14.04L16 16.91v-5.73l-4.85 2.86z"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" viewBox="0 0 14 24"><path fill="#C1CCF8" d="m7 .75-.151.513V16.14l.15.15 6.907-4.082L7 .75Z"/><path fill="#fff" d="M6.998.75.092 12.208l6.906 4.082V.75Z"/><path fill="#C1CCF8" d="m7 17.598-.085.104v5.3L7 23.25l6.91-9.731L7 17.599Z"/><path fill="#fff" d="M6.998 23.25v-5.652l-6.906-4.08 6.906 9.732Z"/><path fill="#8197EE" d="m7.003 16.291 6.906-4.082L7.003 9.07v7.221Z"/><path fill="#C1CCF8" d="m.092 12.21 6.906 4.081v-7.22L.092 12.208Z"/></svg>
