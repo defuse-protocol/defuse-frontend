@@ -111,7 +111,11 @@ const SelectedTokenInput = ({
             pattern="[0-9]*[.]?[0-9]*"
             autoComplete="off"
             placeholder={
-              isUsdMode ? "Enter amount USD" : `Enter amount ${symbol}`
+              isUsdMode
+                ? "Enter amount USD"
+                : tokenLoading
+                  ? "Enter amount"
+                  : `Enter amount ${symbol}`
             }
             aria-label={label}
             disabled={disabled}
@@ -143,7 +147,9 @@ const SelectedTokenInput = ({
       </div>
 
       <div className="flex items-center justify-between gap-4">
-        {canToggleUsd ? (
+        {tokenLoading ? (
+          <span className="inline-block h-4 w-12 bg-gray-200 rounded animate-pulse" />
+        ) : canToggleUsd ? (
           <button
             type="button"
             onClick={handleToggleUsdMode}
@@ -172,11 +178,17 @@ const SelectedTokenInput = ({
               !disabled && hasBalance && "hover:text-gray-700 cursor-pointer"
             )}
           >
-            {formatTokenValue(balance, decimals, {
-              min: 0.0001,
-              fractionDigits: 4,
-            })}{" "}
-            {symbol}
+            {tokenLoading ? (
+              <span className="inline-block h-4 w-16 bg-gray-200 rounded animate-pulse" />
+            ) : (
+              <>
+                {formatTokenValue(balance, decimals, {
+                  min: 0.0001,
+                  fractionDigits: 4,
+                })}{" "}
+                {symbol}
+              </>
+            )}
           </button>
           {additionalInfo}
         </div>
