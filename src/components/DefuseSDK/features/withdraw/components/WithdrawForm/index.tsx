@@ -366,6 +366,18 @@ export const WithdrawForm = ({
     isSupportedChainName(presetNetwork) &&
     (resolvedTokenSymbol === null || resolvedTokenSymbol !== token.symbol)
 
+  // Debug logging - remove after fixing
+  logger.info("[WithdrawForm] Token resolution:", {
+    presetNetwork,
+    isSupportedChain: presetNetwork
+      ? isSupportedChainName(presetNetwork)
+      : null,
+    resolvedTokenSymbol,
+    tokenSymbol: token.symbol,
+    isResolvingToken,
+    balancesCount: Object.keys(balances).length,
+  })
+
   // When balances are loaded, check if we need to switch to a token with balance
   // This handles the case where WithdrawWidget selected a token by network compatibility
   // but that token has no balance - we want to switch to one with balance instead
