@@ -10,7 +10,10 @@ import { ModalType } from "@src/components/DefuseSDK/stores/modalStore"
 import { isSupportedChainName } from "@src/components/DefuseSDK/utils/blockchain"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
-import { isBaseToken } from "@src/components/DefuseSDK/utils/token"
+import {
+  isBaseToken,
+  isNativeToken,
+} from "@src/components/DefuseSDK/utils/token"
 import {
   addAmounts,
   compareAmounts,
@@ -80,6 +83,7 @@ export const WithdrawForm = ({
   userAddress,
   displayAddress,
   chainType,
+  presetTokenSymbol,
   presetAmount,
   presetNetwork,
   presetRecipient,
@@ -366,9 +370,13 @@ export const WithdrawForm = ({
     isSupportedChainName(presetNetwork) &&
     (resolvedTokenSymbol === null || resolvedTokenSymbol !== token.symbol)
 
-  // When balances are loaded, check if we need to switch to a token with balance
-  // This handles the case where WithdrawWidget selected a token by network compatibility
-  // but that token has no balance - we want to switch to one with balance instead
+  // When balances are loaded, check if we need to switch to a better token
+  // Priority order:
+  // 1. presetTokenSymbol if provided and user has balance
+  // 2. Native/gas token of the network if user has balance
+  // 3. Highest-balance network-relevant token
+  // 4. Native/gas token (even with zero balance) if it exists
+  // 5. First available network-relevant token
   useEffect(() => {
     // Only run if we have a preset network and haven't already resolved
     if (
@@ -384,53 +392,118 @@ export const WithdrawForm = ({
       return
     }
 
-    // Check if current token has balance
-    const currentTokenBalance = computeTotalBalanceDifferentDecimals(
-      token,
-      balances
-    )
-    if (currentTokenBalance != null && currentTokenBalance.amount > 0n) {
-      // Current token has balance, no need to switch - mark as resolved
-      setResolvedTokenSymbol(token.symbol)
-      return
-    }
-
-    // Current token has no balance - find one that does and supports the preset network
-    const tokenWithBalance = tokenList.find((t) => {
-      // Check if token supports the network
-      const supportsNetwork = isBaseToken(t)
+    // Helper: check if token supports the network
+    const supportsNetwork = (t: TokenInfo): boolean => {
+      return isBaseToken(t)
         ? t.deployments.some((d) => d.chainName === presetNetwork)
         : t.groupedTokens.some((gt) =>
             gt.deployments.some((d) => d.chainName === presetNetwork)
           )
+    }
 
-      if (!supportsNetwork) return false
+    // Helper: check if token is native for the network
+    const isNativeForNetwork = (t: TokenInfo): boolean => {
+      if (isBaseToken(t)) {
+        return t.deployments.some(
+          (d) => d.chainName === presetNetwork && isNativeToken(d)
+        )
+      }
+      return t.groupedTokens.some((gt) =>
+        gt.deployments.some(
+          (d) => d.chainName === presetNetwork && isNativeToken(d)
+        )
+      )
+    }
 
-      // Check if token has balance
+    // Helper: get token balance
+    const getBalance = (t: TokenInfo): bigint => {
       const balance = computeTotalBalanceDifferentDecimals(t, balances)
-      return balance != null && balance.amount > 0n
-    })
+      return balance?.amount ?? 0n
+    }
 
-    if (tokenWithBalance != null) {
-      // Switch to the token with balance
+    // Get all tokens that support the network
+    const networkTokens = tokenList.filter(supportsNetwork)
+
+    // Find the best token based on priority
+    let bestToken: TokenInfo | null = null
+
+    // Priority 1: presetTokenSymbol if provided and has balance
+    if (presetTokenSymbol != null) {
+      const presetToken = networkTokens.find(
+        (t) =>
+          t.symbol.toLowerCase().normalize() ===
+          presetTokenSymbol.toLowerCase().normalize()
+      )
+      if (presetToken != null && getBalance(presetToken) > 0n) {
+        bestToken = presetToken
+      }
+    }
+
+    // Priority 2: Native token with balance
+    if (bestToken == null) {
+      const nativeToken = networkTokens.find(isNativeForNetwork)
+      if (nativeToken != null && getBalance(nativeToken) > 0n) {
+        bestToken = nativeToken
+      }
+    }
+
+    // Priority 3: Highest-balance network token
+    if (bestToken == null) {
+      const tokensWithBalance = networkTokens
+        .map((t) => ({ token: t, balance: getBalance(t) }))
+        .filter(({ balance }) => balance > 0n)
+        .sort((a, b) => {
+          // Sort by balance descending (compare as bigint)
+          if (a.balance > b.balance) return -1
+          if (a.balance < b.balance) return 1
+          return 0
+        })
+
+      if (tokensWithBalance.length > 0) {
+        bestToken = tokensWithBalance[0].token
+      }
+    }
+
+    // Priority 4: Native token (even with zero balance)
+    if (bestToken == null) {
+      const nativeToken = networkTokens.find(isNativeForNetwork)
+      if (nativeToken != null) {
+        bestToken = nativeToken
+      }
+    }
+
+    // Priority 5: First available network token
+    if (bestToken == null && networkTokens.length > 0) {
+      bestToken = networkTokens[0]
+    }
+
+    // If we found a better token, switch to it
+    if (bestToken != null && bestToken.symbol !== token.symbol) {
       const parsedAmount = {
         amount: 0n,
-        decimals: getTokenMaxDecimals(tokenWithBalance),
+        decimals: getTokenMaxDecimals(bestToken),
       }
       actorRef.send({
         type: "WITHDRAW_FORM.UPDATE_TOKEN",
         params: {
-          token: tokenWithBalance,
+          token: bestToken,
           parsedAmount: parsedAmount,
         },
       })
-      // Mark as resolved with the NEW token symbol
-      setResolvedTokenSymbol(tokenWithBalance.symbol)
+      setResolvedTokenSymbol(bestToken.symbol)
     } else {
-      // No token with balance found, just show the current token
+      // Current token is the best choice, mark as resolved
       setResolvedTokenSymbol(token.symbol)
     }
-  }, [presetNetwork, balances, token, tokenList, actorRef, resolvedTokenSymbol])
+  }, [
+    presetNetwork,
+    presetTokenSymbol,
+    balances,
+    token,
+    tokenList,
+    actorRef,
+    resolvedTokenSymbol,
+  ])
 
   const { registerWithdraw, hasActiveWithdraw } = useWithdrawTrackerMachine()
 
