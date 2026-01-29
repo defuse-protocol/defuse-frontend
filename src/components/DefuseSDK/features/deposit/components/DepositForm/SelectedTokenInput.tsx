@@ -100,33 +100,32 @@ const SelectedTokenInput = ({
     >
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-1 flex-1 min-w-0">
-          {isUsdMode && hasValue && (
-            <span className="font-bold text-gray-900 text-4xl tracking-tight shrink-0">
-              $
+          {isUsdMode && hasUsdAmount ? (
+            // USD mode: show the USD amount as display-only
+            <span className="font-bold text-gray-900 text-4xl tracking-tight">
+              {formatUsdAmount(usdAmount)}
             </span>
+          ) : (
+            // Token mode: show editable input
+            <input
+              type="text"
+              inputMode="decimal"
+              pattern="[0-9]*[.]?[0-9]*"
+              autoComplete="off"
+              placeholder={
+                tokenLoading ? "Enter amount" : `Enter amount ${symbol}`
+              }
+              aria-label={label}
+              disabled={disabled}
+              className={clsx(
+                "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-sans font-bold text-gray-900 text-4xl tracking-tight w-full min-w-0",
+                !hasValue && "placeholder:text-xl placeholder:font-medium",
+                hasValue && "placeholder:text-gray-400",
+                disabled && "opacity-50"
+              )}
+              {...registration}
+            />
           )}
-          <input
-            type="text"
-            inputMode="decimal"
-            pattern="[0-9]*[.]?[0-9]*"
-            autoComplete="off"
-            placeholder={
-              isUsdMode
-                ? "Enter amount USD"
-                : tokenLoading
-                  ? "Enter amount"
-                  : `Enter amount ${symbol}`
-            }
-            aria-label={label}
-            disabled={disabled}
-            className={clsx(
-              "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-sans font-bold text-gray-900 text-4xl tracking-tight w-full min-w-0",
-              !hasValue && "placeholder:text-xl placeholder:font-medium",
-              hasValue && "placeholder:text-gray-400",
-              disabled && "opacity-50"
-            )}
-            {...registration}
-          />
         </div>
         {tokenLoading ? (
           <div className="rounded-full border border-gray-900/10 flex items-center gap-1.5 p-1 pr-3 animate-pulse">
@@ -167,6 +166,9 @@ const SelectedTokenInput = ({
             {hasUsdAmount ? formatUsdAmount(usdAmount) : "$0.00"}
           </div>
         )}
+
+        {/* Hidden input to maintain form state when in USD mode */}
+        {isUsdMode && <input type="hidden" {...registration} />}
 
         <div className="flex items-center gap-2">
           <button
