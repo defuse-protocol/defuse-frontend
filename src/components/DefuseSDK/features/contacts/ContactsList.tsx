@@ -101,6 +101,22 @@ const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
                   <>
                     <Button
                       size="sm"
+                      href={`/send?contactId=${contact.id}&recipient=${encodeURIComponent(contact.address)}&network=${chainKey}`}
+                    >
+                      <SendIcon className="size-4 shrink-0" />
+                      Transfer
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        navigator.clipboard.writeText(contact.address)
+                      }}
+                    >
+                      <Square2StackIcon className="size-4 shrink-0" />
+                      Copy
+                    </Button>
+                    <Button
+                      size="sm"
                       onClick={() => handleOpenModal({ type: "edit", contact })}
                     >
                       <PencilSquareIcon className="size-4 shrink-0" />
@@ -114,22 +130,6 @@ const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
                     >
                       <XCircleIcon className="size-4 shrink-0" />
                       Remove
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        navigator.clipboard.writeText(contact.address)
-                      }}
-                    >
-                      <Square2StackIcon className="size-4 shrink-0" />
-                      Copy
-                    </Button>
-                    <Button
-                      size="sm"
-                      href={`/send?contactId=${contact.id}&recipient=${encodeURIComponent(contact.address)}&network=${chainKey}`}
-                    >
-                      <SendIcon className="size-4 shrink-0" />
-                      Transfer
                     </Button>
                   </>
                 }
