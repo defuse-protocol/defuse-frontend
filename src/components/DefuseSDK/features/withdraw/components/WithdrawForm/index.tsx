@@ -362,28 +362,28 @@ export const WithdrawForm = ({
     null
   )
 
+  // Check if we have a valid preset network (either a supported chain or near_intents)
+  const hasValidPresetNetwork =
+    presetNetwork != null &&
+    (isSupportedChainName(presetNetwork) || presetNetwork === "near_intents")
+
   // Determine if we're still waiting to determine the correct token
   // Show loading until we've resolved which token to show AND the current token matches
   // (the state machine update is async, so we need to wait for it to complete)
   const isResolvingToken =
-    presetNetwork != null &&
-    isSupportedChainName(presetNetwork) &&
+    hasValidPresetNetwork &&
     (resolvedTokenSymbol === null || resolvedTokenSymbol !== token.symbol)
 
   // When balances are loaded, check if we need to switch to a better token
   // Priority order:
   // 1. presetTokenSymbol if provided and user has balance
-  // 2. Native/gas token of the network if user has balance
-  // 3. Highest-balance network-relevant token
-  // 4. Native/gas token (even with zero balance) if it exists
+  // 2. Native/gas token of the network if user has balance (skip for near_intents)
+  // 3. Highest USD value network-relevant token
+  // 4. Native/gas token (even with zero balance) if it exists (skip for near_intents)
   // 5. First available network-relevant token
   useEffect(() => {
     // Only run if we have a preset network and haven't already resolved
-    if (
-      presetNetwork == null ||
-      !isSupportedChainName(presetNetwork) ||
-      resolvedTokenSymbol !== null
-    ) {
+    if (!hasValidPresetNetwork || resolvedTokenSymbol !== null) {
       return
     }
 
@@ -392,8 +392,12 @@ export const WithdrawForm = ({
       return
     }
 
+    const isNearIntents = presetNetwork === "near_intents"
+
     // Helper: check if token supports the network
+    // For near_intents, all tokens are supported
     const supportsNetwork = (t: TokenInfo): boolean => {
+      if (isNearIntents) return true
       return isBaseToken(t)
         ? t.deployments.some((d) => d.chainName === presetNetwork)
         : t.groupedTokens.some((gt) =>
@@ -402,7 +406,9 @@ export const WithdrawForm = ({
     }
 
     // Helper: check if token is native for the network
+    // Not applicable for near_intents (no native token concept)
     const isNativeForNetwork = (t: TokenInfo): boolean => {
+      if (isNearIntents) return false
       if (isBaseToken(t)) {
         return t.deployments.some(
           (d) => d.chainName === presetNetwork && isNativeToken(d)
@@ -504,6 +510,7 @@ export const WithdrawForm = ({
       setResolvedTokenSymbol(token.symbol)
     }
   }, [
+    hasValidPresetNetwork,
     presetNetwork,
     presetTokenSymbol,
     balances,
