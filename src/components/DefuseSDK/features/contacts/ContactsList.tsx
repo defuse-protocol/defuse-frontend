@@ -10,6 +10,7 @@ import {
   chainNameToNetworkName,
   midTruncate,
 } from "@src/components/DefuseSDK/features/withdraw/components/WithdrawForm/utils"
+import { stringToColor } from "@src/components/DefuseSDK/utils/stringToColor"
 import ListItem from "@src/components/ListItem"
 import { SendIcon, WalletIcon } from "@src/icons"
 import { useRouter } from "next/navigation"
@@ -73,6 +74,10 @@ const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
     <>
       <section className="mt-6 space-y-1">
         {processedContacts.map(({ contact, chainIcon, chainName }) => {
+          const contactColor = stringToColor(
+            `${contact.name}${contact.address}${contact.blockchain}`
+          )
+
           return (
             <ListItem
               key={contact.id}
@@ -100,11 +105,19 @@ const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
                 </>
               }
             >
-              <div className="size-10 rounded-full bg-gray-200 flex items-center justify-center outline-1 -outline-offset-1 outline-gray-900/10">
-                <WalletIcon className="size-5 text-gray-500" />
+              <div
+                className="size-10 rounded-full flex items-center justify-center shrink-0 outline-1 -outline-offset-1 outline-gray-900/10"
+                style={{ backgroundColor: contactColor.background }}
+              >
+                <WalletIcon
+                  className="size-5"
+                  style={{ color: contactColor.icon }}
+                />
               </div>
               <ListItem.Content>
-                <ListItem.Title>{contact.name}</ListItem.Title>
+                <ListItem.Title className="truncate">
+                  {contact.name}
+                </ListItem.Title>
                 <ListItem.Subtitle>
                   {midTruncate(contact.address)}
                 </ListItem.Subtitle>
@@ -114,6 +127,7 @@ const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
                   <NetworkIcon chainIcon={chainIcon} sizeClassName="size-4" />
                   <span className="capitalize">{chainName}</span>
                 </ListItem.Title>
+                <div className="h-4" />
               </ListItem.Content>
             </ListItem>
           )

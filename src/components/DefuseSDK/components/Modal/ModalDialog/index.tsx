@@ -73,7 +73,7 @@ export function BaseModalDialog({
       <Dialog.Portal>
         <Dialog.Overlay
           className={clsx(
-            "fixed inset-0 bg-gray-900/80 z-50",
+            "fixed inset-0 bg-gray-900/80",
             "data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:duration-300 data-[state=open]:ease-out",
             "data-[state=closed]:animate-out data-[state=closed]:duration-200 data-[state=closed]:ease-in data-[state=closed]:fade-out"
           )}

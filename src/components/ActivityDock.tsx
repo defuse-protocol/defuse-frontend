@@ -1,178 +1,280 @@
 "use client"
 
-import { ArrowTopRightOnSquareIcon } from "@heroicons/react/16/solid"
+import {
+  ArrowTopRightOnSquareIcon,
+  ChevronDoubleDownIcon,
+  ChevronDoubleUpIcon,
+} from "@heroicons/react/16/solid"
 import {
   type DockItem,
   useActivityDock,
 } from "@src/providers/ActivityDockProvider"
 import clsx from "clsx"
-import { AnimatePresence, motion } from "framer-motion"
-import { useEffect, useState } from "react"
+import { AnimatePresence, type Variants, motion } from "framer-motion"
+import { useEffect, useRef, useState } from "react"
 import Button from "./Button"
 
-const MAX_VISIBLE = 3
-const ACTIVE_DISMISS_DELAY_MS = 5_000
-const SETTLED_AUTO_DISMISS_DELAY_MS = 60_000
-const COUNTDOWN_SECONDS = 5
-
-function DismissButton({
-  item,
-  onDismiss,
-}: { item: DockItem; onDismiss: (id: string) => void }) {
-  const now = Date.now()
-  const canDismiss =
-    item.isSettled || now - item.createdAt > ACTIVE_DISMISS_DELAY_MS
-
-  if (!canDismiss) return null
-
-  const countdown = item.settledAt
-    ? Math.max(
-        0,
-        COUNTDOWN_SECONDS -
-          Math.floor(
-            (now - item.settledAt - SETTLED_AUTO_DISMISS_DELAY_MS) / 1000
-          )
-      )
-    : null
-
-  const showCountdown = countdown !== null && countdown < COUNTDOWN_SECONDS
-
-  return (
-    <Button
-      onClick={() => onDismiss(item.id)}
-      variant="secondary"
-      className="border border-gray-200"
-      fullWidth
-    >
-      {showCountdown ? (
-        <span className="tabular-nums">Dismissing in {countdown}</span>
-      ) : (
-        "Dismiss"
-      )}
-    </Button>
-  )
-}
+const STACK_OFFSET = 14
+const MAX_VISIBLE_STACK = 3
 
 const ActivityDock = () => {
   const { dockItems, removeDockItem } = useActivityDock()
-  const [, setTick] = useState(0)
+  const [expanded, setExpanded] = useState(false)
+  const [topCardHeight, setTopCardHeight] = useState<number | null>(null)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTick((t) => t + 1)
-      const now = Date.now()
-      for (const item of dockItems) {
-        if (item.settledAt) {
-          const elapsed = now - item.settledAt
-          if (
-            elapsed >=
-            SETTLED_AUTO_DISMISS_DELAY_MS + COUNTDOWN_SECONDS * 1000
-          ) {
-            removeDockItem(item.id)
-          }
-        }
-      }
-    }, 1000)
-    return () => clearInterval(interval)
-  }, [dockItems, removeDockItem])
+    if (!expanded && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({
+        top: 0,
+      })
+    }
+  }, [expanded])
 
-  const activeItems = dockItems.filter((i) => !i.isSettled)
-  const settledItems = dockItems.filter((i) => i.isSettled)
+  useEffect(() => {
+    if (dockItems.length <= 1) {
+      setExpanded(false)
+    }
+  }, [dockItems])
 
-  let needsScroll: boolean
-  let visibleIds: Set<string>
+  const showExpandButton = dockItems.length > 1
 
-  if (activeItems.length >= MAX_VISIBLE) {
-    visibleIds = new Set(activeItems.map((i) => i.id))
-    needsScroll = activeItems.length > MAX_VISIBLE
-  } else {
-    const settledSlots = MAX_VISIBLE - activeItems.length
-    const visibleSettled = settledItems.slice(-settledSlots)
-    visibleIds = new Set([
-      ...activeItems.map((i) => i.id),
-      ...visibleSettled.map((i) => i.id),
-    ])
-    needsScroll = false
+  const buttonFadeAnimation = {
+    initial: { opacity: 0 },
+    animate: { opacity: 1, transition: { delay: 0.3 } },
+    exit: { opacity: 0 },
   }
 
-  const visibleItems = dockItems.filter((i) => visibleIds.has(i.id)).reverse()
+  return (
+    <div className="relative mt-5 flex flex-col justify-end flex-1 overflow-hidden -mx-4">
+      <motion.div
+        ref={scrollContainerRef}
+        className={clsx(
+          "relative flex flex-col-reverse hide-scrollbar p-4 border-y",
+          expanded
+            ? "overflow-y-auto bg-white/10 border-white/15 transition-colors delay-200"
+            : "overflow-hidden border-b-white/10 border-t-transparent"
+        )}
+      >
+        <AnimatePresence mode="popLayout" initial={false}>
+          {dockItems.map((item, index) => {
+            const isTopCard = index === dockItems.length - 1
+
+            return (
+              <DockCard
+                key={item.id}
+                item={item}
+                index={index}
+                totalCards={dockItems.length}
+                expanded={expanded}
+                topCardHeight={topCardHeight}
+                isTopCard={isTopCard}
+                onHeightChange={isTopCard ? setTopCardHeight : undefined}
+                onDismiss={removeDockItem}
+              />
+            )
+          })}
+        </AnimatePresence>
+        {showExpandButton && !expanded && (
+          <motion.div
+            className="absolute z-10 flex items-center justify-center inset-x-0"
+            {...buttonFadeAnimation}
+            style={{
+              bottom: topCardHeight ? topCardHeight + STACK_OFFSET + 20 : 270,
+            }}
+          >
+            <Button
+              onClick={() => setExpanded((prev) => !prev)}
+              variant="secondary"
+              size="sm"
+            >
+              <ChevronDoubleUpIcon className="size-4" />
+              Expand
+            </Button>
+          </motion.div>
+        )}
+        {expanded && (
+          <motion.div
+            className="sticky top-0 flex items-center justify-center inset-x-0 z-10"
+            {...buttonFadeAnimation}
+          >
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setExpanded(false)}
+              className="shadow-lg"
+            >
+              <ChevronDoubleDownIcon className="size-4" />
+              Collapse
+            </Button>
+          </motion.div>
+        )}
+      </motion.div>
+    </div>
+  )
+}
+
+function DockCard({
+  item,
+  index,
+  totalCards,
+  expanded,
+  topCardHeight,
+  isTopCard,
+  onHeightChange,
+  onDismiss,
+}: {
+  item: DockItem
+  index: number
+  totalCards: number
+  expanded: boolean
+  topCardHeight: number | null
+  isTopCard: boolean
+  onHeightChange?: (height: number) => void
+  onDismiss: (id: string) => void
+}) {
+  const containerCardRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!onHeightChange || !containerCardRef.current) return
+
+    const measureHeight = () => {
+      if (!containerCardRef.current) return
+
+      onHeightChange(containerCardRef.current.offsetHeight)
+    }
+
+    measureHeight()
+
+    const resizeObserver = new ResizeObserver(measureHeight)
+    resizeObserver.observe(containerCardRef.current)
+
+    return () => resizeObserver.disconnect()
+  }, [onHeightChange])
+
+  const cardHeight = topCardHeight ?? 0
+  const distanceFromTop = totalCards - 1 - index
+  const visualDistance = Math.min(distanceFromTop, MAX_VISIBLE_STACK - 1)
+  const collapsedY = index * cardHeight - visualDistance * STACK_OFFSET
+
+  const variants: Variants = {
+    expanded: {
+      y: 0,
+      scale: 1,
+      height: "auto",
+      pointerEvents: "auto",
+    },
+    collapsed: {
+      y: collapsedY,
+      scale: 1 - visualDistance * 0.05,
+      height: !isTopCard && topCardHeight ? topCardHeight : "auto",
+      pointerEvents: isTopCard ? "auto" : "none",
+    },
+  }
+
+  const initialState = expanded
+    ? { y: 0, scale: 1, height: "auto" }
+    : {
+        y: collapsedY,
+        scale: 1 - visualDistance * 0.05,
+        height: !isTopCard && topCardHeight ? topCardHeight : "auto",
+      }
+
+  const isInert = !expanded && !isTopCard
 
   return (
-    <div
-      className={clsx(
-        "flex flex-col justify-end w-full mt-auto grow pb-32 gap-3",
-        needsScroll &&
-          "overflow-y-auto max-h-[calc(100svh-280px)] hide-scrollbar"
-      )}
+    <motion.div
+      layout={expanded}
+      initial={initialState}
+      variants={variants}
+      animate={expanded ? "expanded" : "collapsed"}
+      exit={{
+        opacity: 0,
+        height: 0,
+      }}
+      transition={{
+        type: "spring",
+        stiffness: 500,
+        damping: 40,
+        delay: visualDistance * 0.02,
+      }}
+      style={{
+        zIndex: index,
+      }}
+      className="overflow-hidden rounded-2xl shrink-0"
+      inert={isInert ? true : undefined}
     >
-      <AnimatePresence mode="popLayout">
-        {visibleItems.map((item) => (
-          <motion.div
-            key={item.id}
-            layout
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, x: -30, transition: { duration: 0.2 } }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-            className="bg-white rounded-2xl p-3 overflow-hidden"
-          >
-            <div className="flex items-center gap-3">
-              {item.rawIcon ? (
-                <div className="size-8 shrink-0 flex items-center justify-center">
-                  {item.icon}
-                </div>
-              ) : (
-                <div className="size-8 shrink-0 rounded-full bg-gray-200 flex items-center justify-center outline-1 outline-gray-900/10 -outline-offset-1">
-                  {item.icon}
-                </div>
-              )}
-              <p className="flex-1 text-sm font-semibold text-gray-700">
-                {item.title}
-              </p>
-            </div>
-
-            {item.renderContent ? (
-              <div className="mt-4">{item.renderContent()}</div>
+      <div className="pt-4" ref={containerCardRef}>
+        <div
+          className="bg-white rounded-2xl outline-1 -outline-offset-1 outline-gray-900/10 w-full p-3"
+          style={{
+            boxShadow:
+              "0 -1px 3px 0 rgb(0 0 0 / 0.1), 0 -1px 2px -1px rgb(0 0 0 / 0.1)",
+          }}
+        >
+          <div className="flex items-center gap-3">
+            {item.rawIcon ? (
+              <div className="size-8 shrink-0 flex items-center justify-center">
+                {item.icon}
+              </div>
             ) : (
-              item.keyValueRows.length > 0 && (
-                <dl className="mt-4 space-y-2 overflow-hidden">
-                  {item.keyValueRows.map((row) => (
-                    <div
-                      key={row.label}
-                      className="flex items-center justify-between gap-3"
-                    >
-                      <dt className="text-sm text-gray-500 font-medium whitespace-nowrap">
-                        {row.label}
-                      </dt>
-                      <dd className="text-sm font-semibold text-gray-900 whitespace-nowrap truncate">
-                        {row.value}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-              )
+              <div className="size-8 shrink-0 rounded-full bg-gray-200 flex items-center justify-center outline-1 outline-gray-900/10 -outline-offset-1">
+                {item.icon}
+              </div>
+            )}
+            <p className="flex-1 text-sm font-semibold text-gray-700">
+              {item.title}
+            </p>
+          </div>
+
+          {item.renderContent ? (
+            <div className="mt-4">{item.renderContent()}</div>
+          ) : (
+            item.keyValueRows.length > 0 && (
+              <dl className="mt-4 space-y-2 overflow-hidden">
+                {item.keyValueRows.map((row) => (
+                  <div
+                    key={row.label}
+                    className="flex items-center justify-between gap-3"
+                  >
+                    <dt className="text-sm text-gray-500 font-medium whitespace-nowrap">
+                      {row.label}
+                    </dt>
+                    <dd className="text-sm font-semibold text-gray-900 whitespace-nowrap truncate">
+                      {row.value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            )
+          )}
+
+          <div className="flex flex-col gap-2 mt-4">
+            {item.explorerUrl && (
+              <Button
+                href={item.explorerUrl}
+                variant="primary"
+                target="_blank"
+                rel="noopener noreferrer"
+                fullWidth
+              >
+                View on explorer
+                <ArrowTopRightOnSquareIcon className="size-4" />
+              </Button>
             )}
 
-            <div className="flex flex-col gap-2 mt-4">
-              {item.explorerUrl && (
-                <Button
-                  href={item.explorerUrl}
-                  variant="primary"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  fullWidth
-                >
-                  View on explorer
-                  <ArrowTopRightOnSquareIcon className="size-4" />
-                </Button>
-              )}
-
-              <DismissButton item={item} onDismiss={removeDockItem} />
-            </div>
-          </motion.div>
-        ))}
-      </AnimatePresence>
-    </div>
+            <Button
+              onClick={() => onDismiss(item.id)}
+              variant="secondary"
+              className="border border-gray-200"
+              fullWidth
+            >
+              Dismiss
+            </Button>
+          </div>
+        </div>
+      </div>
+    </motion.div>
   )
 }
 
