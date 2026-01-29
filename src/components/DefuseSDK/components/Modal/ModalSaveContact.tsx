@@ -143,6 +143,7 @@ const ModalSaveContact = ({
                   id="name"
                   type="text"
                   placeholder="Enter name"
+                  autoComplete="off"
                   className="block w-full text-gray-900 font-semibold placeholder:text-gray-400 focus:outline-none text-base leading-none ring-0 border-none p-0"
                   {...register("name", {
                     required: "Enter a name for the contact.",
