@@ -100,7 +100,7 @@ const ModalReviewSend = ({
   }, [directionFee, feeUsd, fee.amount])
 
   return (
-    <BaseModalDialog title="Review send" open={open} onClose={onClose}>
+    <BaseModalDialog title="Review transfer" open={open} onClose={onClose}>
       <div className="flex flex-col items-center justify-center mt-3">
         <AssetComboIcon icon={tokenIn.icon} sizeClassName="size-13" />
         <div className="mt-5 text-2xl/7 font-bold text-gray-900 tracking-tight">
@@ -194,7 +194,7 @@ const ModalReviewSend = ({
         loading={loading}
         fullWidth
       >
-        Send
+        Transfer
       </Button>
 
       <IntentCreationResult intentCreationResult={intentCreationResult} />

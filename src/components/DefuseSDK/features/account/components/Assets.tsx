@@ -96,7 +96,7 @@ const Assets = ({
                 <>
                   <Button size="sm" href={`/send?token=${token.symbol}`}>
                     <SendIcon className="size-4 shrink-0" />
-                    Send
+                    Transfer
                   </Button>
                   <Button
                     size="sm"

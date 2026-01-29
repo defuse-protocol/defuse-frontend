@@ -104,7 +104,7 @@ const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
                       href={`/send?contactId=${contact.id}&recipient=${encodeURIComponent(contact.address)}&network=${chainKey}`}
                     >
                       <SendIcon className="size-4 shrink-0" />
-                      Send
+                      Transfer
                     </Button>
                     <Button
                       size="sm"
