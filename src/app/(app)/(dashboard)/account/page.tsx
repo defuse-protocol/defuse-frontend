@@ -9,7 +9,6 @@ import Balance from "@src/components/DefuseSDK/features/account/components/Balan
 import { useWatchHoldings } from "@src/components/DefuseSDK/features/account/hooks/useWatchHoldings"
 import { computeTotalUsdValue } from "@src/components/DefuseSDK/features/account/utils/holdingsUtils"
 import { getDefuseAssetId } from "@src/components/DefuseSDK/utils/token"
-import ListItemsSkeleton from "@src/components/ListItemsSkeleton"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useTokenList } from "@src/hooks/useTokenList"
@@ -123,13 +122,41 @@ export default function AccountPage() {
   )
 }
 
+const PLACEHOLDER_SHIELDED_ASSETS = [
+  {
+    icon: "https://assets.coingecko.com/coins/images/6319/large/usdc.png",
+    name: "USD Coin",
+    symbol: "USDC",
+  },
+  {
+    icon: "https://assets.coingecko.com/coins/images/279/large/ethereum.png",
+    name: "Ethereum",
+    symbol: "ETH",
+  },
+  {
+    icon: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png",
+    name: "Bitcoin",
+    symbol: "BTC",
+  },
+]
+
+function ShieldedAssetIcon({ icon }: { icon: string }) {
+  return (
+    <div className="relative size-10 rounded-full overflow-hidden bg-gray-100">
+      <img src={icon} alt="" className="size-full object-contain blur-[2px]" />
+      {/* Privacy bar across the icon */}
+      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-2.5 bg-gray-900/80" />
+    </div>
+  )
+}
+
 function ShieldedAccountPreview() {
   return (
     <>
       {/* Coming Soon Banner */}
-      <div className="mt-6 text-center py-6 px-4 bg-gradient-to-b from-purple-50 to-white rounded-2xl border border-purple-100">
+      <div className="mt-6 text-center py-6 px-4 bg-gradient-to-b from-brand/10 to-white rounded-2xl border border-brand/20">
         <div className="flex items-center justify-center gap-2 mb-2">
-          <ShieldCheckIcon className="size-6 text-purple-600" />
+          <ShieldCheckIcon className="size-6 text-brand" />
           <h2 className="text-xl font-bold text-gray-900">Coming Soon</h2>
         </div>
         <p className="text-gray-600 text-sm">
@@ -137,16 +164,30 @@ function ShieldedAccountPreview() {
         </p>
       </div>
 
-      {/* Dimmed placeholder assets */}
-      <section className="mt-6 relative">
-        <div className="absolute inset-0 z-10 pointer-events-none">
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-gray-25" />
-        </div>
-        <h2 className="text-base text-gray-500 font-medium opacity-50">
-          Shielded Assets
-        </h2>
-        <div className="mt-2 opacity-40 pointer-events-none select-none">
-          <ListItemsSkeleton count={3} />
+      {/* Placeholder shielded assets */}
+      <section className="mt-6">
+        <h2 className="text-base text-gray-500 font-medium">Shielded Assets</h2>
+        <div className="mt-2 flex flex-col gap-1 opacity-60 pointer-events-none select-none">
+          {PLACEHOLDER_SHIELDED_ASSETS.map((asset) => (
+            <div
+              key={asset.symbol}
+              className="flex items-center gap-3 p-3 rounded-xl bg-white border border-gray-100"
+            >
+              <ShieldedAssetIcon icon={asset.icon} />
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold text-gray-900 blur-[3px]">
+                  {asset.name}
+                </div>
+                <div className="text-sm text-gray-500">{asset.symbol}</div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-semibold text-gray-900 blur-[4px]">
+                  $••••.••
+                </div>
+                <div className="text-sm text-gray-500 blur-[3px]">••••</div>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
     </>
