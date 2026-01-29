@@ -180,6 +180,11 @@ export default function ActivityPage({
     if (statusFilter !== "All") {
       const targetStatuses = STATUS_MAP[statusFilter]
       filtered = filtered.filter((tx) => targetStatuses.includes(tx.status))
+    } else {
+      // By default, hide pending/processing transactions
+      filtered = filtered.filter(
+        (tx) => tx.status !== "PENDING" && tx.status !== "PROCESSING"
+      )
     }
 
     if (search) {
