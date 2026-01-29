@@ -285,6 +285,12 @@ const ModalSelectRecipient = ({
 
   const handleSelectAddress = (address: string) => {
     setClosedBySelection(true)
+    // If we had a contact selected and user typed a different address,
+    // notify parent to switch to address mode
+    if (wasDeselected) {
+      onDeselectContact?.()
+      setWasDeselected(false)
+    }
     setValue("recipient", address)
     onClose()
   }
