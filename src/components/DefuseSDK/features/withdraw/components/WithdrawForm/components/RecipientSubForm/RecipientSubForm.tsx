@@ -1,6 +1,10 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
-import { ExclamationTriangleIcon, TagIcon } from "@heroicons/react/20/solid"
+import {
+  ExclamationTriangleIcon,
+  GlobeAltIcon,
+  TagIcon,
+} from "@heroicons/react/20/solid"
 import {
   type Contact,
   getContacts,
@@ -360,7 +364,13 @@ export const RecipientSubForm = ({
         }}
         render={({ field, fieldState }) => (
           <SelectTriggerLike
-            label="Recipient"
+            label={
+              recipientMode === "contact" && selectedContact
+                ? "Recipient is one of your contacts"
+                : field.value
+                  ? "Recipient is a manually entered address"
+                  : "Recipient"
+            }
             value={
               recipientMode === "contact" && selectedContact
                 ? selectedContact.name
@@ -376,7 +386,11 @@ export const RecipientSubForm = ({
             error={fieldState.error?.message}
             icon={
               <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
-                <WalletIcon className="text-gray-500 size-5" />
+                {recipientMode === "contact" ? (
+                  <WalletIcon className="text-gray-500 size-5" />
+                ) : (
+                  <GlobeAltIcon className="text-gray-500 size-5" />
+                )}
               </div>
             }
             onClick={() => setModalType("recipient")}
