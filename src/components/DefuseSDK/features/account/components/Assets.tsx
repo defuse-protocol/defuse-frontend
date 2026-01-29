@@ -43,7 +43,7 @@ const Assets = ({
             Something went wrong
           </h3>
           <p className="text-base text-gray-500 mt-1 font-medium text-center text-balance">
-            We couldn’t load your assets right now. Your funds are safe. Try
+            We couldn't load your assets right now. Your funds are safe. Try
             refreshing the page.
           </p>
         </div>
@@ -93,7 +93,11 @@ const Assets = ({
             <ListItem
               key={getDefuseAssetId(token)}
               dropdownMenuItems={[
-                { label: "Send", href: "/send", icon: SendIcon },
+                {
+                  label: "Send",
+                  href: `/send?token=${token.symbol}`,
+                  icon: SendIcon,
+                },
                 {
                   label: "Swap",
                   href: `/swap?from=${token.symbol}&to=${toTokenSymbol}`,

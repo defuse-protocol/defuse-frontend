@@ -12,6 +12,7 @@ export type WithdrawWidgetProps = {
   presetAmount: string | undefined
   presetRecipient: string | undefined
   presetNetwork: string | undefined
+  presetContactId: string | undefined
   renderHostAppLink: RenderHostAppLink
   tokenList: TokenInfo[]
   signMessage: (

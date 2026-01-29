@@ -140,54 +140,64 @@ const ContactsList = ({
 
       {!hasNoContacts && (
         <section className="mt-6 space-y-1">
-          {processedContacts.map(({ contact, chainIcon, chainName }) => {
-            const contactColor = stringToColor(
-              `${contact.name}${contact.address}${contact.blockchain}`
-            )
-            return (
-              <ListItem
-                key={contact.id}
-                dropdownMenuItems={[
-                  { label: "Send", href: "/send", icon: SendIcon },
-                  {
-                    label: "Edit",
-                    onClick: () => handleOpenModal({ type: "edit", contact }),
-                    icon: PencilSquareIcon,
-                  },
-                  {
-                    label: "Remove",
-                    onClick: () => handleOpenModal({ type: "remove", contact }),
-                    icon: XCircleIcon,
-                  },
-                ]}
-              >
-                <div
-                  className="size-10 rounded-full bg-gray-200 flex items-center justify-center shrink-0 outline-1 -outline-offset-1 outline-gray-900/10"
-                  style={{ backgroundColor: contactColor.background }}
+          {processedContacts.map(
+            ({ contact, chainKey, chainIcon, chainName }) => {
+              const contactColor = stringToColor(
+                `${contact.name}${contact.address}${contact.blockchain}`
+              )
+              return (
+                <ListItem
+                  key={contact.id}
+                  dropdownMenuItems={[
+                    {
+                      label: "Send",
+                      href: `/send?contact=${contact.id}&recipient=${encodeURIComponent(contact.address)}&network=${chainKey}`,
+                      icon: SendIcon,
+                    },
+                    {
+                      label: "Edit",
+                      onClick: () => handleOpenModal({ type: "edit", contact }),
+                      icon: PencilSquareIcon,
+                    },
+                    {
+                      label: "Remove",
+                      onClick: () =>
+                        handleOpenModal({ type: "remove", contact }),
+                      icon: XCircleIcon,
+                    },
+                  ]}
                 >
-                  <WalletIcon
-                    className="size-5 text-gray-500"
-                    style={{ color: contactColor.icon }}
-                  />
-                </div>
-                <ListItem.Content>
-                  <ListItem.Title className="truncate">
-                    {contact.name}
-                  </ListItem.Title>
-                  <ListItem.Subtitle>
-                    {midTruncate(contact.address)}
-                  </ListItem.Subtitle>
-                </ListItem.Content>
-                <ListItem.Content align="end">
-                  <ListItem.Title className="flex items-center gap-1">
-                    <NetworkIcon chainIcon={chainIcon} sizeClassName="size-4" />
-                    <span className="capitalize">{chainName}</span>
-                  </ListItem.Title>
-                  <div className="h-4" />
-                </ListItem.Content>
-              </ListItem>
-            )
-          })}
+                  <div
+                    className="size-10 rounded-full bg-gray-200 flex items-center justify-center shrink-0 outline-1 -outline-offset-1 outline-gray-900/10"
+                    style={{ backgroundColor: contactColor.background }}
+                  >
+                    <WalletIcon
+                      className="size-5 text-gray-500"
+                      style={{ color: contactColor.icon }}
+                    />
+                  </div>
+                  <ListItem.Content>
+                    <ListItem.Title className="truncate">
+                      {contact.name}
+                    </ListItem.Title>
+                    <ListItem.Subtitle>
+                      {midTruncate(contact.address)}
+                    </ListItem.Subtitle>
+                  </ListItem.Content>
+                  <ListItem.Content align="end">
+                    <ListItem.Title className="flex items-center gap-1">
+                      <NetworkIcon
+                        chainIcon={chainIcon}
+                        sizeClassName="size-4"
+                      />
+                      <span className="capitalize">{chainName}</span>
+                    </ListItem.Title>
+                    <div className="h-4" />
+                  </ListItem.Content>
+                </ListItem>
+              )
+            }
+          )}
         </section>
       )}
 
