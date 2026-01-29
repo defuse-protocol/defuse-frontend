@@ -222,7 +222,7 @@ const ModalAddEditContact = ({
     <BaseModalDialog
       title={getModalTitle}
       open={open}
-      onClose={onClose}
+      onClose={selectNetworkOpen ? () => setSelectNetworkOpen(false) : onClose}
       onCloseAnimationEnd={() => {
         onCloseAnimationEnd?.()
         reset()
