@@ -44,7 +44,12 @@ const ModalReviewSwap = ({
   })
 
   return (
-    <BaseModalDialog title="Review swap" open={open} onClose={onClose}>
+    <BaseModalDialog
+      title="Review swap"
+      open={open}
+      onClose={onClose}
+      isDismissable={!loading}
+    >
       <div className="flex flex-col gap-5 mt-4">
         <div className="flex items-center justify-between">
           <div>
