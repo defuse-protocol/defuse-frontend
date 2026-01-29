@@ -1,7 +1,7 @@
 "use client"
 
 import { authIdentity } from "@defuse-protocol/internal-utils"
-import { LockClosedIcon, ShieldCheckIcon } from "@heroicons/react/24/outline"
+import { ShieldCheckIcon } from "@heroicons/react/24/outline"
 import { CheckIcon } from "@heroicons/react/24/solid"
 import Button from "@src/components/Button"
 import Assets from "@src/components/DefuseSDK/features/account/components/Assets"
@@ -97,7 +97,7 @@ export default function AccountPage() {
       </div>
 
       {accountType === "main" ? (
-        <>
+        <div className="mt-6">
           <Balance balance={totalValueUsd} />
 
           {!noAssets && (
@@ -115,7 +115,7 @@ export default function AccountPage() {
           )}
 
           <Assets assets={holdings} isPending={isPending} isError={isError} />
-        </>
+        </div>
       ) : (
         <ShieldedAccountPreview />
       )}
@@ -168,9 +168,64 @@ const PLACEHOLDER_SHIELDED_ASSETS = [
   },
 ]
 
+// Calculate total value from placeholder assets
+const SHIELDED_TOTAL_VALUE = PLACEHOLDER_SHIELDED_ASSETS.reduce(
+  (sum, asset) => {
+    const value = Number.parseFloat(asset.value.replace(/[$,]/g, ""))
+    return sum + value
+  },
+  0
+)
+
 function ShieldedAccountPreview() {
   return (
-    <>
+    <div className="mt-6">
+      {/* Shielded Balance */}
+      <section>
+        <h2 className="text-base text-gray-500 font-medium">
+          Shielded balance
+        </h2>
+        <p className="mt-2 font-bold text-5xl tracking-tight text-gray-900">
+          $
+          {
+            SHIELDED_TOTAL_VALUE.toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }).split(".")[0]
+          }
+          <span className="text-3xl">
+            .
+            {
+              SHIELDED_TOTAL_VALUE.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }).split(".")[1]
+            }
+          </span>
+        </p>
+      </section>
+
+      {/* Shielded Action Buttons */}
+      <section className="grid grid-cols-2 gap-2 mt-6">
+        <Button
+          size="xl"
+          disabled
+          className="disabled:bg-gray-200 disabled:text-gray-400"
+        >
+          <DepositIcon className="size-6 -mt-1.5" />
+          Add funds
+        </Button>
+
+        <Button
+          size="xl"
+          disabled
+          className="disabled:bg-gray-200 disabled:text-gray-400"
+        >
+          <SendIcon className="size-6" />
+          Send
+        </Button>
+      </section>
+
       {/* Coming Soon Banner */}
       <div className="mt-6 text-center py-6 px-4 bg-gradient-to-b from-brand/10 to-white rounded-2xl border border-brand/20">
         <div className="flex items-center justify-center gap-2 mb-2">
@@ -191,27 +246,31 @@ function ShieldedAccountPreview() {
               key={asset.symbol}
               popoverContent={
                 <>
-                  <Button size="sm" disabled>
+                  <Button
+                    size="sm"
+                    disabled
+                    className="disabled:bg-gray-700 disabled:text-gray-400"
+                  >
                     <ShieldCheckIcon className="size-4 shrink-0" />
                     Shielded Transfer
                   </Button>
-                  <Button size="sm" disabled>
+                  <Button
+                    size="sm"
+                    disabled
+                    className="disabled:bg-gray-700 disabled:text-gray-400"
+                  >
                     <SwapIcon className="size-4 shrink-0" />
                     Shielded Swap
                   </Button>
                 </>
               }
             >
-              <div className="relative size-10 rounded-full overflow-hidden bg-gray-100">
+              <div className="size-10 rounded-full overflow-hidden bg-gray-100">
                 <img
                   src={asset.icon}
                   alt=""
                   className="size-full object-contain"
                 />
-                {/* Lock badge on icon */}
-                <div className="absolute -bottom-0.5 -right-0.5 size-4 rounded-full bg-gray-100 flex items-center justify-center">
-                  <LockClosedIcon className="size-2.5 text-gray-500" />
-                </div>
               </div>
 
               <ListItem.Content>
@@ -227,6 +286,6 @@ function ShieldedAccountPreview() {
           ))}
         </div>
       </section>
-    </>
+    </div>
   )
 }
