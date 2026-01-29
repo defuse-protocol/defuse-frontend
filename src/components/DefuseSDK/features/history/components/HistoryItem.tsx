@@ -121,11 +121,13 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
   return (
     <ListItem>
       <div className="flex items-center gap-2 flex-1 min-w-0">
-        <TokenDisplay
-          tokenAmount={swap.from}
-          tokenList={tokenList}
-          badgeType={badgeType}
-        />
+        <div className="w-[120px] shrink-0">
+          <TokenDisplay
+            tokenAmount={swap.from}
+            tokenList={tokenList}
+            badgeType={badgeType}
+          />
+        </div>
         <ArrowRightIcon
           className="size-4 text-gray-400 shrink-0"
           weight="bold"
@@ -202,7 +204,7 @@ export function SwapHistoryItemSkeleton() {
     <div className="-mx-4 px-4 rounded-2xl">
       <div className="flex gap-3 items-center py-3">
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-[120px] shrink-0 flex items-center gap-2.5">
             <Skeleton className="size-10 rounded-full shrink-0" />
             <div className="flex flex-col gap-0.5 min-w-0">
               <Skeleton className="h-5 w-16" />
