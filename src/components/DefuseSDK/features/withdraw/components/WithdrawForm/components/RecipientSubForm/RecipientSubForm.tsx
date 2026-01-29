@@ -9,6 +9,7 @@ import {
   type Contact,
   getContacts,
 } from "@src/app/(app)/(auth)/contacts/actions"
+import { CopyButton } from "@src/components/DefuseSDK/components/IntentCard/CopyButton"
 import ModalSelectRecipient from "@src/components/DefuseSDK/components/Modal/ModalSelectRecipient"
 import { getMinWithdrawalHyperliquidAmount } from "@src/components/DefuseSDK/features/withdraw/utils/hyperliquid"
 import { usePreparedNetworkLists } from "@src/components/DefuseSDK/hooks/useNetworkLists"
@@ -362,40 +363,53 @@ export const RecipientSubForm = ({
         rules={{
           required: "Recipient is required",
         }}
-        render={({ field, fieldState }) => (
-          <SelectTriggerLike
-            label={
-              recipientMode === "contact" && selectedContact
-                ? "Recipient is a contact"
-                : field.value
-                  ? "Recipient is a manually entered address"
-                  : "Recipient"
-            }
-            value={
-              recipientMode === "contact" && selectedContact
-                ? selectedContact.name
-                : field.value
-                  ? midTruncate(field.value, 16)
-                  : "Select a contact or enter an address"
-            }
-            subtitle={
-              recipientMode === "contact" && selectedContact
-                ? midTruncate(field.value, 16)
-                : undefined
-            }
-            error={fieldState.error?.message}
-            icon={
-              <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
-                {recipientMode === "contact" ? (
-                  <WalletIcon className="text-gray-500 size-5" />
-                ) : (
-                  <GlobeAltIcon className="text-gray-500 size-5" />
-                )}
-              </div>
-            }
-            onClick={() => setModalType("recipient")}
-          />
-        )}
+        render={({ field, fieldState }) => {
+          const isContactSelected =
+            recipientMode === "contact" && selectedContact
+          const selectTrigger = (
+            <SelectTriggerLike
+              label={
+                isContactSelected
+                  ? "Recipient is a contact"
+                  : field.value
+                    ? "Recipient is a manually entered address"
+                    : "Recipient"
+              }
+              value={
+                isContactSelected
+                  ? selectedContact.name
+                  : field.value
+                    ? midTruncate(field.value, 16)
+                    : "Select a contact or enter an address"
+              }
+              error={fieldState.error?.message}
+              icon={
+                <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                  {recipientMode === "contact" ? (
+                    <WalletIcon className="text-gray-500 size-5" />
+                  ) : (
+                    <GlobeAltIcon className="text-gray-500 size-5" />
+                  )}
+                </div>
+              }
+              onClick={() => setModalType("recipient")}
+            />
+          )
+
+          if (isContactSelected) {
+            return (
+              <TooltipNew>
+                <TooltipNew.Trigger>{selectTrigger}</TooltipNew.Trigger>
+                <TooltipNew.Content className="flex items-center gap-2">
+                  <span className="font-mono">{field.value}</span>
+                  <CopyButton text={field.value} ariaLabel="Copy address" />
+                </TooltipNew.Content>
+              </TooltipNew>
+            )
+          }
+
+          return selectTrigger
+        }}
       />
 
       <ModalSelectRecipient
