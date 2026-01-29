@@ -282,6 +282,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
       tokenOut,
       tokenIn,
       swapType,
+      skipRequote: true, // Don't trigger re-quote when opened from review modal
     })
   }, [
     setModalType,

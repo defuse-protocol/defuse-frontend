@@ -42,6 +42,8 @@ export type ModalSlippageSettingsPayload = {
   tokenOut?: TokenInfo
   tokenIn?: TokenInfo
   swapType?: QuoteRequest.swapType
+  /** If true, only update localStorage without triggering a re-quote */
+  skipRequote?: boolean
 }
 
 export function ModalSlippageSettings() {
@@ -52,6 +54,7 @@ export function ModalSlippageSettings() {
   const currentSlippage = modalPayload?.currentSlippage ?? DEFAULT_SLIPPAGE
   const tokenDeltas = modalPayload?.tokenDeltas ?? null
   const tokenOut = modalPayload?.tokenOut
+  const skipRequote = modalPayload?.skipRequote ?? false
   const tokenIn = modalPayload?.tokenIn
   const swapType = modalPayload?.swapType ?? QuoteRequest.swapType.EXACT_INPUT
 
@@ -193,7 +196,7 @@ export function ModalSlippageSettings() {
   }, [tokenDeltas, tokenOutBase, tokenInBase, slippageBasisPoints, isExactOut])
 
   const handleSave = useCallback(() => {
-    if (!actorRef || slippageBasisPoints === null) {
+    if (slippageBasisPoints === null) {
       return
     }
 
@@ -220,10 +223,13 @@ export function ModalSlippageSettings() {
     // Save to localStorage
     setSlippagePercent(slippagePercent)
 
-    actorRef.send({
-      type: "SET_SLIPPAGE",
-      params: { slippageBasisPoints },
-    })
+    // Only trigger re-quote if not skipping (e.g., when opened from review modal)
+    if (!skipRequote && actorRef) {
+      actorRef.send({
+        type: "SET_SLIPPAGE",
+        params: { slippageBasisPoints },
+      })
+    }
 
     onCloseModal()
   }, [
@@ -232,6 +238,7 @@ export function ModalSlippageSettings() {
     customValue,
     setSlippagePercent,
     onCloseModal,
+    skipRequote,
   ])
 
   return (
