@@ -22,6 +22,7 @@ type GiftMakerReadyDialogProps = {
   generateLink: GenerateLink
   signerCredentials: SignerCredentials
   onClose?: () => void
+  isClaimed?: boolean
 }
 
 export function GiftMakerReadyDialog({
@@ -29,6 +30,7 @@ export function GiftMakerReadyDialog({
   generateLink,
   signerCredentials,
   onClose,
+  isClaimed = false,
 }: GiftMakerReadyDialogProps) {
   const { giftCancellationRef, giftInfo } = useSelector(
     readyGiftRef,
@@ -45,6 +47,7 @@ export function GiftMakerReadyDialog({
         readyGiftRef={readyGiftRef}
         generateLink={generateLink}
         onClose={onClose}
+        isClaimed={isClaimed}
       />
       <CancellationDialog
         giftInfo={giftInfo}
@@ -59,10 +62,12 @@ function SuccessDialog({
   readyGiftRef,
   generateLink,
   onClose,
+  isClaimed = false,
 }: {
   readyGiftRef: ActorRefFrom<typeof giftMakerReadyActor>
   generateLink: GenerateLink
   onClose?: () => void
+  isClaimed?: boolean
 }) {
   const { context } = useSelector(readyGiftRef, (state) => ({
     context: state.context,
@@ -92,10 +97,16 @@ function SuccessDialog({
 
   return (
     <BaseModalDialog open onClose={finish}>
-      <GiftHeader title="Share your gift" className="mt-4 text-center">
+      <GiftHeader
+        title={isClaimed ? "Gift claimed" : "Share your gift"}
+        className="mt-4 text-center"
+      >
         <GiftDescription
-          description="Your funds are on-chain. The recipient can claim them via the link, or
-          you can reclaim them if needed."
+          description={
+            isClaimed
+              ? "This gift has been successfully claimed by the recipient."
+              : "Your funds are on-chain. The recipient can claim them via the link, or you can reclaim them if needed."
+          }
           className="text-center"
         />
       </GiftHeader>
@@ -111,30 +122,32 @@ function SuccessDialog({
         }
       />
 
-      <div className="flex flex-col justify-center gap-3 mt-5">
-        <Copy text={copyGiftLink()}>
-          {(copied) => (
-            <AppButton type="button" size="xl" variant="primary" fullWidth>
-              {copied ? (
-                <CheckIcon weight="bold" />
-              ) : (
-                <CopyIcon weight="bold" />
-              )}
-              {copied ? "Copied" : "Copy link"}
-            </AppButton>
-          )}
-        </Copy>
+      {!isClaimed && (
+        <div className="flex flex-col justify-center gap-2 mt-5">
+          <Copy text={copyGiftLink()}>
+            {(copied) => (
+              <AppButton type="button" size="xl" variant="primary" fullWidth>
+                {copied ? (
+                  <CheckIcon weight="bold" />
+                ) : (
+                  <CopyIcon weight="bold" />
+                )}
+                {copied ? "Copied" : "Copy link"}
+              </AppButton>
+            )}
+          </Copy>
 
-        <AppButton
-          size="lg"
-          type="button"
-          variant="destructive-soft"
-          onClick={cancelGift}
-          fullWidth
-        >
-          Cancel gift
-        </AppButton>
-      </div>
+          <AppButton
+            size="xl"
+            type="button"
+            variant="destructive-soft"
+            onClick={cancelGift}
+            fullWidth
+          >
+            Cancel gift
+          </AppButton>
+        </div>
+      )}
     </BaseModalDialog>
   )
 }
