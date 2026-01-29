@@ -52,8 +52,8 @@ const ActivityDock = () => {
         className={clsx(
           "relative flex flex-col-reverse hide-scrollbar p-4 border-y",
           expanded
-            ? "overflow-y-auto bg-gray-700 border-gray-600"
-            : "overflow-hidden border-b-gray-700 border-t-transparent"
+            ? "overflow-y-auto bg-white/10 border-white/15 transition-colors delay-200"
+            : "overflow-hidden border-b-white/10 border-t-transparent"
         )}
       >
         <AnimatePresence mode="popLayout" initial={false}>
