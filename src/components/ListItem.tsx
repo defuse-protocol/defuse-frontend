@@ -1,3 +1,4 @@
+import { ChevronDownIcon } from "@heroicons/react/16/solid"
 import * as Popover from "@radix-ui/react-popover"
 import { cn } from "@src/utils/cn"
 import clsx from "clsx"
@@ -34,7 +35,17 @@ function ListItem({
       )}
       data-testid={dataTestId}
     >
-      <div className="relative flex gap-3 items-center py-3">{children}</div>
+      <div className="relative flex gap-3 items-center py-3">
+        <div className="flex-1 min-w-0 flex gap-3 items-center">{children}</div>
+        {hasPopover && (
+          <ChevronDownIcon
+            className={clsx(
+              "size-5 text-gray-500 shrink-0 group-hover:text-gray-900 transition-transform duration-100",
+              isOpen && "text-gray-900 rotate-180"
+            )}
+          />
+        )}
+      </div>
 
       {isInteractive && !hasPopover && (
         <button
@@ -44,10 +55,11 @@ function ListItem({
           aria-label="Select item"
         />
       )}
+
       {hasPopover && (
         <Popover.Trigger
           type="button"
-          className="absolute z-10 inset-0 rounded-2xl"
+          className="absolute z-10 inset-0 rounded-2xl group"
           aria-label="Open menu"
         />
       )}
