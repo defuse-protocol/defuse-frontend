@@ -28,6 +28,8 @@ type SelectedTokenInputProps = {
   handleSelectToken?: () => void
   /** Token price for USD toggle functionality */
   tokenPrice?: number | null
+  /** Show loading state for token selector (e.g., while resolving correct token) */
+  tokenLoading?: boolean
 }
 
 function truncateDisplayValue(value: string, maxLength = 8): string {
@@ -67,6 +69,7 @@ const SelectedTokenInput = ({
   selectedToken,
   handleSelectToken,
   tokenPrice,
+  tokenLoading,
 }: SelectedTokenInputProps) => {
   const [isUsdMode, setIsUsdMode] = useState(false)
   const hasBalance = balance > 0n
@@ -121,7 +124,12 @@ const SelectedTokenInput = ({
             {...registration}
           />
         </div>
-        {selectedToken ? (
+        {tokenLoading ? (
+          <div className="rounded-full border border-gray-900/10 flex items-center gap-1.5 p-1 pr-3 animate-pulse">
+            <div className="size-7 rounded-full bg-gray-200" />
+            <div className="h-4 w-12 bg-gray-200 rounded" />
+          </div>
+        ) : selectedToken ? (
           <SelectAssets
             selected={selectedToken}
             handleSelect={handleSelectToken}

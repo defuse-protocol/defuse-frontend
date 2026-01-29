@@ -24,7 +24,7 @@ import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
 import { useWithdrawTrackerMachine } from "@src/providers/WithdrawTrackerMachineProvider"
 import { logger } from "@src/utils/logger"
 import { useSelector } from "@xstate/react"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import { formatUnits } from "viem"
 import { AuthGate } from "../../../../components/AuthGate"
@@ -354,7 +354,16 @@ export const WithdrawForm = ({
   }, [presetAmount, presetNetwork, presetRecipient, setValue, actorRef, token])
 
   // Track if we've already corrected the token for presetNetwork
-  const hasAttemptedTokenCorrection = useRef(false)
+  const [hasAttemptedTokenCorrection, setHasAttemptedTokenCorrection] =
+    useState(false)
+
+  // Determine if we're still waiting to determine the correct token
+  // This is true when we have a preset network, balances haven't loaded yet,
+  // and we haven't attempted the token correction yet
+  const isResolvingToken =
+    presetNetwork != null &&
+    isSupportedChainName(presetNetwork) &&
+    !hasAttemptedTokenCorrection
 
   // When balances are loaded, check if we need to switch to a token with balance
   // This handles the case where WithdrawWidget selected a token by network compatibility
@@ -364,7 +373,7 @@ export const WithdrawForm = ({
     if (
       presetNetwork == null ||
       !isSupportedChainName(presetNetwork) ||
-      hasAttemptedTokenCorrection.current
+      hasAttemptedTokenCorrection
     ) {
       return
     }
@@ -381,7 +390,7 @@ export const WithdrawForm = ({
     )
     if (currentTokenBalance != null && currentTokenBalance.amount > 0n) {
       // Current token has balance, no need to switch
-      hasAttemptedTokenCorrection.current = true
+      setHasAttemptedTokenCorrection(true)
       return
     }
 
@@ -401,7 +410,7 @@ export const WithdrawForm = ({
       return balance != null && balance.amount > 0n
     })
 
-    hasAttemptedTokenCorrection.current = true
+    setHasAttemptedTokenCorrection(true)
 
     if (tokenWithBalance != null) {
       // Switch to the token with balance
@@ -417,7 +426,14 @@ export const WithdrawForm = ({
         },
       })
     }
-  }, [presetNetwork, balances, token, tokenList, actorRef])
+  }, [
+    presetNetwork,
+    balances,
+    token,
+    tokenList,
+    actorRef,
+    hasAttemptedTokenCorrection,
+  ])
 
   const { registerWithdraw, hasActiveWithdraw } = useWithdrawTrackerMachine()
 
@@ -628,6 +644,7 @@ export const WithdrawForm = ({
               selectedToken={token}
               handleSelectToken={handleSelect}
               tokenPrice={tokenPrice}
+              tokenLoading={isResolvingToken}
               additionalInfo={
                 tokenInTransitBalance ? (
                   <TooltipNew>
