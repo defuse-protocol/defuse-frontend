@@ -28,7 +28,7 @@ export default function LoginPage() {
       <div className="max-w-md w-full flex flex-col items-start">
         <Link href="/" className="shrink-0">
           <span className="sr-only">Home</span>
-          <NearIntentsLogoIcon className="h-4" />
+          <NearIntentsLogoIcon className="h-4 text-black" />
         </Link>
 
         <h1 className="mt-10! text-2xl font-bold text-gray-900 tracking-tight">
