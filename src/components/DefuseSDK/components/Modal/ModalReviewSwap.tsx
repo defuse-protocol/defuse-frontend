@@ -7,7 +7,11 @@ import SwapRateInfo from "../../features/swap/components/SwapRateInfo"
 import usePriceImpact from "../../features/swap/hooks/usePriceImpact"
 import { useSwapRateData } from "../../features/swap/hooks/useSwapRateData"
 import type { TokenInfo } from "../../types/base"
-import { formatDisplayAmount, formatUsdAmount } from "../../utils/format"
+import {
+  formatDisplayAmount,
+  formatTokenValue,
+  formatUsdAmount,
+} from "../../utils/format"
 import { BASIS_POINTS_DENOMINATOR } from "../../utils/tokenUtils"
 import AssetComboIcon from "../Asset/AssetComboIcon"
 import { BaseModalDialog } from "./ModalDialog"
@@ -37,7 +41,7 @@ const ModalReviewSwap = ({
   usdAmountIn: number
   usdAmountOut: number
 }) => {
-  const { slippageBasisPoints } = useSwapRateData()
+  const { slippageBasisPoints, minAmountOut } = useSwapRateData()
   const priceImpact = usePriceImpact({
     amountIn: usdAmountIn,
     amountOut: usdAmountOut,
@@ -96,6 +100,18 @@ const ModalReviewSwap = ({
             }).format(slippageBasisPoints / Number(BASIS_POINTS_DENOMINATOR))}
           </dd>
         </div>
+
+        {minAmountOut && (
+          <div className="flex items-center justify-between">
+            <dt className="text-sm text-gray-500 font-medium">
+              Receive at least
+            </dt>
+            <dd className="text-sm font-semibold text-gray-900">
+              {formatTokenValue(minAmountOut.amount, minAmountOut.decimals)}{" "}
+              {tokenOut.symbol}
+            </dd>
+          </div>
+        )}
 
         {Boolean(priceImpact) && (
           <div className="flex items-center justify-between">
