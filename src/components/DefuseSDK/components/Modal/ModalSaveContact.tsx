@@ -122,7 +122,11 @@ const ModalSaveContact = ({
         setSubmitError(null)
       }}
     >
-      <form onSubmit={handleSubmit(onSubmit)} className="mt-3">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="mt-3"
+        autoComplete="off"
+      >
         <div className="space-y-2">
           {/* Name input (editable) */}
           <div>
@@ -140,10 +144,12 @@ const ModalSaveContact = ({
               <div className="flex-1">
                 <span className="sr-only">Name</span>
                 <input
-                  id="name"
+                  id="save-contact-name"
                   type="text"
                   placeholder="Enter name"
-                  autoComplete="off"
+                  autoComplete="nope"
+                  data-form-type="other"
+                  data-lpignore="true"
                   className="block w-full text-gray-900 font-semibold placeholder:text-gray-400 focus:outline-none text-base leading-none ring-0 border-none p-0"
                   {...register("name", {
                     required: "Enter a name for the contact.",

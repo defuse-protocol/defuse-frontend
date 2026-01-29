@@ -259,7 +259,11 @@ const ModalAddEditContact = ({
           </div>
         </div>
       ) : (
-        <form onSubmit={handleSubmit(onSubmit)} className="mt-3">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="mt-3"
+          autoComplete="off"
+        >
           <div className="space-y-2">
             <div>
               <label
@@ -276,10 +280,12 @@ const ModalAddEditContact = ({
                 <div className="flex-1">
                   <span className="sr-only">Name</span>
                   <input
-                    id="name"
+                    id="contact-name"
                     type="text"
                     placeholder="Enter name"
-                    autoComplete="off"
+                    autoComplete="nope"
+                    data-form-type="other"
+                    data-lpignore="true"
                     className="block w-full text-gray-900 font-semibold placeholder:text-gray-400 focus:outline-none text-base leading-none ring-0 border-none p-0"
                     {...register("name", {
                       required: "Enter the name of the contact.",
@@ -309,10 +315,12 @@ const ModalAddEditContact = ({
                 <div className="flex-1">
                   <span className="sr-only">Address</span>
                   <input
-                    id="address"
+                    id="contact-address"
                     type="text"
                     placeholder="Enter address"
-                    autoComplete="off"
+                    autoComplete="nope"
+                    data-form-type="other"
+                    data-lpignore="true"
                     className="block w-full text-gray-900 font-semibold placeholder:text-gray-400 focus:outline-none text-base leading-none ring-0 border-none p-0"
                     {...register("address", {
                       required: "Enter the address of the contact.",
