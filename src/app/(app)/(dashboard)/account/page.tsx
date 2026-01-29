@@ -9,10 +9,11 @@ import Balance from "@src/components/DefuseSDK/features/account/components/Balan
 import { useWatchHoldings } from "@src/components/DefuseSDK/features/account/hooks/useWatchHoldings"
 import { computeTotalUsdValue } from "@src/components/DefuseSDK/features/account/utils/holdingsUtils"
 import { getDefuseAssetId } from "@src/components/DefuseSDK/utils/token"
+import ListItem from "@src/components/ListItem"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useTokenList } from "@src/hooks/useTokenList"
-import { DepositIcon, SendIcon } from "@src/icons"
+import { DepositIcon, SendIcon, SwapIcon } from "@src/icons"
 import clsx from "clsx"
 import { useMemo, useState } from "react"
 
@@ -184,36 +185,45 @@ function ShieldedAccountPreview() {
       {/* Placeholder shielded assets */}
       <section className="mt-6">
         <h2 className="text-base text-gray-500 font-medium">Shielded Assets</h2>
-        <div className="mt-2 flex flex-col gap-1 opacity-50 pointer-events-none select-none">
+        <div className="mt-2 flex flex-col gap-1">
           {PLACEHOLDER_SHIELDED_ASSETS.map((asset) => (
-            <div
+            <ListItem
               key={asset.symbol}
-              className="relative flex items-center gap-3 p-3 rounded-xl bg-white border border-gray-100"
+              popoverContent={
+                <>
+                  <Button size="sm" disabled>
+                    <ShieldCheckIcon className="size-4 shrink-0" />
+                    Shielded Transfer
+                  </Button>
+                  <Button size="sm" disabled>
+                    <SwapIcon className="size-4 shrink-0" />
+                    Shielded Swap
+                  </Button>
+                </>
+              }
             >
-              <div className="size-10 rounded-full overflow-hidden bg-gray-100">
+              <div className="relative size-10 rounded-full overflow-hidden bg-gray-100">
                 <img
                   src={asset.icon}
                   alt=""
                   className="size-full object-contain"
                 />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold text-gray-900">
-                  {asset.name}
+                {/* Lock badge on icon */}
+                <div className="absolute -bottom-0.5 -right-0.5 size-4 rounded-full bg-gray-100 flex items-center justify-center">
+                  <LockClosedIcon className="size-2.5 text-gray-500" />
                 </div>
-                <div className="text-sm text-gray-500">{asset.symbol}</div>
               </div>
-              <div className="text-right">
-                <div className="text-sm font-semibold text-gray-900">
-                  {asset.value}
-                </div>
-                <div className="text-sm text-gray-500">{asset.amount}</div>
-              </div>
-              {/* Lock icon in corner */}
-              <div className="absolute top-2 right-2">
-                <LockClosedIcon className="size-3.5 text-gray-400" />
-              </div>
-            </div>
+
+              <ListItem.Content>
+                <ListItem.Title>{asset.name}</ListItem.Title>
+                <ListItem.Subtitle>{asset.symbol}</ListItem.Subtitle>
+              </ListItem.Content>
+
+              <ListItem.Content align="end">
+                <ListItem.Title>{asset.value}</ListItem.Title>
+                <ListItem.Subtitle>{asset.amount}</ListItem.Subtitle>
+              </ListItem.Content>
+            </ListItem>
           ))}
         </div>
       </section>
