@@ -346,6 +346,7 @@ const ModalSelectRecipient = ({
             loading={isValidating}
             onClear={handleClear}
             autoFocus={!selectedContact}
+            autoComplete="off"
             placeholder="Enter address manually"
             data-testid="withdraw-target-account-field"
           />
