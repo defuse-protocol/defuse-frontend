@@ -19,14 +19,15 @@ export type GiftSignedResult = {
 }
 
 export type CreateGiftIntent = (
-  payload: GiftLinkData
+  payload: GiftLinkData,
+  options?: { expiresAt?: number | null }
 ) => Promise<{ iv: string; giftId: string }>
 
 export type GenerateLink = (params: {
   secretKey: string
   message: string
   // Fallback to empty string for backwards compatibility with gifts created before IV was added
-  iv: null | string
+  iv?: null | string
 }) => string
 
 export type SavingGiftResult =

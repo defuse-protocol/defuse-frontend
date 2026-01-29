@@ -1,12 +1,13 @@
 import type { authHandle } from "@defuse-protocol/internal-utils"
+import { ArrowsRightLeftIcon } from "@heroicons/react/16/solid"
+import Button from "@src/components/Button"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { useActorRef, useSelector } from "@xstate/react"
 import clsx from "clsx"
-import { useEffect, useMemo } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import type { ActorRefFrom, PromiseActorLogic } from "xstate"
 import { AuthGate } from "../../../components/AuthGate"
 import { BlockMultiBalances } from "../../../components/Block/BlockMultiBalances"
-import { ButtonCustom } from "../../../components/Button/ButtonCustom"
 import type { ModalSelectAssetsPayload } from "../../../components/Modal/ModalSelectAssets"
 import SelectAssets from "../../../components/SelectAssets"
 import type { SignerCredentials } from "../../../core/formatters"
@@ -32,12 +33,14 @@ import type {
 } from "../actors/giftMakerSignActor"
 import { useBalanceUpdaterSyncWithHistory } from "../hooks/useBalanceUpdaterSyncWithHistory"
 import { useCheckSignerCredentials } from "../hooks/useCheckSignerCredentials"
+import { useGiftUsdMode } from "../hooks/useGiftUsdMode"
 import type {
   CreateGiftIntent,
   GenerateLink,
   SignMessage,
 } from "../types/sharedTypes"
 import { checkInsufficientBalance, getButtonText } from "../utils/makerForm"
+import { GiftExpirationInput } from "./GiftExpirationInput"
 import { GiftMakerReadyDialog } from "./GiftMakerReadyDialog"
 import { GiftMessageInput } from "./GiftMessageInput"
 import { ErrorReason } from "./shared/ErrorReason"
@@ -45,35 +48,18 @@ import { GiftDescription } from "./shared/GiftDescription"
 import { GiftHeader } from "./shared/GiftHeader"
 
 export type GiftMakerWidgetProps = {
-  /** List of available tokens for trading */
   tokenList: TokenInfo[]
-
-  /** User's wallet address */
   userAddress: authHandle.AuthHandle["identifier"] | undefined
   chainType: authHandle.AuthHandle["method"] | undefined
-
-  /** Initial tokens for pre-filling the form */
   initialToken?: TokenInfo
-
-  /** Sign message callback */
   signMessage: SignMessage
-
-  /** Send NEAR transaction callback */
   sendNearTransaction: SendNearTransaction
-
-  /** Create Gift in the database */
   createGiftIntent: CreateGiftIntent
-
-  /** Function to generate a shareable trade link */
   generateLink: GenerateLink
-
-  /** Theme selection */
   theme?: "dark" | "light"
-
-  /** Frontend referral */
   referral?: string
-
   renderHostAppLink: RenderHostAppLink
+  onSuccess?: () => void
 }
 
 const MAX_MESSAGE_LENGTH = 500
@@ -89,6 +75,7 @@ export function GiftMakerForm({
   referral,
   renderHostAppLink,
   createGiftIntent,
+  onSuccess,
 }: GiftMakerWidgetProps) {
   const signerCredentials: SignerCredentials | null = useMemo(
     () =>
@@ -118,8 +105,12 @@ export function GiftMakerForm({
   const formValuesRef = useSelector(formRef, formValuesSelector)
   const formValues = useSelector(formValuesRef, (s) => s.context)
 
+  const depositedBalanceRef = useSelector(
+    rootActorRef,
+    (s) => s.context.depositedBalanceRef
+  )
   const { tokenBalance } = useSelector(
-    useSelector(rootActorRef, (s) => s.context.depositedBalanceRef),
+    depositedBalanceRef,
     balanceAllSelector({
       tokenBalance: formValues.token,
     })
@@ -141,6 +132,29 @@ export function GiftMakerForm({
     formValues.token,
     tokensUsdPriceData
   )
+
+  const handleAmountChange = useCallback(
+    (value: string) => {
+      formValuesRef.trigger.updateAmount({ value })
+    },
+    [formValuesRef]
+  )
+
+  const {
+    isUsdMode,
+    usdValue,
+    tokenPrice,
+    handleToggle: handleToggleUsdMode,
+    handleUsdInputChange,
+    setTokenAmount,
+  } = useGiftUsdMode({
+    token: formValues.token,
+    tokenAmount: formValues.amount,
+    tokensUsdPriceData,
+    onAmountChange: handleAmountChange,
+  })
+
+  const canToggleUsd = tokenPrice != null && tokenPrice > 0
 
   const { setModalType, payload } = useModalStore((state) => state)
 
@@ -179,6 +193,13 @@ export function GiftMakerForm({
     return checkInsufficientBalance(formValues.amount, tokenBalance)
   }, [formValues.amount, tokenBalance])
 
+  const amountEmpty = useMemo(() => {
+    const amount = formValues.amount.trim()
+    if (!amount) return true
+    const num = Number.parseFloat(amount.replace(",", "."))
+    return Number.isNaN(num) || num <= 0
+  }, [formValues.amount])
+
   const editing = rootSnapshot.matches("editing")
   const processing =
     rootSnapshot.matches("signing") ||
@@ -190,70 +211,137 @@ export function GiftMakerForm({
 
   const error = rootSnapshot.context.error
 
-  const publicKeyVerifierRef = useSelector(
-    useSelector(
-      useSelector(
-        rootActorRef,
-        (state) =>
-          state.children.signRef as
-            | undefined
-            | ActorRefFrom<typeof giftMakerSignActor>
-      ),
-      (state) => {
-        if (state) {
-          return (
-            state as unknown as {
-              children: {
-                signRef: ActorRefFrom<
-                  PromiseActorLogic<
-                    GiftMakerSignActorOutput,
-                    GiftMakerSignActorInput
-                  >
-                >
-              }
-            }
-          ).children.signRef
-        }
-      }
-    ),
-    (state) => {
-      if (state) {
-        return (
-          state as unknown as {
-            children: {
-              publicKeyVerifierRef: ActorRefFrom<
-                typeof publicKeyVerifierMachine
-              >
-            }
-          }
-        ).children.publicKeyVerifierRef
-      }
-    }
+  const signRef = useSelector(
+    rootActorRef,
+    (state) =>
+      state.children.signRef as
+        | undefined
+        | ActorRefFrom<typeof giftMakerSignActor>
   )
+
+  const innerSignRef = useSelector(signRef, (state) => {
+    if (state) {
+      return (
+        state as unknown as {
+          children: {
+            signRef: ActorRefFrom<
+              PromiseActorLogic<
+                GiftMakerSignActorOutput,
+                GiftMakerSignActorInput
+              >
+            >
+          }
+        }
+      ).children.signRef
+    }
+  })
+
+  const publicKeyVerifierRef = useSelector(innerSignRef, (state) => {
+    if (state) {
+      return (
+        state as unknown as {
+          children: {
+            publicKeyVerifierRef: ActorRefFrom<typeof publicKeyVerifierMachine>
+          }
+        }
+      ).children.publicKeyVerifierRef
+    }
+  })
 
   usePublicKeyModalOpener(publicKeyVerifierRef, sendNearTransaction)
 
-  const handleSetMaxValue = async () => {
+  const handleSetMaxValue = () => {
     if (tokenBalance != null) {
-      formValuesRef.trigger.updateAmount({
-        value: formatTokenValue(tokenBalance.amount, tokenBalance.decimals),
-      })
+      setTokenAmount(
+        formatTokenValue(tokenBalance.amount, tokenBalance.decimals, {
+          fractionDigits: 6,
+        })
+      )
     }
   }
 
-  const handleSetHalfValue = async () => {
+  const handleSetHalfValue = () => {
     if (tokenBalance != null) {
-      formValuesRef.trigger.updateAmount({
-        value: formatTokenValue(
-          tokenBalance.amount / 2n,
-          tokenBalance.decimals
-        ),
-      })
+      setTokenAmount(
+        formatTokenValue(tokenBalance.amount / 2n, tokenBalance.decimals, {
+          fractionDigits: 6,
+        })
+      )
     }
   }
+
+  const [customPercent, setCustomPercent] = useState<number | null>(null)
+
+  const applyPercentToAmount = useCallback(
+    (percent: number) => {
+      if (tokenBalance != null) {
+        const amount =
+          (tokenBalance.amount * BigInt(Math.round(percent * 100))) / 10000n
+        setTokenAmount(
+          formatTokenValue(amount, tokenBalance.decimals, {
+            fractionDigits: 6,
+          })
+        )
+      }
+    },
+    [tokenBalance, setTokenAmount]
+  )
+
+  const handleSetCustomPercent = useCallback(
+    (percent: number) => {
+      setCustomPercent(percent)
+      applyPercentToAmount(percent)
+    },
+    [applyPercentToAmount]
+  )
+
+  const handleApplyCustomPercent = useCallback(() => {
+    if (customPercent != null) {
+      applyPercentToAmount(customPercent)
+    }
+  }, [customPercent, applyPercentToAmount])
 
   const balanceAmount = tokenBalance?.amount ?? 0n
   const disabled = tokenBalance?.amount === 0n
+
+  const isCustomPercentSelected = useMemo(() => {
+    if (
+      customPercent == null ||
+      !tokenBalance ||
+      tokenBalance.amount === 0n ||
+      !formValues.amount
+    ) {
+      return false
+    }
+    const expectedAmount =
+      (tokenBalance.amount * BigInt(Math.round(customPercent * 100))) / 10000n
+    const expectedFormatted = formatTokenValue(
+      expectedAmount,
+      tokenBalance.decimals,
+      { fractionDigits: 6 }
+    )
+    return formValues.amount === expectedFormatted
+  }, [customPercent, formValues.amount, tokenBalance])
+
+  const isMaxSelected = useMemo(() => {
+    if (!tokenBalance || tokenBalance.amount === 0n) return false
+    const maxFormatted = formatTokenValue(
+      tokenBalance.amount,
+      tokenBalance.decimals,
+      { fractionDigits: 6 }
+    )
+    return formValues.amount === maxFormatted
+  }, [formValues.amount, tokenBalance])
+
+  const isHalfSelected = useMemo(() => {
+    if (!tokenBalance || tokenBalance.amount === 0n) return false
+    const halfFormatted = formatTokenValue(
+      tokenBalance.amount / 2n,
+      tokenBalance.decimals,
+      { fractionDigits: 6 }
+    )
+    return formValues.amount === halfFormatted
+  }, [formValues.amount, tokenBalance])
 
   return (
     <div className="flex flex-col">
@@ -264,6 +352,7 @@ export function GiftMakerForm({
             readyGiftRef={readyGiftRef}
             generateLink={generateLink}
             signerCredentials={signerCredentials}
+            onClose={onSuccess}
           />
         )}
 
@@ -300,17 +389,28 @@ export function GiftMakerForm({
               </label>
             }
             inputSlot={
-              <TokenAmountInputCard.Input
-                id="gift-amount-in"
-                name="amount"
-                value={formValues.amount}
-                onChange={(e) =>
-                  formValuesRef.trigger.updateAmount({
-                    value: e.target.value,
-                  })
-                }
-                disabled={processing}
-              />
+              <div className="flex items-baseline gap-1">
+                {isUsdMode && (
+                  <span className="font-bold text-gray-900 text-4xl tracking-tight">
+                    $
+                  </span>
+                )}
+                <TokenAmountInputCard.Input
+                  id="gift-amount-in"
+                  name="amount"
+                  value={isUsdMode ? usdValue : formValues.amount}
+                  onChange={(e) => {
+                    if (isUsdMode) {
+                      handleUsdInputChange(e.target.value)
+                    } else {
+                      formValuesRef.trigger.updateAmount({
+                        value: e.target.value,
+                      })
+                    }
+                  }}
+                  disabled={processing}
+                />
+              </div>
             }
             tokenSlot={
               <SelectAssets
@@ -325,11 +425,15 @@ export function GiftMakerForm({
                 balance={balanceAmount}
                 decimals={tokenBalance?.decimals ?? 0}
                 className={clsx("static!", tokenBalance == null && "invisible")}
-                maxButtonSlot={
-                  <BlockMultiBalances.DisplayMaxButton
-                    onClick={handleSetMaxValue}
+                onBalanceClick={handleSetMaxValue}
+                customPercentButtonSlot={
+                  <BlockMultiBalances.DisplayCustomPercentButton
+                    onPercentChange={handleSetCustomPercent}
+                    onPercentApply={handleApplyCustomPercent}
                     balance={balanceAmount}
                     disabled={disabled}
+                    customPercent={customPercent}
+                    isSelected={isCustomPercentSelected}
                   />
                 }
                 halfButtonSlot={
@@ -337,20 +441,43 @@ export function GiftMakerForm({
                     onClick={handleSetHalfValue}
                     balance={balanceAmount}
                     disabled={disabled}
+                    selected={isHalfSelected}
+                  />
+                }
+                maxButtonSlot={
+                  <BlockMultiBalances.DisplayMaxButton
+                    onClick={handleSetMaxValue}
+                    balance={balanceAmount}
+                    disabled={disabled}
+                    selected={isMaxSelected}
                   />
                 }
               />
             }
             priceSlot={
-              <TokenAmountInputCard.DisplayPrice>
-                {usdAmount !== null && usdAmount > 0
-                  ? formatUsdAmount(usdAmount)
-                  : null}
-              </TokenAmountInputCard.DisplayPrice>
+              canToggleUsd ? (
+                <button
+                  type="button"
+                  onClick={handleToggleUsdMode}
+                  className="flex items-center gap-1.5 text-base text-gray-500 font-medium hover:text-gray-700 transition-colors"
+                >
+                  <ArrowsRightLeftIcon className="size-4" />
+                  {isUsdMode
+                    ? `${formValues.amount || "0"} ${formValues.token?.symbol ?? ""}`
+                    : formatUsdAmount(usdAmount ?? 0)}
+                </button>
+              ) : (
+                <TokenAmountInputCard.DisplayPrice>
+                  {usdAmount !== null && usdAmount > 0
+                    ? formatUsdAmount(usdAmount)
+                    : null}
+                </TokenAmountInputCard.DisplayPrice>
+              )
             }
           />
           <div className="w-full mt-4">
             <GiftMessageInput
+              hasValue={formValues.message.length > 0}
               inputSlot={
                 <GiftMessageInput.Input
                   id="gift-message"
@@ -373,21 +500,31 @@ export function GiftMakerForm({
               }
             />
           </div>
+          <div className="w-full mt-4">
+            <GiftExpirationInput
+              value={formValues.expiresAt}
+              onChange={(value) =>
+                formValuesRef.trigger.updateExpiresAt({ value })
+              }
+              disabled={processing}
+            />
+          </div>
         </div>
 
         <AuthGate
           renderHostAppLink={renderHostAppLink}
           shouldRender={isLoggedIn}
         >
-          <ButtonCustom
+          <Button
             type="submit"
-            size="lg"
-            variant={processing ? "secondary" : "primary"}
-            isLoading={processing}
-            disabled={balanceInsufficient || processing}
+            size="xl"
+            variant="primary"
+            fullWidth
+            loading={processing}
+            disabled={amountEmpty || balanceInsufficient || processing}
           >
             {getButtonText(balanceInsufficient, editing, processing)}
-          </ButtonCustom>
+          </Button>
         </AuthGate>
       </form>
       {error != null && (

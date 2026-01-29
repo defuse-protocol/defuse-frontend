@@ -1,18 +1,24 @@
 import {
-  CheckCircle,
-  Check as CheckIcon,
-  Copy as CopyIcon,
-  Eye as EyeIcon,
-  Trash as TrashIcon,
+  CheckCircleIcon,
+  CheckIcon,
+  ClockIcon,
+  CopyIcon,
+  EyeIcon,
+  PencilSimpleIcon,
+  TrashIcon,
+  WarningCircleIcon,
 } from "@phosphor-icons/react"
-import { IconButton } from "@radix-ui/themes"
+import Button from "@src/components/Button"
 import type { SignerCredentials } from "@src/components/DefuseSDK/core/formatters"
+import ListItem from "@src/components/ListItem"
 import { logger } from "@src/utils/logger"
-import { useCallback, useContext, useState } from "react"
+import { useCallback, useContext, useMemo, useState } from "react"
 import { createActor } from "xstate"
+import AssetComboIcon from "../../../../components/Asset/AssetComboIcon"
 import { Copy } from "../../../../components/IntentCard/CopyButton"
 import type { TokenValue } from "../../../../types/base"
 import { assert } from "../../../../utils/assert"
+import { formatTokenValue } from "../../../../utils/format"
 import {
   computeTotalBalanceDifferentDecimals,
   getUnderlyingBaseTokenInfos,
@@ -21,9 +27,10 @@ import { giftMakerReadyActor } from "../../actors/giftMakerReadyActor"
 import { GiftClaimActorContext } from "../../providers/GiftClaimActorProvider"
 import { giftMakerHistoryStore } from "../../stores/giftMakerHistory"
 import type { GenerateLink } from "../../types/sharedTypes"
+import { formatGiftDate } from "../../utils/formattedDate"
 import type { GiftInfo } from "../../utils/parseGiftInfos"
+import { GiftExpirationEditDialog } from "../GiftExpirationEditDialog"
 import { GiftMakerReadyDialog } from "../GiftMakerReadyDialog"
-import { GiftStrip } from "../GiftStrip"
 
 export function GiftMakerHistoryItem({
   giftInfo,
@@ -35,6 +42,8 @@ export function GiftMakerHistoryItem({
   signerCredentials: SignerCredentials
 }) {
   const [showDialog, setShowDialog] = useState(false)
+  const [showExpirationDialog, setShowExpirationDialog] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const amount = computeTotalBalanceDifferentDecimals(
     getUnderlyingBaseTokenInfos(giftInfo.token),
     giftInfo.tokenDiff,
@@ -43,112 +52,146 @@ export function GiftMakerHistoryItem({
 
   const { cancelGift } = useContext(GiftClaimActorContext)
 
-  const readyGiftRef = createActor(giftMakerReadyActor, {
-    input: {
-      giftInfo,
-      signerCredentials,
-      parsed: {
-        token: giftInfo.token,
-        amount: amount as TokenValue,
-        message: giftInfo.message,
-      },
-      iv: giftInfo.iv,
-    },
-  }).start()
+  const readyGiftRef = useMemo(
+    () =>
+      createActor(giftMakerReadyActor, {
+        input: {
+          giftInfo,
+          signerCredentials,
+          parsed: {
+            token: giftInfo.token,
+            amount: amount as TokenValue,
+            message: giftInfo.message,
+          },
+          iv: giftInfo.iv,
+        },
+      }).start(),
+    [giftInfo, signerCredentials, amount]
+  )
 
   const handleCloseDialog = useCallback(() => {
     setShowDialog(false)
   }, [])
 
+  const handleCloseExpirationDialog = useCallback(() => {
+    setShowExpirationDialog(false)
+  }, [])
+
+  const isExpired =
+    giftInfo.expiresAt != null && giftInfo.expiresAt < Date.now()
+
   const cancellationOrRemoval = useCallback(async () => {
-    if (giftInfo.status === "claimed") {
-      await removeClaimedGiftFromStore({ giftInfo, signerCredentials })
-    } else {
-      await cancelGift({ giftInfo, signerCredentials })
+    setIsDeleting(true)
+    try {
+      if (giftInfo.status === "claimed") {
+        await removeClaimedGiftFromStore({ giftInfo, signerCredentials })
+      } else {
+        await cancelGift({ giftInfo, signerCredentials })
+      }
+    } catch (err) {
+      logger.error(new Error("Failed to cancel/remove gift", { cause: err }))
+    } finally {
+      setIsDeleting(false)
     }
   }, [giftInfo, signerCredentials, cancelGift])
 
+  const popoverContent = (
+    <>
+      {giftInfo.status === "pending" && (
+        <>
+          <Button size="sm" onClick={() => setShowDialog(true)}>
+            <EyeIcon weight="bold" className="size-4" />
+            View
+          </Button>
+          <Button size="sm" onClick={() => setShowExpirationDialog(true)}>
+            <PencilSimpleIcon weight="bold" className="size-4" />
+            Edit
+          </Button>
+          <Copy
+            text={() =>
+              generateLink({
+                secretKey: giftInfo.secretKey,
+                message: giftInfo.message,
+                iv: giftInfo.iv,
+              })
+            }
+          >
+            {(copied) => (
+              <Button size="sm">
+                {copied ? (
+                  <CheckIcon weight="bold" className="size-4" />
+                ) : (
+                  <CopyIcon weight="bold" className="size-4" />
+                )}
+                {copied ? "Copied" : "Copy"}
+              </Button>
+            )}
+          </Copy>
+        </>
+      )}
+      <Button size="sm" onClick={cancellationOrRemoval} disabled={isDeleting}>
+        <TrashIcon weight="bold" className="size-4" />
+        {isDeleting
+          ? "..."
+          : giftInfo.status === "claimed"
+            ? "Remove"
+            : "Cancel"}
+      </Button>
+    </>
+  )
+
   return (
     <>
-      <div className="py-2.5 flex items-center justify-between gap-2.5">
-        {amount != null && (
-          <GiftStrip
-            token={giftInfo.token}
-            amountSlot={
-              <GiftStrip.Amount
-                token={giftInfo.token}
-                amount={amount}
-                className="text-gray-12"
-              />
-            }
-            dateSlot={<GiftStrip.Date updatedAt={giftInfo.updatedAt} />}
-          />
-        )}
-        <div className="flex gap-2 items-center">
-          {giftInfo.status === "pending" && (
-            <>
-              <IconButton
-                type="button"
-                variant="outline"
-                color="gray"
-                className="rounded-lg"
-                onClick={() => setShowDialog(true)}
-              >
-                <EyeIcon weight="bold" />
-              </IconButton>
-              <Copy
-                text={() =>
-                  generateLink({
-                    secretKey: giftInfo.secretKey,
-                    message: giftInfo.message,
-                    iv: giftInfo.iv,
-                  })
-                }
-              >
-                {(copied) => (
-                  <IconButton
-                    type="button"
-                    variant="outline"
-                    color="gray"
-                    className="rounded-lg"
-                  >
-                    <div className="flex gap-2 items-center">
-                      {copied ? (
-                        <CheckIcon weight="bold" />
-                      ) : (
-                        <CopyIcon weight="bold" />
-                      )}
-                    </div>
-                  </IconButton>
-                )}
-              </Copy>
-            </>
-          )}
-          {giftInfo.status === "claimed" && (
-            <div className="flex gap-1 items-center">
-              <CheckCircle width={12} height={12} className="text-accent-11" />
-              <span className="text-xs font-medium text-accent-11">
-                Claimed
-              </span>
+      <ListItem popoverContent={popoverContent}>
+        <AssetComboIcon {...giftInfo.token} />
+        <ListItem.Content>
+          <ListItem.Title>
+            {amount != null &&
+              `${formatTokenValue(amount.amount, amount.decimals, { fractionDigits: 6 })} ${giftInfo.token.symbol}`}
+          </ListItem.Title>
+          <ListItem.Subtitle>
+            {formatGiftDate(giftInfo.updatedAt)}
+          </ListItem.Subtitle>
+        </ListItem.Content>
+        <ListItem.Content align="end">
+          {giftInfo.status === "claimed" ? (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700">
+              <CheckCircleIcon weight="fill" className="size-3.5" />
+              <span className="text-xs font-semibold">Claimed</span>
+            </div>
+          ) : isExpired ? (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-100 text-red-700">
+              <WarningCircleIcon weight="bold" className="size-3.5" />
+              <span className="text-xs font-semibold">Expired</span>
+            </div>
+          ) : (
+            <div className="flex flex-col items-end gap-1">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">
+                <ClockIcon weight="bold" className="size-3.5" />
+                <span className="text-xs font-semibold">Not revealed</span>
+              </div>
+              {giftInfo.expiresAt != null && (
+                <span className="text-[10px] text-gray-400">
+                  Expires {formatGiftDate(giftInfo.expiresAt)}
+                </span>
+              )}
             </div>
           )}
-          <IconButton
-            type="button"
-            onClick={cancellationOrRemoval}
-            variant="outline"
-            color="gray"
-            className="rounded-lg"
-          >
-            <TrashIcon weight="bold" />
-          </IconButton>
-        </div>
-      </div>
+        </ListItem.Content>
+      </ListItem>
       {showDialog && (
         <GiftMakerReadyDialog
           readyGiftRef={readyGiftRef}
           generateLink={generateLink}
           signerCredentials={signerCredentials}
           onClose={handleCloseDialog}
+        />
+      )}
+      {showExpirationDialog && (
+        <GiftExpirationEditDialog
+          giftInfo={giftInfo}
+          signerCredentials={signerCredentials}
+          onClose={handleCloseExpirationDialog}
         />
       )}
     </>

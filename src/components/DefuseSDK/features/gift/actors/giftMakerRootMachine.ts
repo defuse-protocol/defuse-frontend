@@ -144,10 +144,13 @@ export const giftMakerRootMachine = setup({
           const giftInfo = assembleGiftInfo(input)
 
           // Create a record and generate an IV
-          const { iv, giftId } = await input.createGiftIntent({
-            secretKey: giftInfo.secretKey,
-            message: giftInfo.message,
-          })
+          const { iv, giftId } = await input.createGiftIntent(
+            {
+              secretKey: giftInfo.secretKey,
+              message: giftInfo.message,
+            },
+            { expiresAt: giftInfo.expiresAt }
+          )
 
           const result = await giftMakerHistoryStore.getState().addGift(
             {
@@ -268,6 +271,9 @@ export const giftMakerRootMachine = setup({
     clearIV: assign({
       iv: null,
     }),
+    resetForm: ({ context }) => {
+      context.formRef.getSnapshot().context.formValues.trigger.reset()
+    },
   },
   guards: {
     isOk: (_, params: { tag: "ok" | "err" }) => params.tag === "ok",
@@ -583,7 +589,7 @@ export const giftMakerRootMachine = setup({
         onDone: [
           {
             target: "editing",
-            actions: "sendToDepositedBalanceRefRefresh",
+            actions: ["sendToDepositedBalanceRefRefresh", "resetForm"],
             guard: { type: "isOk", params: ({ event }) => event.output },
           },
           {

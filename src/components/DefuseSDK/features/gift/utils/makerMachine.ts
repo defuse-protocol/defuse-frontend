@@ -31,6 +31,7 @@ export function assembleGiftInfo(
     secretKey: context.escrowCredentials.secretKey,
     accountId: context.escrowCredentials.credential,
     message: parsedValues.message,
+    expiresAt: parsedValues.expiresAt,
   }
 }
 

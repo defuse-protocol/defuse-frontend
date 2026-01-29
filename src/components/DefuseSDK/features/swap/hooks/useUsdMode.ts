@@ -1,36 +1,12 @@
 import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import type { TokenUsdPriceData } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
-import {
-  isBaseToken,
-  isUnifiedToken,
-} from "@src/components/DefuseSDK/utils/token"
+import { getTokenPrice } from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
 import { useCallback, useEffect, useState } from "react"
 import type { UseFormSetValue } from "react-hook-form"
 import type { ActorRefFrom } from "xstate"
 import type { swapUIMachine } from "../../machines/swapUIMachine"
 import type { SwapFormValues } from "../components/SwapForm"
-
-function getTokenPrice(
-  token: TokenInfo | null,
-  priceData?: TokenUsdPriceData
-): number | null {
-  if (!priceData || !token) return null
-
-  if (isBaseToken(token) && priceData[token.defuseAssetId]) {
-    return priceData[token.defuseAssetId].price
-  }
-
-  if (isUnifiedToken(token)) {
-    for (const grouped of token.groupedTokens) {
-      if (isBaseToken(grouped) && priceData[grouped.defuseAssetId]) {
-        return priceData[grouped.defuseAssetId].price
-      }
-    }
-  }
-
-  return null
-}
 
 type UsdModeDirection = "input" | "output"
 
