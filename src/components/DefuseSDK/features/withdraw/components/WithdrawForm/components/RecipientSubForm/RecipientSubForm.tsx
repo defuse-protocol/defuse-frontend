@@ -14,6 +14,7 @@ import { WalletIcon } from "@src/icons"
 import { useQuery } from "@tanstack/react-query"
 import { useSelector } from "@xstate/react"
 import clsx from "clsx"
+import { useRouter } from "next/navigation"
 import { type ReactNode, useEffect, useState } from "react"
 import type { UseFormReturn } from "react-hook-form"
 import { Controller } from "react-hook-form"
@@ -82,6 +83,7 @@ export const RecipientSubForm = ({
   noTokenForPresetNetwork,
   onContactChange,
 }: RecipientSubFormProps) => {
+  const router = useRouter()
   const [modalType, setModalType] = useState<"network" | "recipient" | null>(
     null
   )
@@ -412,6 +414,8 @@ export const RecipientSubForm = ({
           setRecipientMode("address")
           setSelectedContact(null)
           setValue("recipient", "")
+          // Clear contact-related URL params to prevent re-applying on refresh
+          router.replace("/send", { scroll: false })
         }}
       />
 
