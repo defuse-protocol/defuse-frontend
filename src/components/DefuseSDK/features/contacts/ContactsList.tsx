@@ -1,10 +1,12 @@
 "use client"
 import { PencilSquareIcon, XCircleIcon } from "@heroicons/react/16/solid"
-import { MagnifyingGlassIcon } from "@heroicons/react/20/solid"
+import { PlusIcon } from "@heroicons/react/20/solid"
 import type { Contact } from "@src/app/(app)/(auth)/contacts/actions"
 import Button from "@src/components/Button"
 import ModalAddEditContact from "@src/components/DefuseSDK/components/Modal/ModalAddEditContact"
+import ModalNoResults from "@src/components/DefuseSDK/components/Modal/ModalNoResults"
 import { NetworkIcon } from "@src/components/DefuseSDK/components/Network/NetworkIcon"
+import SearchBar from "@src/components/DefuseSDK/components/SearchBar"
 import { chainIcons } from "@src/components/DefuseSDK/constants/blockchains"
 import {
   chainNameToNetworkName,
@@ -12,25 +14,35 @@ import {
 } from "@src/components/DefuseSDK/features/withdraw/components/WithdrawForm/utils"
 import { stringToColor } from "@src/components/DefuseSDK/utils/stringToColor"
 import ListItem from "@src/components/ListItem"
+import ListItemsSkeleton from "@src/components/ListItemsSkeleton"
 import { SendIcon, WalletIcon } from "@src/icons"
 import { useRouter } from "next/navigation"
-import { useMemo, useState } from "react"
+import { useMemo, useState, useTransition } from "react"
 import ModalRemoveContact from "../../components/Modal/ModalRemoveContact"
 import { reverseAssetNetworkAdapter } from "../../utils/adapters"
 
-type ModalType = "edit" | "remove"
+type ModalType = "create" | "edit" | "remove"
 
-const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
+const ContactsList = ({
+  contacts,
+  search,
+}: {
+  contacts: Contact[]
+  search: string | undefined
+}) => {
   const router = useRouter()
   const [modalOpen, setModalOpen] = useState<ModalType | null>(null)
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
+  const [isPending, startTransition] = useTransition()
+  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout>()
+  const isSearching = Boolean(timeoutId || isPending)
 
   const handleOpenModal = ({
     type,
     contact,
   }: {
     type: ModalType
-    contact: Contact
+    contact: Contact | null
   }) => {
     setModalOpen(type)
     setSelectedContact(contact)
@@ -47,87 +59,144 @@ const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
     [contacts]
   )
 
-  if (contacts.length === 0) {
-    return (
-      <section className="mt-6 flex flex-col items-center justify-center pt-6">
-        <div
-          className="size-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600"
-          aria-hidden
-        >
-          <MagnifyingGlassIcon className="size-5" />
-        </div>
-        <h3 className="font-semibold text-base text-gray-900 mt-4">
-          No contacts found
-        </h3>
-        <Button
-          size="md"
-          onClick={() => router.push("/contacts")}
-          className="mt-4"
-        >
-          Clear search
-        </Button>
-      </section>
-    )
-  }
+  const hasSearchQuery = Boolean(search)
+  const hasNoContacts = contacts.length === 0
+  const isAddEditModalOpen = modalOpen === "edit" || modalOpen === "create"
 
   return (
     <>
-      <section className="mt-6 space-y-1">
-        {processedContacts.map(({ contact, chainIcon, chainName }) => {
-          const contactColor = stringToColor(
-            `${contact.name}${contact.address}${contact.blockchain}`
-          )
+      <h1 className="text-gray-900 text-xl font-semibold tracking-tight">
+        Contacts
+      </h1>
 
-          return (
-            <ListItem
-              key={contact.id}
-              dropdownMenuItems={[
-                { label: "Send", href: "/send", icon: SendIcon },
-                {
-                  label: "Edit",
-                  onClick: () => handleOpenModal({ type: "edit", contact }),
-                  icon: PencilSquareIcon,
-                },
-                {
-                  label: "Remove",
-                  onClick: () => handleOpenModal({ type: "remove", contact }),
-                  icon: XCircleIcon,
-                },
-              ]}
+      {(!hasNoContacts || hasSearchQuery) && (
+        <div className="mt-6 flex items-center gap-1">
+          <SearchBar
+            key={search ?? ""}
+            defaultValue={search}
+            loading={isSearching}
+            onChange={(event) => {
+              clearTimeout(timeoutId)
+
+              const id = setTimeout(() => {
+                startTransition(() => {
+                  if (event.target.value) {
+                    router.push(`/contacts?search=${event.target.value}`)
+                  } else {
+                    router.push("/contacts")
+                  }
+
+                  setTimeoutId(undefined)
+                })
+              }, 500)
+
+              setTimeoutId(id)
+            }}
+            onClear={() => router.push("/contacts")}
+            placeholder="Search name or address"
+            className="flex-1"
+          />
+          <Button
+            size="lg"
+            variant="primary"
+            onClick={() => handleOpenModal({ type: "create", contact: null })}
+          >
+            <PlusIcon className="size-4" />
+            Create contact
+          </Button>
+        </div>
+      )}
+
+      {hasNoContacts && !hasSearchQuery && (
+        <section className="mt-9">
+          <ListItemsSkeleton count={3} className="mt-2" />
+          <div className="max-w-72 mx-auto -mt-5 relative flex flex-col items-center">
+            <h3 className="text-xl font-semibold text-gray-900 text-center tracking-tight">
+              No contacts yet
+            </h3>
+            <p className="text-base text-gray-500 mt-1 font-medium text-center text-balance">
+              Add a contact to get started.
+            </p>
+            <Button
+              size="xl"
+              onClick={() => handleOpenModal({ type: "create", contact: null })}
+              className="mt-4"
             >
-              <div
-                className="size-10 rounded-full flex items-center justify-center shrink-0 outline-1 -outline-offset-1 outline-gray-900/10"
-                style={{ backgroundColor: contactColor.background }}
+              <PlusIcon className="size-5 shrink-0" />
+              Add contact
+            </Button>
+          </div>
+        </section>
+      )}
+
+      {hasNoContacts && hasSearchQuery && (
+        <div className="pt-8">
+          <ModalNoResults
+            text="No contacts found"
+            handleSearchClear={() => router.push("/contacts")}
+          />
+        </div>
+      )}
+
+      {!hasNoContacts && (
+        <section className="mt-6 space-y-1">
+          {processedContacts.map(({ contact, chainIcon, chainName }) => {
+            const contactColor = stringToColor(
+              `${contact.name}${contact.address}${contact.blockchain}`
+            )
+            return (
+              <ListItem
+                key={contact.id}
+                dropdownMenuItems={[
+                  { label: "Send", href: "/send", icon: SendIcon },
+                  {
+                    label: "Edit",
+                    onClick: () => handleOpenModal({ type: "edit", contact }),
+                    icon: PencilSquareIcon,
+                  },
+                  {
+                    label: "Remove",
+                    onClick: () => handleOpenModal({ type: "remove", contact }),
+                    icon: XCircleIcon,
+                  },
+                ]}
               >
-                <WalletIcon
-                  className="size-5"
-                  style={{ color: contactColor.icon }}
-                />
-              </div>
-              <ListItem.Content>
-                <ListItem.Title className="truncate">
-                  {contact.name}
-                </ListItem.Title>
-                <ListItem.Subtitle>
-                  {midTruncate(contact.address)}
-                </ListItem.Subtitle>
-              </ListItem.Content>
-              <ListItem.Content align="end">
-                <ListItem.Title className="flex items-center gap-1">
-                  <NetworkIcon chainIcon={chainIcon} sizeClassName="size-4" />
-                  <span className="capitalize">{chainName}</span>
-                </ListItem.Title>
-                <div className="h-4" />
-              </ListItem.Content>
-            </ListItem>
-          )
-        })}
-      </section>
+                <div
+                  className="size-10 rounded-full bg-gray-200 flex items-center justify-center shrink-0 outline-1 -outline-offset-1 outline-gray-900/10"
+                  style={{ backgroundColor: contactColor.background }}
+                >
+                  <WalletIcon
+                    className="size-5 text-gray-500"
+                    style={{ color: contactColor.icon }}
+                  />
+                </div>
+                <ListItem.Content>
+                  <ListItem.Title className="truncate">
+                    {contact.name}
+                  </ListItem.Title>
+                  <ListItem.Subtitle>
+                    {midTruncate(contact.address)}
+                  </ListItem.Subtitle>
+                </ListItem.Content>
+                <ListItem.Content align="end">
+                  <ListItem.Title className="flex items-center gap-1">
+                    <NetworkIcon chainIcon={chainIcon} sizeClassName="size-4" />
+                    <span className="capitalize">{chainName}</span>
+                  </ListItem.Title>
+                  <div className="h-4" />
+                </ListItem.Content>
+              </ListItem>
+            )
+          })}
+        </section>
+      )}
 
       <ModalAddEditContact
-        open={modalOpen === "edit"}
-        contact={selectedContact}
-        onClose={() => setModalOpen(null)}
+        open={isAddEditModalOpen}
+        contact={selectedContact ?? null}
+        onClose={() => {
+          setModalOpen(null)
+        }}
         onCloseAnimationEnd={() => setSelectedContact(null)}
       />
       <ModalRemoveContact
