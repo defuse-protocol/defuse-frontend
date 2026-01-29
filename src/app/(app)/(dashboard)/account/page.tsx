@@ -248,11 +248,11 @@ function ShieldedAccountPreview() {
                 <>
                   <Button size="sm">
                     <SendIcon className="size-4 shrink-0" />
-                    Send
+                    Shielded Transfer
                   </Button>
                   <Button size="sm">
                     <SwapIcon className="size-4 shrink-0" />
-                    Swap
+                    Shielded Swap
                   </Button>
                 </>
               }
