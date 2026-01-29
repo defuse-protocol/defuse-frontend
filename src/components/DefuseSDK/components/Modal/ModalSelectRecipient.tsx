@@ -310,13 +310,14 @@ const ModalSelectRecipient = ({
         // Keep input if user selected an address so they can reopen and save as contact
         if (!closedBySelection) {
           handleClear()
+          // If the contact was deselected and user dismissed without selecting,
+          // notify parent to clear the contact
+          if (wasDeselected) {
+            onDeselectContact?.()
+          }
         }
         setClosedBySelection(false)
-        // If the contact was deselected during this modal session, notify parent
-        if (wasDeselected) {
-          onDeselectContact?.()
-          setWasDeselected(false)
-        }
+        setWasDeselected(false)
       }}
     >
       <div className="mt-2 max-h-[580px] min-h-80 flex flex-col">
