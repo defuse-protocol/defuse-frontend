@@ -206,7 +206,11 @@ export async function createContact(input: {
       address: data.output.address,
       blockchain,
     })
-    return { ok: false, error: "Contact already exists" }
+    return {
+      ok: false,
+      error:
+        "A contact with this network and address combination already exists.",
+    }
   }
 
   const entity = await createContactRepository({
