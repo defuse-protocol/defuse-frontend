@@ -353,27 +353,27 @@ export const WithdrawForm = ({
     }
   }, [presetAmount, presetNetwork, presetRecipient, setValue, actorRef, token])
 
-  // Track if we've already corrected the token for presetNetwork
-  const [hasAttemptedTokenCorrection, setHasAttemptedTokenCorrection] =
-    useState(false)
+  // Track the resolved token for presetNetwork (null = not yet resolved)
+  const [resolvedTokenSymbol, setResolvedTokenSymbol] = useState<string | null>(
+    null
+  )
 
   // Determine if we're still waiting to determine the correct token
-  // This is true when we have a preset network, balances haven't loaded yet,
-  // and we haven't attempted the token correction yet
+  // Show loading until we've resolved which token to show
   const isResolvingToken =
     presetNetwork != null &&
     isSupportedChainName(presetNetwork) &&
-    !hasAttemptedTokenCorrection
+    resolvedTokenSymbol === null
 
   // When balances are loaded, check if we need to switch to a token with balance
   // This handles the case where WithdrawWidget selected a token by network compatibility
   // but that token has no balance - we want to switch to one with balance instead
   useEffect(() => {
-    // Only run if we have a preset network and haven't already corrected
+    // Only run if we have a preset network and haven't already resolved
     if (
       presetNetwork == null ||
       !isSupportedChainName(presetNetwork) ||
-      hasAttemptedTokenCorrection
+      resolvedTokenSymbol !== null
     ) {
       return
     }
@@ -389,8 +389,8 @@ export const WithdrawForm = ({
       balances
     )
     if (currentTokenBalance != null && currentTokenBalance.amount > 0n) {
-      // Current token has balance, no need to switch
-      setHasAttemptedTokenCorrection(true)
+      // Current token has balance, no need to switch - mark as resolved
+      setResolvedTokenSymbol(token.symbol)
       return
     }
 
@@ -410,8 +410,6 @@ export const WithdrawForm = ({
       return balance != null && balance.amount > 0n
     })
 
-    setHasAttemptedTokenCorrection(true)
-
     if (tokenWithBalance != null) {
       // Switch to the token with balance
       const parsedAmount = {
@@ -425,15 +423,13 @@ export const WithdrawForm = ({
           parsedAmount: parsedAmount,
         },
       })
+      // Mark as resolved with the NEW token symbol
+      setResolvedTokenSymbol(tokenWithBalance.symbol)
+    } else {
+      // No token with balance found, just show the current token
+      setResolvedTokenSymbol(token.symbol)
     }
-  }, [
-    presetNetwork,
-    balances,
-    token,
-    tokenList,
-    actorRef,
-    hasAttemptedTokenCorrection,
-  ])
+  }, [presetNetwork, balances, token, tokenList, actorRef, resolvedTokenSymbol])
 
   const { registerWithdraw, hasActiveWithdraw } = useWithdrawTrackerMachine()
 
