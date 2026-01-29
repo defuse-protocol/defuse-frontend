@@ -359,11 +359,12 @@ export const WithdrawForm = ({
   )
 
   // Determine if we're still waiting to determine the correct token
-  // Show loading until we've resolved which token to show
+  // Show loading until we've resolved which token to show AND the current token matches
+  // (the state machine update is async, so we need to wait for it to complete)
   const isResolvingToken =
     presetNetwork != null &&
     isSupportedChainName(presetNetwork) &&
-    resolvedTokenSymbol === null
+    (resolvedTokenSymbol === null || resolvedTokenSymbol !== token.symbol)
 
   // When balances are loaded, check if we need to switch to a token with balance
   // This handles the case where WithdrawWidget selected a token by network compatibility
