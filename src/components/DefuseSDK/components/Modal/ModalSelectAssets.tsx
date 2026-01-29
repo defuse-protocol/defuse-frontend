@@ -175,32 +175,30 @@ export function ModalSelectAssets() {
     }
     setNotFilteredAssetList(getAssetList)
 
-    // Put tokens with balance on top
+    // Sort tokens: enabled first, then by USD value, then by balance
     getAssetList.sort((a, b) => {
-      if (a.value == null && b.value == null) {
-        return 0
+      // 1. Put enabled (non-disabled) tokens first
+      if (a.disabled !== b.disabled) {
+        return a.disabled ? 1 : -1
       }
-      if (a.value == null) {
-        return 1
-      }
-      if (b.value == null) {
-        return -1
-      }
-      return compareAmounts(b.value, a.value)
-    })
 
-    // Put tokens with usdValue on top
-    getAssetList.sort((a, b) => {
-      if (a.usdValue == null && b.usdValue == null) {
-        return 0
+      // 2. Sort by USD value (descending)
+      if (a.usdValue != null || b.usdValue != null) {
+        if (a.usdValue == null) return 1
+        if (b.usdValue == null) return -1
+        if (a.usdValue !== b.usdValue) {
+          return b.usdValue - a.usdValue
+        }
       }
-      if (a.usdValue == null) {
-        return 1
+
+      // 3. Sort by balance (descending)
+      if (a.value != null || b.value != null) {
+        if (a.value == null) return 1
+        if (b.value == null) return -1
+        return compareAmounts(b.value, a.value)
       }
-      if (b.usdValue == null) {
-        return -1
-      }
-      return b.usdValue - a.usdValue
+
+      return 0
     })
 
     setAssetList(getAssetList)
