@@ -196,11 +196,7 @@ export default function ActivityPage({
           fromToken?.symbol.toLowerCase().includes(searchLower) ||
           toToken?.symbol.toLowerCase().includes(searchLower) ||
           fromToken?.name?.toLowerCase().includes(searchLower) ||
-          toToken?.name?.toLowerCase().includes(searchLower) ||
-          tx.from.token_id.toLowerCase().includes(searchLower) ||
-          tx.to.token_id.toLowerCase().includes(searchLower) ||
-          tx.transaction_hash.toLowerCase().includes(searchLower) ||
-          tx.deposit_address.toLowerCase().includes(searchLower)
+          toToken?.name?.toLowerCase().includes(searchLower)
         )
       })
     }
