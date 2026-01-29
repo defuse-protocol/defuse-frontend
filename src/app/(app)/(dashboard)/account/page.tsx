@@ -62,51 +62,37 @@ export default function AccountPage() {
           type="button"
           onClick={() => setAccountType("main")}
           className={clsx(
-            "relative rounded-2xl p-4 text-left transition-all",
+            "relative rounded-2xl px-4 py-3 text-left transition-all flex items-center gap-2",
             accountType === "main"
               ? "bg-white ring-2 ring-gray-900"
               : "bg-gray-100 hover:bg-gray-200"
           )}
         >
+          <span className="text-sm font-semibold text-gray-900">
+            Main Account
+          </span>
           {accountType === "main" && (
-            <div className="absolute top-3 right-3 size-5 rounded-full bg-gray-900 flex items-center justify-center">
-              <CheckIcon className="size-3 text-white" />
-            </div>
+            <CheckIcon className="size-4 text-gray-900" />
           )}
-          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-            Main
-          </div>
-          <div className="mt-1 text-lg font-bold text-gray-900">
-            {totalValueUsd !== undefined
-              ? `$${totalValueUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-              : "—"}
-          </div>
         </button>
 
         <button
           type="button"
           onClick={() => setAccountType("shielded")}
           className={clsx(
-            "relative rounded-2xl p-4 text-left transition-all",
+            "relative rounded-2xl px-4 py-3 text-left transition-all flex items-center gap-2",
             accountType === "shielded"
               ? "bg-white ring-2 ring-gray-900"
               : "bg-gray-100 hover:bg-gray-200"
           )}
         >
+          <ShieldCheckIcon className="size-4 text-gray-500" />
+          <span className="text-sm font-semibold text-gray-900">
+            Shielded Account
+          </span>
           {accountType === "shielded" && (
-            <div className="absolute top-3 right-3 size-5 rounded-full bg-gray-900 flex items-center justify-center">
-              <CheckIcon className="size-3 text-white" />
-            </div>
+            <CheckIcon className="size-4 text-gray-900" />
           )}
-          <div className="flex items-center gap-1.5">
-            <ShieldCheckIcon className="size-4 text-gray-500" />
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-              Shielded
-            </span>
-          </div>
-          <div className="mt-1 text-lg font-bold text-gray-400">
-            Coming Soon
-          </div>
         </button>
       </div>
 
