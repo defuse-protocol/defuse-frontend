@@ -252,7 +252,6 @@ export function EarnSwapForm({
   return (
     <>
       <TokenInputCard
-        label={mode === "deposit" ? "Amount" : "Withdraw"}
         balance={balanceAmountIn}
         decimals={tokenInBalance?.decimals ?? 6}
         symbol={inputToken.symbol}
