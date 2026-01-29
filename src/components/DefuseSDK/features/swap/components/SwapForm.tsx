@@ -32,6 +32,7 @@ import {
 } from "../../machines/depositedBalanceMachine"
 import type { swapUIMachine } from "../../machines/swapUIMachine"
 import { useUsdMode } from "../hooks/useUsdMode"
+import { SwapQuoteInfo } from "./SwapQuoteInfo"
 import SwapSettings from "./SwapSettings"
 import { SwapSubmitterContext } from "./SwapSubmitter"
 import { SwapUIMachineContext } from "./SwapUIMachineProvider"
@@ -496,6 +497,8 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               readOnly
             />
           </div>
+
+          <SwapQuoteInfo tokenIn={tokenIn} tokenOut={tokenOut} />
 
           <AuthGate
             renderHostAppLink={renderHostAppLink}
