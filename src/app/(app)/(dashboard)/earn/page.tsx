@@ -62,7 +62,7 @@ function VaultCard({
         </span>
       </div>
 
-      <div className="flex gap-2 mt-auto pt-2">
+      <div className="flex flex-col gap-2 mt-auto pt-2">
         <Button variant="primary" size="sm" fullWidth>
           Deposit
         </Button>
