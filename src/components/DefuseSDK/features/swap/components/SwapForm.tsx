@@ -375,7 +375,24 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
   return (
     <>
-      <PageHeader title="Swap">
+      <PageHeader
+        title="Swap"
+        intro={
+          <>
+            <p>
+              NEAR Intents is the most exciting swapping technology to have
+              emerged in recent years. Here, you can swap anything to almost
+              anything else. BTC to ETH? No problem. ETH to ZEC? No problem. ZEC
+              to SOL? No problem.
+            </p>
+            <p>
+              Fast and cheap! Swapping between assets in your account happen
+              within a couple of seconds, as competing "Solvers" compete to give
+              you the best price, every time!
+            </p>
+          </>
+        }
+      >
         <SwapSettings tokenIn={tokenIn} tokenOut={tokenOut} />
       </PageHeader>
 

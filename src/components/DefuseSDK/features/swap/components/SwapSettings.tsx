@@ -37,7 +37,7 @@ const SwapSettings = ({ tokenOut, tokenIn }: SwapSettingsProps) => {
     <button
       type="button"
       onClick={handleOpenSlippageSettings}
-      className="size-9 flex items-center justify-center text-gray-500 hover:text-gray-900 transition-colors bg-transparent hover:bg-gray-100 rounded-lg"
+      className="size-9 flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors bg-transparent hover:bg-gray-100 rounded-lg"
       aria-label="Open slippage settings"
     >
       <Cog6ToothIcon className="size-5" />
