@@ -5,25 +5,25 @@ const PLACEHOLDER_VAULTS = [
     token: "USDC",
     icon: "https://assets.coingecko.com/coins/images/6319/large/usdc.png",
     apr: "8.2%",
-    balance: "0.00",
+    balance: "12,300",
   },
   {
     token: "ETH",
     icon: "https://assets.coingecko.com/coins/images/279/large/ethereum.png",
     apr: "4.5%",
-    balance: "0.00",
+    balance: "4.2",
   },
   {
     token: "BTC",
     icon: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png",
     apr: "2.1%",
-    balance: "0.00",
+    balance: "0.54",
   },
   {
     token: "NEAR",
     icon: "https://assets.coingecko.com/coins/images/10365/large/near.jpg",
     apr: "6.8%",
-    balance: "0.00",
+    balance: "4,200",
   },
 ]
 
@@ -62,11 +62,11 @@ function VaultCard({
         </span>
       </div>
 
-      <div className="flex gap-2 mt-auto">
-        <Button variant="primary" size="md" fullWidth>
+      <div className="flex gap-2 mt-auto pt-2">
+        <Button variant="primary" size="sm" fullWidth>
           Deposit
         </Button>
-        <Button variant="outline" size="md" fullWidth>
+        <Button variant="outline" size="sm" fullWidth>
           Withdraw
         </Button>
       </div>
@@ -79,22 +79,17 @@ export default function EarnPage() {
     <>
       <h1 className="text-gray-900 text-xl font-bold tracking-tight">Earn</h1>
 
-      <div className="mt-6 relative">
-        {/* Coming Soon Overlay */}
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/60 backdrop-blur-[2px] rounded-2xl">
-          <div className="text-center px-6 py-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Coming Soon
-            </h2>
-            <p className="text-gray-600 max-w-sm">
-              Earn yield on your crypto assets by depositing into vaults.
-              Multiple strategies, competitive rates.
-            </p>
-          </div>
-        </div>
+      {/* Coming Soon Banner */}
+      <div className="mt-6 mb-4 text-center py-6 px-4 bg-gray-50 rounded-2xl border border-gray-200">
+        <h2 className="text-xl font-bold text-gray-900 mb-1">Coming Soon</h2>
+        <p className="text-gray-600 text-sm">
+          Put your idle assets to work. No lockups. Withdraw anytime.
+        </p>
+      </div>
 
-        {/* Dimmed Vault Cards Preview */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 opacity-50 pointer-events-none select-none">
+      {/* Dimmed Vault Cards Preview */}
+      <div className="relative">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 opacity-40 pointer-events-none select-none">
           {PLACEHOLDER_VAULTS.map((vault) => (
             <VaultCard key={vault.token} {...vault} />
           ))}
