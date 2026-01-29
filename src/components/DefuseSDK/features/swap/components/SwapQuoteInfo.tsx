@@ -93,7 +93,12 @@ export function SwapQuoteInfo({ tokenOut, tokenIn }: SwapQuoteInfoProps) {
       <BaseModalDialog
         open={isInfoOpen}
         onClose={() => setIsInfoOpen(false)}
-        title="How quotes work"
+        title={
+          <span className="flex items-center gap-2">
+            <InformationCircleIcon className="size-5 text-gray-400" />
+            How quotes work
+          </span>
+        }
       >
         <p className="mt-3 text-sm text-gray-600 leading-relaxed">
           The quoted amount is an estimate. Multiple solvers compete to give you
