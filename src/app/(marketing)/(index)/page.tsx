@@ -9,7 +9,6 @@ import {
 } from "@heroicons/react/24/outline"
 import AnimatedTokenPath from "@src/components/AnimatedTokenPath"
 import { HomeSwapWidget } from "@src/components/HomeSwapWidget"
-import { SignedInRedirect } from "@src/components/SignedInRedirect"
 import { Collapsible } from "radix-ui"
 
 const features = [
@@ -84,7 +83,7 @@ const faqItems = [
 
 export default function IndexPage() {
   return (
-    <SignedInRedirect>
+    <>
       <section className="flex flex-col items-center justify-center pt-16 pb-24 bg-white rounded-b-3xl overflow-hidden">
         <div className="flex flex-col items-center justify-center px-4 max-w-lg">
           <div className="text-brand text-sm/5 font-bold py-0.5 px-3 rounded-lg bg-brand/[0.07] text-center">
@@ -161,6 +160,6 @@ export default function IndexPage() {
           </div>
         </div>
       </section>
-    </SignedInRedirect>
+    </>
   )
 }

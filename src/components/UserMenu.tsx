@@ -9,12 +9,10 @@ import { UserIcon } from "@heroicons/react/24/solid"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import clsx from "clsx"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { DropdownMenu } from "radix-ui"
 import { midTruncate } from "./DefuseSDK/features/withdraw/components/WithdrawForm/utils"
 
 const UserMenu = () => {
-  const router = useRouter()
   const { state, signOut } = useConnectWallet()
 
   // If not connected, show a link to login
@@ -40,10 +38,9 @@ const UserMenu = () => {
     },
     {
       label: "Sign out",
-      onClick: async () => {
+      onClick: () => {
         if (state.chainType) {
-          await signOut({ id: state.chainType })
-          router.push("/")
+          signOut({ id: state.chainType })
         }
       },
       icon: ArrowRightStartOnRectangleIcon,
