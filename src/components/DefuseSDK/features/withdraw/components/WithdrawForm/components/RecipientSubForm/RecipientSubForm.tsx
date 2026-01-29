@@ -366,7 +366,7 @@ export const RecipientSubForm = ({
           <SelectTriggerLike
             label={
               recipientMode === "contact" && selectedContact
-                ? "Recipient is one of your contacts"
+                ? "Recipient is a contact"
                 : field.value
                   ? "Recipient is a manually entered address"
                   : "Recipient"
