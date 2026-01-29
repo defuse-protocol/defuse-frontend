@@ -6,7 +6,7 @@ import { ModalContainer } from "@src/components/DefuseSDK/components/Modal/Modal
 import { TokenListUpdater } from "@src/components/DefuseSDK/components/TokenListUpdater"
 import { ModalStoreProvider } from "@src/components/DefuseSDK/providers/ModalStoreProvider"
 import { TokensStoreProvider } from "@src/components/DefuseSDK/providers/TokensStoreProvider"
-import { formatUsdAmount } from "@src/components/DefuseSDK/utils/format"
+import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import { Dialog } from "radix-ui"
 import { useMemo } from "react"
 import { EarnSwapForm } from "./EarnSwapForm"
@@ -15,12 +15,14 @@ import {
   EarnUIMachineProvider,
 } from "./EarnUIMachineProvider"
 import { useEarnTokenList } from "./hooks/useEarnTokenList"
-import type { Vault } from "./types"
 
-interface EarnDepositDialogProps {
+interface EarnWithdrawDialogProps {
   open: boolean
   onClose: () => void
-  vault: Vault
+  smUsdcBalance: {
+    amount: bigint
+    decimals: number
+  } | null
   userAddress: string | undefined
   userChainType: AuthMethod | undefined
   signMessage: (
@@ -29,22 +31,22 @@ interface EarnDepositDialogProps {
   onSuccess?: () => void
 }
 
-export default function EarnDepositDialog({
+export default function EarnWithdrawDialog({
   open,
   onClose,
-  vault,
+  smUsdcBalance,
   userAddress,
   userChainType,
   signMessage,
   onSuccess,
-}: EarnDepositDialogProps) {
+}: EarnWithdrawDialogProps) {
   const { smUsdcToken, selectableTokens } = useEarnTokenList()
 
-  // Find the token info for the vault's token (e.g., USDC)
-  const vaultToken = useMemo(
-    () => selectableTokens.find((t) => t.symbol === vault.token),
-    [vault.token, selectableTokens]
-  )
+  const balanceAmount = smUsdcBalance?.amount ?? 0n
+  const balanceDecimals = smUsdcBalance?.decimals ?? 6
+  const displayBalance = formatTokenValue(balanceAmount, balanceDecimals, {
+    fractionDigits: 4,
+  })
 
   // Build token list for the machine - include smUSDC and selectable tokens
   const tokenList = useMemo(() => {
@@ -77,17 +79,13 @@ export default function EarnDepositDialog({
                     <TokenListUpdater tokenList={selectableTokens} />
                     <div className="flex items-center justify-between -mr-2.5 -mt-2.5">
                       <div className="flex items-center gap-3">
-                        <div className="size-8 rounded-full border border-gray-100 flex items-center justify-center shadow-sm overflow-hidden">
-                          {vaultToken?.icon && (
-                            <img
-                              src={vaultToken.icon}
-                              alt={vaultToken.symbol}
-                              className="size-6"
-                            />
-                          )}
+                        <div className="size-8 rounded-full border border-gray-100 flex items-center justify-center shadow-sm overflow-hidden bg-blue-50">
+                          <span className="text-sm font-bold text-blue-600">
+                            sm
+                          </span>
                         </div>
                         <Dialog.Title className="text-base font-semibold text-gray-900">
-                          Deposit to Vault
+                          Withdraw
                         </Dialog.Title>
                       </div>
                       <Dialog.Close className="size-10 rounded-xl hover:bg-gray-100 text-gray-500 flex items-center justify-center">
@@ -95,44 +93,34 @@ export default function EarnDepositDialog({
                       </Dialog.Close>
                     </div>
 
-                    <div className="mt-4 bg-green-50 rounded-2xl p-4 flex items-center justify-between">
-                      <div>
-                        <div className="text-xs text-green-600 font-medium uppercase tracking-wide">
-                          Current APY
-                        </div>
-                        <div className="text-2xl font-bold text-green-700">
-                          {vault.apy}%
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xs text-gray-500">Vault</div>
-                        <div className="text-sm font-medium text-gray-700">
-                          {vault.name}
-                        </div>
-                      </div>
+                    <div className="mt-4 flex items-center justify-between text-sm">
+                      <span className="text-gray-500">Your smUSDC Balance</span>
+                      <span className="font-medium text-gray-900">
+                        {userAddress
+                          ? `${displayBalance} smUSDC`
+                          : "Connect wallet"}
+                      </span>
                     </div>
 
                     <div className="mt-4">
                       <EarnFormProvider>
                         <EarnUIMachineProvider
-                          mode="deposit"
+                          mode="withdraw"
                           tokenList={tokenList}
                           smUsdcToken={smUsdcToken}
                           signMessage={signMessage}
                         >
                           <EarnSwapForm
-                            mode="deposit"
+                            mode="withdraw"
                             userAddress={userAddress}
                             userChainType={userChainType}
                             onSuccess={handleSuccess}
                             selectableTokens={selectableTokens}
-                            submitLabel="Deposit"
+                            submitLabel="Withdraw"
                           />
                         </EarnUIMachineProvider>
                       </EarnFormProvider>
                     </div>
-
-                    <ProjectedEarnings apy={vault.apy} />
 
                     <ModalContainer />
                   </TokensStoreProvider>
@@ -143,27 +131,5 @@ export default function EarnDepositDialog({
         </Dialog.Overlay>
       </Dialog.Portal>
     </Dialog.Root>
-  )
-}
-
-function ProjectedEarnings({ apy }: { apy: number }) {
-  return (
-    <div className="mt-4 bg-gray-50 rounded-2xl p-4 space-y-3">
-      <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">
-        Projected Earnings on $1,000
-      </div>
-      <div className="flex justify-between text-sm">
-        <span className="text-gray-600">Monthly</span>
-        <span className="font-semibold text-gray-900">
-          {formatUsdAmount((1000 * apy) / 100 / 12)}
-        </span>
-      </div>
-      <div className="flex justify-between text-sm">
-        <span className="text-gray-600">Yearly</span>
-        <span className="font-semibold text-gray-900">
-          {formatUsdAmount((1000 * apy) / 100)}
-        </span>
-      </div>
-    </div>
   )
 }

@@ -18,6 +18,11 @@ export function useTokenList(tokenList: TokenInfo[], supports1cs = false) {
    */
   return useMemo(() => {
     const filteredList = sortedList.filter((token) => {
+      // Filter out earn-only tokens from swap
+      if (token.tags?.includes("category:earn-only")) {
+        return false
+      }
+
       const feature = token.tags?.find((tag) => tag.startsWith("feature:"))
       if (feature == null) {
         return true
