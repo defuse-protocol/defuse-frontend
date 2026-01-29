@@ -808,7 +808,6 @@ export const WithdrawForm = ({
               usdAmount={tokenToWithdrawUsdAmount}
               handleSetPercentage={handleSetPercentage}
               selectedToken={token}
-              handleSelectToken={handleSelect}
               tokenPrice={tokenPrice}
               tokenLoading={isResolvingToken}
               additionalInfo={
