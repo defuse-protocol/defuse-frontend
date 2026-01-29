@@ -521,13 +521,18 @@ export const WithdrawForm = ({
     tokensUsdPriceData,
   ])
 
-  // Track if we've done initial token selection (for when there's no preset network)
+  // Track if we've done initial token selection (for when there's no preset)
   const [hasSelectedInitialToken, setHasSelectedInitialToken] = useState(false)
 
-  // When there's NO preset network, select the highest USD value token once balances load
+  // When there's NO preset (network or token), select the highest USD value token once balances load
   useEffect(() => {
-    // Only run if there's no preset network and we haven't selected yet
-    if (hasValidPresetNetwork || hasSelectedInitialToken) {
+    // Only run if there's no preset and we haven't selected yet
+    // If user explicitly selected a token (presetTokenSymbol), respect their choice
+    if (
+      hasValidPresetNetwork ||
+      presetTokenSymbol != null ||
+      hasSelectedInitialToken
+    ) {
       return
     }
 
@@ -587,6 +592,7 @@ export const WithdrawForm = ({
     setHasSelectedInitialToken(true)
   }, [
     hasValidPresetNetwork,
+    presetTokenSymbol,
     hasSelectedInitialToken,
     balances,
     token,
