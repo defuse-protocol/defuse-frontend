@@ -93,6 +93,7 @@ export const RecipientSubForm = ({
   type RecipientMode = "contact" | "address"
   const [recipientMode, setRecipientMode] = useState<RecipientMode>("address")
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
+  const [presetContactApplied, setPresetContactApplied] = useState(false)
 
   // Notify parent when selected contact changes
   useEffect(() => {
@@ -106,17 +107,19 @@ export const RecipientSubForm = ({
   })
   const contacts = contactsData?.ok ? contactsData.value : []
 
-  // Initialize contact mode if presetContactId is provided
+  // Initialize contact mode if presetContactId is provided (only once)
   useEffect(() => {
+    if (presetContactApplied) return
     if (presetContactId && contacts.length > 0) {
       const contact = contacts.find((c) => c.id === presetContactId)
       if (contact) {
         setRecipientMode("contact")
         setSelectedContact(contact)
+        setPresetContactApplied(true)
         // Form values should already be set via presetRecipient and presetNetwork
       }
     }
-  }, [presetContactId, contacts])
+  }, [presetContactId, contacts, presetContactApplied])
 
   // Watch for address+network combinations that match an existing contact
   const currentRecipient = watch("recipient")
