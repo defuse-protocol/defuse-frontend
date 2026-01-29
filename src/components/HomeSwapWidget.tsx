@@ -64,7 +64,7 @@ export function HomeSwapWidget() {
   }
 
   return (
-    <div className="relative z-10">
+    <div className="relative">
       <div className="bg-gray-100 rounded-[27px] p-2 border border-gray-200 flex flex-col gap-2">
         <div className="p-6 rounded-3xl bg-white border border-gray-200 flex flex-col gap-4">
           <label htmlFor="sell">Sell</label>

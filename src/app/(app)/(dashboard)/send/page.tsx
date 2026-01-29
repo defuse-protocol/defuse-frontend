@@ -1,6 +1,7 @@
 "use client"
 
 import { WithdrawWidget } from "@src/components/DefuseSDK/features/withdraw/components/WithdrawWidget"
+import PageHeader from "@src/components/PageHeader"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
@@ -28,9 +29,7 @@ export default function SendPage() {
 
   return (
     <>
-      <h1 className="text-gray-900 text-xl font-semibold tracking-tight">
-        Transfer
-      </h1>
+      <PageHeader title="Transfer" />
 
       <WithdrawWidget
         presetAmount={amount}

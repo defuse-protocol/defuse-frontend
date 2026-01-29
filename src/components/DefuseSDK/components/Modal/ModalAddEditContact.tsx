@@ -322,7 +322,7 @@ const ModalAddEditContact = ({
                 </div>
               </label>
               {errors.name && (
-                <ErrorMessage className="mt-1 mb-5">
+                <ErrorMessage className="mt-1 mb-4">
                   {errors.name.message}
                 </ErrorMessage>
               )}
@@ -358,7 +358,7 @@ const ModalAddEditContact = ({
                 </div>
               </label>
               {errors.address && (
-                <ErrorMessage className="mt-1 mb-5">
+                <ErrorMessage className="mt-1 mb-4">
                   {errors.address.message}
                 </ErrorMessage>
               )}
@@ -394,16 +394,12 @@ const ModalAddEditContact = ({
                 </span>
               </button>
               {errors.blockchain && (
-                <ErrorMessage className="mt-1 mb-5">
+                <ErrorMessage className="mt-1 mb-4">
                   {errors.blockchain.message}
                 </ErrorMessage>
               )}
             </div>
           </div>
-
-          {submitError && (
-            <ErrorMessage className="mt-3">{submitError}</ErrorMessage>
-          )}
 
           <Button
             type="submit"
@@ -415,6 +411,12 @@ const ModalAddEditContact = ({
           >
             {isEditing ? "Update contact" : "Save contact"}
           </Button>
+
+          {submitError && (
+            <ErrorMessage className="mt-3 text-center text-balance">
+              {submitError}
+            </ErrorMessage>
+          )}
         </form>
       )}
     </BaseModalDialog>

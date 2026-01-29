@@ -73,7 +73,7 @@ export function BaseModalDialog({
       <Dialog.Portal>
         <Dialog.Overlay
           className={clsx(
-            "fixed inset-0 bg-gray-900/80 z-50",
+            "fixed inset-0 bg-gray-900/80",
             "data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:duration-300 data-[state=open]:ease-out",
             "data-[state=closed]:animate-out data-[state=closed]:duration-200 data-[state=closed]:ease-in data-[state=closed]:fade-out"
           )}
@@ -84,7 +84,7 @@ export function BaseModalDialog({
           }}
         >
           <div className="fixed inset-0 z-20 w-screen overflow-y-auto">
-            <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-start sm:p-0 sm:pt-[10vh]">
+            <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-start sm:p-0 lg:pl-74 sm:pt-[10vh]">
               <Dialog.Content
                 className={clsx(
                   "relative transform overflow-hidden rounded-3xl bg-white p-5 text-left shadow-xl",

@@ -35,6 +35,12 @@ import {
   reverseAssetNetworkAdapter,
 } from "../../utils/adapters"
 import { isSupportedChainName } from "../../utils/blockchain"
+import { stringToColor } from "../../utils/stringToColor"
+import { NetworkIcon } from "../Network/NetworkIcon"
+import SearchBar from "../SearchBar"
+import TooltipNew from "../TooltipNew"
+import { BaseModalDialog } from "./ModalDialog"
+import ModalSaveContact from "./ModalSaveContact"
 
 /**
  * Helper to get chain display info for a contact's blockchain.
@@ -59,11 +65,6 @@ function getContactChainInfo(blockchain: ContactBlockchain): {
     chainName: chainNameToNetworkName(chainKey),
   }
 }
-import { NetworkIcon } from "../Network/NetworkIcon"
-import SearchBar from "../SearchBar"
-import TooltipNew from "../TooltipNew"
-import { BaseModalDialog } from "./ModalDialog"
-import ModalSaveContact from "./ModalSaveContact"
 
 type ModalSelectRecipientProps = {
   open: boolean
@@ -510,6 +511,9 @@ const ModalSelectRecipient = ({
                         const { chainKey, chainIcon } = getContactChainInfo(
                           contact.blockchain
                         )
+                        const contactColor = stringToColor(
+                          `${contact.name}${contact.address}${contact.blockchain}`
+                        )
 
                         return (
                           <ListItem
@@ -530,8 +534,16 @@ const ModalSelectRecipient = ({
                               onClose()
                             }}
                           >
-                            <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1">
-                              <WalletIcon className="text-gray-500 size-5" />
+                            <div
+                              className="size-10 rounded-full flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1"
+                              style={{
+                                backgroundColor: contactColor.background,
+                              }}
+                            >
+                              <WalletIcon
+                                className="size-5"
+                                style={{ color: contactColor.icon }}
+                              />
                             </div>
                             <ListItem.Content>
                               <ListItem.Title className="truncate">

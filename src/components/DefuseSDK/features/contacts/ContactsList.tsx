@@ -17,6 +17,7 @@ import {
   chainNameToNetworkName,
   midTruncate,
 } from "@src/components/DefuseSDK/features/withdraw/components/WithdrawForm/utils"
+import { stringToColor } from "@src/components/DefuseSDK/utils/stringToColor"
 import ListItem from "@src/components/ListItem"
 import { SendIcon, WalletIcon } from "@src/icons"
 import { useRouter } from "next/navigation"
@@ -94,51 +95,48 @@ const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
       <section className="mt-6 space-y-1">
         {processedContacts.map(
           ({ contact, chainKey, chainIcon, chainName }) => {
+            const contactColor = stringToColor(
+              `${contact.name}${contact.address}${contact.blockchain}`
+            )
+
             return (
               <ListItem
                 key={contact.id}
-                popoverContent={
-                  <>
-                    <Button
-                      size="sm"
-                      href={`/send?contactId=${contact.id}&recipient=${encodeURIComponent(contact.address)}&network=${chainKey}`}
-                    >
-                      <SendIcon className="size-4 shrink-0" />
-                      Transfer
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        navigator.clipboard.writeText(contact.address)
-                      }}
-                    >
-                      <Square2StackIcon className="size-4 shrink-0" />
-                      Copy
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => handleOpenModal({ type: "edit", contact })}
-                    >
-                      <PencilSquareIcon className="size-4 shrink-0" />
-                      Edit
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() =>
-                        handleOpenModal({ type: "remove", contact })
-                      }
-                    >
-                      <XCircleIcon className="size-4 shrink-0" />
-                      Remove
-                    </Button>
-                  </>
-                }
+                dropdownMenuItems={[
+                  {
+                    label: "Transfer",
+                    href: `/send?contactId=${contact.id}&recipient=${encodeURIComponent(contact.address)}&network=${chainKey}`,
+                    icon: SendIcon,
+                  },
+                  {
+                    label: "Copy",
+                    onClick: () => {
+                      navigator.clipboard.writeText(contact.address)
+                    },
+                    icon: Square2StackIcon,
+                  },
+                  {
+                    label: "Edit",
+                    onClick: () => handleOpenModal({ type: "edit", contact }),
+                    icon: PencilSquareIcon,
+                  },
+                  {
+                    label: "Remove",
+                    onClick: () => handleOpenModal({ type: "remove", contact }),
+                    icon: XCircleIcon,
+                  },
+                ]}
               >
-                <div className="size-10 rounded-full bg-gray-200 flex items-center justify-center outline-1 -outline-offset-1 outline-gray-900/10">
+                <div
+                  className="size-10 rounded-full bg-gray-200 flex items-center justify-center outline-1 -outline-offset-1 outline-gray-900/10"
+                  style={{ backgroundColor: contactColor.background }}
+                >
                   <WalletIcon className="size-5 text-gray-500" />
                 </div>
                 <ListItem.Content>
-                  <ListItem.Title>{contact.name}</ListItem.Title>
+                  <ListItem.Title className="truncate">
+                    {contact.name}
+                  </ListItem.Title>
                   <ListItem.Subtitle>
                     {midTruncate(contact.address)}
                   </ListItem.Subtitle>
@@ -153,6 +151,55 @@ const ContactsList = ({ contacts }: { contacts: Contact[] }) => {
             )
           }
         )}
+        {processedContacts.map(({ contact, chainIcon, chainName }) => {
+          const contactColor = stringToColor(
+            `${contact.name}${contact.address}${contact.blockchain}`
+          )
+
+          return (
+            <ListItem
+              key={contact.id}
+              dropdownMenuItems={[
+                { label: "Send", href: "/send", icon: SendIcon },
+                {
+                  label: "Edit",
+                  onClick: () => handleOpenModal({ type: "edit", contact }),
+                  icon: PencilSquareIcon,
+                },
+                {
+                  label: "Remove",
+                  onClick: () => handleOpenModal({ type: "remove", contact }),
+                  icon: XCircleIcon,
+                },
+              ]}
+            >
+              <div
+                className="size-10 rounded-full flex items-center justify-center shrink-0 outline-1 -outline-offset-1 outline-gray-900/10"
+                style={{ backgroundColor: contactColor.background }}
+              >
+                <WalletIcon
+                  className="size-5"
+                  style={{ color: contactColor.icon }}
+                />
+              </div>
+              <ListItem.Content>
+                <ListItem.Title className="truncate">
+                  {contact.name}
+                </ListItem.Title>
+                <ListItem.Subtitle>
+                  {midTruncate(contact.address)}
+                </ListItem.Subtitle>
+              </ListItem.Content>
+              <ListItem.Content align="end">
+                <ListItem.Title className="flex items-center gap-1">
+                  <span className="capitalize">{chainName}</span>
+                  <NetworkIcon chainIcon={chainIcon} sizeClassName="size-4" />
+                </ListItem.Title>
+                <div className="h-4" />
+              </ListItem.Content>
+            </ListItem>
+          )
+        })}
       </section>
 
       <ModalAddEditContact

@@ -77,11 +77,15 @@ export function ModalSelectAssets() {
 
   const handleSearchClear = () => setSearchValue("")
 
-  const { results: searchResults } = useSmartSearch(assetList, searchValue, {
-    maxResults: 100,
-    maxFuzzyDistance: 1,
-    debounceMs: 0, // We don't need debonce since we have a short list and can get results instantly, consider for future
-  })
+  const { results: searchResults, isLoading } = useSmartSearch(
+    assetList,
+    searchValue,
+    {
+      maxResults: 100,
+      maxFuzzyDistance: 1,
+      debounceMs: 0, // We don't need debonce since we have a short list and can get results instantly, consider for future
+    }
+  )
 
   const handleSelectToken = (selectedItem: SelectItemToken) => {
     if (modalType !== ModalType.MODAL_SELECT_ASSETS) {
@@ -260,7 +264,7 @@ export function ModalSelectAssets() {
             <EmptyAssetList />
           )}
 
-          {searchValue.trim() && searchResults.length === 0 && (
+          {searchValue.trim() && !isLoading && searchResults.length === 0 && (
             <ModalNoResults handleSearchClear={handleSearchClear} />
           )}
         </div>

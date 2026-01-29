@@ -40,8 +40,8 @@ export const chainIcons: Record<
     light: "/static/icons/network/ethereum.svg",
   },
   near: {
-    dark: "/static/icons/network/near_dark.svg",
-    light: "/static/icons/network/near_light.svg",
+    dark: "/static/icons/network/near.svg",
+    light: "/static/icons/network/near.svg",
   },
   base: {
     dark: "/static/icons/network/base.svg",
@@ -101,7 +101,7 @@ export const chainIcons: Record<
   },
   zcash: {
     dark: "/static/icons/network/zcash.svg",
-    light: "/static/icons/network/zcash-icon-black.svg",
+    light: "/static/icons/network/zcash.svg",
   },
   gnosis: {
     dark: "/static/icons/network/gnosis_white.svg",
@@ -141,7 +141,7 @@ export const chainIcons: Record<
   },
   sui: {
     dark: "/static/icons/network/sui.svg",
-    light: "/static/icons/network/sui_dark.svg",
+    light: "/static/icons/network/sui.svg",
   },
   stellar: {
     dark: "/static/icons/network/stellar_white.svg",
