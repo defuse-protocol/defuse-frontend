@@ -223,12 +223,22 @@ export function ModalSlippageSettings() {
     // Save to localStorage
     setSlippagePercent(slippagePercent)
 
-    // Only trigger re-quote if not skipping (e.g., when opened from review modal)
-    if (!skipRequote && actorRef) {
-      actorRef.send({
-        type: "SET_SLIPPAGE",
-        params: { slippageBasisPoints },
-      })
+    // Update the machine state
+    if (actorRef) {
+      if (skipRequote) {
+        // Silent update - just update context without triggering re-quote
+        // Used when opened from review modal
+        actorRef.send({
+          type: "SET_SLIPPAGE_SILENT",
+          params: { slippageBasisPoints },
+        })
+      } else {
+        // Full update - triggers re-quote
+        actorRef.send({
+          type: "SET_SLIPPAGE",
+          params: { slippageBasisPoints },
+        })
+      }
     }
 
     onCloseModal()
