@@ -180,8 +180,19 @@ const SHIELDED_TOTAL_VALUE = PLACEHOLDER_SHIELDED_ASSETS.reduce(
 function ShieldedAccountPreview() {
   return (
     <div className="mt-6">
+      {/* Coming Soon Banner */}
+      <div className="text-center py-6 px-4 bg-[linear-gradient(180deg,#191918_0%,#52471E_100%)] rounded-2xl">
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <ShieldCheckIcon className="size-6 text-brand" />
+          <h2 className="text-xl font-bold text-white">Coming Soon</h2>
+        </div>
+        <p className="text-gray-400 text-sm">
+          Your private vault. Deposit, swap, and transfer—visible only to you.
+        </p>
+      </div>
+
       {/* Shielded Balance */}
-      <section>
+      <section className="mt-6">
         <h2 className="text-base text-gray-500 font-medium">
           Shielded balance
         </h2>
@@ -226,17 +237,6 @@ function ShieldedAccountPreview() {
         </Button>
       </section>
 
-      {/* Coming Soon Banner */}
-      <div className="mt-6 text-center py-6 px-4 bg-[linear-gradient(180deg,#191918_0%,#52471E_100%)] rounded-2xl">
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <ShieldCheckIcon className="size-6 text-brand" />
-          <h2 className="text-xl font-bold text-white">Coming Soon</h2>
-        </div>
-        <p className="text-gray-400 text-sm">
-          Your private vault. Deposit, swap, and transfer—visible only to you.
-        </p>
-      </div>
-
       {/* Placeholder shielded assets */}
       <section className="mt-6">
         <h2 className="text-base text-gray-500 font-medium">Shielded Assets</h2>
@@ -246,21 +246,13 @@ function ShieldedAccountPreview() {
               key={asset.symbol}
               popoverContent={
                 <>
-                  <Button
-                    size="sm"
-                    disabled
-                    className="disabled:bg-gray-700 disabled:text-gray-400"
-                  >
-                    <ShieldCheckIcon className="size-4 shrink-0" />
-                    Shielded Transfer
+                  <Button size="sm">
+                    <SendIcon className="size-4 shrink-0" />
+                    Send
                   </Button>
-                  <Button
-                    size="sm"
-                    disabled
-                    className="disabled:bg-gray-700 disabled:text-gray-400"
-                  >
+                  <Button size="sm">
                     <SwapIcon className="size-4 shrink-0" />
-                    Shielded Swap
+                    Swap
                   </Button>
                 </>
               }
