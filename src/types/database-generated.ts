@@ -68,7 +68,6 @@ export type Database = {
         Row: {
           created_at: string | null
           encrypted_payload: string
-          expires_at: string | null
           gift_id: string
           p_key: string
           updated_at: string | null
@@ -76,7 +75,6 @@ export type Database = {
         Insert: {
           created_at?: string | null
           encrypted_payload: string
-          expires_at?: string | null
           gift_id: string
           p_key: string
           updated_at?: string | null
@@ -84,7 +82,6 @@ export type Database = {
         Update: {
           created_at?: string | null
           encrypted_payload?: string
-          expires_at?: string | null
           gift_id?: string
           p_key?: string
           updated_at?: string | null
