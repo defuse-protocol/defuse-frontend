@@ -194,7 +194,7 @@ function ShieldedAccountPreview() {
       {/* Shielded Balance */}
       <section className="mt-6">
         <h2 className="text-base text-gray-500 font-medium">
-          Shielded balance
+          Shielded balance (simulated)
         </h2>
         <p className="mt-2 font-bold text-5xl tracking-tight text-gray-900">
           $
