@@ -521,6 +521,80 @@ export const WithdrawForm = ({
     tokensUsdPriceData,
   ])
 
+  // Track if we've done initial token selection (for when there's no preset network)
+  const [hasSelectedInitialToken, setHasSelectedInitialToken] = useState(false)
+
+  // When there's NO preset network, select the highest USD value token once balances load
+  useEffect(() => {
+    // Only run if there's no preset network and we haven't selected yet
+    if (hasValidPresetNetwork || hasSelectedInitialToken) {
+      return
+    }
+
+    // Wait until balances are loaded (non-empty)
+    if (Object.keys(balances).length === 0) {
+      return
+    }
+
+    // Wait until price data is loaded
+    if (tokensUsdPriceData == null) {
+      return
+    }
+
+    // Helper: get token balance info
+    const getBalanceInfo = (
+      t: TokenInfo
+    ): { amount: bigint; decimals: number } => {
+      const balance = computeTotalBalanceDifferentDecimals(t, balances)
+      return {
+        amount: balance?.amount ?? 0n,
+        decimals: balance?.decimals ?? getTokenMaxDecimals(t),
+      }
+    }
+
+    // Helper: get token USD value
+    const getUsdValue = (t: TokenInfo): number => {
+      const { amount, decimals } = getBalanceInfo(t)
+      if (amount === 0n) return 0
+      const formattedAmount = formatUnits(amount, decimals)
+      return getTokenUsdPrice(formattedAmount, t, tokensUsdPriceData) ?? 0
+    }
+
+    // Find highest USD value token
+    const tokensWithValue = tokenList
+      .map((t) => ({ token: t, usdValue: getUsdValue(t) }))
+      .filter(({ usdValue }) => usdValue > 0)
+      .sort((a, b) => b.usdValue - a.usdValue)
+
+    if (tokensWithValue.length > 0) {
+      const bestToken = tokensWithValue[0].token
+      // Only switch if it's different from current token
+      if (bestToken.symbol !== token.symbol) {
+        const parsedAmount = {
+          amount: 0n,
+          decimals: getTokenMaxDecimals(bestToken),
+        }
+        actorRef.send({
+          type: "WITHDRAW_FORM.UPDATE_TOKEN",
+          params: {
+            token: bestToken,
+            parsedAmount: parsedAmount,
+          },
+        })
+      }
+    }
+
+    setHasSelectedInitialToken(true)
+  }, [
+    hasValidPresetNetwork,
+    hasSelectedInitialToken,
+    balances,
+    token,
+    tokenList,
+    actorRef,
+    tokensUsdPriceData,
+  ])
+
   const { registerWithdraw, hasActiveWithdraw } = useWithdrawTrackerMachine()
 
   useEffect(() => {
