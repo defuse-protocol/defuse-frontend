@@ -35,7 +35,7 @@ const navItems = [
     icon: DealsIcon,
   },
   {
-    label: "Activity",
+    label: "History",
     href: "/activity",
     icon: ActivityIcon,
   },

@@ -252,7 +252,7 @@ export default function ActivityPage({
     <>
       <div className="flex items-center justify-between">
         <h1 className="text-gray-900 text-xl font-bold tracking-tight">
-          Activity
+          History
         </h1>
         {isWalletConnected && !isLoading && !isError && (
           <button
@@ -331,13 +331,13 @@ export default function ActivityPage({
         ) : (
           <>
             {!isWalletConnected && (
-              <EmptyState message="Connect your wallet to see your activity" />
+              <EmptyState message="Connect your wallet to see your history" />
             )}
 
             {isWalletConnected && isLoading && <LoadingState />}
 
             {isWalletConnected && isError && (
-              <EmptyState message="Failed to load activity. Please try again." />
+              <EmptyState message="Failed to load history. Please try again." />
             )}
 
             {isWalletConnected &&
@@ -348,7 +348,7 @@ export default function ActivityPage({
                   message={
                     allTransactions.length > 0
                       ? "No transactions match your filters"
-                      : "No activity yet. Your transaction history will appear here."
+                      : "No history yet. Your transactions will appear here."
                   }
                 />
               )}
@@ -388,7 +388,7 @@ function EmptyState({ message }: { message: string }) {
 
 function LoadingState() {
   return (
-    <div className="flex flex-col">
+    <div className="space-y-1">
       <SwapHistoryItemSkeleton />
       <SwapHistoryItemSkeleton />
       <SwapHistoryItemSkeleton />
@@ -436,7 +436,7 @@ function TransactionList({
 
   return (
     <>
-      <div className="flex flex-col">
+      <div className="space-y-1">
         {transactions.map((tx: SwapTransaction) => (
           <HistoryItem key={tx.id} transaction={tx} tokenList={tokenList} />
         ))}

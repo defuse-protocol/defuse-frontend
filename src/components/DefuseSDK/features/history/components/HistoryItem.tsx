@@ -7,6 +7,7 @@ import {
   WarningIcon,
 } from "@phosphor-icons/react"
 import { Skeleton } from "@radix-ui/themes"
+import ListItem from "@src/components/ListItem"
 import type {
   SwapTransaction,
   TokenAmount,
@@ -81,17 +82,13 @@ function TokenDisplay({
   )
 
   return (
-    <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
-      <AssetComboIcon
-        icon={token?.icon}
-        badgeType={badgeType}
-        sizeClassName="size-7 sm:size-10"
-      />
-      <div className="flex flex-col min-w-0">
-        <span className="text-xs sm:text-sm font-medium truncate">
+    <div className="flex items-center gap-2.5 min-w-0">
+      <AssetComboIcon icon={token?.icon} badgeType={badgeType} />
+      <div className="flex flex-col gap-0.5 min-w-0">
+        <span className="text-base/5 font-semibold text-gray-900 truncate">
           {formatAmount(tokenAmount.amount)}
         </span>
-        <span className="text-[10px] sm:text-[11px] text-gray-11 truncate">
+        <span className="text-sm/4 font-medium text-gray-500 truncate">
           {token?.symbol ?? "Unknown"}
         </span>
       </div>
@@ -122,32 +119,26 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
   const badgeType: BadgeType = "swap"
 
   return (
-    <div className="py-3 px-2 flex items-center gap-1.5 sm:gap-3 border-b border-gray-200 last:border-b-0 even:bg-gray-100 transition-colors">
-      <div className="flex items-center gap-1.5 sm:gap-3 flex-1 min-w-0">
-        <div className="w-[85px] sm:w-[120px] shrink-0">
-          <TokenDisplay
-            tokenAmount={swap.from}
-            tokenList={tokenList}
-            badgeType={badgeType}
-          />
-        </div>
+    <ListItem>
+      <div className="flex items-center gap-2 flex-1 min-w-0">
+        <TokenDisplay
+          tokenAmount={swap.from}
+          tokenList={tokenList}
+          badgeType={badgeType}
+        />
         <ArrowRightIcon
-          className="size-3 sm:size-3.5 text-gray-9 shrink-0 mx-0.5 sm:mr-3"
+          className="size-4 text-gray-400 shrink-0"
           weight="bold"
         />
-        <div className="w-[85px] sm:w-[120px] shrink-0">
-          <TokenDisplay tokenAmount={swap.to} tokenList={tokenList} />
-        </div>
+        <TokenDisplay tokenAmount={swap.to} tokenList={tokenList} />
       </div>
 
-      <div className="flex flex-col items-end gap-0.5 shrink-0">
-        {usdValue && (
-          <span className="text-sm font-semibold text-gray-12">{usdValue}</span>
-        )}
-        <div className="flex items-center gap-1.5 text-[11px]">
+      <ListItem.Content align="end">
+        <ListItem.Title>{usdValue}</ListItem.Title>
+        <div className="flex items-center gap-1.5 text-sm/4 font-medium text-gray-500">
           <Tooltip>
             <TooltipTrigger asChild>
-              <span className="text-gray-10 cursor-default">
+              <span className="cursor-default">
                 {formatSmartDate(swap.timestamp)}
               </span>
             </TooltipTrigger>
@@ -157,32 +148,32 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
           </Tooltip>
           {explorerUrl && (
             <>
-              <span className="text-gray-10">·</span>
+              <span>·</span>
               <a
                 href={explorerUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-10 hover:text-blue-600 transition-colors"
+                className="hover:text-blue-600 transition-colors"
                 onClick={(e) => e.stopPropagation()}
                 title="View on explorer"
               >
-                <ArrowSquareOutIcon className="size-3" />
+                <ArrowSquareOutIcon className="size-4" />
               </a>
             </>
           )}
-          <span className="text-gray-10">·</span>
+          <span>·</span>
           <Tooltip>
             <TooltipTrigger asChild>
               <div className="flex items-center cursor-default">
                 {swap.status === "PENDING" || swap.status === "PROCESSING" ? (
                   <ArrowsClockwise
-                    className={cn("size-3.5 text-gray-11", {
+                    className={cn("size-4 text-gray-500", {
                       "animate-spin": !isPendingStale,
                     })}
                   />
                 ) : (
                   <StatusIcon
-                    className={cn("size-3.5", statusConfig.color)}
+                    className={cn("size-4", statusConfig.color)}
                     weight="fill"
                   />
                 )}
@@ -193,8 +184,8 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
             </TooltipContent>
           </Tooltip>
         </div>
-      </div>
-    </div>
+      </ListItem.Content>
+    </ListItem>
   )
 }
 
@@ -208,27 +199,29 @@ export function HistoryItem({
 
 export function SwapHistoryItemSkeleton() {
   return (
-    <div className="py-3 px-2 flex items-center gap-1.5 sm:gap-3 border-b border-gray-200 last:border-b-0">
-      <div className="flex items-center gap-1.5 sm:gap-3 flex-1 min-w-0">
-        <div className="w-[85px] sm:w-[120px] shrink-0 flex items-center gap-1.5 sm:gap-2.5">
-          <Skeleton className="size-7 sm:size-10 rounded-full shrink-0" />
-          <div className="flex flex-col min-w-0">
-            <Skeleton className="h-3 sm:h-[14px] w-8 sm:w-12 mb-0.5 sm:mb-1" />
-            <Skeleton className="h-2.5 sm:h-[11px] w-6 sm:w-8" />
+    <div className="-mx-4 px-4 rounded-2xl">
+      <div className="flex gap-3 items-center py-3">
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <Skeleton className="size-10 rounded-full shrink-0" />
+            <div className="flex flex-col gap-0.5 min-w-0">
+              <Skeleton className="h-5 w-16" />
+              <Skeleton className="h-4 w-10" />
+            </div>
+          </div>
+          <Skeleton className="size-4 rounded shrink-0" />
+          <div className="flex items-center gap-2.5 min-w-0">
+            <Skeleton className="size-10 rounded-full shrink-0" />
+            <div className="flex flex-col gap-0.5 min-w-0">
+              <Skeleton className="h-5 w-16" />
+              <Skeleton className="h-4 w-10" />
+            </div>
           </div>
         </div>
-        <Skeleton className="size-3 sm:size-3.5 rounded shrink-0 mx-0.5 sm:mr-3" />
-        <div className="w-[85px] sm:w-[120px] shrink-0 flex items-center gap-1.5 sm:gap-2.5">
-          <Skeleton className="size-7 sm:size-10 rounded-full shrink-0" />
-          <div className="flex flex-col min-w-0">
-            <Skeleton className="h-3 sm:h-[14px] w-8 sm:w-12 mb-0.5 sm:mb-1" />
-            <Skeleton className="h-2.5 sm:h-[11px] w-6 sm:w-8" />
-          </div>
+        <div className="flex flex-col items-end gap-0.5 shrink-0">
+          <Skeleton className="h-5 w-14" />
+          <Skeleton className="h-4 w-20" />
         </div>
-      </div>
-      <div className="flex flex-col items-end gap-0.5 shrink-0">
-        <Skeleton className="h-3 sm:h-[14px] w-10 sm:w-14" />
-        <Skeleton className="h-2.5 sm:h-[11px] w-14 sm:w-20" />
       </div>
     </div>
   )
