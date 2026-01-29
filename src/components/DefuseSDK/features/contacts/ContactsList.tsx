@@ -69,41 +69,43 @@ const ContactsList = ({
         Contacts
       </h1>
 
-      <div className="mt-6 flex items-center gap-1">
-        <SearchBar
-          key={search ?? ""}
-          defaultValue={search}
-          loading={isSearching}
-          onChange={(event) => {
-            clearTimeout(timeoutId)
+      {(!hasNoContacts || hasSearchQuery) && (
+        <div className="mt-6 flex items-center gap-1">
+          <SearchBar
+            key={search ?? ""}
+            defaultValue={search}
+            loading={isSearching}
+            onChange={(event) => {
+              clearTimeout(timeoutId)
 
-            const id = setTimeout(() => {
-              startTransition(() => {
-                if (event.target.value) {
-                  router.push(`/contacts?search=${event.target.value}`)
-                } else {
-                  router.push("/contacts")
-                }
+              const id = setTimeout(() => {
+                startTransition(() => {
+                  if (event.target.value) {
+                    router.push(`/contacts?search=${event.target.value}`)
+                  } else {
+                    router.push("/contacts")
+                  }
 
-                setTimeoutId(undefined)
-              })
-            }, 500)
+                  setTimeoutId(undefined)
+                })
+              }, 500)
 
-            setTimeoutId(id)
-          }}
-          onClear={() => router.push("/contacts")}
-          placeholder="Search name or address"
-          className="flex-1"
-        />
-        <Button
-          size="lg"
-          variant="primary"
-          onClick={() => handleOpenModal({ type: "create", contact: null })}
-        >
-          <PlusIcon className="size-4" />
-          Create contact
-        </Button>
-      </div>
+              setTimeoutId(id)
+            }}
+            onClear={() => router.push("/contacts")}
+            placeholder="Search name or address"
+            className="flex-1"
+          />
+          <Button
+            size="lg"
+            variant="primary"
+            onClick={() => handleOpenModal({ type: "create", contact: null })}
+          >
+            <PlusIcon className="size-4" />
+            Create contact
+          </Button>
+        </div>
+      )}
 
       {hasNoContacts && !hasSearchQuery && (
         <section className="mt-9">
@@ -128,10 +130,12 @@ const ContactsList = ({
       )}
 
       {hasNoContacts && hasSearchQuery && (
-        <ModalNoResults
-          text="No contacts found"
-          handleSearchClear={() => router.push("/contacts")}
-        />
+        <div className="pt-8">
+          <ModalNoResults
+            text="No contacts found"
+            handleSearchClear={() => router.push("/contacts")}
+          />
+        </div>
       )}
 
       {!hasNoContacts && (
