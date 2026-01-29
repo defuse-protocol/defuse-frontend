@@ -14,7 +14,7 @@ import useSearchNetworks from "@src/hooks/useFilterNetworks"
 import { WalletIcon } from "@src/icons"
 import clsx from "clsx"
 import { useRouter } from "next/navigation"
-import { useCallback, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import type { SupportedChainName } from "../../types/base"
 import {
@@ -109,6 +109,14 @@ const ModalAddEditContact = ({
   })
 
   const blockchain = watch("blockchain")
+  const address = watch("address")
+
+  // Clear submit error when address or network changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally only reacting to address/blockchain changes
+  useEffect(() => {
+    setSubmitError(null)
+  }, [address, blockchain])
+
   // Compute the selected network key for highlighting in the list
   // For near_intents, pass through as-is
   // For BlockchainEnum values, convert to SupportedChainName using reverseAssetNetworkAdapter
