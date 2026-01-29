@@ -175,14 +175,20 @@ export function ModalSelectAssets() {
     }
     setNotFilteredAssetList(getAssetList)
 
-    // Sort tokens: enabled first, then by USD value, then by balance
+    // Sort tokens: selected first, then enabled, then by USD value, then by balance
     getAssetList.sort((a, b) => {
-      // 1. Put enabled (non-disabled) tokens first
+      // 1. Put selected token first
+      if (a.selected !== b.selected) {
+        return a.selected ? -1 : 1
+      }
+
+      // 2. Put enabled (non-disabled) tokens before disabled ones
+      // Note: selected token is marked disabled but handled above
       if (a.disabled !== b.disabled) {
         return a.disabled ? 1 : -1
       }
 
-      // 2. Sort by USD value (descending)
+      // 3. Sort by USD value (descending)
       if (a.usdValue != null || b.usdValue != null) {
         if (a.usdValue == null) return 1
         if (b.usdValue == null) return -1
@@ -191,7 +197,7 @@ export function ModalSelectAssets() {
         }
       }
 
-      // 3. Sort by balance (descending)
+      // 4. Sort by balance (descending)
       if (a.value != null || b.value != null) {
         if (a.value == null) return 1
         if (b.value == null) return -1
