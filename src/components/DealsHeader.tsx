@@ -1,6 +1,7 @@
 "use client"
 
 import { ListBulletIcon, PlusIcon } from "@heroicons/react/16/solid"
+import PageHeader from "@src/components/PageHeader"
 import TabSwitcher from "@src/components/TabSwitcher"
 import { usePathname } from "next/navigation"
 
@@ -9,9 +10,7 @@ const DealsHeader = () => {
 
   return (
     <>
-      <h1 className="text-gray-900 text-xl font-semibold tracking-tight">
-        Private deals
-      </h1>
+      <PageHeader title="Private deals" />
 
       <TabSwitcher
         tabs={[

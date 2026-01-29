@@ -3,6 +3,7 @@
 import { PlusIcon } from "@heroicons/react/16/solid"
 import Button from "@src/components/Button"
 import SearchBar from "@src/components/DefuseSDK/components/SearchBar"
+import PageHeader from "@src/components/PageHeader"
 import { useRouter } from "next/navigation"
 import { useState, useTransition } from "react"
 import ModalAddEditContact from "../../components/Modal/ModalAddEditContact"
@@ -21,9 +22,7 @@ const ContactsHeader = ({
 
   return (
     <>
-      <h1 className="text-gray-900 text-xl font-semibold tracking-tight">
-        Contacts
-      </h1>
+      <PageHeader title="Contacts" />
 
       <div className="mt-6 flex items-center gap-1">
         <SearchBar

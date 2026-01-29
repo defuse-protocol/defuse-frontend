@@ -22,6 +22,7 @@ import {
 } from "@src/components/ProgressIndicator"
 import type { TrackedSwapIntent } from "@src/providers/SwapTrackerMachineProvider"
 import Button from "./Button"
+import PageHeader from "./PageHeader"
 
 const NEAR_EXPLORER = "https://nearblocks.io"
 
@@ -145,11 +146,7 @@ function FullView({
 
   return (
     <div className="flex flex-col">
-      <div className="flex justify-between items-center">
-        <h1 className="text-gray-900 text-xl font-semibold tracking-tight">
-          Swap
-        </h1>
-      </div>
+      <PageHeader title="Swap" />
 
       <div className="mt-5 bg-gray-50 rounded-2xl p-6">
         <div className="flex items-center justify-center gap-4 mb-6">

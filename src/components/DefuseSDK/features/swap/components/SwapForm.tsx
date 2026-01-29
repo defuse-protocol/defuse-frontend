@@ -10,6 +10,7 @@ import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
 import { getDefuseAssetId } from "@src/components/DefuseSDK/utils/token"
 import ErrorMessage from "@src/components/ErrorMessage"
+import PageHeader from "@src/components/PageHeader"
 import { SwapStatus } from "@src/components/SwapStatus"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useThrottledValue } from "@src/hooks/useThrottledValue"
@@ -374,12 +375,9 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
   return (
     <>
-      <div className="flex justify-between items-center">
-        <h1 className="text-gray-900 text-xl font-semibold tracking-tight">
-          Swap
-        </h1>
+      <PageHeader title="Swap">
         <SwapSettings tokenIn={tokenIn} tokenOut={tokenOut} />
-      </div>
+      </PageHeader>
 
       <section className="mt-5">
         <form onSubmit={handleSubmit(onRequestReview)}>

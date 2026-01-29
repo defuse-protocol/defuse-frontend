@@ -21,6 +21,7 @@ import {
   getDerivedToken,
   isMinAmountNotRequired,
 } from "@src/components/DefuseSDK/utils/tokenUtils"
+import PageHeader from "@src/components/PageHeader"
 import TabSwitcher from "@src/components/TabSwitcher"
 import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
 import { useSelector } from "@xstate/react"
@@ -216,9 +217,7 @@ export const DepositForm = ({
         Back
       </Link>
 
-      <h1 className="text-gray-900 text-xl font-semibold tracking-tight mt-4">
-        Deposit crypto
-      </h1>
+      <PageHeader title="Deposit crypto" className="mt-4" />
 
       <form onSubmit={handleSubmit(onSubmit)} className="mt-6">
         <div className="flex flex-col gap-2">
