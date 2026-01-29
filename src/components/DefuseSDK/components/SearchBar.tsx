@@ -3,11 +3,18 @@
 import { MagnifyingGlassIcon, XCircleIcon } from "@heroicons/react/20/solid"
 import Spinner from "@src/components/Spinner"
 import clsx from "clsx"
-import { type ComponentProps, useEffect, useId, useRef } from "react"
+import {
+  type ComponentProps,
+  type ElementType,
+  useEffect,
+  useId,
+  useRef,
+} from "react"
 
 type Props = ComponentProps<"input"> & {
   loading?: boolean
   onClear?: () => void
+  icon?: ElementType
 }
 
 const SearchBar = ({
@@ -16,6 +23,7 @@ const SearchBar = ({
   onClear,
   autoFocus,
   loading,
+  icon: Icon = MagnifyingGlassIcon,
   ...inputProps
 }: Props) => {
   const id = useId()
@@ -48,7 +56,7 @@ const SearchBar = ({
         placeholder={placeholder}
         {...inputProps}
       />
-      <MagnifyingGlassIcon
+      <Icon
         className="pointer-events-none col-start-1 row-start-1 ml-2 size-5 self-center text-gray-400"
         aria-hidden
       />

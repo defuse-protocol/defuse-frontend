@@ -13,7 +13,6 @@ import {
   TokenListUpdater,
   TokenListUpdater1cs,
 } from "../../../components/TokenListUpdater"
-import { WidgetRoot } from "../../../components/WidgetRoot"
 import { settings } from "../../../constants/settings"
 import { WithdrawWidgetProvider } from "../../../providers/WithdrawWidgetProvider"
 import type { WithdrawWidgetProps } from "../../../types/withdraw"
@@ -49,75 +48,73 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
   )
 
   return (
-    <WidgetRoot>
-      <WithdrawWidgetProvider>
-        <WithdrawUIMachineContext.Provider
-          options={{
-            input: {
-              tokenIn: initialTokenIn,
-              tokenOut: initialTokenOut,
-              tokenList: props.tokenList,
-              referral: props.referral,
-              appFeeRecipient,
-            },
-          }}
-          logic={withdrawUIMachine.provide({
-            actors: {
-              swapActor: swapIntentMachine.provide({
-                actors: {
-                  signMessage: fromPromise(({ input }) => {
-                    return props.signMessage(input)
-                  }),
-                  prepareSignMessages: fromPromise(async ({ input }) => {
-                    assert(
-                      input.intentOperationParams.type === "withdraw",
-                      "Type must be withdraw"
+    <WithdrawWidgetProvider>
+      <WithdrawUIMachineContext.Provider
+        options={{
+          input: {
+            tokenIn: initialTokenIn,
+            tokenOut: initialTokenOut,
+            tokenList: props.tokenList,
+            referral: props.referral,
+            appFeeRecipient,
+          },
+        }}
+        logic={withdrawUIMachine.provide({
+          actors: {
+            swapActor: swapIntentMachine.provide({
+              actors: {
+                signMessage: fromPromise(({ input }) => {
+                  return props.signMessage(input)
+                }),
+                prepareSignMessages: fromPromise(async ({ input }) => {
+                  assert(
+                    input.intentOperationParams.type === "withdraw",
+                    "Type must be withdraw"
+                  )
+                  const { nonce, deadline } = await bridgeSDK
+                    .intentBuilder()
+                    .setDeadline(
+                      new Date(Date.now() + settings.swapExpirySec * 1000)
                     )
-                    const { nonce, deadline } = await bridgeSDK
-                      .intentBuilder()
-                      .setDeadline(
-                        new Date(Date.now() + settings.swapExpirySec * 1000)
-                      )
-                      .build()
+                    .build()
 
-                    const { quote } = input.intentOperationParams
+                  const { quote } = input.intentOperationParams
 
-                    const innerMessage = messageFactory.makeInnerSwapMessage({
-                      deadlineTimestamp: Date.parse(deadline),
-                      referral: input.referral,
-                      signerId: input.defuseUserId,
-                      tokenDeltas: quote?.tokenDeltas ?? [],
-                      appFee: quote?.appFee ?? [],
-                      appFeeRecipient: input.appFeeRecipient,
-                    })
+                  const innerMessage = messageFactory.makeInnerSwapMessage({
+                    deadlineTimestamp: Date.parse(deadline),
+                    referral: input.referral,
+                    signerId: input.defuseUserId,
+                    tokenDeltas: quote?.tokenDeltas ?? [],
+                    appFee: quote?.appFee ?? [],
+                    appFeeRecipient: input.appFeeRecipient,
+                  })
 
-                    innerMessage.intents ??= []
-                    innerMessage.intents.push(
-                      ...input.intentOperationParams.prebuiltWithdrawalIntents
-                    )
+                  innerMessage.intents ??= []
+                  innerMessage.intents.push(
+                    ...input.intentOperationParams.prebuiltWithdrawalIntents
+                  )
 
-                    return {
+                  return {
+                    innerMessage,
+                    walletMessage: messageFactory.makeSwapMessage({
                       innerMessage,
-                      walletMessage: messageFactory.makeSwapMessage({
-                        innerMessage,
-                        nonce: base64.decode(nonce),
-                      }),
-                    }
-                  }),
-                },
-              }),
-            },
-          })}
-        >
-          {is1cs ? (
-            <TokenListUpdaterWithdraw tokenList={props.tokenList} />
-          ) : (
-            <TokenListUpdater tokenList={props.tokenList} />
-          )}
-          <WithdrawForm {...props} />
-        </WithdrawUIMachineContext.Provider>
-      </WithdrawWidgetProvider>
-    </WidgetRoot>
+                      nonce: base64.decode(nonce),
+                    }),
+                  }
+                }),
+              },
+            }),
+          },
+        })}
+      >
+        {is1cs ? (
+          <TokenListUpdaterWithdraw tokenList={props.tokenList} />
+        ) : (
+          <TokenListUpdater tokenList={props.tokenList} />
+        )}
+        <WithdrawForm {...props} />
+      </WithdrawUIMachineContext.Provider>
+    </WithdrawWidgetProvider>
   )
 }
 

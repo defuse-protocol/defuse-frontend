@@ -15,13 +15,18 @@ type Props = {
   fullWidth?: boolean
   disabled?: boolean
   loading?: boolean
+  align?: "center" | "start"
   className?: string
   onClick?: React.MouseEventHandler<HTMLElement>
   href?: string
   target?: React.AnchorHTMLAttributes<HTMLAnchorElement>["target"]
   rel?: React.AnchorHTMLAttributes<HTMLAnchorElement>["rel"]
   children: ReactNode
-}
+} & Omit<
+  React.ButtonHTMLAttributes<HTMLButtonElement> &
+    React.AnchorHTMLAttributes<HTMLAnchorElement>,
+  "type" | "className" | "onClick" | "href" | "target" | "rel" | "children"
+>
 
 type Ref = HTMLButtonElement | HTMLAnchorElement
 
@@ -33,21 +38,24 @@ const Button = forwardRef<Ref, Props>(function Button(
     fullWidth = false,
     disabled = false,
     loading = false,
+    align = "center",
     className = "",
     onClick,
     href,
     target,
     rel,
     children,
+    ...rest
   },
   ref
 ) {
   const isDisabled = disabled || loading
 
   const classes = clsx(
-    "items-center justify-center relative flex shrink-0 focus-visible:outline-2 disabled:pointer-events-none leading-none tracking-tight",
+    "items-center relative flex shrink-0 focus-visible:outline-2 disabled:pointer-events-none leading-none tracking-tight",
+    align === "center" ? "justify-center" : "justify-start",
     variant === "primary" &&
-      "bg-gray-900 text-white hover:bg-gray-700 outline-gray-900 disabled:bg-gray-200 disabled:text-gray-400 outline-offset-2",
+      "bg-gray-900 text-white hover:bg-gray-700 outline-gray-900 disabled:bg-gray-200 disabled:text-gray-400 outline-offset-2 focus-visible:bg-gray-700",
     variant === "secondary" &&
       "bg-gray-100 text-gray-700 hover:bg-gray-200 outline-gray-900 disabled:text-gray-300 -outline-offset-2",
     variant === "outline" &&
@@ -61,14 +69,15 @@ const Button = forwardRef<Ref, Props>(function Button(
     size === "md" && "h-9 px-3 text-sm font-bold rounded-xl",
     size === "sm" && "h-8 px-3 text-sm font-semibold rounded-lg",
     fullWidth && "w-full",
+
     className
   )
 
   const content = (
     <>
       <span
-        className={clsx("flex items-center gap-2", {
-          "gap-x-1": ["sm", "md"].includes(size),
+        className={clsx("flex items-center", {
+          "gap-x-1.5": ["sm", "md"].includes(size),
           "gap-x-2": ["lg", "xl"].includes(size),
           "opacity-0": loading,
         })}
@@ -91,6 +100,7 @@ const Button = forwardRef<Ref, Props>(function Button(
           className={classes}
           disabled={isDisabled}
           ref={ref as React.Ref<HTMLButtonElement>}
+          {...rest}
         >
           {content}
         </button>
@@ -106,6 +116,7 @@ const Button = forwardRef<Ref, Props>(function Button(
           onClick={onClick}
           target={target}
           rel={rel}
+          {...rest}
         >
           {content}
         </a>
@@ -118,6 +129,7 @@ const Button = forwardRef<Ref, Props>(function Button(
         href={href}
         ref={ref as React.Ref<HTMLAnchorElement>}
         onClick={onClick}
+        {...rest}
       >
         {content}
       </Link>
@@ -131,6 +143,7 @@ const Button = forwardRef<Ref, Props>(function Button(
       className={classes}
       disabled={isDisabled}
       ref={ref as React.Ref<HTMLButtonElement>}
+      {...rest}
     >
       {content}
     </button>

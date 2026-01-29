@@ -92,27 +92,16 @@ const Assets = ({
           return (
             <ListItem
               key={getDefuseAssetId(token)}
-              popoverContent={
-                <>
-                  <Button size="sm" href="/send">
-                    <SendIcon className="size-4 shrink-0" />
-                    Send
-                  </Button>
-                  <Button
-                    size="sm"
-                    href={`/swap?from=${token.symbol}&to=${toTokenSymbol}`}
-                  >
-                    <SwapIcon className="size-4 shrink-0" />
-                    Swap
-                  </Button>
-                </>
-              }
+              dropdownMenuItems={[
+                { label: "Send", href: "/send", icon: SendIcon },
+                {
+                  label: "Swap",
+                  href: `/swap?from=${token.symbol}&to=${toTokenSymbol}`,
+                  icon: SwapIcon,
+                },
+              ]}
             >
-              <AssetComboIcon
-                icon={token.icon}
-                name={token.name}
-                showChainIcon
-              />
+              <AssetComboIcon icon={token.icon} showChainIcon />
 
               <ListItem.Content>
                 <ListItem.Title>{token.name}</ListItem.Title>

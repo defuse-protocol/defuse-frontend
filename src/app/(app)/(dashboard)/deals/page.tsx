@@ -1,6 +1,7 @@
 "use client"
 
 import { OtcMakerTrades } from "@src/components/DefuseSDK/features/otcDesk/components/OtcMakerTrades"
+
 import { SwapWidgetProvider } from "@src/components/DefuseSDK/providers/SwapWidgetProvider"
 
 import DealsHeader from "@src/components/DealsHeader"

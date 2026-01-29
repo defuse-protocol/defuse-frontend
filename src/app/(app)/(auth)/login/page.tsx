@@ -3,9 +3,10 @@
 import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
 import { useWebAuthnUIStore } from "@src/features/webauthn/hooks/useWebAuthnUiStore"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
-import { PasskeyIcon } from "@src/icons"
+import { NearIntentsLogoIcon, PasskeyIcon } from "@src/icons"
 import { useTonConnectUI } from "@tonconnect/ui-react"
 import Image from "next/image"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import type { Connector } from "wagmi"
@@ -23,26 +24,57 @@ export default function LoginPage() {
   }, [state.address, router])
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center">
-      <div className="max-w-md w-full flex flex-col items-center">
-        <div className="flex items-center justify-center size-20 bg-gray-100 rounded-2xl mx-auto">
-          !logo - test!
-        </div>
+    <div className="flex-1 flex flex-col items-center px-4 py-20">
+      <div className="max-w-md w-full flex flex-col items-start">
+        <Link href="/" className="shrink-0">
+          <span className="sr-only">Home</span>
+          <NearIntentsLogoIcon className="h-4 text-black" />
+        </Link>
 
-        <h1 className="mt-8 text-3xl font-bold text-gray-900 text-center text-balance leading-[1.1] tracking-tight">
-          Log in to your account
+        <h1 className="mt-10! text-2xl font-bold text-gray-900 tracking-tight">
+          Sign up or Sign in
         </h1>
 
-        <div className="grid grid-cols-2 gap-2 mt-8 w-full">
-          <LoginButton
-            name="Passkey"
-            icon={
-              <div className="flex items-center justify-center size-10 bg-gray-100 rounded-full">
-                <PasskeyIcon className="size-5" />
-              </div>
-            }
-            onClick={() => webauthnUI.open()}
-          />
+        <p className="mt-2! text-sm font-medium text-gray-500">
+          Pick your wallet or passkey below—returning users{" "}
+          <span className="font-bold text-gray-700">sign in</span>, new users{" "}
+          <span className="font-bold text-gray-700">create an account</span>{" "}
+          instantly. Deposit assets and start swapping, earning yield, privately
+          trading, and more.
+        </p>
+
+        <button
+          type="button"
+          onClick={() => webauthnUI.open()}
+          className="mt-8 flex flex-col items-start p-5 rounded-2xl text-left outline outline-gray-200 bg-white hover:outline-2 hover:outline-gray-300 focus-visible:outline-2 focus-visible:outline-gray-900"
+        >
+          <div className="flex items-start justify-between gap-2 self-stretch">
+            <div className="flex items-center justify-center size-10 bg-gray-100 rounded-full">
+              <PasskeyIcon className="size-5" />
+            </div>
+            <div className="flex items-center gap-1.5 text-xs/none font-semibold text-green-700 bg-green-100 rounded-md px-2 py-1.5 whitespace-pre">
+              <span className="size-1.5 rounded-full bg-green-500 shrink-0" />
+              Recommended
+            </div>
+          </div>
+          <span className="mt-6 text-base font-semibold text-gray-900">
+            Continue with passkey
+          </span>
+          <span className="mt-2 text-sm font-medium text-gray-500 text-balance">
+            Use a passkey for the best experience, and one that syncs across
+            your devices.
+          </span>
+        </button>
+
+        <div className="mt-10 flex items-center gap-x-6 self-stretch">
+          <div className="w-full flex-1 border-t border-gray-200" />
+          <p className="text-sm/6 font-medium text-nowrap text-gray-500">
+            Or, use almost any Web3 wallet
+          </p>
+          <div className="w-full flex-1 border-t border-gray-200" />
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 mt-10 w-full">
           <LoginButton
             name="Solana"
             iconSrc="/static/icons/wallets/solana-wallet.svg"
@@ -108,7 +140,7 @@ function LoginButton({
     <button
       type="button"
       onClick={onClick}
-      className="rounded-2xl p-4 text-left flex flex-col items-start gap-4 outline outline-gray-200 bg-white group hover:outline-2 hover:outline-gray-300 hover:border-gray-300 focus-visible:outline-2 focus-visible:outline-gray-900"
+      className="rounded-2xl p-5 text-left flex flex-col items-start gap-4 outline outline-gray-200 bg-white group hover:outline-2 hover:outline-gray-300 focus-visible:outline-2 focus-visible:outline-gray-900"
     >
       {icon ??
         (iconSrc ? (
@@ -116,7 +148,7 @@ function LoginButton({
         ) : (
           <TokenIconPlaceholder className="size-10" />
         ))}
-      <span className="text-base font-medium text-gray-900">{name}</span>
+      <span className="text-base font-semibold text-gray-900">{name}</span>
     </button>
   )
 }

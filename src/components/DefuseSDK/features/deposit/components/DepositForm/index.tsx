@@ -21,6 +21,7 @@ import {
   getDerivedToken,
   isMinAmountNotRequired,
 } from "@src/components/DefuseSDK/utils/tokenUtils"
+import PageHeader from "@src/components/PageHeader"
 import TabSwitcher from "@src/components/TabSwitcher"
 import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
 import { useSelector } from "@xstate/react"
@@ -29,7 +30,6 @@ import { useEffect, useState } from "react"
 import { Controller, useFormContext } from "react-hook-form"
 import AssetComboIcon from "../../../../components/Asset/AssetComboIcon"
 import { AuthGate } from "../../../../components/AuthGate"
-import { Form } from "../../../../components/Form"
 import type { ModalSelectAssetsPayload } from "../../../../components/Modal/ModalSelectAssets"
 import { SelectTriggerLike } from "../../../../components/Select/SelectTriggerLike"
 import { getBlockchainsOptions } from "../../../../constants/blockchains"
@@ -60,7 +60,7 @@ export const DepositForm = ({
   renderHostAppLink: RenderHostAppLink
 }) => {
   const [isNetworkModalOpen, setIsNetworkModalOpen] = useState(false)
-  const { handleSubmit, register, control, setValue, watch } =
+  const { handleSubmit, control, setValue, watch } =
     useFormContext<DepositFormValues>()
 
   const depositUIActorRef = DepositUIMachineContext.useActorRef()
@@ -202,6 +202,7 @@ export const DepositForm = ({
   const { availableNetworks, disabledNetworks } = usePreparedNetworkLists({
     networks: getBlockchainsOptions(),
     token,
+    chainType,
   })
 
   const networkEnum = assetNetworkAdapter[network as SupportedChainName]
@@ -216,15 +217,9 @@ export const DepositForm = ({
         Back
       </Link>
 
-      <h1 className="text-gray-900 text-xl font-semibold tracking-tight mt-4">
-        Deposit crypto
-      </h1>
+      <PageHeader title="Deposit crypto" className="mt-4" />
 
-      <Form<DepositFormValues>
-        handleSubmit={handleSubmit(onSubmit)}
-        register={register}
-        className="mt-6"
-      >
+      <form onSubmit={handleSubmit(onSubmit)} className="mt-6">
         <div className="flex flex-col gap-2">
           <SelectTriggerLike
             icon={
@@ -339,11 +334,11 @@ export const DepositForm = ({
 
         {userAddress && network && !isActiveDeposit && !isPassiveDeposit && (
           <Alert variant="info" className="mt-6">
-            Deposit is not supported for this wallet connection, please try
-            another token or network
+            Deposits are not supported on this network. Please select a
+            different network.
           </Alert>
         )}
-      </Form>
+      </form>
     </>
   )
 }

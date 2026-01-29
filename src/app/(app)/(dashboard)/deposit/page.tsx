@@ -1,5 +1,6 @@
 import Button from "@src/components/Button"
 import DepositPromo from "@src/components/DepositPromo"
+import PageHeader from "@src/components/PageHeader"
 import { EurIcon, UsdIcon } from "@src/icons"
 import clsx from "clsx"
 import Link from "next/link"
@@ -33,9 +34,7 @@ export default function DepositPage() {
 
   return (
     <>
-      <h1 className="text-gray-900 text-xl font-semibold tracking-tight">
-        Add funds to your NEAR Intents account
-      </h1>
+      <PageHeader title="Add funds to your NEAR Intents account" />
 
       <section className="mt-6 space-y-2">
         <Card>

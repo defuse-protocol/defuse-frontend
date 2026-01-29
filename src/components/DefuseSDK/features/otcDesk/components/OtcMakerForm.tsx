@@ -261,6 +261,22 @@ export function OtcMakerForm({
   const hasAmountIn = Number(formValues.amountIn) > 0
   const hasAmountOut = Number(formValues.amountOut) > 0
 
+  const balanceInsufficient = useMemo(() => {
+    if (!tokenInBalance || !formValues.amountIn) return false
+    const parsed = Number.parseFloat(formValues.amountIn)
+    if (Number.isNaN(parsed) || parsed <= 0) return false
+
+    try {
+      const [intPart, decPart = ""] = formValues.amountIn.split(".")
+      const paddedDecimal = decPart
+        .slice(0, tokenInBalance.decimals)
+        .padEnd(tokenInBalance.decimals, "0")
+      return BigInt(intPart + paddedDecimal) > tokenInBalance.amount
+    } catch {
+      return false
+    }
+  }, [formValues.amountIn, tokenInBalance])
+
   const error = rootSnapshot.context.error
 
   const isReviewOpen =
@@ -312,7 +328,6 @@ export function OtcMakerForm({
           }}
         >
           <TokenInputCard
-            label="You send"
             balance={balanceAmountIn}
             decimals={tokenInBalance?.decimals ?? 0}
             symbol={formValues.tokenIn?.symbol}
@@ -330,6 +345,12 @@ export function OtcMakerForm({
               onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
                 formValuesRef.trigger.updateAmountIn({ value: e.target.value }),
             }}
+            hasError={balanceInsufficient}
+            error={
+              balanceInsufficient
+                ? "Amount entered exceeds available balance"
+                : undefined
+            }
           />
 
           <div className="flex items-center justify-center -my-3.5">
@@ -347,7 +368,6 @@ export function OtcMakerForm({
           </div>
 
           <TokenInputCard
-            label="You receive"
             balance={balanceAmountOut}
             decimals={tokenOutBalance?.decimals ?? 0}
             symbol={formValues.tokenOut?.symbol}
@@ -366,6 +386,7 @@ export function OtcMakerForm({
                   value: e.target.value,
                 }),
             }}
+            isOutputField
           />
 
           <div className="mt-5 flex justify-between items-center">
