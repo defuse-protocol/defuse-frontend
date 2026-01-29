@@ -433,8 +433,8 @@ export const intentsChainIcon = {
 
 /** Icon for Near Intents account option (the favicon) */
 export const nearIntentsAccountIcon = {
-  dark: "/static/icons/network/near-intents-account.svg",
-  light: "/static/icons/network/near-intents-account.svg",
+  dark: "/static/icons/network/intents.svg",
+  light: "/static/icons/network/intents.svg",
 }
 
 export const INTENTS_EXPLORER_URL = "https://explorer.near-intents.org"
