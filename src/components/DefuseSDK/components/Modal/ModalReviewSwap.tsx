@@ -16,6 +16,7 @@ const ModalReviewSwap = ({
   open,
   onClose,
   onConfirm,
+  onOpenSlippageSettings,
   loading,
   intentCreationResult,
   tokenIn,
@@ -28,6 +29,7 @@ const ModalReviewSwap = ({
   open: boolean
   onClose: () => void
   onConfirm: () => void
+  onOpenSlippageSettings: () => void
   loading: boolean
   intentCreationResult: Context["intentCreationResult"]
   tokenIn: TokenInfo
@@ -83,12 +85,18 @@ const ModalReviewSwap = ({
 
         <div className="flex items-center justify-between">
           <dt className="text-sm text-gray-500 font-medium">Max slippage</dt>
-          <dd className="text-sm font-semibold text-gray-900">
-            {Intl.NumberFormat(undefined, {
-              style: "percent",
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            }).format(slippageBasisPoints / Number(BASIS_POINTS_DENOMINATOR))}
+          <dd>
+            <button
+              type="button"
+              onClick={onOpenSlippageSettings}
+              className="text-sm font-semibold text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              {Intl.NumberFormat(undefined, {
+                style: "percent",
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }).format(slippageBasisPoints / Number(BASIS_POINTS_DENOMINATOR))}
+            </button>
           </dd>
         </div>
 
