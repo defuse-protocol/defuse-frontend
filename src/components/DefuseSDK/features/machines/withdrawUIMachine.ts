@@ -8,7 +8,7 @@ import {
   type SnapshotFrom,
   assign,
   emit,
-  enqueueActions,
+  not,
   sendTo,
   setup,
 } from "xstate"
@@ -92,10 +92,11 @@ export type Context = {
   intentCreationResult: SwapIntentMachineOutput | null
   tokenList: TokenInfo[]
   presets: Presets
+  cachedPrices: TokenUsdPriceData | null
   depositedBalanceRef: ActorRefFrom<typeof depositedBalanceMachine>
   withdrawFormRef: ActorRefFrom<typeof withdrawFormReducer>
   poaBridgeInfoRef: ActorRefFrom<typeof poaBridgeInfoActor>
-  tokenResolutionRef: ActorRefFrom<typeof tokenResolutionMachine> | null
+  initialToken: TokenInfo
   submitDeps: {
     userAddress: string
     userChainType: AuthMethod
@@ -248,17 +249,6 @@ export const withdrawUIMachine = setup({
 
     fetchPOABridgeInfo: sendTo("poaBridgeInfoRef", { type: "FETCH" }),
 
-    forwardBalancesToResolution: enqueueActions(
-      ({ context, enqueue }, params: { balances: BalanceMapping }) => {
-        if (context.tokenResolutionRef) {
-          enqueue.sendTo(context.tokenResolutionRef, {
-            type: "BALANCES_RECEIVED",
-            balances: params.balances,
-          })
-        }
-      }
-    ),
-
     applyResolvedToken: ({ context }, output: { token: TokenInfo }) => {
       const token = output.token
       const decimals = getTokenMaxDecimals(token)
@@ -272,7 +262,7 @@ export const withdrawUIMachine = setup({
           }
         }
       } catch {
-        // Invalid amount format, ignore
+        logger.warn("Invalid preset amount format", { amount })
       }
 
       context.withdrawFormRef.send({
@@ -280,10 +270,6 @@ export const withdrawUIMachine = setup({
         params: { token, parsedAmount },
       })
     },
-
-    clearTokenResolutionRef: assign({
-      tokenResolutionRef: null,
-    }),
   },
   guards: {
     isTrue: (_, value: boolean) => value,
@@ -331,8 +317,8 @@ export const withdrawUIMachine = setup({
 
     isOk: (_, a: { tag: "err" | "ok" }) => a.tag === "ok",
 
-    hasTokenResolutionRef: ({ context }) => {
-      return context.tokenResolutionRef != null
+    needsTokenResolution: ({ context }) => {
+      return context.presets.tokenSymbol == null
     },
   },
 }).createMachine({
@@ -341,7 +327,6 @@ export const withdrawUIMachine = setup({
 
   context: ({ input, spawn, self }) => {
     const presets = parsePresets(input.rawPresets)
-    const needsResolution = presets.tokenSymbol == null
 
     return {
       error: null,
@@ -349,6 +334,8 @@ export const withdrawUIMachine = setup({
       intentCreationResult: null,
       tokenList: input.tokenList,
       presets,
+      cachedPrices: input.cachedPrices,
+      initialToken: input.tokenIn,
       withdrawalSpec: null,
       userAddress: null,
       depositedBalanceRef: spawn("depositedBalanceActor", {
@@ -366,20 +353,6 @@ export const withdrawUIMachine = setup({
       poaBridgeInfoRef: spawn("poaBridgeInfoActor", {
         id: "poaBridgeInfoRef",
       }),
-      tokenResolutionRef: needsResolution
-        ? spawn("tokenResolutionActor", {
-            id: "tokenResolutionRef",
-            input: {
-              tokenList: input.tokenList,
-              initialToken: input.tokenIn,
-              presets: {
-                network: presets.network,
-                tokenSymbol: presets.tokenSymbol,
-              } satisfies TokenResolutionPresets,
-              initialPrices: input.cachedPrices,
-            },
-          })
-        : null,
       submitDeps: null,
       nep141StorageOutput: null,
       nep141StorageQuote: null,
@@ -426,23 +399,44 @@ export const withdrawUIMachine = setup({
         },
       ],
     },
-
-    "xstate.done.actor.tokenResolutionRef": {
-      actions: [
-        {
-          type: "applyResolvedToken",
-          params: ({
-            event,
-          }: {
-            event: { output: { token: TokenInfo } }
-          }) => event.output,
-        },
-        "clearTokenResolutionRef",
-      ],
-    },
   },
 
   states: {
+    resolving: {
+      always: {
+        target: "editing",
+        guard: not("needsTokenResolution"),
+      },
+      invoke: {
+        id: "tokenResolutionRef",
+        src: "tokenResolutionActor",
+        input: ({ context }) => ({
+          tokenList: context.tokenList,
+          initialToken: context.initialToken,
+          presets: {
+            network: context.presets.network,
+            tokenSymbol: context.presets.tokenSymbol,
+          } satisfies TokenResolutionPresets,
+          initialPrices: context.cachedPrices,
+        }),
+        onDone: {
+          target: "editing",
+          actions: {
+            type: "applyResolvedToken",
+            params: ({ event }) => event.output,
+          },
+        },
+      },
+      on: {
+        BALANCE_CHANGED: {
+          actions: sendTo("tokenResolutionRef", ({ event }) => ({
+            type: "BALANCES_RECEIVED",
+            balances: event.params.changedBalanceMapping,
+          })),
+        },
+      },
+    },
+
     editing: {
       initial: "idle",
 
@@ -458,15 +452,6 @@ export const withdrawUIMachine = setup({
         },
 
         BALANCE_CHANGED: [
-          {
-            guard: "hasTokenResolutionRef",
-            actions: {
-              type: "forwardBalancesToResolution",
-              params: ({ event }) => ({
-                balances: event.params.changedBalanceMapping,
-              }),
-            },
-          },
           {
             guard: {
               type: "isBalanceSufficientForQuote",
@@ -673,11 +658,11 @@ export const withdrawUIMachine = setup({
     },
   },
 
-  initial: "editing",
+  initial: "resolving",
 })
 
 export function isTokenResolvingSelector(
   state: SnapshotFrom<typeof withdrawUIMachine>
 ): boolean {
-  return state.context.tokenResolutionRef != null
+  return state.matches("resolving")
 }
