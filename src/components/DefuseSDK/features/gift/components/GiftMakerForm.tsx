@@ -169,6 +169,7 @@ export function GiftMakerForm({
     const token = _payload[fieldName || "token"]
     if (modalType === ModalType.MODAL_SELECT_ASSETS && fieldName && token) {
       formValuesRef.trigger.updateToken({ value: token })
+      formValuesRef.trigger.updateAmount({ value: "" })
     }
   }, [payload, formValuesRef])
 

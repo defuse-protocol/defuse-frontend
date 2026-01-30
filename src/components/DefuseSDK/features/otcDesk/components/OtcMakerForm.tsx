@@ -181,6 +181,10 @@ export function OtcMakerForm({
         const token = _payload[fieldName || "token"]
 
         if (fieldName && token) {
+          // Clear amounts when token changes to avoid balance errors
+          formValuesRef.trigger.updateAmountIn({ value: "" })
+          formValuesRef.trigger.updateAmountOut({ value: "" })
+
           switch (fieldName) {
             case SWAP_TOKEN_FLAGS.IN:
               if (
