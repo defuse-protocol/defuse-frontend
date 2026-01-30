@@ -332,7 +332,7 @@ export default function HistoryPage({
         </Button>
       </div>
 
-      <section className="mt-10">
+      <section className="mt-6 space-y-1">
         {isWalletHydrating ? (
           <ListItemsSkeleton count={3} loading />
         ) : (
@@ -433,12 +433,9 @@ function TransactionList({
 
   return (
     <>
-      <div className="space-y-1">
-        {transactions.map((tx: SwapTransaction) => (
-          <HistoryItem key={tx.id} transaction={tx} tokenList={tokenList} />
-        ))}
-      </div>
-
+      {transactions.map((tx: SwapTransaction) => (
+        <HistoryItem key={tx.id} transaction={tx} tokenList={tokenList} />
+      ))}
       {hasNextPage && <div ref={loadMoreTriggerRef} className="h-1" />}
       {isFetchingNextPage && <ListItemsSkeleton count={3} loading />}
     </>
