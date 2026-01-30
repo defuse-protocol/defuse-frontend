@@ -1,121 +1,76 @@
 "use client"
 
-import { ExternalLinkIcon } from "@radix-ui/react-icons"
-import { Separator } from "@radix-ui/themes"
-import {
-  type SystemPostType,
-  type SystemStatusType,
-  useSystemStatus,
-} from "@src/providers/SystemStatusProvider"
-import Link from "next/link"
+import { useSystemStatus } from "@src/providers/SystemStatusProvider"
+import clsx from "clsx"
 
 const SYSTEM_STATUS_URL = "https://status.near-intents.org/posts/dashboard"
 
-export function SystemStatus() {
-  return (
-    <>
-      <SystemStatus.Desktop />
-      <SystemStatus.Mobile />
-    </>
-  )
+type Props = {
+  className?: string
+  showOperationalStatus?: boolean
 }
 
-SystemStatus.Desktop = function Desktop() {
-  const systemStatus = useSystemStatus()
+function SystemStatus({ className, showOperationalStatus = false }: Props) {
+  const status = useSystemStatus()
+
+  if (!status && !showOperationalStatus) return null
+
+  const statusType = status?.status ?? null
+
+  let text = "All systems operational"
+
+  if (statusType === "maintenance") {
+    text = "Maintenance in progress"
+  }
+
+  if (statusType === "incident") {
+    text = "Incident detected"
+  }
+
   return (
-    <div className="hidden md:block fixed bottom-0 left-0 mx-3 my-6 z-10">
-      <Link href={SYSTEM_STATUS_URL} target="_blank">
-        <div className="flex items-center gap-2 rounded-lg px-3 py-2 w-fit hover:bg-gray-a3 dark:hover:bg-gray-800 text-sm">
-          <SystemStatus.StatusIndicator
-            systemStatus={systemStatus}
-            hideOperationalStatus={true}
-          />
-        </div>
-      </Link>
+    <div
+      className={clsx(
+        "flex items-center justify-center gap-3 px-4 py-2.5 rounded-xl",
+        {
+          "bg-red-50": statusType === "incident",
+          "bg-yellow-200": statusType === "maintenance",
+          "bg-blue-100": !statusType,
+        },
+        className
+      )}
+    >
+      <span className="relative flex size-2.5">
+        {statusType === "incident" && (
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 bg-red-500" />
+        )}
+        <span
+          className={clsx("relative inline-flex size-2.5 rounded-full", {
+            "bg-yellow-800": statusType === "maintenance",
+            "bg-red-500": statusType === "incident",
+            "bg-blue-500": !statusType,
+          })}
+        />
+      </span>
+
+      <p
+        className={clsx("text-sm", {
+          "text-yellow-800": statusType === "maintenance",
+          "text-red-700": statusType === "incident",
+          "text-blue-700": !statusType,
+        })}
+      >
+        <span className="font-semibold">{text}</span>
+        <a
+          href={SYSTEM_STATUS_URL}
+          target="_blank"
+          rel="noreferrer noopener"
+          className="font-medium underline ml-3"
+        >
+          View status
+        </a>
+      </p>
     </div>
   )
 }
 
-SystemStatus.Mobile = function Mobile() {
-  const systemStatus = useSystemStatus()
-  return (
-    <div className="md:hidden flex flex-col gap-4">
-      <Separator orientation="horizontal" size="4" />
-      <Link href={SYSTEM_STATUS_URL} target="_blank">
-        <div className="text-xs">
-          <SystemStatus.StatusIndicator
-            systemStatus={systemStatus}
-            mobile={true}
-            hideOperationalStatus={true}
-          />
-        </div>
-      </Link>
-    </div>
-  )
-}
-
-SystemStatus.StatusIndicator = function StatusIndicator({
-  systemStatus,
-  mobile = false,
-  hideOperationalStatus = false,
-}: {
-  systemStatus: SystemStatusType | null
-  mobile?: boolean
-  hideOperationalStatus?: boolean
-}) {
-  const prioritySystemStatus = systemStatus
-    ? getSystemStatusPriority(systemStatus)
-    : null
-
-  if (hideOperationalStatus && prioritySystemStatus === null) {
-    return null
-  }
-
-  if (mobile) {
-    return (
-      <div className="flex items-center justify-between gap-2">
-        {renderStatusIcon(prioritySystemStatus)}
-        {renderStatusText(prioritySystemStatus)}
-        <ExternalLinkIcon width={16} height={16} />
-      </div>
-    )
-  }
-
-  return (
-    <span className="flex items-center gap-2">
-      {renderStatusIcon(prioritySystemStatus)}
-      {renderStatusText(prioritySystemStatus)}
-    </span>
-  )
-}
-
-function renderStatusIcon(systemStatus: SystemPostType | null) {
-  if (systemStatus?.status === "maintenance") {
-    return <span className="bg-yellow-400 w-2 h-2 rounded-full" />
-  }
-  if (systemStatus?.status === "incident") {
-    return <span className="bg-red-500 w-2 h-2 rounded-full" />
-  }
-  return <span className="bg-blue-400 w-2 h-2 rounded-full" />
-}
-
-function renderStatusText(systemStatus: SystemPostType | null) {
-  if (systemStatus?.status === "maintenance") {
-    return <span className="text-blue-400">Maintenance in progress</span>
-  }
-  if (systemStatus?.status === "incident") {
-    return <span className="text-red-9">Incident detected</span>
-  }
-  return <span className="text-blue-400">All systems operational</span>
-}
-
-// Prioritize incident over maintenance
-export function getSystemStatusPriority(systemStatus: SystemStatusType) {
-  const incident = systemStatus.find((status) => status.status === "incident")
-  if (incident) return incident
-
-  const maintenance = systemStatus.find(
-    (status) => status.status === "maintenance"
-  )
-  return maintenance || null
-}
+export default SystemStatus

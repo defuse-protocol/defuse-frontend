@@ -45,7 +45,7 @@ const ModalReviewDeal = ({
               {formatUsdAmount(usdAmountIn)}
             </div>
           </div>
-          <AssetComboIcon icon={tokenIn?.icon} name={tokenIn?.name} />
+          <AssetComboIcon icon={tokenIn?.icon} />
         </div>
 
         <ArrowDownIcon className="size-6 text-gray-400" />
@@ -59,7 +59,7 @@ const ModalReviewDeal = ({
               {formatUsdAmount(usdAmountOut)}
             </div>
           </div>
-          <AssetComboIcon icon={tokenOut?.icon} name={tokenOut?.name} />
+          <AssetComboIcon icon={tokenOut?.icon} />
         </div>
       </div>
 

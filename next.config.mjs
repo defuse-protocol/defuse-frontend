@@ -19,6 +19,25 @@ const nextConfig = {
       },
     ]
   },
+  async redirects() {
+    return [
+      {
+        source: '/terms-of-service',
+        destination: '/terms',
+        permanent: true,
+      },
+      {
+        source: '/terms-and-conditions',
+        destination: '/terms',
+        permanent: true,
+      },
+      {
+        source: '/privacy-policy',
+        destination: '/privacy',
+        permanent: true,
+      },
+    ]
+  },
   turbopack: {
     rules: {
       "*.svg": {

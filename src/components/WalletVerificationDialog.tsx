@@ -12,6 +12,7 @@ type ContentProps = {
   onConfirm: () => void
   onCancel: () => void
   isVerifying: boolean
+  isTokenExpired?: boolean
 }
 
 export function WalletVerificationDialog({
@@ -71,7 +72,12 @@ export function WalletVerificationDialog({
   )
 }
 
-function DefaultContent({ onConfirm, onCancel, isVerifying }: ContentProps) {
+function DefaultContent({
+  onConfirm,
+  onCancel,
+  isVerifying,
+  isTokenExpired = false,
+}: ContentProps) {
   return (
     <>
       <div className="flex flex-col items-center text-center">
@@ -79,11 +85,12 @@ function DefaultContent({ onConfirm, onCancel, isVerifying }: ContentProps) {
           <LockClosedIcon className="w-6 h-6 text-gray-600" />
         </div>
         <AlertDialog.Title className="text-xl font-bold text-gray-900 tracking-tight">
-          Verify your wallet
+          {isTokenExpired ? "Re-verify your wallet" : "Verify your wallet"}
         </AlertDialog.Title>
         <AlertDialog.Description className="mt-2 text-sm text-gray-500 text-balance">
-          Sign a message to verify ownership of your wallet and unlock all
-          features.
+          {isTokenExpired
+            ? "Your verification session has expired. Please sign a message again to continue using all features."
+            : "Sign a message to verify ownership of your wallet and unlock all features."}
         </AlertDialog.Description>
       </div>
 

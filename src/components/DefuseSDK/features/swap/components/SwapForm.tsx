@@ -1,7 +1,6 @@
 import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import { MagnifyingGlassIcon } from "@heroicons/react/16/solid"
-import { ArrowDownIcon } from "@heroicons/react/20/solid"
-import Alert from "@src/components/Alert"
+import { ArrowDownIcon, XCircleIcon } from "@heroicons/react/20/solid"
 import Button from "@src/components/Button"
 import ModalReviewSwap from "@src/components/DefuseSDK/components/Modal/ModalReviewSwap"
 import { useTokensUsdPrices } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
@@ -10,10 +9,14 @@ import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
 import { getDefuseAssetId } from "@src/components/DefuseSDK/utils/token"
+import ErrorMessage from "@src/components/ErrorMessage"
+import PageHeader from "@src/components/PageHeader"
+import { SwapStatus } from "@src/components/SwapStatus"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useThrottledValue } from "@src/hooks/useThrottledValue"
+import { useSwapTrackerMachine } from "@src/providers/SwapTrackerMachineProvider"
 import { useSelector } from "@xstate/react"
-import { useCallback, useContext, useEffect } from "react"
+import { useCallback, useContext, useEffect, useRef, useState } from "react"
 import { useFormContext } from "react-hook-form"
 import type { SnapshotFrom } from "xstate"
 import { AuthGate } from "../../../components/AuthGate"
@@ -58,6 +61,19 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const snapshot = SwapUIMachineContext.useSelector((snapshot) => snapshot)
   const intentCreationResult = snapshot.context.intentCreationResult
   const { data: tokensUsdPriceData } = useTokensUsdPrices()
+
+  const { trackedSwaps } = useSwapTrackerMachine()
+  const [showInlineStatus, setShowInlineStatus] = useState(true)
+  const prevSwapIdRef = useRef<string | null>(null)
+
+  const mostRecentSwap = trackedSwaps[0]
+
+  if (mostRecentSwap?.id !== prevSwapIdRef.current) {
+    prevSwapIdRef.current = mostRecentSwap?.id ?? null
+    if (mostRecentSwap && !showInlineStatus) {
+      setShowInlineStatus(true)
+    }
+  }
 
   const formValuesRef = useSelector(swapUIActorRef, formValuesSelector)
   const { tokenIn, tokenOut } = formValuesRef
@@ -293,7 +309,6 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     tokenPrice: tokenInPrice,
     handleToggle: handleToggleUsdModeIn,
     handleInputChange: handleUsdInputChangeRaw,
-    clearUsdValue: clearUsdValueIn,
   } = useUsdMode({
     direction: "input",
     tokenIn,
@@ -303,14 +318,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     swapUIActorRef,
   })
 
-  const {
-    isUsdMode: isUsdModeOut,
-    usdValue: usdValueOut,
-    tokenPrice: tokenOutPrice,
-    handleToggle: handleToggleUsdModeOut,
-    handleInputChange: handleUsdOutputChangeRaw,
-    clearUsdValue: clearUsdValueOut,
-  } = useUsdMode({
+  const { tokenPrice: tokenOutPrice } = useUsdMode({
     direction: "output",
     tokenIn,
     tokenOut,
@@ -318,23 +326,6 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     setValue,
     swapUIActorRef,
   })
-
-  // Wrap handlers to clear the other side's USD value
-  const handleUsdInputChange = useCallback(
-    (value: string) => {
-      clearUsdValueOut()
-      handleUsdInputChangeRaw(value)
-    },
-    [clearUsdValueOut, handleUsdInputChangeRaw]
-  )
-
-  const handleUsdOutputChange = useCallback(
-    (value: string) => {
-      clearUsdValueIn()
-      handleUsdOutputChangeRaw(value)
-    },
-    [clearUsdValueIn, handleUsdOutputChangeRaw]
-  )
 
   const is1cs = useIs1CsEnabled()
   const isSubmitting = snapshot.matches("submitting")
@@ -372,20 +363,43 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const amountOutEmpty = amountOut === ""
   const amountOutLoading = isLoadingQuote && amountOutEmpty
 
+  if (showInlineStatus && mostRecentSwap) {
+    return (
+      <SwapStatus
+        variant="full"
+        swap={mostRecentSwap}
+        onSwapAgain={() => setShowInlineStatus(false)}
+      />
+    )
+  }
+
   return (
     <>
-      <div className="flex justify-between items-center">
-        <h1 className="text-gray-900 text-xl font-semibold tracking-tight">
-          Swap
-        </h1>
+      <PageHeader
+        title="Swap"
+        intro={
+          <>
+            <p>
+              NEAR Intents is the most exciting swapping technology to have
+              emerged in recent years. Here, you can swap anything to almost
+              anything else. BTC to ETH? No problem. ETH to ZEC? No problem. ZEC
+              to SOL? No problem.
+            </p>
+            <p>
+              Fast and cheap! Swapping between assets in your account happen
+              within a couple of seconds, as competing "Solvers" compete to give
+              you the best price, every time!
+            </p>
+          </>
+        }
+      >
         <SwapSettings tokenIn={tokenIn} tokenOut={tokenOut} />
-      </div>
+      </PageHeader>
 
       <section className="mt-5">
         <form onSubmit={handleSubmit(onRequestReview)}>
           <div>
             <TokenInputCard
-              label="Sell"
               balance={balanceAmountIn}
               decimals={tokenInBalance?.decimals ?? 0}
               symbol={tokenIn.symbol}
@@ -408,11 +422,10 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                   ? {
                       name: "usdAmountIn",
                       onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-                        handleUsdInputChange(e.target.value)
+                        handleUsdInputChangeRaw(e.target.value)
                       },
                       onBlur: () => {},
                       ref: () => {},
-                      // Show user-entered value, or calculated USD from quote if empty
                       value:
                         usdValueIn ||
                         (usdAmountIn ? usdAmountIn.toFixed(2) : ""),
@@ -445,7 +458,12 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                       value: amountIn,
                     }
               }
-              error={errors.amountIn ? errors.amountIn.message : undefined}
+              hasError={balanceInsufficient}
+              error={
+                balanceInsufficient
+                  ? "Amount entered exceeds available balance"
+                  : errors.amountIn?.message
+              }
             />
 
             <div className="flex items-center justify-center -my-3.5">
@@ -464,7 +482,6 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             </div>
 
             <TokenInputCard
-              label="Buy"
               balance={balanceAmountOut}
               decimals={tokenOutBalance?.decimals ?? 0}
               symbol={tokenOut.symbol}
@@ -476,56 +493,22 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               handleSelectToken={() =>
                 openModalSelectAssets(SWAP_TOKEN_FLAGS.OUT, tokenOut)
               }
-              isUsdMode={isUsdModeOut}
+              isUsdMode={isUsdModeIn}
               tokenPrice={tokenOutPrice}
-              onToggleUsdMode={is1cs ? handleToggleUsdModeOut : undefined}
               tokenAmount={amountOut}
-              registration={
-                isUsdModeOut
-                  ? {
-                      name: "usdAmountOut",
-                      onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-                        handleUsdOutputChange(e.target.value)
-                      },
-                      onBlur: () => {},
-                      ref: () => {},
-                      // Show user-entered value, or calculated USD from quote if empty
-                      value:
-                        usdValueOut ||
-                        (usdAmountOut ? usdAmountOut.toFixed(2) : ""),
-                    }
-                  : {
-                      ...register("amountOut", {
-                        required: true,
-                        validate: (value) => {
-                          if (!value) return true
-                          const num = Number.parseFloat(value.replace(",", "."))
-                          return (
-                            (!Number.isNaN(num) && num > 0) ||
-                            "Enter a valid amount"
-                          )
-                        },
-                        onChange: (e) => {
-                          setValue("amountIn", "")
-                          swapUIActorRef.send({
-                            type: "input",
-                            params: {
-                              tokenIn,
-                              tokenOut,
-                              swapType: QuoteRequest.swapType.EXACT_OUTPUT,
-                              amountOut: e.target.value,
-                              amountIn: "",
-                            },
-                          })
-                        },
-                      }),
-                      value: amountOut,
-                    }
-              }
-              readOnly={!is1cs}
-              error={
-                errors.amountOut && is1cs ? errors.amountOut.message : undefined
-              }
+              isOutputField
+              registration={{
+                name: "amountOut",
+                onChange: () => {},
+                onBlur: () => {},
+                ref: () => {},
+                value: isUsdModeIn
+                  ? usdAmountOut
+                    ? usdAmountOut.toFixed(2)
+                    : ""
+                  : amountOut,
+              }}
+              readOnly
             />
           </div>
 
@@ -568,7 +551,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             </div>
           )}
 
-          {quote1csError && <Alert variant="error">{quote1csError}</Alert>}
+          {quote1csError && <Quote1csError quote1csError={quote1csError} />}
         </form>
 
         <ModalReviewSwap
@@ -586,6 +569,15 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
         />
       </section>
     </>
+  )
+}
+
+function Quote1csError({ quote1csError }: { quote1csError: string }) {
+  return (
+    <div className="mt-6 bg-red-50 pl-4 pr-6 py-4 rounded-2xl flex items-start gap-3">
+      <XCircleIcon className="size-5 shrink-0 text-red-600" aria-hidden />
+      <ErrorMessage>{quote1csError}</ErrorMessage>
+    </div>
   )
 }
 

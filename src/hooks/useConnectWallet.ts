@@ -371,6 +371,8 @@ export const useConnectWallet = (): ConnectWalletAction => {
         await clearActiveWalletToken()
 
         onSignOut()
+
+        await clearAuthToken()
         return strategies[params.id]()
       } catch (error) {
         const errorMessage =

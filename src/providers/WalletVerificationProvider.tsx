@@ -134,6 +134,10 @@ export function WalletVerificationProvider() {
               logger.error("Failed to set active wallet token:", { error })
             })
             addWalletAddress(state.address)
+
+            void queryClient.invalidateQueries({
+              queryKey: ["token_validity", state.address, state.chainType],
+            })
           }
         }}
         onAbort={() => {
