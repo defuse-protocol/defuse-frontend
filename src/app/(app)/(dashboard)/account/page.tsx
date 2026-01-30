@@ -244,18 +244,10 @@ function ShieldedAccountPreview() {
           {PLACEHOLDER_SHIELDED_ASSETS.map((asset) => (
             <ListItem
               key={asset.symbol}
-              popoverContent={
-                <>
-                  <Button size="sm">
-                    <SendIcon className="size-4 shrink-0" />
-                    Shielded Transfer
-                  </Button>
-                  <Button size="sm">
-                    <SwapIcon className="size-4 shrink-0" />
-                    Shielded Swap
-                  </Button>
-                </>
-              }
+              dropdownMenuItems={[
+                { label: "Shielded Transfer", href: "/send", icon: SendIcon },
+                { label: "Shielded Swap", href: "/swap", icon: SwapIcon },
+              ]}
             >
               <div className="size-10 rounded-full overflow-hidden bg-gray-100">
                 <img
