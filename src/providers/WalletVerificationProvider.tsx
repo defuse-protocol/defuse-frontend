@@ -15,11 +15,10 @@ import {
   walletVerificationMachine,
 } from "@src/machines/walletVerificationMachine"
 import { useBypassedWalletsStore } from "@src/stores/useBypassedWalletsStore"
-import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
 import { useWalletTokensStore } from "@src/stores/useWalletTokensStore"
 import { logger } from "@src/utils/logger"
 import { walletVerificationMessageFactory } from "@src/utils/walletMessage"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useActor } from "@xstate/react"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useRef } from "react"
@@ -31,6 +30,7 @@ export function WalletVerificationProvider() {
   const mixPanel = useMixpanel()
   const router = useRouter()
   const pathname = usePathname()
+  const queryClient = useQueryClient()
 
   const bannedAccountCheck = useQuery({
     queryKey: ["banned_account", state.address, state.chainType],
@@ -69,7 +69,6 @@ export function WalletVerificationProvider() {
     staleTime: 1000 * 60 * 60, // 1 hour,
   })
 
-  const { addWalletAddress } = useVerifiedWalletsStore()
   const { addBypassedWalletAddress, isWalletBypassed } =
     useBypassedWalletsStore()
   const { setToken } = useWalletTokensStore()
@@ -133,7 +132,6 @@ export function WalletVerificationProvider() {
             setActiveWalletToken(token).catch((error) => {
               logger.error("Failed to set active wallet token:", { error })
             })
-            addWalletAddress(state.address)
 
             void queryClient.invalidateQueries({
               queryKey: ["token_validity", state.address, state.chainType],

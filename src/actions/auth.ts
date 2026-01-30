@@ -13,28 +13,6 @@ import { cookies } from "next/headers"
 const AUTH_TOKEN_COOKIE_NAME = "defuse_auth_token"
 const COOKIE_MAX_AGE_SECONDS = JWT_EXPIRY_SECONDS
 
-export interface GenerateAuthTokenResult {
-  token: string
-  expiresAt: number
-}
-
-/**
- * Generate JWT token and return it with expiration timestamp
- */
-export async function generateAuthToken(
-  authIdentifier: string,
-  authMethod: AuthMethod
-): Promise<GenerateAuthTokenResult> {
-  const token = await generateAppAuthToken(authIdentifier, authMethod)
-  const expiresAt = getTokenExpiration(token)
-
-  if (!expiresAt) {
-    throw new Error("Failed to extract token expiration")
-  }
-
-  return { token, expiresAt }
-}
-
 /**
  * Set the active wallet token in an httpOnly cookie
  */

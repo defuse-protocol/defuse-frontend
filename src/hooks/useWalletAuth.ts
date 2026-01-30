@@ -1,5 +1,4 @@
 import { setActiveWalletToken, validateTokenForWallet } from "@src/actions/auth"
-import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
 import { useWalletTokensStore } from "@src/stores/useWalletTokensStore"
 import { useQuery } from "@tanstack/react-query"
 import { useCallback, useEffect } from "react"
@@ -12,7 +11,6 @@ export interface UseWalletAuthResult {
 /**
  * Hook that manages wallet authentication state including token validation
  * and cookie synchronization. Determines if a wallet is authorized based on:
- * - Legacy verified wallets store
  * - Valid JWT token (with server-side validation)
  * - Optimistic authorization during token validation
  */
@@ -20,14 +18,6 @@ export function useWalletAuth(
   address: string | undefined,
   chainType: string | undefined
 ): UseWalletAuthResult {
-  const isVerifiedFromStore = useVerifiedWalletsStore(
-    useCallback(
-      (store) =>
-        address != null ? store.walletAddresses.includes(address) : false,
-      [address]
-    )
-  )
-
   const storedToken = useWalletTokensStore(
     useCallback(
       (store) => (address != null ? store.getToken(address) : null),
@@ -69,7 +59,6 @@ export function useWalletAuth(
     !hasHydrated || (storedToken != null && tokenValidation.isPending)
 
   const isAuthorized =
-    isVerifiedFromStore ||
     tokenValidation.data?.valid === true ||
     (isTokenValidating && storedToken != null)
 

@@ -21,7 +21,7 @@ import { useSwapHistory } from "@src/features/balance-history/lib/useBalanceHist
 import type { SwapTransaction } from "@src/features/balance-history/types"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useTokenList } from "@src/hooks/useTokenList"
-import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
+import { useWalletTokensStore } from "@src/stores/useWalletTokensStore"
 import clsx from "clsx"
 import { useRouter } from "next/navigation"
 import {
@@ -71,7 +71,7 @@ export default function ActivityPage({
   const router = useRouter()
   const { state, isLoading: isWalletConnecting } = useConnectWallet()
   const tokenList = useTokenList(LIST_TOKENS)
-  const hasHydrated = useVerifiedWalletsStore((s) => s._hasHydrated)
+  const hasHydrated = useWalletTokensStore((s) => s._hasHydrated)
 
   const [hadPreviousSession, setHadPreviousSession] = useState(true)
   useEffect(() => {

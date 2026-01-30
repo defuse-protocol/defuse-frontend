@@ -6,13 +6,13 @@ import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useTokenList } from "@src/hooks/useTokenList"
-import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
+import { useWalletTokensStore } from "@src/stores/useWalletTokensStore"
 import { useEffect, useState } from "react"
 
 export default function HistoryPage() {
   const { state, isLoading: isWalletConnecting } = useConnectWallet()
   const tokenList = useTokenList(LIST_TOKENS)
-  const hasHydrated = useVerifiedWalletsStore((s) => s._hasHydrated)
+  const hasHydrated = useWalletTokensStore((s) => s._hasHydrated)
   // Prevents "Connect wallet" flash while wallets like NEAR reconnect async
   const [hadPreviousSession, setHadPreviousSession] = useState(true)
   useEffect(() => {
