@@ -3,10 +3,10 @@
 import { useIsActiveLink } from "@src/hooks/useIsActiveLink"
 import {
   AccountIcon,
-  ActivityIcon,
   ContactsIcon,
   DealsIcon,
   EarnIcon,
+  HistoryIcon,
   SwapIcon,
 } from "@src/icons"
 import { cn } from "@src/utils/cn"
@@ -36,8 +36,8 @@ const navItems = [
   },
   {
     label: "History",
-    href: "/activity",
-    icon: ActivityIcon,
+    href: "/history",
+    icon: HistoryIcon,
   },
   {
     label: "Contacts",

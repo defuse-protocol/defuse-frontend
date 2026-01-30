@@ -61,7 +61,7 @@ const POLLING_INTERVAL_MS = 10_000
 const MAX_POLLING_ATTEMPTS = 20
 const RECENT_SWAP_THRESHOLD_MS = 2 * 60 * 60 * 1000
 
-export default function ActivityPage({
+export default function HistoryPage({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
@@ -261,31 +261,33 @@ export default function ActivityPage({
           </p>
         }
       >
-        {isWalletConnected && !isLoading && !isError && (
-          <button
-            type="button"
-            onClick={handleRefresh}
-            disabled={isAnyRefetchHappening}
-            className={clsx(
-              "size-9 flex items-center justify-center transition-colors rounded-lg",
-              showDone
-                ? "bg-green-50 text-green-600"
-                : "text-gray-500 hover:text-gray-700 hover:bg-gray-100",
-              isAnyRefetchHappening && "opacity-70"
-            )}
-            title={showDone ? "Updated" : "Refresh"}
-          >
-            {showDone ? (
-              <CheckIcon className="size-5" />
-            ) : (
-              <ArrowPathIcon
-                className={clsx("size-5", {
-                  "animate-spin": isAnyRefetchHappening,
-                })}
-              />
-            )}
-          </button>
-        )}
+        <div className="h-9">
+          {isWalletConnected && !isLoading && !isError && (
+            <button
+              type="button"
+              onClick={handleRefresh}
+              disabled={isAnyRefetchHappening}
+              className={clsx(
+                "size-9 flex items-center justify-center transition-colors rounded-lg",
+                showDone
+                  ? "bg-green-50 text-green-600"
+                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-100",
+                isAnyRefetchHappening && "opacity-70"
+              )}
+              title={showDone ? "Updated" : "Refresh"}
+            >
+              {showDone ? (
+                <CheckIcon className="size-5" />
+              ) : (
+                <ArrowPathIcon
+                  className={clsx("size-5", {
+                    "animate-spin": isAnyRefetchHappening,
+                  })}
+                />
+              )}
+            </button>
+          )}
+        </div>
       </PageHeader>
 
       <div className="mt-6 flex items-center gap-1">
@@ -306,7 +308,7 @@ export default function ActivityPage({
                 }
 
                 const query = newSearchParams.toString()
-                router.push(query ? `/activity?${query}` : "/activity")
+                router.push(query ? `/history?${query}` : "/history")
                 setTimeoutId(undefined)
               })
             }, 500)
@@ -317,7 +319,7 @@ export default function ActivityPage({
             const newSearchParams = new URLSearchParams(currentSearchParams)
             newSearchParams.delete("search")
             const query = newSearchParams.toString()
-            router.push(query ? `/activity?${query}` : "/activity")
+            router.push(query ? `/history?${query}` : "/history")
           }}
           placeholder="Search address or token"
           className="flex-1"

@@ -51,7 +51,7 @@ const ModalActivityFilters = ({
     }
 
     const query = newSearchParams.toString()
-    router.push(query ? `/activity?${query}` : "/activity")
+    router.push(query ? `/history?${query}` : "/history")
     onClose()
   }
 
