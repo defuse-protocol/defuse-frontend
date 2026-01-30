@@ -1,18 +1,24 @@
 "use client"
 
-import { generateAuthToken, setActiveWalletToken } from "@src/actions/auth"
+import type { walletMessage } from "@defuse-protocol/internal-utils"
+import { base64 } from "@scure/base"
+import {
+  generateAuthTokenFromWalletSignature,
+  setActiveWalletToken,
+} from "@src/actions/auth"
 import { WalletBannedDialog } from "@src/components/WalletBannedDialog"
 import { WalletVerificationDialog } from "@src/components/WalletVerificationDialog"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
-import { walletVerificationMachine } from "@src/machines/walletVerificationMachine"
+import {
+  type VerificationResult,
+  walletVerificationMachine,
+} from "@src/machines/walletVerificationMachine"
 import { useBypassedWalletsStore } from "@src/stores/useBypassedWalletsStore"
 import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
 import { useWalletTokensStore } from "@src/stores/useWalletTokensStore"
-import {
-  verifyWalletSignature,
-  walletVerificationMessageFactory,
-} from "@src/utils/walletMessage"
+import { logger } from "@src/utils/logger"
+import { walletVerificationMessageFactory } from "@src/utils/walletMessage"
 import { useQuery } from "@tanstack/react-query"
 import { useActor } from "@xstate/react"
 import { usePathname, useRouter } from "next/navigation"
@@ -120,15 +126,13 @@ export function WalletVerificationProvider() {
     return (
       <WalletVerificationUI
         isSessionExpired={state.isSessionExpired}
-        onConfirm={async () => {
-          if (state.address != null && state.chainType != null) {
-            const { token, expiresAt } = await generateAuthToken(
-              state.address,
-              state.chainType
-            )
-
+        onVerified={(token: string, expiresAt: number) => {
+          if (state.address != null) {
             setToken(state.address, token, expiresAt)
-            await setActiveWalletToken(token)
+
+            setActiveWalletToken(token).catch((error) => {
+              logger.error("Failed to set active wallet token:", { error })
+            })
             addWalletAddress(state.address)
           }
         }}
@@ -155,11 +159,11 @@ function WalletBannedUI({
 
 function WalletVerificationUI({
   isSessionExpired,
-  onConfirm,
+  onVerified,
   onAbort,
 }: {
   isSessionExpired: boolean
-  onConfirm: () => void | Promise<void>
+  onVerified: (token: string, expiresAt: number) => void
   onAbort: () => void
 }) {
   const { state: unconfirmedWallet } = useConnectWallet()
@@ -170,12 +174,12 @@ function WalletVerificationUI({
   const [state, send, serviceRef] = useActor(
     walletVerificationMachine.provide({
       actors: {
-        verifyWallet: fromPromise(async () => {
+        verifyWallet: fromPromise(async (): Promise<VerificationResult> => {
           if (
             unconfirmedWallet.address == null ||
             unconfirmedWallet.chainType == null
           ) {
-            return false
+            return { success: false }
           }
 
           const walletSignature = await signMessage(
@@ -185,32 +189,49 @@ function WalletVerificationUI({
             )
           )
 
-          return verifyWalletSignature(
-            walletSignature,
-            unconfirmedWallet.address,
-            unconfirmedWallet.chainType
-          )
+          // Serialize signature for Server Action (WebAuthn requires special handling)
+          const serializedSignature =
+            serializeSignatureForServerAction(walletSignature)
+
+          const result = await generateAuthTokenFromWalletSignature({
+            signature: serializedSignature,
+            address: unconfirmedWallet.address,
+            authMethod: unconfirmedWallet.chainType,
+          })
+
+          if (result.success && result.token && result.expiresAt) {
+            return {
+              success: true,
+              token: result.token,
+              expiresAt: result.expiresAt,
+            }
+          }
+
+          return { success: false }
         }),
       },
     })
   )
 
-  const onConfirmRef = useRef(onConfirm)
-  onConfirmRef.current = onConfirm
+  const onVerifiedRef = useRef(onVerified)
+  onVerifiedRef.current = onVerified
   const onAbortRef = useRef(onAbort)
   onAbortRef.current = onAbort
 
   useEffect(
     () =>
-      serviceRef.subscribe((state) => {
-        if (state.matches("verified")) {
-          onConfirmRef.current()
+      serviceRef.subscribe((machineState) => {
+        if (machineState.matches("verified")) {
+          const result = machineState.context.verificationResult
+          if (result?.token && result?.expiresAt) {
+            onVerifiedRef.current(result.token, result.expiresAt)
+          }
           mixPanel?.track("wallet_verified", {
             wallet: unconfirmedWallet.address,
             wallet_type: unconfirmedWallet.chainType,
           })
         }
-        if (state.matches("aborted")) {
+        if (machineState.matches("aborted")) {
           onAbortRef.current()
         }
       }).unsubscribe,
@@ -236,4 +257,88 @@ function WalletVerificationUI({
       isSessionExpired={isSessionExpired}
     />
   )
+}
+
+/**
+ * Serializes wallet signature for Server Action compatibility.
+ * Several signature types contain Uint8Array/ArrayBuffer that can't cross
+ * the client-server boundary, so they must be converted to base64 strings.
+ */
+function serializeSignatureForServerAction(
+  signature: walletMessage.WalletSignatureResult
+): walletMessage.WalletSignatureResult {
+  switch (signature.type) {
+    case "WEBAUTHN": {
+      const rawSignatureData = signature.signatureData
+      return {
+        type: "WEBAUTHN",
+        signatureData: {
+          clientDataJSON: bufferToBase64(rawSignatureData.clientDataJSON),
+          authenticatorData: bufferToBase64(rawSignatureData.authenticatorData),
+          signature: bufferToBase64(rawSignatureData.signature),
+          userHandle: rawSignatureData.userHandle
+            ? bufferToBase64(rawSignatureData.userHandle)
+            : null,
+        } as unknown as AuthenticatorAssertionResponse,
+        signedData: {
+          challenge: bufferToBase64(
+            signature.signedData.challenge
+          ) as unknown as Uint8Array,
+          payload: signature.signedData.payload,
+          parsedPayload: signature.signedData.parsedPayload,
+        },
+      }
+    }
+
+    case "NEP413": {
+      return {
+        type: "NEP413",
+        signatureData: signature.signatureData,
+        signedData: {
+          message: signature.signedData.message,
+          recipient: signature.signedData.recipient,
+          nonce: bufferToBase64(
+            signature.signedData.nonce
+          ) as unknown as Uint8Array,
+          callbackUrl: signature.signedData.callbackUrl,
+        },
+      }
+    }
+
+    case "SOLANA": {
+      return {
+        type: "SOLANA",
+        signatureData: bufferToBase64(
+          signature.signatureData
+        ) as unknown as Uint8Array,
+        signedData: {
+          message: bufferToBase64(
+            signature.signedData.message
+          ) as unknown as Uint8Array,
+        },
+      }
+    }
+
+    case "STELLAR_SEP53": {
+      return {
+        type: "STELLAR_SEP53",
+        signatureData: bufferToBase64(
+          signature.signatureData
+        ) as unknown as Uint8Array,
+        signedData: signature.signedData,
+      }
+    }
+
+    // ERC191, TON_CONNECT, TRON have no Uint8Array fields
+    default:
+      return signature
+  }
+}
+
+/**
+ * Converts an ArrayBuffer or Uint8Array to a base64 string.
+ */
+function bufferToBase64(buffer: ArrayBuffer | Uint8Array): string {
+  const bytes = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer)
+  return base64.encode(bytes)
 }

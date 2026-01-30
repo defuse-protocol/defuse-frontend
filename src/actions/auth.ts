@@ -1,12 +1,13 @@
 "use server"
 
-import type { AuthMethod } from "@defuse-protocol/internal-utils"
+import type { AuthMethod, walletMessage } from "@defuse-protocol/internal-utils"
 import {
   JWT_EXPIRY_SECONDS,
   generateAppAuthToken,
   getTokenExpiration,
   verifyAppAuthToken,
 } from "@src/utils/authJwt"
+import { verifyWalletSignatureServer } from "@src/utils/serverSignatureVerification"
 import { cookies } from "next/headers"
 
 const AUTH_TOKEN_COOKIE_NAME = "defuse_auth_token"
@@ -118,4 +119,52 @@ export async function validateTokenForWallet(
   }
 
   return { valid: true }
+}
+
+export interface GenerateAuthTokenFromSignatureInput {
+  signature: walletMessage.WalletSignatureResult
+  address: string
+  authMethod: AuthMethod
+}
+
+export interface GenerateAuthTokenFromSignatureResult {
+  success: boolean
+  token?: string
+  expiresAt?: number
+  error?: "signature_invalid" | "message_expired" | "token_generation_failed"
+}
+
+/**
+ * Verifies wallet signature server-side and generates JWT token.
+ */
+export async function generateAuthTokenFromWalletSignature(
+  input: GenerateAuthTokenFromSignatureInput
+): Promise<GenerateAuthTokenFromSignatureResult> {
+  const { signature, address, authMethod } = input
+
+  const verificationResult = await verifyWalletSignatureServer(
+    signature,
+    address
+  )
+
+  if (!verificationResult.valid) {
+    const error =
+      verificationResult.error === "message_expired"
+        ? "message_expired"
+        : "signature_invalid"
+    return { success: false, error }
+  }
+
+  try {
+    const token = await generateAppAuthToken(address, authMethod)
+    const expiresAt = getTokenExpiration(token)
+
+    if (!expiresAt) {
+      return { success: false, error: "token_generation_failed" }
+    }
+
+    return { success: true, token, expiresAt }
+  } catch {
+    return { success: false, error: "token_generation_failed" }
+  }
 }
