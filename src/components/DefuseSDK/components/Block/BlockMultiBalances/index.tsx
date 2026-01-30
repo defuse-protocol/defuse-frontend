@@ -38,10 +38,7 @@ export function BlockMultiBalances({
           active ? "text-gray-12" : "text-gray-8"
         )}
       >
-        {formatTokenValue(balance, decimals, {
-          min: 0.0001,
-          fractionDigits: 4,
-        })}
+        {formatTokenValue(balance, decimals)}
       </div>
 
       {/* Full Balance Button */}
@@ -62,11 +59,7 @@ export function BlockMultiBalances({
               <span className="text-xs font-bold text-gray-11">
                 {formatTokenValue(
                   transitBalance.amount,
-                  transitBalance.decimals,
-                  {
-                    min: 0.0001,
-                    fractionDigits: 4,
-                  }
+                  transitBalance.decimals
                 )}
               </span>
             </button>

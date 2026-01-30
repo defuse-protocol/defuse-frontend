@@ -232,15 +232,11 @@ function OtcMakerTradeItem({
       </ListItem.Content>
       <ListItem.Content align="end">
         <ListItem.Title>
-          {formatTokenValue(totalAmountOut.amount, totalAmountOut.decimals, {
-            fractionDigits: 4,
-          })}{" "}
+          {formatTokenValue(totalAmountOut.amount, totalAmountOut.decimals)}{" "}
           {tokenOut.symbol}
         </ListItem.Title>
         <ListItem.Subtitle>
-          {formatTokenValue(-totalAmountIn.amount, totalAmountIn.decimals, {
-            fractionDigits: 4,
-          })}{" "}
+          {formatTokenValue(-totalAmountIn.amount, totalAmountIn.decimals)}{" "}
           {tokenIn.symbol}
         </ListItem.Subtitle>
       </ListItem.Content>

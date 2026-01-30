@@ -154,10 +154,7 @@ const AssetItem = ({
       )}
       {isHoldingsEnabled && value && (
         <ListItem.Subtitle>
-          {formatTokenValue(value.amount, value.decimals, {
-            fractionDigits: 4,
-            min: 0.0001,
-          })}
+          {formatTokenValue(value.amount, value.decimals)}
         </ListItem.Subtitle>
       )}
     </ListItem.Content>

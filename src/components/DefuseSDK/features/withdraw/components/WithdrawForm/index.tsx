@@ -517,11 +517,7 @@ export const WithdrawForm = ({
                       Deposit of{" "}
                       {formatTokenValue(
                         tokenInTransitBalance.amount,
-                        tokenInTransitBalance.decimals,
-                        {
-                          min: 0.0001,
-                          fractionDigits: 4,
-                        }
+                        tokenInTransitBalance.decimals
                       )}{" "}
                       {token.symbol} is in progress and will be available
                       shortly.

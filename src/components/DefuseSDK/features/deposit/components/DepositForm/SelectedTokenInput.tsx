@@ -118,11 +118,7 @@ const SelectedTokenInput = ({
       <div className="flex items-center justify-center gap-4">
         {hasBalance && (
           <div className="text-base text-gray-500 font-medium text-center">
-            Balance:{" "}
-            {formatTokenValue(balance, decimals, {
-              min: 0.0001,
-              fractionDigits: 4,
-            })}
+            Balance: {formatTokenValue(balance, decimals)}
           </div>
         )}
 

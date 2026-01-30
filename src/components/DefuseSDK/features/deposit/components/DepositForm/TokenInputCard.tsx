@@ -90,12 +90,8 @@ function BalanceInTransitIndicator({
             sideOffset={4}
             className="bg-gray-900 rounded-xl shadow-lg flex px-3 py-2 gap-1 data-[state=open]:animate-in data-[state=open]:slide-in-from-top-1 duration-200 ease-in-out fade-in text-white text-xs max-w-48 font-medium"
           >
-            Deposit of{" "}
-            {formatTokenValue(amount, decimals, {
-              min: 0.0001,
-              fractionDigits: 4,
-            })}{" "}
-            {symbol} is in progress and will be available shortly.
+            Deposit of {formatTokenValue(amount, decimals)} {symbol} is in
+            progress and will be available shortly.
             <Tooltip.Arrow className="ml-2" />
           </Tooltip.Content>
         </Tooltip.Portal>
@@ -254,7 +250,6 @@ const TokenInputCard = (props: TokenInputCardProps) => {
             inputMode="decimal"
             pattern="[0-9]*[.]?[0-9]*"
             autoComplete="off"
-            maxLength={11}
             placeholder={getPlaceholder()}
             aria-label={getAriaLabel()}
             disabled={disabled}
@@ -310,8 +305,7 @@ const TokenInputCard = (props: TokenInputCardProps) => {
                   "hover:text-gray-700 cursor-pointer"
               )}
             >
-              {formatTokenValue(balance, decimals, { fractionDigits: 6 })}{" "}
-              {symbol}
+              {formatTokenValue(balance, decimals)} {symbol}
             </button>
           )}
           {hasBalanceInTransit && balanceInTransit && (

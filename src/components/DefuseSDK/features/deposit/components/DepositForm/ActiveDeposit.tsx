@@ -90,11 +90,7 @@ export function ActiveDeposit({
 
       const formattedAmount = formatTokenValue(
         parsedAmount,
-        tokenDeployment.decimals,
-        {
-          min: 0.0001,
-          fractionDigits: 4,
-        }
+        tokenDeployment.decimals
       )
       const chainName = reverseAssetNetworkAdapter[network]
 

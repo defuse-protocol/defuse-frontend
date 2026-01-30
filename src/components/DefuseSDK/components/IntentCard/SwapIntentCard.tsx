@@ -74,11 +74,7 @@ export function SwapIntentCard({ intentStatusActorRef }: SwapIntentCardProps) {
         <Flex align="center">
           <Box flexGrow="1">
             <Text size="1" weight="medium" color="gray">
-              -
-              {formatTokenValue(totalAmountIn.amount, totalAmountIn.decimals, {
-                min: 0.0001,
-                fractionDigits: 4,
-              })}{" "}
+              -{formatTokenValue(totalAmountIn.amount, totalAmountIn.decimals)}{" "}
               {tokenIn.symbol}
             </Text>
           </Box>
@@ -86,14 +82,7 @@ export function SwapIntentCard({ intentStatusActorRef }: SwapIntentCardProps) {
           <Box>
             <Text size="1" weight="medium" color="green">
               +
-              {formatTokenValue(
-                totalAmountOut.amount,
-                totalAmountOut.decimals,
-                {
-                  min: 0.0001,
-                  fractionDigits: 4,
-                }
-              )}{" "}
+              {formatTokenValue(totalAmountOut.amount, totalAmountOut.decimals)}{" "}
               {tokenOut.symbol}
             </Text>
           </Box>
