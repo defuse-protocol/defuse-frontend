@@ -9,12 +9,10 @@ import type {
 } from "@src/components/DefuseSDK/components/Modal/ModalActivityFilters"
 import ModalActivityFilters from "@src/components/DefuseSDK/components/Modal/ModalActivityFilters"
 import SearchBar from "@src/components/DefuseSDK/components/SearchBar"
-import {
-  HistoryItem,
-  SwapHistoryItemSkeleton,
-} from "@src/components/DefuseSDK/features/history/components/HistoryItem"
+import { HistoryItem } from "@src/components/DefuseSDK/features/history/components/HistoryItem"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { findTokenByAssetId } from "@src/components/DefuseSDK/utils/token"
+import ListItemsSkeleton from "@src/components/ListItemsSkeleton"
 import PageHeader from "@src/components/PageHeader"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useSwapHistory } from "@src/features/balance-history/lib/useBalanceHistory"
@@ -336,14 +334,16 @@ export default function HistoryPage({
 
       <section className="mt-10">
         {isWalletHydrating ? (
-          <LoadingState />
+          <ListItemsSkeleton count={3} loading />
         ) : (
           <>
             {!isWalletConnected && (
               <EmptyState message="Connect your wallet to see your history" />
             )}
 
-            {isWalletConnected && isLoading && <LoadingState />}
+            {isWalletConnected && isLoading && (
+              <ListItemsSkeleton count={3} loading />
+            )}
 
             {isWalletConnected && isError && (
               <EmptyState message="Failed to load history. Please try again." />
@@ -395,18 +395,6 @@ function EmptyState({ message }: { message: string }) {
   )
 }
 
-function LoadingState() {
-  return (
-    <div className="space-y-1">
-      <SwapHistoryItemSkeleton />
-      <SwapHistoryItemSkeleton />
-      <SwapHistoryItemSkeleton />
-      <SwapHistoryItemSkeleton />
-      <SwapHistoryItemSkeleton />
-    </div>
-  )
-}
-
 interface TransactionListProps {
   transactions: SwapTransaction[]
   tokenList: TokenInfo[]
@@ -452,25 +440,7 @@ function TransactionList({
       </div>
 
       {hasNextPage && <div ref={loadMoreTriggerRef} className="h-1" />}
-      {isFetchingNextPage && <LoadingMoreIndicator />}
+      {isFetchingNextPage && <ListItemsSkeleton count={3} loading />}
     </>
-  )
-}
-
-function LoadingMoreIndicator() {
-  return (
-    <div className="flex justify-center py-6">
-      <div className="flex items-center gap-1.5">
-        <span className="size-2 bg-gray-400 rounded-full animate-pulse" />
-        <span
-          className="size-2 bg-gray-400 rounded-full animate-pulse"
-          style={{ animationDelay: "150ms" }}
-        />
-        <span
-          className="size-2 bg-gray-400 rounded-full animate-pulse"
-          style={{ animationDelay: "300ms" }}
-        />
-      </div>
-    </div>
   )
 }

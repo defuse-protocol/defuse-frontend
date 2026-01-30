@@ -1,5 +1,4 @@
 import { ArrowRightIcon, ArrowSquareOutIcon } from "@phosphor-icons/react"
-import { Skeleton } from "@radix-ui/themes"
 import ListItem from "@src/components/ListItem"
 import type {
   SwapTransaction,
@@ -23,8 +22,8 @@ import {
 import { findTokenByAssetId } from "../../../utils/token"
 import type { TransactionType as BadgeType } from "../../account/types/sharedTypes"
 
-interface SwapItemProps {
-  swap: SwapTransaction
+interface HistoryItemProps {
+  transaction: SwapTransaction
   tokenList: TokenInfo[]
 }
 
@@ -59,13 +58,13 @@ function TokenDisplay({
   )
 }
 
-export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
+export function HistoryItem({ transaction, tokenList }: HistoryItemProps) {
   const explorerUrl = useMemo(() => {
-    if (!swap.deposit_address) return null
-    return `${INTENTS_EXPLORER_URL}/transactions/${swap.deposit_address}`
-  }, [swap.deposit_address])
+    if (!transaction.deposit_address) return null
+    return `${INTENTS_EXPLORER_URL}/transactions/${transaction.deposit_address}`
+  }, [transaction.deposit_address])
 
-  const usdValue = formatUsd(swap.from.amount_usd)
+  const usdValue = formatUsd(transaction.from.amount_usd)
   const badgeType: BadgeType = "swap"
 
   return (
@@ -73,7 +72,7 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
       <div className="flex items-center gap-2 flex-1 min-w-0">
         <div className="w-[120px] shrink-0">
           <TokenDisplay
-            tokenAmount={swap.from}
+            tokenAmount={transaction.from}
             tokenList={tokenList}
             badgeType={badgeType}
           />
@@ -82,7 +81,7 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
           className="size-4 text-gray-400 shrink-0"
           weight="bold"
         />
-        <TokenDisplay tokenAmount={swap.to} tokenList={tokenList} />
+        <TokenDisplay tokenAmount={transaction.to} tokenList={tokenList} />
       </div>
 
       <ListItem.Content align="end">
@@ -91,11 +90,11 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
           <Tooltip>
             <TooltipTrigger asChild>
               <span className="cursor-default">
-                {formatSmartDate(swap.timestamp)}
+                {formatSmartDate(transaction.timestamp)}
               </span>
             </TooltipTrigger>
             <TooltipContent side="top" className="text-xs" theme="dark">
-              {formatFullDate(swap.timestamp)}
+              {formatFullDate(transaction.timestamp)}
             </TooltipContent>
           </Tooltip>
           {explorerUrl && (
@@ -116,43 +115,5 @@ export function SwapHistoryItem({ swap, tokenList }: SwapItemProps) {
         </div>
       </ListItem.Content>
     </ListItem>
-  )
-}
-
-/** Alias for activity page compatibility */
-export function HistoryItem({
-  transaction,
-  tokenList,
-}: { transaction: SwapTransaction; tokenList: TokenInfo[] }) {
-  return <SwapHistoryItem swap={transaction} tokenList={tokenList} />
-}
-
-export function SwapHistoryItemSkeleton() {
-  return (
-    <div className="-mx-4 px-4 rounded-2xl">
-      <div className="flex gap-3 items-center py-3">
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-          <div className="w-[120px] shrink-0 flex items-center gap-2.5">
-            <Skeleton className="size-10 rounded-full shrink-0" />
-            <div className="flex flex-col gap-0.5 min-w-0">
-              <Skeleton className="h-5 w-16" />
-              <Skeleton className="h-4 w-10" />
-            </div>
-          </div>
-          <Skeleton className="size-4 rounded shrink-0" />
-          <div className="flex items-center gap-2.5 min-w-0">
-            <Skeleton className="size-10 rounded-full shrink-0" />
-            <div className="flex flex-col gap-0.5 min-w-0">
-              <Skeleton className="h-5 w-16" />
-              <Skeleton className="h-4 w-10" />
-            </div>
-          </div>
-        </div>
-        <div className="flex flex-col items-end gap-0.5 shrink-0">
-          <Skeleton className="h-5 w-14" />
-          <Skeleton className="h-4 w-20" />
-        </div>
-      </div>
-    </div>
   )
 }
