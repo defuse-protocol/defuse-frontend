@@ -338,13 +338,13 @@ export default function ActivityPage({
         ) : (
           <>
             {!isWalletConnected && (
-              <EmptyState message="Connect your wallet to see your activity" />
+              <EmptyState message="Please sign in to see your activity history." />
             )}
 
             {isWalletConnected && isLoading && <LoadingState />}
 
             {isWalletConnected && isError && (
-              <EmptyState message="Failed to load activity. Please try again." />
+              <EmptyState message="We were unable to retrieve your activity history. This is a technical error on our side. Please try again." />
             )}
 
             {isWalletConnected &&

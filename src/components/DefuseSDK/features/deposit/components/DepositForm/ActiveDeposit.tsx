@@ -216,7 +216,10 @@ export function ActiveDeposit({
           validate: (value) => {
             if (!value) return true
             const num = Number.parseFloat(value.replace(",", "."))
-            return (!Number.isNaN(num) && num > 0) || "Enter a valid amount"
+            return (
+              (!Number.isNaN(num) && num > 0) ||
+              "It seems you entered an invalid amount. Please try again."
+            )
           },
         })}
         additionalInfo={
@@ -297,13 +300,13 @@ function renderDepositButtonText(
     return "Processing..."
   }
   if (isAmountEmpty) {
-    return "Enter amount"
+    return "Please enter an amount."
   }
   if (!isDepositAmountHighEnough && minDepositAmount != null) {
-    return `Minimum deposit is ${formatTokenValue(minDepositAmount, tokenDeployment.decimals)} ${token.symbol}`
+    return `The minimum deposit amount is ${formatTokenValue(minDepositAmount, tokenDeployment.decimals)} ${token.symbol}. Please adjust.`
   }
   if (isBalanceInsufficient) {
-    return "Insufficient balance"
+    return "You have an insufficient balance. Please adjust."
   }
   if (isPreparing) {
     return "Preparing deposit..."
@@ -311,7 +314,9 @@ function renderDepositButtonText(
   if (!!network && !!token) {
     return "Deposit"
   }
-  return !network && !token ? "Select asset first" : "Select network"
+  return !network && !token
+    ? "It seems you have not selected an asset."
+    : "It seems you have not selected a network."
 }
 
 function isInsufficientBalance(
