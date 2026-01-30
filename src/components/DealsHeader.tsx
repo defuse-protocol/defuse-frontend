@@ -10,7 +10,7 @@ const DealsHeader = () => {
 
   return (
     <>
-<PageHeader
+      <PageHeader
         title="Private trades"
         intro={
           <p>
