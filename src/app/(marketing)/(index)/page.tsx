@@ -96,7 +96,7 @@ export default function IndexPage() {
           </h1>
         </div>
 
-        <div className="relative z-10 mt-16 flex flex-col items-center justify-center px-4 max-w-md">
+        <div className="relative mt-16 flex flex-col items-center justify-center px-4 max-w-md">
           <AnimatedTokenPath />
           <AnimatedTokenPath side="right" />
 

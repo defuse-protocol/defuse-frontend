@@ -1,6 +1,7 @@
 "use client"
 
 import { OtcTakerWidget } from "@src/components/DefuseSDK/features/otcDesk/components/OtcTakerWidget"
+import PageHeader from "@src/components/PageHeader"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
@@ -20,13 +21,10 @@ export default function DealPage() {
 
   return (
     <>
-      <h1 className="text-gray-900 text-xl font-semibold tracking-tight">
-        Execute a trustless trade
-      </h1>
-      <p className="mt-1 text-gray-500 text-base/5 font-medium">
-        A counterparty has offered you the following deal. Accept the offer to
-        execute the swap trustlessly.
-      </p>
+<PageHeader
+        title="Execute a trustless trade"
+        subtitle="A counterparty has offered you the following deal. Accept the offer to execute the swap trustlessly."
+      />
 
       <OtcTakerWidget
         tradeId={tradeId}
