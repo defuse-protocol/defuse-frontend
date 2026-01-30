@@ -63,7 +63,7 @@ function ListItem({
         <button
           type="button"
           onClick={onClick}
-          className="absolute z-10 inset-0 rounded-2xl"
+          className="absolute z-10 inset-0 rounded-2xl focus-visible:outline-none"
           aria-label="Select item"
         />
       )}
