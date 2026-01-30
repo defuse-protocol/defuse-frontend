@@ -1,7 +1,7 @@
 "use client"
 
-import { ArrowPathIcon, CheckIcon } from "@heroicons/react/16/solid"
 import { FunnelIcon } from "@heroicons/react/16/solid"
+import { ArrowPathIcon, CheckIcon } from "@heroicons/react/20/solid"
 import Button from "@src/components/Button"
 import type {
   StatusFilter,
@@ -15,6 +15,7 @@ import {
 } from "@src/components/DefuseSDK/features/history/components/HistoryItem"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { findTokenByAssetId } from "@src/components/DefuseSDK/utils/token"
+import PageHeader from "@src/components/PageHeader"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useSwapHistory } from "@src/features/balance-history/lib/useBalanceHistory"
 import type { SwapTransaction } from "@src/features/balance-history/types"
@@ -250,36 +251,42 @@ export default function ActivityPage({
 
   return (
     <>
-      <div className="flex items-center justify-between">
-        <h1 className="text-gray-900 text-xl font-bold tracking-tight">
-          History
-        </h1>
+      <PageHeader
+        title="History"
+        intro={
+          <p>
+            This is your history page showing your historical deposits, swaps
+            and withdrawals. In the future, additional types of account activity
+            will be shown,
+          </p>
+        }
+      >
         {isWalletConnected && !isLoading && !isError && (
           <button
             type="button"
             onClick={handleRefresh}
             disabled={isAnyRefetchHappening}
             className={clsx(
-              "p-1.5 rounded-lg transition-all duration-200",
+              "size-9 flex items-center justify-center transition-colors rounded-lg",
               showDone
-                ? "text-green-600 bg-green-50"
-                : "text-gray-500 hover:text-gray-700 hover:bg-gray-100 active:bg-gray-200",
+                ? "bg-green-50 text-green-600"
+                : "text-gray-500 hover:text-gray-700 hover:bg-gray-100",
               isAnyRefetchHappening && "opacity-70"
             )}
             title={showDone ? "Updated" : "Refresh"}
           >
             {showDone ? (
-              <CheckIcon className="size-4" />
+              <CheckIcon className="size-5" />
             ) : (
               <ArrowPathIcon
-                className={clsx("size-4", {
+                className={clsx("size-5", {
                   "animate-spin": isAnyRefetchHappening,
                 })}
               />
             )}
           </button>
         )}
-      </div>
+      </PageHeader>
 
       <div className="mt-6 flex items-center gap-1">
         <SearchBar

@@ -10,6 +10,7 @@ import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
 import { getDefuseAssetId } from "@src/components/DefuseSDK/utils/token"
 import ErrorMessage from "@src/components/ErrorMessage"
+import PageHeader from "@src/components/PageHeader"
 import { SwapStatus } from "@src/components/SwapStatus"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useThrottledValue } from "@src/hooks/useThrottledValue"
@@ -375,12 +376,26 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
   return (
     <>
-      <div className="flex justify-between items-center">
-        <h1 className="text-gray-900 text-xl font-semibold tracking-tight">
-          Swap
-        </h1>
+      <PageHeader
+        title="Swap"
+        intro={
+          <>
+            <p>
+              NEAR Intents is the most exciting swapping technology to have
+              emerged in recent years. Here, you can swap anything to almost
+              anything else. BTC to ETH? No problem. ETH to ZEC? No problem. ZEC
+              to SOL? No problem.
+            </p>
+            <p>
+              Fast and cheap! Swapping between assets in your account happen
+              within a couple of seconds, as competing "Solvers" compete to give
+              you the best price, every time!
+            </p>
+          </>
+        }
+      >
         <SwapSettings tokenIn={tokenIn} tokenOut={tokenOut} />
-      </div>
+      </PageHeader>
 
       <section className="mt-5">
         <form onSubmit={handleSubmit(onRequestReview)}>

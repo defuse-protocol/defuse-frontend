@@ -9,10 +9,12 @@ import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import { useNearWallet } from "@src/providers/NearWalletProvider"
 import { renderAppLink } from "@src/utils/renderAppLink"
+import { useRouter } from "next/navigation"
 import { useDeterminePair } from "../../swap/_utils/useDeterminePair"
 import { createOtcOrder, createOtcOrderLink } from "../_utils/link"
 
 const CreateDealPage = () => {
+  const router = useRouter()
   const { state } = useConnectWallet()
   const tokenList = useTokenList(LIST_TOKENS)
   const signMessage = useWalletAgnosticSignMessage()
@@ -56,6 +58,7 @@ const CreateDealPage = () => {
         initialTokenOut={tokenOut ?? undefined}
         renderHostAppLink={renderAppLink}
         referral={referral}
+        onSuccess={() => router.push("/deals")}
       />
     </>
   )

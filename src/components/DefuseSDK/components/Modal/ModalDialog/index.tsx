@@ -85,7 +85,7 @@ export function BaseModalDialog({
           }}
         >
           <div className="fixed inset-0 z-20 w-screen overflow-y-auto">
-            <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-start sm:p-0 sm:pt-[10vh]">
+            <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-start sm:p-0 lg:pl-74 sm:pt-[10vh]">
               <Dialog.Content
                 className={clsx(
                   "relative transform overflow-hidden rounded-3xl bg-white p-5 text-left shadow-xl",
