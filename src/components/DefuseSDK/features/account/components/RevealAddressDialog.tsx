@@ -71,7 +71,7 @@ export function RevealAddressDialog({
               value={internalUserAddress}
               readOnly
               style={{
-                // It's easier to make the input transparent using CSS instead of Tailwind
+                // It's easier to make the input transparent using CSS instead of Tailwind.
                 all: "unset",
                 position: "absolute",
                 top: 0,
