@@ -257,7 +257,7 @@ export default function ActivityPage({
           <p>
             This is your history page showing your historical deposits, swaps
             and withdrawals. In the future, additional types of account activity
-            will be shown,
+            will be shown.
           </p>
         }
       >
