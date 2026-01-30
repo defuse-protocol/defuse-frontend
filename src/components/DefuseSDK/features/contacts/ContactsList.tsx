@@ -13,8 +13,8 @@ import {
   midTruncate,
 } from "@src/components/DefuseSDK/features/withdraw/components/WithdrawForm/utils"
 import { stringToColor } from "@src/components/DefuseSDK/utils/stringToColor"
+import EmptyState from "@src/components/EmptyState"
 import ListItem from "@src/components/ListItem"
-import ListItemsSkeleton from "@src/components/ListItemsSkeleton"
 import PageHeader from "@src/components/PageHeader"
 import { SendIcon, WalletIcon } from "@src/icons"
 import { useRouter } from "next/navigation"
@@ -131,25 +131,20 @@ const ContactsList = ({
       )}
 
       {hasNoContacts && !hasSearchQuery && (
-        <section className="mt-9">
-          <ListItemsSkeleton count={3} className="mt-2" />
-          <div className="max-w-72 mx-auto -mt-5 relative flex flex-col items-center">
-            <h3 className="text-xl font-semibold text-gray-900 text-center tracking-tight">
-              No contacts yet
-            </h3>
-            <p className="text-base text-gray-500 mt-1 font-medium text-center text-balance">
-              Add a contact to get started.
-            </p>
-            <Button
-              size="xl"
-              onClick={() => handleOpenModal({ type: "create", contact: null })}
-              className="mt-4"
-            >
-              <PlusIcon className="size-5 shrink-0" />
-              Add contact
-            </Button>
-          </div>
-        </section>
+        <EmptyState className="mt-9">
+          <EmptyState.Title>No contacts yet</EmptyState.Title>
+          <EmptyState.Description>
+            Create a contact to get started.
+          </EmptyState.Description>
+          <Button
+            size="xl"
+            onClick={() => handleOpenModal({ type: "create", contact: null })}
+            className="mt-4"
+          >
+            <PlusIcon className="size-5 shrink-0" />
+            Create contact
+          </Button>
+        </EmptyState>
       )}
 
       {hasNoContacts && hasSearchQuery && (

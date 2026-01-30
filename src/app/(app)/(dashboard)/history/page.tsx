@@ -12,6 +12,7 @@ import SearchBar from "@src/components/DefuseSDK/components/SearchBar"
 import { HistoryItem } from "@src/components/DefuseSDK/features/history/components/HistoryItem"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { findTokenByAssetId } from "@src/components/DefuseSDK/utils/token"
+import EmptyState from "@src/components/EmptyState"
 import ListItemsSkeleton from "@src/components/ListItemsSkeleton"
 import PageHeader from "@src/components/PageHeader"
 import { LIST_TOKENS } from "@src/constants/tokens"
@@ -338,7 +339,11 @@ export default function HistoryPage({
         ) : (
           <>
             {!isWalletConnected && (
-              <EmptyState message="Connect your wallet to see your history" />
+              <EmptyState>
+                <EmptyState.Title>
+                  Connect your wallet to see your history
+                </EmptyState.Title>
+              </EmptyState>
             )}
 
             {isWalletConnected && isLoading && (
@@ -346,20 +351,24 @@ export default function HistoryPage({
             )}
 
             {isWalletConnected && isError && (
-              <EmptyState message="Failed to load history. Please try again." />
+              <EmptyState>
+                <EmptyState.Title>
+                  Failed to load history. Please try again.
+                </EmptyState.Title>
+              </EmptyState>
             )}
 
             {isWalletConnected &&
               !isLoading &&
               !isError &&
               transactions.length === 0 && (
-                <EmptyState
-                  message={
-                    allTransactions.length > 0
+                <EmptyState>
+                  <EmptyState.Title>
+                    {allTransactions.length > 0
                       ? "No transactions match your filters"
-                      : "No history yet. Your transactions will appear here."
-                  }
-                />
+                      : "No history yet. Your transactions will appear here."}
+                  </EmptyState.Title>
+                </EmptyState>
               )}
 
             {isWalletConnected &&
@@ -384,14 +393,6 @@ export default function HistoryPage({
         currentSearchParams={currentSearchParams}
       />
     </>
-  )
-}
-
-function EmptyState({ message }: { message: string }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-16 text-center">
-      <p className="text-gray-500 text-sm">{message}</p>
-    </div>
   )
 }
 
