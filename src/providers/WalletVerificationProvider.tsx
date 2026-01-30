@@ -128,19 +128,22 @@ export function WalletVerificationProvider() {
         onVerified={(token: string, expiresAt: number) => {
           if (state.address != null) {
             setToken(state.address, token, expiresAt)
+            ;(async () => {
+              try {
+                await setActiveWalletToken(token)
+              } catch (error) {
+                logger.error("Failed to set active wallet token:", { error })
+              }
 
-            setActiveWalletToken(token).catch((error) => {
-              logger.error("Failed to set active wallet token:", { error })
-            })
-
-            void queryClient.invalidateQueries({
-              queryKey: [
-                "token_validation",
-                state.address,
-                state.chainType,
-                token,
-              ],
-            })
+              await queryClient.invalidateQueries({
+                queryKey: [
+                  "token_validation",
+                  state.address,
+                  state.chainType,
+                  token,
+                ],
+              })
+            })()
           }
         }}
         onAbort={() => {
