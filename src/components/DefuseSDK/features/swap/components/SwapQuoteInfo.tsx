@@ -2,6 +2,7 @@ import {
   AdjustmentsHorizontalIcon,
   InformationCircleIcon,
 } from "@heroicons/react/20/solid"
+import Button from "@src/components/Button"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import { useState } from "react"
@@ -64,14 +65,14 @@ export function SwapQuoteInfo({ tokenOut, tokenIn }: SwapQuoteInfoProps) {
         <div className="flex items-center justify-between">
           <dt className="text-gray-500 font-medium">Max slippage</dt>
           <dd>
-            <button
-              type="button"
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={handleOpenSlippageSettings}
-              className="flex items-center gap-1.5 font-semibold text-gray-600 hover:text-gray-900 transition-colors"
             >
               {slippagePercent}
               <AdjustmentsHorizontalIcon className="size-4" />
-            </button>
+            </Button>
           </dd>
         </div>
         <div className="flex items-center justify-between">
@@ -81,7 +82,7 @@ export function SwapQuoteInfo({ tokenOut, tokenIn }: SwapQuoteInfoProps) {
             <button
               type="button"
               onClick={() => setIsInfoOpen(true)}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="shrink-0 text-gray-400 hover:text-gray-600 transition-colors p-1 -m-1 rounded-md"
               aria-label="Learn more about quotes"
             >
               <InformationCircleIcon className="size-4" />
