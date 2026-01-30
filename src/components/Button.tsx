@@ -11,7 +11,7 @@ type Props = {
     | "outline"
     | "destructive"
     | "destructive-soft"
-  size?: "sm" | "md" | "lg" | "xl"
+  size?: "xs" | "sm" | "md" | "lg" | "xl"
   fullWidth?: boolean
   disabled?: boolean
   loading?: boolean
@@ -68,6 +68,7 @@ const Button = forwardRef<Ref, Props>(function Button(
     size === "lg" && "h-10 px-4 text-sm font-bold rounded-xl",
     size === "md" && "h-9 px-3 text-sm font-bold rounded-xl",
     size === "sm" && "h-8 px-3 text-sm font-semibold rounded-lg",
+    size === "xs" && "h-7 px-2 text-sm font-semibold rounded-lg",
     fullWidth && "w-full",
 
     className
@@ -77,7 +78,7 @@ const Button = forwardRef<Ref, Props>(function Button(
     <>
       <span
         className={clsx("flex items-center", {
-          "gap-x-1.5": ["sm", "md"].includes(size),
+          "gap-x-1.5": ["xs", "sm", "md"].includes(size),
           "gap-x-2": ["lg", "xl"].includes(size),
           "opacity-0": loading,
         })}

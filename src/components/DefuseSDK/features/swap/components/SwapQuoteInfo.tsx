@@ -68,7 +68,7 @@ export function SwapQuoteInfo({ tokenOut, tokenIn }: SwapQuoteInfoProps) {
           <dd>
             <Button
               variant="secondary"
-              size="sm"
+              size="xs"
               onClick={handleOpenSlippageSettings}
             >
               {slippagePercent}
@@ -80,14 +80,14 @@ export function SwapQuoteInfo({ tokenOut, tokenIn }: SwapQuoteInfoProps) {
           <dt className="text-gray-500 font-medium">Receive at least</dt>
           <dd className="flex items-center gap-1.5 font-semibold text-gray-900">
             {minReceiveFormatted} {tokenOut.symbol}
-            <button
-              type="button"
+            <Button
+              size="xs"
+              variant="secondary"
               onClick={() => setIsInfoOpen(true)}
-              className="shrink-0 text-gray-400 hover:text-gray-600 transition-colors p-1 -m-1 rounded-md"
-              aria-label="Learn more about quotes"
             >
+              <span className="sr-only">Learn more about quotes</span>
               <InformationCircleIconSmall className="size-4" />
-            </button>
+            </Button>
           </dd>
         </div>
       </dl>
