@@ -113,6 +113,12 @@ describe("formatTokenValue()", () => {
         formatTokenValue(1234567000000000000000000n, 18, { compact: true })
       ).toEqual("1.23M")
     })
+
+    it("preserves sign for negative values", () => {
+      expect(
+        formatTokenValue(-1234567000000000000000n, 18, { compact: true })
+      ).toEqual("-1.23K")
+    })
   })
 
   describe("with locale option", () => {

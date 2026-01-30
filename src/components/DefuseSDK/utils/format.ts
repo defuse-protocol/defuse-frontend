@@ -1,7 +1,9 @@
-// Defaults follow Uniswap's pattern: 6 significant digits, max 5 decimal places
+// Default formatting: show full precision up to 11 total digits, then truncate.
+// When explicit options (significantDigits, maxDecimals) are provided,
+// those limits apply instead.
 const DEFAULT_SIG_DIGITS = 6
 const DEFAULT_MAX_DECIMALS = 5
-const MAX_DISPLAY_DIGITS = 11 // Maximum total digits to show before truncating
+const MAX_DISPLAY_DIGITS = 11
 
 type FormatOptions = {
   significantDigits?: number // Total significant digits to show
@@ -48,7 +50,7 @@ export function formatTokenValue(
 
   // Compact notation for large numbers (1.23K, 1.23M)
   if (options.compact && abs >= 1000) {
-    return formatCompact(abs, 3)
+    return sign + formatCompact(abs, 3)
   }
 
   // Small values (< 1)
