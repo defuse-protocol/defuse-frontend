@@ -190,5 +190,11 @@ function resolveOptimalToken(context: Context): TokenInfo {
     if (ranked.length > 0) return ranked[0].token
   }
 
+  // When network is preset, always return a network-compatible token (first candidate)
+  // even if user has no balance - this keeps the network locked
+  if (network != null && candidates.length > 0) {
+    return candidates[0]
+  }
+
   return currentToken
 }
