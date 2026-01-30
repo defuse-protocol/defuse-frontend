@@ -68,7 +68,9 @@ export function useWalletAuth(
 
   useEffect(() => {
     if (address && storedToken) {
-      void setActiveWalletToken(storedToken)
+      ;(async () => {
+        await setActiveWalletToken(storedToken)
+      })()
     }
   }, [address, storedToken])
 

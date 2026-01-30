@@ -134,7 +134,12 @@ export function WalletVerificationProvider() {
             })
 
             void queryClient.invalidateQueries({
-              queryKey: ["token_validity", state.address, state.chainType],
+              queryKey: [
+                "token_validation",
+                state.address,
+                state.chainType,
+                token,
+              ],
             })
           }
         }}
