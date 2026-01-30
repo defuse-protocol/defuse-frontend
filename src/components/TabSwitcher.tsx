@@ -10,7 +10,7 @@ type Tab = {
 }
 
 const TabSwitcher = ({ tabs }: { tabs: [Tab, Tab] }) => (
-  <div className="bg-gray-100 rounded-2xl grid grid-cols-2 gap-1 border border-gray-200 p-1 mt-8">
+  <div className="bg-gray-100 rounded-2xl grid grid-cols-2 gap-1 border border-gray-200 p-1 mt-6">
     {tabs.map(({ label, icon, selected, ...rest }) => (
       <Button
         key={label}

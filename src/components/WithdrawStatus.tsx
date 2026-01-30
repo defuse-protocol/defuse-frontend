@@ -20,6 +20,7 @@ import {
 } from "@src/components/ProgressIndicator"
 import type { TrackedWithdrawIntent } from "@src/providers/WithdrawTrackerMachineProvider"
 import Button from "./Button"
+import PageHeader from "./PageHeader"
 
 type WithdrawStatusProps = {
   withdraw: TrackedWithdrawIntent
@@ -112,11 +113,7 @@ function FullView({
 
   return (
     <div className="flex flex-col">
-      <div className="flex justify-between items-center">
-        <h1 className="text-gray-900 text-xl font-semibold tracking-tight">
-          Withdraw
-        </h1>
-      </div>
+      <PageHeader title="Withdraw" />
 
       <div className="mt-5 bg-gray-50 rounded-2xl p-6">
         <div className="flex flex-col items-center gap-4 mb-6">

@@ -65,6 +65,9 @@ export type OtcMakerWidgetProps = {
 
   /** Frontend referral */
   referral?: string
+
+  /** Callback when deal is successfully created and user closes the modal */
+  onSuccess?: () => void
 }
 
 export function OtcMakerForm({
@@ -79,6 +82,7 @@ export function OtcMakerForm({
   renderHostAppLink,
   referral,
   createOtcTrade,
+  onSuccess,
 }: OtcMakerWidgetProps) {
   const signerCredentials: SignerCredentials | null = useMemo(
     () =>
@@ -479,6 +483,7 @@ export function OtcMakerForm({
             open={true}
             onClose={() => {
               readyOrderRef?.send({ type: "FINISH" })
+              onSuccess?.()
             }}
             tokenIn={readyOrderContext.parsed.tokenIn}
             tokenOut={readyOrderContext.parsed.tokenOut}
