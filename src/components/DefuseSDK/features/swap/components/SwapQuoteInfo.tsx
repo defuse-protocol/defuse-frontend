@@ -62,7 +62,7 @@ export function SwapQuoteInfo({ tokenOut, tokenIn }: SwapQuoteInfoProps) {
 
   return (
     <>
-      <dl className="mt-6 space-y-2 text-sm">
+      <dl className="mt-6 space-y-3 text-sm">
         <div className="flex items-center justify-between">
           <dt className="text-gray-500 font-medium">Max slippage</dt>
           <dd>
