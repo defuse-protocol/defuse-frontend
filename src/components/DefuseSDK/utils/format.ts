@@ -17,8 +17,8 @@ type FormatOptions = {
 //
 // Priority: fractionDigits > min > compact > smart formatting
 //
-// formatTokenValue(1234567890000000000n, 18) → "1.23456"
-// formatTokenValue(169677343970239n, 18) → "0.000169677"
+// formatTokenValue(1234567890000000000n, 18) → "1.23456789"
+// formatTokenValue(169677343970239n, 18) → "0.0001696773"
 // formatTokenValue(1234567000000000000000n, 18, { compact: true }) → "1.23K"
 export function formatTokenValue(
   num: bigint | string | number,
