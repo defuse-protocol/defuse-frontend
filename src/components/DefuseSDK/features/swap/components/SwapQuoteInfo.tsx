@@ -1,3 +1,4 @@
+import { InformationCircleIcon as InformationCircleIconSmall } from "@heroicons/react/16/solid"
 import {
   AdjustmentsHorizontalIcon,
   InformationCircleIcon,
@@ -85,7 +86,7 @@ export function SwapQuoteInfo({ tokenOut, tokenIn }: SwapQuoteInfoProps) {
               className="shrink-0 text-gray-400 hover:text-gray-600 transition-colors p-1 -m-1 rounded-md"
               aria-label="Learn more about quotes"
             >
-              <InformationCircleIcon className="size-4" />
+              <InformationCircleIconSmall className="size-4" />
             </button>
           </dd>
         </div>
@@ -101,11 +102,20 @@ export function SwapQuoteInfo({ tokenOut, tokenIn }: SwapQuoteInfoProps) {
           </span>
         }
       >
-        <p className="mt-3 text-sm text-gray-600 leading-relaxed">
+        <p className="mt-1 text-sm/5 font-medium">
           The quoted amount is an estimate. Multiple solvers compete to give you
           the best price. Your max slippage setting guarantees a minimum amount
           you'll receive—if that can't be met, the swap is cancelled.
         </p>
+        <Button
+          variant="primary"
+          fullWidth
+          size="lg"
+          className="mt-4"
+          onClick={() => setIsInfoOpen(false)}
+        >
+          Close
+        </Button>
       </BaseModalDialog>
     </>
   )
