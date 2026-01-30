@@ -12,6 +12,8 @@ interface SelectTriggerLikeProps
   icon?: ReactNode
   label: string
   value?: string
+  /** Optional subtitle shown below the value */
+  subtitle?: string
   hint?: string
   error?: string
 }
@@ -21,6 +23,7 @@ function SelectTriggerLike(
     icon,
     label,
     value,
+    subtitle,
     disabled,
     className,
     hint,
@@ -61,6 +64,11 @@ function SelectTriggerLike(
           >
             {value || error || label}
           </span>
+          {subtitle && (
+            <span className="text-sm/none font-medium text-gray-500">
+              {subtitle}
+            </span>
+          )}
         </span>
       </span>
       {hint && (

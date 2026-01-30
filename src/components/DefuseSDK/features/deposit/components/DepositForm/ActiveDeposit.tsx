@@ -211,6 +211,7 @@ export function ActiveDeposit({
         usdAmount={usdAmountToDeposit}
         decimals={tokenDeployment.decimals}
         handleSetPercentage={handleSetPercentage}
+        selectedToken={token}
         registration={register("amount", {
           required: true,
           validate: (value) => {

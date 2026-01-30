@@ -1,20 +1,33 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
-import { TagIcon } from "@heroicons/react/20/solid"
+import {
+  ExclamationTriangleIcon,
+  GlobeAltIcon,
+  TagIcon,
+} from "@heroicons/react/20/solid"
+import {
+  type Contact,
+  getContacts,
+} from "@src/app/(app)/(auth)/contacts/actions"
+import { CopyButton } from "@src/components/DefuseSDK/components/IntentCard/CopyButton"
 import ModalSelectRecipient from "@src/components/DefuseSDK/components/Modal/ModalSelectRecipient"
 import { getMinWithdrawalHyperliquidAmount } from "@src/components/DefuseSDK/features/withdraw/utils/hyperliquid"
 import { usePreparedNetworkLists } from "@src/components/DefuseSDK/hooks/useNetworkLists"
 import { isSupportedChainName } from "@src/components/DefuseSDK/utils/blockchain"
+import { contactBlockchainToChainKey } from "@src/components/DefuseSDK/utils/contactUtils"
 import ErrorMessage from "@src/components/ErrorMessage"
 import { WalletIcon } from "@src/icons"
+import { useQuery } from "@tanstack/react-query"
 import { useSelector } from "@xstate/react"
 import clsx from "clsx"
+import { useRouter } from "next/navigation"
 import { type ReactNode, useEffect, useState } from "react"
 import type { UseFormReturn } from "react-hook-form"
 import { Controller } from "react-hook-form"
 import { EmptyIcon } from "../../../../../../components/EmptyIcon"
 import { ModalSelectNetwork } from "../../../../../../components/Network/ModalSelectNetwork"
 import { SelectTriggerLike } from "../../../../../../components/Select/SelectTriggerLike"
+import TooltipNew from "../../../../../../components/TooltipNew"
 import {
   getBlockchainsOptions,
   getNearIntentsOption,
@@ -24,7 +37,10 @@ import type {
   SupportedChainName,
   TokenValue,
 } from "../../../../../../types/base"
-import { reverseAssetNetworkAdapter } from "../../../../../../utils/adapters"
+import {
+  assetNetworkAdapter,
+  reverseAssetNetworkAdapter,
+} from "../../../../../../utils/adapters"
 import { parseDestinationMemo } from "../../../../../machines/withdrawFormReducer"
 import { WithdrawUIMachineContext } from "../../../../WithdrawUIMachineContext"
 import { useCreateHLDepositAddress } from "../../hooks/useCreateHLDepositAddress"
@@ -32,6 +48,7 @@ import { useTokenBalances } from "../../hooks/useTokenBalances"
 import type { WithdrawFormNearValues } from "../../index"
 import { balancesSelector } from "../../selectors"
 import {
+  chainNameToNetworkName,
   chainTypeSatisfiesChainName,
   getBlockchainSelectItems,
   getFastWithdrawals,
@@ -47,6 +64,12 @@ type RecipientSubFormProps = {
   userAddress: string | undefined
   displayAddress: string | undefined
   tokenInBalance: TokenValue | undefined
+  /** Contact ID to pre-select, enabling contact mode */
+  presetContactId: string | undefined
+  /** Network that was requested but has no compatible tokens */
+  noTokenForPresetNetwork?: SupportedChainName | null
+  /** Called when the selected contact changes */
+  onContactChange?: (contact: Contact | null) => void
 }
 
 export const RecipientSubForm = ({
@@ -62,13 +85,67 @@ export const RecipientSubForm = ({
   userAddress,
   displayAddress,
   tokenInBalance,
+  presetContactId,
+  noTokenForPresetNetwork,
+  onContactChange,
 }: RecipientSubFormProps) => {
+  const router = useRouter()
   const [modalType, setModalType] = useState<"network" | "recipient" | null>(
     null
   )
   const isSelectNetworkModalOpen = modalType === "network"
   const isSelectRecipientModalOpen = modalType === "recipient"
   const closeModal = () => setModalType(null)
+
+  type RecipientMode = "contact" | "address"
+  const [recipientMode, setRecipientMode] = useState<RecipientMode>("address")
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
+  const [presetContactApplied, setPresetContactApplied] = useState(false)
+
+  useEffect(() => {
+    onContactChange?.(selectedContact)
+  }, [selectedContact, onContactChange])
+
+  const { data: contactsData } = useQuery({
+    queryKey: ["contacts"],
+    queryFn: () => getContacts(),
+  })
+  const contacts = contactsData?.ok ? contactsData.value : []
+
+  useEffect(() => {
+    if (presetContactApplied) return
+    if (presetContactId && contacts.length > 0) {
+      const contact = contacts.find((c) => c.id === presetContactId)
+      if (contact) {
+        setRecipientMode("contact")
+        setSelectedContact(contact)
+        setPresetContactApplied(true)
+      }
+    }
+  }, [presetContactId, contacts, presetContactApplied])
+
+  const currentRecipient = watch("recipient")
+  const currentBlockchain = watch("blockchain")
+
+  useEffect(() => {
+    // Only check in address mode (don't interfere when already in contact mode)
+    if (recipientMode !== "address") return
+    if (!currentRecipient || !currentBlockchain) return
+    // Skip near_intents network (not a real blockchain for contacts)
+    if (!isSupportedChainName(currentBlockchain)) return
+
+    const blockchainEnum = assetNetworkAdapter[currentBlockchain]
+    const matchingContact = contacts.find(
+      (c) =>
+        c.address.toLowerCase() === currentRecipient.toLowerCase() &&
+        c.blockchain === blockchainEnum
+    )
+
+    if (matchingContact) {
+      setRecipientMode("contact")
+      setSelectedContact(matchingContact)
+    }
+  }, [currentRecipient, currentBlockchain, contacts, recipientMode])
 
   const actorRef = WithdrawUIMachineContext.useActorRef()
   const { formRef, balances: balancesData } =
@@ -181,25 +258,66 @@ export const RecipientSubForm = ({
         }}
         render={({ field }) => (
           <>
-            <SelectTriggerLike
-              label={field.value ? "Network" : "Select network"}
-              value={determineBlockchainControllerLabel(
-                field.value,
-                isSupportedChainName(field.value) // filter out virtual "near_intents" chain
-                  ? blockchainSelectItems[field.value]?.label
-                  : undefined
-              )}
-              icon={determineBlockchainControllerIcon(
-                field.value,
-                isSupportedChainName(field.value) // filter out virtual "near_intents" chain
-                  ? blockchainSelectItems[field.value]?.icon
-                  : undefined
-              )}
-              onClick={() => setModalType("network")}
-              data-testid="select-trigger-like"
-              hint={determineBlockchainControllerHint(field.value)}
-              disabled={false}
-            />
+            {noTokenForPresetNetwork != null ? (
+              <SelectTriggerLike
+                label="Network"
+                value={chainNameToNetworkName(noTokenForPresetNetwork)}
+                icon={
+                  <div className="size-10 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+                    <ExclamationTriangleIcon className="text-red-500 size-5" />
+                  </div>
+                }
+                data-testid="select-trigger-like"
+                error={`You have no assets available on ${chainNameToNetworkName(noTokenForPresetNetwork)}`}
+                disabled // Hide chevron to indicate non-interactive state
+              />
+            ) : recipientMode === "contact" ? (
+              <TooltipNew>
+                <TooltipNew.Trigger>
+                  <SelectTriggerLike
+                    label="Network"
+                    value={determineBlockchainControllerLabel(
+                      field.value,
+                      isSupportedChainName(field.value)
+                        ? blockchainSelectItems[field.value]?.label
+                        : undefined
+                    )}
+                    icon={determineBlockchainControllerIcon(
+                      field.value,
+                      isSupportedChainName(field.value)
+                        ? blockchainSelectItems[field.value]?.icon
+                        : undefined
+                    )}
+                    data-testid="select-trigger-like"
+                    hint={determineBlockchainControllerHint(field.value)}
+                    disabled
+                  />
+                </TooltipNew.Trigger>
+                <TooltipNew.Content>
+                  The network is determined by the contact.
+                </TooltipNew.Content>
+              </TooltipNew>
+            ) : (
+              <SelectTriggerLike
+                label={field.value ? "Network" : "Select network"}
+                value={determineBlockchainControllerLabel(
+                  field.value,
+                  isSupportedChainName(field.value)
+                    ? blockchainSelectItems[field.value]?.label
+                    : undefined
+                )}
+                icon={determineBlockchainControllerIcon(
+                  field.value,
+                  isSupportedChainName(field.value)
+                    ? blockchainSelectItems[field.value]?.icon
+                    : undefined
+                )}
+                onClick={() => setModalType("network")}
+                data-testid="select-trigger-like"
+                hint={determineBlockchainControllerHint(field.value)}
+                disabled={false}
+              />
+            )}
 
             <ModalSelectNetwork
               selectNetwork={onChangeNetwork}
@@ -236,19 +354,53 @@ export const RecipientSubForm = ({
         rules={{
           required: "Recipient is required",
         }}
-        render={({ field, fieldState }) => (
-          <SelectTriggerLike
-            label={field.value ? "Recipient" : "Select recipient"}
-            value={midTruncate(field.value, 16)}
-            error={fieldState.error?.message}
-            icon={
-              <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
-                <WalletIcon className="text-gray-500 size-5" />
-              </div>
-            }
-            onClick={() => setModalType("recipient")}
-          />
-        )}
+        render={({ field, fieldState }) => {
+          const isContactSelected =
+            recipientMode === "contact" && selectedContact
+          const selectTrigger = (
+            <SelectTriggerLike
+              label={
+                isContactSelected
+                  ? "Recipient is a contact"
+                  : field.value
+                    ? "Recipient is a manually entered address"
+                    : "Recipient"
+              }
+              value={
+                isContactSelected
+                  ? selectedContact.name
+                  : field.value
+                    ? midTruncate(field.value, 16)
+                    : "Select a contact or enter an address"
+              }
+              error={fieldState.error?.message}
+              icon={
+                <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                  {recipientMode === "contact" ? (
+                    <WalletIcon className="text-gray-500 size-5" />
+                  ) : (
+                    <GlobeAltIcon className="text-gray-500 size-5" />
+                  )}
+                </div>
+              }
+              onClick={() => setModalType("recipient")}
+            />
+          )
+
+          if (isContactSelected) {
+            return (
+              <TooltipNew>
+                <TooltipNew.Trigger>{selectTrigger}</TooltipNew.Trigger>
+                <TooltipNew.Content className="flex items-center gap-2">
+                  <span className="font-mono">{field.value}</span>
+                  <CopyButton text={field.value} ariaLabel="Copy address" />
+                </TooltipNew.Content>
+              </TooltipNew>
+            )
+          }
+
+          return selectTrigger
+        }}
       />
 
       <ModalSelectRecipient
@@ -264,6 +416,21 @@ export const RecipientSubForm = ({
           userAddress != null &&
           getValues("blockchain") !== "hyperliquid"
         }
+        onSelectContact={(contact) => {
+          setRecipientMode("contact")
+          setSelectedContact(contact)
+          const chainKey = contactBlockchainToChainKey(contact.blockchain)
+          setValue("blockchain", chainKey)
+          setValue("recipient", contact.address, { shouldValidate: true })
+        }}
+        selectedContact={recipientMode === "contact" ? selectedContact : null}
+        onDeselectContact={() => {
+          setRecipientMode("address")
+          setSelectedContact(null)
+          setValue("recipient", "")
+          // Clear contact-related URL params to prevent re-applying on refresh
+          router.replace("/send", { scroll: false })
+        }}
       />
 
       <Controller

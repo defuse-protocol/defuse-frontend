@@ -10,8 +10,12 @@ import type { BalanceMapping } from "../../features/machines/depositedBalanceMac
 import { useModalStore } from "../../providers/ModalStoreProvider"
 import { useTokensStore } from "../../providers/TokensStoreProvider"
 import { ModalType } from "../../stores/modalStore"
-import type { TokenInfo, TokenValue } from "../../types/base"
-import { getTokenId, isBaseToken } from "../../utils/token"
+import type {
+  SupportedChainName,
+  TokenInfo,
+  TokenValue,
+} from "../../types/base"
+import { getTokenId, isBaseToken, isUnifiedToken } from "../../utils/token"
 import {
   compareAmounts,
   computeTotalBalanceDifferentDecimals,
@@ -35,6 +39,10 @@ export type ModalSelectAssetsPayload = {
   onConfirm?: (payload: ModalSelectAssetsPayload) => void
   isHoldingsEnabled?: boolean
   isMostTradableTokensEnabled?: boolean
+  /** When set, only tokens that support this network are selectable */
+  lockedNetwork?: SupportedChainName
+  /** When true, tokens with zero balance are disabled (for Send flow) */
+  disableZeroBalance?: boolean
 }
 
 export type SelectItemToken<T = TokenInfo> = SearchableItem & {
@@ -118,9 +126,28 @@ export function ModalSelectAssets() {
 
     const getAssetList: SelectItemToken[] = []
 
+    const tokenSupportsNetwork = (
+      token: TokenInfo,
+      network: SupportedChainName
+    ): boolean => {
+      if (isBaseToken(token)) {
+        return token.deployments.some((d) => d.chainName === network)
+      }
+      if (isUnifiedToken(token)) {
+        return token.groupedTokens.some((gt) =>
+          gt.deployments.some((d) => d.chainName === network)
+        )
+      }
+      return false
+    }
+
     for (const token of tokens) {
       const tokenId = getTokenId(token)
-      const disabled = selectedTokenId != null && tokenId === selectedTokenId
+      const isSelected = selectedTokenId != null && tokenId === selectedTokenId
+
+      const isNetworkIncompatible =
+        modalPayload.lockedNetwork != null &&
+        !tokenSupportsNetwork(token, modalPayload.lockedNetwork)
 
       // TODO: remove this once we remove the legacy props
       const balance = computeTotalBalanceDifferentDecimals(token, balances)
@@ -129,44 +156,56 @@ export function ModalSelectAssets() {
         ? holdings?.find((holding) => getTokenId(holding.token) === tokenId)
         : undefined
 
+      const tokenValue = findHolding?.value ?? balance
+
+      const hasZeroBalance =
+        modalPayload.disableZeroBalance === true &&
+        (tokenValue == null || tokenValue.amount === 0n)
+
+      const disabled = isSelected || isNetworkIncompatible || hasZeroBalance
+
       getAssetList.push({
         token,
         disabled,
-        selected: disabled,
+        selected: isSelected,
         usdValue: findHolding?.usdValue,
-        value: findHolding?.value ?? balance,
+        value: tokenValue,
         isHoldingsEnabled,
         searchData: createSearchData(token), // Preprocess search data for performance
       })
     }
     setNotFilteredAssetList(getAssetList)
 
-    // Put tokens with balance on top
+    // Sort tokens: selected first, then enabled, then by USD value, then by balance
     getAssetList.sort((a, b) => {
-      if (a.value == null && b.value == null) {
-        return 0
+      // 1. Put selected token first
+      if (a.selected !== b.selected) {
+        return a.selected ? -1 : 1
       }
-      if (a.value == null) {
-        return 1
-      }
-      if (b.value == null) {
-        return -1
-      }
-      return compareAmounts(b.value, a.value)
-    })
 
-    // Put tokens with usdValue on top
-    getAssetList.sort((a, b) => {
-      if (a.usdValue == null && b.usdValue == null) {
-        return 0
+      // 2. Put enabled (non-disabled) tokens before disabled ones
+      // Note: selected token is marked disabled but handled above
+      if (a.disabled !== b.disabled) {
+        return a.disabled ? 1 : -1
       }
-      if (a.usdValue == null) {
-        return 1
+
+      // 3. Sort by USD value (descending)
+      if (a.usdValue != null || b.usdValue != null) {
+        if (a.usdValue == null) return 1
+        if (b.usdValue == null) return -1
+        if (a.usdValue !== b.usdValue) {
+          return b.usdValue - a.usdValue
+        }
       }
-      if (b.usdValue == null) {
-        return -1
+
+      // 4. Sort by balance (descending)
+      if (a.value != null || b.value != null) {
+        if (a.value == null) return 1
+        if (b.value == null) return -1
+        return compareAmounts(b.value, a.value)
       }
-      return b.usdValue - a.usdValue
+
+      return 0
     })
 
     setAssetList(getAssetList)

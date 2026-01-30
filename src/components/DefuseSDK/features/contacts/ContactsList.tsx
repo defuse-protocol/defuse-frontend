@@ -1,4 +1,5 @@
 "use client"
+import { Square2StackIcon } from "@heroicons/react/16/solid"
 import { PencilSquareIcon, XCircleIcon } from "@heroicons/react/16/solid"
 import { PlusIcon } from "@heroicons/react/20/solid"
 import type { Contact } from "@src/app/(app)/(auth)/contacts/actions"
@@ -7,19 +8,16 @@ import ModalAddEditContact from "@src/components/DefuseSDK/components/Modal/Moda
 import ModalNoResults from "@src/components/DefuseSDK/components/Modal/ModalNoResults"
 import { NetworkIcon } from "@src/components/DefuseSDK/components/Network/NetworkIcon"
 import SearchBar from "@src/components/DefuseSDK/components/SearchBar"
-import { chainIcons } from "@src/components/DefuseSDK/constants/blockchains"
-import {
-  chainNameToNetworkName,
-  midTruncate,
-} from "@src/components/DefuseSDK/features/withdraw/components/WithdrawForm/utils"
+import { midTruncate } from "@src/components/DefuseSDK/features/withdraw/components/WithdrawForm/utils"
+import { getContactChainInfo } from "@src/components/DefuseSDK/utils/contactUtils"
 import { stringToColor } from "@src/components/DefuseSDK/utils/stringToColor"
 import ListItem from "@src/components/ListItem"
 import ListItemsSkeleton from "@src/components/ListItemsSkeleton"
+import PageHeader from "@src/components/PageHeader"
 import { SendIcon, WalletIcon } from "@src/icons"
 import { useRouter } from "next/navigation"
 import { useMemo, useState, useTransition } from "react"
 import ModalRemoveContact from "../../components/Modal/ModalRemoveContact"
-import { reverseAssetNetworkAdapter } from "../../utils/adapters"
 
 type ModalType = "create" | "edit" | "remove"
 
@@ -48,16 +46,19 @@ const ContactsList = ({
     setSelectedContact(contact)
   }
 
-  const processedContacts = useMemo(
-    () =>
-      contacts.map((contact) => {
-        const chainKey = reverseAssetNetworkAdapter[contact.blockchain]
-        const chainIcon = chainIcons[chainKey]
-        const chainName = chainNameToNetworkName(chainKey)
-        return { contact, chainKey, chainIcon, chainName }
-      }),
-    [contacts]
-  )
+  const processedContacts = useMemo(() => {
+    const processed = contacts.map((contact) => {
+      const { chainKey, chainIcon, chainName } = getContactChainInfo(
+        contact.blockchain
+      )
+      return { contact, chainKey, chainIcon, chainName }
+    })
+
+    // Sort alphabetically by contact name
+    return processed.sort((a, b) =>
+      a.contact.name.localeCompare(b.contact.name)
+    )
+  }, [contacts])
 
   const hasSearchQuery = Boolean(search)
   const hasNoContacts = contacts.length === 0
@@ -65,9 +66,31 @@ const ContactsList = ({
 
   return (
     <>
-      <h1 className="text-gray-900 text-xl font-semibold tracking-tight">
-        Contacts
-      </h1>
+      <PageHeader
+        title="Contacts"
+        intro={
+          <>
+            <p>
+              Make transfers less susceptible to mistakes and scams, by using
+              Contacts.
+            </p>
+            <p>
+              How does this work? Instead of sending to a long, complex address
+              like,{" "}
+              <code className="bg-gray-700 rounded-md px-1 py-0.5 text-xs break-all">
+                0xAcF36260817d1c78C471406BdE482177a1935071
+              </code>
+              , simply send to{" "}
+              <span className="text-white font-semibold">Mary Johnson</span>{" "}
+              instead!
+            </p>
+            <p>
+              For each contact you create, you'll specify a name, a network,
+              like Ethereum, and an address. Easy peasy.
+            </p>
+          </>
+        }
+      />
 
       {(!hasNoContacts || hasSearchQuery) && (
         <div className="mt-6 flex items-center gap-1">
@@ -151,8 +174,15 @@ const ContactsList = ({
                   dropdownMenuItems={[
                     {
                       label: "Send",
-                      href: `/send?contact=${contact.id}&recipient=${encodeURIComponent(contact.address)}&network=${chainKey}`,
+                      href: `/send?contactId=${contact.id}&recipient=${encodeURIComponent(contact.address)}&network=${chainKey}`,
                       icon: SendIcon,
+                    },
+                    {
+                      label: "Copy",
+                      onClick: () => {
+                        navigator.clipboard.writeText(contact.address)
+                      },
+                      icon: Square2StackIcon,
                     },
                     {
                       label: "Edit",
@@ -168,7 +198,7 @@ const ContactsList = ({
                   ]}
                 >
                   <div
-                    className="size-10 rounded-full bg-gray-200 flex items-center justify-center shrink-0 outline-1 -outline-offset-1 outline-gray-900/10"
+                    className="size-10 rounded-full bg-gray-200 flex items-center justify-center outline-1 -outline-offset-1 outline-gray-900/10"
                     style={{ backgroundColor: contactColor.background }}
                   >
                     <WalletIcon
@@ -186,11 +216,11 @@ const ContactsList = ({
                   </ListItem.Content>
                   <ListItem.Content align="end">
                     <ListItem.Title className="flex items-center gap-1">
+                      <span className="capitalize">{chainName}</span>
                       <NetworkIcon
                         chainIcon={chainIcon}
                         sizeClassName="size-4"
                       />
-                      <span className="capitalize">{chainName}</span>
                     </ListItem.Title>
                     <div className="h-4" />
                   </ListItem.Content>

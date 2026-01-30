@@ -1,3 +1,4 @@
+import type { Contact } from "@src/app/(app)/(auth)/contacts/actions"
 import Button from "@src/components/Button"
 import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
 import ModalReviewSend from "@src/components/DefuseSDK/components/Modal/ModalReviewSend"
@@ -9,6 +10,7 @@ import { ModalType } from "@src/components/DefuseSDK/stores/modalStore"
 import { isSupportedChainName } from "@src/components/DefuseSDK/utils/blockchain"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
+import { isBaseToken } from "@src/components/DefuseSDK/utils/token"
 import {
   addAmounts,
   compareAmounts,
@@ -21,7 +23,7 @@ import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
 import { useWithdrawTrackerMachine } from "@src/providers/WithdrawTrackerMachineProvider"
 import { logger } from "@src/utils/logger"
 import { useSelector } from "@xstate/react"
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import { formatUnits } from "viem"
 import { AuthGate } from "../../../../components/AuthGate"
@@ -52,7 +54,6 @@ import {
 import { AcknowledgementCheckbox } from "./components/AcknowledgementCheckbox/AcknowledgementCheckbox"
 import { useMinWithdrawalAmountWithFeeEstimation } from "./hooks/useMinWithdrawalAmountWithFeeEstimation"
 import {
-  balancesSelector,
   directionFeeSelector,
   isLiquidityUnavailableSelector,
   isUnsufficientTokenInAmount,
@@ -69,7 +70,10 @@ export type WithdrawFormNearValues = {
   isFundsLooseConfirmed?: boolean
 }
 
-type WithdrawFormProps = WithdrawWidgetProps
+type WithdrawFormProps = WithdrawWidgetProps & {
+  /** Network that was requested but has no compatible tokens */
+  noTokenForPresetNetwork?: SupportedChainName | null
+}
 
 export const WithdrawForm = ({
   userAddress,
@@ -78,6 +82,8 @@ export const WithdrawForm = ({
   presetAmount,
   presetNetwork,
   presetRecipient,
+  presetContactId,
+  noTokenForPresetNetwork,
   sendNearTransaction,
   renderHostAppLink,
 }: WithdrawFormProps) => {
@@ -109,7 +115,6 @@ export const WithdrawForm = ({
       totalAmountReceived: totalAmountReceivedSelector(state),
       withdtrawalFee: withdtrawalFeeSelector(state),
       directionFee: directionFeeSelector(state),
-      balances: balancesSelector(state),
       isTokenResolving: isTokenResolvingSelector(state),
     }
   })
@@ -230,6 +235,8 @@ export const WithdrawForm = ({
 
   const { data: tokensUsdPriceData } = useTokensUsdPrices()
 
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
+
   const { setModalType, data: modalSelectAssetsData } = useModalController<{
     modalType: ModalType
     token: TokenInfo | undefined
@@ -237,12 +244,18 @@ export const WithdrawForm = ({
 
   const handleSelect = useCallback(() => {
     const fieldName = "token"
+    const lockedNetwork =
+      selectedContact != null && isSupportedChainName(blockchain)
+        ? blockchain
+        : undefined
     setModalType(ModalType.MODAL_SELECT_ASSETS, {
       fieldName,
       [fieldName]: token,
       isHoldingsEnabled: true,
+      lockedNetwork,
+      disableZeroBalance: true,
     })
-  }, [token, setModalType])
+  }, [token, setModalType, selectedContact, blockchain])
 
   useEffect(() => {
     const sub = watch(async (value, { name }) => {
@@ -339,18 +352,22 @@ export const WithdrawForm = ({
     token,
     tokensUsdPriceData
   )
-  const receivedAmountUsd = totalAmountReceived?.amount
-    ? getTokenUsdPrice(
-        formatTokenValue(
-          directionFee?.amount
-            ? subtractAmounts(totalAmountReceived, directionFee).amount
-            : totalAmountReceived.amount,
-          totalAmountReceived.decimals
-        ),
-        tokenOut,
-        tokensUsdPriceData
-      )
-    : null
+
+  const tokenPrice = (() => {
+    if (!tokensUsdPriceData || !token) return null
+    if (isBaseToken(token) && tokensUsdPriceData[token.defuseAssetId]) {
+      return tokensUsdPriceData[token.defuseAssetId].price
+    }
+    if (!isBaseToken(token)) {
+      for (const groupedToken of token.groupedTokens) {
+        if (tokensUsdPriceData[groupedToken.defuseAssetId]) {
+          return tokensUsdPriceData[groupedToken.defuseAssetId].price
+        }
+      }
+    }
+    return null
+  })()
+
   const feeUsd = withdtrawalFee
     ? getTokenUsdPrice(
         formatTokenValue(withdtrawalFee.amount, withdtrawalFee.decimals),
@@ -467,6 +484,9 @@ export const WithdrawForm = ({
               userAddress={userAddress}
               displayAddress={displayAddress}
               tokenInBalance={tokenInBalance}
+              presetContactId={presetContactId}
+              noTokenForPresetNetwork={noTokenForPresetNetwork}
+              onContactChange={setSelectedContact}
             />
 
             <SelectedTokenInput
@@ -505,6 +525,9 @@ export const WithdrawForm = ({
               symbol={token.symbol}
               usdAmount={tokenToWithdrawUsdAmount}
               handleSetPercentage={handleSetPercentage}
+              selectedToken={token}
+              tokenPrice={tokenPrice}
+              tokenLoading={isTokenResolving}
               additionalInfo={
                 tokenInTransitBalance ? (
                   <TooltipNew>
@@ -605,8 +628,8 @@ export const WithdrawForm = ({
         fee={withdtrawalFee}
         totalAmountReceived={totalAmountReceived}
         feeUsd={feeUsd}
-        totalAmountReceivedUsd={receivedAmountUsd}
         directionFee={directionFee}
+        contact={selectedContact}
       />
     </>
   )

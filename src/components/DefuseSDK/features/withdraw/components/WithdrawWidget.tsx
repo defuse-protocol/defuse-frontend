@@ -2,7 +2,10 @@
 import { messageFactory } from "@defuse-protocol/internal-utils"
 import { base64 } from "@scure/base"
 import { bridgeSDK } from "@src/components/DefuseSDK/constants/bridgeSdk"
-import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
+import type {
+  SupportedChainName,
+  TokenInfo,
+} from "@src/components/DefuseSDK/types/base"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { getAppFeeRecipient } from "@src/utils/getAppFeeRecipient"
@@ -22,8 +25,10 @@ import {
 import { WithdrawWidgetProvider } from "../../../providers/WithdrawWidgetProvider"
 import type { WithdrawWidgetProps } from "../../../types/withdraw"
 import { assert } from "../../../utils/assert"
+import { isSupportedChainName } from "../../../utils/blockchain"
 import { isBaseToken } from "../../../utils/token"
 import { swapIntentMachine } from "../../machines/swapIntentMachine"
+import { tokenSupportsNetwork } from "../../machines/tokenResolutionMachine"
 import { withdrawUIMachine } from "../../machines/withdrawUIMachine"
 import { WithdrawUIMachineContext } from "../WithdrawUIMachineContext"
 import { WithdrawForm } from "./WithdrawForm"
@@ -36,14 +41,18 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
   const cachedPrices =
     queryClient.getQueryData<TokenUsdPriceData>(tokensUsdPricesQueryKey) ?? null
 
-  const initialTokenIn =
-    props.presetTokenSymbol !== undefined
-      ? (props.tokenList.find(
-          (el) =>
-            el.symbol.toLowerCase().normalize() ===
-            props.presetTokenSymbol?.toLowerCase().normalize()
-        ) ?? props.tokenList[0])
-      : props.tokenList[0]
+  // Simple initial token - the tokenResolutionMachine will resolve the optimal one
+  const initialTokenIn = props.tokenList[0]
+
+  const noTokenForPresetNetwork = (() => {
+    if (!props.presetNetwork || !isSupportedChainName(props.presetNetwork)) {
+      return null
+    }
+    const hasToken = props.tokenList.some((t) =>
+      tokenSupportsNetwork(t, props.presetNetwork as SupportedChainName)
+    )
+    return hasToken ? null : props.presetNetwork
+  })()
 
   assert(initialTokenIn, "Token list must have at least 1 token")
 
@@ -129,7 +138,10 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
         ) : (
           <TokenListUpdater tokenList={props.tokenList} />
         )}
-        <WithdrawForm {...props} />
+        <WithdrawForm
+          {...props}
+          noTokenForPresetNetwork={noTokenForPresetNetwork}
+        />
       </WithdrawUIMachineContext.Provider>
     </WithdrawWidgetProvider>
   )

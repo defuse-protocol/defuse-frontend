@@ -1,10 +1,8 @@
-import type {
-  AuthMethod,
-  BlockchainEnum,
-} from "@defuse-protocol/internal-utils"
+import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { UserCircleIcon } from "@heroicons/react/20/solid"
 import {
   type Contact,
+  type ContactBlockchain,
   createContact,
   updateContact,
 } from "@src/app/(app)/(auth)/contacts/actions"
@@ -16,11 +14,12 @@ import useSearchNetworks from "@src/hooks/useFilterNetworks"
 import { WalletIcon } from "@src/icons"
 import clsx from "clsx"
 import { useRouter } from "next/navigation"
-import { useCallback, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import type { SupportedChainName } from "../../types/base"
 import {
   assetNetworkAdapter,
+  isValidBlockchainEnumKey,
   reverseAssetNetworkAdapter,
 } from "../../utils/adapters"
 import { allAvailableChains } from "../../utils/blockchain"
@@ -32,7 +31,7 @@ import ModalNoResults from "./ModalNoResults"
 type FormData = {
   address: string
   name: string
-  blockchain: BlockchainEnum | null
+  blockchain: ContactBlockchain | null
 }
 
 type ModalContactProps = {
@@ -102,21 +101,37 @@ const ModalAddEditContact = ({
     validate: (value) => value !== null || "Select a network for this contact.",
   })
 
-  const availableNetworks = useMemo(() => allAvailableChains(), [])
+  // Include Near Intents as the first network option
+  const availableNetworks = useMemo(() => allAvailableChains(true), [])
   const filteredNetworks = useSearchNetworks({
     networks: availableNetworks,
     searchValue,
   })
 
   const blockchain = watch("blockchain")
-  const selectedNetwork = useMemo(
-    () => (blockchain ? reverseAssetNetworkAdapter[blockchain] : null),
-    [blockchain]
-  )
-  const networkData = useMemo(
-    () => (blockchain ? availableNetworks[blockchain] : null),
-    [blockchain, availableNetworks]
-  )
+  const address = watch("address")
+
+  // Clear submit error when address or network changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally only reacting to address/blockchain changes
+  useEffect(() => {
+    setSubmitError(null)
+  }, [address, blockchain])
+
+  const selectedNetwork: SupportedChainName | "near_intents" | null =
+    blockchain === null
+      ? null
+      : blockchain === "near_intents"
+        ? "near_intents"
+        : isValidBlockchainEnumKey(blockchain)
+          ? reverseAssetNetworkAdapter[blockchain]
+          : null
+  const networkData = useMemo(() => {
+    if (!blockchain) return null
+    if (blockchain === "near_intents") {
+      return availableNetworks.intents ?? null
+    }
+    return availableNetworks[blockchain] ?? null
+  }, [blockchain, availableNetworks])
 
   const onSubmit = async (data: FormData) => {
     if (!data.blockchain) {
@@ -183,8 +198,12 @@ const ModalAddEditContact = ({
   }, [selectNetworkOpen, isEditing])
 
   const onChangeNetwork = useCallback(
-    (network: SupportedChainName) => {
-      setValue("blockchain", assetNetworkAdapter[network] as BlockchainEnum, {
+    (network: SupportedChainName | "near_intents") => {
+      const blockchainValue =
+        network === "near_intents"
+          ? "near_intents"
+          : assetNetworkAdapter[network]
+      setValue("blockchain", blockchainValue as ContactBlockchain, {
         shouldValidate: true,
       })
       setSelectNetworkOpen(false)
@@ -243,7 +262,30 @@ const ModalAddEditContact = ({
           </div>
         </div>
       ) : (
-        <form onSubmit={handleSubmit(onSubmit)} className="mt-3">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="mt-3"
+          autoComplete="off"
+          data-1p-ignore
+          data-lpignore="true"
+        >
+          {/* Hidden honeypot fields to trick autofill */}
+          <input
+            type="text"
+            name="username"
+            autoComplete="username"
+            className="hidden"
+            tabIndex={-1}
+            aria-hidden="true"
+          />
+          <input
+            type="password"
+            name="password"
+            autoComplete="current-password"
+            className="hidden"
+            tabIndex={-1}
+            aria-hidden="true"
+          />
           <div className="space-y-2">
             <div>
               <label
@@ -260,9 +302,13 @@ const ModalAddEditContact = ({
                 <div className="flex-1">
                   <span className="sr-only">Name</span>
                   <input
-                    id="name"
+                    id="contact-name"
                     type="text"
                     placeholder="Enter name"
+                    autoComplete="off"
+                    data-1p-ignore
+                    data-lpignore="true"
+                    data-form-type="other"
                     className="block w-full text-gray-900 font-semibold placeholder:text-gray-400 focus:outline-none text-base leading-none ring-0 border-none p-0"
                     {...register("name", {
                       required: "Enter the name of the contact.",
@@ -292,9 +338,13 @@ const ModalAddEditContact = ({
                 <div className="flex-1">
                   <span className="sr-only">Address</span>
                   <input
-                    id="address"
+                    id="contact-address"
                     type="text"
                     placeholder="Enter address"
+                    autoComplete="off"
+                    data-1p-ignore
+                    data-lpignore="true"
+                    data-form-type="other"
                     className="block w-full text-gray-900 font-semibold placeholder:text-gray-400 focus:outline-none text-base leading-none ring-0 border-none p-0"
                     {...register("address", {
                       required: "Enter the address of the contact.",

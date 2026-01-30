@@ -148,6 +148,9 @@ function hasBalance(token: TokenInfo, balances: BalanceMapping): boolean {
  * 3. Highest USD value token
  * 4. Current token (default)
  */
+// Export for reuse in WithdrawWidget initial validation
+export { tokenSupportsNetwork }
+
 function resolveOptimalToken(context: Context): TokenInfo {
   const { tokenList, currentToken, presets, balances, prices } = context
 
