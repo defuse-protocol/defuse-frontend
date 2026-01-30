@@ -46,9 +46,8 @@ function ListItem({
       )}
       data-testid={dataTestId}
     >
-      <div className="relative flex gap-3 items-center py-4">
+      <div className="flex gap-3 items-center py-4">
         <div className="flex-1 min-w-0 flex gap-3 items-center">{children}</div>
-
         {hasDropdownMenu && (
           <DropdownMenu.Trigger
             className="size-6 flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus-visible:outline-none data-[state=open]:text-gray-900"
