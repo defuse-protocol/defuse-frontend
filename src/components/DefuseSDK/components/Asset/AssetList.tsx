@@ -121,6 +121,7 @@ const AssetItem = ({
   isHoldingsEnabled,
   usdValue,
   selected,
+  disabled,
   showChainIcon,
   chainIcon,
   onClick,
@@ -129,7 +130,11 @@ const AssetItem = ({
   chainIcon: { dark: string; light: string } | undefined
   onClick: () => void
 }) => (
-  <ListItem onClick={onClick} highlight={selected}>
+  <ListItem
+    onClick={disabled ? undefined : onClick}
+    highlight={selected}
+    className={disabled && !selected ? "opacity-40 cursor-not-allowed" : ""}
+  >
     <AssetComboIcon
       icon={token.icon}
       showChainIcon={showChainIcon}

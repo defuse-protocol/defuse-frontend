@@ -12,6 +12,8 @@ export type WithdrawWidgetProps = {
   presetAmount: string | undefined
   presetRecipient: string | undefined
   presetNetwork: string | undefined
+  /** Contact ID to pre-select, enabling contact mode */
+  presetContactId: string | undefined
   renderHostAppLink: RenderHostAppLink
   tokenList: TokenInfo[]
   signMessage: (

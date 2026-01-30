@@ -22,19 +22,21 @@ export default function SendPage() {
   const tokenSymbol = queryParams.get("token") ?? undefined
   const network = queryParams.get("network") ?? undefined
   const recipient = queryParams.get("recipient") ?? undefined
+  const contactId = queryParams.get("contactId") ?? undefined
 
   const userAddress = state.isVerified ? state.address : undefined
   const userChainType = state.chainType
 
   return (
     <>
-      <PageHeader title="Send" />
+      <PageHeader title="Transfer" />
 
       <WithdrawWidget
         presetAmount={amount}
         presetNetwork={network}
         presetRecipient={recipient}
         presetTokenSymbol={tokenSymbol}
+        presetContactId={contactId}
         tokenList={tokenList}
         userAddress={userAddress}
         displayAddress={state.isVerified ? state.displayAddress : undefined}

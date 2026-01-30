@@ -1,4 +1,5 @@
 "use client"
+import { Square2StackIcon } from "@heroicons/react/16/solid"
 import { PencilSquareIcon, XCircleIcon } from "@heroicons/react/16/solid"
 import { PlusIcon } from "@heroicons/react/20/solid"
 import type { Contact } from "@src/app/(app)/(auth)/contacts/actions"
@@ -7,6 +8,7 @@ import ModalAddEditContact from "@src/components/DefuseSDK/components/Modal/Moda
 import ModalNoResults from "@src/components/DefuseSDK/components/Modal/ModalNoResults"
 import { NetworkIcon } from "@src/components/DefuseSDK/components/Network/NetworkIcon"
 import SearchBar from "@src/components/DefuseSDK/components/SearchBar"
+import { nearIntentsAccountIcon } from "@src/components/DefuseSDK/constants/blockchains"
 import { chainIcons } from "@src/components/DefuseSDK/constants/blockchains"
 import {
   chainNameToNetworkName,
@@ -49,16 +51,29 @@ const ContactsList = ({
     setSelectedContact(contact)
   }
 
-  const processedContacts = useMemo(
-    () =>
-      contacts.map((contact) => {
-        const chainKey = reverseAssetNetworkAdapter[contact.blockchain]
-        const chainIcon = chainIcons[chainKey]
-        const chainName = chainNameToNetworkName(chainKey)
-        return { contact, chainKey, chainIcon, chainName }
-      }),
-    [contacts]
-  )
+  const processedContacts = useMemo(() => {
+    const processed = contacts.map((contact) => {
+      // Handle near_intents as a special case
+      if (contact.blockchain === "near_intents") {
+        return {
+          contact,
+          chainKey: "near_intents" as const,
+          chainIcon: nearIntentsAccountIcon,
+          chainName: "Near Intents",
+        }
+      }
+
+      const chainKey = reverseAssetNetworkAdapter[contact.blockchain]
+      const chainIcon = chainIcons[chainKey]
+      const chainName = chainNameToNetworkName(chainKey)
+      return { contact, chainKey, chainIcon, chainName }
+    })
+
+    // Sort alphabetically by contact name
+    return processed.sort((a, b) =>
+      a.contact.name.localeCompare(b.contact.name)
+    )
+  }, [contacts])
 
   const hasSearchQuery = Boolean(search)
   const hasNoContacts = contacts.length === 0
@@ -163,54 +178,71 @@ const ContactsList = ({
 
       {!hasNoContacts && (
         <section className="mt-6 space-y-1">
-          {processedContacts.map(({ contact, chainIcon, chainName }) => {
-            const contactColor = stringToColor(
-              `${contact.name}${contact.address}${contact.blockchain}`
-            )
-            return (
-              <ListItem
-                key={contact.id}
-                dropdownMenuItems={[
-                  { label: "Send", href: "/send", icon: SendIcon },
-                  {
-                    label: "Edit",
-                    onClick: () => handleOpenModal({ type: "edit", contact }),
-                    icon: PencilSquareIcon,
-                  },
-                  {
-                    label: "Remove",
-                    onClick: () => handleOpenModal({ type: "remove", contact }),
-                    icon: XCircleIcon,
-                  },
-                ]}
-              >
-                <div
-                  className="size-10 rounded-full bg-gray-200 flex items-center justify-center shrink-0 outline-1 -outline-offset-1 outline-gray-900/10"
-                  style={{ backgroundColor: contactColor.background }}
+          {processedContacts.map(
+            ({ contact, chainKey, chainIcon, chainName }) => {
+              const contactColor = stringToColor(
+                `${contact.name}${contact.address}${contact.blockchain}`
+              )
+              return (
+                <ListItem
+                  key={contact.id}
+                  dropdownMenuItems={[
+                    {
+                      label: "Send",
+                      href: `/send?contactId=${contact.id}&recipient=${encodeURIComponent(contact.address)}&network=${chainKey}`,
+                      icon: SendIcon,
+                    },
+                    {
+                      label: "Copy",
+                      onClick: () => {
+                        navigator.clipboard.writeText(contact.address)
+                      },
+                      icon: Square2StackIcon,
+                    },
+                    {
+                      label: "Edit",
+                      onClick: () => handleOpenModal({ type: "edit", contact }),
+                      icon: PencilSquareIcon,
+                    },
+                    {
+                      label: "Remove",
+                      onClick: () =>
+                        handleOpenModal({ type: "remove", contact }),
+                      icon: XCircleIcon,
+                    },
+                  ]}
                 >
-                  <WalletIcon
-                    className="size-5 text-gray-500"
-                    style={{ color: contactColor.icon }}
-                  />
-                </div>
-                <ListItem.Content>
-                  <ListItem.Title className="truncate">
-                    {contact.name}
-                  </ListItem.Title>
-                  <ListItem.Subtitle>
-                    {midTruncate(contact.address)}
-                  </ListItem.Subtitle>
-                </ListItem.Content>
-                <ListItem.Content align="end">
-                  <ListItem.Title className="flex items-center gap-1">
-                    <NetworkIcon chainIcon={chainIcon} sizeClassName="size-4" />
-                    <span className="capitalize">{chainName}</span>
-                  </ListItem.Title>
-                  <div className="h-4" />
-                </ListItem.Content>
-              </ListItem>
-            )
-          })}
+                  <div
+                    className="size-10 rounded-full bg-gray-200 flex items-center justify-center outline-1 -outline-offset-1 outline-gray-900/10"
+                    style={{ backgroundColor: contactColor.background }}
+                  >
+                    <WalletIcon
+                      className="size-5 text-gray-500"
+                      style={{ color: contactColor.icon }}
+                    />
+                  </div>
+                  <ListItem.Content>
+                    <ListItem.Title className="truncate">
+                      {contact.name}
+                    </ListItem.Title>
+                    <ListItem.Subtitle>
+                      {midTruncate(contact.address)}
+                    </ListItem.Subtitle>
+                  </ListItem.Content>
+                  <ListItem.Content align="end">
+                    <ListItem.Title className="flex items-center gap-1">
+                      <span className="capitalize">{chainName}</span>
+                      <NetworkIcon
+                        chainIcon={chainIcon}
+                        sizeClassName="size-4"
+                      />
+                    </ListItem.Title>
+                    <div className="h-4" />
+                  </ListItem.Content>
+                </ListItem>
+              )
+            }
+          )}
         </section>
       )}
 
