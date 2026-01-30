@@ -174,5 +174,19 @@ describe("formatTokenValue()", () => {
         })
       ).toEqual("1.23")
     })
+
+    it("handles exactly 10 leading zeros (boundary - no subscript)", () => {
+      // 10 leading zeros = 0.00000000001 → should NOT use subscript
+      expect(formatTokenValue(10000000n, 18)).toEqual("0.00000000001")
+      // 11 leading zeros = 0.000000000001 → should use subscript
+      expect(formatTokenValue(1000000n, 18)).toEqual("0.0₁₁1")
+    })
+
+    it("handles large values near JS number precision limits", () => {
+      // Values approaching Number.MAX_SAFE_INTEGER (2^53 - 1 = 9007199254740991)
+      // Integer parts are preserved fully, only decimal places are truncated to MAX_DISPLAY_DIGITS
+      expect(formatTokenValue(9007199254740991n, 0)).toEqual("9007199254740991")
+      expect(formatTokenValue(9007199254740991n, 6)).toEqual("9007199254.7")
+    })
   })
 })
