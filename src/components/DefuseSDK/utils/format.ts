@@ -1,6 +1,7 @@
 // Defaults follow Uniswap's pattern: 6 significant digits, max 5 decimal places
 const DEFAULT_SIG_DIGITS = 6
 const DEFAULT_MAX_DECIMALS = 5
+const MAX_DISPLAY_DIGITS = 11 // Maximum total digits to show before truncating
 
 type FormatOptions = {
   significantDigits?: number // Total significant digits to show
@@ -31,6 +32,8 @@ export function formatTokenValue(
   const sign = value < 0 ? "-" : ""
   const sigDigits = options.significantDigits ?? DEFAULT_SIG_DIGITS
   const maxDec = options.maxDecimals ?? DEFAULT_MAX_DECIMALS
+  const hasExplicitOptions =
+    options.significantDigits !== undefined || options.maxDecimals !== undefined
 
   // Legacy mode: exact decimal places
   if (options.fractionDigits !== undefined) {
@@ -48,19 +51,36 @@ export function formatTokenValue(
     return formatCompact(abs, 3)
   }
 
-  // Small values (< 1): use significant digits to show meaningful precision
+  // Small values (< 1)
   if (abs < 1) {
     const leadingZeros = -Math.floor(Math.log10(abs)) - 1
 
-    // More than 10 leading zeros (smaller than 0.00000000001): use subscript notation
-    // Example: 0.000000000000000001 → "0.0₁₇1" (17 zeros, then 1)
+    // More than 10 leading zeros: use subscript notation
+    // 0.000000000000000001 → "0.0₁₇1" (17 zeros, then 1)
     if (leadingZeros > 10) {
       return sign + formatSubscript(abs, leadingZeros, sigDigits)
     }
 
-    // Normal small value: show up to 11 decimal places
-    // Example: 0.000169677 → "0.000169677"
-    const decPlaces = Math.min(leadingZeros + sigDigits, 11)
+    // If explicit options provided, use them
+    if (hasExplicitOptions) {
+      const decPlaces = Math.min(leadingZeros + sigDigits, MAX_DISPLAY_DIGITS)
+      return sign + truncateAndFormat(abs, decPlaces)
+    }
+
+    // Default: show full precision if ≤ MAX_DISPLAY_DIGITS, otherwise truncate
+    const maxPrecision = Math.min(leadingZeros + sigDigits + 2, 15)
+    const fullPrecision = truncateAndFormat(abs, maxPrecision)
+    const digitCount = fullPrecision.replace(".", "").length
+
+    if (digitCount <= MAX_DISPLAY_DIGITS) {
+      return sign + fullPrecision
+    }
+
+    // Truncate to MAX_DISPLAY_DIGITS, but ensure we show at least 1 significant digit
+    // For values like 0.00000000004 (10 zeros + 1 digit = 12 total), show all
+    const minDecPlaces = leadingZeros + 1
+    const targetDecPlaces = MAX_DISPLAY_DIGITS - 1 // account for leading 0
+    const decPlaces = Math.max(minDecPlaces, targetDecPlaces)
     return sign + truncateAndFormat(abs, decPlaces)
   }
 
@@ -72,12 +92,25 @@ export function formatTokenValue(
     return sign + formatWithLocale(abs, Math.min(sigDecPlaces, maxDec))
   }
 
-  // Low-decimal tokens: show full precision (1234.5678 USDC → "1234.5678")
-  // High-decimal tokens: limit by sigDigits (1.23456789 ETH → "1.23456")
-  const actualDecimals = countDecimals(abs)
-  const decPlaces =
-    actualDecimals <= maxDec ? actualDecimals : Math.min(sigDecPlaces, maxDec)
+  // If explicit options provided, use them
+  if (hasExplicitOptions) {
+    const decPlaces = Math.min(sigDecPlaces, maxDec)
+    return sign + truncateAndFormat(abs, decPlaces)
+  }
 
+  // Default: show full precision if ≤ MAX_DISPLAY_DIGITS, otherwise truncate
+  // 1.234567890 (10 digits) → keep as is
+  // 1.234567890123 (13 digits) → truncate to 1.2345678901 (11 digits)
+  const actualDecimals = countDecimals(abs)
+  const fullPrecision = truncateAndFormat(abs, actualDecimals)
+  const digitCount = fullPrecision.replace(".", "").length
+
+  if (digitCount <= MAX_DISPLAY_DIGITS) {
+    return sign + fullPrecision
+  }
+
+  // Truncate to MAX_DISPLAY_DIGITS total digits
+  const decPlaces = Math.max(0, MAX_DISPLAY_DIGITS - intDigits)
   return sign + truncateAndFormat(abs, decPlaces)
 }
 
@@ -136,6 +169,13 @@ function formatCompact(value: number, sigDigits: number): string {
 // countDecimals(100) → 0
 function countDecimals(value: number): number {
   const str = value.toString()
+
+  // Handle scientific notation (e.g., 1e-10)
+  if (str.includes("e")) {
+    const [, exp] = str.split("e")
+    return Math.max(0, -Number(exp))
+  }
+
   const dot = str.indexOf(".")
   return dot === -1 ? 0 : str.length - dot - 1
 }

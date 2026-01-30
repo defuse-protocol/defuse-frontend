@@ -6,7 +6,7 @@ describe("formatTokenValue()", () => {
     it.each([
       [0, 18, "0"],
       [1000000000000000000n, 18, "1"],
-      [1234567890000000000n, 18, "1.23456"],
+      [1234567890000000000n, 18, "1.23456789"], // 10 digits, show full
       [1002000000000000000n, 18, "1.002"],
     ])("formatTokenValue(%s, %s) => %s", (num, decimals, expected) => {
       expect(formatTokenValue(num, decimals)).toEqual(expected)
@@ -15,15 +15,15 @@ describe("formatTokenValue()", () => {
 
   describe("small values (< 1) - shows significant digits", () => {
     it.each([
-      [167314n, 6, "0.167314"],
-      [1234n, 4, "0.1234"],
-      [123456n, 6, "0.123456"],
-      [169677343970239n, 18, "0.000169677"],
-      [100000000n, 18, "0.0000000001"],
-      [4n, 11, "0.00000000004"],
-      [12345n, 8, "0.00012345"],
-      [1n, 8, "0.00000001"],
-      [16967n, 8, "0.00016967"],
+      [167314n, 6, "0.167314"], // 7 digits, show full
+      [1234n, 4, "0.1234"], // 5 digits, show full
+      [123456n, 6, "0.123456"], // 7 digits, show full
+      [169677343970239n, 18, "0.0001696773"], // 19 digits > 11, truncate to 11
+      [100000000n, 18, "0.0000000001"], // 11 digits, show full
+      [4n, 11, "0.00000000004"], // 12 digits > 11, but subscript boundary
+      [12345n, 8, "0.00012345"], // 9 digits, show full
+      [1n, 8, "0.00000001"], // 9 digits, show full
+      [16967n, 8, "0.00016967"], // 9 digits, show full
     ])("formatTokenValue(%s, %s) => %s", (num, decimals, expected) => {
       expect(formatTokenValue(num, decimals)).toEqual(expected)
     })
@@ -31,10 +31,10 @@ describe("formatTokenValue()", () => {
 
   describe("large values (>= 1)", () => {
     it.each([
-      [12345678n, 4, "1234.5678"],
-      [123456789012345678n, 18, "0.123456"],
-      [1234567890123456789n, 18, "1.23456"],
-      [10000000000000n, 18, "0.00001"],
+      [12345678n, 4, "1234.5678"], // 8 digits, show full
+      [123456789012345678n, 18, "0.12345678"], // 17 digits > 11, truncate
+      [1234567890123456789n, 18, "1.2345678901"], // 19 digits > 11, truncate to 11
+      [10000000000000n, 18, "0.00001"], // 6 digits, show full
     ])("formatTokenValue(%s, %s) => %s", (num, decimals, expected) => {
       expect(formatTokenValue(num, decimals)).toEqual(expected)
     })
@@ -76,9 +76,9 @@ describe("formatTokenValue()", () => {
 
   describe("negative values", () => {
     it("handles negative values", () => {
-      expect(formatTokenValue(-169677343970239n, 18)).toEqual("-0.000169677")
+      expect(formatTokenValue(-169677343970239n, 18)).toEqual("-0.0001696773") // 11 digits
       expect(formatTokenValue(-4n, 11)).toEqual("-0.00000000004")
-      expect(formatTokenValue(-1234567890000000000n, 18)).toEqual("-1.23456")
+      expect(formatTokenValue(-1234567890000000000n, 18)).toEqual("-1.23456789") // 10 digits, show full
     })
   })
 
@@ -137,9 +137,9 @@ describe("formatTokenValue()", () => {
     })
 
     it("formats same value consistently across different token decimals", () => {
-      // 1.234567 in both USDC (6 dec) and ETH (18 dec)
-      expect(formatTokenValue(1234567n, 6)).toEqual("1.23456")
-      expect(formatTokenValue(1234567000000000000n, 18)).toEqual("1.23456")
+      // 1.234567 in both USDC (6 dec) and ETH (18 dec) - 7 digits, show full
+      expect(formatTokenValue(1234567n, 6)).toEqual("1.234567")
+      expect(formatTokenValue(1234567000000000000n, 18)).toEqual("1.234567")
     })
 
     it("handles dust amounts (smallest possible values)", () => {
