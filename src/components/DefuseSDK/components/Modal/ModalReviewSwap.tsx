@@ -43,8 +43,23 @@ const ModalReviewSwap = ({
     amountOut: usdAmountOut,
   })
 
+  const isEarnDeposit = tokenOut.tags?.includes("category:earn-only") ?? false
+  const isEarnWithdraw = tokenIn.tags?.includes("category:earn-only") ?? false
+
+  const title = isEarnDeposit
+    ? "Review earn"
+    : isEarnWithdraw
+      ? "Review withdraw"
+      : "Review swap"
+
+  const confirmButtonText = isEarnDeposit
+    ? "Earn"
+    : isEarnWithdraw
+      ? "Withdraw"
+      : "Swap"
+
   return (
-    <BaseModalDialog title="Review swap" open={open} onClose={onClose}>
+    <BaseModalDialog title={title} open={open} onClose={onClose}>
       <div className="flex flex-col gap-5 mt-4">
         <div className="flex items-center justify-between">
           <div>
@@ -115,7 +130,7 @@ const ModalReviewSwap = ({
         loading={loading}
         fullWidth
       >
-        Swap
+        {confirmButtonText}
       </Button>
 
       <IntentCreationResult intentCreationResult={intentCreationResult} />
