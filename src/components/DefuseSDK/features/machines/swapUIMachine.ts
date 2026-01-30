@@ -1033,6 +1033,7 @@ export const swapUIMachine = setup({
               "cancelSendToBackgroundQuoterRefNewQuoteInput",
               "resetParsedFormValueAmounts",
               "resetFormValueAmounts",
+              "clearQuote",
               {
                 type: "setIntentCreationResult",
                 params: ({ event }) => event.output,
@@ -1159,6 +1160,7 @@ export const swapUIMachine = setup({
               "cancelSendToBackground1csQuoterRefNewQuoteInput",
               "resetParsedFormValueAmounts",
               "resetFormValueAmounts",
+              "clearQuote",
               {
                 type: "setIntentCreationResult",
                 params: ({ event }) => event.output,

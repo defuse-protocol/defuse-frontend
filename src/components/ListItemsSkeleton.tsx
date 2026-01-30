@@ -7,7 +7,7 @@ const ListItemsSkeleton = ({
 }: { count: number; loading?: boolean; className?: string }) => (
   <div className={clsx("flex flex-col gap-1", className)}>
     {[...Array(count).keys()].map((n) => (
-      <div key={n} className="flex items-center gap-3 py-3">
+      <div key={n} className="flex items-center gap-3 py-4">
         <div
           className={clsx(
             "size-10 rounded-full shrink-0",

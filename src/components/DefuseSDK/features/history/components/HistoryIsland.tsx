@@ -7,13 +7,14 @@ import {
   WalletIcon,
   WarningCircleIcon,
 } from "@phosphor-icons/react"
+import { Skeleton } from "@radix-ui/themes"
 import { useSwapHistory } from "@src/features/balance-history/lib/useBalanceHistory"
 import type { SwapTransaction } from "@src/features/balance-history/types"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Island } from "../../../components/Island"
 import type { TokenInfo } from "../../../types/base"
 import { cn } from "../../../utils/cn"
-import { SwapHistoryItem, SwapHistoryItemSkeleton } from "./HistoryItem"
+import { HistoryItem } from "./HistoryItem"
 
 const RefreshState = {
   IDLE: "idle",
@@ -286,7 +287,7 @@ function Content({
         className="max-h-[500px] overflow-y-auto scroll-smooth scrollbar-offset"
       >
         {items.map((swap) => (
-          <SwapHistoryItem key={swap.id} swap={swap} tokenList={tokenList} />
+          <HistoryItem key={swap.id} transaction={swap} tokenList={tokenList} />
         ))}
 
         {hasNextPage && <div ref={loadMoreTriggerRef} className="h-1" />}
@@ -367,6 +368,36 @@ function LoadingMoreIndicator() {
           className="size-1.5 bg-gray-9 rounded-full animate-pulse"
           style={{ animationDelay: "300ms" }}
         />
+      </div>
+    </div>
+  )
+}
+
+function SwapHistoryItemSkeleton() {
+  return (
+    <div className="-mx-4 px-4 rounded-2xl">
+      <div className="flex gap-3 items-center py-3">
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          <div className="w-[120px] shrink-0 flex items-center gap-2.5">
+            <Skeleton className="size-10 rounded-full shrink-0" />
+            <div className="flex flex-col gap-0.5 min-w-0">
+              <Skeleton className="h-5 w-16" />
+              <Skeleton className="h-4 w-10" />
+            </div>
+          </div>
+          <Skeleton className="size-4 rounded shrink-0" />
+          <div className="flex items-center gap-2.5 min-w-0">
+            <Skeleton className="size-10 rounded-full shrink-0" />
+            <div className="flex flex-col gap-0.5 min-w-0">
+              <Skeleton className="h-5 w-16" />
+              <Skeleton className="h-4 w-10" />
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-col items-end gap-0.5 shrink-0">
+          <Skeleton className="h-5 w-14" />
+          <Skeleton className="h-4 w-20" />
+        </div>
       </div>
     </div>
   )

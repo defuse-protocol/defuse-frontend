@@ -1,12 +1,7 @@
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { useState } from "react"
-import {
-  type TokenUsdPriceData,
-  useTokensUsdPrices,
-} from "../../../hooks/useTokensUsdPrices"
 import type { TokenValue } from "../../../types/base"
-import { formatTokenValue, formatUsdAmount } from "../../../utils/format"
-import getTokenUsdPrice from "../../../utils/getTokenUsdPrice"
+import { formatTokenValue } from "../../../utils/format"
 import { useSwapRateData } from "../hooks/useSwapRateData"
 
 interface SwapRateInfoProps {
@@ -16,7 +11,6 @@ interface SwapRateInfoProps {
 
 function SwapRateInfo({ tokenIn, tokenOut }: SwapRateInfoProps) {
   const { exchangeRate, inverseExchangeRate } = useSwapRateData()
-  const { data: tokensUsdPriceData } = useTokensUsdPrices()
   const [showBasePrice, setShowBasePrice] = useState(false)
 
   const rateIsReady = exchangeRate != null || inverseExchangeRate != null
@@ -35,14 +29,12 @@ function SwapRateInfo({ tokenIn, tokenOut }: SwapRateInfoProps) {
             rate: exchangeRate,
             baseToken: tokenIn,
             quoteToken: tokenOut,
-            tokensUsdPriceData,
           })
         : inverseExchangeRate != null &&
           renderExchangeRate({
             rate: inverseExchangeRate,
             baseToken: tokenOut,
             quoteToken: tokenIn,
-            tokensUsdPriceData,
           })}
     </button>
   )
@@ -54,30 +46,16 @@ function renderExchangeRate({
   rate,
   baseToken,
   quoteToken,
-  tokensUsdPriceData,
 }: {
   rate: TokenValue
   baseToken: TokenInfo
   quoteToken: TokenInfo
-  tokensUsdPriceData: TokenUsdPriceData | undefined
 }) {
-  const price = getTokenUsdPrice(
-    formatTokenValue(rate.amount, rate.decimals),
-    quoteToken,
-    tokensUsdPriceData
-  )
-
-  return (
-    <>
-      {`1 ${baseToken.symbol} = ${formatTokenValue(rate.amount, rate.decimals, {
-        fractionDigits: 5,
-      })} ${quoteToken.symbol}`}
-      {price ? (
-        <span className="text-gray-400 group-hover:text-gray-900 transition-colors">
-          {" "}
-          ({formatUsdAmount(price)})
-        </span>
-      ) : null}
-    </>
-  )
+  return `1 ${baseToken.symbol} = ${formatTokenValue(
+    rate.amount,
+    rate.decimals,
+    {
+      fractionDigits: 5,
+    }
+  )} ${quoteToken.symbol}`
 }

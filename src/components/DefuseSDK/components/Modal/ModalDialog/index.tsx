@@ -1,6 +1,7 @@
 import { ArrowLeftIcon, XMarkIcon } from "@heroicons/react/20/solid"
 import clsx from "clsx"
 import { Dialog } from "radix-ui"
+import type { ReactNode } from "react"
 import { type PropsWithChildren, useCallback, useEffect, useState } from "react"
 import { useModalStore } from "../../../providers/ModalStoreProvider"
 
@@ -54,7 +55,7 @@ export function BaseModalDialog({
   status = undefined,
 }: PropsWithChildren<{
   open: boolean
-  title?: string
+  title?: ReactNode
   back?: () => void
   onClose?: () => void
   onCloseAnimationEnd?: () => void

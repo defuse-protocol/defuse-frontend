@@ -46,7 +46,7 @@ function ListItem({
       )}
       data-testid={dataTestId}
     >
-      <div className="flex gap-3 items-center py-3">
+      <div className="flex gap-3 items-center py-4">
         <div className="flex-1 min-w-0 flex gap-3 items-center">{children}</div>
         {hasDropdownMenu && (
           <DropdownMenu.Trigger
@@ -87,14 +87,26 @@ function ListItem({
           sideOffset={5}
           align="start"
         >
-          {dropdownMenuItems.map(({ label, href, onClick, icon: Icon }) => (
-            <DropdownMenu.Item key={label} asChild>
-              <Button size="sm" href={href} onClick={onClick} align="start">
-                <Icon className="size-4 shrink-0" />
-                {label}
-              </Button>
-            </DropdownMenu.Item>
-          ))}
+          {dropdownMenuItems.map(({ label, href, onClick, icon: Icon }) => {
+            const isExternalLink = href && !href.startsWith("/")
+
+            return (
+              <DropdownMenu.Item key={label} asChild>
+                <Button
+                  size="sm"
+                  href={href}
+                  onClick={onClick}
+                  align="start"
+                  {...(isExternalLink
+                    ? { target: "_blank", rel: "noopener noreferrer" }
+                    : {})}
+                >
+                  <Icon className="size-4 shrink-0" />
+                  {label}
+                </Button>
+              </DropdownMenu.Item>
+            )
+          })}
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>
@@ -129,7 +141,7 @@ const Title = ({
   className?: string
 }) => (
   <div
-    className={clsx(
+    className={cn(
       "text-base/5 font-semibold text-gray-900 max-w-full",
       className
     )}

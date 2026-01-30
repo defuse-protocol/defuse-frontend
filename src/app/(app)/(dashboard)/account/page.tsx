@@ -65,7 +65,9 @@ export default function AccountPage() {
         </section>
       )}
 
-      <Assets assets={holdings} isPending={isPending} isError={isError} />
+      <section className="mt-9">
+        <Assets assets={holdings} isPending={isPending} isError={isError} />
+      </section>
     </>
   )
 }
