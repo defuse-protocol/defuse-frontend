@@ -1,4 +1,5 @@
 import { base64urlnopad } from "@scure/base"
+import type { GiftLinkData } from "@src/components/DefuseSDK/features/gift/types/sharedTypes"
 import {
   genPKey,
   getGiftEncryptedIntent,
@@ -14,17 +15,12 @@ import {
   encodeGift,
 } from "./encoder"
 
-type GiftLinkData = {
-  secretKey: string
-  message: string
-}
-
 type GiftLinkPayload = {
-  iv: null | string
+  iv?: null | string
 } & GiftLinkData
 
 export function createGiftLink(payload: GiftLinkPayload): string {
-  const url = new URL("/gift-card/view-gift", window.location.origin)
+  const url = new URL("/gifts/view", window.location.origin)
   if (payload.iv) {
     url.hash = payload.iv
     return url.toString()
@@ -62,7 +58,8 @@ export async function createGiftIntent(payload: GiftLinkData): Promise<{
       iv: encodedIv,
       giftId,
     }
-  } catch (_e) {
+  } catch (err) {
+    logger.error(new Error("Failed to create gift intent", { cause: err }))
     throw new Error("Failed to create order")
   }
 }
@@ -72,7 +69,10 @@ export function useGiftIntent() {
 
   const { data } = useQuery({
     queryKey: ["gift_intent", encodedGift],
-    queryFn: async () => {
+    queryFn: async (): Promise<{
+      payload: string
+      giftId?: string
+    }> => {
       // 1. Attempt: Try to fetch and decrypt the order from the database
       if (encodedGift) {
         try {
@@ -82,6 +82,7 @@ export function useGiftIntent() {
             if (!iv || !pKey) {
               throw new Error("Invalid decoded params")
             }
+
             const decrypted = await decodeAES256Gift(encryptedPayload, pKey, iv)
             return {
               payload: decrypted,

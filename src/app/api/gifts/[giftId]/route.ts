@@ -7,10 +7,7 @@ import { z } from "zod"
 const giftIdSchema = z
   .string()
   .uuid()
-  .refine((val) => {
-    // UUID v5 has version bits set to 5 (0101)
-    return val[14] === "5"
-  }, "Invalid gift_id format") as z.ZodType<string>
+  .refine((val) => val[14] === "5", "Invalid gift_id format")
 
 export async function GET(
   _request: Request,
@@ -35,10 +32,7 @@ export async function GET(
     }
 
     if (!data) {
-      return NextResponse.json(
-        { error: "Otc trade not found" },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: "Gift not found" }, { status: 404 })
     }
 
     return NextResponse.json({

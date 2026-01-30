@@ -10,14 +10,13 @@ import { logger } from "@src/utils/logger"
 import { NextResponse } from "next/server"
 import { z } from "zod"
 
+const giftIdSchema = z
+  .string()
+  .uuid()
+  .refine((val) => val[14] === "5", "Invalid gift_id format")
+
 const giftsSchema = z.object({
-  gift_id: z
-    .string()
-    .uuid()
-    .refine((val) => {
-      // UUID v5 has version bits set to 5 (0101)
-      return val[14] === "5"
-    }, "Invalid gift_id format"),
+  gift_id: giftIdSchema,
   encrypted_payload: z.string().refine((val) => {
     try {
       const decoded = base64.decode(val)

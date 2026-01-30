@@ -12,16 +12,12 @@ import { useGiftIntent } from "../_utils/link"
 export default function ViewGiftPage() {
   const { state } = useConnectWallet()
   const tokenList = useTokenList(LIST_TOKENS)
-  const {
-    payload,
-    // giftId
-  } = useGiftIntent()
+  const { payload, giftId } = useGiftIntent()
 
   return (
     <Paper>
-      {/* @ts-expect-error TODO: Enable in next @defuse-protocol/defuse-sdk release */}
       <GiftTakerWidget
-        // giftId={giftId}
+        giftId={giftId}
         payload={payload}
         tokenList={tokenList}
         userAddress={state.isVerified ? state.address : undefined}

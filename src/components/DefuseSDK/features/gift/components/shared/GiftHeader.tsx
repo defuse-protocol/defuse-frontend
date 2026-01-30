@@ -14,14 +14,14 @@ export function GiftHeader({
   icon,
 }: GiftHeaderProps) {
   return (
-    <div className="w-full mb-5 flex flex-row justify-between gap-5">
-      <div className="flex flex-col justify-between gap-1.5">
+    <div className="w-full mb-6 flex flex-row justify-between items-start gap-5">
+      <div className="flex flex-col gap-3">
         <div className={cn("text-2xl font-black text-gray-12", className)}>
           {title}
         </div>
-        {children}
+        {children && <div className="flex flex-col gap-1.5">{children}</div>}
       </div>
-      {icon}
+      {icon && <div className="shrink-0">{icon}</div>}
     </div>
   )
 }

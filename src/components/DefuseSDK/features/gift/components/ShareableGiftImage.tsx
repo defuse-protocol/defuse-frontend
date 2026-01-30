@@ -45,7 +45,6 @@ export function ShareableGiftImage({
             <QRCodeSVG value={link} />
           </div>
         )}
-        {/* Asset Component */}
         <div className="flex items-center gap-4 z-10 bg-white rounded-full p-1.5">
           <GiftStrip
             token={token}

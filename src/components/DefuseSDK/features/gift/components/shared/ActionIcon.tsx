@@ -1,4 +1,4 @@
-import { Check as CheckIcon } from "@phosphor-icons/react"
+import { CheckIcon } from "@phosphor-icons/react"
 import { Cross2Icon } from "@radix-ui/react-icons"
 import { cn } from "@src/components/DefuseSDK/utils/cn"
 
