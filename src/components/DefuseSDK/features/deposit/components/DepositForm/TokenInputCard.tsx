@@ -250,7 +250,7 @@ const TokenInputCard = (props: TokenInputCardProps) => {
             inputMode="decimal"
             pattern="[0-9]*[.]?[0-9]*"
             autoComplete="off"
-            maxLength={16}
+            maxLength={11} // Consider increasing to 16+ if users need full precision input
             placeholder={getPlaceholder()}
             aria-label={getAriaLabel()}
             disabled={disabled}
