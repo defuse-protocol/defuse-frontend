@@ -77,9 +77,7 @@ export const WithdrawForm = ({
   userAddress,
   displayAddress,
   chainType,
-  presetAmount,
   presetNetwork,
-  presetRecipient,
   presetContactId,
   noTokenForPresetNetwork,
   sendNearTransaction,
@@ -308,18 +306,6 @@ export const WithdrawForm = ({
       sub.unsubscribe()
     }
   }, [watch, actorRef, token])
-
-  useEffect(() => {
-    if (presetAmount != null) {
-      setValue("amountIn", presetAmount)
-    }
-    if (presetNetwork != null && isSupportedChainName(presetNetwork)) {
-      setValue("blockchain", presetNetwork)
-    }
-    if (presetRecipient != null) {
-      setValue("recipient", presetRecipient)
-    }
-  }, [presetAmount, presetNetwork, presetRecipient, setValue])
 
   const { registerWithdraw, hasActiveWithdraw } = useWithdrawTrackerMachine()
 

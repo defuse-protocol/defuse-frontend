@@ -120,12 +120,11 @@ export const RecipientSubForm = ({
         setRecipientMode("contact")
         setSelectedContact(contact)
         setPresetContactApplied(true)
-        const chainKey = contactBlockchainToChainKey(contact.blockchain)
-        setValue("blockchain", chainKey)
-        setValue("recipient", contact.address, { shouldValidate: true })
+        // Form values (blockchain, recipient) are set by machine via APPLY_PRESETS
+        // We only manage UI state here (recipientMode, selectedContact)
       }
     }
-  }, [presetContactId, contacts, presetContactApplied, setValue])
+  }, [presetContactId, contacts, presetContactApplied])
 
   const currentRecipient = watch("recipient")
   const currentBlockchain = watch("blockchain")

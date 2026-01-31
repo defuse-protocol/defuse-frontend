@@ -17,6 +17,7 @@ import type {
   TokenValue,
 } from "../../types/base"
 import { assert } from "../../utils/assert"
+import { formatTokenValue } from "../../utils/format"
 import { isBaseToken } from "../../utils/token"
 import { validateAddress } from "../../utils/validateAddress"
 import { isNearIntentsNetwork } from "../withdraw/components/WithdrawForm/utils"
@@ -105,6 +106,15 @@ export type Events =
         minReceivedAmount: TokenValue | null
       }
     }
+  | {
+      type: "WITHDRAW_FORM.APPLY_PRESETS"
+      params: {
+        token: TokenInfo
+        parsedAmount: TokenValue | null
+        blockchain: SupportedChainName | "near_intents"
+        recipient: string | null
+      }
+    }
 
 export type State = {
   parentRef: ParentActor
@@ -128,21 +138,25 @@ export const withdrawFormReducer = fromTransition(
     const eventType = event.type
     switch (eventType) {
       case "WITHDRAW_FORM.UPDATE_TOKEN": {
-        const tokenOut = getBaseTokenInfoWithFallback(
-          event.params.token,
-          state.tokenOutDeployment.chainName // preserve the previous selected blockchain if possible
-        )
+        // Try to resolve token for current blockchain to preserve recipient
+        let tokenOut: BaseTokenInfo
+        let tokenOutDeployment: TokenDeployment
+        let blockchainChanged: boolean
 
-        // Find deployment for current blockchain, fallback to first
-        const preferredDeployment = tokenOut.deployments.find(
-          (d) => d.chainName === state.blockchain
-        )
-        const tokenOutDeployment =
-          preferredDeployment ?? tokenOut.deployments[0]
-
-        // Only clear recipient if blockchain changed
-        const blockchainChanged =
-          tokenOutDeployment.chainName !== state.blockchain
+        try {
+          ;[tokenOut, tokenOutDeployment] = resolveTokenOut(
+            state.blockchain,
+            event.params.token,
+            tokenFamilies,
+            LIST_TOKENS_FLATTEN
+          )
+          blockchainChanged = false
+        } catch {
+          // Current blockchain not supported by new token, fall back to first deployment
+          tokenOut = getBaseTokenInfoWithFallback(event.params.token, null)
+          tokenOutDeployment = tokenOut.deployments[0]
+          blockchainChanged = true
+        }
 
         newState = {
           ...state,
@@ -241,6 +255,46 @@ export const withdrawFormReducer = fromTransition(
         newState = {
           ...state,
           minReceivedAmount: event.params.minReceivedAmount,
+        }
+        break
+      }
+      case "WITHDRAW_FORM.APPLY_PRESETS": {
+        const { token, parsedAmount, blockchain, recipient } = event.params
+
+        // Resolve tokenOut and deployment for the target blockchain
+        const [tokenOut, tokenOutDeployment] = resolveTokenOut(
+          blockchain,
+          token,
+          tokenFamilies,
+          LIST_TOKENS_FLATTEN
+        )
+
+        // Parse recipient if provided
+        const parsedRecipient = recipient
+          ? getParsedRecipient(
+              recipient,
+              tokenOutDeployment,
+              isNearIntentsNetwork(blockchain)
+            )
+          : null
+
+        newState = {
+          ...state,
+          tokenIn: token,
+          tokenOut,
+          tokenOutDeployment,
+          parsedAmount,
+          amount: parsedAmount
+            ? formatTokenValue(parsedAmount.amount, parsedAmount.decimals)
+            : "",
+          blockchain,
+          recipient: recipient ?? "",
+          parsedRecipient,
+          destinationMemo: "",
+          parsedDestinationMemo: null,
+          cexFundsLooseConfirmation:
+            cexFundsLooseConfirmationStatusDefault(tokenOutDeployment),
+          minReceivedAmount: null,
         }
         break
       }
