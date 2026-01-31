@@ -261,7 +261,7 @@ const TokenInputCard = (props: TokenInputCardProps) => {
             aria-busy={loading || undefined}
             readOnly={readOnly}
             className={clsx(
-              "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-4xl tracking-tight w-full min-w-0",
+              "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-sans font-bold text-gray-900 text-4xl tracking-tight w-full min-w-0",
               !hasValue && "placeholder:text-xl placeholder:font-medium",
               hasValue && "placeholder:text-gray-400",
               disabled && "opacity-50"

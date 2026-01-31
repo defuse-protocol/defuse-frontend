@@ -52,6 +52,7 @@ const SearchBar = ({
       <input
         id={id}
         ref={ref}
+        type="text"
         className="col-start-1 row-start-1 block w-full rounded-xl text-sm bg-white py-2.5 px-9 text-gray-900 outline-1 -outline-offset-1 outline-gray-200 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-gray-900 ring-0 border-0 font-medium"
         placeholder={placeholder}
         {...inputProps}

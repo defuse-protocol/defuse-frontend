@@ -8,7 +8,6 @@ import {
   type SnapshotFrom,
   assign,
   emit,
-  not,
   sendTo,
   setup,
 } from "xstate"
@@ -23,7 +22,10 @@ import type {
 import { assert } from "../../utils/assert"
 import { isSupportedChainName } from "../../utils/blockchain"
 import { parseUnits } from "../../utils/parse"
-import { getTokenMaxDecimals } from "../../utils/tokenUtils"
+import {
+  getAnyBaseTokenInfo,
+  getTokenMaxDecimals,
+} from "../../utils/tokenUtils"
 import { isNearIntentsNetwork } from "../withdraw/components/WithdrawForm/utils"
 import type { ParentEvents as BackgroundQuoterParentEvents } from "./backgroundQuoterMachine"
 import {
@@ -249,25 +251,37 @@ export const withdrawUIMachine = setup({
 
     fetchPOABridgeInfo: sendTo("poaBridgeInfoRef", { type: "FETCH" }),
 
-    applyResolvedToken: ({ context }, output: { token: TokenInfo }) => {
+    applyAllPresets: ({ context }, output: { token: TokenInfo }) => {
+      const { presets } = context
       const token = output.token
       const decimals = getTokenMaxDecimals(token)
-      const amount = context.presets.amount ?? ""
+
       let parsedAmount = null
-      try {
-        if (amount) {
+      if (presets.amount) {
+        try {
           parsedAmount = {
-            amount: parseUnits(amount, decimals),
+            amount: parseUnits(presets.amount, decimals),
             decimals,
           }
+        } catch {
+          logger.warn("Invalid preset amount format", {
+            amount: presets.amount,
+          })
         }
-      } catch {
-        logger.warn("Invalid preset amount format", { amount })
       }
 
+      // Determine blockchain: use preset network if available, otherwise first deployment
+      const baseToken = getAnyBaseTokenInfo(token)
+      const blockchain = presets.network ?? baseToken.deployments[0].chainName
+
       context.withdrawFormRef.send({
-        type: "WITHDRAW_FORM.UPDATE_TOKEN",
-        params: { token, parsedAmount },
+        type: "WITHDRAW_FORM.APPLY_PRESETS",
+        params: {
+          token,
+          parsedAmount,
+          blockchain,
+          recipient: presets.recipient,
+        },
       })
     },
   },
@@ -316,10 +330,6 @@ export const withdrawUIMachine = setup({
     isQuoteOk: (_, quote: QuoteResult) => quote.tag === "ok",
 
     isOk: (_, a: { tag: "err" | "ok" }) => a.tag === "ok",
-
-    needsTokenResolution: ({ context }) => {
-      return context.presets.tokenSymbol == null
-    },
   },
 }).createMachine({
   /** @xstate-layout N4IgpgJg5mDOIC5QHcCWAXAFhATgQ2QFoBXVAYgEkA5AFQFFaB9AZTppoBk6ARAbQAYAuolAAHAPawMqcQDsRIAB6JCAVlUAWAHQAOAOwA2AEwBOEwf4BGfUYA0IAJ4q9ey1oN71rjZaMBmHT8jAF9g+zQsXAIScg4AeQBxagFhJBAJKXQZeTTlBA8tSxMrAwMTP0t+Iw0reycEQhc-LSMjD1V+Pz9VSwMNHVDwjGx8IlIyeIS4gFUaFIUM6TkFPMIjX10NdZ0NPXW9vz665z1m1vbO7t7+wZAIkejSLUhpWSgyCDkwLVh0PHRvvcomNUM8IK8oPM0ossstcogNEEtJ5LAEioj2jpjg0-PwDMiTKiTHoTDodFZWrcgaMYmCIWQAOoUGgACW4ACUAIIMxgAMTi7IAsloAFRQsSSJY5UCrIwuFpbDRlEzVHQGHSabGEAL8LR4vyI3p6LZtIyqKnDYG0l5ZN5kABCnI4nKoAGE6IxXSyXQkeOL0pLYdKlCp1C0-HoNTsDJZXL4tTq9QYDWUjGSKqoQmE7paaU8bag7Y7nW6PV6fX7LKkJZlsitENVkerTFVyjYAn4tf4dIVdoq1ToiuVzdnqY9QQW7VQ6DyAIrTOL0f0wuvwhqqVxaYppirbiw+BPkpMGoydHRmMx9C2RPMT8G295M1kc7l8gWCvkUOgcbjMT3eqhfT4IQFkDVcZRUap8X4fgal8VRm0qfQtUsTN3A8EwNFUfRVEObo-GvB4QTpB8tFQCAABswDIWBiAAIwAWwwZcwLhCCGkjIw9XUGoYN8WCdgTDYyUHdUSSsDRCT0QirXze9CygLQcDgMB0EYURlIANxkYhYHU5TRDwfAgzIFjazYkMGkwrR+xcAxsLTcwDGxHQuLxCxPBg9oTBk28SIUpSVLUjSwG08RdP0sBDOM7JTKrUDzODWVPGRU4qlRPFNDaZzHEQVykxjXE2hqPZPF88d-LeLQQui-5Ys+WRvkLTTxAAa0BXMKsnRSaqMuq5AQZrxAAY362QUjMqV6waYw9F0YxYLxPR+FOVxsSKXVcVjLDI1ccSsyGG8uvkqrepiuQyDAHAcHEHBqoo-4ADNboYrQx2I7rqoMvqg0G2QWtGoMJpA6FWKSlREzNSwlREpV1CxXKEA2rQtuNDd9FjYoNHK4jaMYjAHw+L4yP+trvlgZA8FEdkwEeyag2mixVC3fDim6U81UsLsVvDSoVT4io5QMHHaTxpj0EJhqmtJ9qfkp6nad4eLQcS6bsJMQogn4cl1AsQk7ERwhJMKPiyWhk1oYOnMjtx+jxcJq6bru0QHvQZ6cFeimqZpumQZrKa1z6fFlrEg1EX8LnEdwmz1QjM8XHPFURaeMWCYUshpznBclz9gNVcDtMWlPUkOjVAITC1XY5tMYp+FwmxygI25ZHECA4AUd6YgSgP2MIfQezrzQYIpASNC1ZM5o0PtcUF4kk9HTqPpOqBu4Ztc+9xbih7409+jHw24b1TCPDxMwyUjbGF5t61l7IyiwFX8DLMaVE9VQ2OynwztDdjNxym8YkJJPA8WTneCEgVYCqUimFCKZ0xqPwsqsSw0NCiJ0CMmDc2FVDj20BJawklCS+A1NJK+REb7gLgWvf2VDn5EL1LsBCPhNDWA8HodaMZkSuWKKieypcBikNkmA0iUsEHgw4gaGy+hYKeFxMmA0CZ5QuFjBYX+NhQE-DtmnN4oi1bGhRoSHY21cKwRyvUbUSJ457BVKoFUyDQihCAA */
@@ -403,10 +413,6 @@ export const withdrawUIMachine = setup({
 
   states: {
     resolving: {
-      always: {
-        target: "editing",
-        guard: not("needsTokenResolution"),
-      },
       invoke: {
         id: "tokenResolutionRef",
         src: "tokenResolutionActor",
@@ -422,7 +428,7 @@ export const withdrawUIMachine = setup({
         onDone: {
           target: "editing",
           actions: {
-            type: "applyResolvedToken",
+            type: "applyAllPresets",
             params: ({ event }) => event.output,
           },
         },

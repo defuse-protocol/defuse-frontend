@@ -40,7 +40,7 @@ export const chainIcons: Record<
     light: "/static/icons/network/ethereum.svg",
   },
   near: {
-    dark: "/static/icons/network/near_dark.svg",
+    dark: "/static/icons/network/near.svg",
     light: "/static/icons/network/near.svg",
   },
   base: {
@@ -187,7 +187,7 @@ export function getBlockchainsOptions(): Record<
 > {
   const options: Record<BlockchainEnum, BlockchainOption> = {
     [BlockchainEnum.NEAR]: {
-      label: "Near",
+      label: "NEAR",
       icon: <NetworkIcon chainIcon={chainIcons.near} />,
       value: BlockchainEnum.NEAR,
       tags: ["vol:4"],
@@ -431,13 +431,19 @@ export const intentsChainIcon = {
   light: "/static/icons/network/intents.svg",
 }
 
+/** Icon for Near Intents account option (the favicon) */
+export const nearIntentsAccountIcon = {
+  dark: "/static/icons/network/intents.svg",
+  light: "/static/icons/network/intents.svg",
+}
+
 export const INTENTS_EXPLORER_URL = "https://explorer.near-intents.org"
 
 export function getNearIntentsOption(): Record<"intents", IntentsOption> {
   return {
     intents: {
-      label: "Near Intents",
-      icon: <NetworkIcon chainIcon={intentsChainIcon} />,
+      label: "Another Intents Account",
+      icon: <NetworkIcon chainIcon={nearIntentsAccountIcon} />,
       value: "near_intents",
       tags: [],
     },

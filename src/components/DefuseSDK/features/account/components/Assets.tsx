@@ -94,7 +94,7 @@ const Assets = ({
               key={getDefuseAssetId(token)}
               dropdownMenuItems={[
                 {
-                  label: "Send",
+                  label: "Transfer",
                   href: `/send?token=${token.symbol}`,
                   icon: SendIcon,
                 },

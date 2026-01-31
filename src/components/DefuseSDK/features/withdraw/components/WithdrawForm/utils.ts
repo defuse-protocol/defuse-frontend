@@ -262,7 +262,7 @@ export const getWithdrawButtonText = (
   if (hasNoAmount) return "Enter amount"
   if (noLiquidity) return "No liquidity providers"
   if (insufficientTokenInAmount) return "Insufficient amount"
-  return "Review send"
+  return "Review transfer"
 }
 
 /**
@@ -428,12 +428,13 @@ export function isNearIntentsNetwork(
 export function chainNameToNetworkName(chainName: SupportedChainName): string {
   switch (chainName) {
     case "eth":
-      return "ethereum"
+      return "Ethereum"
     case "xrpledger":
       return "XRP Ledger"
     case "bsc":
       return "BNB Smart Chain"
     default:
-      return chainName
+      // Capitalize first letter of chain name
+      return chainName.charAt(0).toUpperCase() + chainName.slice(1)
   }
 }

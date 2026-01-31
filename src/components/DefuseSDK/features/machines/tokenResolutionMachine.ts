@@ -124,7 +124,9 @@ function getTokenUsdValue(
   balances: BalanceMapping,
   prices: TokenUsdPriceData
 ): number {
-  const balance = computeTotalBalanceDifferentDecimals(token, balances)
+  const balance = computeTotalBalanceDifferentDecimals(token, balances, {
+    strict: false,
+  })
   if (!balance || balance.amount === 0n) return 0
 
   const priceInfo = prices[getDefuseAssetId(token)]
@@ -137,7 +139,9 @@ function getTokenUsdValue(
 }
 
 function hasBalance(token: TokenInfo, balances: BalanceMapping): boolean {
-  const balance = computeTotalBalanceDifferentDecimals(token, balances)
+  const balance = computeTotalBalanceDifferentDecimals(token, balances, {
+    strict: false,
+  })
   return balance != null && balance.amount > 0n
 }
 
@@ -148,6 +152,9 @@ function hasBalance(token: TokenInfo, balances: BalanceMapping): boolean {
  * 3. Highest USD value token
  * 4. Current token (default)
  */
+// Export for reuse in WithdrawWidget initial validation
+export { tokenSupportsNetwork }
+
 function resolveOptimalToken(context: Context): TokenInfo {
   const { tokenList, currentToken, presets, balances, prices } = context
 
@@ -185,6 +192,12 @@ function resolveOptimalToken(context: Context): TokenInfo {
       .sort((a, b) => b.usd - a.usd)
 
     if (ranked.length > 0) return ranked[0].token
+  }
+
+  // When network is preset, always return a network-compatible token (first candidate)
+  // even if user has no balance - this keeps the network locked
+  if (network != null && candidates.length > 0) {
+    return candidates[0]
   }
 
   return currentToken

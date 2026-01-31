@@ -20,9 +20,10 @@ interface NetworkListProps {
   additionalInfo?: string
   networkOptions: NetworkOptions
   selectedNetwork: SupportedChainName | "near_intents" | null
-  onChangeNetwork: (network: SupportedChainName) => void
+  onChangeNetwork: (network: SupportedChainName | "near_intents") => void
   disabled?: boolean
   renderValueDetails?: (address: string) => ReactNode
+  /** Optional separate callback for Near Intents selection. If provided, this is called instead of onChangeNetwork */
   onIntentsSelect?: () => void
 }
 
@@ -35,80 +36,95 @@ export const NetworkList = ({
   disabled = false,
   renderValueDetails,
   onIntentsSelect,
-}: NetworkListProps) => (
-  <div>
-    <div className="flex items-center gap-2">
-      {title && (
-        <h3 className="text-gray-500 text-sm/6 font-medium">{title}</h3>
+}: NetworkListProps) => {
+  // Find the Near Intents option if present
+  const intentsEntry = Object.entries(networkOptions).find(([_, info]) =>
+    isIntentsOption(info)
+  )
+  const intentsOption = intentsEntry?.[1]
+
+  // Get regular blockchain networks (excluding intents)
+  const blockchainNetworks = Object.entries(networkOptions).filter(
+    ([_, info]) => info && !isIntentsOption(info)
+  )
+
+  return (
+    <div>
+      {/* Near Intents option - shown above the title */}
+      {intentsOption && isIntentsOption(intentsOption) && (
+        <div className="flex flex-col gap-1 mb-4">
+          <NetworkItem
+            {...intentsOption}
+            selected={selectedNetwork === "near_intents"}
+            disabled={disabled}
+            onClick={() =>
+              onIntentsSelect
+                ? onIntentsSelect()
+                : onChangeNetwork("near_intents")
+            }
+            isAuroraVirtualChain={false}
+            renderValueDetails={() => (
+              <span className="inline-flex items-center gap-x-1.5 rounded-lg bg-green-100 px-2 py-1 text-xs font-semibold text-green-700">
+                <span className="size-1.5 rounded-full bg-green-500 shrink-0" />
+                Internal
+              </span>
+            )}
+          />
+        </div>
       )}
 
-      {additionalInfo && (
-        <TooltipNew>
-          <TooltipNew.Trigger>
-            <button
-              type="button"
-              className="flex items-center justify-center size-6 rounded-lg shrink-0 text-gray-400 hover:bg-gray-200 hover:text-gray-700"
-              aria-label={additionalInfo}
+      {/* Title and regular networks */}
+      <div className="flex items-center gap-2">
+        {title && (
+          <h3 className="text-gray-500 text-sm/6 font-medium">{title}</h3>
+        )}
+
+        {additionalInfo && (
+          <TooltipNew>
+            <TooltipNew.Trigger>
+              <button
+                type="button"
+                className="flex items-center justify-center size-6 rounded-lg shrink-0 text-gray-400 hover:bg-gray-200 hover:text-gray-700"
+                aria-label={additionalInfo}
+              >
+                <InformationCircleIcon className="size-4" />
+              </button>
+            </TooltipNew.Trigger>
+            <TooltipNew.Content
+              side="bottom"
+              className="max-w-56 text-center text-balance"
             >
-              <InformationCircleIcon className="size-4" />
-            </button>
-          </TooltipNew.Trigger>
-          <TooltipNew.Content
-            side="bottom"
-            className="max-w-56 text-center text-balance"
-          >
-            {additionalInfo}
-          </TooltipNew.Content>
-        </TooltipNew>
-      )}
-    </div>
+              {additionalInfo}
+            </TooltipNew.Content>
+          </TooltipNew>
+        )}
+      </div>
 
-    <div className="mt-2 flex flex-col gap-1">
-      {Object.keys(networkOptions).map((network) => {
-        const networkInfo = networkOptions[network]
-        if (!networkInfo) return null
+      <div className="mt-2 flex flex-col gap-1">
+        {blockchainNetworks.map(([network, networkInfo]) => {
+          if (!networkInfo) return null
 
-        // Special case: Handle Intents internal transfers which exist outside the standard blockchain options.
-        if (isIntentsOption(networkInfo)) {
+          if (!isValidBlockchainEnumKey(network)) {
+            return null
+          }
+          const networkName = reverseAssetNetworkAdapter[network]
+
           return (
             <NetworkItem
               key={networkInfo.value}
               {...networkInfo}
-              selected={selectedNetwork === "near_intents"}
+              selected={selectedNetwork === networkName}
               disabled={disabled}
-              onClick={() => onIntentsSelect?.()}
-              isAuroraVirtualChain={false}
-              renderValueDetails={() => (
-                <span className="inline-flex items-center gap-x-1.5 rounded-lg bg-green-100 px-2 py-1 text-xs font-semibold text-green-700">
-                  <span className="size-1.5 rounded-full bg-green-500 shrink-0" />
-                  Internal
-                </span>
-              )}
+              onClick={() => onChangeNetwork(networkName)}
+              isAuroraVirtualChain={isAuroraVirtualChain(networkName)}
+              renderValueDetails={renderValueDetails}
             />
           )
-        }
-
-        if (!isValidBlockchainEnumKey(network)) {
-          return null
-        }
-        const networkName = reverseAssetNetworkAdapter[network]
-
-        // Normal case: Render standard blockchain options.
-        return (
-          <NetworkItem
-            key={networkInfo.value}
-            {...networkInfo}
-            selected={selectedNetwork === networkName}
-            disabled={disabled}
-            onClick={() => onChangeNetwork(networkName)}
-            isAuroraVirtualChain={isAuroraVirtualChain(networkName)}
-            renderValueDetails={renderValueDetails}
-          />
-        )
-      })}
+        })}
+      </div>
     </div>
-  </div>
-)
+  )
+}
 
 const NetworkItem = ({
   icon,
