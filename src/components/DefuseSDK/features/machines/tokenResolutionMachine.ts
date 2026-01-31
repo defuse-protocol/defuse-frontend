@@ -124,7 +124,9 @@ function getTokenUsdValue(
   balances: BalanceMapping,
   prices: TokenUsdPriceData
 ): number {
-  const balance = computeTotalBalanceDifferentDecimals(token, balances)
+  const balance = computeTotalBalanceDifferentDecimals(token, balances, {
+    strict: false,
+  })
   if (!balance || balance.amount === 0n) return 0
 
   const priceInfo = prices[getDefuseAssetId(token)]
@@ -137,7 +139,9 @@ function getTokenUsdValue(
 }
 
 function hasBalance(token: TokenInfo, balances: BalanceMapping): boolean {
-  const balance = computeTotalBalanceDifferentDecimals(token, balances)
+  const balance = computeTotalBalanceDifferentDecimals(token, balances, {
+    strict: false,
+  })
   return balance != null && balance.amount > 0n
 }
 

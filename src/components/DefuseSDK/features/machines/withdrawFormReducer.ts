@@ -132,7 +132,17 @@ export const withdrawFormReducer = fromTransition(
           event.params.token,
           state.tokenOutDeployment.chainName // preserve the previous selected blockchain if possible
         )
-        const tokenOutDeployment = tokenOut.deployments[0]
+
+        // Find deployment for current blockchain, fallback to first
+        const preferredDeployment = tokenOut.deployments.find(
+          (d) => d.chainName === state.blockchain
+        )
+        const tokenOutDeployment =
+          preferredDeployment ?? tokenOut.deployments[0]
+
+        // Only clear recipient if blockchain changed
+        const blockchainChanged =
+          tokenOutDeployment.chainName !== state.blockchain
 
         newState = {
           ...state,
@@ -140,10 +150,12 @@ export const withdrawFormReducer = fromTransition(
           tokenIn: event.params.token,
           tokenOut,
           tokenOutDeployment,
-          recipient: "",
-          parsedRecipient: null,
-          destinationMemo: "",
-          parsedDestinationMemo: null,
+          recipient: blockchainChanged ? "" : state.recipient,
+          parsedRecipient: blockchainChanged ? null : state.parsedRecipient,
+          destinationMemo: blockchainChanged ? "" : state.destinationMemo,
+          parsedDestinationMemo: blockchainChanged
+            ? null
+            : state.parsedDestinationMemo,
           cexFundsLooseConfirmation:
             cexFundsLooseConfirmationStatusDefault(tokenOutDeployment),
           minReceivedAmount: null,
