@@ -472,9 +472,9 @@ const getSubtitle = ({
 function renderErrorMessage(reason: string): string {
   switch (reason) {
     case "ERR_PREPARING_SIGNING_DATA":
-      return "Failed to prepare message for your wallet to sign. Please try again."
+      return "We were unable to create the trade authorization for you to confirm. This is a technical error on our side. Please try again."
     case "ERR_USER_DIDNT_SIGN":
-      return "It seems the message wasn’t signed in your wallet. Please try again."
+      return "It seems that you didn't confirm the trade authorization. Please try again."
     default:
       return reason
   }

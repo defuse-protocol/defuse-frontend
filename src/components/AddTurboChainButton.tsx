@@ -205,7 +205,9 @@ function AddToMetaMaskButton() {
                   connector: getPreferredConnector(connectors),
                 })
               } else if (state.chainType !== ChainType.EVM) {
-                setError("Please connect an EVM wallet first, like MetaMask.")
+                setError(
+                  "You do not have a wallet connected. Please connect an EVM wallet, like Rabby."
+                )
                 return
               }
 
@@ -221,10 +223,12 @@ function AddToMetaMaskButton() {
               setIsSuccess(true)
             } catch (err) {
               if (err instanceof ProviderNotFoundError) {
-                setError("Please install an EVM wallet first, like MetaMask.")
+                setError(
+                  "It seems you do not have an EVM wallet installed. Please install one, like Rabby."
+                )
               } else {
                 setError(
-                  "Couldn't add chain automatically. Please try adding manually using the details below."
+                  "We were unable to add this chain automatically. Please try adding manually using the details below."
                 )
               }
             }

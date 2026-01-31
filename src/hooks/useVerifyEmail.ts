@@ -15,7 +15,7 @@ const useVerifyEmail = ({
       await new Promise((resolve) => setTimeout(resolve, 2000))
       onSuccess?.()
     } catch {
-      setError("Verification failed.")
+      setError("We were unable to verify your email address. Please try again.")
     } finally {
       setVerifying(false)
     }

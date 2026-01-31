@@ -21,7 +21,8 @@ export const PreparationResult = ({
 
   switch (val) {
     case "ERR_CANNOT_FETCH_POA_BRIDGE_INFO":
-      content = "Cannot fetch POA Bridge info"
+      content =
+        "We were unable to fetch information about our bridge. This is a technical error on our side. Please try again."
       break
     case "ERR_BALANCE_INSUFFICIENT":
       // Don't duplicate error messages, this should be handled by input validation
@@ -40,7 +41,7 @@ export const PreparationResult = ({
             {formatTokenValue(err.shortfall.amount, err.shortfall.decimals)}{" "}
             {err.token.symbol}
           </button>{" "}
-          more to withdraw
+          more in order to withdraw.
         </>
       )
       break
@@ -50,16 +51,18 @@ export const PreparationResult = ({
       // Don't duplicate error messages, message should be displayed in the submit button
       break
     case "ERR_CANNOT_FETCH_QUOTE":
-      content = "Cannot fetch quote"
+      content =
+        "We were unable to get a quote from our solvers. Please try again."
       break
     case "ERR_BALANCE_FETCH":
     case "ERR_BALANCE_MISSING":
-      content = "Cannot fetch balance"
+      content =
+        "We were unable to fetch balances. This is a technical error on our side. Please try again."
       break
     case "ERR_UNFULFILLABLE_AMOUNT":
       content = (
         <>
-          Specified amount cannot be withdrawn. Please{" "}
+          Specified amount cannot be withdrawn. Please slightly{" "}
           <button
             type="button"
             onClick={() => {
@@ -81,18 +84,20 @@ export const PreparationResult = ({
           >
             increase
           </button>
-          {" for slight amount."}
+          {" the amount."}
         </>
       )
       break
     case "ERR_WITHDRAWAL_FEE_FETCH":
-      content = "Cannot fetch withdrawal fee"
+      content =
+        "We were unable to determine the withdrawal fee. This is a technical error on our side. Please try again."
       break
     case "ERR_STELLAR_NO_TRUSTLINE":
       content = `Recipient must have at least some ${err.token.symbol} on Stellar to be able to withdraw it.`
       break
     case "ERR_CANNOT_MAKE_WITHDRAWAL_INTENT":
-      content = "Operation could not be completed. Please try again."
+      content =
+        "We were unable to transact your withdrawal. This is a technical error on our side. Please try again."
       break
     default:
       val satisfies never
