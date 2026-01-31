@@ -120,9 +120,12 @@ export const RecipientSubForm = ({
         setRecipientMode("contact")
         setSelectedContact(contact)
         setPresetContactApplied(true)
+        const chainKey = contactBlockchainToChainKey(contact.blockchain)
+        setValue("blockchain", chainKey)
+        setValue("recipient", contact.address, { shouldValidate: true })
       }
     }
-  }, [presetContactId, contacts, presetContactApplied])
+  }, [presetContactId, contacts, presetContactApplied, setValue])
 
   const currentRecipient = watch("recipient")
   const currentBlockchain = watch("blockchain")

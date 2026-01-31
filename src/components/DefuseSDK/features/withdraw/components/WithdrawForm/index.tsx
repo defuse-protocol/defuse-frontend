@@ -14,6 +14,7 @@ import { isBaseToken } from "@src/components/DefuseSDK/utils/token"
 import {
   addAmounts,
   compareAmounts,
+  computeTotalBalanceDifferentDecimals,
   getTokenMaxDecimals,
   isMinAmountNotRequired,
   subtractAmounts,
@@ -36,10 +37,7 @@ import type {
 import type { WithdrawWidgetProps } from "../../../../types/withdraw"
 import { parseUnits } from "../../../../utils/parse"
 import SelectedTokenInput from "../../../deposit/components/DepositForm/SelectedTokenInput"
-import {
-  balanceSelector,
-  transitBalanceSelector,
-} from "../../../machines/depositedBalanceMachine"
+import { transitBalanceSelector } from "../../../machines/depositedBalanceMachine"
 import { getPOABridgeInfo } from "../../../machines/poaBridgeInfoActor"
 import { isTokenResolvingSelector } from "../../../machines/withdrawUIMachine"
 import { usePublicKeyModalOpener } from "../../../swap/hooks/usePublicKeyModalOpener"
@@ -223,10 +221,12 @@ export const WithdrawForm = ({
     state.context.preparationOutput
   )
 
-  const tokenInBalance = useSelector(
-    depositedBalanceRef,
-    balanceSelector(token)
-  )
+  const tokenInBalance = useSelector(depositedBalanceRef, (state) => {
+    if (!state || !token) return
+    return computeTotalBalanceDifferentDecimals(token, state.context.balances, {
+      strict: false,
+    })
+  })
 
   const tokenInTransitBalance = useSelector(
     depositedBalanceRef,
@@ -245,9 +245,11 @@ export const WithdrawForm = ({
   const handleSelect = useCallback(() => {
     const fieldName = "token"
     const lockedNetwork =
-      selectedContact != null && isSupportedChainName(blockchain)
-        ? blockchain
-        : undefined
+      presetNetwork != null && isSupportedChainName(presetNetwork)
+        ? presetNetwork
+        : selectedContact != null && isSupportedChainName(blockchain)
+          ? blockchain
+          : undefined
     setModalType(ModalType.MODAL_SELECT_ASSETS, {
       fieldName,
       [fieldName]: token,
@@ -255,7 +257,7 @@ export const WithdrawForm = ({
       lockedNetwork,
       disableZeroBalance: true,
     })
-  }, [token, setModalType, selectedContact, blockchain])
+  }, [token, setModalType, selectedContact, blockchain, presetNetwork])
 
   useEffect(() => {
     const sub = watch(async (value, { name }) => {

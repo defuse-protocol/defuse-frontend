@@ -523,7 +523,7 @@ const ModalSelectRecipient = ({
                 <div>
                   <h3 className="flex items-center gap-1.5 text-gray-500 text-sm/6 font-medium">
                     <ContactsIcon className="size-4 shrink-0" />
-                    Other networks
+                    Contacts on other networks
                   </h3>
 
                   <div className="mt-1 space-y-1">

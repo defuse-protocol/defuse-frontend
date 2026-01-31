@@ -363,6 +363,12 @@ const ModalAddEditContact = ({
               <button
                 type="button"
                 onClick={() => setSelectNetworkOpen(true)}
+                onKeyDown={(e) => {
+                  if (e.key.length === 1 && /[a-zA-Z0-9]/.test(e.key)) {
+                    setSearchValue(e.key)
+                    setSelectNetworkOpen(true)
+                  }
+                }}
                 className={clsx(
                   "w-full rounded-3xl bg-white border p-3 text-left flex items-center gap-3 focus-visible:outline focus-visible:outline-gray-700",
                   errors.blockchain

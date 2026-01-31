@@ -8,6 +8,7 @@ import ModalAddEditContact from "@src/components/DefuseSDK/components/Modal/Moda
 import ModalNoResults from "@src/components/DefuseSDK/components/Modal/ModalNoResults"
 import { NetworkIcon } from "@src/components/DefuseSDK/components/Network/NetworkIcon"
 import SearchBar from "@src/components/DefuseSDK/components/SearchBar"
+import TooltipNew from "@src/components/DefuseSDK/components/TooltipNew"
 import { midTruncate } from "@src/components/DefuseSDK/features/withdraw/components/WithdrawForm/utils"
 import { getContactChainInfo } from "@src/components/DefuseSDK/utils/contactUtils"
 import { stringToColor } from "@src/components/DefuseSDK/utils/stringToColor"
@@ -173,7 +174,7 @@ const ContactsList = ({
                   key={contact.id}
                   dropdownMenuItems={[
                     {
-                      label: "Send",
+                      label: "Transfer",
                       href: `/send?contactId=${contact.id}&recipient=${encodeURIComponent(contact.address)}&network=${chainKey}`,
                       icon: SendIcon,
                     },
@@ -210,9 +211,14 @@ const ContactsList = ({
                     <ListItem.Title className="truncate">
                       {contact.name}
                     </ListItem.Title>
-                    <ListItem.Subtitle>
-                      {midTruncate(contact.address)}
-                    </ListItem.Subtitle>
+                    <TooltipNew>
+                      <TooltipNew.Trigger>
+                        <ListItem.Subtitle>
+                          {midTruncate(contact.address)}
+                        </ListItem.Subtitle>
+                      </TooltipNew.Trigger>
+                      <TooltipNew.Content>{contact.address}</TooltipNew.Content>
+                    </TooltipNew>
                   </ListItem.Content>
                   <ListItem.Content align="end">
                     <ListItem.Title className="flex items-center gap-1">
