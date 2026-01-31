@@ -46,7 +46,7 @@ const ContactsList = ({
     contact: Contact | null
   }) => {
     setModalOpen(type)
-    setSelectedContact(contact)
+    setSelectedContact(contact ?? null)
   }
 
   const processedContacts = useMemo(
