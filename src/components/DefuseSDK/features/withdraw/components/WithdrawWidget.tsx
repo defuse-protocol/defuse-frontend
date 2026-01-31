@@ -6,6 +6,7 @@ import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { getAppFeeRecipient } from "@src/utils/getAppFeeRecipient"
+import { useQueryClient } from "@tanstack/react-query"
 import { useSelector } from "@xstate/react"
 import { useContext } from "react"
 import { fromPromise } from "xstate"
@@ -14,6 +15,10 @@ import {
   TokenListUpdater1cs,
 } from "../../../components/TokenListUpdater"
 import { settings } from "../../../constants/settings"
+import {
+  type TokenUsdPriceData,
+  tokensUsdPricesQueryKey,
+} from "../../../hooks/useTokensUsdPrices"
 import { WithdrawWidgetProvider } from "../../../providers/WithdrawWidgetProvider"
 import type { WithdrawWidgetProps } from "../../../types/withdraw"
 import { assert } from "../../../utils/assert"
@@ -27,6 +32,10 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
   const is1cs = useIs1CsEnabled()
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
   const appFeeRecipient = getAppFeeRecipient(whitelabelTemplate)
+  const queryClient = useQueryClient()
+  const cachedPrices =
+    queryClient.getQueryData<TokenUsdPriceData>(tokensUsdPricesQueryKey) ?? null
+
   const initialTokenIn =
     props.presetTokenSymbol !== undefined
       ? (props.tokenList.find(
@@ -55,6 +64,14 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
             tokenIn: initialTokenIn,
             tokenOut: initialTokenOut,
             tokenList: props.tokenList,
+            rawPresets: {
+              network: props.presetNetwork,
+              tokenSymbol: props.presetTokenSymbol,
+              recipient: props.presetRecipient,
+              amount: props.presetAmount,
+              contactId: props.presetContactId,
+            },
+            cachedPrices,
             referral: props.referral,
             appFeeRecipient,
           },

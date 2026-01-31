@@ -39,6 +39,7 @@ import {
   transitBalanceSelector,
 } from "../../../machines/depositedBalanceMachine"
 import { getPOABridgeInfo } from "../../../machines/poaBridgeInfoActor"
+import { isTokenResolvingSelector } from "../../../machines/withdrawUIMachine"
 import { usePublicKeyModalOpener } from "../../../swap/hooks/usePublicKeyModalOpener"
 import { WithdrawUIMachineContext } from "../../WithdrawUIMachineContext"
 import { isCexIncompatible } from "../../utils/cexCompatibility"
@@ -94,6 +95,7 @@ export const WithdrawForm = ({
     totalAmountReceived,
     withdtrawalFee,
     directionFee,
+    isTokenResolving,
   } = WithdrawUIMachineContext.useSelector((state) => {
     return {
       state,
@@ -108,6 +110,7 @@ export const WithdrawForm = ({
       withdtrawalFee: withdtrawalFeeSelector(state),
       directionFee: directionFeeSelector(state),
       balances: balancesSelector(state),
+      isTokenResolving: isTokenResolvingSelector(state),
     }
   })
   const publicKeyVerifierRef = useSelector(swapRef, (state) => {
@@ -552,10 +555,13 @@ export const WithdrawForm = ({
                   state.matches("submitting") ||
                   noLiquidity ||
                   isPreparing ||
+                  isTokenResolving ||
                   !amountIn ||
                   Number(amountIn) <= 0
                 }
-                loading={state.matches("submitting") || isPreparing}
+                loading={
+                  state.matches("submitting") || isPreparing || isTokenResolving
+                }
               >
                 {getWithdrawButtonText(
                   noLiquidity,
