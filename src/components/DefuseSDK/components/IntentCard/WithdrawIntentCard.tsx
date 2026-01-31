@@ -156,14 +156,7 @@ export function WithdrawIntentCard({
             }}
           >
             +
-            {formatTokenValue(
-              amountWithdrawn.amount,
-              amountWithdrawn.decimals,
-              {
-                min: 0.0001,
-                fractionDigits: 4,
-              }
-            )}{" "}
+            {formatTokenValue(amountWithdrawn.amount, amountWithdrawn.decimals)}{" "}
             {tokenOut.symbol}
           </Text>
         </Flex>

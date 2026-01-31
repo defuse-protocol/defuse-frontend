@@ -75,13 +75,11 @@ export function SwapTrackerMachineProvider({
 
       const formattedIn = formatTokenValue(
         swapDescription.totalAmountIn.amount,
-        swapDescription.totalAmountIn.decimals,
-        { min: 0.0001, fractionDigits: 4 }
+        swapDescription.totalAmountIn.decimals
       )
       const formattedOut = formatTokenValue(
         swapDescription.totalAmountOut.amount,
-        swapDescription.totalAmountOut.decimals,
-        { min: 0.0001, fractionDigits: 4 }
+        swapDescription.totalAmountOut.decimals
       )
 
       addDockItem({

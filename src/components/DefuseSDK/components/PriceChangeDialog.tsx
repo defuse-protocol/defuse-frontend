@@ -135,9 +135,7 @@ const ActualAmountBlock = ({
   <div className="flex items-center justify-between p-6">
     <div className="flex flex-col gap-0.5">
       <div className="text-xl font-medium">
-        {formatTokenValue(amount.amount, amount.decimals, {
-          fractionDigits: amount.decimals,
-        })}
+        {formatTokenValue(amount.amount, amount.decimals)}
       </div>
     </div>
     <div className="flex items-center gap-2">
@@ -167,22 +165,13 @@ const ChangedAmounts = ({
         <span className="line-through">
           {formatTokenValue(
             previousOppositeAmount.amount,
-            previousOppositeAmount.decimals,
-            {
-              fractionDigits: previousOppositeAmount.decimals,
-            }
+            previousOppositeAmount.decimals
           )}
         </span>{" "}
         (old)
       </div>
       <div>
-        {formatTokenValue(
-          newOppositeAmount.amount,
-          newOppositeAmount.decimals,
-          {
-            fractionDigits: newOppositeAmount.decimals,
-          }
-        )}{" "}
+        {formatTokenValue(newOppositeAmount.amount, newOppositeAmount.decimals)}{" "}
         (new)
       </div>
     </div>

@@ -51,7 +51,6 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const {
     setValue,
     watch,
-    getValues,
     register,
     handleSubmit,
     formState: { errors },
@@ -110,20 +109,19 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
   // we need stable references to allow passing to useEffect
   const switchTokens = useCallback(() => {
-    const { amountOut } = getValues()
-    setValue("amountIn", amountOut)
+    setValue("amountIn", "")
     setValue("amountOut", "")
     swapUIActorRef.send({
       type: "input",
       params: {
         tokenIn: tokenOut,
         tokenOut: tokenIn,
-        amountIn: amountOut,
+        amountIn: "",
         amountOut: "",
         swapType: QuoteRequest.swapType.EXACT_INPUT,
       },
     })
-  }, [tokenIn, tokenOut, setValue, getValues, swapUIActorRef])
+  }, [tokenIn, tokenOut, setValue, swapUIActorRef])
 
   const {
     setModalType,
@@ -156,32 +154,24 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     const _payload = payload as ModalSelectAssetsPayload
     const token = _payload[fieldName || "token"]
     if (modalType === ModalType.MODAL_SELECT_ASSETS && fieldName && token) {
-      const { tokenIn, tokenOut, swapType } =
+      const { tokenIn, tokenOut } =
         swapUIActorRef.getSnapshot().context.formValues
-      const { amountIn, amountOut } = getValues()
-      const isExactInput = swapType === QuoteRequest.swapType.EXACT_INPUT
+
+      // Clear both amounts when token changes to avoid balance errors
+      setValue("amountIn", "")
+      setValue("amountOut", "")
+
       switch (fieldName) {
         case SWAP_TOKEN_FLAGS.IN: {
-          let newAmountIn = ""
-          let newAmountOut = ""
-          let valueToReset: "amountIn" | "amountOut" = "amountOut"
-
-          if (isExactInput) {
-            newAmountIn = amountIn
-          } else {
-            // If we change TOKEN IN but last touched input was AMOUNT OUT and so current swap type is EXACT_OUTPUT , we SHOULD NOT trigger and EXACT IN quote and keep with EXACT OUT quote
-            newAmountOut = amountOut
-            valueToReset = "amountIn"
-          }
           if (getDefuseAssetId(tokenOut) === getDefuseAssetId(token)) {
-            // Don't need to switch amounts, when token selected from dialog
+            // Swap tokens if selecting the same as output
             swapUIActorRef.send({
               type: "input",
               params: {
                 tokenIn: tokenOut,
                 tokenOut: tokenIn,
-                amountIn: newAmountIn,
-                amountOut: newAmountOut,
+                amountIn: "",
+                amountOut: "",
               },
             })
           } else {
@@ -189,79 +179,40 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               type: "input",
               params: {
                 tokenIn: token,
-                amountIn: newAmountIn,
-                amountOut: newAmountOut,
+                amountIn: "",
+                amountOut: "",
               },
             })
           }
-          setValue(valueToReset, "")
           break
         }
         case SWAP_TOKEN_FLAGS.OUT: {
-          if (is1cs) {
-            let newAmountIn = ""
-            let newAmountOut = ""
-            let valueToReset: "amountIn" | "amountOut" = "amountIn"
-            if (isExactInput) {
-              // If we change TOKEN OUT but last touched input was AMOUNT IN and so current swap type is EXACT_INPUT, we SHOULD NOT trigger and EXACT OUT quote and keep with EXACT IN quote
-              newAmountIn = amountIn
-              valueToReset = "amountOut"
-            } else {
-              newAmountOut = amountOut
-            }
-            if (getDefuseAssetId(tokenIn) === getDefuseAssetId(token)) {
-              // Don't need to switch amounts, when token selected from dialog
-              swapUIActorRef.send({
-                type: "input",
-                params: {
-                  tokenIn: tokenOut,
-                  tokenOut: tokenIn,
-                  amountIn: newAmountIn,
-                  amountOut: newAmountOut,
-                },
-              })
-            } else {
-              swapUIActorRef.send({
-                type: "input",
-                params: {
-                  tokenOut: token,
-                  amountIn: newAmountIn,
-                  amountOut: newAmountOut,
-                },
-              })
-            }
-
-            setValue(valueToReset, "")
+          if (getDefuseAssetId(tokenIn) === getDefuseAssetId(token)) {
+            // Swap tokens if selecting the same as input
+            swapUIActorRef.send({
+              type: "input",
+              params: {
+                tokenIn: tokenOut,
+                tokenOut: tokenIn,
+                amountIn: "",
+                amountOut: "",
+              },
+            })
           } else {
-            // legacy flow for non 1cs
-            if (getDefuseAssetId(tokenIn) === getDefuseAssetId(token)) {
-              // Don't need to switch amounts, when token selected from dialog
-              swapUIActorRef.send({
-                type: "input",
-                params: {
-                  tokenIn: tokenOut,
-                  tokenOut: tokenIn,
-                  amountOut: "",
-                  amountIn,
-                },
-              })
-            } else {
-              swapUIActorRef.send({
-                type: "input",
-                params: {
-                  tokenOut: token,
-                  amountOut: "",
-                  amountIn,
-                },
-              })
-            }
-            setValue("amountOut", "")
+            swapUIActorRef.send({
+              type: "input",
+              params: {
+                tokenOut: token,
+                amountIn: "",
+                amountOut: "",
+              },
+            })
           }
           break
         }
       }
     }
-  }, [payload, currentModalType, swapUIActorRef, getValues, setValue])
+  }, [payload, currentModalType, swapUIActorRef, setValue])
 
   const { onSubmit: submitSwap } = useContext(SwapSubmitterContext)
 
