@@ -202,8 +202,8 @@ const ModalSelectRecipient = ({
         >
           {hasNoContactsForNetwork && (
             <p className="text-sm text-gray-500 font-medium">
-              You have no contacts created for the {selectedNetworkName}{" "}
-              network.
+              You have no contacts created for the{" "}
+              <span className="capitalize">{selectedNetworkName}</span> network.
             </p>
           )}
 
