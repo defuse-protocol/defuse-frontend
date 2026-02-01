@@ -39,7 +39,7 @@ export function HistoryItem({ transaction, tokenList }: HistoryItemProps) {
 
   return (
     <ListItem
-      dropdownMenuItems={[
+      popoverItems={[
         ...(explorerUrl
           ? [
               {
