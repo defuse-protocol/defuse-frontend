@@ -50,10 +50,6 @@ const SelectedTokenInput = ({
     }
   }
 
-  const getPlaceholder = () => {
-    return symbol ? `Enter amount ${symbol}` : "Enter amount"
-  }
-
   // Check if user is trying to deposit full balance of native token
   const isFullBalanceNativeDeposit = (() => {
     if (!isNativeToken || !hasValue || balance === 0n) return false
@@ -86,8 +82,7 @@ const SelectedTokenInput = ({
             inputMode="decimal"
             pattern="[0-9]*[.]?[0-9]*"
             autoComplete="off"
-            maxLength={11}
-            placeholder={getPlaceholder()}
+            placeholder={`Enter amount ${symbol}`}
             aria-label={label}
             disabled={disabled}
             className={clsx(
