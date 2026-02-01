@@ -162,7 +162,7 @@ export const WithdrawForm = ({
   })
 
   const form = useForm<WithdrawFormNearValues>({
-    mode: "onSubmit",
+    mode: "onChange",
     reValidateMode: "onChange",
     values: {
       amountIn,
