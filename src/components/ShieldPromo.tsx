@@ -66,9 +66,28 @@ const ShieldPromo = () => {
         onClose={() => setOpen(false)}
         title="What is a shielded account?"
       >
-        <p className="text-gray-500 text-sm font-medium">
-          TODO: Add shielded account content
-        </p>
+        <div className="text-gray-500 text-sm font-medium space-y-4">
+          <p>
+            Coming soon your Near Intents account will have offer a unique
+            capability, that we call <strong>Shielded Mode</strong>.
+          </p>
+          <p>
+            In Shielded Mode all of your activities, e.g. deposits, transfers,
+            and swaps, will be private on the blockchain—
+            <strong>visible only to you!</strong>
+          </p>
+          <p>
+            And if you need to make these activities for compliance, taxation or
+            any other reason, you'll have a personal cryptographic key that you
+            can provide, to enable transparency to the key-holder.
+          </p>
+          <p>
+            Shielded Mode will be powered by the industry-leading technologies
+            from the <strong>NEAR Protocol</strong> and{" "}
+            <strong>NEAR Intents</strong>, and will facilitate the privacy you
+            need in a world of increasing surveillance and data leakage threats.
+          </p>
+        </div>
       </BaseModalDialog>
     </>
   )
