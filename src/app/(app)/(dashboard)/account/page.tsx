@@ -61,7 +61,7 @@ export default function AccountPage() {
 
           <Button href="/send" size="xl">
             <SendIcon className="size-6" />
-            Send
+            Transfer
           </Button>
         </section>
       )}

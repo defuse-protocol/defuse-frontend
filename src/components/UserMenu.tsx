@@ -2,18 +2,30 @@
 
 import {
   ArrowRightStartOnRectangleIcon,
+  CheckIcon,
   ChevronUpIcon,
   Cog8ToothIcon,
+  DocumentDuplicateIcon,
 } from "@heroicons/react/16/solid"
 import { UserIcon } from "@heroicons/react/24/solid"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import clsx from "clsx"
 import Link from "next/link"
 import { DropdownMenu } from "radix-ui"
+import { useState } from "react"
 import { midTruncate } from "./DefuseSDK/features/withdraw/components/WithdrawForm/utils"
 
 const UserMenu = () => {
   const { state, signOut } = useConnectWallet()
+  const [copied, setCopied] = useState(false)
+
+  const handleCopyAddress = async () => {
+    if (state.address) {
+      await navigator.clipboard.writeText(state.address)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
+  }
 
   // If not connected, show a link to login
   if (!state.address) {
@@ -32,6 +44,16 @@ const UserMenu = () => {
 
   const items = [
     {
+      label: copied ? "Copied!" : "Copy account address",
+      onClick: handleCopyAddress,
+      icon: copied ? CheckIcon : DocumentDuplicateIcon,
+    },
+    {
+      label: "Settings",
+      href: "/settings",
+      icon: Cog8ToothIcon,
+    },
+    {
       label: "Sign out",
       onClick: () => {
         if (state.chainType) {
@@ -39,11 +61,6 @@ const UserMenu = () => {
         }
       },
       icon: ArrowRightStartOnRectangleIcon,
-    },
-    {
-      label: "Settings",
-      href: "/settings",
-      icon: Cog8ToothIcon,
     },
   ]
 

@@ -78,7 +78,7 @@ export function HomeSwapWidget() {
               placeholder="0"
               value={amountIn}
               onChange={(e) => setAmountIn(e.target.value)}
-              className="relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-4xl tracking-tight placeholder:text-gray-400 w-full"
+              className="relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-4xl tracking-tight placeholder:text-gray-400 w-full font-sans"
             />
             <button
               type="button"

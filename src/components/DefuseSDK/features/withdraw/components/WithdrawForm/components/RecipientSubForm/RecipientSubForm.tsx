@@ -1,12 +1,11 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
-import { TagIcon } from "@heroicons/react/20/solid"
+import { GlobeAltIcon, TagIcon } from "@heroicons/react/20/solid"
 import ModalSelectRecipient from "@src/components/DefuseSDK/components/Modal/ModalSelectRecipient"
 import { getMinWithdrawalHyperliquidAmount } from "@src/components/DefuseSDK/features/withdraw/utils/hyperliquid"
 import { usePreparedNetworkLists } from "@src/components/DefuseSDK/hooks/useNetworkLists"
 import { isSupportedChainName } from "@src/components/DefuseSDK/utils/blockchain"
 import ErrorMessage from "@src/components/ErrorMessage"
-import { WalletIcon } from "@src/icons"
 import { useSelector } from "@xstate/react"
 import clsx from "clsx"
 import { type ReactNode, useEffect, useState } from "react"
@@ -238,12 +237,16 @@ export const RecipientSubForm = ({
         }}
         render={({ field, fieldState }) => (
           <SelectTriggerLike
-            label={field.value ? "Recipient" : "Select recipient"}
-            value={midTruncate(field.value, 16)}
+            label={field.value ? "Recipient" : "Recipient"}
+            value={
+              field.value
+                ? midTruncate(field.value, 16)
+                : "Select a contact or enter an address"
+            }
             error={fieldState.error?.message}
             icon={
               <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
-                <WalletIcon className="text-gray-500 size-5" />
+                <GlobeAltIcon className="text-gray-500 size-5" />
               </div>
             }
             onClick={() => setModalType("recipient")}

@@ -28,7 +28,7 @@ export default function SendPage() {
 
   return (
     <>
-      <PageHeader title="Send" />
+      <PageHeader title="Transfer" />
 
       <WithdrawWidget
         presetAmount={amount}

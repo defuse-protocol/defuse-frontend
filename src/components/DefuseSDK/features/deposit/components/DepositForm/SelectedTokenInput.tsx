@@ -86,7 +86,7 @@ const SelectedTokenInput = ({
             aria-label={label}
             disabled={disabled}
             className={clsx(
-              "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-4xl tracking-tight w-full min-w-0",
+              "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-4xl tracking-tight w-full min-w-0 font-sans",
               !hasValue && "placeholder:text-xl placeholder:font-medium",
               hasValue && "placeholder:text-gray-400",
               disabled && "opacity-50"
