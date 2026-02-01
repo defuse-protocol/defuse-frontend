@@ -20,7 +20,6 @@ const STALE_TRANSACTION_THRESHOLD_MS = 24 * 60 * 60 * 1000 // 24 hours
 const ALL_STATUSES: IntentsExplorerTransaction["status"][] = [
   "SUCCESS",
   "PROCESSING",
-  "PENDING_DEPOSIT",
   "INCOMPLETE_DEPOSIT",
   "REFUNDED",
   "FAILED",
