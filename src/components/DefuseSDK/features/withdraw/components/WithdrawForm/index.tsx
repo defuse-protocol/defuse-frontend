@@ -500,6 +500,7 @@ export const WithdrawForm = ({
               balance={tokenInBalance?.amount ?? 0n}
               decimals={tokenInBalance?.decimals ?? 0}
               symbol={token.symbol}
+              icon={token.icon}
               usdAmount={tokenToWithdrawUsdAmount}
               handleSetPercentage={handleSetPercentage}
               additionalInfo={

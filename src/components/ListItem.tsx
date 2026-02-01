@@ -1,11 +1,11 @@
-import { EllipsisHorizontalIcon } from "@heroicons/react/16/solid"
+import { ChevronDownIcon } from "@heroicons/react/16/solid"
 import { cn } from "@src/utils/cn"
 import clsx from "clsx"
-import { DropdownMenu } from "radix-ui"
+import { Popover } from "radix-ui"
 import { type ComponentType, type ReactNode, useState } from "react"
 import Button from "./Button"
 
-type DropdownMenuItem = {
+type PopoverItem = {
   label: string
   href?: string
   onClick?: () => void
@@ -14,7 +14,7 @@ type DropdownMenuItem = {
 
 type ListItemProps = {
   children: ReactNode
-  dropdownMenuItems?: DropdownMenuItem[]
+  popoverItems?: PopoverItem[]
   onClick?: () => void
   highlight?: boolean
   className?: string
@@ -23,20 +23,20 @@ type ListItemProps = {
 
 function ListItem({
   children,
-  dropdownMenuItems,
+  popoverItems,
   onClick,
   highlight = false,
   className,
   dataTestId,
 }: ListItemProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const hasDropdownMenu = dropdownMenuItems && dropdownMenuItems.length > 0
-  const isInteractive = hasDropdownMenu || onClick !== undefined
+  const hasPopover = popoverItems && popoverItems.length > 0
+  const isInteractive = hasPopover || onClick !== undefined
 
   const content = (
     <div
       className={clsx(
-        "relative -mx-4 px-4 rounded-2xl",
+        "relative -mx-4 px-4 rounded-2xl group",
         highlight && "bg-gray-100",
         isInteractive &&
           (isOpen
@@ -48,18 +48,17 @@ function ListItem({
     >
       <div className="flex gap-3 items-center py-3">
         <div className="flex-1 min-w-0 flex gap-3 items-center">{children}</div>
-        {hasDropdownMenu && (
-          <DropdownMenu.Trigger
-            className="size-6 flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus-visible:outline-none data-[state=open]:text-gray-900"
-            aria-label="Open menu"
-          >
-            <span className="absolute z-10 inset-0 rounded-2xl" />
-            <EllipsisHorizontalIcon className="size-4" />
-          </DropdownMenu.Trigger>
+        {hasPopover && (
+          <ChevronDownIcon
+            className={clsx(
+              "size-5 shrink-0 text-gray-500 group-hover:text-gray-900 group-data-[state=open]:text-gray-900 transition-transform duration-100 ease-in-out",
+              isOpen && "rotate-180"
+            )}
+          />
         )}
       </div>
 
-      {isInteractive && !hasDropdownMenu && (
+      {isInteractive && !hasPopover && (
         <button
           type="button"
           onClick={onClick}
@@ -67,37 +66,48 @@ function ListItem({
           aria-label="Select item"
         />
       )}
+      {hasPopover && (
+        <Popover.Trigger
+          type="button"
+          className="absolute z-10 inset-0 rounded-2xl"
+          aria-label="Open menu"
+        />
+      )}
     </div>
   )
 
-  if (!hasDropdownMenu) return content
+  if (!hasPopover) return content
 
   return (
-    <DropdownMenu.Root open={isOpen} onOpenChange={setIsOpen} modal={false}>
+    <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
       {content}
-      <DropdownMenu.Portal>
-        <DropdownMenu.Content
+      <Popover.Portal>
+        <Popover.Content
           className={clsx(
-            "bg-gray-900 rounded-xl shadow-lg flex flex-col p-1 gap-1 text-white min-w-28 mr-2 origin-top-left",
+            "bg-gray-900 rounded-xl shadow-lg flex p-1 gap-1 origin-top",
 
-            "data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:zoom-in-95 data-[state=open]:duration-100 data-[state=open]:ease-out",
+            "data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:zoom-in-95 data-[state=open]:slide-in-from-top-1 data-[state=open]:duration-100 data-[state=open]:ease-out",
 
-            "data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:zoom-out-95 data-[state=closed]:duration-75 data-[state=closed]:ease-in"
+            "data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:zoom-out-95 data-[state=closed]:slide-out-to-top-1 data-[state=closed]:duration-75 data-[state=closed]:ease-in"
           )}
-          sideOffset={5}
-          align="start"
+          sideOffset={-5}
         >
-          {dropdownMenuItems.map(({ label, href, onClick, icon: Icon }) => (
-            <DropdownMenu.Item key={label} asChild>
-              <Button size="sm" href={href} onClick={onClick} align="start">
-                <Icon className="size-4 shrink-0" />
-                {label}
-              </Button>
-            </DropdownMenu.Item>
+          <Popover.Arrow />
+          {popoverItems.map(({ label, href, onClick, icon: Icon }) => (
+            <Button
+              key={label}
+              size="sm"
+              href={href}
+              onClick={onClick}
+              align="start"
+            >
+              <Icon className="size-4 shrink-0" />
+              {label}
+            </Button>
           ))}
-        </DropdownMenu.Content>
-      </DropdownMenu.Portal>
-    </DropdownMenu.Root>
+        </Popover.Content>
+      </Popover.Portal>
+    </Popover.Root>
   )
 }
 

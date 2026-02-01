@@ -170,7 +170,7 @@ const ContactsList = ({
             return (
               <ListItem
                 key={contact.id}
-                dropdownMenuItems={[
+                popoverItems={[
                   { label: "Send", href: "/send", icon: SendIcon },
                   {
                     label: "Edit",

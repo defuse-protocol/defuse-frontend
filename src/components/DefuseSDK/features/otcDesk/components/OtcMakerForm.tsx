@@ -189,8 +189,15 @@ export function OtcMakerForm({
   useEffect(() => {
     if (userEditedAmountOut) return
     if (!tokensUsdPriceData) return
-    if (!formValues.amountIn || !formValues.tokenIn || !formValues.tokenOut)
+    if (!formValues.tokenIn || !formValues.tokenOut) return
+
+    // If amountIn is cleared, also clear amountOut
+    if (!formValues.amountIn) {
+      if (formValues.amountOut) {
+        formValuesRef.trigger.updateAmountOut({ value: "" })
+      }
       return
+    }
 
     const amountInNum = Number(formValues.amountIn)
     if (Number.isNaN(amountInNum) || amountInNum <= 0) return
