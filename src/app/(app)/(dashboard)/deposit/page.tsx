@@ -1,10 +1,10 @@
-import Button from "@src/components/Button"
 import DepositPromo from "@src/components/DepositPromo"
 import PageHeader from "@src/components/PageHeader"
-import { EurIcon, UsdIcon } from "@src/icons"
 import clsx from "clsx"
 import Link from "next/link"
 import type { ReactNode } from "react"
+// import Button from "@src/components/Button"
+// import { EurIcon, UsdIcon } from "@src/icons"
 
 const Card = ({
   children,
@@ -30,8 +30,6 @@ const Card = ({
 )
 
 export default function DepositPage() {
-  const verified = false
-
   return (
     <>
       <PageHeader title="Add funds to your NEAR Intents account" />
@@ -52,7 +50,25 @@ export default function DepositPage() {
           <DepositPromo className="mt-9" />
         </Card>
 
-        <div>
+        <div className="relative mt-9 bg-gray-800 rounded-3xl grid grid-cols-3 gap-4 group overflow-hidden">
+          <div className="col-span-2 relative p-5 z-20">
+            <div className="bg-brand/20 text-brand text-xs rounded-lg px-2 py-1 inline-block uppercase font-bold">
+              Coming soon
+            </div>
+            <h1 className="text-xl font-bold text-white tracking-tight mt-6">
+              Deposit via bank transfer
+            </h1>
+            <p className="text-gray-400 text-sm text-balance font-medium">
+              Send USD or EUR from your bank and receive stablecoins
+            </p>
+          </div>
+
+          <div className="relative" aria-hidden="true">
+            <div className="absolute size-32 -bottom-16 -right-16 rounded-full bg-brand/80 blur-[75px] pointer-events-none" />
+          </div>
+        </div>
+
+        {/* <div>
           <Card
             className="flex justify-between gap-3 items-start"
             disabled={!verified}
@@ -106,7 +122,7 @@ export default function DepositPage() {
               </Button>
             </div>
           )}
-        </div>
+        </div> */}
       </section>
     </>
   )
