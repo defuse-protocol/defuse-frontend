@@ -9,7 +9,7 @@ export const MinWithdrawalAmount = ({
   minWithdrawalAmount: TokenValue
   tokenOut: BaseTokenInfo
 }) => (
-  <Alert variant="info" className="mt-2">
+  <Alert variant="error" className="mt-2">
     Minimum withdrawal is ~
     {formatTokenValue(minWithdrawalAmount.amount, minWithdrawalAmount.decimals)}{" "}
     {tokenOut.symbol}

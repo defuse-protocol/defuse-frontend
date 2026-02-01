@@ -68,7 +68,7 @@ const ShieldPromo = () => {
       >
         <div className="text-gray-500 text-sm font-medium space-y-4">
           <p>
-            Coming soon your Near Intents account will have offer a unique
+            Coming soon your NEAR Intents account will have offer a unique
             capability, that we call <strong>Shielded Mode</strong>.
           </p>
           <p>

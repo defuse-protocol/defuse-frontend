@@ -96,8 +96,8 @@ const Assets = ({
               <AssetComboIcon icon={token.icon} showChainIcon />
 
               <ListItem.Content>
-                <ListItem.Title>{token.name}</ListItem.Title>
-                <ListItem.Subtitle>{token.symbol}</ListItem.Subtitle>
+                <ListItem.Title>{token.symbol}</ListItem.Title>
+                <ListItem.Subtitle>{token.name}</ListItem.Subtitle>
               </ListItem.Content>
 
               <ListItem.Content align="end">

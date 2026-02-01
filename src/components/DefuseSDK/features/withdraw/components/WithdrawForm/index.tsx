@@ -162,7 +162,7 @@ export const WithdrawForm = ({
   })
 
   const form = useForm<WithdrawFormNearValues>({
-    mode: "onSubmit",
+    mode: "onChange",
     reValidateMode: "onChange",
     values: {
       amountIn,
@@ -453,8 +453,8 @@ export const WithdrawForm = ({
                   <TokenIconPlaceholder className="size-10" />
                 )
               }
-              label={token ? "Token" : "Select token"}
-              value={token?.name}
+              label={token ? "Transfer this token" : "Select token"}
+              value={token?.symbol}
               onClick={handleSelect}
             />
 
@@ -475,16 +475,20 @@ export const WithdrawForm = ({
                   value: /^[0-9]*[,.]?[0-9]*$/,
                   message: "Please enter a valid number",
                 },
-                min:
-                  minWithdrawalAmount != null
-                    ? {
-                        value: formatTokenValue(
-                          minWithdrawalAmount.amount,
-                          minWithdrawalAmount.decimals
-                        ),
-                        message: "Amount is too low",
-                      }
-                    : undefined,
+                validate: {
+                  min: () => {
+                    // Skip min check when value is 0 (user still typing, e.g., "0.00")
+                    if (parsedAmountIn == null || parsedAmountIn.amount === 0n)
+                      return true
+                    if (minWithdrawalAmount == null) return true
+                    if (
+                      compareAmounts(parsedAmountIn, minWithdrawalAmount) === -1
+                    ) {
+                      return "Amount is too low"
+                    }
+                    return true
+                  },
+                },
                 max:
                   tokenInBalance != null
                     ? {

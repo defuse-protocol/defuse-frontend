@@ -2,7 +2,6 @@ import Alert from "@src/components/Alert"
 import type { TokenValue } from "@src/components/DefuseSDK/types/base"
 import type { ReactNode } from "react"
 import type { PreparationOutput } from "../../../../../../services/withdrawService"
-import { formatTokenValue } from "../../../../../../utils/format"
 
 export const PreparationResult = ({
   preparationOutput,
@@ -28,22 +27,7 @@ export const PreparationResult = ({
       // Don't duplicate error messages, this should be handled by input validation
       break
     case "ERR_AMOUNT_TOO_LOW":
-      content = (
-        <>
-          Add{" "}
-          <button
-            type="button"
-            onClick={() => {
-              increaseAmount(err.shortfall)
-            }}
-            className="text-left underline"
-          >
-            {formatTokenValue(err.shortfall.amount, err.shortfall.decimals)}{" "}
-            {err.token.symbol}
-          </button>{" "}
-          more in order to withdraw.
-        </>
-      )
+      // Don't show error message - the MinWithdrawalAmount info note and disabled button handle this
       break
     case "ERR_NO_QUOTES":
     case "ERR_NO_QUOTES_1CS":
