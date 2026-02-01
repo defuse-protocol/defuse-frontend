@@ -2,7 +2,7 @@ import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import {
   ChevronLeftIcon,
-  GlobeAltIcon,
+  QrCodeIcon,
   WalletIcon,
 } from "@heroicons/react/16/solid"
 import Alert from "@src/components/Alert"
@@ -302,7 +302,7 @@ export const DepositForm = ({
                 tabs={[
                   {
                     label: "Address & QR",
-                    icon: <GlobeAltIcon className="size-4 shrink-0" />,
+                    icon: <QrCodeIcon className="size-4 shrink-0" />,
                     onClick: () => setPreferredDepositOption("passive"),
                     selected: currentDepositOption === "passive",
                   },
