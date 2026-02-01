@@ -69,8 +69,7 @@ export function WithdrawTrackerMachineProvider({
       >
       const formattedAmount = formatTokenValue(
         withdrawDescription.amountWithdrawn.amount,
-        withdrawDescription.amountWithdrawn.decimals,
-        { min: 0.0001, fractionDigits: 4 }
+        withdrawDescription.amountWithdrawn.decimals
       )
 
       addDockItem({

@@ -248,8 +248,7 @@ const ModalActiveDeal = ({
                   <span className="text-sm/5 text-gray-900 font-semibold">
                     {formatTokenValue(
                       breakdown.makerSends.amount,
-                      breakdown.makerSends.decimals,
-                      { fractionDigits: 4 }
+                      breakdown.makerSends.decimals
                     )}{" "}
                     {tokenIn.symbol}
                   </span>
@@ -265,8 +264,7 @@ const ModalActiveDeal = ({
                   <span className="text-sm/5 text-gray-900 font-semibold">
                     {formatTokenValue(
                       breakdown.makerReceives.amount,
-                      breakdown.makerReceives.decimals,
-                      { fractionDigits: 4 }
+                      breakdown.makerReceives.decimals
                     )}{" "}
                     {tokenOut.symbol}
                   </span>
@@ -282,13 +280,7 @@ const ModalActiveDeal = ({
                   <span className="text-sm/5 text-gray-900 font-semibold">
                     {formatTokenValue(
                       breakdown.makerPaysFee.amount,
-                      breakdown.makerPaysFee.decimals,
-                      {
-                        fractionDigits: Math.min(
-                          breakdown.makerPaysFee.decimals,
-                          8
-                        ),
-                      }
+                      breakdown.makerPaysFee.decimals
                     )}{" "}
                     {tokenIn.symbol}
                   </span>
@@ -304,13 +296,7 @@ const ModalActiveDeal = ({
                   <span className="text-sm/5 text-gray-900 font-semibold">
                     {formatTokenValue(
                       breakdown.takerReceives.amount,
-                      breakdown.takerReceives.decimals,
-                      {
-                        fractionDigits: Math.min(
-                          breakdown.takerReceives.decimals,
-                          8
-                        ),
-                      }
+                      breakdown.takerReceives.decimals
                     )}{" "}
                     {tokenIn.symbol}
                   </span>

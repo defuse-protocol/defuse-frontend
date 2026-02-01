@@ -135,13 +135,11 @@ function FullView({
 
   const formattedAmountIn = formatTokenValue(
     totalAmountIn.amount,
-    totalAmountIn.decimals,
-    { min: 0.0001, fractionDigits: 4 }
+    totalAmountIn.decimals
   )
   const formattedAmountOut = formatTokenValue(
     totalAmountOut.amount,
-    totalAmountOut.decimals,
-    { min: 0.0001, fractionDigits: 4 }
+    totalAmountOut.decimals
   )
 
   return (
@@ -228,13 +226,11 @@ function CardView({
 
   const formattedAmountIn = formatTokenValue(
     totalAmountIn.amount,
-    totalAmountIn.decimals,
-    { min: 0.0001, fractionDigits: 4 }
+    totalAmountIn.decimals
   )
   const formattedAmountOut = formatTokenValue(
     totalAmountOut.amount,
-    totalAmountOut.decimals,
-    { min: 0.0001, fractionDigits: 4 }
+    totalAmountOut.decimals
   )
 
   const explorerUrl = txHash ? `${NEAR_EXPLORER}/txns/${txHash}` : null

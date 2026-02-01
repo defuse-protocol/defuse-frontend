@@ -88,10 +88,7 @@ const Assets = ({
       <div className="mt-2 flex flex-col gap-1">
         {assetsToShow.map(({ token, value, usdValue }) => {
           const shortFormatted = value
-            ? formatTokenValue(value.amount, value.decimals, {
-                fractionDigits: 4,
-                min: 0.0001,
-              })
+            ? formatTokenValue(value.amount, value.decimals)
             : undefined
 
           const toTokenSymbol = token.symbol === "NEAR" ? "ETH" : "NEAR"

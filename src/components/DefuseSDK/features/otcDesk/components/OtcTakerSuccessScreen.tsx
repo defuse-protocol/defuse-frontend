@@ -120,20 +120,14 @@ export function OtcTakerSuccessScreen({
           <ListItem.Title>
             {formatTokenValue(
               breakdown.takerReceives.amount,
-              breakdown.takerReceives.decimals,
-              {
-                fractionDigits: 5,
-              }
+              breakdown.takerReceives.decimals
             )}{" "}
             {tokenOut.symbol}
           </ListItem.Title>
           <ListItem.Subtitle>
             {formatTokenValue(
               breakdown.takerSends.amount,
-              breakdown.takerSends.decimals,
-              {
-                fractionDigits: 5,
-              }
+              breakdown.takerSends.decimals
             )}{" "}
             {tokenIn.symbol}
           </ListItem.Subtitle>

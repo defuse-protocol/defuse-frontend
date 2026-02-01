@@ -102,14 +102,7 @@ function FullView({
 }) {
   const { tokenOut, amountOut, recipient } = withdraw
 
-  const formattedAmount = formatTokenValue(
-    amountOut.amount,
-    amountOut.decimals,
-    {
-      min: 0.0001,
-      fractionDigits: 4,
-    }
-  )
+  const formattedAmount = formatTokenValue(amountOut.amount, amountOut.decimals)
 
   return (
     <div className="flex flex-col">
@@ -189,14 +182,7 @@ function CardView({
 }) {
   const { tokenOut, amountOut } = withdraw
 
-  const formattedAmount = formatTokenValue(
-    amountOut.amount,
-    amountOut.decimals,
-    {
-      min: 0.0001,
-      fractionDigits: 4,
-    }
-  )
+  const formattedAmount = formatTokenValue(amountOut.amount, amountOut.decimals)
 
   const explorerUrl = txHash ? blockExplorerTxLinkFactory("near", txHash) : null
 

@@ -1,62 +1,220 @@
+// Default formatting: show full precision up to 11 total digits, then truncate.
+// When explicit options (significantDigits, maxDecimals) are provided,
+// those limits apply instead.
+const DEFAULT_SIG_DIGITS = 6
+const DEFAULT_MAX_DECIMALS = 5
+const MAX_DISPLAY_DIGITS = 11
+
+type FormatOptions = {
+  significantDigits?: number // Total significant digits to show
+  maxDecimals?: number // Maximum decimal places
+  locale?: boolean // Add thousand separators (1,234.56)
+  compact?: boolean // Use K/M/B notation for large numbers
+  min?: number | null // Show "< min" for values below threshold
+  fractionDigits?: number // Legacy: exact decimal places (overrides smart formatting)
+}
+
+// Truncates (not rounds) to avoid displaying more than actual value.
+// This is safer for trading - users never see inflated amounts.
+//
+// Priority: fractionDigits > min > compact > smart formatting
+//
+// formatTokenValue(1234567890000000000n, 18) → "1.23456789"
+// formatTokenValue(169677343970239n, 18) → "0.0001696773"
+// formatTokenValue(1234567000000000000000n, 18, { compact: true }) → "1.23K"
 export function formatTokenValue(
   num: bigint | string | number,
   decimals: number,
-  {
-    min,
-    fractionDigits = decimals,
-  }: {
-    min?: number
-    fractionDigits?: number
-  } = {}
+  options: FormatOptions = {}
 ): string {
-  let numBigInt = BigInt(num)
-  if (numBigInt === 0n) {
-    return "0"
+  const value = bigintToNumber(num, decimals)
+  if (value === 0) return "0"
+
+  const abs = Math.abs(value)
+  const sign = value < 0 ? "-" : ""
+  const sigDigits = options.significantDigits ?? DEFAULT_SIG_DIGITS
+  const maxDec = options.maxDecimals ?? DEFAULT_MAX_DECIMALS
+  const hasExplicitOptions =
+    options.significantDigits !== undefined || options.maxDecimals !== undefined
+
+  // Legacy mode: exact decimal places
+  if (options.fractionDigits !== undefined) {
+    return sign + truncateAndFormat(abs, options.fractionDigits)
   }
 
-  const sign = numBigInt < 0n ? -1n : 1n
-  numBigInt *= sign
-  const signStr = sign < 0n ? "-" : ""
-
-  fractionDigits = Math.min(fractionDigits, decimals)
-
-  const exp = 10n ** BigInt(decimals)
-  const fraction = numBigInt % exp
-  const integer = numBigInt / exp
-
-  const roundedFraction =
-    fraction / 10n ** BigInt(Math.max(decimals - fractionDigits, 0))
-
-  const formatted =
-    roundedFraction === 0n
-      ? `${integer}`
-      : `${integer}.${toFixed(roundedFraction.toString(), fractionDigits)}`
-
-  if (min != null && Number(formatted) < min) {
-    const decimalPlaces = min < 1 ? -Math.floor(Math.log10(min)) : 0
-    const minFormatted = min.toFixed(decimalPlaces)
-    return `< ${signStr}${minFormatted}`
+  // Min threshold check
+  if (options.min != null && abs > 0 && abs < options.min) {
+    const dp = options.min < 1 ? -Math.floor(Math.log10(options.min)) : 0
+    return `< ${sign}${options.min.toFixed(dp)}`
   }
 
-  return `${signStr}${formatted}`
-}
+  // Compact notation for large numbers (1.23K, 1.23M)
+  if (options.compact && abs >= 1000) {
+    return sign + formatCompact(abs, 3)
+  }
 
-function toFixed(number: string, digits: number) {
-  return trimEnd(number.padStart(digits, "0"), "0")
-}
+  // Small values (< 1)
+  if (abs < 1) {
+    const leadingZeros = -Math.floor(Math.log10(abs)) - 1
 
-function trimEnd(s: string, char: string) {
-  let pointer: number | undefined
-
-  for (let i = s.length - 1; 0 <= i; i--) {
-    if (s[i] === char) {
-      pointer = i
-    } else {
-      break
+    // More than 10 leading zeros: use subscript notation
+    // 0.000000000000000001 → "0.0₁₇1" (17 zeros, then 1)
+    if (leadingZeros > 10) {
+      return sign + formatSubscript(abs, leadingZeros, sigDigits)
     }
+
+    // If explicit options provided, use them
+    if (hasExplicitOptions) {
+      const decPlaces = Math.min(leadingZeros + sigDigits, MAX_DISPLAY_DIGITS)
+      return sign + truncateAndFormat(abs, decPlaces)
+    }
+
+    // Default: show full precision if ≤ MAX_DISPLAY_DIGITS, otherwise truncate
+    const maxPrecision = Math.min(leadingZeros + sigDigits + 2, 15)
+    const fullPrecision = truncateAndFormat(abs, maxPrecision)
+    const digitCount = fullPrecision.replace(".", "").length
+
+    if (digitCount <= MAX_DISPLAY_DIGITS) {
+      return sign + fullPrecision
+    }
+
+    // Truncate to MAX_DISPLAY_DIGITS, but ensure we show at least 1 significant digit
+    // For values like 0.00000000004 (10 zeros + 1 digit = 12 total), show all
+    const minDecPlaces = leadingZeros + 1
+    const targetDecPlaces = MAX_DISPLAY_DIGITS - 1 // account for leading 0
+    const decPlaces = Math.max(minDecPlaces, targetDecPlaces)
+    return sign + truncateAndFormat(abs, decPlaces)
   }
 
-  return pointer != null ? s.slice(0, pointer) : s
+  // Large values (>= 1)
+  const intDigits = Math.floor(Math.log10(abs)) + 1
+  const sigDecPlaces = Math.max(0, sigDigits - intDigits)
+
+  if (options.locale) {
+    return sign + formatWithLocale(abs, Math.min(sigDecPlaces, maxDec))
+  }
+
+  // If explicit options provided, use them
+  if (hasExplicitOptions) {
+    const decPlaces = Math.min(sigDecPlaces, maxDec)
+    return sign + truncateAndFormat(abs, decPlaces)
+  }
+
+  // Default: show full precision if ≤ MAX_DISPLAY_DIGITS, otherwise truncate
+  // 1.234567890 (10 digits) → keep as is
+  // 1.234567890123 (13 digits) → truncate to 1.2345678901 (11 digits)
+  const actualDecimals = countDecimals(abs)
+  const fullPrecision = truncateAndFormat(abs, actualDecimals)
+  const digitCount = fullPrecision.replace(".", "").length
+
+  if (digitCount <= MAX_DISPLAY_DIGITS) {
+    return sign + fullPrecision
+  }
+
+  // Truncate to MAX_DISPLAY_DIGITS total digits
+  const decPlaces = Math.max(0, MAX_DISPLAY_DIGITS - intDigits)
+  return sign + truncateAndFormat(abs, decPlaces)
+}
+
+// bigintToNumber(1234567890000000000n, 18) → 1.23456789
+// bigintToNumber(169677343970239n, 18) → 0.000169677343970239
+function bigintToNumber(
+  num: bigint | string | number,
+  decimals: number
+): number {
+  let n = BigInt(num)
+  const neg = n < 0n
+  if (neg) n = -n
+
+  const divisor = 10n ** BigInt(decimals)
+  const int = n / divisor
+  const frac = (n % divisor).toString().padStart(decimals, "0")
+  const result = Number(`${int}.${frac}`)
+
+  return neg ? -result : result
+}
+
+// truncateAndFormat(1.23456789, 5) → "1.23456"
+// truncateAndFormat(0.000169677, 9) → "0.000169677"
+function truncateAndFormat(value: number, decPlaces: number): string {
+  if (decPlaces === 0) return Math.trunc(value).toString()
+
+  const fixed = value.toFixed(decPlaces + 2)
+  const truncated = fixed.slice(0, fixed.indexOf(".") + decPlaces + 1)
+
+  return trimZeros(truncated)
+}
+
+// formatWithLocale(1234.56789, 2) → "1,234.56"
+function formatWithLocale(value: number, decPlaces: number): string {
+  const truncated = Math.trunc(value * 10 ** decPlaces) / 10 ** decPlaces
+  const [int, frac = ""] = truncated.toFixed(decPlaces).split(".")
+  const formattedInt = Number(int).toLocaleString("en-US")
+  const trimmedFrac = frac.replace(/0+$/, "")
+
+  return trimmedFrac ? `${formattedInt}.${trimmedFrac}` : formattedInt
+}
+
+// formatCompact(1234567, 3) → "1.23M"
+function formatCompact(value: number, sigDigits: number): string {
+  const mag = Math.floor(Math.log10(value))
+  const scale = 10 ** (sigDigits - 1 - mag)
+  const truncated = Math.trunc(value * scale) / scale
+
+  return new Intl.NumberFormat("en-US", {
+    notation: "compact",
+    maximumSignificantDigits: sigDigits,
+  }).format(truncated)
+}
+
+// countDecimals(1.2345) → 4
+// countDecimals(100) → 0
+function countDecimals(value: number): number {
+  const str = value.toString()
+
+  // Handle scientific notation (e.g., 1e-10)
+  if (str.includes("e")) {
+    const [, exp] = str.split("e")
+    return Math.max(0, -Number(exp))
+  }
+
+  const dot = str.indexOf(".")
+  return dot === -1 ? 0 : str.length - dot - 1
+}
+
+// formatSubscript(0.000000000000000001, 17, 6) → "0.0₁₇1"
+// formatSubscript(0.00000000000123456, 11, 6) → "0.0₁₁123456"
+//
+// Used for extremely small values where showing all zeros is impractical.
+// The subscript number indicates how many zeros follow the decimal point.
+function formatSubscript(
+  value: number,
+  leadingZeros: number,
+  sigDigits: number
+): string {
+  const subscripts = ["₀", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", "₉"]
+  const zeroCount = leadingZeros
+    .toString()
+    .split("")
+    .map((d) => subscripts[Number(d)])
+    .join("")
+
+  // Extract significant digits after the leading zeros
+  // Shift value to get digits after zeros, then truncate to sigDigits
+  const shifted = value * 10 ** (leadingZeros + sigDigits)
+  const sigPart = Math.trunc(shifted).toString().slice(0, sigDigits)
+
+  // Remove trailing zeros from the significant part
+  const trimmed = sigPart.replace(/0+$/, "") || "0"
+
+  return `0.0${zeroCount}${trimmed}`
+}
+
+// trimZeros("1.23000") → "1.23"
+// trimZeros("1.00") → "1"
+function trimZeros(str: string): string {
+  if (!str.includes(".")) return str
+  return str.replace(/\.?0+$/, "") || "0"
 }
 
 export function formatUsdAmount(value: number): string {
