@@ -1,104 +1,120 @@
-import { ChartBarIcon } from "@heroicons/react/24/outline"
-import Button from "@src/components/Button"
+"use client"
+
+import { FormattedCurrency } from "@src/components/DefuseSDK/features/account/components/shared/FormattedCurrency"
+import ListItem from "@src/components/ListItem"
+import { BtcIcon, EthIcon, NearIcon, UsdcIcon } from "@src/icons"
+import clsx from "clsx"
 
 const PLACEHOLDER_VAULTS = [
   {
     token: "USDC",
-    icon: "https://assets.coingecko.com/coins/images/6319/large/usdc.png",
+    icon: UsdcIcon,
     apr: "8.2%",
     balance: "12,300",
   },
   {
     token: "ETH",
-    icon: "https://assets.coingecko.com/coins/images/279/large/ethereum.png",
+    icon: EthIcon,
     apr: "4.5%",
     balance: "4.2",
   },
   {
     token: "BTC",
-    icon: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png",
+    icon: BtcIcon,
     apr: "2.1%",
     balance: "0.54",
   },
   {
     token: "NEAR",
-    icon: "https://assets.coingecko.com/coins/images/10365/large/near.jpg",
+    icon: NearIcon,
     apr: "6.8%",
     balance: "4,200",
   },
 ]
 
-function VaultCard({
-  token,
-  icon,
-  apr,
-  balance,
-}: {
-  token: string
-  icon: string
-  apr: string
-  balance: string
-}) {
-  return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-5 flex flex-col gap-4">
-      <div className="flex items-center gap-3">
-        <div className="size-10 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
-          <img src={icon} alt={token} className="size-full object-contain" />
-        </div>
-        <div>
-          <div className="text-base font-semibold text-gray-900">{token}</div>
-          <div className="text-sm text-gray-500">Vault</div>
-        </div>
-      </div>
-
-      <div className="flex items-baseline justify-between">
-        <span className="text-sm text-gray-500">APR</span>
-        <span className="text-2xl font-bold text-green-600">{apr}</span>
-      </div>
-
-      <div className="flex items-baseline justify-between">
-        <span className="text-sm text-gray-500">Your balance</span>
-        <span className="text-sm font-medium text-gray-900">
-          {balance} {token}
-        </span>
-      </div>
-
-      <div className="flex flex-col gap-2 mt-auto pt-2">
-        <Button variant="primary" size="sm" fullWidth>
-          Deposit
-        </Button>
-        <Button variant="outline" size="sm" fullWidth>
-          Withdraw
-        </Button>
-      </div>
-    </div>
-  )
-}
-
 export default function EarnPage() {
   return (
     <>
-      <h1 className="text-gray-900 text-xl font-bold tracking-tight">Earn</h1>
-
-      {/* Coming Soon Banner */}
-      <div className="mt-6 mb-4 text-center py-6 px-4 bg-[linear-gradient(180deg,#191918_0%,#52471E_100%)] rounded-2xl">
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <ChartBarIcon className="size-6 text-brand" />
-          <h2 className="text-xl font-bold text-white">Coming Soon</h2>
+      <div className="relative bg-gray-800 rounded-3xl grid grid-cols-3 gap-4 group overflow-hidden">
+        <div className="col-span-2 relative p-5 z-20">
+          <div className="bg-brand/20 text-brand text-xs rounded-lg px-2 py-1 inline-block uppercase font-bold">
+            Coming soon
+          </div>
+          <h1 className="text-xl font-bold text-white tracking-tight mt-6">
+            Earn
+          </h1>
+          <p className="text-gray-400 text-sm text-balance font-medium">
+            Put your idle assets to work. No lockups. Withdraw anytime.
+          </p>
         </div>
-        <p className="text-gray-400 text-sm">
-          Put your idle assets to work. No lockups. Withdraw anytime.
-        </p>
-      </div>
 
-      {/* Dimmed Vault Cards Preview */}
-      <div className="relative">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 opacity-40 pointer-events-none select-none">
-          {PLACEHOLDER_VAULTS.map((vault) => (
-            <VaultCard key={vault.token} {...vault} />
+        <div className="relative" aria-hidden="true">
+          <div className="absolute size-32 -bottom-16 -right-16 rounded-full bg-brand/80 blur-[75px] pointer-events-none" />
+
+          {PLACEHOLDER_VAULTS.map(({ token, icon: Icon, apr }, index) => (
+            <div
+              key={token}
+              className={clsx(
+                "absolute flex items-center gap-1 bg-white p-0.5 pr-2 rounded-full w-fit",
+                {
+                  "top-6 -left-8": index === 0,
+                  "top-12 right-7": index === 1,
+                  "bottom-14 -left-6": index === 2,
+                  "bottom-6 right-10": index === 3,
+                }
+              )}
+            >
+              <div className="rounded-full overflow-hidden size-5 shrink-0">
+                <Icon className="size-full" />
+              </div>
+              <div className="text-xs text-gray-700 font-bold">{apr}</div>
+            </div>
           ))}
         </div>
       </div>
+
+      <section className="mt-9 flex justify-between pointer-events-none select-none opacity-50">
+        <div>
+          <h2 className="text-base text-gray-500 font-medium">
+            Earning balance
+          </h2>
+          <FormattedCurrency
+            value={1239.23}
+            formatOptions={{ currency: "USD" }}
+            className="mt-1 font-bold text-4xl tracking-tight text-gray-900"
+            centsClassName="text-2xl"
+          />
+        </div>
+        <div>
+          <h2 className="text-base text-gray-500 font-medium text-right">
+            Average APR
+          </h2>
+          <div className="mt-1 font-bold text-4xl tracking-tight text-gray-900 text-right">
+            8.2%
+          </div>
+        </div>
+      </section>
+
+      <section className="relative mt-9 pointer-events-none select-none opacity-50 flex flex-col gap-1">
+        {PLACEHOLDER_VAULTS.map(({ token, icon: Icon, apr, balance }) => (
+          <ListItem key={token}>
+            <div className="rounded-full overflow-hidden size-10 shrink-0 outline-1 -outline-offset-1 outline-gray-900/10">
+              <Icon className="size-full" />
+            </div>
+            <ListItem.Content>
+              <ListItem.Title>{token}</ListItem.Title>
+              <ListItem.Subtitle>
+                Balance: {balance} {token}
+              </ListItem.Subtitle>
+            </ListItem.Content>
+            <ListItem.Content align="end">
+              <ListItem.Title>
+                {apr} <span className="text-gray-500">APR</span>
+              </ListItem.Title>
+            </ListItem.Content>
+          </ListItem>
+        ))}
+      </section>
     </>
   )
 }
