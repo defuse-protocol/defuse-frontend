@@ -248,7 +248,7 @@ export const DepositForm = ({
               )
             }
             label={token ? "Deposit this token" : "Select token"}
-            value={token?.name}
+            value={token?.symbol}
             onClick={() => openModalSelectAssets("token", token ?? undefined)}
             data-testid="select-deposit-asset"
           />
