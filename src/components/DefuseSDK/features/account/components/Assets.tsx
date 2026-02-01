@@ -99,7 +99,7 @@ const Assets = ({
           return (
             <ListItem
               key={getDefuseAssetId(token)}
-              dropdownMenuItems={[
+              popoverItems={[
                 { label: "Send", href: "/send", icon: SendIcon },
                 {
                   label: "Swap",
