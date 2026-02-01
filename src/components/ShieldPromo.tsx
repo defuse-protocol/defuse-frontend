@@ -17,7 +17,7 @@ const ShieldPromo = () => {
 
   return (
     <>
-      <div className="relative mt-9 bg-gray-800 rounded-3xl grid grid-cols-3 gap-4 group overflow-hidden">
+      <div className="relative mt-12 bg-gray-800 rounded-3xl grid grid-cols-3 gap-4 group overflow-hidden">
         <div className="col-span-2 p-5 relative z-20">
           <div className="bg-brand/20 text-brand text-xs rounded-lg px-2 py-1 inline-block uppercase font-bold">
             Coming soon

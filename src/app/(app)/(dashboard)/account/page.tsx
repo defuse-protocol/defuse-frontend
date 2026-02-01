@@ -66,9 +66,9 @@ export default function AccountPage() {
         </section>
       )}
 
-      <ShieldPromo />
-
       <Assets assets={holdings} isPending={isPending} isError={isError} />
+
+      <ShieldPromo />
     </>
   )
 }
