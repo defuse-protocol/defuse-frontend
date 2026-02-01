@@ -59,11 +59,12 @@ const SelectedTokenInput = ({
     if (!isNativeToken || !hasValue || balance === 0n) return false
     const inputValue = Number.parseFloat(value.replace(",", "."))
     if (Number.isNaN(inputValue) || inputValue === 0) return false
-    const balanceValue = Number.parseFloat(
-      formatTokenValue(balance, decimals, { min: 0, fractionDigits: decimals })
-    )
-    // Consider it "full balance" if input is >= 90% of balance
-    return inputValue >= balanceValue * 0.9
+    const balanceFormatted = formatTokenValue(balance, decimals, {
+      min: 0,
+      fractionDigits: decimals,
+    })
+    // Only show warning when input exactly matches formatted balance
+    return value === balanceFormatted
   })()
 
   return (
