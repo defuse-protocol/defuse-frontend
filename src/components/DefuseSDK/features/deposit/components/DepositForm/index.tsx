@@ -223,7 +223,7 @@ export const DepositForm = ({
   const hasNoWalletBalance = walletBalance === 0n || walletBalance === null
   const walletDisabledTooltip =
     hasNoWalletBalance && derivedToken && networkLabel
-      ? `Your wallet does not have a ${derivedToken.symbol} balance on the ${networkLabel} network.`
+      ? `Your wallet has no ${derivedToken.symbol} on the ${networkLabel} network.`
       : undefined
   return (
     <>
