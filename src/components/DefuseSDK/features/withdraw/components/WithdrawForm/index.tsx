@@ -453,8 +453,8 @@ export const WithdrawForm = ({
                   <TokenIconPlaceholder className="size-10" />
                 )
               }
-              label={token ? "Token" : "Select token"}
-              value={token?.name}
+              label={token ? "Transfer this token" : "Select token"}
+              value={token?.symbol}
               onClick={handleSelect}
             />
 
