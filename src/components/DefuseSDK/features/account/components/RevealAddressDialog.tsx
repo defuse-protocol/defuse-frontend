@@ -30,7 +30,7 @@ export function RevealAddressDialog({
         </div>
       </Dialog.Title>
       <Dialog.Description className="text-sm font-medium text-gray-11 mb-6">
-        Share this address with other Near Intents users for easy, fee-free
+        Share this address with other NEAR Intents users for easy, fee-free
         internal transfers of any asset.
       </Dialog.Description>
 
@@ -104,7 +104,7 @@ export function RevealAddressDialog({
       <Callout.Root className="bg-warning px-3 py-2 text-warning-foreground">
         <Callout.Text className="text-xs">
           <span className="font-bold">
-            This is your internal Near Intents address.
+            This is your internal NEAR Intents address.
           </span>{" "}
           <span>
             Funds will be deposited into your account, not your connected

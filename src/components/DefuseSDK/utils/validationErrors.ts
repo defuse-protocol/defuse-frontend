@@ -11,7 +11,7 @@ export function renderRecipientAddressError(
     case "NEAR_ACCOUNT_DOES_NOT_EXIST":
       return "The account doesn't exist on NEAR. Please enter a different recipient address."
     case "USER_ADDRESS_REQUIRED":
-      return "Near Intents network requires your address. Try signing in again."
+      return "NEAR Intents network requires your address. Try signing in again."
     case "NEAR_RPC_UNHANDLED_ERROR":
       return "Failed to validate NEAR account. Please try again."
     default:

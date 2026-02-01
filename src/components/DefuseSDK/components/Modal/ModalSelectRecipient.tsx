@@ -318,7 +318,7 @@ function renderRecipientAddressError(error: ValidateRecipientAddressErrorType) {
     case "NEAR_ACCOUNT_DOES_NOT_EXIST":
       return "The account doesn't exist on NEAR. Please enter a different recipient address."
     case "USER_ADDRESS_REQUIRED":
-      return "Near Intents network requires your address. Try signing in again."
+      return "NEAR Intents network requires your address. Try signing in again."
     default:
       return "An unexpected error occurred. Please enter a different recipient address."
   }
