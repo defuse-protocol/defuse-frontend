@@ -166,12 +166,16 @@ const ModalSelectRecipient = ({
         >
           <SearchBar
             icon={UserCircleIcon}
-            name="address"
+            name="recipient-address"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             loading={isValidating}
             onClear={handleClear}
             autoFocus
+            autoComplete="nope"
+            data-form-type="other"
+            data-lpignore="true"
+            data-1p-ignore="true"
             placeholder="Enter wallet address"
             data-testid="withdraw-target-account-field"
           />
