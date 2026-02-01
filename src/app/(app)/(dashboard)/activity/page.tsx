@@ -53,7 +53,6 @@ const STATUS_MAP: Record<
   SwapTransaction["status"][]
 > = {
   Success: ["SUCCESS"],
-  Pending: ["PENDING", "PROCESSING"],
   Failed: ["FAILED"],
 }
 
