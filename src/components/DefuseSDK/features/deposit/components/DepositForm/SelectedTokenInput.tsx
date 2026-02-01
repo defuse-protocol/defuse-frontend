@@ -114,6 +114,8 @@ const SelectedTokenInput = ({
         </div>
 
         <div className="flex items-center gap-2">
+          {additionalInfo}
+
           {hasBalance && (
             <button
               type="button"
@@ -131,8 +133,6 @@ const SelectedTokenInput = ({
               {symbol}
             </button>
           )}
-
-          {additionalInfo}
         </div>
       </div>
 
