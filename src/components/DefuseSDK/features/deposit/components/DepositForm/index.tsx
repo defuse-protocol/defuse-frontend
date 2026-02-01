@@ -198,8 +198,9 @@ export const DepositForm = ({
     "active" | "passive"
   >("active")
 
+  const hasWalletBalance = walletBalance != null && walletBalance > 0n
   const currentDepositOption =
-    preferredDepositOption === "active" && isActiveDeposit
+    preferredDepositOption === "active" && isActiveDeposit && hasWalletBalance
       ? "active"
       : isPassiveDeposit
         ? "passive"

@@ -1,7 +1,7 @@
 import { cn } from "@src/utils/cn"
+import clsx from "clsx"
 import { Tooltip as TooltipPrimitive } from "radix-ui"
 import type { ReactNode } from "react"
-import Button from "./Button"
 
 type Tab = {
   label: string
@@ -19,27 +19,35 @@ const TabButton = ({
   selected,
   disabled,
   disabledTooltip,
-  ...rest
+  onClick,
 }: Tab) => {
+  const buttonClasses = clsx(
+    "items-center relative flex shrink-0 justify-center leading-none tracking-tight h-10 px-4 text-sm font-bold rounded-xl w-full text-gray-700",
+    selected ? "bg-white border border-gray-200" : "bg-gray-100",
+    disabled
+      ? "cursor-not-allowed opacity-50"
+      : "hover:bg-gray-200 cursor-pointer"
+  )
+
   const button = (
-    <Button
-      variant={selected ? "outline" : "secondary"}
-      size="lg"
+    <button
+      type="button"
+      className={buttonClasses}
       disabled={disabled}
-      {...rest}
+      onClick={disabled ? undefined : onClick}
     >
-      {icon}
-      {label}
-    </Button>
+      <span className="flex items-center gap-x-2">
+        {icon}
+        {label}
+      </span>
+    </button>
   )
 
   if (disabled && disabledTooltip) {
     return (
       <TooltipPrimitive.Provider>
         <TooltipPrimitive.Root delayDuration={100}>
-          <TooltipPrimitive.Trigger asChild>
-            <span className="w-full">{button}</span>
-          </TooltipPrimitive.Trigger>
+          <TooltipPrimitive.Trigger asChild>{button}</TooltipPrimitive.Trigger>
           <TooltipPrimitive.Portal>
             <TooltipPrimitive.Content
               className={cn(
