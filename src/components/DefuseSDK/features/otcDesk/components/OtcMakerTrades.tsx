@@ -4,8 +4,8 @@ import { ArrowLongRightIcon } from "@heroicons/react/16/solid"
 import { PlusIcon } from "@heroicons/react/20/solid"
 import Button from "@src/components/Button"
 import { nearClient } from "@src/components/DefuseSDK/constants/nearClient"
+import EmptyState from "@src/components/EmptyState"
 import ListItem from "@src/components/ListItem"
-import ListItemsSkeleton from "@src/components/ListItemsSkeleton"
 import { useQuery } from "@tanstack/react-query"
 import { None, type Option, Some } from "@thames/monads"
 import { useState } from "react"
@@ -76,21 +76,16 @@ export function OtcMakerTrades({
 
   if (trades == null || trades.length === 0) {
     return (
-      <section className="mt-9">
-        <ListItemsSkeleton count={3} className="mt-2" />
-        <div className="max-w-72 mx-auto -mt-5 relative flex flex-col items-center">
-          <h3 className="text-xl font-semibold text-gray-900 text-center tracking-tight">
-            No trades yet
-          </h3>
-          <p className="text-base text-gray-500 mt-1 font-medium text-center text-balance">
-            Create a trade to get started.
-          </p>
-          <Button href="/deals/new" size="xl" className="mt-4">
-            <PlusIcon className="size-5 shrink-0" />
-            Create a trade
-          </Button>
-        </div>
-      </section>
+      <EmptyState className="mt-6">
+        <EmptyState.Title>No trades yet</EmptyState.Title>
+        <EmptyState.Description>
+          Create a trade to get started.
+        </EmptyState.Description>
+        <Button href="/deals/new" size="xl" className="mt-4">
+          <PlusIcon className="size-5 shrink-0" />
+          Create a trade
+        </Button>
+      </EmptyState>
     )
   }
 
