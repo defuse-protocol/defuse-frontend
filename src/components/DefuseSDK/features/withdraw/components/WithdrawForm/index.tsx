@@ -182,7 +182,7 @@ export const WithdrawForm = ({
     handleSubmit,
     control,
     watch,
-    formState: { errors, isSubmitted },
+    formState: { errors, isSubmitted, dirtyFields },
     setValue,
     getValues,
   } = form
@@ -497,10 +497,11 @@ export const WithdrawForm = ({
                     : undefined,
               })}
               error={
-                // Only show "required" and "min" errors after form submission, but show "max" (insufficient balance) immediately
+                // Only show "required" and "min" errors after form submission (and field hasn't been modified since),
+                // but show "max" (insufficient balance) immediately
                 (errors.amountIn?.type === "required" ||
                   errors.amountIn?.type === "min") &&
-                !isSubmitted
+                (!isSubmitted || dirtyFields.amountIn)
                   ? undefined
                   : errors.amountIn?.message
               }
