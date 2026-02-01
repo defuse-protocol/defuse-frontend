@@ -69,7 +69,7 @@ export default function LoginPage() {
 
         <div className="mt-10 flex items-center gap-x-6 self-stretch">
           <div className="w-full flex-1 border-t border-gray-200" />
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <p className="text-sm/6 font-medium text-nowrap text-gray-500">
               Or, use almost any Web3 wallet
             </p>

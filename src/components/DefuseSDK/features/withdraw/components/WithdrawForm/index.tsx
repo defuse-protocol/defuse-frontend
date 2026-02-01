@@ -21,7 +21,7 @@ import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
 import { useWithdrawTrackerMachine } from "@src/providers/WithdrawTrackerMachineProvider"
 import { logger } from "@src/utils/logger"
 import { useSelector } from "@xstate/react"
-import { useCallback, useEffect, useRef } from "react"
+import { useCallback, useEffect } from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import { formatUnits } from "viem"
 import { AuthGate } from "../../../../components/AuthGate"
@@ -182,16 +182,10 @@ export const WithdrawForm = ({
     handleSubmit,
     control,
     watch,
-    formState: { errors, submitCount },
+    formState: { errors },
     setValue,
     getValues,
   } = form
-
-  // Track when the amountIn field was last edited relative to submitCount
-  // This helps us show required/min errors only right after submission, not while user is editing
-  const lastAmountEditSubmitCountRef = useRef(0)
-  const showAmountInSubmitErrors =
-    submitCount > lastAmountEditSubmitCountRef.current
 
   const minWithdrawalPOABridgeAmount = useSelector(
     poaBridgeInfoRef,
@@ -250,9 +244,6 @@ export const WithdrawForm = ({
   useEffect(() => {
     const sub = watch(async (value, { name }) => {
       if (name === "amountIn") {
-        // Track that user edited after last submit (hides required/min errors until next submit)
-        lastAmountEditSubmitCountRef.current = submitCount
-
         const amount = value[name] ?? ""
         let parsedAmount: TokenValue | null = null
         try {
@@ -298,7 +289,7 @@ export const WithdrawForm = ({
     return () => {
       sub.unsubscribe()
     }
-  }, [watch, actorRef, token, submitCount])
+  }, [watch, actorRef, token])
 
   useEffect(() => {
     if (presetAmount != null) {
@@ -484,16 +475,20 @@ export const WithdrawForm = ({
                   value: /^[0-9]*[,.]?[0-9]*$/,
                   message: "Please enter a valid number",
                 },
-                min:
-                  minWithdrawalAmount != null
-                    ? {
-                        value: formatTokenValue(
-                          minWithdrawalAmount.amount,
-                          minWithdrawalAmount.decimals
-                        ),
-                        message: "Amount is too low",
-                      }
-                    : undefined,
+                validate: {
+                  min: () => {
+                    // Skip min check when value is 0 (user still typing, e.g., "0.00")
+                    if (parsedAmountIn == null || parsedAmountIn.amount === 0n)
+                      return true
+                    if (minWithdrawalAmount == null) return true
+                    if (
+                      compareAmounts(parsedAmountIn, minWithdrawalAmount) === -1
+                    ) {
+                      return "Amount is too low"
+                    }
+                    return true
+                  },
+                },
                 max:
                   tokenInBalance != null
                     ? {
@@ -505,15 +500,7 @@ export const WithdrawForm = ({
                       }
                     : undefined,
               })}
-              error={
-                // Only show "required" and "min" errors after form submission (and field hasn't been modified since),
-                // but show "max" (insufficient balance) immediately
-                (errors.amountIn?.type === "required" ||
-                  errors.amountIn?.type === "min") &&
-                !showAmountInSubmitErrors
-                  ? undefined
-                  : errors.amountIn?.message
-              }
+              error={errors.amountIn?.message}
               balance={tokenInBalance?.amount ?? 0n}
               decimals={tokenInBalance?.decimals ?? 0}
               symbol={token.symbol}
@@ -571,13 +558,7 @@ export const WithdrawForm = ({
                   noLiquidity ||
                   isPreparing ||
                   !amountIn ||
-                  Number(amountIn) <= 0 ||
-                  (minWithdrawalAmountWithFee != null &&
-                    parsedAmountIn != null &&
-                    compareAmounts(
-                      parsedAmountIn,
-                      minWithdrawalAmountWithFee
-                    ) === -1)
+                  Number(amountIn) <= 0
                 }
                 loading={state.matches("submitting") || isPreparing}
               >
@@ -593,7 +574,10 @@ export const WithdrawForm = ({
       </FormProvider>
 
       {minWithdrawalAmountWithFee != null &&
-        minWithdrawalAmountWithFee.amount > 1n && (
+        minWithdrawalAmountWithFee.amount > 1n &&
+        parsedAmountIn != null &&
+        parsedAmountIn.amount > 0n &&
+        compareAmounts(parsedAmountIn, minWithdrawalAmountWithFee) === -1 && (
           <MinWithdrawalAmount
             minWithdrawalAmount={minWithdrawalAmountWithFee}
             tokenOut={tokenOut}
