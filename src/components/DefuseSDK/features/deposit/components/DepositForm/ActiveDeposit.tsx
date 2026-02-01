@@ -300,13 +300,13 @@ function renderDepositButtonText(
     return "Processing..."
   }
   if (isAmountEmpty) {
-    return "Please enter an amount."
+    return "Please enter an amount"
   }
   if (!isDepositAmountHighEnough && minDepositAmount != null) {
-    return `The minimum deposit amount is ${formatTokenValue(minDepositAmount, tokenDeployment.decimals)} ${token.symbol}. Please adjust.`
+    return `Minimum deposit is ${formatTokenValue(minDepositAmount, tokenDeployment.decimals)} ${token.symbol}`
   }
   if (isBalanceInsufficient) {
-    return "You have an insufficient balance. Please adjust."
+    return "Insufficient balance"
   }
   if (isPreparing) {
     return "Preparing deposit..."
@@ -315,8 +315,8 @@ function renderDepositButtonText(
     return "Deposit"
   }
   return !network && !token
-    ? "It seems you have not selected an asset."
-    : "It seems you have not selected a network."
+    ? "Please select an asset."
+    : "Please select a network."
 }
 
 function isInsufficientBalance(
