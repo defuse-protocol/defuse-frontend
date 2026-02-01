@@ -237,7 +237,7 @@ export const RecipientSubForm = ({
         }}
         render={({ field, fieldState }) => (
           <SelectTriggerLike
-            label={field.value ? "Recipient" : "Recipient"}
+            label="Recipient"
             value={
               field.value
                 ? midTruncate(field.value, 16)
