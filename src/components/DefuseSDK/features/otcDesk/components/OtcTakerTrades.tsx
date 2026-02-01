@@ -85,10 +85,8 @@ export function OtcTakerTrades({ tokenList }: OtcTakerTradesProps) {
 
   return (
     <div className="mt-6">
-      <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
-        Trades taken
-      </h3>
-      <div className="flex flex-col gap-1">
+      <h3 className="text-base font-medium text-gray-500">Trades taken</h3>
+      <div className="flex flex-col gap-1 mt-2">
         {trades.map((trade) => (
           <OtcTakerTradeItem
             key={trade.tradeId}
@@ -244,7 +242,7 @@ function ModalTakerTradeDetails({
     data?.txHash != null ? `${NEAR_EXPLORER}/txns/${data.txHash}` : null
 
   return (
-    <BaseModalDialog open={open} onClose={onClose} title="">
+    <BaseModalDialog open={open} onClose={onClose} title="" status="success">
       <div className="flex flex-col items-center justify-center">
         <div className="size-13 rounded-full bg-green-100 flex justify-center items-center">
           <CheckIcon className="size-6 text-green-600" />
