@@ -24,7 +24,7 @@ export async function signIn(): Promise<string> {
       const assertion = await navigator.credentials.get({
         publicKey: {
           rpId,
-          challenge: new Uint8Array(32),
+          challenge: crypto.getRandomValues(new Uint8Array(32)),
           allowCredentials: [],
           timeout: 60000,
         },

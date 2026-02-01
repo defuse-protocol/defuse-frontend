@@ -21,7 +21,7 @@ import { useSwapHistory } from "@src/features/balance-history/lib/useBalanceHist
 import type { SwapTransaction } from "@src/features/balance-history/types"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useTokenList } from "@src/hooks/useTokenList"
-import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
+import { useWalletTokensStore } from "@src/stores/useWalletTokensStore"
 import clsx from "clsx"
 import { useRouter } from "next/navigation"
 import {
@@ -71,20 +71,20 @@ export default function ActivityPage({
   const router = useRouter()
   const { state, isLoading: isWalletConnecting } = useConnectWallet()
   const tokenList = useTokenList(LIST_TOKENS)
-  const hasHydrated = useVerifiedWalletsStore((s) => s._hasHydrated)
+  const hasHydrated = useWalletTokensStore((s) => s._hasHydrated)
 
   const [hadPreviousSession, setHadPreviousSession] = useState(true)
   useEffect(() => {
     setHadPreviousSession(localStorage.getItem("chainType") !== null)
   }, [])
 
-  const userAddress = state.isVerified ? state.address : null
+  const userAddress = state.isAuthorized ? state.address : null
   const isWaitingForReconnect = hadPreviousSession && !state.address
   const isWalletHydrating =
     !hasHydrated ||
     isWalletConnecting ||
     isWaitingForReconnect ||
-    Boolean(state.address && !state.isVerified)
+    Boolean(state.address && !state.isAuthorized)
 
   const currentSearchParams = new URLSearchParams()
   for (const [key, value] of Object.entries(searchParamsData)) {

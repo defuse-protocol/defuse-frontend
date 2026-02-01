@@ -20,7 +20,7 @@ export default function CreateGiftPage() {
   const referral = useIntentsReferral()
   const { signAndSendTransactions } = useNearWallet()
 
-  const userAddress = state.isVerified ? state.address : undefined
+  const userAddress = state.isAuthorized ? state.address : undefined
   const userChainType = state.chainType
 
   return (
@@ -53,7 +53,7 @@ export default function CreateGiftPage() {
         />
         <GiftHistoryWidget
           tokenList={tokenList}
-          userAddress={state.isVerified ? state.address : undefined}
+          userAddress={state.isAuthorized ? state.address : undefined}
           userChainType={state.chainType}
           generateLink={(giftLinkData) => createGiftLink(giftLinkData)}
         />

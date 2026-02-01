@@ -1,8 +1,9 @@
 "use server"
 
-import type {
-  AuthMethod,
-  BlockchainEnum,
+import {
+  type AuthMethod,
+  type BlockchainEnum,
+  authIdentity,
 } from "@defuse-protocol/internal-utils"
 import {
   createContact as createContactRepository,
@@ -21,7 +22,7 @@ import {
 } from "@src/components/DefuseSDK/utils/adapters"
 import { isSupportedChainName } from "@src/components/DefuseSDK/utils/blockchain"
 import { renderRecipientAddressError } from "@src/components/DefuseSDK/utils/validationErrors"
-import { getAccountIdFromToken } from "@src/utils/dummyAuth"
+import { verifyAppAuthToken } from "@src/utils/authJwt"
 import { logger } from "@src/utils/logger"
 import { cookies } from "next/headers"
 import * as v from "valibot"
@@ -74,10 +75,15 @@ export async function getContacts(input?: {
       return { ok: false, error: "Authentication required" }
     }
 
-    const accountId = getAccountIdFromToken(token)
-    if (!accountId) {
-      return { ok: false, error: "Invalid token" }
+    const payload = await verifyAppAuthToken(token)
+    if (!payload) {
+      return { ok: false, error: "Invalid or expired token" }
     }
+
+    const accountId = authIdentity.authHandleToIntentsUserId(
+      payload.auth_identifier,
+      payload.auth_method
+    )
 
     const contactsData = await getContactsByAccountId(accountId, input?.search)
 
@@ -125,14 +131,19 @@ export async function createContact(input: {
     return { ok: false, error: "Authentication required" }
   }
 
-  const accountId = getAccountIdFromToken(token)
-  if (!accountId) {
+  const payload = await verifyAppAuthToken(token)
+  if (!payload) {
     logger.warn("Invalid token when creating contact", {
       source: "create-contact",
       action: "invalid-token",
     })
-    return { ok: false, error: "Invalid token" }
+    return { ok: false, error: "Invalid or expired token" }
   }
+
+  const accountId = authIdentity.authHandleToIntentsUserId(
+    payload.auth_identifier,
+    payload.auth_method
+  )
 
   const data = v.safeParse(CreateContactFormSchema, input)
 
@@ -238,14 +249,19 @@ export async function updateContact(input: {
     return { ok: false, error: "Authentication required" }
   }
 
-  const accountId = getAccountIdFromToken(token)
-  if (!accountId) {
+  const payload = await verifyAppAuthToken(token)
+  if (!payload) {
     logger.warn("Invalid token when updating contact", {
       source: "update-contact",
       action: "invalid-token",
     })
-    return { ok: false, error: "Invalid token" }
+    return { ok: false, error: "Invalid or expired token" }
   }
+
+  const accountId = authIdentity.authHandleToIntentsUserId(
+    payload.auth_identifier,
+    payload.auth_method
+  )
 
   const data = v.safeParse(UpdateContactFormSchema, input)
 
@@ -353,14 +369,19 @@ export async function deleteContact(input: {
     return { ok: false, error: "Authentication required" }
   }
 
-  const accountId = getAccountIdFromToken(token)
-  if (!accountId) {
+  const payload = await verifyAppAuthToken(token)
+  if (!payload) {
     logger.warn("Invalid token when deleting contact", {
       source: "delete-contact",
       action: "invalid-token",
     })
-    return { ok: false, error: "Invalid token" }
+    return { ok: false, error: "Invalid or expired token" }
   }
+
+  const accountId = authIdentity.authHandleToIntentsUserId(
+    payload.auth_identifier,
+    payload.auth_method
+  )
 
   const data = v.safeParse(DeleteContactFormSchema, input)
 

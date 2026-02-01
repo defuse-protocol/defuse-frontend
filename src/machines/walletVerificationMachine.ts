@@ -1,14 +1,21 @@
 import { logger } from "@src/utils/logger"
 import { assign, fromPromise, setup } from "xstate"
 
+export interface VerificationResult {
+  success: boolean
+  token?: string
+  expiresAt?: number
+}
+
 export const walletVerificationMachine = setup({
   types: {} as {
     context: {
       hadError: boolean
+      verificationResult: VerificationResult | null
     }
   },
   actors: {
-    verifyWallet: fromPromise((): Promise<boolean> => {
+    verifyWallet: fromPromise((): Promise<VerificationResult> => {
       throw new Error("not implemented")
     }),
   },
@@ -19,15 +26,22 @@ export const walletVerificationMachine = setup({
     setError: assign({
       hadError: (_, { hadError }: { hadError: true }) => hadError,
     }),
+    setVerificationResult: assign({
+      verificationResult: (
+        _,
+        { result }: { result: VerificationResult | null }
+      ) => result,
+    }),
   },
   guards: {
-    isTrue: (_, value: boolean) => value,
+    isVerified: (_, result: VerificationResult) => result.success === true,
   },
 }).createMachine({
   id: "verify-wallet",
   initial: "idle",
   context: {
     hadError: false,
+    verificationResult: null,
   },
   states: {
     idle: {
@@ -49,8 +63,12 @@ export const walletVerificationMachine = setup({
           {
             target: "verified",
             guard: {
-              type: "isTrue",
+              type: "isVerified",
               params: ({ event }) => event.output,
+            },
+            actions: {
+              type: "setVerificationResult",
+              params: ({ event }) => ({ result: event.output }),
             },
           },
           {
