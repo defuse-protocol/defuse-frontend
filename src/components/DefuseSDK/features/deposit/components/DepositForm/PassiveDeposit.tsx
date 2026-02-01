@@ -1,15 +1,11 @@
-import {
-  ArrowUpCircleIcon,
-  ExclamationCircleIcon,
-  EyeIcon,
-} from "@heroicons/react/16/solid"
 import { CheckIcon, Square2StackIcon } from "@heroicons/react/24/outline"
+import { CheckIcon as CheckIconRadix } from "@radix-ui/react-icons"
 import Button from "@src/components/Button"
-import TooltipNew from "@src/components/DefuseSDK/components/TooltipNew"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import { isFungibleToken } from "@src/components/DefuseSDK/utils/token"
 import Spinner from "@src/components/Spinner"
 import { QRCodeSVG } from "qrcode.react"
+import { Popover } from "radix-ui"
 import { Copy } from "../../../../components/IntentCard/CopyButton"
 import type {
   BaseTokenInfo,
@@ -48,10 +44,10 @@ export function PassiveDeposit({
       <div className="bg-white rounded-3xl border border-gray-200 p-4 mt-6 space-y-4">
         <h2 className="flex flex-col items-start gap-1">
           <span className="font-semibold text-base/none text-gray-900">
-            Deposit {token.name}
+            Deposit {token.symbol}
           </span>
           <span className="font-medium text-base/none text-gray-400">
-            on the{" "}
+            from the{" "}
             <span className="capitalize">
               {chainNameToNetworkName(network)}
             </span>{" "}
@@ -78,7 +74,7 @@ export function PassiveDeposit({
           <div className="flex items-center justify-between">
             <div className="flex flex-col items-start gap-1">
               <dt className="font-semibold text-base/none text-gray-900">
-                Your deposit address
+                To your personal deposit address
               </dt>
               {depositAddress != null ? (
                 <dd className="font-medium text-base/none text-gray-400">
@@ -135,48 +131,55 @@ export function PassiveDeposit({
       </div>
 
       <div className="mt-6 space-y-4">
-        <div className="flex items-start gap-2">
-          <div className="flex items-center justify-center h-5 shrink-0">
-            <ExclamationCircleIcon className="size-4 text-gray-500" />
+        <div className="flex items-start gap-3">
+          <div className="bg-gray-900 rounded-full p-1 mt-0.5 shrink-0">
+            <CheckIconRadix className="w-3 h-3 text-white" />
           </div>
           <span className="text-sm font-medium text-gray-500">
-            <span className="text-gray-900 font-semibold">
-              {network === "near" && token.defuseAssetId === "nep141:wrap.near"
-                ? `Only deposit ${token.symbol} or wNEAR `
-                : `Only deposit ${token.symbol} `}
-              {isFungibleToken(tokenDeployment) && (
-                <TokenDeploymentAddress address={tokenDeployment.address} />
-              )}{" "}
-              from the{" "}
-              <span className="capitalize">
-                {chainNameToNetworkName(tokenDeployment.chainName)}
-              </span>{" "}
-              network.{" "}
-            </span>
-            Depositing other assets or using a different network will result in
-            loss of funds.
+            Only deposit{" "}
+            {network === "near" &&
+            token.defuseAssetId === "nep141:wrap.near" ? (
+              `${token.symbol} or wNEAR`
+            ) : isFungibleToken(tokenDeployment) ? (
+              <TokenAddressPopover
+                symbol={token.symbol}
+                address={tokenDeployment.address}
+              />
+            ) : (
+              token.symbol
+            )}{" "}
+            from the{" "}
+            <span className="capitalize">
+              {chainNameToNetworkName(tokenDeployment.chainName)}
+            </span>{" "}
+            network. Depositing other assets or using a different network will
+            result in loss of funds.
           </span>
         </div>
 
-        <div className="flex items-start gap-2">
-          <div className="flex items-center justify-center h-5 shrink-0">
-            <EyeIcon className="size-4 text-gray-500" />
+        <div className="flex items-start gap-3">
+          <div className="bg-gray-900 rounded-full p-1 mt-0.5 shrink-0">
+            <CheckIconRadix className="w-3 h-3 text-white" />
           </div>
           <span className="text-sm font-medium text-gray-500">
-            Always double-check your deposit address — it may change without
-            notice.
+            <span className="text-gray-900 font-semibold">
+              Always double-check your deposit address
+            </span>
+            , as it may change without notice.
           </span>
         </div>
 
         {minDepositAmount != null && (
-          <div className="flex items-start gap-2">
-            <div className="flex items-center justify-center h-5 shrink-0">
-              <ArrowUpCircleIcon className="size-4 text-gray-500" />
+          <div className="flex items-start gap-3">
+            <div className="bg-gray-900 rounded-full p-1 mt-0.5 shrink-0">
+              <CheckIconRadix className="w-3 h-3 text-white" />
             </div>
             <span className="text-sm font-medium text-gray-500">
-              Minimum deposit{" "}
-              {formatTokenValue(minDepositAmount, tokenDeployment.decimals)}{" "}
-              {token.symbol}
+              Minimum deposit is{" "}
+              <span className="text-gray-900 font-semibold">
+                {formatTokenValue(minDepositAmount, tokenDeployment.decimals)}{" "}
+                {token.symbol}
+              </span>
             </span>
           </div>
         )}
@@ -189,19 +192,58 @@ export function PassiveDeposit({
   )
 }
 
-function TokenDeploymentAddress({ address }: { address: string }) {
-  const truncatedAddress = midTruncate(address)
-
-  if (truncatedAddress === address) {
-    return <span>({address})</span>
-  }
-
+function TokenAddressPopover({
+  symbol,
+  address,
+}: {
+  symbol: string
+  address: string
+}) {
   return (
-    <TooltipNew>
-      <TooltipNew.Trigger>
-        <span className="underline">({truncatedAddress})</span>
-      </TooltipNew.Trigger>
-      <TooltipNew.Content side="top">{address}</TooltipNew.Content>
-    </TooltipNew>
+    <Popover.Root>
+      <Popover.Trigger asChild>
+        <button
+          type="button"
+          className="text-gray-900 font-semibold underline cursor-pointer hover:text-gray-700"
+        >
+          {symbol}
+        </button>
+      </Popover.Trigger>
+      <Popover.Portal>
+        <Popover.Content
+          className="bg-gray-900 rounded-xl shadow-xl p-3 z-50 data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:zoom-in-95 data-[state=open]:duration-100 data-[state=open]:ease-out data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:zoom-out-95 data-[state=closed]:duration-75 data-[state=closed]:ease-in"
+          sideOffset={5}
+        >
+          <div className="flex flex-col gap-2">
+            <span className="text-xs font-medium text-gray-400">
+              Contract address
+            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-white break-all">
+                {address}
+              </span>
+              <Copy text={address}>
+                {(copied) => (
+                  <button
+                    type="button"
+                    className="shrink-0 p-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-white transition-colors"
+                  >
+                    <span className="sr-only">
+                      {copied ? "Address copied" : "Copy address"}
+                    </span>
+                    {copied ? (
+                      <CheckIcon className="size-4" />
+                    ) : (
+                      <Square2StackIcon className="size-4" />
+                    )}
+                  </button>
+                )}
+              </Copy>
+            </div>
+          </div>
+          <Popover.Arrow className="fill-gray-900" />
+        </Popover.Content>
+      </Popover.Portal>
+    </Popover.Root>
   )
 }
