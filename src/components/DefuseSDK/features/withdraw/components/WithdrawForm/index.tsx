@@ -182,7 +182,7 @@ export const WithdrawForm = ({
     handleSubmit,
     control,
     watch,
-    formState: { errors },
+    formState: { errors, isSubmitted },
     setValue,
     getValues,
   } = form
@@ -496,7 +496,12 @@ export const WithdrawForm = ({
                       }
                     : undefined,
               })}
-              error={errors.amountIn?.message}
+              error={
+                // Only show "required" error after form submission, but show other errors immediately
+                errors.amountIn?.type === "required" && !isSubmitted
+                  ? undefined
+                  : errors.amountIn?.message
+              }
               balance={tokenInBalance?.amount ?? 0n}
               decimals={tokenInBalance?.decimals ?? 0}
               symbol={token.symbol}
