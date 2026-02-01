@@ -172,7 +172,10 @@ const ModalSelectRecipient = ({
             loading={isValidating}
             onClear={handleClear}
             autoFocus
-            autoComplete="off"
+            autoComplete="nope"
+            data-form-type="other"
+            data-lpignore="true"
+            data-1p-ignore="true"
             placeholder="Enter wallet address"
             data-testid="withdraw-target-account-field"
           />
