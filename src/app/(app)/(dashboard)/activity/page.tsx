@@ -255,9 +255,10 @@ export default function ActivityPage({
         title="Activity"
         intro={
           <p>
-            This is your activity page showing your historical deposits, swaps
-            and withdrawals. In the future, additional types of account activity
-            will be shown,
+            This is your history page, showing your past swaps. In the future,
+            additional types of account activity will be shown, such as deposits
+            and withdrawals, and services such as transaction export will be
+            added.
           </p>
         }
       >
