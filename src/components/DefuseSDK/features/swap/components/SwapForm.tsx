@@ -110,20 +110,19 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
   // we need stable references to allow passing to useEffect
   const switchTokens = useCallback(() => {
-    const { amountOut } = getValues()
-    setValue("amountIn", amountOut)
+    setValue("amountIn", "")
     setValue("amountOut", "")
     swapUIActorRef.send({
       type: "input",
       params: {
         tokenIn: tokenOut,
         tokenOut: tokenIn,
-        amountIn: amountOut,
+        amountIn: "",
         amountOut: "",
         swapType: QuoteRequest.swapType.EXACT_INPUT,
       },
     })
-  }, [tokenIn, tokenOut, setValue, getValues, swapUIActorRef])
+  }, [tokenIn, tokenOut, setValue, swapUIActorRef])
 
   const {
     setModalType,
