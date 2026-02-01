@@ -74,8 +74,10 @@ export const DepositForm = ({
     network,
     userAddress,
     poaBridgeInfoRef,
+    depositTokenBalanceRef,
   } = DepositUIMachineContext.useSelector((snapshot) => {
-    const { userAddress, poaBridgeInfoRef } = snapshot.context
+    const { userAddress, poaBridgeInfoRef, depositTokenBalanceRef } =
+      snapshot.context
     const { token, derivedToken, tokenDeployment, blockchain } =
       snapshot.context.depositFormRef.getSnapshot().context
 
@@ -86,8 +88,15 @@ export const DepositForm = ({
       network: blockchain,
       userAddress,
       poaBridgeInfoRef,
+      depositTokenBalanceRef,
     }
   })
+
+  const walletBalance = useSelector(depositTokenBalanceRef, (state) =>
+    state.context.preparationOutput?.tag === "ok"
+      ? state.context.preparationOutput.value.balance
+      : null
+  )
 
   const isOutputOk = preparationOutput?.tag === "ok"
   const depositAddress = isOutputOk
@@ -207,6 +216,14 @@ export const DepositForm = ({
 
   const networkEnum = assetNetworkAdapter[network as SupportedChainName]
   const singleNetwork = Object.keys(chainOptions).length === 1
+
+  const blockchainOptions = getBlockchainsOptions()
+  const networkLabel = network ? blockchainOptions[networkEnum]?.label : ""
+  const hasNoWalletBalance = walletBalance === 0n || walletBalance === null
+  const walletDisabledTooltip =
+    hasNoWalletBalance && derivedToken && networkLabel
+      ? `Your wallet does not have a ${derivedToken.symbol} balance on the ${networkLabel} network.`
+      : undefined
   return (
     <>
       <Link
@@ -293,6 +310,8 @@ export const DepositForm = ({
                     icon: <WalletIcon className="size-4 shrink-0" />,
                     onClick: () => setPreferredDepositOption("active"),
                     selected: currentDepositOption === "active",
+                    disabled: hasNoWalletBalance,
+                    disabledTooltip: walletDisabledTooltip,
                   },
                 ]}
               />
