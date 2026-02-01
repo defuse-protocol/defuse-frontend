@@ -40,7 +40,7 @@ export const chainIcons: Record<
     light: "/static/icons/network/ethereum.svg",
   },
   near: {
-    dark: "/static/icons/network/near_dark.svg",
+    dark: "/static/icons/network/near.svg",
     light: "/static/icons/network/near.svg",
   },
   base: {

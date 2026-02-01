@@ -238,7 +238,7 @@ const TokenInputCard = (props: TokenInputCardProps) => {
     <div
       className={clsx(
         "bg-white border rounded-3xl w-full p-6 flex flex-col gap-3",
-        hasError ? "border-red-500" : "border-gray-200"
+        hasError ? "border-red-500 ring-1 ring-red-500" : "border-gray-200"
       )}
     >
       <div className="flex items-center justify-between gap-4">
@@ -261,7 +261,8 @@ const TokenInputCard = (props: TokenInputCardProps) => {
             readOnly={readOnly}
             className={clsx(
               "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-4xl tracking-tight w-full min-w-0 font-sans",
-              !hasValue && "placeholder:text-xl placeholder:font-medium",
+              !hasValue &&
+                "placeholder:text-xl placeholder:font-medium placeholder:text-gray-400 placeholder:-translate-y-1.5",
               hasValue && "placeholder:text-gray-400",
               disabled && "opacity-50"
             )}
