@@ -217,7 +217,7 @@ export function ProgressSteps<TStage extends string>({
   size,
 }: ProgressStepsProps<TStage>) {
   return (
-    <div className={size === "md" ? "flex flex-col gap-0 mt-2" : "space-y-0"}>
+    <div className={size === "md" ? "flex flex-col gap-0" : "space-y-0"}>
       {stages.map((stage, i) => {
         const isLastStep = i === stages.length - 1
         return (

@@ -1,7 +1,7 @@
 "use client"
 
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/16/solid"
-import { ArrowRightIcon } from "@heroicons/react/20/solid"
+import { ArrowDownIcon } from "@heroicons/react/20/solid"
 import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
 import { useMachineStageProgress } from "@src/components/DefuseSDK/features/common/useMachineStageProgress"
 import {
@@ -15,13 +15,18 @@ import {
   isIntentError,
   isIntentSuccess,
 } from "@src/components/DefuseSDK/features/swap/utils/swapStatusUtils"
-import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
+import {
+  formatTokenValue,
+  formatUsdAmount,
+} from "@src/components/DefuseSDK/utils/format"
 import {
   HorizontalProgressDots,
   ProgressSteps,
 } from "@src/components/ProgressIndicator"
 import type { TrackedSwapIntent } from "@src/providers/SwapTrackerMachineProvider"
 import Button from "./Button"
+import { useTokensUsdPrices } from "./DefuseSDK/hooks/useTokensUsdPrices"
+import getTokenUsdPrice from "./DefuseSDK/utils/getTokenUsdPrice"
 import PageHeader from "./PageHeader"
 
 const NEAR_EXPLORER = "https://nearblocks.io"
@@ -132,6 +137,7 @@ function FullView({
   onSwapAgain?: () => void
 }) {
   const { tokenIn, tokenOut, totalAmountIn, totalAmountOut } = swap
+  const { data: tokensUsdPriceData } = useTokensUsdPrices()
 
   const formattedAmountIn = formatTokenValue(
     totalAmountIn.amount,
@@ -144,32 +150,47 @@ function FullView({
     { min: 0.0001, fractionDigits: 4 }
   )
 
+  const usdAmountIn = getTokenUsdPrice(
+    formattedAmountIn,
+    tokenIn,
+    tokensUsdPriceData
+  )
+  const usdAmountOut = getTokenUsdPrice(
+    formattedAmountOut,
+    tokenOut,
+    tokensUsdPriceData
+  )
+
   return (
-    <div className="flex flex-col">
+    <>
       <PageHeader title="Swap" />
 
-      <div className="mt-5 bg-gray-50 rounded-2xl p-6">
-        <div className="flex items-center justify-center gap-4 mb-6">
-          <div className="flex flex-col items-center gap-2">
-            <AssetComboIcon sizeClassName="size-12" {...tokenIn} />
-            <div className="text-center">
-              <p className="text-sm font-semibold text-gray-900">
-                -{formattedAmountIn}
-              </p>
-              <p className="text-xs text-gray-500">{tokenIn.symbol}</p>
+      <div className="mt-5 bg-white border border-gray-200 rounded-3xl p-6">
+        <div className="flex flex-col gap-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-2xl font-bold text-gray-900 tracking-tight leading-7">
+                {formattedAmountIn} {tokenIn.symbol}
+              </div>
+              <div className="text-base/5 font-medium text-gray-500">
+                {formatUsdAmount(usdAmountIn ?? 0)}
+              </div>
             </div>
+            <AssetComboIcon {...tokenIn} />
           </div>
 
-          <ArrowRightIcon className="size-5 text-gray-400 shrink-0" />
+          <ArrowDownIcon className="size-6 text-gray-400" />
 
-          <div className="flex flex-col items-center gap-2">
-            <AssetComboIcon sizeClassName="size-12" {...tokenOut} />
-            <div className="text-center">
-              <p className="text-sm font-semibold text-green-600">
-                +{formattedAmountOut}
-              </p>
-              <p className="text-xs text-gray-500">{tokenOut.symbol}</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-2xl font-bold text-gray-900 tracking-tight leading-7">
+                {formattedAmountOut} {tokenOut.symbol}
+              </div>
+              <div className="text-base/5 font-medium text-gray-500">
+                {formatUsdAmount(usdAmountOut ?? 0)}
+              </div>
             </div>
+            <AssetComboIcon icon={tokenOut?.icon} />
           </div>
         </div>
 
@@ -181,6 +202,16 @@ function FullView({
           hasError={hasError}
           isSuccess={isSuccess}
           size="md"
+        />
+
+        <ProgressSteps
+          stages={SWAP_STAGES}
+          stageLabels={SWAP_STAGE_LABELS}
+          displayStage={displayStage}
+          displayIndex={displayIndex}
+          hasError={hasError}
+          isSuccess={isSuccess}
+          size="sm"
         />
       </div>
 
@@ -205,7 +236,7 @@ function FullView({
           </Button>
         )}
       </div>
-    </div>
+    </>
   )
 }
 

@@ -14,11 +14,12 @@ import PageHeader from "@src/components/PageHeader"
 import { SwapStatus } from "@src/components/SwapStatus"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useThrottledValue } from "@src/hooks/useThrottledValue"
+import type { TrackedSwapIntent } from "@src/providers/SwapTrackerMachineProvider"
 import { useSwapTrackerMachine } from "@src/providers/SwapTrackerMachineProvider"
 import { useSelector } from "@xstate/react"
 import { useCallback, useContext, useEffect, useRef, useState } from "react"
 import { useFormContext } from "react-hook-form"
-import type { SnapshotFrom } from "xstate"
+import type { AnyActorRef, SnapshotFrom } from "xstate"
 import { AuthGate } from "../../../components/AuthGate"
 import type { ModalSelectAssetsPayload } from "../../../components/Modal/ModalSelectAssets"
 import { SWAP_TOKEN_FLAGS } from "../../../constants/swap"
@@ -46,6 +47,83 @@ export interface SwapFormProps {
   isLoggedIn: boolean
   renderHostAppLink: RenderHostAppLink
 }
+
+// ============ TEST MOCK DATA ============
+// Set to true to test SwapStatus with fake data
+const ENABLE_TEST_MOCK_SWAP = true
+
+// Change this to test different states: "pending" | "executing" | "success" | "error"
+const TEST_MOCK_STATE: "pending" | "executing" | "success" | "error" =
+  "executing"
+
+function createMockActorRef(
+  state: "pending" | "executing" | "success" | "error"
+) {
+  const stateValueMap = {
+    pending: "pending",
+    executing: "polling",
+    success: "success",
+    error: "error",
+  }
+  const snapshot = {
+    value: stateValueMap[state],
+    context: {
+      txHash: state === "success" ? "ABC123mockTxHash456DEF" : null,
+      status:
+        state === "success" ? "SUCCESS" : state === "error" ? "FAILED" : null,
+    },
+    can: () => state === "error", // canRetry only when error
+  }
+  return {
+    getSnapshot: () => snapshot,
+    subscribe: () => ({ unsubscribe: () => {} }),
+    on: () => ({ unsubscribe: () => {} }),
+    send: () => {},
+  } as unknown as AnyActorRef
+}
+
+const TEST_MOCK_SWAP: TrackedSwapIntent = {
+  id: "test-mock-swap-id",
+  intentHash: "mock-intent-hash-123",
+  tokenIn: {
+    defuseAssetId: "nep141:wrap.near",
+    symbol: "NEAR",
+    name: "NEAR Protocol",
+    decimals: 24,
+    icon: "/static/icons/network/near.svg",
+    originChainName: "near",
+    deployments: [
+      {
+        address: "wrap.near",
+        decimals: 24,
+        chainName: "near",
+        bridge: "direct",
+      },
+    ],
+  },
+  tokenOut: {
+    defuseAssetId: "nep141:usdt.tether-token.near",
+    symbol: "USDT",
+    name: "Tether USD",
+    decimals: 6,
+    icon: "/static/icons/network/btc.svg",
+    originChainName: "near",
+    deployments: [
+      {
+        address: "usdt.tether-token.near",
+        decimals: 6,
+        chainName: "near",
+        bridge: "direct",
+      },
+    ],
+  },
+  totalAmountIn: { amount: 10000000000000000000000000n, decimals: 24 }, // 10 NEAR
+  totalAmountOut: { amount: 42500000n, decimals: 6 }, // 42.50 USDT
+  createdAt: new Date(),
+  is1cs: false,
+  actorRef: createMockActorRef(TEST_MOCK_STATE),
+}
+// ============ END TEST MOCK DATA ============
 
 export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const {
@@ -363,11 +441,14 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   const amountOutEmpty = amountOut === ""
   const amountOutLoading = isLoadingQuote && amountOutEmpty
 
-  if (showInlineStatus && mostRecentSwap) {
+  // Use test mock when enabled, otherwise use real swap data
+  const swapToDisplay = ENABLE_TEST_MOCK_SWAP ? TEST_MOCK_SWAP : mostRecentSwap
+
+  if (showInlineStatus && swapToDisplay) {
     return (
       <SwapStatus
         variant="full"
-        swap={mostRecentSwap}
+        swap={swapToDisplay}
         onSwapAgain={() => setShowInlineStatus(false)}
       />
     )
