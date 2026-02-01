@@ -147,9 +147,20 @@ const ModalSelectRecipient = ({
     setValidatedAddress(null)
   }
 
+  const selectedNetworkName =
+    blockchain && blockchain !== "near_intents"
+      ? chainNameToNetworkName(blockchain)
+      : null
+
+  const hasNoContactsForNetwork =
+    !inputValue &&
+    !validatedAddress &&
+    availableContacts.length === 0 &&
+    selectedNetworkName
+
   return (
     <BaseModalDialog
-      title="Select recipient"
+      title="Select a contact, or enter an address"
       open={open}
       onClose={onClose}
       onCloseAnimationEnd={() => {
@@ -189,6 +200,13 @@ const ModalSelectRecipient = ({
           onScroll={handleScroll}
           className="flex flex-col overflow-y-auto -mx-5 px-5 -mb-5 pb-5 space-y-5"
         >
+          {hasNoContactsForNetwork && (
+            <p className="text-sm text-gray-500 font-medium">
+              You have no contacts created for the {selectedNetworkName}{" "}
+              network.
+            </p>
+          )}
+
           {validatedAddress ? (
             <ListItem onClick={() => handleSelectAddress(validatedAddress)}>
               <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1">
