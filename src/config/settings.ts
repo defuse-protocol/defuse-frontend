@@ -63,6 +63,11 @@ export const settings: Settings = {
       description:
         "Send crypto from NEAR to any supported chain. Fast, secure, and powered by smart intent execution.",
     },
+    earn: {
+      title: "NEAR Intents | Earn",
+      description:
+        "Put your idle assets to work. No lockups. Withdraw anytime.",
+    },
     giftCreate: {
       title: "NEAR Intents | Send a Multichain Crypto Gift",
       description:
