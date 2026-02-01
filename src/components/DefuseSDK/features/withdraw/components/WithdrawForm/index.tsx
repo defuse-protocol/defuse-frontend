@@ -571,7 +571,13 @@ export const WithdrawForm = ({
                   noLiquidity ||
                   isPreparing ||
                   !amountIn ||
-                  Number(amountIn) <= 0
+                  Number(amountIn) <= 0 ||
+                  (minWithdrawalAmountWithFee != null &&
+                    parsedAmountIn != null &&
+                    compareAmounts(
+                      parsedAmountIn,
+                      minWithdrawalAmountWithFee
+                    ) === -1)
                 }
                 loading={state.matches("submitting") || isPreparing}
               >
@@ -587,13 +593,20 @@ export const WithdrawForm = ({
       </FormProvider>
 
       {minWithdrawalAmountWithFee != null &&
-        minWithdrawalAmountWithFee.amount > 1n &&
-        parsedAmountIn != null &&
-        parsedAmountIn.amount > 0n &&
-        compareAmounts(parsedAmountIn, minWithdrawalAmountWithFee) === -1 && (
+        minWithdrawalAmountWithFee.amount > 1n && (
           <MinWithdrawalAmount
             minWithdrawalAmount={minWithdrawalAmountWithFee}
             tokenOut={tokenOut}
+            onClickAmount={() => {
+              // Add 1% buffer to the minimum to account for fee recalculations
+              const bufferAmount =
+                (minWithdrawalAmountWithFee.amount * 101n) / 100n
+              const newFormattedValue = formatTokenValue(
+                bufferAmount,
+                minWithdrawalAmountWithFee.decimals
+              )
+              setValue("amountIn", newFormattedValue, { shouldValidate: true })
+            }}
           />
         )}
 
