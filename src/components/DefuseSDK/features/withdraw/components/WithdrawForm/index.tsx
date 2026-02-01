@@ -21,7 +21,7 @@ import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
 import { useWithdrawTrackerMachine } from "@src/providers/WithdrawTrackerMachineProvider"
 import { logger } from "@src/utils/logger"
 import { useSelector } from "@xstate/react"
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import { formatUnits } from "viem"
 import { AuthGate } from "../../../../components/AuthGate"
@@ -182,10 +182,16 @@ export const WithdrawForm = ({
     handleSubmit,
     control,
     watch,
-    formState: { errors, isSubmitted, dirtyFields },
+    formState: { errors, submitCount },
     setValue,
     getValues,
   } = form
+
+  // Track when the amountIn field was last edited relative to submitCount
+  // This helps us show required/min errors only right after submission, not while user is editing
+  const lastAmountEditSubmitCountRef = useRef(0)
+  const showAmountInSubmitErrors =
+    submitCount > lastAmountEditSubmitCountRef.current
 
   const minWithdrawalPOABridgeAmount = useSelector(
     poaBridgeInfoRef,
@@ -244,6 +250,9 @@ export const WithdrawForm = ({
   useEffect(() => {
     const sub = watch(async (value, { name }) => {
       if (name === "amountIn") {
+        // Track that user edited after last submit (hides required/min errors until next submit)
+        lastAmountEditSubmitCountRef.current = submitCount
+
         const amount = value[name] ?? ""
         let parsedAmount: TokenValue | null = null
         try {
@@ -289,7 +298,7 @@ export const WithdrawForm = ({
     return () => {
       sub.unsubscribe()
     }
-  }, [watch, actorRef, token])
+  }, [watch, actorRef, token, submitCount])
 
   useEffect(() => {
     if (presetAmount != null) {
@@ -501,7 +510,7 @@ export const WithdrawForm = ({
                 // but show "max" (insufficient balance) immediately
                 (errors.amountIn?.type === "required" ||
                   errors.amountIn?.type === "min") &&
-                (!isSubmitted || dirtyFields.amountIn)
+                !showAmountInSubmitErrors
                   ? undefined
                   : errors.amountIn?.message
               }
