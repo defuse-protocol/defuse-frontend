@@ -497,8 +497,10 @@ export const WithdrawForm = ({
                     : undefined,
               })}
               error={
-                // Only show "required" error after form submission, but show other errors immediately
-                errors.amountIn?.type === "required" && !isSubmitted
+                // Only show "required" and "min" errors after form submission, but show "max" (insufficient balance) immediately
+                (errors.amountIn?.type === "required" ||
+                  errors.amountIn?.type === "min") &&
+                !isSubmitted
                   ? undefined
                   : errors.amountIn?.message
               }
