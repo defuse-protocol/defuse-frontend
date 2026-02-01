@@ -254,9 +254,10 @@ export default function HistoryPage({
         title="History"
         intro={
           <p>
-            This is your history page showing your historical deposits, swaps
-            and withdrawals. In the future, additional types of account activity
-            will be shown.
+            This is your history page, showing your past swaps. In the future,
+            additional types of account activity will be shown, such as deposits
+            and withdrawals, and services such as transaction export will be
+            added.
           </p>
         }
       >
@@ -341,7 +342,7 @@ export default function HistoryPage({
             {!isWalletConnected && (
               <EmptyState>
                 <EmptyState.Title>
-                  Connect your wallet to see your history
+                  Please sign in to see your activity history.
                 </EmptyState.Title>
               </EmptyState>
             )}
@@ -353,7 +354,8 @@ export default function HistoryPage({
             {isWalletConnected && isError && (
               <EmptyState>
                 <EmptyState.Title>
-                  Failed to load history. Please try again.
+                  We were unable to retrieve your activity history. This is a
+                  technical error on our side. Please try again.
                 </EmptyState.Title>
               </EmptyState>
             )}

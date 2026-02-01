@@ -1,3 +1,4 @@
+import { ChevronDownIcon } from "@heroicons/react/16/solid"
 import { XMarkIcon } from "@heroicons/react/24/solid"
 import Button from "@src/components/Button"
 import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
@@ -8,6 +9,7 @@ import EmptyState from "@src/components/EmptyState"
 import ListItem from "@src/components/ListItem"
 import ListItemsSkeleton from "@src/components/ListItemsSkeleton"
 import { DepositIcon, SendIcon, SwapIcon } from "@src/icons"
+import { useState } from "react"
 import type { Holding } from "../types/sharedTypes"
 import { FormattedCurrency } from "./shared/FormattedCurrency"
 
@@ -20,6 +22,11 @@ const Assets = ({
   isPending: boolean
   isError: boolean
 }) => {
+  const [showAll, setShowAll] = useState(false)
+
+  const hasMore = assets ? !showAll && assets.length >= 7 : false
+  const assetsToShow = assets ? (hasMore ? assets.slice(0, 5) : assets) : []
+
   if (isPending) {
     return (
       <>
@@ -64,7 +71,7 @@ const Assets = ({
     <>
       <h2 className="text-base text-gray-500 font-medium">Assets</h2>
       <div className="mt-2 flex flex-col gap-1">
-        {assets.map(({ token, value, usdValue }) => {
+        {assetsToShow.map(({ token, value, usdValue }) => {
           const shortFormatted = value
             ? formatTokenValue(value.amount, value.decimals, {
                 fractionDigits: 4,
@@ -77,7 +84,7 @@ const Assets = ({
           return (
             <ListItem
               key={getDefuseAssetId(token)}
-              dropdownMenuItems={[
+              popoverItems={[
                 { label: "Send", href: "/send", icon: SendIcon },
                 {
                   label: "Swap",
@@ -106,6 +113,18 @@ const Assets = ({
           )
         })}
       </div>
+      {hasMore && (
+        <Button
+          onClick={() => setShowAll(true)}
+          size="lg"
+          className="mt-4"
+          fullWidth
+          variant="secondary"
+        >
+          <ChevronDownIcon className="size-5 shrink-0" />
+          Show all
+        </Button>
+      )}
     </>
   )
 }

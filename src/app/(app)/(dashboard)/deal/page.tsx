@@ -22,8 +22,8 @@ export default function DealPage() {
   return (
     <>
       <PageHeader
-        title="Accept a deal offer"
-        subtitle="Pay the specified amount to finalize the transaction."
+        title="Execute a trustless trade"
+        subtitle="A counterparty has offered you the following deal. Accept the offer to execute the swap trustlessly."
       />
 
       <OtcTakerWidget

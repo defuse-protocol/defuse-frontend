@@ -46,7 +46,7 @@ const ContactsList = ({
     contact: Contact | null
   }) => {
     setModalOpen(type)
-    setSelectedContact(contact)
+    setSelectedContact(contact ?? null)
   }
 
   const processedContacts = useMemo(
@@ -165,7 +165,7 @@ const ContactsList = ({
             return (
               <ListItem
                 key={contact.id}
-                dropdownMenuItems={[
+                popoverItems={[
                   { label: "Send", href: "/send", icon: SendIcon },
                   {
                     label: "Edit",

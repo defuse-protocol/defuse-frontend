@@ -436,7 +436,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                           const num = Number.parseFloat(value.replace(",", "."))
                           return (
                             (!Number.isNaN(num) && num > 0) ||
-                            "Enter a valid amount"
+                            "It seems the amount you have entered is invalid. Please adjust."
                           )
                         },
                         onChange: (e) => {
@@ -459,7 +459,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               hasError={balanceInsufficient}
               error={
                 balanceInsufficient
-                  ? "Amount entered exceeds available balance"
+                  ? "The amount you entered exceeds your available balance. Please adjust."
                   : errors.amountIn?.message
               }
             />
@@ -584,11 +584,14 @@ function renderSwapButtonText(
   insufficientTokenInAmount: boolean,
   failedToGetAQuote: boolean
 ) {
-  if (amountInEmpty && amountOutEmpty) return "Enter an amount"
-  if (noLiquidity) return "No liquidity providers"
-  if (balanceInsufficient) return "Insufficient balance"
-  if (insufficientTokenInAmount) return "Insufficient amount"
-  if (failedToGetAQuote) return "Failed to get a quote"
+  if (amountInEmpty && amountOutEmpty) return "Please enter an amount."
+  if (noLiquidity)
+    return "Ooops. There is no liquidity available for this swap. Please try again later."
+  if (balanceInsufficient)
+    return "You have an insufficient balance. Please adjust."
+  if (insufficientTokenInAmount) return "Insufficient amount. Please adjust."
+  if (failedToGetAQuote)
+    return "We were unable to get a quote from our solvers. Please try again."
   return "Review swap"
 }
 

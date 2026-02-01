@@ -77,13 +77,13 @@ export function OtcMakerTrades({
   if (trades == null || trades.length === 0) {
     return (
       <EmptyState className="mt-6">
-        <EmptyState.Title>No deals yet</EmptyState.Title>
+        <EmptyState.Title>No trades yet</EmptyState.Title>
         <EmptyState.Description>
-          Create a deal to get started.
+          Create a trade to get started.
         </EmptyState.Description>
         <Button href="/deals/new" size="xl" className="mt-4">
           <PlusIcon className="size-5 shrink-0" />
-          Create a deal
+          Create a trade
         </Button>
       </EmptyState>
     )
@@ -214,9 +214,9 @@ function OtcMakerTradeItem({
         </ListItem.Title>
 
         {error === "ORDER_EXPIRED" ? (
-          <ListItem.Subtitle>Deal expired</ListItem.Subtitle>
+          <ListItem.Subtitle>Trade expired</ListItem.Subtitle>
         ) : error === "NONCE_ALREADY_USED" ? (
-          <ListItem.Subtitle>Deal filled or cancelled</ListItem.Subtitle>
+          <ListItem.Subtitle>Trade executed or cancelled</ListItem.Subtitle>
         ) : error === "MAKER_INSUFFICIENT_FUNDS" ? (
           <ListItem.Subtitle className="text-red-600">
             Your balance is too low
