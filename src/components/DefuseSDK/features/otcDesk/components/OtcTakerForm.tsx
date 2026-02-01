@@ -263,7 +263,7 @@ const renderButtonText = ({
   }
 
   if (error === "CANNOT_FILL_ORDER_DUE_TO_INSUFFICIENT_BALANCE") {
-    return "It seems sufficient funds for this trade are no longer available. Check with trade creator for more information."
+    return "Funds no longer available"
   }
 
   if (error === "NO_QUOTES") {
