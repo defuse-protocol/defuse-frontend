@@ -597,16 +597,6 @@ export const WithdrawForm = ({
           <MinWithdrawalAmount
             minWithdrawalAmount={minWithdrawalAmountWithFee}
             tokenOut={tokenOut}
-            onClickAmount={() => {
-              // Add 1% buffer to the minimum to account for fee recalculations
-              const bufferAmount =
-                (minWithdrawalAmountWithFee.amount * 101n) / 100n
-              const newFormattedValue = formatTokenValue(
-                bufferAmount,
-                minWithdrawalAmountWithFee.decimals
-              )
-              setValue("amountIn", newFormattedValue, { shouldValidate: true })
-            }}
           />
         )}
 
