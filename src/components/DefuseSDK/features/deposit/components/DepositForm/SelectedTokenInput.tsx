@@ -12,7 +12,7 @@ type SelectedTokenInputProps = {
   label: string
   value: string
   symbol: string
-  icon?: string
+  icon: string
   balance: bigint
   decimals: number
   error?: string
