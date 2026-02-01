@@ -61,7 +61,7 @@ export function HistoryItem({ transaction, tokenList }: HistoryItemProps) {
         <ListItem.Subtitle>
           {formatAmount(transaction.from.amount)} {fromToken?.symbol}
         </ListItem.Subtitle>
-        <ListItem.Title className="">
+        <ListItem.Title>
           +{formatAmount(transaction.to.amount)} {toToken?.symbol}
         </ListItem.Title>
       </ListItem.Content>

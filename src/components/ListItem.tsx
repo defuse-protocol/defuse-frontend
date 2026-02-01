@@ -123,7 +123,7 @@ const Content = ({
   children: ReactNode
 }) => (
   <div
-    className={clsx(
+    className={cn(
       "flex flex-col gap-0.5",
       align === "start" ? "items-start flex-1 min-w-0" : "items-end text-right",
       className
