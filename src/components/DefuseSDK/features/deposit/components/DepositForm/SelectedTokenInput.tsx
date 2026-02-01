@@ -1,4 +1,3 @@
-import Button from "@src/components/Button"
 import {
   formatTokenValue,
   formatUsdAmount,
@@ -7,11 +6,13 @@ import ErrorMessage from "@src/components/ErrorMessage"
 import clsx from "clsx"
 import type { ReactNode } from "react"
 import type { UseFormRegisterReturn } from "react-hook-form"
+import AssetComboIcon from "../../../../components/Asset/AssetComboIcon"
 
 type SelectedTokenInputProps = {
   label: string
   value: string
   symbol: string
+  icon?: string
   balance: bigint
   decimals: number
   error?: string
@@ -20,12 +21,15 @@ type SelectedTokenInputProps = {
   additionalInfo?: ReactNode
   registration: UseFormRegisterReturn
   handleSetPercentage: (percent: number) => void
+  isNativeToken?: boolean
+  networkName?: string
 }
 
 const SelectedTokenInput = ({
   label,
   value,
   symbol,
+  icon,
   balance,
   decimals,
   error,
@@ -34,6 +38,8 @@ const SelectedTokenInput = ({
   additionalInfo,
   registration,
   handleSetPercentage,
+  isNativeToken = false,
+  networkName,
 }: SelectedTokenInputProps) => {
   const hasBalance = balance > 0n
   const hasValue = Boolean(value)
@@ -47,6 +53,18 @@ const SelectedTokenInput = ({
   const getPlaceholder = () => {
     return symbol ? `Enter amount ${symbol}` : "Enter amount"
   }
+
+  // Check if user is trying to deposit full balance of native token
+  const isFullBalanceNativeDeposit = (() => {
+    if (!isNativeToken || !hasValue || balance === 0n) return false
+    const inputValue = Number.parseFloat(value.replace(",", "."))
+    if (Number.isNaN(inputValue) || inputValue === 0) return false
+    const balanceValue = Number.parseFloat(
+      formatTokenValue(balance, decimals, { min: 0, fractionDigits: decimals })
+    )
+    // Consider it "full balance" if input is >= 90% of balance
+    return inputValue >= balanceValue * 0.9
+  })()
 
   return (
     <div
@@ -80,9 +98,12 @@ const SelectedTokenInput = ({
           />
         </div>
 
-        <span className="text-xl font-bold text-gray-500 shrink-0">
-          {symbol}
-        </span>
+        <div className="rounded-full border border-gray-900/10 flex items-center gap-1.5 p-1 pr-3">
+          <AssetComboIcon icon={icon} sizeClassName="size-7" />
+          <span className="text-base text-gray-900 font-semibold leading-none">
+            {symbol}
+          </span>
+        </div>
       </div>
 
       <div className="flex items-center justify-between gap-4">
@@ -101,38 +122,25 @@ const SelectedTokenInput = ({
                 !disabled && "hover:text-gray-700 cursor-pointer"
               )}
             >
-              Balance:{" "}
               {formatTokenValue(balance, decimals, {
                 min: 0.0001,
                 fractionDigits: 4,
-              })}
+              })}{" "}
+              {symbol}
             </button>
           )}
 
           {additionalInfo}
-
-          {hasBalance && (
-            <div className="flex items-center gap-2">
-              <Button
-                variant="secondary"
-                size="sm"
-                disabled={disabled}
-                onClick={() => handleSetPercentage(50)}
-              >
-                50%
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                disabled={disabled}
-                onClick={() => handleSetPercentage(100)}
-              >
-                Max
-              </Button>
-            </div>
-          )}
         </div>
       </div>
+
+      {isFullBalanceNativeDeposit && networkName && (
+        <div className="text-sm text-amber-600 bg-amber-50 rounded-xl p-3 font-medium">
+          {symbol} is the native token of {networkName}. If you deposit your
+          full balance, you will have nothing available to pay for transaction
+          fees.
+        </div>
+      )}
 
       {error && <ErrorMessage>{error}</ErrorMessage>}
     </div>

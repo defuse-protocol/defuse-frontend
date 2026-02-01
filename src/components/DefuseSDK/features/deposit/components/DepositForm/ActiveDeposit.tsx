@@ -3,13 +3,17 @@ import { InformationCircleIcon } from "@heroicons/react/16/solid"
 import Button from "@src/components/Button"
 import TooltipNew from "@src/components/DefuseSDK/components/TooltipNew"
 import { RESERVED_NEAR_BALANCE } from "@src/components/DefuseSDK/services/blockchainBalanceService"
-import { isFungibleToken } from "@src/components/DefuseSDK/utils/token"
+import {
+  isFungibleToken,
+  isNativeToken,
+} from "@src/components/DefuseSDK/utils/token"
 import { HorizontalProgressDots } from "@src/components/ProgressIndicator"
 import { useActivityDock } from "@src/providers/ActivityDockProvider"
 import { useSelector } from "@xstate/react"
 import { useEffect, useRef } from "react"
 import { useFormContext } from "react-hook-form"
 import AssetComboIcon from "../../../../components/Asset/AssetComboIcon"
+import { getBlockchainsOptions } from "../../../../constants/blockchains"
 import { useTokensUsdPrices } from "../../../../hooks/useTokensUsdPrices"
 import type { BaseTokenInfo, TokenDeployment } from "../../../../types/base"
 import { reverseAssetNetworkAdapter } from "../../../../utils/adapters"
@@ -201,16 +205,22 @@ export function ActiveDeposit({
   const { data: tokensUsdPriceData } = useTokensUsdPrices()
   const usdAmountToDeposit = getTokenUsdPrice(amount, token, tokensUsdPriceData)
 
+  const blockchainOptions = getBlockchainsOptions()
+  const networkLabel = blockchainOptions[network]?.label ?? ""
+
   return (
     <div className="flex flex-col mt-6">
       <SelectedTokenInput
         label="Enter amount"
         value={inputAmount}
         symbol={token.symbol}
+        icon={token.icon}
         balance={balance ?? 0n}
         usdAmount={usdAmountToDeposit}
         decimals={tokenDeployment.decimals}
         handleSetPercentage={handleSetPercentage}
+        isNativeToken={isNativeToken(tokenDeployment)}
+        networkName={networkLabel}
         registration={register("amount", {
           required: true,
           validate: (value) => {
