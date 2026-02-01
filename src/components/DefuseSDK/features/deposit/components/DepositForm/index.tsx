@@ -21,6 +21,7 @@ import {
   getDerivedToken,
   isMinAmountNotRequired,
 } from "@src/components/DefuseSDK/utils/tokenUtils"
+import HelperPopover from "@src/components/HelperPopover"
 import PageHeader from "@src/components/PageHeader"
 import TabSwitcher from "@src/components/TabSwitcher"
 import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
@@ -298,24 +299,38 @@ export const DepositForm = ({
         {currentDepositOption != null && (
           <>
             {isActiveDeposit && isPassiveDeposit && (
-              <TabSwitcher
-                tabs={[
-                  {
-                    label: "Address & QR",
-                    icon: <QrCodeIcon className="size-4 shrink-0" />,
-                    onClick: () => setPreferredDepositOption("passive"),
-                    selected: currentDepositOption === "passive",
-                  },
-                  {
-                    label: "Wallet",
-                    icon: <WalletIcon className="size-4 shrink-0" />,
-                    onClick: () => setPreferredDepositOption("active"),
-                    selected: currentDepositOption === "active",
-                    disabled: hasNoWalletBalance,
-                    disabledTooltip: walletDisabledTooltip,
-                  },
-                ]}
-              />
+              <div className="mt-8">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-gray-900 text-lg font-semibold tracking-tight">
+                    How do you want to deposit?
+                  </h3>
+
+                  <HelperPopover>
+                    You can deposit directly from a connected wallet, or send to
+                    a deposit address using any wallet.
+                  </HelperPopover>
+                </div>
+
+                <TabSwitcher
+                  className="mt-5"
+                  tabs={[
+                    {
+                      label: "Address & QR",
+                      icon: <QrCodeIcon className="size-4 shrink-0" />,
+                      onClick: () => setPreferredDepositOption("passive"),
+                      selected: currentDepositOption === "passive",
+                    },
+                    {
+                      label: "Wallet",
+                      icon: <WalletIcon className="size-4 shrink-0" />,
+                      onClick: () => setPreferredDepositOption("active"),
+                      selected: currentDepositOption === "active",
+                      disabled: hasNoWalletBalance,
+                      disabledTooltip: walletDisabledTooltip,
+                    },
+                  ]}
+                />
+              </div>
             )}
 
             {currentDepositOption === "passive" &&
