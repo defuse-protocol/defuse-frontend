@@ -63,8 +63,9 @@ const SelectedTokenInput = ({
       min: 0,
       fractionDigits: decimals,
     })
-    // Only show warning when input exactly matches formatted balance
-    return value === balanceFormatted
+    const balanceValue = Number.parseFloat(balanceFormatted)
+    // Show warning when input is >= 99% of balance
+    return inputValue >= balanceValue * 0.99
   })()
 
   return (
