@@ -16,7 +16,7 @@ import useSearchNetworks from "@src/hooks/useFilterNetworks"
 import { WalletIcon } from "@src/icons"
 import clsx from "clsx"
 import { useRouter } from "next/navigation"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useMemo, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import type { SupportedChainName } from "../../types/base"
 import {
@@ -53,7 +53,6 @@ const ModalAddEditContact = ({
   const [searchValue, setSearchValue] = useState("")
   const [isScrolled, setIsScrolled] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
-  const [highlightedIndex, setHighlightedIndex] = useState(-1)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const { state } = useConnectWallet()
   const userAddress = state.address
@@ -191,46 +190,8 @@ const ModalAddEditContact = ({
       setSelectNetworkOpen(false)
       setSearchValue("")
       setIsScrolled(false)
-      setHighlightedIndex(-1)
     },
     [setValue]
-  )
-
-  const networkKeys = useMemo(
-    () => Object.keys(filteredNetworks) as BlockchainEnum[],
-    [filteredNetworks]
-  )
-
-  // Reset highlighted index when search changes
-  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally run when searchValue changes
-  useEffect(() => {
-    setHighlightedIndex(-1)
-  }, [searchValue])
-
-  const handleSearchKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "ArrowDown") {
-        e.preventDefault()
-        setHighlightedIndex((prev) =>
-          prev < networkKeys.length - 1 ? prev + 1 : prev
-        )
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault()
-        setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : prev))
-      } else if (e.key === "Enter") {
-        e.preventDefault()
-        // Use highlighted index if set, otherwise first item
-        const indexToSelect = highlightedIndex >= 0 ? highlightedIndex : 0
-        if (networkKeys.length > 0 && indexToSelect < networkKeys.length) {
-          const networkKey = networkKeys[indexToSelect]
-          const network = reverseAssetNetworkAdapter[networkKey]
-          if (network) {
-            onChangeNetwork(network)
-          }
-        }
-      }
-    },
-    [networkKeys, highlightedIndex, onChangeNetwork]
   )
 
   return (
@@ -256,7 +217,6 @@ const ModalAddEditContact = ({
             <SearchBar
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
-              onKeyDown={handleSearchKeyDown}
               onClear={() => setSearchValue("")}
               placeholder="Search networks"
               autoFocus
@@ -278,7 +238,6 @@ const ModalAddEditContact = ({
                 networkOptions={filteredNetworks}
                 selectedNetwork={selectedNetwork}
                 onChangeNetwork={onChangeNetwork}
-                highlightedIndex={highlightedIndex}
               />
             )}
           </div>
@@ -366,12 +325,6 @@ const ModalAddEditContact = ({
               <button
                 type="button"
                 onClick={() => setSelectNetworkOpen(true)}
-                onFocus={(e) => {
-                  // Auto-open network selector when focused via keyboard (Tab) and no network selected
-                  if (e.target.matches(":focus-visible") && !blockchain) {
-                    setSelectNetworkOpen(true)
-                  }
-                }}
                 className={clsx(
                   "w-full rounded-3xl bg-white border p-3 text-left flex items-center gap-3 focus-visible:outline focus-visible:outline-gray-700",
                   errors.blockchain

@@ -1,7 +1,7 @@
 import { InformationCircleIcon } from "@heroicons/react/16/solid"
 import type { NetworkOptions } from "@src/components/DefuseSDK/hooks/useNetworkLists"
 import clsx from "clsx"
-import { type ReactNode, useEffect, useRef } from "react"
+import type { ReactNode } from "react"
 import {
   type NetworkOption,
   isIntentsOption,
@@ -24,7 +24,6 @@ interface NetworkListProps {
   disabled?: boolean
   renderValueDetails?: (address: string) => ReactNode
   onIntentsSelect?: () => void
-  highlightedIndex?: number
 }
 
 export const NetworkList = ({
@@ -36,7 +35,6 @@ export const NetworkList = ({
   disabled = false,
   renderValueDetails,
   onIntentsSelect,
-  highlightedIndex = -1,
 }: NetworkListProps) => (
   <div>
     <div className="flex items-center gap-2">
@@ -66,7 +64,7 @@ export const NetworkList = ({
     </div>
 
     <div className="mt-2 flex flex-col gap-1">
-      {Object.keys(networkOptions).map((network, index) => {
+      {Object.keys(networkOptions).map((network) => {
         const networkInfo = networkOptions[network]
         if (!networkInfo) return null
 
@@ -77,7 +75,6 @@ export const NetworkList = ({
               key={networkInfo.value}
               {...networkInfo}
               selected={selectedNetwork === "near_intents"}
-              highlighted={index === highlightedIndex}
               disabled={disabled}
               onClick={() => onIntentsSelect?.()}
               isAuroraVirtualChain={false}
@@ -102,7 +99,6 @@ export const NetworkList = ({
             key={networkInfo.value}
             {...networkInfo}
             selected={selectedNetwork === networkName}
-            highlighted={index === highlightedIndex}
             disabled={disabled}
             onClick={() => onChangeNetwork(networkName)}
             isAuroraVirtualChain={isAuroraVirtualChain(networkName)}
@@ -119,61 +115,44 @@ const NetworkItem = ({
   label,
   value,
   selected,
-  highlighted,
   disabled,
   onClick,
   isAuroraVirtualChain,
   renderValueDetails,
 }: NetworkOption & {
   selected: boolean
-  highlighted: boolean
   disabled: boolean
   onClick: () => void
   isAuroraVirtualChain?: boolean
   renderValueDetails?: (address: string) => ReactNode
-}) => {
-  const ref = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (highlighted && ref.current) {
-      ref.current.scrollIntoView({ block: "nearest" })
-    }
-  }, [highlighted])
-
-  return (
-    <div
-      ref={ref}
-      className={clsx(
-        "relative flex items-center gap-3 py-3 -mx-4 px-4 rounded-2xl hover:bg-gray-100",
-        {
-          "bg-gray-100": selected || highlighted,
-          "opacity-50 pointer-events-none": disabled,
-        }
-      )}
-    >
-      <div className="flex items-center gap-3 flex-1">
-        {icon}
-        <div className="text-base/none font-semibold text-gray-900">
-          {label}
-        </div>
-      </div>
-
-      {onClick && !disabled && (
-        <button
-          type="button"
-          onClick={onClick}
-          className="absolute z-10 inset-0 rounded-2xl"
-          aria-label="Select network"
-        />
-      )}
-
-      {renderValueDetails?.(value) && (
-        <div className="flex items-center gap-3">
-          {renderValueDetails(value)}
-        </div>
-      )}
-
-      {isAuroraVirtualChain && <PoweredByAuroraLabel />}
+}) => (
+  <div
+    className={clsx(
+      "relative flex items-center gap-3 py-3 -mx-4 px-4 rounded-2xl hover:bg-gray-100",
+      {
+        "bg-gray-100": selected,
+        "opacity-50 pointer-events-none": disabled,
+      }
+    )}
+  >
+    <div className="flex items-center gap-3 flex-1">
+      {icon}
+      <div className="text-base/none font-semibold text-gray-900">{label}</div>
     </div>
-  )
-}
+
+    {onClick && !disabled && (
+      <button
+        type="button"
+        onClick={onClick}
+        className="absolute z-10 inset-0 rounded-2xl"
+        aria-label="Select network"
+      />
+    )}
+
+    {renderValueDetails?.(value) && (
+      <div className="flex items-center gap-3">{renderValueDetails(value)}</div>
+    )}
+
+    {isAuroraVirtualChain && <PoweredByAuroraLabel />}
+  </div>
+)
