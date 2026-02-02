@@ -15,9 +15,9 @@ const EarnPromo = () => {
         <div className="bg-brand/20 text-brand text-xs rounded-lg px-2 py-1 inline-block uppercase font-bold">
           Coming soon
         </div>
-        <h3 className="text-xl font-bold text-white tracking-tight mt-6">
-          Earn
-        </h3>
+        <div className="mt-6">
+          <h3 className="text-xl font-bold text-white tracking-tight">Earn</h3>
+        </div>
         <p className="text-gray-400 text-sm text-balance font-medium">
           Put your idle assets to work. No lockups. Withdraw anytime.
         </p>
