@@ -194,6 +194,23 @@ const ModalAddEditContact = ({
     [setValue]
   )
 
+  const handleSearchKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter") {
+        e.preventDefault()
+        const networkKeys = Object.keys(filteredNetworks)
+        if (networkKeys.length > 0) {
+          const firstNetworkKey = networkKeys[0]
+          const firstNetwork = reverseAssetNetworkAdapter[firstNetworkKey]
+          if (firstNetwork) {
+            onChangeNetwork(firstNetwork)
+          }
+        }
+      }
+    },
+    [filteredNetworks, onChangeNetwork]
+  )
+
   return (
     <BaseModalDialog
       title={getModalTitle}
@@ -217,6 +234,7 @@ const ModalAddEditContact = ({
             <SearchBar
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
+              onKeyDown={handleSearchKeyDown}
               onClear={() => setSearchValue("")}
               placeholder="Search networks"
               autoFocus
