@@ -55,7 +55,6 @@ const ModalAddEditContact = ({
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [highlightedIndex, setHighlightedIndex] = useState(-1)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const submitButtonRef = useRef<HTMLButtonElement>(null)
   const { state } = useConnectWallet()
   const userAddress = state.address
   // ChainType enum values match AuthMethod values, so we can safely cast
@@ -193,8 +192,6 @@ const ModalAddEditContact = ({
       setSearchValue("")
       setIsScrolled(false)
       setHighlightedIndex(-1)
-      // Focus submit button after network selection for keyboard flow
-      setTimeout(() => submitButtonRef.current?.focus(), 0)
     },
     [setValue]
   )
@@ -409,7 +406,6 @@ const ModalAddEditContact = ({
           </div>
 
           <Button
-            ref={submitButtonRef}
             type="submit"
             variant="primary"
             size="xl"
