@@ -1,5 +1,9 @@
-import { CheckIcon, CopyIcon, WarningCircleIcon } from "@phosphor-icons/react"
-import AppButton from "@src/components/Button"
+import {
+  ClipboardDocumentCheckIcon,
+  ClipboardDocumentIcon,
+} from "@heroicons/react/20/solid"
+import { WarningCircleIcon } from "@phosphor-icons/react"
+import Button from "@src/components/Button"
 import type { SignerCredentials } from "@src/components/DefuseSDK/core/formatters"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { useSelector } from "@xstate/react"
@@ -14,8 +18,6 @@ import { giftMakerHistoryStore } from "../stores/giftMakerHistory"
 import type { GenerateLink } from "../types/sharedTypes"
 import { ShareableGiftImage } from "./ShareableGiftImage"
 import { ErrorReason } from "./shared/ErrorReason"
-import { GiftDescription } from "./shared/GiftDescription"
-import { GiftHeader } from "./shared/GiftHeader"
 
 type GiftMakerReadyDialogProps = {
   readyGiftRef: ActorRefFrom<typeof giftMakerReadyActor>
@@ -96,20 +98,16 @@ function SuccessDialog({
   ])
 
   return (
-    <BaseModalDialog open onClose={finish}>
-      <GiftHeader
-        title={isClaimed ? "Gift claimed" : "Share your gift"}
-        className="mt-4 text-center"
-      >
-        <GiftDescription
-          description={
-            isClaimed
-              ? "This gift has been successfully claimed by the recipient."
-              : "Your funds are on-chain. The recipient can claim them via the link, or you can reclaim them if needed."
-          }
-          className="text-center"
-        />
-      </GiftHeader>
+    <BaseModalDialog
+      open
+      onClose={finish}
+      title={isClaimed ? "Gift claimed" : "Share your gift"}
+    >
+      <p className="text-gray-500 text-sm font-medium space-y-4 mt-1">
+        {isClaimed
+          ? "This gift has been successfully claimed by the recipient."
+          : "Your funds are on-chain. The recipient can claim them via the link, or you can reclaim them if needed."}
+      </p>
 
       <ShareableGiftImage
         link={copyGiftLink()}
@@ -122,32 +120,38 @@ function SuccessDialog({
         }
       />
 
-      {!isClaimed && (
-        <div className="flex flex-col justify-center gap-2 mt-5">
-          <Copy text={copyGiftLink()}>
-            {(copied) => (
-              <AppButton type="button" size="xl" variant="primary" fullWidth>
-                {copied ? (
-                  <CheckIcon weight="bold" />
-                ) : (
-                  <CopyIcon weight="bold" />
-                )}
-                {copied ? "Copied" : "Copy link"}
-              </AppButton>
-            )}
-          </Copy>
+      <div className="flex flex-col gap-2 mt-5">
+        {isClaimed ? (
+          <Button size="xl" variant="secondary" fullWidth onClick={finish}>
+            Close
+          </Button>
+        ) : (
+          <>
+            <Copy text={copyGiftLink()}>
+              {(copied) => (
+                <Button type="button" size="xl" variant="primary" fullWidth>
+                  {copied ? (
+                    <ClipboardDocumentCheckIcon className="size-5" />
+                  ) : (
+                    <ClipboardDocumentIcon className="size-5" />
+                  )}
+                  {copied ? "Copied" : "Copy link"}
+                </Button>
+              )}
+            </Copy>
 
-          <AppButton
-            size="xl"
-            type="button"
-            variant="destructive-soft"
-            onClick={cancelGift}
-            fullWidth
-          >
-            Cancel gift
-          </AppButton>
-        </div>
-      )}
+            <Button
+              size="xl"
+              type="button"
+              variant="destructive-soft"
+              onClick={cancelGift}
+              fullWidth
+            >
+              Cancel gift
+            </Button>
+          </>
+        )}
+      </div>
     </BaseModalDialog>
   )
 }
@@ -207,7 +211,7 @@ export function CancellationDialog({
           </p>
 
           <div className="flex flex-col md:flex-row justify-center gap-3 mt-6">
-            <AppButton
+            <Button
               type="button"
               size="xl"
               variant="outline"
@@ -215,15 +219,15 @@ export function CancellationDialog({
               fullWidth
             >
               Ok
-            </AppButton>
+            </Button>
           </div>
         </>
       ) : (
         <>
-          <h3 className="text-2xl font-black text-gray-900 mt-4 mb-3">
+          <h2 className="mt-2 text-2xl/7 font-bold text-gray-900 tracking-tight text-center text-balance">
             Cancel gift?
-          </h3>
-          <p className="text-sm font-medium text-gray-500">
+          </h2>
+          <p className="mt-2 text-base/5 text-gray-500 font-medium text-center text-balance">
             The funds will return to your account, and the link will no longer
             work.
           </p>
@@ -233,27 +237,25 @@ export function CancellationDialog({
               <ErrorReason reason={snapshot.context.error?.reason} />
             )}
 
-          <div className="flex flex-col md:flex-row justify-center gap-3 mt-6">
-            <AppButton
+          <div className="grid grid-cols-2 gap-1 mt-8">
+            <Button
               type="button"
               size="xl"
-              variant="outline"
-              className="md:flex-1"
+              variant="secondary"
               onClick={abortCancellation}
             >
-              Keep
-            </AppButton>
+              Keep gift
+            </Button>
 
-            <AppButton
+            <Button
               type="button"
               size="xl"
               variant="destructive"
-              className="md:flex-1"
               onClick={confirmCancellation}
               loading={!!snapshot?.matches("claiming")}
             >
               {snapshot?.matches("claiming") ? "Cancelling..." : "Cancel gift"}
-            </AppButton>
+            </Button>
           </div>
         </>
       )}

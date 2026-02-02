@@ -1,5 +1,4 @@
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/16/solid"
-import {} from "@radix-ui/react-tooltip"
 import TooltipNew from "@src/components/DefuseSDK/components/TooltipNew"
 import ListItem from "@src/components/ListItem"
 import type { SwapTransaction } from "@src/features/balance-history/types"
