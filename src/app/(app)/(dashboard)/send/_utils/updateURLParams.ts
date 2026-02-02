@@ -4,38 +4,49 @@ import type { ReadonlyURLSearchParams } from "next/navigation"
 export function updateURLParamsWithdraw({
   token,
   network,
-  removeContactId,
+  contactId,
+  recipient,
   router,
   searchParams,
 }: {
   token: string | null
   network: string
-  removeContactId: boolean
+  contactId: string | null | undefined
+  recipient: string | null | undefined
   router: AppRouterInstance
   searchParams: ReadonlyURLSearchParams
 }) {
   const params = new URLSearchParams(searchParams.toString())
 
-  // Set or delete token
   if (token) {
     params.set("token", token)
   } else {
     params.delete("token")
   }
 
-  // Set or delete network
   if (network) {
     params.set("network", network)
   } else {
     params.delete("network")
   }
 
-  // Remove contactId if user manually edited recipient
-  if (removeContactId) {
-    params.delete("contactId")
+  if (contactId !== undefined) {
+    if (contactId) {
+      params.set("contactId", contactId)
+      params.delete("recipient")
+    } else {
+      params.delete("contactId")
+    }
   }
 
-  // Only update if changed
+  if (recipient !== undefined) {
+    if (recipient && !params.has("contactId")) {
+      params.set("recipient", recipient)
+    } else if (!recipient) {
+      params.delete("recipient")
+    }
+  }
+
   if (params.toString() !== searchParams.toString()) {
     router.replace(`?${params.toString()}`, { scroll: false })
   }
