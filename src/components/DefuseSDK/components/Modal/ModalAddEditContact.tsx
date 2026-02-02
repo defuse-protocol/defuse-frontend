@@ -325,6 +325,12 @@ const ModalAddEditContact = ({
               <button
                 type="button"
                 onClick={() => setSelectNetworkOpen(true)}
+                onFocus={(e) => {
+                  // Auto-open network selector when focused via keyboard (Tab) and no network selected
+                  if (e.target.matches(":focus-visible") && !blockchain) {
+                    setSelectNetworkOpen(true)
+                  }
+                }}
                 className={clsx(
                   "w-full rounded-3xl bg-white border p-3 text-left flex items-center gap-3 focus-visible:outline focus-visible:outline-gray-700",
                   errors.blockchain
