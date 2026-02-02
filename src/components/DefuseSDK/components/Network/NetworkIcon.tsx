@@ -1,4 +1,6 @@
+import Themes from "@src/types/themes"
 import clsx from "clsx"
+import { useTheme } from "next-themes"
 import Image from "next/image"
 
 export function NetworkIcon({
@@ -8,6 +10,8 @@ export function NetworkIcon({
   chainIcon: { dark: string; light: string }
   sizeClassName?: string
 }) {
+  const { resolvedTheme } = useTheme()
+
   return (
     <div
       className={clsx(
@@ -16,7 +20,7 @@ export function NetworkIcon({
       )}
     >
       <Image
-        src={chainIcon.light}
+        src={resolvedTheme === Themes.DARK ? chainIcon.dark : chainIcon.light}
         alt=""
         className="size-full"
         width={40}

@@ -1,17 +1,18 @@
-import Button from "@src/components/Button"
 import {
   formatTokenValue,
   formatUsdAmount,
 } from "@src/components/DefuseSDK/utils/format"
 import ErrorMessage from "@src/components/ErrorMessage"
 import clsx from "clsx"
-import { type ReactNode, useEffect, useRef, useState } from "react"
+import type { ReactNode } from "react"
 import type { UseFormRegisterReturn } from "react-hook-form"
+import AssetComboIcon from "../../../../components/Asset/AssetComboIcon"
 
 type SelectedTokenInputProps = {
   label: string
   value: string
   symbol: string
+  icon: string
   balance: bigint
   decimals: number
   error?: string
@@ -20,12 +21,15 @@ type SelectedTokenInputProps = {
   additionalInfo?: ReactNode
   registration: UseFormRegisterReturn
   handleSetPercentage: (percent: number) => void
+  isNativeToken?: boolean
+  networkName?: string
 }
 
 const SelectedTokenInput = ({
   label,
   value,
   symbol,
+  icon,
   balance,
   decimals,
   error,
@@ -34,119 +38,109 @@ const SelectedTokenInput = ({
   additionalInfo,
   registration,
   handleSetPercentage,
+  isNativeToken = false,
+  networkName,
 }: SelectedTokenInputProps) => {
-  const valueRef = useRef<HTMLDivElement>(null)
-  const [valueWidth, setValueWidth] = useState(0)
-
-  useEffect(() => {
-    const element = valueRef.current
-    if (!element) return
-
-    const updateWidth = () => {
-      const width = element.getBoundingClientRect().width
-      setValueWidth(width)
-    }
-
-    const observer = new ResizeObserver(updateWidth)
-    observer.observe(element)
-
-    return () => observer.disconnect()
-  }, [])
-
-  const size = value.length > 12 ? "xs" : value.length > 9 ? "sm" : "md"
-
-  const inputValueClasses = clsx("font-bold text-right tracking-tight", {
-    "text-6xl/15": size === "md",
-    "text-5xl/15": size === "sm",
-    "text-4xl/15": size === "xs",
-  })
-
   const hasBalance = balance > 0n
-  const hasUsdAmount = usdAmount !== null && usdAmount > 0
+  const hasValue = Boolean(value)
+
+  const handleSetMax = () => {
+    if (!disabled && hasBalance) {
+      handleSetPercentage(100)
+    }
+  }
+
+  // Check if user is trying to deposit full balance of native token
+  const isFullBalanceNativeDeposit = (() => {
+    if (!isNativeToken || !hasValue || balance === 0n) return false
+    const inputValue = Number.parseFloat(value.replace(",", "."))
+    if (Number.isNaN(inputValue) || inputValue === 0) return false
+    const balanceFormatted = formatTokenValue(balance, decimals, {
+      min: 0,
+      fractionDigits: decimals,
+    })
+    const balanceValue = Number.parseFloat(balanceFormatted)
+    // Show warning when input is >= 99% of balance
+    return inputValue >= balanceValue * 0.99
+  })()
 
   return (
-    <div className="bg-white border border-gray-200 rounded-3xl px-6 pt-10 pb-16 flex flex-col gap-2">
-      <div className="min-h-6">
-        {error ? (
-          <ErrorMessage className="text-center">{error}</ErrorMessage>
-        ) : hasUsdAmount ? (
-          <div className="text-base text-gray-500 font-medium text-center">
-            {formatUsdAmount(usdAmount)}
-          </div>
-        ) : null}
-      </div>
-
-      <label className="relative cursor-text overflow-hidden">
-        <span className="sr-only">{label}</span>
-        <div className="relative flex items-end justify-center gap-1 h-18">
+    <div
+      className={clsx(
+        "bg-white border rounded-3xl w-full p-6 flex flex-col gap-3",
+        error ? "border-red-500 ring-1 ring-red-500" : "border-gray-200"
+      )}
+    >
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-1 flex-1 min-w-0">
+          <label className="sr-only" htmlFor="deposit-amount">
+            {label}
+          </label>
           <input
+            id="deposit-amount"
             type="text"
             inputMode="decimal"
             pattern="[0-9]*[.]?[0-9]*"
             autoComplete="off"
-            placeholder="0"
+            placeholder={`Enter amount ${symbol}`}
+            aria-label={label}
             disabled={disabled}
             className={clsx(
-              "bg-transparent p-0 outline-hidden border-0 outline-none focus:ring-0 text-gray-900 placeholder:text-gray-400 max-w-88",
-              inputValueClasses
+              "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-4xl tracking-tight w-full min-w-0",
+              !hasValue &&
+                "placeholder:text-xl placeholder:font-medium placeholder:text-gray-400 placeholder:-translate-y-1.5",
+              hasValue && "placeholder:text-gray-400",
+              disabled && "opacity-50"
             )}
-            style={{ width: valueWidth }}
             {...registration}
           />
-          <span
-            className={clsx("text-xl/none font-bold text-gray-500", {
-              "mb-3": size === "md",
-              "mb-2.5": size === "sm",
-              "mb-3.5": size === "xs",
-            })}
-          >
+        </div>
+
+        <div className="rounded-full border border-gray-900/10 flex items-center gap-1.5 p-1 pr-3">
+          <AssetComboIcon icon={icon} sizeClassName="size-7" />
+          <span className="text-base text-gray-900 font-semibold leading-none">
             {symbol}
           </span>
         </div>
-        <span
-          ref={valueRef}
-          aria-hidden="true"
-          className={clsx(
-            "absolute left-0 top-0 inline-block invisible opacity-0 pointer-events-none whitespace-pre",
-            inputValueClasses
-          )}
-        >
-          {value || "0"}
-        </span>
-      </label>
-
-      <div className="flex items-center justify-center gap-4">
-        {hasBalance && (
-          <div className="text-base text-gray-500 font-medium text-center">
-            Balance:{" "}
-            {formatTokenValue(balance, decimals, {
-              min: 0.0001,
-              fractionDigits: 4,
-            })}
-          </div>
-        )}
-
-        {additionalInfo && additionalInfo}
-
-        {hasBalance && (
-          <div className="flex items-center gap-2">
-            <Button
-              variant="secondary"
-              size="md"
-              onClick={() => handleSetPercentage(50)}
-            >
-              50%
-            </Button>
-            <Button
-              variant="secondary"
-              size="md"
-              onClick={() => handleSetPercentage(100)}
-            >
-              Max
-            </Button>
-          </div>
-        )}
       </div>
+
+      <div className="flex items-center justify-between gap-4">
+        <div className="text-sm text-gray-500 font-medium">
+          {formatUsdAmount(usdAmount ?? 0)}
+        </div>
+
+        <div className="flex items-center gap-2">
+          {additionalInfo}
+
+          {hasBalance && (
+            <button
+              type="button"
+              onClick={handleSetMax}
+              disabled={disabled}
+              className={clsx(
+                "text-sm text-gray-500 font-medium text-right",
+                !disabled && "hover:text-gray-700 cursor-pointer"
+              )}
+            >
+              {formatTokenValue(balance, decimals, {
+                min: 0.0001,
+                fractionDigits: 4,
+              })}{" "}
+              {symbol}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {isFullBalanceNativeDeposit && networkName && (
+        <div className="text-sm text-amber-600 bg-amber-50 rounded-xl p-3 font-medium">
+          {symbol} is the native token of {networkName}. If you deposit your
+          full balance, you will have nothing available to pay for transaction
+          fees.
+        </div>
+      )}
+
+      {error && <ErrorMessage>{error}</ErrorMessage>}
     </div>
   )
 }

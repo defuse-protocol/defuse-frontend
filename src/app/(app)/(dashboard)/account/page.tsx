@@ -7,6 +7,7 @@ import Balance from "@src/components/DefuseSDK/features/account/components/Balan
 import { useWatchHoldings } from "@src/components/DefuseSDK/features/account/hooks/useWatchHoldings"
 import { computeTotalUsdValue } from "@src/components/DefuseSDK/features/account/utils/holdingsUtils"
 import { getDefuseAssetId } from "@src/components/DefuseSDK/utils/token"
+import ShieldPromo from "@src/components/ShieldPromo"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useTokenList } from "@src/hooks/useTokenList"
@@ -60,12 +61,16 @@ export default function AccountPage() {
 
           <Button href="/send" size="xl">
             <SendIcon className="size-6" />
-            Send
+            Transfer
           </Button>
         </section>
       )}
 
-      <Assets assets={holdings} isPending={isPending} isError={isError} />
+      <section className="mt-9">
+        <Assets assets={holdings} isPending={isPending} isError={isError} />
+      </section>
+
+      <ShieldPromo />
     </>
   )
 }

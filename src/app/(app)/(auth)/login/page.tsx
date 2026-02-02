@@ -1,5 +1,6 @@
 "use client"
 
+import HelperPopover from "@src/components/HelperPopover"
 import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
 import { useWebAuthnUIStore } from "@src/features/webauthn/hooks/useWebAuthnUiStore"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
@@ -28,7 +29,7 @@ export default function LoginPage() {
       <div className="max-w-md w-full flex flex-col items-start">
         <Link href="/" className="shrink-0">
           <span className="sr-only">Home</span>
-          <NearIntentsLogoIcon className="h-4" />
+          <NearIntentsLogoIcon className="h-4 text-black" />
         </Link>
 
         <h1 className="mt-10! text-2xl font-bold text-gray-900 tracking-tight">
@@ -68,9 +69,19 @@ export default function LoginPage() {
 
         <div className="mt-10 flex items-center gap-x-6 self-stretch">
           <div className="w-full flex-1 border-t border-gray-200" />
-          <p className="text-sm/6 font-medium text-nowrap text-gray-500">
-            Or, use almost any Web3 wallet
-          </p>
+          <div className="flex items-center gap-1.5">
+            <p className="text-sm/6 font-medium text-nowrap text-gray-500">
+              Or, use almost any Web3 wallet
+            </p>
+            <HelperPopover>
+              If you use a Web3 wallet to sign-up to NEAR Intents, your account
+              address will be the same as that of your Web3 wallet. If you plan
+              to share your NEAR Intents account address with others—for
+              example, for account-to-account transfers—this could present a
+              privacy concern. If you sign-up using a Passkey, you will receive
+              a NEAR Intents specific address.
+            </HelperPopover>
+          </div>
           <div className="w-full flex-1 border-t border-gray-200" />
         </div>
 

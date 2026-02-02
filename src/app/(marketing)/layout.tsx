@@ -2,7 +2,12 @@ import { CommandLineIcon } from "@heroicons/react/16/solid"
 import { getCachedSystemStatus } from "@src/actions/systemStatus"
 import Button from "@src/components/Button"
 import SystemStatus from "@src/components/SystemStatus"
-import { DiscordIcon, NearIntentsLogoIcon, TwitterIcon } from "@src/icons"
+import {
+  DiscordIcon,
+  NearIntentsLogoIcon,
+  NearLogoIcon,
+  TwitterIcon,
+} from "@src/icons"
 import { SystemStatusProvider } from "@src/providers/SystemStatusProvider"
 import Link from "next/link"
 import type { ReactNode } from "react"
@@ -52,7 +57,7 @@ const MarketingRootLayout = async ({
           <div className="flex items-center justify-between w-full max-w-5xl px-4">
             <Link href="/" className="shrink-0">
               <span className="sr-only">Home</span>
-              <NearIntentsLogoIcon className="h-4" />
+              <NearIntentsLogoIcon className="h-4 text-black" />
             </Link>
             <Button href="/login">Sign up or Sign in</Button>
           </div>
@@ -67,7 +72,7 @@ const MarketingRootLayout = async ({
           <div className="flex w-full flex-col px-4 max-w-5xl">
             <div className="pt-16">
               <div className="flex items-center justify-between pb-8">
-                <NearIntentsLogoIcon className="h-4 shrink-0" />
+                <NearIntentsLogoIcon className="h-4 shrink-0 text-black" />
 
                 <div className="flex items-center justify-end gap-2">
                   {socialLinks.map(({ name, icon: Icon, link }) => (
@@ -91,7 +96,7 @@ const MarketingRootLayout = async ({
                     Powered by
                   </span>
                   <span className="sr-only">Near</span>
-                  <NearIntentsLogoIcon className="h-3 shrink-0" aria-hidden />
+                  <NearLogoIcon className="h-3 shrink-0" aria-hidden />
                 </div>
                 <div className="flex items-center justify-end gap-4">
                   {additionalLinks.map(({ name, link }) => (

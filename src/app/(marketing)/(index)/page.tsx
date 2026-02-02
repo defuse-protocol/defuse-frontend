@@ -45,9 +45,9 @@ const features = [
 
 const faqItems = [
   {
-    question: "What is Near Intents?",
+    question: "What is NEAR Intents?",
     answer:
-      "Near Intents is an on-chain trading technology that lets you swap assets across 35+ networks, earn yield on deposits, and create private peer-to-peer trades—all without giving up custody of your funds.",
+      "NEAR Intents is an on-chain trading technology that lets you swap assets across 35+ networks, earn yield on deposits, and create private peer-to-peer trades—all without giving up custody of your funds.",
   },
   {
     question: "How do I create an account?",
@@ -62,7 +62,7 @@ const faqItems = [
   {
     question: "How do swaps work?",
     answer:
-      "When you swap, market makers compete to fill your order at the best price. Trades settle within your Near Intents account in seconds—as fast as a centralized exchange.",
+      "When you swap, market makers compete to fill your order at the best price. Trades settle within your NEAR Intents account in seconds—as fast as a centralized exchange.",
   },
   {
     question: "What are Private trades?",
@@ -70,7 +70,7 @@ const faqItems = [
       "Trade directly with a friend, business partner, or even someone you just met. Create a deal, set your terms, and share the link. They accept, and both sides get exactly what was agreed—guaranteed by smart contracts, no middlemen.",
   },
   {
-    question: "Can my business use Near Intents?",
+    question: "Can my business use NEAR Intents?",
     answer:
       "Yes! We've already helped Ledger, SwapKit, and many more to process over $10B in swaps. Interested? Reach out!",
   },
@@ -96,7 +96,7 @@ export default function IndexPage() {
           </h1>
         </div>
 
-        <div className="relative z-10 mt-16 flex flex-col items-center justify-center px-4 max-w-md">
+        <div className="relative mt-16 flex flex-col items-center justify-center px-4 max-w-md">
           <AnimatedTokenPath />
           <AnimatedTokenPath side="right" />
 

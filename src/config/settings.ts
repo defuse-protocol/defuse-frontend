@@ -32,12 +32,12 @@ export const settings: Settings = {
         "Deposit tokens from any chain into NEAR Intents. Kick off cross-chain transactions, DeFi automation, and smart settlements.",
     },
     deals: {
-      title: "NEAR Intents | Deals",
-      description: "View your private deals on NEAR Intents.",
+      title: "NEAR Intents | Trades",
+      description: "View your private trades on NEAR Intents.",
     },
     deal: {
-      title: "NEAR Intents | Accept a Deal Offer",
-      description: "Review and accept a deal offer from a counterparty.",
+      title: "NEAR Intents | Accept a Trade Offer",
+      description: "Review and accept a trade offer from a counterparty.",
     },
     contacts: {
       title: "NEAR Intents | Contacts",
@@ -62,6 +62,11 @@ export const settings: Settings = {
       title: "NEAR Intents | Low Fees, Best Rates & Seamless Cross‑Chain Exits",
       description:
         "Send crypto from NEAR to any supported chain. Fast, secure, and powered by smart intent execution.",
+    },
+    earn: {
+      title: "NEAR Intents | Earn",
+      description:
+        "Put your idle assets to work. No lockups. Withdraw anytime.",
     },
     giftCreate: {
       title: "NEAR Intents | Send a Multichain Crypto Gift",
@@ -101,9 +106,9 @@ export const settings: Settings = {
       description:
         "View balances and manage your wallet across chains. Your gateway to seamless swaps, deposits, and withdrawals in DeFi.",
     },
-    activity: {
-      title: "NEAR Intents | Activity",
-      description: "View your activity on NEAR Intents.",
+    history: {
+      title: "NEAR Intents | History",
+      description: "View your transaction history on NEAR Intents.",
     },
     settings: {
       title: "NEAR Intents | Settings",

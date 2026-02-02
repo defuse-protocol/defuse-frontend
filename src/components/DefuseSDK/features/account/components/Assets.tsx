@@ -1,12 +1,15 @@
+import { ChevronDownIcon } from "@heroicons/react/16/solid"
 import { XMarkIcon } from "@heroicons/react/24/solid"
 import Button from "@src/components/Button"
 import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import { getDefuseAssetId } from "@src/components/DefuseSDK/utils/token"
 import DepositPromo from "@src/components/DepositPromo"
+import EmptyState from "@src/components/EmptyState"
 import ListItem from "@src/components/ListItem"
 import ListItemsSkeleton from "@src/components/ListItemsSkeleton"
 import { DepositIcon, SendIcon, SwapIcon } from "@src/icons"
+import { useState } from "react"
 import type { Holding } from "../types/sharedTypes"
 import { FormattedCurrency } from "./shared/FormattedCurrency"
 
@@ -19,67 +22,56 @@ const Assets = ({
   isPending: boolean
   isError: boolean
 }) => {
+  const [showAll, setShowAll] = useState(false)
+
+  const hasMore = assets ? !showAll && assets.length >= 7 : false
+  const assetsToShow = assets ? (hasMore ? assets.slice(0, 5) : assets) : []
+
   if (isPending) {
     return (
-      <section className="mt-9">
+      <>
         <h2 className="text-base text-gray-500 font-medium">Assets</h2>
         <ListItemsSkeleton count={3} className="mt-2" loading />
-      </section>
+      </>
     )
   }
 
-  if (isError)
+  if (isError) {
     return (
-      <section className="mt-9">
-        <h2 className="text-base text-gray-500 font-medium">Assets</h2>
-        <div className="relative">
-          <ListItemsSkeleton count={3} className="mt-2" />
+      <EmptyState>
+        <div className="bg-red-100 flex items-center justify-center size-12 rounded-full shrink-0">
+          <XMarkIcon className="size-6 text-red-600" aria-hidden />
         </div>
-        <div className="max-w-96 mx-auto -mt-16 relative flex flex-col items-center">
-          <div className="bg-red-100 flex items-center justify-center size-12 rounded-full shrink-0">
-            <XMarkIcon className="size-6 text-red-600" aria-hidden />
-          </div>
-          <h3 className="mt-5 text-xl font-semibold text-gray-900 text-center tracking-tight">
-            Something went wrong
-          </h3>
-          <p className="text-base text-gray-500 mt-1 font-medium text-center text-balance">
-            We couldn’t load your assets right now. Your funds are safe. Try
-            refreshing the page.
-          </p>
-        </div>
-      </section>
+        <EmptyState.Title>Something went wrong</EmptyState.Title>
+        <EmptyState.Description>
+          We couldn’t load your assets right now. Your funds are safe. Try
+          refreshing the page.
+        </EmptyState.Description>
+      </EmptyState>
     )
+  }
 
   if (!assets || assets.length === 0) {
     return (
-      <section className="mt-9">
-        <h2 className="sr-only">Assets</h2>
-        <div className="relative">
-          <ListItemsSkeleton count={3} className="mt-2" />
-        </div>
-        <div className="max-w-72 mx-auto -mt-5 relative flex flex-col items-center">
-          <h3 className="text-xl font-semibold text-gray-900 text-center tracking-tight">
-            No assets yet
-          </h3>
-          <p className="text-base text-gray-500 mt-1 font-medium text-center text-balance">
-            Deposit crypto or make a bank transfer to get started.
-          </p>
-          <Button href="/deposit" size="xl" className="mt-4" fullWidth>
-            <DepositIcon className="size-4 shrink-0 -mt-1.5" />
-            Add funds
-          </Button>
-
-          <DepositPromo className="mt-6" />
-        </div>
-      </section>
+      <EmptyState>
+        <EmptyState.Title>No assets yet</EmptyState.Title>
+        <EmptyState.Description>
+          Deposit crypto or make a bank transfer to get started.
+        </EmptyState.Description>
+        <Button href="/deposit" size="xl" className="mt-4" fullWidth>
+          <DepositIcon className="size-6 shrink-0 -mt-1.5" />
+          Add funds
+        </Button>
+        <DepositPromo className="mt-6" />
+      </EmptyState>
     )
   }
 
   return (
-    <section className="mt-9">
+    <>
       <h2 className="text-base text-gray-500 font-medium">Assets</h2>
       <div className="mt-2 flex flex-col gap-1">
-        {assets.map(({ token, value, usdValue }) => {
+        {assetsToShow.map(({ token, value, usdValue }) => {
           const shortFormatted = value
             ? formatTokenValue(value.amount, value.decimals, {
                 fractionDigits: 4,
@@ -92,27 +84,20 @@ const Assets = ({
           return (
             <ListItem
               key={getDefuseAssetId(token)}
-              popoverContent={
-                <>
-                  <Button size="sm" href="/send">
-                    <SendIcon className="size-4 shrink-0" />
-                    Send
-                  </Button>
-                  <Button
-                    size="sm"
-                    href={`/swap?from=${token.symbol}&to=${toTokenSymbol}`}
-                  >
-                    <SwapIcon className="size-4 shrink-0" />
-                    Swap
-                  </Button>
-                </>
-              }
+              popoverItems={[
+                { label: "Transfer", href: "/send", icon: SendIcon },
+                {
+                  label: "Swap",
+                  href: `/swap?from=${token.symbol}&to=${toTokenSymbol}`,
+                  icon: SwapIcon,
+                },
+              ]}
             >
               <AssetComboIcon icon={token.icon} showChainIcon />
 
               <ListItem.Content>
-                <ListItem.Title>{token.name}</ListItem.Title>
-                <ListItem.Subtitle>{token.symbol}</ListItem.Subtitle>
+                <ListItem.Title>{token.symbol}</ListItem.Title>
+                <ListItem.Subtitle>{token.name}</ListItem.Subtitle>
               </ListItem.Content>
 
               <ListItem.Content align="end">
@@ -128,7 +113,19 @@ const Assets = ({
           )
         })}
       </div>
-    </section>
+      {hasMore && (
+        <Button
+          onClick={() => setShowAll(true)}
+          size="lg"
+          className="mt-4"
+          fullWidth
+          variant="secondary"
+        >
+          <ChevronDownIcon className="size-5 shrink-0" />
+          Show all
+        </Button>
+      )}
+    </>
   )
 }
 

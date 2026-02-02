@@ -24,11 +24,12 @@ import type {
 import { computeTradeBreakdown } from "../../features/otcDesk/utils/otcMakerBreakdown"
 import { parseTradeTerms } from "../../features/otcDesk/utils/parseTradeTerms"
 import { usePublicKeyModalOpener } from "../../features/swap/hooks/usePublicKeyModalOpener"
+import { midTruncate } from "../../features/withdraw/components/WithdrawForm/utils"
 import { getProtocolFee } from "../../services/intentsContractService"
 import type { TokenInfo } from "../../types/base"
 import { formatTokenValue } from "../../utils/format"
 import AssetComboIcon from "../Asset/AssetComboIcon"
-import { Copy } from "../IntentCard/CopyButton"
+import { Copy, CopyButton } from "../IntentCard/CopyButton"
 import { BaseModalDialog } from "./ModalDialog"
 
 export type ModalActiveDealProps = {
@@ -241,7 +242,7 @@ const ModalActiveDeal = ({
             >
               <div className="flex items-center justify-between gap-2">
                 <dt className="text-sm/5 text-gray-500 font-medium">
-                  You send
+                  Token to trade
                 </dt>
                 <dd className="flex items-center gap-1 justify-end">
                   <span className="text-sm/5 text-gray-900 font-semibold">
@@ -258,7 +259,7 @@ const ModalActiveDeal = ({
 
               <div className="flex items-center justify-between gap-2">
                 <dt className="text-sm/5 text-gray-500 font-medium">
-                  You receive
+                  Token to receive
                 </dt>
                 <dd className="flex items-center gap-1 justify-end">
                   <span className="text-sm/5 text-gray-900 font-semibold">
@@ -282,7 +283,12 @@ const ModalActiveDeal = ({
                     {formatTokenValue(
                       breakdown.makerPaysFee.amount,
                       breakdown.makerPaysFee.decimals,
-                      { fractionDigits: 4 }
+                      {
+                        fractionDigits: Math.min(
+                          breakdown.makerPaysFee.decimals,
+                          8
+                        ),
+                      }
                     )}{" "}
                     {tokenIn.symbol}
                   </span>
@@ -299,7 +305,12 @@ const ModalActiveDeal = ({
                     {formatTokenValue(
                       breakdown.takerReceives.amount,
                       breakdown.takerReceives.decimals,
-                      { fractionDigits: 4 }
+                      {
+                        fractionDigits: Math.min(
+                          breakdown.takerReceives.decimals,
+                          8
+                        ),
+                      }
                     )}{" "}
                     {tokenIn.symbol}
                   </span>
@@ -308,6 +319,28 @@ const ModalActiveDeal = ({
               </div>
             </dl>
           )}
+
+          <dl className="mt-5 pt-5 border-t border-gray-200 space-y-4">
+            <div className="flex justify-between">
+              <dt className="text-sm text-gray-500 font-medium">Trade ID</dt>
+              <dd className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-gray-900">
+                  {midTruncate(tradeId, 16)}
+                </span>
+                <CopyButton text={tradeId} ariaLabel="Copy trade ID" />
+              </dd>
+            </div>
+
+            <div className="flex justify-between">
+              <dt className="text-sm text-gray-500 font-medium">Nonce</dt>
+              <dd className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-gray-900">
+                  {midTruncate(nonceBase64, 16)}
+                </span>
+                <CopyButton text={nonceBase64} ariaLabel="Copy nonce" />
+              </dd>
+            </div>
+          </dl>
 
           <div className="mt-5 space-y-2">
             {(!error || error === "MAKER_INSUFFICIENT_FUNDS") && (
@@ -336,10 +369,10 @@ const ModalActiveDeal = ({
               </div>
 
               <h2 className="mt-5 text-2xl/7 font-bold tracking-tight text-center">
-                Your deal has been filled or already cancelled
+                Your trade has been executed or already cancelled
               </h2>
               <p className="mt-2 text-base/5 font-medium text-gray-500 text-center text-balance">
-                This deal has either been successfully completed or was
+                This trade has either been successfully completed or was
                 previously cancelled.
               </p>
             </div>
@@ -381,7 +414,7 @@ const ModalActiveDeal = ({
                 size="xl"
                 disabled={isCancelling}
               >
-                {isCancelling ? "Cancelling..." : "Cancel deal"}
+                {isCancelling ? "Cancelling..." : "Cancel trade"}
               </Button>
             </div>
 
@@ -400,18 +433,18 @@ export default ModalActiveDeal
 
 const getTitle = (error?: string | null) => {
   if (error === "ORDER_EXPIRED") {
-    return "Deal expired"
+    return "Trade expired"
   }
 
   if (error === "NONCE_ALREADY_USED") {
-    return "Deal filled or cancelled"
+    return "Trade executed or cancelled"
   }
 
   if (error === "MAKER_INSUFFICIENT_FUNDS") {
     return "Your balance is too low"
   }
 
-  return "Deal active"
+  return "Trade active"
 }
 
 const getSubtitle = ({
@@ -419,29 +452,29 @@ const getSubtitle = ({
   expiredAt,
 }: { error?: string | null; expiredAt?: string | null }) => {
   if (error === "MAKER_INSUFFICIENT_FUNDS") {
-    return "This deal cannot be filled. Please increase your balance or cancel the deal and create a new one."
+    return "This trade cannot be executed. Please increase your balance or cancel the trade and create a new one."
   }
 
   if (error === "ORDER_EXPIRED") {
     if (expiredAt) {
-      return `This deal expired on ${expiredAt}.`
+      return `This trade expired on ${expiredAt}.`
     }
-    return "This deal has already expired."
+    return "This trade has already expired."
   }
 
   if (error === "NONCE_ALREADY_USED") {
-    return "No action needed — this deal was already completed or cancelled."
+    return "No action needed — this trade was already completed or cancelled."
   }
 
-  return "Share the link with the counterparty to finalize the deal"
+  return "Share the link with the counterparty to execute the trade"
 }
 
 function renderErrorMessage(reason: string): string {
   switch (reason) {
     case "ERR_PREPARING_SIGNING_DATA":
-      return "Failed to prepare message for your wallet to sign. Please try again."
+      return "We were unable to create the trade authorization for you to confirm. This is a technical error on our side. Please try again."
     case "ERR_USER_DIDNT_SIGN":
-      return "It seems the message wasn’t signed in your wallet. Please try again."
+      return "It seems that you didn't confirm the trade authorization. Please try again."
     default:
       return reason
   }

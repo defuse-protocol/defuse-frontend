@@ -1,6 +1,7 @@
 import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import { MagnifyingGlassIcon } from "@heroicons/react/16/solid"
-import { ArrowDownIcon, XCircleIcon } from "@heroicons/react/20/solid"
+import { ArrowDownIcon } from "@heroicons/react/20/solid"
+import Alert from "@src/components/Alert"
 import Button from "@src/components/Button"
 import ModalReviewSwap from "@src/components/DefuseSDK/components/Modal/ModalReviewSwap"
 import { useTokensUsdPrices } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
@@ -9,7 +10,7 @@ import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
 import { getDefuseAssetId } from "@src/components/DefuseSDK/utils/token"
-import ErrorMessage from "@src/components/ErrorMessage"
+import PageHeader from "@src/components/PageHeader"
 import { SwapStatus } from "@src/components/SwapStatus"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useThrottledValue } from "@src/hooks/useThrottledValue"
@@ -32,7 +33,7 @@ import {
 } from "../../machines/depositedBalanceMachine"
 import type { swapUIMachine } from "../../machines/swapUIMachine"
 import { useUsdMode } from "../hooks/useUsdMode"
-import SwapSettings from "./SwapSettings"
+import { SwapQuoteInfo } from "./SwapQuoteInfo"
 import { SwapSubmitterContext } from "./SwapSubmitter"
 import { SwapUIMachineContext } from "./SwapUIMachineProvider"
 
@@ -109,20 +110,19 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
   // we need stable references to allow passing to useEffect
   const switchTokens = useCallback(() => {
-    const { amountOut } = getValues()
-    setValue("amountIn", amountOut)
+    setValue("amountIn", "")
     setValue("amountOut", "")
     swapUIActorRef.send({
       type: "input",
       params: {
         tokenIn: tokenOut,
         tokenOut: tokenIn,
-        amountIn: amountOut,
+        amountIn: "",
         amountOut: "",
         swapType: QuoteRequest.swapType.EXACT_INPUT,
       },
     })
-  }, [tokenIn, tokenOut, setValue, getValues, swapUIActorRef])
+  }, [tokenIn, tokenOut, setValue, swapUIActorRef])
 
   const {
     setModalType,
@@ -374,12 +374,24 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
   return (
     <>
-      <div className="flex justify-between items-center">
-        <h1 className="text-gray-900 text-xl font-semibold tracking-tight">
-          Swap
-        </h1>
-        <SwapSettings tokenIn={tokenIn} tokenOut={tokenOut} />
-      </div>
+      <PageHeader
+        title="Swap"
+        intro={
+          <>
+            <p>
+              NEAR Intents is the most exciting swapping technology to have
+              emerged in recent years. Here, you can swap anything to almost
+              anything else. BTC to ETH? No problem. ETH to ZEC? No problem. ZEC
+              to SOL? No problem.
+            </p>
+            <p>
+              Fast and cheap! Swapping between assets in your account happen
+              within a couple of seconds, as competing "Solvers" compete to give
+              you the best price, every time!
+            </p>
+          </>
+        }
+      />
 
       <section className="mt-5">
         <form onSubmit={handleSubmit(onRequestReview)}>
@@ -423,7 +435,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                           const num = Number.parseFloat(value.replace(",", "."))
                           return (
                             (!Number.isNaN(num) && num > 0) ||
-                            "Enter a valid amount"
+                            "It seems the amount you have entered is invalid. Please adjust."
                           )
                         },
                         onChange: (e) => {
@@ -446,7 +458,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
               hasError={balanceInsufficient}
               error={
                 balanceInsufficient
-                  ? "Amount entered exceeds available balance"
+                  ? "The amount you entered exceeds your available balance. Please adjust."
                   : errors.amountIn?.message
               }
             />
@@ -527,6 +539,8 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             </Button>
           </AuthGate>
 
+          <SwapQuoteInfo tokenIn={tokenIn} tokenOut={tokenOut} />
+
           {isLongLoading && (
             <div className="flex items-center justify-center mt-4 gap-2 animate-in fade-in duration-200 slide-in-from-top-1 zoom-in-97">
               <MagnifyingGlassIcon className="size-4 shrink-0 text-gray-500" />
@@ -536,7 +550,11 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
             </div>
           )}
 
-          {quote1csError && <Quote1csError quote1csError={quote1csError} />}
+          {quote1csError && (
+            <Alert variant="error" className="mt-6">
+              {quote1csError}
+            </Alert>
+          )}
         </form>
 
         <ModalReviewSwap
@@ -557,15 +575,6 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
   )
 }
 
-function Quote1csError({ quote1csError }: { quote1csError: string }) {
-  return (
-    <div className="mt-6 bg-red-50 pl-4 pr-6 py-4 rounded-2xl flex items-start gap-3">
-      <XCircleIcon className="size-5 shrink-0 text-red-600" aria-hidden />
-      <ErrorMessage>{quote1csError}</ErrorMessage>
-    </div>
-  )
-}
-
 function renderSwapButtonText(
   amountInEmpty: boolean,
   amountOutEmpty: boolean,
@@ -574,11 +583,13 @@ function renderSwapButtonText(
   insufficientTokenInAmount: boolean,
   failedToGetAQuote: boolean
 ) {
-  if (amountInEmpty && amountOutEmpty) return "Enter an amount"
-  if (noLiquidity) return "No liquidity providers"
+  if (amountInEmpty && amountOutEmpty) return "Please enter an amount."
+  if (noLiquidity)
+    return "Ooops. There is no liquidity available for this swap. Please try again later."
   if (balanceInsufficient) return "Insufficient balance"
-  if (insufficientTokenInAmount) return "Insufficient amount"
-  if (failedToGetAQuote) return "Failed to get a quote"
+  if (insufficientTokenInAmount) return "Insufficient amount. Please adjust."
+  if (failedToGetAQuote)
+    return "We were unable to get a quote from our solvers. Please try again."
   return "Review swap"
 }
 

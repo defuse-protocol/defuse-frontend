@@ -21,6 +21,7 @@ import {
 } from "../../features/withdraw/components/WithdrawForm/utils"
 import type { NetworkOptions } from "../../hooks/useNetworkLists"
 import { reverseAssetNetworkAdapter } from "../../utils/adapters"
+import { stringToColor } from "../../utils/stringToColor"
 import { NetworkIcon } from "../Network/NetworkIcon"
 import SearchBar from "../SearchBar"
 import { BaseModalDialog } from "./ModalDialog"
@@ -146,9 +147,20 @@ const ModalSelectRecipient = ({
     setValidatedAddress(null)
   }
 
+  const selectedNetworkName =
+    blockchain && blockchain !== "near_intents"
+      ? chainNameToNetworkName(blockchain)
+      : null
+
+  const hasNoContactsForNetwork =
+    !inputValue &&
+    !validatedAddress &&
+    availableContacts.length === 0 &&
+    selectedNetworkName
+
   return (
     <BaseModalDialog
-      title="Select recipient"
+      title="Select a contact, or enter an address"
       open={open}
       onClose={onClose}
       onCloseAnimationEnd={() => {
@@ -165,12 +177,16 @@ const ModalSelectRecipient = ({
         >
           <SearchBar
             icon={UserCircleIcon}
-            name="address"
+            name="recipient-address"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             loading={isValidating}
             onClear={handleClear}
             autoFocus
+            autoComplete="nope"
+            data-form-type="other"
+            data-lpignore="true"
+            data-1p-ignore="true"
             placeholder="Enter wallet address"
             data-testid="withdraw-target-account-field"
           />
@@ -184,6 +200,13 @@ const ModalSelectRecipient = ({
           onScroll={handleScroll}
           className="flex flex-col overflow-y-auto -mx-5 px-5 -mb-5 pb-5 space-y-5"
         >
+          {hasNoContactsForNetwork && (
+            <p className="text-sm text-gray-500 font-medium">
+              You have no contacts created for the{" "}
+              <span className="capitalize">{selectedNetworkName}</span> network.
+            </p>
+          )}
+
           {validatedAddress ? (
             <ListItem onClick={() => handleSelectAddress(validatedAddress)}>
               <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1">
@@ -210,6 +233,9 @@ const ModalSelectRecipient = ({
                         const chainKey = reverseAssetNetworkAdapter[blockchain]
                         const chainIcon = chainIcons[chainKey]
                         const chainName = chainNameToNetworkName(chainKey)
+                        const contactColor = stringToColor(
+                          `${name}${address}${blockchain}`
+                        )
 
                         return (
                           <ListItem
@@ -222,8 +248,16 @@ const ModalSelectRecipient = ({
                               onClose()
                             }}
                           >
-                            <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1">
-                              <WalletIcon className="text-gray-500 size-5" />
+                            <div
+                              className="size-10 rounded-full flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1"
+                              style={{
+                                backgroundColor: contactColor.background,
+                              }}
+                            >
+                              <WalletIcon
+                                className="size-5"
+                                style={{ color: contactColor.icon }}
+                              />
                             </div>
                             <ListItem.Content>
                               <ListItem.Title className="truncate">
@@ -302,7 +336,7 @@ function renderRecipientAddressError(error: ValidateRecipientAddressErrorType) {
     case "NEAR_ACCOUNT_DOES_NOT_EXIST":
       return "The account doesn't exist on NEAR. Please enter a different recipient address."
     case "USER_ADDRESS_REQUIRED":
-      return "Near Intents network requires your address. Try signing in again."
+      return "NEAR Intents network requires your address. Try signing in again."
     default:
       return "An unexpected error occurred. Please enter a different recipient address."
   }

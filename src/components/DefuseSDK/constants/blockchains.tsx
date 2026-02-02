@@ -41,7 +41,7 @@ export const chainIcons: Record<
   },
   near: {
     dark: "/static/icons/network/near.svg",
-    light: "/static/icons/network/near_dark.svg",
+    light: "/static/icons/network/near.svg",
   },
   base: {
     dark: "/static/icons/network/base.svg",
@@ -101,7 +101,7 @@ export const chainIcons: Record<
   },
   zcash: {
     dark: "/static/icons/network/zcash.svg",
-    light: "/static/icons/network/zcash-icon-black.svg",
+    light: "/static/icons/network/zcash.svg",
   },
   gnosis: {
     dark: "/static/icons/network/gnosis_white.svg",
@@ -141,7 +141,7 @@ export const chainIcons: Record<
   },
   sui: {
     dark: "/static/icons/network/sui.svg",
-    light: "/static/icons/network/sui_dark.svg",
+    light: "/static/icons/network/sui.svg",
   },
   stellar: {
     dark: "/static/icons/network/stellar_white.svg",
@@ -187,7 +187,7 @@ export function getBlockchainsOptions(): Record<
 > {
   const options: Record<BlockchainEnum, BlockchainOption> = {
     [BlockchainEnum.NEAR]: {
-      label: "Near",
+      label: "NEAR",
       icon: <NetworkIcon chainIcon={chainIcons.near} />,
       value: BlockchainEnum.NEAR,
       tags: ["vol:4"],
@@ -431,13 +431,18 @@ export const intentsChainIcon = {
   light: "/static/icons/network/intents.svg",
 }
 
+export const nearIntentsAccountIcon = {
+  dark: "/static/icons/network/intents.svg",
+  light: "/static/icons/network/intents.svg",
+}
+
 export const INTENTS_EXPLORER_URL = "https://explorer.near-intents.org"
 
 export function getNearIntentsOption(): Record<"intents", IntentsOption> {
   return {
     intents: {
-      label: "Near Intents",
-      icon: <NetworkIcon chainIcon={intentsChainIcon} />,
+      label: "Another Intents Account",
+      icon: <NetworkIcon chainIcon={nearIntentsAccountIcon} />,
       value: "near_intents",
       tags: [],
     },
