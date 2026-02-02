@@ -21,6 +21,7 @@ import { isBaseToken } from "../../../utils/token"
 import { swapIntentMachine } from "../../machines/swapIntentMachine"
 import { withdrawUIMachine } from "../../machines/withdrawUIMachine"
 import { WithdrawUIMachineContext } from "../WithdrawUIMachineContext"
+import { useWithdrawFormChangeNotifier } from "../hooks/useWithdrawFormChangeNotifier"
 import { WithdrawForm } from "./WithdrawForm"
 
 export const WithdrawWidget = (props: WithdrawWidgetProps) => {
@@ -112,6 +113,10 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
         ) : (
           <TokenListUpdater tokenList={props.tokenList} />
         )}
+        <FormChangeNotifier
+          onFormChange={props.onFormChange}
+          presetValues={props.presetValuesForSync}
+        />
         <WithdrawForm {...props} />
       </WithdrawUIMachineContext.Provider>
     </WithdrawWidgetProvider>
@@ -145,4 +150,15 @@ function TokenListUpdaterWithdraw({ tokenList }: { tokenList: TokenInfo[] }) {
       tokenOut={tokenOut}
     />
   )
+}
+
+function FormChangeNotifier({
+  onFormChange,
+  presetValues,
+}: {
+  onFormChange?: WithdrawWidgetProps["onFormChange"]
+  presetValues?: WithdrawWidgetProps["presetValuesForSync"]
+}) {
+  useWithdrawFormChangeNotifier({ onFormChange, presetValues })
+  return null
 }
