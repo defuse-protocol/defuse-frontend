@@ -37,10 +37,10 @@ export const DepositWarning = ({
         break
       case "ERR_FETCH_BALANCE":
         if (tokenSymbol && networkLabel) {
-          content = `We couldn't retrieve a balance from your wallet for ${tokenSymbol} on ${networkLabel}. This is likely because your wallet doesn't support ${networkLabel}, but could also happen if there's a network issue.`
+          content = `We couldn't retrieve your wallet balance for ${tokenSymbol} on ${networkLabel}. This is either because your wallet doesn't support ${networkLabel}, or there's a network issue.`
         } else {
           content =
-            "We couldn't retrieve a balance from your wallet. This is likely because your wallet doesn't support the selected network, but could also happen if there's a network issue."
+            "We couldn't retrieve your wallet balance. This is either because your wallet doesn't support the selected network, or there's a network issue."
         }
         break
       case "ERR_NEP141_STORAGE_CANNOT_FETCH":
