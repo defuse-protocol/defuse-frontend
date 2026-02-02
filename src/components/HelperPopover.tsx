@@ -14,7 +14,7 @@ const HelperPopover = ({ children }: { children: ReactNode }) => {
       <Popover.Portal>
         <Popover.Content
           className={clsx(
-            "max-w-80 bg-gray-900 rounded-2xl shadow-xl p-3 origin-top flex flex-col gap-2.5 text-gray-200 text-sm/5 font-medium text-pretty",
+            "max-w-80 bg-gray-900 rounded-2xl shadow-xl px-3 py-2 origin-top flex flex-col gap-2.5 text-gray-200 text-sm/5 font-medium text-pretty",
 
             "data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:zoom-in-95 data-[state=open]:duration-100 data-[state=open]:ease-out",
 

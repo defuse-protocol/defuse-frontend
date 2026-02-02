@@ -46,7 +46,7 @@ function ListItem({
       )}
       data-testid={dataTestId}
     >
-      <div className="flex gap-3 items-center py-3">
+      <div className="flex gap-3 items-center py-4">
         <div className="flex-1 min-w-0 flex gap-3 items-center">{children}</div>
         {hasPopover && (
           <ChevronDownIcon
@@ -93,18 +93,25 @@ function ListItem({
           sideOffset={-5}
         >
           <Popover.Arrow />
-          {popoverItems.map(({ label, href, onClick, icon: Icon }) => (
-            <Button
-              key={label}
-              size="sm"
-              href={href}
-              onClick={onClick}
-              align="start"
-            >
-              <Icon className="size-4 shrink-0" />
-              {label}
-            </Button>
-          ))}
+
+          {popoverItems.map(({ label, href, onClick, icon: Icon }) => {
+            const isExternalLink = href && !href.startsWith("/")
+
+            return (
+              <Button
+                key={label}
+                size="sm"
+                href={href}
+                onClick={onClick}
+                {...(isExternalLink
+                  ? { target: "_blank", rel: "noopener noreferrer" }
+                  : {})}
+              >
+                <Icon className="size-4 shrink-0" />
+                {label}
+              </Button>
+            )
+          })}
         </Popover.Content>
       </Popover.Portal>
     </Popover.Root>
@@ -121,7 +128,7 @@ const Content = ({
   children: ReactNode
 }) => (
   <div
-    className={clsx(
+    className={cn(
       "flex flex-col gap-0.5",
       align === "start" ? "items-start flex-1 min-w-0" : "items-end text-right",
       className
@@ -139,7 +146,7 @@ const Title = ({
   className?: string
 }) => (
   <div
-    className={clsx(
+    className={cn(
       "text-base/5 font-semibold text-gray-900 max-w-full",
       className
     )}

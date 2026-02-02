@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 import type { ReactNode } from "react"
 
 export function generateMetadata(): Metadata {
-  return settings.metadata.activity
+  return settings.metadata.history
 }
 
 export default function Layout({ children }: { children: ReactNode }) {

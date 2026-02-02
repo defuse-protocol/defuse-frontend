@@ -181,7 +181,7 @@ export const RecipientSubForm = ({
         render={({ field }) => (
           <>
             <SelectTriggerLike
-              label={field.value ? "Network" : "Select network"}
+              label={field.value ? "On this network" : "Select network"}
               value={determineBlockchainControllerLabel(
                 field.value,
                 isSupportedChainName(field.value) // filter out virtual "near_intents" chain
@@ -237,7 +237,7 @@ export const RecipientSubForm = ({
         }}
         render={({ field, fieldState }) => (
           <SelectTriggerLike
-            label="Recipient"
+            label="To this recipient"
             value={
               field.value
                 ? midTruncate(field.value, 16)
