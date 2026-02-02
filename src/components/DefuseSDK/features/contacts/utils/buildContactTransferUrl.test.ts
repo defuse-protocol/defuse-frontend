@@ -2,6 +2,7 @@ import { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import { describe, expect, it } from "vitest"
 import type {
   BaseTokenInfo,
+  SupportedChainName,
   TokenInfo,
   UnifiedTokenInfo,
 } from "../../../types/base"
@@ -10,7 +11,7 @@ import { buildContactTransferUrl } from "./buildContactTransferUrl"
 
 function createBaseToken(
   symbol: string,
-  chainName: string,
+  chainName: SupportedChainName,
   defuseAssetId: string
 ): BaseTokenInfo {
   return {
@@ -33,7 +34,7 @@ function createBaseToken(
 
 function createUnifiedToken(
   symbol: string,
-  chainNames: string[]
+  chainNames: SupportedChainName[]
 ): UnifiedTokenInfo {
   return {
     unifiedAssetId: `unified:${symbol.toLowerCase()}`,
