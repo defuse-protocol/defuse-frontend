@@ -1,5 +1,5 @@
+import { CheckCircleIcon } from "@heroicons/react/16/solid"
 import { CheckIcon, Square2StackIcon } from "@heroicons/react/24/outline"
-import { CheckIcon as CheckIconRadix } from "@radix-ui/react-icons"
 import Button from "@src/components/Button"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import { isFungibleToken } from "@src/components/DefuseSDK/utils/token"
@@ -132,8 +132,8 @@ export function PassiveDeposit({
 
       <div className="mt-6 space-y-4">
         <div className="flex items-start gap-3">
-          <div className="bg-gray-900 rounded-full p-1 mt-0.5 shrink-0">
-            <CheckIconRadix className="w-3 h-3 text-white" />
+          <div className="flex items-center justify-center h-5 shrink-0">
+            <CheckCircleIcon className="size-4 text-gray-500" />
           </div>
           <span className="text-sm font-medium text-gray-500">
             Only deposit{" "}
@@ -158,8 +158,8 @@ export function PassiveDeposit({
         </div>
 
         <div className="flex items-start gap-3">
-          <div className="bg-gray-900 rounded-full p-1 mt-0.5 shrink-0">
-            <CheckIconRadix className="w-3 h-3 text-white" />
+          <div className="flex items-center justify-center h-5 shrink-0">
+            <CheckCircleIcon className="size-4 text-gray-500" />
           </div>
           <span className="text-sm font-medium text-gray-500">
             <span className="text-gray-900 font-semibold">
@@ -171,8 +171,8 @@ export function PassiveDeposit({
 
         {minDepositAmount != null && (
           <div className="flex items-start gap-3">
-            <div className="bg-gray-900 rounded-full p-1 mt-0.5 shrink-0">
-              <CheckIconRadix className="w-3 h-3 text-white" />
+            <div className="flex items-center justify-center h-5 shrink-0">
+              <CheckCircleIcon className="size-4 text-gray-500" />
             </div>
             <span className="text-sm font-medium text-gray-500">
               Minimum deposit is{" "}
@@ -201,25 +201,20 @@ function TokenAddressPopover({
 }) {
   return (
     <Popover.Root>
-      <Popover.Trigger asChild>
-        <button
-          type="button"
-          className="text-gray-900 font-semibold underline cursor-pointer hover:text-gray-700"
-        >
-          {symbol}
-        </button>
+      <Popover.Trigger className="text-gray-900 font-semibold underline hover:text-gray-700">
+        {symbol}
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Content
-          className="bg-gray-900 rounded-xl shadow-xl p-3 z-50 data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:zoom-in-95 data-[state=open]:duration-100 data-[state=open]:ease-out data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:zoom-out-95 data-[state=closed]:duration-75 data-[state=closed]:ease-in"
-          sideOffset={5}
+          className="bg-gray-900 rounded-xl shadow-xl px-3 py-1.5 z-10 origin-top data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:zoom-in-95 data-[state=open]:duration-100 data-[state=open]:ease-out data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:zoom-out-95 data-[state=closed]:duration-75 data-[state=closed]:ease-in"
+          sideOffset={0}
         >
-          <div className="flex flex-col gap-2">
-            <span className="text-xs font-medium text-gray-400">
+          <div className="flex flex-col justify-center items-center">
+            <span className="text-sm font-medium text-gray-400">
               Contract address
             </span>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-white break-all">
+              <span className="text-sm font-medium text-white break-all font-mono text-center text-balance">
                 {address}
               </span>
               <Copy text={address}>
