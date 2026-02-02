@@ -166,7 +166,7 @@ const ContactsList = ({
               <ListItem
                 key={contact.id}
                 popoverItems={[
-                  { label: "Send", href: "/send", icon: SendIcon },
+                  { label: "Transfer", href: "/send", icon: SendIcon },
                   {
                     label: "Edit",
                     onClick: () => handleOpenModal({ type: "edit", contact }),
