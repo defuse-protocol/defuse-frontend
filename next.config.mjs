@@ -43,7 +43,7 @@ const nextConfig = {
       },
       {
         source: '/gift-card/create-gift',
-        destination: '/gifts/create',
+        destination: '/gifts/new',
         permanent: true,
       },
       {

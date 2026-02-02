@@ -13,7 +13,7 @@ export const usePathLogging = () => {
       "/account": "account",
       "/deposit": "deposit",
       "/gifts": "gifts",
-      "/gifts/create": "gifts-create",
+      "/gifts/new": "gifts-new",
       "/gifts/view": "gifts-view",
       "/deals/new": "otc-create-order",
       "/otc/order": "otc-order",

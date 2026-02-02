@@ -24,8 +24,8 @@ export function GiftsHeader() {
           {
             label: "New gift",
             icon: <PlusIcon className="size-4 shrink-0" />,
-            href: "/gifts/create",
-            selected: pathname === "/gifts/create",
+            href: "/gifts/new",
+            selected: pathname === "/gifts/new",
           },
         ]}
       />
