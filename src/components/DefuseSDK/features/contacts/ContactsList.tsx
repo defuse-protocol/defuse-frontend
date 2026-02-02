@@ -1,4 +1,5 @@
 "use client"
+import { authIdentity } from "@defuse-protocol/internal-utils"
 import { PencilSquareIcon, XCircleIcon } from "@heroicons/react/16/solid"
 import { PlusIcon } from "@heroicons/react/20/solid"
 import type { Contact } from "@src/app/(app)/(auth)/contacts/actions"
@@ -16,11 +17,15 @@ import { stringToColor } from "@src/components/DefuseSDK/utils/stringToColor"
 import EmptyState from "@src/components/EmptyState"
 import ListItem from "@src/components/ListItem"
 import PageHeader from "@src/components/PageHeader"
+import { LIST_TOKENS } from "@src/constants/tokens"
+import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { SendIcon, WalletIcon } from "@src/icons"
 import { useRouter } from "next/navigation"
 import { useMemo, useState, useTransition } from "react"
 import ModalRemoveContact from "../../components/Modal/ModalRemoveContact"
 import { reverseAssetNetworkAdapter } from "../../utils/adapters"
+import { useWatchHoldings } from "../account/hooks/useWatchHoldings"
+import { buildContactTransferUrl } from "./utils/buildContactTransferUrl"
 
 type ModalType = "create" | "edit" | "remove"
 
@@ -32,6 +37,15 @@ const ContactsList = ({
   search: string | undefined
 }) => {
   const router = useRouter()
+  const { state } = useConnectWallet()
+  const userId =
+    state.isVerified && state.address && state.chainType
+      ? authIdentity.authHandleToIntentsUserId(state.address, state.chainType)
+      : null
+  const { data: holdings = [] } = useWatchHoldings({
+    userId,
+    tokenList: LIST_TOKENS,
+  })
   const [modalOpen, setModalOpen] = useState<ModalType | null>(null)
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
   const [isPending, startTransition] = useTransition()
@@ -166,7 +180,11 @@ const ContactsList = ({
               <ListItem
                 key={contact.id}
                 popoverItems={[
-                  { label: "Transfer", href: "/send", icon: SendIcon },
+                  {
+                    label: "Transfer",
+                    href: buildContactTransferUrl(contact, holdings),
+                    icon: SendIcon,
+                  },
                   {
                     label: "Edit",
                     onClick: () => handleOpenModal({ type: "edit", contact }),
