@@ -19,7 +19,7 @@ import { useModalStore } from "../../../providers/ModalStoreProvider"
 import { ModalType } from "../../../stores/modalStore"
 import type { RenderHostAppLink } from "../../../types/hostAppLink"
 import { assert } from "../../../utils/assert"
-import { formatTokenValue } from "../../../utils/format"
+import { formatTokenValue, removeTrailingZeros } from "../../../utils/format"
 import getTokenUsdPrice from "../../../utils/getTokenUsdPrice"
 import { isBaseToken, isUnifiedToken } from "../../../utils/token"
 import TokenInputCard from "../../deposit/components/DepositForm/TokenInputCard"
@@ -214,9 +214,9 @@ export function OtcMakerForm({
     // Format with reasonable precision (use balance decimals which handles both token types)
     const decimals = tokenOutBalance?.decimals ?? 8
     const precision = Math.min(decimals, 8)
-    const formatted = calculatedAmountOut
-      .toFixed(precision)
-      .replace(/\.?0+$/, "")
+    const formatted = removeTrailingZeros(
+      calculatedAmountOut.toFixed(precision)
+    )
 
     // Only update if value actually changed to prevent loops
     if (formatted === formValues.amountOut) return

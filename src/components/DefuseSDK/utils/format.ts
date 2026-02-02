@@ -142,7 +142,7 @@ function truncateAndFormat(value: number, decPlaces: number): string {
   const fixed = value.toFixed(decPlaces + 2)
   const truncated = fixed.slice(0, fixed.indexOf(".") + decPlaces + 1)
 
-  return trimZeros(truncated)
+  return removeTrailingZeros(truncated)
 }
 
 // formatWithLocale(1234.56789, 2) → "1,234.56"
@@ -210,11 +210,44 @@ function formatSubscript(
   return `0.0${zeroCount}${trimmed}`
 }
 
-// trimZeros("1.23000") → "1.23"
-// trimZeros("1.00") → "1"
-function trimZeros(str: string): string {
-  if (!str.includes(".")) return str
-  return str.replace(/\.?0+$/, "") || "0"
+// removeTrailingZeros("1.23000") → "1.23"
+// removeTrailingZeros("1.00") → "1"
+// removeTrailingZeros("100") → "100"
+export function removeTrailingZeros(value: string): string {
+  if (!value?.includes(".")) return value
+  return value.replace(/\.?0+$/, "") || "0"
+}
+
+// truncateDisplayValue("0.123456789012345", 11) → "0.123456789"
+// truncateDisplayValue("1234567.89", 11) → "1234567.89"
+// truncateDisplayValue("1500000", 11) → "1.5M"
+export function truncateDisplayValue(value: string, maxLength = 11): string {
+  if (!value) return value
+
+  const num = Number.parseFloat(value)
+  if (Number.isNaN(num)) return value
+
+  if (num >= 1_000_000) {
+    return num.toLocaleString("en-US", {
+      notation: "compact",
+      maximumFractionDigits: 2,
+    })
+  }
+
+  if (value.length <= maxLength) {
+    return removeTrailingZeros(value)
+  }
+
+  const [intPart, decPart] = value.split(".")
+  if (!decPart) return value
+
+  const availableDecimals = Math.max(0, maxLength - intPart.length - 1)
+  const truncated =
+    availableDecimals === 0
+      ? intPart
+      : `${intPart}.${decPart.slice(0, availableDecimals)}`
+
+  return removeTrailingZeros(truncated)
 }
 
 export function formatUsdAmount(value: number): string {

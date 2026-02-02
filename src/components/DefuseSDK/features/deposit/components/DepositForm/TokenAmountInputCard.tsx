@@ -1,8 +1,17 @@
 import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { isBaseToken } from "@src/components/DefuseSDK/utils"
+import {
+  removeTrailingZeros,
+  truncateDisplayValue,
+} from "@src/components/DefuseSDK/utils/format"
 import { cn } from "@src/utils/cn"
-import { type InputHTMLAttributes, type ReactNode, forwardRef } from "react"
+import {
+  type InputHTMLAttributes,
+  type ReactNode,
+  forwardRef,
+  useState,
+} from "react"
 
 export function TokenAmountInputCard({
   variant,
@@ -62,7 +71,30 @@ export function TokenAmountInputCard({
 TokenAmountInputCard.Input = forwardRef<
   HTMLInputElement,
   InputHTMLAttributes<HTMLInputElement> & { isLoading?: boolean }
->(function Input({ isLoading, className, disabled, ...rest }, ref) {
+>(function Input(
+  { isLoading, className, disabled, value, onFocus, onBlur, onChange, ...rest },
+  ref
+) {
+  const [isFocused, setIsFocused] = useState(false)
+  const currentValue = String(value ?? "")
+
+  const displayValue = isFocused ? value : truncateDisplayValue(currentValue)
+
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    setIsFocused(true)
+    onFocus?.(e)
+  }
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    setIsFocused(false)
+    const cleaned = removeTrailingZeros(currentValue)
+    if (cleaned !== currentValue) {
+      e.target.value = cleaned
+      onChange?.(e as unknown as React.ChangeEvent<HTMLInputElement>)
+    }
+    onBlur?.(e)
+  }
+
   return (
     <input
       ref={ref}
@@ -79,6 +111,10 @@ TokenAmountInputCard.Input = forwardRef<
         className
       )}
       {...rest}
+      value={displayValue}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
+      onChange={onChange}
     />
   )
 })

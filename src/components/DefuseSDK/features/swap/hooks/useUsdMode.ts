@@ -1,6 +1,7 @@
 import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import type { TokenUsdPriceData } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
+import { removeTrailingZeros } from "@src/components/DefuseSDK/utils/format"
 import {
   isBaseToken,
   isUnifiedToken,
@@ -100,7 +101,7 @@ export function useUsdMode({
       }
 
       const tokenAmount = usdNum / tokenPrice
-      const formattedAmount = tokenAmount.toFixed(8).replace(/\.?0+$/, "")
+      const formattedAmount = removeTrailingZeros(tokenAmount.toFixed(8))
 
       if (isInput) {
         setValue("amountIn", formattedAmount)

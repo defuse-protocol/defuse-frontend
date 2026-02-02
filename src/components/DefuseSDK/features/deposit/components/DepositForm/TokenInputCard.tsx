@@ -4,12 +4,14 @@ import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import {
   formatTokenValue,
   formatUsdAmount,
+  removeTrailingZeros,
+  truncateDisplayValue,
 } from "@src/components/DefuseSDK/utils/format"
 import ErrorMessage from "@src/components/ErrorMessage"
 import Spinner from "@src/components/Spinner"
 import clsx from "clsx"
 import { Tooltip } from "radix-ui"
-import { useId } from "react"
+import { useId, useState } from "react"
 import type { UseFormRegisterReturn } from "react-hook-form"
 
 type InputRegistration =
@@ -18,7 +20,8 @@ type InputRegistration =
       name: string
       onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
       value: string
-      onBlur?: () => void
+      onBlur?: (e?: React.FocusEvent<HTMLInputElement>) => void
+      onFocus?: (e?: React.FocusEvent<HTMLInputElement>) => void
       ref?: (instance: HTMLInputElement | null) => void
     }
 
@@ -131,28 +134,6 @@ function UsdToggle({
   )
 }
 
-function truncateDisplayValue(value: string, maxLength = 8): string {
-  if (!value || value.length <= maxLength) return value
-
-  const num = Number.parseFloat(value)
-  if (Number.isNaN(num)) return value
-
-  if (num >= 1_000_000) {
-    return num.toLocaleString("en-US", {
-      notation: "compact",
-      maximumFractionDigits: 2,
-    })
-  }
-
-  const [intPart, decPart] = value.split(".")
-  if (!decPart) return value
-
-  const availableDecimals = Math.max(0, maxLength - intPart.length - 1)
-  if (availableDecimals === 0) return intPart
-
-  return `${intPart}.${decPart.slice(0, availableDecimals)}`
-}
-
 const TokenInputCard = (props: TokenInputCardProps) => {
   const {
     balance,
@@ -180,12 +161,32 @@ const TokenInputCard = (props: TokenInputCardProps) => {
   const handleSetMax = isDisplayOnly ? undefined : props.handleSetMax
   const isOutput = isOutputField || readOnly
 
-  // Truncate output values, never truncate input values
-  const registration = (() => {
-    const reg = isDisplayOnly ? undefined : props.registration
-    if (!reg || !isOutput || !("value" in reg)) return reg
-    return { ...reg, value: truncateDisplayValue(reg.value) }
-  })()
+  const [isFocused, setIsFocused] = useState(false)
+  const reg = isDisplayOnly ? undefined : props.registration
+
+  // Truncate display value when blurred or for output fields
+  const shouldTruncate = isOutput || !isFocused
+  const registration =
+    reg && "value" in reg && shouldTruncate
+      ? { ...reg, value: truncateDisplayValue(reg.value) }
+      : reg
+
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    setIsFocused(true)
+    if (reg && "onFocus" in reg) reg.onFocus?.(e)
+  }
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    setIsFocused(false)
+    if (reg && "value" in reg && "onChange" in reg) {
+      const cleaned = removeTrailingZeros(reg.value)
+      if (cleaned !== reg.value) {
+        e.target.value = cleaned
+        reg.onChange(e as unknown as React.ChangeEvent<HTMLInputElement>)
+      }
+    }
+    if (reg && "onBlur" in reg) reg.onBlur?.(e)
+  }
 
   const value = isDisplayOnly
     ? truncateDisplayValue(props.value ?? "")
@@ -250,7 +251,6 @@ const TokenInputCard = (props: TokenInputCardProps) => {
             inputMode="decimal"
             pattern="[0-9]*[.]?[0-9]*"
             autoComplete="off"
-            maxLength={11} // Consider increasing to 16+ if users need full precision input
             placeholder={getPlaceholder()}
             aria-label={getAriaLabel()}
             disabled={disabled}
@@ -263,6 +263,8 @@ const TokenInputCard = (props: TokenInputCardProps) => {
               disabled && "opacity-50"
             )}
             {...(registration ?? { value, readOnly: true })}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
           />
         </div>
 
