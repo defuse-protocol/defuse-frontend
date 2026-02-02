@@ -11,7 +11,13 @@ import {
 } from "@src/providers/ActivityDockProvider"
 import clsx from "clsx"
 import { AnimatePresence, type Variants, motion } from "framer-motion"
-import { useEffect, useRef, useState } from "react"
+import {
+  cloneElement,
+  isValidElement,
+  useEffect,
+  useRef,
+  useState,
+} from "react"
 import Button from "./Button"
 
 const STACK_OFFSET = 14
@@ -212,16 +218,20 @@ function DockCard({
               "0 -1px 3px 0 rgb(0 0 0 / 0.1), 0 -1px 2px -1px rgb(0 0 0 / 0.1)",
           }}
         >
-          <div className="flex items-center gap-3">
-            {item.rawIcon ? (
-              <div className="size-8 shrink-0 flex items-center justify-center">
-                {item.icon}
-              </div>
-            ) : (
-              <div className="size-8 shrink-0 rounded-full bg-gray-200 flex items-center justify-center outline-1 outline-gray-900/10 -outline-offset-1">
-                {item.icon}
-              </div>
-            )}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center shrink-0 -space-x-2.5">
+              {item.icons.map((icon, idx) => {
+                if (!isValidElement<{ className?: string }>(icon)) return null
+
+                return cloneElement(icon, {
+                  key: `${item.id}-icon-${idx}`,
+                  className: clsx(
+                    icon.props.className,
+                    "rounded-full ring-2 ring-white"
+                  ),
+                })
+              })}
+            </div>
             <p className="flex-1 text-sm font-semibold text-gray-700">
               {item.title}
             </p>
