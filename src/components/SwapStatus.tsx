@@ -51,7 +51,7 @@ export function SwapStatus({ swap, variant, onSwapAgain }: SwapStatusProps) {
     getStageFromState,
   })
 
-  const hasError = swap.is1cs
+  const isError = swap.is1cs
     ? is1csError(contextStatus)
     : isIntentError(stateValue)
 
@@ -64,7 +64,7 @@ export function SwapStatus({ swap, variant, onSwapAgain }: SwapStatusProps) {
       <DockView
         displayStage={displayStage}
         displayIndex={displayIndex}
-        hasError={hasError}
+        isError={isError}
         isSuccess={isSuccess}
       />
     )
@@ -76,7 +76,7 @@ export function SwapStatus({ swap, variant, onSwapAgain }: SwapStatusProps) {
         swap={swap}
         displayStage={displayStage}
         displayIndex={displayIndex}
-        hasError={hasError}
+        isError={isError}
         canRetry={canRetry}
         txHash={txHash}
       />
@@ -88,7 +88,7 @@ export function SwapStatus({ swap, variant, onSwapAgain }: SwapStatusProps) {
       swap={swap}
       displayStage={displayStage}
       displayIndex={displayIndex}
-      hasError={hasError}
+      isError={isError}
       canRetry={canRetry}
       isSuccess={isSuccess}
       onSwapAgain={onSwapAgain}
@@ -99,12 +99,12 @@ export function SwapStatus({ swap, variant, onSwapAgain }: SwapStatusProps) {
 function DockView({
   displayStage,
   displayIndex,
-  hasError,
+  isError,
   isSuccess,
 }: {
   displayStage: SwapStage
   displayIndex: number
-  hasError: boolean
+  isError: boolean
   isSuccess: boolean
 }) {
   return (
@@ -113,7 +113,7 @@ function DockView({
       stageLabelsShort={SWAP_STAGE_LABELS_SHORT}
       displayStage={displayStage}
       displayIndex={displayIndex}
-      hasError={hasError}
+      isError={isError}
       isSuccess={isSuccess}
     />
   )
@@ -123,7 +123,7 @@ function FullView({
   swap,
   displayStage,
   displayIndex,
-  hasError,
+  isError,
   canRetry,
   isSuccess,
   onSwapAgain,
@@ -131,7 +131,7 @@ function FullView({
   swap: TrackedSwapIntent
   displayStage: SwapStage
   displayIndex: number
-  hasError: boolean
+  isError: boolean
   canRetry: boolean
   isSuccess: boolean
   onSwapAgain?: () => void
@@ -194,25 +194,17 @@ function FullView({
           </div>
         </div>
 
-        <ProgressSteps
-          stages={SWAP_STAGES}
-          stageLabels={SWAP_STAGE_LABELS}
-          displayStage={displayStage}
-          displayIndex={displayIndex}
-          hasError={hasError}
-          isSuccess={isSuccess}
-          size="md"
-        />
-
-        <ProgressSteps
-          stages={SWAP_STAGES}
-          stageLabels={SWAP_STAGE_LABELS}
-          displayStage={displayStage}
-          displayIndex={displayIndex}
-          hasError={hasError}
-          isSuccess={isSuccess}
-          size="sm"
-        />
+        <div className="mt-8 border-t border-gray-200 pt-8">
+          <ProgressSteps
+            stages={SWAP_STAGES}
+            stageLabels={SWAP_STAGE_LABELS}
+            displayStage={displayStage}
+            displayIndex={displayIndex}
+            isError={isError}
+            isSuccess={isSuccess}
+            size="md"
+          />
+        </div>
       </div>
 
       <div className="mt-6 flex flex-col gap-3">
@@ -221,7 +213,7 @@ function FullView({
             Swap again
           </Button>
         )}
-        {hasError && canRetry && (
+        {isError && canRetry && (
           <Button
             size="xl"
             fullWidth
@@ -230,7 +222,7 @@ function FullView({
             Retry
           </Button>
         )}
-        {hasError && (
+        {isError && (
           <Button size="xl" variant="secondary" fullWidth onClick={onSwapAgain}>
             Try a new swap
           </Button>
@@ -244,14 +236,14 @@ function CardView({
   swap,
   displayStage,
   displayIndex,
-  hasError,
+  isError,
   canRetry,
   txHash,
 }: {
   swap: TrackedSwapIntent
   displayStage: SwapStage
   displayIndex: number
-  hasError: boolean
+  isError: boolean
   canRetry: boolean
   txHash: string | null | undefined
 }) {
@@ -290,8 +282,8 @@ function CardView({
         stageLabels={SWAP_STAGE_LABELS}
         displayStage={displayStage}
         displayIndex={displayIndex}
-        hasError={hasError}
-        isSuccess={displayStage === "complete" && !hasError}
+        isError={isError}
+        isSuccess={displayStage === "complete" && !isError}
         size="sm"
       />
 
@@ -308,7 +300,7 @@ function CardView({
             <ArrowTopRightOnSquareIcon className="size-4" />
           </Button>
         )}
-        {hasError && canRetry && (
+        {isError && canRetry && (
           <Button
             onClick={() => swap.actorRef.send({ type: "RETRY" })}
             variant="primary"

@@ -40,7 +40,7 @@ export function WithdrawStatus({
       getStageFromState,
     })
 
-  const hasError = isWithdrawError(stateValue)
+  const isError = isWithdrawError(stateValue)
   const isSuccess = isWithdrawSuccess(stateValue)
 
   if (variant === "dock") {
@@ -50,7 +50,7 @@ export function WithdrawStatus({
         stageLabelsShort={WITHDRAW_STAGE_LABELS_SHORT}
         displayStage={displayStage}
         displayIndex={displayIndex}
-        hasError={hasError}
+        isError={isError}
         isSuccess={isSuccess}
       />
     )
@@ -62,7 +62,7 @@ export function WithdrawStatus({
         withdraw={withdraw}
         displayStage={displayStage}
         displayIndex={displayIndex}
-        hasError={hasError}
+        isError={isError}
         canRetry={canRetry}
         txHash={txHash}
         isSuccess={isSuccess}
@@ -75,7 +75,7 @@ export function WithdrawStatus({
       withdraw={withdraw}
       displayStage={displayStage}
       displayIndex={displayIndex}
-      hasError={hasError}
+      isError={isError}
       canRetry={canRetry}
       isSuccess={isSuccess}
       onWithdrawAgain={onWithdrawAgain}
@@ -87,7 +87,7 @@ function FullView({
   withdraw,
   displayStage,
   displayIndex,
-  hasError,
+  isError,
   canRetry,
   isSuccess,
   onWithdrawAgain,
@@ -95,7 +95,7 @@ function FullView({
   withdraw: TrackedWithdrawIntent
   displayStage: WithdrawStage
   displayIndex: number
-  hasError: boolean
+  isError: boolean
   canRetry: boolean
   isSuccess: boolean
   onWithdrawAgain?: () => void
@@ -134,7 +134,7 @@ function FullView({
           stageLabels={WITHDRAW_STAGE_LABELS}
           displayStage={displayStage}
           displayIndex={displayIndex}
-          hasError={hasError}
+          isError={isError}
           isSuccess={isSuccess}
           size="md"
         />
@@ -146,7 +146,7 @@ function FullView({
             Withdraw again
           </Button>
         )}
-        {hasError && canRetry && (
+        {isError && canRetry && (
           <Button
             size="xl"
             fullWidth
@@ -155,7 +155,7 @@ function FullView({
             Retry
           </Button>
         )}
-        {hasError && (
+        {isError && (
           <Button
             size="xl"
             variant="secondary"
@@ -174,7 +174,7 @@ function CardView({
   withdraw,
   displayStage,
   displayIndex,
-  hasError,
+  isError,
   canRetry,
   txHash,
   isSuccess,
@@ -182,7 +182,7 @@ function CardView({
   withdraw: TrackedWithdrawIntent
   displayStage: WithdrawStage
   displayIndex: number
-  hasError: boolean
+  isError: boolean
   canRetry: boolean
   txHash: string | null | undefined
   isSuccess: boolean
@@ -216,7 +216,7 @@ function CardView({
         stageLabels={WITHDRAW_STAGE_LABELS}
         displayStage={displayStage}
         displayIndex={displayIndex}
-        hasError={hasError}
+        isError={isError}
         isSuccess={isSuccess}
         size="sm"
       />
@@ -234,7 +234,7 @@ function CardView({
             <ArrowTopRightOnSquareIcon className="size-4" />
           </Button>
         )}
-        {hasError && canRetry && (
+        {isError && canRetry && (
           <Button
             onClick={() => withdraw.actorRef.send({ type: "RETRY" })}
             variant="primary"
