@@ -30,7 +30,7 @@ const NEAR_EXPLORER = "https://nearblocks.io"
 
 type SwapStatusProps = {
   swap: TrackedSwapIntent
-  variant: "full" | "card" | "dock"
+  variant: "full" | "dock"
   onSwapAgain?: () => void
 }
 
@@ -58,11 +58,14 @@ export function SwapStatus({ swap, variant, onSwapAgain }: SwapStatusProps) {
 
   if (variant === "dock") {
     return (
-      <DockView
+      <ProgressSteps
+        stages={SWAP_STAGES}
+        stageLabels={SWAP_STAGE_LABELS}
         displayStage={displayStage}
         displayIndex={displayIndex}
         isError={isError}
         isSuccess={isSuccess}
+        size="sm"
       />
     )
   }
@@ -77,30 +80,6 @@ export function SwapStatus({ swap, variant, onSwapAgain }: SwapStatusProps) {
       canRetry={canRetry}
       isSuccess={isSuccess}
       onSwapAgain={onSwapAgain}
-    />
-  )
-}
-
-function DockView({
-  displayStage,
-  displayIndex,
-  isError,
-  isSuccess,
-}: {
-  displayStage: SwapStage
-  displayIndex: number
-  isError: boolean
-  isSuccess: boolean
-}) {
-  return (
-    <ProgressSteps
-      stages={SWAP_STAGES}
-      stageLabels={SWAP_STAGE_LABELS}
-      displayStage={displayStage}
-      displayIndex={displayIndex}
-      isError={isError}
-      isSuccess={isSuccess}
-      size="sm"
     />
   )
 }

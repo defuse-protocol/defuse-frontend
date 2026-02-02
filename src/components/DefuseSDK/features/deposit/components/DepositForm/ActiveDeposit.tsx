@@ -105,14 +105,14 @@ export function ActiveDeposit({
       addDockItem({
         id: `deposit-${depositId}`,
         title: `Deposit ${formattedAmount} ${token.symbol}`,
-        icon: (
+        icons: [
           <AssetComboIcon
-            sizeClassName="size-6"
+            key="token"
+            sizeClassName="size-7"
             icon={token.icon}
             chainName={chainName}
-          />
-        ),
-        rawIcon: true,
+          />,
+        ],
         keyValueRows: [],
         renderContent: () => (
           <HorizontalProgressDots

@@ -38,7 +38,10 @@ const AssetComboIcon = ({
   const { resolvedTheme } = useTheme()
 
   return (
-    <div className={clsx("relative inline-block", className)} style={style}>
+    <div
+      className={clsx("relative inline-block rounded-full", className)}
+      style={style}
+    >
       <div
         className={clsx(
           "relative overflow-hidden flex justify-center items-center rounded-full outline-1 outline-gray-900/10 -outline-offset-1",
