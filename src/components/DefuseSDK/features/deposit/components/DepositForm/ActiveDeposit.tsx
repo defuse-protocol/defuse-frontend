@@ -290,6 +290,8 @@ export function ActiveDeposit({
       <DepositWarning
         depositWarning={depositOutput || preparationOutput}
         className="mt-6"
+        tokenSymbol={token.symbol}
+        networkLabel={networkLabel}
       />
     </div>
   )

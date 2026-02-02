@@ -9,9 +9,13 @@ export type DepositWarningOutput =
 export const DepositWarning = ({
   depositWarning,
   className,
+  tokenSymbol,
+  networkLabel,
 }: {
   depositWarning: DepositWarningOutput
   className?: string
+  tokenSymbol?: string
+  networkLabel?: string
 }) => {
   let content: ReactNode = null
 
@@ -32,7 +36,12 @@ export const DepositWarning = ({
           "It seems the deposit address was not generated. Please try re-selecting the token and network."
         break
       case "ERR_FETCH_BALANCE":
-        content = "It seems the balance is not available. Please try again."
+        if (tokenSymbol && networkLabel) {
+          content = `We couldn't retrieve a balance from your wallet for ${tokenSymbol} on ${networkLabel}. This is likely because your wallet doesn't support ${networkLabel}, but could also happen if there's a network issue.`
+        } else {
+          content =
+            "We couldn't retrieve a balance from your wallet. This is likely because your wallet doesn't support the selected network, but could also happen if there's a network issue."
+        }
         break
       case "ERR_NEP141_STORAGE_CANNOT_FETCH":
         content =
