@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { formatTokenValue } from "./format"
+import {
+  formatTokenValue,
+  formatUsdAmount,
+  removeTrailingZeros,
+  truncateDisplayValue,
+} from "./format"
 
 describe("formatTokenValue()", () => {
   describe("basic formatting", () => {
@@ -188,5 +193,81 @@ describe("formatTokenValue()", () => {
       expect(formatTokenValue(9007199254740991n, 0)).toEqual("9007199254740991")
       expect(formatTokenValue(9007199254740991n, 6)).toEqual("9007199254.7")
     })
+  })
+})
+
+describe("removeTrailingZeros()", () => {
+  it.each([
+    ["1.23000", "1.23"],
+    ["1.00", "1"],
+    ["1.0", "1"],
+    ["100", "100"],
+    ["100.00", "100"],
+    ["0.10", "0.1"],
+    ["0.0003567979000", "0.0003567979"],
+    ["123.456000000", "123.456"],
+  ])("removeTrailingZeros(%s) => %s", (input, expected) => {
+    expect(removeTrailingZeros(input)).toEqual(expected)
+  })
+
+  it("handles edge cases", () => {
+    expect(removeTrailingZeros("")).toEqual("")
+    expect(removeTrailingZeros("0")).toEqual("0")
+    expect(removeTrailingZeros(".0")).toEqual("0")
+    expect(removeTrailingZeros("0.0")).toEqual("0")
+  })
+})
+
+describe("truncateDisplayValue()", () => {
+  it.each([
+    ["0.123456789012345", "0.123456789"], // 16 chars -> 11
+    ["0.0003567979545", "0.000356797"], // truncate decimals
+    ["0.123456789", "0.123456789"], // exactly 11 chars, no truncation
+    ["123.456", "123.456"], // short value, no change
+    ["999999.99", "999999.99"], // just under 1M threshold
+  ])("truncateDisplayValue(%s) => %s", (input, expected) => {
+    expect(truncateDisplayValue(input)).toEqual(expected)
+  })
+
+  it("uses compact notation for >= 1M", () => {
+    expect(truncateDisplayValue("1000000")).toEqual("1M")
+    expect(truncateDisplayValue("1500000")).toEqual("1.5M")
+    expect(truncateDisplayValue("2500000000")).toEqual("2.5B")
+    expect(truncateDisplayValue("1234567.89")).toEqual("1.23M")
+  })
+
+  it("handles edge cases", () => {
+    expect(truncateDisplayValue("")).toEqual("")
+    expect(truncateDisplayValue("abc")).toEqual("abc")
+    expect(truncateDisplayValue("0")).toEqual("0")
+  })
+
+  it("removes trailing zeros after truncation", () => {
+    expect(truncateDisplayValue("1.200000")).toEqual("1.2")
+    expect(truncateDisplayValue("123.000")).toEqual("123")
+  })
+})
+
+describe("formatUsdAmount()", () => {
+  it.each([
+    [0, "$0.00"],
+    [1.5, "$1.50"],
+    [99.99, "$99.99"],
+    [500, "$500"],
+    [1234, "$1,234"],
+    [999999, "$999,999"],
+  ])("formatUsdAmount(%s) => %s", (input, expected) => {
+    expect(formatUsdAmount(input)).toEqual(expected)
+  })
+
+  it("uses compact notation for millions", () => {
+    expect(formatUsdAmount(1500000)).toEqual("$1.50M")
+    expect(formatUsdAmount(2500000000)).toEqual("$2.50B")
+  })
+
+  it("shows more decimals for small values", () => {
+    expect(formatUsdAmount(0.05)).toEqual("$0.05")
+    expect(formatUsdAmount(0.005)).toEqual("$0.005")
+    expect(formatUsdAmount(0.0001)).toEqual("$0.0001")
   })
 })

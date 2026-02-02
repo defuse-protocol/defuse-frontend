@@ -164,7 +164,9 @@ const TokenInputCard = (props: TokenInputCardProps) => {
   const [isFocused, setIsFocused] = useState(false)
   const reg = isDisplayOnly ? undefined : props.registration
 
-  // Truncate display value when blurred or for output fields
+  // Display truncation (visual only, form value unchanged):
+  // - Blurred: truncate to 11 chars for visual fit
+  // - Focused: show full value for editing
   const shouldTruncate = isOutput || !isFocused
   const registration =
     reg && "value" in reg && shouldTruncate
@@ -176,6 +178,7 @@ const TokenInputCard = (props: TokenInputCardProps) => {
     if (reg && "onFocus" in reg) reg.onFocus?.(e)
   }
 
+  // On blur: clean trailing zeros from form value (e.g., "1.500" -> "1.5")
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     setIsFocused(false)
     if (reg && "value" in reg && "onChange" in reg) {

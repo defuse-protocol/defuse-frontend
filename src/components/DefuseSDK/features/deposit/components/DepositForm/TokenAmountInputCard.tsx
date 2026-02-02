@@ -78,6 +78,7 @@ TokenAmountInputCard.Input = forwardRef<
   const [isFocused, setIsFocused] = useState(false)
   const currentValue = String(value ?? "")
 
+  // Display truncation (visual only): blurred shows max 11 chars, focused shows full value
   const displayValue = isFocused ? value : truncateDisplayValue(currentValue)
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
@@ -85,6 +86,7 @@ TokenAmountInputCard.Input = forwardRef<
     onFocus?.(e)
   }
 
+  // On blur: clean trailing zeros from form value (e.g., "1.500" -> "1.5")
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     setIsFocused(false)
     const cleaned = removeTrailingZeros(currentValue)
