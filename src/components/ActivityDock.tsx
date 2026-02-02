@@ -225,7 +225,10 @@ function DockCard({
 
                 return cloneElement(icon, {
                   key: `${item.id}-icon-${idx}`,
-                  className: clsx(icon.props.className, "ring-2 ring-white"),
+                  className: clsx(
+                    icon.props.className,
+                    "rounded-full ring-2 ring-white"
+                  ),
                 })
               })}
             </div>
