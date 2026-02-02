@@ -188,20 +188,19 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
   // we need stable references to allow passing to useEffect
   const switchTokens = useCallback(() => {
-    const { amountOut } = getValues()
-    setValue("amountIn", amountOut)
+    setValue("amountIn", "")
     setValue("amountOut", "")
     swapUIActorRef.send({
       type: "input",
       params: {
         tokenIn: tokenOut,
         tokenOut: tokenIn,
-        amountIn: amountOut,
+        amountIn: "",
         amountOut: "",
         swapType: QuoteRequest.swapType.EXACT_INPUT,
       },
     })
-  }, [tokenIn, tokenOut, setValue, getValues, swapUIActorRef])
+  }, [tokenIn, tokenOut, setValue, swapUIActorRef])
 
   const {
     setModalType,
@@ -668,8 +667,7 @@ function renderSwapButtonText(
   if (amountInEmpty && amountOutEmpty) return "Please enter an amount."
   if (noLiquidity)
     return "Ooops. There is no liquidity available for this swap. Please try again later."
-  if (balanceInsufficient)
-    return "You have an insufficient balance. Please adjust."
+  if (balanceInsufficient) return "Insufficient balance"
   if (insufficientTokenInAmount) return "Insufficient amount. Please adjust."
   if (failedToGetAQuote)
     return "We were unable to get a quote from our solvers. Please try again."

@@ -1,13 +1,8 @@
-import { InformationCircleIcon as InformationCircleIconSmall } from "@heroicons/react/16/solid"
-import {
-  AdjustmentsHorizontalIcon,
-  InformationCircleIcon,
-} from "@heroicons/react/20/solid"
+import { AdjustmentsHorizontalIcon } from "@heroicons/react/20/solid"
 import Button from "@src/components/Button"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
-import { useState } from "react"
-import { BaseModalDialog } from "../../../components/Modal/ModalDialog"
+import HelperPopover from "@src/components/HelperPopover"
 import { useModalStore } from "../../../providers/ModalStoreProvider"
 import { ModalType } from "../../../stores/modalStore"
 import { BASIS_POINTS_DENOMINATOR } from "../../../utils/tokenUtils"
@@ -22,7 +17,6 @@ interface SwapQuoteInfoProps {
 export function SwapQuoteInfo({ tokenOut, tokenIn }: SwapQuoteInfoProps) {
   const { slippageBasisPoints, minAmountOut } = useSwapRateData()
   const { setModalType } = useModalStore((state) => state)
-  const [isInfoOpen, setIsInfoOpen] = useState(false)
 
   const actorRef = SwapUIMachineContext.useActorRef()
   const snapshot = SwapUIMachineContext.useSelector((state) => state)
@@ -61,62 +55,42 @@ export function SwapQuoteInfo({ tokenOut, tokenIn }: SwapQuoteInfoProps) {
   )
 
   return (
-    <>
-      <dl className="mt-6 space-y-3 text-sm">
-        <div className="flex items-center justify-between">
-          <dt className="text-gray-500 font-medium">Max slippage</dt>
-          <dd>
-            <Button
-              variant="secondary"
-              size="xs"
-              onClick={handleOpenSlippageSettings}
-            >
-              {slippagePercent}
-              <AdjustmentsHorizontalIcon className="size-4" />
-            </Button>
-          </dd>
-        </div>
-        <div className="flex items-center justify-between">
-          <dt className="text-gray-500 font-medium">Receive at least</dt>
-          <dd className="flex items-center gap-1.5 font-semibold text-gray-900">
-            {minReceiveFormatted} {tokenOut.symbol}
-            <Button
-              size="xs"
-              variant="secondary"
-              onClick={() => setIsInfoOpen(true)}
-            >
-              <span className="sr-only">Learn more about quotes</span>
-              <InformationCircleIconSmall className="size-4" />
-            </Button>
-          </dd>
-        </div>
-      </dl>
-
-      <BaseModalDialog
-        open={isInfoOpen}
-        onClose={() => setIsInfoOpen(false)}
-        title={
-          <span className="flex items-center gap-2">
-            <InformationCircleIcon className="size-5 text-gray-400" />
-            How quotes work
-          </span>
-        }
-      >
-        <p className="mt-1 text-sm/5 font-medium">
-          The quoted amount is an estimate. Multiple solvers compete to give you
-          the best price. Your max slippage setting guarantees a minimum amount
-          you'll receive—if that can't be met, the swap is cancelled.
-        </p>
-        <Button
-          variant="primary"
-          fullWidth
-          size="lg"
-          className="mt-4"
-          onClick={() => setIsInfoOpen(false)}
-        >
-          Close
-        </Button>
-      </BaseModalDialog>
-    </>
+    <dl className="mt-6 space-y-3 text-sm">
+      <div className="flex items-center justify-between">
+        <dt className="flex items-center text-gray-500 font-medium gap-1.5">
+          Max slippage
+          <HelperPopover>
+            The slippage setting is a safety mechanism to protect you from
+            getting a final price that is very different than the quoted price.
+            If the specified slippage would be exceeded, your swap will be
+            cancelled. Below is the minimum amount you are guaranteed to
+            receive.
+          </HelperPopover>
+        </dt>
+        <dd>
+          <Button
+            variant="secondary"
+            size="xs"
+            onClick={handleOpenSlippageSettings}
+          >
+            {slippagePercent}
+            <AdjustmentsHorizontalIcon className="size-4" />
+          </Button>
+        </dd>
+      </div>
+      <div className="flex items-center justify-between">
+        <dt className="flex items-center text-gray-500 font-medium gap-1.5">
+          Receive at least
+          <HelperPopover>
+            The quoted amount is an estimate. Multiple solvers compete to give
+            you the best price. Your max slippage setting guarantees a minimum
+            amount you'll receive—if that can't be met, the swap is cancelled.
+          </HelperPopover>
+        </dt>
+        <dd className="font-semibold text-gray-900">
+          {minReceiveFormatted} {tokenOut.symbol}
+        </dd>
+      </div>
+    </dl>
   )
 }

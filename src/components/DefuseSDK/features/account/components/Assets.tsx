@@ -85,7 +85,7 @@ const Assets = ({
             <ListItem
               key={getDefuseAssetId(token)}
               popoverItems={[
-                { label: "Send", href: "/send", icon: SendIcon },
+                { label: "Transfer", href: "/send", icon: SendIcon },
                 {
                   label: "Swap",
                   href: `/swap?from=${token.symbol}&to=${toTokenSymbol}`,
