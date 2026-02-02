@@ -61,12 +61,14 @@ export default function AccountPage() {
 
           <Button href="/send" size="xl">
             <SendIcon className="size-6" />
-            Send
+            Transfer
           </Button>
         </section>
       )}
 
-      <Assets assets={holdings} isPending={isPending} isError={isError} />
+      <section className="mt-9">
+        <Assets assets={holdings} isPending={isPending} isError={isError} />
+      </section>
 
       <ShieldPromo />
     </>

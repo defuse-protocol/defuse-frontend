@@ -262,7 +262,7 @@ export const getWithdrawButtonText = (
   if (hasNoAmount) return "Enter amount"
   if (noLiquidity) return "No liquidity providers"
   if (insufficientTokenInAmount) return "Insufficient amount"
-  return "Review send"
+  return "Review transfer"
 }
 
 /**

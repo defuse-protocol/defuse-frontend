@@ -2,18 +2,30 @@
 
 import {
   ArrowRightStartOnRectangleIcon,
+  CheckIcon,
   ChevronUpIcon,
   Cog8ToothIcon,
+  DocumentDuplicateIcon,
 } from "@heroicons/react/16/solid"
 import { UserIcon } from "@heroicons/react/24/solid"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import clsx from "clsx"
 import Link from "next/link"
 import { DropdownMenu } from "radix-ui"
+import { useState } from "react"
 import { midTruncate } from "./DefuseSDK/features/withdraw/components/WithdrawForm/utils"
 
 const UserMenu = () => {
   const { state, signOut } = useConnectWallet()
+  const [copied, setCopied] = useState(false)
+
+  const handleCopyAddress = async () => {
+    if (state.address) {
+      await navigator.clipboard.writeText(state.address)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
+  }
 
   // If not connected, show a link to login
   if (!state.address) {
@@ -45,6 +57,12 @@ const UserMenu = () => {
       href: "/settings",
       icon: Cog8ToothIcon,
     },
+    {
+      label: copied ? "Copied!" : "Copy account address",
+      onClick: handleCopyAddress,
+      icon: copied ? CheckIcon : DocumentDuplicateIcon,
+      preventClose: true,
+    },
   ]
 
   return (
@@ -70,7 +88,7 @@ const UserMenu = () => {
             "data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:duration-100 data-[state=closed]:ease-in"
           )}
         >
-          {items.map(({ href, onClick, icon: Icon, label }) => {
+          {items.map(({ href, onClick, icon: Icon, label, preventClose }) => {
             const className =
               "group rounded-xl focus:outline-hidden focus-visible:bg-gray-200 focus-visible:text-gray-900 p-2.5 text-left text-sm text-gray-700 flex items-center gap-2 hover:bg-gray-200 hover:text-gray-900 font-semibold"
 
@@ -82,7 +100,11 @@ const UserMenu = () => {
             )
 
             return (
-              <DropdownMenu.Item key={label} asChild>
+              <DropdownMenu.Item
+                key={label}
+                asChild
+                onSelect={preventClose ? (e) => e.preventDefault() : undefined}
+              >
                 {href ? (
                   <Link href={href} className={className}>
                     {content}

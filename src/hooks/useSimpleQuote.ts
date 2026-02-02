@@ -86,7 +86,11 @@ export function useSimpleQuote({
     } catch (err) {
       if (controller.signal.aborted) return
       setAmountOut("")
-      setError(err instanceof Error ? err.message : "Quote failed")
+      setError(
+        err instanceof Error
+          ? err.message
+          : "We were unable to retrieve a quote. This is a technical error on our side. Please try again."
+      )
     } finally {
       if (!controller.signal.aborted) {
         setLoading(false)
