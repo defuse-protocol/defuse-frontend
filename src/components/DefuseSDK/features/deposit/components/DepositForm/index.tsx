@@ -236,7 +236,7 @@ export const DepositForm = ({
         Back
       </Link>
 
-      <PageHeader title="Deposit crypto" className="mt-4" />
+      <PageHeader title="Deposit crypto to your account" className="mt-4" />
 
       <form onSubmit={handleSubmit(onSubmit)} className="mt-6">
         <div className="flex flex-col gap-2">

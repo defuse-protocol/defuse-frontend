@@ -74,7 +74,7 @@ export function PassiveDeposit({
           <div className="flex items-center justify-between">
             <div className="flex flex-col items-start gap-1">
               <dt className="font-semibold text-base/none text-gray-900">
-                To your personal deposit address
+                To this deposit address
               </dt>
               {depositAddress != null ? (
                 <dd className="font-medium text-base/none text-gray-400">
