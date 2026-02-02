@@ -9,7 +9,9 @@ import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import { useNearWallet } from "@src/providers/NearWalletProvider"
 import { renderAppLink } from "@src/utils/renderAppLink"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useCallback, useRef } from "react"
+import { updateURLParamsWithdraw } from "./_utils/updateURLParams"
 
 export default function SendPage() {
   const { state } = useConnectWallet()
@@ -17,11 +19,37 @@ export default function SendPage() {
   const { signAndSendTransactions } = useNearWallet()
   const tokenList = useTokenList(LIST_TOKENS, true)
   const referral = useIntentsReferral()
+  const router = useRouter()
   const queryParams = useSearchParams()
   const amount = queryParams.get("amount") ?? undefined
   const tokenSymbol = queryParams.get("token") ?? undefined
   const network = queryParams.get("network") ?? undefined
   const recipient = queryParams.get("recipient") ?? undefined
+  const contactId = queryParams.get("contactId") ?? undefined
+
+  const initialHadParams = useRef(
+    !!(tokenSymbol || network || contactId)
+  ).current
+  const initialPresetToken = useRef(tokenSymbol).current
+  const initialPresetNetwork = useRef(network).current
+
+  const handleFormChange = useCallback(
+    (params: {
+      token: string | null
+      network: string
+      recipientChanged: boolean
+    }) => {
+      if (!initialHadParams) return
+      updateURLParamsWithdraw({
+        token: params.token,
+        network: params.network,
+        removeContactId: params.recipientChanged,
+        router,
+        searchParams: queryParams,
+      })
+    },
+    [initialHadParams, router, queryParams]
+  )
 
   const userAddress = state.isVerified ? state.address : undefined
   const userChainType = state.chainType
@@ -32,9 +60,9 @@ export default function SendPage() {
 
       <WithdrawWidget
         presetAmount={amount}
-        presetNetwork={network}
+        presetNetwork={initialPresetNetwork}
         presetRecipient={recipient}
-        presetTokenSymbol={tokenSymbol}
+        presetTokenSymbol={initialPresetToken}
         tokenList={tokenList}
         userAddress={userAddress}
         displayAddress={state.isVerified ? state.displayAddress : undefined}
@@ -56,6 +84,7 @@ export default function SendPage() {
         signMessage={(params) => signMessage(params)}
         renderHostAppLink={renderAppLink}
         referral={referral}
+        onFormChange={handleFormChange}
       />
     </>
   )

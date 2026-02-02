@@ -23,4 +23,13 @@ export type WithdrawWidgetProps = {
    * Prop is not reactive, set it once when the component is created.
    */
   referral?: string
+  /**
+   * Optional callback that is called when form values change.
+   * Used for bidirectional URL sync with the parent page.
+   */
+  onFormChange?: (params: {
+    token: string | null // token symbol
+    network: string // blockchain/network
+    recipientChanged: boolean // true if user manually edited recipient
+  }) => void
 }
