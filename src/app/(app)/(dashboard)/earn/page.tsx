@@ -1,9 +1,7 @@
-"use client"
-
 import { FormattedCurrency } from "@src/components/DefuseSDK/features/account/components/shared/FormattedCurrency"
+import EarnPromo from "@src/components/EarnPromo"
 import ListItem from "@src/components/ListItem"
 import { BtcIcon, EthIcon, NearIcon, UsdcIcon } from "@src/icons"
-import clsx from "clsx"
 
 const PLACEHOLDER_VAULTS = [
   {
@@ -35,43 +33,7 @@ const PLACEHOLDER_VAULTS = [
 export default function EarnPage() {
   return (
     <>
-      <div className="relative bg-gray-800 rounded-3xl grid grid-cols-3 gap-4 group overflow-hidden">
-        <div className="col-span-2 relative p-5 z-20">
-          <div className="bg-brand/20 text-brand text-xs rounded-lg px-2 py-1 inline-block uppercase font-bold">
-            Coming soon
-          </div>
-          <h1 className="text-xl font-bold text-white tracking-tight mt-6">
-            Earn
-          </h1>
-          <p className="text-gray-400 text-sm text-balance font-medium">
-            Put your idle assets to work. No lockups. Withdraw anytime.
-          </p>
-        </div>
-
-        <div className="relative" aria-hidden="true">
-          <div className="absolute size-32 -bottom-16 -right-16 rounded-full bg-brand/80 blur-[75px] pointer-events-none" />
-
-          {PLACEHOLDER_VAULTS.map(({ token, icon: Icon, apr }, index) => (
-            <div
-              key={token}
-              className={clsx(
-                "absolute flex items-center gap-1 bg-white p-0.5 pr-2 rounded-full w-fit",
-                {
-                  "top-6 -left-8": index === 0,
-                  "top-12 right-7": index === 1,
-                  "bottom-14 -left-6": index === 2,
-                  "bottom-6 right-10": index === 3,
-                }
-              )}
-            >
-              <div className="rounded-full overflow-hidden size-5 shrink-0">
-                <Icon className="size-full" />
-              </div>
-              <div className="text-xs text-gray-700 font-bold">{apr}</div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <EarnPromo />
 
       <section className="mt-9 flex justify-between pointer-events-none select-none opacity-50">
         <div>
