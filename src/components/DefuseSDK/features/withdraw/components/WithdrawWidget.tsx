@@ -113,7 +113,10 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
         ) : (
           <TokenListUpdater tokenList={props.tokenList} />
         )}
-        <FormChangeNotifier onFormChange={props.onFormChange} />
+        <FormChangeNotifier
+          onFormChange={props.onFormChange}
+          presetValues={props.presetValuesForSync}
+        />
         <WithdrawForm {...props} />
       </WithdrawUIMachineContext.Provider>
     </WithdrawWidgetProvider>
@@ -151,9 +154,11 @@ function TokenListUpdaterWithdraw({ tokenList }: { tokenList: TokenInfo[] }) {
 
 function FormChangeNotifier({
   onFormChange,
+  presetValues,
 }: {
   onFormChange?: WithdrawWidgetProps["onFormChange"]
+  presetValues?: WithdrawWidgetProps["presetValuesForSync"]
 }) {
-  useWithdrawFormChangeNotifier({ onFormChange })
+  useWithdrawFormChangeNotifier({ onFormChange, presetValues })
   return null
 }

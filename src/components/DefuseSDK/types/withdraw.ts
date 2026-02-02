@@ -9,7 +9,7 @@ export type WithdrawWidgetProps = {
   displayAddress: string | undefined
   chainType: authHandle.AuthHandle["method"] | undefined
   presetTokenSymbol: string | undefined
-  presetAmount: string | undefined
+  presetAmount?: string | undefined
   presetRecipient: string | undefined
   presetNetwork: string | undefined
   renderHostAppLink: RenderHostAppLink
@@ -28,8 +28,14 @@ export type WithdrawWidgetProps = {
    * Used for bidirectional URL sync with the parent page.
    */
   onFormChange?: (params: {
-    token: string | null // token symbol
-    network: string // blockchain/network
-    recipientChanged: boolean // true if user manually edited recipient
+    token: string | null
+    network: string
+    recipient: string
+    recipientChanged: boolean
+    networkChanged: boolean
   }) => void
+  presetValuesForSync?: {
+    network: string | undefined
+    recipient: string | undefined
+  }
 }

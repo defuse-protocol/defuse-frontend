@@ -5,13 +5,22 @@ import { WithdrawUIMachineContext } from "../WithdrawUIMachineContext"
 type OnFormChangeParams = {
   token: string | null
   network: string
+  recipient: string
   recipientChanged: boolean
+  networkChanged: boolean
+}
+
+type PresetValues = {
+  network: string | undefined
+  recipient: string | undefined
 }
 
 export function useWithdrawFormChangeNotifier({
   onFormChange,
+  presetValues,
 }: {
   onFormChange?: (params: OnFormChangeParams) => void
+  presetValues?: PresetValues
 }) {
   const withdrawUIActorRef = WithdrawUIMachineContext.useActorRef()
   const withdrawFormRef = useSelector(
@@ -29,19 +38,27 @@ export function useWithdrawFormChangeNotifier({
   )
 
   const prevValuesRef = useRef({ tokenSymbol, blockchain, recipient })
-  const isFirstRender = useRef(true)
+  const hasReachedPresetRef = useRef(false)
 
   useEffect(() => {
     if (!onFormChange) return
 
-    // Skip the first render to avoid triggering on initial mount
-    if (isFirstRender.current) {
-      isFirstRender.current = false
+    const prev = prevValuesRef.current
+
+    if (!hasReachedPresetRef.current) {
+      const networkMatchesPreset =
+        !presetValues?.network || blockchain === presetValues.network
+      const recipientMatchesPreset =
+        !presetValues?.recipient || recipient === presetValues.recipient
+
+      if (networkMatchesPreset && recipientMatchesPreset) {
+        hasReachedPresetRef.current = true
+      }
+
       prevValuesRef.current = { tokenSymbol, blockchain, recipient }
       return
     }
 
-    const prev = prevValuesRef.current
     const tokenChanged = tokenSymbol !== prev.tokenSymbol
     const networkChanged = blockchain !== prev.blockchain
     const recipientChanged =
@@ -51,9 +68,11 @@ export function useWithdrawFormChangeNotifier({
       onFormChange({
         token: tokenSymbol,
         network: blockchain,
+        recipient,
         recipientChanged,
+        networkChanged,
       })
       prevValuesRef.current = { tokenSymbol, blockchain, recipient }
     }
-  }, [tokenSymbol, blockchain, recipient, onFormChange])
+  }, [tokenSymbol, blockchain, recipient, onFormChange, presetValues])
 }
