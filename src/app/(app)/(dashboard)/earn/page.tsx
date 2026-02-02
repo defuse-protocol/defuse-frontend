@@ -1,3 +1,5 @@
+"use client"
+
 import { FormattedCurrency } from "@src/components/DefuseSDK/features/account/components/shared/FormattedCurrency"
 import EarnPromo from "@src/components/EarnPromo"
 import ListItem from "@src/components/ListItem"
