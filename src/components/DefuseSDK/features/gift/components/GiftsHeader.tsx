@@ -1,6 +1,7 @@
 "use client"
 
 import { ListBulletIcon, PlusIcon } from "@heroicons/react/16/solid"
+import PageHeader from "@src/components/PageHeader"
 import TabSwitcher from "@src/components/TabSwitcher"
 import { usePathname } from "next/navigation"
 
@@ -9,11 +10,10 @@ export function GiftsHeader() {
 
   return (
     <>
-      <h1 className="text-gray-900 text-xl font-semibold tracking-tight">
-        Gifts
-      </h1>
+      <PageHeader title="Gifts" />
 
       <TabSwitcher
+        className="mt-5"
         tabs={[
           {
             label: "My gifts",
