@@ -52,7 +52,7 @@ export default function NewGiftPage() {
 
         <GiftsHeader />
 
-        <div className="mt-6">
+        <section className="mt-5">
           <GiftMakerForm
             tokenList={tokenList}
             userAddress={userAddress}
@@ -66,7 +66,7 @@ export default function NewGiftPage() {
             renderHostAppLink={renderAppLink}
             onSuccess={() => router.push("/gifts")}
           />
-        </div>
+        </section>
       </SwapWidgetProvider>
     </WidgetRoot>
   )

@@ -10,7 +10,11 @@ export function GiftsHeader() {
 
   return (
     <>
-      <PageHeader title="Gifts" />
+      <PageHeader
+        title="Gifts"
+        intro="Send assets to your friends and help them get started on NEAR Intents, hassle-free.
+"
+      />
 
       <TabSwitcher
         className="mt-5"

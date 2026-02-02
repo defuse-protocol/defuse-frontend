@@ -6,7 +6,7 @@ export function getButtonText(
   processing: boolean
 ) {
   if (balanceInsufficient) {
-    return "Insufficient Balance"
+    return "Insufficient balance"
   }
   if (processing) {
     return "Processing..."

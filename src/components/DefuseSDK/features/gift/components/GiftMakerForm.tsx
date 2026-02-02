@@ -1,24 +1,21 @@
 import type { authHandle } from "@defuse-protocol/internal-utils"
-import { ArrowsRightLeftIcon } from "@heroicons/react/16/solid"
+import Alert from "@src/components/Alert"
 import Button from "@src/components/Button"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { useActorRef, useSelector } from "@xstate/react"
-import clsx from "clsx"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo } from "react"
 import type { ActorRefFrom, PromiseActorLogic } from "xstate"
 import { AuthGate } from "../../../components/AuthGate"
-import { BlockMultiBalances } from "../../../components/Block/BlockMultiBalances"
 import type { ModalSelectAssetsPayload } from "../../../components/Modal/ModalSelectAssets"
-import SelectAssets from "../../../components/SelectAssets"
 import type { SignerCredentials } from "../../../core/formatters"
 import { useTokensUsdPrices } from "../../../hooks/useTokensUsdPrices"
 import { useModalStore } from "../../../providers/ModalStoreProvider"
 import { ModalType } from "../../../stores/modalStore"
 import type { RenderHostAppLink } from "../../../types/hostAppLink"
 import { assert } from "../../../utils/assert"
-import { formatTokenValue, formatUsdAmount } from "../../../utils/format"
+import { formatTokenValue } from "../../../utils/format"
 import getTokenUsdPrice from "../../../utils/getTokenUsdPrice"
-import { TokenAmountInputCard } from "../../deposit/components/DepositForm/TokenAmountInputCard"
+import TokenInputCard from "../../deposit/components/DepositForm/TokenInputCard"
 import { balanceAllSelector } from "../../machines/depositedBalanceMachine"
 import type { SendNearTransaction } from "../../machines/publicKeyVerifierMachine"
 import type { publicKeyVerifierMachine } from "../../machines/publicKeyVerifierMachine"
@@ -42,9 +39,6 @@ import type {
 import { checkInsufficientBalance, getButtonText } from "../utils/makerForm"
 import { GiftMakerReadyDialog } from "./GiftMakerReadyDialog"
 import { GiftMessageInput } from "./GiftMessageInput"
-import { ErrorReason } from "./shared/ErrorReason"
-import { GiftDescription } from "./shared/GiftDescription"
-import { GiftHeader } from "./shared/GiftHeader"
 
 export type GiftMakerWidgetProps = {
   tokenList: TokenInfo[]
@@ -259,91 +253,8 @@ export function GiftMakerForm({
     }
   }
 
-  const handleSetHalfValue = () => {
-    if (tokenBalance != null) {
-      setTokenAmount(
-        formatTokenValue(tokenBalance.amount / 2n, tokenBalance.decimals, {
-          fractionDigits: 6,
-        })
-      )
-    }
-  }
-
-  const [customPercent, setCustomPercent] = useState<number | null>(null)
-
-  const applyPercentToAmount = useCallback(
-    (percent: number) => {
-      if (tokenBalance != null) {
-        const amount =
-          (tokenBalance.amount * BigInt(Math.round(percent * 100))) / 10000n
-        setTokenAmount(
-          formatTokenValue(amount, tokenBalance.decimals, {
-            fractionDigits: 6,
-          })
-        )
-      }
-    },
-    [tokenBalance, setTokenAmount]
-  )
-
-  const handleSetCustomPercent = useCallback(
-    (percent: number) => {
-      setCustomPercent(percent)
-      applyPercentToAmount(percent)
-    },
-    [applyPercentToAmount]
-  )
-
-  const handleApplyCustomPercent = useCallback(() => {
-    if (customPercent != null) {
-      applyPercentToAmount(customPercent)
-    }
-  }, [customPercent, applyPercentToAmount])
-
-  const balanceAmount = tokenBalance?.amount ?? 0n
-  const disabled = tokenBalance?.amount === 0n
-
-  const isCustomPercentSelected = useMemo(() => {
-    if (
-      customPercent == null ||
-      !tokenBalance ||
-      tokenBalance.amount === 0n ||
-      !formValues.amount
-    ) {
-      return false
-    }
-    const expectedAmount =
-      (tokenBalance.amount * BigInt(Math.round(customPercent * 100))) / 10000n
-    const expectedFormatted = formatTokenValue(
-      expectedAmount,
-      tokenBalance.decimals,
-      { fractionDigits: 6 }
-    )
-    return formValues.amount === expectedFormatted
-  }, [customPercent, formValues.amount, tokenBalance])
-
-  const isMaxSelected = useMemo(() => {
-    if (!tokenBalance || tokenBalance.amount === 0n) return false
-    const maxFormatted = formatTokenValue(
-      tokenBalance.amount,
-      tokenBalance.decimals,
-      { fractionDigits: 6 }
-    )
-    return formValues.amount === maxFormatted
-  }, [formValues.amount, tokenBalance])
-
-  const isHalfSelected = useMemo(() => {
-    if (!tokenBalance || tokenBalance.amount === 0n) return false
-    const halfFormatted = formatTokenValue(
-      tokenBalance.amount / 2n,
-      tokenBalance.decimals,
-      { fractionDigits: 6 }
-    )
-    return formValues.amount === halfFormatted
-  }, [formValues.amount, tokenBalance])
-
   return (
-    <div className="flex flex-col">
+    <>
       {rootSnapshot.matches("settled") &&
         readyGiftRef != null &&
         signerCredentials != null && (
@@ -354,13 +265,6 @@ export function GiftMakerForm({
             onClose={onSuccess}
           />
         )}
-
-      <GiftHeader title="Share gift">
-        <GiftDescription
-          description="Send assets to your friends and help them get started on NEAR
-            Intents, hassle-free."
-        />
-      </GiftHeader>
 
       <form
         onSubmit={(e) => {
@@ -374,132 +278,48 @@ export function GiftMakerForm({
             })
           }
         }}
-        className="flex flex-col gap-5"
       >
-        <div className="flex flex-col items-center">
-          <TokenAmountInputCard
-            variant="2"
-            labelSlot={
-              <label
-                htmlFor="gift-amount-in"
-                className="font-bold text-label text-sm"
-              >
-                Gift amount
-              </label>
-            }
-            inputSlot={
-              <div className="flex items-baseline gap-1">
-                {isUsdMode && (
-                  <span className="font-bold text-gray-900 text-4xl tracking-tight">
-                    $
-                  </span>
-                )}
-                <TokenAmountInputCard.Input
-                  id="gift-amount-in"
-                  name="amount"
-                  value={isUsdMode ? usdValue : formValues.amount}
-                  onChange={(e) => {
-                    if (isUsdMode) {
-                      handleUsdInputChange(e.target.value)
-                    } else {
-                      formValuesRef.trigger.updateAmount({
-                        value: e.target.value,
-                      })
-                    }
-                  }}
-                  disabled={processing}
-                />
-              </div>
-            }
-            tokenSlot={
-              <SelectAssets
-                selected={formValues.token ?? undefined}
-                handleSelect={() =>
-                  openModalSelectAssets("token", formValues.token)
-                }
-              />
-            }
-            balanceSlot={
-              <BlockMultiBalances
-                balance={balanceAmount}
-                decimals={tokenBalance?.decimals ?? 0}
-                className={clsx("static!", tokenBalance == null && "invisible")}
-                onBalanceClick={handleSetMaxValue}
-                customPercentButtonSlot={
-                  <BlockMultiBalances.DisplayCustomPercentButton
-                    onPercentChange={handleSetCustomPercent}
-                    onPercentApply={handleApplyCustomPercent}
-                    balance={balanceAmount}
-                    disabled={disabled}
-                    customPercent={customPercent}
-                    isSelected={isCustomPercentSelected}
-                  />
-                }
-                halfButtonSlot={
-                  <BlockMultiBalances.DisplayHalfButton
-                    onClick={handleSetHalfValue}
-                    balance={balanceAmount}
-                    disabled={disabled}
-                    selected={isHalfSelected}
-                  />
-                }
-                maxButtonSlot={
-                  <BlockMultiBalances.DisplayMaxButton
-                    onClick={handleSetMaxValue}
-                    balance={balanceAmount}
-                    disabled={disabled}
-                    selected={isMaxSelected}
-                  />
-                }
-              />
-            }
-            priceSlot={
-              canToggleUsd ? (
-                <button
-                  type="button"
-                  onClick={handleToggleUsdMode}
-                  className="flex items-center gap-1.5 text-base text-gray-500 font-medium hover:text-gray-700 transition-colors"
-                >
-                  <ArrowsRightLeftIcon className="size-4" />
-                  {isUsdMode
-                    ? `${formValues.amount || "0"} ${formValues.token?.symbol ?? ""}`
-                    : formatUsdAmount(usdAmount ?? 0)}
-                </button>
-              ) : (
-                <TokenAmountInputCard.DisplayPrice>
-                  {usdAmount !== null && usdAmount > 0
-                    ? formatUsdAmount(usdAmount)
-                    : null}
-                </TokenAmountInputCard.DisplayPrice>
-              )
-            }
-          />
-          <div className="w-full mt-4">
-            <GiftMessageInput
-              hasValue={formValues.message.length > 0}
-              inputSlot={
-                <GiftMessageInput.Input
-                  id="gift-message"
-                  name="message"
-                  value={formValues.message}
-                  onChange={(e) =>
-                    formValuesRef.trigger.updateMessage({
-                      value: e.target.value,
-                    })
-                  }
-                  maxLength={MAX_MESSAGE_LENGTH}
-                />
+        <TokenInputCard
+          balance={tokenBalance?.amount ?? 0n}
+          decimals={tokenBalance?.decimals ?? 0}
+          symbol={formValues.token?.symbol ?? ""}
+          usdAmount={usdAmount}
+          loading={processing}
+          selectedToken={formValues.token ?? undefined}
+          tokens={tokenList}
+          handleSetMax={handleSetMaxValue}
+          handleSelectToken={() =>
+            openModalSelectAssets("token", formValues.token)
+          }
+          onToggleUsdMode={canToggleUsd ? handleToggleUsdMode : undefined}
+          isUsdMode={isUsdMode}
+          tokenPrice={tokenPrice}
+          tokenAmount={formValues.amount}
+          registration={{
+            name: "amount",
+            onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+              if (isUsdMode) {
+                handleUsdInputChange(e.target.value)
+              } else {
+                formValuesRef.trigger.updateAmount({
+                  value: e.target.value,
+                })
               }
-              countSlot={
-                formValues.message.length > 0 ? (
-                  <GiftMessageInput.DisplayCount
-                    count={MAX_MESSAGE_LENGTH - formValues.message.length}
-                  />
-                ) : null
-              }
-            />
-          </div>
-        </div>
+            },
+            value: isUsdMode ? usdValue : formValues.amount,
+          }}
+        />
+
+        <GiftMessageInput
+          name="message"
+          value={formValues.message}
+          maxLength={MAX_MESSAGE_LENGTH}
+          onChange={(e) =>
+            formValuesRef.trigger.updateMessage({
+              value: e.target.value,
+            })
+          }
+        />
 
         <AuthGate
           renderHostAppLink={renderHostAppLink}
@@ -509,6 +329,7 @@ export function GiftMakerForm({
             type="submit"
             size="xl"
             variant="primary"
+            className="mt-5"
             fullWidth
             loading={processing}
             disabled={amountEmpty || balanceInsufficient || processing}
@@ -517,11 +338,12 @@ export function GiftMakerForm({
           </Button>
         </AuthGate>
       </form>
+
       {error != null && (
-        <div className="mt-2">
-          <ErrorReason reason={error.reason} />
-        </div>
+        <Alert variant="error" className="mt-2">
+          {error.reason}
+        </Alert>
       )}
-    </div>
+    </>
   )
 }
