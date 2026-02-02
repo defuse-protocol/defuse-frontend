@@ -1,14 +1,10 @@
 import type { Contact } from "@src/app/(app)/(auth)/contacts/actions"
-import type { SupportedChainName } from "@src/components/DefuseSDK/types/base"
+import type { SupportedChainName, TokenInfo } from "../../../types/base"
 import { reverseAssetNetworkAdapter } from "../../../utils/adapters"
 import { getDerivedToken } from "../../../utils/tokenUtils"
 import type { Holding } from "../../account/types/sharedTypes"
 
-/**
- * Finds the best token symbol for a network from user holdings.
- * Holdings are pre-sorted by USD value, so first match = highest value.
- */
-function findBestTokenForNetwork(
+function findBestTokenFromHoldings(
   holdings: Holding[],
   network: SupportedChainName
 ): string | undefined {
@@ -20,22 +16,37 @@ function findBestTokenForNetwork(
   return undefined
 }
 
-/**
- * Builds the send page URL with pre-filled params from a contact.
- */
+function findAnyTokenForNetwork(
+  tokenList: TokenInfo[],
+  network: SupportedChainName
+): string | undefined {
+  for (const token of tokenList) {
+    if (getDerivedToken(token, network)) {
+      return token.symbol
+    }
+  }
+  return undefined
+}
+
 export function buildContactTransferUrl(
   contact: Contact,
-  holdings: Holding[]
+  holdings: Holding[],
+  tokenList: TokenInfo[]
 ): string {
   const network = reverseAssetNetworkAdapter[contact.blockchain]
-  const token = findBestTokenForNetwork(holdings, network) ?? "USDC"
+  const token =
+    findBestTokenFromHoldings(holdings, network) ??
+    findAnyTokenForNetwork(tokenList, network)
 
   const params = new URLSearchParams({
     contactId: contact.contactId,
     recipient: contact.address,
     network,
-    token,
   })
+
+  if (token) {
+    params.set("token", token)
+  }
 
   return `/send?${params.toString()}`
 }

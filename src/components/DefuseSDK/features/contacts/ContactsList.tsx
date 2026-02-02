@@ -182,7 +182,11 @@ const ContactsList = ({
                 popoverItems={[
                   {
                     label: "Transfer",
-                    href: buildContactTransferUrl(contact, holdings),
+                    href: buildContactTransferUrl(
+                      contact,
+                      holdings,
+                      LIST_TOKENS
+                    ),
                     icon: SendIcon,
                   },
                   {
