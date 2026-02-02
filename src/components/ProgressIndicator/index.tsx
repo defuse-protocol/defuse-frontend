@@ -6,7 +6,7 @@ import Spinner from "../Spinner"
 
 export type StepSize = "sm" | "md"
 
-export function StepDot({
+function StepDot({
   isActive,
   isComplete,
   isError,
@@ -97,25 +97,22 @@ export function ProgressStep({
       {/* Line between steps */}
       {!isLast && (
         <div
-          className={clsx(
-            "absolute top-1 h-full transition-colors duration-500 ease-out",
-            {
-              "left-4 w-1 -translate-x-0.5": size === "md",
-              "left-2.5 w-0.5 -translate-x-px": size === "sm",
+          className={clsx("absolute top-1 h-full transition-colors", {
+            "left-4 w-1 -translate-x-0.5": size === "md",
+            "left-2.5 w-0.5 -translate-x-px": size === "sm",
 
-              "bg-red-500": status === "error",
-              "bg-green-500": status === "success",
-              "bg-sky-400": status === "pending" && !isCurrent && !isFuture,
-              "bg-gray-200": status === "pending" && (isCurrent || isFuture),
-            }
-          )}
+            "bg-red-500": status === "error",
+            "bg-green-500": status === "success",
+            "bg-sky-400": status === "pending" && !isCurrent && !isFuture,
+            "bg-gray-200": status === "pending" && (isCurrent || isFuture),
+          })}
         />
       )}
 
       {/* Icon */}
       <div
         className={clsx(
-          "relative flex items-center justify-center rounded-full shrink-0",
+          "relative flex items-center justify-center rounded-full shrink-0 transition-colors",
           {
             "size-8": size === "md",
             "size-5": size === "sm",
@@ -148,7 +145,7 @@ export function ProgressStep({
       {/* Label */}
       <div
         className={clsx(
-          "flex items-center justify-center font-semibold transition-colors duration-300",
+          "flex items-center justify-center font-semibold transition-colors",
           {
             "ml-3 text-sm": size === "md",
             "ml-2 text-sm": size === "sm",

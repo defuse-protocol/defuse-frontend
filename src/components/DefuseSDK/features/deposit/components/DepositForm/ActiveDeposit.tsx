@@ -120,7 +120,7 @@ export function ActiveDeposit({
             stageLabelsShort={DEPOSIT_STAGE_LABELS_SHORT}
             displayStage="submitting"
             displayIndex={0}
-            hasError={false}
+            isError={false}
             isSuccess={false}
           />
         ),
@@ -149,7 +149,7 @@ export function ActiveDeposit({
               stageLabelsShort={DEPOSIT_STAGE_LABELS_SHORT}
               displayStage="complete"
               displayIndex={1}
-              hasError={false}
+              isError={false}
               isSuccess={true}
             />
           ),
@@ -162,7 +162,7 @@ export function ActiveDeposit({
               stageLabelsShort={DEPOSIT_STAGE_LABELS_SHORT}
               displayStage="complete"
               displayIndex={1}
-              hasError={true}
+              isError={true}
               isSuccess={false}
             />
           ),

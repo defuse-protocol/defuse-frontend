@@ -1,13 +1,13 @@
 "use client"
 
 import { ArrowTopRightOnSquareIcon } from "@heroicons/react/16/solid"
-import { ArrowDownIcon } from "@heroicons/react/20/solid"
+
+import { ArrowDownIcon, ArrowUturnLeftIcon } from "@heroicons/react/20/solid"
 import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
 import { useMachineStageProgress } from "@src/components/DefuseSDK/features/common/useMachineStageProgress"
 import {
   SWAP_STAGES,
   SWAP_STAGE_LABELS,
-  SWAP_STAGE_LABELS_SHORT,
   type SwapStage,
   getStageFromState,
   is1csError,
@@ -19,10 +19,7 @@ import {
   formatTokenValue,
   formatUsdAmount,
 } from "@src/components/DefuseSDK/utils/format"
-import {
-  HorizontalProgressDots,
-  ProgressSteps,
-} from "@src/components/ProgressIndicator"
+import { ProgressSteps } from "@src/components/ProgressIndicator"
 import type { TrackedSwapIntent } from "@src/providers/SwapTrackerMachineProvider"
 import Button from "./Button"
 import { useTokensUsdPrices } from "./DefuseSDK/hooks/useTokensUsdPrices"
@@ -70,22 +67,10 @@ export function SwapStatus({ swap, variant, onSwapAgain }: SwapStatusProps) {
     )
   }
 
-  if (variant === "card") {
-    return (
-      <CardView
-        swap={swap}
-        displayStage={displayStage}
-        displayIndex={displayIndex}
-        isError={isError}
-        canRetry={canRetry}
-        txHash={txHash}
-      />
-    )
-  }
-
   return (
     <FullView
       swap={swap}
+      txHash={txHash}
       displayStage={displayStage}
       displayIndex={displayIndex}
       isError={isError}
@@ -108,19 +93,21 @@ function DockView({
   isSuccess: boolean
 }) {
   return (
-    <HorizontalProgressDots
+    <ProgressSteps
       stages={SWAP_STAGES}
-      stageLabelsShort={SWAP_STAGE_LABELS_SHORT}
+      stageLabels={SWAP_STAGE_LABELS}
       displayStage={displayStage}
       displayIndex={displayIndex}
       isError={isError}
       isSuccess={isSuccess}
+      size="sm"
     />
   )
 }
 
 function FullView({
   swap,
+  txHash,
   displayStage,
   displayIndex,
   isError,
@@ -129,6 +116,7 @@ function FullView({
   onSwapAgain,
 }: {
   swap: TrackedSwapIntent
+  txHash: string | null | undefined
   displayStage: SwapStage
   displayIndex: number
   isError: boolean
@@ -160,6 +148,8 @@ function FullView({
     tokenOut,
     tokensUsdPriceData
   )
+
+  const explorerUrl = txHash ? `${NEAR_EXPLORER}/txns/${txHash}` : null
 
   return (
     <>
@@ -204,12 +194,28 @@ function FullView({
             isSuccess={isSuccess}
             size="md"
           />
+
+          {explorerUrl && (
+            <Button
+              href={explorerUrl}
+              variant="secondary"
+              size="xl"
+              target="_blank"
+              rel="noopener noreferrer"
+              fullWidth
+              className="mt-6"
+            >
+              View on explorer
+              <ArrowTopRightOnSquareIcon className="size-4" />
+            </Button>
+          )}
         </div>
       </div>
 
       <div className="mt-6 flex flex-col gap-3">
         {isSuccess && (
           <Button size="xl" fullWidth onClick={onSwapAgain}>
+            <ArrowUturnLeftIcon className="size-5 shrink-0" />
             Swap again
           </Button>
         )}
@@ -229,87 +235,5 @@ function FullView({
         )}
       </div>
     </>
-  )
-}
-
-function CardView({
-  swap,
-  displayStage,
-  displayIndex,
-  isError,
-  canRetry,
-  txHash,
-}: {
-  swap: TrackedSwapIntent
-  displayStage: SwapStage
-  displayIndex: number
-  isError: boolean
-  canRetry: boolean
-  txHash: string | null | undefined
-}) {
-  const { tokenIn, tokenOut, totalAmountIn, totalAmountOut } = swap
-
-  const formattedAmountIn = formatTokenValue(
-    totalAmountIn.amount,
-    totalAmountIn.decimals,
-    { min: 0.0001, fractionDigits: 4 }
-  )
-  const formattedAmountOut = formatTokenValue(
-    totalAmountOut.amount,
-    totalAmountOut.decimals,
-    { min: 0.0001, fractionDigits: 4 }
-  )
-
-  const explorerUrl = txHash ? `${NEAR_EXPLORER}/txns/${txHash}` : null
-
-  return (
-    <div className="bg-white rounded-2xl p-3 overflow-hidden">
-      <div className="flex items-center gap-3 mb-3">
-        <div className="flex items-center -space-x-1.5">
-          <AssetComboIcon sizeClassName="size-6" {...tokenIn} />
-          <AssetComboIcon sizeClassName="size-6" {...tokenOut} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-gray-700">
-            {formattedAmountIn} {tokenIn.symbol} → {formattedAmountOut}{" "}
-            {tokenOut.symbol}
-          </p>
-        </div>
-      </div>
-
-      <ProgressSteps
-        stages={SWAP_STAGES}
-        stageLabels={SWAP_STAGE_LABELS}
-        displayStage={displayStage}
-        displayIndex={displayIndex}
-        isError={isError}
-        isSuccess={displayStage === "complete" && !isError}
-        size="sm"
-      />
-
-      <div className="flex flex-col gap-2 mt-3">
-        {explorerUrl && (
-          <Button
-            href={explorerUrl}
-            variant="primary"
-            target="_blank"
-            rel="noopener noreferrer"
-            fullWidth
-          >
-            View on explorer
-            <ArrowTopRightOnSquareIcon className="size-4" />
-          </Button>
-        )}
-        {isError && canRetry && (
-          <Button
-            onClick={() => swap.actorRef.send({ type: "RETRY" })}
-            variant="primary"
-            fullWidth
-          >
-            Retry
-          </Button>
-        )}
-      </div>
-    </div>
   )
 }
