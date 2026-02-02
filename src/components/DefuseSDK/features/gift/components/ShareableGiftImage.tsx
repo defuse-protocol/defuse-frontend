@@ -17,6 +17,12 @@ type ShareableGiftImageProps = {
 
 const GIFT_MESSAGE_DISPLAY_LIMIT = 20
 
+function getTruncatedMessage(message: string) {
+  return message.length > GIFT_MESSAGE_DISPLAY_LIMIT
+    ? `${message.slice(0, GIFT_MESSAGE_DISPLAY_LIMIT)}...`
+    : message
+}
+
 export function ShareableGiftImage({
   token,
   amount,
@@ -80,10 +86,4 @@ export function ShareableGiftImage({
       </div>
     </div>
   )
-}
-
-function getTruncatedMessage(message: string) {
-  return message.length > GIFT_MESSAGE_DISPLAY_LIMIT
-    ? `${message.slice(0, GIFT_MESSAGE_DISPLAY_LIMIT)}...`
-    : message
 }

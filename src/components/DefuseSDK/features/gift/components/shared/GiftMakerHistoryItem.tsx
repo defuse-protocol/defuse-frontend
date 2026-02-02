@@ -1,4 +1,3 @@
-import { CheckCircleIcon, ClockIcon } from "@phosphor-icons/react"
 import type { SignerCredentials } from "@src/components/DefuseSDK/core/formatters"
 import ListItem from "@src/components/ListItem"
 import { useMemo, useState } from "react"
@@ -64,18 +63,19 @@ export function GiftMakerHistoryItem({
         </ListItem.Content>
         <ListItem.Content align="end">
           {giftInfo.status === "claimed" ? (
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700">
-              <CheckCircleIcon weight="fill" className="size-3.5" />
-              <span className="text-xs font-semibold">Claimed</span>
-            </div>
+            <span className="inline-flex items-center gap-x-1.5 rounded-lg bg-green-100 group-hover:outline-1 group-hover:outline-green-200 px-2 py-1 text-xs font-semibold text-green-700">
+              <span className="size-1.5 rounded-full bg-green-500 shrink-0" />
+              Claimed
+            </span>
           ) : (
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">
-              <ClockIcon weight="bold" className="size-3.5" />
-              <span className="text-xs font-semibold">Not revealed</span>
-            </div>
+            <span className="inline-flex items-center gap-x-1.5 rounded-lg bg-blue-100 group-hover:outline-1 group-hover:outline-blue-200 px-2 py-1 text-xs font-semibold text-blue-700">
+              <span className="size-1.5 rounded-full bg-blue-500 shrink-0" />
+              Not revealed
+            </span>
           )}
         </ListItem.Content>
       </ListItem>
+
       {showDialog && (
         <GiftMakerReadyDialog
           readyGiftRef={readyGiftRef}

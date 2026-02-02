@@ -334,7 +334,12 @@ export function GiftMakerForm({
             loading={processing}
             disabled={amountEmpty || balanceInsufficient || processing}
           >
-            {getButtonText(balanceInsufficient, editing, processing)}
+            {getButtonText(
+              balanceInsufficient,
+              editing,
+              processing,
+              amountEmpty
+            )}
           </Button>
         </AuthGate>
       </form>
