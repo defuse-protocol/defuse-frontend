@@ -28,7 +28,10 @@ export default function SendPage() {
 
   return (
     <>
-      <PageHeader title="Transfer" />
+      <PageHeader
+        title="Transfer"
+        subtitle="Your assets, anywhere you need them"
+      />
 
       <WithdrawWidget
         presetAmount={amount}
