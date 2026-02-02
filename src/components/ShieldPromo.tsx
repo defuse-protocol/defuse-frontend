@@ -22,9 +22,11 @@ const ShieldPromo = () => {
           <div className="bg-brand/20 text-brand text-xs rounded-lg px-2 py-1 inline-block uppercase font-bold">
             Coming soon
           </div>
-          <h3 className="text-xl font-bold text-white tracking-tight mt-6">
-            Shielded account
-          </h3>
+          <div className="mt-2 mb-1">
+            <h3 className="text-xl font-bold text-white tracking-tight">
+              Shielded account
+            </h3>
+          </div>
           <p className="text-gray-400 text-sm text-balance font-medium">
             Your private vault. Deposit, swap, and transfer—visible only to you.
           </p>
