@@ -201,7 +201,7 @@ const ModalAddEditContact = ({
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === "Enter") {
         e.preventDefault()
-        const networkKeys = Object.keys(filteredNetworks)
+        const networkKeys = Object.keys(filteredNetworks) as BlockchainEnum[]
         if (networkKeys.length > 0) {
           const firstNetworkKey = networkKeys[0]
           const firstNetwork = reverseAssetNetworkAdapter[firstNetworkKey]
