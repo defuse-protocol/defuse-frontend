@@ -94,7 +94,9 @@ export default function LoginPage() {
           {connectors.slice(0, 2).map((connector) => (
             <LoginButton
               key={connector.uid}
-              name={connector.name}
+              name={
+                connector.id === "injected" ? "Browser Wallet" : connector.name
+              }
               iconSrc={getWalletIconSrc(connector)}
               onClick={() => signIn({ id: ChainType.EVM, connector })}
             />
@@ -168,6 +170,7 @@ function getWalletIconSrc(connector: Connector): string {
     case "coinbaseWalletSDK":
       return "/static/icons/wallets/coinbase-wallet.svg"
     case "io.metamask":
+    case "injected":
       return "/static/icons/wallets/meta-mask.svg"
     default:
       return connector.icon?.trim() ?? ""
