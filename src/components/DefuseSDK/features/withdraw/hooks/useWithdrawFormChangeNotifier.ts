@@ -1,3 +1,5 @@
+import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
+import { getTokenUrlSymbol } from "@src/components/DefuseSDK/utils/tokenUrlSymbol"
 import { useSelector } from "@xstate/react"
 import { useEffect, useRef } from "react"
 import { WithdrawUIMachineContext } from "../WithdrawUIMachineContext"
@@ -18,9 +20,11 @@ type PresetValues = {
 export function useWithdrawFormChangeNotifier({
   onFormChange,
   presetValues,
+  tokenList,
 }: {
   onFormChange?: (params: OnFormChangeParams) => void
   presetValues?: PresetValues
+  tokenList: TokenInfo[]
 }) {
   const withdrawUIActorRef = WithdrawUIMachineContext.useActorRef()
   const withdrawFormRef = useSelector(
@@ -28,16 +32,23 @@ export function useWithdrawFormChangeNotifier({
     (state) => state.context.withdrawFormRef
   )
 
-  const { tokenSymbol, blockchain, recipient } = useSelector(
+  const { tokenIn, blockchain, recipient } = useSelector(
     withdrawFormRef,
     (state) => ({
-      tokenSymbol: state.context.tokenIn?.symbol ?? null,
+      tokenIn: state.context.tokenIn,
       blockchain: state.context.blockchain,
       recipient: state.context.recipient,
     })
   )
 
-  const prevValuesRef = useRef({ tokenSymbol, blockchain, recipient })
+  const tokenUrlSymbol =
+    tokenIn != null ? getTokenUrlSymbol(tokenIn, tokenList) : null
+
+  const prevValuesRef = useRef({
+    tokenUrlSymbol,
+    blockchain,
+    recipient,
+  })
   const hasReachedPresetRef = useRef(false)
 
   useEffect(() => {
@@ -55,24 +66,24 @@ export function useWithdrawFormChangeNotifier({
         hasReachedPresetRef.current = true
       }
 
-      prevValuesRef.current = { tokenSymbol, blockchain, recipient }
+      prevValuesRef.current = { tokenUrlSymbol, blockchain, recipient }
       return
     }
 
-    const tokenChanged = tokenSymbol !== prev.tokenSymbol
+    const tokenChanged = tokenUrlSymbol !== prev.tokenUrlSymbol
     const networkChanged = blockchain !== prev.blockchain
     const recipientChanged =
       recipient !== prev.recipient && recipient !== "" && prev.recipient !== ""
 
     if (tokenChanged || networkChanged || recipientChanged) {
       onFormChange({
-        token: tokenSymbol,
+        token: tokenUrlSymbol,
         network: blockchain,
         recipient,
         recipientChanged,
         networkChanged,
       })
-      prevValuesRef.current = { tokenSymbol, blockchain, recipient }
+      prevValuesRef.current = { tokenUrlSymbol, blockchain, recipient }
     }
-  }, [tokenSymbol, blockchain, recipient, onFormChange, presetValues])
+  }, [tokenUrlSymbol, blockchain, recipient, onFormChange, presetValues])
 }

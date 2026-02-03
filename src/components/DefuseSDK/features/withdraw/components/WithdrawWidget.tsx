@@ -18,6 +18,10 @@ import { WithdrawWidgetProvider } from "../../../providers/WithdrawWidgetProvide
 import type { WithdrawWidgetProps } from "../../../types/withdraw"
 import { assert } from "../../../utils/assert"
 import { isBaseToken } from "../../../utils/token"
+import {
+  findTokenInListByBase,
+  parseTokenFromUrl,
+} from "../../../utils/tokenUrlSymbol"
 import { swapIntentMachine } from "../../machines/swapIntentMachine"
 import { withdrawUIMachine } from "../../machines/withdrawUIMachine"
 import { WithdrawUIMachineContext } from "../WithdrawUIMachineContext"
@@ -28,14 +32,26 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
   const is1cs = useIs1CsEnabled()
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
   const appFeeRecipient = getAppFeeRecipient(whitelabelTemplate)
-  const initialTokenIn =
-    props.presetTokenSymbol !== undefined
-      ? (props.tokenList.find(
-          (el) =>
-            el.symbol.toLowerCase().normalize() ===
-            props.presetTokenSymbol?.toLowerCase().normalize()
-        ) ?? props.tokenList[0])
-      : props.tokenList[0]
+  const initialTokenIn = (() => {
+    const preset = props.presetTokenSymbol?.trim()
+    if (preset === undefined || preset === "") return props.tokenList[0]
+
+    if (preset.includes(":")) {
+      const baseFromUrl = parseTokenFromUrl(preset)
+      const found = baseFromUrl
+        ? findTokenInListByBase(baseFromUrl, props.tokenList)
+        : null
+      return found ?? props.tokenList[0]
+    }
+
+    return (
+      props.tokenList.find(
+        (el) =>
+          el.symbol.toLowerCase().normalize() ===
+          preset.toLowerCase().normalize()
+      ) ?? props.tokenList[0]
+    )
+  })()
 
   assert(initialTokenIn, "Token list must have at least 1 token")
 
@@ -116,6 +132,7 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
         <FormChangeNotifier
           onFormChange={props.onFormChange}
           presetValues={props.presetValuesForSync}
+          tokenList={props.tokenList}
         />
         <WithdrawForm {...props} />
       </WithdrawUIMachineContext.Provider>
@@ -155,10 +172,12 @@ function TokenListUpdaterWithdraw({ tokenList }: { tokenList: TokenInfo[] }) {
 function FormChangeNotifier({
   onFormChange,
   presetValues,
+  tokenList,
 }: {
   onFormChange?: WithdrawWidgetProps["onFormChange"]
   presetValues?: WithdrawWidgetProps["presetValuesForSync"]
+  tokenList: TokenInfo[]
 }) {
-  useWithdrawFormChangeNotifier({ onFormChange, presetValues })
+  useWithdrawFormChangeNotifier({ onFormChange, presetValues, tokenList })
   return null
 }
