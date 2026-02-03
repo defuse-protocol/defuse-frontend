@@ -72,7 +72,11 @@ export async function getContacts(input?: {
 
     if (!token) {
       logger.warn("Auth token missing from cookies")
-      return { ok: false, error: "Authentication required" }
+      return {
+        ok: false,
+        error:
+          "It seems you are not authenticated to manage contacts. This may be a technical error on our side. Please try again.",
+      }
     }
 
     const payload = await verifyAppAuthToken(token)
@@ -109,7 +113,11 @@ export async function getContacts(input?: {
     return { ok: true, value: contacts }
   } catch (error) {
     logger.error("Failed to fetch contacts", { cause: error })
-    return { ok: false, error: "Failed to fetch contacts" }
+    return {
+      ok: false,
+      error:
+        "We were unable to retrieve your contacts. This could be a network issue. Please try again.",
+    }
   }
 }
 
@@ -214,7 +222,11 @@ export async function createContact(input: {
       action: "repository-error",
       accountId,
     })
-    return { ok: false, error: "Failed to create contact" }
+    return {
+      ok: false,
+      error:
+        "We were unable to create your contact. This could be a network issue. Please try again.",
+    }
   }
 
   return {
@@ -339,7 +351,11 @@ export async function updateContact(input: {
       contactId: data.output.contactId,
       accountId,
     })
-    return { ok: false, error: "Failed to update contact" }
+    return {
+      ok: false,
+      error:
+        "We were unable to update your contact. This could be a network issue. Please try again.",
+    }
   }
 
   return {

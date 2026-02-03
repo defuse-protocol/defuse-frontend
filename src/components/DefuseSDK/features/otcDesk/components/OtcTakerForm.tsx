@@ -263,7 +263,7 @@ const renderButtonText = ({
   }
 
   if (error === "CANNOT_FILL_ORDER_DUE_TO_INSUFFICIENT_BALANCE") {
-    return "Insufficient balance"
+    return "Funds no longer available"
   }
 
   if (error === "NO_QUOTES") {

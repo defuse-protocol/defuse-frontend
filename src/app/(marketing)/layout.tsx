@@ -21,7 +21,7 @@ const socialLinks = [
   {
     name: "Discord",
     icon: DiscordIcon,
-    link: "https://discord.gg/rdGAgDRs",
+    link: "https://discord.gg/nearprotocol",
   },
   {
     name: "Docs",

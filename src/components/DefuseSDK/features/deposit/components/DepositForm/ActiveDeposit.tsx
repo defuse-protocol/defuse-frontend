@@ -3,13 +3,17 @@ import { InformationCircleIcon } from "@heroicons/react/16/solid"
 import Button from "@src/components/Button"
 import TooltipNew from "@src/components/DefuseSDK/components/TooltipNew"
 import { RESERVED_NEAR_BALANCE } from "@src/components/DefuseSDK/services/blockchainBalanceService"
-import { isFungibleToken } from "@src/components/DefuseSDK/utils/token"
+import {
+  isFungibleToken,
+  isNativeToken,
+} from "@src/components/DefuseSDK/utils/token"
 import { HorizontalProgressDots } from "@src/components/ProgressIndicator"
 import { useActivityDock } from "@src/providers/ActivityDockProvider"
 import { useSelector } from "@xstate/react"
 import { useEffect, useRef } from "react"
 import { useFormContext } from "react-hook-form"
 import AssetComboIcon from "../../../../components/Asset/AssetComboIcon"
+import { getBlockchainsOptions } from "../../../../constants/blockchains"
 import { useTokensUsdPrices } from "../../../../hooks/useTokensUsdPrices"
 import type { BaseTokenInfo, TokenDeployment } from "../../../../types/base"
 import { reverseAssetNetworkAdapter } from "../../../../utils/adapters"
@@ -101,14 +105,14 @@ export function ActiveDeposit({
       addDockItem({
         id: `deposit-${depositId}`,
         title: `Deposit ${formattedAmount} ${token.symbol}`,
-        icon: (
+        icons: [
           <AssetComboIcon
-            sizeClassName="size-6"
+            key="token"
+            sizeClassName="size-7"
             icon={token.icon}
             chainName={chainName}
-          />
-        ),
-        rawIcon: true,
+          />,
+        ],
         keyValueRows: [],
         renderContent: () => (
           <HorizontalProgressDots
@@ -116,7 +120,7 @@ export function ActiveDeposit({
             stageLabelsShort={DEPOSIT_STAGE_LABELS_SHORT}
             displayStage="submitting"
             displayIndex={0}
-            hasError={false}
+            isError={false}
             isSuccess={false}
           />
         ),
@@ -145,7 +149,7 @@ export function ActiveDeposit({
               stageLabelsShort={DEPOSIT_STAGE_LABELS_SHORT}
               displayStage="complete"
               displayIndex={1}
-              hasError={false}
+              isError={false}
               isSuccess={true}
             />
           ),
@@ -158,7 +162,7 @@ export function ActiveDeposit({
               stageLabelsShort={DEPOSIT_STAGE_LABELS_SHORT}
               displayStage="complete"
               displayIndex={1}
-              hasError={true}
+              isError={true}
               isSuccess={false}
             />
           ),
@@ -201,22 +205,31 @@ export function ActiveDeposit({
   const { data: tokensUsdPriceData } = useTokensUsdPrices()
   const usdAmountToDeposit = getTokenUsdPrice(amount, token, tokensUsdPriceData)
 
+  const blockchainOptions = getBlockchainsOptions()
+  const networkLabel = blockchainOptions[network]?.label ?? ""
+
   return (
     <div className="flex flex-col mt-6">
       <SelectedTokenInput
         label="Enter amount"
         value={inputAmount}
         symbol={token.symbol}
+        icon={token.icon}
         balance={balance ?? 0n}
         usdAmount={usdAmountToDeposit}
         decimals={tokenDeployment.decimals}
         handleSetPercentage={handleSetPercentage}
+        isNativeToken={isNativeToken(tokenDeployment)}
+        networkName={networkLabel}
         registration={register("amount", {
           required: true,
           validate: (value) => {
             if (!value) return true
             const num = Number.parseFloat(value.replace(",", "."))
-            return (!Number.isNaN(num) && num > 0) || "Enter a valid amount"
+            return (
+              (!Number.isNaN(num) && num > 0) ||
+              "It seems you entered an invalid amount. Please try again."
+            )
           },
         })}
         additionalInfo={
@@ -277,6 +290,8 @@ export function ActiveDeposit({
       <DepositWarning
         depositWarning={depositOutput || preparationOutput}
         className="mt-6"
+        tokenSymbol={token.symbol}
+        networkLabel={networkLabel}
       />
     </div>
   )
@@ -297,7 +312,7 @@ function renderDepositButtonText(
     return "Processing..."
   }
   if (isAmountEmpty) {
-    return "Enter amount"
+    return "Please enter an amount"
   }
   if (!isDepositAmountHighEnough && minDepositAmount != null) {
     return `Minimum deposit is ${formatTokenValue(minDepositAmount, tokenDeployment.decimals)} ${token.symbol}`
@@ -311,7 +326,9 @@ function renderDepositButtonText(
   if (!!network && !!token) {
     return "Deposit"
   }
-  return !network && !token ? "Select asset first" : "Select network"
+  return !network && !token
+    ? "Please select an asset."
+    : "Please select a network."
 }
 
 function isInsufficientBalance(

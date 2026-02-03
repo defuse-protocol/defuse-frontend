@@ -1,10 +1,11 @@
-import Button from "@src/components/Button"
+import BankingPromo from "@src/components/BankingPromo"
 import DepositPromo from "@src/components/DepositPromo"
 import PageHeader from "@src/components/PageHeader"
-import { EurIcon, UsdIcon } from "@src/icons"
 import clsx from "clsx"
 import Link from "next/link"
 import type { ReactNode } from "react"
+// import Button from "@src/components/Button"
+// import { EurIcon, UsdIcon } from "@src/icons"
 
 const Card = ({
   children,
@@ -30,8 +31,6 @@ const Card = ({
 )
 
 export default function DepositPage() {
-  const verified = false
-
   return (
     <>
       <PageHeader title="Add funds to your NEAR Intents account" />
@@ -52,7 +51,9 @@ export default function DepositPage() {
           <DepositPromo className="mt-9" />
         </Card>
 
-        <div>
+        <BankingPromo />
+
+        {/* <div>
           <Card
             className="flex justify-between gap-3 items-start"
             disabled={!verified}
@@ -106,7 +107,7 @@ export default function DepositPage() {
               </Button>
             </div>
           )}
-        </div>
+        </div> */}
       </section>
     </>
   )

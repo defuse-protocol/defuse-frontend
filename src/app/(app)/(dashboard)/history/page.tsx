@@ -9,12 +9,11 @@ import type {
 } from "@src/components/DefuseSDK/components/Modal/ModalActivityFilters"
 import ModalActivityFilters from "@src/components/DefuseSDK/components/Modal/ModalActivityFilters"
 import SearchBar from "@src/components/DefuseSDK/components/SearchBar"
-import {
-  HistoryItem,
-  SwapHistoryItemSkeleton,
-} from "@src/components/DefuseSDK/features/history/components/HistoryItem"
+import { HistoryItem } from "@src/components/DefuseSDK/features/history/components/HistoryItem"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { findTokenByAssetId } from "@src/components/DefuseSDK/utils/token"
+import EmptyState from "@src/components/EmptyState"
+import ListItemsSkeleton from "@src/components/ListItemsSkeleton"
 import PageHeader from "@src/components/PageHeader"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useSwapHistory } from "@src/features/balance-history/lib/useBalanceHistory"
@@ -53,7 +52,6 @@ const STATUS_MAP: Record<
   SwapTransaction["status"][]
 > = {
   Success: ["SUCCESS"],
-  Pending: ["PENDING", "PROCESSING"],
   Failed: ["FAILED"],
 }
 
@@ -62,7 +60,7 @@ const POLLING_INTERVAL_MS = 10_000
 const MAX_POLLING_ATTEMPTS = 20
 const RECENT_SWAP_THRESHOLD_MS = 2 * 60 * 60 * 1000
 
-export default function ActivityPage({
+export default function HistoryPage({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
@@ -181,6 +179,11 @@ export default function ActivityPage({
     if (statusFilter !== "All") {
       const targetStatuses = STATUS_MAP[statusFilter]
       filtered = filtered.filter((tx) => targetStatuses.includes(tx.status))
+    } else {
+      // By default, hide pending/processing transactions
+      filtered = filtered.filter(
+        (tx) => tx.status !== "PENDING" && tx.status !== "PROCESSING"
+      )
     }
 
     if (search) {
@@ -193,11 +196,7 @@ export default function ActivityPage({
           fromToken?.symbol.toLowerCase().includes(searchLower) ||
           toToken?.symbol.toLowerCase().includes(searchLower) ||
           fromToken?.name?.toLowerCase().includes(searchLower) ||
-          toToken?.name?.toLowerCase().includes(searchLower) ||
-          tx.from.token_id.toLowerCase().includes(searchLower) ||
-          tx.to.token_id.toLowerCase().includes(searchLower) ||
-          tx.transaction_hash.toLowerCase().includes(searchLower) ||
-          tx.deposit_address.toLowerCase().includes(searchLower)
+          toToken?.name?.toLowerCase().includes(searchLower)
         )
       })
     }
@@ -252,40 +251,43 @@ export default function ActivityPage({
   return (
     <>
       <PageHeader
-        title="Activity"
+        title="History"
         intro={
           <p>
-            This is your activity page showing your historical deposits, swaps
-            and withdrawals. In the future, additional types of account activity
-            will be shown,
+            This is your history page, showing your past swaps. In the future,
+            additional types of account activity will be shown, such as deposits
+            and withdrawals, and services such as transaction export will be
+            added.
           </p>
         }
       >
-        {isWalletConnected && !isLoading && !isError && (
-          <button
-            type="button"
-            onClick={handleRefresh}
-            disabled={isAnyRefetchHappening}
-            className={clsx(
-              "size-9 flex items-center justify-center transition-colors rounded-lg",
-              showDone
-                ? "bg-green-50 text-green-600"
-                : "text-gray-500 hover:text-gray-700 hover:bg-gray-100",
-              isAnyRefetchHappening && "opacity-70"
-            )}
-            title={showDone ? "Updated" : "Refresh"}
-          >
-            {showDone ? (
-              <CheckIcon className="size-5" />
-            ) : (
-              <ArrowPathIcon
-                className={clsx("size-5", {
-                  "animate-spin": isAnyRefetchHappening,
-                })}
-              />
-            )}
-          </button>
-        )}
+        <div className="h-9">
+          {isWalletConnected && !isLoading && !isError && (
+            <button
+              type="button"
+              onClick={handleRefresh}
+              disabled={isAnyRefetchHappening}
+              className={clsx(
+                "size-9 flex items-center justify-center transition-colors rounded-lg",
+                showDone
+                  ? "bg-green-50 text-green-600"
+                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-100",
+                isAnyRefetchHappening && "opacity-70"
+              )}
+              title={showDone ? "Updated" : "Refresh"}
+            >
+              {showDone ? (
+                <CheckIcon className="size-5" />
+              ) : (
+                <ArrowPathIcon
+                  className={clsx("size-5", {
+                    "animate-spin": isAnyRefetchHappening,
+                  })}
+                />
+              )}
+            </button>
+          )}
+        </div>
       </PageHeader>
 
       <div className="mt-6 flex items-center gap-1">
@@ -306,7 +308,7 @@ export default function ActivityPage({
                 }
 
                 const query = newSearchParams.toString()
-                router.push(query ? `/activity?${query}` : "/activity")
+                router.push(query ? `/history?${query}` : "/history")
                 setTimeoutId(undefined)
               })
             }, 500)
@@ -317,7 +319,7 @@ export default function ActivityPage({
             const newSearchParams = new URLSearchParams(currentSearchParams)
             newSearchParams.delete("search")
             const query = newSearchParams.toString()
-            router.push(query ? `/activity?${query}` : "/activity")
+            router.push(query ? `/history?${query}` : "/history")
           }}
           placeholder="Search address or token"
           className="flex-1"
@@ -332,32 +334,43 @@ export default function ActivityPage({
         </Button>
       </div>
 
-      <section className="mt-10">
+      <section className="mt-6 space-y-1">
         {isWalletHydrating ? (
-          <LoadingState />
+          <ListItemsSkeleton count={3} loading />
         ) : (
           <>
             {!isWalletConnected && (
-              <EmptyState message="Connect your wallet to see your activity" />
+              <EmptyState>
+                <EmptyState.Title>
+                  Please sign in to see your activity history.
+                </EmptyState.Title>
+              </EmptyState>
             )}
 
-            {isWalletConnected && isLoading && <LoadingState />}
+            {isWalletConnected && isLoading && (
+              <ListItemsSkeleton count={3} loading />
+            )}
 
             {isWalletConnected && isError && (
-              <EmptyState message="Failed to load activity. Please try again." />
+              <EmptyState>
+                <EmptyState.Title>
+                  We were unable to retrieve your activity history. This is a
+                  technical error on our side. Please try again.
+                </EmptyState.Title>
+              </EmptyState>
             )}
 
             {isWalletConnected &&
               !isLoading &&
               !isError &&
               transactions.length === 0 && (
-                <EmptyState
-                  message={
-                    allTransactions.length > 0
+                <EmptyState>
+                  <EmptyState.Title>
+                    {allTransactions.length > 0
                       ? "No transactions match your filters"
-                      : "No activity yet. Your transaction history will appear here."
-                  }
-                />
+                      : "No history yet. Your transactions will appear here."}
+                  </EmptyState.Title>
+                </EmptyState>
               )}
 
             {isWalletConnected &&
@@ -382,26 +395,6 @@ export default function ActivityPage({
         currentSearchParams={currentSearchParams}
       />
     </>
-  )
-}
-
-function EmptyState({ message }: { message: string }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-16 text-center">
-      <p className="text-gray-500 text-sm">{message}</p>
-    </div>
-  )
-}
-
-function LoadingState() {
-  return (
-    <div className="flex flex-col">
-      <SwapHistoryItemSkeleton />
-      <SwapHistoryItemSkeleton />
-      <SwapHistoryItemSkeleton />
-      <SwapHistoryItemSkeleton />
-      <SwapHistoryItemSkeleton />
-    </div>
   )
 }
 
@@ -443,32 +436,11 @@ function TransactionList({
 
   return (
     <>
-      <div className="flex flex-col">
-        {transactions.map((tx: SwapTransaction) => (
-          <HistoryItem key={tx.id} transaction={tx} tokenList={tokenList} />
-        ))}
-      </div>
-
+      {transactions.map((tx: SwapTransaction) => (
+        <HistoryItem key={tx.id} transaction={tx} tokenList={tokenList} />
+      ))}
       {hasNextPage && <div ref={loadMoreTriggerRef} className="h-1" />}
-      {isFetchingNextPage && <LoadingMoreIndicator />}
+      {isFetchingNextPage && <ListItemsSkeleton count={3} loading />}
     </>
-  )
-}
-
-function LoadingMoreIndicator() {
-  return (
-    <div className="flex justify-center py-6">
-      <div className="flex items-center gap-1.5">
-        <span className="size-2 bg-gray-400 rounded-full animate-pulse" />
-        <span
-          className="size-2 bg-gray-400 rounded-full animate-pulse"
-          style={{ animationDelay: "150ms" }}
-        />
-        <span
-          className="size-2 bg-gray-400 rounded-full animate-pulse"
-          style={{ animationDelay: "300ms" }}
-        />
-      </div>
-    </div>
   )
 }

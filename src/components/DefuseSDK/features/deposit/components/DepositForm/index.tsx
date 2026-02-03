@@ -1,8 +1,8 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import {
-  ArrowDownTrayIcon,
   ChevronLeftIcon,
+  QrCodeIcon,
   WalletIcon,
 } from "@heroicons/react/16/solid"
 import Alert from "@src/components/Alert"
@@ -21,6 +21,7 @@ import {
   getDerivedToken,
   isMinAmountNotRequired,
 } from "@src/components/DefuseSDK/utils/tokenUtils"
+import HelperPopover from "@src/components/HelperPopover"
 import PageHeader from "@src/components/PageHeader"
 import TabSwitcher from "@src/components/TabSwitcher"
 import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
@@ -74,8 +75,10 @@ export const DepositForm = ({
     network,
     userAddress,
     poaBridgeInfoRef,
+    depositTokenBalanceRef,
   } = DepositUIMachineContext.useSelector((snapshot) => {
-    const { userAddress, poaBridgeInfoRef } = snapshot.context
+    const { userAddress, poaBridgeInfoRef, depositTokenBalanceRef } =
+      snapshot.context
     const { token, derivedToken, tokenDeployment, blockchain } =
       snapshot.context.depositFormRef.getSnapshot().context
 
@@ -86,8 +89,15 @@ export const DepositForm = ({
       network: blockchain,
       userAddress,
       poaBridgeInfoRef,
+      depositTokenBalanceRef,
     }
   })
+
+  const walletBalance = useSelector(depositTokenBalanceRef, (state) =>
+    state.context.preparationOutput?.tag === "ok"
+      ? state.context.preparationOutput.value.balance
+      : null
+  )
 
   const isOutputOk = preparationOutput?.tag === "ok"
   const depositAddress = isOutputOk
@@ -189,8 +199,9 @@ export const DepositForm = ({
     "active" | "passive"
   >("active")
 
+  const hasWalletBalance = walletBalance != null && walletBalance > 0n
   const currentDepositOption =
-    preferredDepositOption === "active" && isActiveDeposit
+    preferredDepositOption === "active" && isActiveDeposit && hasWalletBalance
       ? "active"
       : isPassiveDeposit
         ? "passive"
@@ -207,6 +218,14 @@ export const DepositForm = ({
 
   const networkEnum = assetNetworkAdapter[network as SupportedChainName]
   const singleNetwork = Object.keys(chainOptions).length === 1
+
+  const blockchainOptions = getBlockchainsOptions()
+  const networkLabel = network ? blockchainOptions[networkEnum]?.label : ""
+  const hasNoWalletBalance = walletBalance === 0n || walletBalance === null
+  const walletDisabledTooltip =
+    hasNoWalletBalance && derivedToken && networkLabel
+      ? `Your wallet has no ${derivedToken.symbol} on the ${networkLabel} network.`
+      : undefined
   return (
     <>
       <Link
@@ -217,7 +236,7 @@ export const DepositForm = ({
         Back
       </Link>
 
-      <PageHeader title="Deposit crypto" className="mt-4" />
+      <PageHeader title="Deposit crypto to your account" className="mt-4" />
 
       <form onSubmit={handleSubmit(onSubmit)} className="mt-6">
         <div className="flex flex-col gap-2">
@@ -230,7 +249,7 @@ export const DepositForm = ({
               )
             }
             label={token ? "Deposit this token" : "Select token"}
-            value={token?.name}
+            value={token?.symbol}
             onClick={() => openModalSelectAssets("token", token ?? undefined)}
             data-testid="select-deposit-asset"
           />
@@ -280,22 +299,38 @@ export const DepositForm = ({
         {currentDepositOption != null && (
           <>
             {isActiveDeposit && isPassiveDeposit && (
-              <TabSwitcher
-                tabs={[
-                  {
-                    label: "Deposit",
-                    icon: <ArrowDownTrayIcon className="size-4 shrink-0" />,
-                    onClick: () => setPreferredDepositOption("passive"),
-                    selected: currentDepositOption === "passive",
-                  },
-                  {
-                    label: "Wallet",
-                    icon: <WalletIcon className="size-4 shrink-0" />,
-                    onClick: () => setPreferredDepositOption("active"),
-                    selected: currentDepositOption === "active",
-                  },
-                ]}
-              />
+              <div className="mt-8">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-gray-900 text-lg font-semibold tracking-tight">
+                    How do you want to deposit?
+                  </h3>
+
+                  <HelperPopover>
+                    You can deposit directly from a connected wallet, or send to
+                    a deposit address using any wallet.
+                  </HelperPopover>
+                </div>
+
+                <TabSwitcher
+                  className="mt-5"
+                  tabs={[
+                    {
+                      label: "Address & QR",
+                      icon: <QrCodeIcon className="size-4 shrink-0" />,
+                      onClick: () => setPreferredDepositOption("passive"),
+                      selected: currentDepositOption === "passive",
+                    },
+                    {
+                      label: "Wallet",
+                      icon: <WalletIcon className="size-4 shrink-0" />,
+                      onClick: () => setPreferredDepositOption("active"),
+                      selected: currentDepositOption === "active",
+                      disabled: hasNoWalletBalance,
+                      disabledTooltip: walletDisabledTooltip,
+                    },
+                  ]}
+                />
+              </div>
             )}
 
             {currentDepositOption === "passive" &&

@@ -63,6 +63,11 @@ export const settings: Settings = {
       description:
         "Send crypto from NEAR to any supported chain. Fast, secure, and powered by smart intent execution.",
     },
+    earn: {
+      title: "NEAR Intents | Earn",
+      description:
+        "Put your idle assets to work. No lockups. Withdraw anytime.",
+    },
     giftCreate: {
       title: "NEAR Intents | Send a Multichain Crypto Gift",
       description:
@@ -101,9 +106,9 @@ export const settings: Settings = {
       description:
         "View balances and manage your wallet across chains. Your gateway to seamless swaps, deposits, and withdrawals in DeFi.",
     },
-    activity: {
-      title: "NEAR Intents | Activity",
-      description: "View your activity on NEAR Intents.",
+    history: {
+      title: "NEAR Intents | History",
+      description: "View your transaction history on NEAR Intents.",
     },
     settings: {
       title: "NEAR Intents | Settings",

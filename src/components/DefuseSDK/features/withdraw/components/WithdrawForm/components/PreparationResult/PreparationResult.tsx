@@ -2,7 +2,6 @@ import Alert from "@src/components/Alert"
 import type { TokenValue } from "@src/components/DefuseSDK/types/base"
 import type { ReactNode } from "react"
 import type { PreparationOutput } from "../../../../../../services/withdrawService"
-import { formatTokenValue } from "../../../../../../utils/format"
 
 export const PreparationResult = ({
   preparationOutput,
@@ -21,28 +20,14 @@ export const PreparationResult = ({
 
   switch (val) {
     case "ERR_CANNOT_FETCH_POA_BRIDGE_INFO":
-      content = "Cannot fetch POA Bridge info"
+      content =
+        "We were unable to fetch information about our bridge. This is a technical error on our side. Please try again."
       break
     case "ERR_BALANCE_INSUFFICIENT":
       // Don't duplicate error messages, this should be handled by input validation
       break
     case "ERR_AMOUNT_TOO_LOW":
-      content = (
-        <>
-          Add{" "}
-          <button
-            type="button"
-            onClick={() => {
-              increaseAmount(err.shortfall)
-            }}
-            className="text-left underline"
-          >
-            {formatTokenValue(err.shortfall.amount, err.shortfall.decimals)}{" "}
-            {err.token.symbol}
-          </button>{" "}
-          more to withdraw
-        </>
-      )
+      // Don't show error message - the MinWithdrawalAmount info note and disabled button handle this
       break
     case "ERR_NO_QUOTES":
     case "ERR_NO_QUOTES_1CS":
@@ -50,16 +35,18 @@ export const PreparationResult = ({
       // Don't duplicate error messages, message should be displayed in the submit button
       break
     case "ERR_CANNOT_FETCH_QUOTE":
-      content = "Cannot fetch quote"
+      content =
+        "We were unable to get a quote from our solvers. Please try again."
       break
     case "ERR_BALANCE_FETCH":
     case "ERR_BALANCE_MISSING":
-      content = "Cannot fetch balance"
+      content =
+        "We were unable to fetch balances. This is a technical error on our side. Please try again."
       break
     case "ERR_UNFULFILLABLE_AMOUNT":
       content = (
         <>
-          Specified amount cannot be withdrawn. Please{" "}
+          Specified amount cannot be withdrawn. Please slightly{" "}
           <button
             type="button"
             onClick={() => {
@@ -81,18 +68,20 @@ export const PreparationResult = ({
           >
             increase
           </button>
-          {" for slight amount."}
+          {" the amount."}
         </>
       )
       break
     case "ERR_WITHDRAWAL_FEE_FETCH":
-      content = "Cannot fetch withdrawal fee"
+      content =
+        "We were unable to determine the withdrawal fee. This is a technical error on our side. Please try again."
       break
     case "ERR_STELLAR_NO_TRUSTLINE":
       content = `Recipient must have at least some ${err.token.symbol} on Stellar to be able to withdraw it.`
       break
     case "ERR_CANNOT_MAKE_WITHDRAWAL_INTENT":
-      content = "Operation could not be completed. Please try again."
+      content =
+        "We were unable to transact your withdrawal. This is a technical error on our side. Please try again."
       break
     default:
       val satisfies never

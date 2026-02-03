@@ -1,4 +1,5 @@
 "use client"
+import { authIdentity } from "@defuse-protocol/internal-utils"
 import { PencilSquareIcon, XCircleIcon } from "@heroicons/react/16/solid"
 import { PlusIcon } from "@heroicons/react/20/solid"
 import type { Contact } from "@src/app/(app)/(auth)/contacts/actions"
@@ -13,13 +14,18 @@ import {
   midTruncate,
 } from "@src/components/DefuseSDK/features/withdraw/components/WithdrawForm/utils"
 import { stringToColor } from "@src/components/DefuseSDK/utils/stringToColor"
+import EmptyState from "@src/components/EmptyState"
 import ListItem from "@src/components/ListItem"
-import ListItemsSkeleton from "@src/components/ListItemsSkeleton"
+import PageHeader from "@src/components/PageHeader"
+import { LIST_TOKENS } from "@src/constants/tokens"
+import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { SendIcon, WalletIcon } from "@src/icons"
 import { useRouter } from "next/navigation"
 import { useMemo, useState, useTransition } from "react"
 import ModalRemoveContact from "../../components/Modal/ModalRemoveContact"
 import { reverseAssetNetworkAdapter } from "../../utils/adapters"
+import { useWatchHoldings } from "../account/hooks/useWatchHoldings"
+import { buildContactTransferUrl } from "./utils/buildContactTransferUrl"
 
 type ModalType = "create" | "edit" | "remove"
 
@@ -31,6 +37,15 @@ const ContactsList = ({
   search: string | undefined
 }) => {
   const router = useRouter()
+  const { state } = useConnectWallet()
+  const userId =
+    state.isVerified && state.address && state.chainType
+      ? authIdentity.authHandleToIntentsUserId(state.address, state.chainType)
+      : null
+  const { data: holdings = [] } = useWatchHoldings({
+    userId,
+    tokenList: LIST_TOKENS,
+  })
   const [modalOpen, setModalOpen] = useState<ModalType | null>(null)
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
   const [isPending, startTransition] = useTransition()
@@ -45,7 +60,7 @@ const ContactsList = ({
     contact: Contact | null
   }) => {
     setModalOpen(type)
-    setSelectedContact(contact)
+    setSelectedContact(contact ?? null)
   }
 
   const processedContacts = useMemo(
@@ -65,9 +80,31 @@ const ContactsList = ({
 
   return (
     <>
-      <h1 className="text-gray-900 text-xl font-semibold tracking-tight">
-        Contacts
-      </h1>
+      <PageHeader
+        title="Contacts"
+        intro={
+          <>
+            <p>
+              Make transfers less susceptible to mistakes and scams, by using
+              Contacts.
+            </p>
+            <p>
+              How does this work? Instead of sending to a long, complex address
+              like,{" "}
+              <code className="bg-gray-700 rounded-md px-1 py-0.5 text-xs break-all">
+                0xAcF36260817d1c78C471406BdE482177a1935071
+              </code>
+              , simply send to{" "}
+              <span className="text-white font-semibold">Mary Johnson</span>{" "}
+              instead!
+            </p>
+            <p>
+              For each contact you create, you'll specify a name, a network,
+              like Ethereum, and an address. Easy peasy.
+            </p>
+          </>
+        }
+      />
 
       {(!hasNoContacts || hasSearchQuery) && (
         <div className="mt-6 flex items-center gap-1">
@@ -108,25 +145,20 @@ const ContactsList = ({
       )}
 
       {hasNoContacts && !hasSearchQuery && (
-        <section className="mt-9">
-          <ListItemsSkeleton count={3} className="mt-2" />
-          <div className="max-w-72 mx-auto -mt-5 relative flex flex-col items-center">
-            <h3 className="text-xl font-semibold text-gray-900 text-center tracking-tight">
-              No contacts yet
-            </h3>
-            <p className="text-base text-gray-500 mt-1 font-medium text-center text-balance">
-              Add a contact to get started.
-            </p>
-            <Button
-              size="xl"
-              onClick={() => handleOpenModal({ type: "create", contact: null })}
-              className="mt-4"
-            >
-              <PlusIcon className="size-5 shrink-0" />
-              Add contact
-            </Button>
-          </div>
-        </section>
+        <EmptyState className="mt-9">
+          <EmptyState.Title>No contacts yet</EmptyState.Title>
+          <EmptyState.Description>
+            Create a contact to get started.
+          </EmptyState.Description>
+          <Button
+            size="xl"
+            onClick={() => handleOpenModal({ type: "create", contact: null })}
+            className="mt-4"
+          >
+            <PlusIcon className="size-5 shrink-0" />
+            Create contact
+          </Button>
+        </EmptyState>
       )}
 
       {hasNoContacts && hasSearchQuery && (
@@ -147,8 +179,16 @@ const ContactsList = ({
             return (
               <ListItem
                 key={contact.id}
-                dropdownMenuItems={[
-                  { label: "Send", href: "/send", icon: SendIcon },
+                popoverItems={[
+                  {
+                    label: "Transfer",
+                    href: buildContactTransferUrl(
+                      contact,
+                      holdings,
+                      LIST_TOKENS
+                    ),
+                    icon: SendIcon,
+                  },
                   {
                     label: "Edit",
                     onClick: () => handleOpenModal({ type: "edit", contact }),
