@@ -98,11 +98,11 @@ export function BaseModalDialog({
 
                   "data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom-2 fade-out data-[state=closed]:ease-in data-[state=closed]:zoom-out-97"
                 )}
-                onOpenAutoFocus={(e) => {
-                  // This is a workaround for focusing the first input in the modal
-                  // Focusing first input is annoying for mobile users
-                  e.preventDefault()
-                }}
+                // onOpenAutoFocus={(e) => {
+                // This is a workaround for focusing the first input in the modal
+                // Focusing first input is annoying for mobile users
+                // e.preventDefault()
+                // }}
                 // Suppressing the warning about missing aria-describedby
                 aria-describedby={undefined}
               >
