@@ -73,9 +73,11 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={() => webauthnUI.open()}
-            className="rounded-2xl p-5 text-left flex flex-col items-start gap-4 outline outline-[oklch(0.85_0.08_37)] bg-[oklch(0.98_0.02_37)] group hover:outline-2 hover:outline-[oklch(0.75_0.12_37)] focus-visible:outline-2 focus-visible:outline-gray-900"
+            className="rounded-2xl p-5 text-left flex flex-col items-start gap-4 outline outline-gray-200 bg-white group hover:outline-2 hover:outline-gray-300 focus-visible:outline-2 focus-visible:outline-gray-900"
           >
-            <PasskeyIcon className="size-10" />
+            <div className="size-10 flex items-center justify-center bg-gray-100 rounded-full">
+              <PasskeyIcon className="size-6" />
+            </div>
             <span className="text-base font-semibold text-gray-900">
               Passkey
             </span>
@@ -153,8 +155,11 @@ function LoginButton({
     <button
       type="button"
       onClick={onClick}
-      className="rounded-2xl p-5 text-left flex flex-col items-start gap-4 outline outline-gray-200 bg-white group hover:outline-2 hover:outline-gray-300 focus-visible:outline-2 focus-visible:outline-gray-900"
+      className="relative rounded-2xl p-5 text-left flex flex-col items-start gap-4 outline outline-gray-200 bg-white group hover:outline-2 hover:outline-gray-300 focus-visible:outline-2 focus-visible:outline-gray-900"
     >
+      <span className="absolute top-3 right-3 text-[10px] font-semibold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+        Web3
+      </span>
       {icon ??
         (iconSrc ? (
           <Image src={iconSrc} alt="" width={40} height={40} />
