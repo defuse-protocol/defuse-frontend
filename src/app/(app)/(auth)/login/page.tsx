@@ -87,16 +87,11 @@ export default function LoginPage() {
 
         <div className="grid grid-cols-2 gap-2 mt-10 w-full">
           <LoginButton
-            name="Solana"
-            iconSrc="/static/icons/wallets/solana-wallet.svg"
-            onClick={() => signIn({ id: ChainType.Solana })}
-          />
-          <LoginButton
             name="NEAR"
             iconSrc="/static/icons/wallets/near-wallet.svg"
             onClick={() => signIn({ id: ChainType.Near })}
           />
-          {connectors.slice(0, 1).map((connector) => (
+          {connectors.slice(0, 2).map((connector) => (
             <LoginButton
               key={connector.uid}
               name={connector.name}
@@ -104,6 +99,11 @@ export default function LoginPage() {
               onClick={() => signIn({ id: ChainType.EVM, connector })}
             />
           ))}
+          <LoginButton
+            name="Solana"
+            iconSrc="/static/icons/wallets/solana-wallet.svg"
+            onClick={() => signIn({ id: ChainType.Solana })}
+          />
           <LoginButton
             name="TON"
             iconSrc="/static/icons/wallets/ton.svg"
@@ -119,17 +119,14 @@ export default function LoginPage() {
             iconSrc="/static/icons/network/tron.svg"
             onClick={() => signIn({ id: ChainType.Tron })}
           />
-          {connectors
-            .slice(1)
-            .filter((connector) => connector.id !== "injected")
-            .map((connector) => (
-              <LoginButton
-                key={connector.uid}
-                name={connector.name}
-                iconSrc={getWalletIconSrc(connector)}
-                onClick={() => signIn({ id: ChainType.EVM, connector })}
-              />
-            ))}
+          {connectors.slice(2).map((connector) => (
+            <LoginButton
+              key={connector.uid}
+              name={connector.name}
+              iconSrc={getWalletIconSrc(connector)}
+              onClick={() => signIn({ id: ChainType.EVM, connector })}
+            />
+          ))}
         </div>
       </div>
     </div>

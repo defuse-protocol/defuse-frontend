@@ -141,6 +141,7 @@ export const config = createConfig({
         showQrModal: true,
         customStoragePrefix: "near-intents",
       }),
+    injected(),
     coinbaseWallet({
       appName: "Near Intents",
       preference: {
@@ -148,7 +149,6 @@ export const config = createConfig({
         telemetry: false,
       },
     }),
-    injected(),
   ].filter((a): a is Exclude<typeof a, boolean> => !!a),
   transports: {
     [mainnet.id]: http(),
