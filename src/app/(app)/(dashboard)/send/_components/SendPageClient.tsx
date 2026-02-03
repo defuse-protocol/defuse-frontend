@@ -61,6 +61,21 @@ export function SendPageClient({
     }) => {
       if (!initialHadParams) return
 
+      const shouldUpdateRecipient =
+        queryParams.has("token") || queryParams.has("recipient")
+
+      if (params.networkChanged && params.recipientChanged) {
+        updateURLParamsWithdraw({
+          token: params.token,
+          network: params.network,
+          contactId: null,
+          recipient: shouldUpdateRecipient ? params.recipient : null,
+          router,
+          searchParams: queryParams,
+        })
+        return
+      }
+
       if (params.networkChanged) {
         updateURLParamsWithdraw({
           token: params.token,
@@ -74,8 +89,6 @@ export function SendPageClient({
       }
 
       if (params.recipientChanged) {
-        const shouldUpdateRecipient =
-          queryParams.has("token") || queryParams.has("recipient")
         updateURLParamsWithdraw({
           token: params.token,
           network: params.network,
