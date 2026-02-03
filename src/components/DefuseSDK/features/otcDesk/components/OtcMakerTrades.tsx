@@ -172,7 +172,7 @@ function OtcMakerTradeItem({
           </span>
         </div>
         <div className="text-sm text-red-600 font-medium text-center text-pretty">
-          {"tradeTermsResult.unwrapErr()"}
+          {tradeTermsResult.unwrapErr()}
         </div>
       </div>
     )
