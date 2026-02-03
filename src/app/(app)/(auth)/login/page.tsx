@@ -40,8 +40,7 @@ export default function LoginPage() {
           Pick your wallet or passkey below—returning users{" "}
           <span className="font-bold text-gray-700">sign in</span>, new users{" "}
           <span className="font-bold text-gray-700">create an account</span>{" "}
-          instantly. Deposit assets and start swapping, earning yield, privately
-          trading, and more.
+          instantly.
         </p>
 
         <button
