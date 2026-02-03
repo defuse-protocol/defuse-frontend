@@ -1,11 +1,11 @@
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { assert } from "@defuse-protocol/internal-utils"
-import { UserCircleIcon } from "@heroicons/react/20/solid"
+import { PlusIcon, UserCircleIcon } from "@heroicons/react/20/solid"
 import { getContacts } from "@src/app/(app)/(auth)/contacts/actions"
 import ErrorMessage from "@src/components/ErrorMessage"
 import ListItem from "@src/components/ListItem"
 import { ContactsIcon, WalletIcon } from "@src/icons"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import clsx from "clsx"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useFormContext } from "react-hook-form"
@@ -20,10 +20,14 @@ import {
   midTruncate,
 } from "../../features/withdraw/components/WithdrawForm/utils"
 import type { NetworkOptions } from "../../hooks/useNetworkLists"
-import { reverseAssetNetworkAdapter } from "../../utils/adapters"
+import {
+  assetNetworkAdapter,
+  reverseAssetNetworkAdapter,
+} from "../../utils/adapters"
 import { stringToColor } from "../../utils/stringToColor"
 import { NetworkIcon } from "../Network/NetworkIcon"
 import SearchBar from "../SearchBar"
+import ModalAddEditContact from "./ModalAddEditContact"
 import { BaseModalDialog } from "./ModalDialog"
 
 type ModalSelectRecipientProps = {
@@ -47,14 +51,17 @@ const ModalSelectRecipient = ({
   displayOwnAddress,
   availableNetworks,
 }: ModalSelectRecipientProps) => {
-  const { setValue, watch } = useFormContext<WithdrawFormNearValues>()
+  const { setValue, watch, clearErrors } =
+    useFormContext<WithdrawFormNearValues>()
   const blockchain = watch("blockchain")
+  const queryClient = useQueryClient()
 
   const [isScrolled, setIsScrolled] = useState(false)
   const [inputValue, setInputValue] = useState("")
   const [isValidating, setIsValidating] = useState(false)
   const [validationError, setValidationError] = useState<string | null>(null)
   const [validatedAddress, setValidatedAddress] = useState<string | null>(null)
+  const [showAddContact, setShowAddContact] = useState(false)
 
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
@@ -217,6 +224,17 @@ const ModalSelectRecipient = ({
                   {midTruncate(validatedAddress, 16)}
                 </ListItem.Title>
               </ListItem.Content>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setShowAddContact(true)
+                }}
+                className="relative z-20 size-8 rounded-lg hover:bg-gray-200 flex items-center justify-center ml-auto"
+                title="Save as contact"
+              >
+                <PlusIcon className="size-4 text-gray-500" />
+              </button>
             </ListItem>
           ) : (
             <>
@@ -321,6 +339,29 @@ const ModalSelectRecipient = ({
           )}
         </div>
       </div>
+
+      <ModalAddEditContact
+        open={showAddContact}
+        onClose={() => setShowAddContact(false)}
+        onSuccess={(contact) => {
+          clearErrors()
+          const chainKey = reverseAssetNetworkAdapter[contact.blockchain]
+          setValue("blockchain", chainKey)
+          setValue("recipient", contact.address)
+          setShowAddContact(false)
+          onClose()
+        }}
+        onCloseAnimationEnd={() => {
+          queryClient.invalidateQueries({ queryKey: ["contacts"] })
+        }}
+        defaultValues={{
+          address: validatedAddress ?? "",
+          blockchain:
+            blockchain && blockchain !== "near_intents"
+              ? assetNetworkAdapter[blockchain]
+              : null,
+        }}
+      />
     </BaseModalDialog>
   )
 }

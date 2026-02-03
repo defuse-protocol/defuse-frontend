@@ -15,7 +15,6 @@ import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import useSearchNetworks from "@src/hooks/useFilterNetworks"
 import { WalletIcon } from "@src/icons"
 import clsx from "clsx"
-import { useRouter } from "next/navigation"
 import { useCallback, useMemo, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import type { SupportedChainName } from "../../types/base"
@@ -38,6 +37,8 @@ type FormData = {
 type ModalContactProps = {
   open: boolean
   contact?: Contact | null
+  defaultValues?: Partial<FormData>
+  onSuccess?: (contact: { address: string; blockchain: BlockchainEnum }) => void
   onClose: () => void
   onCloseAnimationEnd?: () => void
 }
@@ -47,8 +48,9 @@ const ModalAddEditContact = ({
   onClose,
   onCloseAnimationEnd,
   contact,
+  defaultValues: defaultValuesProp,
+  onSuccess,
 }: ModalContactProps) => {
-  const router = useRouter()
   const [selectNetworkOpen, setSelectNetworkOpen] = useState(false)
   const [searchValue, setSearchValue] = useState("")
   const [isScrolled, setIsScrolled] = useState(false)
@@ -63,23 +65,29 @@ const ModalAddEditContact = ({
 
   const defaultValues = useMemo<FormData>(
     () => ({
-      name: "",
-      address: "",
-      blockchain: null,
+      name: defaultValuesProp?.name ?? "",
+      address: defaultValuesProp?.address ?? "",
+      blockchain: defaultValuesProp?.blockchain ?? null,
     }),
-    []
+    [defaultValuesProp]
   )
 
   const formValues = useMemo<FormData | undefined>(
     () =>
-      open && contact
-        ? {
-            name: contact.name,
-            address: contact.address,
-            blockchain: contact.blockchain,
-          }
+      open
+        ? contact
+          ? {
+              name: contact.name,
+              address: contact.address,
+              blockchain: contact.blockchain,
+            }
+          : {
+              name: defaultValuesProp?.name ?? "",
+              address: defaultValuesProp?.address ?? "",
+              blockchain: defaultValuesProp?.blockchain ?? null,
+            }
         : undefined,
-    [contact, open]
+    [contact, open, defaultValuesProp]
   )
 
   const {
@@ -160,8 +168,8 @@ const ModalAddEditContact = ({
         }
       }
 
+      onSuccess?.({ address: data.address, blockchain: data.blockchain })
       onClose()
-      router.refresh()
     } catch (error) {
       setSubmitError(
         error instanceof Error

@@ -215,13 +215,19 @@ const ContactsList = ({
         onClose={() => {
           setModalOpen(null)
         }}
-        onCloseAnimationEnd={() => setSelectedContact(null)}
+        onCloseAnimationEnd={() => {
+          setSelectedContact(null)
+          router.refresh()
+        }}
       />
       <ModalRemoveContact
         open={modalOpen === "remove"}
         contact={selectedContact}
         onClose={() => setModalOpen(null)}
-        onCloseAnimationEnd={() => setSelectedContact(null)}
+        onCloseAnimationEnd={() => {
+          setSelectedContact(null)
+          router.refresh()
+        }}
       />
     </>
   )
