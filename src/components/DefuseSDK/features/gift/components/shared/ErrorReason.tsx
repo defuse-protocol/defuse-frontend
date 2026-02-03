@@ -1,5 +1,4 @@
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
-import { Callout } from "@radix-ui/themes"
+import { WarningCircleIcon } from "@phosphor-icons/react"
 
 type ErrorReasonProps = {
   reason: string
@@ -7,12 +6,14 @@ type ErrorReasonProps = {
 
 export function ErrorReason({ reason }: ErrorReasonProps) {
   return (
-    <Callout.Root size="1" color="red" className="flex items-center gap-2">
-      <Callout.Icon>
-        <ExclamationTriangleIcon />
-      </Callout.Icon>
-      <Callout.Text>{renderErrorMessages(reason)}</Callout.Text>
-    </Callout.Root>
+    <div className="p-3 rounded-xl bg-red-50 border border-red-100 flex items-start gap-3 animate-in fade-in slide-in-from-top-1 duration-200">
+      <div className="size-8 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+        <WarningCircleIcon weight="fill" className="size-4 text-red-600" />
+      </div>
+      <p className="text-sm text-red-700 font-medium pt-1">
+        {renderErrorMessages(reason)}
+      </p>
+    </div>
   )
 }
 

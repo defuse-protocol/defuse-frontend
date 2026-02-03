@@ -6,6 +6,7 @@ import {
   ContactsIcon,
   DealsIcon,
   EarnIcon,
+  GiftIcon,
   HistoryIcon,
   SwapIcon,
 } from "@src/icons"
@@ -28,6 +29,11 @@ const navItems = [
     label: "Earn",
     href: "/earn",
     icon: EarnIcon,
+  },
+  {
+    label: "Gifts",
+    href: "/gifts",
+    icon: GiftIcon,
   },
   {
     label: "Private deals",

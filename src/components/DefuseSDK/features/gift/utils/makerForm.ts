@@ -3,10 +3,14 @@ import type { TokenValue } from "../../../types/base"
 export function getButtonText(
   balanceInsufficient: boolean,
   editing: boolean,
-  processing: boolean
+  processing: boolean,
+  amountEmpty: boolean
 ) {
+  if (amountEmpty) {
+    return "Please enter an amount"
+  }
   if (balanceInsufficient) {
-    return "Insufficient Balance"
+    return "Insufficient balance"
   }
   if (processing) {
     return "Processing..."

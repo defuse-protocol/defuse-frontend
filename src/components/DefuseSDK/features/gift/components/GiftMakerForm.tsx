@@ -1,23 +1,21 @@
 import type { authHandle } from "@defuse-protocol/internal-utils"
+import Alert from "@src/components/Alert"
+import Button from "@src/components/Button"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { useActorRef, useSelector } from "@xstate/react"
-import clsx from "clsx"
-import { useEffect, useMemo } from "react"
+import { useCallback, useEffect, useMemo } from "react"
 import type { ActorRefFrom, PromiseActorLogic } from "xstate"
 import { AuthGate } from "../../../components/AuthGate"
-import { BlockMultiBalances } from "../../../components/Block/BlockMultiBalances"
-import { ButtonCustom } from "../../../components/Button/ButtonCustom"
 import type { ModalSelectAssetsPayload } from "../../../components/Modal/ModalSelectAssets"
-import SelectAssets from "../../../components/SelectAssets"
 import type { SignerCredentials } from "../../../core/formatters"
 import { useTokensUsdPrices } from "../../../hooks/useTokensUsdPrices"
 import { useModalStore } from "../../../providers/ModalStoreProvider"
 import { ModalType } from "../../../stores/modalStore"
 import type { RenderHostAppLink } from "../../../types/hostAppLink"
 import { assert } from "../../../utils/assert"
-import { formatTokenValue, formatUsdAmount } from "../../../utils/format"
+import { formatTokenValue } from "../../../utils/format"
 import getTokenUsdPrice from "../../../utils/getTokenUsdPrice"
-import { TokenAmountInputCard } from "../../deposit/components/DepositForm/TokenAmountInputCard"
+import TokenInputCard from "../../deposit/components/DepositForm/TokenInputCard"
 import { balanceAllSelector } from "../../machines/depositedBalanceMachine"
 import type { SendNearTransaction } from "../../machines/publicKeyVerifierMachine"
 import type { publicKeyVerifierMachine } from "../../machines/publicKeyVerifierMachine"
@@ -32,6 +30,7 @@ import type {
 } from "../actors/giftMakerSignActor"
 import { useBalanceUpdaterSyncWithHistory } from "../hooks/useBalanceUpdaterSyncWithHistory"
 import { useCheckSignerCredentials } from "../hooks/useCheckSignerCredentials"
+import { useGiftUsdMode } from "../hooks/useGiftUsdMode"
 import type {
   CreateGiftIntent,
   GenerateLink,
@@ -40,40 +39,20 @@ import type {
 import { checkInsufficientBalance, getButtonText } from "../utils/makerForm"
 import { GiftMakerReadyDialog } from "./GiftMakerReadyDialog"
 import { GiftMessageInput } from "./GiftMessageInput"
-import { ErrorReason } from "./shared/ErrorReason"
-import { GiftDescription } from "./shared/GiftDescription"
-import { GiftHeader } from "./shared/GiftHeader"
 
 export type GiftMakerWidgetProps = {
-  /** List of available tokens for trading */
   tokenList: TokenInfo[]
-
-  /** User's wallet address */
   userAddress: authHandle.AuthHandle["identifier"] | undefined
   chainType: authHandle.AuthHandle["method"] | undefined
-
-  /** Initial tokens for pre-filling the form */
   initialToken?: TokenInfo
-
-  /** Sign message callback */
   signMessage: SignMessage
-
-  /** Send NEAR transaction callback */
   sendNearTransaction: SendNearTransaction
-
-  /** Create Gift in the database */
   createGiftIntent: CreateGiftIntent
-
-  /** Function to generate a shareable trade link */
   generateLink: GenerateLink
-
-  /** Theme selection */
   theme?: "dark" | "light"
-
-  /** Frontend referral */
   referral?: string
-
   renderHostAppLink: RenderHostAppLink
+  onSuccess?: () => void
 }
 
 const MAX_MESSAGE_LENGTH = 500
@@ -89,6 +68,7 @@ export function GiftMakerForm({
   referral,
   renderHostAppLink,
   createGiftIntent,
+  onSuccess,
 }: GiftMakerWidgetProps) {
   const signerCredentials: SignerCredentials | null = useMemo(
     () =>
@@ -118,8 +98,12 @@ export function GiftMakerForm({
   const formValuesRef = useSelector(formRef, formValuesSelector)
   const formValues = useSelector(formValuesRef, (s) => s.context)
 
+  const depositedBalanceRef = useSelector(
+    rootActorRef,
+    (s) => s.context.depositedBalanceRef
+  )
   const { tokenBalance } = useSelector(
-    useSelector(rootActorRef, (s) => s.context.depositedBalanceRef),
+    depositedBalanceRef,
     balanceAllSelector({
       tokenBalance: formValues.token,
     })
@@ -141,6 +125,29 @@ export function GiftMakerForm({
     formValues.token,
     tokensUsdPriceData
   )
+
+  const handleAmountChange = useCallback(
+    (value: string) => {
+      formValuesRef.trigger.updateAmount({ value })
+    },
+    [formValuesRef]
+  )
+
+  const {
+    isUsdMode,
+    usdValue,
+    tokenPrice,
+    handleToggle: handleToggleUsdMode,
+    handleUsdInputChange,
+    setTokenAmount,
+  } = useGiftUsdMode({
+    token: formValues.token,
+    tokenAmount: formValues.amount,
+    tokensUsdPriceData,
+    onAmountChange: handleAmountChange,
+  })
+
+  const canToggleUsd = tokenPrice != null && tokenPrice > 0
 
   const { setModalType, payload } = useModalStore((state) => state)
 
@@ -179,6 +186,13 @@ export function GiftMakerForm({
     return checkInsufficientBalance(formValues.amount, tokenBalance)
   }, [formValues.amount, tokenBalance])
 
+  const amountEmpty = useMemo(() => {
+    const amount = formValues.amount.trim()
+    if (!amount) return true
+    const num = Number.parseFloat(amount.replace(",", "."))
+    return Number.isNaN(num) || num <= 0
+  }, [formValues.amount])
+
   const editing = rootSnapshot.matches("editing")
   const processing =
     rootSnapshot.matches("signing") ||
@@ -190,73 +204,57 @@ export function GiftMakerForm({
 
   const error = rootSnapshot.context.error
 
-  const publicKeyVerifierRef = useSelector(
-    useSelector(
-      useSelector(
-        rootActorRef,
-        (state) =>
-          state.children.signRef as
-            | undefined
-            | ActorRefFrom<typeof giftMakerSignActor>
-      ),
-      (state) => {
-        if (state) {
-          return (
-            state as unknown as {
-              children: {
-                signRef: ActorRefFrom<
-                  PromiseActorLogic<
-                    GiftMakerSignActorOutput,
-                    GiftMakerSignActorInput
-                  >
-                >
-              }
-            }
-          ).children.signRef
-        }
-      }
-    ),
-    (state) => {
-      if (state) {
-        return (
-          state as unknown as {
-            children: {
-              publicKeyVerifierRef: ActorRefFrom<
-                typeof publicKeyVerifierMachine
-              >
-            }
-          }
-        ).children.publicKeyVerifierRef
-      }
-    }
+  const signRef = useSelector(
+    rootActorRef,
+    (state) =>
+      state.children.signRef as
+        | undefined
+        | ActorRefFrom<typeof giftMakerSignActor>
   )
+
+  const innerSignRef = useSelector(signRef, (state) => {
+    if (state) {
+      return (
+        state as unknown as {
+          children: {
+            signRef: ActorRefFrom<
+              PromiseActorLogic<
+                GiftMakerSignActorOutput,
+                GiftMakerSignActorInput
+              >
+            >
+          }
+        }
+      ).children.signRef
+    }
+  })
+
+  const publicKeyVerifierRef = useSelector(innerSignRef, (state) => {
+    if (state) {
+      return (
+        state as unknown as {
+          children: {
+            publicKeyVerifierRef: ActorRefFrom<typeof publicKeyVerifierMachine>
+          }
+        }
+      ).children.publicKeyVerifierRef
+    }
+  })
 
   usePublicKeyModalOpener(publicKeyVerifierRef, sendNearTransaction)
 
-  const handleSetMaxValue = async () => {
+  const handleSetMaxValue = () => {
     if (tokenBalance != null) {
-      formValuesRef.trigger.updateAmount({
-        value: formatTokenValue(tokenBalance.amount, tokenBalance.decimals),
-      })
+      setTokenAmount(
+        formatTokenValue(tokenBalance.amount, tokenBalance.decimals, {
+          fractionDigits: 6,
+        })
+      )
     }
   }
-
-  const handleSetHalfValue = async () => {
-    if (tokenBalance != null) {
-      formValuesRef.trigger.updateAmount({
-        value: formatTokenValue(
-          tokenBalance.amount / 2n,
-          tokenBalance.decimals
-        ),
-      })
-    }
-  }
-
-  const balanceAmount = tokenBalance?.amount ?? 0n
-  const disabled = tokenBalance?.amount === 0n
 
   return (
-    <div className="flex flex-col">
+    <>
       {rootSnapshot.matches("settled") &&
         readyGiftRef != null &&
         signerCredentials != null && (
@@ -264,15 +262,9 @@ export function GiftMakerForm({
             readyGiftRef={readyGiftRef}
             generateLink={generateLink}
             signerCredentials={signerCredentials}
+            onClose={onSuccess}
           />
         )}
-
-      <GiftHeader title="Share gift">
-        <GiftDescription
-          description="Send assets to your friends and help them get started on NEAR
-            Intents, hassle-free."
-        />
-      </GiftHeader>
 
       <form
         onSubmit={(e) => {
@@ -286,115 +278,77 @@ export function GiftMakerForm({
             })
           }
         }}
-        className="flex flex-col gap-5"
       >
-        <div className="flex flex-col items-center">
-          <TokenAmountInputCard
-            variant="2"
-            labelSlot={
-              <label
-                htmlFor="gift-amount-in"
-                className="font-bold text-label text-sm"
-              >
-                Gift amount
-              </label>
-            }
-            inputSlot={
-              <TokenAmountInputCard.Input
-                id="gift-amount-in"
-                name="amount"
-                value={formValues.amount}
-                onChange={(e) =>
-                  formValuesRef.trigger.updateAmount({
-                    value: e.target.value,
-                  })
-                }
-                disabled={processing}
-              />
-            }
-            tokenSlot={
-              <SelectAssets
-                selected={formValues.token ?? undefined}
-                handleSelect={() =>
-                  openModalSelectAssets("token", formValues.token)
-                }
-              />
-            }
-            balanceSlot={
-              <BlockMultiBalances
-                balance={balanceAmount}
-                decimals={tokenBalance?.decimals ?? 0}
-                className={clsx("static!", tokenBalance == null && "invisible")}
-                maxButtonSlot={
-                  <BlockMultiBalances.DisplayMaxButton
-                    onClick={handleSetMaxValue}
-                    balance={balanceAmount}
-                    disabled={disabled}
-                  />
-                }
-                halfButtonSlot={
-                  <BlockMultiBalances.DisplayHalfButton
-                    onClick={handleSetHalfValue}
-                    balance={balanceAmount}
-                    disabled={disabled}
-                  />
-                }
-              />
-            }
-            priceSlot={
-              <TokenAmountInputCard.DisplayPrice>
-                {usdAmount !== null && usdAmount > 0
-                  ? formatUsdAmount(usdAmount)
-                  : null}
-              </TokenAmountInputCard.DisplayPrice>
-            }
-          />
-          <div className="w-full mt-4">
-            <GiftMessageInput
-              inputSlot={
-                <GiftMessageInput.Input
-                  id="gift-message"
-                  name="message"
-                  value={formValues.message}
-                  onChange={(e) =>
-                    formValuesRef.trigger.updateMessage({
-                      value: e.target.value,
-                    })
-                  }
-                  maxLength={MAX_MESSAGE_LENGTH}
-                />
+        <TokenInputCard
+          balance={tokenBalance?.amount ?? 0n}
+          decimals={tokenBalance?.decimals ?? 0}
+          symbol={formValues.token?.symbol ?? ""}
+          usdAmount={usdAmount}
+          loading={processing}
+          selectedToken={formValues.token ?? undefined}
+          tokens={tokenList}
+          handleSetMax={handleSetMaxValue}
+          handleSelectToken={() =>
+            openModalSelectAssets("token", formValues.token)
+          }
+          onToggleUsdMode={canToggleUsd ? handleToggleUsdMode : undefined}
+          isUsdMode={isUsdMode}
+          tokenPrice={tokenPrice}
+          tokenAmount={formValues.amount}
+          registration={{
+            name: "amount",
+            onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+              if (isUsdMode) {
+                handleUsdInputChange(e.target.value)
+              } else {
+                formValuesRef.trigger.updateAmount({
+                  value: e.target.value,
+                })
               }
-              countSlot={
-                formValues.message.length > 0 ? (
-                  <GiftMessageInput.DisplayCount
-                    count={MAX_MESSAGE_LENGTH - formValues.message.length}
-                  />
-                ) : null
-              }
-            />
-          </div>
-        </div>
+            },
+            value: isUsdMode ? usdValue : formValues.amount,
+          }}
+        />
+
+        <GiftMessageInput
+          name="message"
+          value={formValues.message}
+          maxLength={MAX_MESSAGE_LENGTH}
+          onChange={(e) =>
+            formValuesRef.trigger.updateMessage({
+              value: e.target.value,
+            })
+          }
+        />
 
         <AuthGate
           renderHostAppLink={renderHostAppLink}
           shouldRender={isLoggedIn}
         >
-          <ButtonCustom
+          <Button
             type="submit"
-            size="lg"
-            variant={processing ? "secondary" : "primary"}
-            isLoading={processing}
-            disabled={balanceInsufficient || processing}
+            size="xl"
+            variant="primary"
+            className="mt-5"
+            fullWidth
+            loading={processing}
+            disabled={amountEmpty || balanceInsufficient || processing}
           >
-            {getButtonText(balanceInsufficient, editing, processing)}
-          </ButtonCustom>
+            {getButtonText(
+              balanceInsufficient,
+              editing,
+              processing,
+              amountEmpty
+            )}
+          </Button>
         </AuthGate>
       </form>
+
       {error != null && (
-        <div className="mt-2">
-          <ErrorReason reason={error.reason} />
-        </div>
+        <Alert variant="error" className="mt-2">
+          {error.reason}
+        </Alert>
       )}
-    </div>
+    </>
   )
 }

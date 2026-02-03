@@ -17,7 +17,7 @@ export interface GiftMakerHistory {
   tokenDiff: Record<BaseTokenInfo["defuseAssetId"], bigint>
   secretKey: KeyPairString
   message: string
-  iv: string
+  iv?: string
   intentHashes: string[]
   createdAt: number
   updatedAt: number
@@ -127,7 +127,9 @@ export const giftMakerHistoryStore = create<Store>()(
         }
 
         try {
-          const result = await storage.removeItem(configDBStorage.dbName)
+          const result = await storage.setItem(configDBStorage.dbName, {
+            state: newState,
+          })
           if (result.tag === "err") {
             return result
           }

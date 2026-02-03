@@ -46,5 +46,14 @@ export const createGiftMakerFormValuesStore = ({
         enqueue.emit.changed({ context: newContext })
         return newContext
       },
+      reset: (context, _event, enqueue) => {
+        const newContext = {
+          ...context,
+          amount: "",
+          message: "",
+        }
+        enqueue.emit.changed({ context: newContext })
+        return newContext
+      },
     },
   })

@@ -1,12 +1,11 @@
 import { settings } from "@src/config/settings"
 import type { Metadata } from "next"
+import type { ReactNode } from "react"
 
 export function generateMetadata(): Metadata {
   return settings.metadata.giftView
 }
 
-export default function ViewGiftLayout({
-  children,
-}: { children: React.ReactNode }) {
-  return <>{children}</>
+export default function Layout({ children }: { children: ReactNode }) {
+  return children
 }

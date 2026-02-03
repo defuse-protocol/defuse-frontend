@@ -1,9 +1,9 @@
 export function GiftClaimedMessage() {
   return (
-    <div className="bg-warning px-3 py-2 text-warning-foreground mt-2.5">
-      <div className="text-xs flex items-center justify-center">
-        <span className="font-bold">Your gift is being claimed.</span>
-        <span className="ml-2">This may take 5-10 seconds more.</span>
+    <div className="bg-amber-50 border border-amber-200 px-4 py-3 rounded-xl mt-4">
+      <div className="text-sm flex items-center justify-center gap-2 text-amber-800">
+        <span className="font-semibold">Your gift is being claimed.</span>
+        <span className="text-amber-600">Please wait a moment.</span>
       </div>
     </div>
   )
