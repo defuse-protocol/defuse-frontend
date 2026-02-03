@@ -43,7 +43,33 @@ export default function LoginPage() {
           instantly.
         </p>
 
-        <div className="grid grid-cols-2 gap-2 mt-8 w-full">
+        <div className="mt-8 flex items-center gap-x-6 self-stretch">
+          <div className="w-full flex-1 border-t border-gray-200" />
+          <div className="flex items-center gap-1.5">
+            <p className="text-sm/6 font-medium text-nowrap text-gray-500">
+              Wondering which to choose?
+            </p>
+            <HelperPopover>
+              <p className="font-semibold">Passkey</p>
+              <p className="mt-1">
+                Simple login familiar to most users. Syncs across your devices.
+                However, if you lose access to your passkey, your account cannot
+                be recovered.
+              </p>
+              <p className="mt-3 font-semibold">Web3 wallet</p>
+              <p className="mt-1">
+                Natural for existing crypto users with faster deposits directly
+                from your wallet. Note that your NEAR Intents account address
+                will match your wallet address, which could be a privacy
+                consideration if you plan to share it for account-to-account
+                transfers.
+              </p>
+            </HelperPopover>
+          </div>
+          <div className="w-full flex-1 border-t border-gray-200" />
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 mt-6 w-full">
           <button
             type="button"
             onClick={() => webauthnUI.open()}
@@ -106,32 +132,6 @@ export default function LoginPage() {
                 onClick={() => signIn({ id: ChainType.EVM, connector })}
               />
             ))}
-        </div>
-
-        <div className="mt-8 flex items-center gap-x-6 self-stretch">
-          <div className="w-full flex-1 border-t border-gray-200" />
-          <div className="flex items-center gap-1.5">
-            <p className="text-sm/6 font-medium text-nowrap text-gray-500">
-              Wondering which to choose?
-            </p>
-            <HelperPopover>
-              <p className="font-semibold">Passkey</p>
-              <p className="mt-1">
-                Simple login familiar to most users. Syncs across your devices.
-                However, if you lose access to your passkey, your account cannot
-                be recovered.
-              </p>
-              <p className="mt-3 font-semibold">Web3 wallet</p>
-              <p className="mt-1">
-                Natural for existing crypto users with faster deposits directly
-                from your wallet. Note that your NEAR Intents account address
-                will match your wallet address, which could be a privacy
-                consideration if you plan to share it for account-to-account
-                transfers.
-              </p>
-            </HelperPopover>
-          </div>
-          <div className="w-full flex-1 border-t border-gray-200" />
         </div>
       </div>
     </div>
