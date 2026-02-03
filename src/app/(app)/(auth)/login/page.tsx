@@ -155,8 +155,11 @@ function LoginButton({
     <button
       type="button"
       onClick={onClick}
-      className="rounded-2xl p-5 text-left flex flex-col items-start gap-4 outline outline-gray-200 bg-white group hover:outline-2 hover:outline-gray-300 focus-visible:outline-2 focus-visible:outline-gray-900"
+      className="relative rounded-2xl p-5 text-left flex flex-col items-start gap-4 outline outline-gray-200 bg-white group hover:outline-2 hover:outline-gray-300 focus-visible:outline-2 focus-visible:outline-gray-900"
     >
+      <span className="absolute top-3 right-3 text-[10px] font-semibold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+        Web3
+      </span>
       {icon ??
         (iconSrc ? (
           <Image src={iconSrc} alt="" width={40} height={40} />
