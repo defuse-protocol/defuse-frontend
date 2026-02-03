@@ -88,7 +88,7 @@ const SelectedTokenInput = ({
             className={clsx(
               "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-4xl tracking-tight w-full min-w-0",
               !hasValue &&
-                "placeholder:text-xl placeholder:font-medium placeholder:text-gray-400 placeholder:-translate-y-1.5",
+                "placeholder:text-2xl placeholder:font-semibold tracking-tight placeholder:text-gray-300 placeholder:-translate-y-1.5",
               hasValue && "placeholder:text-gray-400",
               disabled && "opacity-50"
             )}
