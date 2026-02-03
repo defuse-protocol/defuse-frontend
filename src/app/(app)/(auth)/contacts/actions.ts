@@ -24,6 +24,7 @@ import { renderRecipientAddressError } from "@src/components/DefuseSDK/utils/val
 import { getAccountIdFromToken } from "@src/utils/dummyAuth"
 import { logger } from "@src/utils/logger"
 import { cookies } from "next/headers"
+import { validate as isValidUuid } from "uuid"
 import * as v from "valibot"
 
 type ActionResult<T> = { ok: true; value: T } | { ok: false; error: string }
@@ -359,10 +360,6 @@ export async function updateContact(input: {
   }
 }
 
-// UUID format validation regex
-const UUID_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-
 export async function getContactByAddressAction(input: {
   address: string
   blockchain: SupportedChainName
@@ -422,7 +419,7 @@ export async function getContactByIdAction(input: {
 }): Promise<ActionResult<Contact | null>> {
   try {
     // Validate UUID format first to avoid database errors
-    if (!UUID_REGEX.test(input.contactId)) {
+    if (!isValidUuid(input.contactId)) {
       logger.warn("Invalid contactId format", {
         source: "get-contact-by-id",
         action: "invalid-format",

@@ -63,8 +63,7 @@ export function SwapQuoteInfo({ tokenOut, tokenIn }: SwapQuoteInfoProps) {
             The slippage setting is a safety mechanism to protect you from
             getting a final price that is very different than the quoted price.
             If the specified slippage would be exceeded, your swap will be
-            cancelled. Below is the minimum amount you are guaranteed to
-            receive.
+            cancelled.
           </HelperPopover>
         </dt>
         <dd>

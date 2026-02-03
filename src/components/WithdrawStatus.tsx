@@ -14,17 +14,14 @@ import {
 } from "@src/components/DefuseSDK/features/withdraw/utils/withdrawStatusUtils"
 import { blockExplorerTxLinkFactory } from "@src/components/DefuseSDK/utils/chainTxExplorer"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
-import {
-  HorizontalProgressDots,
-  ProgressSteps,
-} from "@src/components/ProgressIndicator"
+import { ProgressSteps } from "@src/components/ProgressIndicator"
 import type { TrackedWithdrawIntent } from "@src/providers/WithdrawTrackerMachineProvider"
 import Button from "./Button"
 import PageHeader from "./PageHeader"
 
 type WithdrawStatusProps = {
   withdraw: TrackedWithdrawIntent
-  variant: "full" | "card" | "dock"
+  variant: "full" | "dock"
   onWithdrawAgain?: () => void
 }
 
@@ -40,32 +37,19 @@ export function WithdrawStatus({
       getStageFromState,
     })
 
-  const hasError = isWithdrawError(stateValue)
+  const isError = isWithdrawError(stateValue)
   const isSuccess = isWithdrawSuccess(stateValue)
 
   if (variant === "dock") {
     return (
-      <HorizontalProgressDots
+      <ProgressSteps
         stages={WITHDRAW_STAGES}
-        stageLabelsShort={WITHDRAW_STAGE_LABELS_SHORT}
+        stageLabels={WITHDRAW_STAGE_LABELS_SHORT}
         displayStage={displayStage}
         displayIndex={displayIndex}
-        hasError={hasError}
+        isError={isError}
         isSuccess={isSuccess}
-      />
-    )
-  }
-
-  if (variant === "card") {
-    return (
-      <CardView
-        withdraw={withdraw}
-        displayStage={displayStage}
-        displayIndex={displayIndex}
-        hasError={hasError}
-        canRetry={canRetry}
-        txHash={txHash}
-        isSuccess={isSuccess}
+        size="sm"
       />
     )
   }
@@ -75,9 +59,10 @@ export function WithdrawStatus({
       withdraw={withdraw}
       displayStage={displayStage}
       displayIndex={displayIndex}
-      hasError={hasError}
+      isError={isError}
       canRetry={canRetry}
       isSuccess={isSuccess}
+      txHash={txHash}
       onWithdrawAgain={onWithdrawAgain}
     />
   )
@@ -85,17 +70,19 @@ export function WithdrawStatus({
 
 function FullView({
   withdraw,
+  txHash,
   displayStage,
   displayIndex,
-  hasError,
+  isError,
   canRetry,
   isSuccess,
   onWithdrawAgain,
 }: {
   withdraw: TrackedWithdrawIntent
+  txHash: string | null | undefined
   displayStage: WithdrawStage
   displayIndex: number
-  hasError: boolean
+  isError: boolean
   canRetry: boolean
   isSuccess: boolean
   onWithdrawAgain?: () => void
@@ -110,6 +97,8 @@ function FullView({
       fractionDigits: 4,
     }
   )
+
+  const explorerUrl = txHash ? blockExplorerTxLinkFactory("near", txHash) : null
 
   return (
     <div className="flex flex-col">
@@ -134,10 +123,24 @@ function FullView({
           stageLabels={WITHDRAW_STAGE_LABELS}
           displayStage={displayStage}
           displayIndex={displayIndex}
-          hasError={hasError}
+          isError={isError}
           isSuccess={isSuccess}
           size="md"
         />
+
+        {explorerUrl && (
+          <Button
+            href={explorerUrl}
+            variant="primary"
+            target="_blank"
+            rel="noopener noreferrer"
+            fullWidth
+            className="mt-6"
+          >
+            View on explorer
+            <ArrowTopRightOnSquareIcon className="size-4" />
+          </Button>
+        )}
       </div>
 
       <div className="mt-6 flex flex-col gap-3">
@@ -146,7 +149,7 @@ function FullView({
             Withdraw again
           </Button>
         )}
-        {hasError && canRetry && (
+        {isError && canRetry && (
           <Button
             size="xl"
             fullWidth
@@ -155,7 +158,7 @@ function FullView({
             Retry
           </Button>
         )}
-        {hasError && (
+        {isError && (
           <Button
             size="xl"
             variant="secondary"
@@ -163,84 +166,6 @@ function FullView({
             onClick={onWithdrawAgain}
           >
             Try a new withdrawal
-          </Button>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function CardView({
-  withdraw,
-  displayStage,
-  displayIndex,
-  hasError,
-  canRetry,
-  txHash,
-  isSuccess,
-}: {
-  withdraw: TrackedWithdrawIntent
-  displayStage: WithdrawStage
-  displayIndex: number
-  hasError: boolean
-  canRetry: boolean
-  txHash: string | null | undefined
-  isSuccess: boolean
-}) {
-  const { tokenOut, amountOut } = withdraw
-
-  const formattedAmount = formatTokenValue(
-    amountOut.amount,
-    amountOut.decimals,
-    {
-      min: 0.0001,
-      fractionDigits: 4,
-    }
-  )
-
-  const explorerUrl = txHash ? blockExplorerTxLinkFactory("near", txHash) : null
-
-  return (
-    <div className="bg-white rounded-2xl p-3 overflow-hidden">
-      <div className="flex items-center gap-3 mb-3">
-        <AssetComboIcon sizeClassName="size-6" {...tokenOut} />
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-gray-700">
-            Withdraw {formattedAmount} {tokenOut.symbol}
-          </p>
-        </div>
-      </div>
-
-      <ProgressSteps
-        stages={WITHDRAW_STAGES}
-        stageLabels={WITHDRAW_STAGE_LABELS}
-        displayStage={displayStage}
-        displayIndex={displayIndex}
-        hasError={hasError}
-        isSuccess={isSuccess}
-        size="sm"
-      />
-
-      <div className="flex flex-col gap-2 mt-3">
-        {explorerUrl && (
-          <Button
-            href={explorerUrl}
-            variant="primary"
-            target="_blank"
-            rel="noopener noreferrer"
-            fullWidth
-          >
-            View on explorer
-            <ArrowTopRightOnSquareIcon className="size-4" />
-          </Button>
-        )}
-        {hasError && canRetry && (
-          <Button
-            onClick={() => withdraw.actorRef.send({ type: "RETRY" })}
-            variant="primary"
-            fullWidth
-          >
-            Retry
           </Button>
         )}
       </div>

@@ -583,7 +583,7 @@ function renderSwapButtonText(
   insufficientTokenInAmount: boolean,
   failedToGetAQuote: boolean
 ) {
-  if (amountInEmpty && amountOutEmpty) return "Please enter an amount."
+  if (amountInEmpty && amountOutEmpty) return "Please enter an amount"
   if (noLiquidity)
     return "Ooops. There is no liquidity available for this swap. Please try again later."
   if (balanceInsufficient) return "Insufficient balance"

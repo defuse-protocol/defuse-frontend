@@ -87,13 +87,18 @@ export function SwapTrackerMachineProvider({
       addDockItem({
         id: `swap-${id}`,
         title: `${formattedIn} ${params.tokenIn.symbol} → ${formattedOut} ${params.tokenOut.symbol}`,
-        icon: (
-          <div className="flex items-center -space-x-2">
-            <AssetComboIcon sizeClassName="size-6" {...params.tokenIn} />
-            <AssetComboIcon sizeClassName="size-6" {...params.tokenOut} />
-          </div>
-        ),
-        rawIcon: true,
+        icons: [
+          <AssetComboIcon
+            key="in"
+            sizeClassName="size-7"
+            {...params.tokenIn}
+          />,
+          <AssetComboIcon
+            key="out"
+            sizeClassName="size-7"
+            {...params.tokenOut}
+          />,
+        ],
         keyValueRows: [],
         renderContent: () => <SwapStatus variant="dock" swap={swap} />,
       })

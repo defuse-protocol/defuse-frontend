@@ -1,4 +1,5 @@
 import { reverseAssetNetworkAdapter } from "@src/components/DefuseSDK/utils/adapters"
+import { logger } from "@src/utils/logger"
 import { getContactByIdAction } from "../../(auth)/contacts/actions"
 import { SendPageClient } from "./_components/SendPageClient"
 
@@ -26,6 +27,16 @@ export default async function SendPage({
     if (result.ok && result.value) {
       resolvedNetwork = reverseAssetNetworkAdapter[result.value.blockchain]
       resolvedRecipient = result.value.address
+    } else {
+      const reason = !result.ok
+        ? result.error
+        : "contact not found or unsupported chain"
+      logger.warn("Send page: could not resolve contactId", {
+        contactId,
+        reason,
+      })
+      // biome-ignore lint/suspicious/noConsole: intentional console report when contact fetch fails
+      console.warn("[send] Could not resolve contactId", { contactId, reason })
     }
     shouldUpdateUrl = true
   }
