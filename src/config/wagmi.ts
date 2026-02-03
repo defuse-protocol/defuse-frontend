@@ -135,13 +135,13 @@ export const config = createConfig({
     adi,
   ],
   connectors: [
+    injected(),
     PROJECT_ID != null &&
       walletConnect({
         projectId: PROJECT_ID,
         showQrModal: true,
         customStoragePrefix: "near-intents",
       }),
-    injected(),
     coinbaseWallet({
       appName: "Near Intents",
       preference: {

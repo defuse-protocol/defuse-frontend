@@ -90,12 +90,10 @@ export default function LoginPage() {
             iconSrc="/static/icons/wallets/near-wallet.svg"
             onClick={() => signIn({ id: ChainType.Near })}
           />
-          {connectors.slice(0, 2).map((connector) => (
+          {connectors.slice(0, 1).map((connector) => (
             <LoginButton
               key={connector.uid}
-              name={
-                connector.id === "injected" ? "Browser Wallet" : connector.name
-              }
+              name="Browser Wallet"
               iconSrc={getWalletIconSrc(connector)}
               onClick={() => signIn({ id: ChainType.EVM, connector })}
             />
@@ -105,6 +103,14 @@ export default function LoginPage() {
             iconSrc="/static/icons/wallets/solana-wallet.svg"
             onClick={() => signIn({ id: ChainType.Solana })}
           />
+          {connectors.slice(1, 2).map((connector) => (
+            <LoginButton
+              key={connector.uid}
+              name={connector.name}
+              iconSrc={getWalletIconSrc(connector)}
+              onClick={() => signIn({ id: ChainType.EVM, connector })}
+            />
+          ))}
           <LoginButton
             name="TON"
             iconSrc="/static/icons/wallets/ton.svg"
