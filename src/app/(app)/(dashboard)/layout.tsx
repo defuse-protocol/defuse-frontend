@@ -42,10 +42,10 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => (
 
         <div className="lg:hidden flex justify-between items-center pb-3 max-w-[464px] mx-auto w-full">
           <Link
-            href="/"
+            href="/account"
             className="-ml-1.5 pl-1.5 pr-2.5 py-1.5 flex items-center gap-2.5 rounded-xl focus-visible:outline-none"
           >
-            <span className="sr-only">Home</span>
+            <span className="sr-only">Account</span>
             <NearIntentsLogoSymbolIcon className="h-6 shrink-0" />
             <NearIntentsLogoIcon className="h-2.5 shrink-0 text-white" />
           </Link>

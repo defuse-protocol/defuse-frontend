@@ -5,8 +5,8 @@ const BankingPromo = () => {
         <div className="bg-brand/20 text-brand text-xs rounded-lg px-2 py-1 inline-block uppercase font-bold">
           Coming soon
         </div>
-        <div className="mt-2 mb-1">
-          <h3 className="text-xl font-bold text-white tracking-tight">
+        <div className="mt-4 mb-1">
+          <h3 className="text-xl/6 font-bold text-white tracking-tight">
             Deposit via bank transfer
           </h3>
         </div>
