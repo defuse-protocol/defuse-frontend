@@ -185,7 +185,8 @@ const TokenInputCard = (props: TokenInputCardProps) => {
       const cleaned = removeTrailingZeros(reg.value)
       if (cleaned !== reg.value) {
         e.target.value = cleaned
-        reg.onChange(e as unknown as React.ChangeEvent<HTMLInputElement>)
+        // Safe cast: FocusEvent and ChangeEvent share the same target structure
+        reg.onChange(e as React.ChangeEvent<HTMLInputElement>)
       }
     }
     if (reg && "onBlur" in reg) reg.onBlur?.(e)

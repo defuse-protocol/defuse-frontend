@@ -216,6 +216,12 @@ describe("removeTrailingZeros()", () => {
     expect(removeTrailingZeros(".0")).toEqual("0")
     expect(removeTrailingZeros("0.0")).toEqual("0")
   })
+
+  it("handles negative values", () => {
+    expect(removeTrailingZeros("-1.00")).toEqual("-1")
+    expect(removeTrailingZeros("-1.230000")).toEqual("-1.23")
+    expect(removeTrailingZeros("-100")).toEqual("-100")
+  })
 })
 
 describe("truncateDisplayValue()", () => {
@@ -245,6 +251,11 @@ describe("truncateDisplayValue()", () => {
   it("removes trailing zeros after truncation", () => {
     expect(truncateDisplayValue("1.200000")).toEqual("1.2")
     expect(truncateDisplayValue("123.000")).toEqual("123")
+  })
+
+  it("handles negative values", () => {
+    expect(truncateDisplayValue("-1.23000")).toEqual("-1.23")
+    expect(truncateDisplayValue("-0.123456789012")).toEqual("-0.12345678")
   })
 })
 
