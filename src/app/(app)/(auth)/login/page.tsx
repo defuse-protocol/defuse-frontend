@@ -121,14 +121,17 @@ export default function LoginPage() {
             iconSrc="/static/icons/network/tron.svg"
             onClick={() => signIn({ id: ChainType.Tron })}
           />
-          {connectors.slice(2).map((connector) => (
-            <LoginButton
-              key={connector.uid}
-              name={connector.name}
-              iconSrc={getWalletIconSrc(connector)}
-              onClick={() => signIn({ id: ChainType.EVM, connector })}
-            />
-          ))}
+          {connectors
+            .slice(2)
+            .filter((connector) => connector.type !== "injected")
+            .map((connector) => (
+              <LoginButton
+                key={connector.uid}
+                name={connector.name}
+                iconSrc={getWalletIconSrc(connector)}
+                onClick={() => signIn({ id: ChainType.EVM, connector })}
+              />
+            ))}
         </div>
       </div>
     </div>
