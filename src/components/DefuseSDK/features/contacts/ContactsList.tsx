@@ -82,6 +82,7 @@ const ContactsList = ({
     <>
       <PageHeader
         title="Contacts"
+        subtitle="Send crypto like sending an email"
         intro={
           <>
             <p>

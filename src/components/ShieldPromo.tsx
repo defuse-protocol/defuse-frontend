@@ -1,5 +1,6 @@
 "use client"
 
+import { ShieldCheckIcon } from "@heroicons/react/20/solid"
 import {
   BtcIcon,
   EthIcon,
@@ -66,7 +67,12 @@ const ShieldPromo = () => {
       <BaseModalDialog
         open={open}
         onClose={() => setOpen(false)}
-        title="What is a shielded account?"
+        title={
+          <span className="flex items-center gap-1.5">
+            <ShieldCheckIcon className="size-5 text-gray-500" />
+            What is a shielded account?
+          </span>
+        }
       >
         <div className="text-gray-500 text-sm font-medium space-y-4">
           <p>
