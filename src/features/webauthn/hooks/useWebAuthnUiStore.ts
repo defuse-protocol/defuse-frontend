@@ -1,6 +1,7 @@
 import { create } from "zustand"
 
-import { CREDENTIAL_NOT_FOUND_MESSAGE } from "@src/features/webauthn/lib/webAuthnCredentialsAPI"
+import { WebAuthnApiError } from "@src/features/webauthn/lib/webAuthnCredentialsAPI"
+import { WebAuthnErrorCode } from "@src/features/webauthn/types/webAuthnTypes"
 import { toError } from "@src/utils/errors"
 import { logger } from "@src/utils/logger"
 import { useWebAuthnStore } from "./useWebAuthnStore"
@@ -57,12 +58,13 @@ export const useWebAuthnUIStore = create<State & Actions>()((set, _get) => ({
       set({ isOpen: false })
     } catch (error) {
       logger.error(error)
-      const message = toError(error).message
+      const isCredentialNotFound =
+        error instanceof WebAuthnApiError &&
+        error.code === WebAuthnErrorCode.CREDENTIAL_NOT_FOUND
       set({
-        signInError:
-          message === CREDENTIAL_NOT_FOUND_MESSAGE
-            ? SIGN_IN_CREDENTIAL_NOT_FOUND_MESSAGE
-            : message,
+        signInError: isCredentialNotFound
+          ? SIGN_IN_CREDENTIAL_NOT_FOUND_MESSAGE
+          : toError(error).message,
       })
     } finally {
       set({ isSigningIn: false })

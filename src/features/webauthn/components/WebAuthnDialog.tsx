@@ -21,9 +21,15 @@ export function WebAuthnDialog() {
     formState: { errors },
   } = useForm<FormData>()
 
+  // Don't render the portal when closed to avoid orphaned DOM elements
+  // during navigation that can block interaction
+  if (!webauthnUI.isOpen) {
+    return null
+  }
+
   return (
     <BaseModalDialog
-      open={webauthnUI.isOpen}
+      open={true}
       onClose={webauthnUI.close}
       back={isCreating ? () => setIsCreating(false) : undefined}
     >

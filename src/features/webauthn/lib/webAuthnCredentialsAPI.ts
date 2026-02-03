@@ -6,6 +6,16 @@ import type {
 } from "@src/features/webauthn/types/webAuthnTypes"
 import { BASE_URL } from "@src/utils/environment"
 
+export class WebAuthnApiError extends Error {
+  constructor(
+    message: string,
+    public readonly code?: string
+  ) {
+    super(message)
+    this.name = "WebAuthnApiError"
+  }
+}
+
 export async function createWebauthnCredential(credential: WebauthnCredential) {
   const response = await fetch(`${BASE_URL}/api/webauthn_credentials`, {
     method: "POST",
@@ -36,7 +46,7 @@ export async function getWebauthnCredential(rawId: string) {
       typeof error.error === "string"
         ? error.error
         : "Failed to fetch credential"
-    throw new Error(message)
+    throw new WebAuthnApiError(message, error.code)
   }
 
   return response.json() as Promise<GetCredentialResponse>
