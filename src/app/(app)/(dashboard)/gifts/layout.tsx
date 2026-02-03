@@ -1,6 +1,11 @@
-import { PreloadFeatureFlags } from "@src/components/PreloadFeatureFlags"
+import { settings } from "@src/config/settings"
+import type { Metadata } from "next"
 import type { ReactNode } from "react"
 
-export default function GiftCardLayout({ children }: { children: ReactNode }) {
-  return <PreloadFeatureFlags>{children}</PreloadFeatureFlags>
+export function generateMetadata(): Metadata {
+  return settings.metadata.giftCreate
+}
+
+export default function Layout({ children }: { children: ReactNode }) {
+  return children
 }
