@@ -1,6 +1,11 @@
-import type { walletMessage } from "@defuse-protocol/internal-utils"
+import type { walletMessage as walletMessage_ } from "@defuse-protocol/internal-utils"
 import { sha256 } from "@noble/hashes/sha256"
 import { base58, base64urlnopad } from "@scure/base"
+import type {
+  SerializedWalletSignatureResult,
+  SerializedWebAuthnSignature,
+  SerializedWebAuthnSignedData,
+} from "@src/utils/serializeWalletSignatureForServerAction"
 import { Keypair } from "@stellar/stellar-sdk"
 import { sign } from "tweetnacl"
 import { verifyMessage as verifyMessageViem } from "viem"
@@ -11,16 +16,21 @@ export interface ServerVerificationResult {
   error?: string
 }
 
+/** Signature from client: raw or serialized (base64) for Server Action compatibility. */
+type WalletSignatureForVerification =
+  | walletMessage_.WalletSignatureResult
+  | SerializedWalletSignatureResult
+
 /**
  * Verifies a wallet signature on the server side.
  * This ensures the signature was actually produced by the claimed address
  * and that the signed message hasn't expired.
  *
- * @param signature - The wallet signature result from the client
+ * @param signature - The wallet signature result from the client (raw or serialized)
  * @param userAddress - The address that claims to have signed
  */
 export async function verifyWalletSignatureServer(
-  signature: walletMessage.WalletSignatureResult,
+  signature: WalletSignatureForVerification,
   userAddress: string
 ): Promise<ServerVerificationResult> {
   try {
@@ -65,7 +75,7 @@ export async function verifyWalletSignatureServer(
  * This prevents replay attacks by rejecting expired signatures.
  */
 function verifyMessageDeadline(
-  signature: walletMessage.WalletSignatureResult
+  signature: WalletSignatureForVerification
 ): ServerVerificationResult {
   try {
     let messageContent: string
@@ -77,9 +87,14 @@ function verifyMessageDeadline(
       case "NEP413":
         messageContent = signature.signedData.message
         break
-      case "SOLANA":
-        messageContent = new TextDecoder().decode(signature.signedData.message)
+      case "SOLANA": {
+        const msg = signature.signedData.message
+        messageContent =
+          typeof msg === "string"
+            ? new TextDecoder().decode(base64ToUint8Array(msg))
+            : new TextDecoder().decode(msg)
         break
+      }
       case "WEBAUTHN":
         messageContent = signature.signedData.payload
         break
@@ -124,7 +139,7 @@ function verifyMessageDeadline(
  * Full cryptographic verification would require NEAR RPC calls.
  */
 function verifyNEP413Signature(
-  signature: Extract<walletMessage.WalletSignatureResult, { type: "NEP413" }>,
+  signature: Extract<walletMessage_.WalletSignatureResult, { type: "NEP413" }>,
   userAddress: string
 ): ServerVerificationResult {
   // For NEP-413 signed messages, the accountId must match
@@ -139,7 +154,7 @@ function verifyNEP413Signature(
  * Recovers the signer address from the signature and compares with claimed address.
  */
 async function verifyERC191Signature(
-  signature: Extract<walletMessage.WalletSignatureResult, { type: "ERC191" }>,
+  signature: Extract<walletMessage_.WalletSignatureResult, { type: "ERC191" }>,
   userAddress: string
 ): Promise<ServerVerificationResult> {
   const isValid = await verifyMessageViem({
@@ -161,7 +176,10 @@ async function verifyERC191Signature(
  * Note: Data may be serialized as base64 strings from Server Actions.
  */
 function verifySolanaSignature(
-  signature: Extract<walletMessage.WalletSignatureResult, { type: "SOLANA" }>,
+  signature: Extract<
+    walletMessage_.WalletSignatureResult | SerializedWalletSignatureResult,
+    { type: "SOLANA" }
+  >,
   userAddress: string
 ): ServerVerificationResult {
   const publicKey = base58.decode(userAddress)
@@ -172,9 +190,7 @@ function verifySolanaSignature(
 
   if (typeof signature.signedData.message === "string") {
     message = base64ToUint8Array(signature.signedData.message)
-    signatureBytes = base64ToUint8Array(
-      signature.signatureData as unknown as string
-    )
+    signatureBytes = base64ToUint8Array(signature.signatureData)
   } else {
     message = signature.signedData.message
     signatureBytes = signature.signatureData
@@ -189,25 +205,6 @@ function verifySolanaSignature(
 }
 
 /**
- * Serialized WebAuthn signature data (base64 encoded for Server Action compatibility)
- */
-interface SerializedWebAuthnSignature {
-  clientDataJSON: string
-  authenticatorData: string
-  signature: string
-  userHandle: string | null
-}
-
-/**
- * Serialized WebAuthn signed data (base64 encoded for Server Action compatibility)
- */
-interface SerializedWebAuthnSignedData {
-  challenge: string
-  payload: string
-  parsedPayload: unknown
-}
-
-/**
  * WebAuthn signature verification.
  * Uses P-256 ECDSA or Ed25519 depending on the credential type.
  *
@@ -215,7 +212,10 @@ interface SerializedWebAuthnSignedData {
  * because ArrayBuffers cannot be passed through Server Actions.
  */
 async function verifyWebAuthnSignature(
-  signature: Extract<walletMessage.WalletSignatureResult, { type: "WEBAUTHN" }>,
+  signature: Extract<
+    walletMessage_.WalletSignatureResult | SerializedWalletSignatureResult,
+    { type: "WEBAUTHN" }
+  >,
   userAddress: string
 ): Promise<ServerVerificationResult> {
   try {
@@ -227,11 +227,11 @@ async function verifyWebAuthnSignature(
 
     const credentialKey = parsePublicKey(userAddress)
 
-    // The signature data comes serialized as base64 strings from the client
+    // Signature data may be serialized (base64 strings) or raw (ArrayBuffers)
     const serializedData =
-      signature.signatureData as unknown as SerializedWebAuthnSignature
+      signature.signatureData as SerializedWebAuthnSignature
     const serializedSignedData =
-      signature.signedData as unknown as SerializedWebAuthnSignedData
+      signature.signedData as SerializedWebAuthnSignedData
 
     // Check if data is already serialized (base64 strings) or raw (ArrayBuffers)
     // This handles both cases for compatibility
@@ -248,8 +248,7 @@ async function verifyWebAuthnSignature(
       expectedChallenge = base64ToUint8Array(serializedSignedData.challenge)
     } else {
       // Data is raw ArrayBuffers (shouldn't happen via Server Action, but handle for safety)
-      const rawData =
-        signature.signatureData as unknown as AuthenticatorAssertionResponse
+      const rawData = signature.signatureData as AuthenticatorAssertionResponse
       clientDataJSON = new Uint8Array(rawData.clientDataJSON)
       authenticatorData = new Uint8Array(rawData.authenticatorData)
       signatureBytes = new Uint8Array(rawData.signature)
@@ -325,7 +324,7 @@ function base64ToUint8Array(base64: string): Uint8Array {
  */
 async function verifyTonConnectSignature(
   signature: Extract<
-    walletMessage.WalletSignatureResult,
+    walletMessage_.WalletSignatureResult,
     { type: "TON_CONNECT" }
   >,
   userAddress: string
@@ -435,7 +434,7 @@ async function verifyTonConnectSignature(
  */
 function verifyStellarSignature(
   signature: Extract<
-    walletMessage.WalletSignatureResult,
+    walletMessage_.WalletSignatureResult | SerializedWalletSignatureResult,
     { type: "STELLAR_SEP53" }
   >,
   userAddress: string
@@ -478,7 +477,7 @@ function verifyStellarSignature(
  * Recovers the signer address from the signature and compares with claimed address.
  */
 async function verifyTronSignature(
-  signature: Extract<walletMessage.WalletSignatureResult, { type: "TRON" }>,
+  signature: Extract<walletMessage_.WalletSignatureResult, { type: "TRON" }>,
   userAddress: string
 ): Promise<ServerVerificationResult> {
   const { TronWeb } = await import("tronweb")

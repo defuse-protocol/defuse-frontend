@@ -1,12 +1,16 @@
 "use server"
 
-import type { AuthMethod, walletMessage } from "@defuse-protocol/internal-utils"
+import type {
+  AuthMethod,
+  walletMessage as walletMessage_,
+} from "@defuse-protocol/internal-utils"
 import {
   JWT_EXPIRY_SECONDS,
   generateAppAuthToken,
   getTokenExpiration,
   verifyAppAuthToken,
 } from "@src/utils/authJwt"
+import type { SerializedWalletSignatureResult } from "@src/utils/serializeWalletSignatureForServerAction"
 import { verifyWalletSignatureServer } from "@src/utils/serverSignatureVerification"
 import { cookies } from "next/headers"
 
@@ -100,7 +104,10 @@ export async function validateTokenForWallet(
 }
 
 export interface GenerateAuthTokenFromSignatureInput {
-  signature: walletMessage.WalletSignatureResult
+  /** Raw or serialized (base64) signature; server accepts both. */
+  signature:
+    | walletMessage_.WalletSignatureResult
+    | SerializedWalletSignatureResult
   address: string
   authMethod: AuthMethod
 }

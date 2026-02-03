@@ -1,7 +1,5 @@
 "use client"
 
-import type { walletMessage } from "@defuse-protocol/internal-utils"
-import { base64 } from "@scure/base"
 import {
   generateAuthTokenFromWalletSignature,
   setActiveWalletToken,
@@ -17,6 +15,7 @@ import {
 import { useBypassedWalletsStore } from "@src/stores/useBypassedWalletsStore"
 import { useWalletTokensStore } from "@src/stores/useWalletTokensStore"
 import { logger } from "@src/utils/logger"
+import { serializeSignatureForServerAction } from "@src/utils/serializeWalletSignatureForServerAction"
 import { walletVerificationMessageFactory } from "@src/utils/walletMessage"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useActor } from "@xstate/react"
@@ -199,7 +198,8 @@ function WalletVerificationUI({
             )
           )
 
-          // Serialize signature for Server Action (WebAuthn requires special handling)
+          // Binary fields (Uint8Array/ArrayBuffer) can't cross the Server Action
+          // boundary; serialize to base64 so the server can decode and verify.
           const serializedSignature =
             serializeSignatureForServerAction(walletSignature)
 
@@ -267,88 +267,4 @@ function WalletVerificationUI({
       isSessionExpired={isSessionExpired}
     />
   )
-}
-
-/**
- * Serializes wallet signature for Server Action compatibility.
- * Several signature types contain Uint8Array/ArrayBuffer that can't cross
- * the client-server boundary, so they must be converted to base64 strings.
- */
-function serializeSignatureForServerAction(
-  signature: walletMessage.WalletSignatureResult
-): walletMessage.WalletSignatureResult {
-  switch (signature.type) {
-    case "WEBAUTHN": {
-      const rawSignatureData = signature.signatureData
-      return {
-        type: "WEBAUTHN",
-        signatureData: {
-          clientDataJSON: bufferToBase64(rawSignatureData.clientDataJSON),
-          authenticatorData: bufferToBase64(rawSignatureData.authenticatorData),
-          signature: bufferToBase64(rawSignatureData.signature),
-          userHandle: rawSignatureData.userHandle
-            ? bufferToBase64(rawSignatureData.userHandle)
-            : null,
-        } as unknown as AuthenticatorAssertionResponse,
-        signedData: {
-          challenge: bufferToBase64(
-            signature.signedData.challenge
-          ) as unknown as Uint8Array,
-          payload: signature.signedData.payload,
-          parsedPayload: signature.signedData.parsedPayload,
-        },
-      }
-    }
-
-    case "NEP413": {
-      return {
-        type: "NEP413",
-        signatureData: signature.signatureData,
-        signedData: {
-          message: signature.signedData.message,
-          recipient: signature.signedData.recipient,
-          nonce: bufferToBase64(
-            signature.signedData.nonce
-          ) as unknown as Uint8Array,
-          callbackUrl: signature.signedData.callbackUrl,
-        },
-      }
-    }
-
-    case "SOLANA": {
-      return {
-        type: "SOLANA",
-        signatureData: bufferToBase64(
-          signature.signatureData
-        ) as unknown as Uint8Array,
-        signedData: {
-          message: bufferToBase64(
-            signature.signedData.message
-          ) as unknown as Uint8Array,
-        },
-      }
-    }
-
-    case "STELLAR_SEP53": {
-      return {
-        type: "STELLAR_SEP53",
-        signatureData: bufferToBase64(
-          signature.signatureData
-        ) as unknown as Uint8Array,
-        signedData: signature.signedData,
-      }
-    }
-
-    // ERC191, TON_CONNECT, TRON have no Uint8Array fields
-    default:
-      return signature
-  }
-}
-
-/**
- * Converts an ArrayBuffer or Uint8Array to a base64 string.
- */
-function bufferToBase64(buffer: ArrayBuffer | Uint8Array): string {
-  const bytes = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer)
-  return base64.encode(bytes)
 }
