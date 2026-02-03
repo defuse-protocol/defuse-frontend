@@ -2,6 +2,7 @@ import { getCachedSystemStatus } from "@src/actions/systemStatus"
 import { InitDefuseSDK } from "@src/components/InitDefuseSDK"
 import { PreloadFeatureFlags } from "@src/components/PreloadFeatureFlags"
 import { SentryTracer } from "@src/components/SentryTracer"
+import SplashScreen from "@src/components/SplashScreen"
 import { config } from "@src/config/wagmi"
 import queryClient from "@src/constants/queryClient"
 import { WebAuthnProvider } from "@src/features/webauthn/providers/WebAuthnProvider"
@@ -51,7 +52,7 @@ const AppRootLayout = async ({
                               <WebAuthnProvider>
                                 <MixpanelProvider>
                                   <PreloadFeatureFlags>
-                                    {children}
+                                    <SplashScreen>{children}</SplashScreen>
                                   </PreloadFeatureFlags>
                                   <WalletVerificationProvider />
                                 </MixpanelProvider>
@@ -62,7 +63,7 @@ const AppRootLayout = async ({
                         </StellarWalletProvider>
                       </SolanaWalletProvider>
                     </NearWalletProvider>
-                    {false && APP_ENV === "development" && (
+                    {APP_ENV === "development" && (
                       <ReactQueryDevtools initialIsOpen={false} />
                     )}
                   </QueryClientProvider>

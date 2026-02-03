@@ -27,21 +27,6 @@ const UserMenu = () => {
     }
   }
 
-  // If not connected, show a link to login
-  if (!state.address) {
-    return (
-      <Link
-        href="/login"
-        className="relative bg-gray-900 rounded-2xl px-3.5 py-3 flex items-center gap-3 w-full hover:bg-gray-950 mt-5"
-      >
-        <div className="size-7 flex items-center justify-center bg-gray-700 rounded-lg">
-          <UserIcon className="text-gray-400 size-5" />
-        </div>
-        <div className="text-gray-400 text-sm font-semibold">Sign in</div>
-      </Link>
-    )
-  }
-
   const items = [
     {
       label: "Sign out",

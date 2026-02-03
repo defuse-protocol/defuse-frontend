@@ -1,10 +1,13 @@
 import { GoogleAnalytics } from "@next/third-parties/google"
-// import Helpscout from "@src/components/Helpscout"
+import Helpscout from "@src/components/Helpscout"
 import { whitelabelTemplateFlag } from "@src/config/featureFlags"
 import { Figtree } from "next/font/google"
 import type { ReactNode } from "react"
 import "../styles/global.css"
-import { VERCEL_PROJECT_PRODUCTION_URL } from "@src/utils/environment"
+import {
+  HELPSCOUT_BEACON_ID,
+  VERCEL_PROJECT_PRODUCTION_URL,
+} from "@src/utils/environment"
 import type { Metadata, Viewport } from "next"
 
 export const viewport: Viewport = {
@@ -138,7 +141,7 @@ const RootLayout = async ({
     >
       <body className={figtree.className}>{children}</body>
       <GoogleAnalytics gaId="G-WNE3NB46KM" />
-      {/* {HELPSCOUT_BEACON_ID && <Helpscout />} */}
+      {HELPSCOUT_BEACON_ID && <Helpscout />}
     </html>
   )
 }
