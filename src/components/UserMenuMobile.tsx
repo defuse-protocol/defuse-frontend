@@ -67,22 +67,22 @@ const UserMenuMobile = () => {
           align="end"
           sideOffset={2}
           className={clsx(
-            "flex flex-col-reverse gap-1 bg-gray-900 rounded-2xl shadow-xl p-1.5 space-y-1 min-w-56 origin-top-right duration-100",
+            "flex flex-col-reverse gap-1 bg-white rounded-2xl shadow-xl p-1.5 space-y-1 min-w-56 origin-top-right duration-100 ring-1 ring-gray-900/10",
 
             "data-[state=open]:animate-in data-[state=open]:slide-in-from-top-2 fade-in data-[state=open]:ease-out data-[state=open]:zoom-in-97",
 
             "data-[state=closed]:animate-out data-[state=closed]:slide-out-to-top-2 fade-out data-[state=closed]:ease-in data-[state=closed]:zoom-out-97"
           )}
         >
-          <DropdownMenu.Arrow className="fill-gray-900" />
+          <DropdownMenu.Arrow className="fill-white" />
           {items.map(({ href, onClick, icon: Icon, label, preventClose }) => {
             const className =
               "group flex items-center gap-2.5 py-2.5 px-3 rounded-xl"
 
             const content = (
               <>
-                <Icon className="size-4 shrink-0 text-gray-400" />
-                <span className="text-sm font-semibold text-gray-200">
+                <Icon className="size-4 shrink-0 text-gray-500" />
+                <span className="text-sm font-semibold text-gray-700">
                   {label}
                 </span>
               </>

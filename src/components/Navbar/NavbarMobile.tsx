@@ -65,14 +65,14 @@ export function NavbarMobile() {
                 align="end"
                 sideOffset={2}
                 className={clsx(
-                  "bg-gray-800 rounded-2xl shadow-xl p-1.5 space-y-1 min-w-36 origin-bottom-right duration-100",
+                  "bg-white rounded-2xl shadow-xl p-1.5 space-y-1 min-w-36 origin-bottom-right duration-100 ring-1 ring-gray-900/10",
 
                   "data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-2 fade-in data-[state=open]:ease-out data-[state=open]:zoom-in-97",
 
                   "data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom-2 fade-out data-[state=closed]:ease-in data-[state=closed]:zoom-out-97"
                 )}
               >
-                <DropdownMenu.Arrow className="mt-1 fill-gray-800" />
+                <DropdownMenu.Arrow className="mt-1 fill-white" />
                 {restItems.map(({ label, href, icon: Icon }) => (
                   <DropdownMenu.Item key={label} asChild>
                     <Link
@@ -80,14 +80,12 @@ export function NavbarMobile() {
                       className={clsx(
                         "group flex items-center gap-2.5 py-2.5 px-3 rounded-xl",
                         isActive(href)
-                          ? "text-white bg-gray-700"
-                          : "text-gray-400"
+                          ? "text-gray-600 bg-gray-100"
+                          : "text-gray-500"
                       )}
                     >
                       <Icon className="size-4 shrink-0" />
-                      <span className="text-sm font-semibold text-gray-200">
-                        {label}
-                      </span>
+                      <span className="text-sm font-semibold">{label}</span>
                     </Link>
                   </DropdownMenu.Item>
                 ))}

@@ -54,7 +54,7 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => (
         </div>
       </div>
 
-      <main className="relative grow p-4 sm:p-6 rounded-t-xl lg:rounded-3xl bg-gray-25 lg:p-10">
+      <main className="relative grow p-4 sm:p-6 rounded-t-3xl lg:rounded-3xl bg-gray-25 lg:p-10">
         <div className="mx-auto max-w-[464px]">{children}</div>
       </main>
 
