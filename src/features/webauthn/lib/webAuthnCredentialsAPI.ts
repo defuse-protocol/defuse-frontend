@@ -32,12 +32,15 @@ export async function getWebauthnCredential(rawId: string) {
 
   if (!response.ok) {
     const error = (await response.json()) as ErrorResponse
-    throw new Error(
+    const message =
       typeof error.error === "string"
         ? error.error
         : "Failed to fetch credential"
-    )
+    throw new Error(message)
   }
 
   return response.json() as Promise<GetCredentialResponse>
 }
+
+/** Message thrown when GET credential returns 404 (passkey not registered in our backend). */
+export const CREDENTIAL_NOT_FOUND_MESSAGE = "Credential not found"
