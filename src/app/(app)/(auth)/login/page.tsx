@@ -76,7 +76,7 @@ export default function LoginPage() {
             className="rounded-2xl p-5 text-left flex flex-col items-start gap-4 outline outline-gray-200 bg-white group hover:outline-2 hover:outline-gray-300 focus-visible:outline-2 focus-visible:outline-gray-900"
           >
             <div className="size-10 flex items-center justify-center bg-gray-100 rounded-full">
-              <PasskeyIcon className="size-5" />
+              <PasskeyIcon className="size-6" />
             </div>
             <span className="text-base font-semibold text-gray-900">
               Passkey
