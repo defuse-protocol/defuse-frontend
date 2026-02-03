@@ -101,7 +101,7 @@ const UserMenu = () => {
               "data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:duration-100 data-[state=closed]:ease-in"
             )}
           >
-            {items.map(({ href, onClick, icon: Icon, label, preventClose }) => {
+            {items.map(({ href, onClick, icon: Icon, label }) => {
               const className =
                 "group rounded-xl focus:outline-hidden focus-visible:bg-gray-200 focus-visible:text-gray-900 p-2.5 text-left text-sm text-gray-700 flex items-center gap-2 hover:bg-gray-200 hover:text-gray-900 font-semibold"
 
@@ -113,13 +113,7 @@ const UserMenu = () => {
               )
 
               return (
-                <DropdownMenu.Item
-                  key={label}
-                  asChild
-                  onSelect={
-                    preventClose ? (e) => e.preventDefault() : undefined
-                  }
-                >
+                <DropdownMenu.Item key={label} asChild>
                   {href ? (
                     <Link href={href} className={className}>
                       {content}
