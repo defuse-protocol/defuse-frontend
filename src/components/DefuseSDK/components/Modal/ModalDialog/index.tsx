@@ -90,7 +90,7 @@ export function BaseModalDialog({
             <div className="flex min-h-full items-end justify-center p-2 text-center sm:items-start sm:p-0 lg:pl-74 sm:pt-[10vh]">
               <Dialog.Content
                 className={clsx(
-                  "relative transform overflow-hidden rounded-3xl bg-white px-2 pb-2 pt-5 sm:p-5 text-left shadow-xl duration-200",
+                  "relative transform overflow-hidden rounded-3xl bg-white p-5 text-left shadow-xl duration-200",
 
                   "sm:my-8 w-full sm:max-w-sm",
 
@@ -122,8 +122,8 @@ export function BaseModalDialog({
                     className={clsx(
                       "flex items-center justify-between min-h-10 -mt-2.5",
                       {
-                        "sm:-mr-2.5": isDismissable,
-                        "sm:-ml-2.5": back,
+                        "-mr-2.5": isDismissable,
+                        "-ml-2.5": back,
                       }
                     )}
                   >
