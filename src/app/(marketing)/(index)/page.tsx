@@ -21,7 +21,7 @@ const features = [
     icon: ArrowPathRoundedSquareIcon,
   },
   {
-    title: "Trade",
+    title: "Deals",
     description: "Trade peer-to-peer. Set your terms, share a link, done.",
     longDescription:
       "Fully trustless—the exchange is all-or-nothing, enforced by smart contracts. No escrow, no middleman.",
@@ -31,14 +31,14 @@ const features = [
     title: "Earn",
     description: "Put idle assets to work. Earn yield, withdraw anytime.",
     longDescription:
-      "Turn idle balances into passive income. No lockups, no commitments. Withdraw whenever you want.",
+      "Coming soon—turn idle balances into passive income. No lockups, no commitments. Withdraw whenever you want.",
     icon: ChartBarIcon,
   },
   {
     title: "Shield",
     description: "Go private. Shield your activity from everyone but you.",
     longDescription:
-      "Coming soon—keep your on-chain activity private. Shield deposits, withdrawals, and trades so they aren't visible to anyone but you.",
+      "Coming soon—keep your on-chain activity private. Shield deposits, withdrawals, and deals so they aren't visible to anyone but you.",
     icon: ShieldCheckIcon,
   },
 ]
@@ -47,7 +47,7 @@ const faqItems = [
   {
     question: "What is NEAR Intents?",
     answer:
-      "NEAR Intents is an on-chain trading technology that lets you swap assets across 35+ networks, earn yield on deposits, and create private peer-to-peer trades—all without giving up custody of your funds.",
+      "NEAR Intents is an on-chain trading technology that lets you swap assets across 35+ networks, earn yield on deposits, and create private peer-to-peer deals—all without giving up custody of your funds.",
   },
   {
     question: "How do I create an account?",
@@ -65,7 +65,7 @@ const faqItems = [
       "When you swap, market makers compete to fill your order at the best price. Trades settle within your NEAR Intents account in seconds—as fast as a centralized exchange.",
   },
   {
-    question: "What are Private trades?",
+    question: "What are Private deals?",
     answer:
       "Trade directly with a friend, business partner, or even someone you just met. Create a deal, set your terms, and share the link. They accept, and both sides get exactly what was agreed—guaranteed by smart contracts, no middlemen.",
   },

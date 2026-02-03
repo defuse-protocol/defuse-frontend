@@ -17,11 +17,10 @@ type KeyValueRow = {
 export type DockItem = {
   id: string
   title: string
-  icon: ReactNode
+  icons: ReactNode[]
   explorerUrl?: string
   keyValueRows: KeyValueRow[]
   renderContent?: () => ReactNode
-  rawIcon?: boolean
   isSettled?: boolean
   createdAt: number
   settledAt?: number

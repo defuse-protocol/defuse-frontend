@@ -322,12 +322,12 @@ const ModalActiveDeal = ({
 
           <dl className="mt-5 pt-5 border-t border-gray-200 space-y-4">
             <div className="flex justify-between">
-              <dt className="text-sm text-gray-500 font-medium">Trade ID</dt>
+              <dt className="text-sm text-gray-500 font-medium">Deal ID</dt>
               <dd className="flex items-center gap-2">
                 <span className="text-sm font-semibold text-gray-900">
                   {midTruncate(tradeId, 16)}
                 </span>
-                <CopyButton text={tradeId} ariaLabel="Copy trade ID" />
+                <CopyButton text={tradeId} ariaLabel="Copy deal ID" />
               </dd>
             </div>
 
@@ -369,10 +369,10 @@ const ModalActiveDeal = ({
               </div>
 
               <h2 className="mt-5 text-2xl/7 font-bold tracking-tight text-center">
-                Your trade has been executed or already cancelled
+                Your deal has been executed or already cancelled
               </h2>
               <p className="mt-2 text-base/5 font-medium text-gray-500 text-center text-balance">
-                This trade has either been successfully completed or was
+                This deal has either been successfully completed or was
                 previously cancelled.
               </p>
             </div>
@@ -414,7 +414,7 @@ const ModalActiveDeal = ({
                 size="xl"
                 disabled={isCancelling}
               >
-                {isCancelling ? "Cancelling..." : "Cancel trade"}
+                {isCancelling ? "Cancelling..." : "Cancel deal"}
               </Button>
             </div>
 
@@ -433,18 +433,18 @@ export default ModalActiveDeal
 
 const getTitle = (error?: string | null) => {
   if (error === "ORDER_EXPIRED") {
-    return "Trade expired"
+    return "Deal expired"
   }
 
   if (error === "NONCE_ALREADY_USED") {
-    return "Trade executed or cancelled"
+    return "Deal executed or cancelled"
   }
 
   if (error === "MAKER_INSUFFICIENT_FUNDS") {
     return "Your balance is too low"
   }
 
-  return "Trade active"
+  return "Deal active"
 }
 
 const getSubtitle = ({
@@ -452,18 +452,18 @@ const getSubtitle = ({
   expiredAt,
 }: { error?: string | null; expiredAt?: string | null }) => {
   if (error === "MAKER_INSUFFICIENT_FUNDS") {
-    return "This trade cannot be executed. Please increase your balance or cancel the trade and create a new one."
+    return "This deal cannot be executed. Please increase your balance or cancel the deal and create a new one."
   }
 
   if (error === "ORDER_EXPIRED") {
     if (expiredAt) {
-      return `This trade expired on ${expiredAt}.`
+      return `This deal expired on ${expiredAt}.`
     }
-    return "This trade has already expired."
+    return "This deal has already expired."
   }
 
   if (error === "NONCE_ALREADY_USED") {
-    return "No action needed — this trade was already completed or cancelled."
+    return "No action needed — this deal was already completed or cancelled."
   }
 
   return "Share the link with the counterparty to execute the trade"

@@ -60,7 +60,7 @@ export async function createOtcOrder(payload: unknown): Promise<{
       p_key: pKey,
     })
     if (!result.success) {
-      throw new Error("Failed to save trade")
+      throw new Error("Failed to save deal")
     }
     return {
       tradeId,
