@@ -61,9 +61,9 @@ export function NavbarMobile() {
 
             <DropdownMenu.Portal>
               <DropdownMenu.Content
-                content="top"
-                sideOffset={2}
+                side="top"
                 align="end"
+                sideOffset={2}
                 className={clsx(
                   "bg-gray-800 rounded-2xl shadow-xl p-1.5 space-y-1 min-w-36 origin-bottom-right duration-100",
 
