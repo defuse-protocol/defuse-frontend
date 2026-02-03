@@ -34,16 +34,16 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => (
 
     {/* Content */}
     <div className="relative flex flex-1 flex-col lg:min-w-0 pt-safe-offset-3 lg:p-2 lg:pl-74">
-      <div className="max-lg:px-2">
+      <div className="max-lg:px-4">
         <div className="has-[>*]:pb-3 lg:has-[>*]:pb-2 space-y-2">
           <SystemStatus showOperationalStatus={false} />
           <NetworkOutageNotification />
         </div>
 
-        <div className="lg:hidden flex justify-between items-center pb-3">
+        <div className="lg:hidden flex justify-between items-center pb-3 max-w-[464px] mx-auto w-full">
           <Link
             href="/"
-            className="pl-1.5 pr-2.5 py-1.5 flex items-center gap-2.5 rounded-xl focus-visible:outline-none"
+            className="-ml-1.5 pl-1.5 pr-2.5 py-1.5 flex items-center gap-2.5 rounded-xl focus-visible:outline-none"
           >
             <span className="sr-only">Home</span>
             <NearIntentsLogoSymbolIcon className="h-6 shrink-0" />

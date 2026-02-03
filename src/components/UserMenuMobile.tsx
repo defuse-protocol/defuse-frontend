@@ -51,7 +51,7 @@ const UserMenuMobile = () => {
 
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Trigger className="relative group text-gray-400 rounded-xl pl-2.5 pr-1.5 py-1.5 flex items-center gap-2.5 data-[state=open]:bg-gray-950 data-[state=open]:text-gray-300 focus-visible:outline-none">
+      <DropdownMenu.Trigger className="relative group text-gray-400 rounded-xl -mr-1.5 pl-2.5 pr-1.5 py-1.5 flex items-center gap-2.5 data-[state=open]:bg-gray-950 data-[state=open]:text-gray-300 focus-visible:outline-none">
         <div className="text-sm font-semibold grow text-right">
           {midTruncate(state.displayAddress ?? "")}
         </div>
