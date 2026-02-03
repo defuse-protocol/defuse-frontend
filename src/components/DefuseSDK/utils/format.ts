@@ -4,6 +4,7 @@
 const DEFAULT_SIG_DIGITS = 6
 const DEFAULT_MAX_DECIMALS = 5
 const MAX_DISPLAY_DIGITS = 11
+const MAX_DISPLAY_LENGTH = 14
 
 type FormatOptions = {
   significantDigits?: number // Total significant digits to show
@@ -118,6 +119,10 @@ export function formatTokenValue(
 
 // bigintToNumber(1234567890000000000n, 18) → 1.23456789
 // bigintToNumber(169677343970239n, 18) → 0.000169677343970239
+//
+// Note: JavaScript Number has ~15-17 significant digits of precision.
+// For very large integers (>15 digits), we truncate the fractional part
+// to preserve the integer portion's accuracy (more important for display).
 function bigintToNumber(
   num: bigint | string | number,
   decimals: number
@@ -128,9 +133,17 @@ function bigintToNumber(
 
   const divisor = 10n ** BigInt(decimals)
   const int = n / divisor
-  const frac = (n % divisor).toString().padStart(decimals, "0")
-  const result = Number(`${int}.${frac}`)
+  const intStr = int.toString()
+  let frac = (n % divisor).toString().padStart(decimals, "0")
 
+  // Only truncate fractional digits when integer part is very large (>12 digits)
+  // This preserves precision for small values while protecting large integer accuracy
+  if (intStr.length > 12) {
+    const maxFracDigits = Math.max(0, 15 - intStr.length)
+    frac = frac.slice(0, maxFracDigits)
+  }
+
+  const result = frac ? Number(`${intStr}.${frac}`) : Number(intStr)
   return neg ? -result : result
 }
 
@@ -218,15 +231,20 @@ export function removeTrailingZeros(value: string): string {
   return value.replace(/\.?0+$/, "") || "0"
 }
 
-// truncateDisplayValue("0.123456789012345", 11) → "0.123456789"
-// truncateDisplayValue("1234567.89", 11) → "1234567.89"
-// truncateDisplayValue("1500000", 11) → "1.5M"
-export function truncateDisplayValue(value: string, maxLength = 11): string {
+// truncateDisplayValue("0.123456789012345") → "0.123456789012" (truncated to MAX_DISPLAY_LENGTH)
+// truncateDisplayValue("1234567.89") → "1234567.89"
+// truncateDisplayValue("1500000") → "1.5M"
+// truncateDisplayValue("0.000000000000000001") → "0.0₁₇1" (subscript when no digit fits)
+export function truncateDisplayValue(
+  value: string,
+  maxLength = MAX_DISPLAY_LENGTH
+): string {
   if (!value) return value
 
   const num = Number.parseFloat(value)
   if (Number.isNaN(num)) return value
 
+  // Compact notation for large values
   if (num >= 1_000_000) {
     return num.toLocaleString("en-US", {
       notation: "compact",
@@ -242,6 +260,18 @@ export function truncateDisplayValue(value: string, maxLength = 11): string {
   if (!decPart) return value
 
   const availableDecimals = Math.max(0, maxLength - intPart.length - 1)
+  const abs = Math.abs(num)
+
+  // For small values, check if truncation would lose all significant digits
+  // If so, use subscript notation to preserve them
+  if (abs > 0 && abs < 1) {
+    const leadingZeros = -Math.floor(Math.log10(abs)) - 1
+    if (availableDecimals <= leadingZeros) {
+      const sign = num < 0 ? "-" : ""
+      return sign + formatSubscript(abs, leadingZeros, DEFAULT_SIG_DIGITS)
+    }
+  }
+
   const truncated =
     availableDecimals === 0
       ? intPart

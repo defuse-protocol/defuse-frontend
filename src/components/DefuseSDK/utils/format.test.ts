@@ -226,11 +226,12 @@ describe("removeTrailingZeros()", () => {
 
 describe("truncateDisplayValue()", () => {
   it.each([
-    ["0.123456789012345", "0.123456789"], // 16 chars -> 11
-    ["0.0003567979545", "0.000356797"], // truncate decimals
-    ["0.123456789", "0.123456789"], // exactly 11 chars, no truncation
+    ["0.123456789012345", "0.123456789012"], // 16 chars -> 14
+    ["0.0003567979545", "0.000356797954"], // 15 chars -> 14
+    ["0.123456789", "0.123456789"], // short value, no truncation
     ["123.456", "123.456"], // short value, no change
     ["999999.99", "999999.99"], // just under 1M threshold
+    ["0.24644988899999", "0.246449888999"], // 16 chars -> 14
   ])("truncateDisplayValue(%s) => %s", (input, expected) => {
     expect(truncateDisplayValue(input)).toEqual(expected)
   })
@@ -255,7 +256,22 @@ describe("truncateDisplayValue()", () => {
 
   it("handles negative values", () => {
     expect(truncateDisplayValue("-1.23000")).toEqual("-1.23")
-    expect(truncateDisplayValue("-0.123456789012")).toEqual("-0.12345678")
+    expect(truncateDisplayValue("-0.12345678901234")).toEqual("-0.12345678901")
+  })
+
+  it("uses subscript notation when truncation would lose significant digits", () => {
+    // 1 wei = 0.000000000000000001 ETH (17 leading zeros)
+    expect(truncateDisplayValue("0.000000000000000001")).toEqual("0.0₁₇1")
+    // 12 units at 18 decimals (16 leading zeros)
+    expect(truncateDisplayValue("0.000000000000000012")).toEqual("0.0₁₆12")
+    // Negative tiny value
+    expect(truncateDisplayValue("-0.000000000000000001")).toEqual("-0.0₁₇1")
+    // 12 leading zeros - uses subscript (truncation to 12 decimals = all zeros)
+    expect(truncateDisplayValue("0.0000000000001")).toEqual("0.0₁₂1")
+    // 11 leading zeros - fits in 14 chars, no subscript
+    expect(truncateDisplayValue("0.000000000001")).toEqual("0.000000000001")
+    // 10 leading zeros - fits in 14 chars, no subscript
+    expect(truncateDisplayValue("0.00000000001")).toEqual("0.00000000001")
   })
 })
 

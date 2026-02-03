@@ -90,10 +90,14 @@ TokenAmountInputCard.Input = forwardRef<
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     setIsFocused(false)
     const cleaned = removeTrailingZeros(currentValue)
-    if (cleaned !== currentValue) {
-      e.target.value = cleaned
-      // Safe cast: FocusEvent and ChangeEvent share the same target structure
-      onChange?.(e as React.ChangeEvent<HTMLInputElement>)
+    if (cleaned !== currentValue && onChange) {
+      // Create a synthetic change event with the cleaned value
+      const syntheticEvent = {
+        ...e,
+        target: { ...e.target, value: cleaned },
+        currentTarget: { ...e.currentTarget, value: cleaned },
+      } as React.ChangeEvent<HTMLInputElement>
+      onChange(syntheticEvent)
     }
     onBlur?.(e)
   }
