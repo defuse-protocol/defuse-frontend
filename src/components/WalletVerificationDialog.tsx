@@ -99,7 +99,7 @@ function DefaultContent({
         {[
           "Secure transactions and transfers",
           "Access to all features",
-          "Protection of your funds",
+          "Protection of your assets",
         ].map((text) => (
           <li key={text} className="flex items-center gap-1.5">
             <CheckCircleIcon className="size-4 text-gray-600" />
