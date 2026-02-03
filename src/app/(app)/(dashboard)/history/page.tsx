@@ -252,6 +252,7 @@ export default function HistoryPage({
     <>
       <PageHeader
         title="History"
+        subtitle="Every transaction, at a glance"
         intro={
           <p>
             This is your history page, showing your past swaps. In the future,

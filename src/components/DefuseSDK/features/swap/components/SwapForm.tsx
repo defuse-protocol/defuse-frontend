@@ -376,6 +376,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     <>
       <PageHeader
         title="Swap"
+        subtitle="Centralized exchange speed, without the centralized."
         intro={
           <>
             <p>
