@@ -106,7 +106,7 @@ export function BaseModalDialog({
           >
             <div
               role="presentation"
-              className="relative transform overflow-hidden rounded-3xl bg-white p-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-sm"
+              className="relative transform overflow-hidden rounded-3xl bg-white p-5 text-left shadow-xl transition-all w-full max-w-sm sm:my-8"
               onClick={(e) => e.stopPropagation()}
               onKeyDown={(e) => e.stopPropagation()}
             >
