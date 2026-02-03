@@ -137,9 +137,14 @@ function verifyMessageDeadline(
  * NEP-413 signature verification.
  * For NEP-413, the accountId in the signature must match the user address.
  * Full cryptographic verification would require NEAR RPC calls.
+ *
+ * Note: Data may be serialized (base64 strings for nonce) from Server Actions.
  */
 function verifyNEP413Signature(
-  signature: Extract<walletMessage_.WalletSignatureResult, { type: "NEP413" }>,
+  signature: Extract<
+    walletMessage_.WalletSignatureResult | SerializedWalletSignatureResult,
+    { type: "NEP413" }
+  >,
   userAddress: string
 ): ServerVerificationResult {
   // For NEP-413 signed messages, the accountId must match
@@ -190,9 +195,13 @@ function verifySolanaSignature(
 
   if (typeof signature.signedData.message === "string") {
     message = base64ToUint8Array(signature.signedData.message)
-    signatureBytes = base64ToUint8Array(signature.signatureData)
   } else {
     message = signature.signedData.message
+  }
+
+  if (typeof signature.signatureData === "string") {
+    signatureBytes = base64ToUint8Array(signature.signatureData)
+  } else {
     signatureBytes = signature.signatureData
   }
 
@@ -252,7 +261,12 @@ async function verifyWebAuthnSignature(
       clientDataJSON = new Uint8Array(rawData.clientDataJSON)
       authenticatorData = new Uint8Array(rawData.authenticatorData)
       signatureBytes = new Uint8Array(rawData.signature)
-      expectedChallenge = signature.signedData.challenge
+      // Handle challenge type - could be string (serialized) or Uint8Array (raw)
+      const challenge = signature.signedData.challenge
+      expectedChallenge =
+        typeof challenge === "string"
+          ? base64ToUint8Array(challenge)
+          : challenge
     }
 
     // Step 1: Verify the challenge matches
