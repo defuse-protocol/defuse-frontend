@@ -76,14 +76,14 @@ export function WithdrawTrackerMachineProvider({
       addDockItem({
         id: `withdraw-${id}`,
         title: `Withdraw ${formattedAmount} ${params.tokenOut.symbol}`,
-        icon: (
+        icons: [
           <AssetComboIcon
-            sizeClassName="size-6"
+            key="token"
+            sizeClassName="size-7"
             {...params.tokenOut}
             chainName={withdrawDescription.tokenOutDeployment.chainName}
-          />
-        ),
-        rawIcon: true,
+          />,
+        ],
         keyValueRows: [],
         renderContent: () => (
           <WithdrawStatus variant="dock" withdraw={withdraw} />

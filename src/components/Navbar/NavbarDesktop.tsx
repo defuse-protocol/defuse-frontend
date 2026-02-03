@@ -36,7 +36,7 @@ const navItems = [
     icon: GiftIcon,
   },
   {
-    label: "Private trades",
+    label: "Private deals",
     href: "/deals",
     icon: DealsIcon,
   },

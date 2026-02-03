@@ -22,7 +22,7 @@ export default function DealPage() {
   return (
     <>
       <PageHeader
-        title="Execute a trustless trade"
+        title="Execute a trustless deal"
         subtitle="A counterparty has offered you the following deal. Accept the offer to execute the swap trustlessly."
       />
 

@@ -104,7 +104,7 @@ export function BaseModalDialog({
                 {status && (
                   <div
                     className={clsx(
-                      "absolute top-0 inset-x-0 h-32 bg-linear-to-b from-green-50 to-green-50/0",
+                      "absolute top-0 inset-x-0 h-32 bg-linear-to-b",
                       {
                         "from-green-50 to-green-50/0": status === "success",
                         "from-red-50 to-red-50/0": status === "error",
@@ -114,11 +114,13 @@ export function BaseModalDialog({
                 )}
                 <div className="relative">
                   <div
-                    className={clsx("flex items-center justify-between", {
-                      "-mr-2.5": isDismissable,
-                      "-ml-2.5": back,
-                      "-mt-2.5": isDismissable || back,
-                    })}
+                    className={clsx(
+                      "flex items-center justify-between min-h-10 -mt-2.5",
+                      {
+                        "-mr-2.5": isDismissable,
+                        "-ml-2.5": back,
+                      }
+                    )}
                   >
                     {back && (
                       <button
