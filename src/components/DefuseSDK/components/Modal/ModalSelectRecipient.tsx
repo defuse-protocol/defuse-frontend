@@ -20,6 +20,7 @@ import {
   midTruncate,
 } from "../../features/withdraw/components/WithdrawForm/utils"
 import type { NetworkOptions } from "../../hooks/useNetworkLists"
+import type { SupportedChainName } from "../../types/base"
 import { reverseAssetNetworkAdapter } from "../../utils/adapters"
 import { stringToColor } from "../../utils/stringToColor"
 import { NetworkIcon } from "../Network/NetworkIcon"
@@ -34,6 +35,11 @@ type ModalSelectRecipientProps = {
   displayAddress: string | undefined
   displayOwnAddress: boolean
   availableNetworks: NetworkOptions
+  /** When set, contact selection updates network and recipient in one shot (avoids race). */
+  onContactSelect?: (
+    blockchain: SupportedChainName | "near_intents",
+    recipient: string
+  ) => void
 }
 
 const VALIDATION_DEBOUNCE_MS = 500
@@ -46,6 +52,7 @@ const ModalSelectRecipient = ({
   displayAddress,
   displayOwnAddress,
   availableNetworks,
+  onContactSelect,
 }: ModalSelectRecipientProps) => {
   const { setValue, watch } = useFormContext<WithdrawFormNearValues>()
   const blockchain = watch("blockchain")
@@ -241,11 +248,16 @@ const ModalSelectRecipient = ({
                           <ListItem
                             key={id}
                             onClick={() => {
-                              setValue("blockchain", chainKey)
-                              setValue("recipient", address, {
-                                shouldValidate: true,
-                              })
-                              onClose()
+                              if (onContactSelect) {
+                                onContactSelect(chainKey, address)
+                                onClose()
+                              } else {
+                                setValue("blockchain", chainKey)
+                                setValue("recipient", address, {
+                                  shouldValidate: true,
+                                })
+                                onClose()
+                              }
                             }}
                           >
                             <div

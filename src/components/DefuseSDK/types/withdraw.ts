@@ -9,7 +9,7 @@ export type WithdrawWidgetProps = {
   displayAddress: string | undefined
   chainType: authHandle.AuthHandle["method"] | undefined
   presetTokenSymbol: string | undefined
-  presetAmount: string | undefined
+  presetAmount?: string | undefined
   presetRecipient: string | undefined
   presetNetwork: string | undefined
   renderHostAppLink: RenderHostAppLink
@@ -23,4 +23,19 @@ export type WithdrawWidgetProps = {
    * Prop is not reactive, set it once when the component is created.
    */
   referral?: string
+  /**
+   * Optional callback that is called when form values change.
+   * Used for bidirectional URL sync with the parent page.
+   */
+  onFormChange?: (params: {
+    token: string | null
+    network: string
+    recipient: string
+    recipientChanged: boolean
+    networkChanged: boolean
+  }) => void
+  presetValuesForSync?: {
+    network: string | undefined
+    recipient: string | undefined
+  }
 }
