@@ -86,7 +86,7 @@ function DefaultContent({
           <LockClosedIcon className="size-6 text-gray-500" />
         </div>
         <AlertDialog.Title className="mt-5 text-2xl/7 font-bold tracking-tight text-center">
-          {isTokenExpired ? "Re-verify your wallet" : "Verify your wallet"}
+          Verify your wallet
         </AlertDialog.Title>
         <AlertDialog.Description className="mt-2 text-base/5 font-medium text-gray-500 text-center text-balance">
           {isTokenExpired
