@@ -22,7 +22,8 @@ export function parseTokenFromUrl(
 
   if (chainName === undefined) {
     const found = LIST_TOKENS.find((t) => t.symbol === symbol)
-    return isBaseToken(found) ? found : (found?.groupedTokens?.[0] ?? null)
+    if (found == null) return null
+    return isBaseToken(found) ? found : (found.groupedTokens?.[0] ?? null)
   }
 
   return (
