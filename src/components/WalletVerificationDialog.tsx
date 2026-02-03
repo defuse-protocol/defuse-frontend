@@ -98,7 +98,7 @@ function DefaultContent({
       <ul className="bg-gray-50 rounded-3xl p-5 mt-5 space-y-3">
         {[
           "Secure transactions and transfers",
-          "Full access to all features",
+          "Access to all features",
           "Protection of your funds",
         ].map((text) => (
           <li key={text} className="flex items-center gap-1.5">
