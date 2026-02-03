@@ -67,7 +67,7 @@ const SelectedTokenInput = ({
   return (
     <div
       className={clsx(
-        "bg-white border rounded-3xl w-full p-6 flex flex-col gap-3",
+        "bg-white border rounded-3xl w-full p-4 sm:p-6 flex flex-col gap-3",
         error ? "border-red-500 ring-1 ring-red-500" : "border-gray-200"
       )}
     >
@@ -86,9 +86,9 @@ const SelectedTokenInput = ({
             aria-label={label}
             disabled={disabled}
             className={clsx(
-              "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-4xl tracking-tight w-full min-w-0",
+              "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-3xl sm:text-4xl tracking-tight w-full min-w-0",
               !hasValue &&
-                "placeholder:text-2xl placeholder:font-semibold tracking-tight placeholder:text-gray-300 placeholder:-translate-y-1.5",
+                "placeholder:text-xl sm:placeholder:text-2xl placeholder:font-semibold tracking-tight placeholder:text-gray-300 placeholder:-translate-y-0.5 sm:placeholder:-translate-y-1.5",
               hasValue && "placeholder:text-gray-400",
               disabled && "opacity-50"
             )}
