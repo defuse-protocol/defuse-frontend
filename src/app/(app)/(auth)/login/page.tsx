@@ -43,48 +43,17 @@ export default function LoginPage() {
           instantly.
         </p>
 
-        <button
-          type="button"
-          onClick={() => webauthnUI.open()}
-          className="mt-8 flex flex-col items-start p-5 rounded-2xl text-left outline outline-gray-200 bg-white hover:outline-2 hover:outline-gray-300 focus-visible:outline-2 focus-visible:outline-gray-900"
-        >
-          <div className="flex items-start justify-between gap-2 self-stretch">
-            <div className="flex items-center justify-center size-10 bg-gray-100 rounded-full">
-              <PasskeyIcon className="size-5" />
-            </div>
-            <div className="flex items-center gap-1.5 text-xs/none font-semibold text-green-700 bg-green-100 rounded-md px-2 py-1.5 whitespace-pre">
-              <span className="size-1.5 rounded-full bg-green-500 shrink-0" />
-              Recommended
-            </div>
-          </div>
-          <span className="mt-6 text-base font-semibold text-gray-900">
-            Continue with passkey
-          </span>
-          <span className="mt-2 text-sm font-medium text-gray-500 text-balance">
-            Use a passkey for the best experience, and one that syncs across
-            your devices.
-          </span>
-        </button>
-
-        <div className="mt-10 flex items-center gap-x-6 self-stretch">
-          <div className="w-full flex-1 border-t border-gray-200" />
-          <div className="flex items-center gap-1.5">
-            <p className="text-sm/6 font-medium text-nowrap text-gray-500">
-              Or, use almost any Web3 wallet
-            </p>
-            <HelperPopover>
-              If you use a Web3 wallet to sign-up to NEAR Intents, your account
-              address will be the same as that of your Web3 wallet. If you plan
-              to share your NEAR Intents account address with others—for
-              example, for account-to-account transfers—this could present a
-              privacy concern. If you sign-up using a Passkey, you will receive
-              a NEAR Intents specific address.
-            </HelperPopover>
-          </div>
-          <div className="w-full flex-1 border-t border-gray-200" />
-        </div>
-
-        <div className="grid grid-cols-2 gap-2 mt-10 w-full">
+        <div className="grid grid-cols-2 gap-2 mt-8 w-full">
+          <button
+            type="button"
+            onClick={() => webauthnUI.open()}
+            className="rounded-2xl p-5 text-left flex flex-col items-start gap-4 outline outline-[oklch(0.85_0.08_37)] bg-[oklch(0.98_0.02_37)] group hover:outline-2 hover:outline-[oklch(0.75_0.12_37)] focus-visible:outline-2 focus-visible:outline-gray-900"
+          >
+            <PasskeyIcon className="size-10" />
+            <span className="text-base font-semibold text-gray-900">
+              Passkey
+            </span>
+          </button>
           <LoginButton
             name="NEAR"
             iconSrc="/static/icons/wallets/near-wallet.svg"
@@ -137,6 +106,32 @@ export default function LoginPage() {
                 onClick={() => signIn({ id: ChainType.EVM, connector })}
               />
             ))}
+        </div>
+
+        <div className="mt-8 flex items-center gap-x-6 self-stretch">
+          <div className="w-full flex-1 border-t border-gray-200" />
+          <div className="flex items-center gap-1.5">
+            <p className="text-sm/6 font-medium text-nowrap text-gray-500">
+              Wondering which to choose?
+            </p>
+            <HelperPopover>
+              <p className="font-semibold">Passkey</p>
+              <p className="mt-1">
+                Simple login familiar to most users. Syncs across your devices.
+                However, if you lose access to your passkey, your account cannot
+                be recovered.
+              </p>
+              <p className="mt-3 font-semibold">Web3 wallet</p>
+              <p className="mt-1">
+                Natural for existing crypto users with faster deposits directly
+                from your wallet. Note that your NEAR Intents account address
+                will match your wallet address, which could be a privacy
+                consideration if you plan to share it for account-to-account
+                transfers.
+              </p>
+            </HelperPopover>
+          </div>
+          <div className="w-full flex-1 border-t border-gray-200" />
         </div>
       </div>
     </div>
