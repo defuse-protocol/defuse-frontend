@@ -34,8 +34,6 @@ const SplashScreen = ({ children }: { children: ReactNode }) => {
     }
   }, [showSplash, state.address, isOnLoginPage, router])
 
-  // return <SplashScreenContent />
-
   if (showSplash) {
     // Show splash screen
     return <SplashScreenContent />
