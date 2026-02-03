@@ -73,9 +73,9 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={() => webauthnUI.open()}
-            className="rounded-2xl p-5 text-left flex flex-col items-start gap-4 outline outline-brand/50 bg-white group hover:outline-2 hover:outline-brand focus-visible:outline-2 focus-visible:outline-gray-900"
+            className="rounded-2xl p-5 text-left flex flex-col items-start gap-4 outline outline-gray-200 bg-white group hover:outline-2 hover:outline-gray-300 focus-visible:outline-2 focus-visible:outline-gray-900"
           >
-            <PasskeyIcon className="size-10" />
+            <PasskeyIcon className="size-10 text-brand" />
             <span className="text-base font-semibold text-gray-900">
               Passkey
             </span>
