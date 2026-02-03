@@ -73,9 +73,12 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={() => webauthnUI.open()}
-            className="rounded-2xl p-5 text-left flex flex-col items-start gap-4 outline outline-gray-200 bg-white group hover:outline-2 hover:outline-gray-300 focus-visible:outline-2 focus-visible:outline-gray-900"
+            className="relative rounded-2xl p-5 text-left flex flex-col items-start gap-4 outline outline-gray-200 bg-white group hover:outline-2 hover:outline-gray-300 focus-visible:outline-2 focus-visible:outline-gray-900"
           >
-            <PasskeyIcon className="size-10 text-brand" />
+            <span className="absolute top-3 right-3 text-[10px] font-semibold text-brand bg-brand/10 px-1.5 py-0.5 rounded">
+              Passkey
+            </span>
+            <PasskeyIcon className="size-10" />
             <span className="text-base font-semibold text-gray-900">
               Passkey
             </span>
@@ -84,6 +87,7 @@ export default function LoginPage() {
             name="NEAR"
             iconSrc="/static/icons/wallets/near-wallet.svg"
             onClick={() => signIn({ id: ChainType.Near })}
+            tag="Web3"
           />
           {connectors.slice(0, 1).map((connector) => (
             <LoginButton
@@ -91,12 +95,14 @@ export default function LoginPage() {
               name="Browser Wallet"
               iconSrc={getWalletIconSrc(connector)}
               onClick={() => signIn({ id: ChainType.EVM, connector })}
+              tag="Web3"
             />
           ))}
           <LoginButton
             name="Solana"
             iconSrc="/static/icons/wallets/solana-wallet.svg"
             onClick={() => signIn({ id: ChainType.Solana })}
+            tag="Web3"
           />
           {connectors.slice(1, 2).map((connector) => (
             <LoginButton
@@ -104,22 +110,26 @@ export default function LoginPage() {
               name={connector.name}
               iconSrc={getWalletIconSrc(connector)}
               onClick={() => signIn({ id: ChainType.EVM, connector })}
+              tag="Web3"
             />
           ))}
           <LoginButton
             name="TON"
             iconSrc="/static/icons/wallets/ton.svg"
             onClick={() => void tonConnectUI.openModal()}
+            tag="Web3"
           />
           <LoginButton
             name="Stellar"
             iconSrc="/static/icons/network/stellar.svg"
             onClick={() => signIn({ id: ChainType.Stellar })}
+            tag="Web3"
           />
           <LoginButton
             name="Tron"
             iconSrc="/static/icons/network/tron.svg"
             onClick={() => signIn({ id: ChainType.Tron })}
+            tag="Web3"
           />
           {connectors
             .slice(2)
@@ -130,6 +140,7 @@ export default function LoginPage() {
                 name={connector.name}
                 iconSrc={getWalletIconSrc(connector)}
                 onClick={() => signIn({ id: ChainType.EVM, connector })}
+                tag="Web3"
               />
             ))}
         </div>
@@ -143,18 +154,25 @@ function LoginButton({
   icon,
   iconSrc,
   onClick,
+  tag,
 }: {
   name: string
   icon?: React.ReactNode
   iconSrc?: string
   onClick: () => void
+  tag?: string
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="rounded-2xl p-5 text-left flex flex-col items-start gap-4 outline outline-gray-200 bg-white group hover:outline-2 hover:outline-gray-300 focus-visible:outline-2 focus-visible:outline-gray-900"
+      className="relative rounded-2xl p-5 text-left flex flex-col items-start gap-4 outline outline-gray-200 bg-white group hover:outline-2 hover:outline-gray-300 focus-visible:outline-2 focus-visible:outline-gray-900"
     >
+      {tag && (
+        <span className="absolute top-3 right-3 text-[10px] font-semibold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+          {tag}
+        </span>
+      )}
       {icon ??
         (iconSrc ? (
           <Image src={iconSrc} alt="" width={40} height={40} />
