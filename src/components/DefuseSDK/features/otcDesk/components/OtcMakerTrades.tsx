@@ -1,6 +1,6 @@
 import type { MultiPayload } from "@defuse-protocol/contract-types"
 import { authIdentity } from "@defuse-protocol/internal-utils"
-import { ArrowLongRightIcon } from "@heroicons/react/16/solid"
+import { ArrowLongRightIcon, XCircleIcon } from "@heroicons/react/16/solid"
 import { PlusIcon } from "@heroicons/react/20/solid"
 import Button from "@src/components/Button"
 import { nearClient } from "@src/components/DefuseSDK/constants/nearClient"
@@ -163,7 +163,19 @@ function OtcMakerTradeItem({
     )
 
   if (tradeTermsResult.isErr()) {
-    return <div>Error: {tradeTermsResult.unwrapErr()}</div>
+    return (
+      <div className="bg-red-50 min-h-18 rounded-2xl -mx-4 px-4 flex flex-col items-center justify-center gap-1.5">
+        <div className="flex items-center justify-center gap-1.5">
+          <XCircleIcon className="size-4 text-red-600" />
+          <span className="text-sm text-red-600 font-semibold text-center">
+            Failed to parse trade
+          </span>
+        </div>
+        <div className="text-sm text-red-600 font-medium text-center text-pretty">
+          {"tradeTermsResult.unwrapErr()"}
+        </div>
+      </div>
+    )
   }
 
   const { tradeTerms, tokenIn, tokenOut } = tradeTermsResult.unwrap()
