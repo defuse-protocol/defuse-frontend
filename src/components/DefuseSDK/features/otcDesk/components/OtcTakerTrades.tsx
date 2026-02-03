@@ -1,8 +1,9 @@
 import type { MultiPayload } from "@defuse-protocol/contract-types"
 import { solverRelay } from "@defuse-protocol/internal-utils"
-import { ArrowLongRightIcon } from "@heroicons/react/16/solid"
 import { CheckIcon } from "@heroicons/react/20/solid"
+import Badge from "@src/components/Badge"
 import ListItem from "@src/components/ListItem"
+import { CurvedArrowIcon } from "@src/icons"
 import { useQuery } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 import { useShallow } from "zustand/shallow"
@@ -178,30 +179,29 @@ function OtcTakerTradeItem({
 
   return (
     <ListItem onClick={handleClick} dataTestId="otc-taker-trade-item">
-      <AssetComboIcon {...tokenOut} badgeType="success" />
+      <div className="relative flex gap-1 items-start">
+        <AssetComboIcon icon={tokenIn?.icon} sizeClassName="size-7" />
+        <CurvedArrowIcon className="size-3.5 text-gray-400 absolute -bottom-0.5 left-4.5 -rotate-23" />
+        <AssetComboIcon icon={tokenOut?.icon} sizeClassName="size-10" />
+      </div>
+
       <ListItem.Content>
-        <ListItem.Title className="flex items-center gap-0.5">
-          {tokenIn.symbol}
-          <ArrowLongRightIcon className="size-4 text-gray-400 shrink-0" />
-          {tokenOut.symbol}
-        </ListItem.Title>
-        <ListItem.Subtitle className="text-green-600">
-          Completed
-        </ListItem.Subtitle>
-      </ListItem.Content>
-      <ListItem.Content align="end">
-        <ListItem.Title>
-          {formatTokenValue(totalAmountOut.amount, totalAmountOut.decimals, {
-            fractionDigits: 4,
-          })}{" "}
-          {tokenOut.symbol}
-        </ListItem.Title>
         <ListItem.Subtitle>
           {formatTokenValue(-totalAmountIn.amount, totalAmountIn.decimals, {
             fractionDigits: 4,
           })}{" "}
           {tokenIn.symbol}
         </ListItem.Subtitle>
+        <ListItem.Title>
+          {formatTokenValue(totalAmountOut.amount, totalAmountOut.decimals, {
+            fractionDigits: 4,
+          })}{" "}
+          {tokenOut.symbol}
+        </ListItem.Title>
+      </ListItem.Content>
+
+      <ListItem.Content align="end">
+        <Badge variant="success">Completed</Badge>
       </ListItem.Content>
     </ListItem>
   )
