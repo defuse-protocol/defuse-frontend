@@ -174,12 +174,11 @@ const UserMenu = () => {
                 </AlertDialog.Title>
 
                 <ul className="mt-3 list-disc pl-5 space-y-2 text-sm text-gray-600 font-medium">
-                  <li>This is your internal account address.</li>
+                  <li>This is your NEAR Intents internal address.</li>
                   <li>
-                    Use it only for account-to-account transfers inside NEAR
-                    Intents.
+                    Use it only for transfers between NEAR Intents accounts.
                   </li>
-                  <li>Funds sent here from external wallets will be lost.</li>
+                  <li>Funds sent here from external wallet will be lost.</li>
                 </ul>
 
                 <label className="mt-4 flex items-center gap-2 text-sm text-gray-700 font-medium">
