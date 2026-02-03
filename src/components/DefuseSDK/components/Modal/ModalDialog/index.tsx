@@ -73,6 +73,7 @@ export function BaseModalDialog({
     >
       <Dialog.Portal>
         <Dialog.Overlay
+          onClick={() => alert("clicking overlay")}
           className={clsx(
             "fixed inset-0 bg-gray-900/80 duration-200",
 
@@ -86,17 +87,26 @@ export function BaseModalDialog({
             }
           }}
         >
-          <div className="fixed inset-0 z-20 w-screen overflow-y-auto">
-            <div className="flex min-h-full items-end justify-center p-2 text-center sm:items-start sm:p-0 lg:pl-74 sm:pt-[10vh]">
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: debug click handler */}
+          <div
+            className="fixed inset-0 z-20 w-screen overflow-y-auto"
+            onClick={() => alert("clicking fixed div")}
+          >
+            {/* biome-ignore lint/a11y/useKeyWithClickEvents: debug click handler */}
+            <div
+              className="flex min-h-full items-end justify-center p-2 text-center sm:items-start sm:p-0 lg:pl-74 sm:pt-[10vh]"
+              onClick={() => alert("clicking div")}
+            >
               <Dialog.Content
+                onClick={() => alert("clicking content")}
                 className={clsx(
                   "relative transform overflow-hidden rounded-3xl bg-white p-5 text-left shadow-xl duration-200",
 
-                  "sm:my-8 w-full sm:max-w-sm",
+                  "sm:my-8 w-full sm:max-w-sm"
 
-                  "data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-2 fade-in data-[state=open]:ease-out data-[state=open]:zoom-in-97",
+                  // "data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-2 fade-in data-[state=open]:ease-out data-[state=open]:zoom-in-97",
 
-                  "data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom-2 fade-out data-[state=closed]:ease-in data-[state=closed]:zoom-out-97"
+                  // "data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom-2 fade-out data-[state=closed]:ease-in data-[state=closed]:zoom-out-97"
                 )}
                 // onOpenAutoFocus={(e) => {
                 // This is a workaround for focusing the first input in the modal
@@ -117,7 +127,11 @@ export function BaseModalDialog({
                     )}
                   />
                 )}
-                <div className="relative">
+                {/* biome-ignore lint/a11y/useKeyWithClickEvents: debug click handler */}
+                <div
+                  className="relative"
+                  onClick={() => alert("clicking relative div")}
+                >
                   <div
                     className={clsx(
                       "flex items-center justify-between min-h-10 -mt-2.5",
