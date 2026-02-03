@@ -90,7 +90,7 @@ function DefaultContent({
         </AlertDialog.Title>
         <AlertDialog.Description className="mt-2 text-base/5 font-medium text-gray-500 text-center text-balance">
           {isTokenExpired
-            ? "Your verification session has expired. Please sign a message again to continue using all features."
+            ? "Your previous login session has expired. Please sign a verification message with your wallet to continue."
             : "Sign a message to verify ownership of your wallet and unlock all features."}
         </AlertDialog.Description>
       </div>
