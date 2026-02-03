@@ -31,7 +31,7 @@ const features = [
     title: "Earn",
     description: "Put idle assets to work. Earn yield, withdraw anytime.",
     longDescription:
-      "Turn idle balances into passive income. No lockups, no commitments. Withdraw whenever you want.",
+      "Coming soon—turn idle balances into passive income. No lockups, no commitments. Withdraw whenever you want.",
     icon: ChartBarIcon,
   },
   {

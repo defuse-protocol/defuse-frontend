@@ -114,11 +114,13 @@ export function BaseModalDialog({
                 )}
                 <div className="relative">
                   <div
-                    className={clsx("flex items-center justify-between", {
-                      "-mr-2.5": isDismissable,
-                      "-ml-2.5": back,
-                      "-mt-2.5": isDismissable || back,
-                    })}
+                    className={clsx(
+                      "flex items-center justify-between min-h-10 -mt-2.5",
+                      {
+                        "-mr-2.5": isDismissable,
+                        "-ml-2.5": back,
+                      }
+                    )}
                   >
                     {back && (
                       <button
