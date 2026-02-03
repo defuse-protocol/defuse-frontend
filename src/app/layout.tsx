@@ -1,7 +1,6 @@
 import { GoogleAnalytics } from "@next/third-parties/google"
-import Helpscout from "@src/components/Helpscout"
+// import Helpscout from "@src/components/Helpscout"
 import { whitelabelTemplateFlag } from "@src/config/featureFlags"
-import { HELPSCOUT_BEACON_ID } from "@src/utils/environment"
 import { Figtree } from "next/font/google"
 import type { ReactNode } from "react"
 import "../styles/global.css"
@@ -139,7 +138,7 @@ const RootLayout = async ({
     >
       <body className={figtree.className}>{children}</body>
       <GoogleAnalytics gaId="G-WNE3NB46KM" />
-      {HELPSCOUT_BEACON_ID && <Helpscout />}
+      {/* {HELPSCOUT_BEACON_ID && <Helpscout />} */}
     </html>
   )
 }

@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "tailwindcss-safe-area";
 
 @plugin "@tailwindcss/forms";
 @plugin "@tailwindcss/typography";
