@@ -53,8 +53,8 @@ export default function LoginPage() {
               <p className="font-semibold">Passkey</p>
               <p className="mt-1">
                 Simple login familiar to most users. Syncs across your devices.
-                However, if you lose access to your passkey, your account cannot
-                be recovered.
+                However, if you lose access to your passkey—e.g. Apple, Google,
+                1Password, etc.—your account cannot be recovered.
               </p>
               <p className="mt-3 font-semibold">Web3 wallet</p>
               <p className="mt-1">
