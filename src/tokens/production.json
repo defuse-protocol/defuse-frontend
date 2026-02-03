@@ -1461,6 +1461,12 @@
               "decimals": 18,
               "chainName": "near",
               "bridge": "direct"
+            },
+            {
+              "address": "8SMMso8Muv8d6i4WmMDthKt6TN1ysN6937sx3DKLXZqB",
+              "decimals": 9,
+              "chainName": "solana",
+              "bridge": "near_omni"
             }
           ],
           "tags": ["mc:1452", "aid:rhea"]
@@ -1477,23 +1483,6 @@
               "address": "0x4c067DE26475E1CeFee8b8d1f6E2266b33a2372E",
               "decimals": 18,
               "chainName": "bsc",
-              "bridge": "hot_omni"
-            }
-          ],
-          "tags": ["mc:1452", "aid:rhea"]
-        },
-        {
-          "defuseAssetId": "nep141:token.rhealab.near",
-          "symbol": "RHEA",
-          "name": "Rhea",
-          "decimals": 9,
-          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/37529.png",
-          "originChainName": "solana",
-          "deployments": [
-            {
-              "address": "8SMMso8Muv8d6i4WmMDthKt6TN1ysN6937sx3DKLXZqB",
-              "decimals": 9,
-              "chainName": "solana",
               "bridge": "hot_omni"
             }
           ],
