@@ -79,13 +79,13 @@ export function OtcMakerTrades({
   if (trades == null || trades.length === 0) {
     return (
       <EmptyState className="mt-6">
-        <EmptyState.Title>No trades yet</EmptyState.Title>
+        <EmptyState.Title>No deals yet</EmptyState.Title>
         <EmptyState.Description>
-          Create a trade to get started.
+          Create a deal to get started.
         </EmptyState.Description>
         <Button href="/deals/new" size="xl" className="mt-4">
           <PlusIcon className="size-5 shrink-0" />
-          Create a trade
+          Create a deal
         </Button>
       </EmptyState>
     )
@@ -170,7 +170,7 @@ function OtcMakerTradeItem({
         <div className="flex items-center justify-center gap-1.5">
           <XCircleIcon className="size-4 text-red-600" />
           <span className="text-sm text-red-600 font-semibold text-center">
-            Failed to parse trade
+            Failed to parse deal
           </span>
         </div>
         <div className="text-sm text-red-600 font-medium text-center text-pretty">

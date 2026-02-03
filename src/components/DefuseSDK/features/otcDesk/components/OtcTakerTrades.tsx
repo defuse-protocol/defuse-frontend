@@ -86,7 +86,7 @@ export function OtcTakerTrades({ tokenList }: OtcTakerTradesProps) {
 
   return (
     <div className="mt-6">
-      <h3 className="text-base font-medium text-gray-500">Trades taken</h3>
+      <h3 className="text-base font-medium text-gray-500">Deals taken</h3>
       <div className="flex flex-col gap-1 mt-2">
         {trades.map((trade) => (
           <OtcTakerTradeItem
@@ -249,10 +249,10 @@ function ModalTakerTradeDetails({
         </div>
 
         <h2 className="mt-5 text-2xl/7 font-bold tracking-tight text-center">
-          Trade completed
+          Deal completed
         </h2>
         <p className="mt-2 text-base/5 font-medium text-gray-500 text-center text-balance">
-          This trade was successfully executed.
+          This deal was successfully executed.
         </p>
       </div>
 
@@ -286,12 +286,12 @@ function ModalTakerTradeDetails({
 
       <dl className="mt-5 pt-5 border-t border-gray-200 space-y-4">
         <div className="flex justify-between">
-          <dt className="text-sm text-gray-500 font-medium">Trade ID</dt>
+          <dt className="text-sm text-gray-500 font-medium">Deal ID</dt>
           <dd className="flex items-center gap-2">
             <span className="text-sm font-semibold text-gray-900">
               {midTruncate(tradeId, 16)}
             </span>
-            <CopyButton text={tradeId} ariaLabel="Copy trade ID" />
+            <CopyButton text={tradeId} ariaLabel="Copy deal ID" />
           </dd>
         </div>
 

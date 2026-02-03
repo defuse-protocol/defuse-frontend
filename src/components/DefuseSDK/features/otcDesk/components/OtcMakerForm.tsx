@@ -596,7 +596,7 @@ export function OtcMakerForm({
 function renderErrorMessages(reason: string): string {
   switch (reason) {
     case "ERR_STORE_FAILED":
-      return "Cannot store OTC trade"
+      return "Cannot store deal"
     case "ERR_PREPARING_SIGNING_DATA":
       return "Failed to prepare message for your wallet to sign. Please try again."
     case "ERR_USER_DIDNT_SIGN":
@@ -614,6 +614,6 @@ function renderSubmitButtonText({
   hasValues: boolean
 }) {
   if (!hasValues) return "Enter amounts"
-  if (snapshot.matches("editing")) return "Review trade"
-  return "Review trade"
+  if (snapshot.matches("editing")) return "Review deal"
+  return "Review deal"
 }
