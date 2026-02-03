@@ -104,7 +104,7 @@ export function BaseModalDialog({
                 {status && (
                   <div
                     className={clsx(
-                      "absolute top-0 inset-x-0 h-32 bg-linear-to-b from-green-50 to-green-50/0",
+                      "absolute top-0 inset-x-0 h-32 bg-linear-to-b",
                       {
                         "from-green-50 to-green-50/0": status === "success",
                         "from-red-50 to-red-50/0": status === "error",
