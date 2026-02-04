@@ -192,7 +192,10 @@ export function updateURLParamsSwap({
   }
 }
 
-function tokenToSymbol(token: TokenInfo, tokensWithTokenInAndOut: TokenInfo[]) {
+export function tokenToSymbol(
+  token: TokenInfo,
+  tokensWithTokenInAndOut: TokenInfo[]
+) {
   return hasChainIcon(token, tokensWithTokenInAndOut)
     ? tokenToSymbolWithChainName(token)
     : token.symbol

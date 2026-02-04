@@ -206,15 +206,16 @@ function TokenAddressPopover({
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Content
-          className="bg-gray-900 rounded-xl shadow-xl px-3 py-1.5 z-10 origin-top data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:zoom-in-95 data-[state=open]:duration-100 data-[state=open]:ease-out data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:zoom-out-95 data-[state=closed]:duration-75 data-[state=closed]:ease-in"
+          className="bg-gray-900 rounded-xl max-w-(--radix-popover-content-available-width) shadow-xl px-3 py-1.5 z-10 origin-top data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:zoom-in-95 data-[state=open]:duration-100 data-[state=open]:ease-out data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:zoom-out-95 data-[state=closed]:duration-75 data-[state=closed]:ease-in"
           sideOffset={0}
+          collisionPadding={8}
         >
           <div className="flex flex-col justify-center items-center">
             <span className="text-sm font-medium text-gray-400">
               Contract address
             </span>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-white break-all font-mono text-center text-balance">
+              <span className="text-sm font-medium text-white break-all font-mono text-center text-balance max-w-52 sm:max-w-none">
                 {address}
               </span>
               <Copy text={address}>

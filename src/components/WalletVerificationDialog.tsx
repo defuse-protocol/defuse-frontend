@@ -106,11 +106,11 @@ function DefaultContent({
           <LockClosedIcon className="size-6 text-gray-500" />
         </div>
         <AlertDialog.Title className="mt-5 text-2xl/7 font-bold tracking-tight text-center">
-          {isTokenExpired ? "Re-verify your wallet" : "Verify your wallet"}
+          Verify your wallet
         </AlertDialog.Title>
         <AlertDialog.Description className="mt-2 text-base/5 font-medium text-gray-500 text-center text-balance">
           {isTokenExpired
-            ? "Your verification session has expired. Please sign a message again to continue using all features."
+            ? "Your previous login session has expired. Please sign a verification message with your wallet to continue."
             : "Sign a message to verify ownership of your wallet and unlock all features."}
         </AlertDialog.Description>
       </div>
@@ -118,8 +118,8 @@ function DefaultContent({
       <ul className="bg-gray-50 rounded-3xl p-5 mt-5 space-y-3">
         {[
           "Secure transactions and transfers",
-          "Full access to all features",
-          "Protection of your funds",
+          "Access to all features",
+          "Protection of your assets",
         ].map((text) => (
           <li key={text} className="flex items-center gap-1.5">
             <CheckCircleIcon className="size-4 text-gray-600" />

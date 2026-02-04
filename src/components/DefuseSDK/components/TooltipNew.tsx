@@ -29,8 +29,9 @@ const TooltipContent = ({
 }: TooltipPrimitive.TooltipContentProps & { children: ReactNode }) => (
   <TooltipPrimitive.Portal>
     <TooltipPrimitive.Content
+      collisionPadding={8}
       className={cn(
-        "z-[100] bg-gray-900 text-white rounded-lg shadow-lg text-xs font-semibold px-2 py-1.5",
+        "z-100 bg-gray-900 text-white rounded-lg shadow-lg text-xs font-semibold px-2 py-1.5",
         "data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in data-[state=delayed-open]:duration-100 data-[state=delayed-open]:ease-in-out",
         {
           "data-[state=delayed-open]:slide-in-from-top-1": side === "bottom",

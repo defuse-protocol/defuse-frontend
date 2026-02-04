@@ -1,14 +1,19 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { GlobeAltIcon, TagIcon } from "@heroicons/react/20/solid"
+import { getContacts } from "@src/app/(app)/(auth)/contacts/actions"
 import ModalSelectRecipient from "@src/components/DefuseSDK/components/Modal/ModalSelectRecipient"
 import { getMinWithdrawalHyperliquidAmount } from "@src/components/DefuseSDK/features/withdraw/utils/hyperliquid"
 import { usePreparedNetworkLists } from "@src/components/DefuseSDK/hooks/useNetworkLists"
 import { isSupportedChainName } from "@src/components/DefuseSDK/utils/blockchain"
+import { findContactByAddress } from "@src/components/DefuseSDK/utils/contactUtils"
+import { stringToColor } from "@src/components/DefuseSDK/utils/stringToColor"
 import ErrorMessage from "@src/components/ErrorMessage"
+import { ContactsIcon } from "@src/icons"
+import { useQuery } from "@tanstack/react-query"
 import { useSelector } from "@xstate/react"
 import clsx from "clsx"
-import { type ReactNode, useEffect, useState } from "react"
+import { type ReactNode, useEffect, useMemo, useState } from "react"
 import type { UseFormReturn } from "react-hook-form"
 import { Controller } from "react-hook-form"
 import { EmptyIcon } from "../../../../../../components/EmptyIcon"
@@ -23,7 +28,10 @@ import type {
   SupportedChainName,
   TokenValue,
 } from "../../../../../../types/base"
-import { reverseAssetNetworkAdapter } from "../../../../../../utils/adapters"
+import {
+  assetNetworkAdapter,
+  reverseAssetNetworkAdapter,
+} from "../../../../../../utils/adapters"
 import { parseDestinationMemo } from "../../../../../machines/withdrawFormReducer"
 import { WithdrawUIMachineContext } from "../../../../WithdrawUIMachineContext"
 import { useCreateHLDepositAddress } from "../../hooks/useCreateHLDepositAddress"
@@ -46,6 +54,7 @@ type RecipientSubFormProps = {
   userAddress: string | undefined
   displayAddress: string | undefined
   tokenInBalance: TokenValue | undefined
+  onRecipientContactChange: (contactName: string | null) => void
 }
 
 export const RecipientSubForm = ({
@@ -61,6 +70,7 @@ export const RecipientSubForm = ({
   userAddress,
   displayAddress,
   tokenInBalance,
+  onRecipientContactChange,
 }: RecipientSubFormProps) => {
   const [modalType, setModalType] = useState<"network" | "recipient" | null>(
     null
@@ -68,6 +78,23 @@ export const RecipientSubForm = ({
   const isSelectNetworkModalOpen = modalType === "network"
   const isSelectRecipientModalOpen = modalType === "recipient"
   const closeModal = () => setModalType(null)
+
+  const { data: contactsData } = useQuery({
+    queryKey: ["contacts"],
+    queryFn: () => getContacts(),
+  })
+  const contacts = contactsData?.ok ? contactsData.value : []
+
+  const recipient = watch("recipient")
+  const blockchain = watch("blockchain")
+  const blockchainEnum =
+    blockchain && blockchain !== "near_intents"
+      ? assetNetworkAdapter[blockchain]
+      : null
+  const matchingContact = useMemo(
+    () => findContactByAddress(contacts, recipient, blockchainEnum),
+    [contacts, recipient, blockchainEnum]
+  )
 
   const actorRef = WithdrawUIMachineContext.useActorRef()
   const { formRef, balances: balancesData } =
@@ -235,23 +262,45 @@ export const RecipientSubForm = ({
         rules={{
           required: "Recipient is required",
         }}
-        render={({ field, fieldState }) => (
-          <SelectTriggerLike
-            label="To this recipient"
-            value={
-              field.value
-                ? midTruncate(field.value, 16)
-                : "Select a contact or enter an address"
-            }
-            error={fieldState.error?.message}
-            icon={
-              <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
-                <GlobeAltIcon className="text-gray-500 size-5" />
-              </div>
-            }
-            onClick={() => setModalType("recipient")}
-          />
-        )}
+        render={({ field, fieldState }) => {
+          const contactColors = matchingContact
+            ? stringToColor(
+                `${matchingContact.name}${matchingContact.address}${matchingContact.blockchain}`
+              )
+            : null
+
+          return (
+            <SelectTriggerLike
+              label="To this recipient"
+              value={
+                matchingContact
+                  ? matchingContact.name
+                  : field.value
+                    ? midTruncate(field.value, 16)
+                    : "Select a contact or enter an address"
+              }
+              error={fieldState.error?.message}
+              icon={
+                matchingContact && contactColors ? (
+                  <div
+                    className="size-10 rounded-full flex items-center justify-center shrink-0"
+                    style={{ backgroundColor: contactColors.background }}
+                  >
+                    <ContactsIcon
+                      className="size-5"
+                      style={{ color: contactColors.icon }}
+                    />
+                  </div>
+                ) : (
+                  <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                    <GlobeAltIcon className="text-gray-500 size-5" />
+                  </div>
+                )
+              }
+              onClick={() => setModalType("recipient")}
+            />
+          )
+        }}
       />
 
       <ModalSelectRecipient
@@ -261,12 +310,30 @@ export const RecipientSubForm = ({
         userAddress={userAddress}
         displayAddress={displayAddress}
         availableNetworks={availableNetworks}
+        onRecipientContactChange={onRecipientContactChange}
         displayOwnAddress={
           isChainTypeSatisfiesChainName &&
           !isNearIntentsNetwork(getValues("blockchain")) &&
           userAddress != null &&
           getValues("blockchain") !== "hyperliquid"
         }
+        onContactSelect={(blockchain, recipient, contactName) => {
+          actorRef.send({
+            type: "WITHDRAW_FORM.UPDATE_BLOCKCHAIN_AND_RECIPIENT",
+            params: { blockchain, recipient, proxyRecipient: null },
+          })
+          actorRef.send({
+            type: "WITHDRAW_FORM.UPDATE_MIN_RECEIVED_AMOUNT",
+            params: {
+              minReceivedAmount: getMinWithdrawalHyperliquidAmount(
+                blockchain,
+                token
+              ),
+            },
+          })
+          onRecipientContactChange(contactName)
+          closeModal()
+        }}
       />
 
       <Controller

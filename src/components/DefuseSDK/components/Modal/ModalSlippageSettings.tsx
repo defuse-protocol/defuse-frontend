@@ -22,7 +22,7 @@ import type { Actor } from "xstate"
 import type { swapUIMachine } from "../../features/machines/swapUIMachine"
 import { useModalStore } from "../../providers/ModalStoreProvider"
 import type { ModalType } from "../../stores/modalStore"
-import { ModalDialog } from "./ModalDialog"
+import { BaseModalDialog } from "./ModalDialog"
 
 const SLIPPAGE_OPTIONS = [
   { label: "0.1%", value: 1000 }, // 0.1% * 10_000
@@ -235,7 +235,7 @@ export function ModalSlippageSettings() {
   ])
 
   return (
-    <ModalDialog title="Slippage">
+    <BaseModalDialog title="Slippage" open={true} onClose={onCloseModal}>
       <p className="text-sm text-gray-500 font-medium mt-1">
         The slippage setting is a safety mechanism to protect you from getting a
         final price that is very different than the quoted price. If the
@@ -341,6 +341,6 @@ export function ModalSlippageSettings() {
           Save
         </Button>
       </div>
-    </ModalDialog>
+    </BaseModalDialog>
   )
 }

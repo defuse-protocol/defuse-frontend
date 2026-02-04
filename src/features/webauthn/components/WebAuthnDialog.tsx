@@ -32,6 +32,7 @@ export function WebAuthnDialog() {
       open={true}
       onClose={webauthnUI.close}
       back={isCreating ? () => setIsCreating(false) : undefined}
+      ignoreSidebar
     >
       <div className="flex flex-col items-center justify-center">
         <div className="size-14 rounded-full bg-gray-100 flex items-center justify-center">

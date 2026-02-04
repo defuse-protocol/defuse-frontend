@@ -15,13 +15,13 @@ const NetworkOutageNotification: React.FC = () => {
   const systemStatus = useSystemStatus()
 
   // Only show on deposit, send and swap pages
-  // TODO: Remove unused /withdraw (now called /send)
+  // TODO: Remove unused /withdraw (now called /transfer)
   const shouldShowNotification = [
     "/account",
     "/deposit",
     "/withdraw",
     "/swap",
-    "/send",
+    "/transfer",
   ].includes(pathname)
 
   useEffect(() => {
@@ -45,9 +45,9 @@ const NetworkOutageNotification: React.FC = () => {
   }
 
   return (
-    <div className="bg-yellow-200 flex items-center justify-center gap-3 px-4 py-2.5 rounded-xl">
+    <div className="bg-yellow-100 flex items-center justify-center gap-3 px-4 py-2.5 rounded-xl">
       <div className="flex items-start justify-center gap-3 flex-1">
-        <ExclamationTriangleIcon className="mt-px size-5 shrink-0 text-yellow-800" />
+        <ExclamationTriangleIcon className="mt-px size-5 shrink-0 text-yellow-500" />
         <span className="text-yellow-800 text-sm font-semibold line-clamp-2">
           {messageNotification}
         </span>

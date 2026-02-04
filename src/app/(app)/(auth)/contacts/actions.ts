@@ -25,6 +25,7 @@ import { renderRecipientAddressError } from "@src/components/DefuseSDK/utils/val
 import { verifyAppAuthToken } from "@src/utils/authJwt"
 import { logger } from "@src/utils/logger"
 import { cookies } from "next/headers"
+import { validate as isValidUuid } from "uuid"
 import * as v from "valibot"
 
 type ActionResult<T> = { ok: true; value: T } | { ok: false; error: string }
@@ -368,6 +369,141 @@ export async function updateContact(input: {
       name: updatedContact.name,
       blockchain: updatedContact.blockchain,
     },
+  }
+}
+
+export async function getContactByAddressAction(input: {
+  address: string
+  blockchain: SupportedChainName
+}): Promise<ActionResult<Contact | null>> {
+  try {
+    const cookieStore = await cookies()
+    const token = cookieStore.get(AUTH_TOKEN_KEY)?.value
+
+    if (!token) {
+      return { ok: false, error: "Authentication required" }
+    }
+
+    const accountId = getAccountIdFromToken(token)
+    if (!accountId) {
+      return { ok: false, error: "Invalid token" }
+    }
+
+    const contact = await getContactByAccountAddressAndBlockchain(
+      accountId,
+      input.address,
+      input.blockchain
+    )
+
+    if (!contact) {
+      return { ok: true, value: null }
+    }
+
+    if (!isSupportedChainName(contact.blockchain)) {
+      return { ok: true, value: null }
+    }
+
+    const blockchain: SupportedChainName = contact.blockchain
+    const blockchainEnum = assetNetworkAdapter[blockchain]
+
+    return {
+      ok: true,
+      value: {
+        contactId: contact.contactId,
+        accountId: contact.accountId,
+        address: contact.address,
+        name: contact.name,
+        blockchain: blockchainEnum,
+        id: contact.contactId,
+      },
+    }
+  } catch (error) {
+    logger.error("Failed to fetch contact by address", { cause: error })
+    return {
+      ok: false,
+      error: "We were unable to retrieve the contact. Please try again.",
+    }
+  }
+}
+
+export async function getContactByIdAction(input: {
+  contactId: string
+}): Promise<ActionResult<Contact | null>> {
+  try {
+    // Validate UUID format first to avoid database errors
+    if (!isValidUuid(input.contactId)) {
+      logger.warn("Invalid contactId format", {
+        source: "get-contact-by-id",
+        action: "invalid-format",
+        contactId: input.contactId,
+      })
+      return { ok: false, error: "Invalid contact ID format" }
+    }
+
+    const cookieStore = await cookies()
+    const token = cookieStore.get(AUTH_TOKEN_KEY)?.value
+
+    if (!token) {
+      logger.warn("Auth token missing from cookies", {
+        source: "get-contact-by-id",
+        action: "missing-token",
+      })
+      return { ok: false, error: "Authentication required" }
+    }
+
+    const accountId = getAccountIdFromToken(token)
+    if (!accountId) {
+      logger.warn("Invalid token when fetching contact", {
+        source: "get-contact-by-id",
+        action: "invalid-token",
+      })
+      return { ok: false, error: "Invalid token" }
+    }
+
+    const contact = await getContactById(input.contactId)
+
+    if (!contact) {
+      return { ok: true, value: null }
+    }
+
+    // Verify the contact belongs to the authenticated user
+    if (contact.accountId !== accountId) {
+      logger.warn("Unauthorized attempt to access contact", {
+        source: "get-contact-by-id",
+        action: "permission-denied",
+        contactId: input.contactId,
+        accountId,
+      })
+      return { ok: false, error: "Permission denied" }
+    }
+
+    if (!isSupportedChainName(contact.blockchain)) {
+      return { ok: true, value: null }
+    }
+
+    const blockchain: SupportedChainName = contact.blockchain
+    const blockchainEnum = assetNetworkAdapter[blockchain]
+
+    return {
+      ok: true,
+      value: {
+        contactId: contact.contactId,
+        accountId: contact.accountId,
+        address: contact.address,
+        name: contact.name,
+        blockchain: blockchainEnum,
+        id: contact.contactId,
+      },
+    }
+  } catch (error) {
+    logger.error("Failed to fetch contact by ID", {
+      cause: error,
+      contactId: input.contactId,
+    })
+    return {
+      ok: false,
+      error: "We were unable to retrieve the contact. Please try again.",
+    }
   }
 }
 

@@ -84,12 +84,12 @@ const faqItems = [
 export default function IndexPage() {
   return (
     <>
-      <section className="flex flex-col items-center justify-center pt-16 pb-24 bg-white rounded-b-3xl overflow-hidden">
+      <section className="relative flex flex-col items-center justify-center py-16 md:pb-24 bg-white rounded-b-3xl overflow-hidden">
         <div className="flex flex-col items-center justify-center px-4 max-w-lg">
           <div className="text-brand text-sm/5 font-bold py-0.5 px-3 rounded-lg bg-brand/[0.07] text-center">
             Over $10 billion swapped
           </div>
-          <h1 className="mt-6 text-5xl/none text-balance font-bold tracking-tight text-center">
+          <h1 className="mt-4 md:mt-6 text-4xl/none md:text-5xl/none text-balance font-bold tracking-tight text-center">
             One account, no borders.
             <br />
             <span className="text-brand">Endless possibilities.</span>
@@ -104,28 +104,33 @@ export default function IndexPage() {
         </div>
       </section>
 
-      <section className="bg-gray-800 py-24 relative overflow-hidden">
-        <div className="absolute size-128 rounded-full bg-brand/80 left-1/2 -translate-x-1/2 translate-y-1/4 blur-[150px]" />
-        <p className="relative text-center text-4xl/10 font-bold tracking-tight text-white">
+      <section className="bg-gray-800 py-16 md:py-24 relative px-4 overflow-hidden">
+        <div className="absolute size-40 md:size-64 lg:size-128 rounded-full bg-brand/80 left-1/2 max-md:-bottom-36 max-lg:-bottom-48 -translate-x-1/2 lg:translate-y-1/4 blur-[50px] md:blur-[100px] lg:blur-[150px]" />
+        <p className="relative text-center text-3xl/9 md:text-4xl/10 font-bold tracking-tight text-white">
           Over 70 assets, <br />
           across 35 networks. <br />
           <span className="text-brand">Think Binance, but permissionless.</span>
         </p>
       </section>
 
-      <section className="bg-white rounded-t-3xl pt-24 pb-16 flex items-center justify-center">
-        <div className="grid grid-cols-2 gap-y-16 gap-x-12 max-w-5xl px-4 w-full">
+      <section className="bg-white rounded-t-3xl pt-16 pb-12 md:pt-24 md:pb-16 flex items-center justify-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-y-12 md:gap-y-16 gap-x-12 max-w-sm md:max-w-5xl px-4 w-full">
           {features.map(
             ({ title, description, longDescription, icon: Icon }) => (
-              <div key={title} className="flex flex-col items-start">
+              <div
+                key={title}
+                className="flex flex-col items-center md:items-start"
+              >
                 <div className="bg-brand rounded-xl size-9 flex items-center justify-center">
                   <Icon className="size-6 text-white" />
                 </div>
-                <h3 className="mt-6 text-brand text-sm/5 font-bold">{title}</h3>
-                <p className="mt-2 font-bold text-gray-900 text-xl/7 text-balance">
+                <h3 className="mt-4 md:mt-6 text-brand text-sm/5 font-bold max-md:text-center">
+                  {title}
+                </h3>
+                <p className="mt-2 font-bold text-gray-900 text-lg/6 md:text-xl/7 text-balance max-md:text-center">
                   {description}
                 </p>
-                <p className="mt-4 text-sm/6 font-medium text-gray-500 text-balance">
+                <p className="mt-3 md:mt-4 text-sm/6 font-medium text-gray-500 text-balance max-md:text-center">
                   {longDescription}
                 </p>
               </div>
@@ -134,10 +139,10 @@ export default function IndexPage() {
         </div>
       </section>
 
-      <section className="bg-white py-16 flex items-center justify-center">
-        <div className="max-w-5xl w-full px-4 grid grid-cols-2 gap-x-2 gap-y-8">
+      <section className="bg-white py-12 md:py-16 flex items-center justify-center">
+        <div className="max-w-sm md:max-w-5xl w-full px-4 grid grid-cols-1 md:grid-cols-2 gap-x-2 gap-y-12">
           <div>
-            <h2 className="text-4xl/10 font-bold tracking-tight text-gray-900">
+            <h2 className="text-3xl/9 md:text-4xl/10 font-bold tracking-tight text-gray-900 max-md:text-center">
               Questions &amp; Answers
             </h2>
           </div>

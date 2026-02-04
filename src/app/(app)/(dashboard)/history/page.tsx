@@ -252,6 +252,7 @@ export default function HistoryPage({
     <>
       <PageHeader
         title="History"
+        subtitle="Every transaction, at a glance"
         intro={
           <p>
             This is your history page, showing your past swaps. In the future,
@@ -290,7 +291,7 @@ export default function HistoryPage({
         </div>
       </PageHeader>
 
-      <div className="mt-6 flex items-center gap-1">
+      <div className="mt-7 flex items-center gap-1">
         <SearchBar
           defaultValue={search}
           loading={isSearching}

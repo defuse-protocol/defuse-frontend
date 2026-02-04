@@ -20,7 +20,7 @@ import AssetList from "../Asset/AssetList"
 import EmptyAssetList from "../Asset/EmptyAssetList"
 import { MostTradableTokens } from "../MostTradableTokens/MostTradableTokens"
 import SearchBar from "../SearchBar"
-import { ModalDialog } from "./ModalDialog"
+import { BaseModalDialog } from "./ModalDialog"
 import ModalNoResults from "./ModalNoResults"
 
 export type ModalSelectAssetsPayload = {
@@ -183,7 +183,7 @@ export function ModalSelectAssets() {
   }
 
   return (
-    <ModalDialog title="Select token">
+    <BaseModalDialog title="Select token" open={true} onClose={onCloseModal}>
       <div className="mt-2 h-[630px] flex flex-col">
         <div
           className={clsx(
@@ -227,6 +227,6 @@ export function ModalSelectAssets() {
           )}
         </div>
       </div>
-    </ModalDialog>
+    </BaseModalDialog>
   )
 }

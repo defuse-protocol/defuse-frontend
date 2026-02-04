@@ -135,6 +135,7 @@ export const config = createConfig({
     adi,
   ],
   connectors: [
+    injected(),
     PROJECT_ID != null &&
       walletConnect({
         projectId: PROJECT_ID,
@@ -148,7 +149,6 @@ export const config = createConfig({
         telemetry: false,
       },
     }),
-    injected(),
   ].filter((a): a is Exclude<typeof a, boolean> => !!a),
   transports: {
     [mainnet.id]: http(),
