@@ -108,7 +108,7 @@ const ContactsList = ({
       />
 
       {(!hasNoContacts || hasSearchQuery) && (
-        <div className="mt-6 flex items-center gap-1">
+        <div className="mt-7 flex items-center gap-1">
           <SearchBar
             key={search ?? ""}
             defaultValue={search}

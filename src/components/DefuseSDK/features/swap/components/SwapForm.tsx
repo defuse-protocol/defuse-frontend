@@ -394,7 +394,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
         }
       />
 
-      <section className="mt-5">
+      <section className="mt-7">
         <form onSubmit={handleSubmit(onRequestReview)}>
           <div>
             <TokenInputCard

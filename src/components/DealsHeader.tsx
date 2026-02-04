@@ -25,7 +25,7 @@ const DealsHeader = () => {
       />
 
       <TabSwitcher
-        className="mt-5"
+        className="mt-7"
         tabs={[
           {
             label: "My deals",
