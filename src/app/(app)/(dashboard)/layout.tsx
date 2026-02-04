@@ -3,6 +3,7 @@ import MobileTopBar from "@src/components/MobileTopBar"
 import { NavbarDesktop } from "@src/components/Navbar/NavbarDesktop"
 import { NavbarMobile } from "@src/components/Navbar/NavbarMobile"
 import NetworkOutageNotification from "@src/components/NetworkOutageNotification"
+import PreviewBanner from "@src/components/PreviewBanner"
 import SystemStatus from "@src/components/SystemStatus"
 import UserMenu from "@src/components/UserMenu"
 import { NearIntentsLogoIcon, NearIntentsLogoSymbolIcon } from "@src/icons"
@@ -36,6 +37,7 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => (
     <div className="relative flex flex-1 flex-col lg:min-w-0 pt-safe-offset-3 lg:p-2 lg:pl-74">
       <div className="max-lg:px-4">
         <div className="has-[>*]:pb-3 lg:has-[>*]:pb-2 space-y-2">
+          <PreviewBanner />
           <SystemStatus showOperationalStatus={false} />
           <NetworkOutageNotification />
         </div>

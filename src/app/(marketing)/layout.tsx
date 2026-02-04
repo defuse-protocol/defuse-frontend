@@ -1,6 +1,7 @@
 import { CommandLineIcon } from "@heroicons/react/16/solid"
 import { getCachedSystemStatus } from "@src/actions/systemStatus"
 import Button from "@src/components/Button"
+import PreviewBanner from "@src/components/PreviewBanner"
 import SystemStatus from "@src/components/SystemStatus"
 import {
   DiscordIcon,
@@ -51,6 +52,7 @@ const MarketingRootLayout = async ({
   return (
     <SystemStatusProvider systemStatus={systemStatus}>
       <div className="p-2 flex flex-col bg-gray-800 min-h-screen">
+        <PreviewBanner className="mb-2" />
         <SystemStatus className="mb-2" showOperationalStatus={false} />
 
         <header className="bg-white rounded-t-3xl flex justify-center items-center py-5">
