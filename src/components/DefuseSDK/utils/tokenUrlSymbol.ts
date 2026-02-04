@@ -34,6 +34,72 @@ export function parseTokenFromUrl(
 }
 
 /**
+ * Finds a token by symbol in the provided token list.
+ * Uses the same approach as swap page's useDeterminePair.
+ * For symbol-only input (no chain), prefers unified tokens.
+ * For symbol:chain input, finds the specific base token.
+ */
+export function findTokenBySymbol(
+  input: string | null | undefined,
+  tokens: TokenInfo[]
+): TokenInfo | null {
+  if (!input?.trim()) return null
+
+  const trimmedInput = input.trim()
+
+  // If input contains chain separator, find specific base token
+  if (trimmedInput.includes(SEPARATOR)) {
+    const [symbol, chainName] = trimmedInput.split(SEPARATOR) as [
+      string,
+      string | undefined,
+    ]
+    const baseToken = LIST_TOKENS_FLATTEN.find(
+      (t) => t.symbol === symbol && t.originChainName === chainName
+    )
+    if (!baseToken) return null
+    // Return the TokenInfo from the list that contains this base token
+    return findTokenInListByBase(baseToken, tokens)
+  }
+
+  // For symbol-only, explicitly prefer unified tokens over base tokens
+  const symbolLower = trimmedInput.toLowerCase()
+
+  // First, try to find a unified token in the provided tokens list
+  const unifiedTokenInList = tokens.find(
+    (token) =>
+      !isBaseToken(token) &&
+      (token.symbol.toLowerCase() === symbolLower ||
+        token.groupedTokens?.some(
+          (t: BaseTokenInfo) => t.symbol.toLowerCase() === symbolLower
+        ))
+  )
+
+  if (unifiedTokenInList) {
+    return unifiedTokenInList
+  }
+
+  // The provided tokens list might be flattened (no unified tokens).
+  // Search in LIST_TOKENS which contains unified tokens.
+  const unifiedTokenInListTokens = LIST_TOKENS.find(
+    (token) =>
+      !isBaseToken(token) &&
+      (token.symbol.toLowerCase() === symbolLower ||
+        token.groupedTokens?.some(
+          (t: BaseTokenInfo) => t.symbol.toLowerCase() === symbolLower
+        ))
+  )
+
+  if (unifiedTokenInListTokens) {
+    return unifiedTokenInListTokens
+  }
+
+  // Fallback to base token if no unified token found anywhere
+  return (
+    tokens.find((token) => token.symbol.toLowerCase() === symbolLower) ?? null
+  )
+}
+
+/**
  * Finds the TokenInfo in tokenList that represents the given base token
  * (either the base itself or a grouped token containing it).
  */

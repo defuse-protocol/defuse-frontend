@@ -18,10 +18,7 @@ import { WithdrawWidgetProvider } from "../../../providers/WithdrawWidgetProvide
 import type { WithdrawWidgetProps } from "../../../types/withdraw"
 import { assert } from "../../../utils/assert"
 import { isBaseToken } from "../../../utils/token"
-import {
-  findTokenInListByBase,
-  parseTokenFromUrl,
-} from "../../../utils/tokenUrlSymbol"
+import { findTokenBySymbol } from "../../../utils/tokenUrlSymbol"
 import { swapIntentMachine } from "../../machines/swapIntentMachine"
 import { withdrawUIMachine } from "../../machines/withdrawUIMachine"
 import { WithdrawUIMachineContext } from "../WithdrawUIMachineContext"
@@ -36,21 +33,8 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
     const preset = props.presetTokenSymbol?.trim()
     if (preset === undefined || preset === "") return props.tokenList[0]
 
-    if (preset.includes(":")) {
-      const baseFromUrl = parseTokenFromUrl(preset)
-      const found = baseFromUrl
-        ? findTokenInListByBase(baseFromUrl, props.tokenList)
-        : null
-      return found ?? props.tokenList[0]
-    }
-
-    return (
-      props.tokenList.find(
-        (el) =>
-          el.symbol.toLowerCase().normalize() ===
-          preset.toLowerCase().normalize()
-      ) ?? props.tokenList[0]
-    )
+    // Use the same approach as swap page's useDeterminePair
+    return findTokenBySymbol(preset, props.tokenList) ?? props.tokenList[0]
   })()
 
   assert(initialTokenIn, "Token list must have at least 1 token")
