@@ -317,7 +317,7 @@ export const RecipientSubForm = ({
           userAddress != null &&
           getValues("blockchain") !== "hyperliquid"
         }
-        onContactSelect={(blockchain, recipient) => {
+        onContactSelect={(blockchain, recipient, contactName) => {
           actorRef.send({
             type: "WITHDRAW_FORM.UPDATE_BLOCKCHAIN_AND_RECIPIENT",
             params: { blockchain, recipient, proxyRecipient: null },
@@ -331,6 +331,7 @@ export const RecipientSubForm = ({
               ),
             },
           })
+          onRecipientContactChange(contactName)
           closeModal()
         }}
       />
