@@ -1,10 +1,10 @@
 import ActivityDock from "@src/components/ActivityDock"
+import MobileTopBar from "@src/components/MobileTopBar"
 import { NavbarDesktop } from "@src/components/Navbar/NavbarDesktop"
 import { NavbarMobile } from "@src/components/Navbar/NavbarMobile"
 import NetworkOutageNotification from "@src/components/NetworkOutageNotification"
 import SystemStatus from "@src/components/SystemStatus"
 import UserMenu from "@src/components/UserMenu"
-import UserMenuMobile from "@src/components/UserMenuMobile"
 import { NearIntentsLogoIcon, NearIntentsLogoSymbolIcon } from "@src/icons"
 import Link from "next/link"
 import type { ReactNode } from "react"
@@ -40,18 +40,7 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => (
           <NetworkOutageNotification />
         </div>
 
-        <div className="lg:hidden flex justify-between items-center pb-3 max-w-[464px] mx-auto w-full">
-          <Link
-            href="/account"
-            className="-ml-1.5 pl-1.5 pr-2.5 py-1.5 flex items-center gap-2.5 rounded-xl focus-visible:outline-none"
-          >
-            <span className="sr-only">Account</span>
-            <NearIntentsLogoSymbolIcon className="h-6 shrink-0" />
-            <NearIntentsLogoIcon className="h-2.5 shrink-0 text-white" />
-          </Link>
-
-          <UserMenuMobile />
-        </div>
+        <MobileTopBar />
       </div>
 
       <main className="relative grow px-4 py-6 sm:p-6 rounded-t-3xl lg:rounded-3xl bg-gray-25 lg:p-10">

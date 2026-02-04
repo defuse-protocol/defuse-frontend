@@ -8,6 +8,7 @@ import {
 } from "@heroicons/react/16/solid"
 import { UserIcon } from "@heroicons/react/24/solid"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
+import { useActivityDock } from "@src/providers/ActivityDockProvider"
 import clsx from "clsx"
 import Link from "next/link"
 import { DropdownMenu } from "radix-ui"
@@ -15,6 +16,8 @@ import { useState } from "react"
 import { midTruncate } from "./DefuseSDK/features/withdraw/components/WithdrawForm/utils"
 
 const UserMenuMobile = () => {
+  const { dockItems } = useActivityDock()
+  const hasDockItems = dockItems.length > 0
   const { state, signOut } = useConnectWallet()
   const [copied, setCopied] = useState(false)
 
@@ -51,8 +54,13 @@ const UserMenuMobile = () => {
 
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Trigger className="relative group text-gray-400 rounded-xl -mr-1.5 pl-2.5 pr-1.5 py-1.5 flex items-center gap-2.5 data-[state=open]:bg-gray-950 data-[state=open]:text-gray-300 focus-visible:outline-none">
-        <div className="text-sm font-semibold grow text-right">
+      <DropdownMenu.Trigger className="relative group text-gray-400 rounded-xl -mr-1.5 px-2.5 py-1.5 flex items-center gap-2.5 data-[state=open]:bg-gray-950 data-[state=open]:text-gray-300 focus-visible:outline-none">
+        <div
+          className={clsx(
+            "text-sm font-semibold grow text-right ml-1",
+            hasDockItems && "hidden"
+          )}
+        >
           {midTruncate(state.displayAddress ?? "")}
         </div>
 
