@@ -127,6 +127,8 @@ export function useGiftIntent() {
     },
     enabled: !!encodedGift,
     retry: false,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   })
 
   // Return null for payload if there's no data, loading, or error
