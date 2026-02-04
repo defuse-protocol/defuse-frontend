@@ -11,7 +11,7 @@ import { useNearWallet } from "@src/providers/NearWalletProvider"
 import { renderAppLink } from "@src/utils/renderAppLink"
 import { useSearchParams } from "next/navigation"
 
-export default function SendPage() {
+export default function TransferPage() {
   const { state } = useConnectWallet()
   const signMessage = useWalletAgnosticSignMessage()
   const { signAndSendTransactions } = useNearWallet()
