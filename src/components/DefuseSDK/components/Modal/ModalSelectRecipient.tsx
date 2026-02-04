@@ -1,6 +1,6 @@
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { assert } from "@defuse-protocol/internal-utils"
-import { PlusIcon, UserCircleIcon } from "@heroicons/react/20/solid"
+import { UserCircleIcon, UserPlusIcon } from "@heroicons/react/20/solid"
 import { getContacts } from "@src/app/(app)/(auth)/contacts/actions"
 import ErrorMessage from "@src/components/ErrorMessage"
 import ListItem from "@src/components/ListItem"
@@ -236,15 +236,10 @@ const ModalSelectRecipient = ({
                       e.stopPropagation()
                       setShowAddContact(true)
                     }}
-                    className="relative z-20 size-8 rounded-lg hover:bg-gray-200 flex items-center justify-center ml-auto"
+                    className="relative z-20 size-8 rounded-lg flex items-center justify-center ml-auto text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
                     aria-label="Save as new contact"
                   >
-                    <div className="relative">
-                      <ContactsIcon className="size-4 text-gray-500" />
-                      <span className="absolute -right-1 -bottom-1 size-3 rounded-full bg-gray-900 flex items-center justify-center">
-                        <PlusIcon className="size-2 text-white" />
-                      </span>
-                    </div>
+                    <UserPlusIcon className="size-5" />
                   </button>
                 </TooltipNew.Trigger>
                 <TooltipNew.Content side="top">
