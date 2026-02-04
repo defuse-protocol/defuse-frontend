@@ -23,8 +23,8 @@ const ShieldPromo = () => {
           <div className="bg-brand/20 text-brand text-xs rounded-lg px-2 py-1 inline-block uppercase font-bold">
             Coming soon
           </div>
-          <div className="mt-2 mb-1">
-            <h3 className="text-xl font-bold text-white tracking-tight">
+          <div className="mt-4 mb-1">
+            <h3 className="text-xl/6 font-bold text-white tracking-tight">
               Shielded account
             </h3>
           </div>
@@ -55,11 +55,11 @@ const ShieldPromo = () => {
               </filter>
             </defs>
           </svg>
-          <EthIcon className="size-9 absolute top-5 left-0 filter-[url(#pixelate)]" />
+          <EthIcon className="size-9 absolute top-5 right-26 filter-[url(#pixelate)]" />
           <ZecIcon className="size-7 absolute top-8 right-8 filter-[url(#pixelate)]" />
-          <UsdcIcon className="size-8 absolute top-20 left-4 filter-[url(#pixelate)]" />
+          <UsdcIcon className="size-8 absolute top-20 right-24 filter-[url(#pixelate)]" />
           <SolIcon className="size-8 absolute top-22 right-8 filter-[url(#pixelate)]" />
-          <BtcIcon className="size-9 absolute bottom-7 left-2 filter-[url(#pixelate)]" />
+          <BtcIcon className="size-9 absolute bottom-7 right-25 filter-[url(#pixelate)]" />
           <UsdtIcon className="size-8 absolute bottom-5 right-8 filter-[url(#pixelate)]" />
         </div>
       </div>

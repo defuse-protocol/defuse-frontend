@@ -212,7 +212,7 @@ const ContactsList = ({
                   />
                 </div>
                 <ListItem.Content>
-                  <ListItem.Title className="truncate">
+                  <ListItem.Title className="line-clamp-1">
                     {contact.name}
                   </ListItem.Title>
                   <ListItem.Subtitle>

@@ -1,11 +1,13 @@
 import { GoogleAnalytics } from "@next/third-parties/google"
 import Helpscout from "@src/components/Helpscout"
 import { whitelabelTemplateFlag } from "@src/config/featureFlags"
-import { HELPSCOUT_BEACON_ID } from "@src/utils/environment"
 import { Figtree } from "next/font/google"
 import type { ReactNode } from "react"
 import "../styles/global.css"
-import { VERCEL_PROJECT_PRODUCTION_URL } from "@src/utils/environment"
+import {
+  HELPSCOUT_BEACON_ID,
+  VERCEL_PROJECT_PRODUCTION_URL,
+} from "@src/utils/environment"
 import type { Metadata, Viewport } from "next"
 
 export const viewport: Viewport = {

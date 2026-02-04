@@ -81,7 +81,7 @@ function AnimatedTokenPath({ side = "left" }: { side?: "left" | "right" }) {
   return (
     <div
       className={clsx(
-        "absolute -top-16 w-[500px] h-[416px] pointer-events-none select-none",
+        "max-sm:hidden absolute -top-16 w-[500px] h-[416px] pointer-events-none select-none",
         side === "left" ? "right-full -mr-12" : "left-full -ml-12"
       )}
     >
