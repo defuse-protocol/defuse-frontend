@@ -38,6 +38,7 @@ type ModalSelectRecipientProps = {
   displayAddress: string | undefined
   displayOwnAddress: boolean
   availableNetworks: NetworkOptions
+  onRecipientContactChange: (contactName: string | null) => void
 }
 
 const VALIDATION_DEBOUNCE_MS = 500
@@ -50,6 +51,7 @@ const ModalSelectRecipient = ({
   displayAddress,
   displayOwnAddress,
   availableNetworks,
+  onRecipientContactChange,
 }: ModalSelectRecipientProps) => {
   const { setValue, watch, clearErrors } =
     useFormContext<WithdrawFormNearValues>()
@@ -143,6 +145,7 @@ const ModalSelectRecipient = ({
   }
 
   const handleSelectAddress = (address: string) => {
+    onRecipientContactChange(null)
     setValue("recipient", address)
     onClose()
   }
@@ -260,6 +263,7 @@ const ModalSelectRecipient = ({
                             key={id}
                             onClick={() => {
                               setValue("blockchain", chainKey)
+                              onRecipientContactChange(name)
                               setValue("recipient", address, {
                                 shouldValidate: true,
                               })
@@ -316,6 +320,7 @@ const ModalSelectRecipient = ({
                           displayAddress,
                           "Display address could not be retrieved from the wallet provider"
                         )
+                        onRecipientContactChange(null)
                         setValue("recipient", displayAddress, {
                           shouldValidate: true,
                         })

@@ -54,6 +54,7 @@ type RecipientSubFormProps = {
   userAddress: string | undefined
   displayAddress: string | undefined
   tokenInBalance: TokenValue | undefined
+  onRecipientContactChange: (contactName: string | null) => void
 }
 
 export const RecipientSubForm = ({
@@ -69,6 +70,7 @@ export const RecipientSubForm = ({
   userAddress,
   displayAddress,
   tokenInBalance,
+  onRecipientContactChange,
 }: RecipientSubFormProps) => {
   const [modalType, setModalType] = useState<"network" | "recipient" | null>(
     null
@@ -308,6 +310,7 @@ export const RecipientSubForm = ({
         userAddress={userAddress}
         displayAddress={displayAddress}
         availableNetworks={availableNetworks}
+        onRecipientContactChange={onRecipientContactChange}
         displayOwnAddress={
           isChainTypeSatisfiesChainName &&
           !isNearIntentsNetwork(getValues("blockchain")) &&

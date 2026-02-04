@@ -1,5 +1,8 @@
 import Button from "@src/components/Button"
+import HelperPopover from "@src/components/HelperPopover"
+import { ContactsIcon } from "@src/icons"
 import { useMemo } from "react"
+import { formatUnits } from "viem"
 import {
   chainIcons,
   getBlockchainsOptions,
@@ -46,8 +49,8 @@ const ModalReviewSend = ({
   fee,
   totalAmountReceived,
   feeUsd,
-  totalAmountReceivedUsd,
   directionFee,
+  recipientContactName,
 }: {
   open: boolean
   onClose: () => void
@@ -62,8 +65,8 @@ const ModalReviewSend = ({
   fee: TokenValue
   feeUsd: number | null
   totalAmountReceived: TokenValue | null
-  totalAmountReceivedUsd: number | null
   directionFee: TokenValue | null
+  recipientContactName?: string | null
 }) => {
   const chainIcon =
     network === "near_intents" ? intentsChainIcon : chainIcons[network]
@@ -85,6 +88,34 @@ const ModalReviewSend = ({
     )
   }, [totalAmountReceived])
 
+  const slippagePercent = useMemo<number | null>(() => {
+    if (totalAmountReceived == null) {
+      return null
+    }
+
+    const sentAmount = Number(amountIn)
+    const receivedAmountRaw = Number(
+      formatUnits(totalAmountReceived.amount, totalAmountReceived.decimals)
+    )
+
+    if (!Number.isFinite(sentAmount) || sentAmount <= 0) {
+      return null
+    }
+    if (!Number.isFinite(receivedAmountRaw)) {
+      return null
+    }
+
+    return ((receivedAmountRaw - sentAmount) / sentAmount) * 100
+  }, [amountIn, totalAmountReceived])
+
+  const showSlippage =
+    slippagePercent != null && Math.abs(slippagePercent) > 0.01
+
+  const formattedSlippage =
+    slippagePercent == null
+      ? null
+      : `${slippagePercent >= 0 ? "+" : ""}${slippagePercent.toFixed(2)}%`
+
   // Calculate direction fee USD value proportionally to the regular fee
   const directionFeeUsd = useMemo<number | null>(() => {
     if (directionFee == null || feeUsd == null || fee.amount === 0n) {
@@ -101,7 +132,7 @@ const ModalReviewSend = ({
       <div className="flex flex-col items-center justify-center mt-3">
         <AssetComboIcon icon={tokenIn.icon} sizeClassName="size-13" />
         <div className="mt-5 text-2xl/7 font-bold text-gray-900 tracking-tight">
-          Sending {formatDisplayAmount(amountIn)} {tokenIn.symbol}
+          {formatDisplayAmount(amountIn)} {tokenIn.symbol}
         </div>
         <div className="mt-1 text-base/5 font-medium text-gray-500">
           {formatUsdAmount(usdAmountIn)}
@@ -113,8 +144,20 @@ const ModalReviewSend = ({
           <dt className="text-sm text-gray-500 font-medium truncate">
             Recipient
           </dt>
-          <dd className="text-sm font-semibold text-gray-900">
-            {midTruncate(recipient, 16)}
+          <dd className="text-sm font-semibold text-gray-900 text-right">
+            {recipientContactName ? (
+              <div className="flex flex-col items-end">
+                <div className="flex items-center gap-1">
+                  <ContactsIcon className="size-4 text-gray-500 shrink-0" />
+                  <span>{recipientContactName}</span>
+                </div>
+                <span className="text-xs text-gray-500 font-medium">
+                  {midTruncate(recipient, 16)}
+                </span>
+              </div>
+            ) : (
+              midTruncate(recipient, 16)
+            )}
           </dd>
         </div>
 
@@ -136,17 +179,33 @@ const ModalReviewSend = ({
           </dd>
         </div>
 
-        {receivedAmount !== "-" && totalAmountReceivedUsd && (
+        {receivedAmount !== "-" && (
           <div className="flex items-center justify-between gap-2">
             <dt className="text-sm text-gray-500 font-medium truncate">
               Recipient receives
             </dt>
             <dd className="flex items-center gap-1 text-sm font-semibold text-gray-900 whitespace-pre">
-              <span className="text-gray-500">
-                (~{formatUsdAmount(totalAmountReceivedUsd)})
-              </span>
               {receivedAmount} {tokenIn.symbol}
               <AssetComboIcon icon={tokenIn.icon} sizeClassName="size-4" />
+            </dd>
+          </div>
+        )}
+
+        {showSlippage && formattedSlippage && (
+          <div className="flex items-center justify-between gap-2">
+            <dt className="text-sm text-gray-500 font-medium truncate flex items-center gap-1">
+              Slippage:
+              <HelperPopover>
+                <p>
+                  Withdrawing assets that started on one chain and are destined
+                  for another actually involves a <strong>swap</strong>, which
+                  can involve slippage. If the displayed amount is too large,
+                  you can cancel the withdrawal.
+                </p>
+              </HelperPopover>
+            </dt>
+            <dd className="text-sm font-semibold text-gray-900">
+              {formattedSlippage}
             </dd>
           </div>
         )}
