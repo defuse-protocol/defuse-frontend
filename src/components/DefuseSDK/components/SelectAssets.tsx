@@ -80,7 +80,7 @@ export const SelectAssets = ({
       onClick={handleAssetsSelect}
       data-testid={dataTestId}
       disabled={disabled}
-      className="max-w-[120px] sm:max-w-[148px] md:max-w-[210px] bg-gray-1 shadow-select-token rounded-full flex justify-between items-center p-1 gap-1.5 md:gap-2.5 dark:shadow-select-token-dark min-w-0"
+      className="max-w-[120px] sm:max-w-[148px] md:max-w-[210px] bg-gray-1 hover:bg-gray-2 shadow-select-token rounded-full flex justify-between items-center p-1 gap-1.5 md:gap-2.5 dark:shadow-select-token-dark min-w-0 transition-colors duration-150"
     >
       {selected?.icon ? (
         <AssetComboIcon

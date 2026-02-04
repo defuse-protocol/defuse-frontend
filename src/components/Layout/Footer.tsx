@@ -89,7 +89,7 @@ const Footer = () => {
 
   return (
     <footer className="w-full flex justify-center items-center py-7">
-      <div className="flex justify-center items-center gap-1.5 text-sm font-medium bg-white dark:bg-black px-3 py-1.5 rounded-full">
+      <div className="flex justify-center items-center gap-1.5 text-sm font-medium bg-white/80 dark:bg-black/80 px-3 py-1.5 rounded-full">
         <span className="text-secondary">Powered by</span>
         <NearLogo className="text-black dark:text-white" />
       </div>
