@@ -21,7 +21,10 @@ import {
 } from "../../features/withdraw/components/WithdrawForm/utils"
 import type { NetworkOptions } from "../../hooks/useNetworkLists"
 import type { SupportedChainName } from "../../types/base"
-import { reverseAssetNetworkAdapter } from "../../utils/adapters"
+import {
+  assetNetworkAdapter,
+  reverseAssetNetworkAdapter,
+} from "../../utils/adapters"
 import { stringToColor } from "../../utils/stringToColor"
 import { NetworkIcon } from "../Network/NetworkIcon"
 import SearchBar from "../SearchBar"
@@ -42,6 +45,7 @@ type ModalSelectRecipientProps = {
     blockchain: SupportedChainName | "near_intents",
     recipient: string
   ) => void
+  onRecipientContactChange?: (contactName: string | null) => void
 }
 
 const VALIDATION_DEBOUNCE_MS = 500
@@ -55,6 +59,7 @@ const ModalSelectRecipient = ({
   displayOwnAddress,
   availableNetworks,
   onContactSelect,
+  onRecipientContactChange,
 }: ModalSelectRecipientProps) => {
   const { setValue, watch, clearErrors } =
     useFormContext<WithdrawFormNearValues>()
@@ -148,7 +153,7 @@ const ModalSelectRecipient = ({
   }
 
   const handleSelectAddress = (address: string) => {
-    onRecipientContactChange(null)
+    onRecipientContactChange?.(null)
     setValue("recipient", address)
     onClose()
   }
@@ -334,7 +339,7 @@ const ModalSelectRecipient = ({
                           displayAddress,
                           "Display address could not be retrieved from the wallet provider"
                         )
-                        onRecipientContactChange(null)
+                        onRecipientContactChange?.(null)
                         setValue("recipient", displayAddress, {
                           shouldValidate: true,
                         })
@@ -365,7 +370,7 @@ const ModalSelectRecipient = ({
         onSuccess={(contact) => {
           clearErrors()
           const chainKey = reverseAssetNetworkAdapter[contact.blockchain]
-          onRecipientContactChange(contact.name)
+          onRecipientContactChange?.(contact.name)
           setValue("blockchain", chainKey, {
             shouldValidate: true,
             shouldDirty: true,
