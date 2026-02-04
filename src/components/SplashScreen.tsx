@@ -61,8 +61,21 @@ const SplashScreen = ({ children }: { children: ReactNode }) => {
 export default SplashScreen
 
 const SplashScreenContent = () => (
-  <div className="relative h-screen w-screen flex items-center justify-center overflow-hidden animate-in fade-in duration-300 ease-out">
+  <div className="relative h-screen w-screen flex flex-col items-center justify-center gap-6 overflow-hidden animate-in fade-in duration-300 ease-out">
     <h1 className="sr-only">Loading NEAR Intents application</h1>
     <NearIntentsLogoSymbolIcon className="size-18 shrink-0" />
+    <ThreeDotsLoader />
+  </div>
+)
+
+const ThreeDotsLoader = () => (
+  <div className="flex gap-1.5">
+    {[0, 1, 2].map((i) => (
+      <span
+        key={i}
+        className="size-1.5 rounded-full bg-white/60 animate-dot-bounce"
+        style={{ animationDelay: `${i * 160}ms` }}
+      />
+    ))}
   </div>
 )
