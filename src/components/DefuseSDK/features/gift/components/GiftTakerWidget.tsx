@@ -2,7 +2,7 @@
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { GiftIcon } from "@phosphor-icons/react"
 import { useActorRef, useSelector } from "@xstate/react"
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import type { ActorRefFrom } from "xstate"
 import { WidgetRoot } from "../../../components/WidgetRoot"
 import type { SignerCredentials } from "../../../core/formatters"
@@ -81,38 +81,60 @@ function GiftTakerScreens({
 }: GiftTakerWidgetProps) {
   const [resetKey, setResetKey] = useState(0)
 
-  const giftTakerRootRef = useActorRef(giftTakerRootMachine, {
-    input: {
+  // Memoize input to prevent useActorRef from seeing new object references
+  const machineInput = useMemo(
+    () => ({
       giftId,
       payload,
       tokenList,
-    },
+    }),
+    [giftId, payload, tokenList]
+  )
+
+  const giftTakerRootRef = useActorRef(giftTakerRootMachine, {
+    input: machineInput,
   })
 
-  const { snapshot, giftTakerClaimRef } = useSelector(
+  // Use ref to avoid including giftTakerRootRef in effect dependencies
+  const actorRefRef = useRef(giftTakerRootRef)
+  actorRefRef.current = giftTakerRootRef
+
+  // Use separate selectors to avoid creating new objects on every render
+  const giftTakerClaimRef = useSelector(
     giftTakerRootRef,
-    (state) => ({
-      giftTakerClaimRef: state.children.giftTakerClaimRef as
+    (state) =>
+      state.children.giftTakerClaimRef as
         | undefined
-        | ActorRefFrom<typeof giftClaimActor>,
-      snapshot: state,
-    })
+        | ActorRefFrom<typeof giftClaimActor>
   )
-  const intentHashes = snapshot.context.intentHashes
-  const giftInfo = snapshot.context.giftInfo
+  const intentHashes = useSelector(
+    giftTakerRootRef,
+    (state) => state.context.intentHashes
+  )
+  const giftInfo = useSelector(
+    giftTakerRootRef,
+    (state) => state.context.giftInfo
+  )
+  const rootError = useSelector(
+    giftTakerRootRef,
+    (state) => state.context.error
+  )
 
-  const claimSnapshot = useSelector(giftTakerClaimRef, (state) => state)
-  const error = claimSnapshot?.context.error ?? snapshot.context.error
+  const claimError = useSelector(
+    giftTakerClaimRef,
+    (state) => state?.context.error
+  )
+  const error = claimError ?? rootError
 
-  const setData = useCallback(() => {
-    if (payload) {
-      giftTakerRootRef.send({ type: "SET_DATA", params: { payload, giftId } })
-    }
-  }, [giftTakerRootRef, payload, giftId])
-
+  // Send SET_DATA only when payload or giftId changes, not on every render
   useEffect(() => {
-    setData()
-  }, [setData])
+    if (payload) {
+      actorRefRef.current.send({
+        type: "SET_DATA",
+        params: { payload, giftId },
+      })
+    }
+  }, [payload, giftId])
 
   const signerCredentials: SignerCredentials | null =
     userAddress != null && userChainType != null
