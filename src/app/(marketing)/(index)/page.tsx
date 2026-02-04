@@ -105,7 +105,7 @@ export default function IndexPage() {
       </section>
 
       <section className="bg-gray-800 py-16 md:py-24 relative px-4 overflow-hidden">
-        <div className="absolute size-128 rounded-full bg-brand/80 left-1/2 -translate-x-1/2 translate-y-1/4 blur-[150px]" />
+        <div className="absolute size-40 md:size-64 lg:size-128 rounded-full bg-brand/80 left-1/2 max-md:-bottom-36 max-lg:-bottom-48 -translate-x-1/2 lg:translate-y-1/4 blur-[50px] md:blur-[100px] lg:blur-[150px]" />
         <p className="relative text-center text-3xl/9 md:text-4xl/10 font-bold tracking-tight text-white">
           Over 70 assets, <br />
           across 35 networks. <br />
