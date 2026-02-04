@@ -15,13 +15,13 @@ const NetworkOutageNotification: React.FC = () => {
   const systemStatus = useSystemStatus()
 
   // Only show on deposit, send and swap pages
-  // TODO: Remove unused /withdraw (now called /send)
+  // TODO: Remove unused /withdraw (now called /transfer)
   const shouldShowNotification = [
     "/account",
     "/deposit",
     "/withdraw",
     "/swap",
-    "/send",
+    "/transfer",
   ].includes(pathname)
 
   useEffect(() => {

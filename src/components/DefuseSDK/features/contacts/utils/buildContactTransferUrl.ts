@@ -48,5 +48,5 @@ export function buildContactTransferUrl(
     params.set("token", token)
   }
 
-  return `/send?${params.toString()}`
+  return `/transfer?${params.toString()}`
 }

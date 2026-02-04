@@ -45,7 +45,7 @@ export function SendPageClient({
       if (presetNetwork) params.set("network", presetNetwork)
       if (presetRecipient) params.set("recipient", presetRecipient)
       const queryString = params.toString()
-      router.replace(queryString ? `/send?${queryString}` : "/send", {
+      router.replace(queryString ? `/transfer?${queryString}` : "/transfer", {
         scroll: false,
       })
     }

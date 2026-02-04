@@ -59,7 +59,7 @@ export default function AccountPage() {
             Add funds
           </Button>
 
-          <Button href="/send" size="xl">
+          <Button href="/transfer" size="xl">
             <SendIcon className="size-6" />
             Transfer
           </Button>
