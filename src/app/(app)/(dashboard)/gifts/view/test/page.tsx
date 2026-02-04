@@ -5,7 +5,6 @@
 import { GiftClaimedInfo } from "@src/components/DefuseSDK/features/gift/components/GiftClaimedInfo"
 import { clearGiftRevealState } from "@src/components/DefuseSDK/features/gift/components/GiftRevealCard"
 import { GiftTakerInvalidClaim } from "@src/components/DefuseSDK/features/gift/components/GiftTakerInvalidClaim"
-import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useState } from "react"
@@ -45,7 +44,7 @@ export default function GiftTestPage() {
   }
 
   return (
-    <Paper>
+    <>
       <div className="relative w-full">
         <div className="fixed right-5 top-1/2 -translate-y-1/2 flex flex-col gap-1 z-50">
           {TEST_MODES.map((item) => (
@@ -71,7 +70,7 @@ export default function GiftTestPage() {
           onClaim={() => setMode("success")}
         />
       </div>
-    </Paper>
+    </>
   )
 }
 

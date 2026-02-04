@@ -12,12 +12,11 @@ export function GiftsHeader() {
     <>
       <PageHeader
         title="Gifts"
-        intro="Send assets to your friends and help them get started on NEAR Intents, hassle-free.
-"
+        subtitle="Send assets to your friends and help them get started on NEAR Intents, hassle-free."
       />
 
       <TabSwitcher
-        className="mt-5"
+        className="mt-7"
         tabs={[
           {
             label: "My gifts",

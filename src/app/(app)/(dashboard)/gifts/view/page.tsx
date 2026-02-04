@@ -1,7 +1,6 @@
 "use client"
 
 import { GiftTakerWidget } from "@src/components/DefuseSDK/features/gift/components/GiftTakerWidget"
-import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useTokenList } from "@src/hooks/useTokenList"
@@ -15,16 +14,14 @@ export default function ViewGiftPage() {
   const { payload, giftId, error } = useGiftIntent()
 
   return (
-    <Paper>
-      <GiftTakerWidget
-        giftId={giftId}
-        payload={payload}
-        tokenList={tokenList}
-        userAddress={state.isVerified ? state.address : undefined}
-        userChainType={state.chainType}
-        renderHostAppLink={renderAppLink}
-        externalError={error}
-      />
-    </Paper>
+    <GiftTakerWidget
+      giftId={giftId}
+      payload={payload}
+      tokenList={tokenList}
+      userAddress={state.isVerified ? state.address : undefined}
+      userChainType={state.chainType}
+      renderHostAppLink={renderAppLink}
+      externalError={error}
+    />
   )
 }

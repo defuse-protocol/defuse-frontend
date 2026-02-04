@@ -1,19 +1,20 @@
 import { solverRelay } from "@defuse-protocol/internal-utils"
-import { ArrowSquareOutIcon, CheckCircleIcon } from "@phosphor-icons/react"
+import { ArrowTopRightOnSquareIcon } from "@heroicons/react/16/solid"
+import Button from "@src/components/Button"
+import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
 import {
   computeTotalBalanceDifferentDecimals,
   getUnderlyingBaseTokenInfos,
 } from "@src/components/DefuseSDK/utils/tokenUtils"
+import PageHeader from "@src/components/PageHeader"
 import { useQuery } from "@tanstack/react-query"
 import { useEffect } from "react"
 import { CopyButton } from "../../../components/IntentCard/CopyButton"
 import { assert } from "../../../utils/assert"
 import { formatTokenValue } from "../../../utils/format"
+import { midTruncate } from "../../withdraw/components/WithdrawForm/utils"
 import type { GiftInfo } from "../actors/shared/getGiftInfo"
-import { GiftStrip } from "./GiftStrip"
 import { useTokenConfetti } from "./TokenConfetti"
-import { GiftDescription } from "./shared/GiftDescription"
-import { GiftHeader } from "./shared/GiftHeader"
 
 const NEAR_EXPLORER = "https://nearblocks.io"
 
@@ -53,85 +54,58 @@ export function GiftTakerSuccessScreen({
       : null
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <GiftHeader
+    <>
+      <PageHeader
         title="Gift claimed!"
-        icon={
-          <div className="size-16 rounded-full bg-emerald-100 flex items-center justify-center animate-in zoom-in duration-300">
-            <CheckCircleIcon
-              weight="fill"
-              className="size-10 text-emerald-600"
-            />
-          </div>
-        }
-      >
-        <GiftDescription description="The funds are now in your account. Use them for trading or withdraw to your wallet." />
-      </GiftHeader>
+        subtitle="The funds are now in your account. Use them for trading or withdraw to your wallet."
+      />
 
-      <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden">
-        <div className="flex items-center justify-between p-4 border-b border-gray-100">
-          <GiftStrip
-            token={giftInfo.token}
-            amountSlot={
-              <GiftStrip.Amount
-                token={giftInfo.token}
-                amount={amount}
-                className="text-lg font-bold text-gray-900"
-              />
-            }
-          />
-          <div className="text-right">
-            <div className="text-2xl font-bold text-emerald-600">
-              +
-              {formatTokenValue(amount.amount, amount.decimals, {
-                fractionDigits: 6,
-              })}
-            </div>
-            <div className="text-sm text-gray-500">{giftInfo.token.symbol}</div>
+      <div className="p-5 pt-12 flex flex-col items-center justify-center bg-white rounded-3xl border border-gray-200 mt-7 gap-7">
+        <div className="flex flex-col items-center gap-5">
+          <AssetComboIcon {...giftInfo.token} sizeClassName="size-13" />
+          <div className="text-2xl/7 font-bold text-gray-900 tracking-tight">
+            {formatTokenValue(amount.amount, amount.decimals, {
+              fractionDigits: 6,
+            })}{" "}
+            {giftInfo.token.symbol}
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 text-sm p-4 bg-gray-50">
+        <dl className="w-full space-y-2 pt-5 border-t border-gray-200">
           <div className="flex justify-between items-center">
-            <span className="text-gray-500">Intent</span>
-            <div className="flex items-center gap-1.5">
-              {intentHashes.map((intentHash) => (
-                <div
-                  key={intentHash}
-                  className="flex items-center gap-1 text-gray-900 font-medium"
-                >
-                  <span className="font-mono">{truncateHash(intentHash)}</span>
-                  <CopyButton text={intentHash} ariaLabel="Copy intent hash" />
-                </div>
-              ))}
-            </div>
+            <dt className="text-sm font-medium text-gray-500">Intent</dt>
+            <dd className="text-gray-900 font-semibold text-sm flex items-center gap-1">
+              {midTruncate(intentHashes[0])}
+              <CopyButton text={intentHashes[0]} ariaLabel="Copy intent hash" />
+            </dd>
           </div>
-          {txUrl != null && intentStatus.data?.txHash && (
-            <div className="flex justify-between items-center">
-              <span className="text-gray-500">Transaction</span>
-              <div className="flex items-center gap-1.5">
-                <a
-                  href={txUrl}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  className="font-mono text-blue-600 hover:text-blue-800 transition-colors duration-200 flex items-center gap-1"
-                >
-                  {truncateHash(intentStatus.data.txHash)}
-                  <ArrowSquareOutIcon className="size-3.5" />
-                </a>
-                <CopyButton
-                  text={intentStatus.data.txHash}
-                  ariaLabel="Copy transaction hash"
-                />
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
 
-function truncateHash(hash: string) {
-  return `${hash.slice(0, 5)}...${hash.slice(-5)}`
+          <div className="flex justify-between items-center">
+            <dt className="text-sm font-medium text-gray-500">Transaction</dt>
+            <dd className="text-gray-900 font-semibold text-sm">
+              <a
+                href={txUrl ?? ""}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 hover:underline group"
+              >
+                {midTruncate(intentStatus.data?.txHash ?? "")}
+                <ArrowTopRightOnSquareIcon className="size-4 text-gray-400 group-hover:text-gray-700" />
+              </a>
+            </dd>
+          </div>
+        </dl>
+
+        <Button
+          href="/account"
+          type="button"
+          size="xl"
+          variant="primary"
+          fullWidth
+        >
+          Go to account
+        </Button>
+      </div>
+    </>
+  )
 }

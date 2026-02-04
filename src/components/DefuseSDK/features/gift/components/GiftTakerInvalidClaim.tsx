@@ -1,6 +1,5 @@
-import { GiftIcon, WarningCircleIcon, XCircleIcon } from "@phosphor-icons/react"
-import { GiftDescription } from "./shared/GiftDescription"
-import { GiftHeader } from "./shared/GiftHeader"
+import { XMarkIcon } from "@heroicons/react/20/solid"
+import Alert from "@src/components/Alert"
 
 type ErrorType = "claimed" | "invalid" | "unknown"
 
@@ -15,12 +14,7 @@ function getErrorConfig(errorType: ErrorType) {
   switch (errorType) {
     case "claimed":
       return {
-        title: "Gift Unavailable",
-        icon: (
-          <div className="size-16 rounded-full bg-gray-100 flex items-center justify-center">
-            <GiftIcon weight="fill" className="size-8 text-gray-500" />
-          </div>
-        ),
+        title: "Gift unavailable",
         descriptions: [
           "This gift is no longer available.",
           "It may have been claimed or cancelled by the sender.",
@@ -28,12 +22,7 @@ function getErrorConfig(errorType: ErrorType) {
       }
     case "invalid":
       return {
-        title: "Invalid Gift Link",
-        icon: (
-          <div className="size-16 rounded-full bg-red-100 flex items-center justify-center">
-            <XCircleIcon weight="fill" className="size-8 text-red-600" />
-          </div>
-        ),
+        title: "Invalid gift link",
         descriptions: [
           "This gift link is invalid or has been corrupted.",
           "Double-check the link or ask the sender to share it again.",
@@ -41,12 +30,7 @@ function getErrorConfig(errorType: ErrorType) {
       }
     default:
       return {
-        title: "Something Went Wrong",
-        icon: (
-          <div className="size-16 rounded-full bg-red-100 flex items-center justify-center">
-            <WarningCircleIcon weight="fill" className="size-8 text-red-600" />
-          </div>
-        ),
+        title: "Something went wrong",
         descriptions: [
           "We couldn't process this gift right now.",
           "Please try again later or contact support if the issue persists.",
@@ -64,18 +48,31 @@ export function GiftTakerInvalidClaim({ error }: GiftTakerInvalidClaimProps) {
   const config = getErrorConfig(errorType)
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-      <GiftHeader title={config.title} icon={config.icon}>
-        {config.descriptions.map((desc) => (
-          <GiftDescription key={desc} description={desc} />
-        ))}
-      </GiftHeader>
+    <div className="relative overflow-hidden p-5 pt-12 flex flex-col items-center justify-center bg-white rounded-3xl border border-gray-200 mt-7">
+      <div className="absolute top-0 inset-x-0 h-32 bg-linear-to-b from-red-50 to-red-50/0" />
 
-      {errorType === "unknown" && (
-        <div className="mt-4 rounded-xl bg-red-50 border border-red-100 p-4">
-          <div className="text-sm text-red-700 font-medium">Error details</div>
-          <div className="text-sm text-red-600 mt-1 font-mono">{error}</div>
+      <div className="relative flex flex-col items-center justify-center">
+        <div className="flex items-center justify-center rounded-full bg-red-100 size-13 shrink-0">
+          <XMarkIcon className="size-6 text-red-600" />
         </div>
+        <h1 className="mt-5 text-2xl/7 font-bold text-gray-900 tracking-tight">
+          {config.title}
+        </h1>
+        <div className="mt-4">
+          {config.descriptions.map((description) => (
+            <p
+              key={description}
+              className="text-gray-500 text-sm font-medium text-center mt-1"
+            >
+              {description}
+            </p>
+          ))}
+        </div>
+      </div>
+      {errorType === "unknown" && (
+        <Alert variant="error" className="mt-5">
+          {error}
+        </Alert>
       )}
     </div>
   )

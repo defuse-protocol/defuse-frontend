@@ -2,7 +2,6 @@
 
 import { authIdentity } from "@defuse-protocol/internal-utils"
 import { TokenListUpdater } from "@src/components/DefuseSDK/components/TokenListUpdater"
-import { WidgetRoot } from "@src/components/DefuseSDK/components/WidgetRoot"
 import type { SignerCredentials } from "@src/components/DefuseSDK/core/formatters"
 import { GiftsHeader } from "@src/components/DefuseSDK/features/gift/components/GiftsHeader"
 import { GiftHistory } from "@src/components/DefuseSDK/features/gift/components/shared/GiftHistory"
@@ -42,7 +41,7 @@ export default function GiftCardPage() {
   })
 
   return (
-    <WidgetRoot>
+    <>
       <SwapWidgetProvider>
         <TokenListUpdater tokenList={tokenList} />
 
@@ -55,6 +54,6 @@ export default function GiftCardPage() {
           gifts={gifts}
         />
       </SwapWidgetProvider>
-    </WidgetRoot>
+    </>
   )
 }

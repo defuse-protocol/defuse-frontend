@@ -1,10 +1,8 @@
 "use client"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
-import { GiftIcon } from "@phosphor-icons/react"
 import { useActorRef, useSelector } from "@xstate/react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import type { ActorRefFrom } from "xstate"
-import { WidgetRoot } from "../../../components/WidgetRoot"
 import type { SignerCredentials } from "../../../core/formatters"
 import { SwapWidgetProvider } from "../../../providers/SwapWidgetProvider"
 import type { TokenInfo } from "../../../types/base"
@@ -29,44 +27,31 @@ export type GiftTakerWidgetProps = {
 
 export function GiftTakerWidget(props: GiftTakerWidgetProps) {
   return (
-    <WidgetRoot>
-      <SwapWidgetProvider>
-        <GiftTakerScreens {...props} />
-      </SwapWidgetProvider>
-    </WidgetRoot>
+    <SwapWidgetProvider>
+      <GiftTakerScreens {...props} />
+    </SwapWidgetProvider>
   )
 }
 
 export function GiftTakerLoadingSkeleton() {
   return (
-    <div className="animate-in fade-in duration-300">
-      <div className="flex items-start justify-between gap-5 mb-6">
-        <div className="flex flex-col gap-3">
-          <div className="h-7 w-56 bg-gray-200 rounded-lg animate-pulse" />
-          <div className="h-5 w-72 bg-gray-100 rounded animate-pulse" />
-        </div>
-        <div className="shrink-0 size-16 rounded-full bg-gray-200 animate-pulse flex items-center justify-center">
-          <GiftIcon weight="fill" className="size-8 text-gray-300" />
-        </div>
+    <>
+      <div className="h-7 flex items-center w-full max-w-48">
+        <div className="rounded-sm bg-gray-200 animate-pulse w-full h-5" />
+      </div>
+      <div className="mt-1 h-5 flex items-center w-full max-w-82">
+        <div className="rounded-sm bg-gray-200 animate-pulse w-full h-3.5" />
       </div>
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5 pr-2.5">
-            <div className="size-10 rounded-full bg-gray-200 animate-pulse" />
-            <div className="h-5 w-28 bg-gray-200 rounded animate-pulse" />
-          </div>
-          <div className="text-right">
-            <div className="h-7 w-20 bg-gray-200 rounded animate-pulse" />
-            <div className="h-4 w-12 bg-gray-100 rounded animate-pulse mt-1" />
-          </div>
+      <div className="mt-7 rounded-3xl border border-gray-200 bg-white p-5 pt-12 flex flex-col items-center">
+        <div className="size-13 rounded-full bg-gray-200 animate-pulse" />
+        <div className="mt-5 h-7 flex items-center w-full max-w-32">
+          <div className="rounded-sm bg-gray-200 animate-pulse w-full h-6" />
         </div>
-      </div>
 
-      <div className="mt-6">
-        <div className="h-13 w-full bg-gray-200 rounded-2xl animate-pulse" />
+        <div className="w-full bg-gray-200 h-13 mt-7 rounded-2xl" />
       </div>
-    </div>
+    </>
   )
 }
 
@@ -160,18 +145,16 @@ function GiftTakerScreens({
   }
 
   return (
-    <div style={{ perspective: "1000px" }}>
-      <GiftRevealCard key={resetKey} giftId={giftId ?? "unknown"}>
-        <GiftTakerForm
-          giftId={giftId ?? "unknown"}
-          giftInfo={giftInfo}
-          signerCredentials={signerCredentials}
-          giftTakerRootRef={giftTakerRootRef}
-          intentHashes={intentHashes}
-          renderHostAppLink={renderHostAppLink}
-          onReset={() => setResetKey((k) => k + 1)}
-        />
-      </GiftRevealCard>
-    </div>
+    <GiftRevealCard key={resetKey} giftId={giftId ?? "unknown"}>
+      <GiftTakerForm
+        giftId={giftId ?? "unknown"}
+        giftInfo={giftInfo}
+        signerCredentials={signerCredentials}
+        giftTakerRootRef={giftTakerRootRef}
+        intentHashes={intentHashes}
+        renderHostAppLink={renderHostAppLink}
+        onReset={() => setResetKey((k) => k + 1)}
+      />
+    </GiftRevealCard>
   )
 }
