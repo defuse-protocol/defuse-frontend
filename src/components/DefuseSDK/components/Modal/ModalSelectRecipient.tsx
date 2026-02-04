@@ -359,7 +359,7 @@ const ModalSelectRecipient = ({
         onSuccess={(contact) => {
           clearErrors()
           const chainKey = reverseAssetNetworkAdapter[contact.blockchain]
-          onRecipientContactChange(null)
+          onRecipientContactChange(contact.name)
           setValue("blockchain", chainKey, {
             shouldValidate: true,
             shouldDirty: true,

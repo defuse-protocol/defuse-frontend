@@ -38,7 +38,11 @@ type ModalContactProps = {
   open: boolean
   contact?: Contact | null
   defaultValues?: Partial<FormData>
-  onSuccess?: (contact: { address: string; blockchain: BlockchainEnum }) => void
+  onSuccess?: (contact: {
+    name: string
+    address: string
+    blockchain: BlockchainEnum
+  }) => void
   onClose: () => void
   onCloseAnimationEnd?: () => void
 }
@@ -168,7 +172,11 @@ const ModalAddEditContact = ({
         }
       }
 
-      onSuccess?.({ address: data.address, blockchain: data.blockchain })
+      onSuccess?.({
+        name: data.name,
+        address: data.address,
+        blockchain: data.blockchain,
+      })
       onClose()
     } catch (error) {
       setSubmitError(
