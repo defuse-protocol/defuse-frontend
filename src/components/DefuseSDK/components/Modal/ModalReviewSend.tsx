@@ -114,7 +114,7 @@ const ModalReviewSend = ({
           className={`flex justify-between gap-2 ${recipientContactName ? "items-start" : "items-center"}`}
         >
           <dt className="text-sm text-gray-500 font-medium truncate">
-            Recipient
+            {recipientContactName ? "Recipient is your contact" : "Recipient"}
           </dt>
           <dd className="text-sm font-semibold text-gray-900 text-right">
             {recipientContactName ? (
