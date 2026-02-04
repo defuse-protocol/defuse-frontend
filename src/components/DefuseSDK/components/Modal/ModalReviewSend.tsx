@@ -121,7 +121,7 @@ const ModalReviewSend = ({
                   <span>{recipientContactName}</span>
                   <ContactsIcon className="size-4 text-gray-500 shrink-0" />
                 </div>
-                <span className="text-xs text-gray-500 font-medium text-right">
+                <span className="block w-full text-xs text-gray-500 font-medium text-right">
                   {midTruncate(recipient, 16)}
                 </span>
               </div>
