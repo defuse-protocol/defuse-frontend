@@ -2769,6 +2769,23 @@
         }
       ],
       "tags": ["mc:1028"]
+    },
+    {
+      "defuseAssetId": "nep141:sol-0xaad74c68eecfc9f8c5bdcea614f6167048c795ef.omdep.near",
+      "symbol": "PENGU",
+      "name": "Pudgy Penguins",
+      "decimals": 6,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/34466.png",
+      "originChainName": "solana",
+      "deployments": [
+        {
+          "address": "2zMMhcVQEXDtdE6vsFS7S7D5oUodfJHE8vd1gnBouauv",
+          "decimals": 6,
+          "chainName": "solana",
+          "bridge": "near_omni"
+        }
+      ],
+      "tags": ["mc:85"]
     }
   ]
 }
