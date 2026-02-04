@@ -2,17 +2,20 @@
 
 import {
   ArrowRightStartOnRectangleIcon,
+  CheckCircleIcon,
   CheckIcon,
   ChevronUpIcon,
   Cog8ToothIcon,
   DocumentDuplicateIcon,
 } from "@heroicons/react/16/solid"
+import { InformationCircleIcon } from "@heroicons/react/24/outline"
 import { UserIcon } from "@heroicons/react/24/solid"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
-import clsx from "clsx"
 import Link from "next/link"
-import { AlertDialog, DropdownMenu } from "radix-ui"
+import { DropdownMenu } from "radix-ui"
 import { useState } from "react"
+import AlertDialog from "./AlertDialog"
+import Button from "./Button"
 import { midTruncate } from "./DefuseSDK/features/withdraw/components/WithdrawForm/utils"
 
 const COPY_ADDRESS_WARNING_ACK_KEY = "defuse.copyAddressWarning.ack"
@@ -81,10 +84,8 @@ const UserMenu = () => {
           <DropdownMenu.Content
             align="start"
             sideOffset={8}
-            className={clsx(
-              "min-w-66 flex flex-col gap-1 rounded-2xl p-1.5 isolate bg-white outline outline-transparent focus:outline-hidden shadow-[0_-10px_15px_-3px_rgb(0_0_0/0.1),0_-4px_6px_-4px_rgb(0_0_0/0.1)] ring-1 ring-gray-900/10",
-              "data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:duration-100 data-[state=closed]:ease-in"
-            )}
+            className="min-w-66 flex flex-col gap-1 rounded-2xl p-1.5 isolate bg-white outline outline-transparent focus:outline-hidden shadow-[0_-10px_15px_-3px_rgb(0_0_0/0.1),0_-4px_6px_-4px_rgb(0_0_0/0.1)] ring-1 ring-gray-900/10 data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:duration-100 data-[state=closed]:ease-in"
+            onCloseAutoFocus={(e) => e.preventDefault()}
           >
             {items.map(({ href, onClick, icon: Icon, label }) => {
               const className =
@@ -132,81 +133,67 @@ const UserMenu = () => {
         </DropdownMenu.Portal>
       </DropdownMenu.Root>
 
-      <AlertDialog.Root
-        open={isCopyWarningOpen}
-        onOpenChange={setIsCopyWarningOpen}
-      >
-        <AlertDialog.Portal>
-          <AlertDialog.Overlay
-            className={clsx(
-              "fixed inset-0 bg-gray-900/80 z-50",
-              "data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:duration-300 data-[state=open]:ease-out",
-              "data-[state=closed]:animate-out data-[state=closed]:duration-200 data-[state=closed]:ease-in data-[state=closed]:fade-out"
-            )}
-          />
-
-          <div className="fixed inset-0 z-50 w-screen overflow-y-auto">
-            <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-start sm:p-0 lg:pl-74 sm:pt-[10vh]">
-              <AlertDialog.Content
-                className={clsx(
-                  "relative w-full max-w-sm transform overflow-hidden rounded-3xl bg-white p-5 text-left shadow-xl",
-                  "data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-2 fade-in data-[state=open]:ease-out data-[state=open]:duration-200 data-[state=open]:zoom-in-97",
-                  "data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom-2 fade-out data-[state=closed]:ease-in data-[state=closed]:duration-1000 data-[state=closed]:zoom-in-97"
-                )}
-              >
-                <AlertDialog.Title className="text-xl/7 font-bold tracking-tight text-gray-900">
-                  Before you copy this address
-                </AlertDialog.Title>
-
-                <ul className="mt-3 list-disc pl-5 space-y-2 text-sm text-gray-600 font-medium">
-                  <li>This is your NEAR Intents internal address.</li>
-                  <li>
-                    Use it only for transfers between NEAR Intents accounts.
-                  </li>
-                  <li>Funds sent here from external wallets will be lost.</li>
-                </ul>
-
-                <label className="mt-4 flex items-center gap-2 text-sm text-gray-700 font-medium">
-                  <input
-                    type="checkbox"
-                    checked={skipCopyWarning}
-                    onChange={(e) => setSkipCopyWarning(e.target.checked)}
-                    className="size-4 rounded border-gray-300 text-gray-900 focus:ring-gray-400"
-                  />
-                  Don't show again on this device
-                </label>
-
-                <div className="mt-5 flex flex-col gap-2">
-                  <AlertDialog.Action asChild>
-                    <button
-                      type="button"
-                      className="rounded-xl bg-gray-900 px-4 py-3 text-sm font-semibold text-white hover:bg-gray-950 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-gray-400"
-                      onClick={() => {
-                        localStorage.setItem(
-                          COPY_ADDRESS_WARNING_ACK_KEY,
-                          String(skipCopyWarning)
-                        )
-                        handleCopyAddress()
-                        setIsCopyWarningOpen(false)
-                      }}
-                    >
-                      I understand, copy address
-                    </button>
-                  </AlertDialog.Action>
-                  <AlertDialog.Cancel asChild>
-                    <button
-                      type="button"
-                      className="rounded-xl bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-200 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-gray-300"
-                    >
-                      Cancel
-                    </button>
-                  </AlertDialog.Cancel>
-                </div>
-              </AlertDialog.Content>
-            </div>
+      <AlertDialog open={isCopyWarningOpen}>
+        <div className="flex flex-col items-center mt-4">
+          <div className="bg-gray-100 size-13 rounded-full flex justify-center items-center">
+            <InformationCircleIcon className="size-6 text-gray-500" />
           </div>
-        </AlertDialog.Portal>
-      </AlertDialog.Root>
+          <AlertDialog.Title className="mt-5">
+            Before you copy this address
+          </AlertDialog.Title>
+          <AlertDialog.Description className="mt-2">
+            description
+          </AlertDialog.Description>
+        </div>
+
+        <ul className="bg-gray-50 rounded-3xl p-5 mt-5 space-y-3">
+          {[
+            "This is your NEAR Intents internal address",
+            "Use it only for transfers between NEAR Intents accounts",
+            "Funds sent here from external wallets will be lost",
+          ].map((text) => (
+            <li key={text} className="flex items-start gap-1.5">
+              <CheckCircleIcon className="size-4 text-gray-600 shrink-0 mt-0.5" />
+              <span className="text-sm text-gray-600 font-medium">{text}</span>
+            </li>
+          ))}
+        </ul>
+
+        <label className="bg-gray-50 rounded-3xl p-5 mt-2 flex items-center gap-2 text-sm text-gray-600 font-medium">
+          <input
+            type="checkbox"
+            checked={skipCopyWarning}
+            onChange={(e) => setSkipCopyWarning(e.target.checked)}
+            className="text-gray-600 size-4 rounded bg-white border-gray-300 checked:bg-gray-600 checked:border-gray-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 ring-0 ring-transparent ring-offset-gray-50"
+          />
+          Don't show again on this device
+        </label>
+        <div className="mt-5 flex flex-col gap-2">
+          <Button
+            size="xl"
+            fullWidth
+            onClick={() => {
+              localStorage.setItem(
+                COPY_ADDRESS_WARNING_ACK_KEY,
+                String(skipCopyWarning)
+              )
+              handleCopyAddress()
+              setIsCopyWarningOpen(false)
+            }}
+          >
+            I understand, copy address
+          </Button>
+
+          <Button
+            size="xl"
+            variant="secondary"
+            fullWidth
+            onClick={() => setIsCopyWarningOpen(false)}
+          >
+            Cancel
+          </Button>
+        </div>
+      </AlertDialog>
     </>
   )
 }
