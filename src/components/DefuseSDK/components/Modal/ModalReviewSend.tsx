@@ -1,5 +1,6 @@
 import Button from "@src/components/Button"
 import { CopyButton } from "@src/components/DefuseSDK/components/IntentCard/CopyButton"
+import TooltipNew from "@src/components/DefuseSDK/components/TooltipNew"
 import { ContactsIcon } from "@src/icons"
 import { useMemo } from "react"
 import {
@@ -121,21 +122,28 @@ const ModalReviewSend = ({
             {recipientContactName ? (
               <div className="flex flex-col items-end">
                 <div className="flex items-start gap-1">
-                  <div className="relative group flex flex-col items-end">
-                    <span>{recipientContactName}</span>
-                    <span className="text-xs text-gray-500 font-medium text-right">
-                      {midTruncate(recipient, 16)}
-                    </span>
-                    <div className="absolute right-0 top-full mt-1 z-20 min-w-56 rounded-xl border border-gray-200 bg-white shadow-lg p-2 flex items-center gap-2 opacity-0 invisible transition-opacity group-hover:opacity-100 group-hover:visible">
-                      <span className="text-xs text-gray-700 font-medium break-all text-left">
+                  <TooltipNew>
+                    <TooltipNew.Trigger>
+                      <div className="flex flex-col items-end cursor-help">
+                        <span>{recipientContactName}</span>
+                        <span className="text-xs text-gray-500 font-medium text-right">
+                          {midTruncate(recipient, 16)}
+                        </span>
+                      </div>
+                    </TooltipNew.Trigger>
+                    <TooltipNew.Content
+                      side="top"
+                      className="max-w-80 px-3 py-2 flex items-center gap-2"
+                    >
+                      <span className="text-xs font-medium break-all text-left">
                         {recipient}
                       </span>
                       <CopyButton
                         text={recipient}
                         ariaLabel="Copy recipient address"
                       />
-                    </div>
-                  </div>
+                    </TooltipNew.Content>
+                  </TooltipNew>
                   <ContactsIcon className="mt-0.5 size-4 text-gray-500 shrink-0" />
                 </div>
               </div>
