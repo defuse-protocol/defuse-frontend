@@ -8,6 +8,7 @@ import queryClient from "@src/constants/queryClient"
 import { WebAuthnProvider } from "@src/features/webauthn/providers/WebAuthnProvider"
 import { initSDK } from "@src/libs/defuse-sdk/initSDK"
 import ActivityDockProvider from "@src/providers/ActivityDockProvider"
+import { AuthCookieSync } from "@src/providers/AuthCookieSync"
 import { MixpanelProvider } from "@src/providers/MixpanelProvider"
 import { NearWalletProvider } from "@src/providers/NearWalletProvider"
 import { SolanaWalletProvider } from "@src/providers/SolanaWalletProvider"
@@ -54,6 +55,7 @@ const AppRootLayout = async ({
                                   <PreloadFeatureFlags>
                                     <SplashScreen>{children}</SplashScreen>
                                   </PreloadFeatureFlags>
+                                  <AuthCookieSync />
                                   <WalletVerificationProvider />
                                 </MixpanelProvider>
                               </WebAuthnProvider>

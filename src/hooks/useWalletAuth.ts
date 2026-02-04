@@ -1,7 +1,7 @@
-import { setActiveWalletToken, validateTokenForWallet } from "@src/actions/auth"
+import { validateTokenForWallet } from "@src/actions/auth"
 import { useWalletTokensStore } from "@src/stores/useWalletTokensStore"
 import { useQuery } from "@tanstack/react-query"
-import { useCallback, useEffect } from "react"
+import { useCallback } from "react"
 
 export interface UseWalletAuthResult {
   isAuthorized: boolean
@@ -9,10 +9,12 @@ export interface UseWalletAuthResult {
 }
 
 /**
- * Hook that manages wallet authentication state including token validation
- * and cookie synchronization. Determines if a wallet is authorized based on:
+ * Hook that manages wallet authentication state including token validation.
+ * Determines if a wallet is authorized based on:
  * - Valid JWT token (with server-side validation)
  * - Optimistic authorization during token validation
+ *
+ * Cookie sync for the active wallet is done once in AuthCookieSync (see layout).
  */
 export function useWalletAuth(
   address: string | undefined,
@@ -65,14 +67,6 @@ export function useWalletAuth(
   const isSessionExpired =
     tokenValidation.data?.valid === false &&
     tokenValidation.data?.reason !== undefined
-
-  useEffect(() => {
-    if (address && storedToken) {
-      ;(async () => {
-        await setActiveWalletToken(storedToken)
-      })()
-    }
-  }, [address, storedToken])
 
   return {
     isAuthorized,
