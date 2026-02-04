@@ -23,22 +23,20 @@ export default async function SendPage({
   let shouldUpdateUrl = false
 
   if (contactId) {
+    shouldUpdateUrl = true
     const result = await getContactByIdAction({ contactId })
-    if (result.ok && result.value) {
-      resolvedNetwork = reverseAssetNetworkAdapter[result.value.blockchain]
-      resolvedRecipient = result.value.address
-    } else {
-      const reason = !result.ok
-        ? result.error
-        : "contact not found or unsupported chain"
+
+    if (!result.ok || !result.value) {
       logger.warn("Send page: could not resolve contactId", {
         contactId,
-        reason,
+        reason: !result.ok
+          ? result.error
+          : "contact not found or unsupported chain",
       })
-      // biome-ignore lint/suspicious/noConsole: intentional console report when contact fetch fails
-      console.warn("[send] Could not resolve contactId", { contactId, reason })
+    } else {
+      resolvedNetwork = reverseAssetNetworkAdapter[result.value.blockchain]
+      resolvedRecipient = result.value.address
     }
-    shouldUpdateUrl = true
   }
 
   return (
