@@ -21,7 +21,7 @@ import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
 import { useWithdrawTrackerMachine } from "@src/providers/WithdrawTrackerMachineProvider"
 import { logger } from "@src/utils/logger"
 import { useSelector } from "@xstate/react"
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import { formatUnits } from "viem"
 import { AuthGate } from "../../../../components/AuthGate"
@@ -186,6 +186,9 @@ export const WithdrawForm = ({
     setValue,
     getValues,
   } = form
+  const [recipientContactName, setRecipientContactName] = useState<
+    string | null
+  >(null)
 
   const minWithdrawalPOABridgeAmount = useSelector(
     poaBridgeInfoRef,
@@ -336,18 +339,6 @@ export const WithdrawForm = ({
     token,
     tokensUsdPriceData
   )
-  const receivedAmountUsd = totalAmountReceived?.amount
-    ? getTokenUsdPrice(
-        formatTokenValue(
-          directionFee?.amount
-            ? subtractAmounts(totalAmountReceived, directionFee).amount
-            : totalAmountReceived.amount,
-          totalAmountReceived.decimals
-        ),
-        tokenOut,
-        tokensUsdPriceData
-      )
-    : null
   const feeUsd = withdtrawalFee
     ? getTokenUsdPrice(
         formatTokenValue(withdtrawalFee.amount, withdtrawalFee.decimals),
@@ -464,6 +455,7 @@ export const WithdrawForm = ({
               userAddress={userAddress}
               displayAddress={displayAddress}
               tokenInBalance={tokenInBalance}
+              onRecipientContactChange={setRecipientContactName}
             />
 
             <SelectedTokenInput
@@ -604,8 +596,8 @@ export const WithdrawForm = ({
         fee={withdtrawalFee}
         totalAmountReceived={totalAmountReceived}
         feeUsd={feeUsd}
-        totalAmountReceivedUsd={receivedAmountUsd}
         directionFee={directionFee}
+        recipientContactName={recipientContactName}
       />
     </>
   )
