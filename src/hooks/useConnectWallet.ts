@@ -6,7 +6,7 @@ import {
   useWallet as useSolanaWallet,
 } from "@solana/wallet-adapter-react"
 import { useWalletModal } from "@solana/wallet-adapter-react-ui"
-import { clearActiveWalletToken } from "@src/actions/auth"
+import { clearActiveWallet } from "@src/actions/auth"
 import { BaseError } from "@src/components/DefuseSDK/errors/base"
 import type {
   SendTransactionStellarParams,
@@ -67,6 +67,7 @@ export type State = {
   address?: string
   displayAddress?: string
   isAuthorized: boolean
+  isAuthValidating: boolean // true while server-side token validation is in progress
   isSessionExpired: boolean // true when token existed but validation failed
   isFake: boolean // in most cases, this is used for testing purposes only
 }
@@ -96,6 +97,7 @@ const defaultState: State = {
   address: undefined,
   displayAddress: undefined,
   isAuthorized: false,
+  isAuthValidating: false,
   isSessionExpired: false,
   isFake: false,
 }
@@ -116,6 +118,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
       network: "near:mainnet",
       chainType: ChainType.Near,
       isAuthorized: false,
+      isAuthValidating: false,
       isSessionExpired: false,
       isFake: false,
     }
@@ -165,6 +168,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
         : "unknown",
       chainType: ChainType.EVM,
       isAuthorized: false,
+      isAuthValidating: false,
       isSessionExpired: false,
       isFake: false,
     }
@@ -202,6 +206,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
       network: "sol:mainnet",
       chainType: ChainType.Solana,
       isAuthorized: false,
+      isAuthValidating: false,
       isSessionExpired: false,
       isFake: false,
     }
@@ -221,6 +226,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
       displayAddress: currentPasskey.publicKey,
       chainType: ChainType.WebAuthn,
       isAuthorized: false,
+      isAuthValidating: false,
       isSessionExpired: false,
       isFake: false,
     }
@@ -241,6 +247,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
       network: "ton",
       chainType: ChainType.Ton,
       isAuthorized: false,
+      isAuthValidating: false,
       isSessionExpired: false,
       isFake: false,
     }
@@ -272,6 +279,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
       network: "stellar:mainnet",
       chainType: ChainType.Stellar,
       isAuthorized: false,
+      isAuthValidating: false,
       isSessionExpired: false,
       isFake: false,
     }
@@ -298,19 +306,21 @@ export const useConnectWallet = (): ConnectWalletAction => {
       network: "tron:mainnet",
       chainType: ChainType.Tron,
       isAuthorized: false,
+      isAuthValidating: false,
       isSessionExpired: false,
       isFake: false,
     }
   }
 
-  // Determine wallet authorization status via token validation and legacy store.
+  // Determine wallet authorization status via token validation.
   // isAuthorized is part of the wallet state interface used across the app.
-  const { isAuthorized, isSessionExpired } = useWalletAuth(
+  const { isAuthorized, isSessionExpired, isValidating } = useWalletAuth(
     state.address,
     state.chainType
   )
 
   state.isAuthorized = isAuthorized
+  state.isAuthValidating = isValidating
   state.isSessionExpired = isSessionExpired
 
   const impersonatedUser = useImpersonatedUser()
@@ -366,9 +376,8 @@ export const useConnectWallet = (): ConnectWalletAction => {
           [ChainType.Tron]: () => handleSignOutViaTron(),
         }
 
-        // Clear active cookie but preserve per-wallet tokens in localStorage
-        // Tokens remain in useWalletTokensStore for future reconnection
-        await clearActiveWalletToken()
+        // Clear active wallet cookie only - preserve auth token for reconnection
+        await clearActiveWallet()
 
         onSignOut()
         return strategies[params.id]()
@@ -473,6 +482,7 @@ function useImpersonatedUser() {
     chainType: user.slice(0, index) as ChainType,
     address: user.slice(index + 1),
     isAuthorized: true,
+    isAuthValidating: false,
     isSessionExpired: false,
     isFake: true,
   }

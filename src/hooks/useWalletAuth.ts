@@ -1,75 +1,46 @@
 import { validateTokenForWallet } from "@src/actions/auth"
-import { useWalletTokensStore } from "@src/stores/useWalletTokensStore"
 import { useQuery } from "@tanstack/react-query"
-import { useCallback } from "react"
 
 export interface UseWalletAuthResult {
   isAuthorized: boolean
   isSessionExpired: boolean
+  isValidating: boolean
 }
 
 /**
- * Hook that manages wallet authentication state including token validation.
- * Determines if a wallet is authorized based on:
- * - Valid JWT token (with server-side validation)
- * - Optimistic authorization during token validation
- *
- * Cookie sync for the active wallet is done once in AuthCookieSync (see layout).
+ * Hook that manages wallet authentication state via server-side JWT validation.
+ * The JWT is stored in an httpOnly cookie and validated server-side.
  */
 export function useWalletAuth(
   address: string | undefined,
   chainType: string | undefined
 ): UseWalletAuthResult {
-  const storedToken = useWalletTokensStore(
-    useCallback(
-      (store) => (address != null ? store.getToken(address) : null),
-      [address]
-    )
-  )
-
-  const hasHydrated = useWalletTokensStore((store) => store._hasHydrated)
-
   const tokenValidation = useQuery({
-    queryKey: ["token_validation", address, chainType, storedToken],
+    queryKey: ["token_validation", address, chainType],
     queryFn: async () => {
-      if (!address || !chainType || !storedToken) {
+      if (!address || !chainType) {
         return { valid: false }
       }
 
-      const result = await validateTokenForWallet(
-        storedToken,
-        address,
-        chainType
-      )
-
-      if (!result.valid) {
-        useWalletTokensStore.getState().removeToken(address)
-      }
-
-      return result
+      // Server-side validation reads from httpOnly cookie
+      return validateTokenForWallet(address, chainType)
     },
-    enabled:
-      hasHydrated &&
-      address != null &&
-      chainType != null &&
-      storedToken != null,
+    enabled: address != null && chainType != null,
     staleTime: 30_000,
     retry: false,
   })
 
-  const isTokenValidating =
-    !hasHydrated || (storedToken != null && tokenValidation.isPending)
-
-  const isAuthorized =
-    tokenValidation.data?.valid === true ||
-    (isTokenValidating && storedToken != null)
+  const isAuthorized = tokenValidation.data?.valid === true
+  const isValidating = tokenValidation.isPending
 
   const isSessionExpired =
     tokenValidation.data?.valid === false &&
-    tokenValidation.data?.reason !== undefined
+    tokenValidation.data?.reason !== undefined &&
+    tokenValidation.data?.reason !== "no_token"
 
   return {
     isAuthorized,
     isSessionExpired,
+    isValidating,
   }
 }

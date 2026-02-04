@@ -20,7 +20,6 @@ import { useSwapHistory } from "@src/features/balance-history/lib/useBalanceHist
 import type { SwapTransaction } from "@src/features/balance-history/types"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useTokenList } from "@src/hooks/useTokenList"
-import { useWalletTokensStore } from "@src/stores/useWalletTokensStore"
 import clsx from "clsx"
 import { useRouter } from "next/navigation"
 import {
@@ -69,7 +68,6 @@ export default function HistoryPage({
   const router = useRouter()
   const { state, isLoading: isWalletConnecting } = useConnectWallet()
   const tokenList = useTokenList(LIST_TOKENS)
-  const hasHydrated = useWalletTokensStore((s) => s._hasHydrated)
 
   const [hadPreviousSession, setHadPreviousSession] = useState(true)
   useEffect(() => {
@@ -79,7 +77,6 @@ export default function HistoryPage({
   const userAddress = state.isAuthorized ? state.address : null
   const isWaitingForReconnect = hadPreviousSession && !state.address
   const isWalletHydrating =
-    !hasHydrated ||
     isWalletConnecting ||
     isWaitingForReconnect ||
     Boolean(state.address && !state.isAuthorized)

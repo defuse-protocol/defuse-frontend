@@ -15,16 +15,54 @@ import { logger } from "@src/utils/logger"
 import type { CodeResult } from "near-api-js/lib/providers/provider"
 import { cookies } from "next/headers"
 
-const AUTH_TOKEN_COOKIE_NAME = "defuse_auth_token"
+const AUTH_TOKEN_COOKIE_PREFIX = "defuse_auth_"
+const ACTIVE_WALLET_COOKIE_NAME = "defuse_active_wallet"
 const COOKIE_MAX_AGE_SECONDS = JWT_EXPIRY_SECONDS
 
 /**
- * Set the active wallet token in an httpOnly cookie
+ * Generates a deterministic cookie key for a given wallet address.
+ *
+ * Pattern: defuse_auth_{first 16 chars of SHA-256(address)}
+ * Example: defuse_auth_306fbbbb32986e10
+ *
+ * Why we hash the address:
+ * - Each wallet gets a unique cookie, enabling multi-wallet sessions
+ * - The wallet address isn't exposed in the cookie name (privacy)
+ * - Deterministic: same address always produces the same key
+ * - 16 hex chars (64 bits) provides sufficient uniqueness while keeping keys short
  */
-export async function setActiveWalletToken(token: string): Promise<void> {
+async function getCookieKeyForAddress(address: string): Promise<string> {
+  const encoder = new TextEncoder()
+  const data = encoder.encode(address)
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("")
+  return `${AUTH_TOKEN_COOKIE_PREFIX}${hashHex.slice(0, 16)}`
+}
+
+/**
+ * Set a wallet's auth token in an httpOnly cookie with address-based key.
+ * Also sets the active wallet cookie for server-side access.
+ */
+export async function setWalletToken(
+  address: string,
+  token: string
+): Promise<void> {
+  const cookieKey = await getCookieKeyForAddress(address)
   const cookieStore = await cookies()
-  cookieStore.set(AUTH_TOKEN_COOKIE_NAME, token, {
+
+  // Set the auth token cookie
+  cookieStore.set(cookieKey, token, {
     httpOnly: true,
+    secure: true,
+    sameSite: "lax",
+    maxAge: COOKIE_MAX_AGE_SECONDS,
+    path: "/",
+  })
+
+  // Set active wallet cookie (not httpOnly - client can read, but not sensitive)
+  cookieStore.set(ACTIVE_WALLET_COOKIE_NAME, address, {
+    httpOnly: false,
     secure: true,
     sameSite: "lax",
     maxAge: COOKIE_MAX_AGE_SECONDS,
@@ -33,61 +71,83 @@ export async function setActiveWalletToken(token: string): Promise<void> {
 }
 
 /**
- * Clear the active wallet cookie (on sign out)
+ * Clear a specific wallet's auth cookie.
+ * Also clears the active wallet cookie if it matches.
  */
-export async function clearActiveWalletToken(): Promise<void> {
+export async function clearWalletToken(address: string): Promise<void> {
+  const cookieKey = await getCookieKeyForAddress(address)
   const cookieStore = await cookies()
-  cookieStore.delete(AUTH_TOKEN_COOKIE_NAME)
-}
 
-export interface ValidateTokenResult {
-  valid: boolean
-  authIdentifier: string | null
-  authMethod: string | null
+  cookieStore.delete(cookieKey)
+
+  // Clear active wallet cookie if it matches the address being cleared
+  const activeWallet = cookieStore.get(ACTIVE_WALLET_COOKIE_NAME)?.value
+  if (activeWallet === address) {
+    cookieStore.delete(ACTIVE_WALLET_COOKIE_NAME)
+  }
 }
 
 /**
- * Validate the current cookie token
+ * Get a wallet's auth token from its cookie
  */
-export async function validateCurrentToken(): Promise<ValidateTokenResult> {
+export async function getWalletToken(address: string): Promise<string | null> {
+  const cookieKey = await getCookieKeyForAddress(address)
   const cookieStore = await cookies()
-  const token = cookieStore.get(AUTH_TOKEN_COOKIE_NAME)?.value
+  return cookieStore.get(cookieKey)?.value ?? null
+}
 
-  if (!token) {
-    return { valid: false, authIdentifier: null, authMethod: null }
-  }
+/**
+ * Get the active wallet address from cookie (for server-side use)
+ */
+export async function getActiveWalletAddress(): Promise<string | null> {
+  const cookieStore = await cookies()
+  return cookieStore.get(ACTIVE_WALLET_COOKIE_NAME)?.value ?? null
+}
 
-  const payload = await verifyAppAuthToken(token)
+/**
+ * Clear only the active wallet cookie (on sign out).
+ * Preserves the auth token so user can reconnect without re-verifying.
+ */
+export async function clearActiveWallet(): Promise<void> {
+  const cookieStore = await cookies()
+  cookieStore.delete(ACTIVE_WALLET_COOKIE_NAME)
+}
 
-  if (!payload) {
-    return { valid: false, authIdentifier: null, authMethod: null }
-  }
-
-  return {
-    valid: true,
-    authIdentifier: payload.auth_identifier,
-    authMethod: payload.auth_method,
-  }
+/**
+ * Get the active wallet's auth token (convenience for server-side use)
+ */
+export async function getActiveWalletToken(): Promise<string | null> {
+  const address = await getActiveWalletAddress()
+  if (!address) return null
+  return getWalletToken(address)
 }
 
 export interface ValidateTokenForWalletResult {
   valid: boolean
-  reason?: "invalid_signature" | "address_mismatch" | "chain_mismatch"
+  reason?:
+    | "no_token"
+    | "invalid_signature"
+    | "address_mismatch"
+    | "chain_mismatch"
 }
 
 /**
- * Validates a JWT token against expected wallet address and chain type.
+ * Validates JWT token for a wallet. Reads from cookie if token not provided.
  * Performs full cryptographic signature verification AND claims matching.
  *
- * @param token - The JWT token to validate
  * @param expectedAddress - The wallet address that should match auth_identifier
  * @param expectedChainType - The chain type that should match auth_method
  */
 export async function validateTokenForWallet(
-  token: string,
   expectedAddress: string,
   expectedChainType: string
 ): Promise<ValidateTokenForWalletResult> {
+  const token = await getWalletToken(expectedAddress)
+
+  if (!token) {
+    return { valid: false, reason: "no_token" }
+  }
+
   const payload = await verifyAppAuthToken(token)
   if (!payload) {
     return { valid: false, reason: "invalid_signature" }

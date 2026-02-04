@@ -2,7 +2,7 @@
 
 import {
   generateAuthTokenFromWalletSignature,
-  setActiveWalletToken,
+  setWalletToken,
 } from "@src/actions/auth"
 import { formatSignedIntent } from "@src/components/DefuseSDK/core/formatters"
 import { WalletBannedDialog } from "@src/components/WalletBannedDialog"
@@ -14,7 +14,6 @@ import {
   walletVerificationMachine,
 } from "@src/machines/walletVerificationMachine"
 import { useBypassedWalletsStore } from "@src/stores/useBypassedWalletsStore"
-import { useWalletTokensStore } from "@src/stores/useWalletTokensStore"
 import { logger } from "@src/utils/logger"
 import { walletVerificationMessageFactory } from "@src/utils/walletMessage"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
@@ -70,11 +69,6 @@ export function WalletVerificationProvider() {
 
   const { addBypassedWalletAddress, isWalletBypassed } =
     useBypassedWalletsStore()
-  const { setToken } = useWalletTokensStore()
-  const hasHydrated = useWalletTokensStore((store) => store._hasHydrated)
-  const hasValidToken = useWalletTokensStore((store) =>
-    state.address != null ? store.isTokenValid(state.address) : false
-  )
 
   if (bannedAccountCheck.data?.isBanned && pathname !== "/account") {
     router.push("/wallet/banned")
@@ -82,11 +76,6 @@ export function WalletVerificationProvider() {
   }
 
   if (safetyCheck.isLoading) {
-    return null
-  }
-
-  // Wait for token store to hydrate before showing verification dialog
-  if (!hasHydrated) {
     return null
   }
 
@@ -115,32 +104,32 @@ export function WalletVerificationProvider() {
     )
   }
 
+  // Don't show verification dialog while auth validation is in progress
+  if (state.isAuthValidating) {
+    return null
+  }
+
   if (
     state.address != null &&
     (safetyCheck.data?.safetyStatus === "safe" ||
       isWalletBypassed(state.address)) &&
-    !hasValidToken
+    !state.isAuthorized
   ) {
     return (
       <WalletVerificationUI
         isSessionExpired={state.isSessionExpired}
-        onVerified={(token: string, expiresAt: number) => {
-          if (state.address != null) {
-            setToken(state.address, token, expiresAt)
+        onVerified={(token: string) => {
+          const walletAddress = state.address
+          if (walletAddress != null) {
             ;(async () => {
               try {
-                await setActiveWalletToken(token)
+                await setWalletToken(walletAddress, token)
               } catch (error) {
-                logger.error("Failed to set active wallet token:", { error })
+                logger.error("Failed to set wallet token:", { error })
               }
 
               await queryClient.invalidateQueries({
-                queryKey: [
-                  "token_validation",
-                  state.address,
-                  state.chainType,
-                  token,
-                ],
+                queryKey: ["token_validation", walletAddress, state.chainType],
               })
             })()
           }
@@ -172,7 +161,7 @@ function WalletVerificationUI({
   onAbort,
 }: {
   isSessionExpired: boolean
-  onVerified: (token: string, expiresAt: number) => void
+  onVerified: (token: string) => void
   onAbort: () => void
 }) {
   const { state: unconfirmedWallet } = useConnectWallet()
@@ -235,8 +224,8 @@ function WalletVerificationUI({
       serviceRef.subscribe((machineState) => {
         if (machineState.matches("verified")) {
           const result = machineState.context.verificationResult
-          if (result?.token && result?.expiresAt) {
-            onVerifiedRef.current(result.token, result.expiresAt)
+          if (result?.token) {
+            onVerifiedRef.current(result.token)
           }
           mixPanel?.track("wallet_verified", {
             wallet: unconfirmedWallet.address,
