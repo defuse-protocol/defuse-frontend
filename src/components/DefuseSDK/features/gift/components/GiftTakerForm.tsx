@@ -88,8 +88,8 @@ export function GiftTakerForm({
         </div>
 
         {giftInfo.message?.length > 0 && (
-          <div className="w-full border border-gray-200 rounded-3xl flex gap-3 p-3 items-start">
-            <div className="bg-gray-100 rounded-full size-10 shrink-0 flex items-center justify-center mt-1">
+          <div className="w-full border border-gray-200 rounded-3xl flex gap-3 p-3 items-center">
+            <div className="bg-gray-100 rounded-full size-10 shrink-0 flex items-center justify-center">
               <ChatBubbleBottomCenterTextIcon className="size-5 text-gray-500" />
             </div>
             <div className="sr-only">Message</div>
