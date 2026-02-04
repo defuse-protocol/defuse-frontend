@@ -4,6 +4,7 @@ import {
   generateAuthTokenFromWalletSignature,
   setActiveWalletToken,
 } from "@src/actions/auth"
+import { formatSignedIntent } from "@src/components/DefuseSDK/core/formatters"
 import { WalletBannedDialog } from "@src/components/WalletBannedDialog"
 import { WalletVerificationDialog } from "@src/components/WalletVerificationDialog"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
@@ -15,7 +16,6 @@ import {
 import { useBypassedWalletsStore } from "@src/stores/useBypassedWalletsStore"
 import { useWalletTokensStore } from "@src/stores/useWalletTokensStore"
 import { logger } from "@src/utils/logger"
-import { serializeSignatureForServerAction } from "@src/utils/serializeWalletSignatureForServerAction"
 import { walletVerificationMessageFactory } from "@src/utils/walletMessage"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useActor } from "@xstate/react"
@@ -198,13 +198,15 @@ function WalletVerificationUI({
             )
           )
 
-          // Binary fields (Uint8Array/ArrayBuffer) can't cross the Server Action
-          // boundary; serialize to base64 so the server can decode and verify.
-          const serializedSignature =
-            serializeSignatureForServerAction(walletSignature)
+          // Format the signature into MultiPayload format (JSON-safe)
+          // This is verified server-side via NEAR RPC simulate_intents
+          const signedIntent = formatSignedIntent(walletSignature, {
+            credential: unconfirmedWallet.address,
+            credentialType: unconfirmedWallet.chainType,
+          })
 
           const result = await generateAuthTokenFromWalletSignature({
-            signature: serializedSignature,
+            signedIntent,
             address: unconfirmedWallet.address,
             authMethod: unconfirmedWallet.chainType,
           })
