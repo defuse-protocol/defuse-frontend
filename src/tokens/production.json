@@ -2752,6 +2752,23 @@
         }
       ],
       "tags": ["mc:483"]
+    },
+    {
+      "defuseAssetId": "nep141:base-0xe62bfbe57763ec24c0f130426f34dbce11fc5b06.omft.near",
+      "symbol": "TITN",
+      "name": "Titan",
+      "decimals": 18,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/36271.png",
+      "originChainName": "base",
+      "deployments": [
+        {
+          "address": "0xe62bfbe57763ec24c0f130426f34dbce11fc5b06",
+          "decimals": 18,
+          "chainName": "base",
+          "bridge": "poa"
+        }
+      ],
+      "tags": ["mc:1028"]
     }
   ]
 }
