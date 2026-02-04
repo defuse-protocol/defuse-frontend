@@ -20,6 +20,7 @@ import {
   midTruncate,
 } from "../../features/withdraw/components/WithdrawForm/utils"
 import type { NetworkOptions } from "../../hooks/useNetworkLists"
+import type { SupportedChainName } from "../../types/base"
 import {
   assetNetworkAdapter,
   reverseAssetNetworkAdapter,
@@ -39,7 +40,12 @@ type ModalSelectRecipientProps = {
   displayAddress: string | undefined
   displayOwnAddress: boolean
   availableNetworks: NetworkOptions
-  onRecipientContactChange: (contactName: string | null) => void
+  /** When set, contact selection updates network and recipient in one shot (avoids race). */
+  onContactSelect?: (
+    blockchain: SupportedChainName | "near_intents",
+    recipient: string
+  ) => void
+  onRecipientContactChange?: (contactName: string | null) => void
 }
 
 const VALIDATION_DEBOUNCE_MS = 500
@@ -52,6 +58,7 @@ const ModalSelectRecipient = ({
   displayAddress,
   displayOwnAddress,
   availableNetworks,
+  onContactSelect,
   onRecipientContactChange,
 }: ModalSelectRecipientProps) => {
   const { setValue, watch, clearErrors } =
@@ -146,7 +153,7 @@ const ModalSelectRecipient = ({
   }
 
   const handleSelectAddress = (address: string) => {
-    onRecipientContactChange(null)
+    onRecipientContactChange?.(null)
     setValue("recipient", address)
     onClose()
   }
@@ -270,12 +277,16 @@ const ModalSelectRecipient = ({
                           <ListItem
                             key={id}
                             onClick={() => {
-                              setValue("blockchain", chainKey)
-                              onRecipientContactChange(name)
-                              setValue("recipient", address, {
-                                shouldValidate: true,
-                              })
-                              onClose()
+                              if (onContactSelect) {
+                                onContactSelect(chainKey, address)
+                                onClose()
+                              } else {
+                                setValue("blockchain", chainKey)
+                                setValue("recipient", address, {
+                                  shouldValidate: true,
+                                })
+                                onClose()
+                              }
                             }}
                           >
                             <div
@@ -328,7 +339,7 @@ const ModalSelectRecipient = ({
                           displayAddress,
                           "Display address could not be retrieved from the wallet provider"
                         )
-                        onRecipientContactChange(null)
+                        onRecipientContactChange?.(null)
                         setValue("recipient", displayAddress, {
                           shouldValidate: true,
                         })
@@ -359,7 +370,7 @@ const ModalSelectRecipient = ({
         onSuccess={(contact) => {
           clearErrors()
           const chainKey = reverseAssetNetworkAdapter[contact.blockchain]
-          onRecipientContactChange(contact.name)
+          onRecipientContactChange?.(contact.name)
           setValue("blockchain", chainKey, {
             shouldValidate: true,
             shouldDirty: true,

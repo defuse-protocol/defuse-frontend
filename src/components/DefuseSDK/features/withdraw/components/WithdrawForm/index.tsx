@@ -6,7 +6,11 @@ import TooltipNew from "@src/components/DefuseSDK/components/TooltipNew"
 import { useModalController } from "@src/components/DefuseSDK/hooks/useModalController"
 import { useTokensUsdPrices } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
 import { ModalType } from "@src/components/DefuseSDK/stores/modalStore"
-import { isSupportedChainName } from "@src/components/DefuseSDK/utils/blockchain"
+import { assetNetworkAdapter } from "@src/components/DefuseSDK/utils/adapters"
+import {
+  availableChainsForToken,
+  isSupportedChainName,
+} from "@src/components/DefuseSDK/utils/blockchain"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
 import {
@@ -299,12 +303,17 @@ export const WithdrawForm = ({
       setValue("amountIn", presetAmount)
     }
     if (presetNetwork != null && isSupportedChainName(presetNetwork)) {
-      setValue("blockchain", presetNetwork)
+      // Check if the token supports this network before applying preset
+      const availableChains = availableChainsForToken(token)
+      const networkEnum = assetNetworkAdapter[presetNetwork]
+      if (networkEnum && networkEnum in availableChains) {
+        setValue("blockchain", presetNetwork)
+      }
     }
     if (presetRecipient != null) {
       setValue("recipient", presetRecipient)
     }
-  }, [presetAmount, presetNetwork, presetRecipient, setValue])
+  }, [presetAmount, presetNetwork, presetRecipient, setValue, token])
 
   const { registerWithdraw, hasActiveWithdraw } = useWithdrawTrackerMachine()
 

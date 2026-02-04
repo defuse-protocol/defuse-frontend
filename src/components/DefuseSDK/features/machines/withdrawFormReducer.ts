@@ -73,6 +73,14 @@ export type Events =
       }
     }
   | {
+      type: "WITHDRAW_FORM.UPDATE_BLOCKCHAIN_AND_RECIPIENT"
+      params: {
+        blockchain: SupportedChainName | "near_intents"
+        recipient: string
+        proxyRecipient?: string | null
+      }
+    }
+  | {
       type: "WITHDRAW_FORM.UPDATE_AMOUNT"
       params: {
         amount: string
@@ -171,6 +179,47 @@ export const withdrawFormReducer = fromTransition(
           tokenOutDeployment,
           recipient: "",
           parsedRecipient: null,
+          destinationMemo: "",
+          parsedDestinationMemo: null,
+          cexFundsLooseConfirmation,
+          minReceivedAmount: null,
+          blockchain,
+        }
+        break
+      }
+      case "WITHDRAW_FORM.UPDATE_BLOCKCHAIN_AND_RECIPIENT": {
+        const { blockchain, recipient, proxyRecipient } = event.params
+
+        const [tokenOut, tokenOutDeployment] = resolveTokenOut(
+          blockchain,
+          state.tokenIn,
+          tokenFamilies,
+          LIST_TOKENS_FLATTEN
+        )
+
+        const cexFundsLooseConfirmation = isNearIntentsNetwork(blockchain)
+          ? "not_required"
+          : cexFundsLooseConfirmationStatusDefault(tokenOutDeployment)
+
+        const determinedRecipient = isHyperliquid(blockchain)
+          ? (proxyRecipient ?? null)
+          : recipient
+
+        const parsedRecipient =
+          determinedRecipient != null
+            ? getParsedRecipient(
+                determinedRecipient,
+                tokenOutDeployment,
+                isNearIntentsNetwork(blockchain)
+              )
+            : null
+
+        newState = {
+          ...state,
+          tokenOut,
+          tokenOutDeployment,
+          recipient,
+          parsedRecipient,
           destinationMemo: "",
           parsedDestinationMemo: null,
           cexFundsLooseConfirmation,
