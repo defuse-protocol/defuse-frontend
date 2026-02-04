@@ -64,6 +64,19 @@ const SelectedTokenInput = ({
     return inputValue >= balanceValue * 0.99
   })()
 
+  // Filter input to only allow numbers and one decimal point
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(",", ".").replace(/[^0-9.]/g, "")
+
+    const parts = value.split(".")
+    if (parts.length > 2) {
+      value = `${parts[0]}.${parts.slice(1).join("")}`
+    }
+
+    e.target.value = value
+    registration.onChange(e)
+  }
+
   return (
     <div
       className={clsx(
@@ -93,6 +106,7 @@ const SelectedTokenInput = ({
               disabled && "opacity-50"
             )}
             {...registration}
+            onChange={handleInputChange}
           />
         </div>
 

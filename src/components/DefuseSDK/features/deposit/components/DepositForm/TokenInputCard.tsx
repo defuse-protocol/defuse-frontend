@@ -234,6 +234,21 @@ const TokenInputCard = (props: TokenInputCardProps) => {
     (registration && "value" in registration && registration.value) || value
   )
 
+  // Filter input to only allow numbers and one decimal point
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(",", ".").replace(/[^0-9.]/g, "")
+
+    const parts = value.split(".")
+    if (parts.length > 2) {
+      value = `${parts[0]}.${parts.slice(1).join("")}`
+    }
+
+    e.target.value = value
+    if (registration && "onChange" in registration) {
+      registration.onChange(e)
+    }
+  }
+
   return (
     <div
       className={clsx(
@@ -266,7 +281,9 @@ const TokenInputCard = (props: TokenInputCardProps) => {
               hasValue && "placeholder:text-gray-400",
               disabled && "opacity-50"
             )}
-            {...(registration ?? { value, readOnly: true })}
+            {...(registration
+              ? { ...registration, onChange: handleInputChange }
+              : { value, readOnly: true })}
           />
         </div>
 
