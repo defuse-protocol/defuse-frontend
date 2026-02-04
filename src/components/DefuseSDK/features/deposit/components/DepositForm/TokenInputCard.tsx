@@ -234,10 +234,25 @@ const TokenInputCard = (props: TokenInputCardProps) => {
     (registration && "value" in registration && registration.value) || value
   )
 
+  // Filter input to only allow numbers and one decimal point
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(",", ".").replace(/[^0-9.]/g, "")
+
+    const parts = value.split(".")
+    if (parts.length > 2) {
+      value = `${parts[0]}.${parts.slice(1).join("")}`
+    }
+
+    e.target.value = value
+    if (registration && "onChange" in registration) {
+      registration.onChange(e)
+    }
+  }
+
   return (
     <div
       className={clsx(
-        "bg-white border rounded-3xl w-full p-6 flex flex-col gap-3",
+        "bg-white border rounded-3xl w-full p-4 sm:p-6 flex flex-col gap-3",
         hasError ? "border-red-500 ring-1 ring-red-500" : "border-gray-200"
       )}
     >
@@ -260,13 +275,15 @@ const TokenInputCard = (props: TokenInputCardProps) => {
             aria-busy={loading || undefined}
             readOnly={readOnly}
             className={clsx(
-              "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-4xl tracking-tight w-full min-w-0",
+              "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-3xl sm:text-4xl tracking-tight w-full min-w-0",
               !hasValue &&
-                "placeholder:text-xl placeholder:font-medium placeholder:text-gray-400 placeholder:-translate-y-1.5",
+                "placeholder:text-xl sm:placeholder:text-2xl placeholder:font-semibold tracking-tight placeholder:text-gray-300 placeholder:-translate-y-0.5 sm:placeholder:-translate-y-1.25",
               hasValue && "placeholder:text-gray-400",
               disabled && "opacity-50"
             )}
-            {...(registration ?? { value, readOnly: true })}
+            {...(registration
+              ? { ...registration, onChange: handleInputChange }
+              : { value, readOnly: true })}
           />
         </div>
 
@@ -278,7 +295,6 @@ const TokenInputCard = (props: TokenInputCardProps) => {
           tokens={tokens}
         />
       </div>
-
       <div className="flex items-center justify-between gap-4">
         {canToggleUsd && onToggleUsdMode ? (
           <UsdToggle
@@ -323,7 +339,6 @@ const TokenInputCard = (props: TokenInputCardProps) => {
           )}
         </div>
       </div>
-
       {error && <ErrorMessage>{error}</ErrorMessage>}
     </div>
   )

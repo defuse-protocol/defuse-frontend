@@ -64,11 +64,11 @@ export function OtcTakerInvalidOrder({
         </div>
 
         <h2 className="mt-5 text-2xl/7 font-bold tracking-tight text-center">
-          This trade is no longer valid
+          This deal is no longer valid
         </h2>
         <p className="mt-2 text-base/5 font-medium text-gray-500 text-center text-balance">
           This deal has either expired or the funds are no longer available.
-          Check with trade creator for more information.
+          Check with deal creator for more information.
         </p>
       </div>
 

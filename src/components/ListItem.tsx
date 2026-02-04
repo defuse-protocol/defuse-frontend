@@ -83,8 +83,9 @@ function ListItem({
       {content}
       <Popover.Portal>
         <Popover.Content
+          collisionPadding={8}
           className={clsx(
-            "bg-gray-900 rounded-xl shadow-lg flex p-1 gap-1 origin-top",
+            "bg-gray-900 rounded-xl max-w-(--radix-popover-content-available-width) shadow-lg flex p-1 gap-1 origin-top",
 
             "data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:zoom-in-95 data-[state=open]:slide-in-from-top-1 data-[state=open]:duration-100 data-[state=open]:ease-out",
 

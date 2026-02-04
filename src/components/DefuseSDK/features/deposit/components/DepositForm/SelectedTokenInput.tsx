@@ -64,10 +64,23 @@ const SelectedTokenInput = ({
     return inputValue >= balanceValue * 0.99
   })()
 
+  // Filter input to only allow numbers and one decimal point
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(",", ".").replace(/[^0-9.]/g, "")
+
+    const parts = value.split(".")
+    if (parts.length > 2) {
+      value = `${parts[0]}.${parts.slice(1).join("")}`
+    }
+
+    e.target.value = value
+    registration.onChange(e)
+  }
+
   return (
     <div
       className={clsx(
-        "bg-white border rounded-3xl w-full p-6 flex flex-col gap-3",
+        "bg-white border rounded-3xl w-full p-4 sm:p-6 flex flex-col gap-3",
         error ? "border-red-500 ring-1 ring-red-500" : "border-gray-200"
       )}
     >
@@ -86,13 +99,14 @@ const SelectedTokenInput = ({
             aria-label={label}
             disabled={disabled}
             className={clsx(
-              "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-4xl tracking-tight w-full min-w-0",
+              "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-3xl sm:text-4xl tracking-tight w-full min-w-0",
               !hasValue &&
-                "placeholder:text-xl placeholder:font-medium placeholder:text-gray-400 placeholder:-translate-y-1.5",
+                "placeholder:text-xl sm:placeholder:text-2xl placeholder:font-semibold tracking-tight placeholder:text-gray-300 placeholder:-translate-y-0.5 sm:placeholder:-translate-y-1.25",
               hasValue && "placeholder:text-gray-400",
               disabled && "opacity-50"
             )}
             {...registration}
+            onChange={handleInputChange}
           />
         </div>
 
@@ -103,7 +117,6 @@ const SelectedTokenInput = ({
           </span>
         </div>
       </div>
-
       <div className="flex items-center justify-between gap-4">
         <div className="text-sm text-gray-500 font-medium">
           {formatUsdAmount(usdAmount ?? 0)}
@@ -131,7 +144,6 @@ const SelectedTokenInput = ({
           )}
         </div>
       </div>
-
       {isFullBalanceNativeDeposit && networkName && (
         <div className="text-sm text-amber-600 bg-amber-50 rounded-xl p-3 font-medium">
           {symbol} is the native token of {networkName}. If you deposit your
@@ -139,7 +151,6 @@ const SelectedTokenInput = ({
           fees.
         </div>
       )}
-
       {error && <ErrorMessage>{error}</ErrorMessage>}
     </div>
   )

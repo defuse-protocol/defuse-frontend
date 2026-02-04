@@ -68,10 +68,10 @@ const MarketingRootLayout = async ({
           <div className="grow bg-white" />
         </main>
 
-        <footer className="bg-white pb-16 flex justify-center items-center rounded-b-3xl">
+        <footer className="bg-white pb-12 md:pb-16 flex justify-center items-center rounded-b-3xl">
           <div className="flex w-full flex-col px-4 max-w-5xl">
-            <div className="pt-16">
-              <div className="flex items-center justify-between pb-8">
+            <div className="pt-12 md:pt-16">
+              <div className="flex flex-col md:flex-row items-center justify-between pb-8 gap-x-4 gap-y-6">
                 <NearIntentsLogoIcon className="h-4 shrink-0 text-black" />
 
                 <div className="flex items-center justify-end gap-2">

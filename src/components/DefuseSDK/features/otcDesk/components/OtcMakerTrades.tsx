@@ -1,11 +1,13 @@
 import type { MultiPayload } from "@defuse-protocol/contract-types"
 import { authIdentity } from "@defuse-protocol/internal-utils"
-import { ArrowLongRightIcon } from "@heroicons/react/16/solid"
+import { XCircleIcon } from "@heroicons/react/16/solid"
 import { PlusIcon } from "@heroicons/react/20/solid"
+import Badge from "@src/components/Badge"
 import Button from "@src/components/Button"
 import { nearClient } from "@src/components/DefuseSDK/constants/nearClient"
 import EmptyState from "@src/components/EmptyState"
 import ListItem from "@src/components/ListItem"
+import { CurvedArrowIcon } from "@src/icons"
 import { useQuery } from "@tanstack/react-query"
 import { None, type Option, Some } from "@thames/monads"
 import { useState } from "react"
@@ -77,13 +79,13 @@ export function OtcMakerTrades({
   if (trades == null || trades.length === 0) {
     return (
       <EmptyState className="mt-6">
-        <EmptyState.Title>No trades yet</EmptyState.Title>
+        <EmptyState.Title>No deals yet</EmptyState.Title>
         <EmptyState.Description>
-          Create a trade to get started.
+          Create a deal to get started.
         </EmptyState.Description>
         <Button href="/deals/new" size="xl" className="mt-4">
           <PlusIcon className="size-5 shrink-0" />
-          Create a trade
+          Create a deal
         </Button>
       </EmptyState>
     )
@@ -163,7 +165,19 @@ function OtcMakerTradeItem({
     )
 
   if (tradeTermsResult.isErr()) {
-    return <div>Error: {tradeTermsResult.unwrapErr()}</div>
+    return (
+      <div className="bg-red-50 min-h-18 rounded-2xl -mx-4 px-4 flex flex-col items-center justify-center gap-1.5">
+        <div className="flex items-center justify-center gap-1.5">
+          <XCircleIcon className="size-4 text-red-600" />
+          <span className="text-sm text-red-600 font-semibold text-center">
+            Failed to parse deal
+          </span>
+        </div>
+        <div className="text-sm text-red-600 font-medium text-center text-pretty">
+          {tradeTermsResult.unwrapErr()}
+        </div>
+      </div>
+    )
   }
 
   const { tradeTerms, tokenIn, tokenOut } = tradeTermsResult.unwrap()
@@ -186,8 +200,6 @@ function OtcMakerTradeItem({
   const hasError = err.isSome()
   const error = hasError ? err.unwrap() : null
 
-  const badgeType = getBadgeType(error)
-
   const timeLeft = useCountdownTimer({ deadline: tradeTerms.deadline })
 
   const handleClick = () => {
@@ -205,39 +217,38 @@ function OtcMakerTradeItem({
 
   return (
     <ListItem onClick={handleClick} dataTestId="otc-maker-trade-item">
-      <AssetComboIcon {...tokenOut} badgeType={badgeType} />
-      <ListItem.Content>
-        <ListItem.Title className="flex items-center gap-0.5">
-          {tokenIn.symbol}
-          <ArrowLongRightIcon className="size-4 text-gray-400 shrink-0" />
-          {tokenOut.symbol}
-        </ListItem.Title>
+      <div className="relative flex gap-1 items-start">
+        <AssetComboIcon icon={tokenIn?.icon} sizeClassName="size-7" />
+        <CurvedArrowIcon className="size-3.5 text-gray-400 absolute -bottom-0.5 left-4.5 -rotate-23" />
+        <AssetComboIcon icon={tokenOut?.icon} sizeClassName="size-10" />
+      </div>
 
-        {error === "ORDER_EXPIRED" ? (
-          <ListItem.Subtitle>Trade expired</ListItem.Subtitle>
-        ) : error === "NONCE_ALREADY_USED" ? (
-          <ListItem.Subtitle>Trade executed or cancelled</ListItem.Subtitle>
-        ) : error === "MAKER_INSUFFICIENT_FUNDS" ? (
-          <ListItem.Subtitle className="text-red-600">
-            Your balance is too low
-          </ListItem.Subtitle>
-        ) : (
-          <ListItem.Subtitle>{timeLeft}</ListItem.Subtitle>
-        )}
-      </ListItem.Content>
-      <ListItem.Content align="end">
-        <ListItem.Title>
-          {formatTokenValue(totalAmountOut.amount, totalAmountOut.decimals, {
-            fractionDigits: 4,
-          })}{" "}
-          {tokenOut.symbol}
-        </ListItem.Title>
+      <ListItem.Content>
         <ListItem.Subtitle>
           {formatTokenValue(-totalAmountIn.amount, totalAmountIn.decimals, {
             fractionDigits: 4,
           })}{" "}
           {tokenIn.symbol}
         </ListItem.Subtitle>
+        <ListItem.Title className="flex items-center gap-0.5">
+          +
+          {formatTokenValue(totalAmountOut.amount, totalAmountOut.decimals, {
+            fractionDigits: 4,
+          })}{" "}
+          {tokenOut.symbol}
+        </ListItem.Title>
+      </ListItem.Content>
+
+      <ListItem.Content align="end">
+        {error === "ORDER_EXPIRED" ? (
+          <Badge variant="error">Expired</Badge>
+        ) : error === "NONCE_ALREADY_USED" ? (
+          <Badge variant="info">Executed or cancelled</Badge>
+        ) : error === "MAKER_INSUFFICIENT_FUNDS" ? (
+          <Badge variant="error">Insufficient balance</Badge>
+        ) : (
+          <Badge variant="info">{timeLeft}</Badge>
+        )}
       </ListItem.Content>
     </ListItem>
   )
@@ -303,16 +314,4 @@ function useValidateTrade(tradeTerms: TradeTerms) {
     .or(makerBalanceValidation.data ?? noError)
 
   return error
-}
-
-const getBadgeType = (error?: string | null) => {
-  switch (error) {
-    case "ORDER_EXPIRED":
-    case "MAKER_INSUFFICIENT_FUNDS":
-      return "failed"
-    case "NONCE_ALREADY_USED":
-      return "success"
-    default:
-      return "processing"
-  }
 }

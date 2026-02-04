@@ -452,7 +452,7 @@ export const WithdrawForm = ({
   return (
     <>
       <FormProvider {...form}>
-        <form onSubmit={handleSubmit(onRequestReview)} className="mt-6">
+        <form onSubmit={handleSubmit(onRequestReview)} className="mt-7">
           <div className="flex flex-col gap-2">
             <SelectTriggerLike
               icon={

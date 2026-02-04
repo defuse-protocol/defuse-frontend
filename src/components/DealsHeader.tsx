@@ -11,7 +11,8 @@ const DealsHeader = () => {
   return (
     <>
       <PageHeader
-        title="Private trades"
+        title="Private deals"
+        subtitle="Direct, person-to-person trading. No middlemen. No trust needed."
         intro={
           <p>
             Say you want to swap some Bitcoin for Ethereum with someone
@@ -24,16 +25,16 @@ const DealsHeader = () => {
       />
 
       <TabSwitcher
-        className="mt-5"
+        className="mt-7"
         tabs={[
           {
-            label: "My trades",
+            label: "My deals",
             icon: <ListBulletIcon className="size-4 shrink-0" />,
             href: "/deals",
             selected: pathname === "/deals",
           },
           {
-            label: "New trade",
+            label: "New deal",
             icon: <PlusIcon className="size-4 shrink-0" />,
             href: "/deals/new",
             selected: pathname === "/deals/new",

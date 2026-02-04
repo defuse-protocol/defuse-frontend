@@ -9,7 +9,7 @@ export function useCountdownTimer({ deadline }: { deadline: number | string }) {
     const expired = isPast(deadlineDate.current)
 
     if (expired) {
-      setTimeLeft("Trade expired")
+      setTimeLeft("Expired")
       return
     }
 

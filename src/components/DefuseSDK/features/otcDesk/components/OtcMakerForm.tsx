@@ -1,5 +1,8 @@
 import type { authHandle } from "@defuse-protocol/internal-utils"
-import { ArrowDownIcon } from "@heroicons/react/20/solid"
+import {
+  ArrowDownIcon,
+  ExclamationTriangleIcon,
+} from "@heroicons/react/20/solid"
 import Button from "@src/components/Button"
 import ModalActiveDeal from "@src/components/DefuseSDK/components/Modal/ModalActiveDeal"
 import ModalReviewDeal from "@src/components/DefuseSDK/components/Modal/ModalReviewDeal"
@@ -370,6 +373,26 @@ export function OtcMakerForm({
     }
   }, [formValues.amountIn, tokenInBalance])
 
+  // Calculate deviation from market rate
+  // Show warning when user has manually set values that differ from market rate
+  const marketRateDeviation = useMemo(() => {
+    // Only show if user has taken control of the destination amount
+    if (!userEditedAmountOut) return null
+    if (!usdAmountIn || !usdAmountOut) return null
+    if (usdAmountIn === 0) return null
+
+    const deviation = ((usdAmountOut - usdAmountIn) / usdAmountIn) * 100
+
+    // Only warn if deviation is more than 5% in either direction
+    if (Math.abs(deviation) <= 5) return null
+
+    return deviation
+  }, [userEditedAmountOut, usdAmountIn, usdAmountOut])
+
+  const resetToMarketRate = () => {
+    setUserEditedAmountOut(false)
+  }
+
   const error = rootSnapshot.context.error
 
   const isReviewOpen =
@@ -484,6 +507,26 @@ export function OtcMakerForm({
             isOutputField
           />
 
+          {marketRateDeviation !== null && (
+            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2">
+              <ExclamationTriangleIcon className="size-5 text-amber-500 shrink-0 mt-0.5" />
+              <div className="text-sm">
+                <p className="font-medium text-amber-800">
+                  {marketRateDeviation < 0
+                    ? `You're receiving ${Math.abs(marketRateDeviation).toFixed(0)}% less value than you're giving`
+                    : `You're asking for ${Math.abs(marketRateDeviation).toFixed(0)}% more value than you're giving`}
+                </p>
+                <button
+                  type="button"
+                  onClick={resetToMarketRate}
+                  className="text-amber-700 underline hover:text-amber-900"
+                >
+                  Reset to market rate
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="mt-5 flex justify-between items-center">
             <div>
               <label
@@ -596,7 +639,7 @@ export function OtcMakerForm({
 function renderErrorMessages(reason: string): string {
   switch (reason) {
     case "ERR_STORE_FAILED":
-      return "Cannot store OTC trade"
+      return "Cannot store deal"
     case "ERR_PREPARING_SIGNING_DATA":
       return "Failed to prepare message for your wallet to sign. Please try again."
     case "ERR_USER_DIDNT_SIGN":
@@ -614,6 +657,6 @@ function renderSubmitButtonText({
   hasValues: boolean
 }) {
   if (!hasValues) return "Enter amounts"
-  if (snapshot.matches("editing")) return "Review trade"
-  return "Review trade"
+  if (snapshot.matches("editing")) return "Review deal"
+  return "Review deal"
 }
