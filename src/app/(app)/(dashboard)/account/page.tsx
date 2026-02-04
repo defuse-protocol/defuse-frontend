@@ -59,7 +59,14 @@ export default function AccountPage() {
             Add funds
           </Button>
 
-          <Button href="/transfer" size="xl">
+          <Button
+            href={
+              holdings?.[0]
+                ? `/transfer?token=${holdings[0].token.symbol}`
+                : "/transfer"
+            }
+            size="xl"
+          >
             <SendIcon className="size-6" />
             Transfer
           </Button>
