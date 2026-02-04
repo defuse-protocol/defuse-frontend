@@ -43,7 +43,8 @@ type ModalSelectRecipientProps = {
   /** When set, contact selection updates network and recipient in one shot (avoids race). */
   onContactSelect?: (
     blockchain: SupportedChainName | "near_intents",
-    recipient: string
+    recipient: string,
+    contactName: string | null
   ) => void
   onRecipientContactChange?: (contactName: string | null) => void
 }
@@ -278,7 +279,7 @@ const ModalSelectRecipient = ({
                             key={id}
                             onClick={() => {
                               if (onContactSelect) {
-                                onContactSelect(chainKey, address)
+                                onContactSelect(chainKey, address, name)
                                 onClose()
                               } else {
                                 setValue("blockchain", chainKey)
@@ -368,24 +369,26 @@ const ModalSelectRecipient = ({
         open={showAddContact}
         onClose={() => setShowAddContact(false)}
         onSuccess={(contact) => {
+          queryClient.invalidateQueries({ queryKey: ["contacts"] })
           clearErrors()
           const chainKey = reverseAssetNetworkAdapter[contact.blockchain]
-          onRecipientContactChange?.(contact.name)
-          setValue("blockchain", chainKey, {
-            shouldValidate: true,
-            shouldDirty: true,
-            shouldTouch: true,
-          })
-          setValue("recipient", contact.address, {
-            shouldValidate: true,
-            shouldDirty: true,
-            shouldTouch: true,
-          })
+          if (onContactSelect) {
+            onContactSelect(chainKey, contact.address, contact.name)
+          } else {
+            onRecipientContactChange?.(contact.name)
+            setValue("blockchain", chainKey, {
+              shouldValidate: true,
+              shouldDirty: true,
+              shouldTouch: true,
+            })
+            setValue("recipient", contact.address, {
+              shouldValidate: true,
+              shouldDirty: true,
+              shouldTouch: true,
+            })
+            onClose()
+          }
           setShowAddContact(false)
-          onClose()
-        }}
-        onCloseAnimationEnd={() => {
-          queryClient.invalidateQueries({ queryKey: ["contacts"] })
         }}
         defaultValues={{
           address: validatedAddress ?? "",
