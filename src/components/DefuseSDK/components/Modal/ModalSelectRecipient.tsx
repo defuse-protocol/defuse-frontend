@@ -27,6 +27,7 @@ import {
 import { stringToColor } from "../../utils/stringToColor"
 import { NetworkIcon } from "../Network/NetworkIcon"
 import SearchBar from "../SearchBar"
+import TooltipNew from "../TooltipNew"
 import ModalAddEditContact from "./ModalAddEditContact"
 import { BaseModalDialog } from "./ModalDialog"
 
@@ -227,17 +228,29 @@ const ModalSelectRecipient = ({
                   {midTruncate(validatedAddress, 16)}
                 </ListItem.Title>
               </ListItem.Content>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setShowAddContact(true)
-                }}
-                className="relative z-20 size-8 rounded-lg hover:bg-gray-200 flex items-center justify-center ml-auto"
-                title="Save as contact"
-              >
-                <PlusIcon className="size-4 text-gray-500" />
-              </button>
+              <TooltipNew>
+                <TooltipNew.Trigger>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setShowAddContact(true)
+                    }}
+                    className="relative z-20 size-8 rounded-lg hover:bg-gray-200 flex items-center justify-center ml-auto"
+                    aria-label="Save as new contact"
+                  >
+                    <div className="relative">
+                      <ContactsIcon className="size-4 text-gray-500" />
+                      <span className="absolute -right-1 -bottom-1 size-3 rounded-full bg-gray-900 flex items-center justify-center">
+                        <PlusIcon className="size-2 text-white" />
+                      </span>
+                    </div>
+                  </button>
+                </TooltipNew.Trigger>
+                <TooltipNew.Content side="top">
+                  Save as new contact
+                </TooltipNew.Content>
+              </TooltipNew>
             </ListItem>
           ) : (
             <>
