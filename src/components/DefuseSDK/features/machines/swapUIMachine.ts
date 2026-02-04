@@ -1063,6 +1063,9 @@ export const swapUIMachine = setup({
       },
 
       on: {
+        CANCEL_REVIEW: {
+          target: "editing",
+        },
         NEW_QUOTE: {
           guard: {
             type: "isOk",
@@ -1206,6 +1209,9 @@ export const swapUIMachine = setup({
       },
 
       on: {
+        CANCEL_REVIEW: {
+          target: "editing",
+        },
         NEW_1CS_QUOTE: {
           actions: [
             "process1csQuote",
