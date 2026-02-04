@@ -3,8 +3,7 @@ import type {
   TokenInfo,
 } from "@src/components/DefuseSDK/types/base"
 import { LIST_TOKENS, LIST_TOKENS_FLATTEN } from "@src/constants/tokens"
-import { isBaseToken, isUnifiedToken } from "./token"
-
+import { isBaseToken } from "./token"
 const SEPARATOR = ":"
 
 /**
@@ -115,37 +114,4 @@ export function findTokenInListByBase(
       )
     }) ?? null
   )
-}
-
-/**
- * Returns true when the token list has other tokens with the same symbol
- * on different chains (so we should include chain in URL).
- */
-export function hasChainIcon(
-  token: TokenInfo,
-  tokens: TokenInfo[]
-): token is BaseTokenInfo {
-  return isUnifiedToken(token)
-    ? false
-    : tokens.filter(
-        (t) =>
-          (isBaseToken(t) ? token.defuseAssetId !== t.defuseAssetId : false) &&
-          t.symbol === token.symbol
-      ).length > 0
-}
-
-function tokenToSymbolWithChainName(token: BaseTokenInfo): string {
-  return `${token.symbol}${SEPARATOR}${token.originChainName}`
-}
-
-/**
- * Serializes token for URL (e.g. "USDC" or "USDC:solana" when disambiguation needed).
- */
-export function getTokenUrlSymbol(
-  token: TokenInfo,
-  tokens: TokenInfo[]
-): string {
-  return hasChainIcon(token, tokens)
-    ? tokenToSymbolWithChainName(token)
-    : token.symbol
 }

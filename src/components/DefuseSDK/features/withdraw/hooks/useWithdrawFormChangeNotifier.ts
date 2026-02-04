@@ -1,5 +1,5 @@
+import { tokenToSymbol } from "@src/app/(app)/(dashboard)/swap/_utils/useDeterminePair"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
-import { getTokenUrlSymbol } from "@src/components/DefuseSDK/utils/tokenUrlSymbol"
 import { useSelector } from "@xstate/react"
 import { useEffect, useRef } from "react"
 import { WithdrawUIMachineContext } from "../WithdrawUIMachineContext"
@@ -42,7 +42,7 @@ export function useWithdrawFormChangeNotifier({
   )
 
   const tokenUrlSymbol =
-    tokenIn != null ? getTokenUrlSymbol(tokenIn, tokenList) : null
+    tokenIn != null ? tokenToSymbol(tokenIn, tokenList) : null
 
   const prevValuesRef = useRef({
     tokenUrlSymbol,
