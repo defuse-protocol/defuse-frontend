@@ -262,7 +262,7 @@ const TokenInputCard = (props: TokenInputCardProps) => {
             className={clsx(
               "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-3xl sm:text-4xl tracking-tight w-full min-w-0",
               !hasValue &&
-                "placeholder:text-xl sm:placeholder:text-2xl placeholder:font-semibold tracking-tight placeholder:text-gray-300 placeholder:-translate-y-0.5 sm:placeholder:-translate-y-1.5",
+                "placeholder:text-xl sm:placeholder:text-2xl placeholder:font-semibold tracking-tight placeholder:text-gray-300 placeholder:-translate-y-0.5 sm:placeholder:-translate-y-1.25",
               hasValue && "placeholder:text-gray-400",
               disabled && "opacity-50"
             )}
@@ -278,7 +278,6 @@ const TokenInputCard = (props: TokenInputCardProps) => {
           tokens={tokens}
         />
       </div>
-
       <div className="flex items-center justify-between gap-4">
         {canToggleUsd && onToggleUsdMode ? (
           <UsdToggle
@@ -323,7 +322,6 @@ const TokenInputCard = (props: TokenInputCardProps) => {
           )}
         </div>
       </div>
-
       {error && <ErrorMessage>{error}</ErrorMessage>}
     </div>
   )
