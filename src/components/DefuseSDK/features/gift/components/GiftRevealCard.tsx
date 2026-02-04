@@ -24,7 +24,7 @@ export function GiftRevealCard({
   const [rotateX, setRotateX] = useState(0)
   const [rotateY, setRotateY] = useState(0)
 
-  const storageKey = `gift_revealed_${giftId}`
+  const storageKey = useMemo(() => `gift_revealed_${giftId}`, [giftId])
   // Memoize storage to avoid creating new reference on every render
   const storage = useMemo(
     () => (storageType === "session" ? sessionStorage : localStorage),

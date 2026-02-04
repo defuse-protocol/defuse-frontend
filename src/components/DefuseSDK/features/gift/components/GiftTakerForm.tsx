@@ -48,21 +48,20 @@ export function GiftTakerForm({
     giftInfo.tokenDiff,
     { strict: false }
   )
-  const { giftTakerClaimRef, snapshot: giftTakerRootSnapshot } = useSelector(
+  const giftTakerClaimRef = useSelector(
     giftTakerRootRef,
-    (state) => ({
-      giftTakerClaimRef: state.children.giftTakerClaimRef as
+    (state) =>
+      state.children.giftTakerClaimRef as
+        | ActorRefFrom<typeof giftClaimActor>
         | undefined
-        | ActorRefFrom<typeof giftClaimActor>,
-      snapshot: state,
-    })
+  )
+
+  const isInClaimingState = useSelector(giftTakerRootRef, (state) =>
+    state.matches("claiming")
   )
 
   const claimGift = useCallback(() => {
-    if (
-      signerCredentials != null &&
-      giftTakerRootSnapshot?.matches("claiming")
-    ) {
+    if (signerCredentials != null && isInClaimingState) {
       giftTakerClaimRef?.send({
         type: "CONFIRM_CLAIM",
         params: {
@@ -71,7 +70,7 @@ export function GiftTakerForm({
         },
       })
     }
-  }, [signerCredentials, giftTakerRootSnapshot, giftTakerClaimRef, giftInfo])
+  }, [signerCredentials, isInClaimingState, giftTakerClaimRef, giftInfo])
 
   const handleIconClick = useCallback(() => {
     if (isHiding) return
