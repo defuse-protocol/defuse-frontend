@@ -317,6 +317,22 @@ export const RecipientSubForm = ({
           userAddress != null &&
           getValues("blockchain") !== "hyperliquid"
         }
+        onContactSelect={(blockchain, recipient) => {
+          actorRef.send({
+            type: "WITHDRAW_FORM.UPDATE_BLOCKCHAIN_AND_RECIPIENT",
+            params: { blockchain, recipient, proxyRecipient: null },
+          })
+          actorRef.send({
+            type: "WITHDRAW_FORM.UPDATE_MIN_RECEIVED_AMOUNT",
+            params: {
+              minReceivedAmount: getMinWithdrawalHyperliquidAmount(
+                blockchain,
+                token
+              ),
+            },
+          })
+          closeModal()
+        }}
       />
 
       <Controller
