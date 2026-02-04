@@ -65,11 +65,12 @@ export function HomeSwapWidget() {
 
   return (
     <div className="relative">
-      <div className="flex justify-center mb-3">
-        <span className="text-xs font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+      <div className="flex justify-center -mb-px">
+        <span className="text-xs font-semibold text-gray-600 bg-gray-100 px-3 py-1 rounded-t-lg border-t border-x border-gray-200">
           Live Preview
         </span>
       </div>
+
       <div className="bg-gray-100 rounded-[27px] p-1 sm:p-2 border border-gray-200 flex flex-col gap-1 sm:gap-2">
         <div className="p-4 sm:p-6 rounded-3xl bg-white border border-gray-200 flex flex-col gap-4">
           <label htmlFor="sell" className="text-sm font-medium text-gray-500">
@@ -137,10 +138,6 @@ export function HomeSwapWidget() {
             </button>
           </div>
         </div>
-
-        <p className="text-xs text-gray-500 text-center px-4 pb-2">
-          Preview estimated rates. Sign up to start trading.
-        </p>
       </div>
 
       <Button
@@ -153,6 +150,10 @@ export function HomeSwapWidget() {
       >
         Sign up to start swapping
       </Button>
+
+      <p className="text-xs/none font-medium text-gray-500 text-center mt-4">
+        Preview estimated rates. Sign up to start trading.
+      </p>
 
       <SimpleTokenSelectModal
         open={modalOpen !== null}
