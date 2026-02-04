@@ -117,13 +117,15 @@ const ModalReviewSend = ({
           <dd className="text-sm font-semibold text-gray-900 text-right">
             {recipientContactName ? (
               <div className="flex flex-col items-end">
-                <div className="flex items-center gap-1 justify-end">
-                  <span>{recipientContactName}</span>
-                  <ContactsIcon className="size-4 text-gray-500 shrink-0" />
+                <div className="flex items-start gap-1">
+                  <div className="flex flex-col items-end">
+                    <span>{recipientContactName}</span>
+                    <span className="text-xs text-gray-500 font-medium text-right">
+                      {midTruncate(recipient, 16)}
+                    </span>
+                  </div>
+                  <ContactsIcon className="mt-0.5 size-4 text-gray-500 shrink-0" />
                 </div>
-                <span className="block w-full text-xs text-gray-500 font-medium text-right">
-                  {midTruncate(recipient, 16)}
-                </span>
               </div>
             ) : (
               midTruncate(recipient, 16)
