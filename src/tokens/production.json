@@ -2779,7 +2779,7 @@
       "originChainName": "solana",
       "deployments": [
         {
-          "address": "0xaad74c68eecfc9f8c5bdcea614f6167048c795ef",
+          "address": "2zMMhcVQEXDtdE6vsFS7S7D5oUodfJHE8vd1gnBouauv",
           "decimals": 6,
           "chainName": "solana",
           "bridge": "near_omni"
