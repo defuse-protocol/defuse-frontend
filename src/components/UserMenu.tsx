@@ -141,9 +141,6 @@ const UserMenu = () => {
           <AlertDialog.Title className="mt-5">
             Before you copy this address
           </AlertDialog.Title>
-          <AlertDialog.Description className="mt-2">
-            description
-          </AlertDialog.Description>
         </div>
 
         <ul className="bg-gray-50 rounded-3xl p-5 mt-5 space-y-3">
