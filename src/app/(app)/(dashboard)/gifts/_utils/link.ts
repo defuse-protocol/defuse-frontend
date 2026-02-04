@@ -8,6 +8,7 @@ import {
 import { deriveIdFromIV } from "@src/utils/deriveIdFromIV"
 import { logger } from "@src/utils/logger"
 import { useQuery } from "@tanstack/react-query"
+import { useEffect, useState } from "react"
 import {
   decodeAES256Gift,
   decodeGift,
@@ -65,9 +66,23 @@ export async function createGiftIntent(payload: GiftLinkData): Promise<{
 }
 
 export function useGiftIntent() {
-  const encodedGift = window.location.hash.slice(1)
+  // Use state to properly handle client-side hash reading
+  const [encodedGift, setEncodedGift] = useState("")
 
-  const { data } = useQuery({
+  useEffect(() => {
+    // Read hash on client-side mount
+    const hash = window.location.hash.slice(1)
+    setEncodedGift(hash)
+
+    // Listen for hash changes
+    const handleHashChange = () => {
+      setEncodedGift(window.location.hash.slice(1))
+    }
+    window.addEventListener("hashchange", handleHashChange)
+    return () => window.removeEventListener("hashchange", handleHashChange)
+  }, [])
+
+  const { data, error, isLoading } = useQuery({
     queryKey: ["gift_intent", encodedGift],
     queryFn: async (): Promise<{
       payload: string
@@ -89,30 +104,39 @@ export function useGiftIntent() {
               giftId: deriveIdFromIV(iv),
             }
           }
-        } catch (_error) {
-          logger.error("Failed to decrypt order")
+        } catch (err) {
+          logger.error(new Error("Failed to decrypt order", { cause: err }))
         }
       }
 
       // 2. Attempt: Try to decode the order directly from the URL
       try {
         const decoded = decodeGift(encodedGift)
-        return {
-          payload: decoded,
+        // Only return if we got valid JSON with secretKey (legacy format)
+        if (decoded && typeof decoded === "object") {
+          return {
+            payload: decoded,
+          }
         }
-      } catch (_error) {
-        logger.error("Failed to decode legacy order")
+      } catch (err) {
+        logger.error(new Error("Failed to decode legacy order", { cause: err }))
       }
 
-      return {
-        payload: "",
-      }
+      // If we reach here, we couldn't decode the gift
+      throw new Error("Gift not found or invalid")
     },
     enabled: !!encodedGift,
+    retry: false,
   })
 
+  // Return null for payload if there's no data, loading, or error
+  const payload = data?.payload || null
+  const giftId = data?.giftId ?? null
+
   return {
-    payload: data?.payload ?? null,
-    giftId: data?.giftId ?? null,
+    payload,
+    giftId,
+    error: error ? (error as Error).message : null,
+    isLoading,
   }
 }

@@ -3,7 +3,7 @@
 // TODO(test-cleanup): storageType prop and clearGiftRevealState are used by test page only. Production uses localStorage only. Remove when test page is removed.
 
 import Image from "next/image"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 
 type GiftRevealCardProps = {
   giftId: string
@@ -25,7 +25,11 @@ export function GiftRevealCard({
   const [rotateY, setRotateY] = useState(0)
 
   const storageKey = `gift_revealed_${giftId}`
-  const storage = storageType === "session" ? sessionStorage : localStorage
+  // Memoize storage to avoid creating new reference on every render
+  const storage = useMemo(
+    () => (storageType === "session" ? sessionStorage : localStorage),
+    [storageType]
+  )
 
   useEffect(() => {
     const wasRevealed = storage.getItem(storageKey)
