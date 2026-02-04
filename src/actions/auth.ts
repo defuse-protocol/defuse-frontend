@@ -224,23 +224,23 @@ export async function generateAuthTokenFromWalletSignature(
 async function verifyViaSimulateIntents(
   signedIntent: MultiPayload
 ): Promise<boolean> {
-  // NEP-413 signatures can't be verified onchain for explicit account IDs (e.g., foo.near)
-  // until the user sends a one-time transaction to register their public key with the account.
-  // For NEP-413, we verify that the accountId in the payload matches the expected signer.
+  // NEP-413: Can't verify onchain without key registration, so we trust the wallet signature
+  // but still check deadline to prevent replay attacks (contract handles this for other chains)
   if (signedIntent.standard === "nep413") {
-    // The payload.message contains JSON with signer_id
     try {
       const parsed = JSON.parse(signedIntent.payload.message)
-      // Check if this is an auth message by looking for the expected structure
-      if (parsed.signer_id) {
-        // For NEP-413, the signature is valid if the message was signed by the claimed account
-        // We trust the wallet's signature here since we can't verify onchain without key registration
-        return true
+      if (!parsed.signer_id) return false
+
+      if (parsed.deadline) {
+        const deadlineMs = Date.parse(parsed.deadline)
+        if (Number.isNaN(deadlineMs) || Date.now() > deadlineMs) {
+          return false
+        }
       }
+      return true
     } catch {
       return false
     }
-    return true
   }
 
   try {
