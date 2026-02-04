@@ -8,21 +8,23 @@ import { NearIntentsLogoIcon, PasskeyIcon } from "@src/icons"
 import { useTonConnectUI } from "@tonconnect/ui-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect } from "react"
 import type { Connector } from "wagmi"
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { signIn, connectors, state } = useConnectWallet()
   const [tonConnectUI] = useTonConnectUI()
   const webauthnUI = useWebAuthnUIStore()
 
   useEffect(() => {
-    if (state.address) {
-      router.replace("/account")
+    if (state.isVerified) {
+      const redirectUrl = searchParams.get("redirect") || "/account"
+      router.replace(redirectUrl)
     }
-  }, [state.address, router])
+  }, [state.isVerified, router, searchParams])
 
   return (
     <div className="flex-1 flex flex-col items-center px-4 py-20">

@@ -11,11 +11,13 @@ import { UserIcon } from "@heroicons/react/24/solid"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import clsx from "clsx"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { DropdownMenu } from "radix-ui"
 import { useState } from "react"
 import { midTruncate } from "./DefuseSDK/features/withdraw/components/WithdrawForm/utils"
 
 const UserMenu = () => {
+  const router = useRouter()
   const { state, signOut } = useConnectWallet()
   const [copied, setCopied] = useState(false)
 
@@ -45,9 +47,10 @@ const UserMenu = () => {
   const items = [
     {
       label: "Sign out",
-      onClick: () => {
+      onClick: async () => {
         if (state.chainType) {
-          signOut({ id: state.chainType })
+          await signOut({ id: state.chainType })
+          router.push("/")
         }
       },
       icon: ArrowRightStartOnRectangleIcon,
