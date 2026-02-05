@@ -1,7 +1,8 @@
+import { CheckBadgeIcon } from "@heroicons/react/16/solid"
 import Button from "@src/components/Button"
 import { CopyButton } from "@src/components/DefuseSDK/components/IntentCard/CopyButton"
 import TooltipNew from "@src/components/DefuseSDK/components/TooltipNew"
-import { ContactsIcon } from "@src/icons"
+import { WalletIcon } from "@src/icons"
 import { useMemo } from "react"
 import {
   chainIcons,
@@ -23,6 +24,7 @@ import {
   formatTokenValue,
   formatUsdAmount,
 } from "../../utils/format"
+import { stringToColor } from "../../utils/stringToColor"
 import AssetComboIcon from "../Asset/AssetComboIcon"
 import { NetworkIcon } from "../Network/NetworkIcon"
 import { BaseModalDialog } from "./ModalDialog"
@@ -99,57 +101,67 @@ const ModalReviewSend = ({
     return (Number(directionFee.amount) / Number(totalFeeAmount)) * feeUsd
   }, [directionFee, feeUsd, fee.amount])
 
+  const contactColor = stringToColor(
+    `${recipientContactName}${recipient}${network}`
+  )
+
   return (
     <BaseModalDialog title="Review transfer" open={open} onClose={onClose}>
       <div className="flex flex-col items-center justify-center mt-3">
-        <AssetComboIcon icon={tokenIn.icon} sizeClassName="size-13" />
-        <div className="mt-5 text-2xl/7 font-bold text-gray-900 tracking-tight">
-          {formatDisplayAmount(amountIn)} {tokenIn.symbol}
+        <div
+          className="size-13 rounded-full bg-gray-200 flex items-center justify-center shrink-0 outline-1 -outline-offset-1 outline-gray-900/10"
+          style={{ backgroundColor: contactColor.background }}
+        >
+          <WalletIcon
+            className="size-5 text-gray-500"
+            style={{ color: contactColor.icon }}
+          />
         </div>
-        <div className="mt-1 text-base/5 font-medium text-gray-500">
-          {formatUsdAmount(usdAmountIn)}
+
+        <div className="mt-5 text-2xl/7 font-bold text-gray-900 tracking-tight text-center">
+          Confirm transfer to <br />
+          <TooltipNew>
+            <TooltipNew.Trigger>
+              <span className="cursor-pointer">{midTruncate(recipient)}</span>
+            </TooltipNew.Trigger>
+            <TooltipNew.Content
+              side="top"
+              className="max-w-56 px-3 py-2 flex items-center gap-2"
+            >
+              <span className="text-xs font-medium break-all text-center text-balance font-mono">
+                {recipient}
+              </span>
+              <CopyButton
+                text={recipient}
+                ariaLabel="Copy recipient address"
+                className="hover:text-gray-200"
+              />
+            </TooltipNew.Content>
+          </TooltipNew>
         </div>
+        {recipientContactName && (
+          <div className="flex items-start justify-center gap-1 mt-2">
+            <CheckBadgeIcon className="mt-0.5 text-green-500 size-4 shrink-0" />
+            <div className="text-base/5 font-medium text-gray-500 text-center">
+              {recipientContactName}
+            </div>
+          </div>
+        )}
       </div>
 
       <dl className="mt-7 pt-5 border-t border-gray-200 space-y-2">
-        <div
-          className={`flex justify-between gap-2 ${recipientContactName ? "items-start" : "items-center"}`}
-        >
-          <dt className="text-sm text-gray-500 font-medium truncate">
-            {recipientContactName ? "Recipient is a contact" : "Recipient"}
-          </dt>
-          <dd className="text-sm font-semibold text-gray-900 text-right">
-            {recipientContactName ? (
-              <div className="flex flex-col items-end">
-                <div className="flex items-start gap-1">
-                  <TooltipNew>
-                    <TooltipNew.Trigger>
-                      <div className="flex flex-col items-end cursor-help">
-                        <span>{recipientContactName}</span>
-                        <span className="text-xs text-gray-500 font-medium text-right">
-                          {midTruncate(recipient, 16)}
-                        </span>
-                      </div>
-                    </TooltipNew.Trigger>
-                    <TooltipNew.Content
-                      side="top"
-                      className="max-w-80 px-3 py-2 flex items-center gap-2"
-                    >
-                      <span className="text-xs font-medium break-all text-left">
-                        {recipient}
-                      </span>
-                      <CopyButton
-                        text={recipient}
-                        ariaLabel="Copy recipient address"
-                      />
-                    </TooltipNew.Content>
-                  </TooltipNew>
-                  <ContactsIcon className="mt-0.5 size-4 text-gray-500 shrink-0" />
-                </div>
-              </div>
-            ) : (
-              midTruncate(recipient, 16)
-            )}
+        <div className="flex items-center justify-between gap-2">
+          <dt className="text-sm text-gray-500 font-medium truncate">Amount</dt>
+          <dd className="flex items-center gap-1 text-sm font-semibold text-gray-900 whitespace-pre">
+            {formatDisplayAmount(amountIn)} {tokenIn.symbol}
+            <AssetComboIcon icon={tokenIn.icon} sizeClassName="size-4" />
+          </dd>
+        </div>
+
+        <div className="flex items-center justify-between gap-2">
+          <dt className="text-sm text-gray-500 font-medium truncate">Value</dt>
+          <dd className="flex items-center gap-1 text-sm font-semibold text-gray-900 whitespace-pre">
+            {formatUsdAmount(usdAmountIn)}
           </dd>
         </div>
 

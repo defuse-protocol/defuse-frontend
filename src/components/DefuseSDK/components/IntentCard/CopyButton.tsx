@@ -1,20 +1,25 @@
 import { CheckIcon, Square2StackIcon } from "@heroicons/react/16/solid"
+import { cn } from "@src/utils/cn"
 import { Slot } from "radix-ui"
 import { type ReactNode, useEffect, useRef, useState } from "react"
 
 interface CopyButtonProps {
   text: string
   ariaLabel?: string
+  className?: string
 }
 
-export function CopyButton({ text, ariaLabel }: CopyButtonProps) {
+export function CopyButton({ text, ariaLabel, className }: CopyButtonProps) {
   return (
     <Copy text={text}>
       {(copied) => (
         <button
           type="button"
           aria-label={ariaLabel}
-          className="flex items-center justify-center size-5 text-gray-400 hover:text-gray-700"
+          className={cn(
+            "flex items-center justify-center size-5 text-gray-400 hover:text-gray-700",
+            className
+          )}
         >
           {copied ? (
             <CheckIcon className="size-4" />
