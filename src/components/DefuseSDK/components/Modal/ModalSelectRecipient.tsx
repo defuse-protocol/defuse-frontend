@@ -99,6 +99,7 @@ const ModalSelectRecipient = ({
       contact.name.toLowerCase().includes(inputValue.toLowerCase())
     )
   }, [availableContacts, inputValue])
+  const hasMatchingContacts = visibleContacts.length > 0
 
   useEffect(() => {
     if (!inputValue) {
@@ -109,7 +110,7 @@ const ModalSelectRecipient = ({
     }
 
     // If there are matching contacts by name, skip address validation
-    if (visibleContacts.length > 0) {
+    if (hasMatchingContacts) {
       setIsValidating(false)
       setValidationError(null)
       setValidatedAddress(null)
@@ -122,23 +123,33 @@ const ModalSelectRecipient = ({
     setValidatedAddress(null)
 
     const timer = setTimeout(async () => {
-      const result = await validationRecipientAddress(
-        inputValue,
-        blockchain,
-        userAddress ?? "",
-        chainType
-      )
+      try {
+        const result = await validationRecipientAddress(
+          inputValue,
+          blockchain,
+          userAddress ?? "",
+          chainType
+        )
 
-      if (cancelled) return
+        if (cancelled) return
 
-      setIsValidating(false)
-
-      if (result.isErr()) {
-        setValidationError(renderRecipientAddressError(result.unwrapErr()))
+        if (result.isErr()) {
+          setValidationError(renderRecipientAddressError(result.unwrapErr()))
+          setValidatedAddress(null)
+        } else {
+          setValidationError(null)
+          setValidatedAddress(inputValue)
+        }
+      } catch {
+        if (cancelled) return
+        setValidationError(
+          "An unexpected error occurred. Please enter a different recipient address."
+        )
         setValidatedAddress(null)
-      } else {
-        setValidationError(null)
-        setValidatedAddress(inputValue)
+      } finally {
+        if (!cancelled) {
+          setIsValidating(false)
+        }
       }
     }, VALIDATION_DEBOUNCE_MS)
 
@@ -146,7 +157,7 @@ const ModalSelectRecipient = ({
       cancelled = true
       clearTimeout(timer)
     }
-  }, [inputValue, blockchain, userAddress, chainType, visibleContacts])
+  }, [inputValue, blockchain, userAddress, chainType, hasMatchingContacts])
 
   const handleScroll = () => {
     if (!scrollContainerRef.current) return
