@@ -95,7 +95,8 @@ export function WalletVerificationProvider() {
     !isWalletBypassed(state.address)
   ) {
     return (
-      <WalletBannedUI
+      <WalletBannedDialog
+        open={true}
         onAbort={() => {
           if (state.chainType != null) {
             void signOut({ id: state.chainType })
@@ -152,15 +153,6 @@ export function WalletVerificationProvider() {
   }
 
   return null
-}
-
-function WalletBannedUI({
-  onAbort,
-  onBypass,
-}: { onAbort: () => void; onBypass: () => void }) {
-  return (
-    <WalletBannedDialog open={true} onCancel={onAbort} onBypass={onBypass} />
-  )
 }
 
 function WalletVerificationUI({
