@@ -258,7 +258,7 @@ const ModalSelectRecipient = ({
                   <span className="ml-auto">
                     <button
                       type="button"
-                      disabled={isContactCreationDisabled}
+                      aria-disabled={isContactCreationDisabled}
                       onClick={(e) => {
                         e.stopPropagation()
                         if (isContactCreationDisabled) return
@@ -267,7 +267,7 @@ const ModalSelectRecipient = ({
                       className={clsx(
                         "relative z-20 size-8 rounded-lg flex items-center justify-center transition-colors",
                         isContactCreationDisabled
-                          ? "text-gray-300 cursor-not-allowed pointer-events-none"
+                          ? "text-gray-300 cursor-not-allowed"
                           : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
                       )}
                       aria-label="Save as new contact"
