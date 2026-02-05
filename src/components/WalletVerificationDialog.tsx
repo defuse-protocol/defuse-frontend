@@ -1,10 +1,5 @@
 import { CheckCircleIcon, XCircleIcon } from "@heroicons/react/16/solid"
-import {
-  CheckIcon,
-  ExclamationTriangleIcon,
-  LockClosedIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline"
+import { LockClosedIcon, XMarkIcon } from "@heroicons/react/24/outline"
 import AlertDialog from "./AlertDialog"
 import Button from "./Button"
 
@@ -173,26 +168,31 @@ function SessionExpiredContent({
 }: ContentProps) {
   return (
     <>
-      <div className="flex flex-col items-center text-center">
-        <div className="bg-amber-100 p-3 rounded-2xl mb-4">
-          <ExclamationTriangleIcon className="w-6 h-6 text-amber-600" />
+      <div className="flex flex-col items-center text-center mt-4">
+        <div className="bg-gray-100 size-13 rounded-full flex justify-center items-center">
+          <LockClosedIcon className="size-6 text-gray-500" />
         </div>
-        <AlertDialog.Title className="text-xl font-bold text-gray-900 tracking-tight">
-          Session expired
-        </AlertDialog.Title>
-        <AlertDialog.Description className="mt-2 text-sm text-gray-500 text-balance">
+        <AlertDialog.Title className="mt-5">Session expired</AlertDialog.Title>
+        <AlertDialog.Description className="mt-2">
           Your session has expired. Please verify your wallet again to continue
           using all features.
         </AlertDialog.Description>
       </div>
 
-      <ul className="bg-gray-50 rounded-2xl p-4 mt-6 space-y-3">
-        <FeatureItem text="Secure transactions and transfers" />
-        <FeatureItem text="Full access to all features" />
-        <FeatureItem text="Protection of your funds" />
+      <ul className="bg-gray-50 rounded-3xl p-5 mt-5 space-y-3">
+        {[
+          "Secure transactions and transfers",
+          "Access to all features",
+          "Protection of your assets",
+        ].map((text) => (
+          <li key={text} className="flex items-center gap-1.5">
+            <CheckCircleIcon className="size-4 text-gray-600 shrink-0" />
+            <span className="text-sm text-gray-600 font-medium">{text}</span>
+          </li>
+        ))}
       </ul>
 
-      <div className="flex flex-col gap-2 mt-6">
+      <div className="flex flex-col gap-2 mt-5">
         <Button size="xl" fullWidth onClick={onConfirm} loading={isVerifying}>
           {isVerifying ? "Verifying..." : "Verify again"}
         </Button>
@@ -207,20 +207,9 @@ function SessionExpiredContent({
         </Button>
       </div>
 
-      <p className="text-xs text-gray-400 text-center mt-4">
+      <p className="text-sm text-gray-500 font-medium text-center mt-3">
         Canceling will sign you out
       </p>
     </>
-  )
-}
-
-function FeatureItem({ text }: { text: string }) {
-  return (
-    <li className="flex items-center gap-3">
-      <div className="bg-gray-900 rounded-full p-1">
-        <CheckIcon className="w-3 h-3 text-white" />
-      </div>
-      <span className="text-sm text-gray-700">{text}</span>
-    </li>
   )
 }
