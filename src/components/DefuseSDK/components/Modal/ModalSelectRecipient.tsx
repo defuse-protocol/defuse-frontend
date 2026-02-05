@@ -191,7 +191,7 @@ const ModalSelectRecipient = ({
   const isContactCreationDisabled =
     blockchain != null && isNearIntentsNetwork(blockchain)
   const saveContactTooltip = isContactCreationDisabled
-    ? "Creation of a new Contact for a NEAR Intents internal account is not yet supported"
+    ? "Creation of Contacts for NEAR Intents internal accounts is not yet supported."
     : "Save as new contact"
 
   return (
