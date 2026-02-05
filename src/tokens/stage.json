@@ -8,6 +8,40 @@
       "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
       "groupedTokens": [
         {
+          "defuseAssetId": "nep141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",
+          "symbol": "USDC",
+          "name": "USD Coin",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+          "originChainName": "near",
+          "deployments": [
+            {
+              "address": "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",
+              "decimals": 6,
+              "chainName": "near",
+              "bridge": "direct"
+            }
+          ],
+          "tags": ["mc:7", "type:stablecoin", "tvol:4"]
+        },
+        {
+          "defuseAssetId": "nep141:eth-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.stft.near",
+          "symbol": "USDC",
+          "name": "USD Coin",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+          "originChainName": "eth",
+          "deployments": [
+            {
+              "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+              "decimals": 6,
+              "chainName": "eth",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:7", "type:stablecoin", "tvol:4"]
+        },
+        {
           "defuseAssetId": "nep141:base-0x833589fcd6edb6e08f4c7c32d4f71b54bda02913.stft.near",
           "symbol": "USDC",
           "name": "USD Coin",
@@ -19,6 +53,23 @@
               "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
               "decimals": 6,
               "chainName": "base",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:7", "type:stablecoin", "tvol:4"]
+        },
+        {
+          "defuseAssetId": "nep141:arb-0xaf88d065e77c8cc2239327c5edb3a432268e5831.stft.near",
+          "symbol": "USDC",
+          "name": "USD Coin",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+          "originChainName": "arbitrum",
+          "deployments": [
+            {
+              "address": "0xaf88d065e77c8cc2239327c5edb3a432268e5831",
+              "decimals": 6,
+              "chainName": "arbitrum",
               "bridge": "poa"
             }
           ],
@@ -40,6 +91,159 @@
             }
           ],
           "tags": ["mc:7", "type:stablecoin", "tvol:4"]
+        },
+        {
+          "defuseAssetId": "nep141:gnosis-0x2a22f9c3b484c3629090feed35f17ff8f88f76f0.stft.near",
+          "symbol": "USDC",
+          "name": "USD Coin",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+          "originChainName": "gnosis",
+          "deployments": [
+            {
+              "address": "0x2a22f9c3b484c3629090feed35f17ff8f88f76f0",
+              "decimals": 6,
+              "chainName": "gnosis",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:7", "type:stablecoin", "tvol:4"]
+        },
+        {
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:137_qiStmoQJDQPTebaPjgx5VBxZv6L",
+          "symbol": "USDC",
+          "name": "USD Coin",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+          "originChainName": "polygon",
+          "deployments": [
+            {
+              "address": "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359",
+              "decimals": 6,
+              "chainName": "polygon",
+              "bridge": "hot_omni"
+            }
+          ],
+          "tags": ["mc:7", "type:stablecoin", "tvol:4"]
+        },
+        {
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:56_2w93GqMcEmQFDru84j3HZZWt557r",
+          "symbol": "USDC",
+          "name": "USD Coin",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+          "originChainName": "bsc",
+          "deployments": [
+            {
+              "address": "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+              "decimals": 18,
+              "chainName": "bsc",
+              "bridge": "hot_omni"
+            }
+          ],
+          "tags": ["mc:7", "type:stablecoin", "tvol:4"]
+        },
+        {
+          "defuseAssetId": "nep141:sui-c1b81ecaf27933252d31a963bc5e9458f13c18ce.stft.near",
+          "symbol": "USDC",
+          "name": "USD Coin",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+          "originChainName": "sui",
+          "deployments": [
+            {
+              "address": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+              "decimals": 6,
+              "chainName": "sui",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:7", "type:stablecoin", "tvol:4"]
+        },
+        {
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:10_A2ewyUyDp6qsue1jqZsGypkCxRJ",
+          "symbol": "USDC",
+          "name": "USD Coin",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+          "originChainName": "optimism",
+          "deployments": [
+            {
+              "address": "0x0b2c639c533813f4aa9d7837caf62653d097ff85",
+              "decimals": 6,
+              "chainName": "optimism",
+              "bridge": "hot_omni"
+            }
+          ],
+          "tags": ["mc:7", "type:stablecoin", "tvol:4"]
+        },
+        {
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:43114_3atVJH3r5c4GqiSYmg9fECvjc47o",
+          "symbol": "USDC",
+          "name": "USD Coin",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+          "originChainName": "avalanche",
+          "deployments": [
+            {
+              "address": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+              "decimals": 6,
+              "chainName": "avalanche",
+              "bridge": "hot_omni"
+            }
+          ],
+          "tags": ["mc:7", "type:stablecoin", "tvol:4"]
+        },
+        {
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:1100_111bzQBB65GxAPAVoxqmMcgYo5oS3txhqs1Uh1cgahKQUeTUq1TJu",
+          "symbol": "USDC",
+          "name": "USD Coin",
+          "decimals": 7,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+          "originChainName": "stellar",
+          "deployments": [
+            {
+              "address": "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN",
+              "decimals": 7,
+              "chainName": "stellar",
+              "bridge": "hot_omni"
+            }
+          ],
+          "tags": ["mc:7", "type:stablecoin", "tvol:4"]
+        },
+        {
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:143_2dmLwYWkCQKyTjeUPAsGJuiVLbFx",
+          "symbol": "USDC",
+          "name": "USD Coin",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+          "originChainName": "monad",
+          "deployments": [
+            {
+              "address": "0x754704bc059f8c67012fed69bc8a327a5aafb603",
+              "decimals": 6,
+              "chainName": "monad",
+              "bridge": "hot_omni"
+            }
+          ],
+          "tags": ["mc:7", "type:stablecoin", "tvol:4"]
+        },
+        {
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:196_2dK9kLNR7Ekq7su8FxNGiUW3djTw",
+          "symbol": "USDC",
+          "name": "USD Coin",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+          "originChainName": "xlayer",
+          "deployments": [
+            {
+              "address": "0x74b7f16337b8972027f6196a17a631ac6de26d22",
+              "decimals": 6,
+              "chainName": "xlayer",
+              "bridge": "hot_omni"
+            }
+          ],
+          "tags": ["mc:7", "type:stablecoin", "tvol:4"]
         }
       ],
       "tags": ["mc:7", "type:stablecoin", "tvol:4"]
@@ -50,6 +254,57 @@
       "name": "Tether USD",
       "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
       "groupedTokens": [
+        {
+          "defuseAssetId": "nep141:usdt.tether-token.near",
+          "symbol": "USDT",
+          "name": "Tether USD",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+          "originChainName": "near",
+          "deployments": [
+            {
+              "address": "usdt.tether-token.near",
+              "decimals": 6,
+              "chainName": "near",
+              "bridge": "direct"
+            }
+          ],
+          "tags": ["mc:3", "type:stablecoin", "tvol:3"]
+        },
+        {
+          "defuseAssetId": "nep141:eth-0xdac17f958d2ee523a2206206994597c13d831ec7.stft.near",
+          "symbol": "USDT",
+          "name": "Tether USD",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+          "originChainName": "eth",
+          "deployments": [
+            {
+              "address": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+              "decimals": 6,
+              "chainName": "eth",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:3", "type:stablecoin", "tvol:3"]
+        },
+        {
+          "defuseAssetId": "nep141:arb-0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9.stft.near",
+          "symbol": "USDT",
+          "name": "Tether USD",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+          "originChainName": "arbitrum",
+          "deployments": [
+            {
+              "address": "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9",
+              "decimals": 6,
+              "chainName": "arbitrum",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:3", "type:stablecoin", "tvol:3"]
+        },
         {
           "defuseAssetId": "nep141:sol-c800a4bd850783ccb82c2b2c7e84175443606352.stft.near",
           "symbol": "USDT",
@@ -66,6 +321,193 @@
             }
           ],
           "tags": ["mc:3", "type:stablecoin", "tvol:3"]
+        },
+        {
+          "defuseAssetId": "nep141:gnosis-0x4ecaba5870353805a9f068101a40e0f32ed605c6.stft.near",
+          "symbol": "USDT",
+          "name": "Tether USD",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+          "originChainName": "gnosis",
+          "deployments": [
+            {
+              "address": "0x4ecaba5870353805a9f068101a40e0f32ed605c6",
+              "decimals": 6,
+              "chainName": "gnosis",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:3", "type:stablecoin", "tvol:3"]
+        },
+        {
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:137_3hpYoaLtt8MP1Z2GH1U473DMRKgr",
+          "symbol": "USDT",
+          "name": "Tether USD",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+          "originChainName": "polygon",
+          "deployments": [
+            {
+              "address": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+              "decimals": 6,
+              "chainName": "polygon",
+              "bridge": "hot_omni"
+            }
+          ],
+          "tags": ["mc:3", "type:stablecoin", "tvol:3"]
+        },
+        {
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:56_2CMMyVTGZkeyNZTSvS5sarzfir6g",
+          "symbol": "USDT",
+          "name": "Tether USD",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+          "originChainName": "bsc",
+          "deployments": [
+            {
+              "address": "0x55d398326f99059ff775485246999027b3197955",
+              "decimals": 18,
+              "chainName": "bsc",
+              "bridge": "hot_omni"
+            }
+          ],
+          "tags": ["mc:3", "type:stablecoin", "tvol:3"]
+        },
+        {
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:10_359RPSJVdTxwTJT9TyGssr2rFoWo",
+          "symbol": "USDT",
+          "name": "Tether USD",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+          "originChainName": "optimism",
+          "deployments": [
+            {
+              "address": "0x94b008aa00579c1307b0ef2c499ad98a8ce58e58",
+              "decimals": 6,
+              "chainName": "optimism",
+              "bridge": "hot_omni"
+            }
+          ],
+          "tags": ["mc:3", "type:stablecoin", "tvol:3"]
+        },
+        {
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:43114_372BeH7ENZieCaabwkbWkBiTTgXp",
+          "symbol": "USDT",
+          "name": "Tether USD",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+          "originChainName": "avalanche",
+          "deployments": [
+            {
+              "address": "0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7",
+              "decimals": 6,
+              "chainName": "avalanche",
+              "bridge": "hot_omni"
+            }
+          ],
+          "tags": ["mc:3", "type:stablecoin", "tvol:3"]
+        },
+        {
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:1117_3tsdfyziyc7EJbP2aULWSKU4toBaAcN4FdTgfm5W1mC4ouR",
+          "symbol": "USDT",
+          "name": "Tether USD",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+          "originChainName": "ton",
+          "deployments": [
+            {
+              "address": "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs",
+              "decimals": 6,
+              "chainName": "ton",
+              "bridge": "hot_omni"
+            }
+          ],
+          "tags": ["mc:3", "type:stablecoin", "tvol:3"]
+        },
+        {
+          "defuseAssetId": "nep141:tron-d28a265909efecdcee7c5028585214ea0b96f015.stft.near",
+          "symbol": "USDT",
+          "name": "Tether USD",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+          "originChainName": "tron",
+          "deployments": [
+            {
+              "address": "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+              "decimals": 6,
+              "chainName": "tron",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:3", "type:stablecoin", "tvol:3"]
+        },
+        {
+          "defuseAssetId": "nep141:aptos-88cb7619440a914fe6400149a12b443c3ac21d59.stft.near",
+          "symbol": "USDT",
+          "name": "Tether USD",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+          "originChainName": "aptos",
+          "deployments": [
+            {
+              "address": "0x357b0b74bc833e95a115ad22604854d6b0fca151cecd94111770e5d6ffc9dc2b",
+              "decimals": 6,
+              "chainName": "aptos",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:3", "type:stablecoin", "tvol:3"]
+        },
+        {
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:143_4EJiJxSALvGoTZbnc8K7Ft9533et",
+          "symbol": "USDT",
+          "name": "Tether USD",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+          "originChainName": "monad",
+          "deployments": [
+            {
+              "address": "0xe7cd86e13ac4309349f30b3435a9d337750fc82d",
+              "decimals": 6,
+              "chainName": "monad",
+              "bridge": "hot_omni"
+            }
+          ],
+          "tags": ["mc:3", "type:stablecoin", "tvol:3"]
+        },
+        {
+          "defuseAssetId": "nep141:bera-0x779ded0c9e1022225f8e0630b35a9b54be713736.stft.near",
+          "symbol": "USDT",
+          "name": "Tether USD",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+          "originChainName": "berachain",
+          "deployments": [
+            {
+              "address": "0x779ded0c9e1022225f8e0630b35a9b54be713736",
+              "decimals": 6,
+              "chainName": "berachain",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:3", "type:stablecoin", "tvol:3"]
+        },
+        {
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:196_2fezDCvVYRsG8wrK6deJ2VRPiAS1",
+          "symbol": "USDT",
+          "name": "Tether USD",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+          "originChainName": "xlayer",
+          "deployments": [
+            {
+              "address": "0x779ded0c9e1022225f8e0630b35a9b54be713736",
+              "decimals": 6,
+              "chainName": "xlayer",
+              "bridge": "hot_omni"
+            }
+          ],
+          "tags": ["mc:3", "type:stablecoin", "tvol:3"]
         }
       ],
       "tags": ["mc:3", "type:stablecoin", "tvol:3"]
@@ -73,13 +515,13 @@
     {
       "unifiedAssetId": "eth",
       "symbol": "ETH",
-      "name": "ETH",
+      "name": "Ethereum",
       "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1027.png",
       "groupedTokens": [
         {
           "defuseAssetId": "nep141:eth.stft.near",
           "symbol": "ETH",
-          "name": "ETH",
+          "name": "Ethereum",
           "decimals": 18,
           "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1027.png",
           "originChainName": "eth",
@@ -96,7 +538,7 @@
         {
           "defuseAssetId": "nep141:base.stft.near",
           "symbol": "ETH",
-          "name": "ETH",
+          "name": "Ethereum",
           "decimals": 18,
           "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1027.png",
           "originChainName": "base",
@@ -109,35 +551,60 @@
             }
           ],
           "tags": ["mc:2", "tvol:7"]
-        }
-      ],
-      "tags": ["mc:2", "tvol:7"]
-    },
-    {
-      "unifiedAssetId": "sol",
-      "symbol": "SOL",
-      "name": "Solana",
-      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/5426.png",
-      "groupedTokens": [
+        },
         {
-          "defuseAssetId": "nep141:sol.stft.near",
-          "symbol": "SOL",
-          "name": "Solana",
-          "decimals": 9,
-          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/5426.png",
-          "originChainName": "solana",
+          "defuseAssetId": "nep141:arb.stft.near",
+          "symbol": "ETH",
+          "name": "Ethereum",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1027.png",
+          "originChainName": "arbitrum",
           "deployments": [
             {
               "type": "native",
-              "decimals": 9,
-              "chainName": "solana",
+              "decimals": 18,
+              "chainName": "arbitrum",
               "bridge": "poa"
             }
           ],
-          "tags": ["mc:6", "tvol:5"]
+          "tags": ["mc:2", "tvol:7"]
+        },
+        {
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:10_11111111111111111111",
+          "symbol": "ETH",
+          "name": "Ethereum",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1027.png",
+          "originChainName": "optimism",
+          "deployments": [
+            {
+              "type": "native",
+              "decimals": 18,
+              "chainName": "optimism",
+              "bridge": "hot_omni"
+            }
+          ],
+          "tags": ["mc:2", "tvol:7"]
+        },
+        {
+          "defuseAssetId": "nep141:gnosis-0x6a023ccd1ff6f2045c3309768ead9e68f978f6e1.stft.near",
+          "symbol": "WETH",
+          "name": "Wrapped Ether",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1027.png",
+          "originChainName": "gnosis",
+          "deployments": [
+            {
+              "address": "0x6a023ccd1ff6f2045c3309768ead9e68f978f6e1",
+              "decimals": 18,
+              "chainName": "gnosis",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:2", "tvol:7"]
         }
       ],
-      "tags": ["mc:6", "tvol:5"]
+      "tags": ["mc:2", "tvol:7"]
     },
     {
       "unifiedAssetId": "btc",
@@ -166,47 +633,90 @@
       "tags": ["mc:1", "tvol:6"]
     },
     {
-      "unifiedAssetId": "xrp",
-      "symbol": "XRP",
-      "name": "XRP",
-      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/52.png",
+      "unifiedAssetId": "cbbtc",
+      "symbol": "cbBTC",
+      "name": "Coinbase Wrapped BTC",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1.png",
       "groupedTokens": [
         {
-          "defuseAssetId": "nep141:xrp.stft.near",
-          "symbol": "XRP",
-          "name": "XRP",
-          "decimals": 6,
-          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/52.png",
-          "originChainName": "xrpledger",
+          "defuseAssetId": "nep141:eth-0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.stft.near",
+          "symbol": "cbBTC",
+          "name": "Coinbase Wrapped BTC",
+          "decimals": 8,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1.png",
+          "originChainName": "eth",
           "deployments": [
             {
-              "type": "native",
-              "decimals": 6,
-              "chainName": "xrpledger",
+              "address": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+              "decimals": 8,
+              "chainName": "eth",
               "bridge": "poa"
             }
           ],
-          "tags": ["mc:4", "tvol:11"]
+          "tags": ["mc:1", "tvol:6"]
+        },
+        {
+          "defuseAssetId": "nep141:base-0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf.stft.near",
+          "symbol": "cbBTC",
+          "name": "Coinbase Wrapped BTC",
+          "decimals": 8,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1.png",
+          "originChainName": "base",
+          "deployments": [
+            {
+              "address": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+              "decimals": 8,
+              "chainName": "base",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:1", "tvol:6"]
         }
       ],
-      "tags": ["mc:4", "tvol:11"]
+      "tags": ["mc:1", "tvol:6"]
     },
     {
-      "defuseAssetId": "nep141:sui.stft.near",
-      "symbol": "SUI",
-      "name": "SUI",
-      "decimals": 9,
-      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/20947.png",
-      "originChainName": "sui",
-      "deployments": [
+      "unifiedAssetId": "dai",
+      "symbol": "DAI",
+      "name": "Dai Stablecoin",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/4943.png",
+      "groupedTokens": [
         {
-          "type": "native",
-          "decimals": 9,
-          "chainName": "sui",
-          "bridge": "poa"
+          "defuseAssetId": "nep141:eth-0x6b175474e89094c44da98b954eedeac495271d0f.stft.near",
+          "symbol": "DAI",
+          "name": "Dai Stablecoin",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/4943.png",
+          "originChainName": "eth",
+          "deployments": [
+            {
+              "address": "0x6b175474e89094c44da98b954eedeac495271d0f",
+              "decimals": 18,
+              "chainName": "eth",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:20", "type:stablecoin", "tvol:8"]
+        },
+        {
+          "defuseAssetId": "nep141:gnosis.stft.near",
+          "symbol": "xDAI",
+          "name": "xDAI",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/4943.png",
+          "originChainName": "gnosis",
+          "deployments": [
+            {
+              "type": "native",
+              "decimals": 18,
+              "chainName": "gnosis",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:20", "type:stablecoin", "tvol:8"]
         }
       ],
-      "tags": ["mc:13"]
+      "tags": ["mc:20", "type:stablecoin", "tvol:8"]
     },
     {
       "unifiedAssetId": "zcash_prod",
@@ -241,38 +751,6 @@
       "tags": ["mc:120", "tvol:1", "aid:zec"]
     },
     {
-      "unifiedAssetId": "zcash",
-      "symbol": "ZEC",
-      "name": "Zcash",
-      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1437.png",
-      "groupedTokens": [
-        {
-          "defuseAssetId": "nep141:zec.stft.near",
-          "symbol": "ZEC",
-          "name": "Zcash",
-          "decimals": 8,
-          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1437.png",
-          "originChainName": "zcash",
-          "deployments": [
-            {
-              "address": "zec.stft.near",
-              "decimals": 8,
-              "chainName": "near",
-              "bridge": "direct"
-            },
-            {
-              "type": "native",
-              "decimals": 8,
-              "chainName": "zcash",
-              "bridge": "poa"
-            }
-          ],
-          "tags": ["mc:120", "tvol:1", "aid:zec"]
-        }
-      ],
-      "tags": ["mc:120", "tvol:1", "aid:zec"]
-    },
-    {
       "defuseAssetId": "nep141:wrap.near",
       "symbol": "NEAR",
       "name": "Near",
@@ -288,6 +766,845 @@
         }
       ],
       "tags": ["mc:31", "tvol:2", "aid:near"]
+    },
+    {
+      "unifiedAssetId": "sweat",
+      "symbol": "SWEAT",
+      "name": "Sweat Economy",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/21351.png",
+      "groupedTokens": [
+        {
+          "defuseAssetId": "nep141:token.sweat",
+          "symbol": "SWEAT",
+          "name": "Sweat Economy",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/21351.png",
+          "originChainName": "near",
+          "deployments": [
+            {
+              "address": "token.sweat",
+              "decimals": 18,
+              "chainName": "near",
+              "bridge": "direct"
+            }
+          ],
+          "tags": ["mc:500"]
+        },
+        {
+          "defuseAssetId": "nep141:eth-0xb4b9dc1c77bdbb135ea907fd5a08094d98883a35.stft.near",
+          "symbol": "SWEAT",
+          "name": "Sweat Economy",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/21351.png",
+          "originChainName": "eth",
+          "deployments": [
+            {
+              "address": "0xb4b9dc1c77bdbb135ea907fd5a08094d98883a35",
+              "decimals": 18,
+              "chainName": "eth",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:500"]
+        },
+        {
+          "defuseAssetId": "nep141:base-0x227d920e20ebac8a40e7d6431b7d724bb64d7245.stft.near",
+          "symbol": "SWEAT",
+          "name": "Sweat Economy",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/21351.png",
+          "originChainName": "base",
+          "deployments": [
+            {
+              "address": "0x227d920e20ebac8a40e7d6431b7d724bb64d7245",
+              "decimals": 18,
+              "chainName": "base",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:500"]
+        },
+        {
+          "defuseAssetId": "nep141:arb-0xca7dec8550f43a5e46e3dfb95801f64280e75b27.stft.near",
+          "symbol": "SWEAT",
+          "name": "Sweat Economy",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/21351.png",
+          "originChainName": "arbitrum",
+          "deployments": [
+            {
+              "address": "0xca7dec8550f43a5e46e3dfb95801f64280e75b27",
+              "decimals": 18,
+              "chainName": "arbitrum",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:500"]
+        },
+        {
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:56_28V9BijGeZDBFEEtkAcnJo4tPRH4",
+          "symbol": "SWEAT",
+          "name": "Sweat Economy",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/21351.png",
+          "originChainName": "bsc",
+          "deployments": [
+            {
+              "address": "0x510ad22d8c956dcc20f68932861f54a591001283",
+              "decimals": 18,
+              "chainName": "bsc",
+              "bridge": "hot_omni"
+            }
+          ],
+          "tags": ["mc:500"]
+        }
+      ],
+      "tags": ["mc:500"]
+    },
+    {
+      "unifiedAssetId": "turbo",
+      "symbol": "TURBO",
+      "name": "Turbo",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/24911.png",
+      "groupedTokens": [
+        {
+          "defuseAssetId": "nep141:a35923162c49cf95e6bf26623385eb431ad920d3.factory.bridge.near",
+          "symbol": "TURBO",
+          "name": "Turbo",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/24911.png",
+          "originChainName": "near",
+          "deployments": [
+            {
+              "address": "a35923162c49cf95e6bf26623385eb431ad920d3.factory.bridge.near",
+              "decimals": 18,
+              "chainName": "near",
+              "bridge": "direct"
+            }
+          ],
+          "tags": ["mc:100"]
+        },
+        {
+          "defuseAssetId": "nep141:eth-0xa35923162c49cf95e6bf26623385eb431ad920d3.stft.near",
+          "symbol": "TURBO",
+          "name": "Turbo",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/24911.png",
+          "originChainName": "eth",
+          "deployments": [
+            {
+              "address": "0xa35923162c49cf95e6bf26623385eb431ad920d3",
+              "decimals": 18,
+              "chainName": "eth",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:100"]
+        },
+        {
+          "defuseAssetId": "nep141:sol-df27d7abcc1c656d4ac3b1399bbfbba1994e6d8c.stft.near",
+          "symbol": "TURBO",
+          "name": "Turbo",
+          "decimals": 8,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/24911.png",
+          "originChainName": "solana",
+          "deployments": [
+            {
+              "address": "2Dyzu65QA9zdX1UeE7Gx71k7fiwyUK6sZdrvJ7auq5wm",
+              "decimals": 8,
+              "chainName": "solana",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:100"]
+        }
+      ],
+      "tags": ["mc:100"]
+    },
+    {
+      "unifiedAssetId": "aurora",
+      "symbol": "AURORA",
+      "name": "Aurora",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/14803.png",
+      "groupedTokens": [
+        {
+          "defuseAssetId": "nep141:aaaaaa20d9e0e2461697782ef11675f668207961.factory.bridge.near",
+          "symbol": "AURORA",
+          "name": "Aurora",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/14803.png",
+          "originChainName": "near",
+          "deployments": [
+            {
+              "address": "aaaaaa20d9e0e2461697782ef11675f668207961.factory.bridge.near",
+              "decimals": 18,
+              "chainName": "near",
+              "bridge": "direct"
+            }
+          ],
+          "tags": ["mc:200"]
+        },
+        {
+          "defuseAssetId": "nep141:eth-0xaaaaaa20d9e0e2461697782ef11675f668207961.stft.near",
+          "symbol": "AURORA",
+          "name": "Aurora",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/14803.png",
+          "originChainName": "eth",
+          "deployments": [
+            {
+              "address": "0xaaaaaa20d9e0e2461697782ef11675f668207961",
+              "decimals": 18,
+              "chainName": "eth",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:200"]
+        }
+      ],
+      "tags": ["mc:200"]
+    },
+    {
+      "unifiedAssetId": "hapi",
+      "symbol": "HAPI",
+      "name": "HAPI",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/8567.png",
+      "groupedTokens": [
+        {
+          "defuseAssetId": "nep141:d9c2d319cd7e6177336b0a9c93c21cb48d84fb54.factory.bridge.near",
+          "symbol": "HAPI",
+          "name": "HAPI",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/8567.png",
+          "originChainName": "near",
+          "deployments": [
+            {
+              "address": "d9c2d319cd7e6177336b0a9c93c21cb48d84fb54.factory.bridge.near",
+              "decimals": 18,
+              "chainName": "near",
+              "bridge": "direct"
+            }
+          ],
+          "tags": ["mc:1000"]
+        },
+        {
+          "defuseAssetId": "nep141:eth-0xd9c2d319cd7e6177336b0a9c93c21cb48d84fb54.stft.near",
+          "symbol": "HAPI",
+          "name": "HAPI",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/8567.png",
+          "originChainName": "eth",
+          "deployments": [
+            {
+              "address": "0xd9c2d319cd7e6177336b0a9c93c21cb48d84fb54",
+              "decimals": 18,
+              "chainName": "eth",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:1000"]
+        }
+      ],
+      "tags": ["mc:1000"]
+    },
+    {
+      "unifiedAssetId": "safe",
+      "symbol": "SAFE",
+      "name": "Safe",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/26592.png",
+      "groupedTokens": [
+        {
+          "defuseAssetId": "nep141:eth-0x5afe3855358e112b5647b952709e6165e1c1eeee.stft.near",
+          "symbol": "SAFE",
+          "name": "Safe",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/26592.png",
+          "originChainName": "eth",
+          "deployments": [
+            {
+              "address": "0x5afe3855358e112b5647b952709e6165e1c1eeee",
+              "decimals": 18,
+              "chainName": "eth",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:150"]
+        },
+        {
+          "defuseAssetId": "nep141:gnosis-0x4d18815d14fe5c3304e87b3fa18318baa5c23820.stft.near",
+          "symbol": "SAFE",
+          "name": "Safe",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/26592.png",
+          "originChainName": "gnosis",
+          "deployments": [
+            {
+              "address": "0x4d18815d14fe5c3304e87b3fa18318baa5c23820",
+              "decimals": 18,
+              "chainName": "gnosis",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:150"]
+        }
+      ],
+      "tags": ["mc:150"]
+    },
+    {
+      "unifiedAssetId": "spx",
+      "symbol": "SPX",
+      "name": "SPX6900",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/27490.png",
+      "groupedTokens": [
+        {
+          "defuseAssetId": "nep141:eth-0xe0f63a424a4439cbe457d80e4f4b51ad25b2c56c.stft.near",
+          "symbol": "SPX",
+          "name": "SPX6900",
+          "decimals": 8,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/27490.png",
+          "originChainName": "eth",
+          "deployments": [
+            {
+              "address": "0xe0f63a424a4439cbe457d80e4f4b51ad25b2c56c",
+              "decimals": 8,
+              "chainName": "eth",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:80"]
+        },
+        {
+          "defuseAssetId": "nep141:sol-c634d063ceff771aff0c972ec396fd915a6bbd0e.stft.near",
+          "symbol": "SPX",
+          "name": "SPX6900",
+          "decimals": 8,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/27490.png",
+          "originChainName": "solana",
+          "deployments": [
+            {
+              "address": "J3NKxxXZcnNiMjKw9hYb2K4LUxgwB6t1FtPtQVsv3KFr",
+              "decimals": 8,
+              "chainName": "solana",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:80"]
+        }
+      ],
+      "tags": ["mc:80"]
+    },
+    {
+      "unifiedAssetId": "adi",
+      "symbol": "ADI",
+      "name": "ADI",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/29652.png",
+      "groupedTokens": [
+        {
+          "defuseAssetId": "nep141:eth-0x8b1484d57abbe239bb280661377363b03c89caea.stft.near",
+          "symbol": "ADI",
+          "name": "ADI",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/29652.png",
+          "originChainName": "eth",
+          "deployments": [
+            {
+              "address": "0x8b1484d57abbe239bb280661377363b03c89caea",
+              "decimals": 18,
+              "chainName": "eth",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:1000"]
+        },
+        {
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:36900_11111111111111111111",
+          "symbol": "ADI",
+          "name": "ADI",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/29652.png",
+          "originChainName": "adi",
+          "deployments": [
+            {
+              "type": "native",
+              "decimals": 18,
+              "chainName": "adi",
+              "bridge": "hot_omni"
+            }
+          ],
+          "tags": ["mc:1000"]
+        }
+      ],
+      "tags": ["mc:1000"]
+    },
+    {
+      "unifiedAssetId": "rhea",
+      "symbol": "RHEA",
+      "name": "Rhea",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/28666.png",
+      "groupedTokens": [
+        {
+          "defuseAssetId": "nep141:token.rhealab.near",
+          "symbol": "RHEA",
+          "name": "Rhea",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/28666.png",
+          "originChainName": "near",
+          "deployments": [
+            {
+              "address": "token.rhealab.near",
+              "decimals": 18,
+              "chainName": "near",
+              "bridge": "direct"
+            }
+          ],
+          "tags": ["mc:2000"]
+        },
+        {
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:56_24S22V8GMmQN8t6PbCdRb3mBewAd",
+          "symbol": "RHEA",
+          "name": "Rhea",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/28666.png",
+          "originChainName": "bsc",
+          "deployments": [
+            {
+              "address": "0x4c067de26475e1cefee8b8d1f6e2266b33a2372e",
+              "decimals": 18,
+              "chainName": "bsc",
+              "bridge": "hot_omni"
+            }
+          ],
+          "tags": ["mc:2000"]
+        }
+      ],
+      "tags": ["mc:2000"]
+    },
+    {
+      "unifiedAssetId": "public",
+      "symbol": "PUBLIC",
+      "name": "Public AI",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/29050.png",
+      "groupedTokens": [
+        {
+          "defuseAssetId": "nep141:token.publicailab.near",
+          "symbol": "PUBLIC",
+          "name": "Public AI",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/29050.png",
+          "originChainName": "near",
+          "deployments": [
+            {
+              "address": "token.publicailab.near",
+              "decimals": 18,
+              "chainName": "near",
+              "bridge": "direct"
+            }
+          ],
+          "tags": ["mc:2000"]
+        },
+        {
+          "defuseAssetId": "nep141:sol-1f00bb36e75cfc8e1274c1507cc3054f5b3f3ce1.stft.near",
+          "symbol": "PUBLIC",
+          "name": "Public AI",
+          "decimals": 9,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/29050.png",
+          "originChainName": "solana",
+          "deployments": [
+            {
+              "address": "AXCp86262ZPfpcV9bmtmtnzmJSL5sD99mCVJD4GR9vS",
+              "decimals": 9,
+              "chainName": "solana",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:2000"]
+        }
+      ],
+      "tags": ["mc:2000"]
+    },
+    {
+      "unifiedAssetId": "near_bsc",
+      "symbol": "NEAR",
+      "name": "NEAR on BSC",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/6535.png",
+      "groupedTokens": [
+        {
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:56_SZzgw3HSudhZcTwPWUTi2RJB19t",
+          "symbol": "NEAR",
+          "name": "NEAR",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/6535.png",
+          "originChainName": "bsc",
+          "deployments": [
+            {
+              "address": "0x1fa4a73a3f0133f0025378af00236f3abdee5d63",
+              "decimals": 18,
+              "chainName": "bsc",
+              "bridge": "hot_omni"
+            }
+          ],
+          "tags": ["mc:31"]
+        }
+      ],
+      "tags": ["mc:31"]
+    },
+    {
+      "defuseAssetId": "nep141:cfi.consumer-fi.near",
+      "symbol": "CFI",
+      "name": "Consumer Finance",
+      "decimals": 18,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/28667.png",
+      "originChainName": "near",
+      "deployments": [
+        {
+          "address": "cfi.consumer-fi.near",
+          "decimals": 18,
+          "chainName": "near",
+          "bridge": "direct"
+        }
+      ],
+      "tags": ["mc:5000"]
+    },
+    {
+      "defuseAssetId": "nep141:mpdao-token.near",
+      "symbol": "mpDAO",
+      "name": "Meta Pool DAO",
+      "decimals": 6,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/23780.png",
+      "originChainName": "near",
+      "deployments": [
+        {
+          "address": "mpdao-token.near",
+          "decimals": 6,
+          "chainName": "near",
+          "bridge": "direct"
+        }
+      ],
+      "tags": ["mc:5000"]
+    },
+    {
+      "defuseAssetId": "nep141:itlx.intellex_xyz.near",
+      "symbol": "ITLX",
+      "name": "Intellex",
+      "decimals": 24,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/28668.png",
+      "originChainName": "near",
+      "deployments": [
+        {
+          "address": "itlx.intellex_xyz.near",
+          "decimals": 24,
+          "chainName": "near",
+          "bridge": "direct"
+        }
+      ],
+      "tags": ["mc:5000"]
+    },
+    {
+      "defuseAssetId": "nep141:npro.nearmobile.near",
+      "symbol": "NPRO",
+      "name": "Near Mobile Pro",
+      "decimals": 24,
+      "icon": "https://nearblocks.io/images/apps/app_nearmobile.png",
+      "originChainName": "near",
+      "deployments": [
+        {
+          "address": "npro.nearmobile.near",
+          "decimals": 24,
+          "chainName": "near",
+          "bridge": "direct"
+        }
+      ],
+      "tags": ["mc:5000"]
+    },
+    {
+      "defuseAssetId": "nep141:token.0xshitzu.near",
+      "symbol": "SHITZU",
+      "name": "Shitzu",
+      "decimals": 18,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/31030.png",
+      "originChainName": "near",
+      "deployments": [
+        {
+          "address": "token.0xshitzu.near",
+          "decimals": 18,
+          "chainName": "near",
+          "bridge": "direct"
+        }
+      ],
+      "tags": ["mc:5000"]
+    },
+    {
+      "defuseAssetId": "nep141:blackdragon.tkn.near",
+      "symbol": "BLACKDRAGON",
+      "name": "Black Dragon",
+      "decimals": 24,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/29803.png",
+      "originChainName": "near",
+      "deployments": [
+        {
+          "address": "blackdragon.tkn.near",
+          "decimals": 24,
+          "chainName": "near",
+          "bridge": "direct"
+        }
+      ],
+      "tags": ["mc:5000"]
+    },
+    {
+      "defuseAssetId": "nep141:kat.token0.near",
+      "symbol": "NearKat",
+      "name": "NearKat",
+      "decimals": 18,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/31515.png",
+      "originChainName": "near",
+      "deployments": [
+        {
+          "address": "kat.token0.near",
+          "decimals": 18,
+          "chainName": "near",
+          "bridge": "direct"
+        }
+      ],
+      "tags": ["mc:5000"]
+    },
+    {
+      "defuseAssetId": "nep141:purge-558.meme-cooking.near",
+      "symbol": "PURGE",
+      "name": "Purge",
+      "decimals": 18,
+      "icon": "https://placehold.co/128x128/png?text=PURGE",
+      "originChainName": "near",
+      "deployments": [
+        {
+          "address": "purge-558.meme-cooking.near",
+          "decimals": 18,
+          "chainName": "near",
+          "bridge": "direct"
+        }
+      ],
+      "tags": ["mc:10000"]
+    },
+    {
+      "defuseAssetId": "nep141:jambo-1679.meme-cooking.near",
+      "symbol": "JAMBO",
+      "name": "Jambo",
+      "decimals": 18,
+      "icon": "https://placehold.co/128x128/png?text=JAMBO",
+      "originChainName": "near",
+      "deployments": [
+        {
+          "address": "jambo-1679.meme-cooking.near",
+          "decimals": 18,
+          "chainName": "near",
+          "bridge": "direct"
+        }
+      ],
+      "tags": ["mc:10000"]
+    },
+    {
+      "defuseAssetId": "nep141:abg-966.meme-cooking.near",
+      "symbol": "ABG",
+      "name": "ABG",
+      "decimals": 18,
+      "icon": "https://placehold.co/128x128/png?text=ABG",
+      "originChainName": "near",
+      "deployments": [
+        {
+          "address": "abg-966.meme-cooking.near",
+          "decimals": 18,
+          "chainName": "near",
+          "bridge": "direct"
+        }
+      ],
+      "tags": ["mc:10000"]
+    },
+    {
+      "defuseAssetId": "nep141:noear-324.meme-cooking.near",
+      "symbol": "NOEAR",
+      "name": "NOEAR",
+      "decimals": 18,
+      "icon": "https://placehold.co/128x128/png?text=NOEAR",
+      "originChainName": "near",
+      "deployments": [
+        {
+          "address": "noear-324.meme-cooking.near",
+          "decimals": 18,
+          "chainName": "near",
+          "bridge": "direct"
+        }
+      ],
+      "tags": ["mc:10000"]
+    },
+    {
+      "defuseAssetId": "nep141:gnear-229.meme-cooking.near",
+      "symbol": "GNEAR",
+      "name": "GNEAR",
+      "decimals": 18,
+      "icon": "https://placehold.co/128x128/png?text=GNEAR",
+      "originChainName": "near",
+      "deployments": [
+        {
+          "address": "gnear-229.meme-cooking.near",
+          "decimals": 18,
+          "chainName": "near",
+          "bridge": "direct"
+        }
+      ],
+      "tags": ["mc:10000"]
+    },
+    {
+      "defuseAssetId": "nep141:853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near",
+      "symbol": "FRAX",
+      "name": "Frax",
+      "decimals": 18,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/6952.png",
+      "originChainName": "near",
+      "deployments": [
+        {
+          "address": "853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near",
+          "decimals": 18,
+          "chainName": "near",
+          "bridge": "direct"
+        }
+      ],
+      "tags": ["mc:100", "type:stablecoin"]
+    },
+    {
+      "defuseAssetId": "nep141:2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near",
+      "symbol": "wBTC",
+      "name": "Wrapped BTC",
+      "decimals": 8,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/3717.png",
+      "originChainName": "near",
+      "deployments": [
+        {
+          "address": "2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near",
+          "decimals": 8,
+          "chainName": "near",
+          "bridge": "direct"
+        }
+      ],
+      "tags": ["mc:15"]
+    },
+    {
+      "defuseAssetId": "nep141:nbtc.bridge.near",
+      "symbol": "nBTC",
+      "name": "NEAR BTC",
+      "decimals": 8,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1.png",
+      "originChainName": "near",
+      "deployments": [
+        {
+          "address": "nbtc.bridge.near",
+          "decimals": 8,
+          "chainName": "near",
+          "bridge": "direct"
+        }
+      ],
+      "tags": ["mc:15"]
+    },
+    {
+      "defuseAssetId": "nep141:eth.bridge.near",
+      "symbol": "ETH",
+      "name": "ETH (Rainbow)",
+      "decimals": 18,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1027.png",
+      "originChainName": "near",
+      "deployments": [
+        {
+          "address": "eth.bridge.near",
+          "decimals": 18,
+          "chainName": "near",
+          "bridge": "direct"
+        }
+      ],
+      "tags": ["mc:2"]
+    },
+    {
+      "unifiedAssetId": "xbtc",
+      "symbol": "xBTC",
+      "name": "xBTC",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1.png",
+      "groupedTokens": [
+        {
+          "defuseAssetId": "nep141:sol-91914f13d3b54f8126a2824d71632d4b078d7403.stft.near",
+          "symbol": "xBTC",
+          "name": "xBTC",
+          "decimals": 8,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1.png",
+          "originChainName": "solana",
+          "deployments": [
+            {
+              "address": "CtzPWv73Sn1dMGVU3ZtLv9yWSyUAanBni19YWDaznnkn",
+              "decimals": 8,
+              "chainName": "solana",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:1"]
+        }
+      ],
+      "tags": ["mc:1"]
+    },
+    {
+      "unifiedAssetId": "susdc",
+      "symbol": "sUSDC",
+      "name": "Solayer USDC",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+      "groupedTokens": [
+        {
+          "defuseAssetId": "nep141:base-0x1c4a802fd6b591bb71daa01d8335e43719048b24.stft.near",
+          "symbol": "sUSDC",
+          "name": "Solayer USDC",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+          "originChainName": "base",
+          "deployments": [
+            {
+              "address": "0x1c4a802fd6b591bb71daa01d8335e43719048b24",
+              "decimals": 6,
+              "chainName": "base",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:7", "type:stablecoin"]
+        },
+        {
+          "defuseAssetId": "nep141:sol-2dc7b64e5dd3c717fc85abaf51cdcd4b18687f09.stft.near",
+          "symbol": "sUSDC",
+          "name": "Solayer USDC",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+          "originChainName": "solana",
+          "deployments": [
+            {
+              "address": "3tMdx4g4grCgqHjELqALfTPnZnG1BLwsPntD3tGREgvp",
+              "decimals": 6,
+              "chainName": "solana",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:7", "type:stablecoin"]
+        }
+      ],
+      "tags": ["mc:7", "type:stablecoin"]
+    },
+    {
+      "defuseAssetId": "nep141:test-token.highdome3013.near",
+      "symbol": "TESTNEBULA",
+      "name": "Test Nebula",
+      "decimals": 8,
+      "icon": "https://placehold.co/128x128/png?text=TEST",
+      "originChainName": "near",
+      "deployments": [
+        {
+          "address": "test-token.highdome3013.near",
+          "decimals": 8,
+          "chainName": "near",
+          "bridge": "direct"
+        }
+      ],
+      "tags": ["mc:100000"]
     }
   ]
 }
