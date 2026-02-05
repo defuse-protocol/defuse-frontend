@@ -1,11 +1,11 @@
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { assert } from "@defuse-protocol/internal-utils"
-import { UserCircleIcon, UserPlusIcon } from "@heroicons/react/20/solid"
+import { UserCircleIcon } from "@heroicons/react/20/solid"
 import { getContacts } from "@src/app/(app)/(auth)/contacts/actions"
 import ErrorMessage from "@src/components/ErrorMessage"
 import ListItem from "@src/components/ListItem"
 import { ContactsIcon, WalletIcon } from "@src/icons"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import clsx from "clsx"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useFormContext } from "react-hook-form"
@@ -21,15 +21,10 @@ import {
 } from "../../features/withdraw/components/WithdrawForm/utils"
 import type { NetworkOptions } from "../../hooks/useNetworkLists"
 import type { SupportedChainName } from "../../types/base"
-import {
-  assetNetworkAdapter,
-  reverseAssetNetworkAdapter,
-} from "../../utils/adapters"
+import { reverseAssetNetworkAdapter } from "../../utils/adapters"
 import { stringToColor } from "../../utils/stringToColor"
 import { NetworkIcon } from "../Network/NetworkIcon"
 import SearchBar from "../SearchBar"
-import TooltipNew from "../TooltipNew"
-import ModalAddEditContact from "./ModalAddEditContact"
 import { BaseModalDialog } from "./ModalDialog"
 
 type ModalSelectRecipientProps = {
@@ -62,17 +57,14 @@ const ModalSelectRecipient = ({
   onContactSelect,
   onRecipientContactChange,
 }: ModalSelectRecipientProps) => {
-  const { setValue, watch, clearErrors } =
-    useFormContext<WithdrawFormNearValues>()
+  const { setValue, watch } = useFormContext<WithdrawFormNearValues>()
   const blockchain = watch("blockchain")
-  const queryClient = useQueryClient()
 
   const [isScrolled, setIsScrolled] = useState(false)
   const [inputValue, setInputValue] = useState("")
   const [isValidating, setIsValidating] = useState(false)
   const [validationError, setValidationError] = useState<string | null>(null)
   const [validatedAddress, setValidatedAddress] = useState<string | null>(null)
-  const [showAddContact, setShowAddContact] = useState(false)
 
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
@@ -98,6 +90,7 @@ const ModalSelectRecipient = ({
       contact.name.toLowerCase().includes(inputValue.toLowerCase())
     )
   }, [availableContacts, inputValue])
+  const hasMatchingContacts = visibleContacts.length > 0
 
   useEffect(() => {
     if (!inputValue) {
@@ -108,7 +101,7 @@ const ModalSelectRecipient = ({
     }
 
     // If there are matching contacts by name, skip address validation
-    if (visibleContacts.length > 0) {
+    if (hasMatchingContacts) {
       setIsValidating(false)
       setValidationError(null)
       setValidatedAddress(null)
@@ -121,23 +114,33 @@ const ModalSelectRecipient = ({
     setValidatedAddress(null)
 
     const timer = setTimeout(async () => {
-      const result = await validationRecipientAddress(
-        inputValue,
-        blockchain,
-        userAddress ?? "",
-        chainType
-      )
+      try {
+        const result = await validationRecipientAddress(
+          inputValue,
+          blockchain,
+          userAddress ?? "",
+          chainType
+        )
 
-      if (cancelled) return
+        if (cancelled) return
 
-      setIsValidating(false)
-
-      if (result.isErr()) {
-        setValidationError(renderRecipientAddressError(result.unwrapErr()))
+        if (result.isErr()) {
+          setValidationError(renderRecipientAddressError(result.unwrapErr()))
+          setValidatedAddress(null)
+        } else {
+          setValidationError(null)
+          setValidatedAddress(inputValue)
+        }
+      } catch {
+        if (cancelled) return
+        setValidationError(
+          "An unexpected error occurred. Please enter a different recipient address."
+        )
         setValidatedAddress(null)
-      } else {
-        setValidationError(null)
-        setValidatedAddress(inputValue)
+      } finally {
+        if (!cancelled) {
+          setIsValidating(false)
+        }
       }
     }, VALIDATION_DEBOUNCE_MS)
 
@@ -145,7 +148,7 @@ const ModalSelectRecipient = ({
       cancelled = true
       clearTimeout(timer)
     }
-  }, [inputValue, blockchain, userAddress, chainType, visibleContacts])
+  }, [inputValue, blockchain, userAddress, chainType, hasMatchingContacts])
 
   const handleScroll = () => {
     if (!scrollContainerRef.current) return
@@ -236,24 +239,6 @@ const ModalSelectRecipient = ({
                   {midTruncate(validatedAddress, 16)}
                 </ListItem.Title>
               </ListItem.Content>
-              <TooltipNew>
-                <TooltipNew.Trigger>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setShowAddContact(true)
-                    }}
-                    className="relative z-20 size-8 rounded-lg flex items-center justify-center ml-auto text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-                    aria-label="Save as new contact"
-                  >
-                    <UserPlusIcon className="size-5" />
-                  </button>
-                </TooltipNew.Trigger>
-                <TooltipNew.Content side="top">
-                  Save as new contact
-                </TooltipNew.Content>
-              </TooltipNew>
             </ListItem>
           ) : (
             <>
@@ -364,40 +349,6 @@ const ModalSelectRecipient = ({
           )}
         </div>
       </div>
-
-      <ModalAddEditContact
-        open={showAddContact}
-        onClose={() => setShowAddContact(false)}
-        onSuccess={(contact) => {
-          queryClient.invalidateQueries({ queryKey: ["contacts"] })
-          clearErrors()
-          const chainKey = reverseAssetNetworkAdapter[contact.blockchain]
-          if (onContactSelect) {
-            onContactSelect(chainKey, contact.address, contact.name)
-          } else {
-            onRecipientContactChange?.(contact.name)
-            setValue("blockchain", chainKey, {
-              shouldValidate: true,
-              shouldDirty: true,
-              shouldTouch: true,
-            })
-            setValue("recipient", contact.address, {
-              shouldValidate: true,
-              shouldDirty: true,
-              shouldTouch: true,
-            })
-            onClose()
-          }
-          setShowAddContact(false)
-        }}
-        defaultValues={{
-          address: validatedAddress ?? "",
-          blockchain:
-            blockchain && blockchain !== "near_intents"
-              ? assetNetworkAdapter[blockchain]
-              : null,
-        }}
-      />
     </BaseModalDialog>
   )
 }

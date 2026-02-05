@@ -607,6 +607,7 @@ export const WithdrawForm = ({
         feeUsd={feeUsd}
         directionFee={directionFee}
         recipientContactName={recipientContactName}
+        onContactSaved={setRecipientContactName}
       />
     </>
   )
