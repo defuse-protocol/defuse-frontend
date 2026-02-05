@@ -29,13 +29,13 @@ const PreviewBanner = ({ className }: { className?: string }) => {
   return (
     <div
       className={clsx(
-        "bg-yellow-100 flex items-center justify-center gap-3 px-4 py-2.5 rounded-xl",
+        "bg-yellow-100 flex items-center justify-center gap-3 px-3 py-2 rounded-xl",
         className
       )}
     >
       <div className="flex items-start justify-center gap-3 flex-1">
         <ExclamationTriangleIcon className="mt-px size-5 shrink-0 text-yellow-500" />
-        <span className="text-yellow-800 text-sm font-semibold line-clamp-2">
+        <span className="text-yellow-800 text-sm font-semibold">
           Preview for testing only. There may be bugs. Do not deposit funds you
           can not afford to lose.
         </span>
@@ -44,7 +44,7 @@ const PreviewBanner = ({ className }: { className?: string }) => {
       <button
         type="button"
         onClick={handleClose}
-        className="-m-2 flex-none p-2 focus-visible:-outline-offset-4 text-yellow-800 hover:text-yellow-900 hover:bg-yellow-950/10 rounded-lg"
+        className="-m-2 flex-none p-1.5 focus-visible:-outline-offset-4 text-yellow-800 hover:text-yellow-900 hover:bg-yellow-950/10 rounded-lg"
       >
         <span className="sr-only">Dismiss</span>
         <XMarkIcon aria-hidden="true" className="size-5" />

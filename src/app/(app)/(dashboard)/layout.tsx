@@ -30,15 +30,17 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => (
 
       <ActivityDock />
 
-      <UserMenu />
+      <div className="relative mt-5 flex flex-col gap-3">
+        <SystemStatus showOperationalStatus={false} />
+        <UserMenu />
+      </div>
     </div>
 
     {/* Content */}
     <div className="relative flex flex-1 flex-col lg:min-w-0 pt-safe-offset-3 lg:p-2 lg:pl-74">
       <div className="max-lg:px-4">
-        <div className="has-[>*]:pb-3 lg:has-[>*]:pb-2 space-y-2">
+        <div className="has-[>*]:pb-3 lg:has-[>*]:pb-2 space-y-2 max-lg:-mx-0.5">
           <PreviewBanner />
-          <SystemStatus showOperationalStatus={false} />
           <NetworkOutageNotification />
         </div>
 

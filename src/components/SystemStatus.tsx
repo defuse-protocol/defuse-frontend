@@ -30,7 +30,7 @@ function SystemStatus({ className, showOperationalStatus = false }: Props) {
   return (
     <div
       className={clsx(
-        "flex items-center justify-center gap-3 px-4 py-2.5 rounded-xl",
+        "flex items-center justify-center gap-3 px-3 py-2 rounded-xl",
         {
           "bg-red-50": statusType === "incident",
           "bg-yellow-100": statusType === "maintenance",

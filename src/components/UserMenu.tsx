@@ -68,7 +68,7 @@ const UserMenu = () => {
   return (
     <>
       <DropdownMenu.Root modal={false}>
-        <DropdownMenu.Trigger className="relative mt-5 group bg-gray-900 text-gray-400 rounded-2xl px-3.5 py-3 flex items-center gap-3 w-full hover:bg-gray-950 hover:text-gray-300 data-[state=open]:bg-gray-950 data-[state=open]:text-gray-300">
+        <DropdownMenu.Trigger className="relative group bg-gray-900 text-gray-400 rounded-2xl px-3.5 py-3 flex items-center gap-3 w-full hover:bg-gray-950 hover:text-gray-300 data-[state=open]:bg-gray-950 data-[state=open]:text-gray-300">
           <div className="size-7 flex items-center justify-center bg-brand rounded-lg">
             <UserIcon className="text-white/80 size-5" />
           </div>
