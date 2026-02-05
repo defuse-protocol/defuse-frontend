@@ -17,6 +17,7 @@ import {
 } from "../../features/withdraw/components/WithdrawForm/components/RecipientSubForm/validationRecipientAddress"
 import {
   chainNameToNetworkName,
+  isNearIntentsNetwork,
   midTruncate,
 } from "../../features/withdraw/components/WithdrawForm/utils"
 import type { NetworkOptions } from "../../hooks/useNetworkLists"
@@ -176,6 +177,11 @@ const ModalSelectRecipient = ({
     !validatedAddress &&
     availableContacts.length === 0 &&
     selectedNetworkName
+  const isContactCreationDisabled =
+    blockchain != null && isNearIntentsNetwork(blockchain)
+  const saveContactTooltip = isContactCreationDisabled
+    ? "Creation of a new Contact for a NEAR Intents internal account is not yet supported"
+    : "Save as new contact"
 
   return (
     <BaseModalDialog
@@ -238,20 +244,29 @@ const ModalSelectRecipient = ({
               </ListItem.Content>
               <TooltipNew>
                 <TooltipNew.Trigger>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setShowAddContact(true)
-                    }}
-                    className="relative z-20 size-8 rounded-lg flex items-center justify-center ml-auto text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-                    aria-label="Save as new contact"
-                  >
-                    <UserPlusIcon className="size-5" />
-                  </button>
+                  <span className="ml-auto">
+                    <button
+                      type="button"
+                      disabled={isContactCreationDisabled}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        if (isContactCreationDisabled) return
+                        setShowAddContact(true)
+                      }}
+                      className={clsx(
+                        "relative z-20 size-8 rounded-lg flex items-center justify-center transition-colors",
+                        isContactCreationDisabled
+                          ? "text-gray-300 cursor-not-allowed pointer-events-none"
+                          : "text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                      )}
+                      aria-label="Save as new contact"
+                    >
+                      <UserPlusIcon className="size-5" />
+                    </button>
+                  </span>
                 </TooltipNew.Trigger>
                 <TooltipNew.Content side="top">
-                  Save as new contact
+                  {saveContactTooltip}
                 </TooltipNew.Content>
               </TooltipNew>
             </ListItem>
