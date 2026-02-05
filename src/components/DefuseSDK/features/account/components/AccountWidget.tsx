@@ -10,6 +10,7 @@ import type { RenderHostAppLink } from "../../../types/hostAppLink"
 import { useWatchHoldings } from "../hooks/useWatchHoldings"
 import { computeTotalUsdValue } from "../utils/holdingsUtils"
 import { HoldingsIsland } from "./HoldingsIsland"
+import { PrivateHoldingsIsland } from "./PrivateHoldingsIsland"
 import { SummaryIsland } from "./SummaryIsland"
 
 export interface AccountWidgetProps {
@@ -72,6 +73,11 @@ export function AccountWidget({
           isLoggedIn={userId != null}
           holdings={holdings}
           hideBalances={hideBalances?.hidden}
+        />
+
+        <PrivateHoldingsIsland
+          tokenList={tokenList}
+          isLoggedIn={userAddress != null}
         />
       </div>
     </WidgetRoot>
