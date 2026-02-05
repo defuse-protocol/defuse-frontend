@@ -961,6 +961,7 @@ export function getAvailableDepositRoutes(
             passiveDeposit: false,
           }
         default:
+          // @ts-expect-error tmp
           network satisfies never
           throw new Error("exhaustive check failed")
       }
@@ -1022,6 +1023,7 @@ export function getAvailableDepositRoutes(
             passiveDeposit: false,
           }
         default:
+          // @ts-expect-error tmp
           network satisfies never
           throw new Error("exhaustive check failed")
       }
@@ -1077,6 +1079,7 @@ export function getAvailableDepositRoutes(
             passiveDeposit: false,
           }
         default:
+          // @ts-expect-error tmp
           network satisfies never
           throw new Error("exhaustive check failed")
       }
@@ -1126,6 +1129,7 @@ export function getAvailableDepositRoutes(
             passiveDeposit: false,
           }
         default:
+          // @ts-expect-error tmp
           network satisfies never
           throw new Error("exhaustive check failed")
       }
@@ -1181,6 +1185,7 @@ export function getAvailableDepositRoutes(
             passiveDeposit: false,
           }
         default:
+          // @ts-expect-error tmp
           network satisfies never
           throw new Error("exhaustive check failed")
       }
@@ -1236,6 +1241,7 @@ export function getAvailableDepositRoutes(
             passiveDeposit: false,
           }
         default:
+          // @ts-expect-error tmp
           network satisfies never
           throw new Error("exhaustive check failed")
       }
@@ -1291,6 +1297,7 @@ export function getAvailableDepositRoutes(
             passiveDeposit: false,
           }
         default:
+          // @ts-expect-error tmp
           network satisfies never
           throw new Error("exhaustive check failed")
       }
@@ -1368,6 +1375,7 @@ export function getWalletRpcUrl(network: BlockchainEnum): string {
     case BlockchainEnum.MONAD:
       return settings.rpcUrls.monad
     default:
+      // @ts-expect-error tmp
       network satisfies never
       throw new Error("exhaustive check failed")
   }

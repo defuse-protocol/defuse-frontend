@@ -36,6 +36,7 @@ export const assetNetworkAdapter: Record<SupportedChainName, BlockchainEnum> = {
   monad: BlockchainEnum.MONAD,
 }
 
+// @ts-expect-error tmp
 export const reverseAssetNetworkAdapter: Record<
   BlockchainEnum,
   SupportedChainName

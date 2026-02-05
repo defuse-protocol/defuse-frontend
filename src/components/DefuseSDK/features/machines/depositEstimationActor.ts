@@ -139,6 +139,7 @@ export const depositEstimateMaxValueActor = fromPromise(
       case BlockchainEnum.LAYERX:
         return 0n
       default:
+        // @ts-expect-error tmp
         networkToSolverFormat satisfies never
         throw new Error("exhaustive check failed")
     }

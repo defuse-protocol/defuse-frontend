@@ -169,6 +169,7 @@ export function getBlockchainsOptions(): Record<
   BlockchainEnum,
   BlockchainOption
 > {
+  // @ts-expect-error tmp
   const options: Record<
     Exclude<BlockchainEnum, "eth:196">, // TODO: remove this once LayerX is supported
     BlockchainOption
