@@ -22,7 +22,7 @@ export default function SwapPage() {
   const signMessage = useWalletAgnosticSignMessage()
   const { signAndSendTransactions } = useNearWallet()
   const searchParams = useSearchParams()
-  const userAddress = state.isVerified ? state.address : undefined
+  const userAddress = state.isAuthorized ? state.address : undefined
   const userChainType = state.chainType
   const tokenList = useTokenList1cs()
   const { tokenIn, tokenOut } = useDeterminePair(true)

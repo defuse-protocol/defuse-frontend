@@ -39,7 +39,7 @@ const ContactsList = ({
   const router = useRouter()
   const { state } = useConnectWallet()
   const userId =
-    state.isVerified && state.address && state.chainType
+    state.isAuthorized && state.address && state.chainType
       ? authIdentity.authHandleToIntentsUserId(state.address, state.chainType)
       : null
   const { data: holdings = [] } = useWatchHoldings({

@@ -2,6 +2,7 @@ import { TEST_BASE_URL, server } from "@src/tests/setup"
 import { http, HttpResponse } from "msw"
 import { describe, expect, it } from "vitest"
 import {
+  WebAuthnApiError,
   createWebauthnCredential,
   getWebauthnCredential,
 } from "./webAuthnCredentialsAPI"
@@ -65,19 +66,27 @@ describe("webauthnCredentials", () => {
       })
     })
 
-    it("should throw error on failure", async () => {
+    it("should throw WebAuthnApiError with code on 404", async () => {
       server.use(
         http.get(
           `${TEST_BASE_URL}/api/webauthn_credentials/:rawId`,
           async () => {
-            return HttpResponse.json({ error: "Not found" }, { status: 404 })
+            return HttpResponse.json(
+              { error: "Credential not found", code: "CREDENTIAL_NOT_FOUND" },
+              { status: 404 }
+            )
           }
         )
       )
 
-      await expect(
-        getWebauthnCredential("5VJs8P7bXCgYo1HhVnwuVQ")
-      ).rejects.toThrow("Not found")
+      try {
+        await getWebauthnCredential("5VJs8P7bXCgYo1HhVnwuVQ")
+        expect.fail("Should have thrown")
+      } catch (error) {
+        expect(error).toBeInstanceOf(WebAuthnApiError)
+        expect((error as WebAuthnApiError).code).toBe("CREDENTIAL_NOT_FOUND")
+        expect((error as WebAuthnApiError).message).toBe("Credential not found")
+      }
     })
   })
 })
