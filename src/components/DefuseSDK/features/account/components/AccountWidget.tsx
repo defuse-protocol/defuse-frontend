@@ -68,6 +68,7 @@ export function AccountWidget({
         <PrivateHoldingsIsland
           tokenList={tokenList}
           isLoggedIn={userAddress != null}
+          userAddress={userAddress}
         />
       </div>
     </WidgetRoot>

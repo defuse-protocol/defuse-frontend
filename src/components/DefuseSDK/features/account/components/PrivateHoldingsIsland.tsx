@@ -11,7 +11,7 @@ import { useTokensUsdPrices } from "../../../hooks/useTokensUsdPrices"
 import type { BaseTokenInfo, TokenInfo } from "../../../types/base"
 import { formatTokenValue } from "../../../utils/format"
 import getTokenUsdPrice from "../../../utils/getTokenUsdPrice"
-import { getTokenId, isBaseToken } from "../../../utils/token"
+import { getTokenId, isBaseToken, isUnifiedToken } from "../../../utils/token"
 import type { Holding } from "../types/sharedTypes"
 import { HoldingItemSkeleton } from "./shared/HoldingItem"
 import { PrivateHoldingItem } from "./shared/PrivateHoldingItem"
@@ -19,11 +19,13 @@ import { PrivateHoldingItem } from "./shared/PrivateHoldingItem"
 interface PrivateHoldingsIslandProps {
   tokenList: TokenInfo[]
   isLoggedIn: boolean
+  userAddress: string | null | undefined
 }
 
 export function PrivateHoldingsIsland({
   tokenList,
   isLoggedIn,
+  userAddress,
 }: PrivateHoldingsIslandProps) {
   const isPrivateModeEnabled = usePrivateModeStore(
     (state) => state.isPrivateModeEnabled
@@ -40,7 +42,11 @@ export function PrivateHoldingsIsland({
         <ShieldIcon className="w-4 h-4 text-gray-11" weight="fill" />
         <span className="text-sm font-bold text-gray-11">Private Balance</span>
       </div>
-      <Content tokenList={tokenList} isLoggedIn={isLoggedIn} />
+      <Content
+        tokenList={tokenList}
+        isLoggedIn={isLoggedIn}
+        userAddress={userAddress}
+      />
     </Island>
   )
 }
@@ -48,12 +54,14 @@ export function PrivateHoldingsIsland({
 function Content({
   tokenList,
   isLoggedIn,
+  userAddress,
 }: {
   tokenList: TokenInfo[]
   isLoggedIn: boolean
+  userAddress: string | null | undefined
 }) {
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["private-balance"],
+    queryKey: ["private-balance", userAddress],
     queryFn: async () => {
       const result = await getPrivateBalance()
       if ("err" in result) {
@@ -61,7 +69,9 @@ function Content({
       }
       return result.ok
     },
-    refetchInterval: 15000, // Refetch every 15 seconds
+    refetchInterval: 15_000,
+    staleTime: 10_000,
+    retry: 1,
     enabled: isLoggedIn,
   })
 
@@ -77,10 +87,23 @@ function Content({
       const balanceBigInt = BigInt(balance)
       if (balanceBigInt <= 0n) continue
 
-      // Find token in token list
-      const token = tokenList.find(
-        (t) => isBaseToken(t) && t.defuseAssetId === tokenId
-      ) as BaseTokenInfo | undefined
+      // Find token in token list (check both BaseTokenInfo and UnifiedTokenInfo.groupedTokens)
+      let token: BaseTokenInfo | undefined
+      for (const t of tokenList) {
+        if (isBaseToken(t) && t.defuseAssetId === tokenId) {
+          token = t
+          break
+        }
+        if (isUnifiedToken(t)) {
+          const grouped = t.groupedTokens.find(
+            (gt) => gt.defuseAssetId === tokenId
+          )
+          if (grouped) {
+            token = grouped
+            break
+          }
+        }
+      }
 
       if (token) {
         const value = {
