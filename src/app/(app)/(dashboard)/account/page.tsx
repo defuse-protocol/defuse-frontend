@@ -18,7 +18,7 @@ export default function AccountPage() {
   const { state } = useConnectWallet()
   let tokenList = useTokenList(LIST_TOKENS)
 
-  const userAddress = state.isVerified ? state.address : undefined
+  const userAddress = state.isAuthorized ? state.address : undefined
   const userChainType = state.chainType ?? null
 
   const userId =

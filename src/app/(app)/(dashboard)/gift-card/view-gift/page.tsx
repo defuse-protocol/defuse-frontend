@@ -24,7 +24,7 @@ export default function ViewGiftPage() {
         // giftId={giftId}
         payload={payload}
         tokenList={tokenList}
-        userAddress={state.isVerified ? state.address : undefined}
+        userAddress={state.isAuthorized ? state.address : undefined}
         userChainType={state.chainType}
         renderHostAppLink={renderAppLink}
       />

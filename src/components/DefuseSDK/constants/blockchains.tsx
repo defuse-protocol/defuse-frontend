@@ -402,7 +402,8 @@ export function getBlockchainsOptions(): Record<
       value: BlockchainEnum.ADI,
       tags: [],
     },
-  }
+    // TODO: Add PLASMA and SCROLL support once icons and network config are ready
+  } as unknown as Record<BlockchainEnum, BlockchainOption>
 
   return sortBlockchainOptionsByVolume(options)
 }

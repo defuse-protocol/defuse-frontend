@@ -19,10 +19,10 @@ export default function LoginPage() {
   const webauthnUI = useWebAuthnUIStore()
 
   useEffect(() => {
-    if (state.address) {
+    if (state.isAuthorized && state.address) {
       router.replace("/account")
     }
-  }, [state.address, router])
+  }, [state.isAuthorized, state.address, router])
 
   return (
     <div className="flex-1 flex flex-col items-center px-4 py-20">
