@@ -99,17 +99,21 @@ async function saveSessionTokens(
   const isProduction = process.env.NODE_ENV === "production"
   const expiresAt = Date.now() + expiresInSeconds * 1000
 
-  // Access token cookie - expires when the token expires
+  // Refresh token determines the overall session lifetime
+  const refreshMaxAge = refreshExpiresInSeconds ?? 60 * 60 * 24 * 7 // 7 days default
+
+  // Access token cookie - maxAge matches refresh token so the cookie
+  // stays in the browser and getSessionTokens() can read it for refresh.
+  // Actual expiry is tracked via TOKEN_EXPIRES_AT_COOKIE.
   cookieStore.set(ACCESS_TOKEN_COOKIE, accessToken, {
     httpOnly: true,
     secure: isProduction,
     sameSite: "strict",
-    maxAge: expiresInSeconds,
+    maxAge: refreshMaxAge,
     path: "/",
   })
 
   // Refresh token cookie - longer lived
-  const refreshMaxAge = refreshExpiresInSeconds ?? 60 * 60 * 24 * 7 // 7 days default
   cookieStore.set(REFRESH_TOKEN_COOKIE, refreshToken, {
     httpOnly: true,
     secure: isProduction,

@@ -45,16 +45,19 @@ export function usePrivateModeAuth() {
   const isConnected = state.address != null
 
   // Check auth status on mount and sync with store
+  // Only runs on mount to avoid race condition: after enablePrivateMode sets
+  // the store to true, re-running this effect would call isPrivateIntentsAuthenticated()
+  // before the browser has stored the Set-Cookie from the previous server action,
+  // causing it to immediately disable the toggle.
   useEffect(() => {
     async function syncAuthStatus() {
       const isAuthenticated = await isPrivateIntentsAuthenticated()
-      // If store says enabled but we're not authenticated, disable it
-      if (isPrivateModeEnabled && !isAuthenticated) {
+      if (!isAuthenticated) {
         setPrivateModeEnabled(false)
       }
     }
     syncAuthStatus()
-  }, [isPrivateModeEnabled, setPrivateModeEnabled])
+  }, [setPrivateModeEnabled])
 
   // Track previous address to detect wallet changes
   const prevAddressRef = useRef<string | undefined>(state.address)
