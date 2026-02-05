@@ -1,9 +1,6 @@
 "use client"
 
-import {
-  generateAuthTokenFromWalletSignature,
-  setWalletToken,
-} from "@src/actions/auth"
+import { generateAuthTokenFromWalletSignature } from "@src/actions/auth"
 import { formatSignedIntent } from "@src/components/DefuseSDK/core/formatters"
 import { WalletBannedDialog } from "@src/components/WalletBannedDialog"
 import { WalletVerificationDialog } from "@src/components/WalletVerificationDialog"
@@ -14,7 +11,6 @@ import {
   walletVerificationMachine,
 } from "@src/machines/walletVerificationMachine"
 import { useBypassedWalletsStore } from "@src/stores/useBypassedWalletsStore"
-import { logger } from "@src/utils/logger"
 import { walletVerificationMessageFactory } from "@src/utils/walletMessage"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useActor } from "@xstate/react"
@@ -118,20 +114,12 @@ export function WalletVerificationProvider() {
     return (
       <WalletVerificationUI
         isSessionExpired={state.isSessionExpired}
-        onVerified={(token: string) => {
+        onVerified={() => {
           const walletAddress = state.address
           if (walletAddress != null) {
-            ;(async () => {
-              try {
-                await setWalletToken(walletAddress, token)
-              } catch (error) {
-                logger.error("Failed to set wallet token:", { error })
-              }
-
-              await queryClient.invalidateQueries({
-                queryKey: ["token_validation", walletAddress, state.chainType],
-              })
-            })()
+            void queryClient.invalidateQueries({
+              queryKey: ["token_validation", walletAddress, state.chainType],
+            })
           }
         }}
         onAbort={() => {
@@ -161,7 +149,8 @@ function WalletVerificationUI({
   onAbort,
 }: {
   isSessionExpired: boolean
-  onVerified: (token: string) => void
+  /** Called when verification succeeds; JWT is already set in httpOnly cookie by server */
+  onVerified: () => void
   onAbort: () => void
 }) {
   const { state: unconfirmedWallet } = useConnectWallet()
@@ -200,10 +189,9 @@ function WalletVerificationUI({
             authMethod: unconfirmedWallet.chainType,
           })
 
-          if (result.success && result.token && result.expiresAt) {
+          if (result.success && result.expiresAt) {
             return {
               success: true,
-              token: result.token,
               expiresAt: result.expiresAt,
             }
           }
@@ -223,10 +211,7 @@ function WalletVerificationUI({
     () =>
       serviceRef.subscribe((machineState) => {
         if (machineState.matches("verified")) {
-          const result = machineState.context.verificationResult
-          if (result?.token) {
-            onVerifiedRef.current(result.token)
-          }
+          onVerifiedRef.current()
           mixPanel?.track("wallet_verified", {
             wallet: unconfirmedWallet.address,
             wallet_type: unconfirmedWallet.chainType,

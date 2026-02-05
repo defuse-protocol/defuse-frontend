@@ -1,4 +1,5 @@
 import { type AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
+import { logger } from "@src/utils/logger"
 import { SignJWT, decodeJwt, jwtVerify } from "jose"
 import { APP_AUTH_JWT_SECRET_KEY } from "./environment"
 
@@ -59,6 +60,9 @@ export async function verifyAppAuthToken(
   token: string
 ): Promise<JWTPayload | null> {
   if (!APP_AUTH_JWT_SECRET_KEY) {
+    logger.error(
+      "APP_AUTH_JWT_SECRET_KEY is not configured, skipping token verification"
+    )
     return null
   }
 

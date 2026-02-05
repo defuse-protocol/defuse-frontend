@@ -1,5 +1,6 @@
 "use server"
 
+import { createHash } from "node:crypto"
 import type {
   MultiPayload,
   MultiPayloadNep413,
@@ -42,12 +43,8 @@ const COOKIE_MAX_AGE_SECONDS = JWT_EXPIRY_SECONDS
  * - Deterministic: same address always produces the same key
  * - 16 hex chars (64 bits) provides sufficient uniqueness while keeping keys short
  */
-async function getCookieKeyForAddress(address: string): Promise<string> {
-  const encoder = new TextEncoder()
-  const data = encoder.encode(address)
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("")
+function getCookieKeyForAddress(address: string): string {
+  const hashHex = createHash("sha256").update(address, "utf8").digest("hex")
   return `${AUTH_TOKEN_COOKIE_PREFIX}${hashHex.slice(0, 16)}`
 }
 
@@ -59,7 +56,7 @@ export async function setWalletToken(
   address: string,
   token: string
 ): Promise<void> {
-  const cookieKey = await getCookieKeyForAddress(address)
+  const cookieKey = getCookieKeyForAddress(address)
   const cookieStore = await cookies()
 
   // Set the auth token cookie
@@ -86,7 +83,7 @@ export async function setWalletToken(
  * Also clears the active wallet cookie if it matches.
  */
 export async function clearWalletToken(address: string): Promise<void> {
-  const cookieKey = await getCookieKeyForAddress(address)
+  const cookieKey = getCookieKeyForAddress(address)
   const cookieStore = await cookies()
 
   cookieStore.delete(cookieKey)
@@ -102,7 +99,7 @@ export async function clearWalletToken(address: string): Promise<void> {
  * Get a wallet's auth token from its cookie
  */
 export async function getWalletToken(address: string): Promise<string | null> {
-  const cookieKey = await getCookieKeyForAddress(address)
+  const cookieKey = getCookieKeyForAddress(address)
   const cookieStore = await cookies()
   return cookieStore.get(cookieKey)?.value ?? null
 }
@@ -184,7 +181,7 @@ export interface GenerateAuthTokenFromSignatureInput {
 
 export interface GenerateAuthTokenFromSignatureResult {
   success: boolean
-  token?: string
+  /** Only present on success; JWT is set in httpOnly cookie, not returned */
   expiresAt?: number
   error?: "signature_invalid" | "message_expired" | "token_generation_failed"
 }
@@ -234,7 +231,10 @@ export async function generateAuthTokenFromWalletSignature(
       return { success: false, error: "token_generation_failed" }
     }
 
-    return { success: true, token, expiresAt }
+    // Set cookie server-side only; never return JWT to client (cookie-only auth)
+    await setWalletToken(address, token)
+
+    return { success: true, expiresAt }
   } catch (err) {
     logger.error("Auth token generation failed", {
       error: err,
