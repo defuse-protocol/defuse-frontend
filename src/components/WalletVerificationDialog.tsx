@@ -105,10 +105,10 @@ function DefaultContent({
         <div className="bg-gray-100 size-13 rounded-full flex justify-center items-center">
           <LockClosedIcon className="size-6 text-gray-500" />
         </div>
-        <AlertDialog.Title className="mt-5 text-2xl/7 font-bold tracking-tight text-center">
+        <AlertDialog.Title className="mt-5">
           Verify your wallet
         </AlertDialog.Title>
-        <AlertDialog.Description className="mt-2 text-base/5 font-medium text-gray-500 text-center text-balance">
+        <AlertDialog.Description className="mt-2">
           {isTokenExpired
             ? "Your previous login session has expired. Please sign a verification message with your wallet to continue."
             : "Sign a message to verify ownership of your wallet and unlock all features."}
@@ -122,7 +122,7 @@ function DefaultContent({
           "Protection of your assets",
         ].map((text) => (
           <li key={text} className="flex items-center gap-1.5">
-            <CheckCircleIcon className="size-4 text-gray-600" />
+            <CheckCircleIcon className="size-4 text-gray-600 shrink-0" />
             <span className="text-sm text-gray-600 font-medium">{text}</span>
           </li>
         ))}
@@ -159,10 +159,10 @@ function FailureContent({ onConfirm, onCancel, isVerifying }: ContentProps) {
         <div className="bg-red-100 size-13 rounded-full flex justify-center items-center">
           <XMarkIcon className="size-6 text-red-600" />
         </div>
-        <AlertDialog.Title className="mt-5 text-2xl/7 font-bold tracking-tight text-center">
+        <AlertDialog.Title className="mt-5">
           Verification failed
         </AlertDialog.Title>
-        <AlertDialog.Description className="mt-2 text-base/5 font-medium text-gray-500 text-center text-balance">
+        <AlertDialog.Description className="mt-2">
           We couldn't verify your wallet. This might happen if you rejected the
           signature request.
         </AlertDialog.Description>
