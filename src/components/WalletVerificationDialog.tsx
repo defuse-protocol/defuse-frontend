@@ -5,8 +5,7 @@ import {
   LockClosedIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline"
-import * as AlertDialog from "@radix-ui/react-alert-dialog"
-import clsx from "clsx"
+import AlertDialog from "./AlertDialog"
 import Button from "./Button"
 
 type ContentProps = {
@@ -59,38 +58,7 @@ export function WalletVerificationDialog({
     )
   }
 
-  return (
-    <AlertDialog.Root open={open}>
-      <AlertDialog.Portal>
-        <AlertDialog.Overlay
-          className={clsx(
-            "fixed inset-0 bg-gray-900/80",
-
-            "data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:duration-300 data-[state=open]:ease-out",
-
-            "data-[state=closed]:animate-out data-[state=closed]:duration-200 data-[state=closed]:ease-in data-[state=closed]:fade-out"
-          )}
-        />
-        <div className="fixed inset-0 z-20 w-screen overflow-y-auto">
-          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-start sm:p-0 lg:pl-74 sm:pt-[10vh]">
-            <AlertDialog.Content
-              className={clsx(
-                "relative transform overflow-hidden rounded-3xl bg-white p-5 text-left shadow-xl",
-
-                "sm:my-8 sm:w-full sm:max-w-sm",
-
-                "data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-2 fade-in data-[state=open]:ease-out data-[state=open]:duration-200 data-[state=open]:zoom-in-97",
-
-                "data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom-2 fade-out data-[state=closed]:ease-in data-[state=closed]:duration-1000 data-[state=closed]:zoom-in-97"
-              )}
-            >
-              {getContent()}
-            </AlertDialog.Content>
-          </div>
-        </div>
-      </AlertDialog.Portal>
-    </AlertDialog.Root>
-  )
+  return <AlertDialog open={open}>{getContent()}</AlertDialog>
 }
 
 function DefaultContent({
