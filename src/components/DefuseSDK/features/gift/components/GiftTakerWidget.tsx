@@ -1,12 +1,11 @@
 "use client"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { useActorRef, useSelector } from "@xstate/react"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef } from "react"
 import type { ActorRefFrom } from "xstate"
 import type { SignerCredentials } from "../../../core/formatters"
 import { SwapWidgetProvider } from "../../../providers/SwapWidgetProvider"
 import type { TokenInfo } from "../../../types/base"
-import type { RenderHostAppLink } from "../../../types/hostAppLink"
 import { giftTakerRootMachine } from "../actors/giftTakerRootMachine"
 import type { giftClaimActor } from "../actors/shared/giftClaimActor"
 import { GiftRevealCard } from "./GiftRevealCard"
@@ -21,7 +20,6 @@ export type GiftTakerWidgetProps = {
   userAddress: string | null | undefined
   userChainType: AuthMethod | null | undefined
   theme?: "dark" | "light"
-  renderHostAppLink: RenderHostAppLink
   externalError?: string | null
 }
 
@@ -61,11 +59,8 @@ function GiftTakerScreens({
   tokenList,
   userAddress,
   userChainType,
-  renderHostAppLink,
   externalError,
 }: GiftTakerWidgetProps) {
-  const [resetKey, setResetKey] = useState(0)
-
   // Memoize input to prevent useActorRef from seeing new object references
   const machineInput = useMemo(
     () => ({
@@ -145,15 +140,12 @@ function GiftTakerScreens({
   }
 
   return (
-    <GiftRevealCard key={resetKey} giftId={giftId ?? "unknown"}>
+    <GiftRevealCard giftId={giftId ?? "unknown"}>
       <GiftTakerForm
-        giftId={giftId ?? "unknown"}
         giftInfo={giftInfo}
         signerCredentials={signerCredentials}
         giftTakerRootRef={giftTakerRootRef}
         intentHashes={intentHashes}
-        renderHostAppLink={renderHostAppLink}
-        onReset={() => setResetKey((k) => k + 1)}
       />
     </GiftRevealCard>
   )

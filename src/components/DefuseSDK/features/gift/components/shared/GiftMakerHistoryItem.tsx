@@ -1,7 +1,7 @@
 import type { SignerCredentials } from "@src/components/DefuseSDK/core/formatters"
 import ListItem from "@src/components/ListItem"
-import { useMemo, useState } from "react"
-import { createActor } from "xstate"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { type ActorRefFrom, createActor } from "xstate"
 import AssetComboIcon from "../../../../components/Asset/AssetComboIcon"
 import type { TokenValue } from "../../../../types/base"
 import { formatTokenValue } from "../../../../utils/format"
@@ -9,7 +9,10 @@ import {
   computeTotalBalanceDifferentDecimals,
   getUnderlyingBaseTokenInfos,
 } from "../../../../utils/tokenUtils"
-import { giftMakerReadyActor } from "../../actors/giftMakerReadyActor"
+import {
+  type giftMakerReadyActor,
+  giftMakerReadyActor as giftMakerReadyActorMachine,
+} from "../../actors/giftMakerReadyActor"
 import type { GenerateLink } from "../../types/sharedTypes"
 import { formatGiftDate } from "../../utils/formattedDate"
 import type { GiftInfo } from "../../utils/parseGiftInfos"
@@ -25,32 +28,50 @@ export function GiftMakerHistoryItem({
   signerCredentials: SignerCredentials
 }) {
   const [showDialog, setShowDialog] = useState(false)
+  const actorRef = useRef<ActorRefFrom<typeof giftMakerReadyActor> | null>(null)
+
   const amount = computeTotalBalanceDifferentDecimals(
     getUnderlyingBaseTokenInfos(giftInfo.token),
     giftInfo.tokenDiff,
     { strict: false }
   )
 
-  const readyGiftRef = useMemo(
-    () =>
-      createActor(giftMakerReadyActor, {
-        input: {
-          giftInfo,
-          signerCredentials,
-          parsed: {
-            token: giftInfo.token,
-            amount: amount as TokenValue,
-            message: giftInfo.message,
-          },
-          iv: giftInfo.iv,
+  const openDialog = useCallback(() => {
+    actorRef.current?.stop()
+    actorRef.current = createActor(giftMakerReadyActorMachine, {
+      input: {
+        giftInfo,
+        signerCredentials,
+        parsed: {
+          token: giftInfo.token,
+          amount: amount as TokenValue,
+          message: giftInfo.message,
         },
-      }).start(),
-    [giftInfo, signerCredentials, amount]
-  )
+        iv: giftInfo.iv,
+      },
+    }).start()
+    setShowDialog(true)
+  }, [giftInfo, signerCredentials, amount])
+
+  const closeDialog = useCallback(() => {
+    actorRef.current?.stop()
+    actorRef.current = null
+    setShowDialog(false)
+  }, [])
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (actorRef.current) {
+        actorRef.current.stop()
+        actorRef.current = null
+      }
+    }
+  }, [])
 
   return (
     <>
-      <ListItem onClick={() => setShowDialog(true)}>
+      <ListItem onClick={openDialog}>
         <AssetComboIcon {...giftInfo.token} />
         <ListItem.Content>
           <ListItem.Title>
@@ -76,12 +97,12 @@ export function GiftMakerHistoryItem({
         </ListItem.Content>
       </ListItem>
 
-      {showDialog && (
+      {showDialog && actorRef.current && (
         <GiftMakerReadyDialog
-          readyGiftRef={readyGiftRef}
+          readyGiftRef={actorRef.current}
           generateLink={generateLink}
           signerCredentials={signerCredentials}
-          onClose={() => setShowDialog(false)}
+          onClose={closeDialog}
           isClaimed={giftInfo.status === "claimed"}
         />
       )}

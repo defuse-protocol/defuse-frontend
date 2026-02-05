@@ -14,7 +14,6 @@ import {
   TwitterIcon,
 } from "@src/icons"
 import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
-import { renderAppLink } from "@src/utils/renderAppLink"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { useGiftIntent } from "../_utils/link"
@@ -67,7 +66,6 @@ export default function ViewGiftPage() {
           tokenList={tokenList}
           userAddress={state.address}
           userChainType={state.chainType}
-          renderHostAppLink={renderAppLink}
           externalError={error}
         />
       </Paper>
@@ -95,11 +93,6 @@ export default function ViewGiftPage() {
             tokenList={tokenList}
             userAddress={undefined}
             userChainType={undefined}
-            renderHostAppLink={(_routeName, children, props) => (
-              <Link href={loginUrl} {...props}>
-                {children}
-              </Link>
-            )}
             externalError={error}
           />
         </div>

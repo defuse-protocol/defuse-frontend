@@ -6,7 +6,6 @@ import { useSelector } from "@xstate/react"
 import { useCallback } from "react"
 import type { ActorRefFrom } from "xstate"
 import type { SignerCredentials } from "../../../core/formatters"
-import type { RenderHostAppLink } from "../../../types/hostAppLink"
 import { assert } from "../../../utils/assert"
 import { formatTokenValue } from "../../../utils/format"
 import {
@@ -18,13 +17,10 @@ import type { GiftInfo } from "../actors/shared/getGiftInfo"
 import type { giftClaimActor } from "../actors/shared/giftClaimActor"
 
 export type GiftTakerFormProps = {
-  giftId: string
   giftInfo: GiftInfo
   signerCredentials: SignerCredentials | null
   giftTakerRootRef: ActorRefFrom<typeof giftTakerRootMachine>
   intentHashes: string[] | null
-  renderHostAppLink: RenderHostAppLink
-  onReset?: () => void
 }
 
 export function GiftTakerForm({
