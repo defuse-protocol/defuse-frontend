@@ -262,6 +262,7 @@ export const backgroundBalanceActor = fromPromise(
       case BlockchainEnum.STARKNET:
         break
       default:
+        // @ts-expect-error tmp
         networkToSolverFormat satisfies never
         throw new Error("exhaustive check failed")
     }

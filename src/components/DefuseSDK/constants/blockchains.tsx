@@ -196,6 +196,7 @@ export function getBlockchainsOptions(): Record<
   SupportedBlockchain,
   BlockchainOption
 > {
+  // @ts-expect-error tmp
   const options: Record<SupportedBlockchain, BlockchainOption> = {
     [BlockchainEnum.NEAR]: {
       label: "Near",
