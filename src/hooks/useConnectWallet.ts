@@ -33,6 +33,7 @@ import type {
   SignAndSendTransactionsParams,
 } from "@src/types/interfaces"
 import { parseTonAddress } from "@src/utils/parseTonAddress"
+import { useQueryClient } from "@tanstack/react-query"
 import { Cell } from "@ton/ton"
 import {
   useTonConnectModal,
@@ -104,6 +105,7 @@ const defaultState: State = {
 
 export const useConnectWallet = (): ConnectWalletAction => {
   let state: State = defaultState
+  const queryClient = useQueryClient()
 
   /**
    * NEAR:
@@ -312,8 +314,6 @@ export const useConnectWallet = (): ConnectWalletAction => {
     }
   }
 
-  // Determine wallet authorization status via token validation.
-  // isAuthorized is part of the wallet state interface used across the app.
   const { isAuthorized, isSessionExpired, isValidating } = useWalletAuth(
     state.address,
     state.chainType
@@ -378,6 +378,8 @@ export const useConnectWallet = (): ConnectWalletAction => {
 
         // Clear active wallet cookie only - preserve auth token for reconnection
         await clearActiveWallet()
+
+        void queryClient.invalidateQueries({ queryKey: ["token_validation"] })
 
         onSignOut()
         return strategies[params.id]()

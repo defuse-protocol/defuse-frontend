@@ -26,6 +26,16 @@ export function WalletVerificationProvider() {
   const pathname = usePathname()
   const queryClient = useQueryClient()
 
+  // Refresh page after auth validation completes to re-fetch RSC with new cookie
+  const wasValidatingRef = useRef(false)
+  useEffect(() => {
+    const wasValidating = wasValidatingRef.current
+    wasValidatingRef.current = state.isAuthValidating
+    if (wasValidating && !state.isAuthValidating && state.isAuthorized) {
+      router.refresh()
+    }
+  }, [state.isAuthValidating, state.isAuthorized, router])
+
   const bannedAccountCheck = useQuery({
     queryKey: ["banned_account", state.address, state.chainType],
     queryFn: async () => {
@@ -168,8 +178,6 @@ function WalletVerificationUI({
             )
           )
 
-          // Format the signature into MultiPayload format (JSON-safe)
-          // This is verified server-side via NEAR RPC simulate_intents
           const signedIntent = formatSignedIntent(walletSignature, {
             credential: unconfirmedWallet.address,
             credentialType: unconfirmedWallet.chainType,

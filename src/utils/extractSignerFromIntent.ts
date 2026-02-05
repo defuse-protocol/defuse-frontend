@@ -24,6 +24,5 @@ export function extractSignerFromIntent(
     return parsed.payload.text.parsed.signer_id
   }
 
-  // erc191, tip191, raw_ed25519, webauthn, sep53
   return parsed.payload.parsed.signer_id
 }

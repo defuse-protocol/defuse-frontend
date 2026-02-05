@@ -70,7 +70,6 @@ export async function verifyAppAuthToken(
     const secret = new TextEncoder().encode(APP_AUTH_JWT_SECRET_KEY)
     const { payload } = await jwtVerify(token, secret)
 
-    // Validate payload structure
     if (
       typeof payload.auth_identifier !== "string" ||
       !isAuthMethod(payload.auth_method) ||
@@ -114,7 +113,6 @@ export function getAccountIdFromToken(token: string): string | null {
   try {
     const decoded = decodeJwt(token)
 
-    // Derive accountId from auth_identifier and auth_method
     if (
       typeof decoded.auth_identifier === "string" &&
       isAuthMethod(decoded.auth_method)

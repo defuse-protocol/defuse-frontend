@@ -59,7 +59,6 @@ export async function setWalletToken(
   const cookieKey = getCookieKeyForAddress(address)
   const cookieStore = await cookies()
 
-  // Set the auth token cookie
   cookieStore.set(cookieKey, token, {
     httpOnly: true,
     secure: true,
@@ -88,7 +87,6 @@ export async function clearWalletToken(address: string): Promise<void> {
 
   cookieStore.delete(cookieKey)
 
-  // Clear active wallet cookie if it matches the address being cleared
   const activeWallet = cookieStore.get(ACTIVE_WALLET_COOKIE_NAME)?.value
   if (activeWallet === address) {
     cookieStore.delete(ACTIVE_WALLET_COOKIE_NAME)
@@ -169,6 +167,16 @@ export async function validateTokenForWallet(
     return { valid: false, reason: "chain_mismatch" }
   }
 
+  // Set active wallet cookie (handles reconnect where JWT exists but cookie was cleared)
+  const cookieStore = await cookies()
+  cookieStore.set(ACTIVE_WALLET_COOKIE_NAME, expectedAddress, {
+    httpOnly: false,
+    secure: true,
+    sameSite: "lax",
+    maxAge: COOKIE_MAX_AGE_SECONDS,
+    path: "/",
+  })
+
   return { valid: true }
 }
 
@@ -216,8 +224,6 @@ export async function generateAuthTokenFromWalletSignature(
       return { success: false, error: "signature_invalid" }
     }
 
-    // Verify via NEAR RPC simulate_intents
-    // The contract performs full cryptographic verification including deadline checks
     const isValid = await verifyViaSimulateIntents(signedIntent)
 
     if (!isValid) {
@@ -313,19 +319,18 @@ async function verifyNep413Signature(
     const accountId = parsed.signer_id as string
 
     if (utils.isImplicitAccount(accountId)) {
-      // For implicit accounts, the account ID IS the hex-encoded public key.
-      // Verify they match.
+      // For implicit accounts, the account ID IS the hex-encoded public key
       const publicKeyHex = Buffer.from(publicKeyBytes).toString("hex")
       if (accountId !== publicKeyHex) {
         return false
       }
     } else {
-      // For named accounts, verify the public key is registered on-chain.
+      // For named accounts, verify the public key is registered on-chain
       try {
         await nearClient.query({
           request_type: "view_access_key",
           account_id: accountId,
-          public_key: publicKeyStr, // Already has "ed25519:" prefix
+          public_key: publicKeyStr,
           finality: "optimistic",
         })
       } catch {
@@ -353,15 +358,12 @@ async function verifyViaSimulateIntents(
   }
 
   try {
-    // Encode the signed intent for the RPC call
-    // Note: Using Buffer.from().toString('base64') for better Node.js compatibility
     const argsJson = JSON.stringify({ signed: [signedIntent] })
     const argsBase64 =
       typeof btoa !== "undefined"
         ? btoa(argsJson)
         : Buffer.from(argsJson).toString("base64")
 
-    // Warning: `CodeResult` is not correct type for `call_function`, but it's closest we have.
     await nearClient.query<CodeResult>({
       request_type: "call_function",
       account_id: config.env.contractID,
@@ -370,18 +372,14 @@ async function verifyViaSimulateIntents(
       finality: "optimistic",
     })
 
-    // If didn't throw, signature is valid
     return true
   } catch (err) {
-    // Check for invalid signature error from the contract
     if (hasMessage(err, "invalid signature")) {
       return false
     }
-    // Also check for "Signature verification failed" which may be returned by some chains
     if (hasMessage(err, "Signature verification failed")) {
       return false
     }
-    // For other errors (network issues, etc.), rethrow to avoid false negatives
     throw err
   }
 }
