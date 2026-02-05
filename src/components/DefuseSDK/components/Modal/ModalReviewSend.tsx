@@ -1,10 +1,8 @@
-import {
-  CheckBadgeIcon,
-  ExclamationCircleIcon,
-} from "@heroicons/react/16/solid"
+import { CheckBadgeIcon } from "@heroicons/react/16/solid"
 import Button from "@src/components/Button"
 import { CopyButton } from "@src/components/DefuseSDK/components/IntentCard/CopyButton"
 import TooltipNew from "@src/components/DefuseSDK/components/TooltipNew"
+import { WalletIcon } from "@src/icons"
 import { useMemo } from "react"
 import {
   chainIcons,
@@ -26,6 +24,7 @@ import {
   formatTokenValue,
   formatUsdAmount,
 } from "../../utils/format"
+import { stringToColor } from "../../utils/stringToColor"
 import AssetComboIcon from "../Asset/AssetComboIcon"
 import { NetworkIcon } from "../Network/NetworkIcon"
 import { BaseModalDialog } from "./ModalDialog"
@@ -102,10 +101,23 @@ const ModalReviewSend = ({
     return (Number(directionFee.amount) / Number(totalFeeAmount)) * feeUsd
   }, [directionFee, feeUsd, fee.amount])
 
+  const contactColor = stringToColor(
+    `${recipientContactName}${recipient}${network}`
+  )
+
   return (
     <BaseModalDialog title="Review transfer" open={open} onClose={onClose}>
       <div className="flex flex-col items-center justify-center mt-3">
-        <AssetComboIcon icon={tokenIn.icon} sizeClassName="size-13" />
+        <div
+          className="size-13 rounded-full bg-gray-200 flex items-center justify-center shrink-0 outline-1 -outline-offset-1 outline-gray-900/10"
+          style={{ backgroundColor: contactColor.background }}
+        >
+          <WalletIcon
+            className="size-5 text-gray-500"
+            style={{ color: contactColor.icon }}
+          />
+        </div>
+
         <div className="mt-5 text-2xl/7 font-bold text-gray-900 tracking-tight text-center">
           Confirm transfer to <br />
           <TooltipNew>
@@ -127,18 +139,14 @@ const ModalReviewSend = ({
             </TooltipNew.Content>
           </TooltipNew>
         </div>
-        <div className="flex items-start justify-center gap-1 mt-2">
-          {recipientContactName ? (
+        {recipientContactName && (
+          <div className="flex items-start justify-center gap-1 mt-2">
             <CheckBadgeIcon className="mt-0.5 text-green-500 size-4 shrink-0" />
-          ) : (
-            <ExclamationCircleIcon className="mt-0.5 text-blue-500 size-4 shrink-0" />
-          )}
-          <div className="text-base/5 font-medium text-gray-500 text-center">
-            {recipientContactName
-              ? `Saved as ${recipientContactName}`
-              : "New address"}
+            <div className="text-base/5 font-medium text-gray-500 text-center">
+              {recipientContactName}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       <dl className="mt-7 pt-5 border-t border-gray-200 space-y-2">
