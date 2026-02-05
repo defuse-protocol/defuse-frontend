@@ -18,9 +18,13 @@ import { logger } from "@src/utils/logger"
 import { cookies } from "next/headers"
 import z from "zod"
 
-// Cookie name for private intents session
-const PRIVATE_INTENTS_COOKIE = "private_intents_session"
-const COOKIE_MAX_AGE = 60 * 60 * 24 // 24 hours
+// Cookie names for private intents session
+const ACCESS_TOKEN_COOKIE = "private_intents_access"
+const REFRESH_TOKEN_COOKIE = "private_intents_refresh"
+const TOKEN_EXPIRES_AT_COOKIE = "private_intents_expires_at"
+
+// Refresh threshold - refresh when less than this many seconds remain
+const REFRESH_THRESHOLD_SECONDS = 60
 
 OpenAPI.BASE = z.string().parse(ONE_CLICK_URL)
 OpenAPI.HEADERS = {
@@ -38,12 +42,153 @@ const authMethodSchema = z.enum([
 ])
 
 /**
- * Helper to get access token from HTTP-only cookie
+ * Session data stored in cookies
  */
-async function getAccessTokenFromCookie(): Promise<string | null> {
+interface SessionTokens {
+  accessToken: string
+  refreshToken: string
+  expiresAt: number // Unix timestamp in ms
+}
+
+/**
+ * Helper to get session tokens from HTTP-only cookies
+ */
+async function getSessionTokens(): Promise<SessionTokens | null> {
   const cookieStore = await cookies()
-  const cookie = cookieStore.get(PRIVATE_INTENTS_COOKIE)
-  return cookie?.value ?? null
+  const accessToken = cookieStore.get(ACCESS_TOKEN_COOKIE)?.value
+  const refreshToken = cookieStore.get(REFRESH_TOKEN_COOKIE)?.value
+  const expiresAtStr = cookieStore.get(TOKEN_EXPIRES_AT_COOKIE)?.value
+
+  if (!accessToken || !refreshToken || !expiresAtStr) {
+    return null
+  }
+
+  const expiresAt = Number.parseInt(expiresAtStr, 10)
+  if (Number.isNaN(expiresAt)) {
+    return null
+  }
+
+  return { accessToken, refreshToken, expiresAt }
+}
+
+/**
+ * Helper to save session tokens to HTTP-only cookies
+ */
+async function saveSessionTokens(
+  accessToken: string,
+  refreshToken: string,
+  expiresInSeconds: number,
+  refreshExpiresInSeconds?: number
+): Promise<void> {
+  const cookieStore = await cookies()
+  const isProduction = process.env.NODE_ENV === "production"
+  const expiresAt = Date.now() + expiresInSeconds * 1000
+
+  // Access token cookie - expires when the token expires
+  cookieStore.set(ACCESS_TOKEN_COOKIE, accessToken, {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: "strict",
+    maxAge: expiresInSeconds,
+    path: "/",
+  })
+
+  // Refresh token cookie - longer lived
+  const refreshMaxAge = refreshExpiresInSeconds ?? 60 * 60 * 24 * 7 // 7 days default
+  cookieStore.set(REFRESH_TOKEN_COOKIE, refreshToken, {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: "strict",
+    maxAge: refreshMaxAge,
+    path: "/",
+  })
+
+  // Expiration timestamp cookie (not sensitive, but httpOnly for consistency)
+  cookieStore.set(TOKEN_EXPIRES_AT_COOKIE, expiresAt.toString(), {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: "strict",
+    maxAge: refreshMaxAge,
+    path: "/",
+  })
+}
+
+/**
+ * Clear all session cookies
+ */
+async function clearSessionCookies(): Promise<void> {
+  const cookieStore = await cookies()
+  cookieStore.delete(ACCESS_TOKEN_COOKIE)
+  cookieStore.delete(REFRESH_TOKEN_COOKIE)
+  cookieStore.delete(TOKEN_EXPIRES_AT_COOKIE)
+}
+
+/**
+ * Check if access token needs refresh (expired or about to expire)
+ */
+function isTokenExpiredOrExpiring(expiresAt: number): boolean {
+  const now = Date.now()
+  const thresholdMs = REFRESH_THRESHOLD_SECONDS * 1000
+  return now >= expiresAt - thresholdMs
+}
+
+/**
+ * Try to refresh the access token using refresh token
+ */
+async function tryRefreshAccessToken(
+  refreshToken: string
+): Promise<{ accessToken: string; expiresIn: number } | null> {
+  try {
+    const response = await UserAuthService.refresh({
+      refresh_token: refreshToken,
+    })
+    return {
+      accessToken: response.access_token,
+      expiresIn: response.expires_in,
+    }
+  } catch (error) {
+    logger.error(
+      `privateIntents: refresh token failed: ${unknownServerErrorToString(error)}`
+    )
+    return null
+  }
+}
+
+/**
+ * Get valid access token, refreshing if necessary
+ * Returns null if not authenticated or refresh fails
+ */
+async function getValidAccessToken(): Promise<string | null> {
+  const session = await getSessionTokens()
+  if (!session) {
+    return null
+  }
+
+  // Check if token is still valid
+  if (!isTokenExpiredOrExpiring(session.expiresAt)) {
+    return session.accessToken
+  }
+
+  // Token expired or expiring soon - try to refresh
+  logger.info("privateIntents: access token expired, attempting refresh")
+  const refreshResult = await tryRefreshAccessToken(session.refreshToken)
+
+  if (!refreshResult) {
+    // Refresh failed - clear session and require re-authentication
+    logger.warn("privateIntents: refresh failed, clearing session")
+    await clearSessionCookies()
+    return null
+  }
+
+  // Save new access token (keep existing refresh token)
+  await saveSessionTokens(
+    refreshResult.accessToken,
+    session.refreshToken,
+    refreshResult.expiresIn
+  )
+
+  logger.info("privateIntents: access token refreshed successfully")
+  return refreshResult.accessToken
 }
 
 /**
@@ -66,7 +211,7 @@ function resetHeaders() {
 }
 
 /**
- * Authenticate user with signed data and set HTTP-only cookie
+ * Authenticate user with signed data and set HTTP-only cookies
  */
 export async function authenticatePrivateIntents(args: {
   signedData: Record<string, unknown>
@@ -76,15 +221,13 @@ export async function authenticatePrivateIntents(args: {
       signed_data: args.signedData,
     })
 
-    // Set HTTP-only cookie with access token
-    const cookieStore = await cookies()
-    cookieStore.set(PRIVATE_INTENTS_COOKIE, response.access_token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: COOKIE_MAX_AGE,
-      path: "/",
-    })
+    // Save both access and refresh tokens
+    await saveSessionTokens(
+      response.access_token,
+      response.refresh_token,
+      response.expires_in,
+      response.refresh_expires_in
+    )
 
     return { ok: { authenticated: true } }
   } catch (error) {
@@ -95,28 +238,28 @@ export async function authenticatePrivateIntents(args: {
 }
 
 /**
- * Check if user is authenticated (has valid session cookie)
+ * Check if user is authenticated (has valid session cookies)
+ * Note: This only checks if cookies exist, not if tokens are valid
  */
 export async function isPrivateIntentsAuthenticated(): Promise<boolean> {
-  const token = await getAccessTokenFromCookie()
-  return token !== null
+  const session = await getSessionTokens()
+  return session !== null
 }
 
 /**
- * Logout - remove the session cookie
+ * Logout - remove all session cookies
  */
 export async function logoutPrivateIntents(): Promise<void> {
-  const cookieStore = await cookies()
-  cookieStore.delete(PRIVATE_INTENTS_COOKIE)
+  await clearSessionCookies()
 }
 
 /**
- * Get private balance for authenticated user (uses cookie)
+ * Get private balance for authenticated user (uses cookie, auto-refreshes token)
  */
 export async function getPrivateBalance(args?: {
   tokenIds?: string[]
 }): Promise<{ ok: GetBalanceResponseDto } | { err: string }> {
-  const accessToken = await getAccessTokenFromCookie()
+  const accessToken = await getValidAccessToken()
   if (!accessToken) {
     return { err: "Not authenticated. Please authenticate first." }
   }
@@ -129,6 +272,14 @@ export async function getPrivateBalance(args?: {
   } catch (error) {
     const err = unknownServerErrorToString(error)
     logger.error(`privateIntents: getBalance error: ${err}`)
+
+    // If unauthorized, try to clear session (token might be invalid)
+    if (isUnauthorizedError(error)) {
+      logger.warn("privateIntents: unauthorized error, clearing session")
+      await clearSessionCookies()
+      return { err: "Session expired. Please authenticate again." }
+    }
+
     return { err }
   } finally {
     resetHeaders()
@@ -204,12 +355,12 @@ type UnshieldQuoteArgs = z.infer<typeof unshieldQuoteArgsSchema>
 
 /**
  * Get quote for unshielding tokens (private PRIVATE_INTENTS → public INTENTS)
- * Uses session cookie for authorization
+ * Uses session cookie for authorization, auto-refreshes token
  */
 export async function getUnshieldQuote(
   args: UnshieldQuoteArgs
 ): Promise<{ ok: QuoteResponse } | { err: string }> {
-  const accessToken = await getAccessTokenFromCookie()
+  const accessToken = await getValidAccessToken()
   if (!accessToken) {
     return { err: "Not authenticated. Please authenticate first." }
   }
@@ -251,6 +402,14 @@ export async function getUnshieldQuote(
   } catch (error) {
     const err = unknownServerErrorToString(error)
     logger.error(`privateIntents: getUnshieldQuote error: ${err}`)
+
+    // If unauthorized, try to clear session
+    if (isUnauthorizedError(error)) {
+      logger.warn("privateIntents: unauthorized error, clearing session")
+      await clearSessionCookies()
+      return { err: "Session expired. Please authenticate again." }
+    }
+
     return { err }
   } finally {
     resetHeaders()
@@ -326,10 +485,22 @@ const serverErrorSchema = z.object({
   }),
 })
 
+const serverErrorWithStatusSchema = z.object({
+  status: z.number(),
+  body: z.object({
+    message: z.string(),
+  }),
+})
+
 type ServerError = z.infer<typeof serverErrorSchema>
 
 function isServerError(error: unknown): error is ServerError {
   return serverErrorSchema.safeParse(error).success
+}
+
+function isUnauthorizedError(error: unknown): boolean {
+  const parsed = serverErrorWithStatusSchema.safeParse(error)
+  return parsed.success && parsed.data.status === 401
 }
 
 function unknownServerErrorToString(error: unknown): string {
