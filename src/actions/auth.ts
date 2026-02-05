@@ -1,7 +1,7 @@
 "use server"
 
 import type { MultiPayload } from "@defuse-protocol/contract-types"
-import type { AuthMethod } from "@defuse-protocol/internal-utils"
+import { type AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
 import { config } from "@src/components/DefuseSDK/config"
 import { nearClient } from "@src/components/DefuseSDK/constants/nearClient"
 import {
@@ -11,6 +11,7 @@ import {
   verifyAppAuthToken,
 } from "@src/utils/authJwt"
 import { hasMessage } from "@src/utils/errors"
+import { extractSignerFromIntent } from "@src/utils/extractSignerFromIntent"
 import { logger } from "@src/utils/logger"
 import type { CodeResult } from "near-api-js/lib/providers/provider"
 import { cookies } from "next/headers"
@@ -192,6 +193,21 @@ export async function generateAuthTokenFromWalletSignature(
 ): Promise<GenerateAuthTokenFromSignatureResult> {
   try {
     const { signedIntent, address, authMethod } = input
+
+    // Security: verify signer_id in message matches the claimed address/authMethod
+    // This prevents attacks where someone submits a valid signature but claims a different address
+    const signerFromMessage = extractSignerFromIntent(signedIntent)
+    const expectedSigner = authIdentity.authHandleToIntentsUserId(
+      address,
+      authMethod
+    )
+    if (signerFromMessage !== expectedSigner) {
+      logger.warn("Signer mismatch in auth request", {
+        signerFromMessage,
+        expectedSigner,
+      })
+      return { success: false, error: "signature_invalid" }
+    }
 
     // Verify via NEAR RPC simulate_intents
     // The contract performs full cryptographic verification including deadline checks
