@@ -1,9 +1,18 @@
 "use server"
 
-import type { MultiPayload } from "@defuse-protocol/contract-types"
-import { type AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
+import type {
+  MultiPayload,
+  MultiPayloadNep413,
+} from "@defuse-protocol/contract-types"
+import {
+  type AuthMethod,
+  authIdentity,
+  utils,
+} from "@defuse-protocol/internal-utils"
+import { base58 } from "@scure/base"
 import { config } from "@src/components/DefuseSDK/config"
 import { nearClient } from "@src/components/DefuseSDK/constants/nearClient"
+import { hashing as nep413Hashing } from "@src/components/DefuseSDK/features/gift/utils/hashing"
 import {
   JWT_EXPIRY_SECONDS,
   generateAppAuthToken,
@@ -15,6 +24,7 @@ import { extractSignerFromIntent } from "@src/utils/extractSignerFromIntent"
 import { logger } from "@src/utils/logger"
 import type { CodeResult } from "near-api-js/lib/providers/provider"
 import { cookies } from "next/headers"
+import { sign as naclSign } from "tweetnacl"
 
 const AUTH_TOKEN_COOKIE_PREFIX = "defuse_auth_"
 const ACTIVE_WALLET_COOKIE_NAME = "defuse_active_wallet"
@@ -233,30 +243,113 @@ export async function generateAuthTokenFromWalletSignature(
   }
 }
 
+const ED25519_PREFIX = "ed25519:"
+const NONCE_LENGTH = 32
+const ED25519_PUBLIC_KEY_LENGTH = 32
+const ED25519_SIGNATURE_LENGTH = 64
+
+/**
+ * Verifies a NEP-413 signed intent by recomputing the message hash (per NEP-413
+ * Borsh serialization) and checking the Ed25519 signature. The NEAR contract
+ * cannot verify NEP-413 without key registration, so we do full crypto verification here.
+ */
+async function verifyNep413Signature(
+  signedIntent: MultiPayloadNep413
+): Promise<boolean> {
+  try {
+    const {
+      payload,
+      public_key: publicKeyStr,
+      signature: signatureStr,
+    } = signedIntent
+
+    const parsed = JSON.parse(payload.message)
+    if (!parsed.signer_id) return false
+    if (parsed.deadline) {
+      const deadlineMs = Date.parse(parsed.deadline)
+      if (Number.isNaN(deadlineMs) || Date.now() > deadlineMs) return false
+    }
+
+    const nonceBytes = Buffer.from(payload.nonce, "base64")
+    if (nonceBytes.length !== NONCE_LENGTH) return false
+
+    const messageHash = await nep413Hashing({
+      message: payload.message,
+      recipient: payload.recipient,
+      nonce: new Uint8Array(nonceBytes),
+    })
+
+    if (
+      !publicKeyStr.startsWith(ED25519_PREFIX) ||
+      !signatureStr.startsWith(ED25519_PREFIX)
+    ) {
+      return false
+    }
+    const publicKeyBytes = base58.decode(
+      publicKeyStr.slice(ED25519_PREFIX.length)
+    )
+    const signatureBytes = base58.decode(
+      signatureStr.slice(ED25519_PREFIX.length)
+    )
+    if (
+      publicKeyBytes.length !== ED25519_PUBLIC_KEY_LENGTH ||
+      signatureBytes.length !== ED25519_SIGNATURE_LENGTH
+    ) {
+      return false
+    }
+
+    const signatureValid = naclSign.detached.verify(
+      messageHash,
+      signatureBytes,
+      publicKeyBytes
+    )
+    if (!signatureValid) {
+      return false
+    }
+
+    // Security: Verify the public key is authorized for the claimed account.
+    // Without this check, an attacker could sign a message claiming any signer_id
+    // with their own keypair and bypass authentication.
+    const accountId = parsed.signer_id as string
+
+    if (utils.isImplicitAccount(accountId)) {
+      // For implicit accounts, the account ID IS the hex-encoded public key.
+      // Verify they match.
+      const publicKeyHex = Buffer.from(publicKeyBytes).toString("hex")
+      if (accountId !== publicKeyHex) {
+        return false
+      }
+    } else {
+      // For named accounts, verify the public key is registered on-chain.
+      try {
+        await nearClient.query({
+          request_type: "view_access_key",
+          account_id: accountId,
+          public_key: publicKeyStr, // Already has "ed25519:" prefix
+          finality: "optimistic",
+        })
+      } catch {
+        // Key not found for this account or RPC error
+        return false
+      }
+    }
+
+    return true
+  } catch {
+    return false
+  }
+}
+
 /**
  * Verifies a signed intent using the NEAR contract's simulate_intents RPC call.
- * Returns true if the signature is valid, false otherwise.
+ * For NEP-413 (NEAR native), the contract cannot verify without key registration,
+ * so we perform full Ed25519 signature verification server-side instead.
  */
 async function verifyViaSimulateIntents(
   signedIntent: MultiPayload
 ): Promise<boolean> {
-  // NEP-413: Can't verify onchain without key registration, so we trust the wallet signature
-  // but still check deadline to prevent replay attacks (contract handles this for other chains)
   if (signedIntent.standard === "nep413") {
-    try {
-      const parsed = JSON.parse(signedIntent.payload.message)
-      if (!parsed.signer_id) return false
-
-      if (parsed.deadline) {
-        const deadlineMs = Date.parse(parsed.deadline)
-        if (Number.isNaN(deadlineMs) || Date.now() > deadlineMs) {
-          return false
-        }
-      }
-      return true
-    } catch {
-      return false
-    }
+    return verifyNep413Signature(signedIntent)
   }
 
   try {
