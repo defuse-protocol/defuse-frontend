@@ -1,5 +1,6 @@
 "use server"
 
+import { AsyncLocalStorage } from "node:async_hooks"
 import { authIdentity } from "@defuse-protocol/internal-utils"
 import {
   GenerateSwapTransferIntentRequest,
@@ -26,9 +27,23 @@ const TOKEN_EXPIRES_AT_COOKIE = "private_intents_expires_at"
 // Refresh threshold - refresh when less than this many seconds remain
 const REFRESH_THRESHOLD_SECONDS = 60
 
+// Request-scoped storage for access token (avoids global state race conditions)
+const accessTokenStorage = new AsyncLocalStorage<string | null>()
+
+// API key parsed once at module load
+const API_KEY = z.string().parse(ONE_CLICK_API_KEY)
+
 OpenAPI.BASE = z.string().parse(ONE_CLICK_URL)
-OpenAPI.HEADERS = {
-  "x-api-key": z.string().parse(ONE_CLICK_API_KEY),
+// Use resolver function to get headers per-request (thread-safe)
+OpenAPI.HEADERS = async () => {
+  const accessToken = accessTokenStorage.getStore()
+  const headers: Record<string, string> = {
+    "x-api-key": API_KEY,
+  }
+  if (accessToken) {
+    headers.authorization = `Bearer ${accessToken}`
+  }
+  return headers
 }
 
 const authMethodSchema = z.enum([
@@ -192,22 +207,14 @@ async function getValidAccessToken(): Promise<string | null> {
 }
 
 /**
- * Helper to set OpenAPI headers with authorization
+ * Execute a function with the access token in request-scoped context
+ * This ensures thread-safety in serverless environments
  */
-function setAuthHeaders(accessToken: string) {
-  OpenAPI.HEADERS = {
-    "x-api-key": z.string().parse(ONE_CLICK_API_KEY),
-    authorization: `Bearer ${accessToken}`,
-  }
-}
-
-/**
- * Helper to reset OpenAPI headers to default
- */
-function resetHeaders() {
-  OpenAPI.HEADERS = {
-    "x-api-key": z.string().parse(ONE_CLICK_API_KEY),
-  }
+async function withAccessToken<T>(
+  accessToken: string | null,
+  fn: () => Promise<T>
+): Promise<T> {
+  return accessTokenStorage.run(accessToken, fn)
 }
 
 /**
@@ -264,26 +271,24 @@ export async function getPrivateBalance(args?: {
     return { err: "Not authenticated. Please authenticate first." }
   }
 
-  setAuthHeaders(accessToken)
+  return withAccessToken(accessToken, async () => {
+    try {
+      const response = await UserAuthService.getBalance(args?.tokenIds)
+      return { ok: response }
+    } catch (error) {
+      const err = unknownServerErrorToString(error)
+      logger.error(`privateIntents: getBalance error: ${err}`)
 
-  try {
-    const response = await UserAuthService.getBalance(args?.tokenIds)
-    return { ok: response }
-  } catch (error) {
-    const err = unknownServerErrorToString(error)
-    logger.error(`privateIntents: getBalance error: ${err}`)
+      // If unauthorized, try to clear session (token might be invalid)
+      if (isUnauthorizedError(error)) {
+        logger.warn("privateIntents: unauthorized error, clearing session")
+        await clearSessionCookies()
+        return { err: "Session expired. Please authenticate again." }
+      }
 
-    // If unauthorized, try to clear session (token might be invalid)
-    if (isUnauthorizedError(error)) {
-      logger.warn("privateIntents: unauthorized error, clearing session")
-      await clearSessionCookies()
-      return { err: "Session expired. Please authenticate again." }
+      return { err }
     }
-
-    return { err }
-  } finally {
-    resetHeaders()
-  }
+  })
 }
 
 const shieldQuoteArgsSchema = z.object({
@@ -372,48 +377,46 @@ export async function getUnshieldQuote(
 
   const { userAddress, authMethod, ...rest } = parseResult.data
 
-  setAuthHeaders(accessToken)
+  return withAccessToken(accessToken, async () => {
+    try {
+      const intentsUserId = authIdentity.authHandleToIntentsUserId(
+        userAddress,
+        authMethod
+      )
 
-  try {
-    const intentsUserId = authIdentity.authHandleToIntentsUserId(
-      userAddress,
-      authMethod
-    )
+      const req: QuoteRequest = {
+        dry: false,
+        swapType: QuoteRequest.swapType.EXACT_INPUT,
+        slippageTolerance: rest.slippageTolerance,
+        originAsset: rest.asset,
+        destinationAsset: rest.asset, // Same asset for unshield
+        amount: rest.amount,
+        deadline: rest.deadline,
+        // Unshield: deposit from private intents, receive to public intents
+        depositType: QuoteRequest.depositType.PRIVATE_INTENTS,
+        recipientType: QuoteRequest.recipientType.INTENTS,
+        refundTo: intentsUserId,
+        refundType: QuoteRequest.refundType.INTENTS,
+        recipient: intentsUserId,
+        quoteWaitingTimeMs: 0,
+      }
 
-    const req: QuoteRequest = {
-      dry: false,
-      swapType: QuoteRequest.swapType.EXACT_INPUT,
-      slippageTolerance: rest.slippageTolerance,
-      originAsset: rest.asset,
-      destinationAsset: rest.asset, // Same asset for unshield
-      amount: rest.amount,
-      deadline: rest.deadline,
-      // Unshield: deposit from private intents, receive to public intents
-      depositType: QuoteRequest.depositType.PRIVATE_INTENTS,
-      recipientType: QuoteRequest.recipientType.INTENTS,
-      refundTo: intentsUserId,
-      refundType: QuoteRequest.refundType.INTENTS,
-      recipient: intentsUserId,
-      quoteWaitingTimeMs: 0,
+      const response = await OneClickService.getQuote(req)
+      return { ok: response }
+    } catch (error) {
+      const err = unknownServerErrorToString(error)
+      logger.error(`privateIntents: getUnshieldQuote error: ${err}`)
+
+      // If unauthorized, try to clear session
+      if (isUnauthorizedError(error)) {
+        logger.warn("privateIntents: unauthorized error, clearing session")
+        await clearSessionCookies()
+        return { err: "Session expired. Please authenticate again." }
+      }
+
+      return { err }
     }
-
-    const response = await OneClickService.getQuote(req)
-    return { ok: response }
-  } catch (error) {
-    const err = unknownServerErrorToString(error)
-    logger.error(`privateIntents: getUnshieldQuote error: ${err}`)
-
-    // If unauthorized, try to clear session
-    if (isUnauthorizedError(error)) {
-      logger.warn("privateIntents: unauthorized error, clearing session")
-      await clearSessionCookies()
-      return { err: "Session expired. Please authenticate again." }
-    }
-
-    return { err }
-  } finally {
-    resetHeaders()
-  }
+  })
 }
 
 const generateShieldIntentArgsSchema = z.object({
