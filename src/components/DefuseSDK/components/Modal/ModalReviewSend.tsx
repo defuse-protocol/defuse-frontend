@@ -144,7 +144,7 @@ const ModalReviewSend = ({
                       />
                     </TooltipNew.Content>
                   </TooltipNew>
-                  <ContactsIcon className="mt-0.5 size-4 text-gray-500 shrink-0" />
+                  <ContactsIcon className="mt-0.5 size-4 text-brand shrink-0" />
                 </div>
               </div>
             ) : (
