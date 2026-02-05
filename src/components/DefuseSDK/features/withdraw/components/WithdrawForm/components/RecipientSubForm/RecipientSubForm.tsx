@@ -9,7 +9,7 @@ import { isSupportedChainName } from "@src/components/DefuseSDK/utils/blockchain
 import { findContactByAddress } from "@src/components/DefuseSDK/utils/contactUtils"
 import { stringToColor } from "@src/components/DefuseSDK/utils/stringToColor"
 import ErrorMessage from "@src/components/ErrorMessage"
-import { ContactsIcon } from "@src/icons"
+import { WalletIcon } from "@src/icons"
 import { useQuery } from "@tanstack/react-query"
 import { useSelector } from "@xstate/react"
 import clsx from "clsx"
@@ -95,6 +95,10 @@ export const RecipientSubForm = ({
     () => findContactByAddress(contacts, recipient, blockchainEnum),
     [contacts, recipient, blockchainEnum]
   )
+
+  useEffect(() => {
+    onRecipientContactChange(matchingContact?.name ?? null)
+  }, [matchingContact, onRecipientContactChange])
 
   const actorRef = WithdrawUIMachineContext.useActorRef()
   const { formRef, balances: balancesData } =
@@ -283,10 +287,10 @@ export const RecipientSubForm = ({
               icon={
                 matchingContact && contactColors ? (
                   <div
-                    className="size-10 rounded-full flex items-center justify-center shrink-0"
+                    className="size-10 rounded-full flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1"
                     style={{ backgroundColor: contactColors.background }}
                   >
-                    <ContactsIcon
+                    <WalletIcon
                       className="size-5"
                       style={{ color: contactColors.icon }}
                     />
