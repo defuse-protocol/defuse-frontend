@@ -14,6 +14,7 @@ import type { RenderHostAppLink } from "../../../types/hostAppLink"
 import { RevealAddressDialog } from "./RevealAddressDialog"
 import { FormattedCurrency } from "./shared/FormattedCurrency"
 import { NavButton } from "./shared/NavButton"
+import { PrivateModeToggle } from "./shared/PrivateModeToggle"
 
 export function SummaryIsland({
   isLoggedIn,
@@ -38,20 +39,23 @@ export function SummaryIsland({
       <IslandHeader
         heading="Account"
         rightSlot={
-          onToggleHideBalances && (
-            <button
-              type="button"
-              onClick={onToggleHideBalances}
-              className="p-2 text-gray-11 hover:text-gray-12 transition-colors"
-              aria-label={hideBalances ? "Show balances" : "Hide balances"}
-            >
-              {hideBalances ? (
-                <EyeSlash weight="bold" className="size-5" />
-              ) : (
-                <Eye weight="bold" className="size-5" />
-              )}
-            </button>
-          )
+          <>
+            {onToggleHideBalances && (
+              <button
+                type="button"
+                onClick={onToggleHideBalances}
+                className="p-2 text-gray-11 hover:text-gray-12 transition-colors"
+                aria-label={hideBalances ? "Show balances" : "Hide balances"}
+              >
+                {hideBalances ? (
+                  <EyeSlash weight="bold" className="size-5" />
+                ) : (
+                  <Eye weight="bold" className="size-5" />
+                )}
+              </button>
+            )}
+            <PrivateModeToggle />
+          </>
         }
       />
 
