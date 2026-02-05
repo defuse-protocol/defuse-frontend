@@ -140,7 +140,7 @@ function GiftTakerScreens({
   }
 
   return (
-    <GiftRevealCard giftId={giftId ?? "unknown"}>
+    <GiftRevealCard>
       <GiftTakerForm
         giftInfo={giftInfo}
         signerCredentials={signerCredentials}

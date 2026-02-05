@@ -25,11 +25,12 @@ export function GiftTakerSuccessScreen({
   giftInfo: GiftInfo
   intentHashes: string[]
 }) {
-  const { fireOnce } = useTokenConfetti()
+  const { fireOnce, stopAnimation } = useTokenConfetti()
 
   useEffect(() => {
     fireOnce()
-  }, [fireOnce])
+    return stopAnimation
+  }, [fireOnce, stopAnimation])
 
   const amount = computeTotalBalanceDifferentDecimals(
     getUnderlyingBaseTokenInfos(giftInfo.token),
