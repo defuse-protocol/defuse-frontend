@@ -1,8 +1,9 @@
 "use client"
 
-import { ArrowsLeftRight, Plus } from "@phosphor-icons/react"
+import { ArrowsLeftRight, Plus, ShieldIcon } from "@phosphor-icons/react"
 import { navigation } from "@src/constants/routes"
 import { useIsActiveLink } from "@src/hooks/useIsActiveLink"
+import { usePrivateModeStore } from "@src/stores/usePrivateModeStore"
 import { cn } from "@src/utils/cn"
 import Link from "next/link"
 
@@ -10,10 +11,14 @@ import type { ReactNode } from "react"
 
 export function NavbarMobile() {
   const { isActive } = useIsActiveLink()
+  const isPrivateModeEnabled = usePrivateModeStore(
+    (state) => state.isPrivateModeEnabled
+  )
 
   const isAccountActive = isActive(navigation.account)
   const isTradeActive = isActive(navigation.home) || isActive(navigation.otc)
   const isDepositActive = isActive(navigation.deposit)
+  const isShieldActive = isActive(navigation.shield)
 
   return (
     <>
@@ -48,6 +53,26 @@ export function NavbarMobile() {
               </NavItem.DisplayIcon>
             }
           />
+
+          {/* Shield - only visible in private mode */}
+          {isPrivateModeEnabled && (
+            <NavItem
+              href={navigation.shield}
+              label="Shield"
+              isActive={isShieldActive}
+              iconSlot={
+                <NavItem.DisplayIcon>
+                  <ShieldIcon
+                    className={cn(
+                      "size-4",
+                      isShieldActive ? "text-gray-12" : "text-gray-11"
+                    )}
+                    weight="bold"
+                  />
+                </NavItem.DisplayIcon>
+              }
+            />
+          )}
 
           {/* Deposit */}
           <NavItem
