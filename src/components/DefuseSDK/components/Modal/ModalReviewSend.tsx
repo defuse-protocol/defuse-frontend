@@ -277,7 +277,7 @@ const ModalReviewSend = ({
       {canSaveContact && (
         <div className="mt-5 pt-5 border-t border-gray-200 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-gray-500">
               Save recipient to contacts
             </span>
             <Switch.Root
@@ -289,7 +289,7 @@ const ModalReviewSend = ({
                   setContactError(null)
                 }
               }}
-              className="group relative flex h-5 w-12 cursor-pointer rounded-lg bg-gray-300 p-1 transition-colors duration-200 ease-in-out focus:not-data-focus:outline-none data-[state=checked]:bg-brand data-focus:outline data-focus:outline-white"
+              className="group relative flex h-5 w-12 cursor-pointer rounded-lg bg-gray-300 p-1 transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 data-[state=checked]:bg-gray-900"
             >
               <Switch.Thumb className="pointer-events-none inline-block h-3 w-4 translate-x-0 rounded bg-white shadow-lg ring-0 transition duration-200 ease-in-out data-[state=checked]:translate-x-6" />
             </Switch.Root>
@@ -305,7 +305,7 @@ const ModalReviewSend = ({
                   setContactError(null)
                 }}
                 placeholder="Enter a name"
-                className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-base font-medium text-gray-900 placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-base font-medium text-gray-900 placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
               />
               {contactError && (
                 <ErrorMessage className="mt-1">{contactError}</ErrorMessage>
