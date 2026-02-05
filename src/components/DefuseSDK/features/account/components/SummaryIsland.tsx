@@ -8,6 +8,7 @@ import type { RenderHostAppLink } from "../../../types/hostAppLink"
 import { RevealAddressDialog } from "./RevealAddressDialog"
 import { FormattedCurrency } from "./shared/FormattedCurrency"
 import { NavButton } from "./shared/NavButton"
+import { PrivateModeToggle } from "./shared/PrivateModeToggle"
 
 export function SummaryIsland({
   isLoggedIn,
@@ -25,7 +26,7 @@ export function SummaryIsland({
 
   return (
     <Island className="flex flex-col gap-8">
-      <IslandHeader heading="Account" />
+      <IslandHeader heading="Account" rightSlot={<PrivateModeToggle />} />
 
       {isRevealed && internalUserAddress != null && (
         <RevealAddressDialog

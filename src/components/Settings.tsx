@@ -1,19 +1,11 @@
 "use client"
 
 import { authIdentity } from "@defuse-protocol/internal-utils"
-import { ShieldCheckIcon, ShieldIcon } from "@phosphor-icons/react"
+import { ShieldCheckIcon } from "@phosphor-icons/react"
 import { EyeIcon, EyeSlashIcon } from "@phosphor-icons/react"
 import { ExternalLinkIcon } from "@radix-ui/react-icons"
-import {
-  Button,
-  Popover,
-  Separator,
-  Spinner,
-  Switch,
-  Text,
-} from "@radix-ui/themes"
+import { Button, Popover, Separator, Switch, Text } from "@radix-ui/themes"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
-import { usePrivateModeAuth } from "@src/hooks/usePrivateModeAuth"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import Themes from "@src/types/themes"
 import { useTheme } from "next-themes"
@@ -60,7 +52,6 @@ const Settings = () => {
             {whitelabelTemplate !== "rabitswap" && (
               <>
                 <DarkMode />
-                <PrivateMode />
                 {internalUserAddress && (
                   <RevealAddress internalUserAddress={internalUserAddress} />
                 )}
@@ -203,52 +194,6 @@ const DarkMode = () => {
   )
 
   return darkModeSwitch
-}
-
-const PrivateMode = () => {
-  const {
-    isPrivateModeEnabled,
-    isAuthenticating,
-    authError,
-    isConnected,
-    togglePrivateMode,
-  } = usePrivateModeAuth()
-
-  return (
-    <div className="flex flex-col gap-2">
-      <div className="flex justify-between items-center gap-4">
-        <span className="flex items-center gap-2">
-          {isAuthenticating ? (
-            <Spinner size="1" />
-          ) : (
-            <ShieldIcon
-              className="w-4 h-4"
-              weight={isPrivateModeEnabled ? "fill" : "bold"}
-            />
-          )}
-          <Text size="2" weight="medium">
-            Private Mode
-          </Text>
-        </span>
-        <Switch
-          size="1"
-          onCheckedChange={() => togglePrivateMode()}
-          checked={isPrivateModeEnabled}
-          disabled={isAuthenticating || !isConnected}
-        />
-      </div>
-      {authError && (
-        <Text size="1" color="red" className="pl-6">
-          {authError}
-        </Text>
-      )}
-      {!isConnected && (
-        <Text size="1" color="gray" className="pl-6">
-          Connect wallet to enable
-        </Text>
-      )}
-    </div>
-  )
 }
 
 const RevealAddress = ({
