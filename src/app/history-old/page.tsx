@@ -9,7 +9,12 @@ import { useTokenList } from "@src/hooks/useTokenList"
 import { useEffect, useState } from "react"
 
 export default function HistoryPage() {
-  const { state, isLoading: isWalletConnecting } = useConnectWallet()
+  const {
+    state,
+    isLoading: isWalletConnecting,
+    isReconnecting: isWalletReconnecting,
+  } = useConnectWallet()
+
   const tokenList = useTokenList(LIST_TOKENS)
   // Prevents "Connect wallet" flash while wallets like NEAR reconnect async
   const [hadPreviousSession, setHadPreviousSession] = useState(true)
@@ -27,6 +32,7 @@ export default function HistoryPage() {
   const isWaitingForReconnect = hadPreviousSession && !state.address
   const isWalletLoading =
     isWalletConnecting ||
+    isWalletReconnecting ||
     isWaitingForReconnect ||
     Boolean(state.address && !state.isAuthorized)
 
