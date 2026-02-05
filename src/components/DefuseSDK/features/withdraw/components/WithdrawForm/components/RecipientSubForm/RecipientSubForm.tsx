@@ -96,6 +96,10 @@ export const RecipientSubForm = ({
     [contacts, recipient, blockchainEnum]
   )
 
+  useEffect(() => {
+    onRecipientContactChange(matchingContact?.name ?? null)
+  }, [matchingContact, onRecipientContactChange])
+
   const actorRef = WithdrawUIMachineContext.useActorRef()
   const { formRef, balances: balancesData } =
     WithdrawUIMachineContext.useSelector((state) => {
