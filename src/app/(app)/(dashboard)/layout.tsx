@@ -32,7 +32,7 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => (
 
       <div className="relative mt-5 flex flex-col gap-3">
         <SystemStatus showOperationalStatus={false} />
-        <UserMenu />
+        <UserMenu variant="desktop" />
       </div>
     </div>
 

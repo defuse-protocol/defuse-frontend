@@ -5,7 +5,7 @@ import { useActivityDock } from "@src/providers/ActivityDockProvider"
 import clsx from "clsx"
 import Link from "next/link"
 import ActivityDockMobile from "./ActivityDockMobile"
-import UserMenuMobile from "./UserMenuMobile"
+import UserMenu from "./UserMenu"
 
 const MobileTopBar = () => {
   const { dockItems } = useActivityDock()
@@ -29,7 +29,7 @@ const MobileTopBar = () => {
 
       <ActivityDockMobile />
 
-      <UserMenuMobile />
+      <UserMenu variant="mobile" />
     </div>
   )
 }
