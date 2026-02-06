@@ -3,7 +3,7 @@
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { NearIntentsLogoSymbolIcon } from "@src/icons"
 import { usePathname, useRouter } from "next/navigation"
-import { type ReactNode, useEffect, useState } from "react"
+import { type ReactNode, useEffect, useRef, useState } from "react"
 
 // To avoid a quick flicker of the splash screen
 const MIN_SPLASH_DURATION_MS = 2000
@@ -14,6 +14,7 @@ const SplashScreen = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname()
   const isOnLoginPage = pathname === "/login"
   const [minTimeElapsed, setMinTimeElapsed] = useState(false)
+  const initialLoadCompleteRef = useRef(false)
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -22,7 +23,13 @@ const SplashScreen = ({ children }: { children: ReactNode }) => {
     return () => clearTimeout(timer)
   }, [])
 
-  const showSplash = isLoading || !minTimeElapsed
+  // Latch: once loaded, never show splash again even if isLoading briefly flickers
+  if (minTimeElapsed && !isLoading) {
+    initialLoadCompleteRef.current = true
+  }
+
+  const showSplash =
+    !initialLoadCompleteRef.current && (isLoading || !minTimeElapsed)
 
   useEffect(() => {
     if (showSplash) return

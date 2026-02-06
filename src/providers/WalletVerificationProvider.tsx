@@ -15,7 +15,7 @@ import { walletVerificationMessageFactory } from "@src/utils/walletMessage"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useActor } from "@xstate/react"
 import { usePathname, useRouter } from "next/navigation"
-import { useEffect, useRef } from "react"
+import { startTransition, useEffect, useRef } from "react"
 import { fromPromise } from "xstate"
 import { useMixpanel } from "./MixpanelProvider"
 
@@ -26,13 +26,15 @@ export function WalletVerificationProvider() {
   const pathname = usePathname()
   const queryClient = useQueryClient()
 
-  // Refresh page after auth validation completes to re-fetch RSC with new cookie
+  // Refresh RSC after auth validation — startTransition avoids blocking the UI
   const wasValidatingRef = useRef(false)
   useEffect(() => {
     const wasValidating = wasValidatingRef.current
     wasValidatingRef.current = state.isAuthValidating
     if (wasValidating && !state.isAuthValidating && state.isAuthorized) {
-      router.refresh()
+      startTransition(() => {
+        router.refresh()
+      })
     }
   }, [state.isAuthValidating, state.isAuthorized, router])
 
