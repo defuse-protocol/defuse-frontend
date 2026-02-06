@@ -1,6 +1,5 @@
 "use client"
 
-import {} from "@src/icons"
 import {
   type ReactNode,
   createContext,
