@@ -4,6 +4,7 @@ import {
   ArrowTopRightOnSquareIcon,
   ChevronDoubleDownIcon,
   ChevronDoubleUpIcon,
+  TrashIcon,
 } from "@heroicons/react/16/solid"
 import {
   type DockItem,
@@ -17,7 +18,7 @@ import Button from "./Button"
 
 const ActivityDockMobile = () => {
   const [open, setOpen] = useState(false)
-  const { dockItems, removeDockItem } = useActivityDock()
+  const { dockItems, clearDockItems } = useActivityDock()
   const hasDockItems = dockItems.length > 0
 
   useEffect(() => {
@@ -69,25 +70,36 @@ const ActivityDockMobile = () => {
               onClick={(e) => e.stopPropagation()}
               onKeyDown={(e) => e.stopPropagation()}
             >
-              <div className="min-h-9 flex items-center justify-center mb-3">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setOpen(false)}
-                >
-                  Close
-                  <ChevronDoubleUpIcon className="size-3 shrink-0" />
-                </Button>
+              <div className="min-h-9 grid grid-cols-3 items-center mb-3">
+                <div />
+                <div className="flex justify-center">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setOpen(false)}
+                  >
+                    Close
+                    <ChevronDoubleUpIcon className="size-3 shrink-0" />
+                  </Button>
+                </div>
+                {open && (
+                  <div className="flex justify-end">
+                    <Button
+                      variant="custom"
+                      size="sm"
+                      onClick={clearDockItems}
+                      className="self-end bg-white/20 text-white outline-white hover:bg-white/30"
+                    >
+                      <TrashIcon className="size-4 shrink-0" />
+                      {dockItems.length > 1 ? "Clear all" : "Clear"}
+                    </Button>
+                  </div>
+                )}
               </div>
 
               <AnimatePresence mode="popLayout" initial={false}>
                 {dockItems.map((item, index) => (
-                  <DockCard
-                    key={item.id}
-                    item={item}
-                    isFirst={index === 0}
-                    onDismiss={removeDockItem}
-                  />
+                  <DockCard key={item.id} item={item} isFirst={index === 0} />
                 ))}
               </AnimatePresence>
             </div>
@@ -100,11 +112,9 @@ const ActivityDockMobile = () => {
 
 function DockCard({
   item,
-  onDismiss,
   isFirst,
 }: {
   item: DockItem
-  onDismiss: (id: string) => void
   isFirst: boolean
 }) {
   return (
@@ -157,29 +167,19 @@ function DockCard({
             )
           )}
 
-          <div className="flex flex-col gap-2 mt-4">
-            {item.explorerUrl && (
-              <Button
-                href={item.explorerUrl}
-                variant="primary"
-                target="_blank"
-                rel="noopener noreferrer"
-                fullWidth
-              >
-                View on explorer
-                <ArrowTopRightOnSquareIcon className="size-4" />
-              </Button>
-            )}
-
+          {item.explorerUrl && (
             <Button
-              onClick={() => onDismiss(item.id)}
-              variant="secondary"
-              className="border border-gray-200"
+              href={item.explorerUrl}
+              variant="primary"
+              target="_blank"
+              rel="noopener noreferrer"
               fullWidth
+              className="mt-4"
             >
-              Dismiss
+              View on explorer
+              <ArrowTopRightOnSquareIcon className="size-4" />
             </Button>
-          </div>
+          )}
         </div>
       </div>
     </motion.div>
