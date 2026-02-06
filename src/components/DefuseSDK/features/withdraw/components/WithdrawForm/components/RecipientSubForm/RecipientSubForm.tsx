@@ -54,7 +54,6 @@ type RecipientSubFormProps = {
   userAddress: string | undefined
   displayAddress: string | undefined
   tokenInBalance: TokenValue | undefined
-  onRecipientContactChange: (contactName: string | null) => void
 }
 
 export const RecipientSubForm = ({
@@ -70,7 +69,6 @@ export const RecipientSubForm = ({
   userAddress,
   displayAddress,
   tokenInBalance,
-  onRecipientContactChange,
 }: RecipientSubFormProps) => {
   const [modalType, setModalType] = useState<"network" | "recipient" | null>(
     null
@@ -95,10 +93,11 @@ export const RecipientSubForm = ({
     () => findContactByAddress(contacts, recipient, blockchainEnum),
     [contacts, recipient, blockchainEnum]
   )
-
-  useEffect(() => {
-    onRecipientContactChange(matchingContact?.name ?? null)
-  }, [matchingContact, onRecipientContactChange])
+  const contactColors = matchingContact
+    ? stringToColor(
+        `${matchingContact.name}${matchingContact.address}${matchingContact.blockchain}`
+      )
+    : null
 
   const actorRef = WithdrawUIMachineContext.useActorRef()
   const { formRef, balances: balancesData } =
@@ -266,45 +265,37 @@ export const RecipientSubForm = ({
         rules={{
           required: "Recipient is required",
         }}
-        render={({ field, fieldState }) => {
-          const contactColors = matchingContact
-            ? stringToColor(
-                `${matchingContact.name}${matchingContact.address}${matchingContact.blockchain}`
+        render={({ field, fieldState }) => (
+          <SelectTriggerLike
+            label="To this recipient"
+            value={
+              matchingContact
+                ? matchingContact.name
+                : field.value
+                  ? midTruncate(field.value, 16)
+                  : "Select a contact or enter an address"
+            }
+            error={fieldState.error?.message}
+            icon={
+              matchingContact && contactColors ? (
+                <div
+                  className="size-10 rounded-full flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1"
+                  style={{ backgroundColor: contactColors.background }}
+                >
+                  <WalletIcon
+                    className="size-5"
+                    style={{ color: contactColors.icon }}
+                  />
+                </div>
+              ) : (
+                <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                  <GlobeAltIcon className="text-gray-500 size-5" />
+                </div>
               )
-            : null
-
-          return (
-            <SelectTriggerLike
-              label="To this recipient"
-              value={
-                matchingContact
-                  ? matchingContact.name
-                  : field.value
-                    ? midTruncate(field.value, 16)
-                    : "Select a contact or enter an address"
-              }
-              error={fieldState.error?.message}
-              icon={
-                matchingContact && contactColors ? (
-                  <div
-                    className="size-10 rounded-full flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1"
-                    style={{ backgroundColor: contactColors.background }}
-                  >
-                    <WalletIcon
-                      className="size-5"
-                      style={{ color: contactColors.icon }}
-                    />
-                  </div>
-                ) : (
-                  <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
-                    <GlobeAltIcon className="text-gray-500 size-5" />
-                  </div>
-                )
-              }
-              onClick={() => setModalType("recipient")}
-            />
-          )
-        }}
+            }
+            onClick={() => setModalType("recipient")}
+          />
+        )}
       />
 
       <ModalSelectRecipient
@@ -314,14 +305,13 @@ export const RecipientSubForm = ({
         userAddress={userAddress}
         displayAddress={displayAddress}
         availableNetworks={availableNetworks}
-        onRecipientContactChange={onRecipientContactChange}
         displayOwnAddress={
           isChainTypeSatisfiesChainName &&
           !isNearIntentsNetwork(getValues("blockchain")) &&
           userAddress != null &&
           getValues("blockchain") !== "hyperliquid"
         }
-        onContactSelect={(blockchain, recipient, contactName) => {
+        onContactSelect={(blockchain, recipient) => {
           actorRef.send({
             type: "WITHDRAW_FORM.UPDATE_BLOCKCHAIN_AND_RECIPIENT",
             params: { blockchain, recipient, proxyRecipient: null },
@@ -335,7 +325,6 @@ export const RecipientSubForm = ({
               ),
             },
           })
-          onRecipientContactChange(contactName)
           closeModal()
         }}
       />

@@ -7,6 +7,7 @@ export function updateURLParamsWithdraw({
   contactId,
   recipient,
   router,
+  pathname,
   searchParams,
 }: {
   token: string | null
@@ -14,6 +15,7 @@ export function updateURLParamsWithdraw({
   contactId: string | null | undefined
   recipient: string | null | undefined
   router: AppRouterInstance
+  pathname: string
   searchParams: ReadonlyURLSearchParams
 }) {
   const params = new URLSearchParams(searchParams.toString())
@@ -47,7 +49,9 @@ export function updateURLParamsWithdraw({
     }
   }
 
-  if (params.toString() !== searchParams.toString()) {
-    router.replace(`?${params.toString()}`, { scroll: false })
+  const nextSearch = params.toString()
+  if (nextSearch !== searchParams.toString()) {
+    const href = nextSearch ? `${pathname}?${nextSearch}` : pathname
+    router.replace(href, { scroll: false })
   }
 }
