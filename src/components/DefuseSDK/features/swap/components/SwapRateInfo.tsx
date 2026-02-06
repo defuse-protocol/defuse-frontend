@@ -21,7 +21,7 @@ function SwapRateInfo({ tokenIn, tokenOut }: SwapRateInfoProps) {
     <button
       type="button"
       onClick={() => setShowBasePrice((prev) => !prev)}
-      className="text-sm font-semibold group text-gray-600 hover:text-gray-900 transition-colors"
+      className="text-sm font-semibold group text-gray-900 hover:underline"
     >
       {showBasePrice
         ? exchangeRate != null &&
