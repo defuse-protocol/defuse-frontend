@@ -41,7 +41,7 @@ export function PassiveDeposit({
 
   return (
     <>
-      <div className="bg-white rounded-3xl border border-gray-200 p-4 mt-6 space-y-4">
+      <div className="bg-white rounded-3xl border border-gray-200 p-4 mt-6 flex flex-col gap-4">
         <h2 className="flex flex-col items-start gap-1">
           <span className="font-semibold text-base/none text-gray-900">
             Deposit {token.symbol}
