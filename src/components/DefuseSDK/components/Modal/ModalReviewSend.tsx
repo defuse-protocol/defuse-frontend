@@ -120,7 +120,9 @@ const ModalReviewSend = ({
   }, [directionFee, feeUsd, fee.amount])
 
   const contactColor = recipientContactName
-    ? stringToColor(`${recipientContactName}${recipient}${network}`)
+    ? stringToColor(
+        `${recipientContactName}${recipient}${network !== "near_intents" ? assetNetworkAdapter[network] : network}`
+      )
     : null
 
   const handleTransfer = async () => {
