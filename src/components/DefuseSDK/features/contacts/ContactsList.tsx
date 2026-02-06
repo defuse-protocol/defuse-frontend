@@ -240,7 +240,9 @@ const ContactsList = ({
         }}
         onCloseAnimationEnd={() => {
           setSelectedContact(null)
-          router.refresh()
+          startTransition(() => {
+            router.refresh()
+          })
         }}
       />
       <ModalRemoveContact
@@ -249,7 +251,9 @@ const ContactsList = ({
         onClose={() => setModalOpen(null)}
         onCloseAnimationEnd={() => {
           setSelectedContact(null)
-          router.refresh()
+          startTransition(() => {
+            router.refresh()
+          })
         }}
       />
     </>
