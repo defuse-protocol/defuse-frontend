@@ -72,7 +72,7 @@ const faqItems = [
   {
     question: "Can my business use NEAR Intents?",
     answer: (
-      <>
+      <span>
         Yes! We&apos;ve already helped Ledger, SwapKit, and many more to process
         over $10B in swaps. Interested?{" "}
         <button
@@ -86,13 +86,13 @@ const faqItems = [
         >
           Reach out!
         </button>
-      </>
+      </span>
     ),
   },
   {
     question: "What if I need help?",
     answer: (
-      <>
+      <span>
         Just{" "}
         <button
           type="button"
@@ -106,7 +106,7 @@ const faqItems = [
           click here
         </button>{" "}
         and we&apos;re here to assist!
-      </>
+      </span>
     ),
   },
 ]
