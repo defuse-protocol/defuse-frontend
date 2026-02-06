@@ -64,6 +64,11 @@ const UserMenu = ({
       },
       icon: ArrowRightStartOnRectangleIcon,
     },
+    // {
+    //   label: "Settings",
+    //   href: "/settings",
+    //   icon: Cog8ToothIcon,
+    // },
     {
       label: "Support",
       onClick: () => {
