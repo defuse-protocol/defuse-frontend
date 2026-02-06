@@ -63,6 +63,61 @@ describe("extractSignerFromIntent", () => {
     expect(extractSignerFromIntent(signedIntent)).toBe("ton:abc123")
   })
 
+  it("extracts signer_id from TIP-191 (Tron) payload", () => {
+    const signedIntent: MultiPayload = {
+      standard: "tip191",
+      payload: createMessage("0x1234567890abcdef1234567890abcdef12345678"),
+      signature: "secp256k1:abc123",
+    }
+
+    expect(extractSignerFromIntent(signedIntent)).toBe(
+      "0x1234567890abcdef1234567890abcdef12345678"
+    )
+  })
+
+  it("extracts signer_id from SEP-53 (Stellar) payload", () => {
+    const signedIntent: MultiPayload = {
+      standard: "sep53",
+      payload: createMessage(
+        "stellar:GABC1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234"
+      ),
+      public_key: "ed25519:6E8sCci9badyRkXb3JoRpBj5p8C6Tw41ELDZoiihKEtp",
+      signature:
+        "ed25519:3xqLbVXjPhYpYnKx4kqGqYpLYvLbWUjGpdVYQs9pKz9M1xqLbVXjPhYpYnKx4kqGqYpLYvLbWUjGpdVYQs9pKz9M",
+    }
+
+    expect(extractSignerFromIntent(signedIntent)).toBe(
+      "stellar:GABC1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234"
+    )
+  })
+
+  it("returns null for TIP-191 payload with invalid JSON", () => {
+    const signedIntent: MultiPayload = {
+      standard: "tip191",
+      payload: "not valid json",
+      signature: "secp256k1:abc123",
+    }
+
+    expect(extractSignerFromIntent(signedIntent)).toBeNull()
+  })
+
+  it("returns null for SEP-53 payload missing signer_id", () => {
+    const signedIntent: MultiPayload = {
+      standard: "sep53",
+      payload: JSON.stringify({
+        deadline: "2024-01-01T00:00:00.000Z",
+        intents: [],
+        nonce: "abc123",
+        verifying_contract: "intents.near",
+      }),
+      public_key: "ed25519:6E8sCci9badyRkXb3JoRpBj5p8C6Tw41ELDZoiihKEtp",
+      signature:
+        "ed25519:3xqLbVXjPhYpYnKx4kqGqYpLYvLbWUjGpdVYQs9pKz9M1xqLbVXjPhYpYnKx4kqGqYpLYvLbWUjGpdVYQs9pKz9M",
+    }
+
+    expect(extractSignerFromIntent(signedIntent)).toBeNull()
+  })
+
   it("returns null for invalid payload structure", () => {
     const signedIntent = {
       standard: "erc191",

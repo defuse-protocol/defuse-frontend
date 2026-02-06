@@ -180,6 +180,39 @@ export async function validateTokenForWallet(
   return { valid: true }
 }
 
+/**
+ * Compares signer from message with expected signer for auth.
+ * For Tron, normalizes both to 0x+40 hex lowercase so base58 vs hex or case differences still match.
+ * For Stellar, normalizes to lowercase (signer_id is hex without 0x prefix).
+ */
+function isSignerMatchForAuth(
+  signerFromMessage: string | null,
+  expectedSigner: string,
+  authMethod: AuthMethod
+): boolean {
+  if (signerFromMessage == null) return false
+  if (authMethod === "tron") {
+    const canonicalExpected = expectedSigner.toLowerCase()
+    let canonicalFromMessage: string
+    if (signerFromMessage.startsWith("T")) {
+      try {
+        canonicalFromMessage = authIdentity
+          .authHandleToIntentsUserId(signerFromMessage, "tron")
+          .toLowerCase()
+      } catch {
+        return false
+      }
+    } else {
+      canonicalFromMessage = signerFromMessage.toLowerCase()
+    }
+    return canonicalFromMessage === canonicalExpected
+  }
+  if (authMethod === "stellar") {
+    return signerFromMessage.toLowerCase() === expectedSigner.toLowerCase()
+  }
+  return signerFromMessage === expectedSigner
+}
+
 export interface GenerateAuthTokenFromSignatureInput {
   /** Signed intent in MultiPayload format (JSON-safe output from formatSignedIntent) */
   signedIntent: MultiPayload
@@ -216,7 +249,12 @@ export async function generateAuthTokenFromWalletSignature(
       address,
       authMethod
     )
-    if (signerFromMessage !== expectedSigner) {
+    const signerMatch = isSignerMatchForAuth(
+      signerFromMessage,
+      expectedSigner,
+      authMethod
+    )
+    if (!signerMatch) {
       logger.warn("Signer mismatch in auth request", {
         signerFromMessage,
         expectedSigner,
