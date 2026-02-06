@@ -9,7 +9,7 @@ import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import { useNearWallet } from "@src/providers/NearWalletProvider"
 import { renderAppLink } from "@src/utils/renderAppLink"
-import { useRouter, useSearchParams } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useRef } from "react"
 import { updateURLParamsWithdraw } from "../_utils/updateURLParams"
 
@@ -34,6 +34,7 @@ export function SendPageClient({
   const tokenList = useTokenList(LIST_TOKENS, true)
   const referral = useIntentsReferral()
   const router = useRouter()
+  const pathname = usePathname()
   const queryParams = useSearchParams()
   const hasUpdatedUrlRef = useRef(false)
 
@@ -61,55 +62,19 @@ export function SendPageClient({
     }) => {
       if (!initialHadParams) return
 
-      const shouldUpdateRecipient =
-        queryParams.has("token") || queryParams.has("recipient")
-
-      if (params.networkChanged && params.recipientChanged) {
-        updateURLParamsWithdraw({
-          token: params.token,
-          network: params.network,
-          contactId: null,
-          recipient: shouldUpdateRecipient ? params.recipient : null,
-          router,
-          searchParams: queryParams,
-        })
-        return
-      }
-
-      if (params.networkChanged) {
-        updateURLParamsWithdraw({
-          token: params.token,
-          network: params.network,
-          contactId: null,
-          recipient: undefined,
-          router,
-          searchParams: queryParams,
-        })
-        return
-      }
-
-      if (params.recipientChanged) {
-        updateURLParamsWithdraw({
-          token: params.token,
-          network: params.network,
-          contactId: null,
-          recipient: shouldUpdateRecipient ? params.recipient : null,
-          router,
-          searchParams: queryParams,
-        })
-        return
-      }
-
+      // URL is declarative: always reflect current machine state (token, network, recipient).
+      // One update per change, no imperative patching.
       updateURLParamsWithdraw({
         token: params.token,
         network: params.network,
-        contactId: undefined,
-        recipient: undefined,
+        contactId: null,
+        recipient: params.recipient?.trim() || null,
         router,
+        pathname,
         searchParams: queryParams,
       })
     },
-    [initialHadParams, router, queryParams]
+    [initialHadParams, pathname, router, queryParams]
   )
 
   const userAddress = state.isAuthorized ? state.address : undefined

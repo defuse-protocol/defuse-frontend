@@ -3,6 +3,8 @@ import type { ReadonlyURLSearchParams } from "next/navigation"
 import { type Mock, beforeEach, describe, expect, it, vi } from "vitest"
 import { updateURLParamsWithdraw } from "./updateURLParams"
 
+const PATHNAME = "/transfer"
+
 describe("updateURLParamsWithdraw", () => {
   let mockRouter: { replace: Mock }
   let mockSearchParams: URLSearchParams
@@ -22,12 +24,14 @@ describe("updateURLParamsWithdraw", () => {
       contactId: undefined,
       recipient: undefined,
       router: mockRouter as unknown as AppRouterInstance,
+      pathname: PATHNAME,
       searchParams: asReadonly(mockSearchParams),
     })
 
-    expect(mockRouter.replace).toHaveBeenCalledWith("?token=USDC&network=eth", {
-      scroll: false,
-    })
+    expect(mockRouter.replace).toHaveBeenCalledWith(
+      `${PATHNAME}?token=USDC&network=eth`,
+      { scroll: false }
+    )
   })
 
   it("should remove token when null", () => {
@@ -40,10 +44,11 @@ describe("updateURLParamsWithdraw", () => {
       contactId: undefined,
       recipient: undefined,
       router: mockRouter as unknown as AppRouterInstance,
+      pathname: PATHNAME,
       searchParams: asReadonly(mockSearchParams),
     })
 
-    expect(mockRouter.replace).toHaveBeenCalledWith("?network=eth", {
+    expect(mockRouter.replace).toHaveBeenCalledWith(`${PATHNAME}?network=eth`, {
       scroll: false,
     })
   })
@@ -57,11 +62,12 @@ describe("updateURLParamsWithdraw", () => {
       contactId: "uuid-123",
       recipient: undefined,
       router: mockRouter as unknown as AppRouterInstance,
+      pathname: PATHNAME,
       searchParams: asReadonly(mockSearchParams),
     })
 
     expect(mockRouter.replace).toHaveBeenCalledWith(
-      "?token=USDC&network=eth&contactId=uuid-123",
+      `${PATHNAME}?token=USDC&network=eth&contactId=uuid-123`,
       { scroll: false }
     )
   })
@@ -76,12 +82,14 @@ describe("updateURLParamsWithdraw", () => {
       contactId: null,
       recipient: undefined,
       router: mockRouter as unknown as AppRouterInstance,
+      pathname: PATHNAME,
       searchParams: asReadonly(mockSearchParams),
     })
 
-    expect(mockRouter.replace).toHaveBeenCalledWith("?token=USDC&network=eth", {
-      scroll: false,
-    })
+    expect(mockRouter.replace).toHaveBeenCalledWith(
+      `${PATHNAME}?token=USDC&network=eth`,
+      { scroll: false }
+    )
   })
 
   it("should keep contactId when undefined", () => {
@@ -94,12 +102,13 @@ describe("updateURLParamsWithdraw", () => {
       contactId: undefined,
       recipient: undefined,
       router: mockRouter as unknown as AppRouterInstance,
+      pathname: PATHNAME,
       searchParams: asReadonly(mockSearchParams),
     })
 
     expect(mockRouter.replace).toHaveBeenCalled()
     const url = mockRouter.replace.mock.calls[0][0] as string
-    const params = new URLSearchParams(url.replace("?", ""))
+    const params = new URLSearchParams(url.replace(/^[^?]*\?/, ""))
     expect(params.get("token")).toBe("USDT")
     expect(params.get("network")).toBe("eth")
     expect(params.get("contactId")).toBe("uuid-123")
@@ -112,11 +121,12 @@ describe("updateURLParamsWithdraw", () => {
       contactId: undefined,
       recipient: "0x456",
       router: mockRouter as unknown as AppRouterInstance,
+      pathname: PATHNAME,
       searchParams: asReadonly(mockSearchParams),
     })
 
     expect(mockRouter.replace).toHaveBeenCalledWith(
-      "?token=USDC&network=eth&recipient=0x456",
+      `${PATHNAME}?token=USDC&network=eth&recipient=0x456`,
       { scroll: false }
     )
   })
@@ -130,12 +140,13 @@ describe("updateURLParamsWithdraw", () => {
       contactId: undefined,
       recipient: "0x456",
       router: mockRouter as unknown as AppRouterInstance,
+      pathname: PATHNAME,
       searchParams: asReadonly(mockSearchParams),
     })
 
     expect(mockRouter.replace).toHaveBeenCalled()
     const url = mockRouter.replace.mock.calls[0][0] as string
-    const params = new URLSearchParams(url.replace("?", ""))
+    const params = new URLSearchParams(url.replace(/^[^?]*\?/, ""))
     expect(params.get("contactId")).toBe("uuid-123")
     expect(params.has("recipient")).toBe(false)
   })
@@ -150,6 +161,7 @@ describe("updateURLParamsWithdraw", () => {
       contactId: undefined,
       recipient: undefined,
       router: mockRouter as unknown as AppRouterInstance,
+      pathname: PATHNAME,
       searchParams: asReadonly(mockSearchParams),
     })
 
@@ -166,11 +178,12 @@ describe("updateURLParamsWithdraw", () => {
       contactId: null,
       recipient: "0x456",
       router: mockRouter as unknown as AppRouterInstance,
+      pathname: PATHNAME,
       searchParams: asReadonly(mockSearchParams),
     })
 
     expect(mockRouter.replace).toHaveBeenCalledWith(
-      "?token=USDC&network=eth&recipient=0x456",
+      `${PATHNAME}?token=USDC&network=eth&recipient=0x456`,
       { scroll: false }
     )
   })

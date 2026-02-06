@@ -83,14 +83,25 @@ const ModalSelectRecipient = ({
     )
   }, [availableNetworks, contacts])
 
+  const hasSelectedNetwork = !!blockchain && blockchain !== "near_intents"
+
   const visibleContacts = useMemo(() => {
     const trimmed = inputValue.trim()
-    if (!trimmed) return availableContacts
+    const filtered = trimmed
+      ? availableContacts.filter((contact) =>
+          contact.name.toLowerCase().includes(trimmed.toLowerCase())
+        )
+      : availableContacts
 
-    return availableContacts.filter((contact) =>
-      contact.name.toLowerCase().includes(trimmed.toLowerCase())
-    )
-  }, [availableContacts, inputValue])
+    if (!hasSelectedNetwork) return filtered
+
+    return [...filtered].sort((a, b) => {
+      const aMatches = reverseAssetNetworkAdapter[a.blockchain] === blockchain
+      const bMatches = reverseAssetNetworkAdapter[b.blockchain] === blockchain
+      if (aMatches === bMatches) return 0
+      return aMatches ? -1 : 1
+    })
+  }, [availableContacts, inputValue, hasSelectedNetwork, blockchain])
   const hasMatchingContacts = visibleContacts.length > 0
 
   useEffect(() => {
@@ -253,29 +264,42 @@ const ModalSelectRecipient = ({
 
                   <div className="mt-1 space-y-1">
                     {visibleContacts.map(
-                      ({ id, address, name, blockchain }) => {
-                        const chainKey = reverseAssetNetworkAdapter[blockchain]
+                      ({
+                        id,
+                        address,
+                        name,
+                        blockchain: contactBlockchain,
+                      }) => {
+                        const chainKey =
+                          reverseAssetNetworkAdapter[contactBlockchain]
                         const chainIcon = chainIcons[chainKey]
                         const chainName = chainNameToNetworkName(chainKey)
                         const contactColor = stringToColor(
-                          `${name}${address}${blockchain}`
+                          `${name}${address}${contactBlockchain}`
                         )
+                        const isDisabled =
+                          hasSelectedNetwork && chainKey !== blockchain
 
                         return (
                           <ListItem
                             key={id}
-                            onClick={() => {
-                              if (onContactSelect) {
-                                onContactSelect(chainKey, address, name)
-                                onClose()
-                              } else {
-                                setValue("blockchain", chainKey)
-                                setValue("recipient", address, {
-                                  shouldValidate: true,
-                                })
-                                onClose()
-                              }
-                            }}
+                            className={isDisabled ? "opacity-40" : undefined}
+                            onClick={
+                              isDisabled
+                                ? undefined
+                                : () => {
+                                    if (onContactSelect) {
+                                      onContactSelect(chainKey, address, name)
+                                      onClose()
+                                    } else {
+                                      setValue("blockchain", chainKey)
+                                      setValue("recipient", address, {
+                                        shouldValidate: true,
+                                      })
+                                      onClose()
+                                    }
+                                  }
+                            }
                           >
                             <div
                               className="size-10 rounded-full flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1"

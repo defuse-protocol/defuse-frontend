@@ -133,6 +133,7 @@ const cspConfig = {
     "https://rpc.gnosischain.com",
     "https://rpc.berachain.com",
     "https://rpc.mainnet.near.org/",
+    "https://near-rpc.defuse.org",
     "https://free.rpc.fastnear.com/",
     "https://polygon-rpc.com",
     "https://gasstation.polygon.technology",
