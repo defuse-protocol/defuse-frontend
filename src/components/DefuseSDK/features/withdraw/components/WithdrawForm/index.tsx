@@ -464,6 +464,7 @@ export const WithdrawForm = ({
               userAddress={userAddress}
               displayAddress={displayAddress}
               tokenInBalance={tokenInBalance}
+              onRecipientContactChange={setRecipientContactName}
             />
 
             <SelectedTokenInput

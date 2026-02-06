@@ -54,6 +54,7 @@ type RecipientSubFormProps = {
   userAddress: string | undefined
   displayAddress: string | undefined
   tokenInBalance: TokenValue | undefined
+  onRecipientContactChange?: (name: string | null) => void
 }
 
 export const RecipientSubForm = ({
@@ -69,6 +70,7 @@ export const RecipientSubForm = ({
   userAddress,
   displayAddress,
   tokenInBalance,
+  onRecipientContactChange,
 }: RecipientSubFormProps) => {
   const [modalType, setModalType] = useState<"network" | "recipient" | null>(
     null
@@ -98,6 +100,10 @@ export const RecipientSubForm = ({
         `${matchingContact.name}${matchingContact.address}${matchingContact.blockchain}`
       )
     : null
+
+  useEffect(() => {
+    onRecipientContactChange?.(matchingContact?.name ?? null)
+  }, [matchingContact, onRecipientContactChange])
 
   const actorRef = WithdrawUIMachineContext.useActorRef()
   const { formRef, balances: balancesData } =
@@ -311,7 +317,9 @@ export const RecipientSubForm = ({
           userAddress != null &&
           getValues("blockchain") !== "hyperliquid"
         }
-        onContactSelect={(blockchain, recipient) => {
+        onRecipientContactChange={onRecipientContactChange}
+        onContactSelect={(blockchain, recipient, contactName) => {
+          onRecipientContactChange?.(contactName)
           actorRef.send({
             type: "WITHDRAW_FORM.UPDATE_BLOCKCHAIN_AND_RECIPIENT",
             params: { blockchain, recipient, proxyRecipient: null },
