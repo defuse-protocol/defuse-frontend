@@ -91,23 +91,8 @@ const faqItems = [
   },
   {
     question: "What if I need help?",
-    answer: (
-      <span>
-        Just{" "}
-        <button
-          type="button"
-          className="inline underline text-brand hover:text-brand/80 transition-colors"
-          onClick={() => {
-            if (typeof window !== "undefined" && window.Beacon) {
-              window.Beacon("open")
-            }
-          }}
-        >
-          click here
-        </button>
-        . We&apos;re here to assist and usually respond within 24h!
-      </span>
-    ),
+    answer:
+      "Just click the support icon in the lower right anytime. We usually respond within 24h!",
   },
 ]
 
