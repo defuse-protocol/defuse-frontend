@@ -104,8 +104,8 @@ const faqItems = [
           }}
         >
           click here
-        </button>{" "}
-        and we&apos;re here to assist!
+        </button>
+        . We&apos;re here to assist and usually respond within 24h!
       </span>
     ),
   },
