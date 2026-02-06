@@ -1,4 +1,3 @@
-import { ArrowDownIcon } from "@heroicons/react/20/solid"
 import Button from "@src/components/Button"
 import clsx from "clsx"
 import IntentCreationResult from "../../features/account/components/IntentCreationResult"
@@ -54,8 +53,9 @@ const ModalReviewSwap = ({
       onClose={onClose}
       isDismissable={!loading}
     >
-      <div className="flex flex-col gap-5 mt-4">
-        <div className="flex items-center justify-between">
+      <div className="flex flex-col mt-4">
+        <div className="flex items-center gap-3">
+          <AssetComboIcon icon={tokenIn?.icon} sizeClassName="size-12" />
           <div>
             <div className="text-2xl font-bold text-gray-900 tracking-tight leading-7">
               {formatDisplayAmount(amountIn)} {tokenIn.symbol}
@@ -64,12 +64,14 @@ const ModalReviewSwap = ({
               {formatUsdAmount(usdAmountIn)}
             </div>
           </div>
-          <AssetComboIcon icon={tokenIn?.icon} />
         </div>
 
-        <ArrowDownIcon className="size-6 text-gray-400" />
+        <div className="flex items-center justify-center w-12 h-10">
+          <div className="h-full w-0.5 bg-gray-200" />
+        </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <AssetComboIcon icon={tokenOut?.icon} sizeClassName="size-12" />
           <div>
             <div className="text-2xl font-bold text-gray-900 tracking-tight leading-7">
               {formatDisplayAmount(amountOut)} {tokenOut.symbol}
@@ -78,21 +80,22 @@ const ModalReviewSwap = ({
               {formatUsdAmount(usdAmountOut)}
             </div>
           </div>
-          <AssetComboIcon icon={tokenOut?.icon} />
         </div>
       </div>
 
       <dl className="mt-7 pt-5 border-t border-gray-200 space-y-2">
-        <div className="flex items-center justify-between">
-          <dt className="text-sm text-gray-500 font-medium">Rate</dt>
+        <div className="flex justify-between gap-2">
+          <dt className="text-sm text-gray-500 font-medium shrink-0">Rate</dt>
           <dd>
             <SwapRateInfo tokenIn={tokenIn} tokenOut={tokenOut} />
           </dd>
         </div>
 
-        <div className="flex items-center justify-between">
-          <dt className="text-sm text-gray-500 font-medium">Max slippage</dt>
-          <dd className="text-sm font-semibold text-gray-900">
+        <div className="flex justify-between gap-2">
+          <dt className="text-sm text-gray-500 font-medium shrink-0">
+            Max slippage
+          </dt>
+          <dd className="text-sm font-semibold text-gray-900 text-right">
             {Intl.NumberFormat(undefined, {
               style: "percent",
               minimumFractionDigits: 2,
@@ -102,11 +105,11 @@ const ModalReviewSwap = ({
         </div>
 
         {minAmountOut && (
-          <div className="flex items-center justify-between">
-            <dt className="text-sm text-gray-500 font-medium">
+          <div className="flex justify-between gap-2">
+            <dt className="text-sm text-gray-500 font-medium shrink-0">
               Receive at least
             </dt>
-            <dd className="text-sm font-semibold text-gray-900">
+            <dd className="text-sm font-semibold text-gray-900 text-right">
               {formatTokenValue(minAmountOut.amount, minAmountOut.decimals)}{" "}
               {tokenOut.symbol}
             </dd>
@@ -114,10 +117,12 @@ const ModalReviewSwap = ({
         )}
 
         {Boolean(priceImpact) && (
-          <div className="flex items-center justify-between">
-            <dt className="text-sm text-gray-500 font-medium">Price impact</dt>
+          <div className="flex justify-between gap-2">
+            <dt className="text-sm text-gray-500 font-medium shrink-0">
+              Price impact
+            </dt>
             <dd
-              className={clsx("text-sm font-semibold", {
+              className={clsx("text-sm font-semibold text-right", {
                 "text-green-600": priceImpact?.status === "favorable",
                 "text-red-600": priceImpact?.status === "unfavorable",
               })}
