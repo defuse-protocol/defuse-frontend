@@ -70,7 +70,11 @@ export async function getSimpleQuote(
 
     const quotes = data.result
     if (!quotes || !Array.isArray(quotes) || quotes.length === 0) {
-      return { ok: false, error: "No liquidity available" }
+      return {
+        ok: false,
+        error:
+          "Apologies, but currently there is not enough liquidity available to execute your swap. We've been notified as part of our process to continually review liquidity provision.",
+      }
     }
 
     const validQuote = quotes.find(
