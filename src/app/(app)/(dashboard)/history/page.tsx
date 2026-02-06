@@ -66,7 +66,11 @@ export default function HistoryPage({
 }) {
   const searchParamsData = use(searchParams)
   const router = useRouter()
-  const { state, isLoading: isWalletConnecting } = useConnectWallet()
+  const {
+    state,
+    isLoading: isWalletConnecting,
+    isReconnecting: isWalletReconnecting,
+  } = useConnectWallet()
   const tokenList = useTokenList(LIST_TOKENS)
 
   const [hadPreviousSession, setHadPreviousSession] = useState(true)
@@ -78,6 +82,7 @@ export default function HistoryPage({
   const isWaitingForReconnect = hadPreviousSession && !state.address
   const isWalletHydrating =
     isWalletConnecting ||
+    isWalletReconnecting ||
     isWaitingForReconnect ||
     Boolean(state.address && !state.isAuthorized)
 

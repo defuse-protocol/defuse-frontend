@@ -16,7 +16,8 @@ import { TonConnectButton } from "./TonConnectButton"
 
 const ConnectWallet = () => {
   const { isOpen, setIsOpen } = useSignInWindowOpenState()
-  const { state, signIn, connectors, isLoading } = useConnectWallet()
+  const { state, signIn, connectors, isLoading, isReconnecting } =
+    useConnectWallet()
   const { shortAccountId } = useShortAccountId(state.displayAddress ?? "")
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
 
@@ -37,7 +38,7 @@ const ConnectWallet = () => {
   }
 
   // Show loading spinner while wallet is connecting/reconnecting
-  if (isLoading) {
+  if (isLoading || isReconnecting) {
     return (
       <Button
         type="button"
