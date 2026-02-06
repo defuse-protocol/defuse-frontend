@@ -86,9 +86,10 @@ const ModalSelectRecipient = ({
   const hasSelectedNetwork = !!blockchain && blockchain !== "near_intents"
 
   const visibleContacts = useMemo(() => {
-    const filtered = inputValue
+    const trimmed = inputValue.trim()
+    const filtered = trimmed
       ? availableContacts.filter((contact) =>
-          contact.name.toLowerCase().includes(inputValue.toLowerCase())
+          contact.name.toLowerCase().includes(trimmed.toLowerCase())
         )
       : availableContacts
 
@@ -104,7 +105,8 @@ const ModalSelectRecipient = ({
   const hasMatchingContacts = visibleContacts.length > 0
 
   useEffect(() => {
-    if (!inputValue) {
+    const trimmedInput = inputValue.trim()
+    if (!trimmedInput) {
       setIsValidating(false)
       setValidationError(null)
       setValidatedAddress(null)
@@ -127,7 +129,7 @@ const ModalSelectRecipient = ({
     const timer = setTimeout(async () => {
       try {
         const result = await validationRecipientAddress(
-          inputValue,
+          trimmedInput,
           blockchain,
           userAddress ?? "",
           chainType
@@ -140,7 +142,7 @@ const ModalSelectRecipient = ({
           setValidatedAddress(null)
         } else {
           setValidationError(null)
-          setValidatedAddress(inputValue)
+          setValidatedAddress(trimmedInput)
         }
       } catch {
         if (cancelled) return

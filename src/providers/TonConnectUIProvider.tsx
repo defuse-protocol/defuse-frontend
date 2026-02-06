@@ -24,7 +24,7 @@ function TonConnectUIProviderWrapper({ children }: { children: ReactNode }) {
                 "/tonconnect-manifest.json",
                 window.location.origin
               ).toString()
-            : "https://near-intents.org/tonconnect-manifest.json"
+            : "https://new.near-intents.org/tonconnect-new-manifest.json"
       }
       walletsRequiredFeatures={{
         signData: { types: ["text"] },

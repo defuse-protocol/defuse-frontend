@@ -1,12 +1,16 @@
 "use server"
 
-import { INTENTS_API_KEY, INTENTS_ENV } from "@src/utils/environment"
+import {
+  OneClickService,
+  OpenAPI,
+  QuoteRequest,
+} from "@defuse-protocol/one-click-sdk-typescript"
+import { ONE_CLICK_API_KEY, ONE_CLICK_URL } from "@src/utils/environment"
 import { logger } from "@src/utils/logger"
+import z from "zod"
 
-const SOLVER_RELAY_URL =
-  INTENTS_ENV === "production"
-    ? "https://solver-relay-v2.chaindefuser.com/rpc?method=quote"
-    : "https://solver-relay-stage.intents-near.org/rpc?method=quote"
+OpenAPI.BASE = z.string().parse(ONE_CLICK_URL)
+OpenAPI.TOKEN = z.string().parse(ONE_CLICK_API_KEY)
 
 interface QuoteParams {
   tokenInId: string
@@ -18,7 +22,6 @@ type QuoteResult =
   | {
       ok: true
       amountOut: string
-      expirationTime: string
     }
   | {
       ok: false
@@ -31,71 +34,54 @@ export async function getSimpleQuote(
   const { tokenInId, tokenOutId, amountIn } = params
 
   try {
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    }
-    if (INTENTS_API_KEY) {
-      headers.Authorization = `Bearer ${INTENTS_API_KEY}`
-    }
+    const deadline = new Date(Date.now() + 10 * 60 * 1000).toISOString()
 
-    const response = await fetch(SOLVER_RELAY_URL, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        jsonrpc: "2.0",
-        method: "quote",
-        id: crypto.randomUUID(),
-        params: [
-          {
-            defuse_asset_identifier_in: tokenInId,
-            defuse_asset_identifier_out: tokenOutId,
-            exact_amount_in: amountIn,
-            min_deadline_ms: 60000,
-            wait_ms: 2000,
-          },
-        ],
-      }),
-      signal: AbortSignal.timeout(15000),
+    const response = await OneClickService.getQuote({
+      dry: true,
+      swapType: QuoteRequest.swapType.EXACT_INPUT,
+      slippageTolerance: 100,
+      originAsset: tokenInId,
+      destinationAsset: tokenOutId,
+      amount: amountIn,
+      depositType: QuoteRequest.depositType.INTENTS,
+      refundTo: "preview.near",
+      refundType: QuoteRequest.refundType.INTENTS,
+      recipient: "preview.near",
+      recipientType: QuoteRequest.recipientType.INTENTS,
+      deadline,
     })
-
-    if (!response.ok) {
-      return { ok: false, error: `HTTP ${response.status}` }
-    }
-
-    const data = await response.json()
-
-    if (data.error) {
-      return { ok: false, error: data.error.message ?? "Quote failed" }
-    }
-
-    const quotes = data.result
-    if (!quotes || !Array.isArray(quotes) || quotes.length === 0) {
-      return {
-        ok: false,
-        error:
-          "Apologies, but currently there is not enough liquidity available to execute your swap. We've been notified as part of our process to continually review liquidity provision.",
-      }
-    }
-
-    const validQuote = quotes.find(
-      (q: Record<string, unknown>) => !("type" in q)
-    )
-    if (!validQuote) {
-      const failedQuote = quotes[0]
-      const errorType = failedQuote?.type ?? "NO_QUOTE"
-      return { ok: false, error: `Quote failed: ${errorType}` }
-    }
 
     return {
       ok: true,
-      amountOut: validQuote.amount_out,
-      expirationTime: validQuote.expiration_time,
+      amountOut: response.quote.amountOut,
     }
   } catch (error) {
     logger.error("getSimpleQuote error", { error })
+
+    const message = extractErrorMessage(error)
+    if (message) {
+      return { ok: false, error: message }
+    }
+
     return {
       ok: false,
-      error: error instanceof Error ? error.message : "Quote request failed",
+      error:
+        "Apologies, but currently there is not enough liquidity available to execute your swap. We've been notified as part of our process to continually review liquidity provision.",
     }
   }
+}
+
+function extractErrorMessage(error: unknown): string | null {
+  if (
+    error != null &&
+    typeof error === "object" &&
+    "body" in error &&
+    error.body != null &&
+    typeof error.body === "object" &&
+    "message" in error.body &&
+    typeof error.body.message === "string"
+  ) {
+    return error.body.message
+  }
+  return null
 }
