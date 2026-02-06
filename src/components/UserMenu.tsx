@@ -7,6 +7,7 @@ import {
   ChevronUpIcon,
   // Cog8ToothIcon,
   DocumentDuplicateIcon,
+  QuestionMarkCircleIcon,
 } from "@heroicons/react/16/solid"
 import { InformationCircleIcon } from "@heroicons/react/24/outline"
 import { UserIcon } from "@heroicons/react/24/solid"
@@ -68,6 +69,15 @@ const UserMenu = ({
     //   href: "/settings",
     //   icon: Cog8ToothIcon,
     // },
+    {
+      label: "Support",
+      onClick: () => {
+        if (typeof window !== "undefined" && window.Beacon) {
+          window.Beacon("open")
+        }
+      },
+      icon: QuestionMarkCircleIcon,
+    },
     {
       label: copied ? "Copied!" : "Copy account address",
       onClick: () => {
