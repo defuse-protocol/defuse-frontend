@@ -5,7 +5,8 @@ import { bridgeSDK } from "@src/components/DefuseSDK/constants/bridgeSdk"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
-import { getAppFeeRecipient } from "@src/utils/getAppFeeRecipient"
+import { getAppFeeRecipients } from "@src/utils/getAppFeeRecipient"
+import { splitAppFee } from "@src/utils/splitAppFee"
 import { useSelector } from "@xstate/react"
 import { useContext } from "react"
 import { fromPromise } from "xstate"
@@ -28,7 +29,7 @@ import { WithdrawForm } from "./WithdrawForm"
 export const WithdrawWidget = (props: WithdrawWidgetProps) => {
   const is1cs = useIs1CsEnabled()
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
-  const appFeeRecipient = getAppFeeRecipient(whitelabelTemplate)
+  const appFeeRecipients = getAppFeeRecipients(whitelabelTemplate)
   const initialTokenIn = (() => {
     const preset = props.presetTokenSymbol?.trim()
     if (preset === undefined || preset === "") return props.tokenList[0]
@@ -57,7 +58,7 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
             tokenOut: initialTokenOut,
             tokenList: props.tokenList,
             referral: props.referral,
-            appFeeRecipient,
+            appFeeRecipients,
           },
         }}
         logic={withdrawUIMachine.provide({
@@ -81,19 +82,35 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
 
                   const { quote } = input.intentOperationParams
 
+                  // Split app fees if multiple recipients are configured
+                  const recipients = input.appFeeRecipients ?? []
+                  const appFee = quote?.appFee ?? []
+                  const { primaryAppFee, primaryRecipient, transferIntents } =
+                    recipients.length > 0
+                      ? splitAppFee(appFee, recipients)
+                      : {
+                          primaryAppFee: [],
+                          primaryRecipient: "",
+                          transferIntents: [],
+                        }
+
                   const innerMessage = messageFactory.makeInnerSwapMessage({
                     deadlineTimestamp: Date.parse(deadline),
                     referral: input.referral,
                     signerId: input.defuseUserId,
                     tokenDeltas: quote?.tokenDeltas ?? [],
-                    appFee: quote?.appFee ?? [],
-                    appFeeRecipient: input.appFeeRecipient,
+                    appFee: primaryAppFee,
+                    appFeeRecipient: primaryRecipient,
                   })
 
                   innerMessage.intents ??= []
                   innerMessage.intents.push(
                     ...input.intentOperationParams.prebuiltWithdrawalIntents
                   )
+                  // Add transfer intents for secondary recipients
+                  if (transferIntents.length > 0) {
+                    innerMessage.intents.push(...transferIntents)
+                  }
 
                   return {
                     innerMessage,

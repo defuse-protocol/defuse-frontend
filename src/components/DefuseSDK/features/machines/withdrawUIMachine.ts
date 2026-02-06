@@ -1,5 +1,6 @@
 import { authIdentity } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
+import type { FeeRecipientSplit } from "@src/utils/getAppFeeRecipient"
 import { logger } from "@src/utils/logger"
 import type { providers } from "near-api-js"
 import {
@@ -55,7 +56,7 @@ export type Context = {
   preparationOutput: PreparationOutput | null
   referral?: string
   userAddress: string | null
-  appFeeRecipient: string
+  appFeeRecipients: FeeRecipientSplit[]
 }
 
 type PassthroughEvent = {
@@ -77,7 +78,7 @@ export const withdrawUIMachine = setup({
       tokenOut: BaseTokenInfo
       tokenList: TokenInfo[]
       referral?: string
-      appFeeRecipient: string
+      appFeeRecipients: FeeRecipientSplit[]
     },
     context: {} as Context,
     events: {} as
@@ -273,7 +274,7 @@ export const withdrawUIMachine = setup({
     nep141StorageQuote: null,
     preparationOutput: null,
     referral: input.referral,
-    appFeeRecipient: input.appFeeRecipient,
+    appFeeRecipients: input.appFeeRecipients,
   }),
 
   entry: ["fetchPOABridgeInfo"],
@@ -414,7 +415,7 @@ export const withdrawUIMachine = setup({
                 formValues: context.withdrawFormRef.getSnapshot().context,
                 depositedBalanceRef: context.depositedBalanceRef,
                 poaBridgeInfoRef: context.poaBridgeInfoRef,
-                appFeeRecipient: context.appFeeRecipient,
+                appFeeRecipients: context.appFeeRecipients,
               }
             },
             onDone: {
@@ -494,7 +495,7 @@ export const withdrawUIMachine = setup({
                 context.preparationOutput.value.withdrawalParams,
               nearIntentsNetwork: isNearIntentsNetwork(formValues.blockchain),
             },
-            appFeeRecipient: context.appFeeRecipient,
+            appFeeRecipients: context.appFeeRecipients,
           }
         },
 

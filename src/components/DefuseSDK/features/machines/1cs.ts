@@ -17,8 +17,9 @@ import {
   ONE_CLICK_API_KEY,
   ONE_CLICK_URL,
 } from "@src/utils/environment"
-import { getAppFeeRecipient } from "@src/utils/getAppFeeRecipient"
+import { getAppFeeRecipients } from "@src/utils/getAppFeeRecipient"
 import { logger } from "@src/utils/logger"
+import { splitAppFeeBps } from "@src/utils/splitAppFee"
 import { unstable_cache } from "next/cache"
 import z from "zod"
 
@@ -102,16 +103,19 @@ export async function getQuote(
       return { err: `Token out ${quoteRequest.destinationAsset} not found` }
     }
 
-    const appFeeRecipient = getAppFeeRecipient(await whitelabelTemplateFlag())
+    const template = await whitelabelTemplateFlag()
+    const appFeeRecipients = getAppFeeRecipients(template)
+
+    const primaryRecipient = appFeeRecipients[0]?.recipient ?? ""
     const appFeeBps = computeAppFeeBps(
       APP_FEE_BPS,
       tokenIn,
       tokenOut,
-      appFeeRecipient,
+      primaryRecipient,
       { identifier: userAddress, method: authMethod }
     )
 
-    if (appFeeBps > 0 && !appFeeRecipient) {
+    if (appFeeBps > 0 && appFeeRecipients.length === 0) {
       return { err: "App fee recipient is not configured" }
     }
 
@@ -119,6 +123,11 @@ export async function getQuote(
       userAddress,
       authMethod
     )
+
+    const appFees =
+      appFeeRecipients.length > 0
+        ? splitAppFeeBps(appFeeBps, appFeeRecipients)
+        : []
 
     req = {
       ...quoteRequest,
@@ -128,16 +137,17 @@ export async function getQuote(
       recipient: intentsUserId,
       recipientType: QuoteRequest.recipientType.INTENTS,
       quoteWaitingTimeMs: 0, // means the fastest quote
-      referral: referralMap[await whitelabelTemplateFlag()],
-      ...(appFeeBps > 0
-        ? { appFees: [{ recipient: appFeeRecipient, fee: appFeeBps }] }
-        : {}),
+      referral: referralMap[template],
+      ...(appFees.length > 0 ? { appFees } : {}),
     }
 
     return {
       ok: {
         ...(await OneClickService.getQuote(req)),
-        appFee: appFeeBps > 0 ? [[appFeeRecipient, BigInt(appFeeBps)]] : [],
+        appFee:
+          appFeeBps > 0 && primaryRecipient
+            ? [[primaryRecipient, BigInt(appFeeBps)]]
+            : [],
       },
     }
   } catch (error) {
