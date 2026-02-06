@@ -66,7 +66,7 @@ const ModalReviewSwap = ({
           </div>
         </div>
 
-        <div className="flex items-center justify-center w-12 h-10">
+        <div className="flex items-center justify-center size-12">
           <div className="h-full w-0.5 bg-gray-200" />
         </div>
 
