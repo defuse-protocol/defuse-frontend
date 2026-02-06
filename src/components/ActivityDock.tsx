@@ -1,10 +1,6 @@
 "use client"
 
-import {
-  ArrowTopRightOnSquareIcon,
-  ChevronDoubleDownIcon,
-  ChevronDoubleUpIcon,
-} from "@heroicons/react/16/solid"
+import { ArrowTopRightOnSquareIcon, TrashIcon } from "@heroicons/react/16/solid"
 import {
   type DockItem,
   useActivityDock,
@@ -24,10 +20,12 @@ const STACK_OFFSET = 14
 const MAX_VISIBLE_STACK = 3
 
 const ActivityDock = () => {
-  const { dockItems, removeDockItem } = useActivityDock()
+  const { dockItems, clearDockItems } = useActivityDock()
   const [expanded, setExpanded] = useState(false)
   const [topCardHeight, setTopCardHeight] = useState<number | null>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
+
+  const canExpand = dockItems.length > 1
 
   useEffect(() => {
     if (!expanded && scrollContainerRef.current) {
@@ -38,30 +36,47 @@ const ActivityDock = () => {
   }, [expanded])
 
   useEffect(() => {
-    if (dockItems.length <= 1) {
+    if (expanded && dockItems.length <= 1) {
       setExpanded(false)
     }
-  }, [dockItems])
+  }, [expanded, dockItems])
 
-  const showExpandButton = dockItems.length > 1
+  const handleMouseEnterCard = () => {
+    if (canExpand) {
+      setExpanded(true)
+    }
+  }
 
-  const buttonFadeAnimation = {
-    initial: { opacity: 0 },
-    animate: { opacity: 1, transition: { delay: 0.3 } },
-    exit: { opacity: 0 },
+  const handleMouseLeaveContainer = () => {
+    setExpanded(false)
   }
 
   return (
-    <div className="relative mt-5 flex flex-col justify-end flex-1 overflow-hidden -mx-4">
+    <div
+      className="relative mt-5 flex flex-col justify-end flex-1 overflow-hidden -mx-4"
+      onMouseLeave={handleMouseLeaveContainer}
+    >
       <motion.div
         ref={scrollContainerRef}
         className={clsx(
           "relative flex flex-col-reverse hide-scrollbar p-4 border-y",
           expanded
-            ? "overflow-y-auto bg-white/10 border-white/15 transition-colors delay-200"
+            ? "overflow-y-auto bg-white/10 border-white/15 transition-colors pt-1"
             : "overflow-hidden border-b-white/10 border-t-transparent"
         )}
       >
+        {dockItems.length > 0 && (
+          <Button
+            variant="custom"
+            type="button"
+            size="sm"
+            onClick={clearDockItems}
+            className="self-center mt-4 bg-white/20 text-white outline-white hover:bg-white/30"
+          >
+            <TrashIcon className="size-4 shrink-0" />
+            {dockItems.length > 1 ? "Clear all" : "Clear"}
+          </Button>
+        )}
         <AnimatePresence mode="popLayout" initial={false}>
           {dockItems.map((item, index) => {
             const isTopCard = index === dockItems.length - 1
@@ -76,45 +91,11 @@ const ActivityDock = () => {
                 topCardHeight={topCardHeight}
                 isTopCard={isTopCard}
                 onHeightChange={isTopCard ? setTopCardHeight : undefined}
-                onDismiss={removeDockItem}
+                onMouseEnter={handleMouseEnterCard}
               />
             )
           })}
         </AnimatePresence>
-        {showExpandButton && !expanded && (
-          <motion.div
-            className="absolute z-10 flex items-center justify-center inset-x-0"
-            {...buttonFadeAnimation}
-            style={{
-              bottom: topCardHeight ? topCardHeight + STACK_OFFSET + 20 : 270,
-            }}
-          >
-            <Button
-              onClick={() => setExpanded((prev) => !prev)}
-              variant="secondary"
-              size="sm"
-            >
-              <ChevronDoubleUpIcon className="size-4" />
-              Expand
-            </Button>
-          </motion.div>
-        )}
-        {expanded && (
-          <motion.div
-            className="sticky top-0 flex items-center justify-center inset-x-0 z-10"
-            {...buttonFadeAnimation}
-          >
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setExpanded(false)}
-              className="shadow-lg"
-            >
-              <ChevronDoubleDownIcon className="size-4" />
-              Collapse
-            </Button>
-          </motion.div>
-        )}
       </motion.div>
     </div>
   )
@@ -128,7 +109,7 @@ function DockCard({
   topCardHeight,
   isTopCard,
   onHeightChange,
-  onDismiss,
+  onMouseEnter,
 }: {
   item: DockItem
   index: number
@@ -137,9 +118,10 @@ function DockCard({
   topCardHeight: number | null
   isTopCard: boolean
   onHeightChange?: (height: number) => void
-  onDismiss: (id: string) => void
+  onMouseEnter?: () => void
 }) {
   const containerCardRef = useRef<HTMLDivElement>(null)
+  const isAnimatingRef = useRef(false)
 
   useEffect(() => {
     if (!onHeightChange || !containerCardRef.current) return
@@ -188,6 +170,11 @@ function DockCard({
 
   const isInert = !expanded && !isTopCard
 
+  const handleMouseEnter = () => {
+    if (isAnimatingRef.current) return
+    onMouseEnter?.()
+  }
+
   return (
     <motion.div
       layout={expanded}
@@ -209,6 +196,13 @@ function DockCard({
       }}
       className="overflow-hidden rounded-2xl shrink-0"
       inert={isInert ? true : undefined}
+      onMouseEnter={handleMouseEnter}
+      onAnimationStart={() => {
+        isAnimatingRef.current = true
+      }}
+      onAnimationComplete={() => {
+        isAnimatingRef.current = false
+      }}
     >
       <div className="pt-4" ref={containerCardRef}>
         <div
@@ -259,29 +253,19 @@ function DockCard({
             )
           )}
 
-          <div className="flex flex-col gap-2 mt-4">
-            {item.explorerUrl && (
-              <Button
-                href={item.explorerUrl}
-                variant="primary"
-                target="_blank"
-                rel="noopener noreferrer"
-                fullWidth
-              >
-                View on explorer
-                <ArrowTopRightOnSquareIcon className="size-4" />
-              </Button>
-            )}
-
+          {item.explorerUrl && (
             <Button
-              onClick={() => onDismiss(item.id)}
-              variant="secondary"
-              className="border border-gray-200"
+              href={item.explorerUrl}
+              variant="primary"
+              target="_blank"
+              rel="noopener noreferrer"
               fullWidth
+              className="mt-4"
             >
-              Dismiss
+              View on explorer
+              <ArrowTopRightOnSquareIcon className="size-4" />
             </Button>
-          </div>
+          )}
         </div>
       </div>
     </motion.div>

@@ -11,6 +11,7 @@ type Props = {
     | "outline"
     | "destructive"
     | "destructive-soft"
+    | "custom"
   size?: "xs" | "sm" | "md" | "lg" | "xl"
   fullWidth?: boolean
   disabled?: boolean
