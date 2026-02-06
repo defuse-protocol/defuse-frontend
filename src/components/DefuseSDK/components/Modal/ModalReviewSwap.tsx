@@ -1,3 +1,4 @@
+import { ArrowDownIcon } from "@heroicons/react/20/solid"
 import Button from "@src/components/Button"
 import clsx from "clsx"
 import IntentCreationResult from "../../features/account/components/IntentCreationResult"
@@ -66,8 +67,8 @@ const ModalReviewSwap = ({
           </div>
         </div>
 
-        <div className="flex items-center justify-center size-12">
-          <div className="h-full w-0.5 bg-gray-200" />
+        <div className="flex items-center justify-center w-12 h-14">
+          <ArrowDownIcon className="size-6 text-gray-400" />
         </div>
 
         <div className="flex items-center gap-3">
