@@ -14,6 +14,7 @@ import { LIST_TOKENS } from "@src/constants/tokens"
 import { useSimpleQuote } from "@src/hooks/useSimpleQuote"
 import clsx from "clsx"
 import { useState } from "react"
+import ErrorMessage from "./ErrorMessage"
 
 function getBaseToken(token: TokenInfo): BaseTokenInfo {
   if (isBaseToken(token)) return token
@@ -42,7 +43,7 @@ export function HomeSwapWidget() {
   const baseTokenIn = getBaseToken(tokenIn)
   const baseTokenOut = getBaseToken(tokenOut)
 
-  const { amountOut, loading } = useSimpleQuote({
+  const { amountOut, loading, error } = useSimpleQuote({
     tokenIn: baseTokenIn,
     tokenOut: baseTokenOut,
     amountIn,
@@ -150,6 +151,10 @@ export function HomeSwapWidget() {
       >
         Sign up to start swapping
       </Button>
+
+      {error && (
+        <ErrorMessage className="mt-4 text-center">{error}</ErrorMessage>
+      )}
 
       <p className="text-xs/none font-medium text-gray-500 text-center mt-4">
         Preview estimated rates. Sign up to start trading.
