@@ -21,7 +21,9 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (state.isVerified) {
-      const redirectUrl = searchParams.get("redirect") || "/account"
+      const raw = searchParams.get("redirect")
+      const redirectUrl =
+        raw?.startsWith("/") && !raw.startsWith("//") ? raw : "/account"
       router.replace(redirectUrl)
     }
   }, [state.isVerified, router, searchParams])

@@ -131,8 +131,7 @@ export function useGiftIntent() {
     gcTime: 10 * 60 * 1000,
   })
 
-  // Return null for payload if there's no data, loading, or error
-  const payload = data?.payload || null
+  const payload = data?.payload ?? null
   const giftId = data?.giftId ?? null
 
   return {

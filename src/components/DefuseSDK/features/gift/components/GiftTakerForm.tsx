@@ -102,9 +102,13 @@ export function GiftTakerForm({
           variant="primary"
           fullWidth
           loading={processing}
-          disabled={processing}
+          disabled={processing || signerCredentials == null}
         >
-          {processing ? "Claiming..." : "Claim gift"}
+          {processing
+            ? "Claiming..."
+            : signerCredentials == null
+              ? "Sign in to claim"
+              : "Claim gift"}
         </Button>
       </div>
     </>
