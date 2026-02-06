@@ -23,7 +23,7 @@ const SplashScreen = ({ children }: { children: ReactNode }) => {
     return () => clearTimeout(timer)
   }, [])
 
-  // Latch: once loaded, never show splash again even if isLoading briefly flickers
+  // Once loaded, never show splash again even if isLoading briefly flickers
   if (minTimeElapsed && !isLoading) {
     initialLoadCompleteRef.current = true
   }
