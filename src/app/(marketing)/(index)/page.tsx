@@ -91,8 +91,23 @@ const faqItems = [
   },
   {
     question: "What if I need help?",
-    answer:
-      "Just click the support icon in the lower right. We're here to assist!",
+    answer: (
+      <>
+        Just{" "}
+        <button
+          type="button"
+          className="underline text-brand hover:text-brand/80 transition-colors"
+          onClick={() => {
+            if (typeof window !== "undefined" && window.Beacon) {
+              window.Beacon("open")
+            }
+          }}
+        >
+          click here
+        </button>{" "}
+        and we&apos;re here to assist!
+      </>
+    ),
   },
 ]
 
