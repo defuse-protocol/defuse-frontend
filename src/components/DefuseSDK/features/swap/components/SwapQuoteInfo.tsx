@@ -7,6 +7,7 @@ import { useModalStore } from "../../../providers/ModalStoreProvider"
 import { ModalType } from "../../../stores/modalStore"
 import { BASIS_POINTS_DENOMINATOR } from "../../../utils/tokenUtils"
 import { useSwapRateData } from "../hooks/useSwapRateData"
+import SwapRateInfo from "./SwapRateInfo"
 import { SwapUIMachineContext } from "./SwapUIMachineProvider"
 
 interface SwapQuoteInfoProps {
@@ -55,7 +56,13 @@ export function SwapQuoteInfo({ tokenOut, tokenIn }: SwapQuoteInfoProps) {
   )
 
   return (
-    <dl className="mt-6 space-y-3 text-sm">
+    <dl className="mt-5 space-y-2.5 text-sm animate-in fade-in duration-300">
+      <div className="flex items-center justify-between">
+        <dt className="text-gray-500 font-medium">Rate</dt>
+        <dd>
+          <SwapRateInfo tokenIn={tokenIn} tokenOut={tokenOut} />
+        </dd>
+      </div>
       <div className="flex items-center justify-between">
         <dt className="flex items-center text-gray-500 font-medium gap-1.5">
           Max slippage
