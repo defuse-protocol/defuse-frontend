@@ -77,7 +77,7 @@ const faqItems = [
         over $10B in swaps. Interested?{" "}
         <button
           type="button"
-          className="underline text-brand hover:text-brand/80 transition-colors"
+          className="inline underline text-brand hover:text-brand/80 transition-colors"
           onClick={() => {
             if (typeof window !== "undefined" && window.Beacon) {
               window.Beacon("open")
@@ -96,7 +96,7 @@ const faqItems = [
         Just{" "}
         <button
           type="button"
-          className="underline text-brand hover:text-brand/80 transition-colors"
+          className="inline underline text-brand hover:text-brand/80 transition-colors"
           onClick={() => {
             if (typeof window !== "undefined" && window.Beacon) {
               window.Beacon("open")
