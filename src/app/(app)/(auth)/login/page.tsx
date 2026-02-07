@@ -9,7 +9,7 @@ import { useTonConnectUI } from "@tonconnect/ui-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 import type { Connector } from "wagmi"
 
 export default function LoginPage() {
@@ -17,6 +17,34 @@ export default function LoginPage() {
   const { signIn, connectors, state } = useConnectWallet()
   const [tonConnectUI] = useTonConnectUI()
   const webauthnUI = useWebAuthnUIStore()
+
+  // Find MetaMask via EIP-6963 rdns (reliable, can't be spoofed by other wallets)
+  const metamaskConnector = useMemo(
+    () => connectors.find((c) => c.id === "io.metamask"),
+    [connectors]
+  )
+  const walletConnectConnector = useMemo(
+    () => connectors.find((c) => c.id === "walletConnect"),
+    [connectors]
+  )
+  // Fallback for users who have a non-MetaMask injected wallet (e.g. Rabby, Trust)
+  const fallbackInjected = useMemo(
+    () =>
+      !metamaskConnector ? connectors.find((c) => c.id === "injected") : null,
+    [connectors, metamaskConnector]
+  )
+  const otherEvmConnectors = useMemo(
+    () =>
+      connectors.filter(
+        (c) =>
+          c.id !== "io.metamask" &&
+          c.id !== "walletConnect" &&
+          c.id !== "coinbaseWalletSDK" &&
+          c.id !== "injected" &&
+          c.type !== "injected"
+      ),
+    [connectors]
+  )
 
   useEffect(() => {
     if (state.isAuthorized && state.address) {
@@ -87,27 +115,41 @@ export default function LoginPage() {
             iconSrc="/static/icons/wallets/near-wallet.svg"
             onClick={() => signIn({ id: ChainType.Near })}
           />
-          {connectors.slice(0, 1).map((connector) => (
+          {metamaskConnector && (
             <LoginButton
-              key={connector.uid}
-              name="Browser Wallet"
-              iconSrc={getWalletIconSrc(connector)}
-              onClick={() => signIn({ id: ChainType.EVM, connector })}
+              name="MetaMask"
+              iconSrc="/static/icons/wallets/meta-mask.svg"
+              onClick={() =>
+                signIn({ id: ChainType.EVM, connector: metamaskConnector })
+              }
             />
-          ))}
+          )}
+          {fallbackInjected && (
+            <LoginButton
+              name="Browser Wallet"
+              iconSrc={getWalletIconSrc(fallbackInjected)}
+              onClick={() =>
+                signIn({ id: ChainType.EVM, connector: fallbackInjected })
+              }
+            />
+          )}
           <LoginButton
             name="Solana"
             iconSrc="/static/icons/wallets/solana-wallet.svg"
             onClick={() => signIn({ id: ChainType.Solana })}
           />
-          {connectors.slice(1, 2).map((connector) => (
+          {walletConnectConnector && (
             <LoginButton
-              key={connector.uid}
-              name={connector.name}
-              iconSrc={getWalletIconSrc(connector)}
-              onClick={() => signIn({ id: ChainType.EVM, connector })}
+              name="WalletConnect"
+              iconSrc={getWalletIconSrc(walletConnectConnector)}
+              onClick={() =>
+                signIn({
+                  id: ChainType.EVM,
+                  connector: walletConnectConnector,
+                })
+              }
             />
-          ))}
+          )}
           <LoginButton
             name="TON"
             iconSrc="/static/icons/wallets/ton.svg"
@@ -123,17 +165,14 @@ export default function LoginPage() {
             iconSrc="/static/icons/network/tron.svg"
             onClick={() => signIn({ id: ChainType.Tron })}
           />
-          {connectors
-            .slice(2)
-            .filter((connector) => connector.type !== "injected")
-            .map((connector) => (
-              <LoginButton
-                key={connector.uid}
-                name={connector.name}
-                iconSrc={getWalletIconSrc(connector)}
-                onClick={() => signIn({ id: ChainType.EVM, connector })}
-              />
-            ))}
+          {otherEvmConnectors.map((connector) => (
+            <LoginButton
+              key={connector.uid}
+              name={connector.name}
+              iconSrc={getWalletIconSrc(connector)}
+              onClick={() => signIn({ id: ChainType.EVM, connector })}
+            />
+          ))}
         </div>
       </div>
     </div>
@@ -178,7 +217,6 @@ function getWalletIconSrc(connector: Connector): string {
     case "coinbaseWalletSDK":
       return "/static/icons/wallets/coinbase-wallet.svg"
     case "io.metamask":
-    case "injected":
       return "/static/icons/wallets/meta-mask.svg"
     default:
       return connector.icon?.trim() ?? ""
