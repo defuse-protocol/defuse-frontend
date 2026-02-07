@@ -188,7 +188,7 @@ export function ModalSelectAssets() {
         <div
           className={clsx(
             "pb-5 border-b -mx-5 px-5 transition-colors",
-            isScrolled ? "border-gray-200" : "border-transparent"
+            isScrolled ? "border-border" : "border-transparent"
           )}
         >
           <SearchBar

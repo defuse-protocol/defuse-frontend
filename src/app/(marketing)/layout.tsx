@@ -55,7 +55,7 @@ const MarketingRootLayout = async ({
         <PreviewBanner className="mb-2" />
         <SystemStatus className="mb-2" showOperationalStatus={false} />
 
-        <header className="bg-white rounded-t-3xl flex justify-center items-center py-5">
+        <header className="bg-surface-card rounded-t-3xl flex justify-center items-center py-5">
           <div className="flex items-center justify-between w-full max-w-5xl px-4">
             <Link href="/" className="shrink-0">
               <span className="sr-only">Home</span>
@@ -67,10 +67,10 @@ const MarketingRootLayout = async ({
 
         <main className="flex-1 flex flex-col">
           {children}
-          <div className="grow bg-white" />
+          <div className="grow bg-surface-card" />
         </main>
 
-        <footer className="bg-white pb-12 md:pb-16 flex justify-center items-center rounded-b-3xl">
+        <footer className="bg-surface-card pb-12 md:pb-16 flex justify-center items-center rounded-b-3xl">
           <div className="flex w-full flex-col px-4 max-w-5xl">
             <div className="pt-12 md:pt-16">
               <div className="flex flex-col md:flex-row items-center justify-between pb-8 gap-x-4 gap-y-6">
@@ -92,9 +92,9 @@ const MarketingRootLayout = async ({
                 </div>
               </div>
 
-              <div className="flex items-center justify-between border-t border-gray-200 pt-8">
-                <div className="flex items-center justify-center gap-1.5 rounded-lg bg-gray-50 px-2 py-1.5 border border-gray-200">
-                  <span className="text-gray-900 text-xs/none font-semibold">
+              <div className="flex items-center justify-between border-t border-border pt-8">
+                <div className="flex items-center justify-center gap-1.5 rounded-lg bg-surface-hover px-2 py-1.5 border border-border">
+                  <span className="text-fg text-xs/none font-semibold">
                     Powered by
                   </span>
                   <span className="sr-only">Near</span>
@@ -105,7 +105,7 @@ const MarketingRootLayout = async ({
                     <Link
                       key={name}
                       href={link}
-                      className="text-sm/5 font-medium text-gray-500 hover:underline hover:text-gray-900"
+                      className="text-sm/5 font-medium text-fg-secondary hover:underline hover:text-fg"
                     >
                       {name}
                     </Link>

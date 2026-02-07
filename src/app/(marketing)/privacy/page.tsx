@@ -1,6 +1,6 @@
 export default function PrivacyPage() {
   return (
-    <div className="bg-white px-4 py-12">
+    <div className="bg-surface-card px-4 py-12">
       <div className="prose mx-auto">
         <h1 className="text-3xl font-bold tracking-tight lg:text-4xl">
           Privacy Policy of Near-Intents Interface

@@ -5,13 +5,14 @@ import { NavbarMobile } from "@src/components/Navbar/NavbarMobile"
 import NetworkOutageNotification from "@src/components/NetworkOutageNotification"
 import PreviewBanner from "@src/components/PreviewBanner"
 import SystemStatus from "@src/components/SystemStatus"
+import { ThemeToggle } from "@src/components/ThemeToggle"
 import UserMenu from "@src/components/UserMenu"
 import { NearIntentsLogoIcon, NearIntentsLogoSymbolIcon } from "@src/icons"
 import Link from "next/link"
 import type { ReactNode } from "react"
 
 const DashboardLayout = ({ children }: { children: ReactNode }) => (
-  <div className="relative isolate flex min-h-svh w-full bg-gray-800">
+  <div className="relative isolate flex min-h-svh w-full bg-sidebar-bg">
     {/* Sidebar on desktop */}
     <div className="fixed z-10 inset-y-0 left-0 w-74 max-lg:hidden py-5 px-4 flex flex-col">
       <div className="absolute size-64 -bottom-32 -left-32 rounded-full bg-brand/80 blur-[150px] pointer-events-none" />
@@ -31,6 +32,7 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => (
       <ActivityDock />
 
       <div className="relative mt-5 flex flex-col gap-3">
+        <ThemeToggle />
         <SystemStatus showOperationalStatus={false} />
         <UserMenu variant="desktop" />
       </div>
@@ -47,7 +49,7 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => (
         <MobileTopBar />
       </div>
 
-      <main className="relative grow px-4 py-6 sm:p-6 rounded-t-3xl lg:rounded-3xl bg-gray-25 lg:p-10">
+      <main className="relative grow px-4 py-6 sm:p-6 rounded-t-3xl lg:rounded-3xl bg-surface-page lg:p-10">
         <div className="mx-auto max-w-[464px]">{children}</div>
       </main>
 

@@ -67,14 +67,17 @@ export function HomeSwapWidget() {
   return (
     <div className="relative">
       <div className="flex justify-center -mb-px">
-        <span className="text-xs font-semibold text-gray-600 bg-gray-100 px-3 py-1 rounded-t-lg border-t border-x border-gray-200">
+        <span className="text-xs font-semibold text-fg-secondary bg-surface-active px-3 py-1 rounded-t-lg border-t border-x border-border">
           Live Preview
         </span>
       </div>
 
-      <div className="bg-gray-100 rounded-[27px] p-1 sm:p-2 border border-gray-200 flex flex-col gap-1 sm:gap-2">
-        <div className="p-4 sm:p-6 rounded-3xl bg-white border border-gray-200 flex flex-col gap-4">
-          <label htmlFor="sell" className="text-sm font-medium text-gray-500">
+      <div className="bg-surface-active rounded-[27px] p-1 sm:p-2 border border-border flex flex-col gap-1 sm:gap-2">
+        <div className="p-4 sm:p-6 rounded-3xl bg-surface-card border border-border flex flex-col gap-4">
+          <label
+            htmlFor="sell"
+            className="text-sm font-medium text-fg-secondary"
+          >
             Sell
           </label>
           <div className="flex items-center justify-between gap-2 sm:gap-4">
@@ -87,24 +90,27 @@ export function HomeSwapWidget() {
               placeholder="0"
               value={amountIn}
               onChange={(e) => setAmountIn(e.target.value)}
-              className="relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-3xl sm:text-4xl tracking-tight placeholder:text-gray-400 w-full"
+              className="relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-fg text-3xl sm:text-4xl tracking-tight placeholder:text-fg-tertiary w-full"
             />
             <button
               type="button"
               onClick={() => setModalOpen("tokenIn")}
-              className="rounded-full border border-gray-900/10 flex items-center gap-1.5 p-1 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-gray-900"
+              className="rounded-full border border-fg/10 flex items-center gap-1.5 p-1 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-fg"
             >
               <AssetComboIcon icon={baseTokenIn.icon} sizeClassName="size-7" />
-              <span className="text-base text-gray-900 font-semibold leading-none">
+              <span className="text-base text-fg font-semibold leading-none">
                 {baseTokenIn.symbol}
               </span>
-              <ChevronDownIcon className="size-4 text-gray-700" />
+              <ChevronDownIcon className="size-4 text-fg" />
             </button>
           </div>
         </div>
 
-        <div className="p-4 sm:p-6 rounded-3xl bg-white border border-gray-200 flex flex-col gap-4">
-          <label htmlFor="buy" className="text-sm font-medium text-gray-500">
+        <div className="p-4 sm:p-6 rounded-3xl bg-surface-card border border-border flex flex-col gap-4">
+          <label
+            htmlFor="buy"
+            className="text-sm font-medium text-fg-secondary"
+          >
             Buy
           </label>
           <div className="flex items-center justify-between gap-2 sm:gap-4">
@@ -119,7 +125,7 @@ export function HomeSwapWidget() {
                 value={amountOut}
                 readOnly
                 className={clsx(
-                  "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-3xl sm:text-4xl tracking-tight placeholder:text-gray-400 w-full",
+                  "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-fg text-3xl sm:text-4xl tracking-tight placeholder:text-fg-tertiary w-full",
                   {
                     "animate-pulse": loading,
                   }
@@ -129,13 +135,13 @@ export function HomeSwapWidget() {
             <button
               type="button"
               onClick={() => setModalOpen("tokenOut")}
-              className="rounded-full border border-gray-900/10 flex items-center gap-1.5 p-1 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-gray-900"
+              className="rounded-full border border-fg/10 flex items-center gap-1.5 p-1 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-fg"
             >
               <AssetComboIcon icon={baseTokenOut.icon} sizeClassName="size-7" />
-              <span className="text-base text-gray-900 font-semibold leading-none">
+              <span className="text-base text-fg font-semibold leading-none">
                 {baseTokenOut.symbol}
               </span>
-              <ChevronDownIcon className="size-4 text-gray-700" />
+              <ChevronDownIcon className="size-4 text-fg" />
             </button>
           </div>
         </div>
@@ -156,7 +162,7 @@ export function HomeSwapWidget() {
         <ErrorMessage className="mt-4 text-center">{error}</ErrorMessage>
       )}
 
-      <p className="text-xs/none font-medium text-gray-500 text-center mt-4">
+      <p className="text-xs/none font-medium text-fg-secondary text-center mt-4">
         Preview estimated rates. Sign up to start trading.
       </p>
 

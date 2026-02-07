@@ -475,7 +475,7 @@ export function OtcMakerForm({
               // Keep focus on the input
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => formValuesRef.trigger.switchTokens()}
-              className="size-9 flex items-center justify-center bg-white border hover:border-gray-300 transition-colors duration-100 border-gray-200 rounded-lg text-gray-400 hover:text-gray-500"
+              className="size-9 flex items-center justify-center bg-surface-card border hover:border-border-strong transition-colors duration-100 border-border rounded-lg text-fg-tertiary hover:text-fg-secondary"
               data-testid="swap-form-switch-tokens-button"
               aria-label="Switch tokens"
             >
@@ -531,12 +531,12 @@ export function OtcMakerForm({
             <div>
               <label
                 htmlFor="otc-maker-expiry"
-                className="text-sm/4 font-semibold text-gray-900"
+                className="text-sm/4 font-semibold text-fg"
               >
                 Expires
               </label>
               {expiryDateString && (
-                <p className="text-sm/4 font-medium text-gray-500">
+                <p className="text-sm/4 font-medium text-fg-secondary">
                   {expiryDateString}
                 </p>
               )}
@@ -548,7 +548,7 @@ export function OtcMakerForm({
               onChange={(e) => {
                 formValuesRef.trigger.updateExpiry({ value: e.target.value })
               }}
-              className="appearance-none rounded-xl py-1.5 bg-white text-base font-medium text-gray-900 outline-1 -outline-offset-1 outline-gray-200 border-0 ring-0 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-gray-900"
+              className="appearance-none rounded-xl py-1.5 bg-surface-card text-base font-medium text-fg outline-1 -outline-offset-1 outline-border border-0 ring-0 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-fg"
             >
               <option value="5m">5 minutes</option>
               <option value="30m">30 minutes</option>

@@ -30,7 +30,7 @@ const Assets = ({
   if (isPending) {
     return (
       <>
-        <h2 className="text-base text-gray-500 font-medium">Assets</h2>
+        <h2 className="text-base text-fg-secondary font-medium">Assets</h2>
         <ListItemsSkeleton count={3} className="mt-2" loading />
       </>
     )
@@ -69,7 +69,7 @@ const Assets = ({
 
   return (
     <>
-      <h2 className="text-base text-gray-500 font-medium">Assets</h2>
+      <h2 className="text-base text-fg-secondary font-medium">Assets</h2>
       <div className="mt-2 flex flex-col gap-1">
         {assetsToShow.map(({ token, value, usdValue }) => {
           const shortFormatted = value

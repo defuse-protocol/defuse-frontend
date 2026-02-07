@@ -59,7 +59,7 @@ const ConnectWallet = () => {
         <Popover.Trigger>
           <button
             type="button"
-            className="text-gray-400 text-sm font-medium"
+            className="text-fg-tertiary text-sm font-medium"
             data-testid="sign-in-button"
           >
             Sign in or Sign up
@@ -369,7 +369,7 @@ const ConnectWallet = () => {
         <Popover.Trigger>
           <button
             type="button"
-            className="text-gray-400 text-sm font-medium"
+            className="text-fg-tertiary text-sm font-medium"
             data-testid="account-indicator"
           >
             {state.chainType !== "webauthn" ? (

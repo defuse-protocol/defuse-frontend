@@ -96,7 +96,7 @@ const UserMenu = ({
     <>
       {variant === "desktop" ? (
         <DropdownMenu.Root modal={false}>
-          <DropdownMenu.Trigger className="max-lg:hidden relative group bg-gray-900 text-gray-400 rounded-2xl px-3.5 py-3 flex items-center gap-3 w-full hover:bg-gray-950 hover:text-gray-300 data-[state=open]:bg-gray-950 data-[state=open]:text-gray-300">
+          <DropdownMenu.Trigger className="max-lg:hidden relative group bg-gray-900 text-sidebar-muted rounded-2xl px-3.5 py-3 flex items-center gap-3 w-full hover:bg-gray-950 hover:text-gray-300 data-[state=open]:bg-gray-950 data-[state=open]:text-gray-300">
             <div className="size-7 flex items-center justify-center bg-brand rounded-lg">
               <UserIcon className="text-white/80 size-5" />
             </div>
@@ -112,15 +112,15 @@ const UserMenu = ({
             <DropdownMenu.Content
               align="start"
               sideOffset={8}
-              className="max-lg:hidden min-w-66 flex flex-col gap-1 rounded-2xl p-1.5 isolate bg-white outline outline-transparent focus:outline-hidden shadow-[0_-10px_15px_-3px_rgb(0_0_0/0.1),0_-4px_6px_-4px_rgb(0_0_0/0.1)] ring-1 ring-gray-900/10 data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:duration-100 data-[state=closed]:ease-in"
+              className="max-lg:hidden min-w-66 flex flex-col gap-1 rounded-2xl p-1.5 isolate bg-surface-card outline outline-transparent focus:outline-hidden shadow-[0_-10px_15px_-3px_rgb(0_0_0/0.1),0_-4px_6px_-4px_rgb(0_0_0/0.1)] ring-1 ring-fg/10 data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:duration-100 data-[state=closed]:ease-in"
               onCloseAutoFocus={(e) => e.preventDefault()}
             >
               {items.map((item) => (
                 <MenuItem key={item.label} {...item} variant="desktop" />
               ))}
 
-              {/* <div className="rounded-xl p-2.5 text-left text-sm text-gray-700 flex items-center gap-2 font-semibold">
-            <ShieldCheckIconSmall className="size-4 text-gray-500 group-hover:text-gray-600 group-focus:text-gray-600" />
+              {/* <div className="rounded-xl p-2.5 text-left text-sm text-fg flex items-center gap-2 font-semibold">
+            <ShieldCheckIconSmall className="size-4 text-fg-secondary group-hover:text-fg-secondary group-focus:text-fg-secondary" />
             <span className="grow">Shield mode</span>
             <Switch.Root
               checked={isShielded}
@@ -128,7 +128,7 @@ const UserMenu = ({
               className="group relative flex h-5 bg-gray-300 w-12 cursor-pointer rounded-lg p-1 focus:not-data-focus:outline-none data-[state=checked]:bg-brand data-focus:outline data-focus:outline-white transition-colors duration-200 ease-in-out"
               aria-label="Toggle Shield Mode"
             >
-              <Switch.Thumb className="pointer-events-none inline-block h-3 w-4 translate-x-0 rounded bg-white shadow-lg ring-0 transition duration-200 ease-in-out data-[state=checked]:translate-x-6" />
+              <Switch.Thumb className="pointer-events-none inline-block h-3 w-4 translate-x-0 rounded bg-surface-card shadow-lg ring-0 transition duration-200 ease-in-out data-[state=checked]:translate-x-6" />
             </Switch.Root>
           </div> */}
             </DropdownMenu.Content>
@@ -136,7 +136,7 @@ const UserMenu = ({
         </DropdownMenu.Root>
       ) : (
         <DropdownMenu.Root>
-          <DropdownMenu.Trigger className="lg:hidden relative group text-gray-400 rounded-xl -mr-1.5 px-2.5 py-1.5 flex items-center gap-2.5 data-[state=open]:bg-gray-950 data-[state=open]:text-gray-300 focus-visible:outline-none">
+          <DropdownMenu.Trigger className="lg:hidden relative group text-sidebar-muted rounded-xl -mr-1.5 px-2.5 py-1.5 flex items-center gap-2.5 data-[state=open]:bg-gray-950 data-[state=open]:text-gray-300 focus-visible:outline-none">
             <div
               className={clsx(
                 "text-sm font-semibold grow text-right ml-1",
@@ -157,7 +157,7 @@ const UserMenu = ({
               align="end"
               sideOffset={2}
               className={clsx(
-                "lg:hidden flex flex-col-reverse gap-1 bg-white rounded-2xl shadow-xl p-1.5 space-y-1 min-w-56 origin-top-right duration-100 ring-1 ring-gray-900/10",
+                "lg:hidden flex flex-col-reverse gap-1 bg-surface-card rounded-2xl shadow-xl p-1.5 space-y-1 min-w-56 origin-top-right duration-100 ring-1 ring-fg/10",
 
                 "data-[state=open]:animate-in data-[state=open]:slide-in-from-top-2 fade-in data-[state=open]:ease-out data-[state=open]:zoom-in-97",
 
@@ -175,23 +175,25 @@ const UserMenu = ({
 
       <AlertDialog open={isCopyWarningOpen}>
         <div className="flex flex-col items-center mt-4">
-          <div className="bg-gray-100 size-13 rounded-full flex justify-center items-center">
-            <InformationCircleIcon className="size-6 text-gray-500" />
+          <div className="bg-surface-active size-13 rounded-full flex justify-center items-center">
+            <InformationCircleIcon className="size-6 text-fg-secondary" />
           </div>
           <AlertDialog.Title className="mt-5">
             Before you copy this address
           </AlertDialog.Title>
         </div>
 
-        <ul className="bg-gray-50 rounded-3xl p-5 mt-5 space-y-3">
+        <ul className="bg-surface-page rounded-3xl p-5 mt-5 space-y-3">
           {[
             "This is your NEAR Intents internal address",
             "Use it only for transfers between NEAR Intents accounts",
             "Funds sent here from external wallets will be lost",
           ].map((text) => (
             <li key={text} className="flex items-start gap-1.5">
-              <CheckCircleIcon className="size-4 text-gray-600 shrink-0 mt-0.5" />
-              <span className="text-sm text-gray-600 font-medium">{text}</span>
+              <CheckCircleIcon className="size-4 text-fg-secondary shrink-0 mt-0.5" />
+              <span className="text-sm text-fg-secondary font-medium">
+                {text}
+              </span>
             </li>
           ))}
         </ul>
@@ -211,12 +213,12 @@ const UserMenu = ({
           >
             I understand, copy address
           </Button>
-          <label className="p-2.5 flex items-center justify-center self-center gap-2 text-sm text-gray-600 font-medium">
+          <label className="p-2.5 flex items-center justify-center self-center gap-2 text-sm text-fg-secondary font-medium">
             <input
               type="checkbox"
               checked={skipCopyWarning}
               onChange={(e) => setSkipCopyWarning(e.target.checked)}
-              className="text-gray-600 size-4 rounded bg-white border-gray-300 checked:bg-gray-600 checked:border-gray-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 ring-0 ring-transparent ring-offset-gray-50"
+              className="text-fg-secondary size-4 rounded bg-surface-card border-border-strong checked:bg-fg-secondary checked:border-fg-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg-secondary ring-0 ring-transparent ring-offset-surface-page"
             />
             Don't show again on this device
           </label>
@@ -237,9 +239,9 @@ const MenuItem = ({
   variant,
 }: MenuItemType & { variant: "desktop" | "mobile" }) => {
   const classes = clsx(
-    "group rounded-xl text-left text-sm font-semibold text-gray-700 flex items-center gap-2",
+    "group rounded-xl text-left text-sm font-semibold text-fg flex items-center gap-2",
     {
-      "p-2.5 focus:outline-hidden focus-visible:bg-gray-200 focus-visible:text-gray-900 hover:bg-gray-200 hover:text-gray-900":
+      "p-2.5 focus:outline-hidden focus-visible:bg-surface-active focus-visible:text-fg hover:bg-surface-active hover:text-fg":
         variant === "desktop",
       "py-2.5 px-3": variant === "mobile",
     }
@@ -249,9 +251,9 @@ const MenuItem = ({
     <>
       <Icon
         className={clsx({
-          "size-4 text-gray-500 group-hover:text-gray-600 group-focus:text-gray-600":
+          "size-4 text-fg-secondary group-hover:text-fg-secondary group-focus:text-fg-secondary":
             variant === "desktop",
-          "size-4 shrink-0 text-gray-500": variant === "mobile",
+          "size-4 shrink-0 text-fg-secondary": variant === "mobile",
         })}
       />
       <span>{label}</span>

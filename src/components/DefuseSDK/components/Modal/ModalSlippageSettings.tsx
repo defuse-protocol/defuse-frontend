@@ -236,7 +236,7 @@ export function ModalSlippageSettings() {
 
   return (
     <BaseModalDialog title="Slippage" open={true} onClose={onCloseModal}>
-      <p className="text-sm text-gray-500 font-medium mt-1">
+      <p className="text-sm text-fg-secondary font-medium mt-1">
         The slippage setting is a safety mechanism to protect you from getting a
         final price that is very different than the quoted price. If the
         specified slippage would be exceeded, your swap will be cancelled.{" "}
@@ -249,11 +249,11 @@ export function ModalSlippageSettings() {
 
       {calculatedSlippageAmount != null &&
         ((isExactOut && tokenIn) || (!isExactOut && tokenOut)) && (
-          <dl className="flex items-center justify-between gap-2 px-3 py-3.5 rounded-2xl border border-gray-200 mt-4">
-            <dt className="text-gray-500 text-sm font-semibold">
+          <dl className="flex items-center justify-between gap-2 px-3 py-3.5 rounded-2xl border border-border mt-4">
+            <dt className="text-fg-secondary text-sm font-semibold">
               {isExactOut ? "Pay at most" : "Receive at least"}
             </dt>
-            <dd className="text-sm font-semibold text-gray-900">
+            <dd className="text-sm font-semibold text-fg">
               {formatTokenValue(
                 calculatedSlippageAmount.amount,
                 calculatedSlippageAmount.decimals,
@@ -288,8 +288,8 @@ export function ModalSlippageSettings() {
           })}
           <div
             className={clsx(
-              "flex items-center rounded-lg pl-2 pr-2 overflow-hidden focus-within:bg-white focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-gray-900",
-              customValue ? "bg-gray-900" : "bg-gray-100"
+              "flex items-center rounded-lg pl-2 pr-2 overflow-hidden focus-within:bg-surface-card focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-fg",
+              customValue ? "bg-gray-900" : "bg-surface-active"
             )}
           >
             <input
@@ -299,16 +299,16 @@ export function ModalSlippageSettings() {
               onChange={handleCustomInputChange}
               placeholder="Custom"
               className={clsx(
-                "block min-w-0 grow h-8 pr-2 pl-0 peer focus:text-gray-900 bg-transparent text-sm leading-none font-semibold focus:ring-0 border-0 placeholder:text-gray-400",
-                customValue ? "text-white" : "text-gray-500"
+                "block min-w-0 grow h-8 pr-2 pl-0 peer focus:text-fg bg-transparent text-sm leading-none font-semibold focus:ring-0 border-0 placeholder:text-fg-tertiary",
+                customValue ? "text-white" : "text-fg-secondary"
               )}
             />
             <div
               className={clsx(
                 "shrink-0 text-sm font-semibold select-none leading-none",
                 customValue
-                  ? "text-white peer-focus:text-gray-500"
-                  : "text-gray-500"
+                  ? "text-white peer-focus:text-fg-secondary"
+                  : "text-fg-secondary"
               )}
             >
               %

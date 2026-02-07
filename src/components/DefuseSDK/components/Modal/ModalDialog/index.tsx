@@ -76,7 +76,7 @@ export function BaseModalDialog({
       <Dialog.Portal>
         <Dialog.Overlay
           className={clsx(
-            "fixed inset-0 bg-gray-900/80 duration-200",
+            "fixed inset-0 bg-fg/80 duration-200",
 
             "data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:ease-out",
 
@@ -106,7 +106,7 @@ export function BaseModalDialog({
           >
             <div
               role="presentation"
-              className="relative transform overflow-hidden rounded-3xl bg-white p-5 text-left shadow-xl transition-all w-full max-w-sm sm:my-8"
+              className="relative transform overflow-hidden rounded-3xl bg-surface-overlay p-5 text-left shadow-xl transition-all w-full max-w-sm sm:my-8"
               onClick={(e) => e.stopPropagation()}
               onKeyDown={(e) => e.stopPropagation()}
             >
@@ -135,17 +135,17 @@ export function BaseModalDialog({
                     <button
                       type="button"
                       onClick={back}
-                      className="size-10 rounded-xl hover:bg-gray-900/5 text-gray-600 hover:text-gray-900 flex items-center justify-center"
+                      className="size-10 rounded-xl hover:bg-fg/5 text-fg-secondary hover:text-fg flex items-center justify-center"
                     >
                       <span className="sr-only">Back</span>
                       <ArrowLeftIcon className="size-5" />
                     </button>
                   )}
-                  <Dialog.Title className="text-base font-semibold text-gray-900">
+                  <Dialog.Title className="text-base font-semibold text-fg">
                     {title}
                   </Dialog.Title>
                   {isDismissable && (
-                    <Dialog.Close className="size-10 rounded-xl hover:bg-gray-900/5 text-gray-600 hover:text-gray-900 flex items-center justify-center">
+                    <Dialog.Close className="size-10 rounded-xl hover:bg-fg/5 text-fg-secondary hover:text-fg flex items-center justify-center">
                       <XMarkIcon className="size-5" />
                     </Dialog.Close>
                   )}

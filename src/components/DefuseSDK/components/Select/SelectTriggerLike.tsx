@@ -37,7 +37,7 @@ function SelectTriggerLike(
       type="button"
       disabled={disabled}
       className={clsx(
-        "rounded-3xl bg-white border border-gray-200 p-4 not-disabled:hover:border-gray-700 not-disabled:hover:outline not-disabled:hover:outline-gray-700 focus-visible:border-gray-700 focus-visible:outline focus-visible:outline-gray-700 text-left flex items-center gap-3",
+        "rounded-3xl bg-surface-card border border-border p-4 not-disabled:hover:border-fg not-disabled:hover:outline not-disabled:hover:outline-fg focus-visible:border-fg focus-visible:outline focus-visible:outline-fg text-left flex items-center gap-3",
         className
       )}
       {...props}
@@ -49,7 +49,7 @@ function SelectTriggerLike(
             <span
               className={clsx(
                 "text-sm/none font-medium",
-                error ? "text-red-600" : "text-gray-500"
+                error ? "text-red-600" : "text-fg-secondary"
               )}
             >
               {error || label}
@@ -58,13 +58,13 @@ function SelectTriggerLike(
           <span
             className={clsx(
               "text-base/none font-semibold",
-              error ? "text-red-600" : "text-gray-700"
+              error ? "text-red-600" : "text-fg"
             )}
           >
             {value || error || label}
           </span>
           {subtitle && (
-            <span className="text-xs/none font-medium text-gray-500">
+            <span className="text-xs/none font-medium text-fg-secondary">
               {subtitle}
             </span>
           )}
@@ -76,7 +76,7 @@ function SelectTriggerLike(
           {hint}
         </span>
       )}
-      {!disabled && <ChevronDownIcon className="size-6 text-gray-500" />}
+      {!disabled && <ChevronDownIcon className="size-6 text-fg-secondary" />}
     </button>
   )
 }

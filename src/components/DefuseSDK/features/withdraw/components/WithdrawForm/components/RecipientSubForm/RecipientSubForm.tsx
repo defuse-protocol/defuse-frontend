@@ -285,7 +285,7 @@ export const RecipientSubForm = ({
             icon={
               matchingContact && contactColors ? (
                 <div
-                  className="size-10 rounded-full flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1"
+                  className="size-10 rounded-full flex items-center justify-center shrink-0 outline-1 outline-fg/10 -outline-offset-1"
                   style={{ backgroundColor: contactColors.background }}
                 >
                   <WalletIcon
@@ -294,8 +294,8 @@ export const RecipientSubForm = ({
                   />
                 </div>
               ) : (
-                <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
-                  <GlobeAltIcon className="text-gray-500 size-5" />
+                <div className="size-10 rounded-full bg-surface-active flex items-center justify-center shrink-0">
+                  <GlobeAltIcon className="text-fg-secondary size-5" />
                 </div>
               )
             }
@@ -346,23 +346,23 @@ export const RecipientSubForm = ({
               <div>
                 <label
                   className={clsx(
-                    "flex items-center gap-3 rounded-3xl border bg-white p-4 cursor-text hover:outline focus-within:outline",
+                    "flex items-center gap-3 rounded-3xl border bg-surface-card p-4 cursor-text hover:outline focus-within:outline",
                     errors.destinationMemo
                       ? "border-red-500 hover:border-red-500 hover:outline-red-500 focus-within:border-red-500 focus-within:outline-red-500"
-                      : "border-gray-200 hover:border-gray-700 hover:outline-gray-700 focus-within:border-gray-700 focus-within:outline-gray-700"
+                      : "border-border hover:border-fg hover:outline-fg focus-within:border-fg focus-within:outline-fg"
                   )}
                 >
-                  <div className="bg-gray-100 rounded-full size-10 shrink-0 flex items-center justify-center">
-                    <TagIcon className="text-gray-500 size-5" />
+                  <div className="bg-surface-active rounded-full size-10 shrink-0 flex items-center justify-center">
+                    <TagIcon className="text-fg-secondary size-5" />
                   </div>
                   <div className="flex flex-col items-start gap-1">
-                    <span className="text-sm/none font-medium text-gray-500">
+                    <span className="text-sm/none font-medium text-fg-secondary">
                       Destination Tag (optional)
                     </span>
                     <input
                       id="destinationMemo"
                       type="text"
-                      className="block w-full text-base/none font-semibold text-gray-700 placeholder:text-gray-400 focus:outline-none leading-none ring-0 border-none p-0"
+                      className="block w-full text-base/none font-semibold text-fg placeholder:text-fg-tertiary focus:outline-none leading-none ring-0 border-none p-0"
                       {...register("destinationMemo", {
                         validate: {
                           uint32: (value) => {

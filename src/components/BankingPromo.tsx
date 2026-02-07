@@ -10,7 +10,7 @@ const BankingPromo = () => {
             Deposit via bank transfer
           </h3>
         </div>
-        <p className="text-gray-400 text-sm text-balance font-medium">
+        <p className="text-fg-tertiary text-sm text-balance font-medium">
           Send USD or EUR from your bank and receive stablecoins
         </p>
       </div>

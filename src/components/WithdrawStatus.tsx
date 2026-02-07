@@ -104,16 +104,16 @@ function FullView({
     <div className="flex flex-col">
       <PageHeader title="Withdraw" />
 
-      <div className="mt-5 bg-gray-50 rounded-2xl p-6">
+      <div className="mt-5 bg-surface-page rounded-2xl p-6">
         <div className="flex flex-col items-center gap-4 mb-6">
           <AssetComboIcon sizeClassName="size-12" {...tokenOut} />
           <div className="text-center">
             <p className="text-sm font-semibold text-green-600">
               +{formattedAmount}
             </p>
-            <p className="text-xs text-gray-500">{tokenOut.symbol}</p>
+            <p className="text-xs text-fg-secondary">{tokenOut.symbol}</p>
           </div>
-          <p className="text-xs text-gray-400 truncate max-w-[200px]">
+          <p className="text-xs text-fg-tertiary truncate max-w-[200px]">
             To: {recipient}
           </p>
         </div>

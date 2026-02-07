@@ -207,7 +207,7 @@ const ModalSelectRecipient = ({
         <div
           className={clsx(
             "pb-5 border-b -mx-5 px-5 transition-colors",
-            isScrolled ? "border-gray-200" : "border-transparent"
+            isScrolled ? "border-border" : "border-transparent"
           )}
         >
           <SearchBar
@@ -236,7 +236,7 @@ const ModalSelectRecipient = ({
           className="flex flex-col overflow-y-auto -mx-5 px-5 -mb-5 pb-5 space-y-5"
         >
           {hasNoContactsForNetwork && (
-            <p className="text-sm text-gray-500 font-medium">
+            <p className="text-sm text-fg-secondary font-medium">
               You have no contacts created for the{" "}
               <span className="capitalize">{selectedNetworkName}</span> network.
             </p>
@@ -244,8 +244,8 @@ const ModalSelectRecipient = ({
 
           {validatedAddress ? (
             <ListItem onClick={() => handleSelectAddress(validatedAddress)}>
-              <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1">
-                <WalletIcon className="text-gray-500 size-5" />
+              <div className="size-10 rounded-full bg-surface-active flex items-center justify-center shrink-0 outline-1 outline-fg/10 -outline-offset-1">
+                <WalletIcon className="text-fg-secondary size-5" />
               </div>
               <ListItem.Content>
                 <ListItem.Title>
@@ -257,7 +257,7 @@ const ModalSelectRecipient = ({
             <>
               {visibleContacts.length > 0 && (
                 <div>
-                  <h3 className="flex items-center gap-1.5 text-gray-500 text-sm/6 font-medium">
+                  <h3 className="flex items-center gap-1.5 text-fg-secondary text-sm/6 font-medium">
                     <ContactsIcon className="size-4 shrink-0" />
                     Contacts
                   </h3>
@@ -302,7 +302,7 @@ const ModalSelectRecipient = ({
                             }
                           >
                             <div
-                              className="size-10 rounded-full flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1"
+                              className="size-10 rounded-full flex items-center justify-center shrink-0 outline-1 outline-fg/10 -outline-offset-1"
                               style={{
                                 backgroundColor: contactColor.background,
                               }}
@@ -339,7 +339,7 @@ const ModalSelectRecipient = ({
 
               {displayOwnAddress && !inputValue && (
                 <div>
-                  <h3 className="flex items-center gap-1.5 text-gray-500 text-sm/6 font-medium">
+                  <h3 className="flex items-center gap-1.5 text-fg-secondary text-sm/6 font-medium">
                     <UserCircleIcon className="size-5 shrink-0" />
                     My address
                   </h3>
@@ -358,8 +358,8 @@ const ModalSelectRecipient = ({
                         onClose()
                       }}
                     >
-                      <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1">
-                        <WalletIcon className="text-gray-500 size-5" />
+                      <div className="size-10 rounded-full bg-surface-active flex items-center justify-center shrink-0 outline-1 outline-fg/10 -outline-offset-1">
+                        <WalletIcon className="text-fg-secondary size-5" />
                       </div>
                       <ListItem.Content>
                         <ListItem.Title>Connected wallet</ListItem.Title>

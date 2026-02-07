@@ -35,10 +35,10 @@ export function WebAuthnDialog() {
       ignoreSidebar
     >
       <div className="flex flex-col items-center justify-center">
-        <div className="size-14 rounded-full bg-gray-100 flex items-center justify-center">
+        <div className="size-14 rounded-full bg-surface-active flex items-center justify-center">
           <PasskeyIcon className="size-6" />
         </div>
-        <h2 className="mt-4! text-xl font-bold text-center text-gray-900 tracking-tight">
+        <h2 className="mt-4! text-xl font-bold text-center text-fg tracking-tight">
           {isCreating ? "Create new passkey" : "Sign in with passkey"}
         </h2>
       </div>
@@ -58,10 +58,10 @@ export function WebAuthnDialog() {
             type="text"
             placeholder="Passkey label (only visible to you)"
             className={clsx(
-              "block rounded-2xl bg-white px-3.5 py-4.5 w-full text-gray-900 font-semibold placeholder:text-gray-400 text-sm leading-none ring-0 border-none outline-1 -outline-offset-1 focus-visible:outline-2 focus-visible:-outline-offset-2",
+              "block rounded-2xl bg-surface-card px-3.5 py-4.5 w-full text-fg font-semibold placeholder:text-fg-tertiary text-sm leading-none ring-0 border-none outline-1 -outline-offset-1 focus-visible:outline-2 focus-visible:-outline-offset-2",
               errors.passkeyName
                 ? "outline-red-500 focus-within:outline-red-500"
-                : "outline-gray-200 focus-within:outline-gray-900"
+                : "outline-border focus-within:outline-fg"
             )}
             {...register("passkeyName", { required: true })}
           />

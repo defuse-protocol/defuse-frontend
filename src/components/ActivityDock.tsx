@@ -206,7 +206,7 @@ function DockCard({
     >
       <div className="pt-4" ref={containerCardRef}>
         <div
-          className="bg-white rounded-2xl outline-1 -outline-offset-1 outline-gray-900/10 w-full p-3"
+          className="bg-surface-card rounded-2xl outline-1 -outline-offset-1 outline-fg/10 w-full p-3"
           style={{
             boxShadow:
               "0 -1px 3px 0 rgb(0 0 0 / 0.1), 0 -1px 2px -1px rgb(0 0 0 / 0.1)",
@@ -226,9 +226,7 @@ function DockCard({
                 })
               })}
             </div>
-            <p className="flex-1 text-sm font-semibold text-gray-700">
-              {item.title}
-            </p>
+            <p className="flex-1 text-sm font-semibold text-fg">{item.title}</p>
           </div>
 
           {item.renderContent ? (
@@ -241,10 +239,10 @@ function DockCard({
                     key={row.label}
                     className="flex items-center justify-between gap-3"
                   >
-                    <dt className="text-sm text-gray-500 font-medium whitespace-nowrap">
+                    <dt className="text-sm text-fg-secondary font-medium whitespace-nowrap">
                       {row.label}
                     </dt>
-                    <dd className="text-sm font-semibold text-gray-900 whitespace-nowrap truncate">
+                    <dd className="text-sm font-semibold text-fg whitespace-nowrap truncate">
                       {row.value}
                     </dd>
                   </div>

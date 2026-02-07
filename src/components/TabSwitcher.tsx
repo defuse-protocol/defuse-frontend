@@ -19,7 +19,7 @@ const TabSwitcher = ({
 }: { tabs: [Tab, Tab]; className?: string }) => (
   <div
     className={clsx(
-      "bg-gray-100 rounded-2xl grid grid-cols-2 gap-1 border border-gray-200 p-1",
+      "bg-surface-active rounded-2xl grid grid-cols-2 gap-1 border border-border p-1",
       className
     )}
   >

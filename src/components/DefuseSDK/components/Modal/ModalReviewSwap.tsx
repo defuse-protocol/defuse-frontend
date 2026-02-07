@@ -58,45 +58,47 @@ const ModalReviewSwap = ({
         <div className="flex items-center gap-3">
           <AssetComboIcon icon={tokenIn?.icon} sizeClassName="size-12" />
           <div>
-            <div className="text-2xl font-bold text-gray-900 tracking-tight leading-7">
+            <div className="text-2xl font-bold text-fg tracking-tight leading-7">
               {formatDisplayAmount(amountIn)} {tokenIn.symbol}
             </div>
-            <div className="text-base/5 font-medium text-gray-500">
+            <div className="text-base/5 font-medium text-fg-secondary">
               {formatUsdAmount(usdAmountIn)}
             </div>
           </div>
         </div>
 
         <div className="flex items-center justify-center w-12 h-14">
-          <ArrowDownIcon className="size-6 text-gray-400" />
+          <ArrowDownIcon className="size-6 text-fg-tertiary" />
         </div>
 
         <div className="flex items-center gap-3">
           <AssetComboIcon icon={tokenOut?.icon} sizeClassName="size-12" />
           <div>
-            <div className="text-2xl font-bold text-gray-900 tracking-tight leading-7">
+            <div className="text-2xl font-bold text-fg tracking-tight leading-7">
               {formatDisplayAmount(amountOut)} {tokenOut.symbol}
             </div>
-            <div className="text-base/5 font-medium text-gray-500">
+            <div className="text-base/5 font-medium text-fg-secondary">
               {formatUsdAmount(usdAmountOut)}
             </div>
           </div>
         </div>
       </div>
 
-      <dl className="mt-7 pt-5 border-t border-gray-200 space-y-2">
+      <dl className="mt-7 pt-5 border-t border-border space-y-2">
         <div className="flex justify-between gap-2">
-          <dt className="text-sm text-gray-500 font-medium shrink-0">Rate</dt>
+          <dt className="text-sm text-fg-secondary font-medium shrink-0">
+            Rate
+          </dt>
           <dd>
             <SwapRateInfo tokenIn={tokenIn} tokenOut={tokenOut} />
           </dd>
         </div>
 
         <div className="flex justify-between gap-2">
-          <dt className="text-sm text-gray-500 font-medium shrink-0">
+          <dt className="text-sm text-fg-secondary font-medium shrink-0">
             Max slippage
           </dt>
-          <dd className="text-sm font-semibold text-gray-900 text-right">
+          <dd className="text-sm font-semibold text-fg text-right">
             {Intl.NumberFormat(undefined, {
               style: "percent",
               minimumFractionDigits: 2,
@@ -107,10 +109,10 @@ const ModalReviewSwap = ({
 
         {minAmountOut && (
           <div className="flex justify-between gap-2">
-            <dt className="text-sm text-gray-500 font-medium shrink-0">
+            <dt className="text-sm text-fg-secondary font-medium shrink-0">
               Receive at least
             </dt>
-            <dd className="text-sm font-semibold text-gray-900 text-right">
+            <dd className="text-sm font-semibold text-fg text-right">
               {formatTokenValue(minAmountOut.amount, minAmountOut.decimals)}{" "}
               {tokenOut.symbol}
             </dd>
@@ -119,7 +121,7 @@ const ModalReviewSwap = ({
 
         {Boolean(priceImpact) && (
           <div className="flex justify-between gap-2">
-            <dt className="text-sm text-gray-500 font-medium shrink-0">
+            <dt className="text-sm text-fg-secondary font-medium shrink-0">
               Price impact
             </dt>
             <dd

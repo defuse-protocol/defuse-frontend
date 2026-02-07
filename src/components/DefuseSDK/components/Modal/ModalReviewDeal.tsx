@@ -38,24 +38,24 @@ const ModalReviewDeal = ({
       <div className="flex flex-col gap-5 mt-4">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-2xl font-bold text-gray-900 tracking-tight leading-7">
+            <div className="text-2xl font-bold text-fg tracking-tight leading-7">
               {formatDisplayAmount(amountIn)} {tokenIn.symbol}
             </div>
-            <div className="text-base/5 font-medium text-gray-500">
+            <div className="text-base/5 font-medium text-fg-secondary">
               {formatUsdAmount(usdAmountIn)}
             </div>
           </div>
           <AssetComboIcon icon={tokenIn?.icon} />
         </div>
 
-        <ArrowDownIcon className="size-6 text-gray-400" />
+        <ArrowDownIcon className="size-6 text-fg-tertiary" />
 
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-2xl font-bold text-gray-900 tracking-tight leading-7">
+            <div className="text-2xl font-bold text-fg tracking-tight leading-7">
               {formatDisplayAmount(amountOut)} {tokenOut.symbol}
             </div>
-            <div className="text-base/5 font-medium text-gray-500">
+            <div className="text-base/5 font-medium text-fg-secondary">
               {formatUsdAmount(usdAmountOut)}
             </div>
           </div>
@@ -63,10 +63,10 @@ const ModalReviewDeal = ({
         </div>
       </div>
 
-      <dl className="mt-7 pt-5 border-t border-gray-200 space-y-2">
+      <dl className="mt-7 pt-5 border-t border-border space-y-2">
         <div className="flex items-center justify-between">
-          <dt className="text-sm text-gray-900 font-semibold">Expires</dt>
-          <dd className="text-sm text-gray-500 font-medium">
+          <dt className="text-sm text-fg font-semibold">Expires</dt>
+          <dd className="text-sm text-fg-secondary font-medium">
             {expiryDateString}
           </dd>
         </div>

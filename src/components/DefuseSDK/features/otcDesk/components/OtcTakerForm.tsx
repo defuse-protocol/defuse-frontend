@@ -213,7 +213,7 @@ export function OtcTakerForm({
       />
 
       <div className="flex items-center justify-center -my-3.5">
-        <div className="size-9 flex items-center justify-center bg-white border border-gray-200 rounded-lg text-gray-400">
+        <div className="size-9 flex items-center justify-center bg-surface-card border border-border rounded-lg text-fg-tertiary">
           <ArrowDownIcon className="size-5" />
         </div>
       </div>

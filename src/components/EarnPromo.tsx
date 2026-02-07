@@ -20,7 +20,7 @@ const EarnPromo = () => {
             Earn
           </h3>
         </div>
-        <p className="text-gray-400 text-sm text-balance font-medium">
+        <p className="text-fg-tertiary text-sm text-balance font-medium">
           Put your idle assets to work. No lockups. Withdraw anytime.
         </p>
       </div>
@@ -32,7 +32,7 @@ const EarnPromo = () => {
           <div
             key={token}
             className={clsx(
-              "absolute flex items-center gap-1 bg-white p-0.5 pr-2 rounded-full w-fit",
+              "absolute flex items-center gap-1 bg-surface-card p-0.5 pr-2 rounded-full w-fit",
               {
                 "top-6 right-29": index === 0,
                 "top-12 right-7": index === 1,
@@ -44,7 +44,7 @@ const EarnPromo = () => {
             <div className="rounded-full overflow-hidden size-5 shrink-0">
               <Icon className="size-full" />
             </div>
-            <div className="text-xs text-gray-700 font-bold">{apr}</div>
+            <div className="text-xs text-fg font-bold">{apr}</div>
           </div>
         ))}
       </div>

@@ -65,8 +65,8 @@ function DefaultContent({
   return (
     <>
       <div className="flex flex-col items-center mt-4">
-        <div className="bg-gray-100 size-13 rounded-full flex justify-center items-center">
-          <LockClosedIcon className="size-6 text-gray-500" />
+        <div className="bg-surface-active size-13 rounded-full flex justify-center items-center">
+          <LockClosedIcon className="size-6 text-fg-secondary" />
         </div>
         <AlertDialog.Title className="mt-5">
           Verify your wallet
@@ -78,15 +78,17 @@ function DefaultContent({
         </AlertDialog.Description>
       </div>
 
-      <ul className="bg-gray-50 rounded-3xl p-5 mt-5 space-y-3">
+      <ul className="bg-surface-page rounded-3xl p-5 mt-5 space-y-3">
         {[
           "Secure transactions and transfers",
           "Access to all features",
           "Protection of your assets",
         ].map((text) => (
           <li key={text} className="flex items-center gap-1.5">
-            <CheckCircleIcon className="size-4 text-gray-600 shrink-0" />
-            <span className="text-sm text-gray-600 font-medium">{text}</span>
+            <CheckCircleIcon className="size-4 text-fg-secondary shrink-0" />
+            <span className="text-sm text-fg-secondary font-medium">
+              {text}
+            </span>
           </li>
         ))}
       </ul>
@@ -106,7 +108,7 @@ function DefaultContent({
         </Button>
       </div>
 
-      <p className="text-sm text-gray-500 font-medium text-center mt-3">
+      <p className="text-sm text-fg-secondary font-medium text-center mt-3">
         Canceling will sign you out
       </p>
     </>
@@ -131,14 +133,16 @@ function FailureContent({ onConfirm, onCancel, isVerifying }: ContentProps) {
         </AlertDialog.Description>
       </div>
 
-      <ul className="bg-gray-50 rounded-3xl p-5 mt-5 space-y-3">
+      <ul className="bg-surface-page rounded-3xl p-5 mt-5 space-y-3">
         {[
           "The signature was rejected or timed out",
           "Some wallets may be incompatible",
         ].map((text) => (
           <li key={text} className="flex items-center gap-1.5">
-            <XCircleIcon className="size-4 text-gray-600" />
-            <span className="text-sm text-gray-600 font-medium">{text}</span>
+            <XCircleIcon className="size-4 text-fg-secondary" />
+            <span className="text-sm text-fg-secondary font-medium">
+              {text}
+            </span>
           </li>
         ))}
       </ul>
@@ -169,8 +173,8 @@ function SessionExpiredContent({
   return (
     <>
       <div className="flex flex-col items-center text-center mt-4">
-        <div className="bg-gray-100 size-13 rounded-full flex justify-center items-center">
-          <LockClosedIcon className="size-6 text-gray-500" />
+        <div className="bg-surface-active size-13 rounded-full flex justify-center items-center">
+          <LockClosedIcon className="size-6 text-fg-secondary" />
         </div>
         <AlertDialog.Title className="mt-5">Session expired</AlertDialog.Title>
         <AlertDialog.Description className="mt-2">
@@ -179,15 +183,17 @@ function SessionExpiredContent({
         </AlertDialog.Description>
       </div>
 
-      <ul className="bg-gray-50 rounded-3xl p-5 mt-5 space-y-3">
+      <ul className="bg-surface-page rounded-3xl p-5 mt-5 space-y-3">
         {[
           "Secure transactions and transfers",
           "Access to all features",
           "Protection of your assets",
         ].map((text) => (
           <li key={text} className="flex items-center gap-1.5">
-            <CheckCircleIcon className="size-4 text-gray-600 shrink-0" />
-            <span className="text-sm text-gray-600 font-medium">{text}</span>
+            <CheckCircleIcon className="size-4 text-fg-secondary shrink-0" />
+            <span className="text-sm text-fg-secondary font-medium">
+              {text}
+            </span>
           </li>
         ))}
       </ul>
@@ -207,7 +213,7 @@ function SessionExpiredContent({
         </Button>
       </div>
 
-      <p className="text-sm text-gray-500 font-medium text-center mt-3">
+      <p className="text-sm text-fg-secondary font-medium text-center mt-3">
         Canceling will sign you out
       </p>
     </>

@@ -15,7 +15,7 @@ export default function GlobalError({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="antialiased bg-gray-50 text-gray-900">
+      <body className="antialiased bg-surface-page text-fg">
         <div className="flex min-h-screen items-center justify-center p-4">
           <div
             role="alert"
@@ -24,21 +24,24 @@ export default function GlobalError({
           >
             <div className="px-6 py-8 text-center">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full">
-                <WarningIcon weight="fill" className="size-6 text-gray-600" />
+                <WarningIcon
+                  weight="fill"
+                  className="size-6 text-fg-secondary"
+                />
               </div>
 
-              <h1 className="mb-3 text-xl font-semibold text-gray-900">
+              <h1 className="mb-3 text-xl font-semibold text-fg">
                 Oops! Something went wrong
               </h1>
-              <p className="mb-6 text-sm text-gray-600">
+              <p className="mb-6 text-sm text-fg-secondary">
                 Please try refreshing the page.
               </p>
 
               {error.digest && (
-                <div className="mb-6 rounded-md bg-gray-50 px-3 py-2 text-left">
-                  <div className="text-xs text-gray-500">
+                <div className="mb-6 rounded-md bg-surface-hover px-3 py-2 text-left">
+                  <div className="text-xs text-fg-secondary">
                     Error ID:{" "}
-                    <code className="rounded-sm bg-gray-100 px-1 py-0.5 font-mono text-xs text-gray-700">
+                    <code className="rounded-sm bg-surface-active px-1 py-0.5 font-mono text-xs text-fg">
                       {error.digest}
                     </code>
                   </div>

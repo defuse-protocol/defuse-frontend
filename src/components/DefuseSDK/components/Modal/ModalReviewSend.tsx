@@ -169,7 +169,7 @@ const ModalReviewSend = ({
     <BaseModalDialog title="Review transfer" open={open} onClose={onClose}>
       <div className="flex flex-col items-center justify-center mt-3">
         <div
-          className="size-13 rounded-full bg-gray-100 flex items-center justify-center shrink-0 outline-1 -outline-offset-1 outline-gray-900/10"
+          className="size-13 rounded-full bg-surface-active flex items-center justify-center shrink-0 outline-1 -outline-offset-1 outline-fg/10"
           style={
             contactColor
               ? { backgroundColor: contactColor.background }
@@ -177,12 +177,12 @@ const ModalReviewSend = ({
           }
         >
           <WalletIcon
-            className="size-5 text-gray-500"
+            className="size-5 text-fg-secondary"
             style={contactColor ? { color: contactColor.icon } : undefined}
           />
         </div>
 
-        <div className="mt-5 text-2xl/7 font-bold text-gray-900 tracking-tight text-center">
+        <div className="mt-5 text-2xl/7 font-bold text-fg tracking-tight text-center">
           Confirm transfer to <br />
           <TooltipNew>
             <TooltipNew.Trigger>
@@ -206,42 +206,48 @@ const ModalReviewSend = ({
         {recipientContactName && (
           <div className="flex items-start justify-center gap-1 mt-2">
             <CheckBadgeIcon className="mt-0.5 text-green-500 size-4 shrink-0" />
-            <div className="text-base/5 font-medium text-gray-500 text-center">
+            <div className="text-base/5 font-medium text-fg-secondary text-center">
               {recipientContactName}
             </div>
           </div>
         )}
       </div>
 
-      <dl className="mt-7 pt-5 border-t border-gray-200 space-y-2">
+      <dl className="mt-7 pt-5 border-t border-border space-y-2">
         <div className="flex items-center justify-between gap-2">
-          <dt className="text-sm text-gray-500 font-medium truncate">Amount</dt>
-          <dd className="flex items-center gap-1 text-sm font-semibold text-gray-900 whitespace-pre">
+          <dt className="text-sm text-fg-secondary font-medium truncate">
+            Amount
+          </dt>
+          <dd className="flex items-center gap-1 text-sm font-semibold text-fg whitespace-pre">
             {formatDisplayAmount(amountIn)} {tokenIn.symbol}
             <AssetComboIcon icon={tokenIn.icon} sizeClassName="size-4" />
           </dd>
         </div>
 
         <div className="flex items-center justify-between gap-2">
-          <dt className="text-sm text-gray-500 font-medium truncate">Value</dt>
-          <dd className="flex items-center gap-1 text-sm font-semibold text-gray-900 whitespace-pre">
+          <dt className="text-sm text-fg-secondary font-medium truncate">
+            Value
+          </dt>
+          <dd className="flex items-center gap-1 text-sm font-semibold text-fg whitespace-pre">
             {formatUsdAmount(usdAmountIn)}
           </dd>
         </div>
 
         <div className="flex items-center justify-between gap-2">
-          <dt className="text-sm text-gray-500 font-medium truncate">
+          <dt className="text-sm text-fg-secondary font-medium truncate">
             Network
           </dt>
-          <dd className="flex items-center gap-1 text-sm font-semibold text-gray-900 whitespace-pre">
+          <dd className="flex items-center gap-1 text-sm font-semibold text-fg whitespace-pre">
             {getNetworkLabel(network)}
             <NetworkIcon chainIcon={chainIcon} sizeClassName="size-4" />
           </dd>
         </div>
 
         <div className="flex items-center justify-between gap-2">
-          <dt className="text-sm text-gray-500 font-medium truncate">Fee</dt>
-          <dd className="flex items-center gap-1 text-sm font-semibold text-gray-900 whitespace-pre">
+          <dt className="text-sm text-fg-secondary font-medium truncate">
+            Fee
+          </dt>
+          <dd className="flex items-center gap-1 text-sm font-semibold text-fg whitespace-pre">
             {formattedFee} {tokenIn.symbol}{" "}
             <AssetComboIcon icon={tokenIn.icon} sizeClassName="size-4" />
           </dd>
@@ -249,10 +255,10 @@ const ModalReviewSend = ({
 
         {receivedAmount !== "-" && (
           <div className="flex items-center justify-between gap-2">
-            <dt className="text-sm text-gray-500 font-medium truncate">
+            <dt className="text-sm text-fg-secondary font-medium truncate">
               Recipient receives
             </dt>
-            <dd className="flex items-center gap-1 text-sm font-semibold text-gray-900 whitespace-pre">
+            <dd className="flex items-center gap-1 text-sm font-semibold text-fg whitespace-pre">
               {receivedAmount} {tokenIn.symbol}
               <AssetComboIcon icon={tokenIn.icon} sizeClassName="size-4" />
             </dd>
@@ -261,11 +267,11 @@ const ModalReviewSend = ({
 
         {directionFee != null && directionFee.amount > 0n && (
           <div className="flex items-center justify-between gap-2">
-            <dt className="text-sm text-gray-500 font-medium truncate">
+            <dt className="text-sm text-fg-secondary font-medium truncate">
               Direction fee
             </dt>
-            <dd className="flex items-center gap-1 text-sm font-semibold text-gray-900 whitespace-pre">
-              <span className="text-gray-500">
+            <dd className="flex items-center gap-1 text-sm font-semibold text-fg whitespace-pre">
+              <span className="text-fg-secondary">
                 (~{formatUsdAmount(directionFeeUsd ?? 0)})
               </span>
               {formatTokenValue(directionFee.amount, directionFee.decimals)}{" "}
@@ -277,9 +283,9 @@ const ModalReviewSend = ({
       </dl>
 
       {canSaveContact && (
-        <div className="mt-5 pt-5 border-t border-gray-200 space-y-3">
+        <div className="mt-5 pt-5 border-t border-border space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-500">
+            <span className="text-sm font-medium text-fg-secondary">
               Save recipient to contacts
             </span>
             <Switch.Root
@@ -291,7 +297,7 @@ const ModalReviewSend = ({
                   setContactError(null)
                 }
               }}
-              className="group relative flex h-5 w-12 cursor-pointer rounded-lg bg-gray-300 p-1 transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 data-[state=checked]:bg-gray-900"
+              className="group relative flex h-5 w-12 cursor-pointer rounded-lg bg-border-strong p-1 transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fg focus-visible:ring-offset-2 data-[state=checked]:bg-fg"
             >
               <Switch.Thumb className="pointer-events-none inline-block h-3 w-4 translate-x-0 rounded bg-white shadow-lg ring-0 transition duration-200 ease-in-out data-[state=checked]:translate-x-6" />
             </Switch.Root>
@@ -307,7 +313,7 @@ const ModalReviewSend = ({
                   setContactError(null)
                 }}
                 placeholder="Enter a name"
-                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-base font-medium text-gray-900 placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+                className="w-full rounded-xl border border-border bg-surface-card px-3 py-2 text-base font-medium text-fg placeholder:text-fg-tertiary focus:border-fg focus:outline-none focus:ring-1 focus:ring-fg"
               />
               {contactError && (
                 <ErrorMessage className="mt-1">{contactError}</ErrorMessage>

@@ -274,7 +274,7 @@ export default function HistoryPage({
                 "size-9 flex items-center justify-center transition-colors rounded-lg",
                 showDone
                   ? "bg-green-50 text-green-600"
-                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-100",
+                  : "text-fg-secondary hover:text-fg hover:bg-surface-active",
                 isAnyRefetchHappening && "opacity-70"
               )}
               title={showDone ? "Updated" : "Refresh"}

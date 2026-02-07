@@ -271,9 +271,9 @@ function OtcTakerValidationOrder({
 }
 
 const LoadingView = () => (
-  <div className="bg-white rounded-3xl p-6 border border-gray-200 overflow-hidden">
+  <div className="bg-surface-card rounded-3xl p-6 border border-border overflow-hidden">
     <div className="flex flex-col items-center justify-center my-7">
-      <div className="size-13 rounded-full flex justify-center items-center text-gray-500 bg-gray-100">
+      <div className="size-13 rounded-full flex justify-center items-center text-fg-secondary bg-surface-active">
         <Spinner />
       </div>
 

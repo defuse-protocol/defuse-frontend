@@ -32,21 +32,21 @@ export default function LoginPage() {
           <NearIntentsLogoIcon className="h-4 text-black" />
         </Link>
 
-        <h1 className="mt-10! text-2xl font-bold text-gray-900 tracking-tight">
+        <h1 className="mt-10! text-2xl font-bold text-fg tracking-tight">
           Sign up or Sign in
         </h1>
 
-        <p className="mt-2! text-sm font-medium text-gray-500">
+        <p className="mt-2! text-sm font-medium text-fg-secondary">
           Pick your wallet or passkey below—returning users{" "}
-          <span className="font-bold text-gray-700">sign in</span>, new users{" "}
-          <span className="font-bold text-gray-700">create an account</span>{" "}
+          <span className="font-bold text-fg">sign in</span>, new users{" "}
+          <span className="font-bold text-fg">create an account</span>{" "}
           instantly.
         </p>
 
         <div className="mt-8 flex items-center gap-x-6 self-stretch">
-          <div className="w-full flex-1 border-t border-gray-200" />
+          <div className="w-full flex-1 border-t border-border" />
           <div className="flex items-center gap-1.5">
-            <p className="text-sm/6 font-medium text-nowrap text-gray-500">
+            <p className="text-sm/6 font-medium text-nowrap text-fg-secondary">
               Wondering which to choose?
             </p>
             <HelperPopover>
@@ -66,21 +66,19 @@ export default function LoginPage() {
               </p>
             </HelperPopover>
           </div>
-          <div className="w-full flex-1 border-t border-gray-200" />
+          <div className="w-full flex-1 border-t border-border" />
         </div>
 
         <div className="grid grid-cols-2 gap-2 mt-6 w-full">
           <button
             type="button"
             onClick={() => webauthnUI.open()}
-            className="rounded-2xl p-5 text-left flex flex-col items-start gap-4 outline outline-gray-200 bg-white group hover:outline-2 hover:outline-gray-300 focus-visible:outline-2 focus-visible:outline-gray-900"
+            className="rounded-2xl p-5 text-left flex flex-col items-start gap-4 outline outline-border bg-surface-card group hover:outline-2 hover:outline-border-strong focus-visible:outline-2 focus-visible:outline-fg"
           >
-            <div className="size-10 flex items-center justify-center bg-gray-100 rounded-full">
+            <div className="size-10 flex items-center justify-center bg-surface-active rounded-full">
               <PasskeyIcon className="size-6" />
             </div>
-            <span className="text-base font-semibold text-gray-900">
-              Passkey
-            </span>
+            <span className="text-base font-semibold text-fg">Passkey</span>
           </button>
           <LoginButton
             name="NEAR"
@@ -155,9 +153,9 @@ function LoginButton({
     <button
       type="button"
       onClick={onClick}
-      className="relative rounded-2xl p-5 text-left flex flex-col items-start gap-4 outline outline-gray-200 bg-white group hover:outline-2 hover:outline-gray-300 focus-visible:outline-2 focus-visible:outline-gray-900"
+      className="relative rounded-2xl p-5 text-left flex flex-col items-start gap-4 outline outline-border bg-surface-card group hover:outline-2 hover:outline-border-strong focus-visible:outline-2 focus-visible:outline-fg"
     >
-      <span className="absolute top-3 right-3 text-[10px] font-semibold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+      <span className="absolute top-3 right-3 text-[10px] font-semibold text-fg-secondary bg-surface-active px-1.5 py-0.5 rounded">
         Web3
       </span>
       {icon ??
@@ -166,7 +164,7 @@ function LoginButton({
         ) : (
           <TokenIconPlaceholder className="size-10" />
         ))}
-      <span className="text-base font-semibold text-gray-900">{name}</span>
+      <span className="text-base font-semibold text-fg">{name}</span>
     </button>
   )
 }

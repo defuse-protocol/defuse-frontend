@@ -203,11 +203,11 @@ const ContactsList = ({
                 ]}
               >
                 <div
-                  className="size-10 rounded-full bg-gray-200 flex items-center justify-center shrink-0 outline-1 -outline-offset-1 outline-gray-900/10"
+                  className="size-10 rounded-full bg-surface-hover flex items-center justify-center shrink-0 outline-1 -outline-offset-1 outline-fg/10"
                   style={{ backgroundColor: contactColor.background }}
                 >
                   <WalletIcon
-                    className="size-5 text-gray-500"
+                    className="size-5 text-fg-secondary"
                     style={{ color: contactColor.icon }}
                   />
                 </div>

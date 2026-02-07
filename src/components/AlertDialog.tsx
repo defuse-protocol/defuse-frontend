@@ -23,7 +23,7 @@ const AlertDialog = ({
           <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-start sm:p-0 lg:pl-74 sm:pt-[10vh]">
             <AlertDialogPrimitive.Content
               className={clsx(
-                "relative transform overflow-hidden rounded-3xl bg-white p-5 text-left shadow-xl w-full max-w-sm sm:my-8",
+                "relative transform overflow-hidden rounded-3xl bg-surface-card p-5 text-left shadow-xl w-full max-w-sm sm:my-8",
 
                 "data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-2 fade-in data-[state=open]:ease-out data-[state=open]:duration-200 data-[state=open]:zoom-in-97",
 
@@ -61,7 +61,7 @@ const Description = ({
 }: { children: ReactNode; className?: string }) => (
   <AlertDialogPrimitive.Description
     className={clsx(
-      "text-base/5 font-medium text-gray-500 text-center text-balance",
+      "text-base/5 font-medium text-fg-secondary text-center text-balance",
       className
     )}
   >

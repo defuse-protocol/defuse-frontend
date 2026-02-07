@@ -125,7 +125,7 @@ function DockCard({
       }}
     >
       <div className={clsx(!isFirst && "pt-4!")}>
-        <div className="bg-white rounded-2xl outline-1 -outline-offset-1 outline-gray-900/10 w-full p-3">
+        <div className="bg-surface-card rounded-2xl outline-1 -outline-offset-1 outline-fg/10 w-full p-3">
           <div className="flex items-center gap-2">
             <div className="flex items-center shrink-0 -space-x-2.5">
               {item.icons.map((icon, idx) => {
@@ -140,9 +140,7 @@ function DockCard({
                 })
               })}
             </div>
-            <p className="flex-1 text-sm font-semibold text-gray-700">
-              {item.title}
-            </p>
+            <p className="flex-1 text-sm font-semibold text-fg">{item.title}</p>
           </div>
 
           {item.renderContent ? (
@@ -155,10 +153,10 @@ function DockCard({
                     key={row.label}
                     className="flex items-center justify-between gap-3"
                   >
-                    <dt className="text-sm text-gray-500 font-medium whitespace-nowrap">
+                    <dt className="text-sm text-fg-secondary font-medium whitespace-nowrap">
                       {row.label}
                     </dt>
-                    <dd className="text-sm font-semibold text-gray-900 whitespace-nowrap truncate">
+                    <dd className="text-sm font-semibold text-fg whitespace-nowrap truncate">
                       {row.value}
                     </dd>
                   </div>

@@ -5,6 +5,117 @@
 @plugin "@tailwindcss/forms";
 @plugin "@tailwindcss/typography";
 
+/*
+ * Semantic color tokens
+ * :root = light theme, .dark = dark theme
+ * These are referenced by @theme below to generate Tailwind utility classes.
+ */
+:root {
+  /* Surfaces */
+  --color-surface-page: oklch(0.9911 0 0);       /* gray-25 */
+  --color-surface-card: oklch(1 0 0);             /* white */
+  --color-surface-card-alt: oklch(0.9911 0 0);   /* gray-25 */
+  --color-surface-overlay: oklch(1 0 0);          /* white */
+  --color-surface-input: oklch(1 0 0);            /* white */
+  --color-surface-hover: oklch(0.985 0 0);        /* gray-50 */
+  --color-surface-active: oklch(0.97 0 0);        /* gray-100 */
+
+  /* Foreground / text */
+  --color-fg: oklch(0.205 0 0);                   /* gray-900 */
+  --color-fg-secondary: oklch(0.556 0 0);         /* gray-500 */
+  --color-fg-tertiary: oklch(0.708 0 0);          /* gray-400 */
+  --color-fg-on-accent: oklch(1 0 0);             /* white */
+
+  /* Borders */
+  --color-border: oklch(0.922 0 0);               /* gray-200 */
+  --color-border-strong: oklch(0.87 0 0);         /* gray-300 */
+
+  /* Accent (semantic) */
+  --color-accent: oklch(0.6611 0.2198 37.23);     /* brand */
+  --color-success: oklch(0.596 0.145 163.225);    /* green-600 */
+  --color-error: oklch(0.592 0.249 0.584);        /* red-600 */
+
+  /* Sidebar — always dark in both themes */
+  --color-sidebar-bg: oklch(0.269 0 0);           /* gray-800 */
+  --color-sidebar-fg: oklch(0.922 0 0);           /* gray-200 */
+  --color-sidebar-hover: oklch(0.371 0 0);        /* gray-700 */
+  --color-sidebar-active: oklch(0.371 0 0);       /* gray-700 */
+  --color-sidebar-muted: oklch(0.708 0 0);        /* gray-400 */
+
+  /* Button: primary */
+  --color-btn-primary-bg: oklch(0.205 0 0);       /* gray-900 */
+  --color-btn-primary-bg-hover: oklch(0.371 0 0); /* gray-700 */
+  --color-btn-primary-fg: oklch(1 0 0);           /* white */
+  --color-btn-primary-bg-disabled: oklch(0.922 0 0); /* gray-200 */
+  --color-btn-primary-fg-disabled: oklch(0.708 0 0); /* gray-400 */
+
+  /* Button: secondary */
+  --color-btn-secondary-bg: oklch(0.97 0 0);      /* gray-100 */
+  --color-btn-secondary-bg-hover: oklch(0.922 0 0); /* gray-200 */
+  --color-btn-secondary-fg: oklch(0.371 0 0);     /* gray-700 */
+  --color-btn-secondary-fg-disabled: oklch(0.708 0 0); /* gray-400 */
+
+  /* Button: outline */
+  --color-btn-outline-bg: oklch(1 0 0);           /* white */
+  --color-btn-outline-bg-hover: oklch(0.985 0 0); /* gray-50 */
+  --color-btn-outline-fg: oklch(0.371 0 0);       /* gray-700 */
+  --color-btn-outline-border: oklch(0.922 0 0);   /* gray-200 */
+  --color-btn-outline-border-hover: oklch(0.87 0 0); /* gray-300 */
+}
+
+.dark {
+  /* Surfaces */
+  --color-surface-page: oklch(0.205 0 0);         /* gray-900 */
+  --color-surface-card: oklch(0.269 0 0);         /* gray-800 */
+  --color-surface-card-alt: oklch(0.235 0 0);     /* ~gray-850 */
+  --color-surface-overlay: oklch(0.269 0 0);      /* gray-800 */
+  --color-surface-input: oklch(0.235 0 0);        /* ~gray-850 */
+  --color-surface-hover: oklch(0.371 0 0);        /* gray-700 */
+  --color-surface-active: oklch(0.371 0 0);       /* gray-700 */
+
+  /* Foreground / text */
+  --color-fg: oklch(0.9911 0 0);                  /* gray-25 */
+  --color-fg-secondary: oklch(0.708 0 0);         /* gray-400 */
+  --color-fg-tertiary: oklch(0.556 0 0);          /* gray-500 */
+  --color-fg-on-accent: oklch(1 0 0);             /* white */
+
+  /* Borders */
+  --color-border: oklch(0.371 0 0);               /* gray-700 */
+  --color-border-strong: oklch(0.439 0 0);        /* gray-600 */
+
+  /* Accent (semantic) */
+  --color-accent: oklch(0.6611 0.2198 37.23);     /* brand */
+  --color-success: oklch(0.696 0.17 162.48);      /* green-500 */
+  --color-error: oklch(0.656 0.241 354.308);      /* red-500 */
+
+  /* Sidebar — same as light (always dark) */
+  --color-sidebar-bg: oklch(0.269 0 0);
+  --color-sidebar-fg: oklch(0.922 0 0);
+  --color-sidebar-hover: oklch(0.371 0 0);
+  --color-sidebar-active: oklch(0.371 0 0);
+  --color-sidebar-muted: oklch(0.708 0 0);
+
+  /* Button: primary (inverted for dark) */
+  --color-btn-primary-bg: oklch(0.9911 0 0);      /* gray-25 */
+  --color-btn-primary-bg-hover: oklch(0.922 0 0); /* gray-200 */
+  --color-btn-primary-fg: oklch(0.205 0 0);       /* gray-900 */
+  --color-btn-primary-bg-disabled: oklch(0.371 0 0); /* gray-700 */
+  --color-btn-primary-fg-disabled: oklch(0.556 0 0); /* gray-500 */
+
+  /* Button: secondary */
+  --color-btn-secondary-bg: oklch(0.371 0 0);     /* gray-700 */
+  --color-btn-secondary-bg-hover: oklch(0.439 0 0); /* gray-600 */
+  --color-btn-secondary-fg: oklch(0.922 0 0);     /* gray-200 */
+  --color-btn-secondary-fg-disabled: oklch(0.556 0 0); /* gray-500 */
+
+  /* Button: outline */
+  --color-btn-outline-bg: oklch(0.269 0 0);       /* gray-800 */
+  --color-btn-outline-bg-hover: oklch(0.371 0 0); /* gray-700 */
+  --color-btn-outline-fg: oklch(0.922 0 0);       /* gray-200 */
+  --color-btn-outline-border: oklch(0.371 0 0);   /* gray-700 */
+  --color-btn-outline-border-hover: oklch(0.439 0 0); /* gray-600 */
+}
+
 @theme {
   --font-sans: var(--font-figtree), ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
@@ -47,6 +158,57 @@
   --color-gray-800: oklch(0.269 0 0);
   --color-gray-900: oklch(0.205 0 0);
   --color-gray-950: oklch(0.145 0 0);
+}
+
+/* Semantic tokens referencing :root/.dark custom properties use @theme inline
+   to avoid Tailwind generating circular :root declarations */
+@theme inline {
+  /* Surface tokens */
+  --color-surface-page: var(--color-surface-page);
+  --color-surface-card: var(--color-surface-card);
+  --color-surface-card-alt: var(--color-surface-card-alt);
+  --color-surface-overlay: var(--color-surface-overlay);
+  --color-surface-input: var(--color-surface-input);
+  --color-surface-hover: var(--color-surface-hover);
+  --color-surface-active: var(--color-surface-active);
+
+  /* Foreground tokens */
+  --color-fg: var(--color-fg);
+  --color-fg-secondary: var(--color-fg-secondary);
+  --color-fg-tertiary: var(--color-fg-tertiary);
+  --color-fg-on-accent: var(--color-fg-on-accent);
+
+  /* Border tokens */
+  --color-border: var(--color-border);
+  --color-border-strong: var(--color-border-strong);
+
+  /* Accent tokens */
+  --color-accent: var(--color-accent);
+  --color-success: var(--color-success);
+  --color-error: var(--color-error);
+
+  /* Sidebar tokens (always dark) */
+  --color-sidebar-bg: var(--color-sidebar-bg);
+  --color-sidebar-fg: var(--color-sidebar-fg);
+  --color-sidebar-hover: var(--color-sidebar-hover);
+  --color-sidebar-active: var(--color-sidebar-active);
+  --color-sidebar-muted: var(--color-sidebar-muted);
+
+  /* Button tokens */
+  --color-btn-primary-bg: var(--color-btn-primary-bg);
+  --color-btn-primary-bg-hover: var(--color-btn-primary-bg-hover);
+  --color-btn-primary-fg: var(--color-btn-primary-fg);
+  --color-btn-primary-bg-disabled: var(--color-btn-primary-bg-disabled);
+  --color-btn-primary-fg-disabled: var(--color-btn-primary-fg-disabled);
+  --color-btn-secondary-bg: var(--color-btn-secondary-bg);
+  --color-btn-secondary-bg-hover: var(--color-btn-secondary-bg-hover);
+  --color-btn-secondary-fg: var(--color-btn-secondary-fg);
+  --color-btn-secondary-fg-disabled: var(--color-btn-secondary-fg-disabled);
+  --color-btn-outline-bg: var(--color-btn-outline-bg);
+  --color-btn-outline-bg-hover: var(--color-btn-outline-bg-hover);
+  --color-btn-outline-fg: var(--color-btn-outline-fg);
+  --color-btn-outline-border: var(--color-btn-outline-border);
+  --color-btn-outline-border-hover: var(--color-btn-outline-border-hover);
 }
 
 @layer base {

@@ -198,21 +198,21 @@ const ModalActiveDeal = ({
           <div className="flex flex-col items-center justify-center">
             <div className="relative flex gap-2 items-start">
               <AssetComboIcon {...tokenIn} sizeClassName="size-9" />
-              <CurvedArrowIcon className="size-4 text-gray-400 absolute bottom-0.5 left-7 -rotate-23" />
+              <CurvedArrowIcon className="size-4 text-fg-tertiary absolute bottom-0.5 left-7 -rotate-23" />
               <AssetComboIcon {...tokenOut} sizeClassName="size-13" />
             </div>
 
             <h2 className="mt-5 text-2xl/7 font-bold tracking-tight text-center text-pretty">
               {getTitle(error)}
             </h2>
-            <p className="mt-2 text-base/5 font-medium text-gray-500 text-center text-balance max-w-72">
+            <p className="mt-2 text-base/5 font-medium text-fg-secondary text-center text-balance max-w-72">
               {getSubtitle({ error, expiredAt })}
             </p>
           </div>
 
           {!error && (
-            <div className="flex items-center gap-4 rounded-2xl border border-gray-200 p-1 pl-4 mt-6">
-              <div className="text-sm/none font-semibold text-gray-900 truncate">
+            <div className="flex items-center gap-4 rounded-2xl border border-border p-1 pl-4 mt-6">
+              <div className="text-sm/none font-semibold text-fg truncate">
                 {link}
               </div>
 
@@ -237,15 +237,15 @@ const ModalActiveDeal = ({
             <dl
               className={clsx(
                 "space-y-2",
-                error ? "mt-7 pt-5 border-t border-gray-200" : "mt-5"
+                error ? "mt-7 pt-5 border-t border-border" : "mt-5"
               )}
             >
               <div className="flex items-center justify-between gap-2">
-                <dt className="text-sm/5 text-gray-500 font-medium">
+                <dt className="text-sm/5 text-fg-secondary font-medium">
                   Token to trade
                 </dt>
                 <dd className="flex items-center gap-1 justify-end">
-                  <span className="text-sm/5 text-gray-900 font-semibold">
+                  <span className="text-sm/5 text-fg font-semibold">
                     {formatTokenValue(
                       breakdown.makerSends.amount,
                       breakdown.makerSends.decimals,
@@ -258,11 +258,11 @@ const ModalActiveDeal = ({
               </div>
 
               <div className="flex items-center justify-between gap-2">
-                <dt className="text-sm/5 text-gray-500 font-medium">
+                <dt className="text-sm/5 text-fg-secondary font-medium">
                   Token to receive
                 </dt>
                 <dd className="flex items-center gap-1 justify-end">
-                  <span className="text-sm/5 text-gray-900 font-semibold">
+                  <span className="text-sm/5 text-fg font-semibold">
                     {formatTokenValue(
                       breakdown.makerReceives.amount,
                       breakdown.makerReceives.decimals,
@@ -275,11 +275,11 @@ const ModalActiveDeal = ({
               </div>
 
               <div className="flex items-center justify-between gap-2">
-                <dt className="text-sm/5 text-gray-500 font-medium">
+                <dt className="text-sm/5 text-fg-secondary font-medium">
                   Processing fee
                 </dt>
                 <dd className="flex items-center gap-1 justify-end">
-                  <span className="text-sm/5 text-gray-900 font-semibold">
+                  <span className="text-sm/5 text-fg font-semibold">
                     {formatTokenValue(
                       breakdown.makerPaysFee.amount,
                       breakdown.makerPaysFee.decimals,
@@ -297,11 +297,11 @@ const ModalActiveDeal = ({
               </div>
 
               <div className="flex items-center justify-between gap-2">
-                <dt className="text-sm/5 text-gray-500 font-medium">
+                <dt className="text-sm/5 text-fg-secondary font-medium">
                   Recipient receives
                 </dt>
                 <dd className="flex items-center gap-1 justify-end">
-                  <span className="text-sm/5 text-gray-900 font-semibold">
+                  <span className="text-sm/5 text-fg font-semibold">
                     {formatTokenValue(
                       breakdown.takerReceives.amount,
                       breakdown.takerReceives.decimals,
@@ -320,11 +320,11 @@ const ModalActiveDeal = ({
             </dl>
           )}
 
-          <dl className="mt-5 pt-5 border-t border-gray-200 space-y-4">
+          <dl className="mt-5 pt-5 border-t border-border space-y-4">
             <div className="flex justify-between">
-              <dt className="text-sm text-gray-500 font-medium">Deal ID</dt>
+              <dt className="text-sm text-fg-secondary font-medium">Deal ID</dt>
               <dd className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-gray-900">
+                <span className="text-sm font-semibold text-fg">
                   {midTruncate(tradeId, 16)}
                 </span>
                 <CopyButton text={tradeId} ariaLabel="Copy deal ID" />
@@ -332,9 +332,9 @@ const ModalActiveDeal = ({
             </div>
 
             <div className="flex justify-between">
-              <dt className="text-sm text-gray-500 font-medium">Nonce</dt>
+              <dt className="text-sm text-fg-secondary font-medium">Nonce</dt>
               <dd className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-gray-900">
+                <span className="text-sm font-semibold text-fg">
                   {midTruncate(nonceBase64, 16)}
                 </span>
                 <CopyButton text={nonceBase64} ariaLabel="Copy nonce" />
@@ -371,7 +371,7 @@ const ModalActiveDeal = ({
               <h2 className="mt-5 text-2xl/7 font-bold tracking-tight text-center">
                 Your deal has been executed or already cancelled
               </h2>
-              <p className="mt-2 text-base/5 font-medium text-gray-500 text-center text-balance">
+              <p className="mt-2 text-base/5 font-medium text-fg-secondary text-center text-balance">
                 This deal has either been successfully completed or was
                 previously cancelled.
               </p>
@@ -393,7 +393,7 @@ const ModalActiveDeal = ({
               <h2 className="text-2xl/7 font-bold tracking-tight text-center">
                 Cancel deal?
               </h2>
-              <p className="mt-2 text-base/5 font-medium text-gray-500 text-center text-balance">
+              <p className="mt-2 text-base/5 font-medium text-fg-secondary text-center text-balance">
                 Your funds will stay safely in your wallet, and the link will no
                 longer work.
               </p>

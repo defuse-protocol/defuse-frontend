@@ -56,11 +56,11 @@ const Footer = () => {
     return (
       <footer className="py-7">
         <div className=" flex justify-center items-center">
-          <div className="flex justify-center items-center gap-1.5 text-sm font-medium bg-white dark:bg-black px-3 py-1.5 rounded-full">
+          <div className="flex justify-center items-center gap-1.5 text-sm font-medium bg-surface-card px-3 py-1.5 rounded-full">
             <span className="text-secondary">Built by</span>
-            <NearLogo className="text-black dark:text-white" />
+            <NearLogo className="text-fg" />
             <span className="text-secondary">with love for</span>
-            <DogecoinLogo className="text-black dark:text-white" />
+            <DogecoinLogo className="text-fg" />
           </div>
         </div>
 
@@ -78,9 +78,9 @@ const Footer = () => {
 
   return (
     <footer className="w-full flex justify-center items-center py-7">
-      <div className="flex justify-center items-center gap-1.5 text-sm font-medium bg-white dark:bg-black px-3 py-1.5 rounded-full">
+      <div className="flex justify-center items-center gap-1.5 text-sm font-medium bg-surface-card px-3 py-1.5 rounded-full">
         <span className="text-secondary">Powered by</span>
-        <NearLogo className="text-black dark:text-white" />
+        <NearLogo className="text-fg" />
       </div>
     </footer>
   )

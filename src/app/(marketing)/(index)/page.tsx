@@ -99,7 +99,7 @@ const faqItems = [
 export default function IndexPage() {
   return (
     <>
-      <section className="relative flex flex-col items-center justify-center py-16 md:pb-24 bg-white rounded-b-3xl overflow-hidden">
+      <section className="relative flex flex-col items-center justify-center py-16 md:pb-24 bg-surface-card rounded-b-3xl overflow-hidden">
         <div className="flex flex-col items-center justify-center px-4 max-w-lg">
           <div className="text-brand text-sm/5 font-bold py-0.5 px-3 rounded-lg bg-brand/[0.07] text-center">
             Over $10 billion swapped
@@ -128,7 +128,7 @@ export default function IndexPage() {
         </p>
       </section>
 
-      <section className="bg-white rounded-t-3xl pt-16 pb-12 md:pt-24 md:pb-16 flex items-center justify-center">
+      <section className="bg-surface-card rounded-t-3xl pt-16 pb-12 md:pt-24 md:pb-16 flex items-center justify-center">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-y-12 md:gap-y-16 gap-x-12 max-w-sm md:max-w-5xl px-4 w-full">
           {features.map(
             ({ title, description, longDescription, icon: Icon }) => (
@@ -142,10 +142,10 @@ export default function IndexPage() {
                 <h3 className="mt-4 md:mt-6 text-brand text-sm/5 font-bold max-md:text-center">
                   {title}
                 </h3>
-                <p className="mt-2 font-bold text-gray-900 text-lg/6 md:text-xl/7 text-balance max-md:text-center">
+                <p className="mt-2 font-bold text-fg text-lg/6 md:text-xl/7 text-balance max-md:text-center">
                   {description}
                 </p>
-                <p className="mt-3 md:mt-4 text-sm/6 font-medium text-gray-500 text-balance max-md:text-center">
+                <p className="mt-3 md:mt-4 text-sm/6 font-medium text-fg-secondary text-balance max-md:text-center">
                   {longDescription}
                 </p>
               </div>
@@ -154,25 +154,25 @@ export default function IndexPage() {
         </div>
       </section>
 
-      <section className="bg-white py-12 md:py-16 flex items-center justify-center">
+      <section className="bg-surface-card py-12 md:py-16 flex items-center justify-center">
         <div className="max-w-sm md:max-w-5xl w-full px-4 grid grid-cols-1 md:grid-cols-2 gap-x-2 gap-y-12">
           <div>
-            <h2 className="text-3xl/9 md:text-4xl/10 font-bold tracking-tight text-gray-900 max-md:text-center">
+            <h2 className="text-3xl/9 md:text-4xl/10 font-bold tracking-tight text-fg max-md:text-center">
               Questions &amp; Answers
             </h2>
           </div>
 
-          <div className="divide-y divide-gray-200 border-y border-gray-200">
+          <div className="divide-y divide-border border-y border-border">
             {faqItems.map(({ question, answer }) => (
               <Collapsible.Root key={question}>
-                <Collapsible.Trigger className="group flex w-full items-center justify-between gap-6 py-4 text-left text-base/7 text-gray-900">
-                  <h3 className="text-base font-semibold text-gray-900">
+                <Collapsible.Trigger className="group flex w-full items-center justify-between gap-6 py-4 text-left text-base/7 text-fg">
+                  <h3 className="text-base font-semibold text-fg">
                     {question}
                   </h3>
-                  <PlusIcon className="size-5 text-gray-500 transition-transform group-data-[state=open]:hidden block" />
-                  <XMarkIcon className="size-5 text-gray-500 transition-transform group-data-[state=open]:block hidden" />
+                  <PlusIcon className="size-5 text-fg-secondary transition-transform group-data-[state=open]:hidden block" />
+                  <XMarkIcon className="size-5 text-fg-secondary transition-transform group-data-[state=open]:block hidden" />
                 </Collapsible.Trigger>
-                <Collapsible.Content className="-mt-2 flex flex-col gap-2 pr-12 pb-4 text-sm/6 font-medium text-gray-500">
+                <Collapsible.Content className="-mt-2 flex flex-col gap-2 pr-12 pb-4 text-sm/6 font-medium text-fg-secondary">
                   {answer}
                 </Collapsible.Content>
               </Collapsible.Root>

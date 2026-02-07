@@ -2,7 +2,7 @@ import Link from "next/link"
 
 export default function TermsPage() {
   return (
-    <div className="bg-white px-4 py-12">
+    <div className="bg-surface-card px-4 py-12">
       <div className="prose mx-auto">
         <div className="font-bold underline">
           <p>

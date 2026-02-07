@@ -78,7 +78,7 @@ export function ShareableGiftImage({
                 )}
               </button>
             </PopoverTrigger>
-            <PopoverContent className="flex flex-col gap-2 text-xs bg-white text-gray-11 shadow-lg rounded-sm p-3 transition-all duration-150">
+            <PopoverContent className="flex flex-col gap-2 text-xs bg-surface-card text-gray-11 shadow-lg rounded-sm p-3 transition-all duration-150">
               <div>{message}</div>
             </PopoverContent>
           </Popover>

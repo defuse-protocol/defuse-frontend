@@ -67,7 +67,7 @@ export function OtcTakerSuccessScreen({
     data?.txHash != null ? `${NEAR_EXPLORER}/txns/${data.txHash}` : null
 
   return (
-    <div className="relative bg-white rounded-3xl p-6 border border-gray-200 overflow-hidden">
+    <div className="relative bg-surface-card rounded-3xl p-6 border border-border overflow-hidden">
       <div
         className={clsx(
           "absolute h-24 inset-x-0 top-0 bg-linear-to-b transition-colors duration-300 ease-in-out",
@@ -80,8 +80,8 @@ export function OtcTakerSuccessScreen({
       <div className="relative flex flex-col items-center justify-center mt-7">
         <div
           className={clsx(
-            "size-13 rounded-full flex justify-center items-center text-gray-500",
-            isPending ? "bg-gray-100" : "bg-green-100"
+            "size-13 rounded-full flex justify-center items-center text-fg-secondary",
+            isPending ? "bg-surface-active" : "bg-green-100"
           )}
         >
           {isPending ? (
@@ -94,7 +94,7 @@ export function OtcTakerSuccessScreen({
         <h2 className="mt-5 text-2xl/7 font-bold tracking-tight text-center">
           {isPending ? "Almost there..." : "All done!"}
         </h2>
-        <p className="mt-2 text-base/5 font-medium text-gray-500 text-center text-balance">
+        <p className="mt-2 text-base/5 font-medium text-fg-secondary text-center text-balance">
           {isPending
             ? "The trade is being processed. You will receive your funds shortly."
             : "The transaction has been successfully executed. The funds are now available in your account."}
@@ -112,7 +112,7 @@ export function OtcTakerSuccessScreen({
         <ListItem.Content>
           <ListItem.Title className="flex items-center gap-0.5">
             {tokenIn.symbol}
-            <ArrowLongRightIcon className="size-4 text-gray-400 shrink-0" />
+            <ArrowLongRightIcon className="size-4 text-fg-tertiary shrink-0" />
             {tokenOut.symbol}
           </ListItem.Title>
         </ListItem.Content>
@@ -140,13 +140,13 @@ export function OtcTakerSuccessScreen({
         </ListItem.Content>
       </ListItem>
 
-      <dl className="mt-5 pt-5 border-t border-gray-200 space-y-4">
+      <dl className="mt-5 pt-5 border-t border-border space-y-4">
         <div className="flex justify-between">
-          <dt className="text-sm text-gray-500 font-medium">Intents</dt>
+          <dt className="text-sm text-fg-secondary font-medium">Intents</dt>
           <dd className="flex flex-col items-end gap-1">
             {intentHashes.map((intentHash) => (
               <div key={intentHash} className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-gray-900">
+                <span className="text-sm font-semibold text-fg">
                   {midTruncate(intentHash)}
                 </span>
                 <CopyButton text={intentHash} ariaLabel="Copy intent hash" />
@@ -157,7 +157,7 @@ export function OtcTakerSuccessScreen({
 
         {txUrl != null && (
           <div className="flex items-center justify-between">
-            <dt className="text-sm text-gray-500 font-medium">
+            <dt className="text-sm text-fg-secondary font-medium">
               Transaction hash
             </dt>
             <dd className="">
@@ -167,7 +167,7 @@ export function OtcTakerSuccessScreen({
                     href={txUrl}
                     rel="noopener noreferrer"
                     target="_blank"
-                    className="text-sm font-semibold text-gray-900 hover:underline"
+                    className="text-sm font-semibold text-fg hover:underline"
                   >
                     {midTruncate(data.txHash)}
                   </a>

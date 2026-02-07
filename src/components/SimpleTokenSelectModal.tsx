@@ -97,7 +97,7 @@ export function SimpleTokenSelectModal({
         <div
           className={clsx(
             "pb-5 border-b -mx-5 px-5 transition-colors",
-            isScrolled ? "border-gray-200" : "border-transparent"
+            isScrolled ? "border-border" : "border-transparent"
           )}
         >
           <SearchBar
@@ -113,7 +113,7 @@ export function SimpleTokenSelectModal({
           onScroll={handleScroll}
           className="overflow-y-auto -mx-5 px-5 -mb-5 pb-5"
         >
-          <h3 className="text-gray-500 text-sm/6 font-medium">
+          <h3 className="text-fg-secondary text-sm/6 font-medium">
             {searchValue.trim() ? "Search results" : "All tokens"}
           </h3>
 

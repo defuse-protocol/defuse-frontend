@@ -219,7 +219,7 @@ function OtcMakerTradeItem({
     <ListItem onClick={handleClick} dataTestId="otc-maker-trade-item">
       <div className="relative flex gap-1 items-start">
         <AssetComboIcon icon={tokenIn?.icon} sizeClassName="size-7" />
-        <CurvedArrowIcon className="size-3.5 text-gray-400 absolute -bottom-0.5 left-4.5 -rotate-23" />
+        <CurvedArrowIcon className="size-3.5 text-fg-tertiary absolute -bottom-0.5 left-4.5 -rotate-23" />
         <AssetComboIcon icon={tokenOut?.icon} sizeClassName="size-10" />
       </div>
 

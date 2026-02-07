@@ -55,7 +55,7 @@ export function OtcTakerInvalidOrder({
   }
 
   return (
-    <div className="relative rounded-3xl bg-white p-6 border border-gray-200 overflow-hidden">
+    <div className="relative rounded-3xl bg-surface-card p-6 border border-border overflow-hidden">
       <div className="absolute inset-x-0 top-0 h-24 bg-linear-to-b from-red-50/50 to-red-50/0" />
 
       <div className="relative flex flex-col items-center justify-center mt-7">
@@ -66,7 +66,7 @@ export function OtcTakerInvalidOrder({
         <h2 className="mt-5 text-2xl/7 font-bold tracking-tight text-center">
           This deal is no longer valid
         </h2>
-        <p className="mt-2 text-base/5 font-medium text-gray-500 text-center text-balance">
+        <p className="mt-2 text-base/5 font-medium text-fg-secondary text-center text-balance">
           This deal has either expired or the funds are no longer available.
           Check with deal creator for more information.
         </p>
@@ -87,7 +87,7 @@ export function OtcTakerInvalidOrder({
             <ListItem.Content>
               <ListItem.Title className="flex items-center gap-0.5">
                 {tokenIn.symbol}
-                <ArrowLongRightIcon className="size-4 text-gray-400 shrink-0" />
+                <ArrowLongRightIcon className="size-4 text-fg-tertiary shrink-0" />
                 {tokenOut.symbol}
               </ListItem.Title>
             </ListItem.Content>

@@ -57,7 +57,7 @@ export function SwapQuoteInfo({ tokenOut, tokenIn }: SwapQuoteInfoProps) {
   return (
     <dl className="mt-6 space-y-3 text-sm">
       <div className="flex items-center justify-between">
-        <dt className="flex items-center text-gray-500 font-medium gap-1.5">
+        <dt className="flex items-center text-fg-secondary font-medium gap-1.5">
           Max slippage
           <HelperPopover>
             The slippage setting is a safety mechanism to protect you from
@@ -78,7 +78,7 @@ export function SwapQuoteInfo({ tokenOut, tokenIn }: SwapQuoteInfoProps) {
         </dd>
       </div>
       <div className="flex items-center justify-between">
-        <dt className="flex items-center text-gray-500 font-medium gap-1.5">
+        <dt className="flex items-center text-fg-secondary font-medium gap-1.5">
           Receive at least
           <HelperPopover>
             The quoted amount is an estimate. Multiple solvers compete to give
@@ -86,7 +86,7 @@ export function SwapQuoteInfo({ tokenOut, tokenIn }: SwapQuoteInfoProps) {
             amount you'll receive—if that can't be met, the swap is cancelled.
           </HelperPopover>
         </dt>
-        <dd className="font-semibold text-gray-900">
+        <dd className="font-semibold text-fg">
           {minReceiveFormatted} {tokenOut.symbol}
         </dd>
       </div>

@@ -20,7 +20,7 @@ const NavItem = ({
       href={href}
       className={clsx(
         "group flex flex-col items-center justify-center py-3.5 focus-visible:outline-hidden",
-        isActive ? "text-brand" : "text-gray-400"
+        isActive ? "text-brand" : "text-fg-tertiary"
       )}
     >
       <Icon className="size-4.5 shrink-0" />
@@ -41,7 +41,7 @@ export function NavbarMobile() {
   const itemsAmount = tabItems.length + (showMore ? 1 : 0)
 
   return (
-    <nav className="flex items-center justify-center lg:hidden sticky bottom-0 z-20 px-4 sm:px-6 bg-white border-t border-gray-200 pb-safe">
+    <nav className="flex items-center justify-center lg:hidden sticky bottom-0 z-20 px-4 sm:px-6 bg-surface-card border-t border-border pb-safe">
       <div
         className="grid max-w-[464px] w-full"
         style={{
@@ -54,7 +54,7 @@ export function NavbarMobile() {
 
         {showMore && (
           <DropdownMenu.Root>
-            <DropdownMenu.Trigger className="group flex flex-col items-center justify-center py-3.5 text-gray-400 focus-visible:outline-hidden data-[state=open]:text-brand">
+            <DropdownMenu.Trigger className="group flex flex-col items-center justify-center py-3.5 text-fg-tertiary focus-visible:outline-hidden data-[state=open]:text-brand">
               <MoreMenuIcon className="size-4.5 shrink-0" />
               <span className="text-xs/none font-semibold mt-1.5">More</span>
             </DropdownMenu.Trigger>
@@ -65,14 +65,14 @@ export function NavbarMobile() {
                 align="end"
                 sideOffset={2}
                 className={clsx(
-                  "bg-white rounded-2xl shadow-xl p-1.5 space-y-1 min-w-36 origin-bottom-right duration-100 ring-1 ring-gray-900/10",
+                  "bg-surface-overlay rounded-2xl shadow-xl p-1.5 space-y-1 min-w-36 origin-bottom-right duration-100 ring-1 ring-fg/10",
 
                   "data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-2 fade-in data-[state=open]:ease-out data-[state=open]:zoom-in-97",
 
                   "data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom-2 fade-out data-[state=closed]:ease-in data-[state=closed]:zoom-out-97"
                 )}
               >
-                <DropdownMenu.Arrow className="mt-1 fill-white" />
+                <DropdownMenu.Arrow className="mt-1 fill-surface-overlay" />
                 {restItems.map(({ label, href, icon: Icon }) => (
                   <DropdownMenu.Item key={label} asChild>
                     <Link
@@ -80,8 +80,8 @@ export function NavbarMobile() {
                       className={clsx(
                         "group flex items-center gap-2.5 py-2.5 px-3 rounded-xl",
                         isActive(href)
-                          ? "text-gray-600 bg-gray-100"
-                          : "text-gray-500"
+                          ? "text-fg bg-surface-active"
+                          : "text-fg-secondary"
                       )}
                     >
                       <Icon className="size-4 shrink-0" />

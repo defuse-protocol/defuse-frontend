@@ -134,28 +134,28 @@ function FullView({
     <>
       <PageHeader title="Swap" />
 
-      <div className="mt-5 bg-white border border-gray-200 rounded-3xl p-6">
+      <div className="mt-5 bg-surface-card border border-border rounded-3xl p-6">
         <div className="flex flex-col gap-5">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-2xl font-bold text-gray-900 tracking-tight leading-7">
+              <div className="text-2xl font-bold text-fg tracking-tight leading-7">
                 {formattedAmountIn} {tokenIn.symbol}
               </div>
-              <div className="text-base/5 font-medium text-gray-500">
+              <div className="text-base/5 font-medium text-fg-secondary">
                 {formatUsdAmount(usdAmountIn ?? 0)}
               </div>
             </div>
             <AssetComboIcon {...tokenIn} />
           </div>
 
-          <ArrowDownIcon className="size-6 text-gray-400" />
+          <ArrowDownIcon className="size-6 text-fg-tertiary" />
 
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-2xl font-bold text-gray-900 tracking-tight leading-7">
+              <div className="text-2xl font-bold text-fg tracking-tight leading-7">
                 {formattedAmountOut} {tokenOut.symbol}
               </div>
-              <div className="text-base/5 font-medium text-gray-500">
+              <div className="text-base/5 font-medium text-fg-secondary">
                 {formatUsdAmount(usdAmountOut ?? 0)}
               </div>
             </div>
@@ -163,7 +163,7 @@ function FullView({
           </div>
         </div>
 
-        <div className="mt-8 border-t border-gray-200 pt-8">
+        <div className="mt-8 border-t border-border pt-8">
           <ProgressSteps
             stages={SWAP_STAGES}
             stageLabels={SWAP_STAGE_LABELS}

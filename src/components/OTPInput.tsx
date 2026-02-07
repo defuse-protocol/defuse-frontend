@@ -14,9 +14,9 @@ const Slot = ({
 }) => (
   <div
     className={clsx(
-      "flex size-12 items-center justify-center rounded-xl border border-gray-200 bg-white text-xl font-bold sm:size-14",
+      "flex size-12 items-center justify-center rounded-xl border border-border bg-surface-card text-xl font-bold sm:size-14",
       {
-        "outline-gray-900 outline-2 -outline-offset-2": isActive && !disabled,
+        "outline-fg outline-2 -outline-offset-2": isActive && !disabled,
       }
     )}
   >
@@ -58,7 +58,7 @@ const OTPInput = ({
     <div className="mt-3 h-6 flex items-center justify-center">
       {loading ? (
         <div className="flex items-center gap-x-3">
-          <p className="text-center text-sm/5 text-balance text-gray-500 font-medium">
+          <p className="text-center text-sm/5 text-balance text-fg-secondary font-medium">
             Verifying code
           </p>
           <Spinner size="sm" />

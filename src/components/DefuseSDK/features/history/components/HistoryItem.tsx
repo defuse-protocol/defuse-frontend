@@ -53,7 +53,7 @@ export function HistoryItem({ transaction, tokenList }: HistoryItemProps) {
     >
       <div className="relative flex gap-1 items-start">
         <AssetComboIcon icon={fromToken?.icon} sizeClassName="size-7" />
-        <CurvedArrowIcon className="size-3.5 text-gray-400 absolute -bottom-0.5 left-4.5 -rotate-23" />
+        <CurvedArrowIcon className="size-3.5 text-fg-tertiary absolute -bottom-0.5 left-4.5 -rotate-23" />
         <AssetComboIcon icon={toToken?.icon} sizeClassName="size-10" />
       </div>
 
@@ -68,7 +68,7 @@ export function HistoryItem({ transaction, tokenList }: HistoryItemProps) {
 
       <ListItem.Content align="end">
         <ListItem.Title>{usdValue}</ListItem.Title>
-        <div className="flex items-center gap-1.5 text-sm/4 font-medium text-gray-500">
+        <div className="flex items-center gap-1.5 text-sm/4 font-medium text-fg-secondary">
           <TooltipNew>
             <TooltipNew.Trigger>
               <span className="cursor-default">

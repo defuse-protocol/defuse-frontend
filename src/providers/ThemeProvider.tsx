@@ -6,6 +6,7 @@ import {
   type WhitelabelTemplateValue,
   whitelabelTemplateFlag,
 } from "@src/config/featureFlags"
+import { RadixThemeSync } from "./RadixThemeSync"
 
 const accentsColors: Record<
   WhitelabelTemplateValue,
@@ -26,9 +27,13 @@ export async function ThemeProvider({ children }: { children: ReactNode }) {
   return (
     <NextThemesThemeProvider
       attribute="class"
+      defaultTheme="light"
+      enableSystem={false}
+      disableTransitionOnChange
       forcedTheme={tpl === "rabitswap" ? "dark" : undefined}
     >
       <Theme accentColor={accentColor} hasBackground={false}>
+        <RadixThemeSync />
         {children}
       </Theme>
     </NextThemesThemeProvider>
