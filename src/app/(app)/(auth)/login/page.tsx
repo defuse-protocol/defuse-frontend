@@ -37,7 +37,7 @@ export default function LoginPage() {
         </h1>
 
         <p className="mt-2! text-sm font-medium text-gray-500">
-          Pick your wallet or passkey below—returning users{" "}
+          Choose a wallet or passkey below—returning users{" "}
           <span className="font-bold text-gray-700">sign in</span>, new users{" "}
           <span className="font-bold text-gray-700">create an account</span>{" "}
           instantly.
