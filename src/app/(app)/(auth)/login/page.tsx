@@ -27,6 +27,12 @@ export default function LoginPage() {
     () => connectors.find((c) => c.id === "walletConnect"),
     [connectors]
   )
+  // Fallback for users who have a non-MetaMask injected wallet (e.g. Rabby, Trust)
+  const fallbackInjected = useMemo(
+    () =>
+      !metamaskConnector ? connectors.find((c) => c.id === "injected") : null,
+    [connectors, metamaskConnector]
+  )
   const otherEvmConnectors = useMemo(
     () =>
       connectors.filter(
@@ -34,7 +40,8 @@ export default function LoginPage() {
           c.id !== "io.metamask" &&
           c.id !== "walletConnect" &&
           c.id !== "coinbaseWalletSDK" &&
-          c.id !== "injected"
+          c.id !== "injected" &&
+          c.type !== "injected"
       ),
     [connectors]
   )
@@ -114,6 +121,15 @@ export default function LoginPage() {
               iconSrc="/static/icons/wallets/meta-mask.svg"
               onClick={() =>
                 signIn({ id: ChainType.EVM, connector: metamaskConnector })
+              }
+            />
+          )}
+          {fallbackInjected && (
+            <LoginButton
+              name="Browser Wallet"
+              iconSrc={getWalletIconSrc(fallbackInjected)}
+              onClick={() =>
+                signIn({ id: ChainType.EVM, connector: fallbackInjected })
               }
             />
           )}
