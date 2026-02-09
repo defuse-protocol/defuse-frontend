@@ -1,13 +1,22 @@
 /**
- * Content Security Policy (CSP) directives define which sources the browser can load resources from (scripts, images, styles, etc.).
- * This helps prevent XSS and other code injection attacks.
+ * Content Security Policy (CSP): allowlist of trusted sources for scripts, styles, images, frames, etc.
+ * The browser enforces these rules and blocks loads from other origins, mitigating XSS and code injection.
+ *
+ * Security tradeoffs (search for "SECURITY:" in this file):
+ * - script-src: 'unsafe-inline', 'unsafe-eval'
+ * - style-src: 'unsafe-inline'
+ * - img-src: *
+ * - frame-src: data:
+ * - worker-src: blob:
+ * - connect-src: *.cloudfront.net (broad), http://*.herewallet.app (HTTP), GetBlock URL with API key
+ *
  * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
  */
 const cspConfig = {
   "default-src": ["'self'"],
   "frame-src": [
     "'self'",
-    "data:",
+    "data:", // SECURITY: data: in frame-src can allow JS execution in some contexts; keep only if required for embeds
     "https://hot-labs.org",
     "https://widget.solflare.com",
     "https://verify.walletconnect.org",
@@ -18,7 +27,7 @@ const cspConfig = {
   ],
   "style-src": [
     "'self'",
-    "'unsafe-inline'",
+    "'unsafe-inline'", // SECURITY: allows inline styles; weakens CSP (e.g. style-based exfil). Prefer nonce/hash if feasible
     "https://fonts.googleapis.com",
     "https://rsms.me", // Meteor wallet iframe (Inter stylesheet)
     "https://fonts.cdnfonts.com", // Meteor wallet iframe (Cabinet Grotesk stylesheet)
@@ -30,18 +39,18 @@ const cspConfig = {
     "https://fonts.cdnfonts.com", // Meteor wallet iframe (Cabinet Grotesk font files)
     "data:", // Meteor wallet iframe (inline base64 fonts)
   ],
-  "img-src": ["*", "data:", "blob:"],
+  "img-src": ["*", "data:", "blob:"], // SECURITY: * allows images from any origin (tracking, pixel exfil); tighten to allowlist when possible
   "script-src": [
     "'self'",
-    "'unsafe-inline'",
-    "'unsafe-eval'",
+    "'unsafe-inline'", // SECURITY: major XSS vector; required by many frameworks—prefer nonce-based script-src when possible
+    "'unsafe-eval'", // SECURITY: allows eval/new Function; enables code injection if attacker controls input to these
     "https://www.googletagmanager.com",
     "https://beacon-v2.helpscout.net",
     "https://vercel.live",
   ],
   "worker-src": [
     "'self'",
-    "blob:",
+    "blob:", // SECURITY: blob: workers can be created from same-origin; ensure no script injection path exists
     "https://*.near-intents.org",
     "https://*.solswap.org",
     "https://*.dogecoinswap.org",
@@ -73,7 +82,7 @@ const cspConfig = {
 
     /** Helpscout */
     "https://beaconapi.helpscout.net",
-    "https://*.cloudfront.net",
+    "https://*.cloudfront.net", // SECURITY: broad wildcard—any CloudFront subdomain; narrow to specific hosts if possible
 
     /** Wallets */
     "https://*.walletconnect.org",
@@ -115,7 +124,7 @@ const cspConfig = {
     "https://blitzwallet.cfd",
 
     /** HOT */
-    "http://*.herewallet.app",
+    "http://*.herewallet.app", // SECURITY: HTTP (not HTTPS)—MITM possible; prefer HTTPS or document exception
     "https://raw.githubusercontent.com",
     "https://wallet.intear.tech/near-selector.js",
 
@@ -135,7 +144,7 @@ const cspConfig = {
     "https://mainnet.base.org",
     "https://arb1.arbitrum.io/rpc",
     "https://mainnet.bitcoin.org",
-    "https://go.getblock.io/5f7f5fba970e4f7a907fcd2c5f4c38a2",
+    "https://go.getblock.io/5f7f5fba970e4f7a907fcd2c5f4c38a2", // SECURITY: API key in URL—exposed in CSP, logs, referrers; use env/server-side or key in header
     "https://mainnet.aurora.dev",
     "https://xrplcluster.com",
     "https://mainnet.lightwalletd.com",
