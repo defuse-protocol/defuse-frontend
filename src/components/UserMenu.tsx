@@ -7,6 +7,7 @@ import {
   ChevronUpIcon,
   // Cog8ToothIcon,
   DocumentDuplicateIcon,
+  ExclamationCircleIcon,
   QuestionMarkCircleIcon,
 } from "@heroicons/react/16/solid"
 import { InformationCircleIcon } from "@heroicons/react/24/outline"
@@ -185,16 +186,24 @@ const UserMenu = ({
         </div>
 
         <ul className="bg-gray-50 rounded-3xl p-5 mt-5 space-y-3">
-          {[
-            "This is your NEAR Intents internal address",
-            "Use it only for transfers between NEAR Intents accounts",
-            "Funds sent here from external wallets will be lost",
-          ].map((text) => (
-            <li key={text} className="flex items-start gap-1.5">
-              <CheckCircleIcon className="size-4 text-gray-600 shrink-0 mt-0.5" />
-              <span className="text-sm text-gray-600 font-medium">{text}</span>
-            </li>
-          ))}
+          <li className="flex items-start gap-1.5">
+            <CheckCircleIcon className="size-4 text-gray-600 shrink-0 mt-0.5" />
+            <span className="text-sm text-gray-600 font-medium">
+              This is your NEAR Intents internal address
+            </span>
+          </li>
+          <li className="flex items-start gap-1.5">
+            <ExclamationCircleIcon className="size-4 text-gray-600 shrink-0 mt-0.5" />
+            <span className="text-sm text-gray-600 font-medium">
+              Use it only for transfers between NEAR Intents accounts
+            </span>
+          </li>
+          <li className="flex items-start gap-1.5">
+            <ExclamationCircleIcon className="size-4 text-gray-600 shrink-0 mt-0.5" />
+            <span className="text-sm text-gray-600 font-medium">
+              Funds sent here from external wallets will be lost
+            </span>
+          </li>
         </ul>
 
         <div className="mt-5 flex flex-col gap-2">
