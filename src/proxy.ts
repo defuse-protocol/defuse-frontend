@@ -17,28 +17,21 @@ export const config = {
     "/((?!api|.well-known/vercel|_next/static|_next/image|favicon.ico|favicons|static|maintenance).*)",
 }
 
+const featureRouteMap = [
+  { pathPrefix: "/swap", flag: swapDisabledFlag },
+  { pathPrefix: "/deposit", flag: depositsDisabledFlag },
+  { pathPrefix: "/transfer", flag: withdrawDisabledFlag },
+  { pathPrefix: "/deals", flag: dealsDisabledFlag },
+  { pathPrefix: "/deal", flag: dealsDisabledFlag },
+  { pathPrefix: "/earn", flag: earnDisabledFlag },
+]
+
 export async function proxy(request: NextRequest) {
   try {
-    // Check for legacy redirects first
     const legacyRedirect = handleLegacyRedirects(request)
     if (legacyRedirect) {
       return legacyRedirect
     }
-
-    const isMaintenanceMode = await maintenanceModeFlag()
-
-    if (isMaintenanceMode) {
-      return NextResponse.rewrite(new URL("/maintenance", request.url))
-    }
-
-    const featureRouteMap = [
-      { pathPrefix: "/swap", flag: swapDisabledFlag },
-      { pathPrefix: "/deposit", flag: depositsDisabledFlag },
-      { pathPrefix: "/transfer", flag: withdrawDisabledFlag },
-      { pathPrefix: "/deals", flag: dealsDisabledFlag },
-      { pathPrefix: "/deal", flag: dealsDisabledFlag },
-      { pathPrefix: "/earn", flag: earnDisabledFlag },
-    ]
 
     const pathname = new URL(request.url).pathname
     const matchedRoute = featureRouteMap.find(
@@ -47,11 +40,13 @@ export async function proxy(request: NextRequest) {
         pathname.startsWith(`${route.pathPrefix}/`)
     )
 
-    if (matchedRoute) {
-      const isDisabled = await matchedRoute.flag()
-      if (isDisabled) {
-        return NextResponse.rewrite(new URL("/maintenance", request.url))
-      }
+    const [isMaintenanceMode, isFeatureDisabled] = await Promise.all([
+      maintenanceModeFlag(),
+      matchedRoute ? matchedRoute.flag() : Promise.resolve(false),
+    ])
+
+    if (isMaintenanceMode || isFeatureDisabled) {
+      return NextResponse.rewrite(new URL("/maintenance", request.url))
     }
   } catch (error) {
     // If feature flag evaluation fails, continue normally
