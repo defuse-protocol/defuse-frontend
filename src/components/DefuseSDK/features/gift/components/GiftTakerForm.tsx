@@ -95,21 +95,29 @@ export function GiftTakerForm({
           </div>
         )}
 
-        <Button
-          onClick={claimGift}
-          type="button"
-          size="xl"
-          variant="primary"
-          fullWidth
-          loading={processing}
-          disabled={processing || signerCredentials == null}
-        >
-          {processing
-            ? "Claiming..."
-            : signerCredentials == null
-              ? "Sign in to claim"
-              : "Claim gift"}
-        </Button>
+        {signerCredentials == null ? (
+          <Button
+            href={`/login?redirect=${encodeURIComponent(`/gifts/view${typeof window !== "undefined" ? window.location.hash : ""}`)}`}
+            type="button"
+            size="xl"
+            variant="primary"
+            fullWidth
+          >
+            Sign in to claim
+          </Button>
+        ) : (
+          <Button
+            onClick={claimGift}
+            type="button"
+            size="xl"
+            variant="primary"
+            fullWidth
+            loading={processing}
+            disabled={processing}
+          >
+            {processing ? "Claiming..." : "Claim gift"}
+          </Button>
+        )}
       </div>
     </>
   )

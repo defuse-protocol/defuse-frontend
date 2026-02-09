@@ -26,7 +26,9 @@ export type GiftTakerWidgetProps = {
 export function GiftTakerWidget(props: GiftTakerWidgetProps) {
   return (
     <SwapWidgetProvider>
-      <GiftTakerScreens {...props} />
+      <div className="w-full">
+        <GiftTakerScreens {...props} />
+      </div>
     </SwapWidgetProvider>
   )
 }
