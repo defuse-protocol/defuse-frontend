@@ -81,20 +81,22 @@ export function GiftTakerSuccessScreen({
             </dd>
           </div>
 
-          <div className="flex justify-between items-center">
-            <dt className="text-sm font-medium text-gray-500">Transaction</dt>
-            <dd className="text-gray-900 font-semibold text-sm">
-              <a
-                href={txUrl ?? ""}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 hover:underline group"
-              >
-                {midTruncate(intentStatus.data?.txHash ?? "")}
-                <ArrowTopRightOnSquareIcon className="size-4 text-gray-400 group-hover:text-gray-700" />
-              </a>
-            </dd>
-          </div>
+          {txUrl != null && (
+            <div className="flex justify-between items-center">
+              <dt className="text-sm font-medium text-gray-500">Transaction</dt>
+              <dd className="text-gray-900 font-semibold text-sm">
+                <a
+                  href={txUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 hover:underline group"
+                >
+                  {midTruncate(intentStatus.data?.txHash ?? "")}
+                  <ArrowTopRightOnSquareIcon className="size-4 text-gray-400 group-hover:text-gray-700" />
+                </a>
+              </dd>
+            </div>
+          )}
         </dl>
 
         <Button
