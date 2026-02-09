@@ -11,7 +11,7 @@ import {
 } from "@heroicons/react/16/solid"
 import { InformationCircleIcon } from "@heroicons/react/24/outline"
 import { UserIcon } from "@heroicons/react/24/solid"
-import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
+import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useActivityDock } from "@src/providers/ActivityDockProvider"
 import clsx from "clsx"
 import Link from "next/link"
@@ -19,7 +19,6 @@ import { DropdownMenu } from "radix-ui"
 import { useState } from "react"
 import AlertDialog from "./AlertDialog"
 import Button from "./Button"
-import { midTruncate } from "./DefuseSDK/features/withdraw/components/WithdrawForm/utils"
 
 type MenuItemType = {
   label: string
@@ -41,10 +40,7 @@ const UserMenu = ({
   const { state, signOut } = useConnectWallet()
   const [copied, setCopied] = useState(false)
   const [isCopyWarningOpen, setIsCopyWarningOpen] = useState(false)
-  const displayLabel =
-    state.chainType === ChainType.WebAuthn
-      ? "My Intents account"
-      : midTruncate(state.displayAddress ?? "")
+  const displayLabel = "My Intents account"
 
   const [skipCopyWarning, setSkipCopyWarning] = useState<boolean>(() => {
     if (typeof window === "undefined") return false
