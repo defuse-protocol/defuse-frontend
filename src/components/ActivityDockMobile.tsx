@@ -26,24 +26,14 @@ import Spinner from "./Spinner"
 
 type ButtonState = "in_progress" | "idle"
 
-function useDockButtonState(dockItems: DockItem[]): {
-  buttonState: ButtonState
-  activeCount: number
+function getDockButtonContent(buttonState: ButtonState): {
+  text: string
+  icon: React.ReactNode
 } {
-  const activeCount = dockItems.filter((item) => !item.isSettled).length
-  const buttonState: ButtonState = activeCount > 0 ? "in_progress" : "idle"
-
-  return { buttonState, activeCount }
-}
-
-function getDockButtonContent(
-  buttonState: ButtonState,
-  activeCount: number
-): { text: string; icon: React.ReactNode } {
   switch (buttonState) {
     case "in_progress":
       return {
-        text: `${activeCount} in progress`,
+        text: "Processing",
         icon: <Spinner size="md" />,
       }
     case "idle":
@@ -56,10 +46,12 @@ function getDockButtonContent(
 
 const ActivityDockMobile = () => {
   const [open, setOpen] = useState(false)
-  const { dockItems, clearDockItems, settleDockItem, addDockItem } =
-    useActivityDock()
+  const { dockItems, clearDockItems } = useActivityDock()
   const hasDockItems = dockItems.length > 0
-  const { buttonState, activeCount } = useDockButtonState(dockItems)
+  const buttonState = dockItems.some((item) => !item.isSettled)
+    ? "in_progress"
+    : "idle"
+
   const [elementRef, bounds] = useMeasure()
   const prevWidthRef = useRef(0)
   const shouldAnimateWidth = prevWidthRef.current > 0 && bounds.width > 0
@@ -68,20 +60,13 @@ const ActivityDockMobile = () => {
     prevWidthRef.current = bounds.width
   })
 
-  // TEMPORARY: remove after testing
-  useEffect(() => {
-    Object.assign(window, {
-      __dock: { settleDockItem, addDockItem, clearDockItems },
-    })
-  }, [settleDockItem, addDockItem, clearDockItems])
-
   useEffect(() => {
     if (!hasDockItems) {
       setOpen(false)
     }
   }, [hasDockItems])
 
-  const buttonContent = getDockButtonContent(buttonState, activeCount)
+  const buttonContent = getDockButtonContent(buttonState)
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
