@@ -1,6 +1,7 @@
 import { useCallback, useEffect } from "react"
 
 import { useMixpanel } from "@src/providers/MixpanelProvider"
+import { hashForAnalytics } from "@src/utils/analyticsSanitize"
 
 export const useSignInLogger = (
   address: string | undefined,
@@ -11,10 +12,12 @@ export const useSignInLogger = (
   const storageKey = "signedInAddress"
 
   const sendMixPanelEvent = useCallback(
-    (eventName: string) => {
+    async (eventName: string) => {
+      const hashedAddress = await hashForAnalytics(address)
       mixPanel?.track(eventName, {
         wallet_type: chainType,
-        wallet_address: address,
+        chain: chainType,
+        wallet_address_hash: hashedAddress,
         timestamp: Date.now(),
       })
     },

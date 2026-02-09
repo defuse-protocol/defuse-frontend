@@ -10,9 +10,12 @@ export const setEventEmitter = (emitter: EventEmitter) => {
 
 type EmitTypes =
   | "gift_created"
+  | "gift_claimed"
+  | "gift_link_shared"
+  | "gift_link_viewed"
+  | "gift_link_refunded"
   | "deposit_initiated"
   | "deposit_success"
-  | "gift_claimed"
   | "otc_deal_initiated"
   | "swap_initiated"
   | "swap_confirmed"

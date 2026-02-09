@@ -89,15 +89,14 @@ export const giftTakerRootMachine = setup({
       error: (_, error: GiftTakerClaimingActorErrors) => error,
     }),
     emitGiftClaimed: ({ context }) => {
-      const { giftInfo, signerCredentials } = context
+      const { giftInfo } = context
       assert(giftInfo != null)
 
       emitEvent("gift_claimed", {
-        gift_id: context.giftId,
         gift_token: giftInfo.token.symbol,
-        gift_amount: giftInfo.tokenDiff,
-        claimer_wallet_address: signerCredentials,
-        creator_wallet_address: giftInfo.accountId,
+        gift_amount: Object.values(giftInfo.tokenDiff)
+          .reduce((a, b) => a + b, 0n)
+          .toString(),
       })
     },
   },

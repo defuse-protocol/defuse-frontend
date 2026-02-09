@@ -11,6 +11,7 @@ import {
   walletVerificationMachine,
 } from "@src/machines/walletVerificationMachine"
 import { useBypassedWalletsStore } from "@src/stores/useBypassedWalletsStore"
+import { hashForAnalytics } from "@src/utils/analyticsSanitize"
 import { walletVerificationMessageFactory } from "@src/utils/walletMessage"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useActor } from "@xstate/react"
@@ -103,9 +104,11 @@ export function WalletVerificationProvider() {
         onBypass={() => {
           if (state.address != null) {
             addBypassedWalletAddress(state.address)
-            mixPanel?.track("wallet_bypassed", {
-              wallet: state.address,
-              wallet_type: state.chainType,
+            void hashForAnalytics(state.address).then((hashedAddress) => {
+              mixPanel?.track("wallet_bypassed", {
+                wallet_hash: hashedAddress,
+                wallet_type: state.chainType,
+              })
             })
           }
         }}
@@ -214,10 +217,14 @@ function WalletVerificationUI({
       serviceRef.subscribe((machineState) => {
         if (machineState.matches("verified")) {
           onVerifiedRef.current()
-          mixPanel?.track("wallet_verified", {
-            wallet: unconfirmedWallet.address,
-            wallet_type: unconfirmedWallet.chainType,
-          })
+          void hashForAnalytics(unconfirmedWallet.address).then(
+            (hashedAddress) => {
+              mixPanel?.track("wallet_verified", {
+                wallet_hash: hashedAddress,
+                wallet_type: unconfirmedWallet.chainType,
+              })
+            }
+          )
         }
         if (machineState.matches("aborted")) {
           onAbortRef.current()

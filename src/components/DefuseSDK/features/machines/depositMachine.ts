@@ -101,22 +101,15 @@ export const depositMachine = setup({
     emitDepositInitiated: ({ context }) => {
       emitEvent("deposit_initiated", {
         token: context.derivedToken.symbol,
-        amount: {
-          amount: context.amount,
-          decimals: context.tokenDeployment.decimals,
-        },
-        wallet_type: context.tokenDeployment.chainName,
+        network: context.tokenDeployment.chainName,
+        amount: context.amount.toString(),
       })
     },
     emitDepositSuccess: ({ context }) => {
       emitEvent("deposit_success", {
-        tx_hash: context.txHash,
         token: context.derivedToken.symbol,
-        amount: {
-          amount: context.amount,
-          decimals: context.tokenDeployment.decimals,
-        },
         network: context.tokenDeployment.chainName,
+        amount: context.amount.toString(),
       })
     },
   },

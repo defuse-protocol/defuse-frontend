@@ -195,13 +195,11 @@ export const otcMakerRootMachine = setup({
       assert(tokenIn != null)
 
       emitEvent("otc_deal_initiated", {
-        intent_id: event.tradeId,
         token_from: tokenOut.symbol,
         token_to: tokenIn.symbol,
-        amount_from: amountOut,
-        amount_to: amountIn,
+        amount_from: amountOut?.toString(),
+        amount_to: amountIn?.toString(),
         order_expiry_time: expiry,
-        otc_creator: event.signerCredentials,
       })
     },
   },

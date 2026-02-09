@@ -1,11 +1,12 @@
 "use client"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { useActorRef, useSelector } from "@xstate/react"
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import type { ActorRefFrom } from "xstate"
 import { WidgetRoot } from "../../../components/WidgetRoot"
 import type { SignerCredentials } from "../../../core/formatters"
 import { SwapWidgetProvider } from "../../../providers/SwapWidgetProvider"
+import { emitEvent } from "../../../services/emitter"
 import type { TokenInfo } from "../../../types/base"
 import type { RenderHostAppLink } from "../../../types/hostAppLink"
 import { giftTakerRootMachine } from "../actors/giftTakerRootMachine"
@@ -90,6 +91,17 @@ function GiftTakerScreens({
     userAddress != null && userChainType != null
       ? { credential: userAddress, credentialType: userChainType }
       : null
+
+  const hasEmittedViewRef = useRef(false)
+  useEffect(() => {
+    if (giftInfo != null && !hasEmittedViewRef.current) {
+      hasEmittedViewRef.current = true
+      emitEvent("gift_link_viewed", {
+        gift_token: giftInfo.token.symbol,
+        viewer_has_account: userAddress != null,
+      })
+    }
+  }, [giftInfo, userAddress])
 
   if (error != null) {
     return <GiftTakerInvalidClaim error={error.reason} />

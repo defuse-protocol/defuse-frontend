@@ -12,6 +12,7 @@ import type { ActorRefFrom } from "xstate"
 import { ButtonCustom } from "../../../components/Button/ButtonCustom"
 import { Copy } from "../../../components/IntentCard/CopyButton"
 import { BaseModalDialog } from "../../../components/Modal/ModalDialog"
+import { emitEvent } from "../../../services/emitter"
 import type { giftMakerReadyActor } from "../actors/giftMakerReadyActor"
 import type { GiftInfo } from "../actors/shared/getGiftInfo"
 import type { giftClaimActor } from "../actors/shared/giftClaimActor"
@@ -83,6 +84,10 @@ function SuccessDialog({
   }, [readyGiftRef])
 
   const copyGiftLink = useCallback(() => {
+    emitEvent("gift_link_shared", {
+      share_method: "copy",
+      gift_token: context.parsed.token.symbol,
+    })
     return generateLink({
       secretKey: context.giftInfo.secretKey,
       message: context.parsed.message,
@@ -92,6 +97,7 @@ function SuccessDialog({
     generateLink,
     context.giftInfo.secretKey,
     context.parsed.message,
+    context.parsed.token.symbol,
     context.iv,
   ])
 
@@ -177,6 +183,13 @@ export function CancellationDialog({
   }, [actorRef, giftInfo, signerCredentials])
 
   const confirmCancellation = useCallback(() => {
+    emitEvent("gift_link_refunded", {
+      gift_token: giftInfo.token.symbol,
+      gift_amount: Object.values(giftInfo.tokenDiff)
+        .reduce((a, b) => a + b, 0n)
+        .toString(),
+      reason: "user_cancellation",
+    })
     actorRef?.send({
       type: "CONFIRM_CLAIM",
       params: { giftInfo, signerCredentials },

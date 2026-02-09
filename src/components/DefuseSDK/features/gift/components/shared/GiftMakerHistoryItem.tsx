@@ -11,6 +11,7 @@ import { logger } from "@src/utils/logger"
 import { useCallback, useContext, useState } from "react"
 import { createActor } from "xstate"
 import { Copy } from "../../../../components/IntentCard/CopyButton"
+import { emitEvent } from "../../../../services/emitter"
 import type { TokenValue } from "../../../../types/base"
 import { assert } from "../../../../utils/assert"
 import {
@@ -97,13 +98,17 @@ export function GiftMakerHistoryItem({
                 <EyeIcon weight="bold" />
               </IconButton>
               <Copy
-                text={() =>
-                  generateLink({
+                text={() => {
+                  emitEvent("gift_link_shared", {
+                    share_method: "copy_history",
+                    gift_token: giftInfo.token.symbol,
+                  })
+                  return generateLink({
                     secretKey: giftInfo.secretKey,
                     message: giftInfo.message,
                     iv: giftInfo.iv,
                   })
-                }
+                }}
               >
                 {(copied) => (
                   <IconButton

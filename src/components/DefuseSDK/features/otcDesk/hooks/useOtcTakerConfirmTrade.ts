@@ -136,10 +136,7 @@ export function useOtcTakerConfirmTrade({
         assert(trade.status === "completed")
 
         emitEvent("otc_confirmed", {
-          intent_id: tradeId,
-          tx_hash: trade.intentHashes,
-          received_amount: _variables.preparation.tokenDelta,
-          otc_receiver: _variables.signerCredentials,
+          success: true,
         })
       }
     },

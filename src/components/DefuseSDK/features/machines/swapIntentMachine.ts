@@ -204,8 +204,9 @@ export const swapIntentMachine = setup({
         assert(tokensIn[0] != null)
 
         emitEvent("swap_confirmed", {
-          tx_hash: context.intentHash,
-          received_amount: intentOperationParams.quote.tokenDeltas,
+          token_from: intentOperationParams.tokenOut.symbol,
+          token_to: tokensIn[0].symbol,
+          tokenDeltas: intentOperationParams.quote.tokenDeltas,
         })
       }
     },
