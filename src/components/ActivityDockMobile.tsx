@@ -13,13 +13,67 @@ import {
 import clsx from "clsx"
 import { AnimatePresence, motion } from "framer-motion"
 import { Dialog } from "radix-ui"
-import { cloneElement, isValidElement, useEffect, useState } from "react"
+import {
+  cloneElement,
+  isValidElement,
+  useEffect,
+  useRef,
+  useState,
+} from "react"
+import useMeasure from "react-use-measure"
 import Button from "./Button"
+import Spinner from "./Spinner"
+
+type ButtonState = "in_progress" | "idle"
+
+function useDockButtonState(dockItems: DockItem[]): {
+  buttonState: ButtonState
+  activeCount: number
+} {
+  const activeCount = dockItems.filter((item) => !item.isSettled).length
+  const buttonState: ButtonState = activeCount > 0 ? "in_progress" : "idle"
+
+  return { buttonState, activeCount }
+}
+
+function getDockButtonContent(
+  buttonState: ButtonState,
+  activeCount: number
+): { text: string; icon: React.ReactNode } {
+  switch (buttonState) {
+    case "in_progress":
+      return {
+        text: `${activeCount} in progress`,
+        icon: <Spinner size="md" />,
+      }
+    case "idle":
+      return {
+        text: "Activity",
+        icon: <ChevronDoubleDownIcon className="size-4" />,
+      }
+  }
+}
 
 const ActivityDockMobile = () => {
   const [open, setOpen] = useState(false)
-  const { dockItems, clearDockItems } = useActivityDock()
+  const { dockItems, clearDockItems, settleDockItem, addDockItem } =
+    useActivityDock()
   const hasDockItems = dockItems.length > 0
+  const { buttonState, activeCount } = useDockButtonState(dockItems)
+  const [elementRef, bounds] = useMeasure()
+  const prevWidthRef = useRef(0)
+  const shouldAnimateWidth = prevWidthRef.current > 0 && bounds.width > 0
+
+  useEffect(() => {
+    prevWidthRef.current = bounds.width
+  })
+
+  // TEMPORARY: remove after testing
+  useEffect(() => {
+    Object.assign(window, {
+      __dock: { settleDockItem, addDockItem, clearDockItems },
+    })
+  }, [settleDockItem, addDockItem, clearDockItems])
 
   useEffect(() => {
     if (!hasDockItems) {
@@ -27,17 +81,41 @@ const ActivityDockMobile = () => {
     }
   }, [hasDockItems])
 
+  const buttonContent = getDockButtonContent(buttonState, activeCount)
+
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <Button
-          variant="secondary"
-          size="sm"
-          className={clsx("", !hasDockItems && "hidden")}
+        <motion.button
+          initial={false}
+          type="button"
+          className={clsx(
+            "bg-white shadow-lg rounded-full flex items-center justify-center overflow-hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
+            !hasDockItems && "hidden"
+          )}
+          animate={shouldAnimateWidth ? { width: bounds.width } : undefined}
+          style={
+            !shouldAnimateWidth ? { width: bounds.width || "auto" } : undefined
+          }
         >
-          Activity
-          <ChevronDoubleDownIcon className="size-3 shrink-0" />
-        </Button>
+          <div
+            ref={elementRef}
+            className="flex items-center justify-center gap-2.5 text-sm font-semibold text-gray-900 p-1 pl-4 text-nowrap"
+          >
+            {buttonContent.text}
+            <div
+              className={clsx(
+                "shrink-0 size-7 flex items-center justify-center rounded-full transition-colors",
+                {
+                  "bg-sky-400 text-white": buttonState === "in_progress",
+                  "bg-gray-200 text-gray-700": buttonState === "idle",
+                }
+              )}
+            >
+              {buttonContent.icon}
+            </div>
+          </div>
+        </motion.button>
       </Dialog.Trigger>
 
       <Dialog.Portal>
@@ -58,35 +136,35 @@ const ActivityDockMobile = () => {
           <Dialog.Title className="sr-only">Activity</Dialog.Title>
           <div
             role="presentation"
-            className={clsx(
-              "flex min-h-full items-start justify-center px-4 pt-safe-offset-3 pb-safe-offset-4 text-center sm:items-center sm:p-0"
-            )}
+            className="flex min-h-full items-start justify-center px-4 pt-safe-offset-3 pb-safe-offset-4 text-center"
             onClick={() => setOpen(false)}
             onKeyDown={() => {}}
           >
             <div
               role="presentation"
-              className="relative transform overflow-hidden text-left transition-all w-full max-w-sm sm:my-8"
+              className="relative transform overflow-hidden text-left transition-all w-full max-w-sm"
               onClick={(e) => e.stopPropagation()}
               onKeyDown={(e) => e.stopPropagation()}
             >
-              <div className="min-h-9 grid grid-cols-3 items-center mb-3">
+              <div className="grid grid-cols-3 items-center mb-3">
                 <div />
                 <div className="flex justify-center">
-                  <Button
-                    variant="secondary"
-                    size="sm"
+                  <button
+                    type="button"
+                    className="bg-white shadow-lg rounded-full flex items-center justify-center overflow-hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white gap-2.5 text-sm font-semibold text-gray-900 p-1 pl-4 text-nowrap"
                     onClick={() => setOpen(false)}
                   >
                     Close
-                    <ChevronDoubleUpIcon className="size-3 shrink-0" />
-                  </Button>
+                    <div className="shrink-0 size-7 flex items-center justify-center rounded-full transition-colors bg-gray-200 text-gray-700">
+                      <ChevronDoubleUpIcon className="size-4" />
+                    </div>
+                  </button>
                 </div>
                 {open && (
                   <div className="flex justify-end">
                     <Button
                       variant="custom"
-                      size="sm"
+                      size="md"
                       onClick={clearDockItems}
                       className="self-end bg-white/20 text-white outline-white hover:bg-white/30"
                     >
