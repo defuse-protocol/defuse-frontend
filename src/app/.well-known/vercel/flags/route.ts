@@ -3,8 +3,13 @@ import { getProviderData } from "@vercel/flags/next"
 import { type NextRequest, NextResponse } from "next/server"
 
 import {
+  dealsDisabledFlag,
+  depositsDisabledFlag,
+  earnDisabledFlag,
   maintenanceModeFlag,
+  swapDisabledFlag,
   whitelabelTemplateFlag,
+  withdrawDisabledFlag,
 } from "@src/config/featureFlags"
 
 export async function GET(request: NextRequest) {
@@ -15,6 +20,11 @@ export async function GET(request: NextRequest) {
     getProviderData({
       [whitelabelTemplateFlag.key]: whitelabelTemplateFlag,
       [maintenanceModeFlag.key]: maintenanceModeFlag,
+      [swapDisabledFlag.key]: swapDisabledFlag,
+      [depositsDisabledFlag.key]: depositsDisabledFlag,
+      [withdrawDisabledFlag.key]: withdrawDisabledFlag,
+      [dealsDisabledFlag.key]: dealsDisabledFlag,
+      [earnDisabledFlag.key]: earnDisabledFlag,
     })
   )
 }

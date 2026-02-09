@@ -2,7 +2,14 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
 import { csp } from "@src/config/csp"
-import { maintenanceModeFlag } from "@src/config/featureFlags"
+import {
+  dealsDisabledFlag,
+  depositsDisabledFlag,
+  earnDisabledFlag,
+  maintenanceModeFlag,
+  swapDisabledFlag,
+  withdrawDisabledFlag,
+} from "@src/config/featureFlags"
 import { logger } from "@src/utils/logger"
 
 export const config = {
@@ -22,6 +29,29 @@ export async function proxy(request: NextRequest) {
 
     if (isMaintenanceMode) {
       return NextResponse.rewrite(new URL("/maintenance", request.url))
+    }
+
+    const featureRouteMap = [
+      { pathPrefix: "/swap", flag: swapDisabledFlag },
+      { pathPrefix: "/deposit", flag: depositsDisabledFlag },
+      { pathPrefix: "/transfer", flag: withdrawDisabledFlag },
+      { pathPrefix: "/deals", flag: dealsDisabledFlag },
+      { pathPrefix: "/deal", flag: dealsDisabledFlag },
+      { pathPrefix: "/earn", flag: earnDisabledFlag },
+    ]
+
+    const pathname = new URL(request.url).pathname
+    const matchedRoute = featureRouteMap.find(
+      (route) =>
+        pathname === route.pathPrefix ||
+        pathname.startsWith(`${route.pathPrefix}/`)
+    )
+
+    if (matchedRoute) {
+      const isDisabled = await matchedRoute.flag()
+      if (isDisabled) {
+        return NextResponse.rewrite(new URL("/maintenance", request.url))
+      }
     }
   } catch (error) {
     // If feature flag evaluation fails, continue normally
