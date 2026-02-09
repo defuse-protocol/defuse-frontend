@@ -4,7 +4,7 @@ import { generateAuthTokenFromWalletSignature } from "@src/actions/auth"
 import { formatSignedIntent } from "@src/components/DefuseSDK/core/formatters"
 import { WalletBannedDialog } from "@src/components/WalletBannedDialog"
 import { WalletVerificationDialog } from "@src/components/WalletVerificationDialog"
-import { useConnectWallet } from "@src/hooks/useConnectWallet"
+import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import {
   type VerificationResult,
@@ -241,6 +241,7 @@ function WalletVerificationUI({
       isVerifying={state.matches("verifying")}
       isFailure={state.context.hadError}
       isSessionExpired={isSessionExpired}
+      isPasskey={unconfirmedWallet.chainType === ChainType.WebAuthn}
     />
   )
 }
