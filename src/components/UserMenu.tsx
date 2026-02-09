@@ -11,7 +11,7 @@ import {
 } from "@heroicons/react/16/solid"
 import { InformationCircleIcon } from "@heroicons/react/24/outline"
 import { UserIcon } from "@heroicons/react/24/solid"
-import { useConnectWallet } from "@src/hooks/useConnectWallet"
+import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useActivityDock } from "@src/providers/ActivityDockProvider"
 import clsx from "clsx"
 import Link from "next/link"
@@ -41,6 +41,11 @@ const UserMenu = ({
   const { state, signOut } = useConnectWallet()
   const [copied, setCopied] = useState(false)
   const [isCopyWarningOpen, setIsCopyWarningOpen] = useState(false)
+  const displayLabel =
+    state.chainType === ChainType.WebAuthn
+      ? "My Intents account"
+      : midTruncate(state.displayAddress ?? "")
+
   const [skipCopyWarning, setSkipCopyWarning] = useState<boolean>(() => {
     if (typeof window === "undefined") return false
     return localStorage.getItem(COPY_ADDRESS_WARNING_ACK_KEY) === "true"
@@ -102,7 +107,7 @@ const UserMenu = ({
             </div>
 
             <div className="text-sm font-semibold grow text-left">
-              {midTruncate(state.displayAddress ?? "")}
+              {displayLabel}
             </div>
 
             <ChevronUpIcon className="size-5 shrink-0 group-data-[state=open]:rotate-180 transition-transform duration-100 ease-in-out" />
@@ -143,7 +148,7 @@ const UserMenu = ({
                 hasDockItems && "hidden"
               )}
             >
-              {midTruncate(state.displayAddress ?? "")}
+              {displayLabel}
             </div>
 
             <div className="size-6 flex items-center justify-center bg-brand rounded-md">
