@@ -27,11 +27,22 @@ export default function LoginPage() {
     () => connectors.find((c) => c.id === "walletConnect"),
     [connectors]
   )
-  // Fallback for users who have a non-MetaMask injected wallet (e.g. Rabby, Trust)
+  // EIP-6963 detected browser wallets (excluding MetaMask) shown individually
+  const browserWallets = useMemo(
+    () =>
+      connectors.filter(
+        (c) =>
+          c.type === "injected" && c.id !== "injected" && c.id !== "io.metamask"
+      ),
+    [connectors]
+  )
+  // Generic injected fallback — only if no EIP-6963 wallets and no MetaMask detected
   const fallbackInjected = useMemo(
     () =>
-      !metamaskConnector ? connectors.find((c) => c.id === "injected") : null,
-    [connectors, metamaskConnector]
+      !metamaskConnector && browserWallets.length === 0
+        ? connectors.find((c) => c.id === "injected")
+        : null,
+    [connectors, metamaskConnector, browserWallets]
   )
   const otherEvmConnectors = useMemo(
     () =>
@@ -123,6 +134,14 @@ export default function LoginPage() {
               }
             />
           )}
+          {browserWallets.map((connector) => (
+            <LoginButton
+              key={connector.uid}
+              name={connector.name}
+              iconSrc={getWalletIconSrc(connector)}
+              onClick={() => signIn({ id: ChainType.EVM, connector })}
+            />
+          ))}
           {fallbackInjected && (
             <LoginButton
               name="Browser Wallet"
