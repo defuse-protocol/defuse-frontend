@@ -39,7 +39,6 @@ export default function LoginPage() {
         (c) =>
           c.id !== "io.metamask" &&
           c.id !== "walletConnect" &&
-          c.id !== "coinbaseWalletSDK" &&
           c.id !== "injected" &&
           c.type !== "injected"
       ),
