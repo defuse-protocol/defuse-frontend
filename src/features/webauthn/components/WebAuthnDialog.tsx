@@ -21,11 +21,18 @@ export function WebAuthnDialog() {
     formState: { errors },
   } = useForm<FormData>()
 
+  // Don't render the portal when closed to avoid orphaned DOM elements
+  // during navigation that can block interaction
+  if (!webauthnUI.isOpen) {
+    return null
+  }
+
   return (
     <BaseModalDialog
-      open={webauthnUI.isOpen}
+      open={true}
       onClose={webauthnUI.close}
       back={isCreating ? () => setIsCreating(false) : undefined}
+      ignoreSidebar
     >
       <div className="flex flex-col items-center justify-center">
         <div className="size-14 rounded-full bg-gray-100 flex items-center justify-center">

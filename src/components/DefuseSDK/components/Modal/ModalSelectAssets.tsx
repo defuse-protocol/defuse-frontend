@@ -20,7 +20,7 @@ import AssetList from "../Asset/AssetList"
 import EmptyAssetList from "../Asset/EmptyAssetList"
 import { MostTradableTokens } from "../MostTradableTokens/MostTradableTokens"
 import SearchBar from "../SearchBar"
-import { ModalDialog } from "./ModalDialog"
+import { BaseModalDialog } from "./ModalDialog"
 import ModalNoResults from "./ModalNoResults"
 
 export type ModalSelectAssetsPayload = {
@@ -62,7 +62,7 @@ export function ModalSelectAssets() {
 
   const { state } = useConnectWallet()
   const userId =
-    state.isVerified && state.address && state.chainType
+    state.isAuthorized && state.address && state.chainType
       ? authIdentity.authHandleToIntentsUserId(state.address, state.chainType)
       : null
   const { data: holdings } = useWatchHoldings({ userId, tokenList: tokens })
@@ -183,7 +183,7 @@ export function ModalSelectAssets() {
   }
 
   return (
-    <ModalDialog title="Select token">
+    <BaseModalDialog title="Select token" open={true} onClose={onCloseModal}>
       <div className="mt-2 h-[630px] flex flex-col">
         <div
           className={clsx(
@@ -227,6 +227,6 @@ export function ModalSelectAssets() {
           )}
         </div>
       </div>
-    </ModalDialog>
+    </BaseModalDialog>
   )
 }

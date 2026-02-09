@@ -16,8 +16,20 @@ const cspConfig = {
     "https://wallet.intear.tech",
     "https://vercel.live",
   ],
-  "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-  "font-src": ["'self'", "https://fonts.gstatic.com"],
+  "style-src": [
+    "'self'",
+    "'unsafe-inline'",
+    "https://fonts.googleapis.com",
+    "https://rsms.me", // Meteor wallet iframe (Inter stylesheet)
+    "https://fonts.cdnfonts.com", // Meteor wallet iframe (Cabinet Grotesk stylesheet)
+  ],
+  "font-src": [
+    "'self'",
+    "https://fonts.gstatic.com",
+    "https://rsms.me", // Meteor wallet iframe (Inter font files)
+    "https://fonts.cdnfonts.com", // Meteor wallet iframe (Cabinet Grotesk font files)
+    "data:", // Meteor wallet iframe (inline base64 fonts)
+  ],
   "img-src": ["*", "data:", "blob:"],
   "script-src": [
     "'self'",
@@ -133,6 +145,7 @@ const cspConfig = {
     "https://rpc.gnosischain.com",
     "https://rpc.berachain.com",
     "https://rpc.mainnet.near.org/",
+    "https://near-rpc.defuse.org",
     "https://free.rpc.fastnear.com/",
     "https://polygon-rpc.com",
     "https://gasstation.polygon.technology",

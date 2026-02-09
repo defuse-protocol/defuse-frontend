@@ -91,6 +91,7 @@ describe("GET /api/webauthn_credentials/[rawId]", () => {
     expect(response.status).toBe(500)
     expect(await response.json()).toEqual({
       error: "Failed to fetch credential",
+      code: "INTERNAL_ERROR",
     })
     expect(logger.error).toHaveBeenCalledOnce()
   })

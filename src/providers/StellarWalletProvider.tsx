@@ -119,6 +119,9 @@ export async function connectStellar(): Promise<string> {
           reject(error)
         }
       },
+      onClosed: (err) => {
+        reject(err)
+      },
     })
   })
 }

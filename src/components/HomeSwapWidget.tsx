@@ -14,6 +14,7 @@ import { LIST_TOKENS } from "@src/constants/tokens"
 import { useSimpleQuote } from "@src/hooks/useSimpleQuote"
 import clsx from "clsx"
 import { useState } from "react"
+import ErrorMessage from "./ErrorMessage"
 
 function getBaseToken(token: TokenInfo): BaseTokenInfo {
   if (isBaseToken(token)) return token
@@ -42,7 +43,7 @@ export function HomeSwapWidget() {
   const baseTokenIn = getBaseToken(tokenIn)
   const baseTokenOut = getBaseToken(tokenOut)
 
-  const { amountOut, loading } = useSimpleQuote({
+  const { amountOut, loading, error } = useSimpleQuote({
     tokenIn: baseTokenIn,
     tokenOut: baseTokenOut,
     amountIn,
@@ -65,10 +66,18 @@ export function HomeSwapWidget() {
 
   return (
     <div className="relative">
-      <div className="bg-gray-100 rounded-[27px] p-2 border border-gray-200 flex flex-col gap-2">
-        <div className="p-6 rounded-3xl bg-white border border-gray-200 flex flex-col gap-4">
-          <label htmlFor="sell">Sell</label>
-          <div className="flex items-center justify-between gap-4">
+      <div className="flex justify-center -mb-px">
+        <span className="text-xs font-semibold text-gray-600 bg-gray-100 px-3 py-1 rounded-t-lg border-t border-x border-gray-200">
+          Live Preview
+        </span>
+      </div>
+
+      <div className="bg-gray-100 rounded-[27px] p-1 sm:p-2 border border-gray-200 flex flex-col gap-1 sm:gap-2">
+        <div className="p-4 sm:p-6 rounded-3xl bg-white border border-gray-200 flex flex-col gap-4">
+          <label htmlFor="sell" className="text-sm font-medium text-gray-500">
+            Sell
+          </label>
+          <div className="flex items-center justify-between gap-2 sm:gap-4">
             <input
               id="sell"
               type="text"
@@ -78,7 +87,7 @@ export function HomeSwapWidget() {
               placeholder="0"
               value={amountIn}
               onChange={(e) => setAmountIn(e.target.value)}
-              className="relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-4xl tracking-tight placeholder:text-gray-400 w-full"
+              className="relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-3xl sm:text-4xl tracking-tight placeholder:text-gray-400 w-full"
             />
             <button
               type="button"
@@ -94,9 +103,11 @@ export function HomeSwapWidget() {
           </div>
         </div>
 
-        <div className="p-6 rounded-3xl bg-white border border-gray-200 flex flex-col gap-4">
-          <label htmlFor="buy">Buy</label>
-          <div className="flex items-center justify-between gap-4">
+        <div className="p-4 sm:p-6 rounded-3xl bg-white border border-gray-200 flex flex-col gap-4">
+          <label htmlFor="buy" className="text-sm font-medium text-gray-500">
+            Buy
+          </label>
+          <div className="flex items-center justify-between gap-2 sm:gap-4">
             <div className="flex-1 min-w-0">
               <input
                 id="buy"
@@ -108,7 +119,7 @@ export function HomeSwapWidget() {
                 value={amountOut}
                 readOnly
                 className={clsx(
-                  "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-4xl tracking-tight placeholder:text-gray-400 w-full",
+                  "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-3xl sm:text-4xl tracking-tight placeholder:text-gray-400 w-full",
                   {
                     "animate-pulse": loading,
                   }
@@ -138,8 +149,16 @@ export function HomeSwapWidget() {
         loading={loading}
         disabled={loading}
       >
-        Get started
+        Sign up to start swapping
       </Button>
+
+      {error && (
+        <ErrorMessage className="mt-4 text-center">{error}</ErrorMessage>
+      )}
+
+      <p className="text-xs/none font-medium text-gray-500 text-center mt-4">
+        Preview estimated rates. Sign up to start trading.
+      </p>
 
       <SimpleTokenSelectModal
         open={modalOpen !== null}

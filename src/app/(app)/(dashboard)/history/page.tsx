@@ -20,7 +20,6 @@ import { useSwapHistory } from "@src/features/balance-history/lib/useBalanceHist
 import type { SwapTransaction } from "@src/features/balance-history/types"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useTokenList } from "@src/hooks/useTokenList"
-import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
 import clsx from "clsx"
 import { useRouter } from "next/navigation"
 import {
@@ -67,22 +66,25 @@ export default function HistoryPage({
 }) {
   const searchParamsData = use(searchParams)
   const router = useRouter()
-  const { state, isLoading: isWalletConnecting } = useConnectWallet()
+  const {
+    state,
+    isLoading: isWalletConnecting,
+    isReconnecting: isWalletReconnecting,
+  } = useConnectWallet()
   const tokenList = useTokenList(LIST_TOKENS)
-  const hasHydrated = useVerifiedWalletsStore((s) => s._hasHydrated)
 
   const [hadPreviousSession, setHadPreviousSession] = useState(true)
   useEffect(() => {
     setHadPreviousSession(localStorage.getItem("chainType") !== null)
   }, [])
 
-  const userAddress = state.isVerified ? state.address : null
+  const userAddress = state.isAuthorized ? state.address : null
   const isWaitingForReconnect = hadPreviousSession && !state.address
   const isWalletHydrating =
-    !hasHydrated ||
     isWalletConnecting ||
+    isWalletReconnecting ||
     isWaitingForReconnect ||
-    Boolean(state.address && !state.isVerified)
+    Boolean(state.address && !state.isAuthorized)
 
   const currentSearchParams = new URLSearchParams()
   for (const [key, value] of Object.entries(searchParamsData)) {
@@ -252,6 +254,7 @@ export default function HistoryPage({
     <>
       <PageHeader
         title="History"
+        subtitle="Every transaction, at a glance"
         intro={
           <p>
             This is your history page, showing your past swaps. In the future,
@@ -290,7 +293,7 @@ export default function HistoryPage({
         </div>
       </PageHeader>
 
-      <div className="mt-6 flex items-center gap-1">
+      <div className="mt-7 flex items-center gap-1">
         <SearchBar
           defaultValue={search}
           loading={isSearching}

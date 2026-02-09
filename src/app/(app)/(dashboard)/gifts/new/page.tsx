@@ -25,7 +25,7 @@ export default function NewGiftPage() {
   const referral = useIntentsReferral()
   const { signAndSendTransactions } = useNearWallet()
 
-  const userAddress = state.isVerified ? state.address : undefined
+  const userAddress = state.isAuthorized ? state.address : undefined
   const userChainType = state.chainType
 
   const sendNearTransaction = async (

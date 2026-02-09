@@ -20,9 +20,9 @@ export default function DepositCryptoPage() {
   return (
     <DepositWidget
       tokenList={tokenList}
-      userAddress={state.isVerified ? state.address : undefined}
+      userAddress={state.isAuthorized ? state.address : undefined}
       userWalletAddress={
-        state.isVerified &&
+        state.isAuthorized &&
         state.chainType !== ChainType.WebAuthn &&
         state.displayAddress
           ? state.displayAddress

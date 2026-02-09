@@ -80,7 +80,8 @@ export const reverseAssetNetworkAdapter: Record<
   [BlockchainEnum.MONAD]: "monad",
   [BlockchainEnum.ADI]: "adi",
   [BlockchainEnum.STARKNET]: "starknet",
-}
+  // TODO: Add PLASMA and SCROLL support once network config is ready
+} as Record<BlockchainEnum, SupportedChainName>
 
 export function isValidBlockchainEnumKey(
   key: string

@@ -20,6 +20,7 @@ import {
   midTruncate,
 } from "../../features/withdraw/components/WithdrawForm/utils"
 import type { NetworkOptions } from "../../hooks/useNetworkLists"
+import type { SupportedChainName } from "../../types/base"
 import { reverseAssetNetworkAdapter } from "../../utils/adapters"
 import { stringToColor } from "../../utils/stringToColor"
 import { NetworkIcon } from "../Network/NetworkIcon"
@@ -34,6 +35,13 @@ type ModalSelectRecipientProps = {
   displayAddress: string | undefined
   displayOwnAddress: boolean
   availableNetworks: NetworkOptions
+  /** When set, contact selection updates network and recipient in one shot (avoids race). */
+  onContactSelect?: (
+    blockchain: SupportedChainName | "near_intents",
+    recipient: string,
+    contactName: string | null
+  ) => void
+  onRecipientContactChange?: (contactName: string | null) => void
 }
 
 const VALIDATION_DEBOUNCE_MS = 500
@@ -46,6 +54,8 @@ const ModalSelectRecipient = ({
   displayAddress,
   displayOwnAddress,
   availableNetworks,
+  onContactSelect,
+  onRecipientContactChange,
 }: ModalSelectRecipientProps) => {
   const { setValue, watch } = useFormContext<WithdrawFormNearValues>()
   const blockchain = watch("blockchain")
@@ -73,16 +83,30 @@ const ModalSelectRecipient = ({
     )
   }, [availableNetworks, contacts])
 
-  const visibleContacts = useMemo(() => {
-    if (!inputValue) return availableContacts
+  const hasSelectedNetwork = !!blockchain && blockchain !== "near_intents"
 
-    return availableContacts.filter((contact) =>
-      contact.name.toLowerCase().includes(inputValue.toLowerCase())
-    )
-  }, [availableContacts, inputValue])
+  const visibleContacts = useMemo(() => {
+    const trimmed = inputValue.trim()
+    const filtered = trimmed
+      ? availableContacts.filter((contact) =>
+          contact.name.toLowerCase().includes(trimmed.toLowerCase())
+        )
+      : availableContacts
+
+    if (!hasSelectedNetwork) return filtered
+
+    return [...filtered].sort((a, b) => {
+      const aMatches = reverseAssetNetworkAdapter[a.blockchain] === blockchain
+      const bMatches = reverseAssetNetworkAdapter[b.blockchain] === blockchain
+      if (aMatches === bMatches) return 0
+      return aMatches ? -1 : 1
+    })
+  }, [availableContacts, inputValue, hasSelectedNetwork, blockchain])
+  const hasMatchingContacts = visibleContacts.length > 0
 
   useEffect(() => {
-    if (!inputValue) {
+    const trimmedInput = inputValue.trim()
+    if (!trimmedInput) {
       setIsValidating(false)
       setValidationError(null)
       setValidatedAddress(null)
@@ -90,7 +114,7 @@ const ModalSelectRecipient = ({
     }
 
     // If there are matching contacts by name, skip address validation
-    if (visibleContacts.length > 0) {
+    if (hasMatchingContacts) {
       setIsValidating(false)
       setValidationError(null)
       setValidatedAddress(null)
@@ -103,23 +127,33 @@ const ModalSelectRecipient = ({
     setValidatedAddress(null)
 
     const timer = setTimeout(async () => {
-      const result = await validationRecipientAddress(
-        inputValue,
-        blockchain,
-        userAddress ?? "",
-        chainType
-      )
+      try {
+        const result = await validationRecipientAddress(
+          trimmedInput,
+          blockchain,
+          userAddress ?? "",
+          chainType
+        )
 
-      if (cancelled) return
+        if (cancelled) return
 
-      setIsValidating(false)
-
-      if (result.isErr()) {
-        setValidationError(renderRecipientAddressError(result.unwrapErr()))
+        if (result.isErr()) {
+          setValidationError(renderRecipientAddressError(result.unwrapErr()))
+          setValidatedAddress(null)
+        } else {
+          setValidationError(null)
+          setValidatedAddress(trimmedInput)
+        }
+      } catch {
+        if (cancelled) return
+        setValidationError(
+          "An unexpected error occurred. Please enter a different recipient address."
+        )
         setValidatedAddress(null)
-      } else {
-        setValidationError(null)
-        setValidatedAddress(inputValue)
+      } finally {
+        if (!cancelled) {
+          setIsValidating(false)
+        }
       }
     }, VALIDATION_DEBOUNCE_MS)
 
@@ -127,7 +161,7 @@ const ModalSelectRecipient = ({
       cancelled = true
       clearTimeout(timer)
     }
-  }, [inputValue, blockchain, userAddress, chainType, visibleContacts])
+  }, [inputValue, blockchain, userAddress, chainType, hasMatchingContacts])
 
   const handleScroll = () => {
     if (!scrollContainerRef.current) return
@@ -136,6 +170,7 @@ const ModalSelectRecipient = ({
   }
 
   const handleSelectAddress = (address: string) => {
+    onRecipientContactChange?.(null)
     setValue("recipient", address)
     onClose()
   }
@@ -229,24 +264,42 @@ const ModalSelectRecipient = ({
 
                   <div className="mt-1 space-y-1">
                     {visibleContacts.map(
-                      ({ id, address, name, blockchain }) => {
-                        const chainKey = reverseAssetNetworkAdapter[blockchain]
+                      ({
+                        id,
+                        address,
+                        name,
+                        blockchain: contactBlockchain,
+                      }) => {
+                        const chainKey =
+                          reverseAssetNetworkAdapter[contactBlockchain]
                         const chainIcon = chainIcons[chainKey]
                         const chainName = chainNameToNetworkName(chainKey)
                         const contactColor = stringToColor(
-                          `${name}${address}${blockchain}`
+                          `${name}${address}${contactBlockchain}`
                         )
+                        const isDisabled =
+                          hasSelectedNetwork && chainKey !== blockchain
 
                         return (
                           <ListItem
                             key={id}
-                            onClick={() => {
-                              setValue("blockchain", chainKey)
-                              setValue("recipient", address, {
-                                shouldValidate: true,
-                              })
-                              onClose()
-                            }}
+                            className={isDisabled ? "opacity-40" : undefined}
+                            onClick={
+                              isDisabled
+                                ? undefined
+                                : () => {
+                                    if (onContactSelect) {
+                                      onContactSelect(chainKey, address, name)
+                                      onClose()
+                                    } else {
+                                      setValue("blockchain", chainKey)
+                                      setValue("recipient", address, {
+                                        shouldValidate: true,
+                                      })
+                                      onClose()
+                                    }
+                                  }
+                            }
                           >
                             <div
                               className="size-10 rounded-full flex items-center justify-center shrink-0 outline-1 outline-gray-900/10 -outline-offset-1"
@@ -298,6 +351,7 @@ const ModalSelectRecipient = ({
                           displayAddress,
                           "Display address could not be retrieved from the wallet provider"
                         )
+                        onRecipientContactChange?.(null)
                         setValue("recipient", displayAddress, {
                           shouldValidate: true,
                         })

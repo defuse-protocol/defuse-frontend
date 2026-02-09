@@ -33,6 +33,7 @@ type ActivityDockContextType = {
   removeDockItem: (id: string) => void
   settleDockItem: (id: string) => void
   hasDockItem: (id: string) => boolean
+  clearDockItems: () => void
 }
 
 const ActivityDockContext = createContext<ActivityDockContextType | undefined>(
@@ -84,6 +85,10 @@ function ActivityDockProvider({ children }: { children: ReactNode }) {
     [dockItems]
   )
 
+  const clearDockItems = useCallback(() => {
+    setDockItems([])
+  }, [])
+
   const value = useMemo(
     () => ({
       dockItems,
@@ -92,6 +97,7 @@ function ActivityDockProvider({ children }: { children: ReactNode }) {
       removeDockItem,
       settleDockItem,
       hasDockItem,
+      clearDockItems,
     }),
     [
       dockItems,
@@ -100,6 +106,7 @@ function ActivityDockProvider({ children }: { children: ReactNode }) {
       removeDockItem,
       settleDockItem,
       hasDockItem,
+      clearDockItems,
     ]
   )
 

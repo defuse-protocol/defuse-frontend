@@ -15,8 +15,10 @@ const EarnPromo = () => {
         <div className="bg-brand/20 text-brand text-xs rounded-lg px-2 py-1 inline-block uppercase font-bold">
           Coming soon
         </div>
-        <div className="mt-2 mb-1">
-          <h3 className="text-xl font-bold text-white tracking-tight">Earn</h3>
+        <div className="mt-4 mb-1">
+          <h3 className="text-xl/6 font-bold text-white tracking-tight">
+            Earn
+          </h3>
         </div>
         <p className="text-gray-400 text-sm text-balance font-medium">
           Put your idle assets to work. No lockups. Withdraw anytime.
@@ -32,9 +34,9 @@ const EarnPromo = () => {
             className={clsx(
               "absolute flex items-center gap-1 bg-white p-0.5 pr-2 rounded-full w-fit",
               {
-                "top-6 -left-8": index === 0,
+                "top-6 right-29": index === 0,
                 "top-12 right-7": index === 1,
-                "bottom-14 -left-6": index === 2,
+                "bottom-14 right-27": index === 2,
                 "bottom-6 right-10": index === 3,
               }
             )}

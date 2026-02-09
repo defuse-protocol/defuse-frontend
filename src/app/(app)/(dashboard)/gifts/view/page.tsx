@@ -5,16 +5,14 @@ import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useTokenList } from "@src/hooks/useTokenList"
-import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
 import { useMemo } from "react"
 import { useGiftIntent } from "../_utils/link"
 import { PublicShell } from "./PublicShell"
 
 export default function ViewGiftPage() {
-  const { state, isLoading } = useConnectWallet()
+  const { state, isLoading, isReconnecting } = useConnectWallet()
   const tokenList = useTokenList(LIST_TOKENS)
   const { payload, giftId, error } = useGiftIntent()
-  const hasHydrated = useVerifiedWalletsStore((s) => s._hasHydrated)
 
   const loginUrl = useMemo(() => {
     if (typeof window === "undefined") return "/login"
@@ -23,7 +21,7 @@ export default function ViewGiftPage() {
   }, [])
 
   // Cover everything while loading to prevent nav flash
-  if (!hasHydrated || isLoading) {
+  if (isLoading || isReconnecting) {
     return <div className="fixed inset-0 z-50 bg-gray-800" />
   }
 

@@ -39,7 +39,7 @@ const ContactsList = ({
   const router = useRouter()
   const { state } = useConnectWallet()
   const userId =
-    state.isVerified && state.address && state.chainType
+    state.isAuthorized && state.address && state.chainType
       ? authIdentity.authHandleToIntentsUserId(state.address, state.chainType)
       : null
   const { data: holdings = [] } = useWatchHoldings({
@@ -82,6 +82,7 @@ const ContactsList = ({
     <>
       <PageHeader
         title="Contacts"
+        subtitle="Send crypto like sending an email"
         intro={
           <>
             <p>
@@ -107,7 +108,7 @@ const ContactsList = ({
       />
 
       {(!hasNoContacts || hasSearchQuery) && (
-        <div className="mt-6 flex items-center gap-1">
+        <div className="mt-7 flex items-center gap-1">
           <SearchBar
             key={search ?? ""}
             defaultValue={search}
@@ -211,7 +212,7 @@ const ContactsList = ({
                   />
                 </div>
                 <ListItem.Content>
-                  <ListItem.Title className="truncate">
+                  <ListItem.Title className="line-clamp-1">
                     {contact.name}
                   </ListItem.Title>
                   <ListItem.Subtitle>
@@ -237,13 +238,23 @@ const ContactsList = ({
         onClose={() => {
           setModalOpen(null)
         }}
-        onCloseAnimationEnd={() => setSelectedContact(null)}
+        onCloseAnimationEnd={() => {
+          setSelectedContact(null)
+          startTransition(() => {
+            router.refresh()
+          })
+        }}
       />
       <ModalRemoveContact
         open={modalOpen === "remove"}
         contact={selectedContact}
         onClose={() => setModalOpen(null)}
-        onCloseAnimationEnd={() => setSelectedContact(null)}
+        onCloseAnimationEnd={() => {
+          setSelectedContact(null)
+          startTransition(() => {
+            router.refresh()
+          })
+        }}
       />
     </>
   )

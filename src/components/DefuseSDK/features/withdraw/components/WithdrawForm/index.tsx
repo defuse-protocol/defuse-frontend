@@ -6,7 +6,11 @@ import TooltipNew from "@src/components/DefuseSDK/components/TooltipNew"
 import { useModalController } from "@src/components/DefuseSDK/hooks/useModalController"
 import { useTokensUsdPrices } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
 import { ModalType } from "@src/components/DefuseSDK/stores/modalStore"
-import { isSupportedChainName } from "@src/components/DefuseSDK/utils/blockchain"
+import { assetNetworkAdapter } from "@src/components/DefuseSDK/utils/adapters"
+import {
+  availableChainsForToken,
+  isSupportedChainName,
+} from "@src/components/DefuseSDK/utils/blockchain"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
 import {
@@ -21,7 +25,7 @@ import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
 import { useWithdrawTrackerMachine } from "@src/providers/WithdrawTrackerMachineProvider"
 import { logger } from "@src/utils/logger"
 import { useSelector } from "@xstate/react"
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import { formatUnits } from "viem"
 import { AuthGate } from "../../../../components/AuthGate"
@@ -186,6 +190,9 @@ export const WithdrawForm = ({
     setValue,
     getValues,
   } = form
+  const [recipientContactName, setRecipientContactName] = useState<
+    string | null
+  >(null)
 
   const minWithdrawalPOABridgeAmount = useSelector(
     poaBridgeInfoRef,
@@ -296,12 +303,17 @@ export const WithdrawForm = ({
       setValue("amountIn", presetAmount)
     }
     if (presetNetwork != null && isSupportedChainName(presetNetwork)) {
-      setValue("blockchain", presetNetwork)
+      // Check if the token supports this network before applying preset
+      const availableChains = availableChainsForToken(token)
+      const networkEnum = assetNetworkAdapter[presetNetwork]
+      if (networkEnum && networkEnum in availableChains) {
+        setValue("blockchain", presetNetwork)
+      }
     }
     if (presetRecipient != null) {
       setValue("recipient", presetRecipient)
     }
-  }, [presetAmount, presetNetwork, presetRecipient, setValue])
+  }, [presetAmount, presetNetwork, presetRecipient, setValue, token])
 
   const { registerWithdraw, hasActiveWithdraw } = useWithdrawTrackerMachine()
 
@@ -336,18 +348,6 @@ export const WithdrawForm = ({
     token,
     tokensUsdPriceData
   )
-  const receivedAmountUsd = totalAmountReceived?.amount
-    ? getTokenUsdPrice(
-        formatTokenValue(
-          directionFee?.amount
-            ? subtractAmounts(totalAmountReceived, directionFee).amount
-            : totalAmountReceived.amount,
-          totalAmountReceived.decimals
-        ),
-        tokenOut,
-        tokensUsdPriceData
-      )
-    : null
   const feeUsd = withdtrawalFee
     ? getTokenUsdPrice(
         formatTokenValue(withdtrawalFee.amount, withdtrawalFee.decimals),
@@ -443,7 +443,7 @@ export const WithdrawForm = ({
   return (
     <>
       <FormProvider {...form}>
-        <form onSubmit={handleSubmit(onRequestReview)} className="mt-6">
+        <form onSubmit={handleSubmit(onRequestReview)} className="mt-7">
           <div className="flex flex-col gap-2">
             <SelectTriggerLike
               icon={
@@ -464,6 +464,7 @@ export const WithdrawForm = ({
               userAddress={userAddress}
               displayAddress={displayAddress}
               tokenInBalance={tokenInBalance}
+              onRecipientContactChange={setRecipientContactName}
             />
 
             <SelectedTokenInput
@@ -604,8 +605,9 @@ export const WithdrawForm = ({
         fee={withdtrawalFee}
         totalAmountReceived={totalAmountReceived}
         feeUsd={feeUsd}
-        totalAmountReceivedUsd={receivedAmountUsd}
         directionFee={directionFee}
+        recipientContactName={recipientContactName}
+        onContactSaved={setRecipientContactName}
       />
     </>
   )

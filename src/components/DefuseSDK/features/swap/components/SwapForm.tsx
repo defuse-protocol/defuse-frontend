@@ -376,6 +376,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
     <>
       <PageHeader
         title="Swap"
+        subtitle="Centralized exchange speed, without the centralized."
         intro={
           <>
             <p>
@@ -393,7 +394,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
         }
       />
 
-      <section className="mt-5">
+      <section className="mt-7">
         <form onSubmit={handleSubmit(onRequestReview)}>
           <div>
             <TokenInputCard
@@ -585,7 +586,7 @@ function renderSwapButtonText(
 ) {
   if (amountInEmpty && amountOutEmpty) return "Please enter an amount"
   if (noLiquidity)
-    return "Ooops. There is no liquidity available for this swap. Please try again later."
+    return "Apologies, but currently there is not enough liquidity available to execute your swap. We've been notified as part of our process to continually review liquidity provision."
   if (balanceInsufficient) return "Insufficient balance"
   if (insufficientTokenInAmount) return "Insufficient amount. Please adjust."
   if (failedToGetAQuote)

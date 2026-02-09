@@ -1,0 +1,123 @@
+"use client"
+
+import { WithdrawWidget } from "@src/components/DefuseSDK/features/withdraw/components/WithdrawWidget"
+import PageHeader from "@src/components/PageHeader"
+import { LIST_TOKENS } from "@src/constants/tokens"
+import { useConnectWallet } from "@src/hooks/useConnectWallet"
+import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
+import { useTokenList } from "@src/hooks/useTokenList"
+import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
+import { useNearWallet } from "@src/providers/NearWalletProvider"
+import { renderAppLink } from "@src/utils/renderAppLink"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useCallback, useEffect, useRef } from "react"
+import { updateURLParamsWithdraw } from "../_utils/updateURLParams"
+
+type SendPageClientProps = {
+  presetToken: string | undefined
+  presetNetwork: string | undefined
+  presetRecipient: string | undefined
+  initialHadParams: boolean
+  shouldUpdateUrl?: boolean
+}
+
+export function SendPageClient({
+  presetToken,
+  presetNetwork,
+  presetRecipient,
+  initialHadParams,
+  shouldUpdateUrl,
+}: SendPageClientProps) {
+  const { state } = useConnectWallet()
+  const signMessage = useWalletAgnosticSignMessage()
+  const { signAndSendTransactions } = useNearWallet()
+  const tokenList = useTokenList(LIST_TOKENS, true)
+  const referral = useIntentsReferral()
+  const router = useRouter()
+  const pathname = usePathname()
+  const queryParams = useSearchParams()
+  const hasUpdatedUrlRef = useRef(false)
+
+  useEffect(() => {
+    if (shouldUpdateUrl && !hasUpdatedUrlRef.current) {
+      hasUpdatedUrlRef.current = true
+      const params = new URLSearchParams()
+      if (presetToken) params.set("token", presetToken)
+      if (presetNetwork) params.set("network", presetNetwork)
+      if (presetRecipient) params.set("recipient", presetRecipient)
+      const queryString = params.toString()
+      router.replace(queryString ? `/transfer?${queryString}` : "/transfer", {
+        scroll: false,
+      })
+    }
+  }, [shouldUpdateUrl, presetToken, presetNetwork, presetRecipient, router])
+
+  const handleFormChange = useCallback(
+    (params: {
+      token: string | null
+      network: string
+      recipient: string
+      recipientChanged: boolean
+      networkChanged: boolean
+    }) => {
+      if (!initialHadParams) return
+
+      // URL is declarative: always reflect current machine state (token, network, recipient).
+      // One update per change, no imperative patching.
+      updateURLParamsWithdraw({
+        token: params.token,
+        network: params.network,
+        contactId: null,
+        recipient: params.recipient?.trim() || null,
+        router,
+        pathname,
+        searchParams: queryParams,
+      })
+    },
+    [initialHadParams, pathname, router, queryParams]
+  )
+
+  const userAddress = state.isAuthorized ? state.address : undefined
+  const userChainType = state.chainType
+
+  return (
+    <>
+      <PageHeader
+        title="Transfer"
+        subtitle="Your assets, anywhere you need them"
+      />
+
+      <WithdrawWidget
+        presetNetwork={presetNetwork}
+        presetRecipient={presetRecipient}
+        presetTokenSymbol={presetToken}
+        presetValuesForSync={{
+          network: presetNetwork,
+          recipient: presetRecipient,
+        }}
+        tokenList={tokenList}
+        userAddress={userAddress}
+        displayAddress={state.isAuthorized ? state.displayAddress : undefined}
+        chainType={userChainType}
+        sendNearTransaction={async (tx) => {
+          const result = await signAndSendTransactions({ transactions: [tx] })
+
+          if (typeof result === "string") {
+            return { txHash: result }
+          }
+
+          const outcome = result[0]
+          if (!outcome) {
+            throw new Error("No outcome")
+          }
+
+          return { txHash: outcome.transaction.hash }
+        }}
+        signMessage={(params) => signMessage(params)}
+        renderHostAppLink={renderAppLink}
+        referral={referral}
+        onFormChange={handleFormChange}
+      />
+    </>
+  )
+}

@@ -18,23 +18,24 @@ import { WithdrawWidgetProvider } from "../../../providers/WithdrawWidgetProvide
 import type { WithdrawWidgetProps } from "../../../types/withdraw"
 import { assert } from "../../../utils/assert"
 import { isBaseToken } from "../../../utils/token"
+import { findTokenBySymbol } from "../../../utils/tokenUrlSymbol"
 import { swapIntentMachine } from "../../machines/swapIntentMachine"
 import { withdrawUIMachine } from "../../machines/withdrawUIMachine"
 import { WithdrawUIMachineContext } from "../WithdrawUIMachineContext"
+import { useWithdrawFormChangeNotifier } from "../hooks/useWithdrawFormChangeNotifier"
 import { WithdrawForm } from "./WithdrawForm"
 
 export const WithdrawWidget = (props: WithdrawWidgetProps) => {
   const is1cs = useIs1CsEnabled()
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
   const appFeeRecipient = getAppFeeRecipient(whitelabelTemplate)
-  const initialTokenIn =
-    props.presetTokenSymbol !== undefined
-      ? (props.tokenList.find(
-          (el) =>
-            el.symbol.toLowerCase().normalize() ===
-            props.presetTokenSymbol?.toLowerCase().normalize()
-        ) ?? props.tokenList[0])
-      : props.tokenList[0]
+  const initialTokenIn = (() => {
+    const preset = props.presetTokenSymbol?.trim()
+    if (preset === undefined || preset === "") return props.tokenList[0]
+
+    // Use the same approach as swap page's useDeterminePair
+    return findTokenBySymbol(preset, props.tokenList) ?? props.tokenList[0]
+  })()
 
   assert(initialTokenIn, "Token list must have at least 1 token")
 
@@ -112,6 +113,11 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
         ) : (
           <TokenListUpdater tokenList={props.tokenList} />
         )}
+        <FormChangeNotifier
+          onFormChange={props.onFormChange}
+          presetValues={props.presetValuesForSync}
+          tokenList={props.tokenList}
+        />
         <WithdrawForm {...props} />
       </WithdrawUIMachineContext.Provider>
     </WithdrawWidgetProvider>
@@ -145,4 +151,17 @@ function TokenListUpdaterWithdraw({ tokenList }: { tokenList: TokenInfo[] }) {
       tokenOut={tokenOut}
     />
   )
+}
+
+function FormChangeNotifier({
+  onFormChange,
+  presetValues,
+  tokenList,
+}: {
+  onFormChange?: WithdrawWidgetProps["onFormChange"]
+  presetValues?: WithdrawWidgetProps["presetValuesForSync"]
+  tokenList: TokenInfo[]
+}) {
+  useWithdrawFormChangeNotifier({ onFormChange, presetValues, tokenList })
+  return null
 }
