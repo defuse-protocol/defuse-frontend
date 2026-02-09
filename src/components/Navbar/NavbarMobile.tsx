@@ -6,7 +6,7 @@ import clsx from "clsx"
 import Link from "next/link"
 import { DropdownMenu } from "radix-ui"
 import type { NavItemType } from "./NavbarDesktop"
-import { navItems } from "./NavbarDesktop"
+import { useVisibleNavItems } from "./NavbarDesktop"
 
 const NavItem = ({
   label,
@@ -34,8 +34,9 @@ const NavItem = ({
 export function NavbarMobile() {
   const { isActive } = useIsActiveLink()
 
-  const tabItems = navItems.filter((item) => item.showInTabs)
-  const restItems = navItems.filter((item) => !item.showInTabs)
+  const visibleItems = useVisibleNavItems()
+  const tabItems = visibleItems.filter((item) => item.showInTabs)
+  const restItems = visibleItems.filter((item) => !item.showInTabs)
 
   const showMore = restItems.length > 0
   const itemsAmount = tabItems.length + (showMore ? 1 : 0)
