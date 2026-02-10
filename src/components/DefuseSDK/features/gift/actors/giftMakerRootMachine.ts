@@ -167,7 +167,7 @@ export const giftMakerRootMachine = setup({
             gift_token: giftInfo.token.symbol,
             gift_amount: giftInfo.tokenDiff,
             message_included: giftInfo.message,
-            creator_wallet_address: input.signData.signerCredentials,
+            creator_wallet_address: input.signData.signerCredentials.credential,
           })
 
           return { tag: "ok", value: { iv } }
