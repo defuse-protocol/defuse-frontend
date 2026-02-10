@@ -14,6 +14,7 @@ const SplashScreen = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const isOnLoginPage = pathname === "/login"
+  const isPublicPage = isOnLoginPage || pathname === "/gift"
   const [minTimeElapsed, setMinTimeElapsed] = useState(false)
   const initialLoadCompleteRef = useRef(false)
 
@@ -35,7 +36,7 @@ const SplashScreen = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (showSplash) return
 
-    if (!state.address && !isOnLoginPage) {
+    if (!state.address && !isPublicPage) {
       router.replace("/login")
     } else if (state.address && isOnLoginPage) {
       const raw = searchParams.get("redirect")
@@ -43,7 +44,14 @@ const SplashScreen = ({ children }: { children: ReactNode }) => {
         raw?.startsWith("/") && !raw.startsWith("//") ? raw : "/account"
       router.replace(redirectUrl)
     }
-  }, [showSplash, state.address, isOnLoginPage, router, searchParams])
+  }, [
+    showSplash,
+    state.address,
+    isPublicPage,
+    isOnLoginPage,
+    router,
+    searchParams,
+  ])
 
   if (showSplash) {
     // Show splash screen
@@ -55,8 +63,8 @@ const SplashScreen = ({ children }: { children: ReactNode }) => {
     return <SplashScreenContent />
   }
 
-  if (isOnLoginPage && !state.address) {
-    // Show login page
+  if (isPublicPage && !state.address) {
+    // Show public page (login, gift)
     return children
   }
 
