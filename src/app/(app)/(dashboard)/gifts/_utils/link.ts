@@ -59,8 +59,8 @@ export async function createGiftIntent(payload: GiftLinkData): Promise<{
       iv: encodedIv,
       giftId,
     }
-  } catch (err) {
-    logger.error(new Error("Failed to create gift intent", { cause: err }))
+  } catch {
+    logger.error("Failed to create gift intent")
     throw new Error("Failed to create order")
   }
 }
@@ -85,13 +85,14 @@ export function useGiftIntent() {
   const { data, error, isLoading } = useQuery({
     queryKey: ["gift_intent", encodedGift],
     queryFn: async (): Promise<{
-      payload: string
+      payload: unknown
       giftId?: string
     }> => {
       // 1. Attempt: Try to fetch and decrypt the order from the database
+      // For new format, the hash IS the IV directly (not JSON-encoded)
       if (encodedGift) {
         try {
-          const gift = await getGiftEncryptedIntent(decodeGift(encodedGift))
+          const gift = await getGiftEncryptedIntent(encodedGift)
           if (gift) {
             const { encryptedPayload, pKey, iv } = gift
             if (!iv || !pKey) {
@@ -104,8 +105,8 @@ export function useGiftIntent() {
               giftId: deriveIdFromIV(iv),
             }
           }
-        } catch (err) {
-          logger.error(new Error("Failed to decrypt order", { cause: err }))
+        } catch {
+          logger.error("Failed to decrypt gift")
         }
       }
 
@@ -118,8 +119,8 @@ export function useGiftIntent() {
             payload: decoded,
           }
         }
-      } catch (err) {
-        logger.error(new Error("Failed to decode legacy order", { cause: err }))
+      } catch {
+        logger.error("Failed to decode legacy gift")
       }
 
       // If we reach here, we couldn't decode the gift
@@ -128,7 +129,7 @@ export function useGiftIntent() {
     enabled: !!encodedGift,
     retry: false,
     staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
+    gcTime: 60 * 1000,
   })
 
   const payload = data?.payload ?? null
