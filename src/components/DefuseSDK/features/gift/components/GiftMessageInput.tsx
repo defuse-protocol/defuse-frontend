@@ -17,7 +17,7 @@ export function GiftMessageInput(
             <ChatBubbleBottomCenterTextIcon className="size-5 text-gray-500" />
           </div>
           {messageLength > 0 && (
-            <div className="mt-2 bg-gray-100 rounded-lg px-2 py-1 text-xs font-semibold text-gray-500 font-mono">
+            <div className="mt-2 bg-gray-100 rounded-lg px-2 py-1 text-xs font-semibold text-gray-500 font-mono text-center">
               {remainingChars}
             </div>
           )}
