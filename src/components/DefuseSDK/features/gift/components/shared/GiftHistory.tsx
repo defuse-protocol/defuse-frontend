@@ -1,4 +1,3 @@
-import { ChevronDownIcon } from "@heroicons/react/16/solid"
 import { PlusIcon } from "@heroicons/react/20/solid"
 import Button from "@src/components/Button"
 import EmptyState from "@src/components/EmptyState"
@@ -6,7 +5,6 @@ import ListItemsSkeleton from "@src/components/ListItemsSkeleton"
 import type { SignerCredentials } from "../../../../core/formatters"
 import type { TokenInfo } from "../../../../types/base"
 import { useGiftInfos } from "../../hooks/useGiftInfos"
-import { useGiftPagination } from "../../hooks/useGiftPagination"
 import type { GiftMakerHistory } from "../../stores/giftMakerHistory"
 import type { GenerateLink } from "../../types/sharedTypes"
 import { GiftMakerHistoryItem } from "./GiftMakerHistoryItem"
@@ -25,7 +23,6 @@ export function GiftHistory({
   gifts,
 }: GiftHistoryProps) {
   const { giftInfos, loading } = useGiftInfos(gifts, tokenList)
-  const { visibleGiftItems, hasMore, showMore } = useGiftPagination(giftInfos)
 
   if (loading) {
     return <ListItemsSkeleton count={3} loading className="mt-6" />
@@ -58,30 +55,15 @@ export function GiftHistory({
   }
 
   return (
-    <section className="mt-6">
-      <div className="space-y-1">
-        {visibleGiftItems?.map((giftInfo, index) => (
-          <GiftMakerHistoryItem
-            key={giftInfo.secretKey ?? giftInfo.iv ?? `gift-${index}`}
-            giftInfo={giftInfo}
-            generateLink={generateLink}
-            signerCredentials={signerCredentials}
-          />
-        ))}
-      </div>
-
-      {hasMore && (
-        <Button
-          onClick={showMore}
-          size="lg"
-          className="mt-4"
-          fullWidth
-          variant="secondary"
-        >
-          <ChevronDownIcon className="size-5 shrink-0" />
-          Show more
-        </Button>
-      )}
+    <section className="mt-6 space-y-1">
+      {giftInfos?.map((giftInfo, index) => (
+        <GiftMakerHistoryItem
+          key={giftInfo.secretKey ?? giftInfo.iv ?? `gift-${index}`}
+          giftInfo={giftInfo}
+          generateLink={generateLink}
+          signerCredentials={signerCredentials}
+        />
+      ))}
     </section>
   )
 }
