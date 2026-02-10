@@ -6,7 +6,6 @@ import {
   computeTotalBalanceDifferentDecimals,
   getUnderlyingBaseTokenInfos,
 } from "@src/components/DefuseSDK/utils/tokenUtils"
-import PageHeader from "@src/components/PageHeader"
 import { useQuery } from "@tanstack/react-query"
 import { useEffect } from "react"
 import { CopyButton } from "../../../components/IntentCard/CopyButton"
@@ -56,59 +55,63 @@ export function GiftTakerSuccessScreen({
 
   return (
     <>
-      <PageHeader
-        title="Gift claimed!"
-        subtitle="The funds are now in your account. Use them for trading or withdraw to your wallet."
-      />
+      <h1 className="text-2xl/7 md:text-4xl/10 text-balance font-bold tracking-tight">
+        Gift claimed!
+      </h1>
 
-      <div className="p-5 pt-12 flex flex-col items-center justify-center bg-white rounded-3xl border border-gray-200 mt-7 gap-7">
-        <div className="flex flex-col items-center gap-5">
-          <AssetComboIcon {...giftInfo.token} sizeClassName="size-13" />
-          <div className="text-2xl/7 font-bold text-gray-900 tracking-tight">
+      <p className="mt-4 text-gray-500 text-base font-medium">
+        The funds are now in your account. Use them for trading or withdraw to
+        your wallet.
+      </p>
+
+      <dl className="w-full space-y-3 mt-8 pt-8 border-t border-gray-200">
+        <div className="flex justify-between items-center">
+          <dt className="text-sm font-medium text-gray-500">Amount</dt>
+          <dd className="text-gray-900 font-semibold text-sm flex items-center gap-1">
             {formatTokenValue(amount.amount, amount.decimals, {
               fractionDigits: 6,
             })}{" "}
             {giftInfo.token.symbol}
-          </div>
+            <AssetComboIcon {...giftInfo.token} sizeClassName="size-4" />
+          </dd>
         </div>
 
-        <dl className="w-full space-y-2 pt-5 border-t border-gray-200">
+        <div className="flex justify-between items-center">
+          <dt className="text-sm font-medium text-gray-500">Intent</dt>
+          <dd className="text-gray-900 font-semibold text-sm flex items-center gap-1">
+            {midTruncate(intentHashes[0])}
+            <CopyButton text={intentHashes[0]} ariaLabel="Copy intent hash" />
+          </dd>
+        </div>
+
+        {txUrl != null && (
           <div className="flex justify-between items-center">
-            <dt className="text-sm font-medium text-gray-500">Intent</dt>
-            <dd className="text-gray-900 font-semibold text-sm flex items-center gap-1">
-              {midTruncate(intentHashes[0])}
-              <CopyButton text={intentHashes[0]} ariaLabel="Copy intent hash" />
+            <dt className="text-sm font-medium text-gray-500">Transaction</dt>
+            <dd className="text-gray-900 font-semibold text-sm">
+              <a
+                href={txUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 hover:underline group"
+              >
+                {midTruncate(intentStatus.data?.txHash ?? "")}
+                <ArrowTopRightOnSquareIcon className="size-4 text-gray-400 group-hover:text-gray-700" />
+              </a>
             </dd>
           </div>
+        )}
+      </dl>
 
-          {txUrl != null && (
-            <div className="flex justify-between items-center">
-              <dt className="text-sm font-medium text-gray-500">Transaction</dt>
-              <dd className="text-gray-900 font-semibold text-sm">
-                <a
-                  href={txUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 hover:underline group"
-                >
-                  {midTruncate(intentStatus.data?.txHash ?? "")}
-                  <ArrowTopRightOnSquareIcon className="size-4 text-gray-400 group-hover:text-gray-700" />
-                </a>
-              </dd>
-            </div>
-          )}
-        </dl>
-
-        <Button
-          href="/account"
-          type="button"
-          size="xl"
-          variant="primary"
-          fullWidth
-        >
-          Go to account
-        </Button>
-      </div>
+      <Button
+        href="/account"
+        type="button"
+        size="xl"
+        variant="primary"
+        fullWidth
+        className="mt-10"
+      >
+        Go to account
+      </Button>
     </>
   )
 }

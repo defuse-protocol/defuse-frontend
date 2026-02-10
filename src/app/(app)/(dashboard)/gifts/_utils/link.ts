@@ -21,7 +21,7 @@ type GiftLinkPayload = {
 } & GiftLinkData
 
 export function createGiftLink(payload: GiftLinkPayload): string {
-  const url = new URL("/gifts/view", window.location.origin)
+  const url = new URL("/gift", window.location.origin)
   if (payload.iv) {
     url.hash = payload.iv
     return url.toString()

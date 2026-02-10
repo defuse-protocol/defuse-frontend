@@ -1,9 +1,8 @@
 import { ChatBubbleBottomCenterTextIcon } from "@heroicons/react/20/solid"
 import Button from "@src/components/Button"
 import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
-import PageHeader from "@src/components/PageHeader"
 import { useSelector } from "@xstate/react"
-import { useCallback } from "react"
+import { useCallback, useMemo } from "react"
 import type { ActorRefFrom } from "xstate"
 import type { SignerCredentials } from "../../../core/formatters"
 import { assert } from "../../../utils/assert"
@@ -29,6 +28,12 @@ export function GiftTakerForm({
   giftTakerRootRef,
   intentHashes,
 }: GiftTakerFormProps) {
+  const loginUrl = useMemo(() => {
+    if (typeof window === "undefined") return "/login"
+    const hash = window.location.hash
+    return `/login?redirect=${encodeURIComponent(`/gift${hash}`)}`
+  }, [])
+
   const amount = computeTotalBalanceDifferentDecimals(
     getUnderlyingBaseTokenInfos(giftInfo.token),
     giftInfo.tokenDiff,
@@ -65,47 +70,40 @@ export function GiftTakerForm({
     (intentHashes != null && intentHashes.length > 0)
   assert(amount != null)
 
+  const loggedIn = signerCredentials != null
+
   return (
     <>
-      <PageHeader
-        title="You've received a gift!"
-        subtitle="Sign in to claim it, no hidden fees or strings attached."
-      />
-
-      <div className="p-5 pt-12 flex flex-col items-center justify-center bg-white rounded-3xl border border-gray-200 mt-7 gap-7">
-        <div className="flex flex-col items-center gap-5">
-          <AssetComboIcon {...giftInfo.token} sizeClassName="size-13" />
-          <div className="text-2xl/7 font-bold text-gray-900 tracking-tight">
+      <h1 className="text-2xl/7 md:text-4xl/10 text-balance font-bold tracking-tight">
+        You‘ve received a gift of
+        <span className="flex items-center gap-1 md:gap-2">
+          <AssetComboIcon
+            {...giftInfo.token}
+            sizeClassName="shrink-0 size-6 md:size-8"
+          />
+          <span>
             {formatTokenValue(amount.amount, amount.decimals, {
               fractionDigits: 6,
             })}{" "}
             {giftInfo.token.symbol}
+          </span>
+        </span>
+      </h1>
+
+      {giftInfo.message?.length > 0 && (
+        <div className="mt-5 w-full border border-gray-200 rounded-3xl flex gap-3 p-2 md:p-3 items-start">
+          <div className="bg-gray-100 rounded-full size-10 shrink-0 flex items-center justify-center">
+            <ChatBubbleBottomCenterTextIcon className="size-5 text-gray-500" />
+          </div>
+          <div className="sr-only">Message</div>
+          <div className="text-base font-semibold text-gray-600 min-h-10 flex items-center">
+            {giftInfo.message}
           </div>
         </div>
+      )}
 
-        {giftInfo.message?.length > 0 && (
-          <div className="w-full border border-gray-200 rounded-3xl flex gap-3 p-3 items-center">
-            <div className="bg-gray-100 rounded-full size-10 shrink-0 flex items-center justify-center">
-              <ChatBubbleBottomCenterTextIcon className="size-5 text-gray-500" />
-            </div>
-            <div className="sr-only">Message</div>
-            <div className="text-base font-semibold text-gray-600">
-              {giftInfo.message}
-            </div>
-          </div>
-        )}
-
-        {signerCredentials == null ? (
-          <Button
-            href={`/login?redirect=${encodeURIComponent(`/gifts/view${typeof window !== "undefined" ? window.location.hash : ""}`)}`}
-            type="button"
-            size="xl"
-            variant="primary"
-            fullWidth
-          >
-            Sign in to claim
-          </Button>
-        ) : (
+      <div className="mt-8 md:mt-12">
+        {loggedIn ? (
           <Button
             onClick={claimGift}
             type="button"
@@ -117,6 +115,21 @@ export function GiftTakerForm({
           >
             {processing ? "Claiming..." : "Claim gift"}
           </Button>
+        ) : (
+          <>
+            <Button
+              href={loginUrl}
+              type="button"
+              size="xl"
+              variant="primary"
+              fullWidth
+            >
+              Sign in to claim
+            </Button>
+            <p className="mt-3 text-sm text-gray-500 font-medium text-center text-balance">
+              No hidden fees or strings attached.
+            </p>
+          </>
         )}
       </div>
     </>

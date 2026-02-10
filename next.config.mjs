@@ -38,7 +38,7 @@ const nextConfig = {
       },
       {
         source: '/gift-card/view-gift',
-        destination: '/gifts/view',
+        destination: '/gift',
         permanent: true,
       },
       {
