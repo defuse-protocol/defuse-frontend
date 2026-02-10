@@ -97,7 +97,7 @@ export async function getActiveSessionToken(): Promise<string | null> {
  * Clear only the active session cookie (on sign out).
  * Preserves per-wallet auth tokens so user can reconnect without re-verifying.
  */
-export async function clearActiveWallet(): Promise<void> {
+export async function clearActiveSession(): Promise<void> {
   const cookieStore = await cookies()
   cookieStore.delete(ACTIVE_SESSION_COOKIE_NAME)
 }
