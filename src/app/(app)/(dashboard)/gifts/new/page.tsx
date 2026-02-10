@@ -1,7 +1,6 @@
 "use client"
 
 import { TokenListUpdater } from "@src/components/DefuseSDK/components/TokenListUpdater"
-import { WidgetRoot } from "@src/components/DefuseSDK/components/WidgetRoot"
 import { GiftMakerForm } from "@src/components/DefuseSDK/features/gift/components/GiftMakerForm"
 import { GiftsHeader } from "@src/components/DefuseSDK/features/gift/components/GiftsHeader"
 import { SwapWidgetProvider } from "@src/components/DefuseSDK/providers/SwapWidgetProvider"
@@ -46,7 +45,7 @@ export default function NewGiftPage() {
   }
 
   return (
-    <WidgetRoot>
+    <>
       <SwapWidgetProvider>
         <TokenListUpdater tokenList={tokenList} />
 
@@ -68,6 +67,6 @@ export default function NewGiftPage() {
           />
         </section>
       </SwapWidgetProvider>
-    </WidgetRoot>
+    </>
   )
 }
