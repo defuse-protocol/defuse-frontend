@@ -1,11 +1,11 @@
 "use client"
 
+import { UserGroupIcon } from "@heroicons/react/24/solid"
 import type { FeatureFlagValues } from "@src/components/PreloadFeatureFlags"
 import { useIsActiveLink } from "@src/hooks/useIsActiveLink"
 import {
   AccountIcon,
   ContactsIcon,
-  DealsIcon,
   EarnIcon,
   HistoryIcon,
   SwapIcon,
@@ -45,7 +45,7 @@ export const navItems: NavItemType[] = [
     label: "Private deals",
     shortLabel: "Deals",
     href: "/deals",
-    icon: DealsIcon,
+    icon: UserGroupIcon,
     showInTabs: true,
   },
   {
