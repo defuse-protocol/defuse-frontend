@@ -5,8 +5,8 @@ type TokenConfettiProps = {
   trigger?: boolean
 }
 
-const CONFETTI_COLORS = ["#10b981", "#34d399", "#6ee7b7", "#a7f3d0", "#fbbf24"]
-const CONFETTI_DURATION_MS = 3000
+const CONFETTI_COLORS = ["#ef4444", "#facc15", "#22c55e", "#06b6d4", "#d946ef"]
+const CONFETTI_DURATION_MS = 1000
 
 export function useTokenConfetti() {
   const confettiFired = useRef(false)
@@ -22,6 +22,7 @@ export function useTokenConfetti() {
       clearTimeout(timeoutRef.current)
       timeoutRef.current = null
     }
+    confettiFired.current = false
   }, [])
 
   const fireConfetti = useCallback(() => {
@@ -32,23 +33,23 @@ export function useTokenConfetti() {
     const frame = () => {
       confetti({
         particleCount: 4,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0, y: 0 },
+        angle: 45,
+        spread: 90,
+        origin: { x: 0, y: 1 },
         colors: CONFETTI_COLORS,
-        gravity: 1.2,
+        gravity: 1,
         scalar: 1.2,
-        drift: 0,
+        drift: 0.5,
       })
       confetti({
         particleCount: 4,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1, y: 0 },
+        angle: 135,
+        spread: 90,
+        origin: { x: 1, y: 1 },
         colors: CONFETTI_COLORS,
-        gravity: 1.2,
+        gravity: 1,
         scalar: 1.2,
-        drift: 0,
+        drift: -0.5,
       })
 
       if (Date.now() < end) {
@@ -58,18 +59,6 @@ export function useTokenConfetti() {
       }
     }
     frame()
-
-    timeoutRef.current = setTimeout(() => {
-      confetti({
-        particleCount: 100,
-        spread: 100,
-        origin: { y: 0.3 },
-        colors: CONFETTI_COLORS,
-        gravity: 0.8,
-        scalar: 1.5,
-      })
-      timeoutRef.current = null
-    }, 300)
   }, [stopAnimation])
 
   const fireOnce = useCallback(() => {
