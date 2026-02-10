@@ -16,12 +16,15 @@ type EmitTypes =
   | "gift_link_refunded"
   | "deposit_initiated"
   | "deposit_success"
+  | "deposit_failed"
   | "otc_deal_initiated"
   | "swap_initiated"
   | "swap_confirmed"
+  | "swap_failed"
   | "otc_confirmed"
   | "withdrawal_initiated"
   | "withdrawal_confirmed"
+  | "withdrawal_failed"
 
 export const emitEvent = (type: EmitTypes, data: unknown) => {
   if (!bus) {

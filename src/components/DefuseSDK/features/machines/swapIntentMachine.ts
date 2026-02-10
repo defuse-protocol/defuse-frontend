@@ -210,6 +210,19 @@ export const swapIntentMachine = setup({
         })
       }
     },
+    emitSwapFailed: ({ context }) => {
+      const { intentOperationParams } = context
+      if (intentOperationParams.type === "swap") {
+        const { tokensIn } = intentOperationParams
+        assert(tokensIn[0] != null)
+
+        emitEvent("swap_failed", {
+          token_from: intentOperationParams.tokenOut.symbol,
+          token_to: tokensIn[0].symbol,
+          error_reason: context.error?.value.reason ?? "unknown",
+        })
+      }
+    },
     setSignature: assign({
       signature: (_, signature: walletMessage.WalletSignatureResult | null) =>
         signature,
@@ -730,6 +743,7 @@ export const swapIntentMachine = setup({
 
     "Generic Error": {
       type: "final",
+      entry: ["emitSwapFailed"],
     },
   },
 })

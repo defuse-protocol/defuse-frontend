@@ -177,6 +177,18 @@ export const withdrawUIMachine = setup({
         })
       }
     },
+    emitWithdrawalFailed: ({ context }, output: SwapIntentMachineOutput) => {
+      if (output.tag !== "err") return
+
+      const withdrawContext = context.withdrawFormRef.getSnapshot().context
+      emitEvent("withdrawal_failed", {
+        token: withdrawContext.tokenIn.symbol,
+        amount: withdrawContext.parsedAmount?.toString(),
+        to_chain: withdrawContext.tokenOut.defuseAssetId,
+        error_reason:
+          "reason" in output.value ? output.value.reason : "unknown",
+      })
+    },
 
     relayToWithdrawFormRef: sendTo(
       "withdrawFormRef",
@@ -510,6 +522,10 @@ export const withdrawUIMachine = setup({
           {
             target: "editing.reviewing",
             actions: [
+              {
+                type: "emitWithdrawalFailed",
+                params: ({ event }) => event.output,
+              },
               {
                 type: "setIntentCreationResult",
                 params: ({ event }) => event.output,

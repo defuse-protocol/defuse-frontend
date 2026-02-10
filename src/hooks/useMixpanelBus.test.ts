@@ -57,15 +57,21 @@ describe("useMixpanelBus", () => {
 
     const expectedEvents = [
       "gift_created",
+      "gift_claimed",
+      "gift_link_shared",
+      "gift_link_viewed",
+      "gift_link_refunded",
       "deposit_initiated",
       "deposit_success",
-      "gift_claimed",
+      "deposit_failed",
       "otc_deal_initiated",
       "swap_initiated",
       "swap_confirmed",
+      "swap_failed",
       "otc_confirmed",
       "withdrawal_initiated",
       "withdrawal_confirmed",
+      "withdrawal_failed",
     ]
 
     // biome-ignore lint/style/noNonNullAssertion: bus is mocked
@@ -100,12 +106,12 @@ describe("useMixpanelBus", () => {
     const { unmount } = renderHook(() => useMixpanelBus())
 
     // biome-ignore lint/style/noNonNullAssertion: bus is mocked
-    expect(vi.mocked(bus!.on)).toHaveBeenCalledTimes(10)
+    expect(vi.mocked(bus!.on)).toHaveBeenCalledTimes(16)
 
     unmount()
 
     // biome-ignore lint/style/noNonNullAssertion: bus is mocked
-    expect(vi.mocked(bus!.removeListener)).toHaveBeenCalledTimes(10)
+    expect(vi.mocked(bus!.removeListener)).toHaveBeenCalledTimes(16)
 
     for (const [event, callback] of registeredCallbacks.entries()) {
       // biome-ignore lint/style/noNonNullAssertion: bus is mocked

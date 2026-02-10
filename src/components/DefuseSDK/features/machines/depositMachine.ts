@@ -112,6 +112,14 @@ export const depositMachine = setup({
         amount: context.amount.toString(),
       })
     },
+    emitDepositFailed: ({ context }) => {
+      emitEvent("deposit_failed", {
+        token: context.derivedToken.symbol,
+        network: context.tokenDeployment.chainName,
+        amount: context.amount.toString(),
+        error_reason: context.error?.reason ?? "unknown",
+      })
+    },
   },
   guards: {
     isDepositParamsValid: () => {
@@ -259,6 +267,7 @@ export const depositMachine = setup({
 
     failed: {
       type: "final",
+      entry: ["emitDepositFailed"],
     },
 
     completed: {
