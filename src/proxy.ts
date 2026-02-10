@@ -14,7 +14,7 @@ import { logger } from "@src/utils/logger"
 
 export const config = {
   matcher:
-    "/((?!api|.well-known/vercel|_next/static|_next/image|favicon.ico|favicons|static|maintenance).*)",
+    "/((?!api|.well-known/vercel|_next/static|_next/image|favicon.ico|favicons|static|maintenance|monitoring).*)",
 }
 
 const featureRouteMap = [
