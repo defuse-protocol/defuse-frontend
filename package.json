@@ -19,9 +19,9 @@
   "dependencies": {
     "@clickhouse/client": "^1.12.1",
     "@creit.tech/stellar-wallets-kit": "1.9.5",
-    "@defuse-protocol/contract-types": "0.4.4",
-    "@defuse-protocol/intents-sdk": "0.45.4",
-    "@defuse-protocol/internal-utils": "0.23.1",
+    "@defuse-protocol/contract-types": "0.6.0",
+    "@defuse-protocol/intents-sdk": "0.51.0",
+    "@defuse-protocol/internal-utils": "0.26.0",
     "@defuse-protocol/one-click-sdk-typescript": "^0.1.1-0.2",
     "@hot-labs/near-connect": "0.6.8",
     "@near-wallet-selector/core": "^9.1.0",
