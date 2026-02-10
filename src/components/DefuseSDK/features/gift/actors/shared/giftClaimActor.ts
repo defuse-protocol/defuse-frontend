@@ -31,6 +31,7 @@ export type GiftClaimActorErrors =
         | "ERR_ON_SIGN_GIFT"
         | "ERR_ON_PUBLISH_GIFT"
         | "NOT_FOUND_OR_NOT_VALID"
+        | "SETTLEMENT_FAILED"
     }
 
 type GiftSignGiftActorOutput =
@@ -159,6 +160,12 @@ export const giftClaimActor = setup({
           return { tag: "ok" as const }
         } catch (err) {
           logger.error(new Error("Gift settling failed", { cause: err }))
+          if (err instanceof DOMException && err.name === "AbortError") {
+            return {
+              tag: "err" as const,
+              value: { reason: "SETTLEMENT_FAILED" },
+            }
+          }
           return {
             tag: "err" as const,
             value: { reason: "NOT_FOUND_OR_NOT_VALID" },
