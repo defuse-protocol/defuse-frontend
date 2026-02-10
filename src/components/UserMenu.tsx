@@ -41,7 +41,7 @@ const UserMenu = ({
   const { state, signOut } = useConnectWallet()
   const [copied, setCopied] = useState(false)
   const [isCopyWarningOpen, setIsCopyWarningOpen] = useState(false)
-  const displayLabel = "My Intents account"
+  const displayLabel = "My account"
 
   const [skipCopyWarning, setSkipCopyWarning] = useState<boolean>(() => {
     if (typeof window === "undefined") return false
@@ -103,8 +103,13 @@ const UserMenu = ({
               <UserIcon className="text-white/80 size-5" />
             </div>
 
-            <div className="text-sm font-semibold grow text-left">
-              {displayLabel}
+            <div className="grow text-left min-w-0">
+              <div className="text-sm font-semibold">{displayLabel}</div>
+              {state.address && (
+                <div className="text-xs text-gray-500 truncate">
+                  {state.address}
+                </div>
+              )}
             </div>
 
             <ChevronUpIcon className="size-5 shrink-0 group-data-[state=open]:rotate-180 transition-transform duration-100 ease-in-out" />
