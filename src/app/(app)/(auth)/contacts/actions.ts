@@ -1,9 +1,11 @@
 "use server"
 
-import type {
-  AuthMethod,
-  BlockchainEnum,
+import {
+  type AuthMethod,
+  type BlockchainEnum,
+  authIdentity,
 } from "@defuse-protocol/internal-utils"
+import { getActiveWalletAddress, getWalletToken } from "@src/actions/auth"
 import {
   createContact as createContactRepository,
   deleteContact as deleteContactRepository,
@@ -21,14 +23,50 @@ import {
 } from "@src/components/DefuseSDK/utils/adapters"
 import { isSupportedChainName } from "@src/components/DefuseSDK/utils/blockchain"
 import { renderRecipientAddressError } from "@src/components/DefuseSDK/utils/validationErrors"
-import { getAccountIdFromToken } from "@src/utils/dummyAuth"
+import { verifyAppAuthToken } from "@src/utils/authJwt"
 import { logger } from "@src/utils/logger"
-import { cookies } from "next/headers"
+import { validate as isValidUuid } from "uuid"
 import * as v from "valibot"
 
 type ActionResult<T> = { ok: true; value: T } | { ok: false; error: string }
 
-const AUTH_TOKEN_KEY = "defuse_auth_token"
+type AuthResult = { ok: true; accountId: string } | { ok: false; error: string }
+
+/**
+ * Authenticates the current request using the active wallet cookie.
+ * Verifies the JWT token and ensures the identity matches.
+ */
+async function authenticate(): Promise<AuthResult> {
+  const walletAddress = await getActiveWalletAddress()
+  if (!walletAddress) {
+    logger.warn("No active wallet")
+    return { ok: false, error: "Authentication required" }
+  }
+
+  const token = await getWalletToken(walletAddress)
+  if (!token) {
+    logger.warn("Auth token missing")
+    return { ok: false, error: "Authentication required" }
+  }
+
+  const payload = await verifyAppAuthToken(token)
+  if (!payload) {
+    logger.warn("Invalid token")
+    return { ok: false, error: "Invalid or expired token" }
+  }
+
+  if (payload.auth_identifier !== walletAddress) {
+    logger.warn("Token identity mismatch")
+    return { ok: false, error: "Authentication error" }
+  }
+
+  const accountId = authIdentity.authHandleToIntentsUserId(
+    payload.auth_identifier,
+    payload.auth_method
+  )
+
+  return { ok: true, accountId }
+}
 
 const CreateContactFormSchema = v.object({
   address: v.pipe(v.string(), v.nonEmpty("Address is required")),
@@ -63,31 +101,18 @@ type ContactEntity = {
 }
 
 export async function getContacts(input?: {
-  search: string | undefined
+  search?: string
 }): Promise<ActionResult<Array<Contact>>> {
   try {
-    const cookieStore = await cookies()
-    const token = cookieStore.get(AUTH_TOKEN_KEY)?.value
-
-    if (!token) {
-      logger.warn("Auth token missing from cookies")
-      return {
-        ok: false,
-        error:
-          "It seems you are not authenticated to manage contacts. This may be a technical error on our side. Please try again.",
-      }
+    const auth = await authenticate()
+    if (!auth.ok) {
+      return { ok: false, error: auth.error }
     }
 
-    const accountId = getAccountIdFromToken(token)
-    if (!accountId) {
-      return {
-        ok: false,
-        error:
-          "We were unable to detect an authorization token needed to manage contacts. This may be a technical error on our side. Please try again.",
-      }
-    }
-
-    const contactsData = await getContactsByAccountId(accountId, input?.search)
+    const contactsData = await getContactsByAccountId(
+      auth.accountId,
+      input?.search
+    )
 
     const contacts: Array<Contact> = contactsData
       .map((contact) => {
@@ -126,24 +151,9 @@ export async function createContact(input: {
   userAddress?: string
   chainType?: AuthMethod
 }): Promise<ActionResult<ContactEntity>> {
-  const cookieStore = await cookies()
-  const token = cookieStore.get(AUTH_TOKEN_KEY)?.value
-
-  if (!token) {
-    logger.warn("Auth token missing from cookies", {
-      source: "create-contact",
-      action: "missing-token",
-    })
-    return { ok: false, error: "Authentication required" }
-  }
-
-  const accountId = getAccountIdFromToken(token)
-  if (!accountId) {
-    logger.warn("Invalid token when creating contact", {
-      source: "create-contact",
-      action: "invalid-token",
-    })
-    return { ok: false, error: "Invalid token" }
+  const auth = await authenticate()
+  if (!auth.ok) {
+    return { ok: false, error: auth.error }
   }
 
   const data = v.safeParse(CreateContactFormSchema, input)
@@ -186,7 +196,7 @@ export async function createContact(input: {
   }
 
   const existingContact = await getContactByAccountAddressAndBlockchain(
-    accountId,
+    auth.accountId,
     data.output.address,
     blockchain
   )
@@ -195,7 +205,7 @@ export async function createContact(input: {
     logger.warn("Contact already exists", {
       source: "create-contact",
       action: "duplicate-contact",
-      accountId,
+      accountId: auth.accountId,
       address: data.output.address,
       blockchain,
     })
@@ -203,7 +213,7 @@ export async function createContact(input: {
   }
 
   const entity = await createContactRepository({
-    accountId,
+    accountId: auth.accountId,
     address: data.output.address,
     name: data.output.name,
     blockchain,
@@ -213,7 +223,7 @@ export async function createContact(input: {
     logger.error("Failed to create contact in repository", {
       source: "create-contact",
       action: "repository-error",
-      accountId,
+      accountId: auth.accountId,
     })
     return {
       ok: false,
@@ -243,24 +253,9 @@ export async function updateContact(input: {
   userAddress?: string
   chainType?: AuthMethod
 }): Promise<ActionResult<ContactEntity>> {
-  const cookieStore = await cookies()
-  const token = cookieStore.get(AUTH_TOKEN_KEY)?.value
-
-  if (!token) {
-    logger.warn("Auth token missing from cookies", {
-      source: "update-contact",
-      action: "missing-token",
-    })
-    return { ok: false, error: "Authentication required" }
-  }
-
-  const accountId = getAccountIdFromToken(token)
-  if (!accountId) {
-    logger.warn("Invalid token when updating contact", {
-      source: "update-contact",
-      action: "invalid-token",
-    })
-    return { ok: false, error: "Invalid token" }
+  const auth = await authenticate()
+  if (!auth.ok) {
+    return { ok: false, error: auth.error }
   }
 
   const data = v.safeParse(UpdateContactFormSchema, input)
@@ -310,17 +305,17 @@ export async function updateContact(input: {
       source: "update-contact",
       action: "contact-not-found",
       contactId: data.output.contactId,
-      accountId,
+      accountId: auth.accountId,
     })
     return { ok: false, error: "Contact not found" }
   }
 
-  if (existingContact.accountId !== accountId) {
+  if (existingContact.accountId !== auth.accountId) {
     logger.error("Unauthorized attempt to update contact", {
       source: "update-contact",
       action: "permission-denied",
       contactId: data.output.contactId,
-      accountId,
+      accountId: auth.accountId,
       contactAccountId: existingContact.accountId,
     })
     return { ok: false, error: "Permission denied" }
@@ -337,7 +332,7 @@ export async function updateContact(input: {
       source: "update-contact",
       action: "repository-error",
       contactId: data.output.contactId,
-      accountId,
+      accountId: auth.accountId,
     })
     return {
       ok: false,
@@ -359,27 +354,125 @@ export async function updateContact(input: {
   }
 }
 
+export async function getContactByAddressAction(input: {
+  address: string
+  blockchain: SupportedChainName
+}): Promise<ActionResult<Contact | null>> {
+  try {
+    const auth = await authenticate()
+    if (!auth.ok) {
+      return { ok: false, error: auth.error }
+    }
+
+    const contact = await getContactByAccountAddressAndBlockchain(
+      auth.accountId,
+      input.address,
+      input.blockchain
+    )
+
+    if (!contact) {
+      return { ok: true, value: null }
+    }
+
+    if (!isSupportedChainName(contact.blockchain)) {
+      return { ok: true, value: null }
+    }
+
+    const blockchain: SupportedChainName = contact.blockchain
+    const blockchainEnum = assetNetworkAdapter[blockchain]
+
+    return {
+      ok: true,
+      value: {
+        contactId: contact.contactId,
+        accountId: contact.accountId,
+        address: contact.address,
+        name: contact.name,
+        blockchain: blockchainEnum,
+        id: contact.contactId,
+      },
+    }
+  } catch (error) {
+    logger.error("Failed to fetch contact by address", { cause: error })
+    return {
+      ok: false,
+      error: "We were unable to retrieve the contact. Please try again.",
+    }
+  }
+}
+
+export async function getContactByIdAction(input: {
+  contactId: string
+}): Promise<ActionResult<Contact | null>> {
+  try {
+    // Validate UUID format first to avoid database errors
+    if (!isValidUuid(input.contactId)) {
+      logger.warn("Invalid contactId format", {
+        source: "get-contact-by-id",
+        action: "invalid-format",
+        contactId: input.contactId,
+      })
+      return { ok: false, error: "Invalid contact ID format" }
+    }
+
+    const auth = await authenticate()
+    if (!auth.ok) {
+      return { ok: false, error: auth.error }
+    }
+
+    const contact = await getContactById(input.contactId)
+
+    if (!contact) {
+      return { ok: true, value: null }
+    }
+
+    // Verify the contact belongs to the authenticated user
+    if (contact.accountId !== auth.accountId) {
+      logger.warn("Unauthorized attempt to access contact", {
+        source: "get-contact-by-id",
+        action: "permission-denied",
+        contactId: input.contactId,
+        accountId: auth.accountId,
+      })
+      return { ok: false, error: "Permission denied" }
+    }
+
+    if (!isSupportedChainName(contact.blockchain)) {
+      return { ok: true, value: null }
+    }
+
+    const blockchain: SupportedChainName = contact.blockchain
+    const blockchainEnum = assetNetworkAdapter[blockchain]
+
+    return {
+      ok: true,
+      value: {
+        contactId: contact.contactId,
+        accountId: contact.accountId,
+        address: contact.address,
+        name: contact.name,
+        blockchain: blockchainEnum,
+        id: contact.contactId,
+      },
+    }
+  } catch (error) {
+    logger.error("Failed to fetch contact by ID", {
+      cause: error,
+      contactId: input.contactId,
+    })
+    return {
+      ok: false,
+      error: "We were unable to retrieve the contact. Please try again.",
+    }
+  }
+}
+
 export async function deleteContact(input: {
   contactId: string
 }): Promise<ActionResult<null>> {
-  const cookieStore = await cookies()
-  const token = cookieStore.get(AUTH_TOKEN_KEY)?.value
-
-  if (!token) {
-    logger.warn("Auth token missing from cookies", {
-      source: "delete-contact",
-      action: "missing-token",
-    })
-    return { ok: false, error: "Authentication required" }
-  }
-
-  const accountId = getAccountIdFromToken(token)
-  if (!accountId) {
-    logger.warn("Invalid token when deleting contact", {
-      source: "delete-contact",
-      action: "invalid-token",
-    })
-    return { ok: false, error: "Invalid token" }
+  const auth = await authenticate()
+  if (!auth.ok) {
+    return { ok: false, error: auth.error }
   }
 
   const data = v.safeParse(DeleteContactFormSchema, input)
@@ -406,17 +499,17 @@ export async function deleteContact(input: {
       source: "delete-contact",
       action: "contact-not-found",
       contactId: data.output.contactId,
-      accountId,
+      accountId: auth.accountId,
     })
     return { ok: false, error: "Contact not found" }
   }
 
-  if (existingContact.accountId !== accountId) {
+  if (existingContact.accountId !== auth.accountId) {
     logger.error("Unauthorized attempt to delete contact", {
       source: "delete-contact",
       action: "permission-denied",
       contactId: data.output.contactId,
-      accountId,
+      accountId: auth.accountId,
       contactAccountId: existingContact.accountId,
     })
     return { ok: false, error: "Permission denied" }

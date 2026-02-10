@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "tailwindcss-safe-area";
 
 @plugin "@tailwindcss/forms";
 @plugin "@tailwindcss/typography";
@@ -70,4 +71,21 @@
     -webkit-appearance: none;
     margin: 0;
   }
+}
+
+@keyframes dot-bounce {
+  0%,
+  80%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@utility animate-dot-bounce {
+  animation: dot-bounce 1.4s infinite ease-in-out both;
 }

@@ -14,16 +14,26 @@ import { cn } from "@src/utils/cn"
 import Link from "next/link"
 import type { ComponentType } from "react"
 
-const navItems = [
+export type NavItemType = {
+  label: string
+  href: string
+  showInTabs?: boolean
+  icon: ComponentType<React.SVGProps<SVGSVGElement>>
+  shortLabel?: string
+}
+
+export const navItems: NavItemType[] = [
   {
     label: "Account",
     href: "/account",
     icon: AccountIcon,
+    showInTabs: true,
   },
   {
     label: "Swap",
     href: "/swap",
     icon: SwapIcon,
+    showInTabs: true,
   },
   {
     label: "Earn",
@@ -37,13 +47,16 @@ const navItems = [
   },
   {
     label: "Private deals",
+    shortLabel: "Deals",
     href: "/deals",
     icon: DealsIcon,
+    showInTabs: true,
   },
   {
     label: "History",
     href: "/history",
     icon: HistoryIcon,
+    showInTabs: true,
   },
   {
     label: "Contacts",
@@ -62,24 +75,13 @@ export function NavbarDesktop() {
   )
 }
 
-function NavItem({
-  label,
-  href,
-  dataTestId,
-  icon: Icon,
-}: {
-  label: string
-  href: string
-  dataTestId?: string
-  icon: ComponentType<React.SVGProps<SVGSVGElement>>
-}) {
+function NavItem({ label, href, icon: Icon }: NavItemType) {
   const { isActive } = useIsActiveLink()
 
   return (
     <Link
       href={href}
       key={label}
-      data-testid={dataTestId}
       className={cn(
         "flex items-center gap-4 py-4 px-3.5 rounded-2xl",
         isActive(href)

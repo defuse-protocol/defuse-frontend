@@ -13,6 +13,7 @@ const HelperPopover = ({ children }: { children: ReactNode }) => {
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Content
+          collisionPadding={8}
           className={clsx(
             "max-w-80 bg-gray-900 rounded-2xl shadow-xl px-3 py-2 origin-top flex flex-col gap-2.5 text-gray-200 text-sm/5 font-medium text-pretty",
 

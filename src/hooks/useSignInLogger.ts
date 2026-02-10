@@ -5,7 +5,7 @@ import { useMixpanel } from "@src/providers/MixpanelProvider"
 export const useSignInLogger = (
   address: string | undefined,
   chainType: string | undefined,
-  isVerified: boolean
+  isAuthorized: boolean
 ) => {
   const mixPanel = useMixpanel()
   const storageKey = "signedInAddress"
@@ -22,13 +22,13 @@ export const useSignInLogger = (
   )
 
   useEffect(() => {
-    if (address != null && isVerified) {
+    if (address != null && isAuthorized) {
       if (!localStorage.getItem(storageKey)) {
         localStorage.setItem(storageKey, address)
         sendMixPanelEvent("wallet_connection_success")
       }
     }
-  }, [address, isVerified, sendMixPanelEvent])
+  }, [address, isAuthorized, sendMixPanelEvent])
 
   return {
     onSignOut: useCallback(() => {

@@ -6,7 +6,7 @@ import {
   useWallet as useSolanaWallet,
 } from "@solana/wallet-adapter-react"
 import { useWalletModal } from "@solana/wallet-adapter-react-ui"
-import { clearAuthToken } from "@src/actions/auth"
+import { clearActiveWallet } from "@src/actions/auth"
 import { BaseError } from "@src/components/DefuseSDK/errors/base"
 import type {
   SendTransactionStellarParams,
@@ -18,6 +18,7 @@ import {
   useWebAuthnUIStore,
 } from "@src/features/webauthn/hooks/useWebAuthnStore"
 import { useSignInLogger } from "@src/hooks/useSignInLogger"
+import { useWalletAuth } from "@src/hooks/useWalletAuth"
 import { useNearWallet } from "@src/providers/NearWalletProvider"
 import {
   signTransactionStellar,
@@ -25,7 +26,6 @@ import {
   useStellarWallet,
 } from "@src/providers/StellarWalletProvider"
 import { useTronWallet } from "@src/providers/TronWalletProvider"
-import { useVerifiedWalletsStore } from "@src/stores/useVerifiedWalletsStore"
 import type {
   SendTransactionEVMParams,
   SendTransactionSolanaParams,
@@ -33,6 +33,7 @@ import type {
   SignAndSendTransactionsParams,
 } from "@src/types/interfaces"
 import { parseTonAddress } from "@src/utils/parseTonAddress"
+import { useQueryClient } from "@tanstack/react-query"
 import { Cell } from "@ton/ton"
 import {
   useTonConnectModal,
@@ -42,7 +43,6 @@ import {
 import type { SendTransactionResponse } from "@tonconnect/ui-react"
 import type { SendTransactionParameters } from "@wagmi/core"
 import { useSearchParams } from "next/navigation"
-import { useCallback } from "react"
 import {
   type Connector,
   useAccount,
@@ -67,7 +67,9 @@ export type State = {
   network?: string
   address?: string
   displayAddress?: string
-  isVerified: boolean
+  isAuthorized: boolean
+  isAuthValidating: boolean // true while server-side token validation is in progress
+  isSessionExpired: boolean // true when token existed but validation failed
   isFake: boolean // in most cases, this is used for testing purposes only
 }
 
@@ -86,8 +88,10 @@ interface ConnectWalletAction {
   }) => Promise<string | FinalExecutionOutcome[] | SendTransactionResponse>
   connectors: Connector[]
   state: State
-  /** True when any wallet adapter is in a connecting/reconnecting state */
+  /** True when any wallet adapter is in a connecting state */
   isLoading: boolean
+  /** True when EVM wallet is in a reconnecting state */
+  isReconnecting: boolean
 }
 
 const defaultState: State = {
@@ -95,12 +99,15 @@ const defaultState: State = {
   network: undefined,
   address: undefined,
   displayAddress: undefined,
-  isVerified: false,
+  isAuthorized: false,
+  isAuthValidating: false,
+  isSessionExpired: false,
   isFake: false,
 }
 
 export const useConnectWallet = (): ConnectWalletAction => {
   let state: State = defaultState
+  const queryClient = useQueryClient()
 
   /**
    * NEAR:
@@ -114,7 +121,9 @@ export const useConnectWallet = (): ConnectWalletAction => {
       displayAddress: nearWallet.accountId,
       network: "near:mainnet",
       chainType: ChainType.Near,
-      isVerified: false,
+      isAuthorized: false,
+      isAuthValidating: false,
+      isSessionExpired: false,
       isFake: false,
     }
   }
@@ -162,7 +171,9 @@ export const useConnectWallet = (): ConnectWalletAction => {
         ? `eth:${evmWalletAccount.chainId}`
         : "unknown",
       chainType: ChainType.EVM,
-      isVerified: false,
+      isAuthorized: false,
+      isAuthValidating: false,
+      isSessionExpired: false,
       isFake: false,
     }
   }
@@ -198,7 +209,9 @@ export const useConnectWallet = (): ConnectWalletAction => {
       displayAddress: solanaWallet.publicKey.toBase58(),
       network: "sol:mainnet",
       chainType: ChainType.Solana,
-      isVerified: false,
+      isAuthorized: false,
+      isAuthValidating: false,
+      isSessionExpired: false,
       isFake: false,
     }
   }
@@ -216,7 +229,9 @@ export const useConnectWallet = (): ConnectWalletAction => {
       address: currentPasskey.publicKey,
       displayAddress: currentPasskey.publicKey,
       chainType: ChainType.WebAuthn,
-      isVerified: false,
+      isAuthorized: false,
+      isAuthValidating: false,
+      isSessionExpired: false,
       isFake: false,
     }
   }
@@ -235,7 +250,9 @@ export const useConnectWallet = (): ConnectWalletAction => {
       displayAddress: parseTonAddress(tonWallet.account.address),
       network: "ton",
       chainType: ChainType.Ton,
-      isVerified: false,
+      isAuthorized: false,
+      isAuthValidating: false,
+      isSessionExpired: false,
       isFake: false,
     }
   }
@@ -265,7 +282,9 @@ export const useConnectWallet = (): ConnectWalletAction => {
       displayAddress: publicKey,
       network: "stellar:mainnet",
       chainType: ChainType.Stellar,
-      isVerified: false,
+      isAuthorized: false,
+      isAuthValidating: false,
+      isSessionExpired: false,
       isFake: false,
     }
   }
@@ -290,22 +309,21 @@ export const useConnectWallet = (): ConnectWalletAction => {
       displayAddress: tronWallet.publicKey,
       network: "tron:mainnet",
       chainType: ChainType.Tron,
-      isVerified: false,
+      isAuthorized: false,
+      isAuthValidating: false,
+      isSessionExpired: false,
       isFake: false,
     }
   }
 
-  const isVerifiedFromStore = useVerifiedWalletsStore(
-    useCallback(
-      (store) =>
-        state.address != null
-          ? store.walletAddresses.includes(state.address)
-          : false,
-      [state.address]
-    )
+  const { isAuthorized, isSessionExpired, isValidating } = useWalletAuth(
+    state.address,
+    state.chainType
   )
 
-  state.isVerified = isVerifiedFromStore
+  state.isAuthorized = isAuthorized
+  state.isAuthValidating = isValidating
+  state.isSessionExpired = isSessionExpired
 
   const impersonatedUser = useImpersonatedUser()
   if (impersonatedUser) {
@@ -315,12 +333,11 @@ export const useConnectWallet = (): ConnectWalletAction => {
   const { onSignOut } = useSignInLogger(
     state.address,
     state.chainType,
-    state.isVerified
+    state.isAuthorized
   )
 
   const isLoading =
     evmWalletAccount.isConnecting ||
-    evmWalletAccount.isReconnecting ||
     solanaWallet.connecting ||
     isStellarLoading ||
     tronWallet.isLoading ||
@@ -360,9 +377,12 @@ export const useConnectWallet = (): ConnectWalletAction => {
           [ChainType.Tron]: () => handleSignOutViaTron(),
         }
 
-        onSignOut()
+        // Clear active wallet cookie only - preserve auth token for reconnection
+        await clearActiveWallet()
 
-        await clearAuthToken()
+        void queryClient.invalidateQueries({ queryKey: ["token_validation"] })
+
+        onSignOut()
         return strategies[params.id]()
       } catch (error) {
         const errorMessage =
@@ -448,6 +468,7 @@ export const useConnectWallet = (): ConnectWalletAction => {
     connectors: evmWalletConnect.connectors as Connector[],
     state,
     isLoading,
+    isReconnecting: evmWalletAccount.isReconnecting,
   }
 }
 
@@ -464,7 +485,9 @@ function useImpersonatedUser() {
   return {
     chainType: user.slice(0, index) as ChainType,
     address: user.slice(index + 1),
-    isVerified: true,
+    isAuthorized: true,
+    isAuthValidating: false,
+    isSessionExpired: false,
     isFake: true,
   }
 }

@@ -30,22 +30,22 @@ function SystemStatus({ className, showOperationalStatus = false }: Props) {
   return (
     <div
       className={clsx(
-        "flex items-center justify-center gap-3 px-4 py-2.5 rounded-xl",
+        "flex items-center justify-center gap-3 px-3 py-2 rounded-xl",
         {
           "bg-red-50": statusType === "incident",
-          "bg-yellow-200": statusType === "maintenance",
+          "bg-yellow-100": statusType === "maintenance",
           "bg-blue-100": !statusType,
         },
         className
       )}
     >
-      <span className="relative flex size-2.5">
+      <span className="relative flex size-2.5 shrink-0">
         {statusType === "incident" && (
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 bg-red-500" />
         )}
         <span
           className={clsx("relative inline-flex size-2.5 rounded-full", {
-            "bg-yellow-800": statusType === "maintenance",
+            "bg-yellow-500": statusType === "maintenance",
             "bg-red-500": statusType === "incident",
             "bg-blue-500": !statusType,
           })}

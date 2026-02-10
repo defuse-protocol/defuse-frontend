@@ -1,145 +1,99 @@
 "use client"
 
-import {
-  ArrowsLeftRightIcon,
-  ClockCounterClockwiseIcon,
-  PlusIcon,
-} from "@phosphor-icons/react"
-import { navigation } from "@src/constants/routes"
 import { useIsActiveLink } from "@src/hooks/useIsActiveLink"
-import { cn } from "@src/utils/cn"
+import { MoreMenuIcon } from "@src/icons"
+import clsx from "clsx"
 import Link from "next/link"
+import { DropdownMenu } from "radix-ui"
+import type { NavItemType } from "./NavbarDesktop"
+import { navItems } from "./NavbarDesktop"
 
-import type { ReactNode } from "react"
-
-export function NavbarMobile() {
-  const { isActive } = useIsActiveLink()
-
-  const isAccountActive = isActive(navigation.account)
-  const isTradeActive = isActive(navigation.home) || isActive(navigation.otc)
-  const isHistoryActive = isActive(navigation.history)
-  const isDepositActive = isActive(navigation.deposit)
-
-  return (
-    <>
-      <div className="fixed bottom-0 z-50 left-0 md:hidden w-full px-5 pt-3 pb-[max(env(safe-area-inset-bottom,0px),--spacing(3))] bg-gray-1 border-t border-gray-a3">
-        <nav className="flex justify-around items-center gap-4">
-          {/* Account */}
-          <NavItem
-            href={navigation.account}
-            label="Account"
-            isActive={isAccountActive}
-            iconSlot={
-              <NavItem.DisplayIcon>
-                {<WalletIcon active={isAccountActive} />}
-              </NavItem.DisplayIcon>
-            }
-          />
-
-          {/* Trade */}
-          <NavItem
-            href={navigation.home}
-            label="Trade"
-            isActive={isTradeActive}
-            iconSlot={
-              <NavItem.DisplayIcon>
-                <ArrowsLeftRightIcon
-                  className={cn(
-                    "size-4",
-                    isTradeActive ? "text-gray-12" : "text-gray-11"
-                  )}
-                  weight="bold"
-                />
-              </NavItem.DisplayIcon>
-            }
-          />
-
-          {/* History */}
-          <NavItem
-            href={navigation.history}
-            label="History"
-            isActive={isHistoryActive}
-            iconSlot={
-              <NavItem.DisplayIcon>
-                <ClockCounterClockwiseIcon
-                  className={cn(
-                    "size-4",
-                    isHistoryActive ? "text-gray-12" : "text-gray-11"
-                  )}
-                  weight="bold"
-                />
-              </NavItem.DisplayIcon>
-            }
-          />
-
-          {/* Deposit */}
-          <NavItem
-            href={navigation.deposit}
-            label="Deposit"
-            isActive={isDepositActive}
-            iconSlot={
-              <NavItem.DisplayIcon>
-                {
-                  <div
-                    className={cn(
-                      "flex items-center justify-center w-4 h-4 rounded-full",
-                      isDepositActive ? "bg-gray-12" : "bg-gray-11"
-                    )}
-                  >
-                    <PlusIcon className="size-3 text-gray-1" weight="bold" />
-                  </div>
-                }
-              </NavItem.DisplayIcon>
-            }
-          />
-        </nav>
-      </div>
-      <div className="block md:hidden h-[calc(44px+max(env(safe-area-inset-bottom,0px),--spacing(3)))]" />
-    </>
-  )
-}
-function NavItem({
-  href,
+const NavItem = ({
   label,
+  shortLabel,
+  href,
+  icon: Icon,
   isActive,
-  iconSlot,
-}: {
-  href: string
-  label: string
-  isActive: boolean
-  iconSlot: React.ReactNode
-}) {
+}: NavItemType & { isActive: boolean }) => {
   return (
-    <Link href={href} className="flex flex-col items-center text-black">
-      <div className="relative h-4">
-        <div className="pointer-events-none absolute top-0 right-0 bottom-0 w-4 h-4 bg-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 flex justify-center mb-1">
-          {iconSlot}
-        </div>
-      </div>
-      <span
-        className={cn(
-          "text-sm",
-          isActive ? "font-medium text-gray-12" : "font-medium text-gray-11"
-        )}
-      >
-        {label}
+    <Link
+      href={href}
+      className={clsx(
+        "group flex flex-col items-center justify-center py-3.5 focus-visible:outline-hidden",
+        isActive ? "text-brand" : "text-gray-400"
+      )}
+    >
+      <Icon className="size-4.5 shrink-0" />
+      <span className="text-xs/none font-semibold mt-1.5">
+        {shortLabel ?? label}
       </span>
     </Link>
   )
 }
 
-NavItem.DisplayIcon = ({ children }: { children: ReactNode }) => {
-  return <div className="relative">{children}</div>
-}
+export function NavbarMobile() {
+  const { isActive } = useIsActiveLink()
 
-function WalletIcon({ active }: { active: boolean }) {
+  const tabItems = navItems.filter((item) => item.showInTabs)
+  const restItems = navItems.filter((item) => !item.showInTabs)
+
+  const showMore = restItems.length > 0
+  const itemsAmount = tabItems.length + (showMore ? 1 : 0)
+
   return (
-    <div
-      className={cn(
-        "w-4 h-4  mask-[url(/static/icons/wallet_no_active.svg)] bg-no-repeat bg-contain",
-        active ? "bg-gray-12" : "bg-gray-11"
-      )}
-    />
+    <nav className="flex items-center justify-center lg:hidden sticky bottom-0 z-20 px-4 sm:px-6 bg-white border-t border-gray-200 pb-safe">
+      <div
+        className="grid max-w-[464px] w-full"
+        style={{
+          gridTemplateColumns: `repeat(${itemsAmount}, minmax(0, 1fr))`,
+        }}
+      >
+        {tabItems.map((item) => (
+          <NavItem key={item.label} {...item} isActive={isActive(item.href)} />
+        ))}
+
+        {showMore && (
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger className="group flex flex-col items-center justify-center py-3.5 text-gray-400 focus-visible:outline-hidden data-[state=open]:text-brand">
+              <MoreMenuIcon className="size-4.5 shrink-0" />
+              <span className="text-xs/none font-semibold mt-1.5">More</span>
+            </DropdownMenu.Trigger>
+
+            <DropdownMenu.Portal>
+              <DropdownMenu.Content
+                side="top"
+                align="end"
+                sideOffset={2}
+                className={clsx(
+                  "bg-white rounded-2xl shadow-xl p-1.5 space-y-1 min-w-36 origin-bottom-right duration-100 ring-1 ring-gray-900/10",
+
+                  "data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-2 fade-in data-[state=open]:ease-out data-[state=open]:zoom-in-97",
+
+                  "data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom-2 fade-out data-[state=closed]:ease-in data-[state=closed]:zoom-out-97"
+                )}
+              >
+                <DropdownMenu.Arrow className="mt-1 fill-white" />
+                {restItems.map(({ label, href, icon: Icon }) => (
+                  <DropdownMenu.Item key={label} asChild>
+                    <Link
+                      href={href}
+                      className={clsx(
+                        "group flex items-center gap-2.5 py-2.5 px-3 rounded-xl",
+                        isActive(href)
+                          ? "text-gray-600 bg-gray-100"
+                          : "text-gray-500"
+                      )}
+                    >
+                      <Icon className="size-4 shrink-0" />
+                      <span className="text-sm font-semibold">{label}</span>
+                    </Link>
+                  </DropdownMenu.Item>
+                ))}
+              </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
+        )}
+      </div>
+    </nav>
   )
 }

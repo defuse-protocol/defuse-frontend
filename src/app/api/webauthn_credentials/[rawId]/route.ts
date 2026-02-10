@@ -35,14 +35,14 @@ export async function GET(
     if (error) {
       logger.error(error)
       return NextResponse.json(
-        { error: "Failed to fetch credential" },
+        { error: "Failed to fetch credential", code: "INTERNAL_ERROR" },
         { status: 500 }
       )
     }
 
     if (!data) {
       return NextResponse.json(
-        { error: "Credential not found" },
+        { error: "Credential not found", code: "CREDENTIAL_NOT_FOUND" },
         { status: 404 }
       )
     }

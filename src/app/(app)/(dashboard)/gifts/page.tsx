@@ -17,7 +17,7 @@ export default function GiftCardPage() {
   const { state } = useConnectWallet()
   const tokenList = useTokenList(LIST_TOKENS)
 
-  const userAddress = state.isVerified ? state.address : undefined
+  const userAddress = state.isAuthorized ? state.address : undefined
   const userChainType = state.chainType
 
   const signerCredentials: SignerCredentials | null = useMemo(() => {

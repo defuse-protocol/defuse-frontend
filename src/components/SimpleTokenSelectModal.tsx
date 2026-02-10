@@ -87,7 +87,12 @@ export function SimpleTokenSelectModal({
   }
 
   return (
-    <BaseModalDialog open={open} onClose={onClose} title="Select token">
+    <BaseModalDialog
+      open={open}
+      onClose={onClose}
+      title="Select token"
+      ignoreSidebar
+    >
       <div className="mt-2 h-[630px] flex flex-col">
         <div
           className={clsx(

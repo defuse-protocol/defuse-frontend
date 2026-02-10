@@ -4,7 +4,6 @@ import {
 } from "@src/app/(app)/(auth)/contacts/actions"
 import Button from "@src/components/Button"
 import ErrorMessage from "@src/components/ErrorMessage"
-import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { BaseModalDialog } from "./ModalDialog"
 
@@ -21,7 +20,6 @@ const ModalRemoveContact = ({
   onCloseAnimationEnd,
   contact,
 }: ModalContactProps) => {
-  const router = useRouter()
   const {
     handleSubmit,
     setError,
@@ -50,8 +48,6 @@ const ModalRemoveContact = ({
       }
 
       onClose()
-      router.refresh()
-      onCloseAnimationEnd?.()
     } catch (error) {
       setError("root", {
         message:

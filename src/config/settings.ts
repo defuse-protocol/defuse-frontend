@@ -58,7 +58,7 @@ export const settings: Settings = {
       description:
         "Secure and easy access to your digital assets. Track balances, manage transactions, and more.",
     },
-    send: {
+    transfer: {
       title: "NEAR Intents | Low Fees, Best Rates & Seamless Cross‑Chain Exits",
       description:
         "Send crypto from NEAR to any supported chain. Fast, secure, and powered by smart intent execution.",

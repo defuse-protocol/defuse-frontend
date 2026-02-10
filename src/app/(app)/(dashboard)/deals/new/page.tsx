@@ -22,7 +22,7 @@ const CreateDealPage = () => {
   const { signAndSendTransactions } = useNearWallet()
   const referral = useIntentsReferral()
 
-  const userAddress = state.isVerified ? state.address : undefined
+  const userAddress = state.isAuthorized ? state.address : undefined
   const userChainType = state.chainType
 
   return (

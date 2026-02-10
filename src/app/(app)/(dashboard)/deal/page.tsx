@@ -30,7 +30,7 @@ export default function DealPage() {
         tradeId={tradeId}
         multiPayload={multiPayload}
         tokenList={tokenList}
-        userAddress={state.isVerified ? state.address : undefined}
+        userAddress={state.isAuthorized ? state.address : undefined}
         userChainType={state.chainType}
         signMessage={signMessage}
         sendNearTransaction={async (tx) => {

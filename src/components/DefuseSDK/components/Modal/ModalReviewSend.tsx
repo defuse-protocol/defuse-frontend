@@ -1,5 +1,13 @@
+import { CheckBadgeIcon } from "@heroicons/react/16/solid"
+import * as Switch from "@radix-ui/react-switch"
+import { createContact } from "@src/app/(app)/(auth)/contacts/actions"
 import Button from "@src/components/Button"
-import { useMemo } from "react"
+import { CopyButton } from "@src/components/DefuseSDK/components/IntentCard/CopyButton"
+import TooltipNew from "@src/components/DefuseSDK/components/TooltipNew"
+import ErrorMessage from "@src/components/ErrorMessage"
+import { WalletIcon } from "@src/icons"
+import { useQueryClient } from "@tanstack/react-query"
+import { useMemo, useState } from "react"
 import {
   chainIcons,
   getBlockchainsOptions,
@@ -8,18 +16,23 @@ import {
 } from "../../constants/blockchains"
 import IntentCreationResult from "../../features/account/components/IntentCreationResult"
 import type { Context } from "../../features/machines/swapUIMachine"
-import { midTruncate } from "../../features/withdraw/components/WithdrawForm/utils"
+import {
+  isNearIntentsNetwork,
+  midTruncate,
+} from "../../features/withdraw/components/WithdrawForm/utils"
 import type {
   SupportedChainName,
   TokenInfo,
   TokenValue,
 } from "../../types/base"
 import { assetNetworkAdapter } from "../../utils/adapters"
+import { isSupportedChainName } from "../../utils/blockchain"
 import {
   formatDisplayAmount,
   formatTokenValue,
   formatUsdAmount,
 } from "../../utils/format"
+import { stringToColor } from "../../utils/stringToColor"
 import AssetComboIcon from "../Asset/AssetComboIcon"
 import { NetworkIcon } from "../Network/NetworkIcon"
 import { BaseModalDialog } from "./ModalDialog"
@@ -46,8 +59,9 @@ const ModalReviewSend = ({
   fee,
   totalAmountReceived,
   feeUsd,
-  totalAmountReceivedUsd,
   directionFee,
+  recipientContactName,
+  onContactSaved,
 }: {
   open: boolean
   onClose: () => void
@@ -62,9 +76,18 @@ const ModalReviewSend = ({
   fee: TokenValue
   feeUsd: number | null
   totalAmountReceived: TokenValue | null
-  totalAmountReceivedUsd: number | null
   directionFee: TokenValue | null
+  recipientContactName?: string | null
+  onContactSaved?: (contactName: string) => void
 }) => {
+  const queryClient = useQueryClient()
+  const [saveAsContact, setSaveAsContact] = useState(false)
+  const [contactName, setContactName] = useState("")
+  const [contactError, setContactError] = useState<string | null>(null)
+  const [isSavingContact, setIsSavingContact] = useState(false)
+
+  const isExistingContact = Boolean(recipientContactName)
+  const canSaveContact = !isExistingContact && !isNearIntentsNetwork(network)
   const chainIcon =
     network === "near_intents" ? intentsChainIcon : chainIcons[network]
 
@@ -96,25 +119,113 @@ const ModalReviewSend = ({
     return (Number(directionFee.amount) / Number(totalFeeAmount)) * feeUsd
   }, [directionFee, feeUsd, fee.amount])
 
+  const contactColor = recipientContactName
+    ? stringToColor(
+        `${recipientContactName}${recipient}${network !== "near_intents" ? assetNetworkAdapter[network] : network}`
+      )
+    : null
+
+  const handleTransfer = async () => {
+    const trimmedContactName = contactName.trim()
+
+    if (saveAsContact && !trimmedContactName) {
+      setContactError("Please enter a name for the contact.")
+      return
+    }
+
+    if (saveAsContact && isSupportedChainName(network)) {
+      setIsSavingContact(true)
+      setContactError(null)
+
+      try {
+        const blockchainEnum = assetNetworkAdapter[network]
+        const result = await createContact({
+          name: trimmedContactName,
+          address: recipient,
+          blockchain: blockchainEnum,
+        })
+
+        if (!result.ok) {
+          setContactError(result.error)
+          setIsSavingContact(false)
+          return
+        }
+
+        queryClient.invalidateQueries({ queryKey: ["contacts"] })
+        onContactSaved?.(trimmedContactName)
+      } catch {
+        setContactError("Failed to save contact. Please try again.")
+        setIsSavingContact(false)
+        return
+      }
+
+      setIsSavingContact(false)
+    }
+
+    onConfirm()
+  }
+
   return (
     <BaseModalDialog title="Review transfer" open={open} onClose={onClose}>
       <div className="flex flex-col items-center justify-center mt-3">
-        <AssetComboIcon icon={tokenIn.icon} sizeClassName="size-13" />
-        <div className="mt-5 text-2xl/7 font-bold text-gray-900 tracking-tight">
-          Sending {formatDisplayAmount(amountIn)} {tokenIn.symbol}
+        <div
+          className="size-13 rounded-full bg-gray-100 flex items-center justify-center shrink-0 outline-1 -outline-offset-1 outline-gray-900/10"
+          style={
+            contactColor
+              ? { backgroundColor: contactColor.background }
+              : undefined
+          }
+        >
+          <WalletIcon
+            className="size-5 text-gray-500"
+            style={contactColor ? { color: contactColor.icon } : undefined}
+          />
         </div>
-        <div className="mt-1 text-base/5 font-medium text-gray-500">
-          {formatUsdAmount(usdAmountIn)}
+
+        <div className="mt-5 text-2xl/7 font-bold text-gray-900 tracking-tight text-center">
+          Confirm transfer to <br />
+          <TooltipNew>
+            <TooltipNew.Trigger>
+              <span className="cursor-pointer">{midTruncate(recipient)}</span>
+            </TooltipNew.Trigger>
+            <TooltipNew.Content
+              side="top"
+              className="max-w-56 px-3 py-2 flex items-center gap-2"
+            >
+              <span className="text-xs font-medium break-all text-center text-balance font-mono">
+                {recipient}
+              </span>
+              <CopyButton
+                text={recipient}
+                ariaLabel="Copy recipient address"
+                className="hover:text-gray-200"
+              />
+            </TooltipNew.Content>
+          </TooltipNew>
         </div>
+        {recipientContactName && (
+          <div className="flex items-start justify-center gap-1 mt-2">
+            <CheckBadgeIcon className="mt-0.5 text-green-500 size-4 shrink-0" />
+            <div className="text-base/5 font-medium text-gray-500 text-center">
+              {recipientContactName}
+            </div>
+          </div>
+        )}
       </div>
 
       <dl className="mt-7 pt-5 border-t border-gray-200 space-y-2">
         <div className="flex items-center justify-between gap-2">
-          <dt className="text-sm text-gray-500 font-medium truncate">
-            Recipient
-          </dt>
-          <dd className="text-sm font-semibold text-gray-900">
-            {midTruncate(recipient, 16)}
+          <dt className="text-sm text-gray-500 font-medium truncate">Amount</dt>
+          <dd className="flex items-center gap-1 text-sm font-semibold text-gray-900 whitespace-pre">
+            {formatDisplayAmount(amountIn)} {tokenIn.symbol}
+            <AssetComboIcon icon={tokenIn.icon} sizeClassName="size-4" />
+          </dd>
+        </div>
+
+        <div className="flex items-center justify-between gap-2">
+          <dt className="text-sm text-gray-500 font-medium truncate">Value</dt>
+          <dd className="flex items-center gap-1 text-sm font-semibold text-gray-900 whitespace-pre">
+            {formatUsdAmount(usdAmountIn)}
           </dd>
         </div>
 
@@ -136,15 +247,12 @@ const ModalReviewSend = ({
           </dd>
         </div>
 
-        {receivedAmount !== "-" && totalAmountReceivedUsd && (
+        {receivedAmount !== "-" && (
           <div className="flex items-center justify-between gap-2">
             <dt className="text-sm text-gray-500 font-medium truncate">
               Recipient receives
             </dt>
             <dd className="flex items-center gap-1 text-sm font-semibold text-gray-900 whitespace-pre">
-              <span className="text-gray-500">
-                (~{formatUsdAmount(totalAmountReceivedUsd)})
-              </span>
               {receivedAmount} {tokenIn.symbol}
               <AssetComboIcon icon={tokenIn.icon} sizeClassName="size-4" />
             </dd>
@@ -168,12 +276,54 @@ const ModalReviewSend = ({
         )}
       </dl>
 
+      {canSaveContact && (
+        <div className="mt-5 pt-5 border-t border-gray-200 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-500">
+              Save recipient to contacts
+            </span>
+            <Switch.Root
+              checked={saveAsContact}
+              onCheckedChange={(checked) => {
+                setSaveAsContact(checked)
+                if (!checked) {
+                  setContactName("")
+                  setContactError(null)
+                }
+              }}
+              className="group relative flex h-5 w-12 cursor-pointer rounded-lg bg-gray-300 p-1 transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 data-[state=checked]:bg-gray-900"
+            >
+              <Switch.Thumb className="pointer-events-none inline-block h-3 w-4 translate-x-0 rounded bg-white shadow-lg ring-0 transition duration-200 ease-in-out data-[state=checked]:translate-x-6" />
+            </Switch.Root>
+          </div>
+
+          {saveAsContact && (
+            <div>
+              <input
+                type="text"
+                value={contactName}
+                onChange={(e) => {
+                  setContactName(e.target.value)
+                  setContactError(null)
+                }}
+                placeholder="Enter a name"
+                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-base font-medium text-gray-900 placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+              />
+              {contactError && (
+                <ErrorMessage className="mt-1">{contactError}</ErrorMessage>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
       <Button
         className="mt-5"
         type="button"
         size="xl"
-        onClick={onConfirm}
-        loading={loading}
+        onClick={handleTransfer}
+        loading={loading || isSavingContact}
+        disabled={saveAsContact && !contactName.trim()}
         fullWidth
       >
         Transfer

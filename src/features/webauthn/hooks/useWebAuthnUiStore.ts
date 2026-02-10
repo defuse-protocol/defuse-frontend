@@ -1,8 +1,13 @@
 import { create } from "zustand"
 
+import { WebAuthnApiError } from "@src/features/webauthn/lib/webAuthnCredentialsAPI"
+import { WebAuthnErrorCode } from "@src/features/webauthn/types/webAuthnTypes"
 import { toError } from "@src/utils/errors"
 import { logger } from "@src/utils/logger"
 import { useWebAuthnStore } from "./useWebAuthnStore"
+
+const SIGN_IN_CREDENTIAL_NOT_FOUND_MESSAGE =
+  "This passkey isn’t registered with this app. Create a new passkey below or use another sign-in method."
 
 type State = {
   isOpen: boolean
@@ -53,7 +58,14 @@ export const useWebAuthnUIStore = create<State & Actions>()((set, _get) => ({
       set({ isOpen: false })
     } catch (error) {
       logger.error(error)
-      set({ signInError: toError(error).message })
+      const isCredentialNotFound =
+        error instanceof WebAuthnApiError &&
+        error.code === WebAuthnErrorCode.CREDENTIAL_NOT_FOUND
+      set({
+        signInError: isCredentialNotFound
+          ? SIGN_IN_CREDENTIAL_NOT_FOUND_MESSAGE
+          : toError(error).message,
+      })
     } finally {
       set({ isSigningIn: false })
     }

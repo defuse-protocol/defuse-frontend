@@ -18,7 +18,7 @@ export default function AccountPage() {
   const { state } = useConnectWallet()
   let tokenList = useTokenList(LIST_TOKENS)
 
-  const userAddress = state.isVerified ? state.address : undefined
+  const userAddress = state.isAuthorized ? state.address : undefined
   const userChainType = state.chainType ?? null
 
   const userId =
@@ -59,7 +59,14 @@ export default function AccountPage() {
             Add funds
           </Button>
 
-          <Button href="/send" size="xl">
+          <Button
+            href={
+              holdings?.[0]
+                ? `/transfer?token=${holdings[0].token.symbol}`
+                : "/transfer"
+            }
+            size="xl"
+          >
             <SendIcon className="size-6" />
             Transfer
           </Button>
