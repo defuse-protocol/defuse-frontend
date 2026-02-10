@@ -88,8 +88,6 @@ export function useGiftIntent() {
       payload: unknown
       giftId?: string
     }> => {
-      // 1. Attempt: Try to fetch and decrypt the order from the database
-      // For new format, the hash IS the IV directly (not JSON-encoded)
       if (encodedGift) {
         try {
           const gift = await getGiftEncryptedIntent(encodedGift)

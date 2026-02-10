@@ -18,7 +18,6 @@ const giftsSchema = z.object({
   encrypted_payload: z.string().refine((val) => {
     try {
       const decoded = base64.decode(val)
-      // Real gift payloads (AES-GCM encrypted JSON) are always > 64 bytes
       return decoded.length >= 64
     } catch (_err) {
       return false

@@ -82,7 +82,13 @@ describe("POST /api/gifts", () => {
     const { cookies } = await import("next/headers")
     vi.mocked(cookies).mockResolvedValueOnce({
       get: vi.fn(() => undefined),
-    })
+      has: vi.fn(() => false),
+      getAll: vi.fn(() => []),
+      size: 0,
+      [Symbol.iterator]: vi.fn(),
+      set: vi.fn(),
+      delete: vi.fn(),
+    } as never)
 
     const response = await POST(
       new Request(`${TEST_BASE_URL}/api/gifts`, {
