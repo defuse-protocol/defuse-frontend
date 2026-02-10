@@ -79,36 +79,6 @@ export function GiftTakerWidget() {
       ? { credential: state.address, credentialType: state.chainType }
       : null
 
-  // TODO: Remove — fake data for testing the success screen
-  const FAKE_TEST_SUCCESS_SCREEN = true as boolean
-  if (FAKE_TEST_SUCCESS_SCREEN) {
-    const fakeIntentHashes = ["Amy7ek15DBZZhQB7DHynCUxKGTYZJCmawNK841RvS69Q"]
-    const fakeGiftInfo: import("../actors/shared/getGiftInfo").GiftInfo = {
-      tokenDiff: {
-        "nep141:eth-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.omft.near":
-          5000000n,
-      },
-      token: {
-        defuseAssetId:
-          "nep141:eth-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.omft.near",
-        symbol: "USDC",
-        name: "USD Coin",
-        decimals: 6,
-        icon: "https://assets.coingecko.com/coins/images/6319/large/usdc.png",
-      } as import("../../../types/base").BaseTokenInfo,
-      secretKey:
-        "ed25519:5YkVbNZwBrUGfjuZJzP3N7ZKkNhXkHqZcX6VfFakeFakeTestKey" as import("near-api-js/lib/utils").KeyPairString,
-      accountId: "test-escrow.near",
-      message: "Happy birthday! Enjoy this gift 🎁",
-    }
-    return (
-      <GiftTakerSuccessScreen
-        giftInfo={fakeGiftInfo}
-        intentHashes={fakeIntentHashes}
-      />
-    )
-  }
-
   if (error != null) {
     return <GiftTakerInvalidClaim error={error} />
   }
