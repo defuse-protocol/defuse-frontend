@@ -53,7 +53,9 @@ export async function signIn(): Promise<string> {
     }
   }
 
-  throw new Error("No passkey found for any related origin")
+  throw new Error(
+    "We couldn't detect a Passkey available on your device. Please contact support if you need assistance."
+  )
 }
 
 /**

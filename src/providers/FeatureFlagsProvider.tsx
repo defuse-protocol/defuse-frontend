@@ -5,6 +5,11 @@ import { type ReactNode, createContext } from "react"
 
 export const FeatureFlagsContext = createContext<FeatureFlagValues>({
   whitelabelTemplate: "near-intents",
+  isSwapDisabled: false,
+  isDepositsDisabled: false,
+  isWithdrawDisabled: false,
+  isDealsDisabled: false,
+  isEarnDisabled: false,
 })
 
 export function FeatureFlagsProvider({

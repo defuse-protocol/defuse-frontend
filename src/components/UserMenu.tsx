@@ -7,6 +7,7 @@ import {
   ChevronUpIcon,
   // Cog8ToothIcon,
   DocumentDuplicateIcon,
+  ExclamationCircleIcon,
   QuestionMarkCircleIcon,
 } from "@heroicons/react/16/solid"
 import { InformationCircleIcon } from "@heroicons/react/24/outline"
@@ -19,7 +20,6 @@ import { DropdownMenu } from "radix-ui"
 import { useState } from "react"
 import AlertDialog from "./AlertDialog"
 import Button from "./Button"
-import { midTruncate } from "./DefuseSDK/features/withdraw/components/WithdrawForm/utils"
 
 type MenuItemType = {
   label: string
@@ -41,6 +41,8 @@ const UserMenu = ({
   const { state, signOut } = useConnectWallet()
   const [copied, setCopied] = useState(false)
   const [isCopyWarningOpen, setIsCopyWarningOpen] = useState(false)
+  const displayLabel = "My Intents account"
+
   const [skipCopyWarning, setSkipCopyWarning] = useState<boolean>(() => {
     if (typeof window === "undefined") return false
     return localStorage.getItem(COPY_ADDRESS_WARNING_ACK_KEY) === "true"
@@ -102,7 +104,7 @@ const UserMenu = ({
             </div>
 
             <div className="text-sm font-semibold grow text-left">
-              {midTruncate(state.displayAddress ?? "")}
+              {displayLabel}
             </div>
 
             <ChevronUpIcon className="size-5 shrink-0 group-data-[state=open]:rotate-180 transition-transform duration-100 ease-in-out" />
@@ -143,7 +145,7 @@ const UserMenu = ({
                 hasDockItems && "hidden"
               )}
             >
-              {midTruncate(state.displayAddress ?? "")}
+              {displayLabel}
             </div>
 
             <div className="size-6 flex items-center justify-center bg-brand rounded-md">
@@ -184,16 +186,24 @@ const UserMenu = ({
         </div>
 
         <ul className="bg-gray-50 rounded-3xl p-5 mt-5 space-y-3">
-          {[
-            "This is your NEAR Intents internal address",
-            "Use it only for transfers between NEAR Intents accounts",
-            "Funds sent here from external wallets will be lost",
-          ].map((text) => (
-            <li key={text} className="flex items-start gap-1.5">
-              <CheckCircleIcon className="size-4 text-gray-600 shrink-0 mt-0.5" />
-              <span className="text-sm text-gray-600 font-medium">{text}</span>
-            </li>
-          ))}
+          <li className="flex items-start gap-1.5">
+            <CheckCircleIcon className="size-4 text-gray-600 shrink-0 mt-0.5" />
+            <span className="text-sm text-gray-600 font-medium">
+              This is your NEAR Intents internal address
+            </span>
+          </li>
+          <li className="flex items-start gap-1.5">
+            <ExclamationCircleIcon className="size-4 text-amber-600 shrink-0 mt-0.5" />
+            <span className="text-sm text-gray-600 font-medium">
+              Use it only for transfers between NEAR Intents accounts
+            </span>
+          </li>
+          <li className="flex items-start gap-1.5">
+            <ExclamationCircleIcon className="size-4 text-amber-600 shrink-0 mt-0.5" />
+            <span className="text-sm text-gray-600 font-medium">
+              Funds sent here from external wallets will be lost
+            </span>
+          </li>
         </ul>
 
         <div className="mt-5 flex flex-col gap-2">

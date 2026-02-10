@@ -1,7 +1,5 @@
 import withBundleAnalyzer from "@next/bundle-analyzer"
 import { withSentryConfig } from "@sentry/nextjs"
-import * as path from "node:path"
-
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -72,6 +70,12 @@ const nextConfig = {
         hostname: "pro-api.coingecko.com",
         port: "",
         pathname: "/api/**",
+      },
+      {
+        protocol: "https",
+        hostname: "s2.coinmarketcap.com",
+        port: "",
+        pathname: "/static/img/**",
       },
     ],
   },

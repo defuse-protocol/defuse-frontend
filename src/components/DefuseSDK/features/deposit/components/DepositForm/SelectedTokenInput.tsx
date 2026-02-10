@@ -7,6 +7,7 @@ import clsx from "clsx"
 import type { ReactNode } from "react"
 import type { UseFormRegisterReturn } from "react-hook-form"
 import AssetComboIcon from "../../../../components/Asset/AssetComboIcon"
+import { hexToRgba, useDominantColor } from "../../../../hooks/useDominantColor"
 
 type SelectedTokenInputProps = {
   label: string
@@ -77,6 +78,8 @@ const SelectedTokenInput = ({
     registration.onChange(e)
   }
 
+  const { hex } = useDominantColor(icon)
+
   return (
     <div
       className={clsx(
@@ -110,7 +113,12 @@ const SelectedTokenInput = ({
           />
         </div>
 
-        <div className="rounded-full border border-gray-900/10 flex items-center gap-1.5 p-1 pr-3">
+        <div
+          className="rounded-full outline-1 outline-gray-900/10 -outline-offset-1 flex items-center gap-1.5 p-1 pr-3 transition-colors"
+          style={{
+            backgroundColor: hexToRgba(hex, 0.07) ?? undefined,
+          }}
+        >
           <AssetComboIcon icon={icon} sizeClassName="size-7" />
           <span className="text-base text-gray-900 font-semibold leading-none">
             {symbol}

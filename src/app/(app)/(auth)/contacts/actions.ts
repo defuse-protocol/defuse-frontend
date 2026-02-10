@@ -5,7 +5,7 @@ import {
   type BlockchainEnum,
   authIdentity,
 } from "@defuse-protocol/internal-utils"
-import { getActiveWalletAddress, getWalletToken } from "@src/actions/auth"
+import { getActiveSessionToken } from "@src/actions/auth"
 import {
   createContact as createContactRepository,
   deleteContact as deleteContactRepository,
@@ -33,31 +33,19 @@ type ActionResult<T> = { ok: true; value: T } | { ok: false; error: string }
 type AuthResult = { ok: true; accountId: string } | { ok: false; error: string }
 
 /**
- * Authenticates the current request using the active wallet cookie.
- * Verifies the JWT token and ensures the identity matches.
+ * Authenticates the current request using the active session cookie.
+ * Reads the JWT directly from defuse_active_token, verifies it,
+ * and extracts the wallet identity from the token claims.
  */
 async function authenticate(): Promise<AuthResult> {
-  const walletAddress = await getActiveWalletAddress()
-  if (!walletAddress) {
-    logger.warn("No active wallet")
-    return { ok: false, error: "Authentication required" }
-  }
-
-  const token = await getWalletToken(walletAddress)
+  const token = await getActiveSessionToken()
   if (!token) {
-    logger.warn("Auth token missing")
     return { ok: false, error: "Authentication required" }
   }
 
   const payload = await verifyAppAuthToken(token)
   if (!payload) {
-    logger.warn("Invalid token")
     return { ok: false, error: "Invalid or expired token" }
-  }
-
-  if (payload.auth_identifier !== walletAddress) {
-    logger.warn("Token identity mismatch")
-    return { ok: false, error: "Authentication error" }
   }
 
   const accountId = authIdentity.authHandleToIntentsUserId(

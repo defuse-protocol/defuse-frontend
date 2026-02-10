@@ -1,5 +1,6 @@
 "use client"
 
+import type { FeatureFlagValues } from "@src/components/PreloadFeatureFlags"
 import { useIsActiveLink } from "@src/hooks/useIsActiveLink"
 import {
   AccountIcon,
@@ -9,9 +10,10 @@ import {
   HistoryIcon,
   SwapIcon,
 } from "@src/icons"
+import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { cn } from "@src/utils/cn"
 import Link from "next/link"
-import type { ComponentType } from "react"
+import { type ComponentType, useContext } from "react"
 
 export type NavItemType = {
   label: string
@@ -59,10 +61,28 @@ export const navItems: NavItemType[] = [
   },
 ]
 
+const disabledRoutes: Record<string, keyof FeatureFlagValues> = {
+  "/swap": "isSwapDisabled",
+  "/deposit": "isDepositsDisabled",
+  "/transfer": "isWithdrawDisabled",
+  "/deals": "isDealsDisabled",
+  "/earn": "isEarnDisabled",
+}
+
+export function useVisibleNavItems() {
+  const flags = useContext(FeatureFlagsContext)
+  return navItems.filter((item) => {
+    const key = disabledRoutes[item.href]
+    return !key || !flags[key]
+  })
+}
+
 export function NavbarDesktop() {
+  const visibleItems = useVisibleNavItems()
+
   return (
     <nav className="space-y-1">
-      {navItems.map((item) => (
+      {visibleItems.map((item) => (
         <NavItem key={item.label} {...item} />
       ))}
     </nav>

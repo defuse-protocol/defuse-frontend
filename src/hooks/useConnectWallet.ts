@@ -6,7 +6,7 @@ import {
   useWallet as useSolanaWallet,
 } from "@solana/wallet-adapter-react"
 import { useWalletModal } from "@solana/wallet-adapter-react-ui"
-import { clearActiveWallet } from "@src/actions/auth"
+import { clearActiveSession } from "@src/actions/auth"
 import { BaseError } from "@src/components/DefuseSDK/errors/base"
 import type {
   SendTransactionStellarParams,
@@ -377,8 +377,8 @@ export const useConnectWallet = (): ConnectWalletAction => {
           [ChainType.Tron]: () => handleSignOutViaTron(),
         }
 
-        // Clear active wallet cookie only - preserve auth token for reconnection
-        await clearActiveWallet()
+        // Clear active session cookie only - preserve per-wallet auth tokens for reconnection
+        await clearActiveSession()
 
         void queryClient.invalidateQueries({ queryKey: ["token_validation"] })
 
