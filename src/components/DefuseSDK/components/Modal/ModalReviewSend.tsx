@@ -16,10 +16,7 @@ import {
 } from "../../constants/blockchains"
 import IntentCreationResult from "../../features/account/components/IntentCreationResult"
 import type { Context } from "../../features/machines/swapUIMachine"
-import {
-  isNearIntentsNetwork,
-  midTruncate,
-} from "../../features/withdraw/components/WithdrawForm/utils"
+import { midTruncate } from "../../features/withdraw/components/WithdrawForm/utils"
 import type {
   SupportedChainName,
   TokenInfo,
@@ -87,7 +84,7 @@ const ModalReviewSend = ({
   const [isSavingContact, setIsSavingContact] = useState(false)
 
   const isExistingContact = Boolean(recipientContactName)
-  const canSaveContact = !isExistingContact && !isNearIntentsNetwork(network)
+  const canSaveContact = !isExistingContact
   const chainIcon =
     network === "near_intents" ? intentsChainIcon : chainIcons[network]
 
@@ -133,16 +130,22 @@ const ModalReviewSend = ({
       return
     }
 
-    if (saveAsContact && isSupportedChainName(network)) {
+    if (
+      saveAsContact &&
+      (isSupportedChainName(network) || network === "near_intents")
+    ) {
       setIsSavingContact(true)
       setContactError(null)
 
       try {
-        const blockchainEnum = assetNetworkAdapter[network]
+        const blockchainValue =
+          network === "near_intents"
+            ? ("near_intents" as const)
+            : assetNetworkAdapter[network]
         const result = await createContact({
           name: trimmedContactName,
           address: recipient,
-          blockchain: blockchainEnum,
+          blockchain: blockchainValue,
         })
 
         if (!result.ok) {

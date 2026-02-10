@@ -5,6 +5,7 @@ import type {
 import { UserCircleIcon } from "@heroicons/react/20/solid"
 import {
   type Contact,
+  type ContactBlockchain,
   createContact,
   updateContact,
 } from "@src/app/(app)/(auth)/contacts/actions"
@@ -17,6 +18,7 @@ import { WalletIcon } from "@src/icons"
 import clsx from "clsx"
 import { useCallback, useMemo, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
+import { getNearIntentsOption } from "../../constants/blockchains"
 import type { SupportedChainName } from "../../types/base"
 import {
   assetNetworkAdapter,
@@ -31,7 +33,7 @@ import ModalNoResults from "./ModalNoResults"
 type FormData = {
   address: string
   name: string
-  blockchain: BlockchainEnum | null
+  blockchain: ContactBlockchain | null
 }
 
 type ModalContactProps = {
@@ -41,7 +43,7 @@ type ModalContactProps = {
   onSuccess?: (contact: {
     name: string
     address: string
-    blockchain: BlockchainEnum
+    blockchain: ContactBlockchain
   }) => void
   onClose: () => void
   onCloseAnimationEnd?: () => void
@@ -114,21 +116,26 @@ const ModalAddEditContact = ({
     validate: (value) => value !== null || "Select a network for this contact.",
   })
 
-  const availableNetworks = useMemo(() => allAvailableChains(), [])
+  const availableNetworks = useMemo(
+    () => ({ ...getNearIntentsOption(), ...allAvailableChains() }),
+    []
+  )
   const filteredNetworks = useSearchNetworks({
     networks: availableNetworks,
     searchValue,
   })
 
   const blockchain = watch("blockchain")
-  const selectedNetwork = useMemo(
-    () => (blockchain ? reverseAssetNetworkAdapter[blockchain] : null),
-    [blockchain]
-  )
-  const networkData = useMemo(
-    () => (blockchain ? availableNetworks[blockchain] : null),
-    [blockchain, availableNetworks]
-  )
+  const selectedNetwork = useMemo(() => {
+    if (!blockchain) return null
+    if (blockchain === "near_intents") return "near_intents"
+    return reverseAssetNetworkAdapter[blockchain]
+  }, [blockchain])
+  const networkData = useMemo(() => {
+    if (!blockchain) return null
+    if (blockchain === "near_intents") return getNearIntentsOption().intents
+    return allAvailableChains()[blockchain]
+  }, [blockchain])
 
   const onSubmit = async (data: FormData) => {
     if (!data.blockchain) {
@@ -210,6 +217,15 @@ const ModalAddEditContact = ({
     [setValue]
   )
 
+  const onIntentsNetworkSelect = useCallback(() => {
+    setValue("blockchain", "near_intents" as ContactBlockchain, {
+      shouldValidate: true,
+    })
+    setSelectNetworkOpen(false)
+    setSearchValue("")
+    setIsScrolled(false)
+  }, [setValue])
+
   return (
     <BaseModalDialog
       title={getModalTitle}
@@ -254,6 +270,7 @@ const ModalAddEditContact = ({
                 networkOptions={filteredNetworks}
                 selectedNetwork={selectedNetwork}
                 onChangeNetwork={onChangeNetwork}
+                onIntentsSelect={onIntentsNetworkSelect}
               />
             )}
           </div>
