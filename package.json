@@ -90,6 +90,7 @@
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "19.2.1",
     "react-hook-form": ">=7.52.1 <7.55.0",
+    "react-use-measure": "^2.1.7",
     "ripple-address-codec": "^5.0.0",
     "tailwind-merge": "^3.4.0",
     "tailwindcss-safe-area": "^1.3.0",
