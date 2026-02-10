@@ -41,7 +41,7 @@ const UserMenu = ({
   const { state, signOut } = useConnectWallet()
   const [copied, setCopied] = useState(false)
   const [isCopyWarningOpen, setIsCopyWarningOpen] = useState(false)
-  const displayLabel = "My Intents account"
+  const displayLabel = "My account"
 
   const [skipCopyWarning, setSkipCopyWarning] = useState<boolean>(() => {
     if (typeof window === "undefined") return false
