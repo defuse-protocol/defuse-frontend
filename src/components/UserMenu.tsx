@@ -36,7 +36,7 @@ const UserMenu = ({
 }: {
   variant: "desktop" | "mobile"
 }) => {
-  const { dockItems } = useActivityDock()
+  const { dockItems, clearDockItems } = useActivityDock()
   const hasDockItems = dockItems.length > 0
   const { state, signOut } = useConnectWallet()
   const [copied, setCopied] = useState(false)
@@ -61,6 +61,7 @@ const UserMenu = ({
       label: "Sign out",
       onClick: () => {
         if (state.chainType) {
+          clearDockItems()
           signOut({ id: state.chainType })
         }
       },
