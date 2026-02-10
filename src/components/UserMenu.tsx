@@ -107,8 +107,9 @@ const UserMenu = ({
             <div className="grow text-left min-w-0">
               <div className="text-sm font-semibold">{displayLabel}</div>
               {state.address && (
-                <div className="text-xs text-gray-500 truncate">
-                  {state.address}
+                <div className="text-xs text-gray-500 flex min-w-0">
+                  <span className="truncate">{state.address.slice(0, -4)}</span>
+                  <span className="shrink-0">{state.address.slice(-4)}</span>
                 </div>
               )}
             </div>
