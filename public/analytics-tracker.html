@@ -145,8 +145,7 @@
     <h3>Platform Setup</h3>
     <ul>
       <li><strong>Mixpanel</strong> — Requires <code>NEXT_PUBLIC_MIXPANEL_TOKEN</code> env var. SDK events go through <code>emitEvent()</code> → EventBus → <code>useMixpanelBus</code>. Auth events call <code>mixPanel?.track()</code> directly. Auto page views disabled.</li>
-      <li><strong>GA4</strong> — Always active (<code>G-WNE3NB46KM</code>) via <code>@next/third-parties/google</code>. Auto page views ON. No custom <code>gtag()</code> events wired yet — all current tracking is Mixpanel only.</li>
-      <li><strong>Sentry</strong> — Error monitoring + 10% session replays. Not tracked in this table.</li>
+      <li><strong>GA4</strong> — Pre-existing, not modified by this PR. Auto page views only.</li>
     </ul>
     <h3 style="margin-top:12px">Implementation Notes</h3>
     <ul>
@@ -154,7 +153,6 @@
       <li><strong>Amounts:</strong> Sent as raw token units (not USD-converted). Token symbol is always included so values can be interpreted.</li>
       <li><strong>Orange params:</strong> Data matches the plan but uses a different param name (kept for Mixpanel backwards compat). Hover to see the plan name mapping.</li>
       <li><strong>Extra events</strong> (not in plan): <code>wallet_verified</code>, <code>wallet_bypassed</code> in WalletVerificationProvider — tracks passkey verification flow.</li>
-      <li><strong>To add GA4 events:</strong> Wire <code>gtag('event', name, params)</code> alongside Mixpanel calls, or add GA4 forwarding in <code>useMixpanelBus</code>.</li>
     </ul>
   </div>
 </div>
