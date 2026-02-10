@@ -219,10 +219,12 @@ const ContactsList = ({
                     {midTruncate(contact.address)}
                   </ListItem.Subtitle>
                 </ListItem.Content>
-                <ListItem.Title className="flex items-center gap-1">
-                  <NetworkIcon chainIcon={chainIcon} sizeClassName="size-4" />
-                  <span className="capitalize">{chainName}</span>
-                </ListItem.Title>
+                <ListItem.Content align="end">
+                  <ListItem.Title className="flex items-center gap-1">
+                    <span className="capitalize">{chainName}</span>
+                    <NetworkIcon chainIcon={chainIcon} sizeClassName="size-4" />
+                  </ListItem.Title>
+                </ListItem.Content>
               </ListItem>
             )
           })}
