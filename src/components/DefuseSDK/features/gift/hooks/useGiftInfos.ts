@@ -21,8 +21,10 @@ export function useGiftInfos(
       setLoading(false)
       return
     }
+    let cancelled = false
     setLoading(true)
     parseGiftInfos(tokenList, gifts).then((giftsResult) => {
+      if (cancelled) return
       if (giftsResult.isErr()) {
         logger.error("Failed to parse gift infos", {
           error: giftsResult.unwrapErr(),
@@ -37,6 +39,9 @@ export function useGiftInfos(
       setGiftInfos(filteredGifts)
       setLoading(false)
     })
+    return () => {
+      cancelled = true
+    }
   }, [gifts, tokenList])
 
   return {
