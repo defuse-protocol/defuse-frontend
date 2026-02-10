@@ -3,11 +3,7 @@ import { supabase } from "@src/libs/supabase"
 import { logger } from "@src/utils/logger"
 import { NextResponse } from "next/server"
 import { z } from "zod"
-
-const giftIdSchema = z
-  .string()
-  .uuid()
-  .refine((val) => val[14] === "5", "Invalid gift_id format")
+import { giftIdSchema } from "../_validation"
 
 export async function GET(
   _request: Request,
@@ -35,10 +31,17 @@ export async function GET(
       return NextResponse.json({ error: "Gift not found" }, { status: 404 })
     }
 
-    return NextResponse.json({
-      encrypted_payload: data.encrypted_payload,
-      p_key: data.p_key,
-    } satisfies GetGiftResponse)
+    return NextResponse.json(
+      {
+        encrypted_payload: data.encrypted_payload,
+        p_key: data.p_key,
+      } satisfies GetGiftResponse,
+      {
+        headers: {
+          "Cache-Control": "no-store, private",
+        },
+      }
+    )
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.errors }, { status: 400 })
