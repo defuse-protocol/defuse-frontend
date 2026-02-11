@@ -102,6 +102,26 @@ export async function clearActiveSession(): Promise<void> {
   cookieStore.delete(ACTIVE_SESSION_COOKIE_NAME)
 }
 
+/**
+ * Reads the active session cookie and derives the connector ID from the JWT.
+ * Used on the /login page to mark the correct "Last used" card when the user
+ * has an active session (e.g. logged in and visiting /login). Returns null if
+ * no valid session.
+ *
+ * Uses payload.connector when present (e.g. "evm:injected"); otherwise falls
+ * back to auth_method for legacy tokens or non-EVM chains.
+ */
+export async function getActiveSessionConnectorId(): Promise<string | null> {
+  const token = await getActiveSessionToken()
+  if (!token) return null
+
+  const payload = await verifyAppAuthToken(token)
+  if (!payload) return null
+
+  if (payload.connector) return payload.connector
+  return payload.auth_method
+}
+
 export interface ValidateTokenForWalletResult {
   valid: boolean
   reason?:
@@ -192,6 +212,8 @@ export interface GenerateAuthTokenFromSignatureInput {
   signedIntent: MultiPayload
   address: string
   authMethod: AuthMethod
+  /** Connector ID for "Last used" indicator; e.g. "evm:injected", "near", "solana" */
+  connectorId?: string
 }
 
 export interface GenerateAuthTokenFromSignatureResult {
@@ -214,7 +236,7 @@ export async function generateAuthTokenFromWalletSignature(
   input: GenerateAuthTokenFromSignatureInput
 ): Promise<GenerateAuthTokenFromSignatureResult> {
   try {
-    const { signedIntent, address, authMethod } = input
+    const { signedIntent, address, authMethod, connectorId } = input
 
     // Security: verify signer_id in message matches the claimed address/authMethod
     // This prevents attacks where someone submits a valid signature but claims a different address
@@ -242,7 +264,7 @@ export async function generateAuthTokenFromWalletSignature(
       return { success: false, error: "signature_invalid" }
     }
 
-    const token = await generateAppAuthToken(address, authMethod)
+    const token = await generateAppAuthToken(address, authMethod, connectorId)
     const expiresAt = getTokenExpiration(token)
 
     if (!expiresAt) {

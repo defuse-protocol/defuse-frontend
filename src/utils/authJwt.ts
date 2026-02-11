@@ -24,6 +24,8 @@ export type JWTPayload = {
   version: number
   auth_identifier: string
   auth_method: AuthMethod
+  /** Connector ID for "Last used" indicator; e.g. "evm:injected", "near", "solana" */
+  connector?: string
 }
 
 /**
@@ -31,19 +33,22 @@ export type JWTPayload = {
  */
 export async function generateAppAuthToken(
   authIdentifier: string,
-  authMethod: AuthMethod
+  authMethod: AuthMethod,
+  connector?: string
 ): Promise<string> {
   if (!APP_AUTH_JWT_SECRET_KEY) {
     throw new Error("APP_AUTH_JWT_SECRET_KEY is not configured")
   }
 
   const secret = new TextEncoder().encode(APP_AUTH_JWT_SECRET_KEY)
-
-  const token = await new SignJWT({
+  const payload: JWTPayload = {
     version: JWT_VERSION,
     auth_identifier: authIdentifier,
     auth_method: authMethod,
-  } satisfies JWTPayload)
+  }
+  if (connector != null) payload.connector = connector
+
+  const token = await new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(`${JWT_EXPIRY_SECONDS}s`)
@@ -82,6 +87,8 @@ export async function verifyAppAuthToken(
       version: payload.version,
       auth_identifier: payload.auth_identifier,
       auth_method: payload.auth_method,
+      connector:
+        typeof payload.connector === "string" ? payload.connector : undefined,
     }
   } catch {
     return null
