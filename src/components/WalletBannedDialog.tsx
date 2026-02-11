@@ -16,7 +16,7 @@ export function WalletBannedDialog({
     <AlertDialog open={open}>
       <div className="flex flex-col items-center mt-4">
         <div className="bg-yellow-100 size-13 rounded-full flex justify-center items-center">
-          <ExclamationTriangleIcon className="size-6 text-yellow-600 " />
+          <ExclamationTriangleIcon className="size-6 text-yellow-600" />
         </div>
         <AlertDialog.Title className="mt-5">
           Unsupported wallet address

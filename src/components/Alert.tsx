@@ -1,4 +1,8 @@
-import { InformationCircleIcon, XCircleIcon } from "@heroicons/react/20/solid"
+import {
+  ExclamationTriangleIcon,
+  InformationCircleIcon,
+  XCircleIcon,
+} from "@heroicons/react/20/solid"
 import { cn } from "@src/utils/cn"
 import type { ReactNode } from "react"
 import ErrorMessage from "./ErrorMessage"
@@ -8,7 +12,7 @@ const Alert = ({
   className,
   children,
 }: {
-  variant: "error" | "info"
+  variant: "error" | "info" | "warning"
   className?: string
   children: ReactNode
 }) => {
@@ -19,6 +23,20 @@ const Alert = ({
       <div className={cn("bg-red-50", baseClasses, className)}>
         <XCircleIcon className="size-5 shrink-0 text-red-600" aria-hidden />
         <ErrorMessage>{children}</ErrorMessage>
+      </div>
+    )
+  }
+
+  if (variant === "warning") {
+    return (
+      <div className={cn("bg-yellow-100", baseClasses, className)}>
+        <ExclamationTriangleIcon
+          className="mt-px size-5 shrink-0 text-yellow-500"
+          aria-hidden
+        />
+        <div className="text-yellow-800 text-sm/5 font-semibold">
+          {children}
+        </div>
       </div>
     )
   }

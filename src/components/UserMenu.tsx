@@ -202,13 +202,13 @@ const UserMenu = ({
             </span>
           </li>
           <li className="flex items-start gap-1.5">
-            <ExclamationCircleIcon className="size-4 text-amber-600 shrink-0 mt-0.5" />
+            <ExclamationCircleIcon className="size-4 text-yellow-600 shrink-0 mt-0.5" />
             <span className="text-sm text-gray-600 font-medium">
               Use it only for transfers between NEAR Intents accounts
             </span>
           </li>
           <li className="flex items-start gap-1.5">
-            <ExclamationCircleIcon className="size-4 text-amber-600 shrink-0 mt-0.5" />
+            <ExclamationCircleIcon className="size-4 text-yellow-600 shrink-0 mt-0.5" />
             <span className="text-sm text-gray-600 font-medium">
               Funds sent here from external wallets will be lost
             </span>
