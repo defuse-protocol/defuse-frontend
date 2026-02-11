@@ -8,7 +8,7 @@ import {
   DealsIcon,
   EarnIcon,
   HistoryIcon,
-  SwapIcon,
+  SwapSquareIcon,
 } from "@src/icons"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { cn } from "@src/utils/cn"
@@ -33,7 +33,7 @@ export const navItems: NavItemType[] = [
   {
     label: "Swap",
     href: "/swap",
-    icon: SwapIcon,
+    icon: SwapSquareIcon,
     showInTabs: true,
   },
   {
@@ -97,13 +97,15 @@ function NavItem({ label, href, icon: Icon }: NavItemType) {
       href={href}
       key={label}
       className={cn(
-        "flex items-center gap-4 py-4 px-3.5 rounded-2xl",
+        "flex items-center gap-4 py-3.5 px-3.5 rounded-2xl",
         isActive(href)
           ? "text-white bg-gray-700"
           : "text-gray-400 hover:text-white hover:bg-gray-700"
       )}
     >
-      <Icon className="size-5 shrink-0" />
+      <span className="w-6 flex items-center justify-center">
+        <Icon className="size-5.5 shrink-0" />
+      </span>
       <span className="text-base/5 font-semibold">{label}</span>
     </Link>
   )

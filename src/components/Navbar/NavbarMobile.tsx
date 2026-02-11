@@ -19,14 +19,12 @@ const NavItem = ({
     <Link
       href={href}
       className={clsx(
-        "group flex flex-col items-center justify-center py-3.5 focus-visible:outline-hidden",
+        "group flex flex-col gap-1.5 items-center justify-center py-3 focus-visible:outline-hidden",
         isActive ? "text-brand" : "text-gray-400"
       )}
     >
-      <Icon className="size-4.5 shrink-0" />
-      <span className="text-xs/none font-semibold mt-1.5">
-        {shortLabel ?? label}
-      </span>
+      <Icon className="size-5 shrink-0" />
+      <span className="text-xs/none font-semibold">{shortLabel ?? label}</span>
     </Link>
   )
 }
@@ -55,9 +53,9 @@ export function NavbarMobile() {
 
         {showMore && (
           <DropdownMenu.Root>
-            <DropdownMenu.Trigger className="group flex flex-col items-center justify-center py-3.5 text-gray-400 focus-visible:outline-hidden data-[state=open]:text-brand">
-              <MoreMenuIcon className="size-4.5 shrink-0" />
-              <span className="text-xs/none font-semibold mt-1.5">More</span>
+            <DropdownMenu.Trigger className="group flex flex-col gap-1.5 items-center justify-center py-3 text-gray-400 focus-visible:outline-hidden data-[state=open]:text-brand">
+              <MoreMenuIcon className="size-5 shrink-0" />
+              <span className="text-xs/none font-semibold">More</span>
             </DropdownMenu.Trigger>
 
             <DropdownMenu.Portal>
@@ -85,7 +83,7 @@ export function NavbarMobile() {
                           : "text-gray-500"
                       )}
                     >
-                      <Icon className="size-4 shrink-0" />
+                      <Icon className="size-5 shrink-0" />
                       <span className="text-sm font-semibold">{label}</span>
                     </Link>
                   </DropdownMenu.Item>

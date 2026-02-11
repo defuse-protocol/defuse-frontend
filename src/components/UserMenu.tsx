@@ -20,6 +20,7 @@ import { DropdownMenu } from "radix-ui"
 import { useState } from "react"
 import AlertDialog from "./AlertDialog"
 import Button from "./Button"
+import { midTruncate } from "./DefuseSDK/features/withdraw/components/WithdrawForm/utils"
 
 type MenuItemType = {
   label: string
@@ -99,16 +100,18 @@ const UserMenu = ({
     <>
       {variant === "desktop" ? (
         <DropdownMenu.Root modal={false}>
-          <DropdownMenu.Trigger className="max-lg:hidden relative group bg-gray-900 text-gray-400 rounded-2xl px-3.5 py-3 flex items-center gap-3 w-full hover:bg-gray-950 hover:text-gray-300 data-[state=open]:bg-gray-950 data-[state=open]:text-gray-300">
-            <div className="size-7 flex items-center justify-center bg-brand rounded-lg">
+          <DropdownMenu.Trigger className="max-lg:hidden relative group bg-gray-900 rounded-2xl px-3.5 py-3 flex items-center gap-3 w-full hover:bg-gray-950 hover:text-gray-300 data-[state=open]:bg-gray-950 data-[state=open]:text-gray-300">
+            <div className="shrink-0 size-7 flex items-center justify-center bg-brand rounded-lg">
               <UserIcon className="text-white/80 size-5" />
             </div>
 
-            <div className="grow text-left min-w-0">
-              <div className="text-sm font-semibold">{displayLabel}</div>
+            <div className="grow text-left">
+              <div className="text-gray-300 text-sm font-semibold">
+                {displayLabel}
+              </div>
               {state.address && (
-                <div className="text-xs text-gray-500 truncate">
-                  {state.address}
+                <div className="text-xs text-gray-400 flex min-w-0 font-medium">
+                  {midTruncate(state.address)}
                 </div>
               )}
             </div>
