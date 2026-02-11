@@ -2,7 +2,7 @@
 
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { NearIntentsLogoSymbolIcon } from "@src/icons"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { type ReactNode, useEffect, useRef, useState } from "react"
 
 // To avoid a quick flicker of the splash screen
@@ -12,7 +12,9 @@ const SplashScreen = ({ children }: { children: ReactNode }) => {
   const { state, isLoading } = useConnectWallet()
   const router = useRouter()
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const isOnLoginPage = pathname === "/login"
+  const isPublicPage = isOnLoginPage || pathname === "/gift"
   const [minTimeElapsed, setMinTimeElapsed] = useState(false)
   const initialLoadCompleteRef = useRef(false)
 
@@ -34,12 +36,22 @@ const SplashScreen = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (showSplash) return
 
-    if (!state.address && !isOnLoginPage) {
+    if (!state.address && !isPublicPage) {
       router.replace("/login")
     } else if (state.address && isOnLoginPage) {
-      router.replace("/account")
+      const raw = searchParams.get("redirect")
+      const redirectUrl =
+        raw?.startsWith("/") && !raw.startsWith("//") ? raw : "/account"
+      router.replace(redirectUrl)
     }
-  }, [showSplash, state.address, isOnLoginPage, router])
+  }, [
+    showSplash,
+    state.address,
+    isPublicPage,
+    isOnLoginPage,
+    router,
+    searchParams,
+  ])
 
   if (showSplash) {
     // Show splash screen
@@ -51,8 +63,8 @@ const SplashScreen = ({ children }: { children: ReactNode }) => {
     return <SplashScreenContent />
   }
 
-  if (isOnLoginPage && !state.address) {
-    // Show login page
+  if (isPublicPage && !state.address) {
+    // Show public page (login, gift)
     return children
   }
 

@@ -140,10 +140,6 @@ export const giftMakerPublishingActor = setup({
       type: "final",
     },
 
-    uncancellable: {
-      type: "final",
-    },
-
     aborted: {
       type: "final",
     },

@@ -326,7 +326,6 @@ export const withdrawUIMachine = setup({
 
       on: {
         "WITHDRAW_FORM.*": {
-          target: "editing",
           actions: [
             {
               type: "relayToWithdrawFormRef",

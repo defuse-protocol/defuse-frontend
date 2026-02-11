@@ -3,7 +3,12 @@ import type { ReactNode } from "react"
 
 import {
   type WhitelabelTemplateValue,
+  dealsDisabledFlag,
+  depositsDisabledFlag,
+  earnDisabledFlag,
+  swapDisabledFlag,
   whitelabelTemplateFlag,
+  withdrawDisabledFlag,
 } from "@src/config/featureFlags"
 import { FeatureFlagsProvider } from "@src/providers/FeatureFlagsProvider"
 
@@ -18,12 +23,38 @@ export async function PreloadFeatureFlags({
 }
 
 async function getEvaluatedFeatureFlags(): Promise<FeatureFlagValues> {
-  const flags = [whitelabelTemplateFlag] as const
-  const [whitelabelTemplate_] = await evaluate(flags)
+  const flags = [
+    whitelabelTemplateFlag,
+    swapDisabledFlag,
+    depositsDisabledFlag,
+    withdrawDisabledFlag,
+    dealsDisabledFlag,
+    earnDisabledFlag,
+  ] as const
+  const [
+    whitelabelTemplate_,
+    isSwapDisabled,
+    isDepositsDisabled,
+    isWithdrawDisabled,
+    isDealsDisabled,
+    isEarnDisabled,
+  ] = await evaluate(flags)
   const whitelabelTemplate = whitelabelTemplate_ as WhitelabelTemplateValue
-  return { whitelabelTemplate }
+  return {
+    whitelabelTemplate,
+    isSwapDisabled,
+    isDepositsDisabled,
+    isWithdrawDisabled,
+    isDealsDisabled,
+    isEarnDisabled,
+  }
 }
 
 export interface FeatureFlagValues {
   whitelabelTemplate: WhitelabelTemplateValue
+  isSwapDisabled: boolean
+  isDepositsDisabled: boolean
+  isWithdrawDisabled: boolean
+  isDealsDisabled: boolean
+  isEarnDisabled: boolean
 }

@@ -1,3 +1,5 @@
+"use client"
+
 import type { ReactNode } from "react"
 import { ModalContainer } from "../components/Modal/ModalContainer"
 import { ModalStoreProvider } from "./ModalStoreProvider"

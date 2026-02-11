@@ -2,25 +2,50 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
 import { csp } from "@src/config/csp"
-import { maintenanceModeFlag } from "@src/config/featureFlags"
+import {
+  dealsDisabledFlag,
+  depositsDisabledFlag,
+  earnDisabledFlag,
+  maintenanceModeFlag,
+  swapDisabledFlag,
+  withdrawDisabledFlag,
+} from "@src/config/featureFlags"
 import { logger } from "@src/utils/logger"
 
 export const config = {
   matcher:
-    "/((?!api|.well-known/vercel|_next/static|_next/image|favicon.ico|favicons|static|maintenance).*)",
+    "/((?!api|.well-known/vercel|_next/static|_next/image|favicon.ico|favicons|static|maintenance|monitoring).*)",
 }
+
+const featureRouteMap = [
+  { pathPrefix: "/swap", flag: swapDisabledFlag },
+  { pathPrefix: "/deposit", flag: depositsDisabledFlag },
+  { pathPrefix: "/transfer", flag: withdrawDisabledFlag },
+  { pathPrefix: "/deals", flag: dealsDisabledFlag },
+  { pathPrefix: "/deal", flag: dealsDisabledFlag },
+  { pathPrefix: "/earn", flag: earnDisabledFlag },
+]
 
 export async function proxy(request: NextRequest) {
   try {
-    // Check for legacy redirects first
     const legacyRedirect = handleLegacyRedirects(request)
     if (legacyRedirect) {
       return legacyRedirect
     }
 
-    const isMaintenanceMode = await maintenanceModeFlag()
+    const pathname = new URL(request.url).pathname
+    const matchedRoute = featureRouteMap.find(
+      (route) =>
+        pathname === route.pathPrefix ||
+        pathname.startsWith(`${route.pathPrefix}/`)
+    )
 
-    if (isMaintenanceMode) {
+    const [isMaintenanceMode, isFeatureDisabled] = await Promise.all([
+      maintenanceModeFlag(),
+      matchedRoute ? matchedRoute.flag() : Promise.resolve(false),
+    ])
+
+    if (isMaintenanceMode || isFeatureDisabled) {
       return NextResponse.rewrite(new URL("/maintenance", request.url))
     }
   } catch (error) {

@@ -28,7 +28,7 @@ import { cookies } from "next/headers"
 import { sign as naclSign } from "tweetnacl"
 
 const AUTH_TOKEN_COOKIE_PREFIX = "defuse_auth_"
-const ACTIVE_WALLET_COOKIE_NAME = "defuse_active_wallet"
+const ACTIVE_SESSION_COOKIE_NAME = "defuse_active_token"
 const COOKIE_MAX_AGE_SECONDS = JWT_EXPIRY_SECONDS
 
 /**
@@ -50,7 +50,7 @@ function getCookieKeyForAddress(address: string): string {
 
 /**
  * Set a wallet's auth token in an httpOnly cookie with address-based key.
- * Also sets the active wallet cookie for server-side access.
+ * Also sets the active session cookie (JWT copy) for server-side access.
  */
 export async function setWalletToken(
   address: string,
@@ -67,30 +67,13 @@ export async function setWalletToken(
     path: "/",
   })
 
-  // Set active wallet cookie (not httpOnly - client can read, but not sensitive)
-  cookieStore.set(ACTIVE_WALLET_COOKIE_NAME, address, {
-    httpOnly: false,
+  cookieStore.set(ACTIVE_SESSION_COOKIE_NAME, token, {
+    httpOnly: true,
     secure: true,
     sameSite: "lax",
     maxAge: COOKIE_MAX_AGE_SECONDS,
     path: "/",
   })
-}
-
-/**
- * Clear a specific wallet's auth cookie.
- * Also clears the active wallet cookie if it matches.
- */
-export async function clearWalletToken(address: string): Promise<void> {
-  const cookieKey = getCookieKeyForAddress(address)
-  const cookieStore = await cookies()
-
-  cookieStore.delete(cookieKey)
-
-  const activeWallet = cookieStore.get(ACTIVE_WALLET_COOKIE_NAME)?.value
-  if (activeWallet === address) {
-    cookieStore.delete(ACTIVE_WALLET_COOKIE_NAME)
-  }
 }
 
 /**
@@ -103,29 +86,20 @@ export async function getWalletToken(address: string): Promise<string | null> {
 }
 
 /**
- * Get the active wallet address from cookie (for server-side use)
+ * Get the active session JWT from the active token cookie (for server-side use)
  */
-export async function getActiveWalletAddress(): Promise<string | null> {
+export async function getActiveSessionToken(): Promise<string | null> {
   const cookieStore = await cookies()
-  return cookieStore.get(ACTIVE_WALLET_COOKIE_NAME)?.value ?? null
+  return cookieStore.get(ACTIVE_SESSION_COOKIE_NAME)?.value ?? null
 }
 
 /**
- * Clear only the active wallet cookie (on sign out).
- * Preserves the auth token so user can reconnect without re-verifying.
+ * Clear only the active session cookie (on sign out).
+ * Preserves per-wallet auth tokens so user can reconnect without re-verifying.
  */
-export async function clearActiveWallet(): Promise<void> {
+export async function clearActiveSession(): Promise<void> {
   const cookieStore = await cookies()
-  cookieStore.delete(ACTIVE_WALLET_COOKIE_NAME)
-}
-
-/**
- * Get the active wallet's auth token (convenience for server-side use)
- */
-export async function getActiveWalletToken(): Promise<string | null> {
-  const address = await getActiveWalletAddress()
-  if (!address) return null
-  return getWalletToken(address)
+  cookieStore.delete(ACTIVE_SESSION_COOKIE_NAME)
 }
 
 export interface ValidateTokenForWalletResult {
@@ -167,10 +141,10 @@ export async function validateTokenForWallet(
     return { valid: false, reason: "chain_mismatch" }
   }
 
-  // Set active wallet cookie (handles reconnect where JWT exists but cookie was cleared)
+  // Set active session cookie (handles reconnect where per-wallet JWT exists but session cookie was cleared)
   const cookieStore = await cookies()
-  cookieStore.set(ACTIVE_WALLET_COOKIE_NAME, expectedAddress, {
-    httpOnly: false,
+  cookieStore.set(ACTIVE_SESSION_COOKIE_NAME, token, {
+    httpOnly: true,
     secure: true,
     sameSite: "lax",
     maxAge: COOKIE_MAX_AGE_SECONDS,

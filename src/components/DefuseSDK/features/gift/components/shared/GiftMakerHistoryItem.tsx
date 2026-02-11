@@ -1,30 +1,22 @@
-import {
-  CheckCircle,
-  Check as CheckIcon,
-  Copy as CopyIcon,
-  Eye as EyeIcon,
-  Trash as TrashIcon,
-} from "@phosphor-icons/react"
-import { IconButton } from "@radix-ui/themes"
 import type { SignerCredentials } from "@src/components/DefuseSDK/core/formatters"
-import { logger } from "@src/utils/logger"
-import { useCallback, useContext, useState } from "react"
-import { createActor } from "xstate"
-import { Copy } from "../../../../components/IntentCard/CopyButton"
-import { emitEvent } from "../../../../services/emitter"
+import ListItem from "@src/components/ListItem"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { type ActorRefFrom, createActor } from "xstate"
+import AssetComboIcon from "../../../../components/Asset/AssetComboIcon"
 import type { TokenValue } from "../../../../types/base"
-import { assert } from "../../../../utils/assert"
+import { formatTokenValue } from "../../../../utils/format"
 import {
   computeTotalBalanceDifferentDecimals,
   getUnderlyingBaseTokenInfos,
 } from "../../../../utils/tokenUtils"
-import { giftMakerReadyActor } from "../../actors/giftMakerReadyActor"
-import { GiftClaimActorContext } from "../../providers/GiftClaimActorProvider"
-import { giftMakerHistoryStore } from "../../stores/giftMakerHistory"
+import {
+  type giftMakerReadyActor,
+  giftMakerReadyActor as giftMakerReadyActorMachine,
+} from "../../actors/giftMakerReadyActor"
 import type { GenerateLink } from "../../types/sharedTypes"
+import { formatGiftDate } from "../../utils/formattedDate"
 import type { GiftInfo } from "../../utils/parseGiftInfos"
 import { GiftMakerReadyDialog } from "../GiftMakerReadyDialog"
-import { GiftStrip } from "../GiftStrip"
 
 export function GiftMakerHistoryItem({
   giftInfo,
@@ -36,142 +28,79 @@ export function GiftMakerHistoryItem({
   signerCredentials: SignerCredentials
 }) {
   const [showDialog, setShowDialog] = useState(false)
+  const actorRef = useRef<ActorRefFrom<typeof giftMakerReadyActor> | null>(null)
+
   const amount = computeTotalBalanceDifferentDecimals(
     getUnderlyingBaseTokenInfos(giftInfo.token),
     giftInfo.tokenDiff,
     { strict: false }
   )
 
-  const { cancelGift } = useContext(GiftClaimActorContext)
-
-  const readyGiftRef = createActor(giftMakerReadyActor, {
-    input: {
-      giftInfo,
-      signerCredentials,
-      parsed: {
-        token: giftInfo.token,
-        amount: amount as TokenValue,
-        message: giftInfo.message,
+  const openDialog = useCallback(() => {
+    actorRef.current?.stop()
+    actorRef.current = createActor(giftMakerReadyActorMachine, {
+      input: {
+        giftInfo,
+        signerCredentials,
+        parsed: {
+          token: giftInfo.token,
+          amount: amount as TokenValue,
+          message: giftInfo.message,
+        },
+        iv: giftInfo.iv,
       },
-      iv: giftInfo.iv,
-    },
-  }).start()
+    }).start()
+    setShowDialog(true)
+  }, [giftInfo, signerCredentials, amount])
 
-  const handleCloseDialog = useCallback(() => {
+  const closeDialog = useCallback(() => {
+    actorRef.current?.stop()
+    actorRef.current = null
     setShowDialog(false)
   }, [])
 
-  const cancellationOrRemoval = useCallback(async () => {
-    if (giftInfo.status === "claimed") {
-      await removeClaimedGiftFromStore({ giftInfo, signerCredentials })
-    } else {
-      await cancelGift({ giftInfo, signerCredentials })
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (actorRef.current) {
+        actorRef.current.stop()
+        actorRef.current = null
+      }
     }
-  }, [giftInfo, signerCredentials, cancelGift])
+  }, [])
 
   return (
     <>
-      <div className="py-2.5 flex items-center justify-between gap-2.5">
-        {amount != null && (
-          <GiftStrip
-            token={giftInfo.token}
-            amountSlot={
-              <GiftStrip.Amount
-                token={giftInfo.token}
-                amount={amount}
-                className="text-gray-12"
-              />
-            }
-            dateSlot={<GiftStrip.Date updatedAt={giftInfo.updatedAt} />}
-          />
-        )}
-        <div className="flex gap-2 items-center">
-          {giftInfo.status === "pending" && (
-            <>
-              <IconButton
-                type="button"
-                variant="outline"
-                color="gray"
-                className="rounded-lg"
-                onClick={() => setShowDialog(true)}
-              >
-                <EyeIcon weight="bold" />
-              </IconButton>
-              <Copy
-                text={() => {
-                  emitEvent("gift_link_shared", {
-                    share_method: "copy_history",
-                    gift_token: giftInfo.token.symbol,
-                  })
-                  return generateLink({
-                    secretKey: giftInfo.secretKey,
-                    message: giftInfo.message,
-                    iv: giftInfo.iv,
-                  })
-                }}
-              >
-                {(copied) => (
-                  <IconButton
-                    type="button"
-                    variant="outline"
-                    color="gray"
-                    className="rounded-lg"
-                  >
-                    <div className="flex gap-2 items-center">
-                      {copied ? (
-                        <CheckIcon weight="bold" />
-                      ) : (
-                        <CopyIcon weight="bold" />
-                      )}
-                    </div>
-                  </IconButton>
-                )}
-              </Copy>
-            </>
-          )}
+      <ListItem onClick={openDialog}>
+        <AssetComboIcon {...giftInfo.token} />
+        <ListItem.Content>
+          <ListItem.Title>
+            {amount != null &&
+              `${formatTokenValue(amount.amount, amount.decimals, { fractionDigits: 6 })} ${giftInfo.token.symbol}`}
+          </ListItem.Title>
+          <ListItem.Subtitle>
+            {formatGiftDate(giftInfo.updatedAt)}
+          </ListItem.Subtitle>
+        </ListItem.Content>
+        <ListItem.Content align="end">
           {giftInfo.status === "claimed" && (
-            <div className="flex gap-1 items-center">
-              <CheckCircle width={12} height={12} className="text-accent-11" />
-              <span className="text-xs font-medium text-accent-11">
-                Claimed
-              </span>
-            </div>
+            <span className="inline-flex items-center gap-x-1.5 rounded-lg bg-green-100 group-hover:outline-1 group-hover:outline-green-200 px-2 py-1 text-xs font-semibold text-green-700">
+              <span className="size-1.5 rounded-full bg-green-500 shrink-0" />
+              Claimed
+            </span>
           )}
-          <IconButton
-            type="button"
-            onClick={cancellationOrRemoval}
-            variant="outline"
-            color="gray"
-            className="rounded-lg"
-          >
-            <TrashIcon weight="bold" />
-          </IconButton>
-        </div>
-      </div>
-      {showDialog && (
+        </ListItem.Content>
+      </ListItem>
+
+      {showDialog && actorRef.current && (
         <GiftMakerReadyDialog
-          readyGiftRef={readyGiftRef}
+          readyGiftRef={actorRef.current}
           generateLink={generateLink}
           signerCredentials={signerCredentials}
-          onClose={handleCloseDialog}
+          onClose={closeDialog}
+          isClaimed={giftInfo.status === "claimed"}
         />
       )}
     </>
   )
-}
-
-async function removeClaimedGiftFromStore({
-  giftInfo,
-  signerCredentials,
-}: {
-  giftInfo: GiftInfo
-  signerCredentials: SignerCredentials
-}) {
-  assert(giftInfo.secretKey, "giftInfo.secretKey is not set")
-  const result = await giftMakerHistoryStore
-    .getState()
-    .removeGift(giftInfo.secretKey, signerCredentials)
-  if (result.tag === "err") {
-    logger.error(new Error("Failed to remove gift", { cause: result.reason }))
-  }
 }

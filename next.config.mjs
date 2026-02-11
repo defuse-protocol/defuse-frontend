@@ -34,6 +34,21 @@ const nextConfig = {
         destination: '/privacy',
         permanent: true,
       },
+      {
+        source: '/gift-card/view-gift',
+        destination: '/gift',
+        permanent: true,
+      },
+      {
+        source: '/gift-card/create-gift',
+        destination: '/gifts/new',
+        permanent: true,
+      },
+      {
+        source: '/gift-card',
+        destination: '/gifts',
+        permanent: true,
+      },
     ]
   },
   turbopack: {

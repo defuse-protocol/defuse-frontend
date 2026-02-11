@@ -2,6 +2,7 @@ import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { logger } from "@src/utils/logger"
 import { Ok, type Result } from "@thames/monads"
 import { assert } from "../../../utils/assert"
+import { mapWithConcurrency } from "../../../utils/async"
 import type { GiftMakerHistory } from "../stores/giftMakerHistory"
 import { findTokenFromDiff } from "./deriveToken"
 import { determineGiftToken } from "./determineGiftToken"
@@ -17,8 +18,9 @@ export async function parseGiftInfos(
   tokenList: TokenInfo[],
   gifts: GiftMakerHistory[]
 ): Promise<Result<GiftInfo[], Error>> {
-  const giftInfos = await Promise.all(
-    gifts.map(async (gift) => {
+  const giftInfos = await mapWithConcurrency(
+    gifts,
+    async (gift) => {
       try {
         const escrowCredentials = parseEscrowCredentials(gift.secretKey)
         const determineResult = await determineGiftToken(
@@ -39,7 +41,8 @@ export async function parseGiftInfos(
         assert(tokenList[0], "tokenList[0] is not undefined")
         return createTaggedGift("claimed", gift, tokenList[0], "dontcare")
       }
-    })
+    },
+    5
   )
   return Ok(sortByDate(giftInfos))
 }

@@ -27,7 +27,7 @@ type GiftTakerClaimingActorErrors =
 
 type GiftTakerRootMachineInput = {
   giftId: string | null
-  payload: string | null
+  payload: unknown
   tokenList: TokenInfo[]
 }
 
@@ -36,7 +36,7 @@ type GiftTakerRootMachineContext = {
   giftInfo: null | GiftInfo
   multiPayload: null | MultiPayload
   intentHashes: null | string[]
-  payload: string | null
+  payload: unknown
   giftId: string | null
   tokenList: TokenInfo[]
   signerCredentials: null | SignerCredentials
@@ -68,7 +68,7 @@ export const giftTakerRootMachine = setup({
     },
     events: {} as {
       type: "SET_DATA"
-      params: { payload: string; giftId: string | null }
+      params: { payload: unknown; giftId: string | null }
     },
   },
   actors: {

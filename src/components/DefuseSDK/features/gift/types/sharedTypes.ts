@@ -26,7 +26,7 @@ export type GenerateLink = (params: {
   secretKey: string
   message: string
   // Fallback to empty string for backwards compatibility with gifts created before IV was added
-  iv: null | string
+  iv?: null | string
 }) => string
 
 export type SavingGiftResult =
