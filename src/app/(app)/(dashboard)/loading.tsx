@@ -8,7 +8,7 @@ export default function DashboardLoading() {
         {[0, 1, 2].map((i) => (
           <span
             key={i}
-            className="size-1.5 rounded-full bg-brand animate-dot-bounce"
+            className="size-1.5 rounded-full bg-gray-400 animate-dot-bounce"
             style={{ animationDelay: `${i * 160}ms` }}
           />
         ))}
