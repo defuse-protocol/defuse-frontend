@@ -1,10 +1,12 @@
-import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
-import type { Contact } from "@src/app/(app)/(auth)/contacts/actions"
+import type {
+  Contact,
+  ContactBlockchain,
+} from "@src/app/(app)/(auth)/contacts/actions"
 
 export function findContactByAddress(
   contacts: Contact[],
   address: string | null | undefined,
-  blockchain?: BlockchainEnum | null
+  blockchain?: ContactBlockchain | null
 ): Contact | undefined {
   if (!address) return undefined
   const normalizedAddress = address.toLowerCase()

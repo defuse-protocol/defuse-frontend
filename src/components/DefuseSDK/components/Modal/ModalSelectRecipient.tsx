@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query"
 import clsx from "clsx"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useFormContext } from "react-hook-form"
-import { chainIcons } from "../../constants/blockchains"
+import { chainIcons, nearIntentsAccountIcon } from "../../constants/blockchains"
 import type { WithdrawFormNearValues } from "../../features/withdraw/components/WithdrawForm"
 import {
   type ValidateRecipientAddressErrorType,
@@ -77,10 +77,12 @@ const ModalSelectRecipient = ({
 
   const availableContacts = useMemo(() => {
     const availableNetworksValues = Object.keys(availableNetworks)
+    const hasIntents = availableNetworksValues.includes("intents")
 
-    return contacts.filter((contact) =>
-      availableNetworksValues.includes(contact.blockchain)
-    )
+    return contacts.filter((contact) => {
+      if (contact.blockchain === "near_intents") return hasIntents
+      return availableNetworksValues.includes(contact.blockchain)
+    })
   }, [availableNetworks, contacts])
 
   const hasSelectedNetwork = !!blockchain && blockchain !== "near_intents"
@@ -96,8 +98,16 @@ const ModalSelectRecipient = ({
     if (!hasSelectedNetwork) return filtered
 
     return [...filtered].sort((a, b) => {
-      const aMatches = reverseAssetNetworkAdapter[a.blockchain] === blockchain
-      const bMatches = reverseAssetNetworkAdapter[b.blockchain] === blockchain
+      const aChain =
+        a.blockchain === "near_intents"
+          ? "near_intents"
+          : reverseAssetNetworkAdapter[a.blockchain]
+      const bChain =
+        b.blockchain === "near_intents"
+          ? "near_intents"
+          : reverseAssetNetworkAdapter[b.blockchain]
+      const aMatches = aChain === blockchain
+      const bMatches = bChain === blockchain
       if (aMatches === bMatches) return 0
       return aMatches ? -1 : 1
     })
@@ -270,10 +280,18 @@ const ModalSelectRecipient = ({
                         name,
                         blockchain: contactBlockchain,
                       }) => {
-                        const chainKey =
-                          reverseAssetNetworkAdapter[contactBlockchain]
-                        const chainIcon = chainIcons[chainKey]
-                        const chainName = chainNameToNetworkName(chainKey)
+                        const isIntents = contactBlockchain === "near_intents"
+                        const chainKey = isIntents
+                          ? "near_intents"
+                          : reverseAssetNetworkAdapter[contactBlockchain]
+                        const chainIcon = isIntents
+                          ? nearIntentsAccountIcon
+                          : chainIcons[chainKey as SupportedChainName]
+                        const chainName = isIntents
+                          ? "Intents"
+                          : chainNameToNetworkName(
+                              chainKey as SupportedChainName
+                            )
                         const contactColor = stringToColor(
                           `${name}${address}${contactBlockchain}`
                         )

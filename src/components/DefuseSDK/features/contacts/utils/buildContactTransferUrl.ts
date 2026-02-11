@@ -33,6 +33,15 @@ export function buildContactTransferUrl(
   holdings: Holding[],
   tokenList: TokenInfo[]
 ): string {
+  if (contact.blockchain === "near_intents") {
+    const params = new URLSearchParams({
+      contactId: contact.contactId,
+      recipient: contact.address,
+      network: "near_intents",
+    })
+    return `/transfer?${params.toString()}`
+  }
+
   const network = reverseAssetNetworkAdapter[contact.blockchain]
   const token =
     findBestTokenFromHoldings(holdings, network) ??

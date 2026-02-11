@@ -302,7 +302,9 @@ export const WithdrawForm = ({
     if (presetAmount != null) {
       setValue("amountIn", presetAmount)
     }
-    if (presetNetwork != null && isSupportedChainName(presetNetwork)) {
+    if (presetNetwork === "near_intents") {
+      setValue("blockchain", "near_intents")
+    } else if (presetNetwork != null && isSupportedChainName(presetNetwork)) {
       // Check if the token supports this network before applying preset
       const availableChains = availableChainsForToken(token)
       const networkEnum = assetNetworkAdapter[presetNetwork]

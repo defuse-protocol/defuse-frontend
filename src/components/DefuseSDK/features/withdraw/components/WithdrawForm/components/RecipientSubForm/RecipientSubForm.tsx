@@ -90,7 +90,9 @@ export const RecipientSubForm = ({
   const blockchainEnum =
     blockchain && blockchain !== "near_intents"
       ? assetNetworkAdapter[blockchain]
-      : null
+      : blockchain === "near_intents"
+        ? ("near_intents" as const)
+        : null
   const matchingContact = useMemo(
     () => findContactByAddress(contacts, recipient, blockchainEnum),
     [contacts, recipient, blockchainEnum]

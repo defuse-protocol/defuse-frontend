@@ -8,7 +8,10 @@ import ModalAddEditContact from "@src/components/DefuseSDK/components/Modal/Moda
 import ModalNoResults from "@src/components/DefuseSDK/components/Modal/ModalNoResults"
 import { NetworkIcon } from "@src/components/DefuseSDK/components/Network/NetworkIcon"
 import SearchBar from "@src/components/DefuseSDK/components/SearchBar"
-import { chainIcons } from "@src/components/DefuseSDK/constants/blockchains"
+import {
+  chainIcons,
+  nearIntentsAccountIcon,
+} from "@src/components/DefuseSDK/constants/blockchains"
 import {
   chainNameToNetworkName,
   midTruncate,
@@ -66,6 +69,14 @@ const ContactsList = ({
   const processedContacts = useMemo(
     () =>
       contacts.map((contact) => {
+        if (contact.blockchain === "near_intents") {
+          return {
+            contact,
+            chainKey: "near_intents" as const,
+            chainIcon: nearIntentsAccountIcon,
+            chainName: "Intents",
+          }
+        }
         const chainKey = reverseAssetNetworkAdapter[contact.blockchain]
         const chainIcon = chainIcons[chainKey]
         const chainName = chainNameToNetworkName(chainKey)

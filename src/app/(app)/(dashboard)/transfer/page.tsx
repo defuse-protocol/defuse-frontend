@@ -34,7 +34,10 @@ export default async function SendPage({
           : "contact not found or unsupported chain",
       })
     } else {
-      resolvedNetwork = reverseAssetNetworkAdapter[result.value.blockchain]
+      resolvedNetwork =
+        result.value.blockchain === "near_intents"
+          ? "near_intents"
+          : reverseAssetNetworkAdapter[result.value.blockchain]
       resolvedRecipient = result.value.address
     }
   }

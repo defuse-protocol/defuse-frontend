@@ -71,12 +71,14 @@ const DeleteContactFormSchema = v.object({
   contactId: v.pipe(v.string(), v.uuid("Contact ID must be a valid UUID")),
 })
 
+export type ContactBlockchain = BlockchainEnum | "near_intents"
+
 export type Contact = Omit<
   ContactSchema,
   "createdAt" | "updatedAt" | "blockchain"
 > & {
   id: string
-  blockchain: BlockchainEnum
+  blockchain: ContactBlockchain
 }
 
 type ContactEntity = {
@@ -103,7 +105,18 @@ export async function getContacts(input?: {
     )
 
     const contacts: Array<Contact> = contactsData
-      .map((contact) => {
+      .map((contact): Contact | null => {
+        if (contact.blockchain === "near_intents") {
+          return {
+            contactId: contact.contactId,
+            accountId: contact.accountId,
+            address: contact.address,
+            name: contact.name,
+            blockchain: "near_intents" as const,
+            id: contact.contactId,
+          }
+        }
+
         if (!isSupportedChainName(contact.blockchain)) {
           return null
         }
@@ -135,7 +148,7 @@ export async function getContacts(input?: {
 export async function createContact(input: {
   name: string
   address: string
-  blockchain: BlockchainEnum
+  blockchain: ContactBlockchain
   userAddress?: string
   chainType?: AuthMethod
 }): Promise<ActionResult<ContactEntity>> {
@@ -160,7 +173,10 @@ export async function createContact(input: {
     return { ok: false, error: errorMessage }
   }
 
-  const blockchain = reverseAssetNetworkAdapter[input.blockchain]
+  const blockchain =
+    input.blockchain === "near_intents"
+      ? "near_intents"
+      : reverseAssetNetworkAdapter[input.blockchain]
 
   const validationResult = await validationRecipientAddress(
     data.output.address,
@@ -237,7 +253,7 @@ export async function updateContact(input: {
   contactId: string
   name: string
   address: string
-  blockchain: BlockchainEnum
+  blockchain: ContactBlockchain
   userAddress?: string
   chainType?: AuthMethod
 }): Promise<ActionResult<ContactEntity>> {
@@ -262,7 +278,10 @@ export async function updateContact(input: {
     return { ok: false, error: errorMessage }
   }
 
-  const blockchain = reverseAssetNetworkAdapter[input.blockchain]
+  const blockchain =
+    input.blockchain === "near_intents"
+      ? "near_intents"
+      : reverseAssetNetworkAdapter[input.blockchain]
 
   const validationResult = await validationRecipientAddress(
     data.output.address,
@@ -344,7 +363,7 @@ export async function updateContact(input: {
 
 export async function getContactByAddressAction(input: {
   address: string
-  blockchain: SupportedChainName
+  blockchain: SupportedChainName | "near_intents"
 }): Promise<ActionResult<Contact | null>> {
   try {
     const auth = await authenticate()
@@ -360,6 +379,20 @@ export async function getContactByAddressAction(input: {
 
     if (!contact) {
       return { ok: true, value: null }
+    }
+
+    if (contact.blockchain === "near_intents") {
+      return {
+        ok: true,
+        value: {
+          contactId: contact.contactId,
+          accountId: contact.accountId,
+          address: contact.address,
+          name: contact.name,
+          blockchain: "near_intents" as const,
+          id: contact.contactId,
+        },
+      }
     }
 
     if (!isSupportedChainName(contact.blockchain)) {
@@ -423,6 +456,20 @@ export async function getContactByIdAction(input: {
         accountId: auth.accountId,
       })
       return { ok: false, error: "Permission denied" }
+    }
+
+    if (contact.blockchain === "near_intents") {
+      return {
+        ok: true,
+        value: {
+          contactId: contact.contactId,
+          accountId: contact.accountId,
+          address: contact.address,
+          name: contact.name,
+          blockchain: "near_intents" as const,
+          id: contact.contactId,
+        },
+      }
     }
 
     if (!isSupportedChainName(contact.blockchain)) {
