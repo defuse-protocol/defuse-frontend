@@ -26,7 +26,7 @@ export const settings: Settings = {
    * Ensure these URLs are valid and accessible.
    */
   rpcUrls: {
-    near: "https://relmn.aurora.dev",
+    near: "https://near-rpc.defuse.org",
     eth: "https://eth-mainnet.public.blastapi.io",
     base: "https://mainnet.base.org",
     arbitrum: "https://arb1.arbitrum.io/rpc",
@@ -49,7 +49,7 @@ export const settings: Settings = {
     gnosis: "https://rpc.gnosischain.com",
     berachain: "https://rpc.berachain.com",
     tron: "https://api.trongrid.io",
-    polygon: "https://polygon-rpc.com",
+    polygon: "https://1rpc.io/matic",
     bsc: "https://bsc-dataseed.bnbchain.org",
     hyperliquid: "https://rpc.hyperliquid.xyz/evm",
     ton: "https://nameless-stylish-surf.ton-mainnet.quiknode.pro/8541c7f9b1ffdac8652ffdd74a762607b922627d/jsonRPC", // Use locally one of these RPCs https://ton.api.onfinality.io/public or https://toncenter.com/api/v2/jsonRPC

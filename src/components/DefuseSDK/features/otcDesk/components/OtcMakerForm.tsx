@@ -1,8 +1,6 @@
 import type { authHandle } from "@defuse-protocol/internal-utils"
-import {
-  ArrowDownIcon,
-  ExclamationTriangleIcon,
-} from "@heroicons/react/20/solid"
+import { ArrowDownIcon } from "@heroicons/react/20/solid"
+import Alert from "@src/components/Alert"
 import Button from "@src/components/Button"
 import ModalActiveDeal from "@src/components/DefuseSDK/components/Modal/ModalActiveDeal"
 import ModalReviewDeal from "@src/components/DefuseSDK/components/Modal/ModalReviewDeal"
@@ -508,23 +506,20 @@ export function OtcMakerForm({
           />
 
           {marketRateDeviation !== null && (
-            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2">
-              <ExclamationTriangleIcon className="size-5 text-amber-500 shrink-0 mt-0.5" />
-              <div className="text-sm">
-                <p className="font-medium text-amber-800">
-                  {marketRateDeviation < 0
-                    ? `You're receiving ${Math.abs(marketRateDeviation).toFixed(0)}% less value than you're giving`
-                    : `You're asking for ${Math.abs(marketRateDeviation).toFixed(0)}% more value than you're giving`}
-                </p>
-                <button
-                  type="button"
-                  onClick={resetToMarketRate}
-                  className="text-amber-700 underline hover:text-amber-900"
-                >
-                  Reset to market rate
-                </button>
-              </div>
-            </div>
+            <Alert variant="warning" className="mt-5">
+              <p>
+                {marketRateDeviation < 0
+                  ? `You're receiving ${Math.abs(marketRateDeviation).toFixed(0)}% less value than you're giving.`
+                  : `You're asking for ${Math.abs(marketRateDeviation).toFixed(0)}% more value than you're giving.`}
+              </p>
+              <button
+                type="button"
+                onClick={resetToMarketRate}
+                className="text-yellow-700 underline hover:text-yellow-900"
+              >
+                Reset to market rate
+              </button>
+            </Alert>
           )}
 
           <div className="mt-5 flex justify-between items-center">

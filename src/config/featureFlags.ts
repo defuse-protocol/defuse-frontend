@@ -53,3 +53,43 @@ export const maintenanceModeFlag = flag({
     }
   },
 })
+
+function createKillSwitchFlag(key: string, edgeConfigKey: string) {
+  return flag({
+    key,
+    defaultValue: false as boolean,
+    options: [
+      { label: "On", value: true },
+      { label: "Off", value: false },
+    ],
+    async decide() {
+      try {
+        return (await get(edgeConfigKey)) === true
+      } catch (err) {
+        logger.error(err)
+        return false
+      }
+    },
+  })
+}
+
+export const swapDisabledFlag = createKillSwitchFlag(
+  "swapDisabled",
+  "isSwapDisabled"
+)
+export const depositsDisabledFlag = createKillSwitchFlag(
+  "depositsDisabled",
+  "isDepositsDisabled"
+)
+export const withdrawDisabledFlag = createKillSwitchFlag(
+  "withdrawDisabled",
+  "isWithdrawDisabled"
+)
+export const dealsDisabledFlag = createKillSwitchFlag(
+  "dealsDisabled",
+  "isDealsDisabled"
+)
+export const earnDisabledFlag = createKillSwitchFlag(
+  "earnDisabled",
+  "isEarnDisabled"
+)
