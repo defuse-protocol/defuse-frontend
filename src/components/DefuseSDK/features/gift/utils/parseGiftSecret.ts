@@ -18,10 +18,10 @@ const GiftSecretSchema = v.object({
 })
 
 export function parseGiftSecret(
-  secretKey: string
+  payload: unknown
 ): Result<ParsedGiftSecret, GiftSecretError> {
   try {
-    const parseResult = v.safeParse(GiftSecretSchema, secretKey)
+    const parseResult = v.safeParse(GiftSecretSchema, payload)
     if (!parseResult.success) {
       return Err({ reason: "INVALID_SECRET_KEY" })
     }

@@ -31,6 +31,7 @@ export type GiftClaimActorErrors =
         | "ERR_ON_SIGN_GIFT"
         | "ERR_ON_PUBLISH_GIFT"
         | "NOT_FOUND_OR_NOT_VALID"
+        | "SETTLEMENT_FAILED"
     }
 
 type GiftSignGiftActorOutput =
@@ -158,14 +159,17 @@ export const giftClaimActor = setup({
           })
           return { tag: "ok" as const }
         } catch (err) {
-          if (err instanceof solverRelay.IntentSettlementError) {
+          logger.error(new Error("Gift settling failed", { cause: err }))
+          if (err instanceof DOMException && err.name === "AbortError") {
             return {
               tag: "err" as const,
-              value: { reason: "NOT_FOUND_OR_NOT_VALID" },
+              value: { reason: "SETTLEMENT_FAILED" },
             }
           }
-          // Optionally handle/log other error types here
-          throw err
+          return {
+            tag: "err" as const,
+            value: { reason: "NOT_FOUND_OR_NOT_VALID" },
+          }
         }
       }
     ),
@@ -238,7 +242,7 @@ export const giftClaimActor = setup({
             },
 
             onError: {
-              target: "#(machine).claiming",
+              target: "#(machine).idle",
               actions: [
                 { type: "logError", params: ({ event }) => event },
                 { type: "setError", params: { reason: "ERR_ON_SIGN_GIFT" } },
@@ -299,7 +303,7 @@ export const giftClaimActor = setup({
             },
 
             onError: {
-              target: "#(machine).claiming",
+              target: "#(machine).idle",
               actions: [
                 { type: "logError", params: ({ event }) => event },
                 { type: "setError", params: { reason: "ERR_ON_PUBLISH_GIFT" } },
@@ -349,7 +353,7 @@ export const giftClaimActor = setup({
             },
 
             onError: {
-              target: "#(machine).claiming",
+              target: "#(machine).idle",
               actions: [
                 { type: "logError", params: ({ event }) => event },
                 {

@@ -1,14 +1,12 @@
-import { ButtonCustom } from "../../../../components/Button/ButtonCustom"
-import { Island } from "../../../../components/Island"
+import { PlusIcon } from "@heroicons/react/20/solid"
+import Button from "@src/components/Button"
+import EmptyState from "@src/components/EmptyState"
+import ListItemsSkeleton from "@src/components/ListItemsSkeleton"
 import type { SignerCredentials } from "../../../../core/formatters"
 import type { TokenInfo } from "../../../../types/base"
 import { useGiftInfos } from "../../hooks/useGiftInfos"
-import { useGiftPagination } from "../../hooks/useGiftPagination"
-import { GiftClaimActorProvider } from "../../providers/GiftClaimActorProvider"
 import type { GiftMakerHistory } from "../../stores/giftMakerHistory"
 import type { GenerateLink } from "../../types/sharedTypes"
-import { GiftHistoryEmpty } from "./GiftHistoryEmpty"
-import { GiftHistorySkeleton } from "./GiftHistorySkeleton"
 import { GiftMakerHistoryItem } from "./GiftMakerHistoryItem"
 
 export type GiftHistoryProps = {
@@ -18,53 +16,54 @@ export type GiftHistoryProps = {
   gifts: GiftMakerHistory[] | undefined
 }
 
-export function GiftHistory(props: GiftHistoryProps) {
-  return (
-    <Island className="py-4">
-      <Content {...props} />
-    </Island>
-  )
-}
-
-function Content({
+export function GiftHistory({
   signerCredentials,
   tokenList,
   generateLink,
   gifts,
 }: GiftHistoryProps) {
   const { giftInfos, loading } = useGiftInfos(gifts, tokenList)
-  const { visibleGiftItems, hasMore, showMore } = useGiftPagination(giftInfos)
 
   if (loading) {
-    return <GiftHistorySkeleton />
+    return <ListItemsSkeleton count={3} loading className="mt-6" />
   }
 
-  if (!signerCredentials || giftInfos.length === 0) {
-    return <GiftHistoryEmpty />
+  if (!signerCredentials) {
+    return (
+      <EmptyState className="mt-6">
+        <EmptyState.Title>Connect your wallet</EmptyState.Title>
+        <EmptyState.Description>
+          Connect your wallet to create and manage gift links
+        </EmptyState.Description>
+      </EmptyState>
+    )
+  }
+
+  if (giftInfos.length === 0) {
+    return (
+      <EmptyState className="mt-6">
+        <EmptyState.Title>No gifts yet</EmptyState.Title>
+        <EmptyState.Description>
+          Create a gift and send it to your friends
+        </EmptyState.Description>
+        <Button href="/gifts/new" size="xl" className="mt-4">
+          <PlusIcon className="size-5 shrink-0" />
+          Create a gift
+        </Button>
+      </EmptyState>
+    )
   }
 
   return (
-    <GiftClaimActorProvider signerCredentials={signerCredentials}>
-      <div className="text-sm font-bold text-gray-12 pb-1.5">Your gifts</div>
-      {visibleGiftItems?.map((giftInfo) => (
+    <section className="mt-6 space-y-1">
+      {giftInfos?.map((giftInfo, index) => (
         <GiftMakerHistoryItem
-          key={crypto.randomUUID()}
+          key={giftInfo.secretKey ?? giftInfo.iv ?? `gift-${index}`}
           giftInfo={giftInfo}
           generateLink={generateLink}
           signerCredentials={signerCredentials}
         />
       ))}
-      {hasMore && (
-        <ButtonCustom
-          type="submit"
-          size="sm"
-          variant="secondary"
-          onClick={showMore}
-          className="w-full mt-2.5"
-        >
-          Show more
-        </ButtonCustom>
-      )}
-    </GiftClaimActorProvider>
+    </section>
   )
 }

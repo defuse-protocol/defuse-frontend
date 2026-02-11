@@ -1,11 +1,12 @@
+import { ChatBubbleBottomCenterTextIcon } from "@heroicons/react/20/solid"
+import Button from "@src/components/Button"
+import AssetComboIcon from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
 import { useSelector } from "@xstate/react"
-import { useCallback } from "react"
+import { useCallback, useMemo } from "react"
 import type { ActorRefFrom } from "xstate"
-import { AuthGate } from "../../../components/AuthGate"
-import { ButtonCustom } from "../../../components/Button/ButtonCustom"
 import type { SignerCredentials } from "../../../core/formatters"
-import type { RenderHostAppLink } from "../../../types/hostAppLink"
 import { assert } from "../../../utils/assert"
+import { formatTokenValue } from "../../../utils/format"
 import {
   computeTotalBalanceDifferentDecimals,
   getUnderlyingBaseTokenInfos,
@@ -13,18 +14,12 @@ import {
 import type { giftTakerRootMachine } from "../actors/giftTakerRootMachine"
 import type { GiftInfo } from "../actors/shared/getGiftInfo"
 import type { giftClaimActor } from "../actors/shared/giftClaimActor"
-import { ShareableGiftImage } from "./ShareableGiftImage"
-import { ErrorReason } from "./shared/ErrorReason"
-import { GiftClaimedMessage } from "./shared/GiftClaimedMessage"
-import { GiftDescription } from "./shared/GiftDescription"
-import { GiftHeader } from "./shared/GiftHeader"
 
 export type GiftTakerFormProps = {
   giftInfo: GiftInfo
   signerCredentials: SignerCredentials | null
   giftTakerRootRef: ActorRefFrom<typeof giftTakerRootMachine>
   intentHashes: string[] | null
-  renderHostAppLink: RenderHostAppLink
 }
 
 export function GiftTakerForm({
@@ -32,29 +27,32 @@ export function GiftTakerForm({
   signerCredentials,
   giftTakerRootRef,
   intentHashes,
-  renderHostAppLink,
 }: GiftTakerFormProps) {
-  const isLoggedIn = signerCredentials != null
+  const loginUrl = useMemo(() => {
+    if (typeof window === "undefined") return "/login"
+    const hash = window.location.hash
+    return `/login?redirect=${encodeURIComponent(`/gift${hash}`)}`
+  }, [])
+
   const amount = computeTotalBalanceDifferentDecimals(
     getUnderlyingBaseTokenInfos(giftInfo.token),
     giftInfo.tokenDiff,
     { strict: false }
   )
-  const { giftTakerClaimRef, snapshot: giftTakerRootSnapshot } = useSelector(
+  const giftTakerClaimRef = useSelector(
     giftTakerRootRef,
-    (state) => ({
-      giftTakerClaimRef: state.children.giftTakerClaimRef as
+    (state) =>
+      state.children.giftTakerClaimRef as
+        | ActorRefFrom<typeof giftClaimActor>
         | undefined
-        | ActorRefFrom<typeof giftClaimActor>,
-      snapshot: state,
-    })
+  )
+
+  const isInClaimingState = useSelector(giftTakerRootRef, (state) =>
+    state.matches("claiming")
   )
 
   const claimGift = useCallback(() => {
-    if (
-      signerCredentials != null &&
-      giftTakerRootSnapshot?.matches("claiming")
-    ) {
+    if (signerCredentials != null && isInClaimingState) {
       giftTakerClaimRef?.send({
         type: "CONFIRM_CLAIM",
         params: {
@@ -63,7 +61,7 @@ export function GiftTakerForm({
         },
       })
     }
-  }, [signerCredentials, giftTakerRootSnapshot, giftTakerClaimRef, giftInfo])
+  }, [signerCredentials, isInClaimingState, giftTakerClaimRef, giftInfo])
 
   const snapshot = useSelector(giftTakerClaimRef, (state) => state)
 
@@ -72,49 +70,68 @@ export function GiftTakerForm({
     (intentHashes != null && intentHashes.length > 0)
   assert(amount != null)
 
+  const loggedIn = signerCredentials != null
+
   return (
-    <div className="flex flex-col">
-      <GiftHeader title="You've received a gift!">
-        <GiftDescription description="Sign in to claim it, no hidden fees or strings attached." />
-      </GiftHeader>
+    <>
+      <h1 className="text-2xl/7 md:text-4xl/10 text-balance font-bold tracking-tight">
+        You‘ve received a gift of
+        <span className="flex items-center gap-1 md:gap-2">
+          <AssetComboIcon
+            {...giftInfo.token}
+            sizeClassName="shrink-0 size-6 md:size-8"
+          />
+          <span>
+            {formatTokenValue(amount.amount, amount.decimals, {
+              fractionDigits: 6,
+            })}{" "}
+            {giftInfo.token.symbol}
+          </span>
+        </span>
+      </h1>
 
-      {/* Image Section */}
-      <ShareableGiftImage
-        token={giftInfo.token}
-        amount={amount}
-        message={
-          giftInfo.message.length > 0
-            ? giftInfo.message
-            : "You've received a gift! Click to claim it."
-        }
-      />
-
-      {snapshot?.context.error != null &&
-        typeof snapshot.context.error?.reason === "string" && (
-          <ErrorReason reason={snapshot.context.error?.reason} />
-        )}
-      {snapshot?.matches("claimed") && (
-        <div className="flex justify-center mt-5">Gift claimed!</div>
+      {giftInfo.message?.length > 0 && (
+        <div className="mt-5 w-full border border-gray-200 rounded-3xl flex gap-3 p-2 md:p-3 items-start">
+          <div className="bg-gray-100 rounded-full size-10 shrink-0 flex items-center justify-center">
+            <ChatBubbleBottomCenterTextIcon className="size-5 text-gray-500" />
+          </div>
+          <div className="sr-only">Message</div>
+          <div className="text-base font-semibold text-gray-600 min-h-10 flex items-center">
+            {giftInfo.message}
+          </div>
+        </div>
       )}
 
-      <AuthGate
-        renderHostAppLink={renderHostAppLink}
-        shouldRender={isLoggedIn}
-        className="mt-5"
-      >
-        <ButtonCustom
-          onClick={claimGift}
-          type="button"
-          size="lg"
-          className="mt-5"
-          variant={processing ? "secondary" : "primary"}
-          isLoading={processing}
-          disabled={processing}
-        >
-          {processing ? "Processing..." : "Claim gift"}
-        </ButtonCustom>
-      </AuthGate>
-      {processing && <GiftClaimedMessage />}
-    </div>
+      <div className="mt-8 md:mt-12">
+        {loggedIn ? (
+          <Button
+            onClick={claimGift}
+            type="button"
+            size="xl"
+            variant="primary"
+            fullWidth
+            loading={processing}
+            disabled={processing}
+          >
+            {processing ? "Claiming..." : "Claim gift"}
+          </Button>
+        ) : (
+          <>
+            <Button
+              href={loginUrl}
+              type="button"
+              size="xl"
+              variant="primary"
+              fullWidth
+            >
+              Sign in to claim
+            </Button>
+            <p className="mt-3 text-sm text-gray-500 font-medium text-center text-balance">
+              No hidden fees or strings attached.
+            </p>
+          </>
+        )}
+      </div>
+    </>
   )
 }

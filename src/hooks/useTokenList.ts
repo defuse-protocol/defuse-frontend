@@ -1,11 +1,19 @@
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { useFlatTokenList } from "@src/hooks/useFlatTokenList"
 import { useSearchParams } from "next/navigation"
-import { useMemo } from "react"
+import { useMemo, useRef } from "react"
 
 export function useTokenList(tokenList: TokenInfo[], supports1cs = false) {
   const flatTokenList = useFlatTokenList(tokenList, supports1cs)
   const searchParams = useSearchParams()
+
+  // Stabilize searchParams - only update ref when actual params change
+  const searchParamsString = searchParams.toString()
+  const stableSearchParamsRef = useRef(searchParams)
+  if (stableSearchParamsRef.current.toString() !== searchParamsString) {
+    stableSearchParamsRef.current = searchParams
+  }
+  const stableSearchParams = stableSearchParamsRef.current
 
   const sortedList = useMemo(
     () => sortTokensByMarketCap(flatTokenList),
@@ -22,11 +30,11 @@ export function useTokenList(tokenList: TokenInfo[], supports1cs = false) {
       if (feature == null) {
         return true
       }
-      return searchParams.has(feature.split(":")[1])
+      return stableSearchParams.has(feature.split(":")[1])
     })
 
     return filteredList
-  }, [searchParams, sortedList])
+  }, [stableSearchParams, sortedList])
 }
 
 function compareTokens(a: TokenInfo, b: TokenInfo): number {

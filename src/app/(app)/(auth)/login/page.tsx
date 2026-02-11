@@ -13,12 +13,11 @@ import { useEffect, useMemo } from "react"
 import type { Connector } from "wagmi"
 
 export default function LoginPage() {
+  const { state, signIn, connectors } = useConnectWallet()
   const router = useRouter()
-  const { signIn, connectors, state } = useConnectWallet()
   const [tonConnectUI] = useTonConnectUI()
   const webauthnUI = useWebAuthnUIStore()
 
-  // Find MetaMask via EIP-6963 rdns (reliable, can't be spoofed by other wallets)
   const metamaskConnector = useMemo(
     () => connectors.find((c) => c.id === "io.metamask"),
     [connectors]
@@ -27,7 +26,6 @@ export default function LoginPage() {
     () => connectors.find((c) => c.id === "walletConnect"),
     [connectors]
   )
-  // EIP-6963 detected browser wallets (excluding MetaMask) shown individually
   const browserWallets = useMemo(
     () =>
       connectors.filter(
@@ -36,7 +34,6 @@ export default function LoginPage() {
       ),
     [connectors]
   )
-  // Generic injected fallback — only if no EIP-6963 wallets and no MetaMask detected
   const fallbackInjected = useMemo(
     () =>
       !metamaskConnector && browserWallets.length === 0
@@ -61,7 +58,6 @@ export default function LoginPage() {
       router.replace("/account")
     }
   }, [state.isAuthorized, state.address, router])
-
   return (
     <div className="flex-1 flex flex-col items-center px-4 py-20">
       <div className="max-w-md w-full flex flex-col items-start">
