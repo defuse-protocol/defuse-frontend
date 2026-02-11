@@ -26,15 +26,25 @@ const useLastUsedConnectorStoreBase = create<Store>()(
 )
 
 /**
- * SSR-safe wrapper: returns null for lastUsedConnectorId on the first render
- * so the server and client output match, then rehydrates from localStorage.
+ * SSR-safe wrapper: returns null for lastUsedConnectorId until the persist
+ * middleware has finished rehydrating from localStorage, so server and client
+ * output match on the first render.
  */
 export function useLastUsedConnectorStore() {
   const store = useLastUsedConnectorStoreBase()
   const [hydrated, setHydrated] = useState(false)
 
   useEffect(() => {
-    setHydrated(true)
+    if (useLastUsedConnectorStoreBase.persist.hasHydrated()) {
+      setHydrated(true)
+      return
+    }
+    const unsub = useLastUsedConnectorStoreBase.persist.onFinishHydration(
+      () => {
+        setHydrated(true)
+      }
+    )
+    return unsub
   }, [])
 
   return {
