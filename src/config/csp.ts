@@ -143,7 +143,7 @@ const cspConfig = {
     "https://rpc.berachain.com",
     "https://rpc.mainnet.near.org/",
     "https://free.rpc.fastnear.com/",
-    "https://polygon-bor-rpc.publicnode.com",
+    "https://polygon-mainnet.g.alchemy.com/v2/fI07Io7tF_GzNbwQfVWf_UyuOykT5xaW",
     "https://gasstation.polygon.technology",
     "https://bsc-dataseed.bnbchain.org",
     "https://ton.api.onfinality.io",
