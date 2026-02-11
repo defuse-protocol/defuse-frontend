@@ -96,26 +96,21 @@ export default function LoginPage() {
           <div className="w-full flex-1 border-t border-gray-200" />
         </div>
 
-        <div className="grid grid-cols-2 gap-2 mt-6 w-full">
+        <div className="grid grid-cols-2 gap-1.5 sm:gap-2 mt-6 w-full">
           <button
             type="button"
             onClick={() => webauthnUI.open()}
-            className={clsx(
-              "relative rounded-2xl p-5 text-left flex flex-col items-start gap-4 bg-white group hover:outline-2 hover:outline-gray-300 focus-visible:outline-2 focus-visible:outline-gray-900",
-              lastUsedConnectorId === "webauthn"
-                ? "outline-2 outline-gray-900"
-                : "outline outline-gray-200"
-            )}
+            className="relative rounded-2xl p-4 sm:p-5 text-left flex flex-col items-start gap-4 outline outline-gray-200 bg-white group hover:outline-2 hover:outline-gray-300 focus-visible:outline-2 focus-visible:outline-gray-900"
           >
             {lastUsedConnectorId === "webauthn" && (
-              <span className="absolute top-3 right-3 text-[10px] font-semibold text-gray-700 bg-teal-100 px-1.5 py-0.5 rounded">
+              <span className="absolute top-4 sm:top-5 right-4 sm:right-5 text-xs font-bold tracking-tight text-green-700 bg-green-100 px-1.5 py-0.5 rounded-md">
                 Last used
               </span>
             )}
-            <div className="size-10 flex items-center justify-center bg-gray-100 rounded-full">
-              <PasskeyIcon className="size-6" />
+            <div className="size-8 sm:size-10 flex items-center justify-center bg-gray-100 rounded-full">
+              <PasskeyIcon className="size-5 sm:size-6" />
             </div>
-            <span className="text-base font-semibold text-gray-900">
+            <span className="text-sm sm:text-base font-semibold text-gray-900">
               Passkey
             </span>
           </button>
@@ -206,27 +201,35 @@ function LoginButton({
       type="button"
       onClick={onClick}
       className={clsx(
-        "relative rounded-2xl p-5 text-left flex flex-col items-start gap-4 bg-white group hover:outline-2 hover:outline-gray-300 focus-visible:outline-2 focus-visible:outline-gray-900",
-        isLastUsed ? "outline-2 outline-gray-900" : "outline outline-gray-200"
+        "relative rounded-2xl p-4 sm:p-5 text-left flex flex-col items-start gap-4 outline outline-gray-200 bg-white group hover:outline-2 hover:outline-gray-300 focus-visible:outline-2 focus-visible:outline-gray-900"
       )}
     >
-      <div className="absolute top-3 right-3 flex items-center gap-1">
-        {isLastUsed && (
-          <span className="text-[10px] font-semibold text-gray-700 bg-teal-100 px-1.5 py-0.5 rounded">
+      <div className="absolute top-4 sm:top-5 right-4 sm:right-5 flex items-center gap-1">
+        {isLastUsed ? (
+          <span className="text-xs font-bold tracking-tight text-green-700 bg-green-100 px-1.5 py-0.5 rounded-md">
             Last used
           </span>
+        ) : (
+          <span className="text-xs font-bold tracking-tight text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-md">
+            Web3
+          </span>
         )}
-        <span className="text-[10px] font-semibold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
-          Web3
-        </span>
       </div>
       {icon ??
         (iconSrc ? (
-          <Image src={iconSrc} alt="" width={40} height={40} />
+          <Image
+            src={iconSrc}
+            alt=""
+            width={40}
+            height={40}
+            className="size-8 sm:size-10"
+          />
         ) : (
-          <TokenIconPlaceholder className="size-10" />
+          <TokenIconPlaceholder className="size-8 sm:size-10" />
         ))}
-      <span className="text-base font-semibold text-gray-900">{name}</span>
+      <span className="text-sm sm:text-base font-semibold text-gray-900">
+        {name}
+      </span>
     </button>
   )
 }
