@@ -49,7 +49,9 @@ export const settings: Settings = {
     gnosis: "https://rpc.gnosischain.com",
     berachain: "https://rpc.berachain.com",
     tron: "https://api.trongrid.io",
-    polygon: "https://1rpc.io/matic",
+    polygon:
+      // Mine own Polygon RPC endpoint (Alchemy)
+      "https://polygon-mainnet.g.alchemy.com/v2/fI07Io7tF_GzNbwQfVWf_UyuOykT5xaW",
     bsc: "https://bsc-dataseed.bnbchain.org",
     hyperliquid: "https://rpc.hyperliquid.xyz/evm",
     ton: "https://nameless-stylish-surf.ton-mainnet.quiknode.pro/8541c7f9b1ffdac8652ffdd74a762607b922627d/jsonRPC", // Use locally one of these RPCs https://ton.api.onfinality.io/public or https://toncenter.com/api/v2/jsonRPC
