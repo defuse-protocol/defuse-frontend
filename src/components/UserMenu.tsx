@@ -106,7 +106,7 @@ const UserMenu = ({
             </div>
 
             <div className="grow text-left">
-              <div className="text-gray-300 text-sm/4 font-semibold">
+              <div className="text-gray-300 text-sm font-semibold">
                 {displayLabel}
               </div>
               {state.address && (

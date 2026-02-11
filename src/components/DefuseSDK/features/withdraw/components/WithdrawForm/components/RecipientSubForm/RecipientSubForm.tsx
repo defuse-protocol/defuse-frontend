@@ -1,6 +1,6 @@
 import type { BlockchainEnum } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
-import { GlobeAltIcon, TagIcon } from "@heroicons/react/20/solid"
+import { TagIcon } from "@heroicons/react/20/solid"
 import { getContacts } from "@src/app/(app)/(auth)/contacts/actions"
 import ModalSelectRecipient from "@src/components/DefuseSDK/components/Modal/ModalSelectRecipient"
 import { getMinWithdrawalHyperliquidAmount } from "@src/components/DefuseSDK/features/withdraw/utils/hyperliquid"
@@ -295,7 +295,7 @@ export const RecipientSubForm = ({
                 </div>
               ) : (
                 <div className="size-10 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
-                  <GlobeAltIcon className="text-gray-500 size-5" />
+                  <WalletIcon className="text-gray-500 size-5" />
                 </div>
               )
             }

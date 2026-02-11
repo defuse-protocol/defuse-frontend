@@ -55,7 +55,7 @@ export default function AccountPage() {
       {!noAssets && (
         <section className="grid grid-cols-2 gap-2 mt-6">
           <Button href="/deposit" size="xl">
-            <DepositIcon className="size-6 -mt-1.5" />
+            <DepositIcon className="size-5.5 shrink-0" />
             Add funds
           </Button>
 
@@ -67,7 +67,7 @@ export default function AccountPage() {
             }
             size="xl"
           >
-            <SendIcon className="size-6" />
+            <SendIcon className="size-5.5 shrink-0" />
             Transfer
           </Button>
         </section>
