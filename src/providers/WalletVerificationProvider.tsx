@@ -11,6 +11,7 @@ import {
   walletVerificationMachine,
 } from "@src/machines/walletVerificationMachine"
 import { useBypassedWalletsStore } from "@src/stores/useBypassedWalletsStore"
+import { buildConnectorId } from "@src/utils/buildConnectorId"
 import { walletVerificationMessageFactory } from "@src/utils/walletMessage"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useActor } from "@xstate/react"
@@ -187,17 +188,14 @@ function WalletVerificationUI({
             credentialType: unconfirmedWallet.chainType,
           })
 
-          const connectorId =
-            unconfirmedWallet.chainType === ChainType.EVM &&
-            evmAccount.connector?.id != null
-              ? `evm:${evmAccount.connector.id}`
-              : (unconfirmedWallet.chainType as string)
-
           const result = await generateAuthTokenFromWalletSignature({
             signedIntent,
             address: unconfirmedWallet.address,
             authMethod: unconfirmedWallet.chainType,
-            connectorId,
+            connectorId: buildConnectorId(
+              unconfirmedWallet.chainType,
+              evmAccount.connector?.id
+            ),
           })
 
           if (result.success && result.expiresAt) {

@@ -7,6 +7,7 @@ import { useWebAuthnUIStore } from "@src/features/webauthn/hooks/useWebAuthnUiSt
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import { NearIntentsLogoIcon, PasskeyIcon } from "@src/icons"
 import { useLastUsedConnectorStore } from "@src/stores/useLastUsedConnectorStore"
+import { buildConnectorId } from "@src/utils/buildConnectorId"
 import { useTonConnectUI } from "@tonconnect/ui-react"
 import clsx from "clsx"
 import Image from "next/image"
@@ -28,18 +29,18 @@ export default function LoginPage() {
   // store so we can mark the correct "Last used" card. Handles users who land
   // on /login while having a valid session (e.g. multi-tab or direct URL).
   useEffect(() => {
-    void getActiveSessionConnectorId().then((id) => {
-      if (id != null) setLastUsedConnector(id)
-    })
+    void getActiveSessionConnectorId()
+      .then((id) => {
+        if (id != null) setLastUsedConnector(id)
+      })
+      .catch(() => {})
   }, [setLastUsedConnector])
 
   useEffect(() => {
     if (state.isAuthorized && state.address && state.chainType) {
-      const connectorId =
-        state.chainType === ChainType.EVM
-          ? `evm:${evmAccount.connector?.id ?? "unknown"}`
-          : state.chainType
-      setLastUsedConnector(connectorId)
+      setLastUsedConnector(
+        buildConnectorId(state.chainType, evmAccount.connector?.id)
+      )
       router.replace("/account")
     }
   }, [
@@ -125,6 +126,8 @@ export default function LoginPage() {
             onClick={() => signIn({ id: ChainType.Near })}
             isLastUsed={lastUsedConnectorId === "near"}
           />
+          {/* First EVM connector also matches bare "evm" for legacy tokens that
+              lack a specific connector ID */}
           {connectors.slice(0, 1).map((connector) => (
             <LoginButton
               key={connector.uid}
