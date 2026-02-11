@@ -193,22 +193,21 @@ async function getValidAccessToken(): Promise<string | null> {
 }
 
 /**
- * Helper to set OpenAPI headers with authorization
+ * Helper to set OpenAPI authorization via TOKEN.
+ *
+ * The SDK applies TOKEN after HEADERS, producing `Authorization: Bearer <TOKEN>`.
+ * 1cs.ts sets TOKEN to the API key for public endpoints; here we temporarily
+ * override it with the access token so authenticated endpoints get the JWT.
  */
-function setAuthHeaders(accessToken: string) {
-  OpenAPI.HEADERS = {
-    "x-api-key": z.string().parse(ONE_CLICK_API_KEY),
-    authorization: `Bearer ${accessToken}`,
-  }
+function setAuthToken(accessToken: string) {
+  OpenAPI.TOKEN = accessToken
 }
 
 /**
- * Helper to reset OpenAPI headers to default
+ * Helper to reset OpenAPI TOKEN to the API key (used by public 1cs endpoints).
  */
-function resetHeaders() {
-  OpenAPI.HEADERS = {
-    "x-api-key": z.string().parse(ONE_CLICK_API_KEY),
-  }
+function resetAuthToken() {
+  OpenAPI.TOKEN = z.string().parse(ONE_CLICK_API_KEY)
 }
 
 /**
@@ -265,7 +264,7 @@ export async function getPrivateBalance(args?: {
     return { err: "Not authenticated. Please authenticate first." }
   }
 
-  setAuthHeaders(accessToken)
+  setAuthToken(accessToken)
 
   try {
     const response = await AccountService.getBalances(args?.tokenIds)
@@ -283,7 +282,7 @@ export async function getPrivateBalance(args?: {
 
     return { err }
   } finally {
-    resetHeaders()
+    resetAuthToken()
   }
 }
 
@@ -373,7 +372,7 @@ export async function getUnshieldQuote(
 
   const { userAddress, authMethod, ...rest } = parseResult.data
 
-  setAuthHeaders(accessToken)
+  setAuthToken(accessToken)
 
   try {
     const intentsUserId = authIdentity.authHandleToIntentsUserId(
@@ -413,7 +412,7 @@ export async function getUnshieldQuote(
 
     return { err }
   } finally {
-    resetHeaders()
+    resetAuthToken()
   }
 }
 
@@ -449,7 +448,7 @@ export async function getPrivateTransferQuote(
   const { userAddress, authMethod, recipientIntentsUserId, ...rest } =
     parseResult.data
 
-  setAuthHeaders(accessToken)
+  setAuthToken(accessToken)
 
   try {
     const intentsUserId = authIdentity.authHandleToIntentsUserId(
@@ -487,7 +486,7 @@ export async function getPrivateTransferQuote(
 
     return { err }
   } finally {
-    resetHeaders()
+    resetAuthToken()
   }
 }
 
