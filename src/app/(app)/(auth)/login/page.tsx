@@ -208,15 +208,14 @@ function LoginButton({
       )}
     >
       <div className="absolute top-4 sm:top-5 right-4 sm:right-5 flex items-center gap-1">
-        {isLastUsed ? (
+        {isLastUsed && (
           <span className="text-xs font-bold tracking-tight text-green-700 bg-green-100 px-1.5 py-0.5 rounded-md">
             Last used
           </span>
-        ) : (
-          <span className="text-xs font-bold tracking-tight text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-md">
-            Web3
-          </span>
         )}
+        <span className="text-xs font-bold tracking-tight text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-md">
+          Web3
+        </span>
       </div>
       {icon ??
         (iconSrc ? (
