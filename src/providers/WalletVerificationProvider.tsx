@@ -16,6 +16,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useActor } from "@xstate/react"
 import { usePathname, useRouter } from "next/navigation"
 import { startTransition, useEffect, useRef } from "react"
+import { useAccount } from "wagmi"
 import { fromPromise } from "xstate"
 import { useMixpanel } from "./MixpanelProvider"
 
@@ -158,6 +159,7 @@ function WalletVerificationUI({
   onAbort: () => void
 }) {
   const { state: unconfirmedWallet } = useConnectWallet()
+  const evmAccount = useAccount()
 
   const signMessage = useWalletAgnosticSignMessage()
   const mixPanel = useMixpanel()
@@ -185,10 +187,17 @@ function WalletVerificationUI({
             credentialType: unconfirmedWallet.chainType,
           })
 
+          const connectorId =
+            unconfirmedWallet.chainType === ChainType.EVM &&
+            evmAccount.connector?.id != null
+              ? `evm:${evmAccount.connector.id}`
+              : (unconfirmedWallet.chainType as string)
+
           const result = await generateAuthTokenFromWalletSignature({
             signedIntent,
             address: unconfirmedWallet.address,
             authMethod: unconfirmedWallet.chainType,
+            connectorId,
           })
 
           if (result.success && result.expiresAt) {
