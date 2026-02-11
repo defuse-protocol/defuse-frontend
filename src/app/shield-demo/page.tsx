@@ -14,12 +14,13 @@ import { Button, Spinner, Tabs } from "@radix-ui/themes"
 import { AssetComboIcon } from "@src/components/DefuseSDK/components/Asset/AssetComboIcon"
 import { wrapPayloadAsWalletMessage } from "@src/components/DefuseSDK/core/messages"
 import {
-  generateShieldIntent,
+  generateIntent,
+  getExecutionStatus,
   getPrivateBalance,
-  getShieldExecutionStatus,
+  getPrivateTransferQuote,
   getShieldQuote,
   getUnshieldQuote,
-  submitShieldIntent,
+  submitIntent,
 } from "@src/components/DefuseSDK/features/machines/privateIntents"
 import { createDepositedBalanceQueryOptions } from "@src/components/DefuseSDK/queries/balanceQueries"
 import type {
@@ -58,7 +59,7 @@ type OperationStatus =
   | "success"
   | "error"
 
-type TabValue = "shield" | "unshield"
+type TabValue = "shield" | "unshield" | "transfer"
 
 export default function ShieldDemoPage() {
   const { state } = useConnectWallet()
@@ -76,6 +77,9 @@ export default function ShieldDemoPage() {
   const [selectedToken, setSelectedToken] = useState<TokenInfo | null>(null)
   const [amount, setAmount] = useState("")
   const [showTokenList, setShowTokenList] = useState(false)
+
+  // Recipient address for private transfers
+  const [recipientAddress, setRecipientAddress] = useState("")
 
   // Operation state
   const [operationStatus, setOperationStatus] =
@@ -173,6 +177,7 @@ export default function ShieldDemoPage() {
     setActiveTab(tab)
     setSelectedToken(null)
     setAmount("")
+    setRecipientAddress("")
     setOperationError(null)
     setLastTxStatus(null)
   }, [])
@@ -184,7 +189,10 @@ export default function ShieldDemoPage() {
     if (activeTab === "shield") {
       return publicBalances?.[selectedToken.defuseAssetId] ?? null
     }
-    if (activeTab === "unshield" && privateBalance?.balances) {
+    if (
+      (activeTab === "unshield" || activeTab === "transfer") &&
+      privateBalance?.balances
+    ) {
       const entry = privateBalance.balances.find(
         (e) => e.tokenId === selectedToken.defuseAssetId
       )
@@ -262,7 +270,7 @@ export default function ShieldDemoPage() {
       }
 
       const standard = AUTH_METHOD_TO_STANDARD[authMethod]
-      const generateResult = await generateShieldIntent({
+      const generateResult = await generateIntent({
         depositAddress,
         signerId: intentsUserId,
         standard,
@@ -284,7 +292,7 @@ export default function ShieldDemoPage() {
         { userAddress: state.address, userChainType: authMethod }
       ) as MultiPayload
 
-      const submitResult = await submitShieldIntent({ signedIntent })
+      const submitResult = await submitIntent({ signedIntent })
 
       if ("err" in submitResult) {
         setOperationError(submitResult.err ?? "Submit intent failed")
@@ -355,7 +363,7 @@ export default function ShieldDemoPage() {
       }
 
       const standard = AUTH_METHOD_TO_STANDARD[authMethod]
-      const generateResult = await generateShieldIntent({
+      const generateResult = await generateIntent({
         depositAddress,
         signerId: intentsUserId,
         standard,
@@ -377,7 +385,7 @@ export default function ShieldDemoPage() {
         { userAddress: state.address, userChainType: authMethod }
       ) as MultiPayload
 
-      const submitResult = await submitShieldIntent({ signedIntent })
+      const submitResult = await submitIntent({ signedIntent })
 
       if ("err" in submitResult) {
         setOperationError(submitResult.err ?? "Submit intent failed")
@@ -407,12 +415,109 @@ export default function ShieldDemoPage() {
     fetchPrivateBalance,
   ])
 
+  // Private transfer operation
+  const handlePrivateTransfer = useCallback(async () => {
+    if (
+      !state.address ||
+      !authMethod ||
+      !intentsUserId ||
+      !selectedToken ||
+      !isBaseToken(selectedToken) ||
+      !amountInSmallestUnits ||
+      !recipientAddress.trim()
+    )
+      return
+
+    setOperationStatus("getting-quote")
+    setOperationError(null)
+    setLastTxStatus(null)
+
+    try {
+      const deadline = new Date(Date.now() + 5 * 60 * 1000).toISOString()
+
+      const quoteResult = await getPrivateTransferQuote({
+        amount: amountInSmallestUnits.toString(),
+        asset: selectedToken.defuseAssetId,
+        userAddress: state.address,
+        authMethod,
+        recipientIntentsUserId: recipientAddress.trim(),
+        deadline,
+        slippageTolerance: 100,
+      })
+
+      if ("err" in quoteResult) {
+        setOperationError(quoteResult.err)
+        setOperationStatus("error")
+        return
+      }
+
+      const depositAddress = quoteResult.ok.quote.depositAddress
+      if (!depositAddress) {
+        setOperationError("No deposit address in quote")
+        setOperationStatus("error")
+        return
+      }
+
+      const standard = AUTH_METHOD_TO_STANDARD[authMethod]
+      const generateResult = await generateIntent({
+        depositAddress,
+        signerId: intentsUserId,
+        standard,
+      })
+
+      if ("err" in generateResult) {
+        setOperationError(generateResult.err ?? "Generate intent failed")
+        setOperationStatus("error")
+        return
+      }
+
+      setOperationStatus("signing")
+      const walletMessage = wrapPayloadAsWalletMessage(generateResult.ok.intent)
+      const signatureResult = await signMessage(walletMessage)
+
+      setOperationStatus("submitting")
+      const signedIntent = prepareBroadcastRequest.prepareSwapSignedData(
+        signatureResult,
+        { userAddress: state.address, userChainType: authMethod }
+      ) as MultiPayload
+
+      const submitResult = await submitIntent({ signedIntent })
+
+      if ("err" in submitResult) {
+        setOperationError(submitResult.err ?? "Submit intent failed")
+        setOperationStatus("error")
+        return
+      }
+
+      setOperationStatus("polling")
+      await pollExecutionStatus(depositAddress)
+
+      setOperationStatus("success")
+      setLastTxStatus("Private transfer completed!")
+      setAmount("")
+
+      await fetchPrivateBalance()
+    } catch (error) {
+      setOperationError(error instanceof Error ? error.message : String(error))
+      setOperationStatus("error")
+    }
+  }, [
+    state.address,
+    authMethod,
+    intentsUserId,
+    selectedToken,
+    amountInSmallestUnits,
+    recipientAddress,
+    signMessage,
+    fetchPrivateBalance,
+  ])
+
   async function pollExecutionStatus(depositAddress: string) {
     let attempts = 0
     const maxAttempts = 120
 
     while (attempts < maxAttempts) {
-      const statusResult = await getShieldExecutionStatus(depositAddress)
+      const statusResult = await getExecutionStatus(depositAddress)
 
       if ("ok" in statusResult && statusResult.ok) {
         const status = statusResult.ok.status
@@ -441,11 +546,19 @@ export default function ShieldDemoPage() {
     amount &&
     amountInSmallestUnits &&
     amountInSmallestUnits > 0n &&
-    !isOperating
+    !isOperating &&
+    (activeTab !== "transfer" || recipientAddress.trim() !== "")
 
   // Available tokens based on active tab
   const availableTokens: { token: BaseTokenInfo; balance: bigint }[] =
     activeTab === "shield" ? tokensWithPublicBalance : tokensWithPrivateBalance
+
+  const handleSubmit =
+    activeTab === "shield"
+      ? handleShield
+      : activeTab === "unshield"
+        ? handleUnshield
+        : handlePrivateTransfer
 
   return (
     <Paper>
@@ -467,6 +580,9 @@ export default function ShieldDemoPage() {
             <Tabs.Trigger value="unshield" className="flex-1">
               Unshield
             </Tabs.Trigger>
+            <Tabs.Trigger value="transfer" className="flex-1">
+              Transfer
+            </Tabs.Trigger>
           </Tabs.List>
         </Tabs.Root>
 
@@ -486,6 +602,7 @@ export default function ShieldDemoPage() {
                 <span>
                   {activeTab === "shield" ? "From Public" : "From Private"}
                 </span>
+
                 {selectedTokenBalance != null &&
                   selectedToken &&
                   isBaseToken(selectedToken) && (
@@ -544,9 +661,30 @@ export default function ShieldDemoPage() {
               </div>
 
               <div className="text-sm text-gray-10">
-                → {activeTab === "shield" ? "To Private" : "To Public"}
+                →{" "}
+                {activeTab === "shield"
+                  ? "To Private"
+                  : activeTab === "unshield"
+                    ? "To Public"
+                    : "To Private (recipient)"}
               </div>
             </div>
+
+            {/* Recipient input for Transfer tab */}
+            {activeTab === "transfer" && (
+              <div className="rounded-xl bg-gray-3 p-4 space-y-2">
+                <div className="text-sm text-gray-11">
+                  Recipient Intents User ID
+                </div>
+                <input
+                  type="text"
+                  placeholder="e.g. evm:0x..."
+                  value={recipientAddress}
+                  onChange={(e) => setRecipientAddress(e.target.value)}
+                  className="w-full bg-transparent text-sm font-mono outline-none placeholder-gray-8"
+                />
+              </div>
+            )}
 
             {/* Token List Dropdown */}
             {showTokenList && (
@@ -620,7 +758,7 @@ export default function ShieldDemoPage() {
             <Button
               className="w-full"
               size="3"
-              onClick={activeTab === "shield" ? handleShield : handleUnshield}
+              onClick={handleSubmit}
               disabled={!canSubmit}
             >
               {isOperating ? (
@@ -629,8 +767,10 @@ export default function ShieldDemoPage() {
                 </>
               ) : activeTab === "shield" ? (
                 "Shield"
-              ) : (
+              ) : activeTab === "unshield" ? (
                 "Unshield"
+              ) : (
+                "Transfer"
               )}
             </Button>
           </div>

@@ -417,19 +417,93 @@ export async function getUnshieldQuote(
   }
 }
 
-const generateShieldIntentArgsSchema = z.object({
+const privateTransferQuoteArgsSchema = z.object({
+  amount: z.string(),
+  asset: z.string(),
+  userAddress: z.string(),
+  authMethod: authMethodSchema,
+  recipientIntentsUserId: z.string(),
+  deadline: z.string(),
+  slippageTolerance: z.number(),
+})
+
+type PrivateTransferQuoteArgs = z.infer<typeof privateTransferQuoteArgsSchema>
+
+/**
+ * Get quote for private transfer (private PRIVATE_INTENTS → private PRIVATE_INTENTS)
+ * Uses session cookie for authorization, auto-refreshes token
+ */
+export async function getPrivateTransferQuote(
+  args: PrivateTransferQuoteArgs
+): Promise<{ ok: QuoteResponse } | { err: string }> {
+  const accessToken = await getValidAccessToken()
+  if (!accessToken) {
+    return { err: "Not authenticated. Please authenticate first." }
+  }
+
+  const parseResult = privateTransferQuoteArgsSchema.safeParse(args)
+  if (!parseResult.success) {
+    return { err: `Invalid arguments: ${parseResult.error.message}` }
+  }
+
+  const { userAddress, authMethod, recipientIntentsUserId, ...rest } =
+    parseResult.data
+
+  setAuthHeaders(accessToken)
+
+  try {
+    const intentsUserId = authIdentity.authHandleToIntentsUserId(
+      userAddress,
+      authMethod
+    )
+
+    const req: QuoteRequest = {
+      dry: false,
+      swapType: QuoteRequest.swapType.EXACT_INPUT,
+      slippageTolerance: rest.slippageTolerance,
+      originAsset: rest.asset,
+      destinationAsset: rest.asset,
+      amount: rest.amount,
+      deadline: rest.deadline,
+      depositType: QuoteRequest.depositType.PRIVATE_INTENTS,
+      recipientType: QuoteRequest.recipientType.PRIVATE_INTENTS,
+      refundTo: intentsUserId,
+      refundType: QuoteRequest.refundType.INTENTS,
+      recipient: recipientIntentsUserId,
+      quoteWaitingTimeMs: 0,
+    }
+
+    const response = await OneClickService.getQuote(req)
+    return { ok: response }
+  } catch (error) {
+    const err = unknownServerErrorToString(error)
+    logger.error(`privateIntents: getPrivateTransferQuote error: ${err}`)
+
+    if (isUnauthorizedError(error)) {
+      logger.warn("privateIntents: unauthorized error, clearing session")
+      await clearSessionCookies()
+      return { err: "Session expired. Please authenticate again." }
+    }
+
+    return { err }
+  } finally {
+    resetHeaders()
+  }
+}
+
+const generateIntentArgsSchema = z.object({
   depositAddress: z.string(),
   signerId: z.string(),
   standard: z.nativeEnum(IntentStandardEnum),
 })
 
 /**
- * Generate intent for shield/unshield operation
+ * Generate intent for shield/unshield/transfer operation
  */
-export async function generateShieldIntent(
-  args: z.infer<typeof generateShieldIntentArgsSchema>
+export async function generateIntent(
+  args: z.infer<typeof generateIntentArgsSchema>
 ) {
-  const parseResult = generateShieldIntentArgsSchema.safeParse(args)
+  const parseResult = generateIntentArgsSchema.safeParse(args)
   if (!parseResult.success) {
     return { err: `Invalid arguments: ${parseResult.error.message}` }
   }
@@ -444,15 +518,15 @@ export async function generateShieldIntent(
     return { ok: response }
   } catch (error) {
     const err = unknownServerErrorToString(error)
-    logger.error(`privateIntents: generateShieldIntent error: ${err}`)
+    logger.error(`privateIntents: generateIntent error: ${err}`)
     return { err }
   }
 }
 
 /**
- * Submit signed intent for shield/unshield
+ * Submit signed intent
  */
-export async function submitShieldIntent(args: { signedIntent: MultiPayload }) {
+export async function submitIntent(args: { signedIntent: MultiPayload }) {
   try {
     const response = await OneClickService.submitIntent({
       type: SubmitSwapTransferIntentRequest.type.SWAP_TRANSFER,
@@ -461,15 +535,15 @@ export async function submitShieldIntent(args: { signedIntent: MultiPayload }) {
     return { ok: response }
   } catch (error) {
     const err = unknownServerErrorToString(error)
-    logger.error(`privateIntents: submitShieldIntent error: ${err}`)
+    logger.error(`privateIntents: submitIntent error: ${err}`)
     return { err }
   }
 }
 
 /**
- * Get execution status for shield/unshield operation
+ * Get execution status for an operation
  */
-export async function getShieldExecutionStatus(depositAddress: string) {
+export async function getExecutionStatus(depositAddress: string) {
   try {
     const response = await OneClickService.getExecutionStatus(depositAddress)
     return { ok: response }
