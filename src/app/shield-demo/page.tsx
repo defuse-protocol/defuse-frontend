@@ -6,7 +6,7 @@ import {
   prepareBroadcastRequest,
 } from "@defuse-protocol/internal-utils"
 import type {
-  GetBalanceResponseDto,
+  GetBalancesResponse,
   MultiPayload,
 } from "@defuse-protocol/one-click-sdk-typescript"
 import { CaretDownIcon } from "@radix-ui/react-icons"
@@ -69,7 +69,7 @@ export default function ShieldDemoPage() {
 
   // Private balance state
   const [privateBalance, setPrivateBalance] =
-    useState<GetBalanceResponseDto | null>(null)
+    useState<GetBalancesResponse | null>(null)
   const [balanceLoading, setBalanceLoading] = useState(false)
 
   // Token selection state
@@ -137,13 +137,14 @@ export default function ShieldDemoPage() {
     if (!privateBalance?.balances)
       return [] as { token: BaseTokenInfo; balance: bigint }[]
     const result: { token: BaseTokenInfo; balance: bigint }[] = []
-    for (const [tokenId, balance] of Object.entries(privateBalance.balances)) {
-      if (BigInt(balance) <= 0n) continue
+    for (const entry of privateBalance.balances) {
+      const bal = BigInt(entry.available)
+      if (bal <= 0n) continue
       const token = tokenList.find(
-        (t) => isBaseToken(t) && t.defuseAssetId === tokenId
+        (t) => isBaseToken(t) && t.defuseAssetId === entry.tokenId
       )
       if (token && isBaseToken(token)) {
-        result.push({ token, balance: BigInt(balance) })
+        result.push({ token, balance: bal })
       }
     }
     return result.sort((a, b) => (b.balance > a.balance ? 1 : -1))
@@ -184,8 +185,10 @@ export default function ShieldDemoPage() {
       return publicBalances?.[selectedToken.defuseAssetId] ?? null
     }
     if (activeTab === "unshield" && privateBalance?.balances) {
-      const balance = privateBalance.balances[selectedToken.defuseAssetId]
-      return balance != null ? BigInt(balance) : null
+      const entry = privateBalance.balances.find(
+        (e) => e.tokenId === selectedToken.defuseAssetId
+      )
+      return entry != null ? BigInt(entry.available) : null
     }
     return null
   }, [selectedToken, activeTab, publicBalances, privateBalance])

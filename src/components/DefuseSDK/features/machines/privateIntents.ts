@@ -2,8 +2,9 @@
 
 import { authIdentity } from "@defuse-protocol/internal-utils"
 import {
+  AccountService,
   GenerateSwapTransferIntentRequest,
-  type GetBalanceResponseDto,
+  type GetBalancesResponse,
   IntentStandardEnum,
   type MultiPayload,
   OneClickService,
@@ -140,11 +141,11 @@ async function tryRefreshAccessToken(
 ): Promise<{ accessToken: string; expiresIn: number } | null> {
   try {
     const response = await UserAuthService.refresh({
-      refresh_token: refreshToken,
+      refreshToken: refreshToken,
     })
     return {
-      accessToken: response.access_token,
-      expiresIn: response.expires_in,
+      accessToken: response.accessToken,
+      expiresIn: response.expiresIn,
     }
   } catch (error) {
     logger.error(
@@ -218,15 +219,15 @@ export async function authenticatePrivateIntents(args: {
 }): Promise<{ ok: { authenticated: true } } | { err: string }> {
   try {
     const response = await UserAuthService.authenticate({
-      signed_data: args.signedData,
+      signedData: args.signedData,
     })
 
     // Save both access and refresh tokens
     await saveSessionTokens(
-      response.access_token,
-      response.refresh_token,
-      response.expires_in,
-      response.refresh_expires_in
+      response.accessToken,
+      response.refreshToken,
+      response.expiresIn,
+      response.refreshExpiresIn
     )
 
     return { ok: { authenticated: true } }
@@ -258,7 +259,7 @@ export async function logoutPrivateIntents(): Promise<void> {
  */
 export async function getPrivateBalance(args?: {
   tokenIds?: string[]
-}): Promise<{ ok: GetBalanceResponseDto } | { err: string }> {
+}): Promise<{ ok: GetBalancesResponse } | { err: string }> {
   const accessToken = await getValidAccessToken()
   if (!accessToken) {
     return { err: "Not authenticated. Please authenticate first." }
@@ -267,7 +268,7 @@ export async function getPrivateBalance(args?: {
   setAuthHeaders(accessToken)
 
   try {
-    const response = await UserAuthService.getBalance(args?.tokenIds)
+    const response = await AccountService.getBalances(args?.tokenIds)
     return { ok: response }
   } catch (error) {
     const err = unknownServerErrorToString(error)
@@ -455,7 +456,7 @@ export async function submitShieldIntent(args: { signedIntent: MultiPayload }) {
   try {
     const response = await OneClickService.submitIntent({
       type: SubmitSwapTransferIntentRequest.type.SWAP_TRANSFER,
-      signedIntent: args.signedIntent,
+      signedData: args.signedIntent,
     })
     return { ok: response }
   } catch (error) {

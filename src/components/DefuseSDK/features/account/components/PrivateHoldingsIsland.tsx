@@ -11,7 +11,7 @@ import { useTokensUsdPrices } from "../../../hooks/useTokensUsdPrices"
 import type { BaseTokenInfo, TokenInfo } from "../../../types/base"
 import { formatTokenValue } from "../../../utils/format"
 import getTokenUsdPrice from "../../../utils/getTokenUsdPrice"
-import { getTokenId, isBaseToken } from "../../../utils/token"
+import { getTokenId, isBaseToken, isUnifiedToken } from "../../../utils/token"
 import type { Holding } from "../types/sharedTypes"
 import { HoldingItemSkeleton } from "./shared/HoldingItem"
 import { PrivateHoldingItem } from "./shared/PrivateHoldingItem"
@@ -73,14 +73,27 @@ function Content({
 
     const holdings: Holding[] = []
 
-    for (const [tokenId, balance] of Object.entries(data.balances)) {
-      const balanceBigInt = BigInt(balance)
+    for (const entry of data.balances) {
+      const balanceBigInt = BigInt(entry.available)
       if (balanceBigInt <= 0n) continue
 
-      // Find token in token list
-      const token = tokenList.find(
-        (t) => isBaseToken(t) && t.defuseAssetId === tokenId
-      ) as BaseTokenInfo | undefined
+      // Find token in token list (check both base tokens and grouped tokens inside unified tokens)
+      let token: BaseTokenInfo | undefined
+      for (const t of tokenList) {
+        if (isBaseToken(t) && t.defuseAssetId === entry.tokenId) {
+          token = t
+          break
+        }
+        if (isUnifiedToken(t)) {
+          const grouped = t.groupedTokens.find(
+            (gt) => gt.defuseAssetId === entry.tokenId
+          )
+          if (grouped) {
+            token = grouped
+            break
+          }
+        }
+      }
 
       if (token) {
         const value = {
