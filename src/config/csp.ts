@@ -147,7 +147,7 @@ const cspConfig = {
     "https://rpc.mainnet.near.org/",
     "https://near-rpc.defuse.org",
     "https://free.rpc.fastnear.com/",
-    "https://1rpc.io/matic",
+    "https://polygon-mainnet.g.alchemy.com/v2/fI07Io7tF_GzNbwQfVWf_UyuOykT5xaW",
     "https://gasstation.polygon.technology",
     "https://bsc-dataseed.bnbchain.org",
     "https://ton.api.onfinality.io",
