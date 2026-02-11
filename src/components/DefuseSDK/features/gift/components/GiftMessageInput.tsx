@@ -1,51 +1,42 @@
-import { type InputHTMLAttributes, type ReactNode, forwardRef } from "react"
+import { ChatBubbleBottomCenterTextIcon } from "@heroicons/react/20/solid"
+import type { TextareaHTMLAttributes } from "react"
 
-export function GiftMessageInput({
-  inputSlot,
-  countSlot,
-}: {
-  inputSlot?: ReactNode
-  countSlot?: ReactNode
-}) {
+export function GiftMessageInput(
+  inputProps: TextareaHTMLAttributes<HTMLTextAreaElement>
+) {
+  const messageLength =
+    typeof inputProps.value === "string" ? inputProps.value.length : 0
+  const remainingChars =
+    inputProps.maxLength != null ? inputProps.maxLength - messageLength : null
+
   return (
-    <div className="flex flex-col gap-2.5 rounded-lg border-0 bg-gray-3 hover:bg-gray-4 focus-within:bg-gray-4">
-      <div className="flex items-center gap-4">
-        {/* Text Input */}
-        <div className="relative flex-1">
-          <div className="overflow-hidden">{inputSlot}</div>
-          <div className="pointer-events-none absolute top-0 right-0 bottom-0 w-12 bg-transparent" />
+    <div className="mt-2 w-full">
+      <label className="flex gap-4 rounded-3xl bg-white p-3 cursor-text outline-1 -outline-offset-1 focus-within:outline-2 focus-within:-outline-offset-2 outline-gray-200 focus-within:outline-gray-900">
+        <div className="shrink-0">
+          <div className="bg-gray-100 rounded-full size-10 flex items-center justify-center">
+            <ChatBubbleBottomCenterTextIcon className="size-5 text-gray-500" />
+          </div>
+          {messageLength > 0 && (
+            <div className="mt-2 bg-gray-100 rounded-lg px-2 py-1 text-xs font-semibold text-gray-500 font-mono text-center">
+              {remainingChars}
+            </div>
+          )}
         </div>
-
-        {/* Text Count */}
-        <div className="shrink-0">{countSlot}</div>
-      </div>
-    </div>
-  )
-}
-
-GiftMessageInput.Input = forwardRef<
-  HTMLInputElement,
-  InputHTMLAttributes<HTMLInputElement>
->(function Input(props, ref) {
-  return (
-    <input
-      ref={ref}
-      type="text"
-      inputMode="text"
-      autoComplete="off"
-      placeholder="Enter your message (optional)"
-      className="w-full border-0 bg-transparent px-4 py-2 font-medium text-sm text-label focus:ring-0 outline-hidden"
-      {...props}
-    />
-  )
-})
-
-GiftMessageInput.DisplayCount = function DisplayCount({
-  count,
-}: { count: number }) {
-  return (
-    <div className="text-sm font-bold text-gray-a11 px-2 mx-4 rounded-full bg-gray-a3">
-      {count}
+        <div className="flex-1 min-h-10 pt-2.5">
+          <span className="sr-only">Message</span>
+          <textarea
+            id="gift-message"
+            placeholder="Add a message (optional)"
+            autoComplete="off"
+            data-form-type="other"
+            data-lpignore="true"
+            data-1p-ignore="true"
+            rows={5}
+            className="block w-full text-gray-900 font-semibold placeholder:text-gray-400 focus:outline-none text-base/5 ring-0 border-none p-0"
+            {...inputProps}
+          />
+        </div>
+      </label>
     </div>
   )
 }

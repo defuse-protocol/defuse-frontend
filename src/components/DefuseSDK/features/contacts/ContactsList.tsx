@@ -221,10 +221,9 @@ const ContactsList = ({
                 </ListItem.Content>
                 <ListItem.Content align="end">
                   <ListItem.Title className="flex items-center gap-1">
-                    <NetworkIcon chainIcon={chainIcon} sizeClassName="size-4" />
                     <span className="capitalize">{chainName}</span>
+                    <NetworkIcon chainIcon={chainIcon} sizeClassName="size-4" />
                   </ListItem.Title>
-                  <div className="h-4" />
                 </ListItem.Content>
               </ListItem>
             )

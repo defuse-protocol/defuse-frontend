@@ -1,4 +1,3 @@
-import { useSignInWindowOpenState } from "@src/stores/useSignInWindowOpenState"
 import Link from "next/link"
 import type { ReadonlyURLSearchParams } from "next/navigation"
 import type { ReactNode } from "react"
@@ -36,21 +35,15 @@ export function renderAppLink(
       )
     case "gift":
       return (
-        <Link href="/gift-card/create-gift" {...props}>
+        <Link href="/gifts" {...props}>
           {children}
         </Link>
       )
     case "sign-in":
       return (
-        <button
-          type="button"
-          onClick={() => {
-            useSignInWindowOpenState.getState().setIsOpen(true)
-          }}
-          {...props}
-        >
+        <Link href="/login" {...props}>
           {children}
-        </button>
+        </Link>
       )
     case "swap":
       return (

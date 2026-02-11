@@ -1,5 +1,4 @@
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons"
-import { Callout } from "@radix-ui/themes"
+import { WarningCircleIcon } from "@phosphor-icons/react"
 
 type ErrorReasonProps = {
   reason: string
@@ -7,12 +6,14 @@ type ErrorReasonProps = {
 
 export function ErrorReason({ reason }: ErrorReasonProps) {
   return (
-    <Callout.Root size="1" color="red" className="flex items-center gap-2">
-      <Callout.Icon>
-        <ExclamationTriangleIcon />
-      </Callout.Icon>
-      <Callout.Text>{renderErrorMessages(reason)}</Callout.Text>
-    </Callout.Root>
+    <div className="p-3 rounded-xl bg-red-50 border border-red-100 flex items-start gap-3 animate-in fade-in slide-in-from-top-1 duration-200">
+      <div className="size-8 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+        <WarningCircleIcon weight="fill" className="size-4 text-red-600" />
+      </div>
+      <p className="text-sm text-red-700 font-medium pt-1">
+        {renderErrorMessages(reason)}
+      </p>
+    </div>
   )
 }
 
@@ -41,6 +42,8 @@ function renderErrorMessages(reason: string): string {
       return "Unable to sign your gift. Please try again in a moment."
     case "ERR_PREPARING_GIFT_SIGNING_DATA":
       return "Failed to prepare message for your wallet to sign. Please try again."
+    case "SETTLEMENT_FAILED":
+      return "Gift claim is taking longer than expected. Please try again."
     case "NOT_FOUND_OR_NOT_VALID":
     case "NO_TOKEN_OR_GIFT_HAS_BEEN_CLAIMED":
       return "This gift is no longer available. It may have been claimed by someone else or the link is invalid. Please contact the gift creator for assistance."

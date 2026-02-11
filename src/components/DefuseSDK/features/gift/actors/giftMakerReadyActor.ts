@@ -22,7 +22,7 @@ export type GiftMakerReadyActorInput = {
     amount: TokenValue
     message: string
   }
-  iv: null | string
+  iv?: null | string
 }
 
 export type GiftMakerReadyActorOutput =
@@ -215,7 +215,6 @@ export const giftMakerReadyActor = setup({
     finished: {
       type: "final",
       output: { tag: "ok" },
-      actions: "sendToDepositedBalanceRefRefresh",
     },
 
     failed: {
@@ -226,7 +225,6 @@ export const giftMakerReadyActor = setup({
           value: { reason: context.error },
         }
       },
-      actions: "sendToDepositedBalanceRefRefresh",
     },
   },
 })

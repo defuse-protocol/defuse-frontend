@@ -20,6 +20,7 @@ import { DropdownMenu } from "radix-ui"
 import { useState } from "react"
 import AlertDialog from "./AlertDialog"
 import Button from "./Button"
+import { midTruncate } from "./DefuseSDK/features/withdraw/components/WithdrawForm/utils"
 
 type MenuItemType = {
   label: string
@@ -36,12 +37,12 @@ const UserMenu = ({
 }: {
   variant: "desktop" | "mobile"
 }) => {
-  const { dockItems } = useActivityDock()
+  const { dockItems, clearDockItems } = useActivityDock()
   const hasDockItems = dockItems.length > 0
   const { state, signOut } = useConnectWallet()
   const [copied, setCopied] = useState(false)
   const [isCopyWarningOpen, setIsCopyWarningOpen] = useState(false)
-  const displayLabel = "My Intents account"
+  const displayLabel = "My account"
 
   const [skipCopyWarning, setSkipCopyWarning] = useState<boolean>(() => {
     if (typeof window === "undefined") return false
@@ -61,6 +62,7 @@ const UserMenu = ({
       label: "Sign out",
       onClick: () => {
         if (state.chainType) {
+          clearDockItems()
           signOut({ id: state.chainType })
         }
       },
@@ -98,13 +100,20 @@ const UserMenu = ({
     <>
       {variant === "desktop" ? (
         <DropdownMenu.Root modal={false}>
-          <DropdownMenu.Trigger className="max-lg:hidden relative group bg-gray-900 text-gray-400 rounded-2xl px-3.5 py-3 flex items-center gap-3 w-full hover:bg-gray-950 hover:text-gray-300 data-[state=open]:bg-gray-950 data-[state=open]:text-gray-300">
-            <div className="size-7 flex items-center justify-center bg-brand rounded-lg">
+          <DropdownMenu.Trigger className="max-lg:hidden relative group bg-gray-900 rounded-2xl px-3.5 py-3 flex items-center gap-3 w-full hover:bg-gray-950 hover:text-gray-300 data-[state=open]:bg-gray-950 data-[state=open]:text-gray-300">
+            <div className="shrink-0 size-7 flex items-center justify-center bg-brand rounded-lg">
               <UserIcon className="text-white/80 size-5" />
             </div>
 
-            <div className="text-sm font-semibold grow text-left">
-              {displayLabel}
+            <div className="grow text-left">
+              <div className="text-gray-300 text-sm font-semibold">
+                {displayLabel}
+              </div>
+              {state.address && (
+                <div className="text-xs text-gray-400 flex min-w-0 font-medium">
+                  {midTruncate(state.address)}
+                </div>
+              )}
             </div>
 
             <ChevronUpIcon className="size-5 shrink-0 group-data-[state=open]:rotate-180 transition-transform duration-100 ease-in-out" />
@@ -193,13 +202,13 @@ const UserMenu = ({
             </span>
           </li>
           <li className="flex items-start gap-1.5">
-            <ExclamationCircleIcon className="size-4 text-amber-600 shrink-0 mt-0.5" />
+            <ExclamationCircleIcon className="size-4 text-yellow-600 shrink-0 mt-0.5" />
             <span className="text-sm text-gray-600 font-medium">
               Use it only for transfers between NEAR Intents accounts
             </span>
           </li>
           <li className="flex items-start gap-1.5">
-            <ExclamationCircleIcon className="size-4 text-amber-600 shrink-0 mt-0.5" />
+            <ExclamationCircleIcon className="size-4 text-yellow-600 shrink-0 mt-0.5" />
             <span className="text-sm text-gray-600 font-medium">
               Funds sent here from external wallets will be lost
             </span>

@@ -1,3 +1,4 @@
+import { logger } from "@src/utils/logger"
 import { useEffect, useState } from "react"
 import type { TokenInfo } from "../../../types/base"
 import type { GiftMakerHistory } from "../stores/giftMakerHistory"
@@ -20,13 +21,27 @@ export function useGiftInfos(
       setLoading(false)
       return
     }
+    let cancelled = false
+    setLoading(true)
     parseGiftInfos(tokenList, gifts).then((giftsResult) => {
+      if (cancelled) return
+      if (giftsResult.isErr()) {
+        logger.error("Failed to parse gift infos", {
+          error: giftsResult.unwrapErr(),
+        })
+        setGiftInfos([])
+        setLoading(false)
+        return
+      }
       const filteredGifts = giftsResult
         .unwrap()
         .filter((gift) => gift.status !== "draft")
       setGiftInfos(filteredGifts)
       setLoading(false)
     })
+    return () => {
+      cancelled = true
+    }
   }, [gifts, tokenList])
 
   return {

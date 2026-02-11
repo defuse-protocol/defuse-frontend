@@ -8,7 +8,7 @@ import {
 } from "../../utils/parseGiftSecret"
 
 export type GiftOpenSecretActorInput = {
-  payload: string
+  payload: unknown
   tokenList: TokenInfo[]
 }
 
