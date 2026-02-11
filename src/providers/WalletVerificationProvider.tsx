@@ -104,12 +104,14 @@ export function WalletVerificationProvider() {
         onBypass={() => {
           if (state.address != null) {
             addBypassedWalletAddress(state.address)
-            void hashForAnalytics(state.address).then((hashedAddress) => {
-              mixPanel?.track("wallet_bypassed", {
-                wallet_hash: hashedAddress,
-                wallet_type: state.chainType,
+            void hashForAnalytics(state.address)
+              .then((hashedAddress) => {
+                mixPanel?.track("wallet_bypassed", {
+                  wallet_hash: hashedAddress,
+                  wallet_type: state.chainType,
+                })
               })
-            })
+              .catch(() => {})
           }
         }}
       />
@@ -217,14 +219,14 @@ function WalletVerificationUI({
       serviceRef.subscribe((machineState) => {
         if (machineState.matches("verified")) {
           onVerifiedRef.current()
-          void hashForAnalytics(unconfirmedWallet.address).then(
-            (hashedAddress) => {
+          void hashForAnalytics(unconfirmedWallet.address)
+            .then((hashedAddress) => {
               mixPanel?.track("wallet_verified", {
                 wallet_hash: hashedAddress,
                 wallet_type: unconfirmedWallet.chainType,
               })
-            }
-          )
+            })
+            .catch(() => {})
         }
         if (machineState.matches("aborted")) {
           onAbortRef.current()
