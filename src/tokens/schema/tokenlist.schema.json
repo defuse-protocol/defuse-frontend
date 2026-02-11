@@ -219,6 +219,14 @@
           "type": "string"
         },
         {
+          "const": "plasma",
+          "type": "string"
+        },
+        {
+          "const": "scroll",
+          "type": "string"
+        },
+        {
           "$ref": "#/definitions/VirtualChains"
         },
         {
