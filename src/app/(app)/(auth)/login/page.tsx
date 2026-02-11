@@ -1,28 +1,56 @@
 "use client"
 
+import { getActiveSessionConnectorId } from "@src/actions/auth"
 import HelperPopover from "@src/components/HelperPopover"
 import TokenIconPlaceholder from "@src/components/TokenIconPlaceholder"
 import { useWebAuthnUIStore } from "@src/features/webauthn/hooks/useWebAuthnUiStore"
 import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import { NearIntentsLogoIcon, PasskeyIcon } from "@src/icons"
+import { useLastUsedConnectorStore } from "@src/stores/useLastUsedConnectorStore"
+import { buildConnectorId } from "@src/utils/buildConnectorId"
 import { useTonConnectUI } from "@tonconnect/ui-react"
+import clsx from "clsx"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
-import type { Connector } from "wagmi"
+import { type Connector, useAccount } from "wagmi"
 
 export default function LoginPage() {
   const router = useRouter()
   const { signIn, connectors, state } = useConnectWallet()
   const [tonConnectUI] = useTonConnectUI()
   const webauthnUI = useWebAuthnUIStore()
+  const { lastUsedConnectorId, setLastUsedConnector } =
+    useLastUsedConnectorStore()
+  const evmAccount = useAccount()
+
+  // On mount: read active session cookie (httpOnly) via server action and sync
+  // store so we can mark the correct "Last used" card. Handles users who land
+  // on /login while having a valid session (e.g. multi-tab or direct URL).
+  useEffect(() => {
+    void getActiveSessionConnectorId()
+      .then((id) => {
+        if (id != null) setLastUsedConnector(id)
+      })
+      .catch(() => {})
+  }, [setLastUsedConnector])
 
   useEffect(() => {
-    if (state.isAuthorized && state.address) {
+    if (state.isAuthorized && state.address && state.chainType) {
+      setLastUsedConnector(
+        buildConnectorId(state.chainType, evmAccount.connector?.id)
+      )
       router.replace("/account")
     }
-  }, [state.isAuthorized, state.address, router])
+  }, [
+    state.isAuthorized,
+    state.address,
+    state.chainType,
+    evmAccount.connector?.id,
+    router,
+    setLastUsedConnector,
+  ])
 
   return (
     <div className="flex-1 flex flex-col items-center px-4 py-20">
@@ -69,16 +97,21 @@ export default function LoginPage() {
           <div className="w-full flex-1 border-t border-gray-200" />
         </div>
 
-        <div className="grid grid-cols-2 gap-2 mt-6 w-full">
+        <div className="grid grid-cols-2 gap-1.5 sm:gap-2 mt-6 w-full">
           <button
             type="button"
             onClick={() => webauthnUI.open()}
-            className="rounded-2xl p-5 text-left flex flex-col items-start gap-4 outline outline-gray-200 bg-white group hover:outline-2 hover:outline-gray-300 focus-visible:outline-2 focus-visible:outline-gray-900"
+            className="relative rounded-2xl p-4 sm:p-5 text-left flex flex-col items-start gap-4 outline outline-gray-200 bg-white group hover:outline-2 hover:outline-gray-300 focus-visible:outline-2 focus-visible:outline-gray-900"
           >
-            <div className="size-10 flex items-center justify-center bg-gray-100 rounded-full">
-              <PasskeyIcon className="size-6" />
+            {lastUsedConnectorId === "webauthn" && (
+              <span className="absolute top-4 sm:top-5 right-4 sm:right-5 text-xs font-bold tracking-tight text-green-700 bg-green-100 px-1.5 py-0.5 rounded-md">
+                Last used
+              </span>
+            )}
+            <div className="size-8 sm:size-10 flex items-center justify-center bg-gray-100 rounded-full">
+              <PasskeyIcon className="size-5 sm:size-6" />
             </div>
-            <span className="text-base font-semibold text-gray-900">
+            <span className="text-sm sm:text-base font-semibold text-gray-900">
               Passkey
             </span>
           </button>
@@ -86,19 +119,27 @@ export default function LoginPage() {
             name="NEAR"
             iconSrc="/static/icons/wallets/near-wallet.svg"
             onClick={() => signIn({ id: ChainType.Near })}
+            isLastUsed={lastUsedConnectorId === "near"}
           />
+          {/* First EVM connector also matches bare "evm" for legacy tokens that
+              lack a specific connector ID */}
           {connectors.slice(0, 1).map((connector) => (
             <LoginButton
               key={connector.uid}
               name="Browser Wallet"
               iconSrc={getWalletIconSrc(connector)}
               onClick={() => signIn({ id: ChainType.EVM, connector })}
+              isLastUsed={
+                lastUsedConnectorId === `evm:${connector.id}` ||
+                lastUsedConnectorId === "evm"
+              }
             />
           ))}
           <LoginButton
             name="Solana"
             iconSrc="/static/icons/wallets/solana-wallet.svg"
             onClick={() => signIn({ id: ChainType.Solana })}
+            isLastUsed={lastUsedConnectorId === "solana"}
           />
           {connectors.slice(1, 2).map((connector) => (
             <LoginButton
@@ -106,22 +147,26 @@ export default function LoginPage() {
               name={connector.name}
               iconSrc={getWalletIconSrc(connector)}
               onClick={() => signIn({ id: ChainType.EVM, connector })}
+              isLastUsed={lastUsedConnectorId === `evm:${connector.id}`}
             />
           ))}
           <LoginButton
             name="TON"
             iconSrc="/static/icons/wallets/ton.svg"
             onClick={() => void tonConnectUI.openModal()}
+            isLastUsed={lastUsedConnectorId === "ton"}
           />
           <LoginButton
             name="Stellar"
             iconSrc="/static/icons/network/stellar.svg"
             onClick={() => signIn({ id: ChainType.Stellar })}
+            isLastUsed={lastUsedConnectorId === "stellar"}
           />
           <LoginButton
             name="Tron"
             iconSrc="/static/icons/network/tron.svg"
             onClick={() => signIn({ id: ChainType.Tron })}
+            isLastUsed={lastUsedConnectorId === "tron"}
           />
           {connectors
             .slice(2)
@@ -132,6 +177,7 @@ export default function LoginPage() {
                 name={connector.name}
                 iconSrc={getWalletIconSrc(connector)}
                 onClick={() => signIn({ id: ChainType.EVM, connector })}
+                isLastUsed={lastUsedConnectorId === `evm:${connector.id}`}
               />
             ))}
         </div>
@@ -145,28 +191,47 @@ function LoginButton({
   icon,
   iconSrc,
   onClick,
+  isLastUsed,
 }: {
   name: string
   icon?: React.ReactNode
   iconSrc?: string
   onClick: () => void
+  isLastUsed?: boolean
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="relative rounded-2xl p-5 text-left flex flex-col items-start gap-4 outline outline-gray-200 bg-white group hover:outline-2 hover:outline-gray-300 focus-visible:outline-2 focus-visible:outline-gray-900"
+      className={clsx(
+        "relative rounded-2xl p-4 sm:p-5 text-left flex flex-col items-start gap-4 outline outline-gray-200 bg-white group hover:outline-2 hover:outline-gray-300 focus-visible:outline-2 focus-visible:outline-gray-900"
+      )}
     >
-      <span className="absolute top-3 right-3 text-[10px] font-semibold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
-        Web3
-      </span>
+      <div className="absolute top-4 sm:top-5 right-4 sm:right-5 flex items-center gap-1">
+        {isLastUsed && (
+          <span className="text-xs font-bold tracking-tight text-green-700 bg-green-100 px-1.5 py-0.5 rounded-md">
+            Last used
+          </span>
+        )}
+        <span className="text-xs font-bold tracking-tight text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-md">
+          Web3
+        </span>
+      </div>
       {icon ??
         (iconSrc ? (
-          <Image src={iconSrc} alt="" width={40} height={40} />
+          <Image
+            src={iconSrc}
+            alt=""
+            width={40}
+            height={40}
+            className="size-8 sm:size-10"
+          />
         ) : (
-          <TokenIconPlaceholder className="size-10" />
+          <TokenIconPlaceholder className="size-8 sm:size-10" />
         ))}
-      <span className="text-base font-semibold text-gray-900">{name}</span>
+      <span className="text-sm sm:text-base font-semibold text-gray-900">
+        {name}
+      </span>
     </button>
   )
 }

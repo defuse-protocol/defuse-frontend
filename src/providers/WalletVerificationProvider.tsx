@@ -11,11 +11,13 @@ import {
   walletVerificationMachine,
 } from "@src/machines/walletVerificationMachine"
 import { useBypassedWalletsStore } from "@src/stores/useBypassedWalletsStore"
+import { buildConnectorId } from "@src/utils/buildConnectorId"
 import { walletVerificationMessageFactory } from "@src/utils/walletMessage"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useActor } from "@xstate/react"
 import { usePathname, useRouter } from "next/navigation"
 import { startTransition, useEffect, useRef } from "react"
+import { useAccount } from "wagmi"
 import { fromPromise } from "xstate"
 import { useMixpanel } from "./MixpanelProvider"
 
@@ -158,6 +160,7 @@ function WalletVerificationUI({
   onAbort: () => void
 }) {
   const { state: unconfirmedWallet } = useConnectWallet()
+  const evmAccount = useAccount()
 
   const signMessage = useWalletAgnosticSignMessage()
   const mixPanel = useMixpanel()
@@ -189,6 +192,10 @@ function WalletVerificationUI({
             signedIntent,
             address: unconfirmedWallet.address,
             authMethod: unconfirmedWallet.chainType,
+            connectorId: buildConnectorId(
+              unconfirmedWallet.chainType,
+              evmAccount.connector?.id
+            ),
           })
 
           if (result.success && result.expiresAt) {
