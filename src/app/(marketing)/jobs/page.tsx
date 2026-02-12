@@ -50,7 +50,7 @@ export default function JobsPage() {
               rel="noreferrer noopener"
               className="flex flex-col items-start p-5 rounded-2xl text-left outline outline-gray-200 bg-white hover:outline-2 hover:outline-gray-300 focus-visible:outline-2 focus-visible:outline-gray-900"
             >
-              <span className="text-brand font-medium text-base">
+              <span className="text-green-600 font-medium text-base">
                 {team ? team : "Open Application"}
               </span>
               <span className="mt-4 text-gray-900 font-semibold text-lg">

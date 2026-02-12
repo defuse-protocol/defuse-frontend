@@ -51,7 +51,7 @@ function StepDot({
       className={clsx(
         "size-3 rounded-full transition-colors duration-300 flex items-center justify-center",
         isError && "bg-red-500",
-        !isError && isComplete && "bg-green-500",
+        !isError && isComplete && "bg-green-600",
         !isError && !isComplete && "bg-gray-200"
       )}
     >
@@ -102,7 +102,7 @@ export function ProgressStep({
             "left-2.5 w-0.5 -translate-x-px": size === "sm",
 
             "bg-red-500": status === "error",
-            "bg-green-500": status === "success",
+            "bg-green-600": status === "success",
             "bg-sky-400": status === "pending" && !isCurrent && !isFuture,
             "bg-gray-200": status === "pending" && (isCurrent || isFuture),
           })}
@@ -118,7 +118,7 @@ export function ProgressStep({
             "size-5": size === "sm",
 
             "bg-red-500": status === "error",
-            "bg-green-500": status === "success",
+            "bg-green-600": status === "success",
             "bg-sky-400": status === "pending" && !isFuture,
             "bg-gray-200": status === "pending" && isFuture,
           }
@@ -151,7 +151,7 @@ export function ProgressStep({
             "ml-2 text-sm": size === "sm",
 
             "text-red-500": status === "error",
-            "text-green-500": status === "success",
+            "text-green-600": status === "success",
             "text-sky-400": status === "pending" && !isFuture,
             "text-gray-400": status === "pending" && isFuture,
           }
@@ -241,7 +241,7 @@ export function HorizontalProgressDots<TStage extends string>({
               <div
                 className={clsx(
                   "w-4 h-px transition-colors duration-300",
-                  isDone ? "bg-green-500" : "bg-gray-200"
+                  isDone ? "bg-green-600" : "bg-gray-200"
                 )}
               />
             )}
