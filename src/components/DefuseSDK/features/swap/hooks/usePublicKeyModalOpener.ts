@@ -23,7 +23,11 @@ export function usePublicKeyModalOpener(
   useEffect(() => {
     if (!publicKeyVerifierRef) return
 
-    const sub = publicKeyVerifierRef.subscribe((snapshot) => {
+    const openModalIfChecked = (
+      snapshot: ReturnType<
+        ActorRefFrom<typeof publicKeyVerifierMachine>["getSnapshot"]
+      >
+    ) => {
       if (snapshot.matches("checked")) {
         assert(snapshot.context.nearAccount, "Near account is not set")
 
@@ -41,7 +45,12 @@ export function usePublicKeyModalOpener(
           },
         } satisfies ModalConfirmAddPubkeyPayload)
       }
-    })
+    }
+
+    // Check current state immediately — subscribe() only fires on future transitions
+    openModalIfChecked(publicKeyVerifierRef.getSnapshot())
+
+    const sub = publicKeyVerifierRef.subscribe(openModalIfChecked)
 
     return () => {
       sub.unsubscribe()
