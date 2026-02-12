@@ -2808,10 +2808,10 @@
               "bridge": "poa"
             }
           ],
-          "tags": []
+          "tags": ["aid:aleo"]
         }
       ],
-      "tags": []
+      "tags": ["aid:aleo"]
     },
     {
       "unifiedAssetId": "usad",
@@ -2834,10 +2834,10 @@
               "bridge": "poa"
             }
           ],
-          "tags": ["type:stablecoin"]
+          "tags": ["type:stablecoin", "aid:usad"]
         }
       ],
-      "tags": ["type:stablecoin"]
+      "tags": ["type:stablecoin", "aid:usad"]
     },
     {
       "unifiedAssetId": "usdcx",
@@ -2860,10 +2860,10 @@
               "bridge": "poa"
             }
           ],
-          "tags": ["type:stablecoin"]
+          "tags": ["type:stablecoin", "aid:usdcx"]
         }
       ],
-      "tags": ["type:stablecoin"]
+      "tags": ["type:stablecoin", "aid:usdcx"]
     }
   ]
 }
