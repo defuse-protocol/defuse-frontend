@@ -42,7 +42,6 @@ export const assetNetworkAdapter: Record<SupportedChainName, BlockchainEnum> = {
   starknet: BlockchainEnum.STARKNET,
 }
 
-// @ts-expect-error tmp
 export const reverseAssetNetworkAdapter: Record<
   BlockchainEnum,
   SupportedChainName
