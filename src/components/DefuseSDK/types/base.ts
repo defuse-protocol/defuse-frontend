@@ -28,6 +28,7 @@ export type SupportedChainName =
   | "starknet"
   | "plasma"
   | "scroll"
+  | "aleo"
   | VirtualChains
   | MockedChains
 

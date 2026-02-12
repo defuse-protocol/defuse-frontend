@@ -227,6 +227,10 @@
           "type": "string"
         },
         {
+          "const": "aleo",
+          "type": "string"
+        },
+        {
           "$ref": "#/definitions/VirtualChains"
         },
         {

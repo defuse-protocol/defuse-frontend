@@ -40,6 +40,7 @@ export const assetNetworkAdapter: Record<SupportedChainName, BlockchainEnum> = {
   scroll: BlockchainEnum.SCROLL,
   adi: BlockchainEnum.ADI,
   starknet: BlockchainEnum.STARKNET,
+  aleo: BlockchainEnum.ALEO,
 }
 
 export const reverseAssetNetworkAdapter: Record<
@@ -84,6 +85,7 @@ export const reverseAssetNetworkAdapter: Record<
   [BlockchainEnum.SCROLL]: "scroll",
   [BlockchainEnum.ADI]: "adi",
   [BlockchainEnum.STARKNET]: "starknet",
+  [BlockchainEnum.ALEO]: "aleo",
 }
 
 export function isValidBlockchainEnumKey(

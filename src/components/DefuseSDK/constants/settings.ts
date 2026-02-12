@@ -69,5 +69,6 @@ export const settings: Settings = {
     starknet: "https://starknet-rpc.publicnode.com",
     plasma: "https://rpc.plasma.to",
     scroll: "https://rpc.scroll.io",
+    aleo: "https://api.explorer.provable.com",
   },
 }

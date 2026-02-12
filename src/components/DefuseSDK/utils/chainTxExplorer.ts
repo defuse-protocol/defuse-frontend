@@ -78,6 +78,8 @@ export function chainTxExplorer(blockchain: SupportedChainName): string | null {
       return "https://plasmascan.to/tx/"
     case "scroll":
       return "https://scrollscan.com/tx/"
+    case "aleo":
+      return "https://explorer.provable.com/transaction/"
     default:
       blockchain satisfies never
       return null

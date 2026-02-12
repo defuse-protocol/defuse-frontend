@@ -37,6 +37,7 @@ const mapping: Record<RealChains, Chain> = {
   starknet: Chains.Starknet,
   plasma: Chains.Plasma,
   scroll: Chains.Scroll,
+  aleo: Chains.Aleo,
 }
 
 export function getCAIP2(chainName: SupportedChainName): Chain {
