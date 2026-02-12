@@ -210,7 +210,7 @@ async function getValidAccessToken(): Promise<string | null> {
  * Authenticate user with signed data and set HTTP-only cookies
  */
 export async function authenticatePrivateIntents(args: {
-  signedData: Record<string, unknown>
+  signedData: MultiPayload
 }): Promise<{ ok: { authenticated: true } } | { err: string }> {
   try {
     const response = await UserAuthService.authenticate({

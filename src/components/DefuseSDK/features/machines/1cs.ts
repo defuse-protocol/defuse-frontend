@@ -290,7 +290,7 @@ export async function submitIntent(
   try {
     const response = await OneClickService.submitIntent({
       type: SubmitSwapTransferIntentRequest.type.SWAP_TRANSFER,
-      signedIntent: args.signedIntent,
+      signedData: args.signedIntent,
     })
 
     return { ok: response }

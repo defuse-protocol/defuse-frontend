@@ -187,7 +187,7 @@ export function usePrivateModeAuth() {
 
       // Authenticate with the signed data (sets HTTP-only cookie on server)
       const authResult = await authenticatePrivateIntents({
-        signedData: signedData as unknown as Record<string, unknown>,
+        signedData,
       })
 
       if ("err" in authResult) {
