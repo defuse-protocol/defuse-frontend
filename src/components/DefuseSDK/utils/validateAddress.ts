@@ -37,6 +37,8 @@ export function validateAddress(
     case "avalanche":
     case "layerx":
     case "monad":
+    case "plasma":
+    case "scroll":
       return validateEthAddress(address)
     case "bitcoin":
       return validateBtcAddress(address)

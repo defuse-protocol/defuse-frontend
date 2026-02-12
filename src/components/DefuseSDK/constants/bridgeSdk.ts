@@ -11,4 +11,7 @@ export const bridgeSDK = new IntentsSDK({
     [Chains.Avalanche]: ["https://api.avax.network/ext/bc/C/rpc"],
   },
   referral: "near-intents.intents-referral.near", // TODO: should depend on env
+  features: {
+    routeMigratedPoaTokensThroughOmniBridge: true,
+  },
 })

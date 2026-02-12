@@ -6,6 +6,7 @@ import Assets from "@src/components/DefuseSDK/features/account/components/Assets
 import Balance from "@src/components/DefuseSDK/features/account/components/Balance"
 import { useWatchHoldings } from "@src/components/DefuseSDK/features/account/hooks/useWatchHoldings"
 import { computeTotalUsdValue } from "@src/components/DefuseSDK/features/account/utils/holdingsUtils"
+import { useHideBalances } from "@src/components/DefuseSDK/hooks/useHideBalances"
 import { getDefuseAssetId } from "@src/components/DefuseSDK/utils/token"
 import ShieldPromo from "@src/components/ShieldPromo"
 import { LIST_TOKENS } from "@src/constants/tokens"
@@ -16,6 +17,7 @@ import { useMemo } from "react"
 
 export default function AccountPage() {
   const { state } = useConnectWallet()
+  const { hidden: hideBalances, toggle: toggleHideBalances } = useHideBalances()
   let tokenList = useTokenList(LIST_TOKENS)
 
   const userAddress = state.isAuthorized ? state.address : undefined
@@ -50,7 +52,11 @@ export default function AccountPage() {
     <>
       <h1 className="sr-only">Account</h1>
 
-      <Balance balance={totalValueUsd} />
+      <Balance
+        balance={totalValueUsd}
+        hideBalances={hideBalances}
+        onToggleHideBalances={toggleHideBalances}
+      />
 
       {!noAssets && (
         <section className="grid grid-cols-2 gap-2 mt-6">
@@ -74,7 +80,12 @@ export default function AccountPage() {
       )}
 
       <section className="mt-9">
-        <Assets assets={holdings} isPending={isPending} isError={isError} />
+        <Assets
+          assets={holdings}
+          isPending={isPending}
+          isError={isError}
+          hideBalances={hideBalances}
+        />
       </section>
 
       <ShieldPromo />

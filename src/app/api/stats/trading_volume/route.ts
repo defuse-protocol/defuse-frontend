@@ -15,7 +15,10 @@ export async function GET() {
     typeof CLICKHOUSE_API_KEY !== "string"
   ) {
     logger.error("CLICKHOUSE_SERVICE_URL or CLICKHOUSE_API_KEY are not defined")
-    return NextResponse.error()
+    return NextResponse.json(
+      { error: "Server configuration error" },
+      { status: 500 }
+    )
   }
 
   const query = `
@@ -41,7 +44,7 @@ export async function GET() {
   )
 
   if (!res.ok) {
-    return NextResponse.error()
+    return NextResponse.json({ error: "Failed to fetch data" }, { status: 502 })
   }
 
   try {
@@ -49,7 +52,7 @@ export async function GET() {
     return NextResponse.json(data)
   } catch (err) {
     logger.error(err)
-    return NextResponse.error()
+    return NextResponse.json({ error: "Failed to parse data" }, { status: 500 })
   }
 }
 

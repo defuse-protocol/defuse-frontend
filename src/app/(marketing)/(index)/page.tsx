@@ -77,7 +77,7 @@ const faqItems = [
         over $10B in swaps. Interested?{" "}
         <button
           type="button"
-          className="inline underline text-brand hover:text-brand/80 transition-colors"
+          className="inline underline text-green-700 hover:text-green-700/80"
           onClick={() => {
             if (typeof window !== "undefined" && window.Beacon) {
               window.Beacon("open")
@@ -101,13 +101,13 @@ export default function IndexPage() {
     <>
       <section className="relative flex flex-col items-center justify-center py-16 md:pb-24 [@media(max-height:800px)]:py-6 bg-white rounded-b-3xl overflow-hidden">
         <div className="flex flex-col items-center justify-center px-4 max-w-lg">
-          <div className="text-brand text-sm/5 font-bold py-0.5 px-3 rounded-lg bg-brand/[0.07] text-center">
+          <div className="text-green-700 text-sm/5 font-bold py-0.5 px-3 rounded-lg bg-green-600/15 text-center">
             Over $10 billion swapped
           </div>
           <h1 className="mt-4 md:mt-6 [@media(max-height:800px)]:mt-2 text-4xl/none md:text-5xl/none text-balance font-bold tracking-tight text-center">
             One account, no borders.
             <br />
-            <span className="text-brand">Endless possibilities.</span>
+            <span className="text-green-700">Endless possibilities.</span>
           </h1>
         </div>
 
@@ -120,11 +120,13 @@ export default function IndexPage() {
       </section>
 
       <section className="bg-gray-800 py-16 md:py-24 relative px-4 overflow-hidden">
-        <div className="absolute size-40 md:size-64 lg:size-128 rounded-full bg-brand/80 left-1/2 max-md:-bottom-36 max-lg:-bottom-48 -translate-x-1/2 lg:translate-y-1/4 blur-[50px] md:blur-[100px] lg:blur-[150px]" />
+        <div className="absolute size-40 md:size-64 lg:size-128 rounded-full bg-green-500/50 left-1/2 max-md:-bottom-36 max-lg:-bottom-48 -translate-x-1/2 lg:translate-y-1/4 blur-[50px] md:blur-[100px] lg:blur-[150px]" />
         <p className="relative text-center text-3xl/9 md:text-4xl/10 font-bold tracking-tight text-white">
           Over 70 assets, <br />
           across 35 networks. <br />
-          <span className="text-brand">Think Binance, but permissionless.</span>
+          <span className="text-green-500">
+            Think Binance, but permissionless.
+          </span>
         </p>
       </section>
 
@@ -136,10 +138,10 @@ export default function IndexPage() {
                 key={title}
                 className="flex flex-col items-center md:items-start"
               >
-                <div className="bg-brand rounded-xl size-9 flex items-center justify-center">
+                <div className="bg-green-600 rounded-xl size-9 flex items-center justify-center">
                   <Icon className="size-6 text-white" />
                 </div>
-                <h3 className="mt-4 md:mt-6 text-brand text-sm/5 font-bold max-md:text-center">
+                <h3 className="mt-4 md:mt-6 text-green-700 text-sm/5 font-bold max-md:text-center">
                   {title}
                 </h3>
                 <p className="mt-2 font-bold text-gray-900 text-lg/6 md:text-xl/7 text-balance max-md:text-center">

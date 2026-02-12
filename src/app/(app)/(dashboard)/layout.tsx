@@ -14,7 +14,7 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => (
   <div className="relative isolate flex min-h-svh w-full bg-gray-800">
     {/* Sidebar on desktop */}
     <div className="fixed z-10 inset-y-0 left-0 w-74 max-lg:hidden py-5 px-4 flex flex-col">
-      <div className="absolute size-64 -bottom-32 -left-32 rounded-full bg-brand/80 blur-[150px] pointer-events-none" />
+      <div className="absolute size-64 -bottom-32 -left-32 rounded-full bg-green-500/50 blur-[150px] pointer-events-none" />
 
       <Link
         href="/"

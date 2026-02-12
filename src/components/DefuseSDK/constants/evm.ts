@@ -41,4 +41,6 @@ export const CHAIN_IDS: Record<SupportedChainName, number | undefined> = {
   bitcoincash: undefined,
   adi: 36900,
   starknet: undefined,
+  plasma: 9745,
+  scroll: 534352,
 }

@@ -26,7 +26,7 @@ const Badge = ({
     {variant === "error" && <XCircleIcon className="size-3 text-red-500" />}
     {variant === "info" && <ClockIcon className="size-3 text-blue-500" />}
     {variant === "success" && (
-      <CheckCircleIcon className="size-3 text-green-500" />
+      <CheckCircleIcon className="size-3 text-green-600" />
     )}
     {children}
   </div>

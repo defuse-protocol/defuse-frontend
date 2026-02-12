@@ -72,7 +72,7 @@ function SelectTriggerLike(
       </span>
       {hint && (
         <span className="inline-flex items-center gap-x-1.5 rounded-lg bg-green-100 px-2 py-1 text-xs font-semibold text-green-700">
-          <span className="size-1.5 rounded-full bg-green-500 shrink-0" />
+          <span className="size-1.5 rounded-full bg-green-600 shrink-0" />
           {hint}
         </span>
       )}

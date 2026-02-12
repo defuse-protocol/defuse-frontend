@@ -179,6 +179,14 @@ export const chainIcons: Record<
     dark: "/static/icons/network/starknet.svg",
     light: "/static/icons/network/starknet.svg",
   },
+  plasma: {
+    dark: "/static/icons/network/plasma-white.svg",
+    light: "/static/icons/network/plasma.svg",
+  },
+  scroll: {
+    dark: "/static/icons/network/scroll-white.svg",
+    light: "/static/icons/network/scroll.svg",
+  },
 }
 
 export function getBlockchainsOptions(): Record<

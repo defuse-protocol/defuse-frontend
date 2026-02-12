@@ -12,7 +12,7 @@ const EarnPromo = () => {
   return (
     <div className="relative bg-gray-800 rounded-3xl grid grid-cols-3 gap-4 group overflow-hidden">
       <div className="col-span-2 relative p-5 z-20">
-        <div className="bg-brand/20 text-brand text-xs rounded-lg px-2 py-1 inline-block uppercase font-bold">
+        <div className="bg-green-500/20 text-green-500 text-xs rounded-lg px-2 py-1 inline-block uppercase font-bold">
           Coming soon
         </div>
         <div className="mt-4 mb-1">
@@ -26,7 +26,7 @@ const EarnPromo = () => {
       </div>
 
       <div className="relative" aria-hidden="true">
-        <div className="absolute size-32 -bottom-16 -right-16 rounded-full bg-brand/80 blur-[75px] pointer-events-none" />
+        <div className="absolute size-32 -bottom-16 -right-16 rounded-full bg-green-500/80 blur-[75px] pointer-events-none" />
 
         {PLACEHOLDER_VAULTS.map(({ token, icon: Icon, apr }, index) => (
           <div
