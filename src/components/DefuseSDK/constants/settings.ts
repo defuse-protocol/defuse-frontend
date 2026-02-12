@@ -66,5 +66,7 @@ export const settings: Settings = {
     bitcoincash: "https://svc.blockdaemon.com/bitcoincash/mainnet/native",
     adi: "https://rpc.adifoundation.ai",
     starknet: "https://starknet-rpc.publicnode.com",
+    plasma: "https://rpc.plasma.to",
+    scroll: "https://rpc.scroll.io",
   },
 }

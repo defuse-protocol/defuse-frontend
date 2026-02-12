@@ -168,6 +168,8 @@ const cspConfig = {
     "https://rpc.adifoundation.ai",
     "https://svc.blockdaemon.com/bitcoincash/mainnet/native",
     "https://starknet-rpc.publicnode.com",
+    "https://rpc.plasma.to",
+    "https://rpc.scroll.io",
   ],
   "object-src": ["'none'"],
   "base-uri": ["'self'"],

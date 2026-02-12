@@ -692,14 +692,14 @@
         },
         {
           "defuseAssetId": "nep245:v2_1.omni.hot.tg:196_2fezDCvVYRsG8wrK6deJ2VRPiAS1",
-          "symbol": "USDT0",
+          "symbol": "USDT",
           "name": "Tether USD",
           "decimals": 6,
           "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
           "originChainName": "layerx",
           "deployments": [
             {
-              "address": "0x1e4a5963abfd975d8c9021ce480b42188849d41d",
+              "address": "0x779ded0c9e1022225f8e0630b35a9b54be713736",
               "decimals": 6,
               "chainName": "layerx",
               "bridge": "hot_omni"
@@ -720,6 +720,23 @@
               "decimals": 6,
               "chainName": "monad",
               "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:3", "type:stablecoin", "tvol:3", "aid:usdt"]
+        },
+        {
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:9745_3aL9skCy1yhPoDB8oKMmRHRN7SJW",
+          "symbol": "USDT",
+          "name": "Tether USD",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+          "originChainName": "plasma",
+          "deployments": [
+            {
+              "address": "0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb",
+              "decimals": 6,
+              "chainName": "plasma",
+              "bridge": "hot_omni"
             }
           ],
           "tags": ["mc:3", "type:stablecoin", "tvol:3", "aid:usdt"]
@@ -1092,6 +1109,12 @@
           "originChainName": "near",
           "deployments": [
             {
+              "type": "native",
+              "decimals": 8,
+              "chainName": "bitcoin",
+              "bridge": "near_omni"
+            },
+            {
               "address": "nbtc.bridge.near",
               "decimals": 8,
               "chainName": "near",
@@ -1438,6 +1461,12 @@
               "decimals": 18,
               "chainName": "near",
               "bridge": "direct"
+            },
+            {
+              "address": "8SMMso8Muv8d6i4WmMDthKt6TN1ysN6937sx3DKLXZqB",
+              "decimals": 9,
+              "chainName": "solana",
+              "bridge": "near_omni"
             }
           ],
           "tags": ["mc:1452", "aid:rhea"]
@@ -2689,6 +2718,74 @@
         }
       ],
       "tags": ["mc:95", "aid:strk"]
+    },
+    {
+      "defuseAssetId": "nep141:eth-0xdef1b2d939edc0e4d35806c59b3166f790175afe.omft.near",
+      "symbol": "INX",
+      "name": "Infinex",
+      "decimals": 18,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/39461.png",
+      "originChainName": "eth",
+      "deployments": [
+        {
+          "address": "0xdef1b2d939edc0e4d35806c59b3166f790175afe",
+          "decimals": 18,
+          "chainName": "eth",
+          "bridge": "poa"
+        }
+      ],
+      "tags": ["mc:483"]
+    },
+    {
+      "defuseAssetId": "nep141:base-0xe62bfbe57763ec24c0f130426f34dbce11fc5b06.omft.near",
+      "symbol": "TITN",
+      "name": "Titan",
+      "decimals": 18,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/36271.png",
+      "originChainName": "base",
+      "deployments": [
+        {
+          "address": "0xe62bfbe57763ec24c0f130426f34dbce11fc5b06",
+          "decimals": 18,
+          "chainName": "base",
+          "bridge": "poa"
+        }
+      ],
+      "tags": ["mc:1028"]
+    },
+    {
+      "defuseAssetId": "nep141:sol-0xaad74c68eecfc9f8c5bdcea614f6167048c795ef.omdep.near",
+      "symbol": "PENGU",
+      "name": "Pudgy Penguins",
+      "decimals": 6,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/34466.png",
+      "originChainName": "solana",
+      "deployments": [
+        {
+          "address": "2zMMhcVQEXDtdE6vsFS7S7D5oUodfJHE8vd1gnBouauv",
+          "decimals": 6,
+          "chainName": "solana",
+          "bridge": "near_omni"
+        }
+      ],
+      "tags": ["mc:85"]
+    },
+    {
+      "defuseAssetId": "nep245:v2_1.omni.hot.tg:9745_11111111111111111111",
+      "symbol": "XPL",
+      "name": "Plasma",
+      "decimals": 18,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/36645.png",
+      "originChainName": "plasma",
+      "deployments": [
+        {
+          "type": "native",
+          "decimals": 18,
+          "chainName": "plasma",
+          "bridge": "hot_omni"
+        }
+      ],
+      "tags": []
     }
   ]
 }

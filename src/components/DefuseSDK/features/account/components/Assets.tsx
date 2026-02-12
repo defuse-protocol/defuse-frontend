@@ -17,10 +17,12 @@ const Assets = ({
   assets,
   isPending,
   isError,
+  hideBalances = false,
 }: {
   assets: Holding[] | undefined
   isPending: boolean
   isError: boolean
+  hideBalances?: boolean
 }) => {
   const [showAll, setShowAll] = useState(false)
 
@@ -106,12 +108,18 @@ const Assets = ({
 
               <ListItem.Content align="end">
                 <ListItem.Title>
-                  <FormattedCurrency
-                    value={usdValue ?? 0}
-                    formatOptions={{ currency: "USD" }}
-                  />
+                  {hideBalances ? (
+                    <span>••••</span>
+                  ) : (
+                    <FormattedCurrency
+                      value={usdValue ?? 0}
+                      formatOptions={{ currency: "USD" }}
+                    />
+                  )}
                 </ListItem.Title>
-                <ListItem.Subtitle>{shortFormatted ?? "-"}</ListItem.Subtitle>
+                <ListItem.Subtitle>
+                  {hideBalances ? "••••" : (shortFormatted ?? "-")}
+                </ListItem.Subtitle>
               </ListItem.Content>
             </ListItem>
           )

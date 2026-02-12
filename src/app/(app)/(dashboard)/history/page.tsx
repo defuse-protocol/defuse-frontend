@@ -1,5 +1,6 @@
 "use client"
 
+import { authIdentity } from "@defuse-protocol/internal-utils"
 import { FunnelIcon } from "@heroicons/react/16/solid"
 import { ArrowPathIcon, CheckIcon } from "@heroicons/react/20/solid"
 import Button from "@src/components/Button"
@@ -78,7 +79,15 @@ export default function HistoryPage({
     setHadPreviousSession(localStorage.getItem("chainType") !== null)
   }, [])
 
-  const userAddress = state.isAuthorized ? state.address : null
+  let userAddress: string | null = null
+  try {
+    userAddress =
+      state.isAuthorized && state.address != null && state.chainType != null
+        ? authIdentity.authHandleToIntentsUserId(state.address, state.chainType)
+        : null
+  } catch {
+    userAddress = null
+  }
   const isWaitingForReconnect = hadPreviousSession && !state.address
   const isWalletHydrating =
     isWalletConnecting ||
