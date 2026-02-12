@@ -24,7 +24,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         </div>
 
         <div className="bg-gray-100 flex flex-col items-center justify-center px-6 py-12">
-          <div className="bg-brand rounded-3xl p-6 flex flex-col items-center justify-center aspect-[1.586] w-full max-w-md shadow-2xl">
+          <div className="bg-green-600 rounded-3xl p-6 flex flex-col items-center justify-center aspect-[1.586] w-full max-w-md shadow-2xl">
             <NearIntentsLogoSymbolIcon className="size-24 shrink-0" />
           </div>
         </div>

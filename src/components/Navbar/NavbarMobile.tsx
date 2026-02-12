@@ -20,7 +20,7 @@ const NavItem = ({
       href={href}
       className={clsx(
         "group flex flex-col gap-1.5 items-center justify-center py-3 focus-visible:outline-hidden",
-        isActive ? "text-brand" : "text-gray-400"
+        isActive ? "text-green-700" : "text-gray-400"
       )}
     >
       <Icon className="size-5 shrink-0" />
@@ -53,7 +53,7 @@ export function NavbarMobile() {
 
         {showMore && (
           <DropdownMenu.Root>
-            <DropdownMenu.Trigger className="group flex flex-col gap-1.5 items-center justify-center py-3 text-gray-400 focus-visible:outline-hidden data-[state=open]:text-brand">
+            <DropdownMenu.Trigger className="group flex flex-col gap-1.5 items-center justify-center py-3 text-gray-400 focus-visible:outline-hidden data-[state=open]:text-green-700">
               <MoreMenuIcon className="size-5 shrink-0" />
               <span className="text-xs/none font-semibold">More</span>
             </DropdownMenu.Trigger>

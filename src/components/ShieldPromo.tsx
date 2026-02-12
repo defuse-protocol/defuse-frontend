@@ -20,7 +20,7 @@ const ShieldPromo = () => {
     <>
       <div className="relative mt-12 bg-gray-800 rounded-3xl grid grid-cols-3 gap-4 group overflow-hidden">
         <div className="col-span-2 p-5 relative z-20">
-          <div className="bg-brand/20 text-brand text-xs rounded-lg px-2 py-1 inline-block uppercase font-bold">
+          <div className="bg-green-500/20 text-green-500 text-xs rounded-lg px-2 py-1 inline-block uppercase font-bold">
             Coming soon
           </div>
           <div className="mt-4 mb-1">
@@ -42,7 +42,7 @@ const ShieldPromo = () => {
         </div>
 
         <div className="relative" aria-hidden="true">
-          <div className="absolute size-32 -bottom-16 -right-16 rounded-full bg-brand/80 blur-[75px] pointer-events-none" />
+          <div className="absolute size-32 -bottom-16 -right-16 rounded-full bg-green-500/80 blur-[75px] pointer-events-none" />
 
           <svg className="sr-only" aria-hidden="true">
             <defs>
@@ -69,7 +69,7 @@ const ShieldPromo = () => {
         onClose={() => setOpen(false)}
         title={
           <span className="flex items-center gap-1.5">
-            <ShieldCheckIcon className="size-5 text-brand" />
+            <ShieldCheckIcon className="size-5 text-green-600" />
             What is a shielded account?
           </span>
         }

@@ -177,7 +177,7 @@ const ModalReviewSend = ({
           }
         >
           <WalletIcon
-            className="size-5 text-gray-500"
+            className="size-6 text-gray-500"
             style={contactColor ? { color: contactColor.icon } : undefined}
           />
         </div>
@@ -205,7 +205,7 @@ const ModalReviewSend = ({
         </div>
         {recipientContactName && (
           <div className="flex items-start justify-center gap-1 mt-2">
-            <CheckBadgeIcon className="mt-0.5 text-green-500 size-4 shrink-0" />
+            <CheckBadgeIcon className="mt-0.5 text-green-600 size-4 shrink-0" />
             <div className="text-base/5 font-medium text-gray-500 text-center">
               {recipientContactName}
             </div>

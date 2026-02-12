@@ -35,7 +35,7 @@ export function ShareableGiftImage({
   return (
     <div className="mt-4">
       <div className="relative flex items-center justify-center bg-gray-800 rounded-3xl py-8 px-4 overflow-hidden">
-        <div className="absolute size-64 -bottom-52 left-1/2 -translate-x-1/2 rounded-full bg-brand/80 blur-[100px] pointer-events-none" />
+        <div className="absolute size-64 -bottom-52 left-1/2 -translate-x-1/2 rounded-full bg-green-500/80 blur-[100px] pointer-events-none" />
 
         <div className="relative size-48 flex items-center justify-center border-5 rounded-3xl bg-white border-gray-900">
           {link ? (

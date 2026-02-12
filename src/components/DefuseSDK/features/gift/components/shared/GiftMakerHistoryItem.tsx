@@ -85,7 +85,7 @@ export function GiftMakerHistoryItem({
         <ListItem.Content align="end">
           {giftInfo.status === "claimed" && (
             <span className="inline-flex items-center gap-x-1.5 rounded-lg bg-green-100 group-hover:outline-1 group-hover:outline-green-200 px-2 py-1 text-xs font-semibold text-green-700">
-              <span className="size-1.5 rounded-full bg-green-500 shrink-0" />
+              <span className="size-1.5 rounded-full bg-green-600 shrink-0" />
               Claimed
             </span>
           )}

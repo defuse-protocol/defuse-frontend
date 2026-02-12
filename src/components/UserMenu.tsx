@@ -101,8 +101,8 @@ const UserMenu = ({
       {variant === "desktop" ? (
         <DropdownMenu.Root modal={false}>
           <DropdownMenu.Trigger className="max-lg:hidden relative group bg-gray-900 rounded-2xl px-3.5 py-3 flex items-center gap-3 w-full hover:bg-gray-950 hover:text-gray-300 data-[state=open]:bg-gray-950 data-[state=open]:text-gray-300">
-            <div className="shrink-0 size-7 flex items-center justify-center bg-brand rounded-lg">
-              <UserIcon className="text-white/80 size-5" />
+            <div className="shrink-0 size-7 flex items-center justify-center bg-green-600 rounded-lg">
+              <UserIcon className="text-white size-5" />
             </div>
 
             <div className="grow text-left">
@@ -136,7 +136,7 @@ const UserMenu = ({
             <Switch.Root
               checked={isShielded}
               onCheckedChange={setShielded}
-              className="group relative flex h-5 bg-gray-300 w-12 cursor-pointer rounded-lg p-1 focus:not-data-focus:outline-none data-[state=checked]:bg-brand data-focus:outline data-focus:outline-white transition-colors duration-200 ease-in-out"
+              className="group relative flex h-5 bg-gray-300 w-12 cursor-pointer rounded-lg p-1 focus:not-data-focus:outline-none data-[state=checked]:bg-green-600 data-focus:outline data-focus:outline-white transition-colors duration-200 ease-in-out"
               aria-label="Toggle Shield Mode"
             >
               <Switch.Thumb className="pointer-events-none inline-block h-3 w-4 translate-x-0 rounded bg-white shadow-lg ring-0 transition duration-200 ease-in-out data-[state=checked]:translate-x-6" />
@@ -157,8 +157,8 @@ const UserMenu = ({
               {displayLabel}
             </div>
 
-            <div className="size-6 flex items-center justify-center bg-brand rounded-md">
-              <UserIcon className="text-white/80 size-4" />
+            <div className="size-6 flex items-center justify-center bg-green-600 rounded-md">
+              <UserIcon className="text-white size-4" />
             </div>
           </DropdownMenu.Trigger>
 
