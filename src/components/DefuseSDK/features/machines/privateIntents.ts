@@ -31,6 +31,20 @@ OpenAPI.BASE = z.string().parse(ONE_CLICK_URL)
 OpenAPI.HEADERS = {
   "x-api-key": z.string().parse(ONE_CLICK_API_KEY),
 }
+// Resolve Authorization header per-request: JWT from cookies when authenticated,
+// otherwise API key for public endpoints.
+OpenAPI.TOKEN = async () => {
+  try {
+    const cookieStore = await cookies()
+    const accessToken = cookieStore.get(ACCESS_TOKEN_COOKIE)?.value
+    if (accessToken) {
+      return accessToken
+    }
+  } catch {
+    // cookies() unavailable outside request context (e.g. build time)
+  }
+  return z.string().parse(ONE_CLICK_API_KEY)
+}
 
 const authMethodSchema = z.enum([
   "near",
@@ -193,24 +207,6 @@ async function getValidAccessToken(): Promise<string | null> {
 }
 
 /**
- * Helper to set OpenAPI authorization via TOKEN.
- *
- * The SDK applies TOKEN after HEADERS, producing `Authorization: Bearer <TOKEN>`.
- * 1cs.ts sets TOKEN to the API key for public endpoints; here we temporarily
- * override it with the access token so authenticated endpoints get the JWT.
- */
-function setAuthToken(accessToken: string) {
-  OpenAPI.TOKEN = accessToken
-}
-
-/**
- * Helper to reset OpenAPI TOKEN to the API key (used by public 1cs endpoints).
- */
-function resetAuthToken() {
-  OpenAPI.TOKEN = z.string().parse(ONE_CLICK_API_KEY)
-}
-
-/**
  * Authenticate user with signed data and set HTTP-only cookies
  */
 export async function authenticatePrivateIntents(args: {
@@ -264,8 +260,6 @@ export async function getPrivateBalance(args?: {
     return { err: "Not authenticated. Please authenticate first." }
   }
 
-  setAuthToken(accessToken)
-
   try {
     const response = await AccountService.getBalances(args?.tokenIds)
     return { ok: response }
@@ -281,8 +275,6 @@ export async function getPrivateBalance(args?: {
     }
 
     return { err }
-  } finally {
-    resetAuthToken()
   }
 }
 
@@ -372,8 +364,6 @@ export async function getUnshieldQuote(
 
   const { userAddress, authMethod, ...rest } = parseResult.data
 
-  setAuthToken(accessToken)
-
   try {
     const intentsUserId = authIdentity.authHandleToIntentsUserId(
       userAddress,
@@ -411,8 +401,6 @@ export async function getUnshieldQuote(
     }
 
     return { err }
-  } finally {
-    resetAuthToken()
   }
 }
 
@@ -447,8 +435,6 @@ export async function getPrivateTransferQuote(
 
   const { userAddress, authMethod, recipientIntentsUserId, ...rest } =
     parseResult.data
-
-  setAuthToken(accessToken)
 
   try {
     const intentsUserId = authIdentity.authHandleToIntentsUserId(
@@ -485,8 +471,6 @@ export async function getPrivateTransferQuote(
     }
 
     return { err }
-  } finally {
-    resetAuthToken()
   }
 }
 

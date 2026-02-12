@@ -18,11 +18,7 @@ import { getTokenByAssetId } from "@src/components/DefuseSDK/utils/tokenUtils"
 import { whitelabelTemplateFlag } from "@src/config/featureFlags"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { referralMap } from "@src/hooks/useIntentsReferral"
-import {
-  APP_FEE_BPS,
-  ONE_CLICK_API_KEY,
-  ONE_CLICK_URL,
-} from "@src/utils/environment"
+import { APP_FEE_BPS, ONE_CLICK_URL } from "@src/utils/environment"
 import { getAppFeeRecipients } from "@src/utils/getAppFeeRecipient"
 import { logger } from "@src/utils/logger"
 import { splitAppFeeBps } from "@src/utils/splitAppFee"
@@ -30,7 +26,6 @@ import { unstable_cache } from "next/cache"
 import z from "zod"
 
 OpenAPI.BASE = z.string().parse(ONE_CLICK_URL)
-OpenAPI.TOKEN = z.string().parse(ONE_CLICK_API_KEY)
 
 export async function getTokens() {
   return await getTokensCached()
