@@ -74,7 +74,7 @@ TokenAmountInputCard.Input = forwardRef<
       disabled={disabled}
       aria-busy={isLoading || undefined}
       className={cn(
-        "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-4xl tracking-tight placeholder:text-gray-400 w-full",
+        "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-fg text-4xl tracking-tight placeholder:text-fg-tertiary w-full",
         disabled && "opacity-50",
         className
       )}
@@ -108,7 +108,7 @@ TokenAmountInputCard.Label = function Label({
   children: ReactNode
 }) {
   return (
-    <label htmlFor={id} className="text-base text-gray-500">
+    <label htmlFor={id} className="text-base text-fg-secondary">
       {children}
     </label>
   )
@@ -119,7 +119,9 @@ TokenAmountInputCard.DisplayPrice = function DisplayPrice({
 }: {
   children: ReactNode
 }) {
-  return <div className="text-right text-base text-gray-500">{children}</div>
+  return (
+    <div className="text-right text-base text-fg-secondary">{children}</div>
+  )
 }
 
 TokenAmountInputCard.DisplayInfo = function DisplayInfo({

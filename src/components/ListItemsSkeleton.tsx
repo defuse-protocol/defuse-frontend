@@ -11,20 +11,20 @@ const ListItemsSkeleton = ({
         <div
           className={clsx(
             "size-10 rounded-full shrink-0",
-            loading ? "bg-gray-200 animate-pulse" : "bg-gray-100"
+            loading ? "bg-border animate-pulse" : "bg-surface-active"
           )}
         />
         <div className="flex-1 flex flex-col gap-1">
           <div
             className={clsx(
               "h-4 w-12 rounded-sm",
-              loading ? "bg-gray-200 animate-pulse" : "bg-gray-100"
+              loading ? "bg-border animate-pulse" : "bg-surface-active"
             )}
           />
           <div
             className={clsx(
               "h-4 w-6 rounded-sm",
-              loading ? "bg-gray-200 animate-pulse" : "bg-gray-100"
+              loading ? "bg-border animate-pulse" : "bg-surface-active"
             )}
           />
         </div>
@@ -32,13 +32,13 @@ const ListItemsSkeleton = ({
           <div
             className={clsx(
               "h-4 w-12 rounded-sm",
-              loading ? "bg-gray-200 animate-pulse" : "bg-gray-100"
+              loading ? "bg-border animate-pulse" : "bg-surface-active"
             )}
           />
           <div
             className={clsx(
               "h-4 w-6 rounded-sm",
-              loading ? "bg-gray-200 animate-pulse" : "bg-gray-100"
+              loading ? "bg-border animate-pulse" : "bg-surface-active"
             )}
           />
         </div>

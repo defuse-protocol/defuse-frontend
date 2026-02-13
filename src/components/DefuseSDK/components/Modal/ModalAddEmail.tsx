@@ -61,22 +61,22 @@ const ModalAddEmail = ({
     >
       {step === "email" ? (
         <>
-          <p className="text-sm text-gray-500 mt-1 font-medium">
+          <p className="text-sm text-fg-secondary mt-1 font-medium">
             Enter the email address you want to add to your account. We'll send
             a confirmation code to your email.
           </p>
           <form onSubmit={handleSubmit(onEmailSubmit)} className="mt-4">
             <div
               className={clsx(
-                "rounded-2xl bg-white px-4 py-3 outline-1 -outline-offset-1 focus-within:outline-2 focus-within:-outline-offset-2",
+                "rounded-2xl bg-surface-card px-4 py-3 outline-1 -outline-offset-1 focus-within:outline-2 focus-within:-outline-offset-2",
                 errors.email
                   ? "outline-red-500 focus-within:outline-red-500"
-                  : "outline-gray-200 focus-within:outline-gray-900"
+                  : "outline-border focus-within:outline-fg"
               )}
             >
               <label
                 htmlFor="email"
-                className="block text-sm text-gray-500 leading-none"
+                className="block text-sm text-fg-secondary leading-none"
               >
                 Email
               </label>
@@ -85,7 +85,7 @@ const ModalAddEmail = ({
                 type="email"
                 placeholder="john@example.com"
                 autoComplete="email"
-                className="pt-1.5 block w-full text-gray-900 font-medium placeholder:text-gray-400 focus:outline-none text-base leading-none ring-0 border-none p-0"
+                className="pt-1.5 block w-full text-fg font-medium placeholder:text-fg-tertiary focus:outline-none text-base leading-none ring-0 border-none p-0"
                 {...register("email", {
                   required: "Enter your email address.",
                 })}
@@ -110,7 +110,7 @@ const ModalAddEmail = ({
         </>
       ) : step === "verify" ? (
         <>
-          <p className="text-sm text-gray-500 mt-1 font-medium">
+          <p className="text-sm text-fg-secondary mt-1 font-medium">
             We've sent a confirmation code to {email}. Please enter it below.
           </p>
           <OTPInput
@@ -125,10 +125,10 @@ const ModalAddEmail = ({
           <div className="size-13 flex items-center justify-center shrink-0 bg-green-100 rounded-full">
             <CheckIcon className="size-6 text-green-600" />
           </div>
-          <h2 className="mt-5 text-2xl text-center text-gray-900 font-bold tracking-tight leading-[1.1]">
+          <h2 className="mt-5 text-2xl text-center text-fg font-bold tracking-tight leading-[1.1]">
             Email added
           </h2>
-          <p className="text-base/5 text-center font-medium text-gray-500 mt-1 text-balance">
+          <p className="text-base/5 text-center font-medium text-fg-secondary mt-1 text-balance">
             The email address has been added to your account.
           </p>
           <Button size="xl" fullWidth className="mt-8" onClick={onClose}>

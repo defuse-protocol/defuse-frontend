@@ -230,7 +230,7 @@ export const DepositForm = ({
     <>
       <Link
         href="/deposit"
-        className="inline-flex items-center gap-2 text-gray-500 text-sm/6 hover:text-gray-900"
+        className="inline-flex items-center gap-2 text-fg-secondary text-sm/6 hover:text-fg"
       >
         <ChevronLeftIcon className="size-4" />
         Back
@@ -301,7 +301,7 @@ export const DepositForm = ({
             {isActiveDeposit && isPassiveDeposit && (
               <div className="mt-8">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-gray-900 text-lg font-semibold tracking-tight">
+                  <h3 className="text-fg text-lg font-semibold tracking-tight">
                     How do you want to deposit?
                   </h3>
 

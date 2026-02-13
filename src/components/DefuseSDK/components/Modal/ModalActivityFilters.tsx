@@ -59,7 +59,7 @@ const ModalActivityFilters = ({
     <BaseModalDialog title="Filter transactions" open={open} onClose={onClose}>
       <div className="space-y-6 mt-3">
         <div>
-          <h3 className="text-sm font-semibold text-gray-900">Type</h3>
+          <h3 className="text-sm font-semibold text-fg">Type</h3>
           <RadioGroup.Root
             value={type}
             onValueChange={(value) => setType(value as TypeFilter)}
@@ -79,7 +79,7 @@ const ModalActivityFilters = ({
         </div>
 
         <div>
-          <h3 className="text-sm font-semibold text-gray-900">Status</h3>
+          <h3 className="text-sm font-semibold text-fg">Status</h3>
           <RadioGroup.Root
             value={status}
             onValueChange={(value) => setStatus(value as StatusFilter)}

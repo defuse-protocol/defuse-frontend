@@ -126,7 +126,7 @@ function AnimatedTokenPath({ side = "left" }: { side?: "left" | "right" }) {
         {tokens.map((token) => (
           <motion.div
             key={`${side}-${token.icon.name}-${token.delay}`}
-            className="absolute size-10 overflow-hidden flex justify-center items-center rounded-full outline-1 outline-gray-900/10 -outline-offset-1"
+            className="absolute size-10 overflow-hidden flex justify-center items-center rounded-full outline-1 outline-fg/10 -outline-offset-1"
             style={{
               offsetPath: `path("${token.path}")`,
               offsetRotate: "0deg",

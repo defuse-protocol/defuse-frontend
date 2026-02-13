@@ -52,7 +52,7 @@ function StepDot({
         "size-3 rounded-full transition-colors duration-300 flex items-center justify-center",
         isError && "bg-red-500",
         !isError && isComplete && "bg-green-500",
-        !isError && !isComplete && "bg-gray-200"
+        !isError && !isComplete && "bg-surface-hover"
       )}
     >
       {isComplete && !isError && <CheckIcon className="size-2 text-white" />}
@@ -104,7 +104,7 @@ export function ProgressStep({
             "bg-red-500": status === "error",
             "bg-green-500": status === "success",
             "bg-sky-400": status === "pending" && !isCurrent && !isFuture,
-            "bg-gray-200": status === "pending" && (isCurrent || isFuture),
+            "bg-surface-hover": status === "pending" && (isCurrent || isFuture),
           })}
         />
       )}
@@ -120,7 +120,7 @@ export function ProgressStep({
             "bg-red-500": status === "error",
             "bg-green-500": status === "success",
             "bg-sky-400": status === "pending" && !isFuture,
-            "bg-gray-200": status === "pending" && isFuture,
+            "bg-surface-hover": status === "pending" && isFuture,
           }
         )}
       >
@@ -153,7 +153,7 @@ export function ProgressStep({
             "text-red-500": status === "error",
             "text-green-500": status === "success",
             "text-sky-400": status === "pending" && !isFuture,
-            "text-gray-400": status === "pending" && isFuture,
+            "text-fg-tertiary": status === "pending" && isFuture,
           }
         )}
       >
@@ -241,7 +241,7 @@ export function HorizontalProgressDots<TStage extends string>({
               <div
                 className={clsx(
                   "w-4 h-px transition-colors duration-300",
-                  isDone ? "bg-green-500" : "bg-gray-200"
+                  isDone ? "bg-green-500" : "bg-surface-hover"
                 )}
               />
             )}
@@ -253,7 +253,7 @@ export function HorizontalProgressDots<TStage extends string>({
           "ml-1 text-xs transition-colors duration-300",
           isError && "text-red-600",
           !isError && isSuccess && "text-green-600",
-          !isError && !isSuccess && "text-gray-500"
+          !isError && !isSuccess && "text-fg-secondary"
         )}
       >
         {isError ? "Failed" : stageLabelsShort[displayStage]}

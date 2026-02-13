@@ -17,7 +17,7 @@ export function CopyButton({ text, ariaLabel, className }: CopyButtonProps) {
           type="button"
           aria-label={ariaLabel}
           className={cn(
-            "flex items-center justify-center size-5 text-gray-400 hover:text-gray-700",
+            "flex items-center justify-center size-5 text-fg-tertiary hover:text-fg",
             className
           )}
         >

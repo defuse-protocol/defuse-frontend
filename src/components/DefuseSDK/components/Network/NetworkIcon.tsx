@@ -15,7 +15,7 @@ export function NetworkIcon({
   return (
     <div
       className={clsx(
-        "relative overflow-hidden flex justify-center items-center rounded-full outline-1 outline-gray-900/10 -outline-offset-1 shrink-0",
+        "relative overflow-hidden flex justify-center items-center rounded-full outline-1 outline-fg/10 -outline-offset-1 shrink-0",
         sizeClassName
       )}
     >

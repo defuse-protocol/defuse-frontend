@@ -99,8 +99,8 @@ function NavItem({ label, href, icon: Icon }: NavItemType) {
       className={cn(
         "flex items-center gap-4 py-3.5 px-3.5 rounded-2xl",
         isActive(href)
-          ? "text-white bg-gray-700"
-          : "text-gray-400 hover:text-white hover:bg-gray-700"
+          ? "text-sidebar-fg bg-sidebar-active"
+          : "text-sidebar-muted hover:text-sidebar-fg hover:bg-sidebar-hover"
       )}
     >
       <span className="w-6 flex items-center justify-center">

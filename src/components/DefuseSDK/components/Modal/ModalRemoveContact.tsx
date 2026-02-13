@@ -68,10 +68,10 @@ const ModalRemoveContact = ({
       }}
     >
       <form onSubmit={handleSubmit(onSubmit)}>
-        <h2 className="mt-2 text-2xl/7 font-bold text-gray-900 tracking-tight text-center text-balance">
+        <h2 className="mt-2 text-2xl/7 font-bold text-fg tracking-tight text-center text-balance">
           Remove "{contact?.name}"?
         </h2>
-        <p className="mt-2 text-base/5 text-gray-500 font-medium text-center text-balance">
+        <p className="mt-2 text-base/5 text-fg-secondary font-medium text-center text-balance">
           This contact will be removed from your saved contacts. You can add it
           again anytime.
         </p>

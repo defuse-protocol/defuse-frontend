@@ -31,7 +31,7 @@ const AssetComboIcon = ({
     <div className={clsx("relative inline-block", className)} style={style}>
       <div
         className={clsx(
-          "relative overflow-hidden flex justify-center items-center rounded-full outline-1 outline-gray-900/10 -outline-offset-1",
+          "relative overflow-hidden flex justify-center items-center rounded-full outline-1 outline-fg/10 -outline-offset-1",
           sizeClassName
         )}
       >
@@ -39,7 +39,7 @@ const AssetComboIcon = ({
           <img
             src={icon}
             alt=""
-            className="size-full object-contain bg-white"
+            className="size-full object-contain bg-surface-card"
           />
         ) : (
           <TokenIconPlaceholder />
@@ -49,7 +49,7 @@ const AssetComboIcon = ({
       {showChainIcon && chainIcon && resolvedTheme && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="absolute -right-1.5 -bottom-1.5 z-20 size-5 bg-white rounded-full flex items-center justify-center">
+            <div className="absolute -right-1.5 -bottom-1.5 z-20 size-5 bg-surface-card rounded-full flex items-center justify-center">
               <Image
                 width={16}
                 height={16}

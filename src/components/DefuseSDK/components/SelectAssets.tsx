@@ -74,7 +74,7 @@ const SelectAssets = ({
   if (!handleSelect) {
     return (
       <div
-        className="rounded-full outline-1 outline-gray-900/10 -outline-offset-1 flex items-center gap-1.5 p-1 pr-3 transition-colors"
+        className="rounded-full outline-1 outline-fg/10 -outline-offset-1 flex items-center gap-1.5 p-1 pr-3 transition-colors"
         style={{
           backgroundColor: hexToRgba(hex, 0.07) ?? undefined,
         }}
@@ -91,7 +91,7 @@ const SelectAssets = ({
           sizeClassName="size-7"
         />
 
-        <span className="text-base text-gray-900 font-semibold leading-none">
+        <span className="text-base text-fg font-semibold leading-none">
           {selected?.symbol}
         </span>
       </div>
@@ -104,7 +104,7 @@ const SelectAssets = ({
       onClick={handleAssetsSelect}
       data-testid={dataTestId}
       disabled={disabled}
-      className="rounded-full outline-1 outline-gray-900/10 -outline-offset-1 flex items-center gap-1.5 p-1 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-gray-900/80 transition-colors"
+      className="rounded-full outline-1 outline-fg/10 -outline-offset-1 flex items-center gap-1.5 p-1 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-fg transition-colors"
       style={{
         backgroundColor: hexToRgba(hex, 0.07) ?? undefined,
       }}
@@ -122,10 +122,10 @@ const SelectAssets = ({
       />
 
       <span className="flex items-center gap-1">
-        <span className="text-base text-gray-900 font-semibold leading-none">
+        <span className="text-base text-fg font-semibold leading-none">
           {selected?.symbol ?? "Select token"}
         </span>
-        <ChevronDownIcon className="size-4 text-gray-700" />
+        <ChevronDownIcon className="size-4 text-fg" />
       </span>
     </button>
   )

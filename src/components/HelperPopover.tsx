@@ -8,7 +8,7 @@ const HelperPopover = ({ children }: { children: ReactNode }) => {
 
   return (
     <Popover.Root>
-      <Popover.Trigger className="size-7 shrink-0 flex items-center justify-center text-gray-500 hover:text-gray-700 transition-colors bg-transparent hover:bg-gray-100 rounded-lg focus-visible:outline-none focus-visible:bg-gray-100 focus-visible:text-gray-700 data-[state=open]:bg-gray-100 data-[state=open]:text-gray-700">
+      <Popover.Trigger className="size-7 shrink-0 flex items-center justify-center text-fg-secondary hover:text-fg transition-colors bg-transparent hover:bg-surface-active rounded-lg focus-visible:outline-none focus-visible:bg-surface-active focus-visible:text-fg data-[state=open]:bg-surface-active data-[state=open]:text-fg">
         <QuestionMarkCircleIcon className="size-4" />
       </Popover.Trigger>
       <Popover.Portal>

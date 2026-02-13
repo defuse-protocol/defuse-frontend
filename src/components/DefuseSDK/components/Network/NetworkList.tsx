@@ -39,7 +39,7 @@ export const NetworkList = ({
   <div>
     <div className="flex items-center gap-2">
       {title && (
-        <h3 className="text-gray-500 text-sm/6 font-medium">{title}</h3>
+        <h3 className="text-fg-secondary text-sm/6 font-medium">{title}</h3>
       )}
 
       {additionalInfo && (
@@ -47,7 +47,7 @@ export const NetworkList = ({
           <TooltipNew.Trigger>
             <button
               type="button"
-              className="flex items-center justify-center size-6 rounded-lg shrink-0 text-gray-400 hover:bg-gray-200 hover:text-gray-700"
+              className="flex items-center justify-center size-6 rounded-lg shrink-0 text-fg-tertiary hover:bg-surface-hover hover:text-fg"
               aria-label={additionalInfo}
             >
               <InformationCircleIcon className="size-4" />
@@ -128,16 +128,16 @@ const NetworkItem = ({
 }) => (
   <div
     className={clsx(
-      "relative flex items-center gap-3 py-3 -mx-4 px-4 rounded-2xl hover:bg-gray-100",
+      "relative flex items-center gap-3 py-3 -mx-4 px-4 rounded-2xl hover:bg-surface-active",
       {
-        "bg-gray-100": selected,
+        "bg-surface-active": selected,
         "opacity-50 pointer-events-none": disabled,
       }
     )}
   >
     <div className="flex items-center gap-3 flex-1">
       {icon}
-      <div className="text-base/none font-semibold text-gray-900">{label}</div>
+      <div className="text-base/none font-semibold text-fg">{label}</div>
     </div>
 
     {onClick && !disabled && (

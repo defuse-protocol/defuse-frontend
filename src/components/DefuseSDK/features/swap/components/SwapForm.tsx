@@ -470,7 +470,7 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                 // Keep focus on the input
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={switchTokens}
-                className="size-9 flex items-center justify-center bg-white border hover:border-gray-300 transition-colors duration-100 border-gray-200 rounded-lg text-gray-400 hover:text-gray-500"
+                className="size-9 flex items-center justify-center bg-surface-card border hover:border-border-strong transition-colors duration-100 border-border rounded-lg text-fg-tertiary hover:text-fg-secondary"
                 data-testid="swap-form-switch-tokens-button"
                 disabled={amountOutLoading || isSubmitting || isSubmitting1cs}
                 aria-label="Switch tokens"
@@ -544,8 +544,8 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
 
           {isLongLoading && (
             <div className="flex items-center justify-center mt-4 gap-2 animate-in fade-in duration-200 slide-in-from-top-1 zoom-in-97">
-              <MagnifyingGlassIcon className="size-4 shrink-0 text-gray-500" />
-              <p className="text-sm font-semibold text-gray-500">
+              <MagnifyingGlassIcon className="size-4 shrink-0 text-fg-secondary" />
+              <p className="text-sm font-semibold text-fg-secondary">
                 Searching for more liquidity...
               </p>
             </div>

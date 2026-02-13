@@ -53,12 +53,12 @@ const SearchBar = ({
         id={id}
         ref={ref}
         type="text"
-        className="col-start-1 row-start-1 block w-full rounded-xl text-sm bg-white py-2.5 px-9 text-gray-900 outline-1 -outline-offset-1 outline-gray-200 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-gray-900 ring-0 border-0 font-medium"
+        className="col-start-1 row-start-1 block w-full rounded-xl text-sm bg-surface-card py-2.5 px-9 text-fg outline-1 -outline-offset-1 outline-border placeholder:text-fg-tertiary focus:outline-2 focus:-outline-offset-2 focus:outline-fg ring-0 border-0 font-medium"
         placeholder={placeholder}
         {...inputProps}
       />
       <Icon
-        className="pointer-events-none col-start-1 row-start-1 ml-2 size-5 self-center text-gray-400"
+        className="pointer-events-none col-start-1 row-start-1 ml-2 size-5 self-center text-fg-tertiary"
         aria-hidden
       />
       {loading ? (
@@ -68,7 +68,7 @@ const SearchBar = ({
       ) : hasValue && onClear ? (
         <button
           type="button"
-          className="col-start-1 row-start-1 size-7 mr-1 self-center rounded-lg justify-self-end flex items-center justify-center text-gray-400 hover:text-gray-600"
+          className="col-start-1 row-start-1 size-7 mr-1 self-center rounded-lg justify-self-end flex items-center justify-center text-fg-tertiary hover:text-fg-secondary"
           onClick={() => {
             if (ref.current) {
               ref.current.value = ""

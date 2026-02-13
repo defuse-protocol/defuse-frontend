@@ -18,9 +18,9 @@ const Card = ({
 }) => (
   <div
     className={clsx(
-      "relative rounded-3xl bg-white border border-gray-200 p-4",
+      "relative rounded-3xl bg-surface-card border border-border p-4",
       {
-        "hover:border-gray-700 hover:outline hover:outline-gray-700 has-focus-visible:border-gray-700 has-focus-visible:outline has-focus-visible:outline-gray-700":
+        "hover:border-border-strong hover:outline hover:outline-border-strong has-focus-visible:border-fg has-focus-visible:outline has-focus-visible:outline-fg":
           !disabled,
       },
       className
@@ -39,12 +39,12 @@ export default function DepositPage() {
         <Card>
           <Link
             href="/deposit/crypto"
-            className="text-gray-900 text-lg font-semibold focus-visible:outline-none"
+            className="text-fg text-lg font-semibold focus-visible:outline-none"
           >
             <span className="absolute inset-0 rounded-3xl" />
             Deposit crypto
           </Link>
-          <p className="text-gray-500 text-sm font-medium mt-1">
+          <p className="text-fg-secondary text-sm font-medium mt-1">
             Send crypto from an external wallet or exchange
           </p>
 
@@ -67,17 +67,17 @@ export default function DepositPage() {
                 {verified ? (
                   <Link
                     href="/deposit/bank"
-                    className="text-gray-900 text-lg font-semibold focus-visible:outline-none"
+                    className="text-fg text-lg font-semibold focus-visible:outline-none"
                   >
                     <span className="absolute inset-0 rounded-3xl" />
                     Deposit via bank transfer
                   </Link>
                 ) : (
-                  <div className="text-gray-900 text-lg font-semibold">
+                  <div className="text-fg text-lg font-semibold">
                     Deposit via bank transfer
                   </div>
                 )}
-                <p className="text-gray-500 text-sm font-medium mt-1 text-balance">
+                <p className="text-fg-secondary text-sm font-medium mt-1 text-balance">
                   Send USD or EUR from your bank and receive stablecoins
                 </p>
               </div>
@@ -97,8 +97,8 @@ export default function DepositPage() {
           </Card>
 
           {!verified && (
-            <div className="p-4 pt-3 bg-gray-100 rounded-b-3xl border border-gray-200 -mt-6">
-              <p className="text-sm font-medium text-gray-500 text-balance mt-6">
+            <div className="p-4 pt-3 bg-surface-active rounded-b-3xl border border-border -mt-6">
+              <p className="text-sm font-medium text-fg-secondary text-balance mt-6">
                 Bank transfers require identity verification. This usually takes
                 3–5 minutes.
               </p>

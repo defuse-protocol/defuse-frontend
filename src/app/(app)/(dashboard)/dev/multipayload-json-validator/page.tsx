@@ -143,7 +143,7 @@ export default function JsonValidatorPage() {
         <div>
           <h2 className="text-lg font-semibold mb-2">Validation Result</h2>
           {!validationResult ? (
-            <div className="h-64 p-2 border rounded-sm flex items-center justify-center text-gray-500">
+            <div className="h-64 p-2 border rounded-sm flex items-center justify-center text-fg-secondary">
               Enter JSON to validate
             </div>
           ) : !validationResult.errors ? (

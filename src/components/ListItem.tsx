@@ -37,11 +37,11 @@ function ListItem({
     <div
       className={clsx(
         "relative -mx-4 px-4 rounded-2xl group",
-        highlight && "bg-gray-100",
+        highlight && "bg-surface-active",
         isInteractive &&
           (isOpen
-            ? "bg-gray-100"
-            : "hover:bg-gray-100 focus-within:bg-gray-100"),
+            ? "bg-surface-active"
+            : "hover:bg-surface-active focus-within:bg-surface-active"),
         className
       )}
       data-testid={dataTestId}
@@ -51,7 +51,7 @@ function ListItem({
         {hasPopover && (
           <ChevronDownIcon
             className={clsx(
-              "size-5 shrink-0 text-gray-500 group-hover:text-gray-900 group-data-[state=open]:text-gray-900 transition-transform duration-100 ease-in-out",
+              "size-5 shrink-0 text-fg-secondary group-hover:text-fg group-data-[state=open]:text-fg transition-transform duration-100 ease-in-out",
               isOpen && "rotate-180"
             )}
           />
@@ -147,10 +147,7 @@ const Title = ({
   className?: string
 }) => (
   <div
-    className={cn(
-      "text-base/5 font-semibold text-gray-900 max-w-full",
-      className
-    )}
+    className={cn("text-base/5 font-semibold text-fg max-w-full", className)}
   >
     {children}
   </div>
@@ -163,7 +160,7 @@ const Subtitle = ({
   children: ReactNode
   className?: string
 }) => (
-  <div className={cn("text-sm/4 font-medium text-gray-500", className)}>
+  <div className={cn("text-sm/4 font-medium text-fg-secondary", className)}>
     {children}
   </div>
 )

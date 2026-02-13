@@ -86,7 +86,7 @@ export function OtcTakerTrades({ tokenList }: OtcTakerTradesProps) {
 
   return (
     <div className="mt-6">
-      <h3 className="text-base font-medium text-gray-500">Deals taken</h3>
+      <h3 className="text-base font-medium text-fg-secondary">Deals taken</h3>
       <div className="flex flex-col gap-1 mt-2">
         {trades.map((trade) => (
           <OtcTakerTradeItem
@@ -181,7 +181,7 @@ function OtcTakerTradeItem({
     <ListItem onClick={handleClick} dataTestId="otc-taker-trade-item">
       <div className="relative flex gap-1 items-start">
         <AssetComboIcon icon={tokenIn?.icon} sizeClassName="size-7" />
-        <CurvedArrowIcon className="size-3.5 text-gray-400 absolute -bottom-0.5 left-4.5 -rotate-23" />
+        <CurvedArrowIcon className="size-3.5 text-fg-tertiary absolute -bottom-0.5 left-4.5 -rotate-23" />
         <AssetComboIcon icon={tokenOut?.icon} sizeClassName="size-10" />
       </div>
 
@@ -251,16 +251,16 @@ function ModalTakerTradeDetails({
         <h2 className="mt-5 text-2xl/7 font-bold tracking-tight text-center">
           Deal completed
         </h2>
-        <p className="mt-2 text-base/5 font-medium text-gray-500 text-center text-balance">
+        <p className="mt-2 text-base/5 font-medium text-fg-secondary text-center text-balance">
           This deal was successfully executed.
         </p>
       </div>
 
-      <dl className="mt-7 pt-5 border-t border-gray-200 space-y-2">
+      <dl className="mt-7 pt-5 border-t border-border space-y-2">
         <div className="flex items-center justify-between gap-2">
-          <dt className="text-sm/5 text-gray-500 font-medium">You sent</dt>
+          <dt className="text-sm/5 text-fg-secondary font-medium">You sent</dt>
           <dd className="flex items-center gap-1 justify-end">
-            <span className="text-sm/5 text-gray-900 font-semibold">
+            <span className="text-sm/5 text-fg font-semibold">
               {formatTokenValue(amountIn.amount, amountIn.decimals, {
                 fractionDigits: 4,
               })}{" "}
@@ -271,9 +271,11 @@ function ModalTakerTradeDetails({
         </div>
 
         <div className="flex items-center justify-between gap-2">
-          <dt className="text-sm/5 text-gray-500 font-medium">You received</dt>
+          <dt className="text-sm/5 text-fg-secondary font-medium">
+            You received
+          </dt>
           <dd className="flex items-center gap-1 justify-end">
-            <span className="text-sm/5 text-gray-900 font-semibold">
+            <span className="text-sm/5 text-fg font-semibold">
               {formatTokenValue(amountOut.amount, amountOut.decimals, {
                 fractionDigits: 4,
               })}{" "}
@@ -284,11 +286,11 @@ function ModalTakerTradeDetails({
         </div>
       </dl>
 
-      <dl className="mt-5 pt-5 border-t border-gray-200 space-y-4">
+      <dl className="mt-5 pt-5 border-t border-border space-y-4">
         <div className="flex justify-between">
-          <dt className="text-sm text-gray-500 font-medium">Deal ID</dt>
+          <dt className="text-sm text-fg-secondary font-medium">Deal ID</dt>
           <dd className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-gray-900">
+            <span className="text-sm font-semibold text-fg">
               {midTruncate(tradeId, 16)}
             </span>
             <CopyButton text={tradeId} ariaLabel="Copy deal ID" />
@@ -297,11 +299,11 @@ function ModalTakerTradeDetails({
 
         {intentHashes.length > 0 && (
           <div className="flex justify-between">
-            <dt className="text-sm text-gray-500 font-medium">Intent</dt>
+            <dt className="text-sm text-fg-secondary font-medium">Intent</dt>
             <dd className="flex flex-col items-end gap-1">
               {intentHashes.map((intentHash) => (
                 <div key={intentHash} className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-gray-900">
+                  <span className="text-sm font-semibold text-fg">
                     {midTruncate(intentHash, 16)}
                   </span>
                   <CopyButton text={intentHash} ariaLabel="Copy intent hash" />
@@ -313,16 +315,16 @@ function ModalTakerTradeDetails({
 
         {isPending && (
           <div className="flex justify-between">
-            <dt className="text-sm text-gray-500 font-medium">
+            <dt className="text-sm text-fg-secondary font-medium">
               Transaction hash
             </dt>
-            <dd className="text-sm text-gray-400">Loading...</dd>
+            <dd className="text-sm text-fg-tertiary">Loading...</dd>
           </div>
         )}
 
         {txUrl != null && data?.txHash && (
           <div className="flex items-center justify-between">
-            <dt className="text-sm text-gray-500 font-medium">
+            <dt className="text-sm text-fg-secondary font-medium">
               Transaction hash
             </dt>
             <dd className="flex items-center gap-2">
@@ -330,7 +332,7 @@ function ModalTakerTradeDetails({
                 href={txUrl}
                 rel="noopener noreferrer"
                 target="_blank"
-                className="text-sm font-semibold text-gray-900 hover:underline"
+                className="text-sm font-semibold text-fg hover:underline"
               >
                 {midTruncate(data.txHash, 16)}
               </a>

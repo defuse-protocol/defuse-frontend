@@ -20,13 +20,13 @@ const EmptyState = ({
 )
 
 const Title = ({ children }: { children: ReactNode }) => (
-  <h3 className="text-xl font-semibold text-gray-900 text-center tracking-tight text-balance">
+  <h3 className="text-xl font-semibold text-fg text-center tracking-tight text-balance">
     {children}
   </h3>
 )
 
 const Description = ({ children }: { children: ReactNode }) => (
-  <p className="text-base text-gray-500 mt-1 font-medium text-center text-balance">
+  <p className="text-base text-fg-secondary mt-1 font-medium text-center text-balance">
     {children}
   </p>
 )

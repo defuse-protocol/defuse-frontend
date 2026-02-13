@@ -227,7 +227,7 @@ const ModalAddEditContact = ({
           <div
             className={clsx(
               "pb-5 border-b -mx-5 px-5 transition-colors",
-              isScrolled ? "border-gray-200" : "border-transparent"
+              isScrolled ? "border-border" : "border-transparent"
             )}
           >
             <SearchBar
@@ -268,14 +268,14 @@ const ModalAddEditContact = ({
             <div>
               <label
                 className={clsx(
-                  "flex items-center gap-3 rounded-3xl bg-white p-3 cursor-text outline-1 -outline-offset-1 focus-within:outline-2 focus-within:-outline-offset-2",
+                  "flex items-center gap-3 rounded-3xl bg-surface-card p-3 cursor-text outline-1 -outline-offset-1 focus-within:outline-2 focus-within:-outline-offset-2",
                   errors.name
                     ? "outline-red-500 focus-within:outline-red-500"
-                    : "outline-gray-200 focus-within:outline-gray-900"
+                    : "outline-border focus-within:outline-fg"
                 )}
               >
-                <div className="bg-gray-100 rounded-full size-10 shrink-0 flex items-center justify-center">
-                  <UserCircleIcon className="size-5 text-gray-500" />
+                <div className="bg-surface-active rounded-full size-10 shrink-0 flex items-center justify-center">
+                  <UserCircleIcon className="size-5 text-fg-secondary" />
                 </div>
                 <div className="flex-1">
                   <span className="sr-only">Name</span>
@@ -287,7 +287,7 @@ const ModalAddEditContact = ({
                     data-form-type="other"
                     data-lpignore="true"
                     data-1p-ignore="true"
-                    className="block w-full text-gray-900 font-semibold placeholder:text-gray-400 focus:outline-none text-base leading-none ring-0 border-none p-0"
+                    className="block w-full text-fg font-semibold placeholder:text-fg-tertiary focus:outline-none text-base leading-none ring-0 border-none p-0"
                     {...register("name", {
                       required: "Enter the name of the contact.",
                     })}
@@ -304,14 +304,14 @@ const ModalAddEditContact = ({
             <div>
               <label
                 className={clsx(
-                  "flex items-center gap-3 rounded-3xl bg-white p-3 cursor-text outline-1 -outline-offset-1 focus-within:outline-2 focus-within:-outline-offset-2",
+                  "flex items-center gap-3 rounded-3xl bg-surface-card p-3 cursor-text outline-1 -outline-offset-1 focus-within:outline-2 focus-within:-outline-offset-2",
                   errors.address
                     ? "outline-red-500 focus-within:outline-red-500"
-                    : "outline-gray-200 focus-within:outline-gray-900"
+                    : "outline-border focus-within:outline-fg"
                 )}
               >
-                <div className="bg-gray-100 rounded-full size-10 shrink-0 flex items-center justify-center">
-                  <WalletIcon className="size-5 text-gray-500" />
+                <div className="bg-surface-active rounded-full size-10 shrink-0 flex items-center justify-center">
+                  <WalletIcon className="size-5 text-fg-secondary" />
                 </div>
                 <div className="flex-1">
                   <span className="sr-only">Address</span>
@@ -323,7 +323,7 @@ const ModalAddEditContact = ({
                     data-form-type="other"
                     data-lpignore="true"
                     data-1p-ignore="true"
-                    className="block w-full text-gray-900 font-semibold placeholder:text-gray-400 focus:outline-none text-base leading-none ring-0 border-none p-0"
+                    className="block w-full text-fg font-semibold placeholder:text-fg-tertiary focus:outline-none text-base leading-none ring-0 border-none p-0"
                     {...register("address", {
                       required: "Enter the address of the contact.",
                     })}
@@ -342,10 +342,10 @@ const ModalAddEditContact = ({
                 type="button"
                 onClick={() => setSelectNetworkOpen(true)}
                 className={clsx(
-                  "w-full rounded-3xl bg-white border p-3 text-left flex items-center gap-3 focus-visible:outline focus-visible:outline-gray-700",
+                  "w-full rounded-3xl bg-surface-card border p-3 text-left flex items-center gap-3 focus-visible:outline focus-visible:outline-fg",
                   errors.blockchain
                     ? "border-red-500 focus-visible:border-red-500"
-                    : "border-gray-200 hover:border-gray-700 hover:outline hover:outline-gray-700 focus-visible:border-gray-700"
+                    : "border-border hover:border-fg hover:outline hover:outline-fg focus-visible:border-fg"
                 )}
               >
                 <span className="flex items-center gap-3 flex-1">
@@ -358,7 +358,7 @@ const ModalAddEditContact = ({
                     <span
                       className={clsx(
                         "text-base/none font-semibold",
-                        networkData ? "text-gray-900" : "text-gray-400"
+                        networkData ? "text-fg" : "text-fg-tertiary"
                       )}
                     >
                       {networkData?.label ?? "Select network"}

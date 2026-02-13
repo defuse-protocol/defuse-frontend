@@ -9,7 +9,7 @@ const DepositPromo = ({ className }: { className?: string }) => (
       <UsdtIcon className="size-10 shrink-0 ring-2 -ring-offset-2 ring-white rounded-full" />
       <UsdcIcon className="size-10 shrink-0 ring-2 -ring-offset-2 ring-white rounded-full" />
     </div>
-    <p className="text-xs/4 text-gray-500 font-medium">
+    <p className="text-xs/4 text-fg-secondary font-medium">
       Deposit 100+ coins
       <br /> across 30+ networks
     </p>

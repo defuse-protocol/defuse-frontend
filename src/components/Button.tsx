@@ -56,11 +56,11 @@ const Button = forwardRef<Ref, Props>(function Button(
     "items-center relative flex shrink-0 focus-visible:outline-2 leading-none tracking-tight disabled:cursor-not-allowed",
     align === "center" ? "justify-center" : "justify-start",
     variant === "primary" &&
-      "bg-gray-900 text-white hover:not-disabled:bg-gray-700 outline-gray-900 disabled:bg-gray-200 disabled:text-gray-400 outline-offset-2 focus-visible:bg-gray-700",
+      "bg-btn-primary-bg text-btn-primary-fg hover:not-disabled:bg-btn-primary-bg-hover outline-btn-primary-bg disabled:bg-btn-primary-bg-disabled disabled:text-btn-primary-fg-disabled outline-offset-2 focus-visible:bg-btn-primary-bg-hover",
     variant === "secondary" &&
-      "bg-gray-100 text-gray-700 hover:not-disabled:bg-gray-200 outline-gray-900 disabled:text-gray-400 -outline-offset-2",
+      "bg-btn-secondary-bg text-btn-secondary-fg hover:not-disabled:bg-btn-secondary-bg-hover outline-btn-primary-bg disabled:text-btn-secondary-fg-disabled -outline-offset-2",
     variant === "outline" &&
-      "bg-white text-gray-700 border border-gray-200 hover:not-disabled:bg-gray-50 hover:not-disabled:border-gray-300 outline-gray-900 -outline-offset-2",
+      "bg-btn-outline-bg text-btn-outline-fg border border-btn-outline-border hover:not-disabled:bg-btn-outline-bg-hover hover:not-disabled:border-btn-outline-border-hover outline-btn-primary-bg -outline-offset-2",
     variant === "destructive" &&
       "bg-red-600 text-white hover:not-disabled:bg-red-700 outline-red-600 disabled:opacity-30 outline-offset-2",
     variant === "destructive-soft" &&

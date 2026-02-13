@@ -28,7 +28,7 @@ const ShieldPromo = () => {
               Shielded account
             </h3>
           </div>
-          <p className="text-gray-400 text-sm text-balance font-medium">
+          <p className="text-fg-tertiary text-sm text-balance font-medium">
             Your private vault. Deposit, swap, and transfer—visible only to you.
           </p>
           <Button
@@ -74,7 +74,7 @@ const ShieldPromo = () => {
           </span>
         }
       >
-        <div className="text-gray-500 text-sm font-medium space-y-4">
+        <div className="text-fg-secondary text-sm font-medium space-y-4">
           <p>
             Coming soon your NEAR Intents account will have offer a unique
             capability, that we call <strong>Shielded Mode</strong>.

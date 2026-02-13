@@ -239,7 +239,7 @@ export function ActiveDeposit({
               <TooltipNew.Trigger>
                 <button
                   type="button"
-                  className="flex items-center justify-center size-6 rounded-lg shrink-0 text-gray-400 hover:bg-gray-200 hover:text-gray-700"
+                  className="flex items-center justify-center size-6 rounded-lg shrink-0 text-fg-tertiary hover:bg-border hover:text-fg"
                   aria-label="Additional information"
                 >
                   <InformationCircleIcon className="size-4" />

@@ -39,21 +39,21 @@ export default function EarnPage() {
 
       <section className="mt-9 flex justify-between pointer-events-none select-none opacity-50">
         <div>
-          <h2 className="text-base text-gray-500 font-medium">
+          <h2 className="text-base text-fg-secondary font-medium">
             Earning balance
           </h2>
           <FormattedCurrency
             value={1239.23}
             formatOptions={{ currency: "USD" }}
-            className="mt-1 font-bold text-4xl tracking-tight text-gray-900"
+            className="mt-1 font-bold text-4xl tracking-tight text-fg"
             centsClassName="text-2xl"
           />
         </div>
         <div>
-          <h2 className="text-base text-gray-500 font-medium text-right">
+          <h2 className="text-base text-fg-secondary font-medium text-right">
             Average APR
           </h2>
-          <div className="mt-1 font-bold text-4xl tracking-tight text-gray-900 text-right">
+          <div className="mt-1 font-bold text-4xl tracking-tight text-fg text-right">
             8.2%
           </div>
         </div>
@@ -62,7 +62,7 @@ export default function EarnPage() {
       <section className="relative mt-9 pointer-events-none select-none opacity-50 flex flex-col gap-1">
         {PLACEHOLDER_VAULTS.map(({ token, icon: Icon, apr, balance }) => (
           <ListItem key={token}>
-            <div className="rounded-full overflow-hidden size-10 shrink-0 outline-1 -outline-offset-1 outline-gray-900/10">
+            <div className="rounded-full overflow-hidden size-10 shrink-0 outline-1 -outline-offset-1 outline-fg/10">
               <Icon className="size-full" />
             </div>
             <ListItem.Content>
@@ -73,7 +73,7 @@ export default function EarnPage() {
             </ListItem.Content>
             <ListItem.Content align="end">
               <ListItem.Title>
-                {apr} <span className="text-gray-500">APR</span>
+                {apr} <span className="text-fg-secondary">APR</span>
               </ListItem.Title>
             </ListItem.Content>
           </ListItem>

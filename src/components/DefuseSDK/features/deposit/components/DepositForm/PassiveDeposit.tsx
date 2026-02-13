@@ -46,12 +46,12 @@ export function PassiveDeposit({
 
   return (
     <>
-      <div className="bg-white rounded-3xl border border-gray-200 p-4 mt-6 flex flex-col gap-4">
+      <div className="bg-surface-card rounded-3xl border border-border p-4 mt-6 flex flex-col gap-4">
         <h2 className="flex flex-col items-start gap-1">
-          <span className="font-semibold text-base/none text-gray-900">
+          <span className="font-semibold text-base/none text-fg">
             Deposit {token.symbol}
           </span>
-          <span className="font-medium text-base/none text-gray-400">
+          <span className="font-medium text-base/none text-fg-tertiary">
             from the{" "}
             <span className="capitalize">
               {chainNameToNetworkName(network)}
@@ -61,12 +61,12 @@ export function PassiveDeposit({
         </h2>
 
         <div
-          className="flex items-center justify-center bg-gray-900/50 rounded-2xl p-4 outline-2 outline-gray-900/20 -outline-offset-2 transition-colors"
+          className="flex items-center justify-center bg-gray-900/50 rounded-2xl p-4 outline-2 outline-fg/20 -outline-offset-2 transition-colors"
           style={{
             backgroundColor: hexToRgba(hex, 0.8) ?? undefined,
           }}
         >
-          <div className="size-48 flex items-center justify-center border-5 rounded-3xl bg-white border-gray-900">
+          <div className="size-48 flex items-center justify-center border-5 rounded-3xl bg-white border-fg">
             {depositAddress != null ? (
               <QRCodeSVG
                 value={depositAddress}
@@ -83,16 +83,16 @@ export function PassiveDeposit({
         <dl className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex flex-col items-start gap-1">
-              <dt className="font-semibold text-base/none text-gray-900">
+              <dt className="font-semibold text-base/none text-fg">
                 To this deposit address
               </dt>
               {depositAddress != null ? (
-                <dd className="font-medium text-base/none text-gray-400">
+                <dd className="font-medium text-base/none text-fg-tertiary">
                   <span aria-hidden="true">{truncatedAddress}</span>
                   <span className="sr-only">{depositAddress}</span>
                 </dd>
               ) : (
-                <span className="w-32 h-4 bg-gray-200 rounded-sm animate-pulse" />
+                <span className="w-32 h-4 bg-border rounded-sm animate-pulse" />
               )}
             </div>
             <Copy text={depositAddress ?? ""}>
@@ -114,10 +114,10 @@ export function PassiveDeposit({
           {memo != null && (
             <div className="flex items-center justify-between">
               <div className="flex flex-col items-start gap-1">
-                <dt className="font-semibold text-base/none text-gray-900">
+                <dt className="font-semibold text-base/none text-fg">
                   Transaction memo (required)
                 </dt>
-                <dd className="font-medium text-base/none text-gray-400">
+                <dd className="font-medium text-base/none text-fg-tertiary">
                   {memo}
                 </dd>
               </div>
@@ -143,9 +143,9 @@ export function PassiveDeposit({
       <div className="mt-6 space-y-4">
         <div className="flex items-start gap-3">
           <div className="flex items-center justify-center h-5 shrink-0">
-            <CheckCircleIcon className="size-4 text-gray-500" />
+            <CheckCircleIcon className="size-4 text-fg-secondary" />
           </div>
-          <span className="text-sm font-medium text-gray-500">
+          <span className="text-sm font-medium text-fg-secondary">
             Only deposit{" "}
             {network === "near" &&
             token.defuseAssetId === "nep141:wrap.near" ? (
@@ -169,10 +169,10 @@ export function PassiveDeposit({
 
         <div className="flex items-start gap-3">
           <div className="flex items-center justify-center h-5 shrink-0">
-            <CheckCircleIcon className="size-4 text-gray-500" />
+            <CheckCircleIcon className="size-4 text-fg-secondary" />
           </div>
-          <span className="text-sm font-medium text-gray-500">
-            <span className="text-gray-900 font-semibold">
+          <span className="text-sm font-medium text-fg-secondary">
+            <span className="text-fg font-semibold">
               Always double-check your deposit address
             </span>
             , as it may change without notice.
@@ -182,11 +182,11 @@ export function PassiveDeposit({
         {minDepositAmount != null && (
           <div className="flex items-start gap-3">
             <div className="flex items-center justify-center h-5 shrink-0">
-              <CheckCircleIcon className="size-4 text-gray-500" />
+              <CheckCircleIcon className="size-4 text-fg-secondary" />
             </div>
-            <span className="text-sm font-medium text-gray-500">
+            <span className="text-sm font-medium text-fg-secondary">
               Minimum deposit is{" "}
-              <span className="text-gray-900 font-semibold">
+              <span className="text-fg font-semibold">
                 {formatTokenValue(minDepositAmount, tokenDeployment.decimals)}{" "}
                 {token.symbol}
               </span>
@@ -211,7 +211,7 @@ function TokenAddressPopover({
 }) {
   return (
     <Popover.Root>
-      <Popover.Trigger className="text-gray-900 font-semibold underline hover:text-gray-700">
+      <Popover.Trigger className="text-fg font-semibold underline hover:text-fg/80">
         {symbol}
       </Popover.Trigger>
       <Popover.Portal>

@@ -106,7 +106,7 @@ export function MostTradableTokens({
 
   return (
     <div className="mb-8">
-      <h3 className="text-gray-500 text-sm/6 font-medium">
+      <h3 className="text-fg-secondary text-sm/6 font-medium">
         Most traded tokens
       </h3>
 
@@ -155,8 +155,8 @@ function TokenList({
             key={`${selectItemToken.token.symbol}-${isBaseToken(selectItemToken.token) ? selectItemToken.token.originChainName : "unified"}`}
             type="button"
             onClick={() => onTokenSelect(selectItemToken)}
-            // className="flex flex-col text-center items-center justify-center rounded-xl py-2 px-1.5 gap-1.5 hover:bg-gray-100 border border-gray-200"
-            className="flex flex-col text-center items-center justify-center rounded-xl py-2 px-1.5 gap-1.5 hover:bg-gray-50 border border-gray-200 hover:border-gray-300"
+            // className="flex flex-col text-center items-center justify-center rounded-xl py-2 px-1.5 gap-1.5 hover:bg-gray-100 border border-border"
+            className="flex flex-col text-center items-center justify-center rounded-xl py-2 px-1.5 gap-1.5 hover:bg-surface-hover border border-border hover:border-border-strong"
           >
             <AssetComboIcon
               sizeClassName="size-7"
@@ -169,7 +169,7 @@ function TokenList({
               }
               chainIcon={chainIcon}
             />
-            <div className="text-sm font-semibold text-gray-900 w-full min-w-0 truncate">
+            <div className="text-sm font-semibold text-fg w-full min-w-0 truncate">
               {selectItemToken.token.symbol}
             </div>
           </button>

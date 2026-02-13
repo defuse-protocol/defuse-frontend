@@ -79,7 +79,7 @@ function BalanceInTransitIndicator({
       <Tooltip.Root>
         <Tooltip.Trigger
           type="button"
-          className="size-6 rounded flex items-center justify-center hover:bg-gray-100 text-gray-500 hover:text-gray-700"
+          className="size-6 rounded flex items-center justify-center hover:bg-surface-active text-fg-secondary hover:text-fg"
         >
           <Spinner size="sm" />
         </Tooltip.Trigger>
@@ -123,7 +123,7 @@ function UsdToggle({
     <button
       type="button"
       onClick={onToggle}
-      className="flex items-center gap-1.5 text-sm text-gray-500 font-medium hover:text-gray-700 transition-colors"
+      className="flex items-center gap-1.5 text-sm text-fg-secondary font-medium hover:text-fg transition-colors"
     >
       <span>
         {isUsdMode
@@ -252,14 +252,14 @@ const TokenInputCard = (props: TokenInputCardProps) => {
   return (
     <div
       className={clsx(
-        "bg-white border rounded-3xl w-full p-4 sm:p-6 flex flex-col gap-3",
-        hasError ? "border-red-500 ring-1 ring-red-500" : "border-gray-200"
+        "bg-surface-card border rounded-3xl w-full p-4 sm:p-6 flex flex-col gap-3",
+        hasError ? "border-red-500 ring-1 ring-red-500" : "border-border"
       )}
     >
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-1 flex-1 min-w-0">
           {isUsdMode && hasValue && (
-            <span className="font-bold text-gray-900 text-4xl tracking-tight shrink-0">
+            <span className="font-bold text-fg text-4xl tracking-tight shrink-0">
               $
             </span>
           )}
@@ -275,10 +275,10 @@ const TokenInputCard = (props: TokenInputCardProps) => {
             aria-busy={loading || undefined}
             readOnly={readOnly}
             className={clsx(
-              "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-gray-900 text-3xl sm:text-4xl tracking-tight w-full min-w-0",
+              "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-fg text-3xl sm:text-4xl tracking-tight w-full min-w-0",
               !hasValue &&
                 "placeholder:text-xl sm:placeholder:text-2xl placeholder:font-semibold tracking-tight placeholder:text-gray-300 placeholder:-translate-y-0.5 sm:placeholder:-translate-y-1.25",
-              hasValue && "placeholder:text-gray-400",
+              hasValue && "placeholder:text-fg-tertiary",
               disabled && "opacity-50"
             )}
             {...(registration
@@ -305,7 +305,7 @@ const TokenInputCard = (props: TokenInputCardProps) => {
             onToggle={onToggleUsdMode}
           />
         ) : (
-          <div className="text-sm text-gray-500 font-medium">
+          <div className="text-sm text-fg-secondary font-medium">
             {isUsdMode
               ? `${truncateDisplayValue(tokenAmount) || "0"} ${symbol}`
               : formatUsdAmount(usdAmount ?? 0)}
@@ -319,11 +319,11 @@ const TokenInputCard = (props: TokenInputCardProps) => {
               onClick={handleBalanceClick}
               disabled={disabled || noBalance || !handleSetMax}
               className={clsx(
-                "text-sm text-gray-500 font-medium text-right",
+                "text-sm text-fg-secondary font-medium text-right",
                 handleSetMax &&
                   !disabled &&
                   !noBalance &&
-                  "hover:text-gray-700 cursor-pointer"
+                  "hover:text-fg cursor-pointer"
               )}
             >
               {formatTokenValue(balance, decimals, { fractionDigits: 6 })}{" "}
