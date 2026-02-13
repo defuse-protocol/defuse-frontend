@@ -1438,6 +1438,12 @@
               "decimals": 18,
               "chainName": "near",
               "bridge": "direct"
+            },
+            {
+              "address": "8SMMso8Muv8d6i4WmMDthKt6TN1ysN6937sx3DKLXZqB",
+              "decimals": 9,
+              "chainName": "solana",
+              "bridge": "near_omni"
             }
           ],
           "tags": ["mc:1452", "aid:rhea"]
