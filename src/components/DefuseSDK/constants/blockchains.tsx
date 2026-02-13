@@ -190,6 +190,10 @@ export const chainIcons: Record<
     dark: "/static/icons/network/scroll-white.svg",
     light: "/static/icons/network/scroll.svg",
   },
+  aleo: {
+    dark: "/static/icons/network/aleo-dark.svg",
+    light: "/static/icons/network/aleo-white.svg",
+  },
 }
 
 export function getBlockchainsOptions(): Record<
@@ -454,6 +458,12 @@ export function getBlockchainsOptions(): Record<
       label: "Plasma",
       icon: <NetworkIcon chainIcon={chainIcons.plasma} chainName="Plasma" />,
       value: BlockchainEnum.PLASMA,
+      tags: [],
+    },
+    [BlockchainEnum.ALEO]: {
+      label: "Aleo",
+      icon: <NetworkIcon chainIcon={chainIcons.aleo} chainName="Aleo" />,
+      value: BlockchainEnum.ALEO,
       tags: [],
     },
     // Temporal workaround for Scroll until it is added

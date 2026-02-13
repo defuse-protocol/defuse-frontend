@@ -143,6 +143,7 @@ export const depositEstimateMaxValueActor = fromPromise(
       case BlockchainEnum.CARDANO:
       case BlockchainEnum.LITECOIN:
       case BlockchainEnum.STARKNET:
+      case BlockchainEnum.ALEO:
         return 0n
       default:
         networkToSolverFormat satisfies never

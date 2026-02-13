@@ -948,6 +948,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.STARKNET:
         case BlockchainEnum.PLASMA:
         case BlockchainEnum.SCROLL:
+        case BlockchainEnum.ALEO:
           return {
             activeDeposit: false,
             passiveDeposit: true,
@@ -1009,6 +1010,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.CARDANO:
         case BlockchainEnum.LITECOIN:
         case BlockchainEnum.STARKNET:
+        case BlockchainEnum.ALEO:
           return {
             activeDeposit: false,
             passiveDeposit: true,
@@ -1076,6 +1078,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.STARKNET:
         case BlockchainEnum.PLASMA:
         case BlockchainEnum.SCROLL:
+        case BlockchainEnum.ALEO:
           return {
             activeDeposit: false,
             passiveDeposit: true,
@@ -1131,6 +1134,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.STARKNET:
         case BlockchainEnum.PLASMA:
         case BlockchainEnum.SCROLL:
+        case BlockchainEnum.ALEO:
           return {
             activeDeposit: false,
             passiveDeposit: true,
@@ -1192,6 +1196,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.STARKNET:
         case BlockchainEnum.PLASMA:
         case BlockchainEnum.SCROLL:
+        case BlockchainEnum.ALEO:
           return {
             activeDeposit: false,
             passiveDeposit: true,
@@ -1253,6 +1258,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.STARKNET:
         case BlockchainEnum.PLASMA:
         case BlockchainEnum.SCROLL:
+        case BlockchainEnum.ALEO:
           return {
             activeDeposit: false,
             passiveDeposit: true,
@@ -1313,6 +1319,7 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.STARKNET:
         case BlockchainEnum.PLASMA:
         case BlockchainEnum.SCROLL:
+        case BlockchainEnum.ALEO:
           return {
             activeDeposit: false,
             passiveDeposit: true,
@@ -1422,6 +1429,8 @@ export function getWalletRpcUrl(network: BlockchainEnum): string {
       return settings.rpcUrls.plasma
     case BlockchainEnum.SCROLL:
       return settings.rpcUrls.scroll
+    case BlockchainEnum.ALEO:
+      return settings.rpcUrls.aleo
     default:
       network satisfies never
       throw new Error("exhaustive check failed")

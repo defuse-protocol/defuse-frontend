@@ -166,6 +166,7 @@ const cspConfig = {
     "https://starknet-rpc.publicnode.com",
     "https://rpc.plasma.to",
     "https://rpc.scroll.io",
+    "https://api.explorer.provable.com",
   ],
   "object-src": ["'none'"],
   "base-uri": ["'self'"],

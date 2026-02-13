@@ -43,4 +43,5 @@ export const CHAIN_IDS: Record<SupportedChainName, number | undefined> = {
   starknet: undefined,
   plasma: 9745,
   scroll: 534352,
+  aleo: undefined,
 }
