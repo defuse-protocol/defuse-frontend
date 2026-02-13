@@ -61,23 +61,20 @@ export function GiftMakerReadyDialog({
     readyGiftRef.send({ type: "CANCEL_GIFT" })
   }, [readyGiftRef])
 
-  const copyGiftLink = useCallback(() => {
-    emitEvent("gift_link_shared", {
-      share_method: "copy",
-      gift_token: context.parsed.token.symbol,
-    })
-    return generateLink({
-      secretKey: context.giftInfo.secretKey,
-      message: context.parsed.message,
-      iv: context.iv,
-    })
-  }, [
-    generateLink,
-    context.giftInfo.secretKey,
-    context.parsed.message,
-    context.parsed.token.symbol,
-    context.iv,
-  ])
+  const giftLink = useMemo(
+    () =>
+      generateLink({
+        secretKey: context.giftInfo.secretKey,
+        message: context.parsed.message,
+        iv: context.iv,
+      }),
+    [
+      generateLink,
+      context.giftInfo.secretKey,
+      context.parsed.message,
+      context.iv,
+    ]
+  )
 
   const abortCancellation = useCallback(() => {
     giftCancellationRef?.send({ type: "ABORT_CLAIM" })
@@ -92,16 +89,16 @@ export function GiftMakerReadyDialog({
   }, [giftCancellationRef, giftInfo, signerCredentials])
 
   const confirmCancellation = useCallback(() => {
+    giftCancellationRef?.send({
+      type: "CONFIRM_CLAIM",
+      params: { giftInfo, signerCredentials },
+    })
     emitEvent("gift_link_refunded", {
       gift_token: giftInfo.token.symbol,
       gift_amount: Object.values(giftInfo.tokenDiff)
         .reduce((a, b) => a + b, 0n)
         .toString(),
       reason: "user_cancellation",
-    })
-    giftCancellationRef?.send({
-      type: "CONFIRM_CLAIM",
-      params: { giftInfo, signerCredentials },
     })
   }, [giftCancellationRef, giftInfo, signerCredentials])
 
@@ -202,7 +199,7 @@ export function GiftMakerReadyDialog({
           </p>
 
           <ShareableGiftImage
-            link={copyGiftLink()}
+            link={giftLink}
             token={context.parsed.token}
             amount={context.parsed.amount}
             message={
@@ -219,7 +216,7 @@ export function GiftMakerReadyDialog({
               </Button>
             ) : (
               <>
-                <Copy text={copyGiftLink()}>
+                <Copy text={giftLink}>
                   {(copied) => (
                     <Button type="button" size="xl" variant="primary" fullWidth>
                       {copied ? (

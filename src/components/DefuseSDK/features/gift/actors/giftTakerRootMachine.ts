@@ -90,7 +90,7 @@ export const giftTakerRootMachine = setup({
     }),
     emitGiftClaimed: ({ context }) => {
       const { giftInfo } = context
-      assert(giftInfo != null)
+      if (giftInfo == null) return
 
       emitEvent("gift_claimed", {
         gift_token: giftInfo.token.symbol,

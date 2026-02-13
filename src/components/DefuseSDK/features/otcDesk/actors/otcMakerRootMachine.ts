@@ -191,8 +191,7 @@ export const otcMakerRootMachine = setup({
       const { tokenOut, tokenIn, amountIn, amountOut, expiry } =
         parsedValuesSnapshot.context
 
-      assert(tokenOut != null)
-      assert(tokenIn != null)
+      if (tokenOut == null || tokenIn == null) return
 
       emitEvent("otc_deal_initiated", {
         token_from: tokenOut.symbol,

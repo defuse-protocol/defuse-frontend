@@ -46,7 +46,11 @@ export function useMixpanelBus() {
 
       for (const event of events) {
         const listener = (payload: Dict) => {
-          sendMixPanelEvent(event, payload)
+          try {
+            sendMixPanelEvent(event, payload)
+          } catch {
+            // Analytics must never propagate exceptions back through EventEmitter
+          }
         }
         listeners.push(listener)
         bus.on(event, listener)

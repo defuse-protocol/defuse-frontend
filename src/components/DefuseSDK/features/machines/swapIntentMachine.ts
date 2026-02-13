@@ -188,7 +188,7 @@ export const swapIntentMachine = setup({
       const { intentOperationParams } = context
       if (intentOperationParams.type === "swap") {
         const { tokensIn } = intentOperationParams
-        assert(tokensIn[0] != null)
+        if (tokensIn[0] == null) return
 
         emitEvent("swap_initiated", {
           tokenDeltas: intentOperationParams.quote.tokenDeltas,
@@ -201,7 +201,7 @@ export const swapIntentMachine = setup({
       const { intentOperationParams } = context
       if (intentOperationParams.type === "swap") {
         const { tokensIn } = intentOperationParams
-        assert(tokensIn[0] != null)
+        if (tokensIn[0] == null) return
 
         emitEvent("swap_confirmed", {
           token_from: intentOperationParams.tokenOut.symbol,
@@ -214,7 +214,7 @@ export const swapIntentMachine = setup({
       const { intentOperationParams } = context
       if (intentOperationParams.type === "swap") {
         const { tokensIn } = intentOperationParams
-        assert(tokensIn[0] != null)
+        if (tokensIn[0] == null) return
 
         emitEvent("swap_failed", {
           token_from: intentOperationParams.tokenOut.symbol,

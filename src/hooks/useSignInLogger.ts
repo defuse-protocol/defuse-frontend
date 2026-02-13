@@ -26,16 +26,24 @@ export const useSignInLogger = (
 
   useEffect(() => {
     if (address != null && isAuthorized) {
-      if (!localStorage.getItem(storageKey)) {
-        localStorage.setItem(storageKey, address)
-        sendMixPanelEvent("wallet_connection_success")
+      try {
+        if (!localStorage.getItem(storageKey)) {
+          localStorage.setItem(storageKey, address)
+          void sendMixPanelEvent("wallet_connection_success").catch(() => {})
+        }
+      } catch {
+        // localStorage may be unavailable
       }
     }
   }, [address, isAuthorized, sendMixPanelEvent])
 
   return {
     onSignOut: useCallback(() => {
-      localStorage.removeItem(storageKey)
+      try {
+        localStorage.removeItem(storageKey)
+      } catch {
+        // localStorage may be unavailable
+      }
     }, []),
   }
 }
