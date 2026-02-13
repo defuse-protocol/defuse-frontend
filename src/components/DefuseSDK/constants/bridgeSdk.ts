@@ -12,4 +12,7 @@ export const bridgeSDK = new IntentsSDK({
     [Chains.Avalanche]: [settings.rpcUrls.avalanche],
   },
   referral: "near-intents.intents-referral.near", // TODO: should depend on env
+  features: {
+    routeMigratedPoaTokensThroughOmniBridge: true,
+  },
 })
