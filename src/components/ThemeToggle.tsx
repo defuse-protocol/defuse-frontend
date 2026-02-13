@@ -18,15 +18,15 @@ export function ThemeToggle() {
   const isLight = resolvedTheme === "light"
 
   return (
-    <div className="flex h-9 rounded-xl bg-gray-900 p-1">
+    <div className="flex h-9 rounded-xl bg-surface-card border border-border p-1">
       <button
         type="button"
         onClick={() => setTheme("light")}
         className={cn(
-          "flex flex-1 items-center justify-center gap-1.5 rounded-lg text-xs font-semibold transition-colors",
+          "flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 text-xs font-semibold transition-colors",
           isLight
-            ? "bg-gray-700 text-white"
-            : "text-gray-400 hover:text-gray-300"
+            ? "bg-surface-active text-fg"
+            : "text-fg-tertiary hover:text-fg-secondary"
         )}
       >
         <Sun weight="bold" className="size-3.5" />
@@ -36,10 +36,10 @@ export function ThemeToggle() {
         type="button"
         onClick={() => setTheme("dark")}
         className={cn(
-          "flex flex-1 items-center justify-center gap-1.5 rounded-lg text-xs font-semibold transition-colors",
+          "flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 text-xs font-semibold transition-colors",
           !isLight
-            ? "bg-gray-700 text-white"
-            : "text-gray-400 hover:text-gray-300"
+            ? "bg-surface-active text-fg"
+            : "text-fg-tertiary hover:text-fg-secondary"
         )}
       >
         <Moon weight="bold" className="size-3.5" />

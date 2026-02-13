@@ -3,6 +3,7 @@ import { getCachedSystemStatus } from "@src/actions/systemStatus"
 import Button from "@src/components/Button"
 import PreviewBanner from "@src/components/PreviewBanner"
 import SystemStatus from "@src/components/SystemStatus"
+import { ThemeToggle } from "@src/components/ThemeToggle"
 import {
   DiscordIcon,
   NearIntentsLogoIcon,
@@ -10,6 +11,7 @@ import {
   TwitterIcon,
 } from "@src/icons"
 import { SystemStatusProvider } from "@src/providers/SystemStatusProvider"
+import { ThemeProvider } from "@src/providers/ThemeProvider"
 import Link from "next/link"
 import type { ReactNode } from "react"
 
@@ -50,73 +52,78 @@ const MarketingRootLayout = async ({
   const systemStatus = await getCachedSystemStatus()
 
   return (
-    <SystemStatusProvider systemStatus={systemStatus}>
-      <div className="p-2 flex flex-col bg-gray-800 min-h-screen">
-        <PreviewBanner className="mb-2" />
-        <SystemStatus className="mb-2" showOperationalStatus={false} />
+    <ThemeProvider>
+      <SystemStatusProvider systemStatus={systemStatus}>
+        <div className="p-2 flex flex-col bg-surface-page min-h-screen">
+          <PreviewBanner className="mb-2" />
+          <SystemStatus className="mb-2" showOperationalStatus={false} />
 
-        <header className="bg-surface-card rounded-t-3xl flex justify-center items-center py-5">
-          <div className="flex items-center justify-between w-full max-w-5xl px-4">
-            <Link href="/" className="shrink-0">
-              <span className="sr-only">Home</span>
-              <NearIntentsLogoIcon className="h-4 text-black" />
-            </Link>
-            <Button href="/login">Sign up or Sign in</Button>
-          </div>
-        </header>
-
-        <main className="flex-1 flex flex-col">
-          {children}
-          <div className="grow bg-surface-card" />
-        </main>
-
-        <footer className="bg-surface-card pb-12 md:pb-16 flex justify-center items-center rounded-b-3xl">
-          <div className="flex w-full flex-col px-4 max-w-5xl">
-            <div className="pt-12 md:pt-16">
-              <div className="flex flex-col md:flex-row items-center justify-between pb-8 gap-x-4 gap-y-6">
-                <NearIntentsLogoIcon className="h-4 shrink-0 text-black" />
-
-                <div className="flex items-center justify-end gap-2">
-                  {socialLinks.map(({ name, icon: Icon, link }) => (
-                    <Button
-                      key={name}
-                      variant="secondary"
-                      href={link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Icon className="size-4 shrink-0" />
-                      {name}
-                    </Button>
-                  ))}
-                </div>
+          <header className="bg-surface-card rounded-t-3xl flex justify-center items-center py-5">
+            <div className="flex items-center justify-between w-full max-w-5xl px-4">
+              <Link href="/" className="shrink-0">
+                <span className="sr-only">Home</span>
+                <NearIntentsLogoIcon className="h-4 text-fg" />
+              </Link>
+              <div className="flex items-center gap-3">
+                <ThemeToggle />
+                <Button href="/login">Sign up or Sign in</Button>
               </div>
+            </div>
+          </header>
 
-              <div className="flex items-center justify-between border-t border-border pt-8">
-                <div className="flex items-center justify-center gap-1.5 rounded-lg bg-surface-hover px-2 py-1.5 border border-border">
-                  <span className="text-fg text-xs/none font-semibold">
-                    Powered by
-                  </span>
-                  <span className="sr-only">Near</span>
-                  <NearLogoIcon className="h-3 shrink-0" aria-hidden />
+          <main className="flex-1 flex flex-col">
+            {children}
+            <div className="grow bg-surface-card" />
+          </main>
+
+          <footer className="bg-surface-card pb-12 md:pb-16 flex justify-center items-center rounded-b-3xl">
+            <div className="flex w-full flex-col px-4 max-w-5xl">
+              <div className="pt-12 md:pt-16">
+                <div className="flex flex-col md:flex-row items-center justify-between pb-8 gap-x-4 gap-y-6">
+                  <NearIntentsLogoIcon className="h-4 shrink-0 text-fg" />
+
+                  <div className="flex items-center justify-end gap-2">
+                    {socialLinks.map(({ name, icon: Icon, link }) => (
+                      <Button
+                        key={name}
+                        variant="secondary"
+                        href={link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Icon className="size-4 shrink-0" />
+                        {name}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex items-center justify-end gap-4">
-                  {additionalLinks.map(({ name, link }) => (
-                    <Link
-                      key={name}
-                      href={link}
-                      className="text-sm/5 font-medium text-fg-secondary hover:underline hover:text-fg"
-                    >
-                      {name}
-                    </Link>
-                  ))}
+
+                <div className="flex items-center justify-between border-t border-border pt-8">
+                  <div className="flex items-center justify-center gap-1.5 rounded-lg bg-surface-hover px-2 py-1.5 border border-border">
+                    <span className="text-fg text-xs/none font-semibold">
+                      Powered by
+                    </span>
+                    <span className="sr-only">Near</span>
+                    <NearLogoIcon className="h-3 shrink-0" aria-hidden />
+                  </div>
+                  <div className="flex items-center justify-end gap-4">
+                    {additionalLinks.map(({ name, link }) => (
+                      <Link
+                        key={name}
+                        href={link}
+                        className="text-sm/5 font-medium text-fg-secondary hover:underline hover:text-fg"
+                      >
+                        {name}
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </footer>
-      </div>
-    </SystemStatusProvider>
+          </footer>
+        </div>
+      </SystemStatusProvider>
+    </ThemeProvider>
   )
 }
 
