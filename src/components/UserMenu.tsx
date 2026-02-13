@@ -1,5 +1,6 @@
 "use client"
 
+import { authIdentity } from "@defuse-protocol/internal-utils"
 import {
   ArrowRightStartOnRectangleIcon,
   CheckCircleIcon,
@@ -44,14 +45,19 @@ const UserMenu = ({
   const [isCopyWarningOpen, setIsCopyWarningOpen] = useState(false)
   const displayLabel = "My account"
 
+  const internalAddress =
+    state.address != null && state.chainType != null
+      ? authIdentity.authHandleToIntentsUserId(state.address, state.chainType)
+      : undefined
+
   const [skipCopyWarning, setSkipCopyWarning] = useState<boolean>(() => {
     if (typeof window === "undefined") return false
     return localStorage.getItem(COPY_ADDRESS_WARNING_ACK_KEY) === "true"
   })
 
   const handleCopyAddress = async () => {
-    if (state.address) {
-      await navigator.clipboard.writeText(state.address)
+    if (internalAddress) {
+      await navigator.clipboard.writeText(internalAddress)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     }
@@ -109,9 +115,9 @@ const UserMenu = ({
               <div className="text-gray-300 text-sm font-semibold">
                 {displayLabel}
               </div>
-              {state.address && (
+              {internalAddress && (
                 <div className="text-xs text-gray-400 flex min-w-0 font-medium">
-                  {midTruncate(state.address)}
+                  {midTruncate(internalAddress)}
                 </div>
               )}
             </div>
