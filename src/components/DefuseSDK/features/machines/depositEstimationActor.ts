@@ -63,6 +63,8 @@ export const depositEstimateMaxValueActor = fromPromise(
       case BlockchainEnum.AVALANCHE:
       case BlockchainEnum.MONAD:
       case BlockchainEnum.LAYERX:
+      case BlockchainEnum.PLASMA:
+      case BlockchainEnum.SCROLL:
       case BlockchainEnum.ADI: {
         if (
           !validateAddress(userAddress, blockchain) ||
@@ -143,7 +145,6 @@ export const depositEstimateMaxValueActor = fromPromise(
       case BlockchainEnum.STARKNET:
         return 0n
       default:
-        // @ts-expect-error TODO: Add PLASMA and SCROLL support
         networkToSolverFormat satisfies never
         throw new Error("exhaustive check failed")
     }

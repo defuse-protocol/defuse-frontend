@@ -179,6 +179,14 @@ export const chainIcons: Record<
     dark: "/static/icons/network/starknet.svg",
     light: "/static/icons/network/starknet.svg",
   },
+  plasma: {
+    dark: "/static/icons/network/plasma-white.svg",
+    light: "/static/icons/network/plasma.svg",
+  },
+  scroll: {
+    dark: "/static/icons/network/scroll-white.svg",
+    light: "/static/icons/network/scroll.svg",
+  },
 }
 
 export function getBlockchainsOptions(): Record<
@@ -402,7 +410,13 @@ export function getBlockchainsOptions(): Record<
       value: BlockchainEnum.ADI,
       tags: [],
     },
-    // TODO: Add PLASMA and SCROLL support once icons and network config are ready
+    [BlockchainEnum.PLASMA]: {
+      label: "Plasma",
+      icon: <NetworkIcon chainIcon={chainIcons.plasma} />,
+      value: BlockchainEnum.PLASMA,
+      tags: [],
+    },
+    // TODO: Add SCROLL support once icons and network config are ready
   } as unknown as Record<BlockchainEnum, BlockchainOption>
 
   return sortBlockchainOptionsByVolume(options)
