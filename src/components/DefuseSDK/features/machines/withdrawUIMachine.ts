@@ -143,19 +143,11 @@ export const withdrawUIMachine = setup({
     }),
     emitWithdrawalInitiated: ({ context }) => {
       const withdrawContext = context.withdrawFormRef.getSnapshot().context
-      const { preparationOutput } = context
-
-      const fee_estimate =
-        preparationOutput != null && preparationOutput.tag === "ok"
-          ? preparationOutput.value.feeEstimation.amount
-          : null
 
       emitEvent("withdrawal_initiated", {
         token: withdrawContext.tokenIn.symbol,
-        amount: withdrawContext.parsedAmount,
         to_chain: withdrawContext.tokenOut.defuseAssetId,
-        address_entered: withdrawContext.recipient,
-        fee_estimate,
+        amount: withdrawContext.parsedAmount?.toString(),
       })
     },
 
@@ -176,13 +168,26 @@ export const withdrawUIMachine = setup({
       assert(submitDeps != null)
 
       if (preparationOutput.tag === "ok") {
+        const withdrawContext = context.withdrawFormRef.getSnapshot().context
         emitEvent("withdrawal_confirmed", {
-          tx_hash: output.value.intentHash,
-          received_amount: preparationOutput.value.receivedAmount,
-          actual_fee: preparationOutput.value.feeEstimation.amount,
+          token: withdrawContext.tokenIn.symbol,
+          amount: withdrawContext.parsedAmount?.toString(),
           destination_chain: submitDeps.userChainType,
+          fee: preparationOutput.value.feeEstimation.amount.toString(),
         })
       }
+    },
+    emitWithdrawalFailed: ({ context }, output: SwapIntentMachineOutput) => {
+      if (output.tag !== "err") return
+
+      const withdrawContext = context.withdrawFormRef.getSnapshot().context
+      emitEvent("withdrawal_failed", {
+        token: withdrawContext.tokenIn.symbol,
+        amount: withdrawContext.parsedAmount?.toString(),
+        to_chain: withdrawContext.tokenOut.defuseAssetId,
+        error_reason:
+          "reason" in output.value ? output.value.reason : "unknown",
+      })
     },
 
     relayToWithdrawFormRef: sendTo(
@@ -516,6 +521,10 @@ export const withdrawUIMachine = setup({
           {
             target: "editing.reviewing",
             actions: [
+              {
+                type: "emitWithdrawalFailed",
+                params: ({ event }) => event.output,
+              },
               {
                 type: "setIntentCreationResult",
                 params: ({ event }) => event.output,

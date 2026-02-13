@@ -188,7 +188,7 @@ export const swapIntentMachine = setup({
       const { intentOperationParams } = context
       if (intentOperationParams.type === "swap") {
         const { tokensIn } = intentOperationParams
-        assert(tokensIn[0] != null)
+        if (tokensIn[0] == null) return
 
         emitEvent("swap_initiated", {
           tokenDeltas: intentOperationParams.quote.tokenDeltas,
@@ -201,11 +201,25 @@ export const swapIntentMachine = setup({
       const { intentOperationParams } = context
       if (intentOperationParams.type === "swap") {
         const { tokensIn } = intentOperationParams
-        assert(tokensIn[0] != null)
+        if (tokensIn[0] == null) return
 
         emitEvent("swap_confirmed", {
-          tx_hash: context.intentHash,
-          received_amount: intentOperationParams.quote.tokenDeltas,
+          token_from: intentOperationParams.tokenOut.symbol,
+          token_to: tokensIn[0].symbol,
+          tokenDeltas: intentOperationParams.quote.tokenDeltas,
+        })
+      }
+    },
+    emitSwapFailed: ({ context }) => {
+      const { intentOperationParams } = context
+      if (intentOperationParams.type === "swap") {
+        const { tokensIn } = intentOperationParams
+        if (tokensIn[0] == null) return
+
+        emitEvent("swap_failed", {
+          token_from: intentOperationParams.tokenOut.symbol,
+          token_to: tokensIn[0].symbol,
+          error_reason: context.error?.value.reason ?? "unknown",
         })
       }
     },
@@ -729,6 +743,7 @@ export const swapIntentMachine = setup({
 
     "Generic Error": {
       type: "final",
+      entry: ["emitSwapFailed"],
     },
   },
 })

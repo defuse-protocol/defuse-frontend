@@ -11,6 +11,7 @@ import { useCallback, useMemo } from "react"
 import type { ActorRefFrom } from "xstate"
 import { Copy } from "../../../components/IntentCard/CopyButton"
 import { BaseModalDialog } from "../../../components/Modal/ModalDialog"
+import { emitEvent } from "../../../services/emitter"
 import type { giftMakerReadyActor } from "../actors/giftMakerReadyActor"
 import type { giftClaimActor } from "../actors/shared/giftClaimActor"
 import { giftMakerHistoryStore } from "../stores/giftMakerHistory"
@@ -60,18 +61,20 @@ export function GiftMakerReadyDialog({
     readyGiftRef.send({ type: "CANCEL_GIFT" })
   }, [readyGiftRef])
 
-  const copyGiftLink = useCallback(() => {
-    return generateLink({
-      secretKey: context.giftInfo.secretKey,
-      message: context.parsed.message,
-      iv: context.iv,
-    })
-  }, [
-    generateLink,
-    context.giftInfo.secretKey,
-    context.parsed.message,
-    context.iv,
-  ])
+  const giftLink = useMemo(
+    () =>
+      generateLink({
+        secretKey: context.giftInfo.secretKey,
+        message: context.parsed.message,
+        iv: context.iv,
+      }),
+    [
+      generateLink,
+      context.giftInfo.secretKey,
+      context.parsed.message,
+      context.iv,
+    ]
+  )
 
   const abortCancellation = useCallback(() => {
     giftCancellationRef?.send({ type: "ABORT_CLAIM" })
@@ -89,6 +92,13 @@ export function GiftMakerReadyDialog({
     giftCancellationRef?.send({
       type: "CONFIRM_CLAIM",
       params: { giftInfo, signerCredentials },
+    })
+    emitEvent("gift_link_refunded", {
+      gift_token: giftInfo.token.symbol,
+      gift_amount: Object.values(giftInfo.tokenDiff)
+        .reduce((a, b) => a + b, 0n)
+        .toString(),
+      reason: "user_cancellation",
     })
   }, [giftCancellationRef, giftInfo, signerCredentials])
 
@@ -189,7 +199,7 @@ export function GiftMakerReadyDialog({
           </p>
 
           <ShareableGiftImage
-            link={copyGiftLink()}
+            link={giftLink}
             token={context.parsed.token}
             amount={context.parsed.amount}
             message={
@@ -206,7 +216,7 @@ export function GiftMakerReadyDialog({
               </Button>
             ) : (
               <>
-                <Copy text={copyGiftLink()}>
+                <Copy text={giftLink}>
                   {(copied) => (
                     <Button type="button" size="xl" variant="primary" fullWidth>
                       {copied ? (

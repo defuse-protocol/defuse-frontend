@@ -8,6 +8,7 @@ import { useActorRef, useSelector } from "@xstate/react"
 import { useEffect, useMemo, useRef } from "react"
 import type { ActorRefFrom } from "xstate"
 import type { SignerCredentials } from "../../../core/formatters"
+import { emitEvent } from "../../../services/emitter"
 import { giftTakerRootMachine } from "../actors/giftTakerRootMachine"
 import type { giftClaimActor } from "../actors/shared/giftClaimActor"
 import { GiftTakerForm } from "./GiftTakerForm"
@@ -78,6 +79,17 @@ export function GiftTakerWidget() {
     state.address != null && state.chainType != null
       ? { credential: state.address, credentialType: state.chainType }
       : null
+
+  const hasEmittedViewRef = useRef(false)
+  useEffect(() => {
+    if (giftInfo != null && !hasEmittedViewRef.current) {
+      hasEmittedViewRef.current = true
+      emitEvent("gift_link_viewed", {
+        gift_token: giftInfo.token.symbol,
+        viewer_has_account: state.address != null,
+      })
+    }
+  }, [giftInfo, state.address])
 
   if (error != null) {
     return <GiftTakerInvalidClaim error={error} />

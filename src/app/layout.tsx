@@ -154,7 +154,7 @@ const RootLayout = async ({
       className={`text-gray-900 bg-gray-800 antialiased tmpl-${tmpl} ${figtree.variable}`}
     >
       <body className={figtree.className}>{children}</body>
-      <GoogleAnalytics gaId="G-WNE3NB46KM" />
+      <GoogleAnalytics gaId="G-WM0W19T039" />
       {HELPSCOUT_BEACON_ID && <Helpscout />}
     </html>
   )

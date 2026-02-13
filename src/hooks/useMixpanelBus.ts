@@ -8,15 +8,21 @@ import { logger } from "@src/utils/logger"
 
 const events = [
   "gift_created",
+  "gift_claimed",
+  "gift_link_shared",
+  "gift_link_viewed",
+  "gift_link_refunded",
   "deposit_initiated",
   "deposit_success",
-  "gift_claimed",
+  "deposit_failed",
   "otc_deal_initiated",
   "swap_initiated",
   "swap_confirmed",
+  "swap_failed",
   "otc_confirmed",
   "withdrawal_initiated",
   "withdrawal_confirmed",
+  "withdrawal_failed",
 ]
 
 export function useMixpanelBus() {
@@ -40,7 +46,11 @@ export function useMixpanelBus() {
 
       for (const event of events) {
         const listener = (payload: Dict) => {
-          sendMixPanelEvent(event, payload)
+          try {
+            sendMixPanelEvent(event, payload)
+          } catch {
+            // Analytics must never propagate exceptions back through EventEmitter
+          }
         }
         listeners.push(listener)
         bus.on(event, listener)

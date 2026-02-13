@@ -10,15 +10,21 @@ export const setEventEmitter = (emitter: EventEmitter) => {
 
 type EmitTypes =
   | "gift_created"
+  | "gift_claimed"
+  | "gift_link_shared"
+  | "gift_link_viewed"
+  | "gift_link_refunded"
   | "deposit_initiated"
   | "deposit_success"
-  | "gift_claimed"
+  | "deposit_failed"
   | "otc_deal_initiated"
   | "swap_initiated"
   | "swap_confirmed"
+  | "swap_failed"
   | "otc_confirmed"
   | "withdrawal_initiated"
   | "withdrawal_confirmed"
+  | "withdrawal_failed"
 
 export const emitEvent = (type: EmitTypes, data: unknown) => {
   if (!bus) {

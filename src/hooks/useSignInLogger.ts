@@ -1,6 +1,7 @@
 import { useCallback, useEffect } from "react"
 
 import { useMixpanel } from "@src/providers/MixpanelProvider"
+import { hashForAnalytics } from "@src/utils/analyticsSanitize"
 
 export const useSignInLogger = (
   address: string | undefined,
@@ -11,10 +12,12 @@ export const useSignInLogger = (
   const storageKey = "signedInAddress"
 
   const sendMixPanelEvent = useCallback(
-    (eventName: string) => {
+    async (eventName: string) => {
+      const hashedAddress = await hashForAnalytics(address)
       mixPanel?.track(eventName, {
         wallet_type: chainType,
-        wallet_address: address,
+        chain: chainType,
+        wallet_address_hash: hashedAddress,
         timestamp: Date.now(),
       })
     },
@@ -23,16 +26,24 @@ export const useSignInLogger = (
 
   useEffect(() => {
     if (address != null && isAuthorized) {
-      if (!localStorage.getItem(storageKey)) {
-        localStorage.setItem(storageKey, address)
-        sendMixPanelEvent("wallet_connection_success")
+      try {
+        if (!localStorage.getItem(storageKey)) {
+          localStorage.setItem(storageKey, address)
+          void sendMixPanelEvent("wallet_connection_success").catch(() => {})
+        }
+      } catch {
+        // localStorage may be unavailable
       }
     }
   }, [address, isAuthorized, sendMixPanelEvent])
 
   return {
     onSignOut: useCallback(() => {
-      localStorage.removeItem(storageKey)
+      try {
+        localStorage.removeItem(storageKey)
+      } catch {
+        // localStorage may be unavailable
+      }
     }, []),
   }
 }

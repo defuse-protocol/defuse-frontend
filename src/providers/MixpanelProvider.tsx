@@ -28,7 +28,7 @@ export function MixpanelProvider({ children }: { children: ReactNode }) {
     try {
       mixpanel.init(MIXPANEL_TOKEN, {
         debug: APP_ENV === "development",
-        track_pageview: true,
+        track_pageview: false,
         persistence: "localStorage",
       })
       setMixpanelInstance(mixpanel)

@@ -144,7 +144,7 @@ export const giftMakerRootMachine = setup({
           const giftInfo = assembleGiftInfo(input)
 
           // Create a record and generate an IV
-          const { iv, giftId } = await input.createGiftIntent({
+          const { iv } = await input.createGiftIntent({
             secretKey: giftInfo.secretKey,
             message: giftInfo.message,
           })
@@ -163,7 +163,6 @@ export const giftMakerRootMachine = setup({
           }
 
           emitEvent("gift_created", {
-            gift_id: giftId,
             gift_token: giftInfo.token.symbol,
             gift_amount: giftInfo.tokenDiff,
             message_included: giftInfo.message,
