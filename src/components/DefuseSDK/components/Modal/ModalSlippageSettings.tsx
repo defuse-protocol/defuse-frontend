@@ -289,7 +289,7 @@ export function ModalSlippageSettings() {
           <div
             className={clsx(
               "flex items-center rounded-lg pl-2 pr-2 overflow-hidden focus-within:bg-surface-card focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-fg",
-              customValue ? "bg-gray-900" : "bg-surface-active"
+              customValue ? "bg-fg text-fg-on-accent" : "bg-surface-active"
             )}
           >
             <input

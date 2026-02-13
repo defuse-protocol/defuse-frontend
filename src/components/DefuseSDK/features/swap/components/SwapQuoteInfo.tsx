@@ -58,7 +58,7 @@ export function SwapQuoteInfo({ tokenOut, tokenIn }: SwapQuoteInfoProps) {
   return (
     <dl className="mt-5 space-y-2.5 text-sm animate-in fade-in duration-300">
       <div className="flex items-center justify-between">
-        <dt className="text-gray-500 font-medium">Rate</dt>
+        <dt className="text-fg-secondary font-medium">Rate</dt>
         <dd>
           <SwapRateInfo tokenIn={tokenIn} tokenOut={tokenOut} />
         </dd>

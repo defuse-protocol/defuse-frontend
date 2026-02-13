@@ -69,7 +69,7 @@ const ConnectWallet = () => {
           maxWidth={{ initial: "90vw", xs: "480px" }}
           minWidth={{ initial: "300px", xs: "330px" }}
           maxHeight={{ initial: "70vh", sm: "90vh" }}
-          className="md:mr-[48px] dark:bg-black-800 rounded-2xl bg-white"
+          className="md:mr-[48px] rounded-2xl bg-surface-overlay"
         >
           <Text size="1">How do you want to sign in?</Text>
           <div className="w-full grid grid-cols-1 gap-4 mt-4">
@@ -399,7 +399,7 @@ const ConnectWallet = () => {
         </Popover.Trigger>
         <Popover.Content
           minWidth={{ initial: "300px", xs: "330px" }}
-          className="mt-1 md:mr-[48px] max-w-xs dark:bg-black-800 rounded-2xl bg-white"
+          className="mt-1 md:mr-[48px] max-w-xs rounded-2xl bg-surface-overlay"
         >
           <div className="flex flex-col gap-5">
             <WalletConnections />
