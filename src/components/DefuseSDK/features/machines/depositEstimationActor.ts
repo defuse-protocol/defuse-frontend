@@ -143,9 +143,10 @@ export const depositEstimateMaxValueActor = fromPromise(
       case BlockchainEnum.CARDANO:
       case BlockchainEnum.LITECOIN:
       case BlockchainEnum.STARKNET:
+      case BlockchainEnum.PLASMA:
+      case BlockchainEnum.SCROLL:
         return 0n
       default:
-        // @ts-expect-error TODO: Add PLASMA and SCROLL support
         networkToSolverFormat satisfies never
         throw new Error("exhaustive check failed")
     }

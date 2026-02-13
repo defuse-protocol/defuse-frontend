@@ -260,9 +260,10 @@ export const backgroundBalanceActor = fromPromise(
       case BlockchainEnum.CARDANO:
       case BlockchainEnum.LITECOIN:
       case BlockchainEnum.STARKNET:
+      case BlockchainEnum.PLASMA:
+      case BlockchainEnum.SCROLL:
         break
       default:
-        // @ts-expect-error TODO: Add PLASMA and SCROLL support
         networkToSolverFormat satisfies never
         throw new Error("exhaustive check failed")
     }
