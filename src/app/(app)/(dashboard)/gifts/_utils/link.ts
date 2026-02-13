@@ -1,4 +1,5 @@
 import { base64urlnopad } from "@scure/base"
+import type { GiftLinkData } from "@src/components/DefuseSDK/features/gift/types/sharedTypes"
 import {
   genPKey,
   getGiftEncryptedIntent,
@@ -7,6 +8,7 @@ import {
 import { deriveIdFromIV } from "@src/utils/deriveIdFromIV"
 import { logger } from "@src/utils/logger"
 import { useQuery } from "@tanstack/react-query"
+import { useEffect, useState } from "react"
 import {
   decodeAES256Gift,
   decodeGift,
@@ -14,17 +16,12 @@ import {
   encodeGift,
 } from "./encoder"
 
-type GiftLinkData = {
-  secretKey: string
-  message: string
-}
-
 type GiftLinkPayload = {
-  iv: null | string
+  iv?: null | string
 } & GiftLinkData
 
 export function createGiftLink(payload: GiftLinkPayload): string {
-  const url = new URL("/gift-card/view-gift", window.location.origin)
+  const url = new URL("/gift", window.location.origin)
   if (payload.iv) {
     url.hash = payload.iv
     return url.toString()
@@ -62,56 +59,84 @@ export async function createGiftIntent(payload: GiftLinkData): Promise<{
       iv: encodedIv,
       giftId,
     }
-  } catch (_e) {
+  } catch {
+    logger.error("Failed to create gift intent")
     throw new Error("Failed to create order")
   }
 }
 
 export function useGiftIntent() {
-  const encodedGift = window.location.hash.slice(1)
+  // Use state to properly handle client-side hash reading
+  const [encodedGift, setEncodedGift] = useState("")
 
-  const { data } = useQuery({
+  useEffect(() => {
+    // Read hash on client-side mount
+    const hash = window.location.hash.slice(1)
+    setEncodedGift(hash)
+
+    // Listen for hash changes
+    const handleHashChange = () => {
+      setEncodedGift(window.location.hash.slice(1))
+    }
+    window.addEventListener("hashchange", handleHashChange)
+    return () => window.removeEventListener("hashchange", handleHashChange)
+  }, [])
+
+  const { data, error, isLoading } = useQuery({
     queryKey: ["gift_intent", encodedGift],
-    queryFn: async () => {
-      // 1. Attempt: Try to fetch and decrypt the order from the database
+    queryFn: async (): Promise<{
+      payload: unknown
+      giftId?: string
+    }> => {
       if (encodedGift) {
         try {
-          const gift = await getGiftEncryptedIntent(decodeGift(encodedGift))
+          const gift = await getGiftEncryptedIntent(encodedGift)
           if (gift) {
             const { encryptedPayload, pKey, iv } = gift
             if (!iv || !pKey) {
               throw new Error("Invalid decoded params")
             }
+
             const decrypted = await decodeAES256Gift(encryptedPayload, pKey, iv)
             return {
               payload: decrypted,
               giftId: deriveIdFromIV(iv),
             }
           }
-        } catch (_error) {
-          logger.error("Failed to decrypt order")
+        } catch {
+          logger.error("Failed to decrypt gift")
         }
       }
 
       // 2. Attempt: Try to decode the order directly from the URL
       try {
         const decoded = decodeGift(encodedGift)
-        return {
-          payload: decoded,
+        // Only return if we got valid JSON with secretKey (legacy format)
+        if (decoded && typeof decoded === "object") {
+          return {
+            payload: decoded,
+          }
         }
-      } catch (_error) {
-        logger.error("Failed to decode legacy order")
+      } catch {
+        logger.error("Failed to decode legacy gift")
       }
 
-      return {
-        payload: "",
-      }
+      // If we reach here, we couldn't decode the gift
+      throw new Error("Gift not found or invalid")
     },
     enabled: !!encodedGift,
+    retry: false,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 60 * 1000,
   })
 
+  const payload = data?.payload ?? null
+  const giftId = data?.giftId ?? null
+
   return {
-    payload: data?.payload ?? null,
-    giftId: data?.giftId ?? null,
+    payload,
+    giftId,
+    error: error ? (error as Error).message : null,
+    isLoading,
   }
 }

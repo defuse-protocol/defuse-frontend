@@ -1,6 +1,10 @@
 import { CheckCircleIcon } from "@heroicons/react/16/solid"
 import { CheckIcon, Square2StackIcon } from "@heroicons/react/24/outline"
 import Button from "@src/components/Button"
+import {
+  hexToRgba,
+  useDominantColor,
+} from "@src/components/DefuseSDK/hooks/useDominantColor"
 import { formatTokenValue } from "@src/components/DefuseSDK/utils/format"
 import { isFungibleToken } from "@src/components/DefuseSDK/utils/token"
 import Spinner from "@src/components/Spinner"
@@ -38,6 +42,7 @@ export function PassiveDeposit({
   network,
 }: PassiveDepositProps) {
   const truncatedAddress = midTruncate(depositAddress ?? "", 16)
+  const { hex } = useDominantColor(token.icon)
 
   return (
     <>
@@ -55,7 +60,12 @@ export function PassiveDeposit({
           </span>
         </h2>
 
-        <div className="flex items-center justify-center bg-gray-900/50 rounded-2xl p-4">
+        <div
+          className="flex items-center justify-center bg-gray-900/50 rounded-2xl p-4 outline-2 outline-fg/20 -outline-offset-2 transition-colors"
+          style={{
+            backgroundColor: hexToRgba(hex, 0.8) ?? undefined,
+          }}
+        >
           <div className="size-48 flex items-center justify-center border-5 rounded-3xl bg-white border-fg">
             {depositAddress != null ? (
               <QRCodeSVG

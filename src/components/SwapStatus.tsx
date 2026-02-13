@@ -22,11 +22,10 @@ import {
 import { ProgressSteps } from "@src/components/ProgressIndicator"
 import type { TrackedSwapIntent } from "@src/providers/SwapTrackerMachineProvider"
 import Button from "./Button"
+import { INTENTS_EXPLORER_URL } from "./DefuseSDK/constants/blockchains"
 import { useTokensUsdPrices } from "./DefuseSDK/hooks/useTokensUsdPrices"
 import getTokenUsdPrice from "./DefuseSDK/utils/getTokenUsdPrice"
 import PageHeader from "./PageHeader"
-
-const NEAR_EXPLORER = "https://nearblocks.io"
 
 type SwapStatusProps = {
   swap: TrackedSwapIntent
@@ -35,18 +34,12 @@ type SwapStatusProps = {
 }
 
 export function SwapStatus({ swap, variant, onSwapAgain }: SwapStatusProps) {
-  const {
-    displayStage,
-    displayIndex,
-    canRetry,
-    txHash,
-    stateValue,
-    contextStatus,
-  } = useMachineStageProgress({
-    actorRef: swap.actorRef,
-    stages: SWAP_STAGES,
-    getStageFromState,
-  })
+  const { displayStage, displayIndex, canRetry, stateValue, contextStatus } =
+    useMachineStageProgress({
+      actorRef: swap.actorRef,
+      stages: SWAP_STAGES,
+      getStageFromState,
+    })
 
   const isError = swap.is1cs
     ? is1csError(contextStatus)
@@ -73,7 +66,7 @@ export function SwapStatus({ swap, variant, onSwapAgain }: SwapStatusProps) {
   return (
     <FullView
       swap={swap}
-      txHash={txHash}
+      depositAddress={swap.depositAddress}
       displayStage={displayStage}
       displayIndex={displayIndex}
       isError={isError}
@@ -86,7 +79,7 @@ export function SwapStatus({ swap, variant, onSwapAgain }: SwapStatusProps) {
 
 function FullView({
   swap,
-  txHash,
+  depositAddress,
   displayStage,
   displayIndex,
   isError,
@@ -95,7 +88,7 @@ function FullView({
   onSwapAgain,
 }: {
   swap: TrackedSwapIntent
-  txHash: string | null | undefined
+  depositAddress: string | undefined
   displayStage: SwapStage
   displayIndex: number
   isError: boolean
@@ -128,7 +121,9 @@ function FullView({
     tokensUsdPriceData
   )
 
-  const explorerUrl = txHash ? `${NEAR_EXPLORER}/txns/${txHash}` : null
+  const explorerUrl = depositAddress
+    ? `${INTENTS_EXPLORER_URL}/transactions/${depositAddress}`
+    : null
 
   return (
     <>

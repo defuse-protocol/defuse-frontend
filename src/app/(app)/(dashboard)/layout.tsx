@@ -39,9 +39,9 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => (
     </div>
 
     {/* Content */}
-    <div className="relative flex flex-1 flex-col lg:min-w-0 pt-safe-offset-3 lg:p-2 lg:pl-74">
-      <div className="max-lg:px-4">
-        <div className="has-[>*]:pb-3 lg:has-[>*]:pb-2 space-y-2 max-lg:-mx-0.5">
+    <div className="relative flex flex-1 flex-col lg:min-w-0 lg:p-2 lg:pl-74">
+      <div className="max-lg:pt-safe-offset-3 max-lg:px-4 max-lg:flex max-lg:flex-col max-lg:items-center max-lg:sticky max-lg:top-0 max-lg:z-20 max-lg:bg-gray-800">
+        <div className="has-[>*]:pb-3 lg:has-[>*]:pb-2 space-y-2 max-lg:max-w-[464px] max-lg:mx-auto">
           <PreviewBanner />
           <NetworkOutageNotification />
         </div>
@@ -49,7 +49,7 @@ const DashboardLayout = ({ children }: { children: ReactNode }) => (
         <MobileTopBar />
       </div>
 
-      <main className="relative grow px-4 py-6 sm:p-6 rounded-t-3xl lg:rounded-3xl bg-surface-page lg:p-10">
+      <main className="relative grow px-4 py-6 sm:p-6 lg:rounded-3xl bg-surface-page lg:p-10">
         <div className="mx-auto max-w-[464px]">{children}</div>
       </main>
 

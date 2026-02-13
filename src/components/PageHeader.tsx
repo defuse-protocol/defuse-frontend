@@ -21,7 +21,9 @@ const PageHeader = ({ title, subtitle, className, intro, children }: Props) => (
         {intro && <HelperPopover>{intro}</HelperPopover>}
       </div>
       {subtitle && (
-        <p className="mt-1 text-fg-secondary text-sm font-medium">{subtitle}</p>
+        <p className="mt-1 text-fg-secondary text-sm font-medium text-pretty">
+          {subtitle}
+        </p>
       )}
     </div>
     {children && <div>{children}</div>}

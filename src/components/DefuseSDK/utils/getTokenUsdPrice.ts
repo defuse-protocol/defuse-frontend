@@ -2,6 +2,27 @@ import type { TokenUsdPriceData } from "@src/components/DefuseSDK/hooks/useToken
 import type { TokenInfo } from "../types/base"
 import { isBaseToken, isUnifiedToken } from "./token"
 
+export function getTokenPrice(
+  token: TokenInfo | null,
+  priceData?: TokenUsdPriceData
+): number | null {
+  if (!priceData || !token) return null
+
+  if (isBaseToken(token) && priceData[token.defuseAssetId]) {
+    return priceData[token.defuseAssetId].price
+  }
+
+  if (isUnifiedToken(token)) {
+    for (const grouped of token.groupedTokens) {
+      if (isBaseToken(grouped) && priceData[grouped.defuseAssetId]) {
+        return priceData[grouped.defuseAssetId].price
+      }
+    }
+  }
+
+  return null
+}
+
 const getTokenUsdPrice = (
   tokenAmount: string,
   token: TokenInfo | null,

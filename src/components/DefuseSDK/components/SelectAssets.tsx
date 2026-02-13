@@ -6,6 +6,7 @@ import { useIsFlatTokenListEnabled } from "@src/hooks/useIsFlatTokenListEnabled"
 import type React from "react"
 import { useMemo } from "react"
 import { chainIcons } from "../constants/blockchains"
+import { hexToRgba, useDominantColor } from "../hooks/useDominantColor"
 import type { TokenInfo } from "../types/base"
 import { isBaseToken } from "../utils"
 import AssetComboIcon from "./Asset/AssetComboIcon"
@@ -68,9 +69,16 @@ const SelectAssets = ({
     return hasChainIcon(selected, allTokens)
   }, [tokens, tokenIn, tokenOut, selected, chainIcon, isFlatTokenListEnabled])
 
+  const { hex } = useDominantColor(selected?.icon)
+
   if (!handleSelect) {
     return (
-      <div className="rounded-full border border-fg/10 flex items-center gap-1.5 p-1 pr-3">
+      <div
+        className="rounded-full outline-1 outline-fg/10 -outline-offset-1 flex items-center gap-1.5 p-1 pr-3 transition-colors"
+        style={{
+          backgroundColor: hexToRgba(hex, 0.07) ?? undefined,
+        }}
+      >
         <AssetComboIcon
           icon={selected?.icon}
           chainName={
@@ -96,7 +104,10 @@ const SelectAssets = ({
       onClick={handleAssetsSelect}
       data-testid={dataTestId}
       disabled={disabled}
-      className="rounded-full border border-fg/10 flex items-center gap-1.5 p-1 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-fg"
+      className="rounded-full outline-1 outline-fg/10 -outline-offset-1 flex items-center gap-1.5 p-1 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-fg transition-colors"
+      style={{
+        backgroundColor: hexToRgba(hex, 0.07) ?? undefined,
+      }}
     >
       <AssetComboIcon
         icon={selected?.icon}

@@ -155,7 +155,7 @@ export function HomeSwapWidget() {
         loading={loading}
         disabled={loading}
       >
-        Sign up to start swapping
+        Sign up to start trading
       </Button>
 
       {error && (

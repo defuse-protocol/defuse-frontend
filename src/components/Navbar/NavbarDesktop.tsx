@@ -1,5 +1,6 @@
 "use client"
 
+import type { FeatureFlagValues } from "@src/components/PreloadFeatureFlags"
 import { useIsActiveLink } from "@src/hooks/useIsActiveLink"
 import {
   AccountIcon,
@@ -7,11 +8,12 @@ import {
   DealsIcon,
   EarnIcon,
   HistoryIcon,
-  SwapIcon,
+  SwapSquareIcon,
 } from "@src/icons"
+import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { cn } from "@src/utils/cn"
 import Link from "next/link"
-import type { ComponentType } from "react"
+import { type ComponentType, useContext } from "react"
 
 export type NavItemType = {
   label: string
@@ -31,7 +33,7 @@ export const navItems: NavItemType[] = [
   {
     label: "Swap",
     href: "/swap",
-    icon: SwapIcon,
+    icon: SwapSquareIcon,
     showInTabs: true,
   },
   {
@@ -59,10 +61,28 @@ export const navItems: NavItemType[] = [
   },
 ]
 
+const disabledRoutes: Record<string, keyof FeatureFlagValues> = {
+  "/swap": "isSwapDisabled",
+  "/deposit": "isDepositsDisabled",
+  "/transfer": "isWithdrawDisabled",
+  "/deals": "isDealsDisabled",
+  "/earn": "isEarnDisabled",
+}
+
+export function useVisibleNavItems() {
+  const flags = useContext(FeatureFlagsContext)
+  return navItems.filter((item) => {
+    const key = disabledRoutes[item.href]
+    return !key || !flags[key]
+  })
+}
+
 export function NavbarDesktop() {
+  const visibleItems = useVisibleNavItems()
+
   return (
     <nav className="space-y-1">
-      {navItems.map((item) => (
+      {visibleItems.map((item) => (
         <NavItem key={item.label} {...item} />
       ))}
     </nav>
@@ -77,13 +97,15 @@ function NavItem({ label, href, icon: Icon }: NavItemType) {
       href={href}
       key={label}
       className={cn(
-        "flex items-center gap-4 py-4 px-3.5 rounded-2xl",
+        "flex items-center gap-4 py-3.5 px-3.5 rounded-2xl",
         isActive(href)
           ? "text-sidebar-fg bg-sidebar-active"
           : "text-sidebar-muted hover:text-sidebar-fg hover:bg-sidebar-hover"
       )}
     >
-      <Icon className="size-5 shrink-0" />
+      <span className="w-6 flex items-center justify-center">
+        <Icon className="size-5.5 shrink-0" />
+      </span>
       <span className="text-base/5 font-semibold">{label}</span>
     </Link>
   )

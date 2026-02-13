@@ -3,7 +3,7 @@ import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { useContext } from "react"
 
 export const referralMap: Record<WhitelabelTemplateValue, string> = {
-  "near-intents": "near-intents.intents-referral.near",
+  "near-intents": "new.intents-referral.near",
   solswap: "solswap.intents-referral.near",
   dogecoinswap: "dogecoinswap.intents-referral.near",
   turboswap: "turboswap.intents-referral.near",

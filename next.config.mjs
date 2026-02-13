@@ -1,7 +1,5 @@
 import withBundleAnalyzer from "@next/bundle-analyzer"
 import { withSentryConfig } from "@sentry/nextjs"
-import * as path from "node:path"
-
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -34,6 +32,21 @@ const nextConfig = {
       {
         source: '/privacy-policy',
         destination: '/privacy',
+        permanent: true,
+      },
+      {
+        source: '/gift-card/view-gift',
+        destination: '/gift',
+        permanent: true,
+      },
+      {
+        source: '/gift-card/create-gift',
+        destination: '/gifts/new',
+        permanent: true,
+      },
+      {
+        source: '/gift-card',
+        destination: '/gifts',
         permanent: true,
       },
     ]
@@ -72,6 +85,12 @@ const nextConfig = {
         hostname: "pro-api.coingecko.com",
         port: "",
         pathname: "/api/**",
+      },
+      {
+        protocol: "https",
+        hostname: "s2.coinmarketcap.com",
+        port: "",
+        pathname: "/static/img/**",
       },
     ],
   },

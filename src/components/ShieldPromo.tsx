@@ -69,7 +69,7 @@ const ShieldPromo = () => {
         onClose={() => setOpen(false)}
         title={
           <span className="flex items-center gap-1.5">
-            <ShieldCheckIcon className="size-5 text-fg-secondary" />
+            <ShieldCheckIcon className="size-5 text-brand" />
             What is a shielded account?
           </span>
         }

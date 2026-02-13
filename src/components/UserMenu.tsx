@@ -7,6 +7,7 @@ import {
   ChevronUpIcon,
   // Cog8ToothIcon,
   DocumentDuplicateIcon,
+  ExclamationCircleIcon,
   QuestionMarkCircleIcon,
 } from "@heroicons/react/16/solid"
 import { InformationCircleIcon } from "@heroicons/react/24/outline"
@@ -36,11 +37,13 @@ const UserMenu = ({
 }: {
   variant: "desktop" | "mobile"
 }) => {
-  const { dockItems } = useActivityDock()
+  const { dockItems, clearDockItems } = useActivityDock()
   const hasDockItems = dockItems.length > 0
   const { state, signOut } = useConnectWallet()
   const [copied, setCopied] = useState(false)
   const [isCopyWarningOpen, setIsCopyWarningOpen] = useState(false)
+  const displayLabel = "My account"
+
   const [skipCopyWarning, setSkipCopyWarning] = useState<boolean>(() => {
     if (typeof window === "undefined") return false
     return localStorage.getItem(COPY_ADDRESS_WARNING_ACK_KEY) === "true"
@@ -59,6 +62,7 @@ const UserMenu = ({
       label: "Sign out",
       onClick: () => {
         if (state.chainType) {
+          clearDockItems()
           signOut({ id: state.chainType })
         }
       },
@@ -97,12 +101,19 @@ const UserMenu = ({
       {variant === "desktop" ? (
         <DropdownMenu.Root modal={false}>
           <DropdownMenu.Trigger className="max-lg:hidden relative group bg-gray-900 text-sidebar-muted rounded-2xl px-3.5 py-3 flex items-center gap-3 w-full hover:bg-gray-950 hover:text-gray-300 data-[state=open]:bg-gray-950 data-[state=open]:text-gray-300">
-            <div className="size-7 flex items-center justify-center bg-brand rounded-lg">
+            <div className="shrink-0 size-7 flex items-center justify-center bg-brand rounded-lg">
               <UserIcon className="text-white/80 size-5" />
             </div>
 
-            <div className="text-sm font-semibold grow text-left">
-              {midTruncate(state.displayAddress ?? "")}
+            <div className="grow text-left">
+              <div className="text-gray-300 text-sm font-semibold">
+                {displayLabel}
+              </div>
+              {state.address && (
+                <div className="text-xs text-gray-400 flex min-w-0 font-medium">
+                  {midTruncate(state.address)}
+                </div>
+              )}
             </div>
 
             <ChevronUpIcon className="size-5 shrink-0 group-data-[state=open]:rotate-180 transition-transform duration-100 ease-in-out" />
@@ -143,7 +154,7 @@ const UserMenu = ({
                 hasDockItems && "hidden"
               )}
             >
-              {midTruncate(state.displayAddress ?? "")}
+              {displayLabel}
             </div>
 
             <div className="size-6 flex items-center justify-center bg-brand rounded-md">
@@ -184,18 +195,24 @@ const UserMenu = ({
         </div>
 
         <ul className="bg-surface-page rounded-3xl p-5 mt-5 space-y-3">
-          {[
-            "This is your NEAR Intents internal address",
-            "Use it only for transfers between NEAR Intents accounts",
-            "Funds sent here from external wallets will be lost",
-          ].map((text) => (
-            <li key={text} className="flex items-start gap-1.5">
-              <CheckCircleIcon className="size-4 text-fg-secondary shrink-0 mt-0.5" />
-              <span className="text-sm text-fg-secondary font-medium">
-                {text}
-              </span>
-            </li>
-          ))}
+          <li className="flex items-start gap-1.5">
+            <CheckCircleIcon className="size-4 text-fg-secondary shrink-0 mt-0.5" />
+            <span className="text-sm text-fg-secondary font-medium">
+              This is your NEAR Intents internal address
+            </span>
+          </li>
+          <li className="flex items-start gap-1.5">
+            <ExclamationCircleIcon className="size-4 text-yellow-600 shrink-0 mt-0.5" />
+            <span className="text-sm text-fg-secondary font-medium">
+              Use it only for transfers between NEAR Intents accounts
+            </span>
+          </li>
+          <li className="flex items-start gap-1.5">
+            <ExclamationCircleIcon className="size-4 text-yellow-600 shrink-0 mt-0.5" />
+            <span className="text-sm text-fg-secondary font-medium">
+              Funds sent here from external wallets will be lost
+            </span>
+          </li>
         </ul>
 
         <div className="mt-5 flex flex-col gap-2">

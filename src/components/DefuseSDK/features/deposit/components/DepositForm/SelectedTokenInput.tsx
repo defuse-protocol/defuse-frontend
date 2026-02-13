@@ -1,3 +1,4 @@
+import Alert from "@src/components/Alert"
 import {
   formatTokenValue,
   formatUsdAmount,
@@ -7,6 +8,7 @@ import clsx from "clsx"
 import type { ReactNode } from "react"
 import type { UseFormRegisterReturn } from "react-hook-form"
 import AssetComboIcon from "../../../../components/Asset/AssetComboIcon"
+import { hexToRgba, useDominantColor } from "../../../../hooks/useDominantColor"
 
 type SelectedTokenInputProps = {
   label: string
@@ -77,81 +79,90 @@ const SelectedTokenInput = ({
     registration.onChange(e)
   }
 
+  const { hex } = useDominantColor(icon)
+
   return (
-    <div
-      className={clsx(
-        "bg-surface-card border rounded-3xl w-full p-4 sm:p-6 flex flex-col gap-3",
-        error ? "border-red-500 ring-1 ring-red-500" : "border-border"
-      )}
-    >
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-1 flex-1 min-w-0">
-          <label className="sr-only" htmlFor="deposit-amount">
-            {label}
-          </label>
-          <input
-            id="deposit-amount"
-            type="text"
-            inputMode="decimal"
-            pattern="[0-9]*[.]?[0-9]*"
-            autoComplete="off"
-            placeholder={`Enter amount ${symbol}`}
-            aria-label={label}
-            disabled={disabled}
-            className={clsx(
-              "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-fg text-3xl sm:text-4xl tracking-tight w-full min-w-0",
-              !hasValue &&
-                "placeholder:text-xl sm:placeholder:text-2xl placeholder:font-semibold tracking-tight placeholder:text-gray-300 placeholder:-translate-y-0.5 sm:placeholder:-translate-y-1.25",
-              hasValue && "placeholder:text-fg-tertiary",
-              disabled && "opacity-50"
-            )}
-            {...registration}
-            onChange={handleInputChange}
-          />
-        </div>
-
-        <div className="rounded-full border border-fg/10 flex items-center gap-1.5 p-1 pr-3">
-          <AssetComboIcon icon={icon} sizeClassName="size-7" />
-          <span className="text-base text-fg font-semibold leading-none">
-            {symbol}
-          </span>
-        </div>
-      </div>
-      <div className="flex items-center justify-between gap-4">
-        <div className="text-sm text-fg-secondary font-medium">
-          {formatUsdAmount(usdAmount ?? 0)}
-        </div>
-
-        <div className="flex items-center gap-2">
-          {additionalInfo}
-
-          {hasBalance && (
-            <button
-              type="button"
-              onClick={handleSetMax}
+    <div>
+      <div
+        className={clsx(
+          "bg-surface-card border rounded-3xl w-full p-4 sm:p-6 flex flex-col gap-3",
+          error ? "border-red-500 ring-1 ring-red-500" : "border-border"
+        )}
+      >
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-1 flex-1 min-w-0">
+            <label className="sr-only" htmlFor="deposit-amount">
+              {label}
+            </label>
+            <input
+              id="deposit-amount"
+              type="text"
+              inputMode="decimal"
+              pattern="[0-9]*[.]?[0-9]*"
+              autoComplete="off"
+              placeholder={`Enter amount ${symbol}`}
+              aria-label={label}
               disabled={disabled}
               className={clsx(
-                "text-sm text-fg-secondary font-medium text-right",
-                !disabled && "hover:text-fg cursor-pointer"
+                "relative p-0 outline-hidden border-0 bg-transparent outline-none focus:ring-0 font-bold text-fg text-3xl sm:text-4xl tracking-tight w-full min-w-0",
+                !hasValue &&
+                  "placeholder:text-xl sm:placeholder:text-2xl placeholder:font-semibold tracking-tight placeholder:text-gray-300 placeholder:-translate-y-0.5 sm:placeholder:-translate-y-1.25",
+                hasValue && "placeholder:text-fg-tertiary",
+                disabled && "opacity-50"
               )}
-            >
-              {formatTokenValue(balance, decimals, {
-                min: 0.0001,
-                fractionDigits: 4,
-              })}{" "}
+              {...registration}
+              onChange={handleInputChange}
+            />
+          </div>
+
+          <div
+            className="rounded-full outline-1 outline-fg/10 -outline-offset-1 flex items-center gap-1.5 p-1 pr-3 transition-colors"
+            style={{
+              backgroundColor: hexToRgba(hex, 0.07) ?? undefined,
+            }}
+          >
+            <AssetComboIcon icon={icon} sizeClassName="size-7" />
+            <span className="text-base text-fg font-semibold leading-none">
               {symbol}
-            </button>
-          )}
+            </span>
+          </div>
         </div>
+        <div className="flex items-center justify-between gap-4">
+          <div className="text-sm text-fg-secondary font-medium">
+            {formatUsdAmount(usdAmount ?? 0)}
+          </div>
+
+          <div className="flex items-center gap-2">
+            {additionalInfo}
+
+            {hasBalance && (
+              <button
+                type="button"
+                onClick={handleSetMax}
+                disabled={disabled}
+                className={clsx(
+                  "text-sm text-fg-secondary font-medium text-right",
+                  !disabled && "hover:text-fg cursor-pointer"
+                )}
+              >
+                {formatTokenValue(balance, decimals, {
+                  min: 0.0001,
+                  fractionDigits: 4,
+                })}{" "}
+                {symbol}
+              </button>
+            )}
+          </div>
+        </div>
+        {error && <ErrorMessage>{error}</ErrorMessage>}
       </div>
       {isFullBalanceNativeDeposit && networkName && (
-        <div className="text-sm text-amber-600 bg-amber-50 rounded-xl p-3 font-medium">
+        <Alert variant="warning" className="mt-2">
           {symbol} is the native token of {networkName}. If you deposit your
           full balance, you will have nothing available to pay for transaction
           fees.
-        </div>
+        </Alert>
       )}
-      {error && <ErrorMessage>{error}</ErrorMessage>}
     </div>
   )
 }

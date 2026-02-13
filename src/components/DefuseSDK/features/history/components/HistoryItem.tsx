@@ -68,18 +68,17 @@ export function HistoryItem({ transaction, tokenList }: HistoryItemProps) {
 
       <ListItem.Content align="end">
         <ListItem.Title>{usdValue}</ListItem.Title>
-        <div className="flex items-center gap-1.5 text-sm/4 font-medium text-fg-secondary">
-          <TooltipNew>
-            <TooltipNew.Trigger>
-              <span className="cursor-default">
-                {formatSmartDate(transaction.timestamp)}
-              </span>
-            </TooltipNew.Trigger>
-            <TooltipNew.Content side="top">
-              {formatFullDate(transaction.timestamp)}
-            </TooltipNew.Content>
-          </TooltipNew>
-        </div>
+
+        <TooltipNew>
+          <TooltipNew.Trigger>
+            <ListItem.Subtitle className="cursor-default">
+              {formatSmartDate(transaction.timestamp)}
+            </ListItem.Subtitle>
+          </TooltipNew.Trigger>
+          <TooltipNew.Content side="top">
+            {formatFullDate(transaction.timestamp)}
+          </TooltipNew.Content>
+        </TooltipNew>
       </ListItem.Content>
     </ListItem>
   )

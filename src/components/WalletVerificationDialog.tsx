@@ -7,6 +7,7 @@ type ContentProps = {
   onConfirm: () => void
   onCancel: () => void
   isVerifying: boolean
+  isPasskey: boolean
   isTokenExpired?: boolean
 }
 
@@ -17,6 +18,7 @@ export function WalletVerificationDialog({
   isVerifying,
   isFailure,
   isSessionExpired = false,
+  isPasskey = false,
 }: {
   open: boolean
   onConfirm: () => void
@@ -24,6 +26,7 @@ export function WalletVerificationDialog({
   isVerifying: boolean
   isFailure: boolean
   isSessionExpired?: boolean
+  isPasskey?: boolean
 }) {
   const getContent = () => {
     if (isFailure) {
@@ -32,6 +35,7 @@ export function WalletVerificationDialog({
           onConfirm={onConfirm}
           onCancel={onCancel}
           isVerifying={isVerifying}
+          isPasskey={isPasskey}
         />
       )
     }
@@ -41,6 +45,7 @@ export function WalletVerificationDialog({
           onConfirm={onConfirm}
           onCancel={onCancel}
           isVerifying={isVerifying}
+          isPasskey={isPasskey}
         />
       )
     }
@@ -49,6 +54,7 @@ export function WalletVerificationDialog({
         onConfirm={onConfirm}
         onCancel={onCancel}
         isVerifying={isVerifying}
+        isPasskey={isPasskey}
       />
     )
   }
@@ -60,8 +66,11 @@ function DefaultContent({
   onConfirm,
   onCancel,
   isVerifying,
+  isPasskey,
   isTokenExpired = false,
 }: ContentProps) {
+  const authLabel = isPasskey ? "Passkey" : "wallet"
+
   return (
     <>
       <div className="flex flex-col items-center mt-4">
@@ -69,12 +78,12 @@ function DefaultContent({
           <LockClosedIcon className="size-6 text-fg-secondary" />
         </div>
         <AlertDialog.Title className="mt-5">
-          Verify your wallet
+          Verify your {authLabel}
         </AlertDialog.Title>
         <AlertDialog.Description className="mt-2">
           {isTokenExpired
-            ? "Your previous login session has expired. Please sign a verification message with your wallet to continue."
-            : "Sign a message to verify ownership of your wallet and unlock all features."}
+            ? `Your previous login session has expired. Please sign a verification message with your ${authLabel} to continue.`
+            : `Sign a message to verify ownership of your ${authLabel} and unlock all features.`}
         </AlertDialog.Description>
       </div>
 
@@ -95,7 +104,7 @@ function DefaultContent({
 
       <div className="flex flex-col gap-2 mt-5">
         <Button size="xl" fullWidth onClick={onConfirm} loading={isVerifying}>
-          {isVerifying ? "Verifying..." : "Verify wallet"}
+          {isVerifying ? "Verifying..." : `Verify ${authLabel}`}
         </Button>
         <Button
           size="xl"
@@ -115,7 +124,22 @@ function DefaultContent({
   )
 }
 
-function FailureContent({ onConfirm, onCancel, isVerifying }: ContentProps) {
+function FailureContent({
+  onConfirm,
+  onCancel,
+  isVerifying,
+  isPasskey,
+}: ContentProps) {
+  const failureReasons = isPasskey
+    ? [
+        "The authentication was cancelled or timed out",
+        "Your Passkey may not be available on this device",
+      ]
+    : [
+        "The signature was rejected or timed out",
+        "Some wallets may be incompatible",
+      ]
+
   return (
     <>
       <div className="absolute top-0 inset-x-0 h-32 bg-linear-to-b from-red-50 to-red-50/0" />
@@ -128,16 +152,14 @@ function FailureContent({ onConfirm, onCancel, isVerifying }: ContentProps) {
           Verification failed
         </AlertDialog.Title>
         <AlertDialog.Description className="mt-2">
-          We couldn't verify your wallet. This might happen if you rejected the
-          signature request.
+          {isPasskey
+            ? "We couldn\u2019t verify your Passkey. This might happen if the authentication was cancelled."
+            : "We couldn\u2019t verify your wallet. This might happen if you rejected the signature request."}
         </AlertDialog.Description>
       </div>
 
       <ul className="bg-surface-page rounded-3xl p-5 mt-5 space-y-3">
-        {[
-          "The signature was rejected or timed out",
-          "Some wallets may be incompatible",
-        ].map((text) => (
+        {failureReasons.map((text) => (
           <li key={text} className="flex items-center gap-1.5">
             <XCircleIcon className="size-4 text-fg-secondary" />
             <span className="text-sm text-fg-secondary font-medium">
@@ -169,7 +191,10 @@ function SessionExpiredContent({
   onConfirm,
   onCancel,
   isVerifying,
+  isPasskey,
 }: ContentProps) {
+  const authLabel = isPasskey ? "Passkey" : "wallet"
+
   return (
     <>
       <div className="flex flex-col items-center text-center mt-4">
@@ -178,8 +203,8 @@ function SessionExpiredContent({
         </div>
         <AlertDialog.Title className="mt-5">Session expired</AlertDialog.Title>
         <AlertDialog.Description className="mt-2">
-          Your session has expired. Please verify your wallet again to continue
-          using all features.
+          Your session has expired. Please verify your {authLabel} again to
+          continue using all features.
         </AlertDialog.Description>
       </div>
 

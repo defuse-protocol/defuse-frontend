@@ -99,19 +99,19 @@ const faqItems = [
 export default function IndexPage() {
   return (
     <>
-      <section className="relative flex flex-col items-center justify-center py-16 md:pb-24 bg-surface-card rounded-b-3xl overflow-hidden">
+      <section className="relative flex flex-col items-center justify-center py-16 md:pb-24 [@media(max-height:800px)]:py-6 bg-surface-card rounded-b-3xl overflow-hidden">
         <div className="flex flex-col items-center justify-center px-4 max-w-lg">
           <div className="text-brand text-sm/5 font-bold py-0.5 px-3 rounded-lg bg-brand/[0.07] text-center">
             Over $10 billion swapped
           </div>
-          <h1 className="mt-4 md:mt-6 text-4xl/none md:text-5xl/none text-balance font-bold tracking-tight text-center">
+          <h1 className="mt-4 md:mt-6 [@media(max-height:800px)]:mt-2 text-4xl/none md:text-5xl/none text-balance font-bold tracking-tight text-center">
             One account, no borders.
             <br />
             <span className="text-brand">Endless possibilities.</span>
           </h1>
         </div>
 
-        <div className="relative mt-16 flex flex-col items-center justify-center px-4 max-w-md">
+        <div className="relative mt-16 [@media(max-height:800px)]:mt-6 flex flex-col items-center justify-center px-4 max-w-md">
           <AnimatedTokenPath />
           <AnimatedTokenPath side="right" />
 
