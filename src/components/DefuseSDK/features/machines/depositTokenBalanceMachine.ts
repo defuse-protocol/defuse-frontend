@@ -125,6 +125,8 @@ export const backgroundBalanceActor = fromPromise(
       case BlockchainEnum.OPTIMISM:
       case BlockchainEnum.AVALANCHE:
       case BlockchainEnum.MONAD:
+      case BlockchainEnum.PLASMA:
+      case BlockchainEnum.SCROLL:
       case BlockchainEnum.LAYERX:
       case BlockchainEnum.ADI: {
         if (isNativeToken(tokenDeployment)) {

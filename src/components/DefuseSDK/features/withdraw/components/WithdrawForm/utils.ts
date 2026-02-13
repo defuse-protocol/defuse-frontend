@@ -52,6 +52,8 @@ export function chainTypeSatisfiesChainName(
     case chainType === AuthMethod.EVM && chainName === "optimism":
     case chainType === AuthMethod.EVM && chainName === "avalanche":
     case chainType === AuthMethod.EVM && chainName === "monad":
+    case chainType === AuthMethod.EVM && chainName === "plasma":
+    case chainType === AuthMethod.EVM && chainName === "scroll":
     case chainType === AuthMethod.EVM && chainName === "layerx":
     case chainType === AuthMethod.EVM && chainName === "adi":
     case chainType === AuthMethod.Solana && chainName === "solana":

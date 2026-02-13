@@ -946,6 +946,8 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.LAYERX:
         case BlockchainEnum.ADI:
         case BlockchainEnum.STARKNET:
+        case BlockchainEnum.PLASMA:
+        case BlockchainEnum.SCROLL:
           return {
             activeDeposit: false,
             passiveDeposit: true,
@@ -985,6 +987,8 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.MONAD:
         case BlockchainEnum.LAYERX:
         case BlockchainEnum.ADI:
+        case BlockchainEnum.PLASMA:
+        case BlockchainEnum.SCROLL:
           return {
             activeDeposit: true,
             passiveDeposit: true,
@@ -1072,6 +1076,8 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.LAYERX:
         case BlockchainEnum.ADI:
         case BlockchainEnum.STARKNET:
+        case BlockchainEnum.PLASMA:
+        case BlockchainEnum.SCROLL:
           return {
             activeDeposit: false,
             passiveDeposit: true,
@@ -1126,6 +1132,8 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.LAYERX:
         case BlockchainEnum.ADI:
         case BlockchainEnum.STARKNET:
+        case BlockchainEnum.PLASMA:
+        case BlockchainEnum.SCROLL:
           return {
             activeDeposit: false,
             passiveDeposit: true,
@@ -1186,6 +1194,8 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.LAYERX:
         case BlockchainEnum.ADI:
         case BlockchainEnum.STARKNET:
+        case BlockchainEnum.PLASMA:
+        case BlockchainEnum.SCROLL:
           return {
             activeDeposit: false,
             passiveDeposit: true,
@@ -1246,6 +1256,8 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.LAYERX:
         case BlockchainEnum.ADI:
         case BlockchainEnum.STARKNET:
+        case BlockchainEnum.PLASMA:
+        case BlockchainEnum.SCROLL:
           return {
             activeDeposit: false,
             passiveDeposit: true,
@@ -1305,6 +1317,8 @@ export function getAvailableDepositRoutes(
         case BlockchainEnum.MONAD:
         case BlockchainEnum.LAYERX:
         case BlockchainEnum.STARKNET:
+        case BlockchainEnum.PLASMA:
+        case BlockchainEnum.SCROLL:
           return {
             activeDeposit: false,
             passiveDeposit: true,
@@ -1411,6 +1425,10 @@ export function getWalletRpcUrl(network: BlockchainEnum): string {
       return settings.rpcUrls.adi
     case BlockchainEnum.STARKNET:
       return settings.rpcUrls.starknet
+    case BlockchainEnum.PLASMA:
+      return settings.rpcUrls.plasma
+    case BlockchainEnum.SCROLL:
+      return settings.rpcUrls.scroll
     default:
       // @ts-expect-error TODO: Add PLASMA and SCROLL support
       network satisfies never
