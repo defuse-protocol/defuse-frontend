@@ -2695,6 +2695,23 @@
         }
       ],
       "tags": ["mc:95", "aid:strk"]
+    },
+    {
+      "defuseAssetId": "nep141:eth-0xdef1b2d939edc0e4d35806c59b3166f790175afe.omft.near",
+      "symbol": "INX",
+      "name": "Infinex",
+      "decimals": 18,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/39461.png",
+      "originChainName": "eth",
+      "deployments": [
+        {
+          "address": "0xdef1b2d939edc0e4d35806c59b3166f790175afe",
+          "decimals": 18,
+          "chainName": "eth",
+          "bridge": "poa"
+        }
+      ],
+      "tags": ["mc:483"]
     }
   ]
 }
