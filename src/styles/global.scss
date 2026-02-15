@@ -66,6 +66,15 @@
     pointer-events: unset !important;
   }
 
+  /* Near Intents background */
+  .tmpl-near-intents {
+    background-color: #0c0c0c;
+  }
+
+  .tmpl-near-intents.light {
+    background-color: #e8e0d8;
+  }
+
   /* Theme colors */
   :root {
     /* RabbitSwap CSS variables (dark theme colors) */
@@ -182,6 +191,7 @@
 }
 
 /* Template-specific styles */
+
 html.tmpl-solswap,
 .tmpl-solswap body {
   background: var(--purple-2);
@@ -284,4 +294,13 @@ html.tmpl-omniswap.dark .radix-themes {
 .radix-themes {
   --cursor-button: pointer;
   --cursor-switch: pointer;
+}
+
+/* Near Intents background override */
+.tmpl-near-intents .radix-themes {
+  background-color: #0c0c0c;
+}
+
+.tmpl-near-intents.light .radix-themes {
+  background-color: #e8e0d8;
 }

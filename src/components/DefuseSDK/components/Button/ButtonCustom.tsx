@@ -68,7 +68,7 @@ export const ButtonCustom = ({
         size={radixButtonSize}
         disabled={disabled || isLoading}
         className={cn(
-          !disabled && "cursor-pointer",
+          !disabled && "cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform duration-150",
           { sm: "h-8", base: "h-10", lg: "h-14" }[size],
           className
         )}

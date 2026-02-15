@@ -2,6 +2,14 @@
   background-color: var(--gray-2);
 }
 
+:global(.tmpl-near-intents) .header {
+  background-color: #161616;
+}
+
+:global(.tmpl-near-intents.light) .header {
+  background-color: #ddd5cc;
+}
+
 :global(.tmpl-solswap) .header {
   background-color: var(--purple-2);
 }
