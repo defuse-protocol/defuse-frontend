@@ -3,6 +3,7 @@
 import {
   FREIGHTER_ID,
   HOTWALLET_ID,
+  LOBSTR_ID,
   StellarWalletsKit,
   WalletNetwork,
   XBULL_ID,
@@ -43,6 +44,7 @@ function getKit() {
         filterBy: (module) =>
           module.productId === FREIGHTER_ID ||
           module.productId === HOTWALLET_ID ||
+          module.productId === LOBSTR_ID ||
           module.productId === XBULL_ID,
       }),
       network: WalletNetwork.PUBLIC,
