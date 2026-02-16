@@ -24,7 +24,7 @@ import { usePrivateModeStore } from "@src/stores/usePrivateModeStore"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 // Private intents SDK configuration
-const PRIVATE_INTENTS_ENV = {
+const CONFIDENTIAL_INTENTS_ENV = {
   contractID: "privintents.test.near",
   contractSalt: "2caa9986",
   poaTokenFactoryContractID: "",
@@ -36,7 +36,7 @@ const PRIVATE_INTENTS_ENV = {
 
 const privateSDK = new IntentsSDK({
   referral: "private-mode",
-  env: PRIVATE_INTENTS_ENV,
+  env: CONFIDENTIAL_INTENTS_ENV,
 })
 
 const CHAIN_TYPE_TO_AUTH_METHOD: Record<ChainType, AuthMethod> = {

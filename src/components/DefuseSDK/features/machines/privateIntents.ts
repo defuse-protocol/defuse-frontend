@@ -19,10 +19,10 @@ import { logger } from "@src/utils/logger"
 import { cookies } from "next/headers"
 import z from "zod"
 
-// Cookie names for private intents session
-const ACCESS_TOKEN_COOKIE = "private_intents_access"
-const REFRESH_TOKEN_COOKIE = "private_intents_refresh"
-const TOKEN_EXPIRES_AT_COOKIE = "private_intents_expires_at"
+// Cookie names for confidential intents session
+const ACCESS_TOKEN_COOKIE = "confidential_intents_access"
+const REFRESH_TOKEN_COOKIE = "confidential_intents_refresh"
+const TOKEN_EXPIRES_AT_COOKIE = "confidential_intents_expires_at"
 
 // Refresh threshold - refresh when less than this many seconds remain
 const REFRESH_THRESHOLD_SECONDS = 60
@@ -290,7 +290,7 @@ const shieldQuoteArgsSchema = z.object({
 type ShieldQuoteArgs = z.infer<typeof shieldQuoteArgsSchema>
 
 /**
- * Get quote for shielding tokens (public INTENTS → private PRIVATE_INTENTS)
+ * Get quote for shielding tokens (public INTENTS → private CONFIDENTIAL_INTENTS)
  */
 export async function getShieldQuote(
   args: ShieldQuoteArgs
@@ -318,7 +318,7 @@ export async function getShieldQuote(
       deadline: rest.deadline,
       // Shield: deposit from public intents, receive to private intents
       depositType: QuoteRequest.depositType.INTENTS,
-      recipientType: QuoteRequest.recipientType.PRIVATE_INTENTS,
+      recipientType: QuoteRequest.recipientType.CONFIDENTIAL_INTENTS,
       refundTo: intentsUserId,
       refundType: QuoteRequest.refundType.INTENTS,
       recipient: intentsUserId,
@@ -346,7 +346,7 @@ const unshieldQuoteArgsSchema = z.object({
 type UnshieldQuoteArgs = z.infer<typeof unshieldQuoteArgsSchema>
 
 /**
- * Get quote for unshielding tokens (private PRIVATE_INTENTS → public INTENTS)
+ * Get quote for unshielding tokens (private CONFIDENTIAL_INTENTS → public INTENTS)
  * Uses session cookie for authorization, auto-refreshes token
  */
 export async function getUnshieldQuote(
@@ -379,7 +379,7 @@ export async function getUnshieldQuote(
       amount: rest.amount,
       deadline: rest.deadline,
       // Unshield: deposit from private intents, receive to public intents
-      depositType: QuoteRequest.depositType.PRIVATE_INTENTS,
+      depositType: QuoteRequest.depositType.CONFIDENTIAL_INTENTS,
       recipientType: QuoteRequest.recipientType.INTENTS,
       refundTo: intentsUserId,
       refundType: QuoteRequest.refundType.INTENTS,
@@ -417,7 +417,7 @@ const privateTransferQuoteArgsSchema = z.object({
 type PrivateTransferQuoteArgs = z.infer<typeof privateTransferQuoteArgsSchema>
 
 /**
- * Get quote for private transfer (private PRIVATE_INTENTS → private PRIVATE_INTENTS)
+ * Get quote for private transfer (private CONFIDENTIAL_INTENTS → private CONFIDENTIAL_INTENTS)
  * Uses session cookie for authorization, auto-refreshes token
  */
 export async function getPrivateTransferQuote(
@@ -450,8 +450,8 @@ export async function getPrivateTransferQuote(
       destinationAsset: rest.asset,
       amount: rest.amount,
       deadline: rest.deadline,
-      depositType: QuoteRequest.depositType.PRIVATE_INTENTS,
-      recipientType: QuoteRequest.recipientType.PRIVATE_INTENTS,
+      depositType: QuoteRequest.depositType.CONFIDENTIAL_INTENTS,
+      recipientType: QuoteRequest.recipientType.CONFIDENTIAL_INTENTS,
       refundTo: intentsUserId,
       refundType: QuoteRequest.refundType.INTENTS,
       recipient: recipientIntentsUserId,
