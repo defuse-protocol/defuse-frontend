@@ -30,7 +30,7 @@ const Main = ({ children }: PropsWithChildren) => {
 
   return (
     <>
-      <div className="widget-container mx-auto mt-5 md:mt-12 px-3 sm:px-0">
+      <div className="widget-container mx-auto mt-5 md:mt-8 px-3 sm:px-0">
         <div className="rounded-3xl bg-gray-900 p-4 sm:p-5 pt-4 dark:bg-gray-950 outline outline-white/5">
           <div className="flex items-center gap-3">
             <NearBadge aria-hidden="true" className="size-6 shrink-0" />
