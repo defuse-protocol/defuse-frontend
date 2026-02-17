@@ -2,7 +2,6 @@
 
 import {
   type IntentPayload,
-  IntentsSDK,
   VersionedNonceBuilder,
 } from "@defuse-protocol/intents-sdk"
 import {
@@ -13,6 +12,7 @@ import {
   type walletMessage as walletMessageTypes,
 } from "@defuse-protocol/internal-utils"
 import { base64 } from "@scure/base"
+import { bridgeSDK } from "@src/components/DefuseSDK/constants/bridgeSdk"
 import {
   authenticatePrivateIntents,
   isPrivateIntentsAuthenticated,
@@ -22,22 +22,6 @@ import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
 import { usePrivateModeStore } from "@src/stores/usePrivateModeStore"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-
-// Private intents SDK configuration
-const CONFIDENTIAL_INTENTS_ENV = {
-  contractID: "privintents.test.near",
-  contractSalt: "2caa9986",
-  poaTokenFactoryContractID: "",
-  poaBridgeBaseURL: "",
-  solverRelayBaseURL: "",
-  managerConsoleBaseURL: "",
-  nearIntentsBaseURL: "",
-}
-
-const privateSDK = new IntentsSDK({
-  referral: "private-mode",
-  env: CONFIDENTIAL_INTENTS_ENV,
-})
 
 const CHAIN_TYPE_TO_AUTH_METHOD: Record<ChainType, AuthMethod> = {
   [ChainType.EVM]: "evm",
@@ -164,7 +148,7 @@ export function usePrivateModeAuth() {
       const deadline = new Date(now + 5 * 60 * 1000)
 
       // Build intent payload via private SDK (correct verifying_contract + nonce)
-      const intentPayload = await privateSDK
+      const intentPayload = await bridgeSDK
         .intentBuilder()
         .setSigner(intentsUserId)
         .setDeadline(deadline)
