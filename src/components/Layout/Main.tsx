@@ -2,6 +2,7 @@ import { type PropsWithChildren, useContext, useState } from "react"
 
 import { ChevronRightIcon } from "@radix-ui/react-icons"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
+import NearBadge from "../../../public/static/icons/near-badge.svg"
 
 const Main = ({ children }: PropsWithChildren) => {
   const [showReadMore, setShowReadMore] = useState(false)
@@ -29,12 +30,15 @@ const Main = ({ children }: PropsWithChildren) => {
 
   return (
     <>
-      <div className="widget-container mx-auto mt-12">
-        <div className="rounded-3xl bg-gray-900 p-5 pt-4 dark:bg-gray-950 outline outline-white/5">
-          <h2 className="text-white text-lg/5 font-semibold -tracking-[0.01em]">
-            We’ve moved to near.com
-          </h2>
-          <p className="text-gray-400 text-sm font-medium mt-2">
+      <div className="widget-container mx-auto mt-5 md:mt-12 px-3 sm:px-0">
+        <div className="rounded-3xl bg-gray-900 p-4 sm:p-5 pt-4 dark:bg-gray-950 outline outline-white/5">
+          <div className="flex items-center gap-3">
+            <NearBadge aria-hidden="true" className="size-6 shrink-0" />
+            <h2 className="text-white text-lg/6 font-semibold -tracking-[0.01em]">
+              We’ve moved to near.com
+            </h2>
+          </div>
+          <p className="text-gray-400 text-sm font-medium mt-3">
             The NEAR Intents consumer website has moved to{" "}
             <a
               href="https://near.com"
@@ -44,12 +48,12 @@ const Main = ({ children }: PropsWithChildren) => {
             >
               near.com
             </a>{" "}
-            <br className="hidden sm:block" />— better app, same team, new home.
+            <br className="hidden sm:block" />— better app, same team, new home.{" "}
             {!showReadMore && (
               <button
                 type="button"
                 onClick={() => setShowReadMore(true)}
-                className="text-white underline text-left inline-block ml-1"
+                className="text-white underline text-left inline-block"
               >
                 Read more
               </button>
