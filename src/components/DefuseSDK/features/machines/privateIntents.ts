@@ -320,7 +320,7 @@ export async function getShieldQuote(
       depositType: QuoteRequest.depositType.INTENTS,
       recipientType: QuoteRequest.recipientType.CONFIDENTIAL_INTENTS,
       refundTo: intentsUserId,
-      refundType: QuoteRequest.refundType.INTENTS,
+      refundType: QuoteRequest.refundType.CONFIDENTIAL_INTENTS,
       recipient: intentsUserId,
       quoteWaitingTimeMs: 0,
     }
@@ -382,7 +382,7 @@ export async function getUnshieldQuote(
       depositType: QuoteRequest.depositType.CONFIDENTIAL_INTENTS,
       recipientType: QuoteRequest.recipientType.INTENTS,
       refundTo: intentsUserId,
-      refundType: QuoteRequest.refundType.INTENTS,
+      refundType: QuoteRequest.refundType.CONFIDENTIAL_INTENTS,
       recipient: intentsUserId,
       quoteWaitingTimeMs: 0,
     }
@@ -453,7 +453,7 @@ export async function getPrivateTransferQuote(
       depositType: QuoteRequest.depositType.CONFIDENTIAL_INTENTS,
       recipientType: QuoteRequest.recipientType.CONFIDENTIAL_INTENTS,
       refundTo: intentsUserId,
-      refundType: QuoteRequest.refundType.INTENTS,
+      refundType: QuoteRequest.refundType.CONFIDENTIAL_INTENTS,
       recipient: recipientIntentsUserId,
       quoteWaitingTimeMs: 0,
     }
