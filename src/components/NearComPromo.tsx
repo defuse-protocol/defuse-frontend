@@ -26,11 +26,12 @@ const NearComPromo = () => {
           </h2>
         </div>
         <p className="text-gray-400 text-sm font-medium mt-3">
-          The NEAR Intents consumer website has moved to{" "}
+          The NEAR Intents consumer app has a new home at{" "}
           <a {...NEAR_COM_LINK_PROPS} className="text-white underline">
             near.com
           </a>{" "}
-          <br className="hidden sm:block" />— better app, same team, new home.{" "}
+          <br className="hidden sm:block" />— better app, same team. You can
+          continue here, but we encourage you to make the switch.{" "}
           {!showReadMore && (
             <button
               type="button"
@@ -47,9 +48,8 @@ const NearComPromo = () => {
             <a {...NEAR_COM_LINK_PROPS} className="text-white underline">
               near.com
             </a>{" "}
-            to get started. If you have an existing account here with funds, you
-            can transfer them to your new account using NEAR Intents internal
-            transfers (renamed near.com internal transfers).
+            to get started. If you have funds here, you can transfer them to
+            your new account using NEAR Intents internal transfers.
           </p>
         )}
         <a
