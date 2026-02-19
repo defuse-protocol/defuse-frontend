@@ -1,6 +1,7 @@
 import { type PropsWithChildren, useContext } from "react"
 
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
+import NearComPromo from "../NearComPromo"
 
 const Main = ({ children }: PropsWithChildren) => {
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
@@ -25,7 +26,12 @@ const Main = ({ children }: PropsWithChildren) => {
     )
   }
 
-  return <main className="flex md:flex-1">{children}</main>
+  return (
+    <>
+      <NearComPromo />
+      <main className="flex md:flex-1">{children}</main>
+    </>
+  )
 }
 
 export default Main
