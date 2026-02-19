@@ -1,5 +1,6 @@
-import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { type PropsWithChildren, useContext } from "react"
+
+import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import NearComPromo from "../NearComPromo"
 
 const Main = ({ children }: PropsWithChildren) => {

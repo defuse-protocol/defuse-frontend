@@ -5,7 +5,7 @@ import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import NearBadge from "../../public/static/icons/near-badge.svg"
 
 const NEAR_COM_LINK_PROPS = {
-  href: "https://near.com?utm_source=near-intents",
+  href: "https://near.com/?utm_source=near-intents",
   target: "_blank",
   rel: "noopener noreferrer",
 }
