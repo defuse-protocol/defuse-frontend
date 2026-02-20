@@ -230,14 +230,16 @@ export function wrapPayloadAsWalletMessage(
       }
     case "webauthn":
       // For WebAuthn, payload is an inline string (JSON)
-      // The challenge needs to be derived from the payload
+      // The challenge is SHA-256 hash of the payload (must match makeSwapMessage flow)
       return {
         ERC191: placeholderErc191,
         NEP413: placeholderNep413,
         SOLANA: placeholderSolana,
         STELLAR: placeholderStellar,
         WEBAUTHN: {
-          challenge: stringToUint8Array(narrowedPayload.payload),
+          challenge: messageFactory.makeChallenge(
+            stringToUint8Array(narrowedPayload.payload)
+          ),
           payload: narrowedPayload.payload,
           parsedPayload: JSON.parse(narrowedPayload.payload),
         },
