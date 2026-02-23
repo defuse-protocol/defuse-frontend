@@ -293,6 +293,23 @@
             }
           ],
           "tags": ["mc:7", "type:stablecoin", "tvol:4", "aid:usdc"]
+        },
+        {
+          "defuseAssetId": "nep141:aptos-34ee497f210c5a511e8d5b53bc56d75b63612bb5.omft.near",
+          "symbol": "USDC",
+          "name": "USD Coin",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/3408.png",
+          "originChainName": "aptos",
+          "deployments": [
+            {
+              "address": "0xbae207659db88bea0cbead6da0ed00aac12edcdda169e591cd41c94180b46f3b",
+              "decimals": 6,
+              "chainName": "aptos",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:7", "type:stablecoin", "tvol:4", "aid:usdc"]
         }
       ],
       "tags": ["mc:7", "type:stablecoin", "tvol:4", "aid:usdc"]
