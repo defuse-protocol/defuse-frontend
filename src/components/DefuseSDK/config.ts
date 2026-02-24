@@ -21,6 +21,7 @@ export interface EnvConfig {
   solverRelayBaseURL: string
   managerConsoleBaseURL: string
   nearIntentsBaseURL: string
+  bridgeIndexerURL: string
 }
 
 export type NearIntentsEnv = "production" | "stage"
@@ -33,6 +34,7 @@ const configsByEnvironment: Record<NearIntentsEnv, EnvConfig> = {
     solverRelayBaseURL: getSolverRelayURL(),
     managerConsoleBaseURL: "https://api-mng-console.chaindefuser.com/api/",
     nearIntentsBaseURL: getNearIntentsBaseURL(),
+    bridgeIndexerURL: "https://bridge-indexer.chaindefuser.com",
   },
   stage: {
     contractID: "staging-intents.near",
@@ -41,6 +43,7 @@ const configsByEnvironment: Record<NearIntentsEnv, EnvConfig> = {
     solverRelayBaseURL: getSolverRelayURL(),
     managerConsoleBaseURL: "https://mng-console-stage.intents-near.org/api/",
     nearIntentsBaseURL: getNearIntentsBaseURL(),
+    bridgeIndexerURL: "https://bridge-indexer.chaindefuser.com",
   },
 }
 

@@ -212,6 +212,12 @@ export function extractRawSignature(
 
       sBytes = normalizeSignatureS(sBytes)
 
+      // Left-pad r and s to 32 bytes each (P-256 fixed-width format).
+      // DER encoding strips leading zeros, so after parsing the components
+      // may be shorter than 32 bytes (~0.4% chance per component).
+      rBytes = padToLength(rBytes, 32)
+      sBytes = padToLength(sBytes, 32)
+
       return concatUint8Arrays([rBytes, sBytes])
     }
 
@@ -228,6 +234,15 @@ export function extractRawSignature(
 function shouldRemoveLeadingZero(bytes: Uint8Array): boolean {
   // biome-ignore lint/style/noNonNullAssertion: trust me bro
   return bytes[0] === 0x0 && (bytes[1]! & (1 << 7)) !== 0
+}
+
+function padToLength(bytes: Uint8Array, length: number): Uint8Array {
+  if (bytes.length >= length) {
+    return bytes
+  }
+  const padded = new Uint8Array(length)
+  padded.set(bytes, length - bytes.length)
+  return padded
 }
 
 /**
