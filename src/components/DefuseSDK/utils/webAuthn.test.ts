@@ -32,10 +32,25 @@ describe("extractRawSignature()", () => {
       expected:
         "dc21f05d647d510ea22e9c7246a80331eae727255c3664f1473abfd83c3ee1120c094990326beb76fe4c95d99b1884f718a42aa98d11f6d6e108b6516b76efe6",
     },
+    {
+      // r is 31 bytes (leading zero was stripped by DER), must be left-padded to 32
+      input:
+        "3043021f7faaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa022011bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      expected:
+        "007faaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa11bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    },
   ])("should return signature for p256 curve", ({ input, expected }) => {
     const signature = Buffer.from(input, "hex")
     expect(extractRawSignature(signature, "p256")).toEqual(
       new Uint8Array(Buffer.from(expected, "hex"))
     )
+  })
+
+  it("always returns exactly 64 bytes for p256", () => {
+    // r = 31 bytes, s = 31 bytes — both need padding
+    const input =
+      "3042021f7faaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa021f22bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    const result = extractRawSignature(Buffer.from(input, "hex"), "p256")
+    expect(result.length).toBe(64)
   })
 })
