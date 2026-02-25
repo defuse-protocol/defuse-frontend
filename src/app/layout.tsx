@@ -40,6 +40,7 @@ export const viewport: Viewport = {
 }
 
 const GA_NEAR_INTENTS_ID = "G-WNE3NB46KM"
+const GA_NEAR_COM_ID = "G-FS9X7WEKY2"
 const GA_OMNI_SWAP_ID = "G-91C1EKE2JM"
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -208,6 +209,7 @@ const RootLayout = async ({
       <GoogleAnalytics
         gaId={tmpl === "omniswap" ? GA_OMNI_SWAP_ID : GA_NEAR_INTENTS_ID}
       />
+      <GoogleAnalytics gaId={GA_NEAR_COM_ID} />
       {HELPSCOUT_BEACON_ID && <Helpscout />}
     </html>
   )
