@@ -44,4 +44,5 @@ export const CHAIN_IDS: Record<SupportedChainName, number | undefined> = {
   plasma: 9745,
   scroll: 534352,
   aleo: undefined,
+  dash: undefined,
 }
