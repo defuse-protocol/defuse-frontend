@@ -19,9 +19,6 @@ type IntentsOption = {
 
 export type NetworkOption = BlockchainOption | IntentsOption
 
-// Temporal workaround for Scroll until it is added
-type SupportedBlockchain = Exclude<BlockchainEnum, typeof BlockchainEnum.SCROLL>
-
 export function isIntentsOption(
   option: NetworkOption
 ): option is IntentsOption {
@@ -197,10 +194,10 @@ export const chainIcons: Record<
 }
 
 export function getBlockchainsOptions(): Record<
-  SupportedBlockchain,
+  BlockchainEnum,
   BlockchainOption
 > {
-  const options: Record<SupportedBlockchain, BlockchainOption> = {
+  const options: Record<BlockchainEnum, BlockchainOption> = {
     [BlockchainEnum.NEAR]: {
       label: "Near",
       icon: <NetworkIcon chainIcon={chainIcons.near} chainName="near" />,
@@ -466,21 +463,20 @@ export function getBlockchainsOptions(): Record<
       value: BlockchainEnum.ALEO,
       tags: [],
     },
-    // Temporal workaround for Scroll until it is added
-    // [BlockchainEnum.SCROLL]: {
-    //   label: "Scroll",
-    //   icon: <NetworkIcon chainIcon={chainIcons.scroll} chainName="Scroll" />,
-    //   value: BlockchainEnum.SCROLL,
-    //   tags: [],
-    // },
+    [BlockchainEnum.SCROLL]: {
+      label: "Scroll",
+      icon: <NetworkIcon chainIcon={chainIcons.scroll} chainName="Scroll" />,
+      value: BlockchainEnum.SCROLL,
+      tags: [],
+    },
   }
 
   return sortBlockchainOptionsByVolume(options)
 }
 
 function sortBlockchainOptionsByVolume(
-  options: Record<SupportedBlockchain, BlockchainOption>
-): Record<SupportedBlockchain, BlockchainOption> {
+  options: Record<BlockchainEnum, BlockchainOption>
+): Record<BlockchainEnum, BlockchainOption> {
   const sortedEntries = Object.entries(options).sort(([, a], [, b]) => {
     const volTagA = a.tags?.find((tag) => tag.startsWith("vol:"))
     const volTagB = b.tags?.find((tag) => tag.startsWith("vol:"))
@@ -492,7 +488,7 @@ function sortBlockchainOptionsByVolume(
   })
 
   return Object.fromEntries(sortedEntries) as Record<
-    SupportedBlockchain,
+    BlockchainEnum,
     BlockchainOption
   >
 }
