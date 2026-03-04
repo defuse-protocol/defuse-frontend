@@ -2882,7 +2882,7 @@
       ],
       "tags": ["type:stablecoin", "aid:usdcx"]
     },
-        {
+    {
       "unifiedAssetId": "dash",
       "symbol": "DASH",
       "name": "Dash",
