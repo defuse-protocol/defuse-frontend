@@ -16,6 +16,7 @@ export type Quote1csInput = {
   deadline: string
   userAddress: string
   userChainType: AuthMethod
+  isConfidential: boolean
 }
 
 export type Events =
@@ -138,6 +139,7 @@ async function get1csQuote(
       userAddress: quoteInput.userAddress,
       authMethod: quoteInput.userChainType,
       swapType: quoteInput.swapType,
+      isConfidential: quoteInput.isConfidential,
     })
 
     onResult(result, tokenInAssetId, tokenOutAssetId)
