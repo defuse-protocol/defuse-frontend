@@ -487,6 +487,7 @@ export const swapUIMachine = setup({
             deadline: getMinDeadlineMs(10 * 60 * 1000), // 10 minutes
             userAddress: user.identifier,
             userChainType: user.method,
+            isConfidential: context.isConfidential,
           },
         }
       },
@@ -1176,6 +1177,7 @@ export const swapUIMachine = setup({
                 : context.parsedFormValues.tokenIn.decimals,
             },
             parentRef: self,
+            isConfidential: context.isConfidential,
           }
         },
 
