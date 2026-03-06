@@ -11,7 +11,6 @@ import {
   QuoteRequest,
 } from "@defuse-protocol/one-click-sdk-typescript"
 import { retry } from "@lifeomic/attempt"
-import { base64 } from "@scure/base"
 import {
   generateIntent as generateIntentApi,
   getQuote as get1csQuoteApi,
@@ -22,7 +21,6 @@ import { AUTH_METHOD_TO_STANDARD } from "@src/components/DefuseSDK/utils/intentS
 import { logger } from "@src/utils/logger"
 import type { providers } from "near-api-js"
 import { assign, fromPromise, log, setup } from "xstate"
-import { bridgeSDK } from "../../constants/bridgeSdk"
 import { wrapPayloadAsWalletMessage } from "../../core/messages"
 import type { BaseTokenInfo } from "../../types/base"
 import { assert } from "../../utils/assert"
@@ -94,6 +92,7 @@ type Input = {
   userAddress: string
   userChainType: AuthMethod
   nearClient: providers.Provider
+  isConfidential: boolean
   amountIn: { amount: bigint; decimals: number }
   amountOut: { amount: bigint; decimals: number }
   previousOppositeAmount: { amount: bigint; decimals: number }
@@ -180,6 +179,7 @@ export const swapIntent1csMachine = setup({
               deadline: context.input.deadline,
               userAddress: context.input.userAddress,
               userChainType: context.input.userChainType,
+              isConfidential: context.input.isConfidential,
             },
             tokenInAssetId,
             tokenOutAssetId,
@@ -204,6 +204,7 @@ export const swapIntent1csMachine = setup({
           userAddress: input.userAddress,
           authMethod: input.userChainType,
           swapType: input.swapType,
+          isConfidential: input.isConfidential,
         })
       }
     ),
@@ -215,6 +216,7 @@ export const swapIntent1csMachine = setup({
           depositAddress: string
           defuseUserId: string
           userChainType: AuthMethod
+          isConfidential: boolean
         }
       }): Promise<GenerateIntentResponse> => {
         const standard = AUTH_METHOD_TO_STANDARD[input.userChainType]
@@ -222,6 +224,7 @@ export const swapIntent1csMachine = setup({
           depositAddress: input.depositAddress,
           signerId: input.defuseUserId,
           standard,
+          isConfidential: input.isConfidential,
         })
 
         if ("err" in result) {
@@ -246,6 +249,7 @@ export const swapIntent1csMachine = setup({
         input: {
           signatureData: walletMessage.WalletSignatureResult
           userInfo: { userAddress: string; userChainType: AuthMethod }
+          isConfidential: boolean
         }
       }): Promise<
         { tag: "ok"; value: string } | { tag: "err"; value: { reason: string } }
@@ -256,7 +260,10 @@ export const swapIntent1csMachine = setup({
           input.userInfo
         ) as MultiPayload
 
-        const result = await submitIntentApi({ signedIntent })
+        const result = await submitIntentApi({
+          signedIntent,
+          isConfidential: input.isConfidential,
+        })
 
         if ("err" in result) {
           return { tag: "err", value: { reason: result.err } }
@@ -526,6 +533,7 @@ export const swapIntent1csMachine = setup({
             depositAddress: context.quote1csResult.ok.quote.depositAddress,
             defuseUserId: context.input.defuseUserId,
             userChainType: context.input.userChainType,
+            isConfidential: context.input.isConfidential,
           }
         },
         onDone: {
@@ -669,6 +677,7 @@ export const swapIntent1csMachine = setup({
               userAddress: context.userAddress,
               userChainType: context.userChainType,
             },
+            isConfidential: context.input.isConfidential,
           }
         },
         onDone: [
