@@ -96,6 +96,7 @@ export type Context = {
   referral?: string
   slippageBasisPoints: number
   is1cs: boolean
+  isConfidential: boolean
   appFeeRecipients: FeeRecipientSplit[]
   priceChangeDialog: null | {
     pendingNewOppositeAmount: { amount: bigint; decimals: number }
@@ -135,6 +136,7 @@ export const swapUIMachine = setup({
       tokenList: TokenInfo[]
       referral?: string
       is1cs: boolean
+      isConfidential: boolean
       appFeeRecipients: FeeRecipientSplit[]
     },
     context: {} as Context,
@@ -731,6 +733,7 @@ export const swapUIMachine = setup({
     referral: input.referral,
     slippageBasisPoints: 10_000, // 1% default, will be overridden from localStorage
     is1cs: input.is1cs,
+    isConfidential: input.isConfidential,
     appFeeRecipients: input.appFeeRecipients,
     priceChangeDialog: null,
   }),

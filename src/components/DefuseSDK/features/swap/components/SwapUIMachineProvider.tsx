@@ -4,6 +4,7 @@ import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
 import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
+import { usePrivateModeStore } from "@src/stores/usePrivateModeStore"
 import { useSlippageStore } from "@src/stores/useSlippageStore"
 import { getAppFeeRecipients } from "@src/utils/getAppFeeRecipient"
 import { createActorContext } from "@xstate/react"
@@ -77,12 +78,15 @@ export function SwapUIMachineProvider({
   const tokenIn = initialTokenIn || tokenList[0]
   const tokenOut = initialTokenOut || tokenList[1]
   const is1cs = useIs1CsEnabled()
+  const isConfidential = usePrivateModeStore(
+    (state) => state.isPrivateModeEnabled
+  )
   assert(tokenIn && tokenOut, "TokenIn and TokenOut must be defined")
 
   return (
     <SwapUIMachineContext.Provider
       // re-initialize the provider when the is1cs prop changes
-      key={is1cs ? "1cs" : "not1cs"}
+      key={`${is1cs ? "1cs" : "not1cs"}-${isConfidential ? "confidential" : "public"}`}
       options={{
         input: {
           tokenIn,
@@ -90,6 +94,7 @@ export function SwapUIMachineProvider({
           tokenList,
           referral,
           is1cs,
+          isConfidential,
           appFeeRecipients,
         },
       }}
