@@ -173,7 +173,7 @@ async function tryRefreshAccessToken(
  * Get valid access token, refreshing if necessary
  * Returns null if not authenticated or refresh fails
  */
-async function getValidAccessToken(): Promise<string | null> {
+export async function getValidAccessToken(): Promise<string | null> {
   const session = await getSessionTokens()
   if (!session) {
     return null
