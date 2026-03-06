@@ -1,6 +1,6 @@
 "use server"
 
-import { type AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
+import { authIdentity } from "@defuse-protocol/internal-utils"
 import {
   AccountService,
   GenerateSwapTransferIntentRequest,
@@ -14,19 +14,8 @@ import {
   SubmitSwapTransferIntentRequest,
   UserAuthService,
 } from "@defuse-protocol/one-click-sdk-typescript"
-import { computeAppFeeBps } from "@src/components/DefuseSDK/utils/appFee"
-import { getTokenByAssetId } from "@src/components/DefuseSDK/utils/tokenUtils"
-import { whitelabelTemplateFlag } from "@src/config/featureFlags"
-import { LIST_TOKENS } from "@src/constants/tokens"
-import { referralMap } from "@src/hooks/useIntentsReferral"
-import {
-  APP_FEE_BPS,
-  ONE_CLICK_API_KEY,
-  ONE_CLICK_URL,
-} from "@src/utils/environment"
-import { getAppFeeRecipients } from "@src/utils/getAppFeeRecipient"
+import { ONE_CLICK_API_KEY, ONE_CLICK_URL } from "@src/utils/environment"
 import { logger } from "@src/utils/logger"
-import { splitAppFeeBps } from "@src/utils/splitAppFee"
 import { cookies } from "next/headers"
 import z from "zod"
 
@@ -286,127 +275,6 @@ export async function getPrivateBalance(args?: {
     }
 
     return { err }
-  }
-}
-
-const swapTypeSchema = z.nativeEnum(QuoteRequest.swapType)
-
-const confidentialSwapQuoteArgsSchema = z.object({
-  dry: z.boolean(),
-  slippageTolerance: z.number(),
-  originAsset: z.string(),
-  destinationAsset: z.string(),
-  amount: z.string(),
-  deadline: z.string(),
-  userAddress: z.string(),
-  authMethod: authMethodSchema,
-  swapType: swapTypeSchema,
-})
-
-type ConfidentialSwapQuoteArgs = z.infer<typeof confidentialSwapQuoteArgsSchema>
-
-// Ensure the zod schema inferred type exactly matches AuthMethod
-type AuthMethodSchema = z.infer<typeof authMethodSchema>
-const _: AuthMethodSchema extends AuthMethod
-  ? AuthMethod extends AuthMethodSchema
-    ? true
-    : never
-  : never = true
-
-/**
- * Get quote for confidential swap (CONFIDENTIAL_INTENTS for all types)
- * Mirrors 1cs.ts:getQuote() but routes through confidential intents with JWT auth
- */
-export async function getConfidentialSwapQuote(
-  args: ConfidentialSwapQuoteArgs
-): Promise<
-  | { ok: QuoteResponse & { appFee: [string, bigint][] } }
-  | { err: string; originalRequest?: QuoteRequest | undefined }
-> {
-  const accessToken = await getValidAccessToken()
-  if (!accessToken) {
-    return { err: "Not authenticated. Please authenticate first." }
-  }
-
-  const parseResult = confidentialSwapQuoteArgsSchema.safeParse(args)
-  if (!parseResult.success) {
-    return { err: `Invalid arguments: ${parseResult.error.message}` }
-  }
-
-  const { userAddress, authMethod, ...quoteRequest } = parseResult.data
-  let req: QuoteRequest | undefined = undefined
-  try {
-    const tokenIn = getTokenByAssetId(LIST_TOKENS, quoteRequest.originAsset)
-    if (!tokenIn) {
-      return { err: `Token in ${quoteRequest.originAsset} not found` }
-    }
-
-    const tokenOut = getTokenByAssetId(
-      LIST_TOKENS,
-      quoteRequest.destinationAsset
-    )
-    if (!tokenOut) {
-      return { err: `Token out ${quoteRequest.destinationAsset} not found` }
-    }
-
-    const template = await whitelabelTemplateFlag()
-    const appFeeRecipients = getAppFeeRecipients(template)
-
-    const primaryRecipient = appFeeRecipients[0]?.recipient ?? ""
-    const appFeeBps = computeAppFeeBps(
-      APP_FEE_BPS,
-      tokenIn,
-      tokenOut,
-      primaryRecipient,
-      { identifier: userAddress, method: authMethod }
-    )
-
-    if (appFeeBps > 0 && appFeeRecipients.length === 0) {
-      return { err: "App fee recipient is not configured" }
-    }
-
-    const intentsUserId = authIdentity.authHandleToIntentsUserId(
-      userAddress,
-      authMethod
-    )
-
-    const appFees =
-      appFeeRecipients.length > 0
-        ? splitAppFeeBps(appFeeBps, appFeeRecipients)
-        : []
-
-    req = {
-      ...quoteRequest,
-      depositType: QuoteRequest.depositType.CONFIDENTIAL_INTENTS,
-      refundTo: intentsUserId,
-      refundType: QuoteRequest.refundType.CONFIDENTIAL_INTENTS,
-      recipient: intentsUserId,
-      recipientType: QuoteRequest.recipientType.CONFIDENTIAL_INTENTS,
-      quoteWaitingTimeMs: 0,
-      referral: referralMap[template],
-      ...(appFees.length > 0 ? { appFees } : {}),
-    }
-
-    return {
-      ok: {
-        ...(await OneClickService.getQuote(req)),
-        appFee:
-          appFeeBps > 0 && primaryRecipient
-            ? [[primaryRecipient, BigInt(appFeeBps)]]
-            : [],
-      },
-    }
-  } catch (error) {
-    const err = unknownServerErrorToString(error)
-    logger.error(`privateIntents: getConfidentialSwapQuote error: ${err}`)
-
-    if (isUnauthorizedError(error)) {
-      logger.warn("privateIntents: unauthorized error, clearing session")
-      await clearSessionCookies()
-      return { err: "Session expired. Please authenticate again." }
-    }
-
-    return { err, originalRequest: req }
   }
 }
 
