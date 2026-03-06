@@ -13,6 +13,7 @@ import {
   type SubmitIntentResponse,
   SubmitSwapTransferIntentRequest,
 } from "@defuse-protocol/one-click-sdk-typescript"
+import { getValidAccessToken } from "@src/components/DefuseSDK/features/machines/privateIntents"
 import { computeAppFeeBps } from "@src/components/DefuseSDK/utils/appFee"
 import { getTokenByAssetId } from "@src/components/DefuseSDK/utils/tokenUtils"
 import { whitelabelTemplateFlag } from "@src/config/featureFlags"
@@ -73,6 +74,7 @@ const getQuoteArgsSchema = z.object({
   userAddress: z.string(),
   authMethod: authMethodSchema,
   swapType: swapTypeSchema,
+  isConfidential: z.boolean().optional(),
 })
 
 type GetQuoteArgs = z.infer<typeof getQuoteArgsSchema>
@@ -88,7 +90,16 @@ export async function getQuote(
     return { err: `Invalid arguments: ${parseResult.error.message}` }
   }
 
-  const { userAddress, authMethod, ...quoteRequest } = parseResult.data
+  const { userAddress, authMethod, isConfidential, ...quoteRequest } =
+    parseResult.data
+
+  if (isConfidential) {
+    const token = await getValidAccessToken()
+    if (!token) {
+      return { err: "Not authenticated for confidential swap" }
+    }
+  }
+
   let req: QuoteRequest | undefined = undefined
   try {
     const tokenIn = getTokenByAssetId(LIST_TOKENS, quoteRequest.originAsset)
@@ -130,13 +141,15 @@ export async function getQuote(
         ? splitAppFeeBps(appFeeBps, appFeeRecipients)
         : []
 
+    const intentType = isConfidential ? "CONFIDENTIAL_INTENTS" : "INTENTS"
+
     req = {
       ...quoteRequest,
-      depositType: QuoteRequest.depositType.INTENTS,
+      depositType: QuoteRequest.depositType[intentType],
       refundTo: intentsUserId,
-      refundType: QuoteRequest.refundType.INTENTS,
+      refundType: QuoteRequest.refundType[intentType],
       recipient: intentsUserId,
-      recipientType: QuoteRequest.recipientType.INTENTS,
+      recipientType: QuoteRequest.recipientType[intentType],
       quoteWaitingTimeMs: 0, // means the fastest quote
       referral: referralMap[template],
       ...(appFees.length > 0 ? { appFees } : {}),
@@ -230,6 +243,7 @@ const generateIntentArgsSchema = z.object({
   depositAddress: z.string(),
   signerId: z.string(),
   standard: intentStandardEnumSchema,
+  isConfidential: z.boolean().optional(),
 })
 
 type GenerateIntentArgs = z.infer<typeof generateIntentArgsSchema>
@@ -242,7 +256,15 @@ export async function generateIntent(
     return { err: `Invalid arguments: ${parseResult.error.message}` }
   }
 
-  const { depositAddress, signerId, standard } = parseResult.data
+  const { depositAddress, signerId, standard, isConfidential } =
+    parseResult.data
+
+  if (isConfidential) {
+    const token = await getValidAccessToken()
+    if (!token) {
+      return { err: "Not authenticated for confidential swap" }
+    }
+  }
 
   try {
     const response = await OneClickService.generateIntent({
@@ -273,10 +295,12 @@ const multiPayloadSchema = z
 
 const submitIntentArgsSchema = z.object({
   signedIntent: multiPayloadSchema,
+  isConfidential: z.boolean().optional(),
 })
 
 type SubmitIntentArgs = {
   signedIntent: MultiPayload
+  isConfidential?: boolean
 }
 
 export async function submitIntent(
@@ -285,6 +309,13 @@ export async function submitIntent(
   const parseResult = submitIntentArgsSchema.safeParse(args)
   if (!parseResult.success) {
     return { err: `Invalid arguments: ${parseResult.error.message}` }
+  }
+
+  if (args.isConfidential) {
+    const token = await getValidAccessToken()
+    if (!token) {
+      return { err: "Not authenticated for confidential swap" }
+    }
   }
 
   try {
