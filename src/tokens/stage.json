@@ -1637,6 +1637,49 @@
         }
       ],
       "tags": ["mc:100000"]
+    },
+    {
+      "defuseAssetId": "nep245:v2_1.omni.hot.tg:56_11111111111111111111",
+      "symbol": "BNB",
+      "name": "Binance Coin",
+      "decimals": 18,
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1839.png",
+      "originChainName": "bsc",
+      "deployments": [
+        {
+          "type": "native",
+          "decimals": 18,
+          "chainName": "bsc",
+          "bridge": "hot_omni"
+        }
+      ],
+      "tags": ["mc:4"]
+    },
+    {
+      "unifiedAssetId": "sol",
+      "symbol": "SOL",
+      "name": "Solana",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/5426.png",
+      "groupedTokens": [
+        {
+          "defuseAssetId": "nep141:sol.stft.near",
+          "symbol": "SOL",
+          "name": "Solana",
+          "decimals": 9,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/5426.png",
+          "originChainName": "solana",
+          "deployments": [
+            {
+              "type": "native",
+              "decimals": 9,
+              "chainName": "solana",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:6"]
+        }
+      ],
+      "tags": ["mc:6"]
     }
   ]
 }
