@@ -32,7 +32,9 @@ OpenAPI.HEADERS = {
   "x-api-key": z.string().parse(ONE_CLICK_API_KEY),
 }
 // Resolve Authorization header per-request: JWT from cookies when authenticated,
-// otherwise API key for public endpoints.
+// otherwise undefined (API key is already sent via x-api-key header above).
+// Returning the API key here would cause the server to try decoding it as a JWT.
+// @ts-expect-error - `Promise<undefined>` should be allowed here.
 OpenAPI.TOKEN = async () => {
   try {
     const cookieStore = await cookies()
@@ -43,7 +45,7 @@ OpenAPI.TOKEN = async () => {
   } catch {
     // cookies() unavailable outside request context (e.g. build time)
   }
-  return z.string().parse(ONE_CLICK_API_KEY)
+  return undefined
 }
 
 const authMethodSchema = z.enum([

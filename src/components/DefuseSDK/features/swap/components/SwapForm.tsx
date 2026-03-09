@@ -439,7 +439,11 @@ export const SwapForm = ({ isLoggedIn, renderHostAppLink }: SwapFormProps) => {
                     disabled={disabledIn || isSubmitting || isSubmitting1cs}
                   />
                 }
-                transitBalance={tokenInTransitBalance}
+                transitBalance={
+                  snapshot.context.isConfidential
+                    ? undefined
+                    : tokenInTransitBalance
+                }
               />
             }
             priceSlot={

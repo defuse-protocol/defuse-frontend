@@ -508,6 +508,7 @@ export const swapUIMachine = setup({
       input: ({ self, context }) => ({
         parentRef: self,
         tokenList: context.tokenList,
+        isConfidential: context.isConfidential,
       }),
     }),
     relayToDepositedBalanceRef: sendTo(

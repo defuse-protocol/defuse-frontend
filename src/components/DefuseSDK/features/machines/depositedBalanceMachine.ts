@@ -24,10 +24,12 @@ import {
   computeTotalBalanceDifferentDecimals,
   getUnderlyingBaseTokenInfos,
 } from "../../utils/tokenUtils"
+import { getPrivateBalance } from "./privateIntents"
 
 export interface Input {
   parentRef?: ParentActor
   tokenList: TokenInfo[]
+  isConfidential?: boolean
 }
 
 export type BalanceMapping = Record<BaseTokenInfo["defuseAssetId"], bigint>
@@ -77,6 +79,7 @@ const balancePollerActor = fromCallback<
     tokenIds: string[]
     accountId: IntentsUserId
     parentRef: ThisActor
+    isConfidential: boolean
   }
 >(({ input, receive }) => {
   const accounts = new Set([input.accountId])
@@ -103,29 +106,55 @@ const balancePollerActor = fromCallback<
 
   async function fetchBalanceAndEmit() {
     try {
-      const status = await nearClient.status()
-      const blockHeight = status.sync_info.latest_block_height
+      if (input.isConfidential) {
+        const response = await getPrivateBalance()
+        if ("err" in response) {
+          logger.error(`Private balance fetch failed: ${response.err}`)
+          return
+        }
 
-      const balances = await Promise.all(
-        Array.from(accounts).map((accountId) => {
-          return getDepositedBalances(
-            accountId,
-            input.tokenIds,
-            nearClient,
-            blockHeight
-          )
+        // Zero-init all tokenIds so tokens dropping to 0 get updated
+        // (API omits zero-balance entries)
+        const balanceSlice: BalanceMapping = {}
+        for (const tokenId of input.tokenIds) {
+          balanceSlice[tokenId] = 0n
+        }
+        for (const entry of response.ok.balances) {
+          balanceSlice[entry.tokenId] = BigInt(entry.available)
+        }
+
+        input.parentRef.send({
+          type: "UPDATE_BALANCE_SLICE",
+          params: {
+            balanceSlice,
+            transitBalanceSlice: {},
+          },
         })
-      )
+      } else {
+        const status = await nearClient.status()
+        const blockHeight = status.sync_info.latest_block_height
 
-      const mergedBalance = mergeBalance(balances)
+        const balances = await Promise.all(
+          Array.from(accounts).map((accountId) => {
+            return getDepositedBalances(
+              accountId,
+              input.tokenIds,
+              nearClient,
+              blockHeight
+            )
+          })
+        )
 
-      input.parentRef.send({
-        type: "UPDATE_BALANCE_SLICE",
-        params: {
-          balanceSlice: mergedBalance,
-          transitBalanceSlice: {},
-        },
-      })
+        const mergedBalance = mergeBalance(balances)
+
+        input.parentRef.send({
+          type: "UPDATE_BALANCE_SLICE",
+          params: {
+            balanceSlice: mergedBalance,
+            transitBalanceSlice: {},
+          },
+        })
+      }
     } catch (err: unknown) {
       logger.error(err)
     }
@@ -162,6 +191,7 @@ export const depositedBalanceMachine = setup({
       balances: BalanceMapping
       transitBalances: BalanceMapping
       transitBalanceQueryObserver: TransitBalanceQueryObserver
+      isConfidential: boolean
     },
     events: {} as Events | SharedEvents,
     input: {} as Input,
@@ -298,6 +328,7 @@ export const depositedBalanceMachine = setup({
       transitBalances: {},
       parentRef: input.parentRef,
       accountId: null,
+      isConfidential: input.isConfidential ?? false,
     }
   },
 
@@ -319,6 +350,7 @@ export const depositedBalanceMachine = setup({
               ),
               tokenIds: context.tokenIds,
               parentRef: self,
+              isConfidential: context.isConfidential,
             }
           },
         },
