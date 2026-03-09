@@ -29,6 +29,7 @@ export type SupportedChainName =
   | "plasma"
   | "scroll"
   | "aleo"
+  | "dash"
   | VirtualChains
   | MockedChains
 

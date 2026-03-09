@@ -231,6 +231,10 @@
           "type": "string"
         },
         {
+          "const": "dash",
+          "type": "string"
+        },
+        {
           "$ref": "#/definitions/VirtualChains"
         },
         {
