@@ -757,6 +757,23 @@
             }
           ],
           "tags": ["mc:3", "type:stablecoin", "tvol:3", "aid:usdt"]
+        },
+        {
+          "defuseAssetId": "nep141:gnosis-0x4ecaba5870353805a9f068101a40e0f32ed605c6.omft.near",
+          "symbol": "USDT",
+          "name": "Tether USD",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+          "originChainName": "gnosis",
+          "deployments": [
+            {
+              "address": "0x4ecaba5870353805a9f068101a40e0f32ed605c6",
+              "decimals": 6,
+              "chainName": "gnosis",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:3", "type:stablecoin", "tvol:3", "aid:usdt"]
         }
       ],
       "tags": ["mc:3", "type:stablecoin", "tvol:3", "aid:usdt"]
