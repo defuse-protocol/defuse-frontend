@@ -2915,6 +2915,32 @@
         }
       ],
       "tags": ["type:stablecoin", "aid:usdcx"]
+    },
+    {
+      "unifiedAssetId": "dash",
+      "symbol": "DASH",
+      "name": "Dash",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/131.png",
+      "groupedTokens": [
+        {
+          "defuseAssetId": "nep141:dash.omft.near",
+          "symbol": "DASH",
+          "name": "Dash",
+          "decimals": 8,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/131.png",
+          "originChainName": "dash",
+          "deployments": [
+            {
+              "type": "native",
+              "decimals": 8,
+              "chainName": "dash",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["aid:dash"]
+        }
+      ],
+      "tags": ["aid:dash"]
     }
   ]
 }

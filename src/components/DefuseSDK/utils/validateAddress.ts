@@ -88,6 +88,9 @@ export function validateAddress(
     case "aleo":
       return validateAddressFormat(address, Chains.Aleo)
 
+    case "dash":
+      return validateAddressFormat(address, Chains.Dash)
+
     default:
       blockchain satisfies never
       return false

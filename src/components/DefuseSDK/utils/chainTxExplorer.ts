@@ -80,6 +80,8 @@ export function chainTxExplorer(blockchain: SupportedChainName): string | null {
       return "https://scrollscan.com/tx/"
     case "aleo":
       return "https://explorer.provable.com/transaction/"
+    case "dash":
+      return "https://blockchair.com/dash/transaction/"
     default:
       blockchain satisfies never
       return null

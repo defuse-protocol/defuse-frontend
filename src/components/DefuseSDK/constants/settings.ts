@@ -70,5 +70,6 @@ export const settings: Settings = {
     plasma: "https://rpc.plasma.to",
     scroll: "https://rpc.scroll.io",
     aleo: "https://api.explorer.provable.com",
+    dash: "",
   },
 }
