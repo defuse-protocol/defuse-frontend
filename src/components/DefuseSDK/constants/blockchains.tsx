@@ -184,7 +184,7 @@ export const chainIcons: Record<
     light: "/static/icons/network/plasma.svg",
   },
   scroll: {
-    dark: "/static/icons/network/scroll-white.svg",
+    dark: "/static/icons/network/scroll.svg",
     light: "/static/icons/network/scroll.svg",
   },
   aleo: {
