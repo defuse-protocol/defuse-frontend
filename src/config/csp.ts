@@ -118,6 +118,8 @@ const cspConfig = {
     "http://*.herewallet.app",
     "https://raw.githubusercontent.com",
     "https://wallet.intear.tech/near-selector.js",
+    "https://rpc.mainnet.fastnear.com", // used to verify that the public key is on the account
+    "https://api.mainnet.fastnear.com", // used to get a list of accounts by public key
 
     /** Stellar Wallets */
     "https://api.web3modal.org",
