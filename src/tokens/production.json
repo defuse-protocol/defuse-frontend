@@ -759,6 +759,23 @@
           "tags": ["mc:3", "type:stablecoin", "tvol:3", "aid:usdt"]
         },
         {
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:534352_4RG3Q2wFsMQmd45m5m89RjsLfupA",
+          "symbol": "USDT",
+          "name": "Tether USD",
+          "decimals": 6,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/825.png",
+          "originChainName": "scroll",
+          "deployments": [
+            {
+              "address": "0xf55bec9cafdbe8730f096aa55dad6d22d44099df",
+              "decimals": 6,
+              "chainName": "scroll",
+              "bridge": "hot_omni"
+            }
+          ],
+          "tags": ["mc:3", "type:stablecoin", "tvol:3", "aid:usdt"]
+        },
+        {
           "defuseAssetId": "nep141:gnosis-0x4ecaba5870353805a9f068101a40e0f32ed605c6.omft.near",
           "symbol": "USDT",
           "name": "Tether USD",
@@ -995,6 +1012,23 @@
               "type": "native",
               "decimals": 18,
               "chainName": "optimism",
+              "bridge": "hot_omni"
+            }
+          ],
+          "tags": ["mc:2", "tvol:7", "aid:eth"]
+        },
+        {
+          "defuseAssetId": "nep245:v2_1.omni.hot.tg:534352_11111111111111111111",
+          "symbol": "ETH",
+          "name": "ETH",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1027.png",
+          "originChainName": "scroll",
+          "deployments": [
+            {
+              "type": "native",
+              "decimals": 18,
+              "chainName": "scroll",
               "bridge": "hot_omni"
             }
           ],

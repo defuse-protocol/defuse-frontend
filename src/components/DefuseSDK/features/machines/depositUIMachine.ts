@@ -232,7 +232,9 @@ export const depositUIMachine = setup({
         blockchain === "avalanche" ||
         blockchain === "monad" ||
         blockchain === "layerx" ||
-        blockchain === "adi"
+        blockchain === "adi" ||
+        blockchain === "plasma" ||
+        blockchain === "scroll"
       )
     },
     isChainSolanaSelected: ({ context }) => {

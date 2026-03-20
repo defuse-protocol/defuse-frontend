@@ -39,7 +39,7 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 }
 
-const GA_NEAR_INTENTS_ID = "G-WNE3NB46KM"
+const GA_NEAR_INTENTS_ID = "G-FS9X7WEKY2"
 const GA_OMNI_SWAP_ID = "G-91C1EKE2JM"
 
 export async function generateMetadata(): Promise<Metadata> {
