@@ -493,11 +493,34 @@ async function estimateFee({
 }): Promise<Result<FeeEstimation, { reason: "ERR_WITHDRAWAL_FEE_FETCH" }>> {
   return bridgeSDK
     .estimateWithdrawalFee({ withdrawalParams })
-    .then(Ok, (err) => {
+    .then(Ok, async (err) => {
       const feeExceedsAmountError = findError(err, FeeExceedsAmountError)
-
       if (feeExceedsAmountError) {
         return Ok(feeExceedsAmountError.feeEstimation)
+      }
+
+      // SDK 0.58.0+ validates amount during fee estimation.
+      // Since we pass amount: 0n for fee-only estimation, retry with minAmount.
+      const minWithdrawalAmountError = findError(err, MinWithdrawalAmountError)
+      if (minWithdrawalAmountError) {
+        return bridgeSDK
+          .estimateWithdrawalFee({
+            withdrawalParams: {
+              ...withdrawalParams,
+              amount: minWithdrawalAmountError.minAmount,
+            },
+          })
+          .then(Ok, (retryErr) => {
+            const retryFeeExceedsError = findError(
+              retryErr,
+              FeeExceedsAmountError
+            )
+            if (retryFeeExceedsError) {
+              return Ok(retryFeeExceedsError.feeEstimation)
+            }
+            logger.error(retryErr)
+            return Err({ reason: "ERR_WITHDRAWAL_FEE_FETCH" as const })
+          })
       }
 
       logger.error(err)
