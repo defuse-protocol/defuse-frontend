@@ -1,13 +1,11 @@
-import {
-  errors,
-  solverRelay,
-  withTimeout,
-} from "@defuse-protocol/internal-utils"
+import { prepareBroadcastRequest } from "@defuse-protocol/internal-utils"
+import { errors, withTimeout } from "@defuse-protocol/internal-utils"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import { retry } from "@lifeomic/attempt"
 import { base64 } from "@scure/base"
+import { solverRelayPublishIntent } from "@src/actions/solverRelayProxy"
 import { getQuote as get1csQuoteApi } from "@src/components/DefuseSDK/features/machines/1cs"
 import type { ParentEvents as Background1csQuoterParentEvents } from "@src/components/DefuseSDK/features/machines/background1csQuoterMachine"
 import { logger } from "@src/utils/logger"
@@ -261,9 +259,13 @@ export const swapIntent1csMachine = setup({
           userInfo: { userAddress: string; userChainType: AuthMethod }
         }
       }) =>
-        solverRelay
-          .publishIntent(input.signatureData, input.userInfo, [])
-          .then(convertPublishIntentToLegacyFormat)
+        solverRelayPublishIntent({
+          multiPayload: prepareBroadcastRequest.prepareSwapSignedData(
+            input.signatureData,
+            input.userInfo
+          ),
+          quoteHashes: [],
+        }).then(convertPublishIntentToLegacyFormat)
     ),
   },
   guards: {

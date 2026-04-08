@@ -6,12 +6,16 @@ import type {
   FeeEstimation,
   WithdrawalParams,
 } from "@defuse-protocol/intents-sdk"
-import { errors, solverRelay } from "@defuse-protocol/internal-utils"
+import {
+  errors,
+  prepareBroadcastRequest,
+} from "@defuse-protocol/internal-utils"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { messageFactory } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { secp256k1 } from "@noble/curves/secp256k1"
 import { base64 } from "@scure/base"
+import { solverRelayPublishIntent } from "@src/actions/solverRelayProxy"
 import type { FeeRecipientSplit } from "@src/utils/getAppFeeRecipient"
 import { logger } from "@src/utils/logger"
 import { splitAppFee } from "@src/utils/splitAppFee"
@@ -253,9 +257,13 @@ export const swapIntentMachine = setup({
           quoteHashes: string[]
         }
       }) =>
-        solverRelay
-          .publishIntent(input.signatureData, input.userInfo, input.quoteHashes)
-          .then(convertPublishIntentToLegacyFormat)
+        solverRelayPublishIntent({
+          multiPayload: prepareBroadcastRequest.prepareSwapSignedData(
+            input.signatureData,
+            input.userInfo
+          ),
+          quoteHashes: input.quoteHashes,
+        }).then(convertPublishIntentToLegacyFormat)
     ),
     prepareSignMessages: fromPromise(
       async ({

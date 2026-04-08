@@ -1,6 +1,6 @@
-import { solverRelay } from "@defuse-protocol/internal-utils"
 import { CheckIcon } from "@phosphor-icons/react"
 import { Button } from "@radix-ui/themes"
+import { solverRelayWaitForSettlement } from "@src/actions/solverRelayProxy"
 import { CopyButton } from "@src/components/DefuseSDK/components/IntentCard/CopyButton"
 import { useQuery } from "@tanstack/react-query"
 import type { TokenInfo } from "../../../types/base"
@@ -50,10 +50,10 @@ export function OtcTakerSuccessScreen({
 
   const intentStatus = useQuery({
     queryKey: ["intents_status", intentHashes],
-    queryFn: async ({ signal }) => {
+    queryFn: async () => {
       const intentHash = intentHashes[0]
       assert(intentHash != null)
-      return solverRelay.waitForIntentSettlement({ signal, intentHash })
+      return solverRelayWaitForSettlement({ intentHash })
     },
   })
 

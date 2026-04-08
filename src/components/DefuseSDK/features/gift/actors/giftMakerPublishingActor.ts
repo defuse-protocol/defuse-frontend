@@ -1,5 +1,5 @@
 import type { MultiPayload } from "@defuse-protocol/contract-types"
-import { solverRelay } from "@defuse-protocol/internal-utils"
+import { solverRelayPublishIntents } from "@src/actions/solverRelayProxy"
 import { logger } from "@src/utils/logger"
 import { assign, fromPromise, setup } from "xstate"
 import {
@@ -42,11 +42,10 @@ export const giftMakerPublishingActor = setup({
   },
   actors: {
     publishActor: fromPromise(({ input }: { input: MultiPayload }) => {
-      return solverRelay
-        .publishIntents({
-          quote_hashes: [],
-          signed_datas: [input],
-        })
+      return solverRelayPublishIntents({
+        quote_hashes: [],
+        signed_datas: [input],
+      })
         .then(convertPublishIntentsToLegacyFormat)
         .then((result) => {
           if (result.isErr()) {

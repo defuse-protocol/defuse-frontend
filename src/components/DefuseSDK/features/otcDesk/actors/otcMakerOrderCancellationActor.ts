@@ -1,7 +1,7 @@
 import type { MultiPayload } from "@defuse-protocol/contract-types"
-import { solverRelay } from "@defuse-protocol/internal-utils"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { base64 } from "@scure/base"
+import { solverRelayPublishIntents } from "@src/actions/solverRelayProxy"
 import { createEmptyIntentMessage } from "@src/components/DefuseSDK/core/messages"
 import { logger } from "@src/utils/logger"
 import { assertEvent, assign, fromPromise, setup } from "xstate"
@@ -66,11 +66,10 @@ export const otcMakerOrderCancellationActor = setup({
     signActor: signIntentMachine,
     publishActor: fromPromise(
       ({ input }: { input: { multiPayload: MultiPayload } }) => {
-        return solverRelay
-          .publishIntents({
-            quote_hashes: [],
-            signed_datas: [input.multiPayload],
-          })
+        return solverRelayPublishIntents({
+          quote_hashes: [],
+          signed_datas: [input.multiPayload],
+        })
           .then(convertPublishIntentsToLegacyFormat)
           .then((result) => {
             if (result.isErr()) {

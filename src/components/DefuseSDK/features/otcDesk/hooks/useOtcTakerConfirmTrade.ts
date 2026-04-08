@@ -1,7 +1,7 @@
 import type { MultiPayload } from "@defuse-protocol/contract-types"
-import { solverRelay } from "@defuse-protocol/internal-utils"
 import { authIdentity } from "@defuse-protocol/internal-utils"
 import { base64 } from "@scure/base"
+import { solverRelayPublishIntents } from "@src/actions/solverRelayProxy"
 import { bridgeSDK } from "@src/components/DefuseSDK/constants/bridgeSdk"
 import { useMutation } from "@tanstack/react-query"
 import { Err, type Result } from "@thames/monads"
@@ -104,12 +104,10 @@ export function useOtcTakerConfirmTrade({
         signerCredentials
       )
 
-      const result = await solverRelay
-        .publishIntents({
-          quote_hashes: quoteHashesResult.unwrap(),
-          signed_datas: [multiPayload, makerMultiPayload],
-        })
-        .then(convertPublishIntentsToLegacyFormat)
+      const result = await solverRelayPublishIntents({
+        quote_hashes: quoteHashesResult.unwrap(),
+        signed_datas: [multiPayload, makerMultiPayload],
+      }).then(convertPublishIntentsToLegacyFormat)
 
       return result.map((intentHashes) => {
         return {

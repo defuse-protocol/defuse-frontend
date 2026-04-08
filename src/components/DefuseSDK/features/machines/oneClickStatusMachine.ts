@@ -1,4 +1,7 @@
-import { solverRelay } from "@defuse-protocol/internal-utils"
+import {
+  solverRelayGetStatus,
+  solverRelayWaitForSettlement,
+} from "@src/actions/solverRelayProxy"
 import { logger } from "@src/utils/logger"
 import { type ActorRef, type Snapshot, log } from "xstate"
 import { assign, fromPromise, not, setup } from "xstate"
@@ -72,27 +75,44 @@ export const oneClickStatusMachine = setup({
   },
   actors: {
     waitIntentTxHash: fromPromise(
-      ({
+      async ({
         input,
-        signal,
       }: {
         input: { intentHash: string }
-        signal: AbortSignal
       }): Promise<string> => {
-        return new Promise<string>((resolve, reject) => {
-          return solverRelay
-            .waitForIntentSettlement({
-              signal,
-              intentHash: input.intentHash,
-              onTxHashKnown: (txHash) => {
-                resolve(txHash)
-              },
-            })
-            .then((result) => {
-              // Fallback in case `onTxHashKnown` is not called (but it should never happen)
-              resolve(result.txHash)
-            }, reject)
-        })
+        // Poll getStatus for early TX_BROADCASTED (shows explorer link sooner),
+        // with waitForSettlement as a fallback in case polling misses it.
+        const settlementPromise = solverRelayWaitForSettlement({
+          intentHash: input.intentHash,
+        }).then((r) => r.txHash)
+
+        const pollForTxHash = async (): Promise<string> => {
+          for (let i = 0; i < 60; i++) {
+            try {
+              const status = await solverRelayGetStatus({
+                intentHash: input.intentHash,
+              })
+              if (
+                (status.status === "TX_BROADCASTED" ||
+                  status.status === "SETTLED") &&
+                "txHash" in status
+              ) {
+                return status.txHash
+              }
+              if (status.status === "NOT_FOUND_OR_NOT_VALID") {
+                // Intent failed permanently — stop polling, let settlementPromise handle it
+                return settlementPromise
+              }
+            } catch {
+              // Transient error (network, timeout) — continue polling
+            }
+            await new Promise((r) => setTimeout(r, 2000))
+          }
+          // Polling exhausted, fall through to settlement promise
+          return settlementPromise
+        }
+
+        return Promise.race([pollForTxHash(), settlementPromise])
       }
     ),
     submitTxHashActor: fromPromise(

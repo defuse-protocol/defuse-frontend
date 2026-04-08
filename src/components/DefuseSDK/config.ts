@@ -96,11 +96,12 @@ export function configureSDK({ env, features }: ConfigureSDKArgs): void {
 }
 
 function getSolverRelayURL(): string {
-  return process.env.VERCEL_URL
-    ? process.env.VERCEL_URL
-    : typeof window !== "undefined"
-      ? `${window.origin}/api/solver_relay/`
-      : `${BASE_URL}/api/solver_relay/`
+  // Solver relay calls now go through server actions (src/actions/solverRelayProxy.ts).
+  // This URL is only used by the SDK for internal bookkeeping; actual requests
+  // are routed by the server actions with the API key injected server-side.
+  return typeof window !== "undefined"
+    ? `${window.origin}/api/solver_relay/`
+    : `${BASE_URL}/api/solver_relay/`
 }
 
 function getNearIntentsBaseURL(): string {

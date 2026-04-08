@@ -1,5 +1,6 @@
-import { errors, solverRelay } from "@defuse-protocol/internal-utils"
+import { errors } from "@defuse-protocol/internal-utils"
 import type { walletMessage } from "@defuse-protocol/internal-utils"
+import { solverRelayWaitForSettlement } from "@src/actions/solverRelayProxy"
 import { logger } from "@src/utils/logger"
 import {
   type ActorRefFrom,
@@ -121,16 +122,10 @@ export const giftMakerRootMachine = setup({
       GiftMakerReadyActorInput
     >,
     settlingActor: fromPromise(
-      ({
-        input,
-        signal,
-      }: { input: { intentHashes: string[] }; signal: AbortSignal }) => {
+      ({ input }: { input: { intentHashes: string[] } }) => {
         const intentHash = input.intentHashes[0]
         assert(intentHash, "intentHash is not defined")
-        return solverRelay.waitForIntentSettlement({
-          signal,
-          intentHash,
-        })
+        return solverRelayWaitForSettlement({ intentHash })
       }
     ),
     savingGift: fromPromise(

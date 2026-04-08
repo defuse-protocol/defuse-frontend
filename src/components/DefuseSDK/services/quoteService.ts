@@ -55,12 +55,7 @@ export type QuoteResult =
           }
     }
 export async function queryQuote(
-  input: AggregatedQuoteParams,
-  {
-    signal,
-  }: {
-    signal?: AbortSignal
-  } = {}
+  input: AggregatedQuoteParams
 ): Promise<QuoteResult> {
   try {
     const aggregateQuote = await getAggregatedQuoteExactIn({
@@ -71,9 +66,6 @@ export async function queryQuote(
         balances: input.balances,
         waitMs: input.waitMs,
         appFeeBps: input.appFeeBps,
-      },
-      config: {
-        fetchOptions: { signal },
       },
     })
 
