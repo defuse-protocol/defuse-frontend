@@ -136,7 +136,7 @@ async function fetchQuotesForTokens(
   tokenOut: string,
   amountsToQuote: Record<string, bigint>,
   waitMs: number,
-  config: { logBalanceSufficient: boolean }
+  config: { logBalanceSufficient: boolean; requestId?: string }
 ): Promise<{
   quotes: PromiseSettledResult<solverRelay.GetQuoteReturnType>[]
   quoteParams: GetQuoteInput["quoteParams"][]

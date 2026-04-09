@@ -155,12 +155,20 @@ export const giftClaimActor = setup({
             intentHash,
           })
           return { tag: "ok" as const }
-        } catch {
-          // Server action wraps IntentSettlementError in SolverRelayProxyError
-          return {
-            tag: "err" as const,
-            value: { reason: "NOT_FOUND_OR_NOT_VALID" },
+        } catch (err) {
+          // Only treat as permanent failure if the upstream error indicates
+          // a terminal settlement state ("Intent settlement failed").
+          // Transient errors (timeout, network) propagate so the machine retries.
+          if (
+            err instanceof Error &&
+            err.message.includes("Intent settlement failed")
+          ) {
+            return {
+              tag: "err" as const,
+              value: { reason: "NOT_FOUND_OR_NOT_VALID" },
+            }
           }
+          throw err
         }
       }
     ),

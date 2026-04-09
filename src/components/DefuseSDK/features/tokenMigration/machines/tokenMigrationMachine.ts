@@ -102,14 +102,26 @@ export const tokenMigrationMachine = setup({
     ),
 
     waitForIntentSettlement: fromPromise(
-      ({ input }: { input: { intentHash: string } }) =>
-        solverRelayWaitForSettlement({ intentHash: input.intentHash }).then(
-          (result) => ({
-            ...result,
-            status:
-              result.txHash != null ? "SETTLED" : "NOT_FOUND_OR_NOT_VALID",
+      async ({ input }: { input: { intentHash: string } }) => {
+        try {
+          const result = await solverRelayWaitForSettlement({
+            intentHash: input.intentHash,
           })
-        )
+          return { ...result, status: "SETTLED" as const }
+        } catch (err) {
+          if (
+            err instanceof Error &&
+            err.message.includes("Intent settlement failed")
+          ) {
+            return {
+              txHash: "",
+              intentHash: input.intentHash,
+              status: "NOT_FOUND_OR_NOT_VALID" as const,
+            }
+          }
+          throw err
+        }
+      }
     ),
   },
 

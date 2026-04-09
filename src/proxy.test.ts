@@ -83,12 +83,27 @@ describe("proxy — API route protection", () => {
     expect(res.status).toBe(403)
   })
 
-  it("allows requests from configured BASE_URL origin", async () => {
+  it("blocks requests with Origin but no Sec-Fetch-Site (curl spoofing)", async () => {
     vi.stubEnv("NEXT_PUBLIC_BASE_URL", "https://app.defuse.org")
 
     const res = await proxy(
       createRequest("/api/gifts", {
         headers: { origin: "https://app.defuse.org" },
+      })
+    )
+
+    expect(res.status).toBe(403)
+  })
+
+  it("allows cross-origin requests from configured BASE_URL", async () => {
+    vi.stubEnv("NEXT_PUBLIC_BASE_URL", "https://app.defuse.org")
+
+    const res = await proxy(
+      createRequest("/api/gifts", {
+        headers: {
+          "sec-fetch-site": "cross-site",
+          origin: "https://app.defuse.org",
+        },
       })
     )
 
@@ -101,6 +116,7 @@ describe("proxy — API route protection", () => {
     const res = await proxy(
       createRequest("/api/gifts", {
         headers: {
+          "sec-fetch-site": "cross-site",
           origin: "https://defuse-near-abc123-team.vercel.app",
         },
       })
@@ -114,7 +130,10 @@ describe("proxy — API route protection", () => {
 
     const res = await proxy(
       createRequest("/api/gifts", {
-        headers: { origin: "https://evil-project.vercel.app" },
+        headers: {
+          "sec-fetch-site": "cross-site",
+          origin: "https://evil-project.vercel.app",
+        },
       })
     )
 
@@ -124,7 +143,10 @@ describe("proxy — API route protection", () => {
   it("allows localhost in non-production env", async () => {
     const res = await proxy(
       createRequest("/api/gifts", {
-        headers: { origin: "http://localhost:3000" },
+        headers: {
+          "sec-fetch-site": "cross-site",
+          origin: "http://localhost:3000",
+        },
       })
     )
 

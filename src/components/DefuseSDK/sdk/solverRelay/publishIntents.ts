@@ -18,5 +18,9 @@ export function convertPublishIntentsToLegacyFormat(
     return Promise.resolve(Ok(result.ok))
   }
 
+  if (result.err.code === "NETWORK_ERROR") {
+    return Promise.resolve(Err({ reason: "RELAY_PUBLISH_NETWORK_ERROR" }))
+  }
+
   return Promise.resolve(Err(mapPublishError(result.err)))
 }

@@ -82,6 +82,10 @@ function isAllowedRequest(request: NextRequest): boolean {
   // "same-origin" means the request came from our own app in the browser.
   const secFetchSite = request.headers.get("sec-fetch-site")
   if (secFetchSite === "same-origin") return true
+  // No Sec-Fetch-Site → non-browser client (curl, scripts) → block.
+  // Sec-Fetch-Site is set automatically by browsers and cannot be spoofed by JS,
+  // so its absence means the request came from a non-browser client.
+  if (secFetchSite == null) return false
 
   // For cross-origin browser requests (e.g. Vercel preview → production API),
   // validate the Origin header against our allowlist.
@@ -90,7 +94,6 @@ function isAllowedRequest(request: NextRequest): boolean {
     return isAllowedOrigin(origin)
   }
 
-  // No Sec-Fetch-Site and no Origin → non-browser client (curl, scripts) → block.
   return false
 }
 
