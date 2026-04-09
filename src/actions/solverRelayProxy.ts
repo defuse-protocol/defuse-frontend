@@ -149,8 +149,9 @@ export type WaitForSettlementInput = {
 
 /**
  * Returns { txHash: string; intentHash: string }.
- * Note: AbortSignal cannot be passed through server actions,
- * so we enforce a server-side 120s timeout to prevent indefinite hangs.
+ * Note: AbortSignal cannot be passed through server actions.
+ * The function runs until settlement completes or the intent fails terminally.
+ * Vercel's function timeout provides the natural upper bound.
  */
 export async function solverRelayWaitForSettlement(
   input: WaitForSettlementInput
@@ -158,7 +159,6 @@ export async function solverRelayWaitForSettlement(
   try {
     return await solverRelay.waitForIntentSettlement({
       intentHash: input.intentHash,
-      signal: AbortSignal.timeout(120_000),
       ...serverConfig(),
     })
   } catch (error) {
