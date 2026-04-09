@@ -171,13 +171,24 @@ function getQuotes({
   const queryQuote = queryQuoteWithRequestId()
 
   for (const waitMs of INITIAL_QUOTE_WAIT_MS) {
-    queryQuote({ ...quoteParams, waitMs }, { signal }).then(onResult, onError)
+    queryQuote({ ...quoteParams, waitMs }).then(
+      (result) => {
+        if (!signal.aborted) onResult(result)
+      },
+      (error) => {
+        if (!signal.aborted) onError(error)
+      }
+    )
   }
 
   const timer = setInterval(() => {
-    queryQuote({ ...quoteParams, waitMs: SLOW_QUOTE_WAIT_MS }, { signal }).then(
-      onResult,
-      onError
+    queryQuote({ ...quoteParams, waitMs: SLOW_QUOTE_WAIT_MS }).then(
+      (result) => {
+        if (!signal.aborted) onResult(result)
+      },
+      (error) => {
+        if (!signal.aborted) onError(error)
+      }
     )
   }, QUOTE_POLLING_INTERVAL_MS)
 

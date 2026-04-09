@@ -1,5 +1,6 @@
 import type { WithdrawalParams } from "@defuse-protocol/intents-sdk"
-import { solverRelay } from "@defuse-protocol/internal-utils"
+import type { solverRelay } from "@defuse-protocol/internal-utils"
+import { solverRelayWaitForSettlement } from "@src/actions/solverRelayProxy"
 import { logger } from "@src/utils/logger"
 import {
   type ActorRef,
@@ -77,13 +78,10 @@ export const intentStatusMachine = setup({
     checkIntentStatus: fromPromise(
       ({
         input,
-        signal,
       }: {
         input: { intentHash: string }
-        signal: AbortSignal
       }): Promise<solverRelay.WaitForIntentSettlementReturnType> =>
-        solverRelay.waitForIntentSettlement({
-          signal,
+        solverRelayWaitForSettlement({
           intentHash: input.intentHash,
         })
     ),

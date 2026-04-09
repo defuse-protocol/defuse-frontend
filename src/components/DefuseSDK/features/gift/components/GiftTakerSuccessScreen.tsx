@@ -1,5 +1,5 @@
-import { solverRelay } from "@defuse-protocol/internal-utils"
 import { Button } from "@radix-ui/themes"
+import { solverRelayWaitForSettlement } from "@src/actions/solverRelayProxy"
 import {
   computeTotalBalanceDifferentDecimals,
   getUnderlyingBaseTokenInfos,
@@ -35,10 +35,10 @@ export function GiftTakerSuccessScreen({
 
   const intentStatus = useQuery({
     queryKey: ["intents_status", intentHashes],
-    queryFn: async ({ signal }) => {
+    queryFn: async () => {
       const intentHash = intentHashes[0]
       assert(intentHash != null)
-      return solverRelay.waitForIntentSettlement({ signal, intentHash })
+      return solverRelayWaitForSettlement({ intentHash })
     },
   })
 

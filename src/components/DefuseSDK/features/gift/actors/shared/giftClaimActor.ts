@@ -1,5 +1,8 @@
 import type { MultiPayload } from "@defuse-protocol/contract-types"
-import { solverRelay } from "@defuse-protocol/internal-utils"
+import {
+  solverRelayPublishIntents,
+  solverRelayWaitForSettlement,
+} from "@src/actions/solverRelayProxy"
 import {
   type SignerCredentials,
   formatSignedIntent,
@@ -117,12 +120,10 @@ export const giftClaimActor = setup({
       }: {
         input: { multiPayload: MultiPayload }
       }): Promise<GiftPublishActorOutput> => {
-        const result = await solverRelay
-          .publishIntents({
-            quote_hashes: [],
-            signed_datas: [input.multiPayload],
-          })
-          .then(convertPublishIntentsToLegacyFormat)
+        const result = await solverRelayPublishIntents({
+          quote_hashes: [],
+          signed_datas: [input.multiPayload],
+        }).then(convertPublishIntentsToLegacyFormat)
         if (result.isErr()) {
           return { tag: "err" as const, value: result.unwrapErr() }
         }
@@ -142,29 +143,31 @@ export const giftClaimActor = setup({
     settlingActor: fromPromise(
       async ({
         input,
-        signal,
       }: {
         input: { intentHashes: string[] }
-        signal: AbortSignal
       }): Promise<
         { tag: "ok" } | { tag: "err"; value: GiftClaimActorErrors }
       > => {
         const intentHash = input.intentHashes[0]
         assert(intentHash, "intentHash is not defined")
         try {
-          await solverRelay.waitForIntentSettlement({
-            signal,
+          await solverRelayWaitForSettlement({
             intentHash,
           })
           return { tag: "ok" as const }
         } catch (err) {
-          if (err instanceof solverRelay.IntentSettlementError) {
+          // Only treat as permanent failure if the upstream error indicates
+          // a terminal settlement state ("Intent settlement failed").
+          // Transient errors (timeout, network) propagate so the machine retries.
+          if (
+            err instanceof Error &&
+            err.message.includes("Intent settlement failed")
+          ) {
             return {
               tag: "err" as const,
               value: { reason: "NOT_FOUND_OR_NOT_VALID" },
             }
           }
-          // Optionally handle/log other error types here
           throw err
         }
       }

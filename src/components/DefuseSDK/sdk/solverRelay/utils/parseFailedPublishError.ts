@@ -1,6 +1,3 @@
-import type { solverRelay } from "@defuse-protocol/internal-utils"
-import type { Result } from "@thames/monads"
-
 export type ParsedPublishErrors =
   | {
       reason:
@@ -16,26 +13,16 @@ export type ParsedPublishErrors =
       serverReason: string
     }
 
-/**
- * Adapter function that converts the new Result<string, PublishIntentsErrorType>
- * from internal-utils into the legacy format used by the SDK.
- */
-export function convertPublishIntentToLegacyFormat(
-  result: Result<string, solverRelay.PublishIntentsErrorType>
-):
-  | { tag: "ok"; value: string }
-  | {
-      tag: "err"
-      value: ParsedPublishErrors
-    } {
-  if (result.isOk()) {
-    return { tag: "ok", value: result.unwrap() }
-  }
+export type SerializedResult<T, E> = { ok: T } | { err: E }
 
-  const error = result.unwrapErr()
+/** Plain error shape returned by server actions (only `code` survives serialization). */
+export type SerializedPublishError = { code: string }
+
+export function mapPublishError(
+  error: SerializedPublishError
+): ParsedPublishErrors {
   const errorCode = error.code
 
-  // Map new PublishErrorCode to old ParsedPublishErrors format
   let reason: ParsedPublishErrors["reason"]
   switch (errorCode) {
     case "SIGNATURE_EXPIRED":
@@ -56,21 +43,23 @@ export function convertPublishIntentToLegacyFormat(
     case "PUBLIC_KEY_NOT_EXIST":
       reason = "RELAY_PUBLISH_PUBLIC_NOT_EXIST"
       break
-    case "UNKNOWN_ERROR":
-      reason = "RELAY_PUBLISH_UNKNOWN_ERROR"
-      break
-    case "NETWORK_ERROR":
-      reason = "RELAY_PUBLISH_UNKNOWN_ERROR"
-      break
     default:
       reason = "RELAY_PUBLISH_UNKNOWN_ERROR"
   }
 
-  return {
-    tag: "err",
-    value:
-      reason === "RELAY_PUBLISH_UNKNOWN_ERROR"
-        ? { reason, serverReason: errorCode }
-        : { reason },
+  return reason === "RELAY_PUBLISH_UNKNOWN_ERROR"
+    ? { reason, serverReason: errorCode }
+    : { reason }
+}
+
+/**
+ * Adapter that converts server action's serialized Result into legacy format.
+ */
+export function convertPublishIntentToLegacyFormat(
+  result: SerializedResult<string, SerializedPublishError>
+): { tag: "ok"; value: string } | { tag: "err"; value: ParsedPublishErrors } {
+  if ("ok" in result) {
+    return { tag: "ok", value: result.ok }
   }
+  return { tag: "err", value: mapPublishError(result.err) }
 }

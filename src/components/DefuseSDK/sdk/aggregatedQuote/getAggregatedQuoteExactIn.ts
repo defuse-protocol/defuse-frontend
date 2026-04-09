@@ -1,4 +1,8 @@
-import { type poaBridge, solverRelay } from "@defuse-protocol/internal-utils"
+import type { poaBridge, solverRelay } from "@defuse-protocol/internal-utils"
+import {
+  type GetQuoteInput,
+  solverRelayGetQuote,
+} from "@src/actions/solverRelayProxy"
 import { settings } from "../../constants/settings"
 import type { AssertionError } from "../../errors/assert"
 import type { BaseTokenInfo, TokenValue } from "../../types/base"
@@ -40,7 +44,7 @@ export async function getAggregatedQuoteExactIn({
   config = {},
 }: {
   aggregatedQuoteParams: GetAggregatedExactInQuoteParams
-  config?: Omit<solverRelay.GetQuoteParams["config"], "logBalanceSufficient">
+  config?: { requestId?: string }
 }): Promise<GetAggregatedQuoteExactInReturnType> {
   const tokenOut = aggregatedQuoteParams.tokenOut
   const tokenIn = aggregatedQuoteParams.tokensIn[0]
@@ -72,17 +76,16 @@ export async function getAggregatedQuoteExactIn({
       appFees.push([tokenIn.defuseAssetId, appFee])
     }
 
-    const quoteParams: solverRelay.GetQuoteParams["quoteParams"] = {
+    const quoteParams: GetQuoteInput["quoteParams"] = {
       defuse_asset_identifier_in: tokenIn.defuseAssetId,
       defuse_asset_identifier_out: tokenOut.defuseAssetId,
       exact_amount_in: exactAmountIn.toString(),
       min_deadline_ms: settings.quoteMinDeadlineMs,
       wait_ms: aggregatedQuoteParams.waitMs,
     }
-    const q = solverRelay.getQuote({
+    const q = solverRelayGetQuote({
       quoteParams,
       config: {
-        ...config,
         logBalanceSufficient: false,
       },
     })
@@ -133,13 +136,13 @@ async function fetchQuotesForTokens(
   tokenOut: string,
   amountsToQuote: Record<string, bigint>,
   waitMs: number,
-  config: solverRelay.GetQuoteParams["config"]
+  config: { logBalanceSufficient: boolean; requestId?: string }
 ): Promise<{
   quotes: PromiseSettledResult<solverRelay.GetQuoteReturnType>[]
-  quoteParams: solverRelay.GetQuoteParams["quoteParams"][]
+  quoteParams: GetQuoteInput["quoteParams"][]
 }> {
   const quoteParams = Object.entries(amountsToQuote).map(
-    ([tokenIn, amountIn]): solverRelay.GetQuoteParams["quoteParams"] => {
+    ([tokenIn, amountIn]): GetQuoteInput["quoteParams"] => {
       return {
         defuse_asset_identifier_in: tokenIn,
         defuse_asset_identifier_out: tokenOut,
@@ -152,7 +155,7 @@ async function fetchQuotesForTokens(
 
   const quotes = await Promise.allSettled(
     quoteParams.map((quoteParams) =>
-      solverRelay.getQuote({ quoteParams, config })
+      solverRelayGetQuote({ quoteParams, config })
     )
   )
 

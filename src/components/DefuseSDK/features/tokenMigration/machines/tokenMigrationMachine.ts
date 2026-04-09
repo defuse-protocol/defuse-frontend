@@ -1,6 +1,17 @@
-import { messageFactory, solverRelay } from "@defuse-protocol/internal-utils"
-import type { walletMessage } from "@defuse-protocol/internal-utils"
+import {
+  messageFactory,
+  prepareBroadcastRequest,
+} from "@defuse-protocol/internal-utils"
+import type {
+  solverRelay,
+  walletMessage,
+} from "@defuse-protocol/internal-utils"
 import { base64 } from "@scure/base"
+import {
+  type PublishIntentInput,
+  solverRelayPublishIntent,
+  solverRelayWaitForSettlement,
+} from "@src/actions/solverRelayProxy"
 import { bridgeSDK } from "@src/components/DefuseSDK/constants/bridgeSdk"
 import { minutesFromNow } from "@src/components/DefuseSDK/core/messages"
 import { logger } from "@src/utils/logger"
@@ -86,25 +97,31 @@ export const tokenMigrationMachine = setup({
 
     signIntent: signIntentMachine,
 
-    publishIntent: fromPromise(
-      ({ input }: { input: Parameters<typeof solverRelay.publishIntent> }) =>
-        solverRelay
-          .publishIntent(...input)
-          .then(convertPublishIntentToLegacyFormat)
+    publishIntent: fromPromise(({ input }: { input: PublishIntentInput }) =>
+      solverRelayPublishIntent(input).then(convertPublishIntentToLegacyFormat)
     ),
 
     waitForIntentSettlement: fromPromise(
-      ({
-        input,
-        signal,
-      }: { input: { intentHash: string }; signal: AbortSignal }) =>
-        solverRelay
-          .waitForIntentSettlement({ signal, intentHash: input.intentHash })
-          .then((result) => ({
-            ...result,
-            status:
-              result.txHash != null ? "SETTLED" : "NOT_FOUND_OR_NOT_VALID",
-          }))
+      async ({ input }: { input: { intentHash: string } }) => {
+        try {
+          const result = await solverRelayWaitForSettlement({
+            intentHash: input.intentHash,
+          })
+          return { ...result, status: "SETTLED" as const }
+        } catch (err) {
+          if (
+            err instanceof Error &&
+            err.message.includes("Intent settlement failed")
+          ) {
+            return {
+              txHash: "",
+              intentHash: input.intentHash,
+              status: "NOT_FOUND_OR_NOT_VALID" as const,
+            }
+          }
+          throw err
+        }
+      }
     ),
   },
 
@@ -263,14 +280,16 @@ export const tokenMigrationMachine = setup({
 
             input: ({ context }) => {
               assert(context.signature != null)
-              return [
-                context.signature,
-                {
-                  userAddress: context.signerCredentials.credential,
-                  userChainType: context.signerCredentials.credentialType,
-                },
-                [],
-              ]
+              return {
+                multiPayload: prepareBroadcastRequest.prepareSwapSignedData(
+                  context.signature,
+                  {
+                    userAddress: context.signerCredentials.credential,
+                    userChainType: context.signerCredentials.credentialType,
+                  }
+                ),
+                quoteHashes: [],
+              }
             },
 
             onDone: [

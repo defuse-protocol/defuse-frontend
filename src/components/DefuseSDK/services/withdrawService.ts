@@ -171,7 +171,7 @@ export async function prepareWithdraw(
       waitMs: 5_000, // it is good enough for most solvers
     }
 
-    const swapQuote = await queryQuote(swapParams, { signal })
+    const swapQuote = await queryQuote(swapParams)
 
     swapRequirement = {
       swapParams,
