@@ -18,7 +18,6 @@ export interface EnvConfig {
   contractID: string
   poaTokenFactoryContractID: string
   poaBridgeBaseURL: string
-  solverRelayBaseURL: string
   managerConsoleBaseURL: string
   nearIntentsBaseURL: string
   bridgeIndexerURL: string
@@ -31,7 +30,6 @@ const configsByEnvironment: Record<NearIntentsEnv, EnvConfig> = {
     contractID: "intents.near",
     poaTokenFactoryContractID: "omft.near",
     poaBridgeBaseURL: "https://bridge.chaindefuser.com",
-    solverRelayBaseURL: getSolverRelayURL(),
     managerConsoleBaseURL: "https://api-mng-console.chaindefuser.com/api/",
     nearIntentsBaseURL: getNearIntentsBaseURL(),
     bridgeIndexerURL: "https://bridge-indexer.chaindefuser.com",
@@ -40,7 +38,6 @@ const configsByEnvironment: Record<NearIntentsEnv, EnvConfig> = {
     contractID: "staging-intents.near",
     poaTokenFactoryContractID: "stft.near",
     poaBridgeBaseURL: "https://poa-stage.intents-near.org",
-    solverRelayBaseURL: getSolverRelayURL(),
     managerConsoleBaseURL: "https://mng-console-stage.intents-near.org/api/",
     nearIntentsBaseURL: getNearIntentsBaseURL(),
     bridgeIndexerURL: "https://bridge-indexer.chaindefuser.com",
@@ -81,27 +78,14 @@ export function configureSDK({ env, features }: ConfigureSDKArgs): void {
   }
 
   // This is temporary, `configureSDK` will be removed from `internal-utils` package
+  // Note: do NOT override solverRelayBaseURL here. The internal-utils library has
+  // the correct direct URLs built in (e.g. https://solver-relay-v2.chaindefuser.com).
+  // The intents-sdk's bridgeSDK uses these for internal operations like fee estimation
+  // quotes. Overriding them with a local proxy URL would break those calls since
+  // the API route was removed in favor of server actions.
   configureSDK_iu({
-    env,
     features,
-    environments: {
-      production: {
-        solverRelayBaseURL: getSolverRelayURL(),
-      },
-      stage: {
-        solverRelayBaseURL: getSolverRelayURL(),
-      },
-    },
   })
-}
-
-function getSolverRelayURL(): string {
-  // Solver relay calls now go through server actions (src/actions/solverRelayProxy.ts).
-  // This URL is only used by the SDK for internal bookkeeping; actual requests
-  // are routed by the server actions with the API key injected server-side.
-  return typeof window !== "undefined"
-    ? `${window.origin}/api/solver_relay/`
-    : `${BASE_URL}/api/solver_relay/`
 }
 
 function getNearIntentsBaseURL(): string {
