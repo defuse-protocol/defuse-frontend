@@ -503,24 +503,40 @@ async function estimateFee({
       // Since we pass amount: 0n for fee-only estimation, retry with minAmount.
       const minWithdrawalAmountError = findError(err, MinWithdrawalAmountError)
       if (minWithdrawalAmountError) {
-        return bridgeSDK
-          .estimateWithdrawalFee({
-            withdrawalParams: {
-              ...withdrawalParams,
-              amount: minWithdrawalAmountError.minAmount,
-            },
-          })
-          .then(Ok, (retryErr) => {
-            const retryFeeExceedsError = findError(
-              retryErr,
-              FeeExceedsAmountError
-            )
-            if (retryFeeExceedsError) {
-              return Ok(retryFeeExceedsError.feeEstimation)
-            }
-            logger.error(retryErr)
-            return Err({ reason: "ERR_WITHDRAWAL_FEE_FETCH" as const })
-          })
+        let currentMinAmount = minWithdrawalAmountError.minAmount
+        let retriesLeft = 3
+        const retryWithMinAmount = async (): Promise<
+          Result<FeeEstimation, { reason: "ERR_WITHDRAWAL_FEE_FETCH" }>
+        > => {
+          retriesLeft--
+          return bridgeSDK
+            .estimateWithdrawalFee({
+              withdrawalParams: {
+                ...withdrawalParams,
+                amount: currentMinAmount,
+              },
+            })
+            .then(Ok, (retryErr) => {
+              const retryFeeExceedsError = findError(
+                retryErr,
+                FeeExceedsAmountError
+              )
+              if (retryFeeExceedsError) {
+                return Ok(retryFeeExceedsError.feeEstimation)
+              }
+              const retryMinAmountError = findError(
+                retryErr,
+                MinWithdrawalAmountError
+              )
+              if (retryMinAmountError && retriesLeft > 0) {
+                currentMinAmount = retryMinAmountError.minAmount
+                return retryWithMinAmount()
+              }
+              logger.error(retryErr)
+              return Err({ reason: "ERR_WITHDRAWAL_FEE_FETCH" as const })
+            })
+        }
+        return retryWithMinAmount()
       }
 
       logger.error(err)
