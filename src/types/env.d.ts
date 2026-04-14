@@ -4,4 +4,5 @@ interface Window {
     eventName: string,
     additionalPayload?: T
   ) => void
+  Beacon?: (method: string, options?: unknown, data?: unknown) => void
 }
