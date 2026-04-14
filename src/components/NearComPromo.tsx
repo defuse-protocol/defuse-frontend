@@ -20,11 +20,22 @@ const NearComPromo = () => {
   if (whitelabelTemplate !== "near-intents") return null
 
   const openMigrationGuide = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (typeof window !== "undefined" && typeof window.Beacon === "function") {
-      e.preventDefault()
-      window.Beacon("article", MIGRATION_ARTICLE_ID, { type: "sidebar" })
-    }
-    // else: let the browser follow the href (opens article in a new tab)
+    if (typeof window === "undefined") return
+    const beacon = window.Beacon
+    if (typeof beacon !== "function") return
+
+    // HelpScout installs a queueing stub (see Helpscout.tsx) before the
+    // real SDK finishes loading. The stub is a function with `readyQueue`
+    // as an array; the loaded SDK replaces the stub entirely and does not
+    // expose `readyQueue`. If we still see the stub here, the real SDK
+    // isn't ready (still loading, blocked by an extension, or failed),
+    // so skip preventDefault and let the <a href> navigate as a fallback.
+    const stubQueue = (beacon as unknown as { readyQueue?: unknown[] })
+      .readyQueue
+    if (Array.isArray(stubQueue)) return
+
+    e.preventDefault()
+    beacon("article", MIGRATION_ARTICLE_ID, { type: "sidebar" })
   }
 
   return (
