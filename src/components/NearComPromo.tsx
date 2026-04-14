@@ -1,23 +1,35 @@
 import { useContext } from "react"
 
 import { ChevronRightIcon } from "@radix-ui/react-icons"
+import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import NearBadge from "../../public/static/icons/near-badge.svg"
+import { getNearComPromoVariant } from "./NearComPromo.variant"
 
 const MIGRATION_ARTICLE_ID = "69de575cfe9deda3e8da017c"
 const MIGRATION_ARTICLE_URL =
   "https://near-intents-app.helpscoutdocs.com/article/257-migration-from-near-intents-to-nearcom"
 
-const NEAR_COM_LINK_PROPS = {
-  href: "https://near.com/?utm_source=near-intents",
-  target: "_blank",
-  rel: "noopener noreferrer",
-}
+const NEAR_COM_URL = "https://near.com/?utm_source=near-intents"
+
+const NearComLink = () => (
+  <a
+    href={NEAR_COM_URL}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-white underline"
+  >
+    near.com
+  </a>
+)
 
 const NearComPromo = () => {
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
+  const { state } = useConnectWallet()
 
   if (whitelabelTemplate !== "near-intents") return null
+
+  const variant = getNearComPromoVariant(state.chainType)
 
   const openMigrationGuide = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (typeof window === "undefined") return
@@ -38,6 +50,67 @@ const NearComPromo = () => {
     beacon("article", MIGRATION_ARTICLE_ID, { type: "sidebar" })
   }
 
+  const body =
+    variant === "wallet" ? (
+      <>
+        Your wallet works at <NearComLink /> — just reconnect there. Nothing to
+        move, nothing to migrate. This site will be retired.
+      </>
+    ) : variant === "passkey" ? (
+      <>
+        Because you signed up with a passkey, you’ll need a new account at{" "}
+        <NearComLink /> and we’ll help you move your funds. This site will be
+        retired.
+      </>
+    ) : (
+      <>
+        The NEAR Intents consumer app has a new home at <NearComLink /> — better
+        app, same team. This site will be retired. We encourage you to switch
+        soon.
+      </>
+    )
+
+  const cta =
+    variant === "wallet" ? (
+      <a
+        href={NEAR_COM_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-1 mt-4 bg-white text-gray-900 px-4 rounded-xl py-3 -tracking-[0.01em]"
+      >
+        <span className="text-sm/4 font-semibold">Open near.com</span>
+        <ChevronRightIcon className="size-4 shrink-0" />
+      </a>
+    ) : (
+      <a
+        href={MIGRATION_ARTICLE_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={openMigrationGuide}
+        className="inline-flex items-center gap-1 mt-4 bg-white text-gray-900 px-4 rounded-xl py-3 -tracking-[0.01em]"
+      >
+        <span className="text-sm/4 font-semibold">Learn how to migrate</span>
+        <ChevronRightIcon className="size-4 shrink-0" />
+      </a>
+    )
+
+  const secondary =
+    variant === "anonymous" ? (
+      <p className="text-gray-500 text-xs font-medium mt-3">
+        Signed up with a passkey?{" "}
+        <a
+          href={MIGRATION_ARTICLE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={openMigrationGuide}
+          className="text-gray-300 underline"
+        >
+          Read the migration guide
+        </a>
+        .
+      </p>
+    ) : null
+
   return (
     <div className="widget-container mx-auto mt-5 md:mt-8 px-3 sm:px-0 md:-mb-4">
       <div className="rounded-3xl bg-gray-900 p-4 sm:p-5 pt-4 dark:bg-gray-950 outline outline-white/5">
@@ -47,24 +120,9 @@ const NearComPromo = () => {
             We’ve moved to near.com
           </h2>
         </div>
-        <p className="text-gray-400 text-sm font-medium mt-3">
-          The NEAR Intents consumer app has a new home at{" "}
-          <a {...NEAR_COM_LINK_PROPS} className="text-white underline">
-            near.com
-          </a>{" "}
-          — better app, same team. This site still works for now, but will be
-          phased out. We encourage you to migrate soon.
-        </p>
-        <a
-          href={MIGRATION_ARTICLE_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={openMigrationGuide}
-          className="inline-flex items-center gap-1 mt-4 bg-white text-gray-900 px-4 rounded-xl py-3 -tracking-[0.01em]"
-        >
-          <span className="text-sm/4 font-semibold">Learn how to migrate</span>
-          <ChevronRightIcon className="size-4 shrink-0" />
-        </a>
+        <p className="text-gray-400 text-sm font-medium mt-3">{body}</p>
+        {cta}
+        {secondary}
       </div>
     </div>
   )
