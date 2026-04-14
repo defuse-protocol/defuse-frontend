@@ -1,4 +1,4 @@
-import { useContext } from "react"
+import { useContext, useEffect, useState } from "react"
 
 import { ChevronRightIcon } from "@radix-ui/react-icons"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
@@ -26,10 +26,14 @@ const NearComLink = () => (
 const NearComPromo = () => {
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
   const { state } = useConnectWallet()
+  const [isHydrated, setIsHydrated] = useState(false)
+  useEffect(() => setIsHydrated(true), [])
 
   if (whitelabelTemplate !== "near-intents") return null
 
-  const variant = getNearComPromoVariant(state.chainType)
+  const variant = isHydrated
+    ? getNearComPromoVariant(state.chainType)
+    : "anonymous"
 
   const openMigrationGuide = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (typeof window === "undefined") return
