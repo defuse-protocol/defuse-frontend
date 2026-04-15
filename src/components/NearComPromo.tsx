@@ -75,17 +75,7 @@ const NearComPromo = () => {
     )
 
   const cta =
-    variant === "wallet" ? (
-      <a
-        href={NEAR_COM_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex items-center gap-1 mt-4 bg-white text-gray-900 px-4 rounded-xl py-3 -tracking-[0.01em]"
-      >
-        <span className="text-sm/4 font-semibold">Open near.com</span>
-        <ChevronRightIcon className="size-4 shrink-0" />
-      </a>
-    ) : (
+    variant === "passkey" ? (
       <a
         href={MIGRATION_ARTICLE_URL}
         target="_blank"
@@ -94,6 +84,16 @@ const NearComPromo = () => {
         className="inline-flex items-center gap-1 mt-4 bg-white text-gray-900 px-4 rounded-xl py-3 -tracking-[0.01em]"
       >
         <span className="text-sm/4 font-semibold">Learn how to migrate</span>
+        <ChevronRightIcon className="size-4 shrink-0" />
+      </a>
+    ) : (
+      <a
+        href={NEAR_COM_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-1 mt-4 bg-white text-gray-900 px-4 rounded-xl py-3 -tracking-[0.01em]"
+      >
+        <span className="text-sm/4 font-semibold">Open near.com</span>
         <ChevronRightIcon className="size-4 shrink-0" />
       </a>
     )
