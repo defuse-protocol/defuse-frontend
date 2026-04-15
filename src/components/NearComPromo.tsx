@@ -58,19 +58,19 @@ const NearComPromo = () => {
     variant === "wallet" ? (
       <>
         Your wallet works at <NearComLink /> — just reconnect there. Nothing to
-        move, nothing to migrate. This site will be retired.
+        move, nothing to migrate. This site will soon be retired.
       </>
     ) : variant === "passkey" ? (
       <>
         Because you signed up with a passkey, you’ll need a new account at{" "}
-        <NearComLink /> and we’ll help you move your funds. This site will be
-        retired.
+        <NearComLink /> and we’ll help you move your funds. This site will soon
+        be retired.
       </>
     ) : (
       <>
-        The NEAR Intents consumer app has a new home at <NearComLink /> — better
-        app, same team. This site will be retired. We encourage you to switch
-        soon.
+        The NEAR Intents consumer app has a new home at <NearComLink />. Most
+        users just need to reconnect their wallet there — nothing to migrate.
+        This site will soon be retired.
       </>
     )
 
