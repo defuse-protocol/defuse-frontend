@@ -19,38 +19,6 @@ function serverConfig() {
   }
 }
 
-export type QuoteParams = {
-  defuse_asset_identifier_in: string
-  defuse_asset_identifier_out: string
-  exact_amount_in?: string
-  exact_amount_out?: string
-  min_deadline_ms?: number
-  wait_ms?: number
-}
-
-export type GetQuoteInput = {
-  quoteParams: QuoteParams
-  config?: {
-    logBalanceSufficient: boolean
-    requestId?: string
-  }
-}
-
-/**
- * Returns the best quote as a plain object (serializable).
- * Throws QuoteError on no-liquidity — callers handle via Promise.allSettled().
- */
-export async function solverRelayGetQuote(input: GetQuoteInput) {
-  return solverRelay.getQuote({
-    quoteParams: input.quoteParams,
-    config: {
-      ...input.config,
-      logBalanceSufficient: input.config?.logBalanceSufficient ?? false,
-      ...serverConfig(),
-    },
-  })
-}
-
 export type PublishIntentInput = {
   multiPayload: MultiPayload
   quoteHashes: string[]
