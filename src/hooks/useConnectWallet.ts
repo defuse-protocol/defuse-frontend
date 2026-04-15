@@ -49,10 +49,17 @@ import {
   useConnections,
   useDisconnect,
 } from "wagmi"
-import { ChainType } from "./chainType"
 import { useEVMWalletActions } from "./useEVMWalletActions"
 
-export { ChainType }
+export enum ChainType {
+  Near = "near",
+  EVM = "evm",
+  Solana = "solana",
+  WebAuthn = "webauthn",
+  Ton = "ton",
+  Stellar = "stellar",
+  Tron = "tron",
+}
 
 export type State = {
   chainType?: ChainType

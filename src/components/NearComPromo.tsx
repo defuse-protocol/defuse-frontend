@@ -1,16 +1,25 @@
 import { useContext, useEffect, useState } from "react"
 
 import { ChevronRightIcon } from "@radix-ui/react-icons"
-import { useConnectWallet } from "@src/hooks/useConnectWallet"
+import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import NearBadge from "../../public/static/icons/near-badge.svg"
-import { getNearComPromoVariant } from "./NearComPromo.variant"
 
 const MIGRATION_ARTICLE_ID = "69de575cfe9deda3e8da017c"
 const MIGRATION_ARTICLE_URL =
   "https://near-intents-app.helpscoutdocs.com/article/257-migration-from-near-intents-to-nearcom"
 
 const NEAR_COM_URL = "https://near.com/?utm_source=near-intents"
+
+type NearComPromoVariant = "wallet" | "passkey" | "anonymous"
+
+function getNearComPromoVariant(
+  chainType: ChainType | undefined
+): NearComPromoVariant {
+  if (chainType === undefined) return "anonymous"
+  if (chainType === ChainType.WebAuthn) return "passkey"
+  return "wallet"
+}
 
 const NearComLink = () => (
   <a
@@ -25,11 +34,16 @@ const NearComLink = () => (
 
 const NearComPromo = () => {
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
+
+  if (whitelabelTemplate !== "near-intents") return null
+
+  return <NearComPromoContent />
+}
+
+const NearComPromoContent = () => {
   const { state } = useConnectWallet()
   const [isHydrated, setIsHydrated] = useState(false)
   useEffect(() => setIsHydrated(true), [])
-
-  if (whitelabelTemplate !== "near-intents") return null
 
   const variant = isHydrated
     ? getNearComPromoVariant(state.chainType)
