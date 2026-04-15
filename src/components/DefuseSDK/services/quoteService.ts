@@ -84,11 +84,16 @@ export async function queryQuote(
     )
   )
 
+  // Fail closed: if any split leg has no quote, the full swap cannot be executed
+  if (results.some((r) => r.status !== "fulfilled")) {
+    return { tag: "err", value: { reason: "ERR_NO_QUOTES" } }
+  }
+
   const tokenDeltas: [string, bigint][] = []
   let timeEstimate: number | undefined
 
   for (const result of results) {
-    if (result.status === "rejected") continue
+    if (result.status !== "fulfilled") continue
     const { tokenInAssetId, response } = result.value
     tokenDeltas.push([tokenInAssetId, -BigInt(response.quote.amountIn)])
     tokenDeltas.push([
@@ -100,15 +105,11 @@ export async function queryQuote(
     }
   }
 
-  if (tokenDeltas.length === 0) {
-    return { tag: "err", value: { reason: "ERR_NO_QUOTES" } }
-  }
-
   return {
     tag: "ok",
     value: {
       quoteHashes: [],
-      expirationTime: new Date(0).toISOString(), // dry run has no expiration
+      expirationTime: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
       tokenDeltas,
       appFee: [],
       timeEstimate,

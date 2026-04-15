@@ -47,6 +47,8 @@ export async function GET(req: NextRequest) {
     )
   }
 
+  const updateTasks: Promise<unknown>[] = []
+
   for (const token of tokenPairs) {
     const joinedAddressesKey = joinAddresses([
       token.in.defuseAssetId,
@@ -61,39 +63,39 @@ export async function GET(req: NextRequest) {
       continue
     }
 
-    getInternalQuote({
-      originAsset: token.in.defuseAssetId,
-      destinationAsset: token.out.defuseAssetId,
-      amount: maxLiquidity.amount,
-      quoteWaitingTimeMs: 3000,
-    })
-      .then(() => {
-        const updatedData = prepareUpdatedLiquidity(maxLiquidity, true)
-        tokenPairsLiquidity[joinedAddressesKey] = updatedData
-
-        setMaxLiquidityData(
-          token.in.defuseAssetId,
-          token.out.defuseAssetId,
-          updatedData
-        )
+    updateTasks.push(
+      getInternalQuote({
+        originAsset: token.in.defuseAssetId,
+        destinationAsset: token.out.defuseAssetId,
+        amount: maxLiquidity.amount,
+        quoteWaitingTimeMs: 3000,
       })
-      .catch(() => {
-        const updatedData = prepareUpdatedLiquidity(maxLiquidity, false)
-        tokenPairsLiquidity[joinedAddressesKey] = updatedData
-
-        setMaxLiquidityData(
-          token.in.defuseAssetId,
-          token.out.defuseAssetId,
-          updatedData
-        )
-
-        // enable it if you want to debug, disabled as we are out of sentry errors limit, this generates a lot of errors
-        // logger.error(`${err}: ${joinedAddressesKey}`)
-      })
+        .then(() => {
+          const updatedData = prepareUpdatedLiquidity(maxLiquidity, true)
+          tokenPairsLiquidity[joinedAddressesKey] = updatedData
+          return setMaxLiquidityData(
+            token.in.defuseAssetId,
+            token.out.defuseAssetId,
+            updatedData
+          )
+        })
+        .catch(() => {
+          const updatedData = prepareUpdatedLiquidity(maxLiquidity, false)
+          tokenPairsLiquidity[joinedAddressesKey] = updatedData
+          return setMaxLiquidityData(
+            token.in.defuseAssetId,
+            token.out.defuseAssetId,
+            updatedData
+          )
+          // enable it if you want to debug, disabled as we are out of sentry errors limit, this generates a lot of errors
+          // logger.error(`${err}: ${joinedAddressesKey}`)
+        })
+    )
 
     await delay(50 + Math.floor(Math.random() * 50))
   }
 
+  await Promise.allSettled(updateTasks)
   await cleanUpInvalidatedTokens(tokenPairs, tokenPairsLiquidity)
 
   return NextResponse.json({ error: null }, { status: 200 })

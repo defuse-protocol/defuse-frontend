@@ -110,7 +110,7 @@ describe("queryQuote()", () => {
       tag: "ok",
       value: {
         quoteHashes: [],
-        expirationTime: new Date(0).toISOString(),
+        expirationTime: expect.any(String),
         tokenDeltas: [
           ["token1", -100000000n],
           ["tokenOut", 20n],
@@ -141,7 +141,7 @@ describe("queryQuote()", () => {
     })
   })
 
-  it("returns partial fill if some token quotes fail", async () => {
+  it("returns ERR_NO_QUOTES if any split leg has no quote", async () => {
     const input = {
       tokensIn: [token1, token2],
       tokenOut,
@@ -159,17 +159,8 @@ describe("queryQuote()", () => {
       .mockRejectedValueOnce(new Error("No liquidity"))
 
     await expect(queryQuote(input)).resolves.toEqual({
-      tag: "ok",
-      value: {
-        quoteHashes: [],
-        expirationTime: new Date(0).toISOString(),
-        tokenDeltas: [
-          ["token1", -100000000n],
-          ["tokenOut", 20n],
-        ],
-        appFee: [],
-        timeEstimate: 30,
-      },
+      tag: "err",
+      value: { reason: "ERR_NO_QUOTES" },
     })
   })
 
@@ -194,7 +185,7 @@ describe("queryQuote()", () => {
       tag: "ok",
       value: {
         quoteHashes: [],
-        expirationTime: new Date(0).toISOString(),
+        expirationTime: expect.any(String),
         tokenDeltas: [
           ["token1", -100000000n],
           ["tokenOut", 200n],

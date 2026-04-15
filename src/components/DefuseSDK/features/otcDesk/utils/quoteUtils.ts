@@ -46,10 +46,9 @@ export function areQuotesExpired(
   quotes: Array<{ expirationTime: string }>
 ): boolean {
   const MIN_BUFFER_TIME_MS = 10_000 // 10 seconds
-  return !quotes.every((quote) => {
+  return quotes.some((quote) => {
     const quoteDeadline = new Date(quote.expirationTime).getTime()
-    const maxDeadline = Date.now() + MIN_BUFFER_TIME_MS
-    return quoteDeadline < maxDeadline
+    return quoteDeadline <= Date.now() + MIN_BUFFER_TIME_MS
   })
 }
 
