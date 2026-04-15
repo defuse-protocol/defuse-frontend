@@ -25,7 +25,7 @@ import { bridgeSDK } from "../../constants/bridgeSdk"
 import { settings } from "../../constants/settings"
 import { convertPublishIntentToLegacyFormat } from "../../sdk/solverRelay/utils/parseFailedPublishError"
 import { emitEvent } from "../../services/emitter"
-import type { AggregatedQuote } from "../../services/quoteService"
+import type { AggregatedQuote, QuoteResult } from "../../services/quoteService"
 import type {
   BaseTokenInfo,
   TokenDeployment,
@@ -47,7 +47,6 @@ import {
   type WalletErrorCode,
   extractWalletErrorCode,
 } from "../../utils/walletErrorExtractor"
-import type { ParentEvents as BackgroundQuoterEvents } from "./backgroundQuoterMachine"
 import {
   type ErrorCodes as PublicKeyVerifierErrorCodes,
   publicKeyVerifierMachine,
@@ -158,7 +157,13 @@ export type Output =
       }
     }
 
-type Events = BackgroundQuoterEvents
+type Events = {
+  type: "NEW_QUOTE"
+  params: {
+    quoteInput: unknown
+    quote: QuoteResult
+  }
+}
 
 export const swapIntentMachine = setup({
   types: {
