@@ -16,6 +16,7 @@ import {
 } from "../../../services/intentsContractService"
 import type { TokenInfo } from "../../../types/base"
 import type { RenderHostAppLink } from "../../../types/hostAppLink"
+import { flattenTokenList } from "../../../utils/token"
 import type { SendNearTransaction } from "../../machines/publicKeyVerifierMachine"
 import { SignIntentActorProvider } from "../providers/SignIntentActorProvider"
 import { useOtcTakerTrades } from "../stores/otcTakerTrades"
@@ -93,6 +94,8 @@ function OtcTakerScreens({
     queryFn: () => getProtocolFee({ nearClient }),
   })
 
+  const flatTokenList = useMemo(() => flattenTokenList(tokenList), [tokenList])
+
   const enrichedTradeTerms = useMemo(() => {
     if (protocolFee == null || multiPayload == null) {
       return null
@@ -102,7 +105,7 @@ function OtcTakerScreens({
       .mapErr<DeriveTradeTermsErr | DetermineInvolvedTokensErr>((a) => a)
       .andThen((tradeTerms) => {
         return determineInvolvedTokens(
-          tokenList,
+          flatTokenList,
           tradeTerms.takerTokenDiff
         ).map((tokens) => ({
           ...tokens,
@@ -115,7 +118,7 @@ function OtcTakerScreens({
     }
 
     return result
-  }, [multiPayload, tokenList, protocolFee])
+  }, [multiPayload, flatTokenList, protocolFee])
 
   const [publishResult, setPublishResult] = useState<{
     intentHashes: string[]

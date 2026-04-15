@@ -23,10 +23,6 @@ import {
 } from "../providers/SignIntentActorProvider"
 import { otcTakerTradesStore } from "../stores/otcTakerTrades"
 import type { SignMessage } from "../types/sharedTypes"
-import {
-  type AggregatedQuoteErr,
-  getFreshQuoteHashes,
-} from "../utils/quoteUtils"
 import type { OTCTakerPreparationOk } from "./useOtcTakerPreparation"
 
 export function useOtcTakerConfirmTrade({
@@ -59,7 +55,7 @@ export function useOtcTakerConfirmTrade({
           makerMultiPayload: MultiPayload
           takerMultiPayload: MultiPayload
         },
-        PublishIntentsErr | SignIntentErr | AggregatedQuoteErr
+        PublishIntentsErr | SignIntentErr
       >
     > => {
       const signerId = authIdentity.authHandleToIntentsUserId(
@@ -67,7 +63,7 @@ export function useOtcTakerConfirmTrade({
         signerCredentials.credentialType
       )
 
-      const { quotes, quoteParams, tokenDelta } = preparation
+      const { tokenDelta } = preparation
       const { nonce, deadline } = await bridgeSDK
         .intentBuilder()
         .setDeadline(new Date(minutesFromNow(5)))
@@ -90,22 +86,13 @@ export function useOtcTakerConfirmTrade({
         return Err(signatureResult.unwrapErr())
       }
 
-      // todo: UI performance: add re-quoting in the background
-      // It's totally alright do async stuff after singing
-      const quoteHashesResult = await getFreshQuoteHashes(quotes, quoteParams, {
-        logBalanceSufficient: true,
-      })
-      if (quoteHashesResult.isErr()) {
-        return Err(quoteHashesResult.unwrapErr())
-      }
-
       const multiPayload = formatSignedIntent(
         signatureResult.unwrap().signatureResult,
         signerCredentials
       )
 
       const result = await solverRelayPublishIntents({
-        quote_hashes: quoteHashesResult.unwrap(),
+        quote_hashes: [],
         signed_datas: [multiPayload, makerMultiPayload],
       }).then(convertPublishIntentsToLegacyFormat)
 

@@ -26,6 +26,34 @@ import z from "zod"
 OpenAPI.BASE = z.string().parse(ONE_CLICK_URL)
 OpenAPI.TOKEN = z.string().parse(ONE_CLICK_API_KEY)
 
+/**
+ * Lightweight quote for internal use (liquidity checks, OTC desk, etc.).
+ * No user context needed — uses a placeholder recipient.
+ */
+export async function getInternalQuote(params: {
+  originAsset: string
+  destinationAsset: string
+  amount: string
+  quoteWaitingTimeMs?: number
+}) {
+  OpenAPI.HEADERS = { "x-api-key": z.string().parse(ONE_CLICK_API_KEY) }
+  return OneClickService.getQuote({
+    dry: true,
+    swapType: QuoteRequest.swapType.EXACT_INPUT,
+    slippageTolerance: 100,
+    originAsset: params.originAsset,
+    destinationAsset: params.destinationAsset,
+    amount: params.amount,
+    depositType: QuoteRequest.depositType.INTENTS,
+    recipientType: QuoteRequest.recipientType.INTENTS,
+    refundTo: "internal-quote.near",
+    refundType: QuoteRequest.refundType.INTENTS,
+    recipient: "internal-quote.near",
+    deadline: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+    quoteWaitingTimeMs: params.quoteWaitingTimeMs ?? 0,
+  })
+}
+
 export async function getTokens() {
   return await getTokensCached()
 }
