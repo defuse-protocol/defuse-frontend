@@ -28,18 +28,6 @@ export type QuoteParams = {
   wait_ms?: number
 }
 
-export type QuoteConfig = {
-  logBalanceSufficient: boolean
-  requestId?: string
-}
-
-export async function solverRelayQuote(
-  params: QuoteParams,
-  config?: QuoteConfig
-) {
-  return solverRelay.quote(params, { ...config, ...serverConfig() })
-}
-
 export type GetQuoteInput = {
   quoteParams: QuoteParams
   config?: {

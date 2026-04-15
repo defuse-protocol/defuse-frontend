@@ -1,4 +1,4 @@
-import { solverRelayGetQuote } from "@src/actions/solverRelayProxy"
+import { getInternalQuote } from "@src/components/DefuseSDK/features/machines/1cs"
 import { type NextRequest, NextResponse } from "next/server"
 
 import {
@@ -61,16 +61,11 @@ export async function GET(req: NextRequest) {
       continue
     }
 
-    solverRelayGetQuote({
-      quoteParams: {
-        defuse_asset_identifier_in: token.in.defuseAssetId,
-        defuse_asset_identifier_out: token.out.defuseAssetId,
-        exact_amount_in: maxLiquidity.amount,
-        wait_ms: 2888, // hot fix for filtering out such failed quotes from stats
-      },
-      config: {
-        logBalanceSufficient: false,
-      },
+    getInternalQuote({
+      originAsset: token.in.defuseAssetId,
+      destinationAsset: token.out.defuseAssetId,
+      amount: maxLiquidity.amount,
+      quoteWaitingTimeMs: 3000,
     })
       .then(() => {
         const updatedData = prepareUpdatedLiquidity(maxLiquidity, true)

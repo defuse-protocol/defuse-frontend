@@ -3,7 +3,6 @@ import { logger } from "@src/utils/logger"
 import { useQuery } from "@tanstack/react-query"
 import { Err, type Result } from "@thames/monads"
 import { getDepositedBalances } from "../../../services/defuseBalanceService"
-import type { AggregatedQuote } from "../../../services/quoteService"
 import type { TokenInfo } from "../../../types/base"
 import type { IntentsUserId } from "../../../types/intentsUserId"
 import { assert } from "../../../utils/assert"
@@ -16,12 +15,10 @@ import {
 import {
   type AggregatedQuoteErr,
   type QuoteExactInParams,
-  manyQuotes,
+  validateLiquidity,
 } from "../utils/quoteUtils"
 
 export type OTCTakerPreparationOk = {
-  quotes: AggregatedQuote[]
-  quoteParams: QuoteExactInParams[]
   tokenDelta: [string, bigint][]
 }
 
@@ -127,13 +124,11 @@ export function useOtcTakerPreparation({
         }
       }
 
-      const quotesResult = await manyQuotes(quoteParams, {
-        logBalanceSufficient: true,
-      })
+      const validationResult = await validateLiquidity(quoteParams)
 
-      return quotesResult.map((quotes) => {
-        logger.trace("return", { quotes, quoteParams, tokenDelta })
-        return { quotes, quoteParams, tokenDelta }
+      return validationResult.map(() => {
+        logger.trace("return", { tokenDelta })
+        return { tokenDelta }
       })
     },
   })
