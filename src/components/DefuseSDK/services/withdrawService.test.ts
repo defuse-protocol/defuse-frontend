@@ -1,7 +1,10 @@
 import { parseUnits } from "viem"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import type { BaseTokenInfo, UnifiedTokenInfo } from "../types/base"
 import { getRequiredSwapAmount } from "./withdrawService"
+
+// Prevent module-level env-var parsing in 1cs.ts from crashing test load
+vi.mock("../features/machines/1cs", () => ({ getInternalQuote: vi.fn() }))
 
 const usdcSolana: BaseTokenInfo = {
   defuseAssetId: "usdc-solana",
