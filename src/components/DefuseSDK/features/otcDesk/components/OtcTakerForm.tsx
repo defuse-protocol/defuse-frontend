@@ -207,13 +207,9 @@ export function OtcTakerForm({
       ? totalAmountIn.amount - balanceAmountIn
       : 0n
 
-  const depositLink = `/deposit/crypto?from=${encodeURIComponent(
-    isBaseToken(tokenIn)
-      ? `${tokenIn.symbol}:${tokenIn.originChainName}`
-      : tokenIn.symbol
-  )}`
+  const depositLink = `/deposit?from=${encodeURIComponent(tokenIn.symbol)}`
 
-  const swapLink = `/swap?to=${encodeURIComponent(
+  const swapLink = `/?to=${encodeURIComponent(
     isBaseToken(tokenIn)
       ? `${tokenIn.symbol}:${tokenIn.originChainName}`
       : tokenIn.symbol
