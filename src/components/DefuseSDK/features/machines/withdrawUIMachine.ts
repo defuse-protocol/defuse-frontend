@@ -16,7 +16,6 @@ import type { QuoteResult } from "../../services/quoteService"
 import type { BaseTokenInfo, TokenInfo } from "../../types/base"
 import { assert } from "../../utils/assert"
 import { isNearIntentsNetwork } from "../withdraw/components/WithdrawForm/utils"
-import type { ParentEvents as BackgroundQuoterParentEvents } from "./backgroundQuoterMachine"
 import {
   type BalanceMapping,
   type Events as DepositedBalanceEvents,
@@ -98,7 +97,6 @@ export const withdrawUIMachine = setup({
             changedBalanceMapping: BalanceMapping
           }
         }
-      | BackgroundQuoterParentEvents
       | DepositedBalanceEvents
       | WithdrawFormEvents
       | WithdrawFormParentEvents

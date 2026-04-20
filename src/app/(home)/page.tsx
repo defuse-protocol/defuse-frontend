@@ -24,7 +24,7 @@ export default function Swap() {
   const userAddress = state.isVerified ? state.address : undefined
   const userChainType = state.chainType
   const tokenList = useTokenList1cs()
-  const { tokenIn, tokenOut } = useDeterminePair(true)
+  const { tokenIn, tokenOut } = useDeterminePair()
   const referral = useIntentsReferral()
 
   useEffect(() => {
@@ -76,7 +76,7 @@ const TOKENS_WITHOUT_REF_AND_BRRR = LIST_TOKENS.filter(
 )
 
 function useTokenList1cs() {
-  const tokenList = useTokenList(TOKENS_WITHOUT_REF_AND_BRRR, true)
+  const tokenList = useTokenList(TOKENS_WITHOUT_REF_AND_BRRR)
 
   const { data: oneClickTokens, isLoading: is1csTokensLoading } = useQuery({
     queryKey: ["1cs-tokens"],
