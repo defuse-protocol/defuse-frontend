@@ -1,4 +1,6 @@
+import { logNoLiquidity } from "@src/utils/logCustom"
 import { Err, Ok, type Result } from "@thames/monads"
+import type { BaseTokenInfo } from "../../../types/base"
 import { getInternalQuote } from "../../machines/1cs"
 
 export type AggregatedQuoteErr = { reason: "NO_QUOTES" }
@@ -18,7 +20,8 @@ export type QuoteExactInParams = {
  * consumed downstream — only the success/failure signal matters.
  */
 export async function validateLiquidity(
-  swapParams: QuoteExactInParams[]
+  swapParams: QuoteExactInParams[],
+  resolveToken?: (defuseAssetId: string) => BaseTokenInfo | undefined
 ): Promise<Result<true, AggregatedQuoteErr>> {
   if (swapParams.length === 0) {
     return Ok(true)
@@ -34,22 +37,28 @@ export async function validateLiquidity(
     )
   )
 
-  const anyFailed = results.some((r) => r.status === "rejected")
+  let anyFailed = false
+  for (let i = 0; i < results.length; i++) {
+    if (results[i].status === "rejected") {
+      anyFailed = true
+      if (resolveToken) {
+        const param = swapParams[i]
+        if (param) {
+          logNoLiquidity({
+            tokenIn: resolveToken(param.tokenIn),
+            tokenOut: resolveToken(param.tokenOut),
+            amount: param.amountIn.toString(),
+          })
+        }
+      }
+    }
+  }
+
   if (anyFailed) {
     return Err({ reason: "NO_QUOTES" as const })
   }
 
   return Ok(true)
-}
-
-export function areQuotesExpired(
-  quotes: Array<{ expirationTime: string }>
-): boolean {
-  const MIN_BUFFER_TIME_MS = 10_000 // 10 seconds
-  return quotes.some((quote) => {
-    const quoteDeadline = new Date(quote.expirationTime).getTime()
-    return quoteDeadline <= Date.now() + MIN_BUFFER_TIME_MS
-  })
 }
 
 /**

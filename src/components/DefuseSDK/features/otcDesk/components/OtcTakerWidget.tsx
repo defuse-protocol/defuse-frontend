@@ -164,6 +164,7 @@ function OtcTakerScreens({
                 tradeTerms={tradeTerms}
                 tokenIn={tokenIn}
                 tokenOut={tokenOut}
+                tokenList={flatTokenList}
                 makerMultiPayload={tradeTerms.makerMultiPayload}
                 signerCredentials={signerCredentials}
                 signMessage={signMessage}

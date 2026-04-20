@@ -7,6 +7,7 @@ import type { TokenInfo } from "../../../types/base"
 import type { IntentsUserId } from "../../../types/intentsUserId"
 import { assert } from "../../../utils/assert"
 import { isBaseToken } from "../../../utils/token"
+import { flattenTokenList } from "../../../utils/token"
 import { getUnderlyingBaseTokenInfos } from "../../../utils/tokenUtils"
 import {
   type TokenValues,
@@ -34,11 +35,13 @@ export function useOtcTakerPreparation({
   takerTokenDiff,
   protocolFee,
   takerId,
+  tokenList,
 }: {
   tokenIn: TokenInfo
   takerTokenDiff: Record<string, bigint>
   protocolFee: number
   takerId: IntentsUserId | null
+  tokenList: TokenInfo[]
 }) {
   return useQuery({
     enabled: takerId != null,
@@ -124,7 +127,13 @@ export function useOtcTakerPreparation({
         }
       }
 
-      const validationResult = await validateLiquidity(quoteParams)
+      const flatTokens = flattenTokenList(tokenList)
+      const resolveToken = (id: string) =>
+        flatTokens.find((t) => t.defuseAssetId === id)
+      const validationResult = await validateLiquidity(
+        quoteParams,
+        resolveToken
+      )
 
       return validationResult.map(() => {
         logger.trace("return", { tokenDelta })

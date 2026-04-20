@@ -3,17 +3,13 @@ import { messageFactory } from "@defuse-protocol/internal-utils"
 import { base64 } from "@scure/base"
 import { bridgeSDK } from "@src/components/DefuseSDK/constants/bridgeSdk"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
-import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { getAppFeeRecipients } from "@src/utils/getAppFeeRecipient"
 import { splitAppFee } from "@src/utils/splitAppFee"
 import { useSelector } from "@xstate/react"
 import { useContext } from "react"
 import { fromPromise } from "xstate"
-import {
-  TokenListUpdater,
-  TokenListUpdater1cs,
-} from "../../../components/TokenListUpdater"
+import { TokenListUpdater1cs } from "../../../components/TokenListUpdater"
 import { WidgetRoot } from "../../../components/WidgetRoot"
 import { settings } from "../../../constants/settings"
 import { WithdrawWidgetProvider } from "../../../providers/WithdrawWidgetProvider"
@@ -26,7 +22,6 @@ import { WithdrawUIMachineContext } from "../WithdrawUIMachineContext"
 import { WithdrawForm } from "./WithdrawForm"
 
 export const WithdrawWidget = (props: WithdrawWidgetProps) => {
-  const is1cs = useIs1CsEnabled()
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
   const appFeeRecipients = getAppFeeRecipients(whitelabelTemplate)
   const initialTokenIn =
@@ -126,11 +121,7 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
             },
           })}
         >
-          {is1cs ? (
-            <TokenListUpdaterWithdraw tokenList={props.tokenList} />
-          ) : (
-            <TokenListUpdater tokenList={props.tokenList} />
-          )}
+          <TokenListUpdaterWithdraw tokenList={props.tokenList} />
           <WithdrawForm {...props} />
         </WithdrawUIMachineContext.Provider>
       </WithdrawWidgetProvider>
