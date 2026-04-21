@@ -116,7 +116,10 @@ export const intentStatusMachine = setup({
       settlementResult: solverRelay.WaitForIntentSettlementReturnType
     ) => !!settlementResult.txHash,
     isWithdraw: ({ context }) => {
-      return context.intentDescription.type === "withdraw"
+      return (
+        context.intentDescription.type === "withdraw" &&
+        "withdrawalParams" in context.intentDescription
+      )
     },
     isPendingBridge: (_, event: { error: unknown }) => {
       const parseResult = getWaitForWithdrawalCompletionSchema.safeParse(
@@ -197,6 +200,10 @@ export const intentStatusMachine = setup({
         input: ({ context }) => {
           assert(context.txHash != null, "txHash is null")
           assert(context.intentDescription.type === "withdraw")
+          assert(
+            "withdrawalParams" in context.intentDescription,
+            "withdrawalParams missing"
+          )
           return {
             sourceTxHash: context.txHash,
             withdrawalParams: context.intentDescription.withdrawalParams,

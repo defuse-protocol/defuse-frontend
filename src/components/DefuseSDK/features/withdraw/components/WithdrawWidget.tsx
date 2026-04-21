@@ -1,22 +1,17 @@
 "use client"
-import { messageFactory } from "@defuse-protocol/internal-utils"
-import { base64 } from "@scure/base"
-import { bridgeSDK } from "@src/components/DefuseSDK/constants/bridgeSdk"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { getAppFeeRecipients } from "@src/utils/getAppFeeRecipient"
-import { splitAppFee } from "@src/utils/splitAppFee"
 import { useSelector } from "@xstate/react"
 import { useContext } from "react"
 import { fromPromise } from "xstate"
 import { TokenListUpdater1cs } from "../../../components/TokenListUpdater"
 import { WidgetRoot } from "../../../components/WidgetRoot"
-import { settings } from "../../../constants/settings"
 import { WithdrawWidgetProvider } from "../../../providers/WithdrawWidgetProvider"
 import type { WithdrawWidgetProps } from "../../../types/withdraw"
 import { assert } from "../../../utils/assert"
 import { isBaseToken } from "../../../utils/token"
-import { swapIntentMachine } from "../../machines/swapIntentMachine"
+import { withdraw1csMachine } from "../../machines/withdraw1csMachine"
 import { withdrawUIMachine } from "../../machines/withdrawUIMachine"
 import { WithdrawUIMachineContext } from "../WithdrawUIMachineContext"
 import { WithdrawForm } from "./WithdrawForm"
@@ -59,62 +54,10 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
           }}
           logic={withdrawUIMachine.provide({
             actors: {
-              swapActor: swapIntentMachine.provide({
+              withdraw1csActor: withdraw1csMachine.provide({
                 actors: {
                   signMessage: fromPromise(({ input }) => {
                     return props.signMessage(input)
-                  }),
-                  prepareSignMessages: fromPromise(async ({ input }) => {
-                    assert(
-                      input.intentOperationParams.type === "withdraw",
-                      "Type must be withdraw"
-                    )
-                    const { nonce, deadline } = await bridgeSDK
-                      .intentBuilder()
-                      .setDeadline(
-                        new Date(Date.now() + settings.swapExpirySec * 1000)
-                      )
-                      .build()
-
-                    const { quote } = input.intentOperationParams
-
-                    // Split app fees if multiple recipients are configured
-                    const recipients = input.appFeeRecipients ?? []
-                    const appFee = quote?.appFee ?? []
-                    const { primaryAppFee, primaryRecipient, transferIntents } =
-                      recipients.length > 0
-                        ? splitAppFee(appFee, recipients)
-                        : {
-                            primaryAppFee: [],
-                            primaryRecipient: "",
-                            transferIntents: [],
-                          }
-
-                    const innerMessage = messageFactory.makeInnerSwapMessage({
-                      deadlineTimestamp: Date.parse(deadline),
-                      referral: input.referral,
-                      signerId: input.defuseUserId,
-                      tokenDeltas: quote?.tokenDeltas ?? [],
-                      appFee: primaryAppFee,
-                      appFeeRecipient: primaryRecipient,
-                    })
-
-                    innerMessage.intents ??= []
-                    innerMessage.intents.push(
-                      ...input.intentOperationParams.prebuiltWithdrawalIntents
-                    )
-                    // Add transfer intents for secondary recipients
-                    if (transferIntents.length > 0) {
-                      innerMessage.intents.push(...transferIntents)
-                    }
-
-                    return {
-                      innerMessage,
-                      walletMessage: messageFactory.makeSwapMessage({
-                        innerMessage,
-                        nonce: base64.decode(nonce),
-                      }),
-                    }
                   }),
                 },
               }),

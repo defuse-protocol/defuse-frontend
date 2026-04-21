@@ -49,6 +49,7 @@ import {
   ONE_CLICK_PREFIX,
   type swapUIMachine,
 } from "../../machines/swapUIMachine"
+import type { Output as Withdraw1csMachineOutput } from "../../machines/withdraw1csMachine"
 import { SwapPriceImpact } from "./SwapPriceImpact"
 import { SwapRateInfo } from "./SwapRateInfo"
 import { SwapSubmitterContext } from "./SwapSubmitter"
@@ -677,6 +678,7 @@ export function renderIntentCreationResult(
   intentCreationResult:
     | Context["intentCreationResult"]
     | SwapIntentMachineOutput
+    | Withdraw1csMachineOutput
     | null
 ) {
   if (!intentCreationResult || intentCreationResult.tag === "ok") {
@@ -758,8 +760,16 @@ export function renderIntentCreationResult(
         "Swap aborted: Insufficient token balance for the updated quote. Please try again."
       break
 
+    case "ERR_QUOTE_WORSE_THAN_REVIEWED":
+      content =
+        "The withdrawal quote changed. Please review the new rate and try again."
+      break
+
+    case "ERR_GENERATE_INTENT_FAILED":
+      content = "Failed to generate withdrawal intent. Please try again."
+      break
+
     default:
-      status satisfies never
       content = `An error occurred. Please try again. ${status}`
   }
 

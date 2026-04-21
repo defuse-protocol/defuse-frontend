@@ -10,7 +10,7 @@
         "@defuse-protocol/contract-types": "^0.6.2",
         "@defuse-protocol/intents-sdk": "^0.58.0",
         "@defuse-protocol/internal-utils": "^0.30.0",
-        "@defuse-protocol/one-click-sdk-typescript": "^0.1.1-0.2",
+        "@defuse-protocol/one-click-sdk-typescript": "file:./artifacts/defuse-protocol-one-click-sdk-typescript-0.1.16-patch.tgz",
         "@hot-labs/near-connect": "0.11.1",
         "@near-wallet-selector/core": "^9.1.0",
         "@next/third-parties": "16.0.7",
@@ -525,7 +525,7 @@
 
     "@defuse-protocol/internal-utils": ["@defuse-protocol/internal-utils@0.30.0", "", { "dependencies": { "@defuse-protocol/contract-types": "0.6.2", "@lifeomic/attempt": "^3.0.0", "@noble/hashes": "^1.7.1", "@peculiar/asn1-ecc": "^2.0.0", "@peculiar/asn1-schema": "^2.0.0", "@scure/base": "^1.0.0", "@thames/monads": "^0.7.0", "near-api-js": "^4.0.0 || ^5.0.0", "tweetnacl": "^1.0.0", "valibot": "^1.0.0", "viem": "^2.0.0" } }, "sha512-ELcFmu2OTjxt0mQP6+SrRzcOpI/xMXqMkiqniL9SbmqB52pR63U8c0jXKovD3wZRhnDswBEBHX1DEyfQQAL6hA=="],
 
-    "@defuse-protocol/one-click-sdk-typescript": ["@defuse-protocol/one-click-sdk-typescript@0.1.10", "", { "dependencies": { "axios": "^1.6.8", "form-data": "^4.0.0" } }, "sha512-47BmNDC0THRViW0E8Tnb5jGRAXwZHe/e744IUYnnS4dGpKRKqSQKlkO0+XQThqV5J7aHTCLIUZ0SRxFs4R4Fdw=="],
+    "@defuse-protocol/one-click-sdk-typescript": ["@defuse-protocol/one-click-sdk-typescript@./artifacts/defuse-protocol-one-click-sdk-typescript-0.1.16-patch.tgz", { "dependencies": { "axios": "^1.6.8", "form-data": "^4.0.0" } }],
 
     "@depay/solana-web3.js": ["@depay/solana-web3.js@1.98.3", "", { "dependencies": { "bs58": "^5.0.0" } }, "sha512-wxr+2gpjKRZ1eVBLhQYJxImDsRukk0DvCsEElkTMyybP+7SamWRs48o3DYE6VLEgQJFZgOoUec3t5FM5s1J1ww=="],
 
