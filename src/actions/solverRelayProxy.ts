@@ -4,7 +4,7 @@ import type { MultiPayload } from "@defuse-protocol/contract-types"
 import { solverRelay } from "@defuse-protocol/internal-utils"
 import { SolverRelayProxyError } from "@src/components/DefuseSDK/errors/solverRelayProxy"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
-import { INTENTS_API_KEY, INTENTS_ENV } from "@src/utils/environment"
+import { INTENTS_ENV, ONE_CLICK_API_KEY } from "@src/utils/environment"
 
 function getSolverRelayBaseURL(): string {
   return INTENTS_ENV === "production"
@@ -15,7 +15,7 @@ function getSolverRelayBaseURL(): string {
 function serverConfig() {
   return {
     baseURL: getSolverRelayBaseURL(),
-    solverRelayApiKey: INTENTS_API_KEY ?? undefined,
+    solverRelayApiKey: ONE_CLICK_API_KEY ?? undefined,
   }
 }
 
