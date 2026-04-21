@@ -13,6 +13,8 @@ type WithdrawIntentCardProps = {
   intentStatusActorRef: ActorRefFrom<typeof intentStatusMachine>
 }
 
+const INTENTS_EXPLORER_URL = "https://explorer.near-intents.org"
+
 export function WithdrawIntentCard({
   intentStatusActorRef,
 }: WithdrawIntentCardProps) {
@@ -20,7 +22,18 @@ export function WithdrawIntentCard({
   const { intentDescription, bridgeTransactionResult } = state.context
 
   assert(intentDescription.type === "withdraw", "Type must be withdraw")
-  const { amountWithdrawn, tokenOut, tokenOutDeployment } = intentDescription
+  const { tokenOut, tokenOutDeployment } = intentDescription
+  const amountOut =
+    "amountWithdrawn" in intentDescription
+      ? intentDescription.amountWithdrawn
+      : intentDescription.totalAmountOut
+  const depositAddress =
+    "depositAddress" in intentDescription
+      ? intentDescription.depositAddress
+      : null
+  const explorerUrl = depositAddress
+    ? `${INTENTS_EXPLORER_URL}/transactions/${depositAddress}`
+    : null
 
   const sourceTxHash = state.context.txHash
   const sourceTxUrl =
@@ -29,12 +42,14 @@ export function WithdrawIntentCard({
       : undefined
 
   const destTxHash = bridgeTransactionResult?.destinationTxHash
+  const nearIntentsNetwork =
+    "nearIntentsNetwork" in intentDescription
+      ? intentDescription.nearIntentsNetwork
+      : false
   const destTxUrl =
     destTxHash != null
       ? blockExplorerTxLinkFactory(
-          intentDescription.nearIntentsNetwork
-            ? "near"
-            : tokenOutDeployment.chainName,
+          nearIntentsNetwork ? "near" : tokenOutDeployment.chainName,
           destTxHash
         )
       : undefined
@@ -143,6 +158,22 @@ export function WithdrawIntentCard({
                 />
               </Flex>
             )}
+
+            {depositAddress && explorerUrl && (
+              <Flex align="center" gap="1">
+                <Text size="1" color="gray">
+                  Track on explorer:{" "}
+                  <Link href={explorerUrl} target="_blank" color="blue">
+                    {truncateHash(depositAddress)}
+                  </Link>
+                </Text>
+
+                <CopyButton
+                  text={depositAddress}
+                  ariaLabel="Copy Deposit address"
+                />
+              </Flex>
+            )}
           </Flex>
 
           <Text
@@ -156,14 +187,10 @@ export function WithdrawIntentCard({
             }}
           >
             +
-            {formatTokenValue(
-              amountWithdrawn.amount,
-              amountWithdrawn.decimals,
-              {
-                min: 0.0001,
-                fractionDigits: 4,
-              }
-            )}{" "}
+            {formatTokenValue(amountOut.amount, amountOut.decimals, {
+              min: 0.0001,
+              fractionDigits: 4,
+            })}{" "}
             {tokenOut.symbol}
           </Text>
         </Flex>

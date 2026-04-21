@@ -1,5 +1,6 @@
 import { authIdentity } from "@defuse-protocol/internal-utils"
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
+import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import type { FeeRecipientSplit } from "@src/utils/getAppFeeRecipient"
 import { logger } from "@src/utils/logger"
 import type { providers } from "near-api-js"
@@ -11,15 +12,15 @@ import {
   sendTo,
   setup,
 } from "xstate"
+import { settings } from "../../constants/settings"
 import { emitEvent } from "../../services/emitter"
-import type { QuoteResult } from "../../services/quoteService"
 import type { BaseTokenInfo, TokenInfo } from "../../types/base"
 import { assert } from "../../utils/assert"
+import { isAuroraVirtualChain } from "../../utils/blockchain"
 import { isNearIntentsNetwork } from "../withdraw/components/WithdrawForm/utils"
 import {
   type BalanceMapping,
   type Events as DepositedBalanceEvents,
-  balancesSelector,
   depositedBalanceMachine,
 } from "./depositedBalanceMachine"
 import { intentStatusMachine } from "./intentStatusMachine"
@@ -32,9 +33,9 @@ import {
   prepareWithdrawActor,
 } from "./prepareWithdrawActor"
 import {
-  type Output as SwapIntentMachineOutput,
-  swapIntentMachine,
-} from "./swapIntentMachine"
+  type Output as Withdraw1csMachineOutput,
+  withdraw1csMachine,
+} from "./withdraw1csMachine"
 import {
   type Events as WithdrawFormEvents,
   type ParentEvents as WithdrawFormParentEvents,
@@ -43,7 +44,7 @@ import {
 
 export type Context = {
   error: Error | null
-  intentCreationResult: SwapIntentMachineOutput | null
+  intentCreationResult: Withdraw1csMachineOutput | null
   intentRefs: ActorRefFrom<typeof intentStatusMachine>[]
   tokenList: TokenInfo[]
   depositedBalanceRef: ActorRefFrom<typeof depositedBalanceMachine>
@@ -66,10 +67,6 @@ type PassthroughEvent = {
     intentHash: string
     txHash: string
     tokenIn: TokenInfo
-    /**
-     * This is not true, because tokenOut should be `BaseTokenInfo`.
-     * It left `TokenInfo` for compatibility with `intentStatusActor`.
-     */
     tokenOut: TokenInfo
   }
 }
@@ -97,6 +94,14 @@ export const withdrawUIMachine = setup({
             changedBalanceMapping: BalanceMapping
           }
         }
+      | {
+          type: "EXECUTION_QUOTE_READY"
+          params: {
+            newAmountIn: { amount: bigint; decimals: number }
+            newOppositeAmount: { amount: bigint; decimals: number }
+            previousOppositeAmount: { amount: bigint; decimals: number }
+          }
+        }
       | DepositedBalanceEvents
       | WithdrawFormEvents
       | WithdrawFormParentEvents
@@ -105,13 +110,13 @@ export const withdrawUIMachine = setup({
     emitted: {} as EmittedEvents,
 
     children: {} as {
-      swapRef: "swapActor"
+      withdrawRef: "withdraw1csActor"
     },
   },
   actors: {
     // biome-ignore lint/suspicious/noExplicitAny: bypass xstate+ts bloating; be careful when interacting with `depositedBalanceActor` string
     depositedBalanceActor: depositedBalanceMachine as any,
-    swapActor: swapIntentMachine,
+    withdraw1csActor: withdraw1csMachine,
     intentStatusActor: intentStatusMachine,
     withdrawFormActor: withdrawFormReducer,
     poaBridgeInfoActor: poaBridgeInfoActor,
@@ -130,7 +135,7 @@ export const withdrawUIMachine = setup({
       userAddress: null,
     }),
     setIntentCreationResult: assign({
-      intentCreationResult: (_, value: SwapIntentMachineOutput) => value,
+      intentCreationResult: (_, value: Withdraw1csMachineOutput) => value,
     }),
     clearIntentCreationResult: assign({ intentCreationResult: null }),
 
@@ -171,43 +176,25 @@ export const withdrawUIMachine = setup({
       type: "REQUEST_BALANCE_REFRESH",
     })),
 
-    spawnIntentStatusActor: assign({
-      intentRefs: (
-        { context, spawn, self },
-        output: SwapIntentMachineOutput
-      ) => {
-        if (output.tag !== "ok") return context.intentRefs
+    emitWithdrawalConfirmed: (
+      { context },
+      output: Withdraw1csMachineOutput
+    ) => {
+      if (output.tag !== "ok") return
 
-        const formValues = context.withdrawFormRef.getSnapshot().context
+      const { preparationOutput, submitDeps } = context
 
-        const intentRef = spawn("intentStatusActor", {
-          id: `intent-${output.value.intentHash}`,
-          input: {
-            parentRef: self,
-            intentHash: output.value.intentHash,
-            tokenIn: formValues.tokenIn,
-            tokenOut: formValues.tokenOut,
-            intentDescription: output.value.intentDescription,
-          },
+      assert(submitDeps != null)
+
+      if (preparationOutput?.tag === "ok") {
+        emitEvent("withdrawal_confirmed", {
+          tx_hash: output.value.intentHash,
+          received_amount: preparationOutput.value.receivedAmount,
+          actual_fee: preparationOutput.value.feeEstimation.amount,
+          destination_chain: submitDeps.userChainType,
         })
-
-        const { preparationOutput, submitDeps } = context
-
-        assert(preparationOutput != null)
-        assert(submitDeps != null)
-
-        if (preparationOutput.tag === "ok") {
-          emitEvent("withdrawal_confirmed", {
-            tx_hash: output.value.intentHash,
-            received_amount: preparationOutput.value.receivedAmount,
-            actual_fee: preparationOutput.value.feeEstimation.amount,
-            destination_chain: submitDeps.userChainType,
-          })
-        }
-
-        return [intentRef, ...context.intentRefs]
-      },
-    }),
+      }
+    },
 
     relayToWithdrawFormRef: sendTo(
       "withdrawFormRef",
@@ -219,35 +206,35 @@ export const withdrawUIMachine = setup({
     })),
 
     fetchPOABridgeInfo: sendTo("poaBridgeInfoRef", { type: "FETCH" }),
+
+    sendToWithdrawRefConfirm: sendTo("withdrawRef", () => ({
+      type: "CONFIRMED",
+    })),
+
+    spawnIntentStatusActor: assign({
+      intentRefs: (
+        { context, spawn, self },
+        output: Withdraw1csMachineOutput
+      ) => {
+        if (output.tag !== "ok") return context.intentRefs
+
+        const formValues = context.withdrawFormRef.getSnapshot().context
+        const ref = spawn("intentStatusActor", {
+          input: {
+            parentRef: self,
+            intentHash: output.value.intentHash,
+            tokenIn: formValues.tokenIn,
+            tokenOut: formValues.tokenOut,
+            intentDescription: output.value.intentDescription,
+          },
+        })
+        return [...context.intentRefs, ref]
+      },
+    }),
   },
   guards: {
     isTrue: (_, value: boolean) => value,
     isFalse: (_, value: boolean) => !value,
-
-    isBalanceSufficientForQuote: (
-      _,
-      {
-        balances,
-        quote,
-      }: { balances: BalanceMapping; quote: QuoteResult | null }
-    ) => {
-      // No quote - no need to check balances
-      if (quote === null) return true
-      if (quote.tag === "err") return true
-
-      for (const [token, amount] of quote.value.tokenDeltas) {
-        // We only care about negative amounts, because we are withdrawing
-        if (amount >= 0) continue
-
-        // We need to know balances of all tokens involved in the swap
-        const balance = balances[token]
-        if (balance == null || balance < -amount) {
-          return false
-        }
-      }
-
-      return true
-    },
 
     isWithdrawParamsComplete: ({ context }) => {
       const formContext = context.withdrawFormRef.getSnapshot().context
@@ -262,12 +249,9 @@ export const withdrawUIMachine = setup({
       return context.preparationOutput?.tag === "ok"
     },
 
-    isQuoteOk: (_, quote: QuoteResult) => quote.tag === "ok",
-
     isOk: (_, a: { tag: "err" | "ok" }) => a.tag === "ok",
   },
 }).createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QHcCWAXAFhATgQ2QFoBXVAYgEkA5AFQFFaB9AZTppoBk6ARAbQAYAuolAAHAPawMqcQDsRIAB6JCAVlUAWAHQAOAOwA2AEwBOEwf4BGfUYA0IAJ4q9ey1oN71rjZaMBmHT8jAF9g+zQsXAIScg4AeQBxagFhJBAJKXQZeTTlBA8tSxMrAwMTP0t+Iw0reycEQhc-LSMjD1V+Pz9VSwMNHVDwjGx8IlIyeIS4gFUaFIUM6TkFPMIjX10NdZ0NPXW9vz665z1m1vbO7t7+wZAIkejSLUhpWSgyCDkwLVh0PHRvvcomNUM8IK8oPM0ossstcogNEEtJ5LAEioj2jpjg0-PwDMiTKiTHoTDodFZWrcgaMYmCIWQAOoUGgACW4ACUAIIMxgAMTi7IAsloAFRQsSSJY5UCrIwuFpbDRlEzVHQGHSabGEAL8LR4vyI3p6LZtIyqKnDYG0l5ZN5kABCnI4nKoAGE6IxXSyXQkeOL0pLYdKlCp1C0-HoNTsDJZXL4tTq9QYDWUjGSKqoQmE7paaU8bag7Y7nW6PV6fX7LKkJZlsitENVkerTFVyjYAn4tf4dIVdoq1ToiuVzdnqY9QQW7VQ6DyAIrTOL0f0wuvwhqqVxaYppirbiw+BPkpMGoydHRmMx9C2RPMT8G295M1kc7l8gWCvkUOgcbjMT3eqhfT4IQFkDVcZRUap8X4fgal8VRm0qfQtUsTN3A8EwNFUfRVEObo-GvB4QTpB8tFQCAABswDIWBiAAIwAWwwZcwLhCCGkjIw9XUGoYN8WCdgTDYyUHdUSSsDRCT0QirXze9CygLQcDgMB0EYURlIANxkYhYHU5TRDwfAgzIFjazYkMGkwrR+xcAxsLTcwDGxHQuLxCxPBg9oTBk28SIUpSVLUjSwG08RdP0sBDOM7JTKrUDzODWVPGRU4qlRPFNDaZzHEQVykxjXE2hqPZPF88d-LeLQQui-5Ys+WRvkLTTxAAa0BXMKsnRSaqMuq5AQZrxAAY362QUjMqV6waYw9F0YxYLxPR+FOVxsSKXVcVjLDI1ccSsyGG8uvkqrepiuQyDAHAcHEHBqoo-4ADNboYrQx2I7rqoMvqg0G2QWtGoMJpA6FWKSlREzNSwlREpV1CxXKEA2rQtuNDd9FjYoNHK4jaMYjAHw+L4yP+trvlgZA8FEdkwEeyag2mixVC3fDim6U81UsLsVvDSoVT4io5QMHHaTxpj0EJhqmtJ9qfkp6nad4eLQcS6bsJMQogn4cl1AsQk7ERwhJMKPiyWhk1oYOnMjtx+jxcJq6bru0QHvQZ6cFeimqZpumQZrKa1z6fFlrEg1EX8LnEdwmz1QjM8XHPFURaeMWCYUshpznBclz9gNVcDtMWlPUkOjVAITC1XY5tMYp+FwmxygI25ZHECA4AUd6YgSgP2MIfQezrzQYIpASNC1ZM5o0PtcUF4kk9HTqPpOqBu4Ztc+9xbih7409+jHw24b1TCPDxMwyUjbGF5t61l7IyiwFX8DLMaVE9VQ2OynwztDdjNxym8YkJJPA8WTneCEgVYCqUimFCKZ0xqPwsqsSw0NCiJ0CMmDc2FVDj20BJawklCS+A1NJK+REb7gLgWvf2VDn5EL1LsBCPhNDWA8HodaMZkSuWKKieypcBikNkmA0iUsEHgw4gaGy+hYKeFxMmA0CZ5QuFjBYX+NhQE-DtmnN4oi1bGhRoSHY21cKwRyvUbUSJ457BVKoFUyDQihCAA */
   id: "withdraw-ui",
 
   context: ({ input, spawn, self }) => ({
@@ -283,7 +267,6 @@ export const withdrawUIMachine = setup({
       input: {
         parentRef: self,
         tokenList: input.tokenList,
-        // `depositedBalanceActor` is any, so we explicitly safeguard it with `satisfies`
       } satisfies InputFrom<typeof depositedBalanceMachine>,
     }),
     withdrawFormRef: spawn("withdrawFormActor", {
@@ -355,35 +338,7 @@ export const withdrawUIMachine = setup({
           ],
         },
 
-        BALANCE_CHANGED: [
-          {
-            guard: {
-              type: "isBalanceSufficientForQuote",
-              params: ({ context }) => {
-                const balances = balancesSelector(
-                  context.depositedBalanceRef.getSnapshot()
-                )
-
-                if (
-                  context.preparationOutput == null ||
-                  context.preparationOutput.tag === "err" ||
-                  context.preparationOutput.value.swap == null
-                ) {
-                  return {
-                    balances,
-                    quote: null,
-                  }
-                }
-
-                return {
-                  balances,
-                  quote: context.preparationOutput.value.swap.swapQuote,
-                }
-              },
-            },
-          },
-          ".reset_previous_preparation",
-        ],
+        BALANCE_CHANGED: [".reset_previous_preparation"],
 
         WITHDRAW_FORM_FIELDS_CHANGED: ".reset_previous_preparation",
 
@@ -463,52 +418,55 @@ export const withdrawUIMachine = setup({
 
     submitting: {
       invoke: {
-        id: "swapRef",
-        src: "swapActor",
+        id: "withdrawRef",
+        src: "withdraw1csActor",
 
-        input: ({ context }) => {
+        input: ({ context, self }) => {
           assert(context.submitDeps, "submitDeps is null")
-
-          assert(
-            context.preparationOutput != null &&
-              context.preparationOutput.tag === "ok",
-            "not prepared"
-          )
 
           const formValues = context.withdrawFormRef.getSnapshot().context
           const recipient = formValues.parsedRecipient
           assert(recipient, "recipient is null")
-          const quote =
-            context.preparationOutput.value.swap?.swapQuote.tag === "ok"
-              ? context.preparationOutput.value.swap?.swapQuote.value
-              : null
+          assert(formValues.parsedAmount != null, "parsedAmount is null")
+
+          const isIntents = isNearIntentsNetwork(formValues.blockchain)
+
           return {
-            userAddress: context.submitDeps.userAddress,
-            userChainType: context.submitDeps.userChainType,
+            tokenIn: formValues.tokenIn as BaseTokenInfo,
+            tokenOut: formValues.tokenOut,
+            tokenOutDeployment: formValues.tokenOutDeployment,
+            swapType: QuoteRequest.swapType.EXACT_INPUT,
+            slippageBasisPoints: 0,
             defuseUserId: authIdentity.authHandleToIntentsUserId(
               context.submitDeps.userAddress,
               context.submitDeps.userChainType
             ),
-            referral: context.referral,
-            slippageBasisPoints: 0,
+            deadline: new Date(
+              Date.now() + settings.swapExpirySec * 1000
+            ).toISOString(),
+            userAddress: context.submitDeps.userAddress,
+            userChainType: context.submitDeps.userChainType,
             nearClient: context.submitDeps.nearClient,
-            intentOperationParams: {
-              type: "withdraw",
-              tokenOut: formValues.tokenOut,
-              tokenOutDeployment: formValues.tokenOutDeployment,
-              quote,
-              feeEstimation: context.preparationOutput.value.feeEstimation,
-              directWithdrawalAmount:
-                context.preparationOutput.value.directWithdrawAvailable,
-              recipient: recipient,
-              destinationMemo: formValues.parsedDestinationMemo,
-              prebuiltWithdrawalIntents:
-                context.preparationOutput.value.prebuiltWithdrawalIntents,
-              withdrawalParams:
-                context.preparationOutput.value.withdrawalParams,
-              nearIntentsNetwork: isNearIntentsNetwork(formValues.blockchain),
+            amountIn: formValues.parsedAmount,
+            recipient: isIntents
+              ? authIdentity.authHandleToIntentsUserId(recipient, "near")
+              : recipient,
+            recipientType: isIntents
+              ? QuoteRequest.recipientType.INTENTS
+              : QuoteRequest.recipientType.DESTINATION_CHAIN,
+            ...(formValues.parsedDestinationMemo
+              ? { destinationMemo: formValues.parsedDestinationMemo }
+              : {}),
+            ...(isAuroraVirtualChain(formValues.tokenOutDeployment.chainName) &&
+            recipient
+              ? { virtualChainRecipient: recipient }
+              : {}),
+            destinationChainName: formValues.tokenOutDeployment.chainName,
+            previousOppositeAmount: {
+              amount: 0n,
+              decimals: formValues.tokenOut.decimals,
             },
-            appFeeRecipients: context.appFeeRecipients,
+            parentRef: self,
           }
         },
 
@@ -517,6 +475,10 @@ export const withdrawUIMachine = setup({
             target: "editing",
             guard: { type: "isOk", params: ({ event }) => event.output },
             actions: [
+              {
+                type: "emitWithdrawalConfirmed",
+                params: ({ event }) => event.output,
+              },
               {
                 type: "spawnIntentStatusActor",
                 params: ({ event }) => event.output,
@@ -546,6 +508,12 @@ export const withdrawUIMachine = setup({
             type: "logError",
             params: ({ event }) => event,
           },
+        },
+      },
+
+      on: {
+        EXECUTION_QUOTE_READY: {
+          actions: "sendToWithdrawRefConfirm",
         },
       },
     },

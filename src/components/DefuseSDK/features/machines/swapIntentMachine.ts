@@ -93,6 +93,15 @@ export type IntentDescription =
       nearIntentsNetwork: boolean
       withdrawalParams: WithdrawalParams
     }
+  | {
+      type: "withdraw"
+      tokenOut: BaseTokenInfo
+      tokenOutDeployment: TokenDeployment
+      recipient: string
+      depositAddress: string
+      totalAmountIn: TokenValue
+      totalAmountOut: TokenValue
+    }
 
 type Context = {
   userAddress: string
@@ -714,16 +723,29 @@ export const swapIntentMachine = setup({
           },
           {
             target: "Generic Error",
-            actions: {
-              type: "setError",
-              params: ({ event }) => {
-                assert(event.output.tag === "err")
-                return {
-                  reason: "ERR_CANNOT_PUBLISH_INTENT",
-                  server_reason: event.output.value.reason,
-                }
+            actions: [
+              {
+                type: "logError",
+                params: ({ event }) => {
+                  assert(event.output.tag === "err")
+                  return {
+                    error: new Error(
+                      `solver relay publish rejected: ${event.output.value.reason}`
+                    ),
+                  }
+                },
               },
-            },
+              {
+                type: "setError",
+                params: ({ event }) => {
+                  assert(event.output.tag === "err")
+                  return {
+                    reason: "ERR_CANNOT_PUBLISH_INTENT",
+                    server_reason: event.output.value.reason,
+                  }
+                },
+              },
+            ],
           },
         ],
       },
