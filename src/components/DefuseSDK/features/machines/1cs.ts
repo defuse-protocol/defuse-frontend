@@ -335,16 +335,16 @@ export async function getWithdrawQuote(
   }
 }
 
-const generateWithdrawIntentArgsSchema = z.object({
+const generateIntentArgsSchema = z.object({
   depositAddress: z.string(),
   signerId: z.string(),
   standard: z.nativeEnum(IntentStandardEnum),
 })
 
-export async function generateWithdrawIntent(
-  args: z.infer<typeof generateWithdrawIntentArgsSchema>
+export async function generateIntent(
+  args: z.infer<typeof generateIntentArgsSchema>
 ) {
-  const parseResult = generateWithdrawIntentArgsSchema.safeParse(args)
+  const parseResult = generateIntentArgsSchema.safeParse(args)
   if (!parseResult.success) {
     return { err: `Invalid arguments: ${parseResult.error.message}` }
   }
@@ -361,12 +361,12 @@ export async function generateWithdrawIntent(
     }
   } catch (error) {
     const err = unknownServerErrorToString(error)
-    logger.error(`1cs: generateWithdrawIntent error: ${err}`)
+    logger.error(`1cs: generateIntent error: ${err}`)
     return { err }
   }
 }
 
-export async function submitWithdrawIntent(args: {
+export async function submitIntent(args: {
   signedIntent: MultiPayload
 }): Promise<{ ok: SubmitIntentResponse } | { err: string }> {
   try {
@@ -379,7 +379,7 @@ export async function submitWithdrawIntent(args: {
     }
   } catch (error) {
     const err = unknownServerErrorToString(error)
-    logger.error(`1cs: submitWithdrawIntent error: ${err}`)
+    logger.error(`1cs: submitIntent error: ${err}`)
     return { err }
   }
 }

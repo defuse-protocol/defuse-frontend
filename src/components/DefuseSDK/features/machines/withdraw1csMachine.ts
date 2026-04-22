@@ -8,10 +8,11 @@ import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import { retry } from "@lifeomic/attempt"
 import {
-  generateWithdrawIntent,
+  generateIntent,
   getWithdrawQuote as getWithdrawQuoteApi,
-  submitWithdrawIntent,
+  submitIntent,
 } from "@src/components/DefuseSDK/features/machines/1cs"
+import type { IntentDescription } from "@src/components/DefuseSDK/types/intent"
 import { logger } from "@src/utils/logger"
 import { assign, fromPromise, log, setup } from "xstate"
 import { wrapPayloadAsWalletMessage } from "../../core/messages"
@@ -23,7 +24,6 @@ import {
   type WalletErrorCode,
   extractWalletErrorCode,
 } from "../../utils/walletErrorExtractor"
-import type { IntentDescription } from "./swapIntentMachine"
 
 type Context = {
   input: Input
@@ -214,7 +214,7 @@ export const withdraw1csMachine = setup({
         }
       }): Promise<walletMessage.WalletMessage> => {
         const standard = AUTH_METHOD_TO_STANDARD[input.userChainType]
-        const result = await generateWithdrawIntent({
+        const result = await generateIntent({
           depositAddress: input.depositAddress,
           signerId: input.defuseUserId,
           standard,
@@ -247,7 +247,7 @@ export const withdraw1csMachine = setup({
           input.signatureData,
           input.userInfo
         )
-        const result = await submitWithdrawIntent({ signedIntent })
+        const result = await submitIntent({ signedIntent })
         if ("err" in result) {
           return { tag: "err" as const, value: { reason: result.err } }
         }

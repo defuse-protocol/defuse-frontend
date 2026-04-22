@@ -7,9 +7,10 @@ import { retry } from "@lifeomic/attempt"
 import { base64 } from "@scure/base"
 import {
   getQuote as get1csQuoteApi,
-  submitWithdrawIntent,
+  submitIntent,
 } from "@src/components/DefuseSDK/features/machines/1cs"
 import type { ParentEvents as Background1csQuoterParentEvents } from "@src/components/DefuseSDK/features/machines/background1csQuoterMachine"
+import type { IntentDescription } from "@src/components/DefuseSDK/types/intent"
 import { logger } from "@src/utils/logger"
 import type { providers } from "near-api-js"
 import { assign, fromPromise, log, setup } from "xstate"
@@ -27,7 +28,6 @@ import {
   type ErrorCodes as PublicKeyVerifierErrorCodes,
   publicKeyVerifierMachine,
 } from "./publicKeyVerifierMachine"
-import type { IntentDescription } from "./swapIntentMachine"
 
 type Context = {
   input: Input
@@ -264,7 +264,7 @@ export const swapIntent1csMachine = setup({
           input.signatureData,
           input.userInfo
         )
-        const result = await submitWithdrawIntent({ signedIntent })
+        const result = await submitIntent({ signedIntent })
         if ("err" in result) {
           return {
             tag: "err" as const,
