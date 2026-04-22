@@ -5,6 +5,7 @@ import { Box, Button, Callout } from "@radix-ui/themes"
 import { useTokensUsdPrices } from "@src/components/DefuseSDK/hooks/useTokensUsdPrices"
 import { useTokensStore } from "@src/components/DefuseSDK/providers/TokensStoreProvider"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
+import type { IntentDescription } from "@src/components/DefuseSDK/types/intent"
 import {
   formatTokenValue,
   formatUsdAmount,
@@ -43,7 +44,6 @@ import {
 } from "../../machines/depositedBalanceMachine"
 import type { intentStatusMachine } from "../../machines/intentStatusMachine"
 import type { oneClickStatusMachine } from "../../machines/oneClickStatusMachine"
-import type { Output as SwapIntentMachineOutput } from "../../machines/swapIntentMachine"
 import {
   type Context,
   ONE_CLICK_PREFIX,
@@ -677,8 +677,11 @@ function renderSwapButtonText(
 export function renderIntentCreationResult(
   intentCreationResult:
     | Context["intentCreationResult"]
-    | SwapIntentMachineOutput
     | Withdraw1csMachineOutput
+    | {
+        tag: "ok"
+        value: { intentHash: string; intentDescription: IntentDescription }
+      }
     | null
 ) {
   if (!intentCreationResult || intentCreationResult.tag === "ok") {
@@ -725,11 +728,6 @@ export function renderIntentCreationResult(
       content = "An error occurred while adding public key. Please try again."
       break
 
-    case "ERR_QUOTE_EXPIRED_RETURN_IS_LOWER":
-      content =
-        "The quote has expired or the return is lower than expected. Please try again."
-      break
-
     case "ERR_CANNOT_PUBLISH_INTENT":
       content =
         "We couldn’t send your request, possibly due to a network issue or server downtime. Please check your connection or try again later."
@@ -769,8 +767,10 @@ export function renderIntentCreationResult(
       content = "Failed to generate withdrawal intent. Please try again."
       break
 
-    default:
+    default: {
+      status satisfies never
       content = `An error occurred. Please try again. ${status}`
+    }
   }
 
   if (content == null) {

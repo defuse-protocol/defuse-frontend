@@ -14,8 +14,8 @@ import {
 import z from "zod"
 import { bridgeSDK } from "../../constants/bridgeSdk"
 import type { TokenInfo } from "../../types/base"
+import type { IntentDescription } from "../../types/intent"
 import { assert } from "../../utils/assert"
-import type { IntentDescription } from "./swapIntentMachine"
 
 type ChildEvent = {
   type: "INTENT_SETTLED"
