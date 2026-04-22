@@ -9,10 +9,8 @@ import {
 } from "@src/components/DefuseSDK/utils/format"
 import getTokenUsdPrice from "@src/components/DefuseSDK/utils/getTokenUsdPrice"
 import {
-  addAmounts,
   getTokenMaxDecimals,
   isMinAmountNotRequired,
-  subtractAmounts,
 } from "@src/components/DefuseSDK/utils/tokenUtils"
 import { logger } from "@src/utils/logger"
 import { useSelector } from "@xstate/react"
@@ -45,7 +43,6 @@ import { getMinWithdrawalHyperliquidAmount } from "../../utils/hyperliquid"
 import {
   Intents,
   MinWithdrawalAmount,
-  PreparationResult,
   ReceivedAmountAndFee,
   RecipientSubForm,
 } from "./components"
@@ -53,11 +50,10 @@ import { AcknowledgementCheckbox } from "./components/AcknowledgementCheckbox/Ac
 import { useMinWithdrawalAmountWithFeeEstimation } from "./hooks/useMinWithdrawalAmountWithFeeEstimation"
 import {
   balancesSelector,
-  directionFeeSelector,
   isLiquidityUnavailableSelector,
   isUnsufficientTokenInAmount,
   totalAmountReceivedSelector,
-  withdtrawalFeeSelector,
+  withdrawalFeeSelector,
 } from "./selectors"
 import { getWithdrawButtonText, isNearIntentsNetwork } from "./utils"
 
@@ -94,8 +90,7 @@ export const WithdrawForm = ({
     noLiquidity,
     insufficientTokenInAmount,
     totalAmountReceived,
-    withdtrawalFee,
-    directionFee,
+    withdrawalFee,
   } = WithdrawUIMachineContext.useSelector((state) => {
     return {
       state,
@@ -108,8 +103,7 @@ export const WithdrawForm = ({
       noLiquidity: isLiquidityUnavailableSelector(state),
       insufficientTokenInAmount: isUnsufficientTokenInAmount(state),
       totalAmountReceived: totalAmountReceivedSelector(state),
-      withdtrawalFee: withdtrawalFeeSelector(state),
-      directionFee: directionFeeSelector(state),
+      withdrawalFee: withdrawalFeeSelector(state),
       balances: balancesSelector(state),
     }
   })
@@ -209,7 +203,7 @@ export const WithdrawForm = ({
   const minWithdrawalAmountWithFee = useMinWithdrawalAmountWithFeeEstimation(
     parsedAmountIn,
     minWithdrawalAmount,
-    state.context.preparationOutput
+    state.context.quoteResult
   )
 
   const tokenInBalance = useSelector(
@@ -308,54 +302,20 @@ export const WithdrawForm = ({
   const receivedAmountUsd = totalAmountReceived?.amount
     ? getTokenUsdPrice(
         formatTokenValue(
-          directionFee?.amount
-            ? subtractAmounts(totalAmountReceived, directionFee).amount
-            : totalAmountReceived.amount,
+          totalAmountReceived.amount,
           totalAmountReceived.decimals
         ),
         tokenOut,
         tokensUsdPriceData
       )
     : null
-  const feeUsd = withdtrawalFee
+  const feeUsd = withdrawalFee?.amount
     ? getTokenUsdPrice(
-        formatTokenValue(withdtrawalFee.amount, withdtrawalFee.decimals),
+        formatTokenValue(withdrawalFee.amount, withdrawalFee.decimals),
         tokenOut,
         tokensUsdPriceData
       )
     : null
-
-  const increaseAmount = (tokenValue: TokenValue) => {
-    if (parsedAmountIn == null) return
-
-    const newValue = addAmounts(parsedAmountIn, tokenValue)
-
-    const newFormattedValue = formatTokenValue(
-      newValue.amount,
-      newValue.decimals
-    )
-
-    actorRef.send({
-      type: "WITHDRAW_FORM.UPDATE_AMOUNT",
-      params: { amount: newFormattedValue, parsedAmount: newValue },
-    })
-  }
-
-  const decreaseAmount = (tokenValue: TokenValue) => {
-    if (parsedAmountIn == null) return
-
-    const newValue = subtractAmounts(parsedAmountIn, tokenValue)
-
-    const newFormattedValue = formatTokenValue(
-      newValue.amount,
-      newValue.decimals
-    )
-
-    actorRef.send({
-      type: "WITHDRAW_FORM.UPDATE_AMOUNT",
-      params: { amount: newFormattedValue, parsedAmount: newValue },
-    })
-  }
 
   /**
    * This is ModalSelectAssets "callback"
@@ -449,8 +409,8 @@ export const WithdrawForm = ({
             minWithdrawalAmount={minWithdrawalAmountWithFee}
             tokenOut={tokenOut}
             isLoading={
-              state.matches({ editing: "preparation" }) &&
-              state.context.preparationOutput == null
+              state.matches({ editing: "quoting" }) &&
+              state.context.quoteResult == null
             }
           />
 
@@ -472,15 +432,14 @@ export const WithdrawForm = ({
             )}
 
           <ReceivedAmountAndFee
-            fee={withdtrawalFee}
+            fee={withdrawalFee}
             totalAmountReceived={totalAmountReceived}
             feeUsd={feeUsd}
             totalAmountReceivedUsd={receivedAmountUsd}
             symbol={token.symbol}
-            directionFee={directionFee}
             isLoading={
-              state.matches({ editing: "preparation" }) &&
-              state.context.preparationOutput == null
+              state.matches({ editing: "quoting" }) &&
+              state.context.quoteResult == null
             }
           />
 
@@ -499,11 +458,6 @@ export const WithdrawForm = ({
         </Flex>
       </Form>
 
-      <PreparationResult
-        preparationOutput={state.context.preparationOutput}
-        increaseAmount={increaseAmount}
-        decreaseAmount={decreaseAmount}
-      />
       {renderIntentCreationResult(intentCreationResult)}
 
       {intentRefs.length !== 0 && <Intents intentRefs={intentRefs} />}

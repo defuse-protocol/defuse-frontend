@@ -1,42 +1,34 @@
-import type { PreparationOutput } from "@src/components/DefuseSDK/services/withdrawService"
 import type { TokenValue } from "@src/components/DefuseSDK/types/base"
 import { useMemo } from "react"
+import type { Context } from "../../../../machines/withdrawUIMachine"
+
+type QuoteResult = Context["quoteResult"]
 
 export function useMinWithdrawalAmountWithFeeEstimation(
-  parsedAmountIn: TokenValue | null,
+  _parsedAmountIn: TokenValue | null,
   minWithdrawalAmount: TokenValue | null,
-  preparationOutput: PreparationOutput | null
+  quoteResult: QuoteResult
 ): TokenValue | null {
-  const minWithdrawalAmountWithFee = useMemo(() => {
+  return useMemo(() => {
     if (!minWithdrawalAmount) return null
-    if (!preparationOutput) return minWithdrawalAmount
+    if (quoteResult?.tag !== "ok") return minWithdrawalAmount
 
-    const base = minWithdrawalAmount
-
-    if (preparationOutput.tag === "ok") {
-      const fee = preparationOutput.value.feeEstimation.amount
-      return {
-        amount: base.amount + fee,
-        decimals: base.decimals,
+    // Build a minimal state-like object to reuse the selector
+    const fee = (() => {
+      try {
+        const amountIn = BigInt(quoteResult.value.quote.amountIn)
+        const amountOut = BigInt(quoteResult.value.quote.amountOut)
+        return amountIn > amountOut ? amountIn - amountOut : 0n
+      } catch {
+        return 0n
       }
+    })()
+
+    if (fee === 0n) return minWithdrawalAmount
+
+    return {
+      amount: minWithdrawalAmount.amount + fee,
+      decimals: minWithdrawalAmount.decimals,
     }
-
-    // This is fallback to amount with fee estimation on preparation error
-    if (
-      preparationOutput.tag === "err" &&
-      preparationOutput.value.reason === "ERR_AMOUNT_TOO_LOW"
-    ) {
-      const shortfallAmount = preparationOutput.value.shortfall.amount
-      return {
-        amount: parsedAmountIn
-          ? parsedAmountIn.amount + shortfallAmount
-          : shortfallAmount,
-        decimals: base.decimals,
-      }
-    }
-
-    return base
-  }, [minWithdrawalAmount, preparationOutput, parsedAmountIn])
-
-  return minWithdrawalAmountWithFee
+  }, [minWithdrawalAmount, quoteResult])
 }

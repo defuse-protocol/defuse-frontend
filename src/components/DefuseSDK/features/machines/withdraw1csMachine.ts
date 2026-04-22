@@ -127,7 +127,9 @@ export const withdraw1csMachine = setup({
       }),
     }),
     logError: (_, params: { error: unknown }) => {
-      logger.error(params.error)
+      if (params.error != null) {
+        logger.error(params.error)
+      }
     },
     set1csQuoteResult: assign({
       quote1csResult: (_, result: NonNullable<Context["quote1csResult"]>) =>

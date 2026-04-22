@@ -1,7 +1,6 @@
 "use client"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
-import { getAppFeeRecipients } from "@src/utils/getAppFeeRecipient"
 import { useSelector } from "@xstate/react"
 import { useContext } from "react"
 import { fromPromise } from "xstate"
@@ -17,8 +16,8 @@ import { WithdrawUIMachineContext } from "../WithdrawUIMachineContext"
 import { WithdrawForm } from "./WithdrawForm"
 
 export const WithdrawWidget = (props: WithdrawWidgetProps) => {
-  const { whitelabelTemplate } = useContext(FeatureFlagsContext)
-  const appFeeRecipients = getAppFeeRecipients(whitelabelTemplate)
+  const { whitelabelTemplate: _whitelabelTemplate } =
+    useContext(FeatureFlagsContext)
   const initialTokenIn =
     props.presetTokenSymbol !== undefined
       ? (props.tokenList.find(
@@ -49,7 +48,6 @@ export const WithdrawWidget = (props: WithdrawWidgetProps) => {
               tokenOut: initialTokenOut,
               tokenList: props.tokenList,
               referral: props.referral,
-              appFeeRecipients,
             },
           }}
           logic={withdrawUIMachine.provide({
