@@ -42,11 +42,21 @@ export const APP_FEE_RECIPIENT_RABITSWAP = v.parse(
   process.env.NEXT_PUBLIC_APP_FEE_RECIPIENT_RABITSWAP
 )
 
+// Optional direction fee in basis points for eligible withdrawals.
+// 1Click enforces a max app fee of 500 bps (5%).
 export const WITHDRAW_DIRECTION_FEE_BPS = v.parse(
   v.pipe(
     v.optional(v.string()),
     v.transform((val) => (val != null ? Number(val) : null)),
-    v.nullable(v.number())
+    v.nullable(
+      v.pipe(
+        v.number(),
+        v.maxValue(
+          500,
+          "NEXT_PUBLIC_WITHDRAW_DIRECTION_FEE_BPS must be at most 500"
+        )
+      )
+    )
   ),
   process.env.NEXT_PUBLIC_WITHDRAW_DIRECTION_FEE_BPS
 )
