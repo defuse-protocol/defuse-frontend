@@ -321,23 +321,6 @@
       "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1437.png",
       "groupedTokens": [
         {
-          "defuseAssetId": "sol:mainnet:A7bdiYdS5GjqGFtxf17ppRHtDKPkkRqbKtR27dxvQXaS",
-          "symbol": "ZEC",
-          "name": "Zcash",
-          "decimals": 8,
-          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1437.png",
-          "originChainName": "solana",
-          "deployments": [
-            {
-              "address": "A7bdiYdS5GjqGFtxf17ppRHtDKPkkRqbKtR27dxvQXaS",
-              "decimals": 8,
-              "chainName": "solana",
-              "bridge": "near_omni"
-            }
-          ],
-          "tags": ["mc:120", "tvol:1", "aid:zec"]
-        },
-        {
           "defuseAssetId": "nep141:zec.omft.near",
           "symbol": "ZEC",
           "name": "Zcash",
@@ -350,13 +333,35 @@
               "decimals": 8,
               "chainName": "zcash",
               "bridge": "poa"
-            },
+            }
+          ],
+          "tags": ["mc:120", "tvol:1", "aid:zec"]
+        },
+        {
+          "defuseAssetId": "1cs_v1:near:nep141:zec.omft.near",
+          "symbol": "ZEC",
+          "name": "Zcash",
+          "decimals": 8,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1437.png",
+          "originChainName": "near",
+          "deployments": [
             {
               "address": "zec.omft.near",
               "decimals": 8,
               "chainName": "near",
               "bridge": "direct"
-            },
+            }
+          ],
+          "tags": ["mc:120", "tvol:1", "aid:zec"]
+        },
+        {
+          "defuseAssetId": "1cs_v1:sol:spl:A7bdiYdS5GjqGFtxf17ppRHtDKPkkRqbKtR27dxvQXaS",
+          "symbol": "ZEC",
+          "name": "Zcash",
+          "decimals": 8,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1437.png",
+          "originChainName": "solana",
+          "deployments": [
             {
               "address": "A7bdiYdS5GjqGFtxf17ppRHtDKPkkRqbKtR27dxvQXaS",
               "decimals": 8,
@@ -375,23 +380,6 @@
       "name": "NEAR Protocol",
       "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/6535.png",
       "groupedTokens": [
-        {
-          "defuseAssetId": "1cs_v1:sol:spl:3ZLekZYq2qkZiSpnSvabjit34tUkjSwD1JFuW9as9wBG",
-          "symbol": "NEAR",
-          "name": "Near",
-          "decimals": 9,
-          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/6535.png",
-          "originChainName": "solana",
-          "deployments": [
-            {
-              "address": "3ZLekZYq2qkZiSpnSvabjit34tUkjSwD1JFuW9as9wBG",
-              "decimals": 9,
-              "chainName": "solana",
-              "bridge": "near_omni"
-            }
-          ],
-          "tags": ["mc:31", "tvol:2", "aid:near"]
-        },
         {
           "defuseAssetId": "nep141:wrap.near",
           "symbol": "NEAR",
@@ -1078,23 +1066,6 @@
       "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/14803.png",
       "groupedTokens": [
         {
-          "defuseAssetId": "1cs_v1:bsc:erc20:0x1a6659d434482a2b1694098c6757a62a8619cf12",
-          "symbol": "AURORA",
-          "name": "Aurora",
-          "decimals": 18,
-          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/14803.png",
-          "originChainName": "bsc",
-          "deployments": [
-            {
-              "address": "0x1a6659d434482a2b1694098c6757a62a8619cf12",
-              "decimals": 18,
-              "chainName": "bsc",
-              "bridge": "near_omni"
-            }
-          ],
-          "tags": ["mc:462", "tvol:12", "aid:aurora"]
-        },
-        {
           "defuseAssetId": "nep141:aaaaaa20d9e0e2461697782ef11675f668207961.factory.bridge.near",
           "symbol": "AURORA",
           "name": "Aurora",
@@ -1568,23 +1539,6 @@
       "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/37529.png",
       "groupedTokens": [
         {
-          "defuseAssetId": "1cs_v1:sol:spl:8SMMso8Muv8d6i4WmMDthKt6TN1ysN6937sx3DKLXZqB",
-          "symbol": "RHEA",
-          "name": "Rhea",
-          "decimals": 9,
-          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/37529.png",
-          "originChainName": "solana",
-          "deployments": [
-            {
-              "address": "8SMMso8Muv8d6i4WmMDthKt6TN1ysN6937sx3DKLXZqB",
-              "decimals": 9,
-              "chainName": "solana",
-              "bridge": "near_omni"
-            }
-          ],
-          "tags": ["mc:1452", "aid:rhea"]
-        },
-        {
           "defuseAssetId": "nep141:token.rhealab.near",
           "symbol": "RHEA",
           "name": "Rhea",
@@ -1633,23 +1587,6 @@
       "name": "PublicAI",
       "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/37728.png",
       "groupedTokens": [
-        {
-          "defuseAssetId": "1cs_v1:sol:spl:AXCp86262ZPfpcV9bmtmtnzmJSL5sD99mCVJD4GR9vS",
-          "symbol": "PUBLIC",
-          "name": "PublicAI",
-          "decimals": 9,
-          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/37728.png",
-          "originChainName": "solana",
-          "deployments": [
-            {
-              "address": "AXCp86262ZPfpcV9bmtmtnzmJSL5sD99mCVJD4GR9vS",
-              "decimals": 9,
-              "chainName": "solana",
-              "bridge": "near_omni"
-            }
-          ],
-          "tags": ["aid:public"]
-        },
         {
           "defuseAssetId": "nep141:token.publicailab.near",
           "symbol": "PUBLIC",
@@ -2755,23 +2692,6 @@
       "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/39057.png",
       "groupedTokens": [
         {
-          "defuseAssetId": "1cs_v1:base:erc20:0x0382e3fee4a420bd446367d468a6f00225853420",
-          "symbol": "CFI",
-          "name": "ConsumerFi Protocol",
-          "decimals": 18,
-          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/39057.png",
-          "originChainName": "base",
-          "deployments": [
-            {
-              "address": "0x0382e3fee4a420bd446367d468a6f00225853420",
-              "decimals": 18,
-              "chainName": "base",
-              "bridge": "near_omni"
-            }
-          ],
-          "tags": ["mc:4794", "aid:cfi"]
-        },
-        {
           "defuseAssetId": "nep141:cfi.consumer-fi.near",
           "symbol": "CFI",
           "name": "ConsumerFi Protocol",
@@ -2785,6 +2705,23 @@
               "chainName": "near",
               "bridge": "direct"
             },
+            {
+              "address": "0x0382e3fee4a420bd446367d468a6f00225853420",
+              "decimals": 18,
+              "chainName": "base",
+              "bridge": "near_omni"
+            }
+          ],
+          "tags": ["mc:4794", "aid:cfi"]
+        },
+        {
+          "defuseAssetId": "1cs_v1:base:erc20:0x0382e3fee4a420bd446367d468a6f00225853420",
+          "symbol": "CFI",
+          "name": "ConsumerFi Protocol",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/39057.png",
+          "originChainName": "base",
+          "deployments": [
             {
               "address": "0x0382e3fee4a420bd446367d468a6f00225853420",
               "decimals": 18,
@@ -2880,23 +2817,6 @@
       "name": "Starknet",
       "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/22691.png",
       "groupedTokens": [
-        {
-          "defuseAssetId": "1cs_v1:sol:spl:HsRpHQn6VbyMs5b5j5SV6xQ2VvpvvCCzu19GjytVSCoz",
-          "symbol": "STRK",
-          "name": "Starknet",
-          "decimals": 9,
-          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/22691.png",
-          "originChainName": "solana",
-          "deployments": [
-            {
-              "address": "HsRpHQn6VbyMs5b5j5SV6xQ2VvpvvCCzu19GjytVSCoz",
-              "decimals": 9,
-              "chainName": "solana",
-              "bridge": "near_omni"
-            }
-          ],
-          "tags": ["mc:95", "aid:strk"]
-        },
         {
           "defuseAssetId": "nep141:starknet.omft.near",
           "symbol": "STRK",
