@@ -3,14 +3,15 @@ import { useFlatTokenList } from "@src/hooks/useFlatTokenList"
 import { useSearchParams } from "next/navigation"
 import { useMemo } from "react"
 
-export function useTokenList(tokenList: TokenInfo[]) {
+export function useTokenList(
+  tokenList: TokenInfo[],
+  { flatten = true }: { flatten?: boolean } = {}
+) {
   const flatTokenList = useFlatTokenList(tokenList)
+  const baseList = flatten ? flatTokenList : tokenList
   const searchParams = useSearchParams()
 
-  const sortedList = useMemo(
-    () => sortTokensByMarketCap(flatTokenList),
-    [flatTokenList]
-  )
+  const sortedList = useMemo(() => sortTokensByMarketCap(baseList), [baseList])
 
   /**
    * Enable tokens with `feature:${string}` tag depended on URL search params.

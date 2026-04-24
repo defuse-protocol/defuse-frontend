@@ -14,7 +14,7 @@ import {
 
 export default function Deposit() {
   const { state, sendTransaction } = useConnectWallet()
-  const tokenList = useTokenList(LIST_TOKENS)
+  const tokenList = useTokenList(LIST_TOKENS, { flatten: false })
   const { tokenIn } = useDeterminePair()
   const router = useRouter()
   const searchParams = useSearchParams()
