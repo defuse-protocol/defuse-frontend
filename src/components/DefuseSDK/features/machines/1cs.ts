@@ -237,11 +237,7 @@ export async function submitTxHash(args: SubmitTxHashArg) {
 
   try {
     return {
-      ok: await OneClickService.submitDepositTx({
-        ...body.data,
-        // @ts-expect-error not documented feature
-        type: "INTENTS",
-      }),
+      ok: await OneClickService.submitDepositTx(body.data),
     }
   } catch (error) {
     const err = unknownServerErrorToString(error)
