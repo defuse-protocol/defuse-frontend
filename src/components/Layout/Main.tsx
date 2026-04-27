@@ -1,10 +1,13 @@
 import { type PropsWithChildren, useContext } from "react"
 
+import { NearComRetirementCard } from "@src/components/NearComPromo"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import NearComPromo from "../NearComPromo"
+import { useNearComPromoState } from "../useNearComPromoState"
 
 const Main = ({ children }: PropsWithChildren) => {
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
+  const { variant } = useNearComPromoState()
 
   if (whitelabelTemplate === "turboswap") {
     return (
@@ -22,6 +25,14 @@ const Main = ({ children }: PropsWithChildren) => {
         <div className="flex justify-center lg:justify-end lg:w-1/2">
           <div className="w-[480px] max-w-full">{children}</div>
         </div>
+      </main>
+    )
+  }
+
+  if (whitelabelTemplate === "near-intents" && variant === "anonymous") {
+    return (
+      <main className="flex md:flex-1 items-start justify-center px-4 py-16 md:py-24">
+        <NearComRetirementCard />
       </main>
     )
   }

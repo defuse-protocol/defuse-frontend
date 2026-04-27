@@ -4,6 +4,7 @@ import { Button, Text } from "@radix-ui/themes"
 import AddTurboChainButton from "@src/components/AddTurboChainButton"
 import Logo from "@src/components/Logo"
 import Settings from "@src/components/Settings"
+import { useNearComPromoState } from "@src/components/useNearComPromoState"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import dynamic from "next/dynamic"
 import { type ReactNode, useContext } from "react"
@@ -29,6 +30,9 @@ export function Header({
   depositSlot?: ReactNode
 }) {
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
+  const { variant } = useNearComPromoState()
+  const hideNearIntentsAppNav =
+    whitelabelTemplate === "near-intents" && variant === "anonymous"
 
   return (
     <>
@@ -42,8 +46,12 @@ export function Header({
 
           {/* Navbar */}
           <div className="flex-grow flex justify-between items-center pl-8 pr-4">
-            <div className="flex-shrink-0">{navbarSlot}</div>
-            <div className="flex-shrink-0">{depositSlot}</div>
+            {hideNearIntentsAppNav ? null : (
+              <>
+                <div className="flex-shrink-0">{navbarSlot}</div>
+                <div className="flex-shrink-0">{depositSlot}</div>
+              </>
+            )}
           </div>
 
           <div className="flex justify-end items-center gap-4 flex-shrink-0">

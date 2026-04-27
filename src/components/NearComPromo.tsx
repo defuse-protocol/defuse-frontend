@@ -1,84 +1,177 @@
-import { useContext, useEffect, useState } from "react"
+import { useContext } from "react"
 
+import { Key, Wallet } from "@phosphor-icons/react"
 import { ChevronRightIcon } from "@radix-ui/react-icons"
-import { ChainType, useConnectWallet } from "@src/hooks/useConnectWallet"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import NearBadge from "../../public/static/icons/near-badge.svg"
+import { useNearComPromoState } from "./useNearComPromoState"
 
 const MIGRATION_ARTICLE_ID = "69de575cfe9deda3e8da017c"
 const MIGRATION_ARTICLE_URL =
   "https://near-intents-app.helpscoutdocs.com/article/257-migration-from-near-intents-to-nearcom"
 
 const NEAR_COM_URL = "https://near.com/?utm_source=near-intents"
-
-type NearComPromoVariant = "wallet" | "passkey" | "anonymous"
-
-function getNearComPromoVariant(
-  chainType: ChainType | undefined
-): NearComPromoVariant {
-  if (chainType === undefined) return "anonymous"
-  if (chainType === ChainType.WebAuthn) return "passkey"
-  return "wallet"
-}
+const BEACON_CONTACT_ROUTE = "/ask/message/"
 
 const NearComLink = () => (
   <a
     href={NEAR_COM_URL}
     target="_blank"
     rel="noopener noreferrer"
-    className="text-white underline"
+    className="text-inherit underline"
   >
     near.com
   </a>
 )
 
-const NearComPromo = () => {
-  const { whitelabelTemplate } = useContext(FeatureFlagsContext)
-
-  if (whitelabelTemplate !== "near-intents") return null
-
-  return <NearComPromoContent />
+const isBeaconLoadingStub = (beacon: Window["Beacon"]) => {
+  const stubQueue = (beacon as unknown as { readyQueue?: unknown[] }).readyQueue
+  return Array.isArray(stubQueue)
 }
 
-const NearComPromoContent = () => {
-  const { state } = useConnectWallet()
-  const [isHydrated, setIsHydrated] = useState(false)
-  useEffect(() => setIsHydrated(true), [])
+const openBeaconContactForm = () => {
+  if (typeof window === "undefined") return
+  const beacon = window.Beacon
+  if (typeof beacon !== "function") return
+  if (isBeaconLoadingStub(beacon)) return
 
-  const variant = isHydrated
-    ? getNearComPromoVariant(state.chainType)
-    : "anonymous"
+  beacon("open")
+  beacon("navigate", BEACON_CONTACT_ROUTE)
+}
 
-  const openMigrationGuide = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (typeof window === "undefined") return
-    const beacon = window.Beacon
-    if (typeof beacon !== "function") return
+const openMigrationGuide = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  if (typeof window === "undefined") return
+  const beacon = window.Beacon
+  if (typeof beacon !== "function") return
 
-    // HelpScout installs a queueing stub (see Helpscout.tsx) before the
-    // real SDK finishes loading. The stub is a function with `readyQueue`
-    // as an array; the loaded SDK replaces the stub entirely and does not
-    // expose `readyQueue`. If we still see the stub here, the real SDK
-    // isn't ready (still loading, blocked by an extension, or failed),
-    // so skip preventDefault and let the <a href> navigate as a fallback.
-    const stubQueue = (beacon as unknown as { readyQueue?: unknown[] })
-      .readyQueue
-    if (Array.isArray(stubQueue)) return
+  // HelpScout installs a queueing stub (see Helpscout.tsx) before the
+  // real SDK finishes loading. The stub is a function with `readyQueue`
+  // as an array; the loaded SDK replaces the stub entirely and does not
+  // expose `readyQueue`. If we still see the stub here, the real SDK
+  // isn't ready (still loading, blocked by an extension, or failed),
+  // so skip preventDefault and let the <a href> navigate as a fallback.
+  if (isBeaconLoadingStub(beacon)) return
 
-    e.preventDefault()
-    beacon("article", MIGRATION_ARTICLE_ID, { type: "sidebar" })
+  e.preventDefault()
+  beacon("article", MIGRATION_ARTICLE_ID, { type: "sidebar" })
+}
+
+export const NearComRetirementCard = () => {
+  const intro = (
+    <>
+      NEAR Intents has moved to <NearComLink />. Same technology by the same
+      team, now in a better app, including confidential swaps.
+    </>
+  )
+
+  return (
+    <section className="w-full max-w-[560px] rounded-[32px] border border-gray-a4 bg-white p-6 shadow-lg sm:p-8 dark:border-gray-a5 dark:bg-black-950">
+      <div className="flex items-center gap-3">
+        <NearBadge aria-hidden="true" className="size-7 shrink-0" />
+        <h2
+          id="near-com-retirement-title"
+          className="text-gray-12 text-2xl/8 font-bold"
+        >
+          NEAR Intents has moved
+        </h2>
+      </div>
+      <p className="mt-5 text-gray-11 text-base/7 font-medium">{intro}</p>
+
+      <p className="mt-4 text-gray-11 text-base/7 font-medium">
+        <strong className="font-bold">
+          This website will be decommissioned on June 1, 2026
+        </strong>
+        . Please move or migrate before then.
+      </p>
+      <div className="mt-6">
+        <h3 className="text-gray-12 text-lg/6 font-bold">How do I switch?</h3>
+        <div className="mt-4 grid gap-4">
+          <div className="rounded-2xl bg-gray-2 p-4">
+            <div className="flex items-start gap-3">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-white text-gray-12">
+                <Wallet className="size-5" weight="bold" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h4 className="text-gray-12 text-sm/5 font-bold">
+                  Using a wallet?
+                </h4>
+                <p className="mt-1 text-gray-11 text-sm/6 font-medium">
+                  There is nothing to move or migrate. Connect the same wallet
+                  at near.com to keep swapping with NEAR Intents.
+                </p>
+              </div>
+            </div>
+            <a
+              href={NEAR_COM_URL}
+              className="mt-3 flex items-center justify-end gap-1 text-right text-gray-12 text-sm/6 font-semibold underline-offset-2 hover:underline"
+            >
+              <span>Open near.com</span>
+              <ChevronRightIcon className="size-4 shrink-0" />
+            </a>
+          </div>
+          <div className="rounded-2xl bg-gray-2 p-4">
+            <div className="flex items-start gap-3">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-white text-gray-12">
+                <Key className="size-5" weight="bold" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h4 className="text-gray-12 text-sm/5 font-bold">
+                  Using a passkey?
+                </h4>
+                <p className="mt-1 text-gray-11 text-sm/6 font-medium">
+                  Passkey accounts need to migrate because passkeys are
+                  domain-specific.
+                </p>
+              </div>
+            </div>
+            <a
+              href={MIGRATION_ARTICLE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={openMigrationGuide}
+              className="mt-3 flex items-center justify-end gap-1 text-right text-gray-12 text-sm/6 font-semibold underline-offset-2 hover:underline"
+            >
+              <span>Read the migration guide</span>
+              <ChevronRightIcon className="size-4 shrink-0" />
+            </a>
+          </div>
+        </div>
+      </div>
+      <p className="mt-5 text-gray-10 text-xs/5 font-medium">
+        Questions?{" "}
+        <button
+          type="button"
+          onClick={openBeaconContactForm}
+          className="text-gray-11 underline"
+        >
+          Click here to contact support
+        </button>
+        .
+      </p>
+    </section>
+  )
+}
+
+const NearComPromo = () => {
+  const { whitelabelTemplate } = useContext(FeatureFlagsContext)
+  const { variant } = useNearComPromoState()
+
+  if (whitelabelTemplate !== "near-intents") {
+    return null
   }
 
   const body =
-    variant === "wallet" ? (
-      <>
-        Your wallet works at <NearComLink /> — just reconnect there. Nothing to
-        move, nothing to migrate. This site will soon be retired.
-      </>
-    ) : variant === "passkey" ? (
+    variant === "passkey" ? (
       <>
         Because you signed up with a passkey, you’ll need a new account at{" "}
-        <NearComLink /> and we’ll help you move your funds. This site will soon
-        be retired.
+        <NearComLink /> and we’ll help you move your funds. This website will be
+        decommissioned on June 1, 2026.
+      </>
+    ) : variant === "wallet" ? (
+      <>
+        This website will be decommissioned on June 1, 2026. Your wallet already
+        works at <NearComLink /> — there is nothing to move or migrate. Connect
+        the same wallet there when you’re ready.
       </>
     ) : (
       <>
