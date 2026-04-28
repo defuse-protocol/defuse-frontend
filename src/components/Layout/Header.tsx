@@ -46,7 +46,7 @@ export function Header({
 
           {/* Navbar */}
           <div className="flex-grow flex justify-between items-center pl-8 pr-4">
-            {hideNearIntentsAppNav ? null : (
+            {!hideNearIntentsAppNav && (
               <>
                 <div className="flex-shrink-0">{navbarSlot}</div>
                 <div className="flex-shrink-0">{depositSlot}</div>
