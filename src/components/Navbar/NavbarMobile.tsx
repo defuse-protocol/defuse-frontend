@@ -7,13 +7,21 @@ import {
 } from "@phosphor-icons/react"
 import { navigation } from "@src/constants/routes"
 import { useIsActiveLink } from "@src/hooks/useIsActiveLink"
+import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { cn } from "@src/utils/cn"
 import Link from "next/link"
 
-import type { ReactNode } from "react"
+import { type ReactNode, useContext } from "react"
+import { useNearComPromoState } from "../useNearComPromoState"
 
 export function NavbarMobile() {
   const { isActive } = useIsActiveLink()
+  const { whitelabelTemplate } = useContext(FeatureFlagsContext)
+  const { variant } = useNearComPromoState()
+
+  if (whitelabelTemplate === "near-intents" && variant === "anonymous") {
+    return null
+  }
 
   const isAccountActive = isActive(navigation.account)
   const isTradeActive = isActive(navigation.home) || isActive(navigation.otc)
