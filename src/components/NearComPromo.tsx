@@ -18,7 +18,7 @@ const NearComLink = () => (
     href={NEAR_COM_URL}
     target="_blank"
     rel="noopener noreferrer"
-    className="text-inherit underline"
+    className="underline"
   >
     near.com
   </a>
@@ -65,19 +65,19 @@ export const NearComRetirementCard = () => {
   )
 
   return (
-    <section className="w-full max-w-[560px] rounded-[32px] border border-gray-a4 bg-white p-6 shadow-lg sm:p-8 dark:border-gray-a5 dark:bg-black-950">
-      <div className="flex items-center gap-3">
-        <NearBadge aria-hidden="true" className="size-7 shrink-0" />
+    <section className="w-full max-w-xl rounded-3xl border border-gray-a4 bg-white p-6 shadow-lg sm:p-8 dark:border-gray-a5 dark:bg-black-950">
+      <div className="flex sm:items-center flex-col sm:flex-row gap-3">
+        <NearBadge aria-hidden="true" className="size-8 shrink-0" />
         <h2
           id="near-com-retirement-title"
-          className="text-gray-12 text-2xl/8 font-bold"
+          className="text-gray-12 text-xl sm:text-2xl/8 font-bold"
         >
           NEAR Intents has moved
         </h2>
       </div>
-      <p className="mt-5 text-gray-11 text-base/7 font-medium">{intro}</p>
+      <p className="mt-5 text-gray-11 text-base font-medium">{intro}</p>
 
-      <p className="mt-4 text-gray-11 text-base/7 font-medium">
+      <p className="mt-4 text-gray-11 text-base font-medium">
         <strong className="font-bold">
           This website will be decommissioned on June 1, 2026
         </strong>
@@ -85,59 +85,62 @@ export const NearComRetirementCard = () => {
       </p>
       <div className="mt-6">
         <h3 className="text-gray-12 text-lg/6 font-bold">How do I switch?</h3>
-        <div className="mt-4 grid gap-4">
-          <div className="rounded-2xl bg-gray-2 p-4">
-            <div className="flex items-start gap-3">
-              <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-white text-gray-12">
-                <Wallet className="size-5" weight="bold" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <h4 className="text-gray-12 text-sm/5 font-bold">
-                  Using a wallet?
-                </h4>
-                <p className="mt-1 text-gray-11 text-sm/6 font-medium">
-                  There is nothing to move or migrate. Connect the same wallet
-                  at near.com to keep swapping with NEAR Intents.
-                </p>
-              </div>
+
+        <div className="mt-4 space-y-2.5">
+          <div className="rounded-2xl bg-gray-3 p-4 flex sm:flex-row flex-col items-start gap-3">
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-gray-1 text-gray-12">
+              <Wallet className="size-5" weight="bold" />
             </div>
-            <a
-              href={NEAR_COM_URL}
-              className="mt-3 flex items-center justify-end gap-1 text-right text-gray-12 text-sm/6 font-semibold underline-offset-2 hover:underline"
-            >
-              <span>Open near.com</span>
-              <ChevronRightIcon className="size-4 shrink-0" />
-            </a>
+
+            <div className="mt-1.5">
+              <h4 className="text-gray-12 text-base font-bold">
+                Using a wallet?
+              </h4>
+              <p className="mt-2 text-gray-11 text-sm font-medium">
+                There is nothing to move or migrate. Connect the same wallet at
+                near.com to keep swapping with NEAR Intents.
+              </p>
+              <a
+                href={NEAR_COM_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex items-center gap-0.5 text-gray-12 text-sm font-semibold underline-offset-2 hover:underline"
+              >
+                <span>Open near.com</span>
+                <ChevronRightIcon className="size-4 shrink-0 mt-0.5" />
+              </a>
+            </div>
           </div>
-          <div className="rounded-2xl bg-gray-2 p-4">
-            <div className="flex items-start gap-3">
-              <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-white text-gray-12">
-                <Key className="size-5" weight="bold" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <h4 className="text-gray-12 text-sm/5 font-bold">
-                  Using a passkey?
-                </h4>
-                <p className="mt-1 text-gray-11 text-sm/6 font-medium">
-                  Passkey accounts need to migrate because passkeys are
-                  domain-specific.
-                </p>
-              </div>
+
+          <div className="rounded-2xl bg-gray-3 p-4 flex sm:flex-row flex-col items-start gap-3">
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-gray-1 text-gray-12">
+              <Key className="size-5" weight="bold" />
             </div>
-            <a
-              href={MIGRATION_ARTICLE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={openMigrationGuide}
-              className="mt-3 flex items-center justify-end gap-1 text-right text-gray-12 text-sm/6 font-semibold underline-offset-2 hover:underline"
-            >
-              <span>Read the migration guide</span>
-              <ChevronRightIcon className="size-4 shrink-0" />
-            </a>
+
+            <div className="mt-1.5">
+              <h4 className="text-gray-12 text-base font-bold">
+                Using a passkey?
+              </h4>
+              <p className="mt-2 text-gray-11 text-sm font-medium">
+                Passkey accounts need to migrate because passkeys are
+                domain-specific.
+              </p>
+              <a
+                href={MIGRATION_ARTICLE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={openMigrationGuide}
+                className="mt-3 inline-flex items-center gap-0.5 text-gray-12 text-sm font-semibold underline-offset-2 hover:underline"
+              >
+                <span>Read the migration guide</span>
+                <ChevronRightIcon className="size-4 shrink-0" />
+              </a>
+            </div>
           </div>
         </div>
       </div>
-      <p className="mt-5 text-gray-10 text-xs/5 font-medium">
+
+      <p className="mt-5 text-gray-10 text-sm font-medium">
         Questions?{" "}
         <button
           type="button"
