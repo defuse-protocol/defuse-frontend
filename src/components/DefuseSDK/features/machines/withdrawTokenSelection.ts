@@ -50,11 +50,23 @@ export function selectQuoteInputToken({
   )
   if (selectedBalance < adjustedAmount.amount) {
     if (siblingCandidates != null) {
-      const nonZeroSiblings = Object.values(
+      const coverableSiblings = Object.values(
         siblingCandidates.reduce<Record<string, BaseTokenInfo>>(
           (acc, token) => {
             if (token.defuseAssetId in acc) return acc
-            if ((balances[token.defuseAssetId] ?? 0n) > 0n) {
+            if (
+              selected != null &&
+              token.defuseAssetId === selected.defuseAssetId
+            ) {
+              return acc
+            }
+
+            const siblingBalance = balances[token.defuseAssetId] ?? 0n
+            const siblingAdjustedAmount = adjustDecimalsTokenValue(
+              parsedAmount,
+              token.decimals
+            )
+            if (siblingBalance >= siblingAdjustedAmount.amount) {
               acc[token.defuseAssetId] = token
             }
             return acc
@@ -63,8 +75,8 @@ export function selectQuoteInputToken({
         )
       )
 
-      if (nonZeroSiblings.length === 1 && nonZeroSiblings[0] != null) {
-        const sibling = nonZeroSiblings[0]
+      if (coverableSiblings.length === 1 && coverableSiblings[0] != null) {
+        const sibling = coverableSiblings[0]
         const siblingBalance = balances[sibling.defuseAssetId] ?? 0n
         const siblingAdjustedAmount = adjustDecimalsTokenValue(
           parsedAmount,
