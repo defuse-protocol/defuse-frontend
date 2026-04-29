@@ -1,16 +1,11 @@
-import { solverRelay } from "@defuse-protocol/internal-utils"
-import { server } from "@src/tests/setup"
-import { http, HttpResponse } from "msw"
 import { afterEach, describe, expect, it, vi } from "vitest"
+import { getInternalQuote } from "../features/machines/1cs"
 import type { BaseTokenInfo } from "../types/base"
 import { adjustDecimals } from "../utils/tokenUtils"
 import { queryQuote } from "./quoteService"
 
-vi.mock("@defuse-protocol/internal-utils", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("@defuse-protocol/internal-utils")>()),
-  solverRelay: {
-    getQuote: vi.fn(),
-  },
+vi.mock("../features/machines/1cs", () => ({
+  getInternalQuote: vi.fn(),
 }))
 
 const tokenInfo: BaseTokenInfo = {
@@ -30,24 +25,24 @@ const tokenInfo: BaseTokenInfo = {
   ],
 }
 
-const token1 = {
-  ...tokenInfo,
-  defuseAssetId: "token1",
-  decimals: 6,
-}
-const token2 = {
-  ...tokenInfo,
-  defuseAssetId: "token2",
-  decimals: 8,
-}
-const token3 = {
-  ...tokenInfo,
-  defuseAssetId: "token3",
-  decimals: 18,
-}
-const tokenOut = {
-  ...tokenInfo,
-  defuseAssetId: "tokenOut",
+const token1 = { ...tokenInfo, defuseAssetId: "token1", decimals: 6 }
+const token2 = { ...tokenInfo, defuseAssetId: "token2", decimals: 8 }
+const token3 = { ...tokenInfo, defuseAssetId: "token3", decimals: 18 }
+const tokenOut = { ...tokenInfo, defuseAssetId: "tokenOut" }
+
+// biome-ignore lint/suspicious/noExplicitAny: partial SDK type for tests
+function makeQuoteResponse(amountIn: string, amountOut: string): any {
+  return {
+    quote: {
+      amountIn,
+      amountOut,
+      amountInFormatted: amountIn,
+      amountOutFormatted: amountOut,
+      amountInUsd: "0",
+      amountOutUsd: "0",
+      timeEstimate: 30,
+    },
+  }
 }
 
 describe("queryQuote()", () => {
@@ -55,49 +50,25 @@ describe("queryQuote()", () => {
     vi.clearAllMocks()
   })
 
-  it("quotes full amount even if user has less funds than requested", async () => {
+  it("returns ERR_UNFULFILLABLE_AMOUNT when balance is less than requested", async () => {
     const input = {
       tokensIn: [token1],
-      tokenOut: tokenOut,
+      tokenOut,
       amountIn: { amount: adjustDecimals(150n, 0, 6), decimals: 6 },
       balances: { token1: adjustDecimals(100n, 0, 6) },
       waitMs: 0,
       appFeeBps: 0,
     }
 
-    vi.mocked(solverRelay.getQuote).mockImplementationOnce(async () => ({
-      quote_hash: "q1",
-      defuse_asset_identifier_in: "token1",
-      defuse_asset_identifier_out: "tokenOut",
-      amount_in: "150000000",
-      amount_out: "200",
-      expiration_time: "2024-01-15T12:02:00.000Z",
-    }))
-
     const result = await queryQuote(input)
 
-    expect(solverRelay.getQuote).toHaveBeenCalledTimes(1)
-    expect(solverRelay.getQuote).toHaveBeenCalledWith(
-      expect.objectContaining({
-        quoteParams: {
-          defuse_asset_identifier_in: "token1",
-          defuse_asset_identifier_out: "tokenOut",
-          exact_amount_in: "150000000",
-          min_deadline_ms: 60_000,
-          wait_ms: 0,
-        },
-      })
-    )
+    expect(getInternalQuote).not.toHaveBeenCalled()
     expect(result).toEqual({
-      tag: "ok",
+      tag: "err",
       value: {
-        expirationTime: "2024-01-15T12:02:00.000Z",
-        quoteHashes: ["q1"],
-        tokenDeltas: [
-          ["token1", -150000000n],
-          ["tokenOut", 200n],
-        ],
-        appFee: [],
+        reason: "ERR_UNFULFILLABLE_AMOUNT",
+        shortfall: expect.objectContaining({ amount: expect.any(BigInt) }),
+        overage: null,
       },
     })
   })
@@ -105,7 +76,7 @@ describe("queryQuote()", () => {
   it("splits amount across tokens if user has enough funds", async () => {
     const input = {
       tokensIn: [token1, token2, token3],
-      tokenOut: tokenOut,
+      tokenOut,
       amountIn: { amount: adjustDecimals(150n, 0, 6), decimals: 6 },
       balances: {
         token1: adjustDecimals(100n, 0, token1.decimals),
@@ -116,54 +87,30 @@ describe("queryQuote()", () => {
       appFeeBps: 0,
     }
 
-    vi.mocked(solverRelay.getQuote)
-      .mockImplementationOnce(async () => ({
-        quote_hash: "q1",
-        defuse_asset_identifier_in: "token1",
-        defuse_asset_identifier_out: "tokenOut",
-        amount_in: "100000000",
-        amount_out: "20",
-        expiration_time: "2024-01-15T12:02:00.000Z",
-      }))
-      .mockImplementationOnce(async () => ({
-        quote_hash: "q2",
-        defuse_asset_identifier_in: "token2",
-        defuse_asset_identifier_out: "tokenOut",
-        amount_in: "5000000000",
-        amount_out: "10",
-        expiration_time: "2024-01-15T12:01:30.000Z",
-      }))
+    vi.mocked(getInternalQuote)
+      .mockResolvedValueOnce(makeQuoteResponse("100000000", "20"))
+      .mockResolvedValueOnce(makeQuoteResponse("5000000000", "10"))
 
     const result = await queryQuote(input)
 
-    expect(solverRelay.getQuote).toHaveBeenCalledTimes(2)
-    expect(solverRelay.getQuote).toHaveBeenCalledWith(
-      expect.objectContaining({
-        quoteParams: {
-          defuse_asset_identifier_in: "token1",
-          defuse_asset_identifier_out: "tokenOut",
-          exact_amount_in: "100000000",
-          min_deadline_ms: 60_000,
-          wait_ms: 0,
-        },
-      })
-    )
-    expect(solverRelay.getQuote).toHaveBeenCalledWith(
-      expect.objectContaining({
-        quoteParams: {
-          defuse_asset_identifier_in: "token2",
-          defuse_asset_identifier_out: "tokenOut",
-          exact_amount_in: "5000000000",
-          min_deadline_ms: 60_000,
-          wait_ms: 0,
-        },
-      })
-    )
+    expect(getInternalQuote).toHaveBeenCalledTimes(2)
+    expect(getInternalQuote).toHaveBeenCalledWith({
+      originAsset: "token1",
+      destinationAsset: "tokenOut",
+      amount: "100000000",
+      quoteWaitingTimeMs: 0,
+    })
+    expect(getInternalQuote).toHaveBeenCalledWith({
+      originAsset: "token2",
+      destinationAsset: "tokenOut",
+      amount: "5000000000",
+      quoteWaitingTimeMs: 0,
+    })
     expect(result).toEqual({
       tag: "ok",
       value: {
-        expirationTime: "2024-01-15T12:01:30.000Z",
-        quoteHashes: ["q1", "q2"],
+        quoteHashes: [],
+        expirationTime: expect.any(String),
         tokenDeltas: [
           ["token1", -100000000n],
           ["tokenOut", 20n],
@@ -171,139 +118,33 @@ describe("queryQuote()", () => {
           ["tokenOut", 10n],
         ],
         appFee: [],
+        timeEstimate: 30,
       },
     })
   })
 
-  it("takes a quote with the best return", async () => {
+  it("returns ERR_NO_QUOTES when the quote API fails", async () => {
     const input = {
       tokensIn: [token1],
-      tokenOut: tokenOut,
+      tokenOut,
       amountIn: { amount: adjustDecimals(150n, 0, 6), decimals: 6 },
-      balances: { token1: adjustDecimals(100n, 0, token1.decimals) },
+      balances: { token1: adjustDecimals(150n, 0, token1.decimals) },
       waitMs: 0,
       appFeeBps: 0,
     }
 
-    // Use the original function for this test case
-    vi.mocked(solverRelay.getQuote).mockImplementationOnce(async (...args) => {
-      const actual = await vi.importActual<
-        typeof import("@defuse-protocol/internal-utils")
-      >("@defuse-protocol/internal-utils")
-      return actual.solverRelay.getQuote(...args)
-    })
-
-    server.use(
-      http.post("https://solver-relay-v2.chaindefuser.com/rpc", async () => {
-        return HttpResponse.json({
-          id: "dontcare",
-          jsonrpc: "2.0",
-          result: [
-            {
-              quote_hash: "q1",
-              defuse_asset_identifier_in: "token1",
-              defuse_asset_identifier_out: "tokenOut",
-              amount_in: "150",
-              amount_out: "180",
-              expiration_time: "2024-01-15T12:00:00.000Z",
-            },
-            {
-              quote_hash: "q2",
-              defuse_asset_identifier_in: "token1",
-              defuse_asset_identifier_out: "tokenOut",
-              amount_in: "150",
-              amount_out: "200",
-              expiration_time: "2024-01-15T12:02:00.000Z",
-            },
-            {
-              quote_hash: "q3",
-              defuse_asset_identifier_in: "token1",
-              defuse_asset_identifier_out: "tokenOut",
-              amount_in: "150",
-              amount_out: "100",
-              expiration_time: "2024-01-15T12:01:30.000Z",
-            },
-          ],
-        })
-      })
-    )
-
-    const result = await queryQuote(input)
-
-    expect(result).toEqual({
-      tag: "ok",
-      value: {
-        expirationTime: "2024-01-15T12:02:00.000Z",
-        quoteHashes: ["q2"],
-        tokenDeltas: [
-          ["token1", -150n],
-          ["tokenOut", 200n],
-        ],
-        appFee: [],
-      },
-    })
-  })
-
-  it("returns empty result if quote is null", async () => {
-    const input = {
-      tokensIn: [token1],
-      tokenOut: tokenOut,
-      amountIn: { amount: adjustDecimals(150n, 0, 6), decimals: 6 },
-      balances: { token1: adjustDecimals(100n, 0, token1.decimals) },
-      waitMs: 0,
-      appFeeBps: 0,
-    }
-
-    // Use the original function for this test case
-    vi.mocked(solverRelay.getQuote)
-      .mockImplementationOnce(async (...args) => {
-        const actual = await vi.importActual<
-          typeof import("@defuse-protocol/internal-utils")
-        >("@defuse-protocol/internal-utils")
-        return actual.solverRelay.getQuote(...args)
-      })
-      .mockImplementationOnce(async (...args) => {
-        const actual = await vi.importActual<
-          typeof import("@defuse-protocol/internal-utils")
-        >("@defuse-protocol/internal-utils")
-        return actual.solverRelay.getQuote(...args)
-      })
-
-    server.use(
-      http.post("https://solver-relay-v2.chaindefuser.com/rpc", function* () {
-        yield HttpResponse.json({
-          id: "dontcare",
-          jsonrpc: "2.0",
-          result: [],
-        })
-
-        return HttpResponse.json({
-          id: "dontcare",
-          jsonrpc: "2.0",
-          result: null,
-        })
-      })
-    )
+    vi.mocked(getInternalQuote).mockRejectedValueOnce(new Error("No liquidity"))
 
     await expect(queryQuote(input)).resolves.toEqual({
       tag: "err",
-      value: {
-        reason: "ERR_NO_QUOTES",
-      },
-    })
-
-    await expect(queryQuote(input)).resolves.toEqual({
-      tag: "err",
-      value: {
-        reason: "ERR_NO_QUOTES",
-      },
+      value: { reason: "ERR_NO_QUOTES" },
     })
   })
 
-  it("returns partial fill if some quotes are null", async () => {
+  it("returns ERR_NO_QUOTES if any split leg has no quote", async () => {
     const input = {
       tokensIn: [token1, token2],
-      tokenOut: tokenOut,
+      tokenOut,
       amountIn: { amount: adjustDecimals(150n, 0, 6), decimals: 6 },
       balances: {
         token1: adjustDecimals(100n, 0, token1.decimals),
@@ -313,97 +154,44 @@ describe("queryQuote()", () => {
       appFeeBps: 0,
     }
 
-    // Use the original function for this test case
-    vi.mocked(solverRelay.getQuote)
-      .mockImplementationOnce(async (...args) => {
-        const actual = await vi.importActual<
-          typeof import("@defuse-protocol/internal-utils")
-        >("@defuse-protocol/internal-utils")
-        return actual.solverRelay.getQuote(...args)
-      })
-      .mockImplementationOnce(async (...args) => {
-        const actual = await vi.importActual<
-          typeof import("@defuse-protocol/internal-utils")
-        >("@defuse-protocol/internal-utils")
-        return actual.solverRelay.getQuote(...args)
-      })
-
-    const queue = [
-      {
-        id: "dontcare",
-        jsonrpc: "2.0",
-        result: [
-          {
-            quote_hash: "q1",
-            defuse_asset_identifier_in: "token1",
-            defuse_asset_identifier_out: "tokenOut",
-            amount_in: "100",
-            amount_out: "20",
-            expiration_time: "2024-01-15T12:02:00.000Z",
-          },
-        ],
-      },
-      {
-        id: "dontcare",
-        jsonrpc: "2.0",
-        result: null,
-      },
-    ]
-    server.use(
-      http.post("https://solver-relay-v2.chaindefuser.com/rpc", function* () {
-        while (queue.length > 0) {
-          yield HttpResponse.json(queue.shift())
-        }
-        throw "out of responses"
-      })
-    )
+    vi.mocked(getInternalQuote)
+      .mockResolvedValueOnce(makeQuoteResponse("100000000", "20"))
+      .mockRejectedValueOnce(new Error("No liquidity"))
 
     await expect(queryQuote(input)).resolves.toEqual({
-      tag: "ok",
-      value: {
-        quoteHashes: ["q1"],
-        expirationTime: "2024-01-15T12:02:00.000Z",
-        tokenDeltas: [
-          ["token1", -100n],
-          ["tokenOut", 20n],
-        ],
-        appFee: [],
-      },
+      tag: "err",
+      value: { reason: "ERR_NO_QUOTES" },
     })
   })
 
   it("correctly handles duplicate input tokens", async () => {
     const input = {
       tokensIn: [token1, token1], // Duplicate token
-      tokenOut: tokenOut,
-      amountIn: { amount: adjustDecimals(150n, 0, 6), decimals: 6 },
+      tokenOut,
+      amountIn: { amount: adjustDecimals(100n, 0, 6), decimals: 6 },
       balances: { token1: adjustDecimals(100n, 0, token1.decimals) },
       waitMs: 0,
       appFeeBps: 0,
     }
 
-    vi.mocked(solverRelay.getQuote).mockImplementationOnce(async () => ({
-      quote_hash: "q1",
-      defuse_asset_identifier_in: "token1",
-      defuse_asset_identifier_out: "tokenOut",
-      amount_in: "150",
-      amount_out: "200",
-      expiration_time: "2024-01-15T12:02:00.000Z",
-    }))
+    vi.mocked(getInternalQuote).mockResolvedValueOnce(
+      makeQuoteResponse("100000000", "200")
+    )
 
     const result = await queryQuote(input)
 
-    expect(solverRelay.getQuote).toHaveBeenCalledTimes(1)
+    expect(getInternalQuote).toHaveBeenCalledTimes(1)
     expect(result).toEqual({
       tag: "ok",
       value: {
+        quoteHashes: [],
         expirationTime: expect.any(String),
-        quoteHashes: ["q1"],
         tokenDeltas: [
-          ["token1", -150n],
+          ["token1", -100000000n],
           ["tokenOut", 200n],
         ],
         appFee: [],
+        timeEstimate: 30,
       },
     })
   })

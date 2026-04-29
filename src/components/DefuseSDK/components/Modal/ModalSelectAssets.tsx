@@ -2,7 +2,7 @@ import { authIdentity } from "@defuse-protocol/internal-utils"
 import { XIcon } from "@phosphor-icons/react"
 import { Text } from "@radix-ui/themes"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
-import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
+
 import { useSmartSearch } from "@src/hooks/useSmartSearch"
 import { type SearchableItem, createSearchData } from "@src/utils/smartSearch"
 import { useEffect, useState } from "react"
@@ -169,8 +169,6 @@ export function ModalSelectAssets() {
 
   const displayAssets = searchValue.trim() ? searchResults : assetList
 
-  const is1cs = useIs1CsEnabled()
-
   return (
     <ModalDialog>
       <div className="flex flex-col min-h-[680px] md:max-h-[680px] h-full">
@@ -200,7 +198,7 @@ export function ModalSelectAssets() {
               className="h-full"
               handleSelectToken={handleSelectToken}
               accountId={modalPayload?.accountId}
-              showChain={is1cs}
+              showChain={true}
             />
           ) : (
             <EmptyAssetList className="h-full" />

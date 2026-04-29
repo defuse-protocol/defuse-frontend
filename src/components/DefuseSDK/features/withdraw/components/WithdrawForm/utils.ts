@@ -1,4 +1,9 @@
-import { assert, AuthMethod } from "@defuse-protocol/internal-utils"
+import {
+  assert,
+  AuthMethod,
+  authIdentity,
+} from "@defuse-protocol/internal-utils"
+import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import type {
   SupportedBridge,
   TokenInfo,
@@ -410,4 +415,22 @@ export function isNearIntentsNetwork(
   blockchain: SupportedChainName | "near_intents"
 ): boolean {
   return blockchain === "near_intents"
+}
+
+export function resolveWithdrawRecipient(
+  parsedRecipient: string,
+  blockchain: SupportedChainName | "near_intents"
+): {
+  recipient: string
+  recipientType: QuoteRequest.recipientType
+} {
+  const isIntents = isNearIntentsNetwork(blockchain)
+  return {
+    recipient: isIntents
+      ? authIdentity.authHandleToIntentsUserId(parsedRecipient, "near")
+      : parsedRecipient,
+    recipientType: isIntents
+      ? QuoteRequest.recipientType.INTENTS
+      : QuoteRequest.recipientType.DESTINATION_CHAIN,
+  }
 }

@@ -7,7 +7,6 @@ import Paper from "@src/components/Paper"
 import { LIST_TOKENS } from "@src/constants/tokens"
 import { useConnectWallet } from "@src/hooks/useConnectWallet"
 import { useIntentsReferral } from "@src/hooks/useIntentsReferral"
-import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { prefetchMostTradableTokens } from "@src/hooks/useMostTradableTokens"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { useWalletAgnosticSignMessage } from "@src/hooks/useWalletAgnosticSignMessage"
@@ -25,7 +24,7 @@ export default function Swap() {
   const userAddress = state.isVerified ? state.address : undefined
   const userChainType = state.chainType
   const tokenList = useTokenList1cs()
-  const { tokenIn, tokenOut } = useDeterminePair(true)
+  const { tokenIn, tokenOut } = useDeterminePair()
   const referral = useIntentsReferral()
 
   useEffect(() => {
@@ -77,7 +76,7 @@ const TOKENS_WITHOUT_REF_AND_BRRR = LIST_TOKENS.filter(
 )
 
 function useTokenList1cs() {
-  const tokenList = useTokenList(TOKENS_WITHOUT_REF_AND_BRRR, true)
+  const tokenList = useTokenList(TOKENS_WITHOUT_REF_AND_BRRR)
 
   const { data: oneClickTokens, isLoading: is1csTokensLoading } = useQuery({
     queryKey: ["1cs-tokens"],
@@ -86,10 +85,8 @@ function useTokenList1cs() {
     gcTime: 5 * 60 * 1000, // 5 minutes
   })
 
-  const is1cs = useIs1CsEnabled()
-
   return useMemo(() => {
-    if (!is1cs || !oneClickTokens || is1csTokensLoading) {
+    if (!oneClickTokens || is1csTokensLoading) {
       return tokenList
     }
 
@@ -102,5 +99,5 @@ function useTokenList1cs() {
         ? oneClickAssetIds.has(token.defuseAssetId)
         : oneClickAssetIds.has(token.groupedTokens[0]?.defuseAssetId)
     })
-  }, [is1cs, tokenList, oneClickTokens, is1csTokensLoading])
+  }, [tokenList, oneClickTokens, is1csTokensLoading])
 }

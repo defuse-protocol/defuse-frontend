@@ -5,15 +5,17 @@ import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import { retry } from "@lifeomic/attempt"
 import { base64 } from "@scure/base"
-import { solverRelayPublishIntent } from "@src/actions/solverRelayProxy"
-import { getQuote as get1csQuoteApi } from "@src/components/DefuseSDK/features/machines/1cs"
+import {
+  getQuote as get1csQuoteApi,
+  submitIntent,
+} from "@src/components/DefuseSDK/features/machines/1cs"
 import type { ParentEvents as Background1csQuoterParentEvents } from "@src/components/DefuseSDK/features/machines/background1csQuoterMachine"
+import type { IntentDescription } from "@src/components/DefuseSDK/types/intent"
 import { logger } from "@src/utils/logger"
 import type { providers } from "near-api-js"
 import { assign, fromPromise, log, setup } from "xstate"
 import { bridgeSDK } from "../../constants/bridgeSdk"
 import { createTransferMessage } from "../../core/messages"
-import { convertPublishIntentToLegacyFormat } from "../../sdk/solverRelay/utils/parseFailedPublishError"
 import type { BaseTokenInfo } from "../../types/base"
 import type { IntentsUserId } from "../../types/intentsUserId"
 import { assert } from "../../utils/assert"
@@ -26,7 +28,6 @@ import {
   type ErrorCodes as PublicKeyVerifierErrorCodes,
   publicKeyVerifierMachine,
 } from "./publicKeyVerifierMachine"
-import type { IntentDescription } from "./swapIntentMachine"
 
 type Context = {
   input: Input
@@ -258,14 +259,23 @@ export const swapIntent1csMachine = setup({
           signatureData: walletMessage.WalletSignatureResult
           userInfo: { userAddress: string; userChainType: AuthMethod }
         }
-      }) =>
-        solverRelayPublishIntent({
-          multiPayload: prepareBroadcastRequest.prepareSwapSignedData(
-            input.signatureData,
-            input.userInfo
-          ),
-          quoteHashes: [],
-        }).then(convertPublishIntentToLegacyFormat)
+      }) => {
+        const signedIntent = prepareBroadcastRequest.prepareSwapSignedData(
+          input.signatureData,
+          input.userInfo
+        )
+        const result = await submitIntent({ signedIntent })
+        if ("err" in result) {
+          return {
+            tag: "err" as const,
+            value: {
+              reason: "RELAY_PUBLISH_UNKNOWN_ERROR" as const,
+              serverReason: result.err,
+            },
+          }
+        }
+        return { tag: "ok" as const, value: result.ok.intentHash }
+      }
     ),
   },
   guards: {
@@ -758,7 +768,7 @@ export const swapIntent1csMachine = setup({
                 assert(event.output.tag === "err")
                 return {
                   reason: "ERR_CANNOT_PUBLISH_INTENT",
-                  server_reason: event.output.value.reason,
+                  server_reason: event.output.value.serverReason,
                 }
               },
             },

@@ -2,7 +2,6 @@ import type { walletMessage } from "@defuse-protocol/internal-utils"
 import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import type { TokenInfo } from "@src/components/DefuseSDK/types/base"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
-import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import { useSlippageStore } from "@src/stores/useSlippageStore"
 import { getAppFeeRecipients } from "@src/utils/getAppFeeRecipient"
@@ -18,7 +17,6 @@ import {
   fromPromise,
 } from "xstate"
 import { swapIntent1csMachine } from "../../machines/swapIntent1csMachine"
-import { swapIntentMachine } from "../../machines/swapIntentMachine"
 import { swapUIMachine } from "../../machines/swapUIMachine"
 import { useSwapTokenChangeNotifier } from "../hooks/useTokenChangeNotifier"
 import type { SwapFormValues } from "./SwapForm"
@@ -76,20 +74,16 @@ export function SwapUIMachineProvider({
   const appFeeRecipients = getAppFeeRecipients(whitelabelTemplate)
   const tokenIn = initialTokenIn || tokenList[0]
   const tokenOut = initialTokenOut || tokenList[1]
-  const is1cs = useIs1CsEnabled()
   assert(tokenIn && tokenOut, "TokenIn and TokenOut must be defined")
 
   return (
     <SwapUIMachineContext.Provider
-      // re-initialize the provider when the is1cs prop changes
-      key={is1cs ? "1cs" : "not1cs"}
       options={{
         input: {
           tokenIn,
           tokenOut,
           tokenList,
           referral,
-          is1cs,
           appFeeRecipients,
         },
       }}
@@ -120,11 +114,6 @@ export function SwapUIMachineProvider({
           },
         },
         actors: {
-          swapActor: swapIntentMachine.provide({
-            actors: {
-              signMessage: fromPromise(({ input }) => signMessage(input)),
-            },
-          }),
           swap1csActor: swapIntent1csMachine.provide({
             actors: {
               signMessage: fromPromise(({ input }) => signMessage(input)),
