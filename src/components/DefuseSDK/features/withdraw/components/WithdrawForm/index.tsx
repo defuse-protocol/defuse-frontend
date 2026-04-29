@@ -312,7 +312,7 @@ export const WithdrawForm = ({
   const feeUsd = withdrawalFee?.amount
     ? getTokenUsdPrice(
         formatTokenValue(withdrawalFee.amount, withdrawalFee.decimals),
-        tokenOut,
+        token,
         tokensUsdPriceData
       )
     : null
