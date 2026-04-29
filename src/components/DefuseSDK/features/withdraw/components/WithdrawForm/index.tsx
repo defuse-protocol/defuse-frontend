@@ -133,7 +133,6 @@ export const WithdrawForm = ({
     token,
     tokenOut,
     tokenOutDeployment,
-    parsedAmountIn,
     amountIn,
     recipient,
     blockchain,
@@ -201,9 +200,8 @@ export const WithdrawForm = ({
       : (minWithdrawalHyperliquidAmount ?? minWithdrawalPOABridgeAmount)
 
   const minWithdrawalAmountWithFee = useMinWithdrawalAmountWithFeeEstimation(
-    parsedAmountIn,
     minWithdrawalAmount,
-    state.context.quoteResult
+    withdrawalFee
   )
 
   const tokenInBalance = useSelector(

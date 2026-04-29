@@ -1,34 +1,23 @@
 import type { TokenValue } from "@src/components/DefuseSDK/types/base"
+import { adjustDecimals } from "@src/components/DefuseSDK/utils/tokenUtils"
 import { useMemo } from "react"
-import type { Context } from "../../../../machines/withdrawUIMachine"
-
-type QuoteResult = Context["quoteResult"]
 
 export function useMinWithdrawalAmountWithFeeEstimation(
-  _parsedAmountIn: TokenValue | null,
   minWithdrawalAmount: TokenValue | null,
-  quoteResult: QuoteResult
+  fee: TokenValue
 ): TokenValue | null {
   return useMemo(() => {
     if (!minWithdrawalAmount) return null
-    if (quoteResult?.tag !== "ok") return minWithdrawalAmount
+    if (fee.amount === 0n) return minWithdrawalAmount
 
-    // Build a minimal state-like object to reuse the selector
-    const fee = (() => {
-      try {
-        const amountIn = BigInt(quoteResult.value.quote.amountIn)
-        const amountOut = BigInt(quoteResult.value.quote.amountOut)
-        return amountIn > amountOut ? amountIn - amountOut : 0n
-      } catch {
-        return 0n
-      }
-    })()
-
-    if (fee === 0n) return minWithdrawalAmount
-
+    const normalizedMin = adjustDecimals(
+      minWithdrawalAmount.amount,
+      minWithdrawalAmount.decimals,
+      fee.decimals
+    )
     return {
-      amount: minWithdrawalAmount.amount + fee,
-      decimals: minWithdrawalAmount.decimals,
+      amount: normalizedMin + fee.amount,
+      decimals: fee.decimals,
     }
-  }, [minWithdrawalAmount, quoteResult])
+  }, [minWithdrawalAmount, fee])
 }
