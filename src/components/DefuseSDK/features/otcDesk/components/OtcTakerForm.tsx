@@ -373,8 +373,9 @@ export function OtcTakerForm({
           className="mt-5"
           variant={confirmTradeMutation.isPending ? "secondary" : "primary"}
           disabled={
-            !confirmTradeMutation.isPending &&
-            (preparation.data == null || !preparation.data.isOk())
+            confirmTradeMutation.isPending ||
+            preparation.data == null ||
+            !preparation.data.isOk()
           }
           onClick={() => {
             if (
