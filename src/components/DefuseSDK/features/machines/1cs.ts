@@ -30,8 +30,11 @@ import { splitAppFeeBps } from "@src/utils/splitAppFee"
 import { unstable_cache } from "next/cache"
 import z from "zod"
 
+const _apiKey = z.string().parse(ONE_CLICK_API_KEY)
 OpenAPI.BASE = z.string().parse(ONE_CLICK_URL)
-OpenAPI.TOKEN = z.string().parse(ONE_CLICK_API_KEY)
+OpenAPI.TOKEN = _apiKey
+// OneClickService requires the x-api-key header for authentication
+OpenAPI.HEADERS = { "x-api-key": _apiKey }
 
 /**
  * Lightweight quote for internal use (liquidity checks, OTC desk, etc.).
@@ -43,7 +46,6 @@ export async function getInternalQuote(params: {
   amount: string
   quoteWaitingTimeMs?: number
 }) {
-  OpenAPI.HEADERS = { "x-api-key": z.string().parse(ONE_CLICK_API_KEY) }
   return OneClickService.getQuote({
     dry: true,
     swapType: QuoteRequest.swapType.EXACT_INPUT,
@@ -346,7 +348,6 @@ export async function generateIntent(
   }
 
   try {
-    OpenAPI.HEADERS = { "x-api-key": z.string().parse(ONE_CLICK_API_KEY) }
     return {
       ok: await OneClickService.generateIntent({
         type: GenerateSwapTransferIntentRequest.type.SWAP_TRANSFER,
@@ -366,7 +367,6 @@ export async function submitIntent(args: {
   signedIntent: MultiPayload
 }): Promise<{ ok: SubmitIntentResponse } | { err: string }> {
   try {
-    OpenAPI.HEADERS = { "x-api-key": z.string().parse(ONE_CLICK_API_KEY) }
     return {
       ok: await OneClickService.submitIntent({
         type: SubmitSwapTransferIntentRequest.type.SWAP_TRANSFER,

@@ -1,4 +1,3 @@
-import type { WithdrawalParams } from "@defuse-protocol/intents-sdk"
 import type { solverRelay } from "@defuse-protocol/internal-utils"
 import { solverRelayWaitForSettlement } from "@src/actions/solverRelayProxy"
 import { logger } from "@src/utils/logger"
@@ -11,11 +10,11 @@ import {
   sendTo,
   setup,
 } from "xstate"
-import z from "zod"
-import { bridgeSDK } from "../../constants/bridgeSdk"
 import type { TokenInfo } from "../../types/base"
 import type { IntentDescription } from "../../types/intent"
 import { assert } from "../../utils/assert"
+import { getTxStatus } from "./1cs"
+import { statusesToTrack } from "./oneClickStatusMachine"
 
 type ChildEvent = {
   type: "INTENT_SETTLED"
@@ -27,12 +26,6 @@ type ChildEvent = {
   }
 }
 type ParentActor = ActorRef<Snapshot<unknown>, ChildEvent>
-
-const getWaitForWithdrawalCompletionSchema = z.object({
-  result: z.object({
-    status: z.literal("PENDING"),
-  }),
-})
 
 export const intentStatusMachine = setup({
   types: {
@@ -64,15 +57,6 @@ export const intentStatusMachine = setup({
         settlementResult: solverRelay.WaitForIntentSettlementReturnType
       ) => settlementResult.txHash,
     }),
-    setBridgeTransactionResult: assign({
-      bridgeTransactionResult: (
-        _,
-        v: null | { destinationTxHash: string | null }
-      ) => v,
-    }),
-    incrementRetryCount: assign({
-      bridgeRetryCount: ({ context }) => context.bridgeRetryCount + 1,
-    }),
   },
   actors: {
     checkIntentStatus: fromPromise(
@@ -85,28 +69,26 @@ export const intentStatusMachine = setup({
           intentHash: input.intentHash,
         })
     ),
-    waitForBridgeActor: fromPromise(
+    waitForOneClickWithdrawalActor: fromPromise(
       async ({
         input,
       }: {
         input: {
-          withdrawalParams: WithdrawalParams
-          sourceTxHash: string
+          depositAddress: string
         }
       }) => {
-        return bridgeSDK
-          .waitForWithdrawalCompletion({
-            withdrawalParams: input.withdrawalParams,
-            intentTx: {
-              hash: input.sourceTxHash,
-              accountId: "intents.near", // our relayer sends txs on behalf of "intents.near"
-            },
-          })
-          .then((result) => {
-            return {
-              destinationTxHash: result.hash,
-            }
-          })
+        for (;;) {
+          const result = await getTxStatus(input.depositAddress)
+          if ("err" in result) {
+            throw new Error(result.err)
+          }
+
+          if (!statusesToTrack.has(result.ok.status)) {
+            return result.ok.status
+          }
+
+          await new Promise((resolve) => setTimeout(resolve, 2000))
+        }
       }
     ),
   },
@@ -116,16 +98,13 @@ export const intentStatusMachine = setup({
       settlementResult: solverRelay.WaitForIntentSettlementReturnType
     ) => !!settlementResult.txHash,
     isWithdraw: ({ context }) => {
+      return context.intentDescription.type === "withdraw"
+    },
+    isOneClickWithdrawal: ({ context }) => {
       return (
         context.intentDescription.type === "withdraw" &&
-        "withdrawalParams" in context.intentDescription
+        "depositAddress" in context.intentDescription
       )
-    },
-    isPendingBridge: (_, event: { error: unknown }) => {
-      const parseResult = getWaitForWithdrawalCompletionSchema.safeParse(
-        event.error
-      )
-      return parseResult.success
     },
   },
 }).createMachine({
@@ -185,54 +164,35 @@ export const intentStatusMachine = setup({
           guard: not("isWithdraw"),
         },
         {
-          target: "waitingForBridge",
+          target: "waitingForOneClickWithdrawal",
+          guard: "isOneClickWithdrawal",
+        },
+        {
+          target: "error",
         },
       ],
     },
-    retryDelay: {
-      after: {
-        5000: "waitingForBridge", // Wait 5 seconds before retry
-      },
-    },
-    waitingForBridge: {
+    waitingForOneClickWithdrawal: {
       invoke: {
-        src: "waitForBridgeActor",
+        src: "waitForOneClickWithdrawalActor",
         input: ({ context }) => {
-          assert(context.txHash != null, "txHash is null")
           assert(context.intentDescription.type === "withdraw")
           assert(
-            "withdrawalParams" in context.intentDescription,
-            "withdrawalParams missing"
+            "depositAddress" in context.intentDescription,
+            "depositAddress missing"
           )
           return {
-            sourceTxHash: context.txHash,
-            withdrawalParams: context.intentDescription.withdrawalParams,
+            depositAddress: context.intentDescription.depositAddress,
           }
         },
-
-        onError: [
-          {
-            target: "retryDelay", // Retry with delay if bridge is still pending (long-running intent)
-            guard: {
-              type: "isPendingBridge",
-              params: ({ event }: { event: { error: unknown } }) => event,
-            },
-            actions: "incrementRetryCount",
-          },
-          {
-            target: "error",
-            actions: {
-              type: "logError",
-              params: ({ event }) => event,
-            },
-          },
-        ],
-
         onDone: {
           target: "success",
+        },
+        onError: {
+          target: "error",
           actions: {
-            type: "setBridgeTransactionResult",
-            params: ({ event }) => event.output,
+            type: "logError",
+            params: ({ event }) => event,
           },
         },
       },

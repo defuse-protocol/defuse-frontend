@@ -417,6 +417,9 @@ function renderButtonText({
 }) {
   if (isPending) return "Confirm in your wallet..."
   if (preparationError === "NO_QUOTES") return "No quotes available"
+  if (preparationError === "CANNOT_FILL_ORDER_DUE_TO_INSUFFICIENT_BALANCE") {
+    return "Insufficient balance"
+  }
   if (preparationError) return "Something went wrong"
   return "Confirm swap"
 }
