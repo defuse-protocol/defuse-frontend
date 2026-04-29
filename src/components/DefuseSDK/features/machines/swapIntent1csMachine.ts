@@ -768,7 +768,7 @@ export const swapIntent1csMachine = setup({
                 assert(event.output.tag === "err")
                 return {
                   reason: "ERR_CANNOT_PUBLISH_INTENT",
-                  server_reason: event.output.value.reason,
+                  server_reason: event.output.value.serverReason,
                 }
               },
             },
