@@ -263,6 +263,8 @@ export const withdraw1csMachine = setup({
   },
   guards: {
     isTrue: (_, params: boolean) => params,
+    isSigned: (_, params: walletMessage.WalletSignatureResult | null) =>
+      params != null,
     isOk: (_, params: { tag: "ok" } | { tag: "err" }) => params.tag === "ok",
     isWorseThanPrevious: ({ context }) => {
       return isWorseWithdrawQuoteThanPrevious({
@@ -539,13 +541,29 @@ export const withdraw1csMachine = setup({
           assert(context.walletMessage != null, "Wallet message is not set")
           return context.walletMessage
         },
-        onDone: {
-          target: "SubmittingIntent",
-          actions: {
-            type: "setSignature",
-            params: ({ event }) => event.output,
+        onDone: [
+          {
+            target: "SubmittingIntent",
+            guard: {
+              type: "isSigned",
+              params: ({ event }) => event.output,
+            },
+            actions: {
+              type: "setSignature",
+              params: ({ event }) => event.output,
+            },
           },
-        },
+          {
+            target: "Error",
+            actions: {
+              type: "setError",
+              params: {
+                reason: "ERR_USER_DIDNT_SIGN",
+                error: null,
+              },
+            },
+          },
+        ],
         onError: {
           target: "Error",
           actions: [
