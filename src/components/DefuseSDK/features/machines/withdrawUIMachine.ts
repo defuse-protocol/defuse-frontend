@@ -101,6 +101,8 @@ function matchesWithdrawQuoteContext(
     userChainType: context.userChainType,
     tokenList: context.tokenList,
     balances: balancesSelector(context.depositedBalanceRef?.getSnapshot()),
+    slippageBasisPoints: context.slippageBasisPoints,
+    swapType: context.amountMode,
   })
 }
 

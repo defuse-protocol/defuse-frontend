@@ -36,6 +36,8 @@ export function matchesWithdrawQuoteInput(params: {
   userChainType: AuthMethod | null
   tokenList: TokenInfo[]
   balances: BalanceMapping
+  slippageBasisPoints: number
+  swapType: QuoteRequest.swapType
 }): boolean {
   const {
     formContext,
@@ -44,6 +46,8 @@ export function matchesWithdrawQuoteInput(params: {
     userChainType,
     tokenList,
     balances,
+    slippageBasisPoints,
+    swapType,
   } = params
 
   if (
@@ -100,6 +104,8 @@ export function matchesWithdrawQuoteInput(params: {
     quoteInput.recipientType === recipientType &&
     quoteInput.tokenOut.defuseAssetId === formContext.tokenOut.defuseAssetId &&
     amountInQuoteDecimals.amount === quoteInput.amount.amount &&
-    destinationMemo === quoteDestinationMemo
+    destinationMemo === quoteDestinationMemo &&
+    quoteInput.slippageBasisPoints === slippageBasisPoints &&
+    quoteInput.swapType === swapType
   )
 }
