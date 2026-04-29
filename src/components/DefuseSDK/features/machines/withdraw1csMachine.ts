@@ -12,6 +12,12 @@ import {
   getWithdrawQuote as getWithdrawQuoteApi,
   submitIntent,
 } from "@src/components/DefuseSDK/features/machines/1cs"
+import {
+  isValidAndWorseWithdrawQuote,
+  isValidWithdrawQuote,
+  isWorseWithdrawQuoteThanPrevious,
+  parseQuoteAmount,
+} from "@src/components/DefuseSDK/features/machines/utils/1csQuoteValidation"
 import type { IntentDescription } from "@src/components/DefuseSDK/types/intent"
 import { logger } from "@src/utils/logger"
 import { assign, fromPromise, log, setup } from "xstate"
@@ -259,67 +265,36 @@ export const withdraw1csMachine = setup({
     isTrue: (_, params: boolean) => params,
     isOk: (_, params: { tag: "ok" } | { tag: "err" }) => params.tag === "ok",
     isWorseThanPrevious: ({ context }) => {
-      if (
-        context.quote1csResult == null ||
-        !("ok" in context.quote1csResult) ||
-        context.quote1csResult.ok.quote.amountOut == null
-      ) {
-        return false
-      }
-      return (
-        BigInt(context.quote1csResult.ok.quote.amountOut) <
-        context.input.previousOppositeAmount.amount
-      )
+      return isWorseWithdrawQuoteThanPrevious({
+        quote1csResult: context.quote1csResult,
+        swapType: context.input.swapType,
+        requestedAmountIn: context.input.amountIn.amount,
+        inputAmountDecimals: context.input.amountIn.decimals,
+        outputAmountDecimals: context.input.tokenOut.decimals,
+        minAmountOut: context.input.minAmountOut,
+        previousOppositeAmount: context.input.previousOppositeAmount.amount,
+      })
     },
     isQuoteSuccess: ({ context }) => {
-      if (context.quote1csResult == null || "err" in context.quote1csResult) {
-        return false
-      }
-
-      if (context.quote1csResult.ok.quote.depositAddress == null) {
-        return false
-      }
-
-      const quoteAmountIn = parseQuoteAmount(
-        context.quote1csResult.ok.quote.amountIn
-      )
-      const quoteAmountOut = parseQuoteAmount(
-        context.quote1csResult.ok.quote.amountOut
-      )
-
-      if (context.input.swapType === QuoteRequest.swapType.EXACT_INPUT) {
-        if (
-          quoteAmountIn === null ||
-          quoteAmountIn !== context.input.amountIn.amount
-        ) {
-          return false
-        }
-      } else if (
-        context.input.swapType === QuoteRequest.swapType.EXACT_OUTPUT
-      ) {
-        if (
-          quoteAmountOut === null ||
-          quoteAmountOut <
-            adjustDecimals(
-              context.input.amountIn.amount,
-              context.input.amountIn.decimals,
-              context.input.tokenOut.decimals
-            )
-        ) {
-          return false
-        }
-      }
-
-      if (context.input.minAmountOut != null) {
-        if (
-          quoteAmountOut === null ||
-          quoteAmountOut < context.input.minAmountOut
-        ) {
-          return false
-        }
-      }
-
-      return true
+      return isValidWithdrawQuote({
+        quote1csResult: context.quote1csResult,
+        swapType: context.input.swapType,
+        requestedAmountIn: context.input.amountIn.amount,
+        inputAmountDecimals: context.input.amountIn.decimals,
+        outputAmountDecimals: context.input.tokenOut.decimals,
+        minAmountOut: context.input.minAmountOut,
+      })
+    },
+    isQuoteSuccessAndWorseThanPrevious: ({ context }) => {
+      return isValidAndWorseWithdrawQuote({
+        quote1csResult: context.quote1csResult,
+        swapType: context.input.swapType,
+        requestedAmountIn: context.input.amountIn.amount,
+        inputAmountDecimals: context.input.amountIn.decimals,
+        outputAmountDecimals: context.input.tokenOut.decimals,
+        minAmountOut: context.input.minAmountOut,
+        previousOppositeAmount: context.input.previousOppositeAmount.amount,
+      })
     },
   },
 }).createMachine({
@@ -420,7 +395,7 @@ export const withdraw1csMachine = setup({
       always: [
         {
           target: "AwaitingUserConfirmation",
-          guard: { type: "isWorseThanPrevious" },
+          guard: { type: "isQuoteSuccessAndWorseThanPrevious" },
         },
         {
           target: "AwaitingUserConfirmation",
@@ -686,16 +661,4 @@ const getWithdrawQuoteApiWithRetry: typeof getWithdrawQuoteApi = (...args) => {
     () => withTimeout(() => getWithdrawQuoteApi(...args), { timeout: 15000 }),
     { maxAttempts: 3, delay: 500 }
   )
-}
-
-function parseQuoteAmount(amountIn: string): bigint | null {
-  try {
-    return BigInt(amountIn)
-  } catch (error) {
-    logger.error("Failed to parse quote amountIn as BigInt", {
-      amountIn,
-      error,
-    })
-    return null
-  }
 }
