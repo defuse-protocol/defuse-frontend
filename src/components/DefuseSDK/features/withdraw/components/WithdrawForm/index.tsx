@@ -22,6 +22,7 @@ import { Form } from "../../../../components/Form"
 import { FieldComboInput } from "../../../../components/Form/FieldComboInput"
 import { Island } from "../../../../components/Island"
 import { IslandHeader } from "../../../../components/IslandHeader"
+import { PriceChangeDialog } from "../../../../components/PriceChangeDialog"
 import { nearClient } from "../../../../constants/nearClient"
 import type {
   SupportedChainName,
@@ -133,6 +134,7 @@ export const WithdrawForm = ({
     token,
     tokenOut,
     tokenOutDeployment,
+    parsedAmountIn,
     amountIn,
     recipient,
     blockchain,
@@ -459,6 +461,31 @@ export const WithdrawForm = ({
       {renderIntentCreationResult(intentCreationResult)}
 
       {intentRefs.length !== 0 && <Intents intentRefs={intentRefs} />}
+
+      {state.context.priceChangeDialog && (
+        <PriceChangeDialog
+          open={true}
+          tokenIn={token}
+          tokenOut={tokenOut}
+          amountIn={{
+            amount: parsedAmountIn?.amount ?? 0n,
+            decimals: parsedAmountIn?.decimals ?? 0,
+          }}
+          amountOut={{
+            amount: totalAmountReceived?.amount ?? 0n,
+            decimals: totalAmountReceived?.decimals ?? 0,
+          }}
+          previousOppositeAmount={
+            state.context.priceChangeDialog.previousOppositeAmount
+          }
+          newOppositeAmount={
+            state.context.priceChangeDialog.pendingNewOppositeAmount
+          }
+          swapType={state.context.amountMode}
+          onConfirm={() => actorRef.send({ type: "PRICE_CHANGE_CONFIRMED" })}
+          onCancel={() => actorRef.send({ type: "PRICE_CHANGE_CANCELLED" })}
+        />
+      )}
     </Island>
   )
 }

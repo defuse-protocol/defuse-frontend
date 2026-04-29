@@ -196,6 +196,12 @@ export const withdrawUIMachine = setup({
       | {
           type: "SET_AMOUNT_MODE"
           params: { amountMode: AmountMode }
+        }
+      | {
+          type: "PRICE_CHANGE_CONFIRMED"
+        }
+      | {
+          type: "PRICE_CHANGE_CANCELLED"
         },
 
     emitted: {} as EmittedEvents,
@@ -461,6 +467,63 @@ export const withdrawUIMachine = setup({
         computeTotalBalanceDifferentDecimals(
           context.quoteInput.tokenIn,
           context.depositedBalanceRef.getSnapshot().context.balances
+        )
+      )
+    },
+    isExecutionQuoteWorse: (
+      _,
+      params: {
+        newOppositeAmount: { amount: bigint; decimals: number }
+        previousOppositeAmount: { amount: bigint; decimals: number }
+      }
+    ) => params.newOppositeAmount.amount < params.previousOppositeAmount.amount,
+    isExecutionQuoteAffordableAndWorse: (
+      { context },
+      params: {
+        newAmountIn: { amount: bigint; decimals: number }
+        newOppositeAmount: { amount: bigint; decimals: number }
+        previousOppositeAmount: { amount: bigint; decimals: number }
+      }
+    ) => {
+      const affordable =
+        context.amountMode !== QuoteRequest.swapType.EXACT_OUTPUT ||
+        context.quoteInput == null ||
+        !exceedsBalance(
+          params.newAmountIn.amount,
+          computeTotalBalanceDifferentDecimals(
+            context.quoteInput.tokenIn,
+            context.depositedBalanceRef.getSnapshot().context.balances
+          )
+        )
+
+      return (
+        affordable &&
+        params.newOppositeAmount.amount < params.previousOppositeAmount.amount
+      )
+    },
+    isExecutionQuoteAffordableAndNotWorse: (
+      { context },
+      params: {
+        newAmountIn: { amount: bigint; decimals: number }
+        newOppositeAmount: { amount: bigint; decimals: number }
+        previousOppositeAmount: { amount: bigint; decimals: number }
+      }
+    ) => {
+      const affordable =
+        context.amountMode !== QuoteRequest.swapType.EXACT_OUTPUT ||
+        context.quoteInput == null ||
+        !exceedsBalance(
+          params.newAmountIn.amount,
+          computeTotalBalanceDifferentDecimals(
+            context.quoteInput.tokenIn,
+            context.depositedBalanceRef.getSnapshot().context.balances
+          )
+        )
+
+      return (
+        affordable &&
+        !(
+          params.newOppositeAmount.amount < params.previousOppositeAmount.amount
         )
       )
     },
@@ -887,7 +950,22 @@ export const withdrawUIMachine = setup({
         EXECUTION_QUOTE_READY: [
           {
             guard: {
-              type: "isExecutionQuoteAffordable",
+              type: "isExecutionQuoteAffordableAndWorse",
+              params: ({ event }) => event.params,
+            },
+            actions: [
+              {
+                type: "setExecutionQuote",
+                params: ({ event }) => ({
+                  newOppositeAmount: event.params.newOppositeAmount,
+                  previousOppositeAmount: event.params.previousOppositeAmount,
+                }),
+              },
+            ],
+          },
+          {
+            guard: {
+              type: "isExecutionQuoteAffordableAndNotWorse",
               params: ({ event }) => event.params,
             },
             actions: [
@@ -897,13 +975,7 @@ export const withdrawUIMachine = setup({
                   newAmountOut: event.params.newOppositeAmount.amount,
                 }),
               },
-              {
-                type: "setExecutionQuote",
-                params: ({ event }) => ({
-                  newOppositeAmount: event.params.newOppositeAmount,
-                  previousOppositeAmount: event.params.previousOppositeAmount,
-                }),
-              },
+              "clearExecutionQuote",
               "sendToWithdrawRefConfirm",
             ],
           },
@@ -919,6 +991,28 @@ export const withdrawUIMachine = setup({
             ],
           },
         ],
+        PRICE_CHANGE_CONFIRMED: {
+          guard: {
+            type: "isTrue",
+            params: ({ context }) => context.priceChangeDialog != null,
+          },
+          actions: [
+            {
+              type: "updateQuoteAmountOut",
+              params: ({ context }) => ({
+                newAmountOut:
+                  context.priceChangeDialog?.pendingNewOppositeAmount.amount ??
+                  0n,
+              }),
+            },
+            "clearExecutionQuote",
+            "sendToWithdrawRefConfirm",
+          ],
+        },
+        PRICE_CHANGE_CANCELLED: {
+          target: "editing",
+          actions: ["clearExecutionQuote"],
+        },
       },
     },
   },
