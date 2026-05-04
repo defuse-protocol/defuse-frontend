@@ -4,18 +4,23 @@ import { ArrowDown } from "@phosphor-icons/react"
 import { useQuery } from "@tanstack/react-query"
 import { None } from "@thames/monads"
 import clsx from "clsx"
+import Link from "next/link"
+import { useMemo } from "react"
 import { AuthGate } from "../../../components/AuthGate"
 import { BlockMultiBalances } from "../../../components/Block/BlockMultiBalances"
 import { ButtonCustom } from "../../../components/Button/ButtonCustom"
+import { getBlockchainsOptions } from "../../../constants/blockchains"
 import { nearClient } from "../../../constants/nearClient"
 import type { SignerCredentials } from "../../../core/formatters"
 import { useTokensUsdPrices } from "../../../hooks/useTokensUsdPrices"
 import { getDepositedBalances } from "../../../services/defuseBalanceService"
 import type { TokenInfo } from "../../../types/base"
 import type { RenderHostAppLink } from "../../../types/hostAppLink"
+import { assetNetworkAdapter } from "../../../utils/adapters"
 import { assert } from "../../../utils/assert"
 import { formatTokenValue, formatUsdAmount } from "../../../utils/format"
 import getTokenUsdPrice from "../../../utils/getTokenUsdPrice"
+import { isBaseToken } from "../../../utils/token"
 import {
   computeTotalBalanceDifferentDecimals,
   computeTotalDeltaDifferentDecimals,
@@ -35,6 +40,7 @@ export type OtcTakerFormProps = {
   tradeTerms: TradeTerms
   tokenIn: TokenInfo
   tokenOut: TokenInfo
+  tokenList: TokenInfo[]
   signerCredentials: SignerCredentials | null
   signMessage: SignMessage
   protocolFee: number
@@ -49,6 +55,7 @@ export function OtcTakerForm({
   tradeTerms,
   tokenIn,
   tokenOut,
+  tokenList,
   protocolFee,
   signerCredentials,
   signMessage,
@@ -112,6 +119,7 @@ export function OtcTakerForm({
     takerTokenDiff: tradeTerms.takerTokenDiff,
     protocolFee,
     takerId: signerId,
+    tokenList,
   })
 
   const confirmTradeMutation = useOtcTakerConfirmTrade({
@@ -177,6 +185,35 @@ export function OtcTakerForm({
 
   const balanceAmountIn = balances?.tokenIn?.amount ?? 0n
   const balanceAmountOut = balances?.tokenOut?.amount ?? 0n
+
+  const preparationError = preparation.data?.isErr()
+    ? preparation.data.unwrapErr().reason
+    : undefined
+
+  const tokenInLabel = useMemo(() => {
+    if (!isBaseToken(tokenIn)) return tokenIn.symbol
+    const label =
+      getBlockchainsOptions()[assetNetworkAdapter[tokenIn.originChainName]]
+        ?.label
+    return label ? `${tokenIn.symbol} on ${label}` : tokenIn.symbol
+  }, [tokenIn])
+
+  const hasInsufficientBalance =
+    preparationError === "CANNOT_FILL_ORDER_DUE_TO_INSUFFICIENT_BALANCE" &&
+    balances != null
+
+  const shortfallAmount =
+    hasInsufficientBalance && totalAmountIn.amount > balanceAmountIn
+      ? totalAmountIn.amount - balanceAmountIn
+      : 0n
+
+  const depositLink = `/deposit?from=${encodeURIComponent(tokenIn.symbol)}`
+
+  const swapLink = `/?to=${encodeURIComponent(
+    isBaseToken(tokenIn)
+      ? `${tokenIn.symbol}:${tokenIn.originChainName}`
+      : tokenIn.symbol
+  )}`
 
   return (
     <div className="flex flex-col">
@@ -300,6 +337,31 @@ export function OtcTakerForm({
         />
       </div>
 
+      {hasInsufficientBalance && (
+        <p className="mt-4 text-sm text-gray-11">
+          {shortfallAmount > 0n ? (
+            <>
+              You need at least{" "}
+              {formatTokenValue(shortfallAmount, totalAmountIn.decimals)}{" "}
+              additional {tokenInLabel} in your account to execute this trade.
+            </>
+          ) : (
+            <>
+              You don&apos;t have enough {tokenInLabel} to execute this trade.
+            </>
+          )}{" "}
+          Consider{" "}
+          <Link href={depositLink} className="font-bold underline">
+            depositing
+          </Link>{" "}
+          {tokenInLabel},{" "}
+          <Link href={swapLink} className="font-bold underline">
+            swapping
+          </Link>{" "}
+          for {tokenInLabel}, or coordinating with your counterparty.
+        </p>
+      )}
+
       <AuthGate
         renderHostAppLink={renderHostAppLink}
         shouldRender={isLoggedIn}
@@ -310,6 +372,11 @@ export function OtcTakerForm({
           size="lg"
           className="mt-5"
           variant={confirmTradeMutation.isPending ? "secondary" : "primary"}
+          disabled={
+            confirmTradeMutation.isPending ||
+            preparation.data == null ||
+            !preparation.data.isOk()
+          }
           onClick={() => {
             if (
               !confirmTradeMutation.isPending &&
@@ -325,9 +392,10 @@ export function OtcTakerForm({
           }}
           isLoading={confirmTradeMutation.isPending}
         >
-          {confirmTradeMutation.isPending
-            ? "Confirm in your wallet..."
-            : "Confirm swap"}
+          {renderButtonText({
+            isPending: confirmTradeMutation.isPending,
+            preparationError,
+          })}
         </ButtonCustom>
       </AuthGate>
 
@@ -338,4 +406,20 @@ export function OtcTakerForm({
       )}
     </div>
   )
+}
+
+function renderButtonText({
+  isPending,
+  preparationError,
+}: {
+  isPending: boolean
+  preparationError: string | undefined
+}) {
+  if (isPending) return "Confirm in your wallet..."
+  if (preparationError === "NO_QUOTES") return "No quotes available"
+  if (preparationError === "CANNOT_FILL_ORDER_DUE_TO_INSUFFICIENT_BALANCE") {
+    return "Insufficient balance"
+  }
+  if (preparationError) return "Something went wrong"
+  return "Confirm swap"
 }

@@ -1,13 +1,19 @@
 "use server"
 
+import type { MultiPayload } from "@defuse-protocol/contract-types"
 import { type AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
 import {
+  GenerateSwapTransferIntentRequest,
+  IntentStandardEnum,
   OneClickService,
   OpenAPI,
   QuoteRequest,
   type QuoteResponse,
+  type SubmitIntentResponse,
+  SubmitSwapTransferIntentRequest,
 } from "@defuse-protocol/one-click-sdk-typescript"
 import { computeAppFeeBps } from "@src/components/DefuseSDK/utils/appFee"
+import { computeDirectionFeeBps } from "@src/components/DefuseSDK/utils/directionFee"
 import { getTokenByAssetId } from "@src/components/DefuseSDK/utils/tokenUtils"
 import { whitelabelTemplateFlag } from "@src/config/featureFlags"
 import { LIST_TOKENS } from "@src/constants/tokens"
@@ -16,6 +22,7 @@ import {
   APP_FEE_BPS,
   ONE_CLICK_API_KEY,
   ONE_CLICK_URL,
+  WITHDRAW_DIRECTION_FEE_BPS,
 } from "@src/utils/environment"
 import { getAppFeeRecipients } from "@src/utils/getAppFeeRecipient"
 import { logger } from "@src/utils/logger"
@@ -23,8 +30,38 @@ import { splitAppFeeBps } from "@src/utils/splitAppFee"
 import { unstable_cache } from "next/cache"
 import z from "zod"
 
+const _apiKey = z.string().parse(ONE_CLICK_API_KEY)
 OpenAPI.BASE = z.string().parse(ONE_CLICK_URL)
-OpenAPI.TOKEN = z.string().parse(ONE_CLICK_API_KEY)
+OpenAPI.TOKEN = _apiKey
+// OneClickService requires the x-api-key header for authentication
+OpenAPI.HEADERS = { "x-api-key": _apiKey }
+
+/**
+ * Lightweight quote for internal use (liquidity checks, OTC desk, etc.).
+ * No user context needed — uses a placeholder recipient.
+ */
+export async function getInternalQuote(params: {
+  originAsset: string
+  destinationAsset: string
+  amount: string
+  quoteWaitingTimeMs?: number
+}) {
+  return OneClickService.getQuote({
+    dry: true,
+    swapType: QuoteRequest.swapType.EXACT_INPUT,
+    slippageTolerance: 100,
+    originAsset: params.originAsset,
+    destinationAsset: params.destinationAsset,
+    amount: params.amount,
+    depositType: QuoteRequest.depositType.INTENTS,
+    recipientType: QuoteRequest.recipientType.INTENTS,
+    refundTo: "internal-quote.near",
+    refundType: QuoteRequest.refundType.INTENTS,
+    recipient: "internal-quote.near",
+    deadline: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+    quoteWaitingTimeMs: params.quoteWaitingTimeMs ?? 0,
+  })
+}
 
 export async function getTokens() {
   return await getTokensCached()
@@ -202,15 +239,143 @@ export async function submitTxHash(args: SubmitTxHashArg) {
 
   try {
     return {
-      ok: await OneClickService.submitDepositTx({
-        ...body.data,
-        // @ts-expect-error not documented feature
-        type: "INTENTS",
-      }),
+      ok: await OneClickService.submitDepositTx(body.data),
     }
   } catch (error) {
     const err = unknownServerErrorToString(error)
     logger.error(`1cs: submitTxHash error: ${err}`)
+    return { err }
+  }
+}
+
+const recipientTypeSchema = z.nativeEnum(QuoteRequest.recipientType)
+
+const getWithdrawQuoteArgsSchema = getQuoteArgsSchema.extend({
+  recipient: z.string(),
+  recipientType: recipientTypeSchema,
+  destinationMemo: z.string().optional(),
+  virtualChainRecipient: z.string().optional(),
+  destinationChainName: z.string().optional(),
+})
+
+type GetWithdrawQuoteArgs = z.infer<typeof getWithdrawQuoteArgsSchema>
+
+export async function getWithdrawQuote(
+  args: GetWithdrawQuoteArgs
+): Promise<
+  | { ok: QuoteResponse & { appFee: [string, bigint][] } }
+  | { err: string; originalRequest?: QuoteRequest | undefined }
+> {
+  const parseResult = getWithdrawQuoteArgsSchema.safeParse(args)
+  if (!parseResult.success) {
+    return { err: `Invalid arguments: ${parseResult.error.message}` }
+  }
+
+  const {
+    userAddress,
+    authMethod,
+    recipient,
+    recipientType,
+    destinationMemo,
+    virtualChainRecipient,
+    destinationChainName,
+    ...quoteRequest
+  } = parseResult.data
+
+  let req: QuoteRequest | undefined = undefined
+  try {
+    const template = await whitelabelTemplateFlag()
+    const appFeeRecipient = getAppFeeRecipients(template)[0]?.recipient ?? ""
+    const directionFeeBps = computeDirectionFeeBps(
+      WITHDRAW_DIRECTION_FEE_BPS,
+      quoteRequest.originAsset,
+      destinationChainName
+    )
+
+    if (directionFeeBps > 0 && !appFeeRecipient) {
+      return { err: "App fee recipient is not configured" }
+    }
+
+    const intentsUserId = authIdentity.authHandleToIntentsUserId(
+      userAddress,
+      authMethod
+    )
+
+    req = {
+      ...quoteRequest,
+      depositType: QuoteRequest.depositType.INTENTS,
+      refundTo: intentsUserId,
+      refundType: QuoteRequest.refundType.INTENTS,
+      recipient,
+      recipientType,
+      quoteWaitingTimeMs: 0,
+      referral: referralMap[template],
+      ...(destinationMemo ? { destinationMemo } : {}),
+      ...(virtualChainRecipient ? { virtualChainRecipient } : {}),
+      ...(directionFeeBps > 0
+        ? { appFees: [{ recipient: appFeeRecipient, fee: directionFeeBps }] }
+        : {}),
+    }
+
+    return {
+      ok: {
+        ...(await OneClickService.getQuote(req)),
+        appFee:
+          directionFeeBps > 0
+            ? [[appFeeRecipient, BigInt(directionFeeBps)]]
+            : [],
+      },
+    }
+  } catch (error) {
+    const err = unknownServerErrorToString(error)
+    logger.error(`1cs: getWithdrawQuote error: ${err}`)
+    return { err, originalRequest: req }
+  }
+}
+
+const generateIntentArgsSchema = z.object({
+  depositAddress: z.string(),
+  signerId: z.string(),
+  standard: z.nativeEnum(IntentStandardEnum),
+})
+
+export async function generateIntent(
+  args: z.infer<typeof generateIntentArgsSchema>
+) {
+  const parseResult = generateIntentArgsSchema.safeParse(args)
+  if (!parseResult.success) {
+    return { err: `Invalid arguments: ${parseResult.error.message}` }
+  }
+
+  try {
+    return {
+      ok: await OneClickService.generateIntent({
+        type: GenerateSwapTransferIntentRequest.type.SWAP_TRANSFER,
+        standard: parseResult.data.standard,
+        depositAddress: parseResult.data.depositAddress,
+        signerId: parseResult.data.signerId,
+      }),
+    }
+  } catch (error) {
+    const err = unknownServerErrorToString(error)
+    logger.error(`1cs: generateIntent error: ${err}`)
+    return { err }
+  }
+}
+
+export async function submitIntent(args: {
+  signedIntent: MultiPayload
+}): Promise<{ ok: SubmitIntentResponse } | { err: string }> {
+  try {
+    return {
+      ok: await OneClickService.submitIntent({
+        type: SubmitSwapTransferIntentRequest.type.SWAP_TRANSFER,
+        signedData: args.signedIntent,
+      }),
+    }
+  } catch (error) {
+    const err = unknownServerErrorToString(error)
+    logger.error(`1cs: submitIntent error: ${err}`)
     return { err }
   }
 }

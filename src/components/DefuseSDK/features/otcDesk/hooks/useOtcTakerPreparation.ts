@@ -3,11 +3,11 @@ import { logger } from "@src/utils/logger"
 import { useQuery } from "@tanstack/react-query"
 import { Err, type Result } from "@thames/monads"
 import { getDepositedBalances } from "../../../services/defuseBalanceService"
-import type { AggregatedQuote } from "../../../services/quoteService"
 import type { TokenInfo } from "../../../types/base"
 import type { IntentsUserId } from "../../../types/intentsUserId"
 import { assert } from "../../../utils/assert"
 import { isBaseToken } from "../../../utils/token"
+import { flattenTokenList } from "../../../utils/token"
 import { getUnderlyingBaseTokenInfos } from "../../../utils/tokenUtils"
 import {
   type TokenValues,
@@ -16,12 +16,10 @@ import {
 import {
   type AggregatedQuoteErr,
   type QuoteExactInParams,
-  manyQuotes,
+  validateLiquidity,
 } from "../utils/quoteUtils"
 
 export type OTCTakerPreparationOk = {
-  quotes: AggregatedQuote[]
-  quoteParams: QuoteExactInParams[]
   tokenDelta: [string, bigint][]
 }
 
@@ -37,11 +35,13 @@ export function useOtcTakerPreparation({
   takerTokenDiff,
   protocolFee,
   takerId,
+  tokenList,
 }: {
   tokenIn: TokenInfo
   takerTokenDiff: Record<string, bigint>
   protocolFee: number
   takerId: IntentsUserId | null
+  tokenList: TokenInfo[]
 }) {
   return useQuery({
     enabled: takerId != null,
@@ -127,13 +127,17 @@ export function useOtcTakerPreparation({
         }
       }
 
-      const quotesResult = await manyQuotes(quoteParams, {
-        logBalanceSufficient: true,
-      })
+      const flatTokens = flattenTokenList(tokenList)
+      const resolveToken = (id: string) =>
+        flatTokens.find((t) => t.defuseAssetId === id)
+      const validationResult = await validateLiquidity(
+        quoteParams,
+        resolveToken
+      )
 
-      return quotesResult.map((quotes) => {
-        logger.trace("return", { quotes, quoteParams, tokenDelta })
-        return { quotes, quoteParams, tokenDelta }
+      return validationResult.map(() => {
+        logger.trace("return", { tokenDelta })
+        return { tokenDelta }
       })
     },
   })

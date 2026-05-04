@@ -1,14 +1,7 @@
-import type { solverRelay } from "@defuse-protocol/internal-utils"
-import { AggregatedQuoteError } from "../sdk/aggregatedQuote/errors/aggregatedQuoteError"
+import { getInternalQuote } from "../features/machines/1cs"
+import { calculateSplitAmounts } from "../sdk/aggregatedQuote/calculateSplitAmounts"
 import { AmountMismatchError } from "../sdk/aggregatedQuote/errors/amountMismatchError"
-import { getAggregatedQuoteExactIn } from "../sdk/aggregatedQuote/getAggregatedQuoteExactIn"
 import type { BaseTokenInfo, TokenValue } from "../types/base"
-
-export function isFailedQuote(
-  quote: solverRelay.Quote | solverRelay.FailedQuote
-): quote is solverRelay.FailedQuote {
-  return "type" in quote
-}
 
 type TokenSlice = BaseTokenInfo
 
@@ -18,7 +11,7 @@ interface BaseQuoteParams {
 
 export interface AggregatedQuoteParams extends BaseQuoteParams {
   tokensIn: TokenSlice[] // set of close tokens, e.g. [USDC on Solana, USDC on Ethereum, USDC on Near]
-  tokenOut: TokenSlice // set of close tokens, e.g. [USDC on Solana, USDC on Ethereum, USDC on Near]
+  tokenOut: TokenSlice
   amountIn: TokenValue // total amount in
   balances: Record<string, bigint> // how many tokens of each type are available
   appFeeBps: number
@@ -54,49 +47,18 @@ export type QuoteResult =
             overage: TokenValue | null
           }
     }
+
 export async function queryQuote(
   input: AggregatedQuoteParams
 ): Promise<QuoteResult> {
+  let amountsToQuote: Record<string, bigint>
   try {
-    const aggregateQuote = await getAggregatedQuoteExactIn({
-      aggregatedQuoteParams: {
-        tokensIn: input.tokensIn,
-        tokenOut: input.tokenOut,
-        amountIn: input.amountIn,
-        balances: input.balances,
-        waitMs: input.waitMs,
-        appFeeBps: input.appFeeBps,
-      },
-    })
-
-    return {
-      tag: "ok",
-      value: {
-        quoteHashes: aggregateQuote.quoteHashes,
-        expirationTime: aggregateQuote.expirationTime,
-        tokenDeltas: aggregateQuote.tokenDeltas,
-        appFee: aggregateQuote.appFee,
-      },
-    }
-  } catch (err: unknown) {
-    if (err instanceof AggregatedQuoteError) {
-      const quoteError = err.errors.find((e) => e.quote != null)
-      if (quoteError?.quote) {
-        return {
-          tag: "err",
-          value: {
-            reason: `ERR_${quoteError.quote.type}`,
-          },
-        }
-      }
-      return {
-        tag: "err",
-        value: {
-          reason: "ERR_NO_QUOTES",
-        },
-      }
-    }
-
+    amountsToQuote = calculateSplitAmounts(
+      input.tokensIn,
+      input.amountIn,
+      input.balances
+    )
+  } catch (err) {
     if (err instanceof AmountMismatchError) {
       return {
         tag: "err",
@@ -107,7 +69,50 @@ export async function queryQuote(
         },
       }
     }
-
     throw err
+  }
+
+  const entries = Object.entries(amountsToQuote)
+  const results = await Promise.allSettled(
+    entries.map(([tokenInAssetId, amount]) =>
+      getInternalQuote({
+        originAsset: tokenInAssetId,
+        destinationAsset: input.tokenOut.defuseAssetId,
+        amount: amount.toString(),
+        quoteWaitingTimeMs: input.waitMs,
+      }).then((response) => ({ tokenInAssetId, response }))
+    )
+  )
+
+  // Fail closed: if any split leg has no quote, the full swap cannot be executed
+  if (results.some((r) => r.status !== "fulfilled")) {
+    return { tag: "err", value: { reason: "ERR_NO_QUOTES" } }
+  }
+
+  const tokenDeltas: [string, bigint][] = []
+  let timeEstimate: number | undefined
+
+  for (const result of results) {
+    if (result.status !== "fulfilled") continue
+    const { tokenInAssetId, response } = result.value
+    tokenDeltas.push([tokenInAssetId, -BigInt(response.quote.amountIn)])
+    tokenDeltas.push([
+      input.tokenOut.defuseAssetId,
+      BigInt(response.quote.amountOut),
+    ])
+    if (timeEstimate == null) {
+      timeEstimate = response.quote.timeEstimate
+    }
+  }
+
+  return {
+    tag: "ok",
+    value: {
+      quoteHashes: [],
+      expirationTime: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+      tokenDeltas,
+      appFee: [],
+      timeEstimate,
+    },
   }
 }

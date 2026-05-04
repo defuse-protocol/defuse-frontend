@@ -13,6 +13,8 @@ type WithdrawIntentCardProps = {
   intentStatusActorRef: ActorRefFrom<typeof intentStatusMachine>
 }
 
+const INTENTS_EXPLORER_URL = "https://explorer.near-intents.org"
+
 export function WithdrawIntentCard({
   intentStatusActorRef,
 }: WithdrawIntentCardProps) {
@@ -20,7 +22,10 @@ export function WithdrawIntentCard({
   const { intentDescription, bridgeTransactionResult } = state.context
 
   assert(intentDescription.type === "withdraw", "Type must be withdraw")
-  const { amountWithdrawn, tokenOut, tokenOutDeployment } = intentDescription
+  const { tokenOut, tokenOutDeployment } = intentDescription
+  const amountOut = intentDescription.totalAmountOut
+  const { depositAddress } = intentDescription
+  const explorerUrl = `${INTENTS_EXPLORER_URL}/transactions/${depositAddress}`
 
   const sourceTxHash = state.context.txHash
   const sourceTxUrl =
@@ -31,12 +36,7 @@ export function WithdrawIntentCard({
   const destTxHash = bridgeTransactionResult?.destinationTxHash
   const destTxUrl =
     destTxHash != null
-      ? blockExplorerTxLinkFactory(
-          intentDescription.nearIntentsNetwork
-            ? "near"
-            : tokenOutDeployment.chainName,
-          destTxHash
-        )
+      ? blockExplorerTxLinkFactory(tokenOutDeployment.chainName, destTxHash)
       : undefined
 
   const retryCount = state.context.bridgeRetryCount
@@ -60,15 +60,15 @@ export function WithdrawIntentCard({
 
           <Flex gap="1" align="center">
             {retryCount > 0 &&
-              (state.matches("waitingForBridge") ||
-                state.matches("retryDelay")) && (
+              state.matches("waitingForOneClickWithdrawal") && (
                 <LongRunningStatusLabel retryCount={retryCount} />
               )}
 
             {(state.matches("pending") ||
               state.matches("checking") ||
-              state.matches("waitingForBridge") ||
-              state.matches("retryDelay")) && <Spinner size="1" />}
+              state.matches("waitingForOneClickWithdrawal")) && (
+              <Spinner size="1" />
+            )}
 
             <Text
               size="1"
@@ -143,6 +143,20 @@ export function WithdrawIntentCard({
                 />
               </Flex>
             )}
+
+            <Flex align="center" gap="1">
+              <Text size="1" color="gray">
+                Track on explorer:{" "}
+                <Link href={explorerUrl} target="_blank" color="blue">
+                  {truncateHash(depositAddress)}
+                </Link>
+              </Text>
+
+              <CopyButton
+                text={depositAddress}
+                ariaLabel="Copy Deposit address"
+              />
+            </Flex>
           </Flex>
 
           <Text
@@ -156,14 +170,10 @@ export function WithdrawIntentCard({
             }}
           >
             +
-            {formatTokenValue(
-              amountWithdrawn.amount,
-              amountWithdrawn.decimals,
-              {
-                min: 0.0001,
-                fractionDigits: 4,
-              }
-            )}{" "}
+            {formatTokenValue(amountOut.amount, amountOut.decimals, {
+              min: 0.0001,
+              fractionDigits: 4,
+            })}{" "}
             {tokenOut.symbol}
           </Text>
         </Flex>
@@ -180,8 +190,7 @@ export function renderStatusLabel(
     case "checking":
     case "settled":
       return "Pending"
-    case "waitingForBridge":
-    case "retryDelay":
+    case "waitingForOneClickWithdrawal":
       return "Transferring"
     case "error":
       return "Can't get status"
@@ -203,13 +212,13 @@ function LongRunningStatusLabel({ retryCount }: { retryCount: number }) {
     <Tooltip>
       <TooltipTrigger asChild>
         <Text size="1" color="gray">
-          Long-running bridge ({retryCount})
+          Long-running transfer ({retryCount})
         </Text>
       </TooltipTrigger>
       <TooltipContent side="top" className="z-50 max-w-xs" sideOffset={5}>
-        This withdrawal is taking longer than usual. We’ve checked the progress{" "}
-        {retryCount} {retryCount === 1 ? "time" : "times"} so far and will keep
-        checking until it completes.
+        This withdrawal is taking longer than usual. We&apos;ve checked the
+        progress {retryCount} {retryCount === 1 ? "time" : "times"} so far and
+        will keep checking until it completes.
       </TooltipContent>
     </Tooltip>
   )

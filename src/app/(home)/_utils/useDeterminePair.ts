@@ -5,7 +5,6 @@ import type {
 import { isBaseToken, isUnifiedToken } from "@src/components/DefuseSDK/utils"
 import type { WhitelabelTemplateValue } from "@src/config/featureFlags"
 import { LIST_TOKENS, LIST_TOKENS_FLATTEN } from "@src/constants/tokens"
-import { useIs1CsEnabled } from "@src/hooks/useIs1CsEnabled"
 import { useTokenList } from "@src/hooks/useTokenList"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import {
@@ -46,32 +45,20 @@ const pairs: Record<WhitelabelTemplateValue, [string, string]> = {
   ],
 }
 
-export function useDeterminePair(supports1cs = false) {
+export function useDeterminePair() {
   const { whitelabelTemplate } = useContext(FeatureFlagsContext)
   const searchParams = useSearchParams()
-  const processedTokenList = useTokenList(LIST_TOKENS, supports1cs)
-  const is1cs = useIs1CsEnabled() && supports1cs
+  const processedTokenList = useTokenList(LIST_TOKENS)
 
   const fromParam = searchParams.get("from")
   const toParam = searchParams.get("to")
 
   const { tokenIn, tokenOut } = useMemo(() => {
-    // First, try to get pair from URL params
-    const urlPair = getPairFromUrlParams(
-      fromParam,
-      toParam,
-      processedTokenList,
-      is1cs
-    )
+    const urlPair = getPairFromUrlParams(fromParam, toParam, processedTokenList)
     if (urlPair) return urlPair
 
-    // Fallback to whitelabelTemplate pair
-    return getPairFromWhitelabelTemplate(
-      whitelabelTemplate,
-      processedTokenList,
-      is1cs
-    )
-  }, [fromParam, toParam, whitelabelTemplate, processedTokenList, is1cs])
+    return getPairFromWhitelabelTemplate(whitelabelTemplate)
+  }, [fromParam, toParam, whitelabelTemplate, processedTokenList])
 
   return { tokenIn, tokenOut }
 }
@@ -79,11 +66,10 @@ export function useDeterminePair(supports1cs = false) {
 function getPairFromUrlParams(
   fromParam: string | null,
   toParam: string | null,
-  tokenList: TokenInfo[],
-  is1cs: boolean
+  tokenList: TokenInfo[]
 ) {
-  const fromToken = findTokenBySymbol(fromParam, tokenList, is1cs)
-  const toToken = findTokenBySymbol(toParam, tokenList, is1cs)
+  const fromToken = findTokenBySymbol(fromParam, tokenList)
+  const toToken = findTokenBySymbol(toParam, tokenList)
 
   if (fromToken || toToken) {
     return { tokenIn: fromToken, tokenOut: toToken }
@@ -92,14 +78,12 @@ function getPairFromUrlParams(
 }
 
 function getPairFromWhitelabelTemplate(
-  whitelabelTemplate: WhitelabelTemplateValue,
-  tokenList: TokenInfo[],
-  is1cs: boolean
+  whitelabelTemplate: WhitelabelTemplateValue
 ) {
   const pair = pairs[whitelabelTemplate]
   if (!pair) return { tokenIn: null, tokenOut: null }
 
-  const tokenIn = (is1cs ? LIST_TOKENS : tokenList).find((token) => {
+  const tokenIn = LIST_TOKENS.find((token) => {
     return isBaseToken(token)
       ? token.defuseAssetId === pair[0]
       : token.groupedTokens.some(
@@ -107,7 +91,7 @@ function getPairFromWhitelabelTemplate(
         )
   })
 
-  const tokenOut = (is1cs ? LIST_TOKENS : tokenList).find((token) => {
+  const tokenOut = LIST_TOKENS.find((token) => {
     return isBaseToken(token)
       ? token.defuseAssetId === pair[1]
       : token.groupedTokens.some(
@@ -120,8 +104,7 @@ function getPairFromWhitelabelTemplate(
 
 function findTokenBySymbol(
   input: string | null,
-  tokens: TokenInfo[],
-  is1cs: boolean
+  tokens: TokenInfo[]
 ): TokenInfo | null {
   if (!input) {
     return null
@@ -135,11 +118,7 @@ function findTokenBySymbol(
           token.groupedTokens?.some((t: BaseTokenInfo) => t.symbol === input))
     ) ?? null
 
-  if (!is1cs || token) {
-    return token
-  }
-
-  return tokenFromSymbolWithChainName(input)
+  return token ?? tokenFromSymbolWithChainName(input)
 }
 
 export function updateURLParamsDeposit({
