@@ -1,11 +1,15 @@
 import { Cross2Icon, ExclamationTriangleIcon } from "@radix-ui/react-icons"
 import { Button, Callout, Dialog, Separator, Spinner } from "@radix-ui/themes"
 import Image from "next/image"
+import { useContext } from "react"
 
 import { useWebAuthnUIStore } from "@src/features/webauthn/hooks/useWebAuthnUiStore"
+import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 
 export function WebAuthnDialog() {
   const webauthnUI = useWebAuthnUIStore()
+  const { whitelabelTemplate } = useContext(FeatureFlagsContext)
+  const hideCreatePasskey = whitelabelTemplate === "near-intents"
 
   // This is a hack to prevent the dialog background from being flickering
   if (!webauthnUI.isOpen) {
@@ -67,61 +71,67 @@ export function WebAuthnDialog() {
             )}
           </div>
 
-          <div className="flex gap-6 items-center justify-center -mx-6">
-            <Separator
-              orientation="horizontal"
-              className="flex-1 border-border"
-            />
-            <div className="text-gray-11 font-bold text-xs">OR</div>
-            <Separator
-              orientation="horizontal"
-              className="flex-1 border-border"
-            />
-          </div>
+          {hideCreatePasskey ? null : (
+            <>
+              <div className="flex gap-6 items-center justify-center -mx-6">
+                <Separator
+                  orientation="horizontal"
+                  className="flex-1 border-border"
+                />
+                <div className="text-gray-11 font-bold text-xs">OR</div>
+                <Separator
+                  orientation="horizontal"
+                  className="flex-1 border-border"
+                />
+              </div>
 
-          <form
-            onSubmit={(event) => {
-              event.preventDefault()
-              const formData = new FormData(event.currentTarget)
-              const passkeyName = formData.get("passkeyName") ?? ""
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault()
+                  const formData = new FormData(event.currentTarget)
+                  const passkeyName = formData.get("passkeyName") ?? ""
 
-              if (typeof passkeyName !== "string") {
-                throw new Error("Invalid passkey name")
-              }
+                  if (typeof passkeyName !== "string") {
+                    throw new Error("Invalid passkey name")
+                  }
 
-              void webauthnUI.createNew(passkeyName)
-            }}
-            className="flex flex-col gap-4"
-          >
-            <div className="text-2xl font-black text-center">
-              Create new passkey
-            </div>
+                  void webauthnUI.createNew(passkeyName)
+                }}
+                className="flex flex-col gap-4"
+              >
+                <div className="text-2xl font-black text-center">
+                  Create new passkey
+                </div>
 
-            <input
-              name="passkeyName"
-              placeholder="Passkey label (only visible to you)"
-              required
-              className="border-0 rounded-lg py-2 px-4 bg-gray-3 !ring-accent-9 placeholder:font-medium placeholder:text-gray-11 font-medium text-accent-12 text-sm h-12 ease-in-out hover:bg-gray-4 focus:bg-gray-4 focus:ring-2 focus:ring-inset"
-            />
+                <input
+                  name="passkeyName"
+                  placeholder="Passkey label (only visible to you)"
+                  required
+                  className="border-0 rounded-lg py-2 px-4 bg-gray-3 !ring-accent-9 placeholder:font-medium placeholder:text-gray-11 font-medium text-accent-12 text-sm h-12 ease-in-out hover:bg-gray-4 focus:bg-gray-4 focus:ring-2 focus:ring-inset"
+                />
 
-            <Button
-              type="submit"
-              size="4"
-              variant="outline"
-              className="font-bold"
-            >
-              <Spinner loading={webauthnUI.isCreating} />
-              {webauthnUI.isCreating ? "Creating..." : "Create new passkey"}
-            </Button>
+                <Button
+                  type="submit"
+                  size="4"
+                  variant="outline"
+                  className="font-bold"
+                >
+                  <Spinner loading={webauthnUI.isCreating} />
+                  {webauthnUI.isCreating ? "Creating..." : "Create new passkey"}
+                </Button>
 
-            <Callout.Root className="bg-warning px-3 py-2 text-warning-foreground mt-2">
-              <Callout.Text className="text-xs font-medium">
-                <span className="font-bold">Store your passkeys securely.</span>{" "}
-                Losing your passkey means losing access to your account and any
-                associated funds permanently.
-              </Callout.Text>
-            </Callout.Root>
-          </form>
+                <Callout.Root className="bg-warning px-3 py-2 text-warning-foreground mt-2">
+                  <Callout.Text className="text-xs font-medium">
+                    <span className="font-bold">
+                      Store your passkeys securely.
+                    </span>{" "}
+                    Losing your passkey means losing access to your account and
+                    any associated funds permanently.
+                  </Callout.Text>
+                </Callout.Root>
+              </form>
+            </>
+          )}
         </div>
       </Dialog.Content>
     </Dialog.Root>
