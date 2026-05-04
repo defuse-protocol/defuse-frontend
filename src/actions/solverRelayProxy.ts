@@ -4,7 +4,7 @@ import type { MultiPayload } from "@defuse-protocol/contract-types"
 import { solverRelay } from "@defuse-protocol/internal-utils"
 import { SolverRelayProxyError } from "@src/components/DefuseSDK/errors/solverRelayProxy"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
-import { INTENTS_API_KEY, INTENTS_ENV } from "@src/utils/environment"
+import { INTENTS_ENV, ONE_CLICK_API_KEY } from "@src/utils/environment"
 
 function getSolverRelayBaseURL(): string {
   return INTENTS_ENV === "production"
@@ -15,52 +15,8 @@ function getSolverRelayBaseURL(): string {
 function serverConfig() {
   return {
     baseURL: getSolverRelayBaseURL(),
-    solverRelayApiKey: INTENTS_API_KEY ?? undefined,
+    solverRelayApiKey: ONE_CLICK_API_KEY ?? undefined,
   }
-}
-
-export type QuoteParams = {
-  defuse_asset_identifier_in: string
-  defuse_asset_identifier_out: string
-  exact_amount_in?: string
-  exact_amount_out?: string
-  min_deadline_ms?: number
-  wait_ms?: number
-}
-
-export type QuoteConfig = {
-  logBalanceSufficient: boolean
-  requestId?: string
-}
-
-export async function solverRelayQuote(
-  params: QuoteParams,
-  config?: QuoteConfig
-) {
-  return solverRelay.quote(params, { ...config, ...serverConfig() })
-}
-
-export type GetQuoteInput = {
-  quoteParams: QuoteParams
-  config?: {
-    logBalanceSufficient: boolean
-    requestId?: string
-  }
-}
-
-/**
- * Returns the best quote as a plain object (serializable).
- * Throws QuoteError on no-liquidity — callers handle via Promise.allSettled().
- */
-export async function solverRelayGetQuote(input: GetQuoteInput) {
-  return solverRelay.getQuote({
-    quoteParams: input.quoteParams,
-    config: {
-      ...input.config,
-      logBalanceSufficient: input.config?.logBalanceSufficient ?? false,
-      ...serverConfig(),
-    },
-  })
 }
 
 export type PublishIntentInput = {

@@ -333,13 +333,35 @@
               "decimals": 8,
               "chainName": "zcash",
               "bridge": "poa"
-            },
+            }
+          ],
+          "tags": ["mc:120", "tvol:1", "aid:zec"]
+        },
+        {
+          "defuseAssetId": "1cs_v1:near:nep141:zec.omft.near",
+          "symbol": "ZEC",
+          "name": "Zcash",
+          "decimals": 8,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1437.png",
+          "originChainName": "near",
+          "deployments": [
             {
               "address": "zec.omft.near",
               "decimals": 8,
               "chainName": "near",
               "bridge": "direct"
-            },
+            }
+          ],
+          "tags": ["mc:120", "tvol:1", "aid:zec"]
+        },
+        {
+          "defuseAssetId": "1cs_v1:sol:spl:A7bdiYdS5GjqGFtxf17ppRHtDKPkkRqbKtR27dxvQXaS",
+          "symbol": "ZEC",
+          "name": "Zcash",
+          "decimals": 8,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1437.png",
+          "originChainName": "solana",
+          "deployments": [
             {
               "address": "A7bdiYdS5GjqGFtxf17ppRHtDKPkkRqbKtR27dxvQXaS",
               "decimals": 8,
@@ -2683,6 +2705,23 @@
               "chainName": "near",
               "bridge": "direct"
             },
+            {
+              "address": "0x0382e3fee4a420bd446367d468a6f00225853420",
+              "decimals": 18,
+              "chainName": "base",
+              "bridge": "near_omni"
+            }
+          ],
+          "tags": ["mc:4794", "aid:cfi"]
+        },
+        {
+          "defuseAssetId": "1cs_v1:base:erc20:0x0382e3fee4a420bd446367d468a6f00225853420",
+          "symbol": "CFI",
+          "name": "ConsumerFi Protocol",
+          "decimals": 18,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/39057.png",
+          "originChainName": "base",
+          "deployments": [
             {
               "address": "0x0382e3fee4a420bd446367d468a6f00225853420",
               "decimals": 18,

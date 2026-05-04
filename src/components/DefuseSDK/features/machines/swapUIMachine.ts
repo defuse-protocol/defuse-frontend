@@ -2,9 +2,7 @@ import { AuthMethod, type authHandle } from "@defuse-protocol/internal-utils"
 import { authIdentity } from "@defuse-protocol/internal-utils"
 import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import type { Quote1csInput } from "@src/components/DefuseSDK/features/machines/background1csQuoterMachine"
-import { computeAppFeeBps } from "@src/components/DefuseSDK/utils/appFee"
 import { isBaseToken } from "@src/components/DefuseSDK/utils/token"
-import { APP_FEE_BPS } from "@src/utils/environment"
 import type { FeeRecipientSplit } from "@src/utils/getAppFeeRecipient"
 import { logNoLiquidity } from "@src/utils/logCustom"
 import { logger } from "@src/utils/logger"
@@ -30,8 +28,6 @@ import {
   computeTotalBalanceDifferentDecimals,
   computeTotalDeltaDifferentDecimals,
   getAnyBaseTokenInfo,
-  getTokenMaxDecimals,
-  getUnderlyingBaseTokenInfos,
   hasMatchingTokenKeys,
 } from "../../utils/tokenUtils"
 import { getMinDeadlineMs } from "../otcDesk/utils/quoteUtils"
@@ -40,11 +36,6 @@ import {
   type ParentEvents as Background1csQuoterParentEvents,
   background1csQuoterMachine,
 } from "./background1csQuoterMachine"
-import {
-  type Events as BackgroundQuoterEvents,
-  type ParentEvents as BackgroundQuoterParentEvents,
-  backgroundQuoterMachine,
-} from "./backgroundQuoterMachine"
 import {
   type BalanceMapping,
   type Events as DepositedBalanceEvents,
@@ -57,10 +48,6 @@ import {
   type Output as SwapIntent1csMachineOutput,
   swapIntent1csMachine,
 } from "./swapIntent1csMachine"
-import {
-  type Output as SwapIntentMachineOutput,
-  swapIntentMachine,
-} from "./swapIntentMachine"
 
 function getTokenDecimals(token: TokenInfo) {
   return isBaseToken(token) ? token.decimals : token.groupedTokens[0].decimals
@@ -84,10 +71,7 @@ export type Context = {
     amountIn: TokenValue | null
     amountOut: TokenValue | null
   }
-  intentCreationResult:
-    | SwapIntentMachineOutput
-    | SwapIntent1csMachineOutput
-    | null
+  intentCreationResult: SwapIntent1csMachineOutput | null
   intentRefs: (
     | ActorRefFrom<typeof intentStatusMachine>
     | ActorRefFrom<typeof oneClickStatusMachine>
@@ -95,7 +79,6 @@ export type Context = {
   tokenList: TokenInfo[]
   referral?: string
   slippageBasisPoints: number
-  is1cs: boolean
   appFeeRecipients: FeeRecipientSplit[]
   priceChangeDialog: null | {
     pendingNewOppositeAmount: { amount: bigint; decimals: number }
@@ -134,7 +117,6 @@ export const swapUIMachine = setup({
       tokenOut: TokenInfo
       tokenList: TokenInfo[]
       referral?: string
-      is1cs: boolean
       appFeeRecipients: FeeRecipientSplit[]
     },
     context: {} as Context,
@@ -184,7 +166,6 @@ export const swapUIMachine = setup({
             tokenOutAssetId: string
           }
         }
-      | BackgroundQuoterParentEvents
       | Background1csQuoterParentEvents
       | DepositedBalanceEvents
       | {
@@ -208,17 +189,13 @@ export const swapUIMachine = setup({
 
     children: {} as {
       depositedBalanceRef: "depositedBalanceActor"
-      backgroundQuoterRef: "backgroundQuoterActor"
       background1csQuoterRef: "background1csQuoterActor"
-      swapRef: "swapActor"
       swapRef1cs: "swap1csActor"
     },
   },
   actors: {
-    backgroundQuoterActor: backgroundQuoterMachine,
     background1csQuoterActor: background1csQuoterMachine,
     depositedBalanceActor: depositedBalanceMachine,
-    swapActor: swapIntentMachine,
     swap1csActor: swapIntent1csMachine,
     intentStatusActor: intentStatusMachine,
     oneClickStatusActor: oneClickStatusMachine,
@@ -273,12 +250,8 @@ export const swapUIMachine = setup({
         const tokenOut = getAnyBaseTokenInfo(context.formValues.tokenOut)
 
         try {
-          const decimalsIn = context.is1cs
-            ? getTokenDecimals(context.formValues.tokenIn)
-            : getTokenMaxDecimals(context.formValues.tokenIn)
-          const decimalsOut = context.is1cs
-            ? getTokenDecimals(context.formValues.tokenOut)
-            : getTokenMaxDecimals(context.formValues.tokenOut)
+          const decimalsIn = getTokenDecimals(context.formValues.tokenIn)
+          const decimalsOut = getTokenDecimals(context.formValues.tokenOut)
           return {
             tokenIn,
             tokenOut,
@@ -385,10 +358,7 @@ export const swapUIMachine = setup({
         params.slippageBasisPoints,
     }),
     setIntentCreationResult: assign({
-      intentCreationResult: (
-        _,
-        value: SwapIntentMachineOutput | SwapIntent1csMachineOutput
-      ) => value,
+      intentCreationResult: (_, value: SwapIntent1csMachineOutput) => value,
     }),
     clearIntentCreationResult: assign({ intentCreationResult: null }),
     openPriceChangeDialog: assign({
@@ -411,51 +381,11 @@ export const swapUIMachine = setup({
       type: "PRICE_CHANGE_CANCELLED",
     })),
     passthroughEvent: emit((_, event: PassthroughEvent) => event),
-    spawnBackgroundQuoterRef: spawnChild("backgroundQuoterActor", {
-      id: "backgroundQuoterRef",
-      input: ({ self }) => ({ parentRef: self }),
-    }),
     spawnBackground1csQuoterRef: spawnChild("background1csQuoterActor", {
       id: "background1csQuoterRef",
       input: ({ self }) => ({ parentRef: self }),
     }),
     // Warning: This cannot be properly typed, so you can send an incorrect event
-    sendToBackgroundQuoterRefNewQuoteInput: sendTo(
-      "backgroundQuoterRef",
-      ({ context, self }): BackgroundQuoterEvents => {
-        const snapshot = self.getSnapshot()
-
-        // However knows how to access the child's state, please update this
-        const depositedBalanceRef:
-          | ActorRefFrom<typeof depositedBalanceMachine>
-          | undefined = snapshot.children.depositedBalanceRef
-        const balances = balancesSelector(depositedBalanceRef?.getSnapshot())
-
-        assert(context.parsedFormValues.amountIn != null, "amountIn is not set")
-
-        return {
-          type: "NEW_QUOTE_INPUT",
-          params: {
-            tokenIn: context.formValues.tokenIn,
-            tokenOut: context.parsedFormValues.tokenOut,
-            amountIn: context.parsedFormValues.amountIn,
-            balances: balances ?? {},
-            appFeeBps: computeAppFeeBps(
-              APP_FEE_BPS,
-              context.formValues.tokenIn,
-              context.formValues.tokenOut,
-              context.appFeeRecipients?.[0]?.recipient ?? "",
-              context.user
-            ),
-          },
-        }
-      },
-      { id: "sendToBackgroundQuoterRefNewQuoteInputRequest", delay: 500 }
-    ),
-    // Warning: This cannot be properly typed, so you can send an incorrect event
-    sendToBackgroundQuoterRefPause: sendTo("backgroundQuoterRef", {
-      type: "PAUSE",
-    }),
     sendToBackground1csQuoterRefNewQuoteInput: sendTo(
       "background1csQuoterRef",
       ({ context }): Background1csQuoterEvents => {
@@ -489,9 +419,6 @@ export const swapUIMachine = setup({
         }
       },
       { id: "sendToBackground1csQuoterRefNewQuoteInputRequest", delay: 500 }
-    ),
-    cancelSendToBackgroundQuoterRefNewQuoteInput: cancel(
-      "sendToBackgroundQuoterRefNewQuoteInputRequest"
     ),
     cancelSendToBackground1csQuoterRefNewQuoteInput: cancel(
       "sendToBackground1csQuoterRefNewQuoteInputRequest"
@@ -528,20 +455,14 @@ export const swapUIMachine = setup({
       })
     ),
 
-    // Warning: This cannot be properly typed, so you can send an incorrect event
-    sendToSwapRefNewQuote: sendTo(
-      "swapRef",
-      (_, event: BackgroundQuoterParentEvents) => event
-    ),
-
     spawnIntentStatusActor: assign({
       intentRefs: (
         { context, spawn, self },
-        output: SwapIntentMachineOutput | SwapIntent1csMachineOutput
+        output: SwapIntent1csMachineOutput
       ) => {
         if (output.tag !== "ok") return context.intentRefs
 
-        if (context.is1cs && "depositAddress" in output.value) {
+        if ("depositAddress" in output.value) {
           const swapDescription = output.value.intentDescription as Extract<
             typeof output.value.intentDescription,
             { type: "swap" }
@@ -562,18 +483,7 @@ export const swapUIMachine = setup({
           return [oneClickRef, ...context.intentRefs]
         }
 
-        const intentRef = spawn("intentStatusActor", {
-          id: `intent-${output.value.intentHash}`,
-          input: {
-            parentRef: self,
-            intentHash: output.value.intentHash,
-            tokenIn: context.formValues.tokenIn,
-            tokenOut: context.formValues.tokenOut,
-            intentDescription: output.value.intentDescription,
-          },
-        })
-
-        return [intentRef, ...context.intentRefs]
+        return context.intentRefs
       },
     }),
 
@@ -678,23 +588,9 @@ export const swapUIMachine = setup({
     }),
   },
   guards: {
-    isQuoteValidAndNot1cs: ({ context }) => {
-      return (
-        !context.is1cs && context.quote != null && context.quote.tag === "ok"
-      )
-    },
-
     isOk: (_, a: { tag: "err" | "ok" }) => a.tag === "ok",
 
-    isFormValidAndNot1cs: ({ context }) => {
-      return (
-        context.parsedFormValues.amountIn != null &&
-        context.parsedFormValues.amountIn.amount > 0n &&
-        !context.is1cs
-      )
-    },
     isFormValidAnd1cs: ({ context }) => {
-      if (context.is1cs === false) return false
       const amount =
         context.formValues.swapType === QuoteRequest.swapType.EXACT_INPUT
           ? context.parsedFormValues.amountIn
@@ -730,16 +626,11 @@ export const swapUIMachine = setup({
     tokenList: input.tokenList,
     referral: input.referral,
     slippageBasisPoints: 10_000, // 1% default, will be overridden from localStorage
-    is1cs: input.is1cs,
     appFeeRecipients: input.appFeeRecipients,
     priceChangeDialog: null,
   }),
 
-  entry: [
-    "spawnBackgroundQuoterRef",
-    "spawnBackground1csQuoterRef",
-    "spawnDepositedBalanceRef",
-  ],
+  entry: ["spawnBackground1csQuoterRef", "spawnDepositedBalanceRef"],
 
   on: {
     INTENT_SETTLED: {
@@ -769,10 +660,6 @@ export const swapUIMachine = setup({
     },
 
     BALANCE_CHANGED: [
-      {
-        guard: "isFormValidAndNot1cs",
-        actions: "sendToBackgroundQuoterRefNewQuoteInput",
-      },
       {
         guard: "isFormValidAnd1cs",
         actions: "sendToBackground1csQuoterRefNewQuoteInput",
@@ -849,11 +736,6 @@ export const swapUIMachine = setup({
               "cancelSendToBackground1csQuoterRefNewQuoteInput",
             ],
           },
-          {
-            target: "submitting",
-            guard: "isQuoteValidAndNot1cs",
-            actions: ["parseFormValues", "clearIntentCreationResult"],
-          },
         ],
 
         // input: When form input changes, reset quote and parse new values.
@@ -862,9 +744,7 @@ export const swapUIMachine = setup({
         input: {
           target: ".validating",
           actions: [
-            "sendToBackgroundQuoterRefPause",
             "sendToBackground1csQuoterRefPause",
-            "cancelSendToBackgroundQuoterRefNewQuoteInput",
             "cancelSendToBackground1csQuoterRefNewQuoteInput",
             "clearQuote",
             "clearError",
@@ -874,18 +754,6 @@ export const swapUIMachine = setup({
               params: ({ event }) => ({ data: event.params }),
             },
             "parseFormValues", // Keep in sync with SET_SLIPPAGE handler (line ~901, ~920)
-          ],
-        },
-
-        NEW_QUOTE: {
-          actions: [
-            {
-              type: "setQuote",
-              params: ({ event }) => event.params.quote,
-            },
-            "updateFormValuesWithQuoteData",
-            "parseFormValues",
-            "updateUIAmount",
           ],
         },
 
@@ -901,45 +769,16 @@ export const swapUIMachine = setup({
 
         SET_SLIPPAGE: [
           {
-            guard: "isFormValidAndNot1cs",
-            target: ".waiting_quote",
-            actions: [
-              // resetting everything both 1cs and not 1cs just in case
-              {
-                type: "setSlippage",
-                params: ({ event }) => ({
-                  slippageBasisPoints: event.params.slippageBasisPoints,
-                }),
-              },
-              "sendToBackgroundQuoterRefPause",
-              "sendToBackground1csQuoterRefPause",
-              "cancelSendToBackgroundQuoterRefNewQuoteInput",
-              "cancelSendToBackground1csQuoterRefNewQuoteInput",
-              "clearQuote",
-              "clearError",
-              "clear1csError",
-              {
-                type: "updateFormValuesWithQuoteData",
-              },
-              "parseFormValues",
-              "updateUIAmount",
-              "sendToBackgroundQuoterRefNewQuoteInput",
-            ],
-          },
-          {
             guard: "isFormValidAnd1cs",
             target: ".waiting_quote",
             actions: [
-              // resetting everything both 1cs and not 1cs just in case
               {
                 type: "setSlippage",
                 params: ({ event }) => ({
                   slippageBasisPoints: event.params.slippageBasisPoints,
                 }),
               },
-              "sendToBackgroundQuoterRefPause",
               "sendToBackground1csQuoterRefPause",
-              "cancelSendToBackgroundQuoterRefNewQuoteInput",
               "cancelSendToBackground1csQuoterRefNewQuoteInput",
               "clearQuote",
               "clearError",
@@ -952,7 +791,7 @@ export const swapUIMachine = setup({
               "sendToBackground1csQuoterRefNewQuoteInput",
             ],
           },
-          // this exists in case both guards are false, so we can still set the slippage
+          // this exists in case the guard is false, so we can still set the slippage
           {
             actions: {
               type: "setSlippage",
@@ -971,11 +810,6 @@ export const swapUIMachine = setup({
           always: [
             {
               target: "waiting_quote",
-              guard: "isFormValidAndNot1cs",
-              actions: "sendToBackgroundQuoterRefNewQuoteInput",
-            },
-            {
-              target: "waiting_quote",
               guard: "isFormValidAnd1cs",
               actions: "sendToBackground1csQuoterRefNewQuoteInput",
             },
@@ -985,19 +819,6 @@ export const swapUIMachine = setup({
 
         waiting_quote: {
           on: {
-            NEW_QUOTE: {
-              target: "idle",
-              actions: [
-                {
-                  type: "setQuote",
-                  params: ({ event }) => event.params.quote,
-                },
-                "updateFormValuesWithQuoteData",
-                "parseFormValues",
-                "updateUIAmount",
-              ],
-              description: `should do the same as NEW_QUOTE on "editing" itself`,
-            },
             NEW_1CS_QUOTE: {
               target: "idle",
               actions: [
@@ -1015,99 +836,6 @@ export const swapUIMachine = setup({
       initial: "idle",
     },
 
-    submitting: {
-      invoke: {
-        id: "swapRef",
-        src: "swapActor",
-
-        input: ({ context, event }) => {
-          assertEvent(event, "submit")
-
-          const quote = context.quote
-          assert(quote !== null, "non valid quote")
-          assert(quote.tag === "ok", "non valid quote")
-          return {
-            userAddress: event.params.userAddress,
-            userChainType: event.params.userChainType,
-            defuseUserId: authIdentity.authHandleToIntentsUserId(
-              event.params.userAddress,
-              event.params.userChainType
-            ),
-            referral: context.referral,
-            slippageBasisPoints: context.slippageBasisPoints,
-            nearClient: event.params.nearClient,
-            intentOperationParams: {
-              type: "swap" as const,
-              tokensIn: getUnderlyingBaseTokenInfos(context.formValues.tokenIn),
-              tokenOut: context.parsedFormValues.tokenOut,
-              quote: quote.value,
-            },
-            appFeeRecipients: context.appFeeRecipients,
-          }
-        },
-
-        onDone: [
-          {
-            target: "editing",
-            guard: { type: "isOk", params: ({ event }) => event.output },
-
-            actions: [
-              "sendToBackgroundQuoterRefPause",
-              "cancelSendToBackgroundQuoterRefNewQuoteInput",
-              "resetParsedFormValueAmounts",
-              "resetFormValueAmounts",
-              {
-                type: "spawnIntentStatusActor",
-                params: ({ event }) => event.output,
-              },
-              {
-                type: "setIntentCreationResult",
-                params: ({ event }) => event.output,
-              },
-              "emitEventIntentPublished",
-            ],
-          },
-          {
-            target: "editing",
-
-            actions: [
-              {
-                type: "setIntentCreationResult",
-                params: ({ event }) => event.output,
-              },
-            ],
-          },
-        ],
-
-        onError: {
-          target: "editing",
-
-          actions: ({ event }) => {
-            logger.error(event.error)
-          },
-        },
-      },
-
-      on: {
-        NEW_QUOTE: {
-          guard: {
-            type: "isOk",
-            params: ({ event }) => event.params.quote,
-          },
-          actions: [
-            {
-              type: "setQuote",
-              params: ({ event }) => event.params.quote,
-            },
-            {
-              type: "sendToSwapRefNewQuote",
-              params: ({ event }) => event,
-            },
-          ],
-        },
-      },
-    },
-
     submitting_1cs: {
       invoke: {
         id: "swapRef1cs",
@@ -1121,7 +849,6 @@ export const swapUIMachine = setup({
               context.parsedFormValues.amountIn.amount > 0n &&
               context.parsedFormValues.amountOut != null &&
               context.parsedFormValues.amountOut.amount > 0n &&
-              context.is1cs &&
               context.quote &&
               context.quote.tag === "ok",
             "Invalid input for submitting_1cs"

@@ -19,7 +19,6 @@ export const INTENTS_ENV = v.parse(
   v.picklist(["production", "stage"]),
   process.env.NEXT_PUBLIC_INTENTS_ENV || "production"
 )
-export const INTENTS_API_KEY = process.env.INTENTS_API_KEY
 
 export const CLICKHOUSE_SERVICE_URL = process.env.CLICKHOUSE_SERVICE_URL
 export const CLICKHOUSE_API_KEY = process.env.CLICKHOUSE_API_KEY
@@ -43,6 +42,9 @@ export const APP_FEE_RECIPIENT_RABITSWAP = v.parse(
   process.env.NEXT_PUBLIC_APP_FEE_RECIPIENT_RABITSWAP
 )
 
+// Optional direction fee in basis points for eligible withdrawals.
+// 1Click enforces a max app fee of 500 bps (5%).
+// Note: we intentionally avoid a hard max here for now.
 export const WITHDRAW_DIRECTION_FEE_BPS = v.parse(
   v.pipe(
     v.optional(v.string()),
