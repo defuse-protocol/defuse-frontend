@@ -1,5 +1,6 @@
 import { type PropsWithChildren, useContext } from "react"
 
+import { LegacyBtcNotice } from "@src/components/LegacyBtcNotice"
 import { NearComRetirementCard } from "@src/components/NearComPromo"
 import { FeatureFlagsContext } from "@src/providers/FeatureFlagsProvider"
 import NearComPromo from "../NearComPromo"
@@ -40,6 +41,7 @@ const Main = ({ children }: PropsWithChildren) => {
   return (
     <>
       <NearComPromo />
+      <LegacyBtcNotice />
       <main className="flex md:flex-1">{children}</main>
     </>
   )
