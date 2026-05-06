@@ -1173,7 +1173,7 @@
           "name": "Bitcoin",
           "decimals": 8,
           "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1.png",
-          "originChainName": "near",
+          "originChainName": "bitcoin",
           "deployments": [
             {
               "type": "native",
@@ -1186,6 +1186,12 @@
               "decimals": 8,
               "chainName": "near",
               "bridge": "direct"
+            },
+            {
+              "address": "native",
+              "decimals": 8,
+              "chainName": "hyperliquid",
+              "bridge": "near_omni"
             }
           ],
           "tags": ["mc:1", "tvol:6", "aid:btc"]
@@ -1195,13 +1201,13 @@
     },
     {
       "unifiedAssetId": "btc-legacy",
-      "symbol": "BTC (legacy)",
+      "symbol": "BTC (LEGACY)",
       "name": "Bitcoin (Legacy)",
       "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1.png",
       "groupedTokens": [
         {
           "defuseAssetId": "nep141:btc.omft.near",
-          "symbol": "BTC (legacy)",
+          "symbol": "BTC (LEGACY)",
           "name": "Bitcoin (Legacy)",
           "decimals": 8,
           "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1.png",
@@ -1211,12 +1217,6 @@
               "type": "native",
               "decimals": 8,
               "chainName": "bitcoin",
-              "bridge": "poa"
-            },
-            {
-              "address": "native",
-              "decimals": 8,
-              "chainName": "hyperliquid",
               "bridge": "poa"
             }
           ],

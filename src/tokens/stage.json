@@ -167,13 +167,13 @@
     },
     {
       "unifiedAssetId": "btc-legacy",
-      "symbol": "BTC (legacy)",
+      "symbol": "BTC (LEGACY)",
       "name": "Bitcoin (Legacy)",
       "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1.png",
       "groupedTokens": [
         {
           "defuseAssetId": "nep141:btc.stft.near",
-          "symbol": "BTC (legacy)",
+          "symbol": "BTC (LEGACY)",
           "name": "Bitcoin (Legacy)",
           "decimals": 8,
           "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1.png",
