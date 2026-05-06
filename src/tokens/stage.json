@@ -146,9 +146,35 @@
       "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1.png",
       "groupedTokens": [
         {
-          "defuseAssetId": "nep141:btc.stft.near",
+          "defuseAssetId": "nep141:nbtc.bridge.near",
           "symbol": "BTC",
           "name": "Bitcoin",
+          "decimals": 8,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1.png",
+          "originChainName": "near",
+          "deployments": [
+            {
+              "address": "nbtc.bridge.near",
+              "decimals": 8,
+              "chainName": "near",
+              "bridge": "direct"
+            }
+          ],
+          "tags": ["mc:1", "tvol:6", "aid:btc"]
+        }
+      ],
+      "tags": ["mc:1", "tvol:6"]
+    },
+    {
+      "unifiedAssetId": "btc-legacy",
+      "symbol": "BTC (LEGACY)",
+      "name": "Bitcoin (Legacy)",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1.png",
+      "groupedTokens": [
+        {
+          "defuseAssetId": "nep141:btc.stft.near",
+          "symbol": "BTC (LEGACY)",
+          "name": "Bitcoin (Legacy)",
           "decimals": 8,
           "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1.png",
           "originChainName": "bitcoin",
@@ -160,10 +186,10 @@
               "bridge": "poa"
             }
           ],
-          "tags": ["mc:1", "tvol:6"]
+          "tags": ["mc:1", "tvol:6", "aid:btc-legacy"]
         }
       ],
-      "tags": ["mc:1", "tvol:6"]
+      "tags": ["mc:1", "tvol:6", "aid:btc-legacy"]
     },
     {
       "unifiedAssetId": "xrp",
