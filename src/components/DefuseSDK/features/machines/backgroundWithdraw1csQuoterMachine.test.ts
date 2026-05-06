@@ -35,19 +35,31 @@ const nearUsdcToken: BaseTokenInfo = {
   ],
 }
 
-const nearNbtcToken: BaseTokenInfo = {
+const nbtcToken: BaseTokenInfo = {
   defuseAssetId: "nep141:nbtc.bridge.near",
-  symbol: "nBTC",
-  name: "nBTC",
+  symbol: "BTC",
+  name: "Bitcoin",
   decimals: 8,
   icon: "",
   originChainName: "near",
   deployments: [
     {
+      type: "native",
+      chainName: "bitcoin",
+      bridge: "near_omni",
+      decimals: 8,
+    },
+    {
       chainName: "near",
       bridge: "direct",
       decimals: 8,
       address: "nbtc.bridge.near",
+    },
+    {
+      address: "native",
+      chainName: "hyperliquid",
+      bridge: "near_omni",
+      decimals: 8,
     },
   ],
 }
@@ -282,32 +294,79 @@ describe("backgroundWithdraw1csQuoterMachine", () => {
     )
   })
 
-  it("uses 1cs routing ids for nBTC withdrawal quote", async () => {
-    mockedGetWithdrawQuote.mockResolvedValueOnce(makeQuoteResult("995000"))
+  describe("nBTC destination asset routing", () => {
+    function sendNbtcQuote(params: {
+      destinationChainName: string
+      recipient: string
+    }) {
+      mockedGetWithdrawQuote.mockResolvedValueOnce(makeQuoteResult("995000"))
 
-    const parentSend = vi.fn()
-    const actor = createActor(backgroundWithdraw1csQuoterMachine, {
-      input: {
-        parentRef: createParentRef(parentSend),
-      },
-    }).start()
+      const parentSend = vi.fn()
+      const actor = createActor(backgroundWithdraw1csQuoterMachine, {
+        input: { parentRef: createParentRef(parentSend) },
+      }).start()
 
-    actor.send({
-      type: "NEW_QUOTE_INPUT",
-      params: {
-        ...makeQuoteInput("btc-destination"),
-        tokenIn: nearNbtcToken,
-        tokenOut: nearNbtcToken,
-      },
+      actor.send({
+        type: "NEW_QUOTE_INPUT",
+        params: {
+          ...makeQuoteInput(params.recipient),
+          tokenIn: nbtcToken,
+          tokenOut: nbtcToken,
+          destinationChainName: params.destinationChainName,
+        },
+      })
+
+      return flushMicrotasks()
+    }
+
+    it("routes nBTC → bitcoin via 1cs native BTC asset", async () => {
+      await sendNbtcQuote({
+        destinationChainName: "bitcoin",
+        recipient: "bc1qexample",
+      })
+
+      expect(mockedGetWithdrawQuote).toHaveBeenCalledWith(
+        expect.objectContaining({
+          originAsset: "nep141:nbtc.bridge.near",
+          destinationAsset: "1cs_v1:btc:native:coin",
+          destinationChainName: "bitcoin",
+          recipient: "bc1qexample",
+        })
+      )
     })
 
-    await flushMicrotasks()
-
-    expect(mockedGetWithdrawQuote).toHaveBeenCalledWith(
-      expect.objectContaining({
-        originAsset: "nep141:nbtc.bridge.near",
-        destinationAsset: "1cs_v1:btc:native:coin",
+    it("routes nBTC → hyperliquid via 1cs native BTC asset (resolved as bitcoin)", async () => {
+      // resolveTokenOut substitutes hyperliquid → bitcoin upstream, so the
+      // quote sees destinationChainName="bitcoin" even though the user
+      // selected hyperliquid in the form.
+      await sendNbtcQuote({
+        destinationChainName: "bitcoin",
+        recipient: "0xhyperliquid-proxy",
       })
-    )
+
+      expect(mockedGetWithdrawQuote).toHaveBeenCalledWith(
+        expect.objectContaining({
+          originAsset: "nep141:nbtc.bridge.near",
+          destinationAsset: "1cs_v1:btc:native:coin",
+          destinationChainName: "bitcoin",
+        })
+      )
+    })
+
+    it("keeps the NEP-141 id for nBTC → near (recipient is a NEAR account)", async () => {
+      await sendNbtcQuote({
+        destinationChainName: "near",
+        recipient: "vodis_craftscript.tg",
+      })
+
+      expect(mockedGetWithdrawQuote).toHaveBeenCalledWith(
+        expect.objectContaining({
+          originAsset: "nep141:nbtc.bridge.near",
+          destinationAsset: "nep141:nbtc.bridge.near",
+          destinationChainName: "near",
+          recipient: "vodis_craftscript.tg",
+        })
+      )
+    })
   })
 })

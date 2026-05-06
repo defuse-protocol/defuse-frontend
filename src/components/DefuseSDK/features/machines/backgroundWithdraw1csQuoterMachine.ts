@@ -138,9 +138,10 @@ async function fetchWithdrawQuote(
   ) => void
 ): Promise<void> {
   const tokenInAssetId = quoteInput.tokenIn.defuseAssetId
-  const tokenOutAssetId = getWithdrawDestinationAsset(
-    quoteInput.tokenOut.defuseAssetId
-  )
+  const tokenOutAssetId =
+    quoteInput.destinationChainName === "bitcoin"
+      ? getWithdrawDestinationAsset(quoteInput.tokenOut.defuseAssetId)
+      : quoteInput.tokenOut.defuseAssetId
 
   try {
     const result = await getWithdrawQuoteApi({

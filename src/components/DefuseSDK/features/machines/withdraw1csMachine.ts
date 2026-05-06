@@ -183,9 +183,10 @@ export const withdraw1csMachine = setup({
           dry: false,
           slippageTolerance: Math.round(input.slippageBasisPoints / 100),
           originAsset: input.tokenIn.defuseAssetId,
-          destinationAsset: getWithdrawDestinationAsset(
-            input.tokenOut.defuseAssetId
-          ),
+          destinationAsset:
+            input.destinationChainName === "bitcoin"
+              ? getWithdrawDestinationAsset(input.tokenOut.defuseAssetId)
+              : input.tokenOut.defuseAssetId,
           amount: (input.swapType === QuoteRequest.swapType.EXACT_OUTPUT
             ? adjustDecimals(
                 input.amountIn.amount,
