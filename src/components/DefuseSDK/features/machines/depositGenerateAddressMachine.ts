@@ -19,7 +19,7 @@ export type Context = {
     | {
         tag: "err"
         value: {
-          reason: "ERR_GENERATING_ADDRESS"
+          reason: "ERR_GENERATING_ADDRESS" | "ERR_DISABLED"
         }
       }
     | null
@@ -33,7 +33,7 @@ export const depositGenerateAddressMachine = setup({
           type: "REQUEST_GENERATE_ADDRESS"
           params: NonNullable<
             Pick<Context, "userAddress" | "userChainType" | "blockchain">
-          >
+          > & { tokenFamilyAid: string | null }
         }
       | {
           type: "REQUEST_CLEAR_ADDRESS"
@@ -79,6 +79,13 @@ export const depositGenerateAddressMachine = setup({
     }),
   },
   guards: {
+    isChainDisabled: ({ event }) => {
+      assertEvent(event, "REQUEST_GENERATE_ADDRESS")
+      return (
+        event.params.tokenFamilyAid === "btc" ||
+        event.params.tokenFamilyAid === "btc-legacy"
+      )
+    },
     isInputSufficient: ({ event }) => {
       assertEvent(event, "REQUEST_GENERATE_ADDRESS")
       if (
@@ -116,6 +123,16 @@ export const depositGenerateAddressMachine = setup({
 
   on: {
     REQUEST_GENERATE_ADDRESS: [
+      {
+        guard: "isChainDisabled",
+        actions: assign({
+          preparationOutput: () => ({
+            tag: "err" as const,
+            value: { reason: "ERR_DISABLED" as const },
+          }),
+        }),
+        target: ".completed",
+      },
       {
         actions: ["resetPreparationOutput", "setInputParams"],
         target: ".generating",

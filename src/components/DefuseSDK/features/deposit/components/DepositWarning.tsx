@@ -26,6 +26,9 @@ export const DepositWarning = ({
         content =
           "It seems the transaction was rejected in your wallet. Please try again."
         break
+      case "ERR_DISABLED":
+        content = "BTC deposits are temporarily disabled."
+        break
       case "ERR_GENERATING_ADDRESS":
         content =
           "It seems the deposit address was not generated. Please try re-selecting the token and network."
