@@ -83,7 +83,6 @@ export type PreparedDepositErrorType = {
   reason:
     | "ERR_PREPARING_DEPOSIT"
     | "ERR_GENERATING_ADDRESS"
-    | "ERR_DISABLED"
     | "ERR_NEP141_STORAGE_CANNOT_FETCH"
     | "ERR_FETCH_BALANCE"
     | "ERR_ESTIMATE_MAX_DEPOSIT_VALUE"
@@ -277,7 +276,7 @@ async function getGeneratedDepositAddress(
       tag: "ok"
       value: { generateDepositAddress: string | null; memo: string | null }
     }
-  | { tag: "err"; value: { reason: "ERR_GENERATING_ADDRESS" | "ERR_DISABLED" } }
+  | { tag: "err"; value: { reason: "ERR_GENERATING_ADDRESS" } }
 > {
   const depositGenerateAddressState = await waitFor(
     depositGenerateAddressRef,
