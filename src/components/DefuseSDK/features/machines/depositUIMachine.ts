@@ -1,6 +1,5 @@
 import type { AuthMethod } from "@defuse-protocol/internal-utils"
 import { assert } from "@src/components/DefuseSDK/utils/assert"
-import { tokenFamilies } from "@src/constants/tokens"
 import { logger } from "@src/utils/logger"
 import {
   type ActorRefFrom,
@@ -20,7 +19,6 @@ import type {
   TokenDeployment,
 } from "../../types/base"
 import type { TokenInfo } from "../../types/base"
-import { resolveTokenFamily } from "../../utils/tokenFamily"
 import { depositEstimationMachine } from "./depositEstimationActor"
 import {
   type Events as DepositFormEvents,
@@ -145,18 +143,12 @@ export const depositUIMachine = setup({
     requestGenerateAddress: sendTo(
       "depositGenerateAddressRef",
       ({ context }) => {
-        const formCtx = context.depositFormRef.getSnapshot().context
-        const tokenFamilyAid = formCtx.derivedToken
-          ? (resolveTokenFamily(tokenFamilies, formCtx.derivedToken)?.aid ??
-            null)
-          : null
         return {
           type: "REQUEST_GENERATE_ADDRESS",
           params: {
             userAddress: context.userAddress,
-            blockchain: formCtx.blockchain,
+            blockchain: context.depositFormRef.getSnapshot().context.blockchain,
             userChainType: context.userChainType,
-            tokenFamilyAid,
           },
         }
       }
