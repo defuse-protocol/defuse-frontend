@@ -13,6 +13,8 @@ export const LIST_TOKENS: TokenInfo[] = (
 
 export const DEPRECATED_TOKENS: Record<string, boolean> = {
   "nep141:aurora": true,
+  "nep141:btc.omft.near": true,
+  "nep141:btc.stft.near": true,
 }
 
 export const LIST_TOKENS_FLATTEN = flattenTokenList(LIST_TOKENS)

@@ -3,6 +3,7 @@ import { QuoteRequest } from "@defuse-protocol/one-click-sdk-typescript"
 import { logger } from "@src/utils/logger"
 import { type ActorRef, type Snapshot, fromCallback } from "xstate"
 import type { BaseTokenInfo } from "../../types/base"
+import { getWithdrawDestinationAsset } from "../../utils/oneClickAssetRouting"
 import { adjustDecimals } from "../../utils/tokenUtils"
 import { getWithdrawQuote as getWithdrawQuoteApi } from "./1cs"
 
@@ -137,7 +138,9 @@ async function fetchWithdrawQuote(
   ) => void
 ): Promise<void> {
   const tokenInAssetId = quoteInput.tokenIn.defuseAssetId
-  const tokenOutAssetId = quoteInput.tokenOut.defuseAssetId
+  const tokenOutAssetId = getWithdrawDestinationAsset(
+    quoteInput.tokenOut.defuseAssetId
+  )
 
   try {
     const result = await getWithdrawQuoteApi({

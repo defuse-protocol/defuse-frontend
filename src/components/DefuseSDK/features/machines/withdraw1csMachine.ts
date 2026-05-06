@@ -19,6 +19,7 @@ import {
   parseQuoteAmount,
 } from "@src/components/DefuseSDK/features/machines/utils/1csQuoteValidation"
 import type { IntentDescription } from "@src/components/DefuseSDK/types/intent"
+import { getWithdrawDestinationAsset } from "@src/components/DefuseSDK/utils/oneClickAssetRouting"
 import { logger } from "@src/utils/logger"
 import { assign, fromPromise, log, setup } from "xstate"
 import { wrapPayloadAsWalletMessage } from "../../core/messages"
@@ -182,7 +183,9 @@ export const withdraw1csMachine = setup({
           dry: false,
           slippageTolerance: Math.round(input.slippageBasisPoints / 100),
           originAsset: input.tokenIn.defuseAssetId,
-          destinationAsset: input.tokenOut.defuseAssetId,
+          destinationAsset: getWithdrawDestinationAsset(
+            input.tokenOut.defuseAssetId
+          ),
           amount: (input.swapType === QuoteRequest.swapType.EXACT_OUTPUT
             ? adjustDecimals(
                 input.amountIn.amount,

@@ -1168,31 +1168,8 @@
       "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1.png",
       "groupedTokens": [
         {
-          "defuseAssetId": "nep141:btc.omft.near",
-          "symbol": "BTC",
-          "name": "Bitcoin",
-          "decimals": 8,
-          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1.png",
-          "originChainName": "bitcoin",
-          "deployments": [
-            {
-              "type": "native",
-              "decimals": 8,
-              "chainName": "bitcoin",
-              "bridge": "poa"
-            },
-            {
-              "address": "native",
-              "decimals": 8,
-              "chainName": "hyperliquid",
-              "bridge": "poa"
-            }
-          ],
-          "tags": ["mc:1", "tvol:6", "aid:btc"]
-        },
-        {
           "defuseAssetId": "nep141:nbtc.bridge.near",
-          "symbol": "nBTC",
+          "symbol": "BTC",
           "name": "Bitcoin",
           "decimals": 8,
           "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1.png",
@@ -1215,6 +1192,38 @@
         }
       ],
       "tags": ["mc:1", "tvol:6", "aid:btc"]
+    },
+    {
+      "unifiedAssetId": "btc-legacy",
+      "symbol": "BTC (legacy)",
+      "name": "Bitcoin (Legacy)",
+      "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1.png",
+      "groupedTokens": [
+        {
+          "defuseAssetId": "nep141:btc.omft.near",
+          "symbol": "BTC (legacy)",
+          "name": "Bitcoin (Legacy)",
+          "decimals": 8,
+          "icon": "https://s2.coinmarketcap.com/static/img/coins/128x128/1.png",
+          "originChainName": "bitcoin",
+          "deployments": [
+            {
+              "type": "native",
+              "decimals": 8,
+              "chainName": "bitcoin",
+              "bridge": "poa"
+            },
+            {
+              "address": "native",
+              "decimals": 8,
+              "chainName": "hyperliquid",
+              "bridge": "poa"
+            }
+          ],
+          "tags": ["mc:1", "tvol:6", "aid:btc-legacy"]
+        }
+      ],
+      "tags": ["mc:1", "tvol:6", "aid:btc-legacy"]
     },
     {
       "unifiedAssetId": "sweat",
