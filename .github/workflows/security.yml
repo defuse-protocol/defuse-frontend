@@ -10,5 +10,5 @@ on:
 jobs:
   security_analysis:
     name: Shared
-    uses: aurora-is-near/.github/.github/workflows/security_analysis.yml@master
+    uses: aurora-is-near/.github/.github/workflows/security_analysis.yml@d8ed49075f1cef41d7326cf07982872c362a2bc6
     secrets: inherit
