@@ -79,7 +79,7 @@ export const NearComRetirementCard = () => {
 
       <p className="mt-4 text-gray-11 text-base font-medium">
         <strong className="font-bold">
-          This website will be decommissioned on June 1, 2026
+          This website will be decommissioned on June 30, 2026
         </strong>
         . Please move or migrate before then.
       </p>
@@ -168,13 +168,13 @@ const NearComPromo = () => {
       <>
         Because you signed up with a passkey, you’ll need a new account at{" "}
         <NearComLink /> and we’ll help you move your funds. This website will be
-        decommissioned on June 1, 2026.
+        decommissioned on June 30, 2026.
       </>
     ) : variant === "wallet" ? (
       <>
-        This website will be decommissioned on June 1, 2026. Your wallet already
-        works at <NearComLink /> — there is nothing to move or migrate. Connect
-        the same wallet there when you’re ready.
+        This website will be decommissioned on June 30, 2026. Your wallet
+        already works at <NearComLink /> — there is nothing to move or migrate.
+        Connect the same wallet there when you’re ready.
       </>
     ) : (
       <>
