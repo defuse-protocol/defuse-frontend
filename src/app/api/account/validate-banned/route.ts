@@ -1,13 +1,15 @@
 import { type AuthMethod, authIdentity } from "@defuse-protocol/internal-utils"
-import { BANNED_ACCOUNT_IDS } from "@src/utils/environment"
+import { isAccountBanned } from "@src/services/bannedAccounts"
 import { logger } from "@src/utils/logger"
 
 export const dynamic = "force-dynamic"
 
 /**
- * Validates if an account is banned based on address and chain type.
- * Currently uses environment variable (BANNED_ACCOUNT_IDS) from Vercel.
- * This can be later substituted with an external API call.
+ * Checks if an account (specified by address and chain type) is banned.
+ *
+ * Banned account intent IDs are stored as a JSON array under the Edge Config key
+ * `bannedAccountIds`, and managed via the Vercel Edge Config dashboard.
+ * Requires providing the `EDGE_CONFIG` environment variable (connection string).
  */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -22,8 +24,6 @@ export async function GET(request: Request) {
   }
 
   try {
-    // Map chainType string to AuthMethod enum
-    // ChainType enum values match AuthMethod values: "near", "evm", "solana", etc.
     const authMethod = chainType as AuthMethod
 
     const accountId = authIdentity.authHandleToIntentsUserId(
@@ -31,9 +31,7 @@ export async function GET(request: Request) {
       authMethod
     )
 
-    // Check against banned account IDs from environment variable
-    // TODO: Replace with external API call when available
-    const isBanned = accountId != null && BANNED_ACCOUNT_IDS.includes(accountId)
+    const isBanned = accountId != null && (await isAccountBanned(accountId))
 
     return Response.json({
       isBanned,
