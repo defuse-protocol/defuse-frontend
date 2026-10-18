@@ -95,6 +95,14 @@ describe("validateAddress", () => {
     expect(validateAddress(transparentAddress, "zcash")).toBe(true)
     expect(validateAddress(shieldedAddress, "zcash")).toBe(false)
     expect(validateAddress(unifiedAddress, "zcash")).toBe(false)
+    // zcash-test-vectors unified_address.json #27: a single Orchard receiver
+    const orchardUnifiedAddress =
+      "u1ddnjsdcpm36r6aq79n3s68shjweksnmwtdltrh046s8m6xcws9ygyawalxx8n6hg6vegk0wh8zjnafxgh6msppjsljvyt0ynece3lvm0"
+    expect(validateAddress(orchardUnifiedAddress, "zcash")).toBe(true)
+    // 69 characters: well-formed Bech32m, but a transparent receiver only
+    const transparentOnlyUnifiedAddress =
+      "u1zt8jctg466z3sa68p60yc332fyhg6zkg6e5d4c9he7xytx9ujvhs99rvt7qcxgmmgvg"
+    expect(validateAddress(transparentOnlyUnifiedAddress, "zcash")).toBe(false)
     expect(validateAddress(texAddress, "zcash")).toBe(true)
   })
 
