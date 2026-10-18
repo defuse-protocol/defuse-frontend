@@ -9,6 +9,7 @@ import {
 } from "ripple-address-codec"
 import type { SupportedChainName } from "../types/base"
 import { validateCardanoAddress } from "./addressValidation/cardano"
+import { validateZcashUnifiedAddress } from "./addressValidation/zcash"
 
 export function validateAddress(
   address: string,
@@ -132,6 +133,7 @@ function validateXrpAddress(address: string) {
  * Supports:
  * - Transparent addresses (t1, t3)
  * - TEX addresses (tex1)
+ * - Unified addresses (u1, ZIP-316)
  */
 function validateZcashAddress(address: string) {
   // Transparent address validation
@@ -155,14 +157,8 @@ function validateZcashAddress(address: string) {
   }
 
   // Unified address validation
-  const uaHrp = "u"
-  if (address.startsWith(`${uaHrp}1`)) {
-    try {
-      const decoded = bech32m.decodeToBytes(address)
-      return decoded.prefix === uaHrp
-    } catch {
-      return false
-    }
+  if (address.startsWith("u1")) {
+    return validateZcashUnifiedAddress(address)
   }
 
   return false
