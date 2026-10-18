@@ -116,10 +116,15 @@ function readCompactSize(
 const H_PERSONALIZATION = new TextEncoder().encode("UA_F4Jumble_H")
 const G_PERSONALIZATION = new TextEncoder().encode("UA_F4Jumble_G")
 
+/** Byte-wise XOR of `a` with `b`, the length of `a`. */
 function xor(a: Uint8Array, b: Uint8Array): Uint8Array {
   return a.map((byte, i) => byte ^ (b[i] ?? 0))
 }
 
+/**
+ * F4Jumble's H_i: BLAKE2b with a `length`-byte digest, personalized with
+ * "UA_F4Jumble_H" and the bytes i, 0, 0.
+ */
 function f4H(i: number, u: Uint8Array, length: number): Uint8Array {
   return blake2b(u, {
     dkLen: length,
@@ -127,6 +132,10 @@ function f4H(i: number, u: Uint8Array, length: number): Uint8Array {
   })
 }
 
+/**
+ * F4Jumble's G_i: 64-byte BLAKE2b blocks j = 0, 1, …, each personalized with
+ * "UA_F4Jumble_G", the byte i and j as 16-bit little-endian, cut to `length`.
+ */
 function f4G(i: number, u: Uint8Array, length: number): Uint8Array {
   const out = new Uint8Array(length)
   for (let j = 0; j * 64 < length; j++) {
