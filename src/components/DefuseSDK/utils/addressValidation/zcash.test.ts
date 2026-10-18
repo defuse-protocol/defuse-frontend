@@ -87,7 +87,7 @@ describe("validateZcashUnifiedAddress()", () => {
       "u1ddnjsdcpm36r6aq79n3s68shjweksnmwtdltrh046s8m6xcws9ygyawalxx8n6hg6vegk0wh8zjnafxgh6msppjsljvyt0ynece3lvmq",
     ],
     [
-      "the old 80-character example",
+      "the 78-character example in validateAddress.test.ts",
       "u1pv2h74qrlq9k9uqh6xk5p6vyzgvj84h6jedxg9e6hfhske3xjqf27f2qsm2qz4t3zqnll98t9n60",
     ],
     ["a transparent address", "t1XJD5btQc9qHHzywPS8xhPbs2hbXGXWLFq"],
